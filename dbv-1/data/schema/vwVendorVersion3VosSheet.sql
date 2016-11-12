@@ -1,8 +1,6 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `vwVendorVersion3VosSheet`(IN `p_AccountID` INT, IN `p_Trunks` LONGTEXT, IN `p_Effective` VARCHAR(50))
 BEGIN
 
-
-
 	DROP TEMPORARY TABLE IF EXISTS tmp_VendorVersion3VosSheet_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorVersion3VosSheet_(
 			RateID int,
@@ -18,7 +16,8 @@ BEGIN
 			`Billing Rate for Calling Card Prompt` float,
 			`Billing Cycle for Calling Card Prompt` INT,
 			AccountID int,
-			TrunkID int
+			TrunkID int,
+			EffectiveDate date
 	);
 	 Call vwVendorCurrentRates(p_AccountID,p_Trunks,p_Effective);	
 	 
@@ -58,7 +57,8 @@ SELECT
     0 AS `Billing Rate for Calling Card Prompt`,
     0 AS `Billing Cycle for Calling Card Prompt`,
     tblAccount.AccountID,
-    vendorRate.TrunkId
+    vendorRate.TrunkId,
+    vendorRate.EffectiveDate
 FROM tmp_VendorCurrentRates_ AS vendorRate
 INNER JOIN tblAccount 
     ON vendorRate.AccountId = tblAccount.AccountID
@@ -73,7 +73,5 @@ LEFT OUTER JOIN tblVendorBlocking AS blockCountry
 INNER JOIN tblTrunk
     ON tblTrunk.TrunkID = vendorRate.TrunkId
 WHERE (vendorRate.Rate > 0);
-
-
 
 END

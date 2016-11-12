@@ -30,6 +30,9 @@ table{
 }
 
 </style>
+<?php
+$RoundChargesAmount = get_round_decimal_places($Account->AccountID);
+?>
 <br/><br/><br/>
         <table border="0" width="100%" cellpadding="0" cellspacing="0">
             <tr>
@@ -87,13 +90,13 @@ table{
                 <td class="text-center">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
                 <td class="text-center">{{$ProductRow->Description}}</td>
                 <td class="text-center">{{$ProductRow->Qty}}</td>
-                <td class="text-center">{{number_format($ProductRow->Price,$AccountBilling->RoundChargesAmount)}}</td>
+                <td class="text-center">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
                 @if($Estimate->TotalDiscount >0)
                 <td class="text-center">{{$ProductRow->Discount}}</td>
                 @endif
-                <td class="text-center">{{number_format($ProductRow->LineTotal,$AccountBilling->RoundChargesAmount)}}</td>
+                <td class="text-center">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
                 {{--<td class="text-center">{{TaxRate::getTaxRate($ProductRow->TaxRateID)}}</td>--}}
-                <td class="text-center">{{number_format($ProductRow->TaxAmount,$AccountBilling->RoundChargesAmount)}}</td>
+                <td class="text-center">{{number_format($ProductRow->TaxAmount,$RoundChargesAmount)}}</td>
             </tr>
             @endif
             @endforeach
@@ -116,26 +119,26 @@ table{
                                                     <tfoot>
                                                         <tr>
                                                                 <td class="text-right"><strong>SubTotal</strong></td>
-                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$AccountBilling->RoundChargesAmount)}}</td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$RoundChargesAmount)}}</td>
                                                         </tr>
 
                                                         @if(count($EstimateTaxRates))
                                                             @foreach($EstimateTaxRates as $EstimateTaxRate)
                                                                 <tr>
                                                                     <td class="text-right"><strong>{{$EstimateTaxRate->Title}}</strong></td>
-                                                                    <td class="text-right">{{$CurrencySymbol}}{{number_format($EstimateTaxRate->TaxAmount,$AccountBilling->RoundChargesAmount)}}</td>
+                                                                    <td class="text-right">{{$CurrencySymbol}}{{number_format($EstimateTaxRate->TaxAmount,$RoundChargesAmount)}}</td>
                                                                 </tr>
                                                             @endforeach
                                                         @endif
                                                         @if($Estimate->TotalDiscount >0)
                                                         <tr>
                                                                 <td class="text-right"><strong>Discount</strong></td>
-                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalDiscount,$AccountBilling->RoundChargesAmount)}}</td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->TotalDiscount,$RoundChargesAmount)}}</td>
                                                         </tr>
                                                         @endif
                                                         <tr>
                                                                 <td class="text-right"><strong>Estimate Total</strong></td>
-                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$AccountBilling->RoundChargesAmount)}} </td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$RoundChargesAmount)}} </td>
                                                         </tr>
                                                     </tfoot>
                                                 </table>

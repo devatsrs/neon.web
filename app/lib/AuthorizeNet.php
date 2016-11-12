@@ -24,7 +24,7 @@ class AuthorizeNet {
 		if($AuthorizeData){	
 			$AUTHORIZENET_API_LOGIN_ID  	= 	isset($AuthorizeData->AuthorizeLoginID)?$AuthorizeData->AuthorizeLoginID:'';		
 			$AUTHORIZENET_TRANSACTION_KEY  	= 	isset($AuthorizeData->AuthorizeTransactionKey)?$AuthorizeData->AuthorizeTransactionKey:'';
-			$isSandbox						=	isset($AuthorizeDbData->AuthorizeTestAccount)?$AuthorizeDbData->AuthorizeTestAccount:'';
+			$isSandbox						=	isset($AuthorizeData->AuthorizeTestAccount)?$AuthorizeData->AuthorizeTestAccount:'';
 
 			define("AUTHORIZENET_API_LOGIN_ID", $AUTHORIZENET_API_LOGIN_ID);
 			define("AUTHORIZENET_TRANSACTION_KEY", $AUTHORIZENET_TRANSACTION_KEY);
@@ -267,6 +267,7 @@ class AuthorizeNet {
         $request = new \AuthorizeNetCIM();
         $transaction->amount = $amount;
         $transaction->customerProfileId = $options->ProfileID;
+        $transaction->order->invoiceNumber = $options->InvoiceNumber;
         $transaction->customerPaymentProfileId = $options->PaymentProfileID;
 
         $response = $request->createCustomerProfileTransaction("AuthCapture", $transaction);
@@ -275,7 +276,7 @@ class AuthorizeNet {
 		
         return $transactionResponse;
     }
-    public static function pay_invoice($data){
+    public function pay_invoice($data){
         $sale = new AuthorizeNetAIM;
         $sale->setFields(
             array(
@@ -283,6 +284,7 @@ class AuthorizeNet {
                 'card_num' => $data['CardNumber'],
                 'exp_date' => $data['ExpirationMonth'].'/'.$data['ExpirationYear'],
                 'card_code' => $data['CVVNumber'],
+                'invoice_num' => $data['InvoiceNumber'],
                 //'first_name' => $data['FirstName'],
                 //'last_name' => $data['LastName'],
                 //'address' => $data['Address'],
@@ -294,7 +296,8 @@ class AuthorizeNet {
 
             )
         );
-        $response = $sale->authorizeAndCapture(); Log::info($response);
+        $response = $sale->authorizeAndCapture();
+        //Log::info($response);
         return $response; 
     }
 }

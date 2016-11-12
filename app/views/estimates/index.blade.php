@@ -52,7 +52,7 @@
   <div  class="col-md-12">
     <div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-      <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+      <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
         @if(User::checkCategoryPermission('Invoice','Edit'))
         <li> <a class="delete_bulk" id="delete_bulk" href="javascript:;" > Delete </a> </li>
         @endif       
@@ -251,7 +251,9 @@ var postdata;
 							{                                
                                 action += '<li><a class="icon-left"  target="_blank" href="' + estimate_preview +'"><i class="entypo-pencil"></i>View </a></li>';
                             }
-							
+
+                            action += ' <li><a class="icon-left"  href="' + (baseurl + "/estimate/estimatelog/{id}").replace("{id}",full[5]) +'"><i class="entypo-pencil"></i>Log </a></li>';
+
 							if ('{{User::checkCategoryPermission('Invoice','Edit')}}' && delete_url)
 							{     
 								//if(full[4] != 'accepted')

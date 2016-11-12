@@ -12,13 +12,14 @@ class VendorAnalysisController extends BaseController {
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
-        $isAdmin = User::is_admin();
+        $isAdmin = 1;
         $UserID  = User::get_userID();
         $where['Status'] = 1;
         $where['VerificationStatus'] = Account::VERIFIED;
         $where['CompanyID']=User::get_companyID();
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
+            $isAdmin = 0;
         }
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $Country = Country::getCountryDropdownIDList();
@@ -44,6 +45,8 @@ class VendorAnalysisController extends BaseController {
             $query = "call prc_getVendorTrunkReportAll ";
         }elseif($data['chart_type'] == 'gateway') {
             $query = "call prc_getVendorGatewayReportAll ";
+        }elseif($data['chart_type'] == 'account') {
+            $query = "call prc_getVendorAccountReportAll ";
         }
         $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
         $query .= ",2)";
@@ -136,6 +139,9 @@ class VendorAnalysisController extends BaseController {
         }elseif($data['chart_type'] == 'gateway') {
             $columns = array('Gateway','CallCount','TotalMinutes','TotalCost','ACD','ASR');
             $query = "call prc_getVendorGatewayReportAll ";
+        }elseif($data['chart_type'] == 'account') {
+            $columns = array('AccountName','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $query = "call prc_getVendorAccountReportAll ";
         }
         $sort_column = $columns[$data['iSortCol_0']];
 

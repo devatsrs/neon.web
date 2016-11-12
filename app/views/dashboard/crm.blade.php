@@ -1,39 +1,44 @@
 @extends('layout.main')
 @section('content')
 
-<div class="row">
-  <div class="tab-content">
-    <div class="tab-pane active" id="customer" >
-      <div class="col-md-12">
-        <form novalidate class="form-horizontal form-groups-bordered filter validate" method="post" id="crm_dashboard">
-          <div data-collapsed="0" class="panel panel-primary">
-            <div class="panel-heading">
-              <div class="panel-title">
-                <h3> Filter</h3>
-              </div>
-              <div class="panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> </div>
-            </div>
-            <div class="panel-body white-bg">
-              <div class="form-group"> @if(User::is_admin())
-                <label class="col-sm-1 control-label" for="field-1">User</label>
-                <div class="col-sm-6"> {{Form::select('UsersID[]', $users, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-                @else
-                <input type="hidden" name="UsersID[]" value="{{User::get_userID()}}">
-                @endif
-                <label class="col-sm-1 control-label" for="field-1">Currency</label>
-                <div class="col-sm-2"> {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }} </div>
-              </div>
-              <p style="text-align: right;">
-                <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit"> <i class="entypo-search"></i> Search </button>
-              </p>
-            </div>
-          </div>
-        </form>
-      </div>
+    <div class="row">
+        <div id="customer" class="col-sm-12">
+            <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="crm_dashboard">
+                <div data-collapsed="0" class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            Filter
+                        </div>
+                        <div class="panel-options">
+                            <a data-rel="collapse" href="#">
+                                <i class="entypo-down-open"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group"> @if(User::is_admin())
+                                <label class="col-sm-1 control-label" for="field-1">User</label>
+                                <div class="col-sm-6"> {{Form::select('UsersID[]', $users, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+                            @else
+                                <input type="hidden" name="UsersID[]" value="{{User::get_userID()}}">
+                            @endif
+                            <label class="col-sm-1 control-label" for="field-1">Currency</label>
+                            <div class="col-sm-2"> {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }} </div>
+                        </div>
+                        <p style="text-align: right;">
+                            <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit"> <i class="entypo-search"></i> Search </button>
+                        </p>
+                    </div>
+                </div>
+            </form>
+        </div>
+
     </div>
-  </div>
-</div>
-<?php if(User::checkCategoryPermission('CrmDashboardTasks','View')){?>
+<?php
+if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardTasks',$CrmAllowedReports))
+{
+if(User::checkCategoryPermission('CrmDashboardTasks','View')){ ?>
+
 <div class="row">
   <div class="col-sm-12">
     <div class="panel panel-primary panel-table">
@@ -62,8 +67,11 @@
     </div>
   </div>
 </div>
-<?php }  ?>
-    <?php if(User::checkCategoryPermission('CrmDashboardRecentAccount','View')){?>
+<?php } }  ?>
+    <?php
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardRecentAccount',$CrmAllowedReports))
+	{
+	 if(User::checkCategoryPermission('CrmDashboardRecentAccount','View')){?>
     <div class="row">
     <div class="col-sm-12">
             <div class="panel panel-primary panel-table">
@@ -80,7 +88,8 @@
                     </div>
                 </div>
                 <div class="panel-body white-bg">
-                    <table id="accounts" class="table table-responsive">
+                    <div class="dataTables_wrapper">
+                        <table id="accounts" class="table table-responsive">
                         <thead>
                         <tr>
                             <th >Account Name</th>
@@ -94,6 +103,7 @@
                         <tbody>
                         </tbody>
                     </table>
+                    </div>
                     <?php if(User::checkCategoryPermission('Account','View')){?>
                     <div class="text-right">
                         <a href="{{URL::to('/accounts')}}" class="btn btn-primary text-right">View All</a>
@@ -103,10 +113,14 @@
             </div>
     </div>
     </div>
-    <?php }
+    <?php } }
     ?>
 
 <div class="row">
+<?php
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardSalesOpportunity',$CrmAllowedReports))
+	{
+ ?>
 @if(User::checkCategoryPermission('CrmDashboardSalesOpportunity','View'))
   <div class="col-md-6">
     <div class="panel panel-primary panel-table">
@@ -138,6 +152,11 @@
     </div>
   </div>
   @endif 
+  <?php } ?>
+  <?php
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardPipeline',$CrmAllowedReports))
+	{
+ ?>
   @if(User::checkCategoryPermission('CrmDashboardPipeline','View'))
   <div class="col-sm-6">
     <div class="panel panel-primary panel-table">
@@ -156,7 +175,12 @@
     </div>
   </div>
 @endif 
+<?php } ?>
 </div>
+<?php
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardForecast',$CrmAllowedReports))
+	{
+ ?>
  @if(User::checkCategoryPermission('CrmDashboardForecast','View'))
 <div class="row">
   <div class="col-md-12">
@@ -186,6 +210,10 @@
   </div>
 </div>
 @endif 
+<?php } 
+	if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardSalesRevenue',$CrmAllowedReports))
+	{
+ ?>
  @if(User::checkCategoryPermission('CrmDashboardSalesRevenue','View'))
 <div class="row">
 <div class="col-sm-12">
@@ -216,6 +244,10 @@
     </div>
 </div>
 @endif 
+<?php } 
+if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardOpportunities',$CrmAllowedReports))
+{
+ ?>
  @if(User::checkCategoryPermission('CrmDashboardOpportunities','View'))
 <div class="row">
   <div class="col-sm-12">
@@ -250,52 +282,55 @@
 </div>
 </div>
 @endif 
+<?php } ?>
 <div class="salestable_div"> </div>
 <script>
 var pageSize = '{{Config::get('app.pageSize')}}';
-@if(User::checkCategoryPermission('Task','Edit')) 
+
+@if(User::checkCategoryPermission('Task','Edit'))
 var task_edit = 1;
 @else 
 var task_edit = 0;
 @endif;
 
-@if(User::checkCategoryPermission('Opportunity','Edit')) 
+
+@if(User::checkCategoryPermission('Opportunity','Edit'))
 var Opportunity_edit = 1;
 @else 
 var Opportunity_edit = 0;
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardSalesOpportunity','View')) 
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardSalesOpportunity',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardSalesOpportunity','View')))
 var CrmDashboardSalesOpportunity = 1;
 @else 
 var CrmDashboardSalesOpportunity = 0;
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardPipeline','View')) 
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardPipeline',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardPipeline','View')))
 var CrmDashboardPipeline = 1;
 @else 
 var CrmDashboardPipeline = 0;
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardForecast','View')) 
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardForecast',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardForecast','View')))
 var CrmDashboardForecast = 1;
 @else 
 var CrmDashboardForecast = 0;
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardOpportunities','View')) 
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardOpportunities',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardOpportunities','View')))
 var CrmDashboardOpportunities = 1;
 @else 
 var CrmDashboardOpportunities = 0; 
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardRecentAccount','View'))
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardRecentAccount',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardRecentAccount','View')))
 var CrmDashboardAccount = 1;
 @else 
 var CrmDashboardAccount = 0;
 @endif;
 
-@if(User::checkCategoryPermission('CrmDashboardTasks','View'))
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardTasks',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardTasks','View')))
 var CrmDashboardTasks = 1;
 @else 
 var CrmDashboardTasks = 0;
@@ -306,14 +341,14 @@ var CrmDashboardTasks = 0;
 var TaskBoardID = '{{$TaskBoard[0]->BoardID}}';
 
 var opportunitystatus = JSON.parse('{{json_encode(Opportunity::$status)}}');
-var OpportunityClose =  '{{Opportunity::Close}}';
-@if(User::checkCategoryPermission('CrmDashboardSalesRevenue','View')) 
+var OpportunityClose =  '{{Opportunity::Close}}'; 
+@if(((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardSalesRevenue',$CrmAllowedReports)) && (User::checkCategoryPermission('CrmDashboardSalesRevenue','View')))
 var RevenueReport = 1;
 @else 
 var RevenueReport = 0;
 @endif;
 </script> 
-<script src="https://code.highcharts.com/highcharts.js"></script> 
+<script src="{{ URL::asset('assets/js/highcharts.js') }}"></script> 
 <script src="{{ URL::asset('assets/js/reports_crm.js') }}"></script> 
 <style>
 #taskGrid > tbody > tr:hover,#opportunityGrid  > tbody > tr:hover{background:#ccc; cursor:pointer;} 
@@ -398,13 +433,18 @@ var RevenueReport = 0;
 		width:38px;
 	}
 	.click_revenue_diagram{
-		cursor:pointer;
+		cursor:pointer !important; 
 		text-decoration:underline;
 		font-weight:bold;
+		pointer-events:auto !important;
 	}
 	.panel-heading{
 	border:none !important;
 	}
+    #customer .panel-heading{
+        border-bottom:1px solid transparent !important;
+        border-color:#ebebeb !important;
+    }
 </style>
 @stop
 @section('footer_ext')
@@ -454,7 +494,7 @@ var RevenueReport = 0;
                   <div class="input-group" style="width: 100%;">
                     <div class="input-group-addon" style="padding: 0px; width: 85px;">
                       <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
-                      {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"selectboxit"))}} </div>
+                      {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"select2 small"))}} </div>
                     <input type="text" name="FirstName" class="form-control" id="field-5">
                   </div>
                 </div>
@@ -495,13 +535,13 @@ var RevenueReport = 0;
             <div class="col-md-6 margin-top-group pull-right">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Status</label>
-                <div class="col-sm-8 input-group"> {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"selectboxit"))}} </div>
+                <div class="col-sm-8 input-group"> {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"select2 small"))}} </div>
               </div>
             </div>
             <div class="col-md-6 margin-top pull-left">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Select Board*</label>
-                <div class="col-sm-8"> {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}} </div>
+                <div class="col-sm-8"> {{Form::select('BoardID',$boards,'',array("class"=>"select2 small"))}} </div>
               </div>
             </div>
             <div class="col-md-6 margin-top pull-right">
@@ -580,7 +620,7 @@ var RevenueReport = 0;
             <div class="col-md-6 margin-top pull-left">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Task Status *</label>
-                <div class="col-sm-8"> {{Form::select('TaskStatus',$taskStatus,'',array("class"=>"selectboxit"))}} </div>
+                <div class="col-sm-8"> {{Form::select('TaskStatus',$taskStatus,'',array("class"=>"select2 small"))}} </div>
               </div>
             </div>
             <div class="col-md-6 margin-top pull-right">

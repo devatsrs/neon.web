@@ -243,7 +243,7 @@ BEGIN
       FROM tmp_InvoiceOutWithDisputes 
       INNER JOIN NeonRMDev.tblAccount on tblAccount.AccountID = p_accountID
       INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = tblAccount.AccountID
-      INNER JOIN tblInvoiceTemplate  on ab.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
+      -- INNER JOIN tblInvoiceTemplate  on ab.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
       LEFT JOIN tmp_Payments
       ON tmp_Payments.PaymentType = 'Payment In' AND  tmp_Payments.InvoiceNo != '' AND 
       tmp_Payments.InvoiceID = tmp_InvoiceOutWithDisputes.InvoiceOut_InvoiceID
@@ -349,7 +349,7 @@ BEGIN
       FROM tmp_InvoiceInWithDisputes 
       INNER JOIN NeonRMDev.tblAccount on tblAccount.AccountID = p_accountID
       INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = tblAccount.AccountID
-      INNER JOIN tblInvoiceTemplate  on ab.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
+      -- INNER JOIN tblInvoiceTemplate  on ab.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
       LEFT JOIN tmp_Payments ON tmp_Payments.PaymentType = 'Payment Out' AND tmp_InvoiceInWithDisputes.InvoiceIn_InvoiceNo = tmp_Payments.InvoiceNo 
       
       UNION ALL

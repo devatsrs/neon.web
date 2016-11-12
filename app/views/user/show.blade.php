@@ -66,13 +66,23 @@
                         {
                             "bSortable": true,
                             mRender: function(id, type, full) {
+                                id = full[6];
                                 var action, edit_, show_;
                                 edit_ = "{{ URL::to('users/edit/{id}')}}";
                                 edit_ = edit_.replace('{id}', id);
                                 action =  '';
+                                if (full[5] == "1") {
+                                    active_ = "{{ URL::to('/users/{id}/job_notification/0')}}";
+                                    notification_link = ' <button href="' + active_ + '" title="Job Notification" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If enabled, system will notify you by email about Job status." data-original-title="Notification"  class="btn change_notification btn-success btn-sm popover-primary" data-loading-text="Loading..."><i class="glyphicon glyphicon-time"></i></button>';
+                                } else {
+                                    active_ = "{{ URL::to('/users/{id}/job_notification/1')}}";
+                                    notification_link = ' <button href="' + active_ + '"  title="Job Notification"  data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If enabled, system will notify you by email about Job status." data-original-title="Notification"  class="btn change_notification btn-danger btn-sm popover-primary" data-loading-text="Loading..."><i class="glyphicon glyphicon-time"></i></button>';
+                                }
                                 <?php if(User::checkCategoryPermission('Users','Edit')){ ?>
                                     action = '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                 <?php } ?>
+                                notification_link = notification_link.replace('{id}', id);
+                                action += notification_link;
                                 return action;
                             }
                         },
@@ -92,6 +102,26 @@
                         sButtonClass: "save-collection btn-sm"
                     }
                 ]
+            },
+            "fnDrawCallback": function() {
+                $('#table-4 .popover-primary').each(function(i, el) {
+                    var $this = $(el),
+                            placement = attrDefault($this, 'placement', 'right'),
+                            trigger = attrDefault($this, 'trigger', 'click'),
+                            popover_class = $this.hasClass('popover-secondary') ? 'popover-secondary' : ($this.hasClass('popover-primary') ? 'popover-primary' : ($this.hasClass('popover-default') ? 'popover-default' : ''));
+
+                    $this.popover({
+                        placement: placement,
+                        trigger: trigger
+                    });
+
+                    $this.on('shown.bs.popover', function(ev)
+                    {
+                        var $popover = $this.next();
+
+                        $popover.addClass(popover_class);
+                    });
+                });
             }
 
         });
@@ -126,6 +156,36 @@
         $(".pagination a").click(function(ev) {
             replaceCheckboxes();
         });
+
+        $(document).on('click','.change_notification',function (e) {
+            $(this).button('loading');
+            $.ajax({
+                url: $(this).attr("href"),
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    $(this).button('reset');
+                    if (response.status == 'success') {
+                        toastr.success(response.message, "Success", toastr_opts);
+                        if ($('#UserStatus').is(":checked")) {
+                            data_table.fnFilter(1, 0);  // 1st value 2nd column index
+                        } else {
+                            data_table.fnFilter(0, 0);
+                        }
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },
+                // Form data
+                //data: {},
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+            return false;
+        });
+
+
     });
 
 </script>

@@ -58,6 +58,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/customers_rates/inboundrate', 'RateCustomerController@inboundrate');
 	Route::any('customer/customers_rates/{id}/search_inbound_ajax_datagrid/{type}', 'RateCustomerController@search_inbound_ajax_datagrid');
 
+	//notification
+	Route::any('customer/notification', 'NotificationCustomerController@index');
+	Route::any('/customer/alert/ajax_datagrid/{type}','NotificationCustomerController@ajax_datagrid');
+	Route::any('/customer/alert/store','NotificationCustomerController@store');
+	Route::any('/customer/alert/update/{id}','NotificationCustomerController@update');
+	Route::any('/customer/alert/delete/{id}','NotificationCustomerController@delete');
+
     //Role
     Route::any('/roles', array("as" => "users", "uses" => "RoleController@index"));
     Route::any('/roles/storerole', "RoleController@storerole");
@@ -86,11 +93,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
 	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
     Route::any('/users/tracker', 'UsersController@view_tracker');
+    Route::any('/users/{id}/job_notification/{status}', 'UsersController@job_notification')->where('status', '(.[09]*)+');
 
 
 	//DashBoard
     Route::get('/process_redirect',"HomeController@process_redirect");
 	Route::get('/dashboard', array("as" => "dashboard", "uses" => "DashboardController@home"));
+	Route::get('/rmdashboard', "DashboardController@rmdashboard");
 	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
 	Route::post('/dashboard/GetUsersTasks', "DashboardController@GetUsersTasks");	
@@ -103,7 +112,7 @@ Route::group(array('before' => 'auth'), function () {
 	
 	
 	
-	Route::any('/monitor', "DashboardController@monitor_dashboard");
+	Route::any('/monitor', array('as' => 'monitor', 'uses' => 'DashboardController@monitor_dashboard'));
 	Route::any('/crmdashboard', "DashboardController@CrmDashboard");
     Route::any('/dashboard/ajax_get_recent_due_sheets', "DashboardController@ajax_get_recent_due_sheets");
     Route::any('/dashboard/ajax_get_recent_leads', "DashboardController@ajax_get_recent_leads");
@@ -147,6 +156,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('codedecks/base_datagrid', 'CodeDecksController@base_datagrid');
 	Route::any('codedecks/basecodedeck/{id}', 'CodeDecksController@basecodedeck');
 	Route::any('codedecks/updatecodedeck/{id}', 'CodeDecksController@updatecodedeck');
+	Route::any('codedecks/setdefault/{id}', 'CodeDecksController@setdefault');
 	Route::any('codedecks/{id}/base_delete', 'CodeDecksController@base_delete');
 	Route::any('codedecks/base_exports/{type}', 'CodeDecksController@base_exports');
 	Route::resource('codedecks', 'CodeDecksController');
@@ -159,7 +169,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
 	Route::post('/accounts/{id}/ajax_conversations', 'AccountsController@AjaxConversations');
-	
 
 	Route::post('/account/upload_file', 'AccountsController@uploadFile');
 	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@deleteUploadFile');
@@ -229,7 +238,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/{id}/activities/store', 'AccountActivityController@store');
     Route::any('accounts/{id}/activities/{activity_id}/update', 'AccountActivityController@update')->where('activity_id', '(.[09]*)+');
     Route::any('accounts/{id}/activities/{activity_id}/delete', 'AccountActivityController@delete')->where('activity_id', '(.[09]*)+');
-
+	
 
     //Account email log
     Route::any('accounts/{id}/activities/ajax_datagrid_email_log', 'AccountActivityController@ajax_datagrid_email_log');
@@ -238,6 +247,8 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('accounts/{id}/activities/{log_id}/view_email_log', 'AccountActivityController@view_email_log')->where('log_id', '(.[09]*)+');
     Route::any('accounts/{id}/activities/{log_id}/delete_email_log', 'AccountActivityController@delete_email_log')->where('activity_id', '(.[09]*)+');
     Route::any('emails/{id}/getattachment/{attachmentID}', 'AccountActivityController@getAttachment');
+	Route::any('emails/{id}/getreplyattachment/{attachmentID}', 'AccountActivityController@GetReplyAttachment');
+	Route::post('emails/email_action', 'AccountActivityController@EmailAction');
 
 
     Route::any('/accounts/{id}/convert', array('as' => 'accounts_convert', 'uses' => 'AccountsController@convert'));
@@ -246,6 +257,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Integration
 	Route::any('/integration',  'IntegrationController@index');
 	Route::any('/integration/update',  'IntegrationController@Update');
+	Route::any('/integration/checkimapconnection',  'IntegrationController@CheckImapConnection');
 	
 
 	//import account
@@ -257,6 +269,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/account/ajax_get_missing_gatewayaccounts',  'ImportsController@ajax_get_missing_gatewayaccounts');
 	Route::any('/import/account/download_sample_excel_file',  'ImportsController@download_sample_excel_file');
 	Route::any('/import/account/add_missing_gatewayaccounts',  'ImportsController@add_missing_gatewayaccounts');
+	Route::any('/import/account/getAccountInfoFromQuickbook',  'ImportsController@getAccountInfoFromQuickbook');
+	Route::any('/import/account/ajax_get_missing_quickbookaccounts',  'ImportsController@ajax_get_missing_quickbookaccounts');
+	Route::any('/import/account/add_missing_quickbookaccounts',  'ImportsController@add_missing_quickbookaccounts');
 
 	//import leads
 	Route::any('/import/leads',  'ImportsController@import_leads');
@@ -283,6 +298,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('email_template/{id}/edit', 'EmailTemplateController@edit');
     Route::any('email_template/{id}/delete', 'EmailTemplateController@delete');
     Route::any('email_template/store', 'EmailTemplateController@store');
+    Route::any('email_template/storetemplate', 'EmailTemplateController@storetemplate');
 	Route::any('email_template/ajax_datagrid', 'EmailTemplateController@ajax_datagrid');
 	Route::any('email_template/exports/{type}', 'EmailTemplateController@exports');
 
@@ -425,7 +441,39 @@ Route::group(array('before' => 'auth'), function () {
 
 	Route::resource('jobs', 'JobsController');
 	Route::controller('jobs', 'JobsController');
-
+	
+	//email msgs
+	Route::any('loadDashboardMsgsDropDown', 'MessagesController@loadDashboardMsgsDropDown');
+	Route::any('/emailmessages', 'MessagesController@index');
+	Route::any('/emailmessages/ajax_datagrid', array('as' => 'jobs_dg', 'uses' => 'MessagesController@ajax_datagrid'));
+	Route::any('/emailmessages/{id}/show', array('as' => 'jobs_view', 'uses' => 'MessagesController@show'));
+	Route::any('/emailmessages/ajex_result','MessagesController@ajex_result'); 
+	Route::any('/emailmessages/{id}/detail', array('as' => 'jobs_view', 'uses' => 'MessagesController@detail'));
+	Route::any('/emailmessages/sent','MessagesController@SentBox');	
+	Route::any('/emailmessages/draft','MessagesController@Draft');
+	Route::any('/emailmessages/compose','MessagesController@Compose');
+	Route::any('/emailmessages/SendMail','MessagesController@SendMail');
+	Route::any('emailmessages/{id}/compose','MessagesController@Compose');
+	Route::any('/emailmessages/ajax_action','MessagesController@Ajax_Action');
+	
+	
+	//Ticekts
+	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
+	Route::any('/ticketgroups', array('as' => 'ticketgroups', 'uses' => 'TicketsController@TicketGroups'));
+	Route::any('/ticketgroups/add', "TicketsController@addGroups");
+	Route::any('/ticketgroups/store', "TicketsController@StoreGroups");
+	Route::any('/ticketgroups/ajax_datagrid_groups', "TicketsController@ajax_datagrid_groups");
+	Route::any('ticketgroups/ajax_datagrid_groups/{type}', 'TicketsController@ajax_datagrid_groups');
+	
+	
+	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
+	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
+	Route::any('/users/exports/{type}', 'UsersController@exports');
+	Route::any('users/ajax_datagrid/{type}', 'UsersController@ajax_datagrid');
+	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
+	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
+    Route::any('/users/tracker', 'UsersController@view_tracker');*/
+	
 	//RateGenerator
 	Route::any('/rategenerators', array('as' => 'rategenerator_list', 'uses' => 'RateGeneratorsController@index'));
 	Route::any('/rategenerators/ajax_datagrid', array('as' => 'rategenerator_ajax_datagrid', 'uses' => 'RateGeneratorsController@ajax_datagrid'));
@@ -679,6 +727,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/estimate/download_doc_file/{id}', 'EstimatesController@download_doc_file');
 	Route::any('/estimate/sageExport', 'EstimatesController@sageExport');
 	Route::any('/estimate/getEstimateDetail', 'EstimatesController@getEstimateDetail');
+	Route::any('/estimate/estimatelog/{id}', 'EstimatesController@estimatelog');
+	Route::any('/estimate/ajax_estimatelog_datagrid/{id}/{type}', 'EstimatesController@ajax_estimatelog_datagrid');
 	///////////////////////////
 
 	//Invoice
@@ -702,6 +752,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/invoice_log/{id}', 'TransactionLogController@log');
     Route::any('/invoice_log/ajax_datagrid/{id}/{type}', 'TransactionLogController@ajax_datagrid');
     Route::any('/invoice_log/ajax_invoice_datagrid/{id}/{type}', 'TransactionLogController@ajax_invoice_datagrid');
+    Route::any('/invoice_log/ajax_payments_datagrid/{id}/{type}', 'TransactionLogController@ajax_payments_datagrid');
     Route::any('/invoice/generate', 'InvoicesController@generate');
 	Route::any('/invoice/ajax_datagrid/{type}', 'InvoicesController@ajax_datagrid');
 	Route::any('/invoice/ajax_datagrid_total', 'InvoicesController@ajax_datagrid_total');
@@ -715,6 +766,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
     Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
+	Route::any('/invoice/invoice_quickbookpost', 'InvoicesController@invoice_quickbookpost');
 
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
@@ -954,6 +1006,34 @@ Route::group(array('before' => 'auth'), function () {
 	//Account Discount Plan
 	Route::any('/account/used_discount_plan/{id}', 'AccountDiscountController@discount_plan');
 
+	// Billing Class
+	Route::any('/billing_class','BillingClassController@index');
+	Route::any('/billing_class/ajax_datagrid','BillingClassController@ajax_datagrid');
+	Route::any('/billing_class/create','BillingClassController@create');
+	Route::any('/billing_class/store','BillingClassController@store');
+	Route::any('/billing_class/edit/{id}','BillingClassController@edit');
+	Route::any('/billing_class/update/{id}','BillingClassController@update');
+	Route::any('/billing_class/delete/{id}','BillingClassController@delete');
+	Route::any('/billing_class/getInfo/{id}','BillingClassController@getInfo');
+
+	Route::any('/quickbook', 'QuickBookController@index');
+	Route::any('/quickbook/disconnect', 'QuickBookController@disconnect');
+	Route::any('/quickbook/addcustomer', 'QuickBookController@addCustomer');
+	Route::any('/quickbook/oauth', 'QuickBookController@quickbookoauth');
+	Route::any('/quickbook/success', 'QuickBookController@success');
+	Route::any('/quickbook/customers', 'QuickBookController@getAllCustomer');
+	Route::any('/quickbook/items', 'QuickBookController@getAllItems');
+	Route::any('/quickbook/createitem', 'QuickBookController@createItem');
+	Route::any('/quickbook/createJournal', 'QuickBookController@createJournal');
+
+	// all alert
+	Route::any('/alert/ajax_datagrid/{type}','NotificationController@qos_ajax_datagrid');
+	Route::any('/alert/store','NotificationController@qos_store');
+	Route::any('/alert/update/{id}','NotificationController@qos_update');
+	Route::any('/alert/delete/{id}','NotificationController@qos_delete');
+	Route::any('/alert/history','NotificationController@history');
+	Route::any('/alert/history_grid/{type}','NotificationController@history_grid');
+
 });
 
 Route::group(array('before' => 'global_admin'), function () {
@@ -986,40 +1066,47 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/doRegistration', "HomeController@doRegistration");
     Route::get('/super_admin', "HomeController@home");
     Route::get('/l/{id}', function($id){
-        $user = User::find($id);
-        $redirect_to = URL::to('/process_redirect');
-        if(!empty($user) ){
-        create_site_configration_cache();
-        Auth::login($user);
-        if(NeonAPI::login_by_id($id)) {
-            User::setUserPermission();
-            Session::set("admin", 1);
-            return Redirect::to($redirect_to);
-        }else{			
-            Session::flush();
-            Auth::logout();
-            echo json_encode(array("login_status" => "invalid"));
-            return;
-        }
-    }
-    exit;
+		$user = User::find($id);
+		$redirect_to = URL::to('/process_redirect');
+		if(!empty($user) ){
+		create_site_configration_cache();
+		Auth::login($user);
+		if(NeonAPI::login_by_id($id)) {
+			User::setUserPermission();
+			Session::set("admin", 1);
+			return Redirect::to($redirect_to);
+		}else{
+			Session::flush();
+			Auth::logout();
+			echo json_encode(array("login_status" => "invalid"));
+			return;
+		}
+	}
+	exit;
     });
     Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
     //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');
     Route::any('/invoice/{id}/cdownload_usage', 'InvoicesController@cdownloadUsageFile');
     Route::any('/invoice/display_invoice/{id}', 'InvoicesController@display_invoice');
     Route::any('/invoice/download_invoice/{id}', 'InvoicesController@download_invoice');
-    Route::any('/invoice_payment/{id}', 'InvoicesController@invoice_payment'); //Customer payment View
+	Route::any('/invoice_payment/{id}/{type}', 'InvoicesController@invoice_payment'); //Customer payment View
     Route::any('/pay_invoice', 'InvoicesController@pay_invoice'); //Customer payment pay
+	Route::any('/stripe_payment', 'InvoicesController@stripe_payment'); //Customer payment with stripe
     Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
-	
+    Route::any('/paypal_ipn/{id}', 'InvoicesController@paypal_ipn'); //Payment response by paypal.
+    Route::any('/paypal_cancel/{id}', 'InvoicesController@paypal_cancel'); //Payment response by paypal.
+
 	#estimate
 	Route::any('/estimate/{id}/cview', 'EstimatesController@cview'); //Customer View
 	Route::any('/estimate/display_estimate/{id}', 'EstimatesController@display_estimate');
 	Route::any('/estimate/{id}/estimate_email', 'EstimatesController@estimate_email');
 	
 	Route::any('/estimate/{id}/convert_estimate', 'EstimatesController@convert_estimate');
-	
+	Route::any('/estimate/{id}/customer_accept_estimate', 'EstimatesController@customer_accept_estimate');
+	Route::any('/estimate/estimate_reject_Status', 'EstimatesController@estimate_reject_Status');
+	Route::any('/estimate/{id}/estimate_comment', 'EstimatesController@estimate_comment');
+	Route::any('/estimate/{id}/create_comment', 'EstimatesController@create_comment');
+
 	Route::any('/estimate/download_estimate/{id}', 'EstimatesController@download_estimate');
 
 });

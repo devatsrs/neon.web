@@ -11,19 +11,20 @@
         <i class="entypo-floppy"></i>
         Back
     </a>
-
-
 </div>
-
-<ul class="nav nav-tabs bordered">
-    <!-- available classes "bordered", "right-aligned" -->
-    <li class="active  "><a href="{{URL::to('/rate_tables/'.$id.'/view')}}"> <span
-                class="hidden-xs">Rate</span>
-        </a></li>
-    <li><a href="{{URL::to('/rate_tables/'.$id.'/upload')}}"> <span
-                    class="hidden-xs">Upload Rates</span>
-        </a></li>
-</ul>
+<div class="row">
+    <div class="col-md-12">
+        <ul class="nav nav-tabs bordered">
+            <!-- available classes "bordered", "right-aligned" -->
+            <li class="active  "><a href="{{URL::to('/rate_tables/'.$id.'/view')}}"> <span
+                        class="hidden-xs">Rate</span>
+                </a></li>
+            <li><a href="{{URL::to('/rate_tables/'.$id.'/upload')}}"> <span
+                            class="hidden-xs">Upload Rates</span>
+                </a></li>
+        </ul>
+    </div>
+</div>
 
 <div class="row">
     <div class="col-md-12">

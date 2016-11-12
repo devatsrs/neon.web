@@ -377,6 +377,7 @@ var postdata;
             Codedecks[i++] = Codedeck;
         });
         if(Codedecks.length){
+            $("#bulk-edit-codedeck-form [name='CountryID']").select2().select2('val','');
             $('#bulk-edit-codedeck-form').trigger("reset");
             $('#modal-Codedeck').modal('show', {backdrop: 'static'});
         }

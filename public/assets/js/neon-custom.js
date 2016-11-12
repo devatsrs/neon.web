@@ -416,7 +416,14 @@ toastr_opts = {
                 $popover.addClass(popover_class);
             });
         });
-
+        $("body").tooltip({
+            selector: '[data-toggle="tooltip"]'
+        });
+		$('[data-toggle="tooltip"]').click(function() {
+            $('.tooltip').fadeOut('fast', function() {
+                $('.tooltip').remove();
+            });
+        });
         $('[data-toggle="tooltip"]').each(function(i, el)
         {
             var $this = $(el),
@@ -646,28 +653,42 @@ toastr_opts = {
         {
             $(".select2").each(function(i, el)
             {
-                var $this = $(el),
-                    opts = {
-                        allowClear: attrDefault($this, 'allowClear', false)
-                    };
-
-                $this.select2(opts);
-                $this.addClass('visible');
-
-                //$this.select2("open");
+                buildselect2(el);
+            }).promise().done(function(){
+                $('.select2').css('visibility','visible');
             });
-
 
             if ($.isFunction($.fn.perfectScrollbar))
             {
-                $(".select2-results").niceScroll({
-                    cursorcolor: '#d4d4d4',
-                    cursorborder: '1px solid #ccc',
-                    railpadding: {right: 3}
-                });
+                nicescroll();
             }
+
         }
 
+        function formatState (state) {
+            console.log(state);
+            if (!state.id) { return state.text; }
+            var $state = $(
+                '<span><img src="vendor/images/flags/' + state.element.value.toLowerCase() + '.png" class="img-flag" /> ' + state.text + '</span>'
+            );
+            return $state;
+        };
+
+        function addUserPic (opt) {
+            console.log(opt);
+            if (!opt.id) {
+                return opt.text;
+            }
+            var optimage = $(opt.element).data('image');
+            if(!optimage){
+                return opt.text;
+            } else {
+                var $opt = $(
+                    '<span class="userName"><i class="entypo-plus"></i>' + $(opt.element).text() + '</span>'
+                );
+                return $opt;1
+            }
+        };
 
 
 
@@ -1554,6 +1575,41 @@ toastr_opts = {
 
 
 /* Functions */
+
+function buildselect2(el){
+    var $this = $(el),
+        opts = {
+            allowClear: attrDefault($this, 'allowClear', false),
+            formatResult: function(item) {
+                if(item.id=='select2-add'){
+                    return '<span class="select2-add" data-parent="'+$(item).attr('name')+'"><i class="entypo-plus-circled"></i>'+item.text+'</span>';
+                }
+                return '<span class="select2-match"></span>'+ item.text ;
+            }
+        };
+    if($this.hasClass('small')){
+        opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
+        opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search');
+    }
+    if($this.hasClass('select2add')){
+        $this.prepend('<option data-image="1" value="select2-add" disabled="disabled">Add</option>');
+    }
+
+    $this.select2(opts);
+    if($this.hasClass('small')){
+        $this.select2('container').find('.select2-search').addClass ('hidden') ;
+    }
+}
+
+function nicescroll(){
+    $(".select2-results").niceScroll({
+        cursorcolor: '#d4d4d4',
+        cursorborder: '1px solid #ccc',
+        railpadding: {right: 3}
+    });
+}
+
+
 function fit_main_content_height()
 {
     var $ = jQuery;
@@ -1565,13 +1621,15 @@ function fit_main_content_height()
 
         if (isxs())
         {
-            if (typeof reset_mail_container_height != 'undefined')
-                reset_mail_container_height();
-            return;
+            public_vars.$sidebarMenu.css('display','block');
+            public_vars.$mainContent.css('display','inherit');
 
             if (typeof fit_calendar_container_height != 'undefined')
                 reset_calendar_container_height();
             return;
+        }else{
+            public_vars.$sidebarMenu.css('display','table-cell');
+            public_vars.$mainContent.css('display','table-cell');
         }
 
         var sm_height = public_vars.$sidebarMenu.outerHeight(),
@@ -2321,6 +2379,23 @@ function showJobAjaxModal(id)
         }
     });
 }
+
+function showEmailMessageAjaxModal(id)
+{
+    jQuery('#modal-mailmsg').modal('show', {backdrop: 'static'});
+
+    jQuery('#modal-mailmsg .modal-body').html("Content is loading...");
+    $.ajax({
+        url: baseurl + "/emailmessages/" + id + "/show",
+        success: function(response)
+        {
+            jQuery('#modal-mailmsg .modal-body').html(response);
+            jobID = id;
+            jobRead(jobID);
+
+        }
+    });
+}
 function showAjaxModal(ajaxurl, modalID)
 {
     modalID = '#' + modalID;
@@ -2443,6 +2518,15 @@ bindResetCounter = function(){
     });
 }
 
+bindResetCounterEmailMsgs = function(){
+    $('.dropdown-toggle.msgs').on('click', function (e) {
+        /* Load Data only when Dropdown open */
+        if(!$(this).parent().hasClass("open")){
+            reloadMsgDrodown(1);
+        }
+    });
+}
+
 /*
  * Reset the new job Alert Counter to 0
  * */
@@ -2480,14 +2564,40 @@ reloadJobsDrodown = function(reset){
             bindResetCounter();
         });
     }
+	
 };
 try{
-    setTimeout(function(){ reloadJobsDrodown(0); }, 2000);
+    setTimeout(function(){ reloadJobsDrodown(0); reloadMsgDrodown(0); }, 2000);
     bindResetCounter();
+	bindResetCounterEmailMsgs();
 }catch(er){
 
 }
 
+
+reloadMsgDrodown = function(reset){
+	 if(customer[0].customer!=1){
+        $.get( baseurl + "/loadDashboardMsgsDropDown?reset="+reset, function( data ) {
+
+            $( ".notifications.msgs.dropdown" ).html( data );
+
+            //Add Scroller
+            if ($.isFunction($.fn.niceScroll))
+            {
+                public_vars.$body.find('.dropdown .scroller').niceScroll({
+                    cursorcolor: '#d4d4d4',
+                    cursorborder: '1px solid #ccc',
+                    railpadding: {right: 3},
+                    cursorborderradius: 1,
+                    autohidemode: true,
+                    sensitiverail: true
+                });
+            }
+			bindResetCounterEmailMsgs();
+        });		
+    }
+	
+};
 
 /*
  * Ajax: Job Read
@@ -2544,10 +2654,18 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     }
 });
 
-/* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
 $('.modal').on('show.bs.modal', function (e) {
+    if (isxs()) {
+     $('.modal').find('.pull-left,.pull-right').each(function(){
+         $(this).removeClass('pull-left').removeClass('pull-right');
+     });
+    }
+});
+
+/* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
+/*$('.modal').on('show.bs.modal', function (e) {
     $('.modal').css('top', $(document).scrollTop() + 20);
-})
+})*/
 function submit_ajax(fullurl,data,refreshjob){
     $.ajax({
         url:fullurl, //Server script to process data
@@ -2563,6 +2681,10 @@ function submit_ajax(fullurl,data,refreshjob){
                 }
                 if(refreshjob){
                     reloadJobsDrodown(0);
+					reloadMsgDrodown(0);
+                }
+                if(typeof response.redirect != 'undefined' && response.redirect != ''){
+                    window.location = response.redirect;
                 }
             } else {
                 toastr.error(response.message, "Error", toastr_opts);
@@ -2588,6 +2710,7 @@ function submit_ajax_datatable(fullurl,data,refreshjob,data_table_reload){
                 }
                 if(refreshjob){
                     reloadJobsDrodown(0);
+					reloadMsgDrodown(0);
                 }
             } else {
                 toastr.error(response.message, "Error", toastr_opts);
@@ -2621,6 +2744,7 @@ function submit_ajax_withfile(fullurl,formData,refreshjob,loading_bar) {
                 }
                 if(refreshjob){
                     reloadJobsDrodown(0);
+					reloadMsgDrodown(0);
                 }
                 if(loading_bar){
                     show_loading_bar({
@@ -2657,6 +2781,7 @@ function submit_ajaxbtn(fullurl,data,refreshjob,btn,reload){
                 }
                 if(refreshjob){
                     reloadJobsDrodown(0);
+					reloadMsgDrodown(0);
                 }
                 if(reload){
                     location.reload();
@@ -2735,7 +2860,30 @@ $(document).ajaxComplete(function(event, xhr, settings) {
             $(elem).bootstrapSwitch();
         }
     });
+    if (isxs()){
+        $('.dataTables_wrapper').each(function(){
+            var self = $(this);
+            setTimeout(resetWidth, 3000,self);
+            self.css('overflow-x','scroll').css('overflow-y','hidden');
+        });
+    }
 });
+function resetWidth(self){
+    var table = self.find('table');
+    var width = 0;
+    if(table.hasClass('hidden')){
+        table.removeClass('hidden');
+        width = self.find('table').outerWidth();
+        table.addClass('hidden');
+    }else{
+        width = self.find('table').outerWidth();
+    }
+    self.find('div.row').each(function(index,item){
+        $(item).css('width',width);
+        $(item).css('margin',0);
+        $(item).find('.col-xs-6').css('padding',0);
+    }.bind(width));
+}
 $(document).on('click','[redirecto]',function(){
     var url = $(this).attr('redirecto');
     window.location.href=url;
@@ -2750,5 +2898,45 @@ function isJson(str) {
     return true;
 }
 
+function rebuildSelect2(el,data,defualtText){
+    el.empty();
+    options = [];
+    $.each(data,function(key,value){
+        if(typeof value == 'object'){
+            key = value.id;
+            value = value.text;
+        }
+        options.push(new Option(value, key, true, true));
+    });
+    if(defualtText.length > 0){
+        options.push(new Option(defualtText, '', true, true));
+    }
+    options.sort();
+    options.reverse();
+    el.append(options);
+    if(el.hasClass('select2add')){
+        el.prepend('<option data-image="1" value="select2-add" disabled="disabled">Add</option>');
+    }
+    el.trigger('change');
+}
 
 
+
+  $(document).on('mouseover','.shortname',
+		function(){
+			var a = $(this).attr('FullName');
+			$(this).html(a);
+		}
+  ).on('mouseout',function(){
+		var a = $(this).attr('ShortName');                
+		$(this).html(a);
+	});
+
+function IsJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}

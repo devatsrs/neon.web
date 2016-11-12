@@ -44,8 +44,7 @@ class CDRController extends BaseController {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 if($data["AccountID"] >0 ){
-                   $AccountBilling = AccountBilling::getBilling($data["AccountID"]);
-                    if(AccountBilling::getBillingKey($AccountBilling,'CDRType') == ''){
+                    if(AccountBilling::getCDRType($data["AccountID"]) == ''){
                         return Response::json(array("status" => "failed", "message" => "Setup CDR Format in Account edit"));
                     }
                 }
@@ -61,6 +60,7 @@ class CDRController extends BaseController {
                 $jobdata["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
                 $histdata['CreatedBy'] = $jobdata["CreatedBy"] = User::get_user_full_name();
                 $jobdata["Options"] = json_encode($data);
+                $jobdata["created_at"] = date('Y-m-d H:i:s');
                 $jobdata["updated_at"] = date('Y-m-d H:i:s');
                 $JobID = Job::insertGetId($jobdata);
                 /*$histdata['CompanyGatewayID'] = $data['CompanyGatewayID'];
@@ -122,6 +122,7 @@ class CDRController extends BaseController {
                 $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
                 $histdata['CreatedBy']= $jobdata["CreatedBy"] = User::get_user_full_name();
                 $jobdata["Options"] = json_encode($data);
+                $jobdata["created_at"] = date('Y-m-d H:i:s');
                 $jobdata["updated_at"] = date('Y-m-d H:i:s');
                 $JobID = Job::insertGetId($jobdata);
                 /*$histdata['CompanyGatewayID'] = $data['CompanyGatewayID'];
@@ -192,7 +193,6 @@ class CDRController extends BaseController {
         $companyID 					 =	 User::get_companyID();
         $columns 					 = 	 array('UsageDetailID','AccountName','connect_time','disconnect_time','billed_duration','cost','cli','cld');
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
-		$data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
 		$data['CurrencyID'] 		 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
 		
        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$data['CurrencyID'].",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
@@ -224,7 +224,6 @@ class CDRController extends BaseController {
         if(!empty($data['criteria'])){
             $criteria = json_decode($data['criteria'],true);
 
-            $criteria['zerovaluecost'] = $criteria['zerovaluecost']== 'true'?1:0;
             $criteria['CurrencyID'] = empty($criteria['CurrencyID'])?'0':$criteria['CurrencyID'];
             $criteria['AccountID'] = empty($criteria['AccountID'])?'0':$criteria['AccountID'];
             $criteria['CompanyGatewayID'] = empty($criteria['CompanyGatewayID'])?'0':$criteria['CompanyGatewayID'];
@@ -288,6 +287,7 @@ class CDRController extends BaseController {
         $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
         $histdata['CreatedBy'] = $jobdata["CreatedBy"] = User::get_user_full_name();
         $jobdata["Options"] = json_encode($data);
+        $jobdata["created_at"] = date('Y-m-d H:i:s');
         $jobdata["updated_at"] = date('Y-m-d H:i:s');
         $JobID = Job::insertGetId($jobdata);
         if ($JobID) {
@@ -397,6 +397,7 @@ class CDRController extends BaseController {
             $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
             $histdata['CreatedBy']= $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             /*$histdata['CompanyGatewayID'] = $data['CompanyGatewayID'];
@@ -491,7 +492,7 @@ class CDRController extends BaseController {
         $companyID 						 = 	 User::get_companyID();
         $columns 						 = 	 array('VendorCDRID','AccountName','connect_time','disconnect_time','billed_duration','selling_cost','buying_cost','cli','cld');
         $sort_column 				 	 = 	 $columns[$data['iSortCol_0']];
-		$data['zerovaluebuyingcost']	 =   $data['zerovaluebuyingcost']== 'true'?1:0;		
+
 		$data['CurrencyID'] 		 	 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
         $query = "call prc_GetVendorCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluebuyingcost'].",".$data['CurrencyID'].",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
@@ -632,6 +633,7 @@ class CDRController extends BaseController {
             $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
             $histdata['CreatedBy']= $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             /*$histdata['CompanyGatewayID'] = $data['CompanyGatewayID'];
@@ -661,7 +663,6 @@ class CDRController extends BaseController {
         if(!empty($data['criteria'])){
             $criteria = json_decode($data['criteria'],true);
 
-            $criteria['zerovaluecost'] = $criteria['zerovaluebuyingcost']== 'true'?1:0;
             $criteria['CurrencyID'] = empty($criteria['CurrencyID'])?'0':$criteria['CurrencyID'];
             $criteria['AccountID'] = empty($criteria['AccountID'])?'0':$criteria['AccountID'];
             $criteria['CompanyGatewayID'] = empty($criteria['CompanyGatewayID'])?'0':$criteria['CompanyGatewayID'];

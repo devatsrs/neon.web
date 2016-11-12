@@ -311,7 +311,10 @@ INSERT INTO `tblCronJobCommand` (`CronJobCommandID`, `CompanyID`, `GatewayID`, `
 	(66, 1, NULL, 'Create Customer Summary', 'createsummary', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-12-01 10:11:09', 'RateManagementSystem'),
 	(67, 1, NULL, 'Create Vendor Summary Live', 'createvendorsummarylive', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-12-01 10:11:09', 'RateManagementSystem'),
 	(68, 1, 6, 'Download Sippy SFTP File', 'sippydownloadcdr', '[[{"title":"Max File Download Limit","type":"text","value":"","name":"FilesDownloadLimit"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2016-06-09 19:33:05', NULL),
-	(69, 1, 3, 'Download VOS SFTP File', 'vosdownloadcdr', '[[{"title":"Max File Download Limit","type":"text","value":"","name":"FilesDownloadLimit"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-06-09 13:05:56', 'RateManagementSystem');
+	(69, 1, 3, 'Download VOS SFTP File', 'vosdownloadcdr', '[[{"title":"Max File Download Limit","type":"text","value":"","name":"FilesDownloadLimit"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-06-09 13:05:56', 'RateManagementSystem'),
+  (70, 1, NULL, 'Neon System Alerts', 'neonalerts', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2016-09-28 14:07:52', 'RateManagementSystem'),
+  (71, 1, NULL, 'Read Emails', 'accountreademails', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2016-09-28 14:07:52', 'RateManagementSystem');
+
 
 /*!40000 ALTER TABLE `tblCronJobCommand` ENABLE KEYS */;
 
@@ -372,7 +375,19 @@ INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`,
 	(39, 6, 'CDR ReRate', 'RateCDR', 1, '2015-12-21 11:19:00', NULL, NULL, NULL),
 	(40, 6, 'Rate Format', 'RateFormat', 1, '2015-12-21 11:19:00', NULL, NULL, NULL),
 	(41, 2, 'Allow Account Import', 'AllowAccountImport', 1, '2016-03-18 11:19:00', 'RateManagementSystem', NULL, NULL),
-	(42, 4, 'Allow Account Import', 'AllowAccountImport', 1, '2016-03-29 11:19:00', 'RateManagementSystem', NULL, NULL);
+	(42, 4, 'Allow Account Import', 'AllowAccountImport', 1, '2016-03-29 11:19:00', 'RateManagementSystem', NULL, NULL),
+	(43, 1, 'CLI Translation Rule', 'CLITranslationRule', 0, '2016-09-19 11:40:52', 'RateManagementSystem', NULL, NULL),
+  (44, 2, 'CLI Translation Rule', 'CLITranslationRule', 1, '2016-09-19 11:40:52', 'RateManagementSystem', NULL, NULL),
+  (45, 3, 'CLI Translation Rule', 'CLITranslationRule', 1, '2016-09-19 11:40:52', 'RateManagementSystem', NULL, NULL),
+  (46, 4, 'CLI Translation Rule', 'CLITranslationRule', 1, '2016-09-19 11:40:52', 'RateManagementSystem', NULL, NULL),
+  (47, 5, 'CLI Translation Rule', 'CLITranslationRule', 1, '2016-09-19 11:40:52', 'RateManagementSystem', NULL, NULL),
+  (48, 6, 'CLI Translation Rule', 'CLITranslationRule', 1, '2016-09-19 11:40:52', 'RateManagementSystem', NULL, NULL),
+  (49, 1, 'CLD Translation Rule', 'CLDTranslationRule', 0, '2016-09-19 11:40:52', 'RateManagementSystem', NULL, NULL),
+  (50, 2, 'CLD Translation Rule', 'CLDTranslationRule', 1, '2016-09-19 11:40:52', 'RateManagementSystem', NULL, NULL),
+  (51, 3, 'CLD Translation Rule', 'CLDTranslationRule', 1, '2016-09-19 11:40:52', 'RateManagementSystem', NULL, NULL),
+  (52, 4, 'CLD Translation Rule', 'CLDTranslationRule', 1, '2016-09-19 11:40:52', 'RateManagementSystem', NULL, NULL),
+  (53, 5, 'CLD Translation Rule', 'CLDTranslationRule', 1, '2016-09-19 11:40:52', 'RateManagementSystem', NULL, NULL),
+  (54, 6, 'CLD Translation Rule', 'CLDTranslationRule', 1, '2016-09-19 11:40:52', 'RateManagementSystem', NULL, NULL);
 /*!40000 ALTER TABLE `tblGatewayConfig` ENABLE KEYS */;
 
 
@@ -426,7 +441,9 @@ INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedD
 	(19, 'PU', 'Payment Upload', NULL, '2016-02-05 12:40:29', 'RateManagementSystem', NULL, NULL),
 	(20, 'VDR', 'Vendor CDR Upload', NULL, '2016-02-17 15:30:04', 'RateManagementSystem', NULL, NULL),
 	(21, 'MGA', 'Import Account', NULL, '2016-03-17 15:30:04', 'RateManagementSystem', NULL, NULL),
-	(22, 'DSU', 'Dial String Upload', NULL, '2016-06-21 15:30:04', 'RateManagementSystem', NULL, NULL);
+	(22, 'DSU', 'Dial String Upload', NULL, '2016-06-21 15:30:04', 'RateManagementSystem', NULL, NULL),
+	(23, 'QIP', 'QuickBook Invoice Post', NULL, '2016-10-05 17:00:00', 'RateManagementSystem', NULL, NULL);
+
 /*!40000 ALTER TABLE `tblJobType` ENABLE KEYS */;
 
 
@@ -1295,4 +1312,24 @@ INSERT IGNORE INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCateg
 	(153, 'AuthenticationRule.Add', 1);
 /*!40000 ALTER TABLE `tblResourceCategories` ENABLE KEYS */;
 
- 
+/*!40000 ALTER TABLE `tblIntegration` DISABLE KEYS */;
+INSERT INTO `tblIntegration` (`IntegrationID`, `CompanyId`, `Title`, `Slug`, `ParentID`, `MultiOption`, `ForeignID`) VALUES
+	(1, 1, 'Helpdesk', 'support', 0, 'N', 0),
+	(2, 1, 'Email', 'email', 0, 'N', 0),
+	(3, 1, 'Storage', 'storage', 0, 'N', 0),
+	(4, 1, 'Payment', 'payment', 0, 'N', 0),
+	(5, 1, 'Billing Gateway', 'billinggateway', 0, 'N', 0),
+	(6, 1, 'FreshDesk', 'freshdesk', 1, 'N', 0),
+	(7, 1, 'AmazonS3', 'amazons3', 3, 'N', 0),
+	(9, 1, 'Authorize.net', 'authorizenet', 4, 'N', 0),
+	(10, 1, 'Mandrill', 'mandrill', 2, 'N'),
+	(11, 1, 'Email Tracking', 'emailtracking', 0, 'N'),
+	(12, 1, 'IMAP', 'imap', 11, 'N'),
+	(13, 1, 'Calendar', 'calendar', 0, 'N'),
+	(14, 1, 'Exchange', 'outlook', 13, 'N'),
+	(15, 1, 'Accounting', 'accounting', 0, 'N'),
+	(16, 1, 'QuickBook', 'quickbook', 15, 'N'),
+	(17, 1, 'Paypal', 'paypal', 4, 'N'),
+	(18, 1, 'Stripe', 'stripe', 4, 'N');
+
+/*!40000 ALTER TABLE `tblIntegration` ENABLE KEYS */;

@@ -9,7 +9,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	SELECT cs.Value INTO v_Round_ FROM NeonRMDev.tblCompanySetting cs WHERE cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_company_id;
+	SELECT fnGetRoundingPoint(p_company_id) INTO v_Round_;
 
 	SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 
@@ -37,7 +37,7 @@ BEGIN
 			uh.connect_time,
 			uh.disconnect_time,
 			uh.billed_duration,
-			CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(uh.cost,v_Round_)) AS cost,
+			CONCAT(IFNULL(v_CurrencyCode_,''),uh.cost) AS cost,
 			uh.cli,
 			uh.cld,
 			uh.area_prefix,
@@ -58,7 +58,7 @@ BEGIN
 		SELECT
 			COUNT(*) AS totalcount,
 			fnFormateDuration(sum(billed_duration)) as total_duration,
-			ROUND(sum(cost),v_Round_) as total_cost,
+			sum(cost) as total_cost,
 			v_CurrencyCode_ as CurrencyCode
 		FROM  tmp_tblUsageDetails_ uh
 		INNER JOIN NeonRMDev.tblAccount a
@@ -77,7 +77,7 @@ BEGIN
 			uh.connect_time,
 			uh.disconnect_time,
 			uh.billed_duration as duration,
-			CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(uh.cost,v_Round_)) AS cost,
+			CONCAT(IFNULL(v_CurrencyCode_,''),uh.cost) AS cost,
 			uh.cli,
 			uh.cld,
 			uh.area_prefix,

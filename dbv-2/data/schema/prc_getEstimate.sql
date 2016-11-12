@@ -8,7 +8,7 @@ BEGIN
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	        
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	 SELECT cs.Value INTO v_Round_ FROM NeonRMDev.tblCompanySetting cs WHERE cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+ 	 SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 	 SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
     IF p_isExport = 0
     THEN
@@ -28,7 +28,8 @@ BEGIN
         FROM tblEstimate inv
         INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
         INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
-		  LEFT JOIN tblInvoiceTemplate it on ab.InvoiceTemplateID = it.InvoiceTemplateID
+        INNER JOIN NeonRMDev.tblBillingClass b ON ab.BillingClassID = b.BillingClassID
+		  LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
         WHERE ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
@@ -72,7 +73,8 @@ BEGIN
         tblEstimate inv
         INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
         INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
-		  LEFT JOIN tblInvoiceTemplate it on ab.InvoiceTemplateID = it.InvoiceTemplateID
+        INNER JOIN NeonRMDev.tblBillingClass b ON ab.BillingClassID = b.BillingClassID
+		  LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
         AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND inv.EstimateNumber = p_EstimateNumber))
@@ -91,7 +93,8 @@ BEGIN
         FROM tblEstimate inv
         INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
         INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
-		  LEFT JOIN tblInvoiceTemplate it on ab.InvoiceTemplateID = it.InvoiceTemplateID
+        INNER JOIN NeonRMDev.tblBillingClass b ON ab.BillingClassID = b.BillingClassID
+		  LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
         AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND inv.EstimateNumber = p_EstimateNumber))
@@ -112,7 +115,8 @@ BEGIN
         FROM tblEstimate inv
         INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
         INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
-		  LEFT JOIN tblInvoiceTemplate it on ab.InvoiceTemplateID = it.InvoiceTemplateID
+        INNER JOIN NeonRMDev.tblBillingClass b ON ab.BillingClassID = b.BillingClassID
+		  LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
         AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
         AND (p_EstimateNumber = '' OR ( p_EstimateNumber != '' AND inv.EstimateNumber = p_EstimateNumber))

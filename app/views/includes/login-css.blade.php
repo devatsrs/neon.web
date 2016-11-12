@@ -7,14 +7,14 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         "/assets/css/font-icons/entypo/css/entypo.css",
             "assets/css/font-icons/font-awesome/css/font-awesome.css",
         "http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic",
+        // Dashboard
+        "assets/js/jvectormap/jquery-jvectormap-1.2.2.css",
+        "assets/js/rickshaw/rickshaw.min.css",
         "/assets/css/bootstrap.css",
         "/assets/css/neon-core.css",
         "/assets/css/neon-theme.css",
         "/assets/css/neon-forms.css",
         "/assets/css/custom.css",
-// Dashboard
-        "assets/js/jvectormap/jquery-jvectormap-1.2.2.css",
-        "assets/js/rickshaw/rickshaw.min.css",
 
 
 
@@ -32,7 +32,6 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         "assets/css/neon-core.css",
         "assets/css/neon-theme.css",
         "assets/css/neon-forms.css",
-        "assets/css/custom.css",
         "assets/js/datatables/responsive/css/datatables.responsive.css",
         "assets/js/select2/select2-bootstrap.css",
         "assets/js/select2/select2.css",
@@ -41,12 +40,11 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         "assets/js/icheck/skins/minimal/_all.css",
 		"assets/js/perfectScroll/css/perfect-scrollbar.css",
 		"assets/js/odometer/themes/odometer-theme-default.css",	
-		"assets/js/daterangepicker/daterangepicker.css"
-		
-
-
+		"assets/js/daterangepicker/daterangepicker.css",
+        "assets/css/custom.css",		
     ];
 }
+$css[]  = 'assets/css/skins/black.css';
 ?>
 @foreach ($css as $addcss)
 @if( strstr($addcss,"http"))

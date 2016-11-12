@@ -16,6 +16,7 @@ class Invoice extends \Eloquent {
     const PAID = 'paid';
     const PARTIALLY_PAID = 'partially_paid';
     const ITEM_INVOICE =1;
+    const POST = 'post';
     //public static $invoice_status;
     public static $invoice_type = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Sent',self::INVOICE_IN=>'Invoice Received','All'=>'Both');
     public static $invoice_type_customer = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Received',self::INVOICE_IN=>'Invoice sent','All'=>'Both');
@@ -37,11 +38,7 @@ class Invoice extends \Eloquent {
         * */
 
         //set company billing timezone
-        $BillingTimezone = CompanySetting::getKeyVal("BillingTimezone");
 
-        if($BillingTimezone != 'Invalid Key'){
-            date_default_timezone_set($BillingTimezone);
-        }
 
         $Account = AccountBilling::select(["NextInvoiceDate","LastInvoiceDate","BillingStartDate"])->where("AccountID",$AccountID)->first()->toArray();
 
@@ -64,7 +61,7 @@ class Invoice extends \Eloquent {
 
     }
 
-    public static  function generate_pdf($InvoiceID){
+    public static  function generate_pdf($InvoiceID){  
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $InvoiceID])->get();
@@ -74,7 +71,9 @@ class Invoice extends \Eloquent {
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
-            $InvoiceTemplate = InvoiceTemplate::find($AccountBilling->InvoiceTemplateID);
+            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+            $PaymentDueInDays = AccountBilling::getPaymentDueInDays($Invoice->AccountID);
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");
             } else {
@@ -92,7 +91,7 @@ class Invoice extends \Eloquent {
             $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
 
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates','PaymentDueInDays'))->render();
 
             $body = htmlspecialchars_decode($body);
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
@@ -103,13 +102,13 @@ class Invoice extends \Eloquent {
 			
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
-            }
-            RemoteSSH::run("chmod -R 777 " . $destination_dir);
+            } Log::info('destination_dir'); Log::info($destination_dir);
+            //RemoteSSH::run("chmod -R 777 " . $destination_dir);
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
-            $local_file = $destination_dir .  $file_name;
+            $local_file = $destination_dir .  $file_name; Log::info('local_file'); Log::info($local_file);
 
-            $local_htmlfile = $destination_dir .  $htmlfile_name;
+            $local_htmlfile = $destination_dir .  $htmlfile_name; Log::info('local_htmlfile'); Log::info($local_htmlfile);
             file_put_contents($local_htmlfile,$body);
             @chmod($local_htmlfile,0777);
             $footer_name = 'footer-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
@@ -140,12 +139,15 @@ class Invoice extends \Eloquent {
     public static function get_invoice_status(){
         $Company = Company::find(User::get_companyID());
         $invoiceStatus = explode(',',$Company->InvoiceStatus);
-       $invoicearray = array(''=>'Select Invoice Status',self::DRAFT=>'Draft',self::SEND=>'Sent',self::AWAITING=>'Awaiting Approval',self::CANCEL=>'Cancel',self::PAID=>'Paid',self::PARTIALLY_PAID=>'Partially Paid');
+       $invoicearray = array(''=>'Select Invoice Status',self::DRAFT=>'Draft',self::SEND=>'Sent',self::AWAITING=>'Awaiting Approval',self::CANCEL=>'Cancel',self::PAID=>'Paid',self::PARTIALLY_PAID=>'Partially Paid',self::POST=>'Post');
         foreach($invoiceStatus as $status){
             $invoicearray[$status] = $status;
         }
         return $invoicearray;
     }
+    /**
+     * not in use
+    */
     public static function getFullInvoiceNumber($Invoice,$AccountBilling){
         $InvoiceNumberPrefix = '';
         if(!empty($AccountBilling->InvoiceTemplateID)) {

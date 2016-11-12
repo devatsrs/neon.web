@@ -29,7 +29,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-1 control-label">Type</label>
                         <div class="col-sm-2">
-                            {{Form::select('InvoiceType',Invoice::$invoice_type_customer,Input::get('InvoiceType'),array("class"=>"selectboxit"))}}
+                            {{Form::select('InvoiceType',Invoice::$invoice_type_customer,Input::get('InvoiceType'),array("class"=>"select2 small"))}}
                         </div>
                         <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
                         <div class="col-sm-2">
@@ -39,7 +39,7 @@
                         <div class="col-sm-2">
                             {{ Form::text('IssueDateEnd', Input::get('EndDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
                         </div>
-                        <label for="field-1" class="col-sm-1 control-label">Zero Value</label>
+                        <label for="field-1" class="col-sm-1 control-label">Hide Zero Value</label>
                         <div class="col-sm-2">
                             <p class="make-switch switch-small">
                                 <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" checked>
@@ -146,9 +146,9 @@ var postdata;
                              mRender: function ( id, type, full ) {
                                  var action , action = '<div class = "hiddenRowData" >';
                                  if (id != '{{Invoice::INVOICE_IN}}'){
-                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="Payment Sent"><i class="entypo-left-bold"></i>RCV</a>';
+                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Received"><i class="entypo-left-bold"></i>RCV</a>';
                                  }else{
-                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="Payment Received"><i class="entypo-right-bold"></i>SNT</a>';
+                                     invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Sent"><i class="entypo-right-bold"></i>SNT</a>';
                                  }
                                  if (full[0] != '{{Invoice::INVOICE_IN}}'){
                                      if('{{is_authorize()}}'){

@@ -11,14 +11,9 @@ class AccountBilling extends \Eloquent {
 
     public static function insertUpdateBilling($AccountID,$data=array()){
         if(AccountBilling::where('AccountID',$AccountID)->count() == 0) {
-            $AccountBilling['PaymentDueInDays'] = $data['PaymentDueInDays'];
-            $AccountBilling['RoundChargesAmount'] = $data['RoundChargesAmount'];
-            $AccountBilling['CDRType'] = $data['CDRType'];
-            $AccountBilling['InvoiceTemplateID'] = $data['InvoiceTemplateID'];
+
+            $AccountBilling['BillingClassID'] = $data['BillingClassID'];
             $AccountBilling['BillingType'] = $data['BillingType'];
-            if (!empty($data['TaxRateId'])) {
-                $AccountBilling['TaxRateId'] = $data['TaxRateId'];
-            }
             $AccountBilling['BillingCycleType'] = $data['BillingCycleType'];
             $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
             $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
@@ -48,15 +43,8 @@ class AccountBilling extends \Eloquent {
             AccountBilling::create($AccountBilling);
         }else{
             AccountNextBilling::insertUpdateBilling($AccountID,$data);
-
-            $AccountBilling['PaymentDueInDays'] = $data['PaymentDueInDays'];
-            $AccountBilling['RoundChargesAmount'] = $data['RoundChargesAmount'];
-            $AccountBilling['CDRType'] = $data['CDRType'];
-            $AccountBilling['InvoiceTemplateID'] = $data['InvoiceTemplateID'];
+            $AccountBilling['BillingClassID'] = $data['BillingClassID'];
             $AccountBilling['BillingType'] = $data['BillingType'];
-            if (!empty($data['TaxRateId'])) {
-                $AccountBilling['TaxRateId'] = $data['TaxRateId'];
-            }
             $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
             $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
             AccountBilling::where('AccountID', $AccountID)->update($AccountBilling);
@@ -80,8 +68,16 @@ class AccountBilling extends \Eloquent {
         return $days;
     }
     public static function getInvoiceTemplateID($AccountID){
-        return AccountBilling::where('AccountID',$AccountID)->pluck('InvoiceTemplateID');
+        $BillingClassID = self::getBillingClassID($AccountID);
+        return BillingClass::getInvoiceTemplateID($BillingClassID);
     }
+	
+	public static function getTaxRate($AccountID){
+        $BillingClassID = self::getBillingClassID($AccountID);
+        return BillingClass::getTaxRate($BillingClassID);
+    }
+	
+	
     public static function storeNextInvoicePeriod($AccountID,$BillingCycleType,$BillingCycleValue,$LastInvoiceDate,$NextInvoiceDate){
         $StartDate = $LastInvoiceDate;
         $EndDate = $NextInvoiceDate;
@@ -107,5 +103,21 @@ class AccountBilling extends \Eloquent {
             $AccountBilling =  AccountBilling::getBilling($AccountID);
             AccountBilling::storeNextInvoicePeriod($AccountID,$AccountBilling->BillingCycleType,$AccountBilling->BillingCycleValue,$AccountBilling->LastInvoiceDate,$AccountBilling->NextInvoiceDate);
         }
+    }
+
+    public static function getBillingClassID($AccountID){
+        return AccountBilling::where('AccountID',$AccountID)->pluck('BillingClassID');
+    }
+    public static function getPaymentDueInDays($AccountID){
+        $BillingClassID = self::getBillingClassID($AccountID);
+        return BillingClass::getPaymentDueInDays($BillingClassID);
+    }
+    public static function getCDRType($AccountID){
+        $BillingClassID = self::getBillingClassID($AccountID);
+        return BillingClass::getCDRType($BillingClassID);
+    }
+    public static function getRoundChargesAmount($AccountID){
+        $BillingClassID = self::getBillingClassID($AccountID);
+        return BillingClass::getRoundChargesAmount($BillingClassID);
     }
 }

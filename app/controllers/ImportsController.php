@@ -15,10 +15,12 @@ class ImportsController extends \BaseController {
      * @return Response
      */
     public function index() {
+            $Quickbook = new BillingAPI();
+            $check_quickbook = $Quickbook->check_quickbook();
             $gatewaylist = CompanyGateway::importgatewaylist();
             $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
             $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_Account);
-            return View::make('imports.index', compact('UploadTemplate','gatewaylist'));
+            return View::make('imports.index', compact('UploadTemplate','gatewaylist','check_quickbook'));
     }
 
     public function download_sample_excel_file(){
@@ -180,7 +182,8 @@ class ImportsController extends \BaseController {
             $ProcessID = (string) GUID::generate();
             $CompanyGatewayID=$id;
             $param['CompanyGatewayID'] = $id; // change
-            $param['CompanyID'] = 1;
+            $CompanyID = User::get_companyID();
+            $param['CompanyID'] = $CompanyID;
             $param['ProcessID'] = $ProcessID;
             if($gateway == 'PBX'){
                 $pbx = new PBX($CompanyGatewayID);
@@ -408,6 +411,7 @@ class ImportsController extends \BaseController {
             $jobdata["Description"] = $jobType->Title ;
             $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             if($JobID){
@@ -420,5 +424,98 @@ class ImportsController extends \BaseController {
         }
     }
 
+    /**
+     * QuickBook Import
+     */
 
+    public function getAccountInfoFromQuickbook(){
+        try {
+            ini_set('max_execution_time', 0);
+
+            $data = Input::all();
+            $QuickBook = new BillingAPI();
+            $quickbooks_CompanyInfo = $QuickBook->test_connection();
+
+            if(!empty($quickbooks_CompanyInfo)){
+                $ProcessID = (string) GUID::generate();
+                log::info('--ProcessID--'.$ProcessID);
+                $CompanyID = User::get_companyID();
+                $param['CompanyID'] = $CompanyID;
+                $param['ProcessID'] = $ProcessID;
+                $quickbook = new BillingAPI();
+                $response1 = $quickbook->getAccountsDetail($param);
+                log::info('Quickbook Response'.print_r($response1,true));
+                if(isset($response1['result']) && $response1['result'] =='OK'){
+                    return Response::json(array("status" => "success", "message" => "Get Account successfully From QuickBook", "processid" => $ProcessID));
+                }else if(isset($response1['error'])){
+                    return Response::json(array("status" => "failed", "message" => "Failed to connect QuickBook."));
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "Import QuickBook Account."));
+                }
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Failed to connect QuickBook."));
+            }
+        }catch(Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+
+    }
+
+    public function ajax_get_missing_quickbookaccounts(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $data['iDisplayStart'] +=1;
+        $columns = ['tblTempAccountID','AccountName','FirstName','LastName','Email'];
+        $sort_column = $columns[$data['iSortCol_0']];
+        //$CompanyGatewayID = $data['CompanyGatewayID'];
+        $cprocessid = $data['quickbookimportprocessid'];
+        $query = "call prc_getMissingAccountsOfQuickbook (".$CompanyID.",'".$cprocessid."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+            Excel::create('QuickBook Account', function ($excel) use ($excel_data) {
+                $excel->sheet('QuickBook Account', function ($sheet) use ($excel_data) {
+                    $sheet->fromArray($excel_data);
+                });
+            })->download('xls');
+        }
+        $query .=',0)';
+
+        //$query = "call prc_getMissingAccountsByGateway (".$CompanyID.",".$CompanyGatewayID.")";
+
+        return DataTableSql::of($query)->make();
+    }
+
+    public function add_missing_quickbookaccounts(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        if(empty($data['quickbookimportprocessid'])){
+            return json_encode(array("status" => "failed", "message" => "Problem Creating in import Account.."));
+        }
+
+        $AccountIDs =array_filter(explode(',',$data['TempAccountIDs']),'intval');
+        if (is_array($AccountIDs) && count($AccountIDs) || !empty($data['criteria'])) {
+            $jobType = JobType::where(["Code" => 'MGA'])->first(["JobTypeID", "Title"]);
+            $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
+            $jobdata["CompanyID"] = $CompanyID;
+            $jobdata["JobTypeID"] = $jobType->JobTypeID ;
+            $jobdata["JobStatusID"] =  $jobStatus->JobStatusID;
+            $jobdata["JobLoggedUserID"] = User::get_userID();
+            $jobdata["Title"] =  $jobType->Title;
+            $jobdata["Description"] = $jobType->Title ;
+            $jobdata["CreatedBy"] = User::get_user_full_name();
+            $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
+            $jobdata["updated_at"] = date('Y-m-d H:i:s');
+
+            $JobID = Job::insertGetId($jobdata);
+            if($JobID){
+                return json_encode(["status" => "success", "message" => "Import Account Job Added in queue to process.You will be notified once job is completed."]);
+            }else{
+                return json_encode(array("status" => "failed", "message" => "Problem Creating in import Account."));
+            }
+        }else{
+            return json_encode(array("status" => "failed", "message" => "Please select account."));
+        }
+    }
 }

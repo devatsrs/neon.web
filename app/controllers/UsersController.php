@@ -110,6 +110,7 @@ class UsersController extends BaseController {
         }else{
             unset($data['password']);
         }
+        $data['JobNotification'] = isset($data['JobNotification'])?1:0;
         unset($data['password_confirmation']);
         if ($user->update($data)) {
             Cache::forget('user_defaults');
@@ -333,6 +334,16 @@ class UsersController extends BaseController {
             }
         }
         return View::make('user.users_dropdown', compact('users'));
+    }
+
+    public function job_notification($id, $status) {
+        if ($id > 0 && ( $status == 0 || $status == 1)) {
+            if (User::find($id)->update(["JobNotification" => $status, "updated_by" => User::get_user_full_name()])) {
+                return Response::json(array("status" => "success", "message" => "Status Successfully Changed"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Changing Status."));
+            }
+        }
     }
 
     public function view_tracker(){

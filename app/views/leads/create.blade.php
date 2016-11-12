@@ -62,9 +62,9 @@
                 <div class="input-group" style="width: 100%;">
                     <div class="input-group-addon" style="padding: 0px; width: 85px;">
                         <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
-                        {{Form::select('Title', $NamePrefix_array, Input::old('Title') ,array("class"=>"selectboxit"))}}
+                        {{Form::select('Title', $NamePrefix_array, Input::old('Title') ,array("class"=>"select2 small"))}}
                     </div>
-                    <input type="text" name="FirstName" class="form-control" value="{{Input::old('FirstName')}}"/>
+                    <input type="text" name="FirstName" class="form-control" value="@if(Input::old('FirstName')!=''){{Input::old('FirstName')}}@elseif(Input::get('name')!=''){{Input::get('name')}}@endif"/>
                 </div>
             </div>
 
@@ -81,7 +81,7 @@
 
             <label for="field-1" class="col-sm-2 control-label">Email</label>
             <div class="col-sm-4">
-                <input type="text" name="Email" class="form-control" id="field-1" placeholder="" value="{{Input::old('Email')}}"/>
+                <input type="text" name="Email" class="form-control" id="field-1" placeholder="" value="@if(Input::old('Email')!=''){{Input::old('Email')}}@elseif(Input::get('email')!=''){{Input::get('email')}}@endif"/>
             </div>
 
         </div>
@@ -111,20 +111,20 @@
             <label for="field-1" class="col-sm-2 control-label">Lead Source</label>
             <div class="col-sm-4">
                 <?php $leadsource_array = array( "Advertisement"=>"Advertisement", "Cold Call"=>"Cold Call" , "Employee Referral"=>"Employee Referral","Online Store"=>"Online Store","Employee Referral"=>"Employee Referral","Partner"=>"Partner","Public Relations"=>"Public Relations","Sales Mail Alias"=>"Sales Mail Alias","Seminar Partner"=>"Seminar Partner","Trade Show"=>"Trade Show","Web Download"=>"Web Download","Web Research"=>"Web Research","Chat"=>"Chat" ); ?>
-                {{Form::select('LeadSource', $leadsource_array, Input::old('LeadSource') ,array("class"=>"selectboxit"))}}
+                {{Form::select('LeadSource', $leadsource_array, Input::old('LeadSource') ,array("class"=>"select2 small"))}}
             </div>
 
             <label class="col-sm-2 control-label">Lead Status</label>
             <div class="col-sm-4">
                 <?php $leadstatus_array = array( ""=>"-none-", "Attempted to Contact"=>"Attempted to Contact" , "Contact in Future"=>"Contact in Future","Contacted"=>"Contacted", "Junk Lead"=>"Junk Lead","Not Contacted"=>"Not Contacted", "Pre Qualified"=>"Pre Qualified" ); ?>
-                {{Form::select('LeadStatus', $leadstatus_array, Input::old('LeadStatus') ,array("class"=>"selectboxit"))}}
+                {{Form::select('LeadStatus', $leadstatus_array, Input::old('LeadStatus') ,array("class"=>"select2 small"))}}
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">Rating</label>
             <div class="col-sm-4">
                 <?php $rating_array = array( ""=>"-none-", "Acquired"=>"Acquired" , "Active"=>"Active","Market Failed"=>"Market Failed", "Project Cancelled"=>"Project Cancelled","Shutdown"=>"Shutdown"); ?>
-                {{Form::select('Rating', $rating_array, Input::old('Rating') ,array("class"=>"selectboxit"))}}
+                {{Form::select('Rating', $rating_array, Input::old('Rating') ,array("class"=>"select2 small"))}}
             </div>
 
             <label class="col-sm-2 control-label">No. Of Employees</label>
@@ -226,7 +226,7 @@
             <label for=" field-1" class="col-sm-2 control-label">Country</label>
             <div class="col-sm-4">
 
-                {{Form::select('Country', $countries, Input::old('Country') ,array("class"=>"selectboxit"))}}
+                {{Form::select('Country', $countries, Input::old('Country') ,array("class"=>"select2 small"))}}
             </div>
         </div>
     </div>

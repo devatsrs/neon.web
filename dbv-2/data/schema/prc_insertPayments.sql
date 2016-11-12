@@ -23,7 +23,10 @@ BEGIN
 			 CreatedBy,
 			 ModifyBy,
 			 RecallReasoan,
-			 RecallBy,BulkUpload)
+			 RecallBy,
+			 BulkUpload,
+			 InvoiceID
+			 )
  	select tp.CompanyID,
 	 		 tp.AccountID,
 			 COALESCE(tp.InvoiceNo,''),
@@ -41,7 +44,8 @@ BEGIN
 			 '' as ModifyBy,
 			 '' as RecallReasoan,
 			 '' as RecallBy,
-			 1 as BulkUpload
+			 1 as BulkUpload,
+			 InvoiceID
 	from tblTempPayment tp
 	INNER JOIN Ratemanagement3.tblAccount ac 
 		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1

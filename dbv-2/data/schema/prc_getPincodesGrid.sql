@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPincodesGrid`(IN `p_CompanyID` INT, IN `p_Pincode` VARCHAR(50), IN `p_PinExt` VARCHAR(50), IN `p_StartDate` DATE, IN `p_EndDate` DATE, IN `p_AccountID` INT, IN `p_CurrencyID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50), IN `p_isExport` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getPincodesGrid`(IN `p_CompanyID` INT, IN `p_Pincode` VARCHAR(50), IN `p_PinExt` VARCHAR(50), IN `p_StartDate` DATE, IN `p_EndDate` DATE, IN `p_AccountID` INT, IN `p_CurrencyID` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50), IN `p_isExport` INT)
     COMMENT 'Pincodes Grid For DashBorad'
 BEGIN
 	DECLARE v_OffSet_ int;
@@ -7,7 +7,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	SELECT cs.Value INTO v_Round_ from LocalRatemanagement.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 	CALL fnUsageDetail(p_CompanyID,p_AccountID,0,p_StartDate,p_EndDate,0,1,1,'');
 	
 	
@@ -18,8 +18,8 @@ BEGIN
          CONCAT(IFNULL(c.Symbol,''),ROUND(SUM(cost),v_Round_)) AS TotalCharges,
  			COUNT(UsageDetailID) AS NoOfCalls
 		FROM tmp_tblUsageDetails_ uh
-		INNER JOIN LocalRatemanagement.tblAccount a ON a.AccountID = uh.AccountID
-		LEFT  JOIN LocalRatemanagement.tblCurrency c ON c.CurrencyId = a.CurrencyId
+		INNER JOIN NeonRMDev.tblAccount a ON a.AccountID = uh.AccountID
+		LEFT  JOIN NeonRMDev.tblCurrency c ON c.CurrencyId = a.CurrencyId
       WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0 AND a.CurrencyId = p_CurrencyID
 		GROUP BY uh.cld
 		ORDER BY
@@ -46,7 +46,7 @@ BEGIN
 		SELECT COUNT(*) as totalcount FROM(SELECT
       	DISTINCT cld 
 		FROM tmp_tblUsageDetails_ uh
-		INNER JOIN LocalRatemanagement.tblAccount a on a.AccountID = uh.AccountID
+		INNER JOIN NeonRMDev.tblAccount a on a.AccountID = uh.AccountID
       WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0 AND a.CurrencyId = p_CurrencyID
 		GROUP BY uh.cld) tbl;
 		
@@ -59,7 +59,7 @@ BEGIN
          CONCAT(IFNULL(c.Symbol,''),ROUND(SUM(cost),v_Round_)) AS `Total Cost`,
  			COUNT(UsageDetailID) AS `Number of Times Dialed`
 		FROM tmp_tblUsageDetails_ uh
-		INNER JOIN LocalRatemanagement.tblAccount a on a.AccountID = uh.AccountID
+		INNER JOIN NeonRMDev.tblAccount a on a.AccountID = uh.AccountID
       WHERE ((p_PinExt = 'pincode' AND uh.pincode = p_Pincode ) OR (p_PinExt = 'extension' AND uh.extension = p_Pincode )) AND uh.cost>0 AND a.CurrencyId = p_CurrencyID
 		GROUP BY uh.cld;
 	

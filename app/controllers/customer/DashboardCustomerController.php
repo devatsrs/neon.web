@@ -12,7 +12,15 @@ class DashboardCustomerController extends BaseController {
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
-        return View::make('customer.index',compact('account','original_startdate','original_enddate','invoice_status_json'));
+        $monthfilter = 'Weekly';
+        if(Cache::has('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID())){
+            $monthfilter = Cache::get('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID());
+        }
+        $BillingDashboardWidgets 	= 	CompanyConfiguration::get('BILLING_DASHBOARD');
+        if(!empty($BillingDashboardWidgets)) {
+            $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
+        }
+        return View::make('customer.index',compact('account','original_startdate','original_enddate','invoice_status_json','monthfilter','BillingDashboardWidgets'));
     }
     public function invoice_expense_chart(){
         $data = Input::all();
@@ -24,7 +32,7 @@ class DashboardCustomerController extends BaseController {
             $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
         $companyID = User::get_companyID();
-        $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."')";
+        $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."','".$data['Startdate']."','".$data['Enddate']."','".$data['ListType']."')";
         $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
         $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
         return View::make('customer.billingdashboard.invoice_expense_chart', compact('InvoiceExpense','CurrencySymbol'));
@@ -44,14 +52,13 @@ class DashboardCustomerController extends BaseController {
         }
         $companyID = User::get_companyID();
 
-        $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."')";
+        $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."','".$data['Startdate']."','".$data['Enddate']."')";
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
-        $TotalOutstanding = 0;
         if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
-            $TotalOutstanding = $InvoiceExpenseResult[0]->TotalOutstanding;
+            return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
         }
 
-        return View::make('customer.billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));
+        //return View::make('customer.billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));
 
     }
     public function monitor_dashboard(){

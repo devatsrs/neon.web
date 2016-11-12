@@ -51,27 +51,30 @@
                                     </div>
                                 </div>
         </div>
-        <table id="table-oneofcharge" class="table table-bordered table-hover responsive">
-            <thead>
-            <tr>
-                <th width="20%">Item</th>
-                <th width="20%">Description</th>
-                <th width="2%">Quantity</th>
-                <th width="5%">Price</th>
-                <th width="10%">Date</th>
-                <th width="2%">Tax Amount</th>
-                <th width="5%">Created Date</th>
-                <th width="15%">Created By</th>
-                <th width="20%">Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="dataTables_wrapper">
+            <table id="table-oneofcharge" class="table table-bordered table-hover responsive">
+                <thead>
+                <tr>
+                    <th width="20%">Item</th>
+                    <th width="20%">Description</th>
+                    <th width="2%">Quantity</th>
+                    <th width="5%">Price</th>
+                    <th width="10%">Date</th>
+                    <th width="2%">Tax Amount</th>
+                    <th width="5%">Created Date</th>
+                    <th width="15%">Created By</th>
+                    <th width="20%">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script type="text/javascript">
+	var decimal_places = '{{$decimal_places}}';
     /**
     * JQuery Plugin for dataTable
     * */
@@ -87,7 +90,7 @@
 
     jQuery(document).ready(function ($) {
        var data_table_char;
-       var list_fields  = ["Name","Description", "Qty" ,"Price","Date","TaxAmount","created_at","CreatedBy","AccountOneOffChargeID","ProductID","TaxRateID"];
+       var list_fields  = ["Name","Description", "Qty" ,"Price","Date","TaxAmount","created_at","CreatedBy","AccountOneOffChargeID","ProductID","TaxRateID","TaxRateID2"];
        var getProductInfo_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/{id}/ajax_getproductinfo";
        var oneofcharge_add_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/store";
        var oneofcharge_edit_url = baseurl + "/accounts/{{$account->AccountID}}/oneofcharge/{id}/update";
@@ -189,7 +192,8 @@
                 $('#oneofcharge-form').trigger("reset");
                 $('#modal-oneofcharge h4').html('Add Additional Charge');
                 $("#oneofcharge-form [name=ProductID]").select2().select2('val',"");
-                $("#oneofcharge-form [name='TaxRateID']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('0');
+                $("#oneofcharge-form [name='TaxRateID']").val(0).trigger("change");
+				$("#oneofcharge-form [name='TaxRateID2']").val(0).trigger("change");
                 $('.tax').removeClass('hidden');
 
                 $('#oneofcharge-form').attr("action",oneofcharge_add_url);
@@ -207,7 +211,9 @@
                     if(list_fields[i] == 'ProductID'){
                         $("#oneofcharge-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }else if(list_fields[i] == 'TaxRateID'){
-                        $("#oneofcharge-form [name='"+list_fields[i]+"']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                        $("#oneofcharge-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                    }else if(list_fields[i] == 'TaxRateID2'){
+                        $("#oneofcharge-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                     }
                 }
                 $('#modal-oneofcharge').modal('show');
@@ -226,20 +232,57 @@
        $("#oneofcharge-form").submit(function(e){
            e.preventDefault();
            var _url  = $(this).attr("action");
-           var option = $("#oneofcharge-form [name='TaxRateID'] option:selected");
+           
+		   /*tax1 start*/
+		   var option = $("#oneofcharge-form [name='TaxRateID'] option:selected");
            var Status = option.attr('data-status');
            var Amount = option.attr('data-amount');
-           var TaxAmount = 0;
+           var TaxAmount1 = 0;
            var TotalPrice = parseFloat($('#oneofcharge-form [name="Price"]').val().replace(/,/g,'')) * parseInt($('#oneofcharge-form [name="Qty"]').val());
            if (Status == 1) {
-               TaxAmount = parseFloat(Amount);
+               TaxAmount1 = parseFloat(Amount);
            } else {
-               TaxAmount = (TotalPrice * Amount)/100;
+               TaxAmount1 = (TotalPrice * Amount)/100;
            }
-           $('#oneofcharge-form [name="TaxAmount"]').val(TaxAmount);
+		   /*tax1 end*/
+		   
+		   
+		    /*tax2 start*/
+		   var option2 = $("#oneofcharge-form [name='TaxRateID2'] option:selected");
+           var Status2 = option2.attr('data-status');
+           var Amount2 = option2.attr('data-amount');
+           var TaxAmount2 = 0;
+           var TotalPrice2 = parseFloat($('#oneofcharge-form [name="Price"]').val().replace(/,/g,'')) * parseInt($('#oneofcharge-form [name="Qty"]').val());
+           if (Status2 == 1) {
+               TaxAmount2 = parseFloat(Amount2);
+           } else {
+               TaxAmount2 = (TotalPrice2 * Amount2)/100;
+           }
+		   /*tax2 end*/
+		   
+		    var tax_final  = 	parseFloat(TaxAmount1+TaxAmount2);
+		   
+           $('#oneofcharge-form [name="TaxAmount"]').val(tax_final.toFixed(parseInt(decimal_places)));
            submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
            data_table_char.fnFilter('', 0);
        });
+	   
+	   $("#oneofcharge-form [name='TaxRateID']").change(function(e) {
+         check_same_tax();
+    });
+	
+	$("#oneofcharge-form [name='TaxRateID2']").change(function(e) {		
+         check_same_tax();
+    });
+	
+	function check_same_tax(){
+		var tax1val = $("#oneofcharge-form [name='TaxRateID']").val();
+		var tax2val = $("#oneofcharge-form [name='TaxRateID2']").val(); 
+		if(tax1val > 0 &&  (tax1val == tax2val)){
+			toastr.error($("#oneofcharge-form [name='TaxRateID'] option:selected").text()+" already applied", "Error", toastr_opts);
+		}
+	}   
+	   
        $('#oneofcharge-form [name="ProductID"]').change(function(e){
            id = $(this).val();
            getProductinfo(id);
@@ -281,7 +324,8 @@
                     <h4 class="modal-title">Additional Charges</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">One of charge</label>
                             {{Form::select('ProductID',$products,'',array("class"=>"select2 product_dropdown"))}}
@@ -290,33 +334,43 @@
                             <input type="hidden" name="TaxAmount" />
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Description</label>
                             <input type="text" name="Description" class="form-control" value="" />
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Qty</label>
                             <input type="text" name="Qty" class="form-control" value="1" data-mask="decimal" data-min="1" />
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Date</label>
                             <input type="text" name="Date" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
                         <div class="form-group">
                             <label for="field-5" class="control-label">Price</label>
                             <input type="text" name="Price" class="form-control" value="0"   />
                         </div>
                     </div>
-                    <div class="col-md-12 tax">
+                    </div>
+                    <div class="row tax">
+                        <div class="col-md-12">
                         <div class="form-group">
-                            <label for="field-5" class="control-label">Tax Rate </label>
+                            <label for="field-5" class="control-label">Tax 1</label>
                             {{Form::SelectExt(
                                         [
                                         "name"=>"TaxRateID",
@@ -328,10 +382,33 @@
                                         "data-value1"=>"Amount",
                                         "data-title2"=>"data-status",
                                         "data-value2"=>"FlatStatus",
-                                        "class" =>"selectboxit TaxRateID",
+                                        "class" =>"select2 small TaxRateID",
                                         ]
                                 )}}
                         </div>
+                    </div>
+                    </div>
+                    
+                    <div class="row tax">
+                        <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">Tax 2</label>
+                            {{Form::SelectExt(
+                                        [
+                                        "name"=>"TaxRateID2",
+                                        "data"=>$taxes,
+                                        "selected"=>'',
+                                        "value_key"=>"TaxRateID",
+                                        "title_key"=>"Title",
+                                        "data-title1"=>"data-amount",
+                                        "data-value1"=>"Amount",
+                                        "data-title2"=>"data-status",
+                                        "data-value2"=>"FlatStatus",
+                                        "class" =>"select2 small TaxRateID2",
+                                        ]
+                                )}}
+                        </div>
+                    </div>
                     </div>
                 </div>
                 <div class="modal-footer">

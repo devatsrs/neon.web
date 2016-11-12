@@ -1,28 +1,14 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpenseDrilDown`(
-	IN `p_CompanyID` INT,
-	IN `p_CurrencyID` INT,
-	IN `p_StartDate` VARCHAR(50),
-	IN `p_EndDate` VARCHAR(50),
-	IN `p_Type` INT,
-	IN `p_PageNumber` INT,
-	IN `p_RowspPage` INT,
-	IN `p_lSortCol` VARCHAR(50),
-	IN `p_SortOrder` VARCHAR(50),
-	IN `p_CustomerID` INT,
-	IN `p_Export` INT
-)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpenseDrilDown`(IN `p_CompanyID` INT, IN `p_CurrencyID` INT, IN `p_StartDate` VARCHAR(50), IN `p_EndDate` VARCHAR(50), IN `p_Type` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(50), IN `p_CustomerID` INT, IN `p_Export` INT)
 BEGIN
 	DECLARE v_Round_ int;
 	DECLARE v_OffSet_ int;
 	DECLARE v_CurrencyCode_ VARCHAR(50);
-	DECLARE v_PaymentDueInDays_ int;
 	DECLARE v_TotalCount int;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	SELECT cs.Value INTO v_Round_ FROM NeonRMDev.tblCompanySetting cs WHERE cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 	SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
-	SELECT cs.Value INTO v_PaymentDueInDays_ from NeonRMDev.tblCompanySetting cs where cs.`Key` = 'PaymentDueInDays' AND cs.CompanyID = p_CompanyID;
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 	
 	IF p_Type = 1  -- Payment Recived
@@ -126,7 +112,6 @@ BEGIN
             PaymentDate,
             CreatedBy,
             InvoiceNo,
-            PaymentMethod,
             Notes
 				FROM tmp_Payment_
 				where (PaymentDate BETWEEN p_StartDate AND p_EndDate); 
@@ -174,14 +159,13 @@ BEGIN
 			inv.ItemInvoice,
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
-			IFNULL(ab.PaymentDueInDays,v_PaymentDueInDays_) as PaymentDueInDays,
+			(SELECT IFNULL(b.PaymentDueInDays,0) FROM NeonRMDev.tblAccountBilling ab INNER JOIN NeonRMDev.tblBillingClass b ON b.BillingClassID =ab.BillingClassID WHERE ab.AccountID = ac.AccountID) as PaymentDueInDays,
 			(select PaymentDate from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
 			inv.SubTotal
       FROM tblInvoice inv
       INNER JOIN NeonRMDev.tblAccount ac ON inv.AccountID = ac.AccountID
       AND (p_CustomerID=0 OR ac.AccountID = p_CustomerID)
       LEFT JOIN tblInvoiceDetail invd on invd.InvoiceID = inv.InvoiceID AND invd.ProductType = 2
-		INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
 		LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
 		WHERE 
 		inv.CompanyID = p_CompanyID
@@ -245,7 +229,8 @@ BEGIN
       	SELECT COUNT(*) AS totalcount,
 					ROUND(COALESCE(SUM(GrandTotal),0),v_Round_) as totalsum, 
 					ROUND(COALESCE(SUM(TotalPayment),0),v_Round_) totalpaymentsum,
-					ROUND(COALESCE(SUM(PendingAmount),0),v_Round_) totalpendingsum 
+					ROUND(COALESCE(SUM(PendingAmount),0),v_Round_) totalpendingsum,
+					v_CurrencyCode_ as currencySymbol
 			FROM tmp_Invoices_;
       	
 		END IF;

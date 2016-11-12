@@ -10,6 +10,9 @@ class DashboardController extends BaseController {
     public function home() {
         return Redirect::to('/process_redirect');
     }
+    public function rmdashboard() {
+        return View::make('dashboard.index');
+    }
     public function salesdashboard(){
 
             $companyID = User::get_companyID();
@@ -132,7 +135,17 @@ class DashboardController extends BaseController {
         $original_enddate = date('Y-m-d');
         $company_gateway =  CompanyGateway::getCompanyGatewayIdList();
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json'));
+        $StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+        $DateEndDefault  	= 	date('Y-m-d');
+        $monthfilter = 'Weekly';
+        if(Cache::has('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID())){
+            $monthfilter = Cache::get('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID());
+        }
+        $BillingDashboardWidgets 	= 	CompanyConfiguration::get('BILLING_DASHBOARD');
+        if(!empty($BillingDashboardWidgets)) {
+            $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
+        }
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json','StartDateDefault','DateEndDefault','monthfilter','BillingDashboardWidgets'));
 
     }
     public function monitor_dashboard(){
@@ -141,12 +154,13 @@ class DashboardController extends BaseController {
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
-        $isAdmin = User::is_admin();
+        $isAdmin = 1;
         $where['Status'] = 1;
         $where['VerificationStatus'] = Account::VERIFIED;
         $where['CompanyID']=User::get_companyID();
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
+            $isAdmin = 0;
         }
         $agent = new Agent();
         $isDesktop = $agent->isDesktop();
@@ -174,6 +188,7 @@ class DashboardController extends BaseController {
 		$TaskBoard			= 	CRMBoard::getTaskBoard();
         $taskStatus 		= 	CRMBoardColumn::getTaskStatusList($TaskBoard[0]->BoardID);
 		$CloseStatus		=	Opportunity::Close;
+		$CrmAllowedReports	=	array();
 		$where['Status']=1;
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
@@ -182,8 +197,15 @@ class DashboardController extends BaseController {
 		  if(!empty($leadOrAccount)){
             $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
-        $tasktags 			= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
-		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus'));	
+        $tasktags 						= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
+		$CompanyCrmDashboardSetting 	= 	CompanyConfiguration::get('CRM_DASHBOARD');
+		if(!empty($CompanyCrmDashboardSetting))
+		{
+			$CrmAllowedReports			=	explode(",",$CompanyCrmDashboardSetting);
+		}
+		
+		
+		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus',"CrmAllowedReports"));	
 	}
 	
 	public function GetUsersTasks(){

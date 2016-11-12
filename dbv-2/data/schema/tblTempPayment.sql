@@ -10,5 +10,6 @@ CREATE TABLE `tblTempPayment` (
   `Notes` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Amount` decimal(18,8) NOT NULL,
   `Status` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `InvoiceID` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`PaymentID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ROW_FORMAT=COMPACT

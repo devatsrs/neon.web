@@ -9,7 +9,7 @@ class BillingSubscriptionController extends \BaseController {
         //$FdilterAdvance = $data['FilterAdvance']== 'true'?1:0;
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
-        $columns = array("Name", "MonthlyFee", "WeeklyFee", "DailyFee");
+        $columns = array("Name", "MonthlyFee", "WeeklyFee", "DailyFee",'Advance');
         $sort_column = $columns[$data['iSortCol_0']];
         if($data['FilterAdvance'] == ''){
             $data['FilterAdvance'] = 'null';
@@ -40,8 +40,9 @@ class BillingSubscriptionController extends \BaseController {
 
     public function index() {
 
-        $currencies = Currency::getCurrencyDropdownIDList();
-        return View::make('billingsubscription.index', compact('currencies'));
+        $currencies 			= 	Currency::getCurrencyDropdownIDList();
+		$AdvanceSubscription 	= 	json_encode(BillingSubscription::$Advance);
+        return View::make('billingsubscription.index', compact('currencies','AdvanceSubscription'));
 
     }
 

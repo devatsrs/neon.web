@@ -72,7 +72,7 @@
                             <div class="input-group" style="width: 100%;">
                                 <div class="input-group-addon" style="padding: 0px; width: 85px;">
                                     <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
-                                    {{Form::select('Title', $NamePrefix_array, $lead->Title ,array("class"=>"selectboxit"))}}
+                                    {{Form::select('Title', $NamePrefix_array, $lead->Title ,array("class"=>"select2 small"))}}
                                 </div>
                                 <input type="text" name="FirstName" class="form-control" value="{{$lead->FirstName}}"/>
                             </div>
@@ -121,20 +121,20 @@
                         <label for="field-1" class="col-sm-2 control-label">Lead Source</label>
                         <div class="col-sm-4">
                             <?php $leadsource_array = array( "Advertisement"=>"Advertisement", "Cold Call"=>"Cold Call" , "Employee Referral"=>"Employee Referral","Online Store"=>"Online Store","Employee Referral"=>"Employee Referral","Partner"=>"Partner","Public Relations"=>"Public Relations","Sales Mail Alias"=>"Sales Mail Alias","Seminar Partner"=>"Seminar Partner","Trade Show"=>"Trade Show","Web Download"=>"Web Download","Web Research"=>"Web Research","Chat"=>"Chat" ); ?>
-                            {{Form::select('LeadSource', $leadsource_array, $lead->LeadSource ,array("class"=>"selectboxit"))}}
+                            {{Form::select('LeadSource', $leadsource_array, $lead->LeadSource ,array("class"=>"select2 small"))}}
                         </div>
 
                         <label class="col-sm-2 control-label">Lead Status</label>
                         <div class="col-sm-4">
                             <?php $leadstatus_array = array( ""=>"-none-", "Attempted to Contact"=>"Attempted to Contact" , "Contact in Future"=>"Contact in Future","Contacted"=>"Contacted", "Junk Lead"=>"Junk Lead","Not Contacted"=>"Not Contacted", "Pre Qualified"=>"Pre Qualified" ); ?>
-                            {{Form::select('LeadStatus', $leadstatus_array, $lead->LeadStatus ,array("class"=>"selectboxit"))}}
+                            {{Form::select('LeadStatus', $leadstatus_array, $lead->LeadStatus ,array("class"=>"select2 small"))}}
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Rating</label>
                         <div class="col-sm-4">
                             <?php $rating_array = array( ""=>"-none-", "Acquired"=>"Acquired" , "Active"=>"Active","Market Failed"=>"Market Failed", "Project Cancelled"=>"Project Cancelled","Shutdown"=>"Shutdown"); ?>
-                            {{Form::select('Rating', $rating_array, $lead->Rating ,array("class"=>"selectboxit"))}}
+                            {{Form::select('Rating', $rating_array, $lead->Rating ,array("class"=>"select2 small"))}}
                         </div>
 
                         <label class="col-sm-2 control-label">No. Of Employees</label>
@@ -241,7 +241,7 @@
                         <label for=" field-1" class="col-sm-2 control-label">Country</label>
                         <div class="col-sm-4">
 
-                            {{Form::select('Country', $countries, $lead->Country ,array("class"=>"selectboxit"))}}
+                            {{Form::select('Country', $countries, $lead->Country ,array("class"=>"select2 small"))}}
                         </div>
                     </div>
                 </div>
@@ -265,7 +265,7 @@
 
         $('#createopportunity').on('click',function(){
             $('#add-edit-opportunity-form').trigger('reset');
-            $('#add-edit-opportunity-form [name="AccountID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(accountID);
+            $('#add-edit-opportunity-form [name="AccountID"]').val(accountID).trigger("change");
             if(accountID) {
                 var url = baseurl + '/opportunity/' + accountID + '/getlead';
                 $.ajax({
@@ -366,7 +366,7 @@
 
 </script>
 
-@include('includes.ajax_submit_script', array('formID'=>'lead-from' , 'url' => ($url2)));
+@include('includes.ajax_submit_script', array('formID'=>'lead-from' , 'url' => ($url2)))
 @include('opportunityboards.opportunitymodal',array('leadOrAccountID'=>$leadOrAccountID))
 @stop
 
@@ -386,7 +386,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-2">Account Owner *</label>
                                     <div class="col-sm-4">
-                                        {{Form::select('UserID',$account_owners,User::get_userID(),array("class"=>"selectboxit",'disabled'))}}
+                                        {{Form::select('UserID',$account_owners,User::get_userID(),array("class"=>"select2 small",'disabled'))}}
                                     </div>
                                     <label for="field-5" class="control-label col-sm-2">Opportunity Name *</label>
                                     <div class="col-sm-4">
@@ -402,7 +402,7 @@
                                     <div class="leads">
                                         <label for="field-5" class="control-label col-sm-2">Leads</label>
                                         <div class="col-sm-4">
-                                            {{Form::select('AccountID',$leads,'',array("class"=>"selectboxit",'disabled'))}}
+                                            {{Form::select('AccountID',$leads,'',array("class"=>"select2 small",'disabled'))}}
                                         </div>
                                     </div>
                                 </div>
@@ -441,7 +441,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-2">Select Board</label>
                                     <div class="col-sm-4">
-                                        {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                        {{Form::select('BoardID',$boards,'',array("class"=>"select2 small"))}}
                                     </div>
                                     <label for="field-5" class="control-label col-sm-2">Select Background</label>
                                     <div class="col-sm-3 input-group">

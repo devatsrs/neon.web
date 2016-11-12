@@ -5,7 +5,9 @@
         if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){
             $selectd_val =$gatewayconfigval->$configkey;
         }
-        $count++;
+        if($configkey != 'AllowAccountImport'){
+            $count++;
+        }
         $NameFormat =  GatewayConfig::$NameFormat;
         if($GatewayName == 'Porta'){
             unset($NameFormat['IP']);
@@ -14,6 +16,10 @@
     @if($count%2 == 0)
             <div class="clear"></div>
     @endif
+        @if($configkey == 'AllowAccountImport')
+            <input id="AllowAccountImport"  type="hidden" name="AllowAccountImport" value="1">
+        @else
+
      <div class="col-md-6 " @if($configkey == 'RateFormat') id="rate_dropdown" @endif>
         <div class="form-group">
             @if($configkey != 'AllowAccountImport')
@@ -21,11 +27,11 @@
             @endif
 
             @if($configkey == 'NameFormat')
-                {{Form::select($configkey,$NameFormat,$selectd_val,array( "class"=>"selectboxit"))}}
+                {{Form::select($configkey,$NameFormat,$selectd_val,array( "class"=>"select2 small"))}}
             @elseif($configkey == 'CallType')
-                {{Form::select($configkey,GatewayConfig::$CallType,$selectd_val,array( "class"=>"selectboxit"))}}
+                {{Form::select($configkey,GatewayConfig::$CallType,$selectd_val,array( "class"=>"select2 small"))}}
             @elseif($configkey == 'BillingTime')
-                {{Form::select($configkey,Company::$billing_time,$selectd_val,array( "class"=>"selectboxit"))}}
+                {{Form::select($configkey,Company::$billing_time,$selectd_val,array( "class"=>"select2 small"))}}
             @elseif($configkey == 'RateCDR')
                 <div class="clear col-md-13">
                 <p class="make-switch switch-small">
@@ -38,12 +44,10 @@
                 if(!empty($selectd_val)){
                     $disable = array('disabled'=>'disabled');
                 }
-                $options = array_merge(array( "class"=>"selectboxit"),$disable);
+                $options = array_merge(array( "class"=>"select2 small"),$disable);
                 ?>
                 <input type="hidden" name="RateFormat" value="{{$selectd_val}}">
                 {{Form::select($configkey,Company::$rerate_format,$selectd_val,$options)}}
-            @elseif($configkey == 'AllowAccountImport')
-                <input id="AllowAccountImport"  type="hidden" name="AllowAccountImport" value="1">
 
             @else
 
@@ -54,11 +58,12 @@
                 @endif
          </div>
     </div>
+        @endif
 @endforeach
 </div>
 
 <script>
-if ($.isFunction($.fn.selectBoxIt))
+/*if ($.isFunction($.fn.selectBoxIt))
 {
     $("select.selectboxit").each(function(i, el)
     {
@@ -72,5 +77,5 @@ if ($.isFunction($.fn.selectBoxIt))
         $this.addClass('visible');
         $this.selectBoxIt(opts);
     });
-}
+}*/
 </script>

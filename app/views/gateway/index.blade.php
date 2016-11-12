@@ -279,6 +279,8 @@ var postdata;
                     type: 'POST',
                     success: function(response) {
                         $('#ajax_config_html').html(response);
+                        initializeSelect2();
+
                     },
                     // Form data
                     data: "GatewayID="+$(this).val()+'&CompanyGatewayID='+$("#add-new-config-form [name='CompanyGatewayID']").val(),
@@ -434,6 +436,37 @@ var postdata;
                 });
             }
         });
+
+        function initializeSelect2(){
+            $("#ajax_config_html .select2").each(function(i, el)
+            {
+                var $this = $(el),
+                        opts = {
+                            allowClear: attrDefault($this, 'allowClear', false)
+                        };
+                if($this.hasClass('small')){
+                    opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
+                    opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search')
+                }
+                $this.select2(opts);
+                if($this.hasClass('small')){
+                    $this.select2('container').find('.select2-search').addClass ('hidden') ;
+                }
+                //$this.select2("open");
+            }).promise().done(function(){
+                $('.select2').css('visibility','visible');
+            });
+
+
+            if ($.isFunction($.fn.perfectScrollbar))
+            {
+                $(".select2-results").niceScroll({
+                    cursorcolor: '#d4d4d4',
+                    cursorborder: '1px solid #ccc',
+                    railpadding: {right: 3}
+                });
+            }
+        }
 
         function getselectedIDs(table){
             var SelectedIDs = [];

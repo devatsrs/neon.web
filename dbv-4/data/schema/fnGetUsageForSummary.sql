@@ -36,8 +36,8 @@ BEGIN
 		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00'),
 		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
 		1 as call_status
-	FROM LocalRMCdr.tblUsageDetails  ud
-	INNER JOIN LocalRMCdr.tblUsageHeader uh
+	FROM NeonCDRDev.tblUsageDetails  ud
+	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
 		uh.CompanyID = p_CompanyID
@@ -59,8 +59,8 @@ BEGIN
 		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00'),
 		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
 		2 as call_status
-	FROM LocalRMCdr.tblUsageDetailFailedCall  ud
-	INNER JOIN LocalRMCdr.tblUsageHeader uh
+	FROM NeonCDRDev.tblUsageDetailFailedCall  ud
+	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
 		uh.CompanyID = p_CompanyID

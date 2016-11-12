@@ -141,7 +141,7 @@
         <section class="deals-board" >
             
 
-            <table class="table table-bordered datatable" id="opportunityGrid">
+            <table class="table table-bordered datatable hidden" id="opportunityGrid">
                 <thead>
                 <tr>
                     <th width="25%" >Name</th>
@@ -321,6 +321,11 @@
                         $('#opportunityGrid').removeClass('hidden');
                     }
                     $('#opportunityGrid .knob').knob({"readOnly":true});
+                    $('#opportunityGrid .knob').each(function(){
+                        var self = $(this);
+                        self.css('position','relative');
+                        self.css('margin-top',self.css('margin-left'));
+                    });
                 }
 
             });
@@ -358,7 +363,7 @@
                             var taggedUsers = rowHidden.find('[name="TaggedUsers"]').val();
                             $('#edit-opportunity-form [name="TaggedUsers[]"]').select2('val', taggedUsers.split(','));
                         }else {
-                            elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
+                            elem.val(val).trigger("change");
                         }
                     } else{
                         elem.val(val);
@@ -873,7 +878,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade" id="edit-modal-opportunity">
-        <div class="modal-dialog" style="width: 70%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="edit-opportunity-form" method="post">
                     <div class="modal-header">
@@ -924,7 +929,7 @@
                                         <div class="input-group" style="width: 100%;">
                                             <div class="input-group-addon" style="padding: 0px; width: 85px;">
                                                 <?php $NamePrefix_array = array( ""=>"-None-" ,"Mr"=>"Mr", "Miss"=>"Miss" , "Mrs"=>"Mrs" ); ?>
-                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"selectboxit"))}}
+                                                {{Form::select('Title', $NamePrefix_array, '' ,array("class"=>"select2 small"))}}
                                             </div>
                                             <input type="text" name="FirstName" class="form-control" id="field-5">
                                         </div>
@@ -971,7 +976,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Status</label>
                                     <div class="col-sm-8 input-group">
-                                        {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"selectboxit"))}}
+                                        {{Form::select('Status', Opportunity::$status, '' ,array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>
@@ -980,7 +985,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Select Board*</label>
                                     <div class="col-sm-8">
-                                        {{Form::select('BoardID',$boards,'',array("class"=>"selectboxit"))}}
+                                        {{Form::select('BoardID',$boards,'',array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>
@@ -1097,36 +1102,37 @@
                     <div class="modal-body">
                         @if(User::checkCategoryPermission('OpportunityComment','Add'))
                         <form id="add-opportunity-comments-form" method="post" enctype="multipart/form-data">
-                            <div class="form-group">
+                            <div class="row">
                                 <div class="col-md-12 text-left">
                                     <h4>Add Comment</h4>
                                 </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-12">
-                                    <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                    <div class="form-group">
+                                        <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                    </div>
                                 </div>
-                                <div class="col-md-11">
-                                </div>
-                                <div class="col-md-1">
-                                    <p class="comment-box-options">
-                                        <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
-                                            <i class="entypo-attach"></i>
-                                        </a>
-                                    </p>
-                                </div>
-                                <div class="col-sm-6 pull-left end-buttons sendmail" style="text-align: left;">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 pull-left end-buttons sendmail" style="text-align: left;">
                                     <label for="field-5" class="control-label">Send Mail To Customer:</label>
                                     <span id="label-switch" class="make-switch switch-small">
                                         <input name="PrivateComment" value="1" type="checkbox">
                                     </span>
                                 </div>
-                                <div class="col-sm-6 pull-right end-buttons" style="text-align: right;">
+                                <div class="col-md-6 pull-right end-buttons" style="text-align: right;">
+                                    <p class="comment-box-options">
+                                        <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
+                                            <i class="entypo-attach"></i>
+                                        </a>
+                                    </p>
                                     <input type="hidden" name="OpportunityID" >
                                     <input type="hidden" name="AccountID" >
                                     <button data-loading-text="Loading..." id="commentadd" class="add btn btn-primary btn-sm btn-icon icon-left" type="submit" style="visibility: visible;">
                                         <i class="entypo-floppy"></i>
                                         Add Comment
                                     </button>
-                                    <br>
                                     <div class="file_attachment">
                                         <div class="file-input-names"></div>
                                         <input id="filecontrole" type="file" name="commentattachment[]" class="hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />&nbsp;
@@ -1137,19 +1143,25 @@
                             </div>
                         </form>
                         @endif
-                        <br>
-                        <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
-                        <div id="allComments" class="form-group">
-
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
+                                <div id="allComments"></div>
+                            </div>
                         </div>
-                        <div id="attachments" class="form-group">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="attachments" class="form-group"></div>
+                            </div>
                         </div>
                         <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
                         <form id="add-opportunity-attachment-form" method="post" enctype="multipart/form-data">
-                            <div class="col-md-8"></div>
-                            <div class="col-md-4" id="addattachmentop" style="text-align: right;">
-                                <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
-                                <input type="hidden" name="OpportunityID" >
+                            <div class="row">
+                                <div class="col-md-8"></div>
+                                <div class="col-md-4" id="addattachmentop" style="text-align: right;">
+                                    <input type="file" name="opportunityattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
+                                    <input type="hidden" name="OpportunityID" >
+                                </div>
                             </div>
                         </form>
                     </div>

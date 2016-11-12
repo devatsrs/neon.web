@@ -17,13 +17,12 @@ class Notification extends \Eloquent {
     public static $type = [ Notification::InvoiceCopy=>'Invoice Copy',
         Notification::ReRate=>'CDR Rate Log',
         Notification::WeeklyPaymentTransactionLog=>'Weekly Payment Transaction Log',
-        Notification::LowBalanceReminder=>'Low Balance Reminder',
         Notification::PendingApprovalPayment=>'Pending Approval Payment',
         Notification::RetentionDiskSpaceEmail=>'Retention Disk Space Email'];
 
     public static function getNotificationMail($type){
         $CompanyID = User::get_companyID();
-        $Notification = Notification::where(['CompanyID'=>$CompanyID,'NotificationType'=>$type])->pluck('EmailAddresses');
+        $Notification = Notification::where(['CompanyID'=>$CompanyID,'NotificationType'=>$type,'Status'=>1])->pluck('EmailAddresses');
         return empty($Notification)?'':$Notification;
     }
 

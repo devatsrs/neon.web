@@ -52,18 +52,29 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Account Balance</label>
                         <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control" readonly name="AccountBalance" value="{{$BalanceAmount}}">
+                            <input type="text" class="form-control" readonly name="AccountBalance" value="{{$SOA_Amount}}">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Unbilled Amount</label>
-                        <div class="desc col-sm-4 ">
-                            <input type="text" class="form-control" readonly name="UnbilledAmount" value="{{$UnbilledAmount}}" >
+                        <label for="field-1" class="col-sm-2 control-label">Customer Unbilled Amount</label>
+                        <div class="desc col-sm-2">
+                            <input type="text" class="form-control " readonly name="UnbilledAmount" value="{{$UnbilledAmount}}" >
+                        </div>
+
+                        <label for="field-1" class="col-sm-2 control-label">Vendor Unbilled Amount</label>
+                        <div class="desc col-sm-2 ">
+                            <input type="text" class="form-control" readonly name="VendorUnbilledAmount" value="{{$VendorUnbilledAmount}}" >
                         </div>
                         <div  class="col-sm-1">
-                            <button id="unbilled_report" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <button id="unbilled_report" class="btn btn-primary btn-sm btn-icon icon-left unbilled_report" data-id="{{$account->AccountID}}" data-loading-text="Loading...">
                                 <i class="fa fa-eye"></i>View Report
                             </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Account Exposure</label>
+                        <div class="desc col-sm-4 ">
+                            <input type="text" class="form-control" readonly name="AccountExposure" value="{{$SOA_Amount+($UnbilledAmount - $VendorUnbilledAmount)}}">
                         </div>
                     </div>
                     <div class="form-group">
@@ -86,15 +97,7 @@
                             <input type="text" class="form-control"  name="BalanceThreshold" value="{{$BalanceThreshold}}" id="Threshold Limit">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Low Balance Reminder to Customer
-                        </label>
-                        <div class="desc col-sm-4 ">
-                            <p class="make-switch switch-small">
-                                <input id="EmailToCustomer" name="EmailToCustomer" type="checkbox" @if($EmailToCustomer == 1) checked @endif value="1">
-                            </p>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </form>

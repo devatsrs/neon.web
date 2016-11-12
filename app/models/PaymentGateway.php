@@ -15,7 +15,8 @@ class PaymentGateway extends \Eloquent {
     {
         switch($PaymentGateway) {
             case 'AuthorizeNet':
-                $transaction = AuthorizeNet::addAuthorizeNetTransaction($amount,$options);
+                $authorize = new AuthorizeNet();
+                $transaction = $authorize->addAuthorizeNetTransaction($amount,$options);
 				$Notes = '';
                 if($transaction->response_code == 1) {
                     $Notes = 'AuthorizeNet transaction_id ' . $transaction->transaction_id;

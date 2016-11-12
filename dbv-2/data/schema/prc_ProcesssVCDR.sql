@@ -46,9 +46,9 @@ BEGIN
 	SET @stm = CONCAT('
 	UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` uh
 	INNER JOIN tblGatewayAccount ga
-		ON ga.GatewayAccountID = uh.GatewayAccountID
-		AND ga.CompanyID = uh.CompanyID
+		ON  ga.CompanyID = uh.CompanyID
 		AND ga.CompanyGatewayID = uh.CompanyGatewayID
+		AND ga.GatewayAccountID = uh.GatewayAccountID
 	SET uh.AccountID = ga.AccountID
 	WHERE uh.AccountID IS NULL
 	AND ga.AccountID is not null
@@ -62,9 +62,9 @@ BEGIN
 	/* update header cdr account */
 	UPDATE NeonCDRDev.tblVendorCDRHeader uh
 	INNER JOIN tblGatewayAccount ga
-		ON ga.GatewayAccountID = uh.GatewayAccountID
-		AND ga.CompanyID = uh.CompanyID
+		ON  ga.CompanyID = uh.CompanyID
 		AND ga.CompanyGatewayID = uh.CompanyGatewayID
+		AND ga.GatewayAccountID = uh.GatewayAccountID
 	SET uh.AccountID = ga.AccountID
 	WHERE uh.AccountID IS NULL
 	AND ga.AccountID is not null
@@ -166,6 +166,34 @@ BEGIN
  	
 		SET v_pointer_ = v_pointer_ + 1;
 	END WHILE;
+	
+	/* if rerate is off and acconts and trunks not setup update prefix from default codedeck*/
+	IF p_RateCDR = 0 AND p_RateFormat = 2
+	THEN 
+		/* temp accounts and trunks*/
+		DROP TEMPORARY TABLE IF EXISTS tmp_Accounts_;
+		CREATE TEMPORARY TABLE tmp_Accounts_  (
+			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			AccountID INT
+		);
+		SET @stm = CONCAT('
+		INSERT INTO tmp_Accounts_(AccountID)
+		SELECT DISTINCT AccountID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
+		');
+
+		PREPARE stm FROM @stm;
+		EXECUTE stm;
+		DEALLOCATE PREPARE stm;
+		
+			
+		/* get default code */
+		CALL NeonRMDev.prc_getDefaultCodes(p_CompanyID);
+		
+		/* update prefix from default codes 
+		 if rate format is prefix base not charge code*/
+		CALL prc_updateDefaultVendorPrefix(p_processId, p_tbltempusagedetail_name);
+
+	END IF;
 	
 	
 	SET @stm = CONCAT('
