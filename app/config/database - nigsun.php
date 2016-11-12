@@ -80,13 +80,10 @@ return array(
             'host'     => 'localhost',
             'database' => 'NeonRM',
             'username' => 'neon-user',
-            'password' => 'R}Ch6A?LxFF:f8vH',
+            'password' => 'B<7rg2waZ3q#A!km',
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'   => '',
-			'options' => array(
-				\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone = \'+04:00\''
-			)
         ],
         /** Billing Database **/
         'sqlsrv2' => [
@@ -94,13 +91,10 @@ return array(
             'host'     => 'localhost',
             'database' => 'NeonBilling',
             'username' => 'neon-user',
-            'password' => 'R}Ch6A?LxFF:f8vH',
+            'password' => 'B<7rg2waZ3q#A!km',
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'   => '',
-			'options' => array(
-				\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone = \'+04:00\''
-			)
         ],
         /** CDR Database **/
         'sqlsrvcdr' => [
@@ -108,13 +102,10 @@ return array(
             'host'     => 'localhost',
             'database' => 'NeonCDR',
             'username' => 'neon-user',
-            'password' => 'R}Ch6A?LxFF:f8vH',
+            'password' => 'B<7rg2waZ3q#A!km',
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'   => '',
-			'options' => array(
-				\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone = \'+04:00\''
-			)
         ],
         /** OLD RM Server Database **/
         'sqlsrv3' => [
@@ -145,14 +136,11 @@ return array(
 			'host'      => 'localhost',
 			'database'  => 'NeonReport',
 			'username'  => 'neon-user',
-			'password'  => 'R}Ch6A?LxFF:f8vH',
+			'password'  => 'B<7rg2waZ3q#A!km',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',
 			'strict'    => false,
-			'options' => array(
-				\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone = \'+04:00\''
-			)
 		],
         /** Neon Tracker **/
         'tracker' => [
@@ -160,13 +148,10 @@ return array(
             'host'     => 'localhost',
             'database' => 'NeonRM',
             'username' => 'neon-user',
-            'password' => 'R}Ch6A?LxFF:f8vH',
+            'password' => 'B<7rg2waZ3q#A!km',
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'   => '',
-			'options' => array(
-				\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone = \'+04:00\''
-			)
         ],
 
 	),
