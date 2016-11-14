@@ -5,9 +5,14 @@
     $(document).ready(function ($) {
         $('#add-new-template-form').submit(function(e){
             e.preventDefault();
-            var url = baseurl + '/email_template/storetemplate';
-            ajax_update(url,$('#add-new-template-form').serialize());
-        })
+            var templateID = $("#add-new-template-form [name='TemplateID']").val();
+            if( typeof templateID != 'undefined' && templateID != ''){
+                update_new_url = baseurl + '/email_template/'+templateID+'/update';
+            }else{
+                update_new_url = baseurl + '/email_template/store';
+            }
+            ajax_update(update_new_url,$('#add-new-template-form').serialize());
+        });
 
         $('#add-new-modal-template').on('shown.bs.modal', function(event){
             var modal = $(this);
@@ -45,22 +50,20 @@
                 if (response.status == 'success') {
                     $('#add-new-modal-template').modal('hide');
                     toastr.success(response.message, "Success", toastr_opts);
-                    if (typeof data_table != 'undefined') {
-                        data_table.fnFilter('', 0);
-                    }else if($('#add-new-template-form [name="targetElement"]').val() != ''){
-                        var targetElement = $($('#add-new-template-form [name="targetElement"]').val());
-                        if(targetElement.length>0){
-                            $.each(targetElement,function(key,el){
-                                rebuildSelect2($(el),response.data,'Select');
-                                $(el).val(response.newcreated.TemplateID);
-                                $(el).trigger('change');
-                            });
+                    $('select.add-new-template-dp').each(function(key,el){
+                        if($(el).attr('data-active') == 1) {
+                            var newState = new Option(response.newcreated.TemplateName, response.newcreated.TemplateID, true, true);
                         }else{
-                            rebuildSelect2(targetElement,response.data,'Select');
-                            $(el).val(response.newcreated.TemplateID);
-                            $(el).trigger('change');
+                            var newState = new Option(response.newcreated.TemplateName, response.newcreated.TemplateID, false, false);
                         }
-                    }
+                        // Append it to the select
+                        $(el).append(newState).trigger('change');
+                        $(el).append($(el).find("option:gt(1)").sort(function (a, b) {
+                            return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
+                        }));
+                        template_dp_html = '<select class="select2 select2add small form-control visible select2-offscreen" name="InvoiceReminder[TemplateID][]" tabindex="-1" data-active="0">'+$(el).html().replace('<option data-image="1" value="select2-add" disabled="disabled">Add</option>','')+'</select>';
+                    });
+
                 } else {
                     toastr.error(response.message, "Error", toastr_opts);
                 }
@@ -130,7 +133,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <input type="hidden" name="targetElement" />
+
                         <button type="submit" id="template-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
