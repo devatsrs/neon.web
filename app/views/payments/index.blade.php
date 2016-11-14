@@ -199,7 +199,7 @@
           <div  class="col-md-12">
               <div class="input-group-btn pull-right" style="width:70px;">
                   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       @if(User::can('Payments','Add'))
                       <li class="li_active">
                           <a id="add-new-payment" class="add-cli" type_ad="active" href="javascript:void(0);" >
@@ -410,6 +410,11 @@
                             $(".dataTables_wrapper select").select2({
                                 minimumResultsForSearch: -1
                             });
+                            if($('#Recall_on_off').prop("checked")){
+                                $('#selectcheckbox').addClass('hidden');
+                            }else{
+                                $('#selectcheckbox').removeClass('hidden');
+                            }
                             $("#table-4 tbody input[type=checkbox]").each(function (i, el) {
                                 var $this = $(el),
                                         $p = $this.closest('tr');

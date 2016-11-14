@@ -43,7 +43,7 @@
         </div>
         <div class="form-group">
           <label for="subject">Subject:</label>
-          <input type="text" class="form-control" id="subject" name="Subject" value="@if($Emaildata){{$Emaildata->Subject}}@endif" tabindex="1" />
+          <input type="text" class="form-control subject" id="subject" name="Subject" value="@if($Emaildata){{$Emaildata->Subject}}@endif" tabindex="1" />
         </div>
         <div class="compose-message-editor">
           <textarea id="Message" name="Message" class="form-control wysihtml5box" >@if($Emaildata){{$Emaildata->Message}}@endif</textarea>

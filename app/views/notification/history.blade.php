@@ -70,9 +70,10 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
         <tr>
-            <th width="40%">Alert Name</th>
+            <th width="30%">Alert Name</th>
             <th width="30%">Alert Type</th>
             <th width="30%">Created Date</th>
+            <th width="10%">Action</th>
         </tr>
     </thead>
     <tbody>
@@ -83,6 +84,7 @@
 
     jQuery(document).ready(function($) {
         var $searchFilter = {};
+        var list_fields_index  = ["Name","AlertType","send_at","Subject","Message"];
         var AlertType = JSON.parse('{{json_encode($alertType)}}');
         $searchFilter.Search = $("#history_filter [name='Search']").val();
         $searchFilter.StartDate = $("#history_filter [name='StartDate']").val();
@@ -120,14 +122,33 @@
                         {"name":"Export","value":1}
                 );
             },
-            "aaSorting": [[3, 'desc']],
+            "aaSorting": [[2, 'desc']],
             "aoColumns":
                     [
                         {"bSortable": true},  // 1 Title
                         {"bSortable": true, mRender:function(id,type,full){
                             return AlertType[id];
                         }},  // 1 Title
-                        {"bSortable": true}  // 1 Title
+                        {"bSortable": true},  // 1 Title
+                        {                        // 9 Action
+                            "bSortable": false,
+                            mRender: function (id, type, full) {
+                                action = '<div class = "hiddenRowData" >';
+                                for (var i = 0; i < list_fields_index.length; i++) {
+                                    if(list_fields_index[i] == 'AlertType'){
+                                        action += '<div class="hidden" name="' + list_fields_index[i] + '">' + AlertType[full[i]] + '</div>';
+                                    }else{
+                                        action += '<div class="hidden" name="' + list_fields_index[i] + '">' + full[i] + '</div>';
+                                    }
+
+                                }
+                                action += '</div>';
+
+                                action += ' <a class="view-alert btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View </a>'
+
+                                        return action;
+                            }
+                        }
                     ],
                     "oTableTools":
                     {
@@ -156,6 +177,18 @@
         $(".pagination a").click(function(ev) {
             replaceCheckboxes();
         });
+        $('table tbody').on('click', '.view-alert', function (ev) {
+            ev.preventDefault();
+            $('#alert-form').trigger("reset");
+            var edit_url  = $(this).attr("href");
+            $('#alert-form').attr("action",edit_url);
+            $('#modal-alert-log h4').html('View Alert Log');
+            var cur_obj = $(this).prev("div.hiddenRowData");
+            for(var i = 0 ; i< list_fields_index.length; i++){
+                $("#alert-form [name='"+list_fields_index[i]+"']").html(cur_obj.find("[name='"+list_fields_index[i]+"']").html());
+            }
+            $('#modal-alert-log').modal('show');
+        });
 
         $("#history_filter").submit(function(e) {
             e.preventDefault();
@@ -175,4 +208,67 @@
     });
 
 </script>
+    @stop
+@section('footer_ext')
+    @parent
+    <div class="modal fade in" id="modal-alert-log">
+        <div class="modal-dialog" style="width: 70%">
+            <div class="modal-content">
+                <form id="alert-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Alert Log</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Name :</label>
+                                    <div name="Name"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">AlertType :</label>
+                                    <div name="AlertType"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Sent At : </label>
+                                    <div name="send_at"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Subject : </label>
+                                    <div name="Subject"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Message : </label>
+                                    <div name="Message"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @stop

@@ -211,7 +211,7 @@ $(document).ready(function(){
         $('#EstimateTable tbody tr td .TaxAmount').each(function(i, el){
             var $this = $(el);
             if($this.val() != ''){
-                total_tax  = eval(parseFloat(total_tax) + parseFloat($this.val().replace(',/g','')));
+                total_tax  = eval(parseFloat(total_tax) + parseFloat($this.val().replace(/,/g,'')));
             }
         });
 		

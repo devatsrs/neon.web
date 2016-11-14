@@ -7,10 +7,13 @@ $('#save_billing').on("click",function(e){
 
 $('#payment-add-row').on('click', function(e){
     e.preventDefault();
+    var add_row_html_payment = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Day][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
+    add_row_html_payment += '<td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Age][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
+    add_row_html_payment += '<td>'+template_dp_html+'</td><tr>';
     $('#PaymentReminderTable > tbody').append(add_row_html_payment);
-
-    $('select.select2').addClass('visible');
-    $('select.select2').select2();
+    var selectBox = $('#PaymentReminderTable select.select2').last();
+    selectBox.addClass('visible');
+    buildselect2(selectBox);
     rebind();
 });
 
