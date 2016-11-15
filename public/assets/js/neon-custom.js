@@ -2906,7 +2906,7 @@ function rebuildSelect2(el,data,defualtText){
             key = value.id;
             value = value.text;
         }
-        options.push(new Option(value, key, true, true));
+        options.push(new Option(value, key, false, false));
     });
     if(defualtText.length > 0){
         options.push(new Option(defualtText, '', true, true));

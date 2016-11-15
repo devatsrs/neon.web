@@ -4,13 +4,13 @@
             <form id="billing-form" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Add Qos Alert</h4>
+                    <h4 class="modal-title">Add QoS</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="control-label">Alert Type</label>
+                                <label class="control-label">Type</label>
                                 {{ Form::select('AlertType', $qos_alert_type, '', array("class"=>"select2")) }}
                             </div>
                         </div>
@@ -90,6 +90,13 @@
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Vendor</label>
                                 {{ Form::select('QosAlert[VAccountID][]',$Multivendor,array(), array("class"=>"select2",'multiple',"data-placeholder"=>"Select Account")) }}
+                            </div>
+                        </div>
+                        <div class="clear"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">No Of Calls</label>
+                                <input type="text" name="QosAlert[NoOfCall]"  class="form-control"/>
                             </div>
                         </div>
 
