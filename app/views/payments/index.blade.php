@@ -533,9 +533,10 @@
                             criteria_ac = 'selected';
                         }
 
-                        if(SelectedIDs=='' || criteria_ac=='')
+                        if(SelectedIDs=='' && criteria_ac=='selected')
                         {
                             alert("Please select atleast one account.");
+                            $("#payment-recall").button('reset');
                             return false;
                         }
                         var formData = new FormData($('#recall-payment-form')[0]);

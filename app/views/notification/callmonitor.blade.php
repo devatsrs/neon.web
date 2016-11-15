@@ -32,7 +32,7 @@
     <p style="text-align: right;">
         <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
             <i class="entypo-plus"></i>
-            Add Call Monitor Alert
+            Add Monitoring
         </a>
     </p>
 @endif
@@ -122,12 +122,12 @@
                         }
                         action += '</div>';
                         @if(User::checkCategoryPermission('Alert','Update'))
-                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-call-alert btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-call-alert btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                         @endif
                                 @if(User::checkCategoryPermission('Alert','Delete'))
-                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-call-alert btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>';
+                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-call-alert btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-trash"></i></a>';
                         @endif
-                                action += ' <a target="_blank" href="' + alert_history_url.replace("{id}", id) + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-back-in-time"></i>History </a>';
+                                action += ' <a target="_blank" href="' + alert_history_url.replace("{id}", id) + '" class="btn btn-default btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-back-in-time"></i></a>';
                                 return action;
                     }
                 }
@@ -175,7 +175,7 @@
         $('#add-call-alert').click(function(ev){
             ev.preventDefault();
             $('#call-billing-form').trigger("reset");
-            $('#add-call-modal h4').html('Add Call Monitor Alert');
+            $('#add-call-modal h4').html('Add Monitoring');
 
             $(".js-example-disabled").prop("disabled", false);
             $('#call-billing-form select').select2("val", "");
@@ -193,7 +193,7 @@
             $('#call-billing-form').trigger("reset");
             var edit_url  = $(this).attr("href");
             $('#call-billing-form').attr("action",edit_url);
-            $('#add-call-modal h4').html('Edit Call Monitor Alert');
+            $('#add-call-modal h4').html('Edit Monitoring');
             $('#call-billing-form select').select2("val", "");
             $(this).prev("div.hiddenRowData").find('input').each(function(i, el){
                 var ele_name = $(el).attr('name');
@@ -205,7 +205,7 @@
                     selectBox.val(ele_val).trigger("change");
                 }else if(ele_name == 'BlacklistDestination') {
                     $("#call-billing-form [name='CallAlert[BlacklistDestination][]']").val(ele_val.split(',')).trigger('change');
-                }else if(ele_name == 'AccountID'){
+                }else if(ele_name == 'AccountID' || ele_name == 'AccountIDs'){
                     var selectBox = $("#call-billing-form [name='CallAlert["+ele_name+"]']");
                     selectBox.val(ele_val).trigger("change");
                 }else if(ele_name == 'EmailToAccount'){
