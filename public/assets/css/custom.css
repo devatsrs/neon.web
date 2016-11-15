@@ -2590,3 +2590,7 @@ background-color:#000 !important;
 .mail-env .mail-body .mail-compose .form-group input.subject{
 	padding-left:80px !important;
 }
+.radio label{
+	min-height:inherit !important;
+	padding-left:inherit !important;
+}
