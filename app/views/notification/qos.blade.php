@@ -32,7 +32,7 @@
     <p style="text-align: right;">
         <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-qos-alert">
             <i class="entypo-plus"></i>
-            Add QOS Alert
+            Add QoS
         </a>
     </p>
 @endif
@@ -117,12 +117,12 @@
                         }
                         action += '</div>';
                         @if(User::checkCategoryPermission('Alert','Update'))
-                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-qos-alert btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-qos-alert btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>'
                         @endif
                                 @if(User::checkCategoryPermission('Alert','Delete'))
-                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-qos-alert btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-qos-alert btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-trash"></i></a>'
                         @endif
-                                action += ' <a target="_blank" href="' + alert_history_url.replace("{id}", id) + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-back-in-time"></i>History </a>';
+                                action += ' <a target="_blank" href="' + alert_history_url.replace("{id}", id) + '" class="btn btn-default btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-back-in-time"></i></a>';
                                 return action;
                     }
                 }
@@ -170,7 +170,7 @@
         $('#add-qos-alert').click(function(ev){
             ev.preventDefault();
             $('#billing-form').trigger("reset");
-            $('#add-qos-modal h4').html('Add Qos Alert');
+            $('#add-qos-modal h4').html('Add QoS');
             var selected_days = "SUN,MON,TUE,WED,THU,FRI,SAT";
             $(".js-example-disabled").prop("disabled", false);
             $('#billing-form select').select2("val", "");
@@ -188,7 +188,7 @@
             $('#billing-form').trigger("reset");
             var edit_url  = $(this).attr("href");
             $('#billing-form').attr("action",edit_url);
-            $('#add-qos-modal h4').html('Edit Qos Alert');
+            $('#add-qos-modal h4').html('Edit QoS');
             $('#billing-form select').select2("val", "");
             $(this).prev("div.hiddenRowData").find('input').each(function(i, el){
                 var ele_name = $(el).attr('name');
