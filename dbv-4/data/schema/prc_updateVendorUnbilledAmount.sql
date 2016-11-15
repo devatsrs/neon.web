@@ -1,4 +1,6 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateVendorUnbilledAmount`(IN `p_CompanyID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateVendorUnbilledAmount`(
+	IN `p_CompanyID` INT
+)
 BEGIN
 	
 	DECLARE v_Round_ INT;
@@ -16,7 +18,7 @@ BEGIN
 	CREATE TEMPORARY TABLE tmp_Account_  (
 		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		AccountID INT,
-		LastInvoiceDate DATE
+		LastInvoiceDate DATETIME
 	);
 	
 	INSERT INTO tmp_Account_ (AccountID)
