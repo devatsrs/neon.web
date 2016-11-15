@@ -14,8 +14,8 @@
 
     <ul class="nav nav-tabs">
         <li class="active"><a href="#notification" data-toggle="tab">Notification</a></li>
-        <li ><a href="#qos" data-toggle="tab">QOS Alerts</a></li>
-        <li ><a href="#callmonitor" data-toggle="tab">Call Monitor</a></li>
+        <li ><a href="#qos" data-toggle="tab">QoS</a></li>
+        <li ><a href="#callmonitor" data-toggle="tab">Monitoring</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="notification" >
