@@ -8,7 +8,7 @@
         <a href="{{URL::to('notification')}}">Notification</a>
     </li>
 </ol>
-<h3>Alert History</h3>
+<h3>Notification History</h3>
 
 <div class="row">
     <div class="col-md-12">
@@ -28,11 +28,11 @@
                         <div class="col-sm-2">
                             <input class="form-control" name="Search"  type="text" >
                         </div>
-                        <label class="col-sm-1 control-label">Alert</label>
+                        <label class="col-sm-1 control-label">Name</label>
                         <div class="col-sm-2">
                             {{ Form::select('AlertID', $Alerts, (!empty(Input::get('AlertID'))?Input::get('AlertID'):''), array("class"=>"form-control select2 small")) }}
                         </div>
-                        <label class="col-sm-1 control-label">Alert Type</label>
+                        <label class="col-sm-1 control-label">Type</label>
                         <div class="col-sm-2">
                             {{ Form::select('AlertType', $alertType, '', array("class"=>"form-control select2 small")) }}
                         </div>
@@ -70,8 +70,8 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
         <tr>
-            <th width="30%">Alert Name</th>
-            <th width="30%">Alert Type</th>
+            <th width="30%">Name</th>
+            <th width="30%">Type</th>
             <th width="30%">Created Date</th>
             <th width="10%">Action</th>
         </tr>
@@ -182,7 +182,7 @@
             $('#alert-form').trigger("reset");
             var edit_url  = $(this).attr("href");
             $('#alert-form').attr("action",edit_url);
-            $('#modal-alert-log h4').html('View Alert Log');
+            $('#modal-alert-log h4').html('View Log');
             var cur_obj = $(this).prev("div.hiddenRowData");
             for(var i = 0 ; i< list_fields_index.length; i++){
                 $("#alert-form [name='"+list_fields_index[i]+"']").html(cur_obj.find("[name='"+list_fields_index[i]+"']").html());
@@ -217,7 +217,7 @@
                 <form id="alert-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Alert Log</h4>
+                        <h4 class="modal-title">Log</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row">
@@ -231,7 +231,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">AlertType :</label>
+                                    <label for="field-5" class="control-label">Type :</label>
                                     <div name="AlertType"></div>
                                 </div>
                             </div>

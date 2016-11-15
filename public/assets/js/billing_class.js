@@ -7,6 +7,9 @@ $('#save_billing').on("click",function(e){
 
 $('#payment-add-row').on('click', function(e){
     e.preventDefault();
+    var add_row_html_payment = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Day][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
+    add_row_html_payment += '<td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Age][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
+    add_row_html_payment += '<td>'+template_dp_html+'</td><tr>';
     $('#PaymentReminderTable > tbody').append(add_row_html_payment);
     var selectBox = $('#PaymentReminderTable select.select2').last();
     selectBox.addClass('visible');
@@ -36,14 +39,17 @@ $("#call-billing-form [name='AlertType']").change(function(){
         $("#call-billing-form [name='CallAlert[BlacklistDestination][]']").parents('.row').removeClass('hidden');
         $("#call-billing-form .ReminderEmail").html('Send Email To');
     }else if($(this).val() == 'call_duration' || $(this).val() == 'call_cost' || $(this).val() == 'call_after_office'){
-        $("#call-billing-form [name='CallAlert[AccountID]']").parents('.row').removeClass('hidden');
+
         $("#call-billing-form [name='CallAlert[EmailToAccount]']").parents('.col-md-6').removeClass('hidden');
         $("#call-billing-form .ReminderEmail").html('Send Copy To');
         if($(this).val() == 'call_duration'){
+            $("#call-billing-form [name='CallAlert[AccountIDs]']").parents('.row').removeClass('hidden');
             $("#call-billing-form [name='CallAlert[Duration]']").parents('.row').removeClass('hidden');
         }else if($(this).val() == 'call_cost'){
+            $("#call-billing-form [name='CallAlert[AccountIDs]']").parents('.row').removeClass('hidden');
             $("#call-billing-form [name='CallAlert[Cost]']").parents('.row').removeClass('hidden');
         }else if($(this).val() == 'call_after_office'){
+            $("#call-billing-form [name='CallAlert[AccountID]']").parents('.row').removeClass('hidden');
             $("#call-billing-form [name='CallAlert[OpenTime]']").parents('.row').removeClass('hidden');
         }
     }

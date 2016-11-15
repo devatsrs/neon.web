@@ -41,7 +41,7 @@ class AuthorizeNet {
     function CreateProfile($data){
         try{
             $customerProfile = new AuthorizeNetCustomer();
-            $customerProfile->description = $data["description"];
+            $customerProfile->description = htmlspecialchars($data["description"]);
             $customerProfile->merchantCustomerId = $data["CustomerId"];
             $customerProfile->email = $data["email"];
             $response = $this->request->createCustomerProfile($customerProfile); 
