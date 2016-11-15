@@ -274,7 +274,7 @@ class PaymentsController extends \BaseController {
             return json_validator_response($validator);
         }
         $where=[];
-        if(isset($data['criteria'])){
+        if(isset($data['criteria']) && !empty($data['criteria'])){
             $criteria= json_decode($data['criteria'],true);
             $criteria['p_paymentstart']			 =		'null';
             $criteria['p_paymentend']			 =		'null';
