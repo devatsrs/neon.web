@@ -2940,3 +2940,11 @@ function IsJsonString(str) {
     }
     return true;
 }
+
+$("body").popover({
+    selector: '[data-toggle="popover3"]',
+    trigger:'hover',
+    html:true,
+    template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+    //template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+});
