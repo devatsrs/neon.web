@@ -168,6 +168,7 @@ class AccountsController extends \BaseController {
             Account::$rules['BillingTimezone'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
             Account::$rules['BillingStartDate'] = 'required';
+			Account::$rules['BillingClassID'] = 'required';
             if(isset($data['BillingCycleValue'])){
                 Account::$rules['BillingCycleValue'] = 'required';
             }
@@ -471,6 +472,7 @@ class AccountsController extends \BaseController {
             Account::$rules['BillingTimezone'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
             Account::$rules['BillingStartDate'] = 'required';
+			Account::$rules['BillingClassID'] = 'required';
             if(isset($data['BillingCycleValue'])){
                 Account::$rules['BillingCycleValue'] = 'required';
             }
