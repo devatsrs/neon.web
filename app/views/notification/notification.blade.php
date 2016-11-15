@@ -104,10 +104,10 @@
                         }
                         action += '</div>';
                         @if(User::checkCategoryPermission('Notification','Update'))
-                                action += ' <a href="' + notification_edit_url.replace("{id}", id) + '" class="edit-notification btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                                action += ' <a href="' + notification_edit_url.replace("{id}", id) + '" class="edit-notification btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>'
                         @endif
                                 @if(User::checkCategoryPermission('Notification','Delete'))
-                                action += ' <a href="' + notification_delete_url.replace("{id}", id) + '" class="delete-notification btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                action += ' <a href="' + notification_delete_url.replace("{id}", id) + '" class="delete-notification btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-trash"></i></a>'
                         @endif
                                 return action;
                     }

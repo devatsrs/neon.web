@@ -2906,7 +2906,7 @@ function rebuildSelect2(el,data,defualtText){
             key = value.id;
             value = value.text;
         }
-        options.push(new Option(value, key, true, true));
+        options.push(new Option(value, key, false, false));
     });
     if(defualtText.length > 0){
         options.push(new Option(defualtText, '', true, true));
@@ -2940,3 +2940,11 @@ function IsJsonString(str) {
     }
     return true;
 }
+
+$("body").popover({
+    selector: '[data-toggle="popover3"]',
+    trigger:'hover',
+    html:true,
+    template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+    //template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+});

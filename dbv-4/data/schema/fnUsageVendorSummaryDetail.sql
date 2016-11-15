@@ -1,4 +1,16 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageVendorSummaryDetail`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` TEXT, IN `p_AccountID` TEXT, IN `p_CurrencyID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_AreaPrefix` TEXT, IN `p_Trunk` TEXT, IN `p_CountryID` TEXT, IN `p_UserID` INT, IN `p_isAdmin` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageVendorSummaryDetail`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` TEXT,
+	IN `p_AccountID` TEXT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` TEXT,
+	IN `p_Trunk` TEXT,
+	IN `p_CountryID` TEXT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT
+)
 BEGIN
 	
 	DECLARE i INTEGER;
@@ -7,6 +19,7 @@ BEGIN
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageVendorSummary_(
 			`DateID` BIGINT(20) NOT NULL,
 			`TimeID` INT(11) NOT NULL,
+			`Time` VARCHAR(50) NOT NULL,
 			`CompanyID` INT(11) NOT NULL,
 			`AccountID` INT(11) NOT NULL,
 			`GatewayAccountID` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
@@ -40,6 +53,7 @@ BEGIN
 	SELECT
 		sh.DateID,
 		dt.TimeID,
+		dt.fulltime,
 		sh.CompanyID,
 		sh.AccountID,
 		sh.GatewayAccountID,
@@ -80,6 +94,7 @@ BEGIN
 	SELECT
 		sh.DateID,
 		dt.TimeID,
+		dt.fulltime,
 		sh.CompanyID,
 		sh.AccountID,
 		sh.GatewayAccountID,

@@ -53,8 +53,22 @@
                   </div>
                   @if($leadOrAccountCheck=='account')
                   <div class="block blockSmall">
-                    <div class="meta clear pull-left tooltip-primary" data-original-title="Invoice OutStanding" title="" data-placement="right" data-toggle="tooltip">OS : </div><div class="pull-left">{{$Account_card->OutStandingAmount}}</div>
-                    <div class="meta clear pull-left tooltip-primary" data-original-title="Unbilled Amount" title="" data-placement="right" data-toggle="tooltip">UA : </div><div class="pull-left">{{$Account_card->UnbilledAmount}}</div>
+
+                   <?php
+
+                    $popup_html =  "<label class='col-sm-6' >Invoice Outstanding:</label><div class='col-sm-6'>".$Account_card->OutStandingAmount."</div>
+                    <div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >".$Account_card->CUA."</div>
+                    <div class='clear'></div><label class='col-sm-6' >Vendor Unbilled Amount:</label><div class='col-sm-6' >".$Account_card->VUA."</div>
+                    <div class='clear'></div><label class='col-sm-6' >Account Exposure:</label><div class='col-sm-6' >".$Account_card->AE."</div>
+                    <div class='clear'></div><label class='col-sm-6' >Available Credit Limit:</label><div class='col-sm-6' >".$Account_card->ACL."</div>
+                    <div class='clear'></div><label class='col-sm-6' >Balance Threshold:</label><div class='col-sm-6' >".$Account_card->BalanceThreshold."</div>";
+
+                    ?>
+
+
+
+                    <div class="meta clear pull-left tooltip-primary" data-original-title="Invoice OutStanding" title="" data-placement="right" data-toggle="tooltip">OS : </div><div class="pull-left"><div class="pull-left" data-toggle="popover3"  data-trigger="hover" data-original-title="" data-content="{{$popup_html}}">{{$Account_card->OutStandingAmount}}</div></div>
+                    <div class="meta clear pull-left tooltip-primary" data-original-title="Unbilled Amount" title="" data-placement="right" data-toggle="tooltip">UA : </div><div class="pull-left"><a href="#" class="unbilled_report" data-id="{{$account->AccountID}}">{{$Account_card->UnbilledAmount}}</a></div>
                     <div class="meta clear pull-left tooltip-primary" data-original-title="Credit Limit" title="" data-placement="right" data-toggle="tooltip">CL : </div><div class="pull-left">{{$Account_card->PermanentCredit}}</div>
                   </div>
                   @endif </div>
@@ -533,6 +547,7 @@
 @include("accounts.taskmodal")
 <?php unset($BoardID); ?>
 @include('opportunityboards.opportunitymodal')
+@include('accounts.unbilledreportmodal')
 @include("accounts.activity_jscode",array("response_extensions"=>$response_extensions,"AccountID"=>$account->AccountID,"per_scroll"=>$per_scroll,"token"=>$random_token))
 @include('accounts.view_edit_models')
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
