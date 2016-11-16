@@ -511,11 +511,14 @@
 
                     $('body').on('click', '.btn.recall,.recall', function (e) {
                         e.preventDefault();
-                        $('#recall-payment-form').trigger("reset");
-                        var PaymentIDs = getselectedIDs();
-                        $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
+                        setTimeout(function()
+                        {
+                            $('#recall-payment-form').trigger("reset");
+                            var PaymentIDs = getselectedIDs();
+                            $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
+                            $('#recall-modal-payment').modal('show');
 
-                        $('#recall-modal-payment').modal('show');
+                        }, 500);
                     });
 
                     $('#recall-payment-form').submit(function(e){
