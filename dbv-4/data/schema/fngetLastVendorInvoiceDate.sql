@@ -1,12 +1,14 @@
-CREATE DEFINER=`root`@`localhost` FUNCTION `fngetLastVendorInvoiceDate`(`p_AccountID` INT) RETURNS date
+CREATE DEFINER=`root`@`localhost` FUNCTION `fngetLastVendorInvoiceDate`(
+	`p_AccountID` INT
+) RETURNS DATETIME
 BEGIN
 	
-	DECLARE v_LastInvoiceDate_ DATE;
+	DECLARE v_LastInvoiceDate_ DATETIME;
 	
 	SELECT
 		CASE WHEN EndDate IS NOT NULL AND EndDate <> '' 
 		THEN 
-			DATE_FORMAT(EndDate,'%Y-%m-%d')
+			EndDate
 		ELSE 
 			CASE WHEN BillingStartDate IS NOT NULL AND BillingStartDate <> ''
 			THEN
