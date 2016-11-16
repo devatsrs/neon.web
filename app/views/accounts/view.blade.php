@@ -555,6 +555,15 @@
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script src="<?php echo URL::to('/'); ?>/assets/js/select2/select2.js"></script> 
 <script>
+  jQuery(document).ready(function ($) {
+    $("body").popover({
+      selector: '[data-toggle="popover3"]',
+      trigger:'hover',
+      html:true,
+      template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+      //template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+    });
+  });
 	$(".tags").select2({
                         tags:<?php echo $users; ?>
 
