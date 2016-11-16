@@ -512,12 +512,9 @@
                     $('body').on('click', '.btn.recall,.recall', function (e) {
                         e.preventDefault();
                         $('#recall-payment-form').trigger("reset");
-                        if($(this).hasClass('btn')){
-                            $('#recall-payment-form').attr("action",$(this).attr('href'));
-                        }else{
-                            var PaymentIDs = getselectedIDs();
-                            $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
-                        }
+                        var PaymentIDs = getselectedIDs();
+                        $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
+
                         $('#recall-modal-payment').modal('show');
                     });
 
