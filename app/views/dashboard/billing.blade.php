@@ -800,10 +800,56 @@
             }, "html");
         }
 
+        function invoiceExpenseTotalwidgets(){
+            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
+                var data = $('#billing_filter').serialize();
+                var get_url = baseurl + "/billing_dashboard/invoice_expense_total_widget";
+                $.get(get_url, data, function (response) {
+                    var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
+                    var option = [];
+                    var widgets = '';
+                    var startDate = '';
+                    var enddate = '{{date('Y-m-d')}}';
+                    if ($('#billing_filter [name="date-span"]').val() == 6) {
+                        startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -6 months'))}}';
+                    } else if ($('#billing_filter [name="date-span"]').val() == 12) {
+                        startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -12 months'))}}';
+                    } else{
+                        startDate = $('#billing_filter [name="Closingdate"]').val();
+                        var res = startDate.split(" - ");
+                        console.log(res);
+                        startDate = res[0]+' 00:00:01';
+                        enddate = res[1]+' 23:59:59';
+                    }
+
+                    $(".search.btn").button('reset');
+
+                    option["prefix"] = response.CurrencySymbol;
+                    option["startdate"] = startDate;
+                    option["enddate"] = enddate;
+                    option["currency"] = CurrencyID;
+                    option["count"] = '';
+
+                    option["amount"] = response.data.TotalOutstanding;
+                    option["end"] = response.data.TotalOutstanding;
+                    option["tileclass"] = 'tile-blue';
+                    option["class"] = 'outstanding';
+                    option["type"] = 'Total Outstanding';
+                    option["count"] = '';
+                    option["round"] = response.data.Round;
+                    widgets += buildbox(option);
+
+                    $('#invoice-widgets').prepend(widgets);
+
+                }, "json");
+            @endif
+        }
+
         function invoiceExpenseTotal(){
             var data = $('#billing_filter').serialize();
             var get_url = baseurl + "/billing_dashboard/invoice_expense_total";
             $.get(get_url, data, function (response) {
+                invoiceExpenseTotalwidgets();
                 var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
                 var option = [];
                 var widgets = '';
@@ -822,22 +868,12 @@
                 }
 
                 $(".search.btn").button('reset');
-
                 option["prefix"] = response.CurrencySymbol;
                 option["startdate"] = startDate;
                 option["enddate"] = enddate;
                 option["currency"] = CurrencyID;
-				option["count"] = '';
-                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
-                option["amount"] = response.data.TotalOutstanding;
-                option["end"] = response.data.TotalOutstanding;
-                option["tileclass"] = 'tile-blue';
-                option["class"] = 'outstanding';
-                option["type"] = 'Total Outstanding';
                 option["count"] = '';
-                option["round"] = response.data.Round;
-                widgets += buildbox(option);
-                @endif
+
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalInvoiceOut;
                 option["end"] = response.data.TotalInvoiceOut;
