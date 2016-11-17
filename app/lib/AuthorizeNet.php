@@ -45,13 +45,23 @@ class AuthorizeNet {
             $customerProfile->merchantCustomerId = $data["CustomerId"];
             $customerProfile->email = $data["email"];
             $response = $this->request->createCustomerProfile($customerProfile); 
-            if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
+            if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Customer profile created on authorize.net";
-                $result["ID"] = $response->xml->customerProfileId;
+                $result["ID"] = (int) $response->getCustomerProfileId();
             }else{
-                $result["status"] = "failed";
-                $result["message"] = $response->xml->messages->message->text;
+
+                /**
+                 * When duplicate entry...
+                 */
+                if($response->getMessageCode()== 'E00039'){
+                    $result["status"] = "success";
+                    $result["ID"] = filter_var($response->getMessageText(), FILTER_SANITIZE_NUMBER_INT);
+                }else{
+
+                    $result["status"] = "failed";
+                    $result["message"] = $response->getMessageText();
+                }
             }
             return $result;
         }catch(Exception $ex){
@@ -69,7 +79,7 @@ class AuthorizeNet {
             $customerProfile->merchantCustomerId = $data["CustomerId"];
             $customerProfile->email = $data["email"];
             $response = $this->request->createCustomerProfile($customerProfile);
-            if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
+            if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Customer profile created on authorize.net";
                 $result["ID"] = $response->xml->customerProfileId;
@@ -89,7 +99,7 @@ class AuthorizeNet {
     function deleteProfile($ProfileID){
         try{
             $response = $this->request->deleteCustomerProfile($ProfileID);
-            if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
+            if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Customer profile deleted on authorize.net";
                 $result["ID"] = $response->xml->customerProfileId;
@@ -114,7 +124,7 @@ class AuthorizeNet {
             $paymentProfile->payment->creditCard->cardNumber = $data["CardNumber"];
             $paymentProfile->payment->creditCard->expirationDate = $data["ExpirationDate"]; 
             $response = $this->request->createCustomerPaymentProfile($customerProfileId, $paymentProfile);
-            if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
+            if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Payment profile created on authorize.net";
                 $result["ID"] = (int) $response->xml->customerPaymentProfileId;
@@ -140,7 +150,7 @@ class AuthorizeNet {
             $paymentProfile->payment->creditCard->cardNumber = $data["CardNumber"];
             $paymentProfile->payment->creditCard->expirationDate = $data["ExpirationDate"];
             $response = $this->request->updateCustomerPaymentProfile($customerProfileId,$paymentProfileId,$paymentProfile);
-            if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
+            if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Payment profile created on authorize.net";
                 $result["ID"] = (int) $response->xml->customerPaymentProfileId;
@@ -161,7 +171,7 @@ class AuthorizeNet {
     function deletePaymentProfile($customerProfileId,$paymentProfileId){
         try{
             $response = $this->request->deleteCustomerPaymentProfile($customerProfileId,$paymentProfileId);
-            if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
+            if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Payment profile deleted on authorize.net";
                 $result["code"] = $response->xml->messages->message->code;
@@ -193,14 +203,24 @@ class AuthorizeNet {
             $address->country = $data['country'];
             $address->phoneNumber = $data['phoneNumber'];
             $response = $this->request->createCustomerShippingAddress($customerProfileId, $address);
-            if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
+            if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Shipping Address created on authorize.net";
-                $result["ID"] = (int) $response->xml->customerAddressId;
+                $result["ID"] = (int) $response->getCustomerAddressId();
             }
             else {
-                $result["status"] = "failed";
-                $result["message"] = $response->xml->messages->message->text;
+
+                /**
+                 * When duplicate entry...
+                 */
+                if($response->getMessageCode()== 'E00039'){
+                    $result["status"] = "success";
+                    $result["ID"] = filter_var($response->getMessageText(), FILTER_SANITIZE_NUMBER_INT);
+                }else{
+
+                    $result["status"] = "failed";
+                    $result["message"] = $response->xml->messages->message->text;
+                }
             }
             return $result;
         }catch(Exception $ex){
@@ -223,7 +243,7 @@ class AuthorizeNet {
             $address->country = $data['country'];
             $address->phoneNumber = $data['phoneNumber'];
             $response = $this->request->updateCustomerShippingAddress($customerProfileId,$customerShippingAddressId, $address);
-            if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
+            if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Shipping Address updated on authorize.net";
                 $result["ID"] = (int) $response->xml->customerAddressId;
@@ -244,7 +264,7 @@ class AuthorizeNet {
     function deleteShippingAddress($customerProfileId,$customerShippingAddressId){
         try{
             $response = $this->request->deleteCustomerShippingAddress($customerProfileId,$customerShippingAddressId);
-            if (($response != null) && ($response->xml->messages->resultCode == "Ok") ) {
+            if (($response != null) && ($response->getResultCode() == "Ok") ) {
                 $result["status"] = "success";
                 $result["message"] = "Shipping Address deleted on authorize.net";
                 $result["ID"] = (int) $response->xml->customerAddressId;
@@ -299,5 +319,18 @@ class AuthorizeNet {
         $response = $sale->authorizeAndCapture();
         //Log::info($response);
         return $response; 
+    }
+
+    /**
+     * get a customer profile
+     * @param $customerProfileId
+     */
+    public function getCustomerProfile($customerProfileId) {
+
+        $response  = $this->request->getCustomerProfile($customerProfileId);
+        if ($response->getResultCode() !='Error'){
+            return $response->getCustomerProfileId();
+        }
+        return false;
     }
 }
