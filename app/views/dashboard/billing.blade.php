@@ -842,6 +842,7 @@
                     $('#invoice-widgets').prepend(widgets);
 
                 }, "json");
+            titleState();
             @endif
         }
 
@@ -964,8 +965,6 @@
                 widgets += buildbox(option);
                 @endif
                 $('#invoice-widgets').html(widgets);
-
-                titleState();
             }, "json");
         }
 
