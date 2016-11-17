@@ -593,6 +593,7 @@ class EstimatesController extends \BaseController {
 			{
                 DB::connection('sqlsrv2')->beginTransaction();
                 EstimateDetail::where(["EstimateID"=>$id])->delete();
+                EstimateLog::where(["EstimateID"=>$id])->delete();
                 Estimate::find($id)->delete();
                 DB::connection('sqlsrv2')->commit();
                 return Response::json(array("status" => "success", "message" => "Estimate Successfully Deleted"));
