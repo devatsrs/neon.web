@@ -842,8 +842,8 @@
                     $('#invoice-widgets').prepend(widgets);
 
                 }, "json");
-            titleState();
             @endif
+            titleState();
         }
 
         function invoiceExpenseTotal(){
