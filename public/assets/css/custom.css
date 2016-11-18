@@ -145,6 +145,15 @@ body {
 .tile-green{
     background:#56B349 none repeat scroll 0 0 !important;
 }
+.input-group-addon .select2-choice{
+    padding-left:8px!important;
+}
+.input-group-addon .select2-container .select2-choice .select2-arrow{
+    width:20px !important;
+}
+.input-group-addon .form-control{
+    padding:6px;
+}
 /*Abubakar End*/
 
 

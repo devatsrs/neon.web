@@ -92,6 +92,12 @@
                         </div>
                         @endif
                     </div>
+                    <div class="form-group">
+                        <label for="field-5" class="control-label col-md-1">IP/Cli</label>
+                        <div class="col-md-2">
+                            <input type="text" name="IPCLIText" class="form-control">
+                        </div>
+                    </div>
                     <p style="text-align: right;">
                         <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                             <i class="entypo-search"></i>
@@ -283,6 +289,7 @@
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
         $searchFilter.low_balance = $("#account_filter [name='low_balance']").prop("checked");
         $searchFilter.account_active = $("#account_filter [name='account_active']").prop("checked");
+        $searchFilter.ipclitext = $("#account_filter [name='IPCLIText']").val();
 
                 data_table = $("#table-4").dataTable({
 
@@ -305,7 +312,8 @@
                                 {"name":"low_balance","value":$searchFilter.low_balance},
                                 {"name":"account_active","value":$searchFilter.account_active},
                                 {"name":"verification_status","value":$searchFilter.verification_status},
-                                {"name":"account_owners","value":$searchFilter.account_owners}
+                                {"name":"account_owners","value":$searchFilter.account_owners},
+                                {"name":"ipclitext","value":$searchFilter.ipclitext}
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
@@ -319,6 +327,7 @@
                                 {"name":"account_active","value":$searchFilter.account_active},
                                 {"name":"verification_status","value":$searchFilter.verification_status},
                                 {"name":"account_owners","value":$searchFilter.account_owners},
+                                {"name":"ipclitext","value":$searchFilter.ipclitext},
                                 {"name":"Export","value":1}
                         );
                     },
@@ -708,6 +717,7 @@
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
         $searchFilter.low_balance = $("#account_filter [name='low_balance']").prop("checked");
         $searchFilter.account_active = $("#account_filter [name='account_active']").prop("checked");
+        $searchFilter.ipclitext = $("#account_filter [name='IPCLIText']").val();
 
         data_table.fnFilter('', 0);
         return false;
