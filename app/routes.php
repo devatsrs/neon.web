@@ -457,13 +457,18 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/emailmessages/ajax_action','MessagesController@Ajax_Action');
 	
 	
-	//Ticekts
+	//Tickets
 	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
-	Route::any('/ticketgroups', array('as' => 'ticketgroups', 'uses' => 'TicketsController@TicketGroups'));
-	Route::any('/ticketgroups/add', "TicketsController@addGroups");
-	Route::any('/ticketgroups/store', "TicketsController@StoreGroups");
-	Route::any('/ticketgroups/ajax_datagrid_groups', "TicketsController@ajax_datagrid_groups");
-	Route::any('ticketgroups/ajax_datagrid_groups/{type}', 'TicketsController@ajax_datagrid_groups');
+	Route::any('/ticketgroups', array('as' => 'ticketgroups', 'uses' => 'TicketsGroupController@index'));
+	Route::any('/ticketgroups/add', "TicketsGroupController@add");
+	Route::any('/ticketgroups/store', "TicketsGroupController@Store");
+	Route::any('/ticketgroups/ajax_datagrid_groups', "TicketsGroupController@ajax_datagrid");
+	Route::any('/ticketgroups/ajax_datagrid_groups/{type}', 'TicketsGroupController@ajax_datagrid');
+	Route::any('/ticketgroups/{id}/edit', "TicketsGroupController@Edit");
+	Route::any('/ticketgroups/{id}/update', "TicketsGroupController@Update");
+	
+	Route::any('/ticketsfields', "TicketsFieldsController@index");
+	
 	
 	
 	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
