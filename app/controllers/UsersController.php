@@ -309,6 +309,7 @@ class UsersController extends BaseController {
             }
 
             $user_data['password'] = Hash::make($data['password']);
+            $user_data['JobNotification'] = isset($data['JobNotification'])?1:0;
             unset($data['password_confirmation']);
             //$rules = array_merge($rules , ['password' => 'confirmed']);
 
