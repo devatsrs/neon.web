@@ -91,6 +91,14 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="field-1" class="col-sm-3 control-label">Roles</label>
+
+                        <div class="col-sm-6">
+                            {{ Form::select('Roles[]', $roles, $userRoles , array(  "multiple"=>"multiple", "class"=>"select2")) }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="field-1" class="col-sm-3 control-label">Job Notification</label>
                         <div class="col-sm-6">
                             <div class="make-switch switch-small">
