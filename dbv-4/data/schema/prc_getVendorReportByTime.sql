@@ -1,4 +1,17 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorReportByTime`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_AccountID` INT, IN `p_CurrencyID` INT, IN `p_StartDate` DATE, IN `p_EndDate` DATE, IN `p_AreaPrefix` VARCHAR(50), IN `p_Trunk` VARCHAR(50), IN `p_CountryID` INT, IN `p_UserID` INT, IN `p_isAdmin` INT, IN `p_ReportType` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorReportByTime`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_ReportType` INT
+)
 BEGIN
 	
 	DECLARE v_Round_ INT;
