@@ -1,26 +1,14 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnGetUsageForSummary`(IN `p_CompanyID` INT, IN `p_StartDate` DATE, IN `p_EndDate` DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnGetUsageForSummary`(
+	IN `p_CompanyID` INT,
+	IN `p_StartDate` DATE,
+	IN `p_EndDate` DATE
+)
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	/*DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetailsReport_;
-	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetailsReport_(
-		UsageDetailID INT,
-		AccountID int,
-		CompanyID INT,
-		CompanyGatewayID INT,
-		GatewayAccountID VARCHAR(100),
-		trunk varchar(50),
-		area_prefix varchar(50),
-		duration int,
-		billed_duration int,
-		cost decimal(18,6),
-		connect_time time,
-		connect_date date,
-		call_status tinyint, 
-		INDEX temp_connect_time (`connect_time`,`connect_date`)
-
-	);*/
+	
 	DELETE FROM tmp_tblUsageDetailsReport WHERE CompanyID = p_CompanyID;
+	
 	INSERT INTO tmp_tblUsageDetailsReport  
 	SELECT
 		ud.UsageDetailID,
@@ -33,8 +21,8 @@ BEGIN
 		duration,
 		billed_duration,
 		cost,
-		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00'),
-		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
+		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
+		DATE(ud.connect_time),
 		1 as call_status
 	FROM NeonCDRDev.tblUsageDetails  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
@@ -56,8 +44,8 @@ BEGIN
 		duration,
 		billed_duration,
 		cost,
-		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':00:00'),
-		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
+		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
+		DATE(ud.connect_time),
 		2 as call_status
 	FROM NeonCDRDev.tblUsageDetailFailedCall  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
