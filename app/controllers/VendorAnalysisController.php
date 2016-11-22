@@ -26,8 +26,9 @@ class VendorAnalysisController extends BaseController {
         $account = Account::getAccountIDList();
         $trunks = Trunk::getTrunkDropdownIDList();
         $currency = Currency::getCurrencyDropdownIDList();
+        $timezones = TimeZone::getTimeZoneDropdownList();
 
-        return View::make('vendoranalysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency'));
+        return View::make('vendoranalysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones'));
     }
     /* all tab report */
     public function getAnalysisData(){
@@ -47,6 +48,11 @@ class VendorAnalysisController extends BaseController {
             $query = "call prc_getVendorGatewayReportAll ";
         }elseif($data['chart_type'] == 'account') {
             $query = "call prc_getVendorAccountReportAll ";
+        }
+        if(!empty($data['TimeZone'])) {
+            $CompanyTimezone = Config::get('app.timezone');
+            $data['StartDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['StartDate']);
+            $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
         }
         $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
         $query .= ",2)";
@@ -98,6 +104,11 @@ class VendorAnalysisController extends BaseController {
         $companyID = User::get_companyID();
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
         $reponse = array();
+        if(!empty($data['TimeZone'])) {
+            $CompanyTimezone = Config::get('app.timezone');
+            $data['StartDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['StartDate']);
+            $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
+        }
         $report_type = get_report_type($data['StartDate'],$data['EndDate']);
         $query = "call prc_getVendorReportByTime ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.")";
         $TopReports = DB::connection('neon_report')->select($query);
@@ -142,6 +153,11 @@ class VendorAnalysisController extends BaseController {
         }elseif($data['chart_type'] == 'account') {
             $columns = array('AccountName','CallCount','TotalMinutes','TotalCost','ACD','ASR');
             $query = "call prc_getVendorAccountReportAll ";
+        }
+        if(!empty($data['TimeZone'])) {
+            $CompanyTimezone = Config::get('app.timezone');
+            $data['StartDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['StartDate']);
+            $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
         }
         $sort_column = $columns[$data['iSortCol_0']];
 

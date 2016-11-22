@@ -1386,3 +1386,14 @@ function ShortName($title,$length=8){
 function is_Stripe(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeSlug);
 }
+function change_timezone($billing_timezone,$timezone,$date){
+    if(!empty($timezone) && !empty($billing_timezone)) {
+        date_default_timezone_set($billing_timezone);
+        $strtotime = strtotime($date);
+        date_default_timezone_set($timezone);
+        $changed_date = date('Y-m-d H:i:s', $strtotime);
+        date_default_timezone_set(Config::get('app.timezone'));
+        return $changed_date;
+    }
+    return $date;
+}
