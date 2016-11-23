@@ -15,6 +15,9 @@
 <link href="{{ URL::asset('assets/formbuilder/css/plugins.css')}}" media="screen" rel="stylesheet" type="text/css" />
 <link href="{{ URL::asset('assets/formbuilder/css/sprites.css')}}" media="screen" rel="stylesheet" type="text/css" />
 <link href="{{ URL::asset('assets/formbuilder/css/app.css')}}" media="screen" rel="stylesheet" type="text/css" />
+<style>
+.phpdebugbar{display:none;}
+</style>
 <script type="text/javascript">
 	var baseurl = "{{URL::to('/')}}";
 	  /* TODO-RAILS3 need to cross check this area */
