@@ -40,27 +40,30 @@
             <div class="col-sm-9"> {{Form::select('GroupAgent[]', $Agents, $Groupagents ,array("class"=>"select2","multiple"=>"multiple","id"=>"GroupAgent"))}} </div>
           </div>
           <div class="form-group">
-            <label for="GroupEmailAddress" class="col-sm-3 control-label">Forwarded Email</label>
+            <label for="GroupEmailAddress" class="col-sm-3 control-label">Your Support Email <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Any email sent on these email addresses (comma separated) gets automatically converted into a ticket that you can get working on." data-original-title="Support Email" class="label label-info popover-primary">?</span></label>
             <div class="col-sm-9">
               <div class="input-group"> <span class="input-group-addon"><i class="entypo-mail"></i></span>
-                <input name='GroupEmailAddress' id="GroupEmailAddress" type="email" class="form-control" placeholder="Email" value="{{$ticketdata->GroupEmailAddress}}">
+                <input name='GroupEmailAddress' id="GroupEmailAddress" type="email" class="form-control" placeholder="Email" value="{{$Groupemails}}">
               </div>
             </div>
-          </div>
+          </div>          
           <div class="form-group">
-            <label for="field-1" class="col-sm-3 control-label">Escalation Rule</label>
-            <div class="col-sm-9"> {{Form::select('GroupAssignTime', TicketGroups::$EscalationTimes, $ticketdata->GroupAssignTime ,array("class"=>"select2","id"=>"GroupAssignTime"))}} </div>
-          </div>
-          <div class="form-group">
-            <label for="field-1" class="col-sm-3 control-label">Mail to:</label>
-            <div class="col-sm-9"> {{Form::select('GroupAssignEmail', $AllUsers, $ticketdata->GroupAssignEmail ,array("class"=>"select2","id"=>"GroupAssignEmail"))}} </div>
-          </div>
-          <div class="form-group">
-            <label for="GroupAuomatedReply" class="col-sm-3 control-label">Automated Reply</label>
+            <div class="col-sm-3"><label for="field-1" class="control-label">Escalation Rule</label></div>
             <div class="col-sm-9">
-              <textarea id="GroupAuomatedReply" name="GroupAuomatedReply" class="form-control wysihtml5box" >{{$ticketdata->GroupAuomatedReply}}</textarea>
+              <div class="col-sm-4">
+                <label for="field-1" class="control-label">if a ticket remains un-assigned for more than</label>
+              </div>
+              <div class="col-sm-5"> {{Form::select('GroupAssignTime', TicketGroups::$EscalationTimes, $ticketdata->GroupAssignTime ,array("class"=>"select2","id"=>"GroupAssignTime"))}} </div>
+            </div> 
+            <div class="clear-both"></div> 
+              <div class="col-sm-3">&nbsp;</div>
+            <div class="col-sm-9">
+            <div class="col-sm-4">      
+            <label for="field-1" class="control-label">....then send escalation email to:</label>
             </div>
+            <div class="col-sm-5"> {{Form::select('GroupAssignEmail', $AllUsers, $ticketdata->GroupAssignEmail ,array("class"=>"select2","id"=>"GroupAssignEmail"))}} </div>
           </div>
+          </div>                  
         </form>
       </div>
     </div>

@@ -468,6 +468,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/ticketgroups/{id}/update', "TicketsGroupController@Update");
 	
 	Route::any('/ticketsfields', "TicketsFieldsController@index");
+	Route::any('/ticketsfields/iframe', "TicketsFieldsController@iframe");
+	Route::any('ticketsfields/iframe/submit', "TicketsFieldsController@iframeSubmit");
 	
 	
 	
@@ -1070,6 +1072,8 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/registration', "HomeController@registration");
     Route::any('/doRegistration', "HomeController@doRegistration");
     Route::get('/super_admin', "HomeController@home");
+	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
+	
     Route::get('/l/{id}', function($id){
 		$user = User::find($id);
 		$redirect_to = URL::to('/process_redirect');
