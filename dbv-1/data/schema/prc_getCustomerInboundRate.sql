@@ -1,12 +1,10 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerInboundRate`(IN `p_AccountID` INT, IN `p_RateCDR` INT)
 BEGIN
-	DECLARE v_codedeckid_ INT;
+	-- DECLARE v_codedeckid_ INT;
 	DECLARE v_inboundratetableid_ INT;
 
 	SELECT
-		CodeDeckId,
-		InboudRateTableID
-		INTO v_codedeckid_, v_inboundratetableid_
+		InboudRateTableID	INTO  v_inboundratetableid_
 	FROM tblAccount
 	WHERE AccountID = p_AccountID;
 	

@@ -58,7 +58,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
         "assets/js/fullcalendar/fullcalendar.min.js",
         "assets/js/toastr.js",  // Popup toaster
         "assets/js/bootstrap-datepicker.js", //Date Picker
-        "assets/js/bootstrap-timepicker.min.js", //Date Picker
+        "assets/js/bootstrap-timepicker.min.0.5.2.js", //Date Picker
         "assets/js/icheck/icheck.min.js", //Chebkbox
         "assets/js/datatables/ZeroClipboard.js",
         "assets/js/morris.min.js",
