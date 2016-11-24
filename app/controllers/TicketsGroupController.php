@@ -23,8 +23,8 @@ private $validlicense;
 	  function add(){	  
 		$this->IsValidLicense();		
 		$Agents			= 	User::getUserIDListAll(0);
-		$Users			= 	User::getUserIDListAll(0); 
-		$AllUsers		=	array_merge(array("0"=>"None"),$Users);		
+		$AllUsers		= 	User::getUserIDListAll(0); 
+		$AllUsers[0] 	= 	'None';		
 		$data 			= 	array();		
         return View::make('ticketgroups.group_create', compact('data','AllUsers','Agents'));  
 	  }	
@@ -46,8 +46,8 @@ private $validlicense;
 		} 
 		$Groupemails	=	implode(',',$Groupemails);
 		$Agents			= 	User::getUserIDListAll(0);
-		$Users			= 	User::getUserIDListAll(0); 
-		$AllUsers		=	array_merge(array("0"=>"None"),$Users);		
+		$AllUsers		= 	User::getUserIDListAll(0); 
+		$AllUsers[0] 	= 	'None';	
 		$data 			= 	array();		
         return View::make('ticketgroups.group_edit', compact('data','AllUsers','Agents','ticketdata','Groupagents','Groupemails'));  
 	  }	
@@ -296,4 +296,20 @@ private $validlicense;
 				return Redirect::to('/');
 			}
 	  }
+	  
+	 public function delete($id)
+     {
+        if( intval($id) > 0)
+		{
+               try{
+				   TicketGroups::find($id)->delete();
+				   TicketGroupEmailAddresses::where(['GroupID'=>$id])->delete();
+				   TicketGroupAgents::where(['GroupID'=>$id])->delete();
+			       return Response::json(array("status" => "success", "message" => "Subscription Successfully Deleted","GroupID"=>$id));
+                }catch (Exception $ex){
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
+                }
+            
+        }
+    }
 }

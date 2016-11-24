@@ -466,6 +466,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/ticketgroups/ajax_datagrid_groups/{type}', 'TicketsGroupController@ajax_datagrid');
 	Route::any('/ticketgroups/{id}/edit', "TicketsGroupController@Edit");
 	Route::any('/ticketgroups/{id}/update', "TicketsGroupController@Update");
+	Route::any('/ticketgroups/{id}/delete', 'TicketsGroupController@delete');
 	
 	Route::any('/ticketsfields', "TicketsFieldsController@index");
 	Route::any('/ticketsfields/iframe', "TicketsFieldsController@iframe");

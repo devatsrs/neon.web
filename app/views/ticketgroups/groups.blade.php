@@ -91,12 +91,16 @@
                         {
                             "bSortable": true,
                             mRender: function(id, type, full) { 
-                                var action, edit_, show_;
+                                var action, edit_, show_,delete_;
                                 edit_ = "{{ URL::to('ticketgroups/{id}/edit')}}";
                                 edit_ = edit_.replace('{id}', full[0]);
+								
                                 action =  '';
                                 <?php if(User::checkCategoryPermission('TicketGroups','Edit')){ ?>
                                    action = '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                <?php } ?>
+								<?php if(User::checkCategoryPermission('TicketGroups','Delete')){ ?>
+                                   action += '<br><a data-id="'+full[0]+'" id="group-'+full[0]+'" class="delete-ticket_group btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
                                 <?php } ?>
                                 return action;
                             }
@@ -117,7 +121,33 @@
                         sButtonClass: "save-collection btn-sm"
                     }
                 ]
-            }
+            },
+       "fnDrawCallback": function() {
+               //After Delete done
+               FnDeleteGroupSuccess = function(response){
+
+                   if (response.status == 'success') {
+                       $("#group-"+response.GroupID).parent().parent().fadeOut('fast');
+                       ShowToastr("success",response.message);
+                       data_table.fnFilter('', 0);
+                   }else{
+                       ShowToastr("error",response.message);
+                   }
+               }
+               //onDelete Click
+               FnDeleteGroup = function(e){
+                   result = confirm("Are you Sure?");
+                   if(result){
+                       var id  = $(this).attr("data-id");
+                       showAjaxScript( baseurl + "/ticketgroups/"+id+"/delete" ,"",FnDeleteGroupSuccess );
+                   }
+                   return false;
+               }
+               $(".delete-ticket_group").click(FnDeleteGroup); // Delete Note
+               $(".dataTables_wrapper select").select2({
+                   minimumResultsForSearch: -1
+               });
+       }
 
         });
         data_table.fnFilter(1, 0);
