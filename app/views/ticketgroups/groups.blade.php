@@ -87,7 +87,7 @@
                         {"bSortable": true },
 						{"bSortable": true },
 						{"bSortable": true,mRender: function(id, type, full) { return EscalationTimes[id]; } },
-                        {"bSortable": true },
+                        {"bSortable": true,mRender: function(id, type, full) { if(id){return id;}else{return 'None';} } },
                         {
                             "bSortable": true,
                             mRender: function(id, type, full) { 
