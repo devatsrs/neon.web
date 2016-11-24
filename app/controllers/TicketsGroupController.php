@@ -24,7 +24,8 @@ private $validlicense;
 		$this->IsValidLicense();		
 		$Agents			= 	User::getUserIDListAll(0);
 		$AllUsers		= 	User::getUserIDListAll(0); 
-		$AllUsers[0] 	= 	'None';		
+		$AllUsers[0] 	= 	'None';	
+		ksort($AllUsers);			
 		$data 			= 	array();		
         return View::make('ticketgroups.group_create', compact('data','AllUsers','Agents'));  
 	  }	
@@ -48,6 +49,7 @@ private $validlicense;
 		$Agents			= 	User::getUserIDListAll(0);
 		$AllUsers		= 	User::getUserIDListAll(0); 
 		$AllUsers[0] 	= 	'None';	
+		ksort($AllUsers);			
 		$data 			= 	array();		
         return View::make('ticketgroups.group_edit', compact('data','AllUsers','Agents','ticketdata','Groupagents','Groupemails'));  
 	  }	
