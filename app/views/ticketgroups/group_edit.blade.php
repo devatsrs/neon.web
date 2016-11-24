@@ -43,8 +43,13 @@
             <label for="GroupEmailAddress" class="col-sm-3 control-label">Your Support Email <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Any email sent on these email addresses (comma separated) gets automatically converted into a ticket that you can get working on." data-original-title="Support Email" class="label label-info popover-primary">?</span></label>
             <div class="col-sm-9">
               <div class="input-group"> <span class="input-group-addon"><i class="entypo-mail"></i></span>
-                <input name='GroupEmailAddress' id="GroupEmailAddress" type="email" class="form-control" placeholder="Email" value="{{$Groupemails}}">
-              </div>
+                <input name='GroupEmailAddress' id="GroupEmailAddress" type="email" class="form-control" placeholder="Email" value="{{$Groupemails}}">             </div>
+                
+			<?php if(count($GroupEmailsUnverified)>0){ ?>                
+                <br>                
+                <?php foreach($GroupEmailsUnverified as $GroupEmailsUnverifiedData){ ?>
+                  <div class="email-activation"><span>{{$GroupEmailsUnverifiedData['Email']}}</span>&nbsp;<span> Unverified  </span> - <button email_id="{{$GroupEmailsUnverifiedData['id']}}" type="button" class="btn btn-default btn-xs Send_activation">Send activation</button></div><br>
+                  <?php } } ?>
             </div>
           </div>          
           <div class="form-group">
@@ -70,6 +75,10 @@
   </div>
 </div>
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css')}}">
+<style>
+.email-activation span:first-child{text-decoration:line-through;}
+.email-activation span:nth-child(2){color:red;}
+</style>
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script type="text/javascript">
@@ -78,6 +87,33 @@
         $(".save.btn").click(function(ev) {
             $('#form-ticketgroup-edit').submit();            
       });
+	  $('.Send_activation').click(function(e) {
+        var activation_id = $(this).attr("email_id");
+		if(activation_id!='')
+		{
+			email_id = parseInt(activation_id);			
+			var ajax_url = baseurl+'/ticketgroups/'+email_id+'/send_activation';
+			 $.ajax({
+				url: ajax_url,
+				type: 'POST',
+				dataType: 'json',
+				async :false,
+				cache: false,
+                contentType: false,
+                processData: false,
+				data:{activation_id:activation_id},
+				success: function(response) {
+				   if(response.status =='success'){					   
+						ShowToastr("success",response.message); 														
+						//window.location.href= baseurl+'/ticketgroups';
+					}else{
+						toastr.error(response.message, "Error", toastr_opts);
+					}		
+				}
+				});	
+		}
+		return false;
+    });
 	  
 	  $(document).on('submit','#form-ticketgroup-edit',function(e){	
 	 	 $('.btn').attr('disabled', 'disabled');	 

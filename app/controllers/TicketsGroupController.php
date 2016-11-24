@@ -41,9 +41,14 @@ private $validlicense;
 			$Groupagents[] = $Groupagentsdata->UserID;
 		} 
 		
-		$Groupemailsdb	=	TicketGroupEmailAddresses::where(["GroupID"=>$id])->get(); 
+		$Groupemailsdb			=	TicketGroupEmailAddresses::where(["GroupID"=>$id])->get(); 
+		$GroupEmailsUnverified  = array();
 		foreach($Groupemailsdb as $Groupemailsdbdata){
 			$Groupemails[] = $Groupemailsdbdata->EmailAddress;
+			if($Groupemailsdbdata->EmailStatus==0)
+			{
+				$GroupEmailsUnverified[] = array("Email"=>$Groupemailsdbdata->EmailAddress,"id"=>$Groupemailsdbdata->GroupEmailID) ;
+			}
 		} 
 		$Groupemails	=	implode(',',$Groupemails);
 		$Agents			= 	User::getUserIDListAll(0);
@@ -51,7 +56,7 @@ private $validlicense;
 		$AllUsers[0] 	= 	'None';	
 		ksort($AllUsers);			
 		$data 			= 	array();		
-        return View::make('ticketgroups.group_edit', compact('data','AllUsers','Agents','ticketdata','Groupagents','Groupemails'));  
+        return View::make('ticketgroups.group_edit', compact('data','AllUsers','Agents','ticketdata','Groupagents','Groupemails','GroupEmailsUnverified'));  
 	  }	
 	  
 	  public function ajax_datagrid($type){
@@ -114,6 +119,7 @@ private $validlicense;
 			);
 			
 			try{
+ 			    DB::beginTransaction();
 				$GroupID = TicketGroups::insertGetId($GroupData);		
 				if(is_array($data['GroupAgent'])){
 					foreach($data['GroupAgent'] as $GroupAgents){
@@ -121,10 +127,23 @@ private $validlicense;
 						TicketGroupAgents::Insert($TicketGroupAgents);						
 					}
 				}	
+				
+				 $email_addresses = explode(",",$data['GroupEmailAddress']);				
+				 foreach($email_addresses as $email_addresses_data)
+				 {
+				   $already = 	TicketGroupEmailAddresses::where(["EmailAddress"=>trim($email_addresses_data)])->get();	
+				   if(count($already)>0)
+				   {
+					    DB::rollback();
+				  		return Response::json(array("status" => "failed", "message" =>$email_addresses_data." email address already exists."));
+				   }
+				 }
+				
 				$this->SendEmailActivationEmail($data['GroupEmailAddress'],$GroupID);
-					
+				 DB::commit();	
             	return Response::json(array("status" => "success", "message" => "Group Successfully Created",'LastID'=>$GroupID));
       		 }catch (Exception $ex){ 	
+			      DB::rollback();
 				 return Response::json(array("status" => "failed", "message" =>$ex->getMessage()));
        		 }    
 	  }
@@ -146,7 +165,8 @@ private $validlicense;
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-			/*try{*/
+			try{
+				 DB::beginTransaction();
 				if(isset($TicketGroup->GroupID)){
 					
 					$grpagents 			= $data['GroupAgent'];
@@ -163,31 +183,46 @@ private $validlicense;
 							$TicketGroupAgents =	array("GroupID"=>$TicketGroup->GroupID,'UserID'=>$GroupAgents,"updated_at"=>date("Y-m-d H:i:s"),"updated_by"=>User::get_user_full_name());   
 							TicketGroupAgents::Insert($TicketGroupAgents);
 						}
-					}		
+					}
+					
+					$email_addresses = explode(",",$GroupEmailAddress);				
+				 	foreach($email_addresses as $email_addresses_data)
+				   {
+					   $already = 	TicketGroupEmailAddresses::where(["EmailAddress"=>trim($email_addresses_data)])->whereRaw('GroupID !='.$id.'')->get();	
+					   if(count($already)>0)
+					   {
+							DB::rollback();
+							return Response::json(array("status" => "failed", "message" =>$email_addresses_data." email address already exists."));
+					   }
+				    }
+							
 					$this->SendEmailActivationEmailUpdate($GroupEmailAddress,$id);
+					 DB::commit();	
 					return Response::json(array("status" => "success", "message" => "Group Successfully Updated",'LastID'=>$TicketGroup->GroupID));
 				}
-      		/* }catch (Exception $ex){ 	
+      		 }catch (Exception $ex){ 	
+				 DB::rollback();
 				 return Response::json(array("status" => "failed", "message" =>$ex->getMessage()));
-       		 } */ 
+       		 } 
 	  }
 	  
 	  function SendEmailActivationEmail($emails,$groupID){
-		  	Log::info(print_r($emails,true));
+		  
 		  if(!empty($emails))
 		  { 
-			  if(!is_array($emails))
-			  {
-				  
-				$email_addresses = explode(",",$emails);
-				}else{
-					$email_addresses = $emails;
+			    if(!is_array($emails))
+			    {				  
+				  $email_addresses = explode(",",$emails);				
 				}
-				Log::info(print_r($emails,true));		
+				else
+				{
+				  $email_addresses = $emails;
+				}
+					
 				if(count($email_addresses)>0){
 					
 					foreach($email_addresses as $email_address){
-					Log::info(print_r($email_address,true));	
+				
 						$remember_token				 = 		str_random(32);
 						$user_reset_link 			 = 		URL::to('/activate_support_email')."?remember_token=".$remember_token;
 						$data 						 = 		array();
@@ -314,4 +349,46 @@ private $validlicense;
             
         }
     }
+	
+	
+	function send_activation_single($id)
+	{
+	    try
+		{
+			if($id)
+			{
+			   $email_data = 	TicketGroupEmailAddresses::find($id);
+			  
+			  if(count($email_data)>0 && $email_data->EmailStatus==0)
+			  {
+					$remember_token				 = 		str_random(32); //add new
+					$user_reset_link 			 = 		URL::to('/activate_support_email')."?remember_token=".$remember_token;
+					$data 						 = 		array();
+					$data['companyID'] 			 = 		User::get_companyID();
+					$CompanyName 				 =  	Company::getName($data['companyID']);
+					$data['EmailTo'] 			 = 		trim($email_data->EmailAddress);
+					$data['CompanyName'] 		 = 		$CompanyName;
+					$data['Subject'] 			 = 		'Activate support email address';
+					$data['user_reset_link'] 	 = 		$user_reset_link;
+					$result 					 = 		sendMail('emails.auth.email_verify',$data);
+					
+					if ($result['status'] == 1)
+					{
+							$GroupEmaildata = array(
+								"remember_token"=>$remember_token,
+								"updated_at"=>date("Y-m-d H:i:s"),
+								"updated_by"=>User::get_user_full_name()
+							);
+
+						 TicketGroupEmailAddresses::where(["GroupEmailID"=>$id])->update($GroupEmaildata);
+						 return Response::json(array("status" => "success", "message" => "Activation email successfully sent."));
+					}
+			  }else{
+			 	return Response::json(array("status" => "failed", "message" => "No email found or already activated"));
+			  }			  
+			}
+		 }catch (Exception $ex){
+                    return Response::json(array("status" => "failed", "message" => "Problem occurred. Exception:". $ex->getMessage()));
+         }
+	}
 }
