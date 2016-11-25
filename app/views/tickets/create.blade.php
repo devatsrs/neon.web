@@ -39,9 +39,9 @@
             <div class="col-sm-6">
             <input type="text" name='Ticket{{$TicketfieldsData->FieldName}}' required id="Ticket{{$TicketfieldsData->FieldName}}" class="form-control typeahead formfld" spellcheck="false" dir="auto"  data-local="{{$AllEmails}}"   placeholder="{{$TicketfieldsData->AgentLabel}}" />           
             </div>
-            <div class="col-sm-3 dropdown">
-              <button type="button" class="btn btn-info btn-xs  dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-plus-square"></i> </button>
-              <ul class="dropdown-menu dropdown-blue"  role="menu">
+            <div class="col-sm-3 dropdown" style="padding:0;">
+              <button title="Add new requester" type="button" class="btn btn-success btn-xs  dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-plus-square"></i> </button>
+              <ul class="dropdown-menu dropdown-green"  role="menu">
                 <li> <a class="unknownemailaction clickable" unknown_action_type="accounts"  >&nbsp;<i class="fa fa-building"></i>&nbsp;&nbsp; Add new Account </a> </li>
                 <li> <a class="unknownemailaction clickable" unknown_action_type="contacts"  > <i class="entypo-user"></i> &nbsp;Add new Contact</a> </li>
               </ul>
@@ -115,7 +115,7 @@
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
               <select name='Ticket{{$TicketfieldsData->FieldName}}' class="form-control formfld select2" id="Ticket{{$TicketfieldsData->FieldName}}" >
-              <option value="0">select</option>
+              <option value="0">Select</option>
                 <?php
 			  if($TicketfieldsData->FieldType == 'default_priority'){
 				$FieldValues = TicketPriority::orderBy('PriorityID', 'asc')->get(); 

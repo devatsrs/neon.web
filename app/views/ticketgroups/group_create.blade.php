@@ -40,30 +40,23 @@
             <div class="col-sm-9"> {{Form::select('GroupAgent[]', $Agents, '' ,array("class"=>"select2","multiple"=>"multiple","id"=>"GroupAgent"))}} </div>
           </div>
           <div class="form-group">
-            <label for="GroupEmailAddress" class="col-sm-3 control-label">Your Support Email <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Any email sent on these email addresses (comma separated) gets automatically converted into a ticket that you can get working on." data-original-title="Support Email" class="label label-info popover-primary">?</span></label>
+            <label for="GroupEmailAddress" class="col-sm-3 control-label">Support Email <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Any email sent on these email addresses (comma separated) gets automatically converted into a ticket that you can get working on." data-original-title="Support Email" class="label label-info popover-primary">?</span></label>
             <div class="col-sm-9">
               <div class="input-group"> <span class="input-group-addon"><i class="entypo-mail"></i></span>
                 <input name='GroupEmailAddress' id="GroupEmailAddress" type="text" class="form-control" placeholder="Email" value="{{Input::old('GroupEmailAddress')}}">
               </div>
             </div>
           </div>
-          
           <div class="form-group">
-            <div class="col-sm-3"><label for="field-1" class="control-label">Escalation Rule</label></div>
-            <div class="col-sm-9">
-              <div class="col-sm-4">
-                <label for="field-1" class="control-label">if a ticket remains un-assigned for more than</label>
-              </div>
-              <div class="col-sm-5"> {{Form::select('GroupAssignTime', TicketGroups::$EscalationTimes, '' ,array("class"=>"select2","id"=>"GroupAssignTime"))}} </div>
-            </div> 
-            <div class="clear-both"></div> 
-              <div class="col-sm-3">&nbsp;</div>
-            <div class="col-sm-9">
-            <div class="col-sm-4">      
-            <label for="field-1" class="control-label">....then send escalation email to:</label>
-            </div>
-            <div class="col-sm-5"> {{Form::select('GroupAssignEmail', $AllUsers, '' ,array("class"=>"select2","id"=>"GroupAssignEmail"))}} </div>
-          </div>
+          <label for="GroupAssignTime" class="col-sm-3 control-label">Escalation Rule</label>              
+              <div class="col-sm-6">  {{Form::select('GroupAssignTime', TicketGroups::$EscalationTimes, '' ,array("class"=>"select2","id"=>"GroupAssignTime"))}}   </div>
+              <div class="col-sm-3"> <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if a ticket remains un-assigned for more than" data-original-title="Escalation Rule" class="label label-info popover-primary">?</span> </div>
+            
+            <div class="clear-both"></div> <br>
+               <label for="GroupAssignEmail" class="col-sm-3  control-label">&nbsp;</label>                 
+            <div class="col-sm-6"> {{Form::select('GroupAssignEmail', $AllUsers, '' ,array("class"=>"select2","id"=>"GroupAssignEmail"))}}  </div>
+            <div class="col-sm-3"><span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="then send escalation email to" data-original-title="Escalation Rule" class="label label-info popover-primary">?</span></div>
+         
           </div>
         </form>
       </div>
