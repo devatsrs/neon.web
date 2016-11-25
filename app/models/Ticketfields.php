@@ -1,5 +1,6 @@
 <?php
 
+
 class Ticketfields extends \Eloquent {
 
     protected $table 		= 	"tblTicketfields";

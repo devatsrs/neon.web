@@ -1,5 +1,5 @@
 <?php
-class Ticketfields extends \Eloquent 
+class Tickets extends \Eloquent 
 {
     protected $guarded = array("ID");
 
