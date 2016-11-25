@@ -468,14 +468,17 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/ticketgroups/{id}/update', "TicketsGroupController@Update");
 	Route::any('/ticketgroups/{id}/delete', 'TicketsGroupController@delete');
 	Route::any('/ticketgroups/{id}/send_activation', 'TicketsGroupController@send_activation_single');
-	
+	Route::any('/ticketgroups/{id}/getgroupagents', 'TicketsGroupController@get_group_agents');
 	
 	Route::any('/ticketsfields', "TicketsFieldsController@index");
 	Route::any('/ticketsfields/iframe', "TicketsFieldsController@iframe");
 	Route::any('ticketsfields/iframe/submit', "TicketsFieldsController@iframeSubmit");
 	
 	
-	
+	Route::any('/tickets/ajax_datagrid/{type}', "TicketsController@ajax_datagrid");
+	Route::any('/tickets/add', "TicketsController@add");
+	Route::post('/tickets/upload_file', 'TicketsController@uploadFile');
+	Route::any('/tickets/delete_attachment_file', 'TicketsController@deleteUploadFile');
 	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
 	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
 	Route::any('/users/exports/{type}', 'UsersController@exports');

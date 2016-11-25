@@ -85,7 +85,7 @@ private $validlicense;
                 $NeonExcel->download_excel($excel_data);
             }          
         }
-        $query .=',0)';  Log::info($query);
+        $query .=',0)';  
 
         return DataTableSql::of($query)->make();
 	 }
@@ -388,6 +388,34 @@ private $validlicense;
 			  }			  
 			}
 		 }catch (Exception $ex){
+                    return Response::json(array("status" => "failed", "message" => "Problem occurred. Exception:". $ex->getMessage()));
+         }
+	}
+	
+	function get_group_agents($id){
+		try
+		{
+			$Groupagents    =   array();
+			if($id)
+			{
+				$Groupagentsdb	=	TicketGroupAgents::where(["GroupID"=>$id])->get(); 
+			}
+			else
+			{
+				$Groupagentsdb	=	TicketGroupAgents::get(); 
+			}
+			
+			foreach($Groupagentsdb as $Groupagentsdata){
+				$userdata = 	User::find($Groupagentsdata->UserID);
+				if($userdata){	
+					$Groupagents[$userdata->FirstName." ".$userdata->LastName] =$userdata->UserID; 
+				}
+				
+			}
+			//echo "<pre>"; print_r($Groupagents);	echo "</pre>";
+			return Response::json(array("status" => "success", "data"=>$Groupagents));
+		
+		  }catch (Exception $ex){
                     return Response::json(array("status" => "failed", "message" => "Problem occurred. Exception:". $ex->getMessage()));
          }
 	}

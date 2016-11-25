@@ -40,7 +40,7 @@ private $validlicense;
 		//echo "<pre>"; print_r(json_decode($data['jsonData'])); echo "</pre>";exit;
 		$ticket_type = 0; $else_type = 0;
 		foreach(json_decode($data['jsonData']) as $jsonData)
-		{	 Log::info("jsonData"); Log::info(print_r($jsonData,true));
+		{	 
 			$data		=	array();		
 			if(isset($jsonData->action) && $jsonData->action=='create')
 			{	
