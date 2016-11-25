@@ -1,4 +1,5 @@
 <?php 
+
 class Tickets{ 
 
  protected $companyID;
