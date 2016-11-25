@@ -6,10 +6,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnGetUsageForSummary`(
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	
+
 	DELETE FROM tmp_tblUsageDetailsReport WHERE CompanyID = p_CompanyID;
-	
-	INSERT INTO tmp_tblUsageDetailsReport  
+	INSERT INTO tmp_tblUsageDetailsReport (UsageDetailID,AccountID,CompanyID,CompanyGatewayID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,cost,connect_time,connect_date,call_status)  
 	SELECT
 		ud.UsageDetailID,
 		uh.AccountID,
@@ -22,7 +21,7 @@ BEGIN
 		billed_duration,
 		cost,
 		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
-		DATE(ud.connect_time),
+		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
 		1 as call_status
 	FROM NeonCDRDev.tblUsageDetails  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
@@ -32,7 +31,7 @@ BEGIN
 	AND uh.AccountID is not null
 	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
 
-	INSERT INTO tmp_tblUsageDetailsReport  
+	INSERT INTO tmp_tblUsageDetailsReport (UsageDetailID,AccountID,CompanyID,CompanyGatewayID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,cost,connect_time,connect_date,call_status)   
 	SELECT
 		ud.UsageDetailFailedCallID,
 		uh.AccountID,
@@ -45,7 +44,7 @@ BEGIN
 		billed_duration,
 		cost,
 		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
-		DATE(ud.connect_time),
+		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
 		2 as call_status
 	FROM NeonCDRDev.tblUsageDetailFailedCall  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh

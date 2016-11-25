@@ -41,7 +41,7 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageVendorSummary_ us
 		INNER JOIN tblDimTime dt on dt.TimeID = us.TimeID
-		GROUP BY  us.TimeID,us.DateID;
+		GROUP BY  us.DateID,dt.hour;
 		
 	END IF;
 	
