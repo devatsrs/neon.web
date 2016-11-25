@@ -32,49 +32,15 @@
                                     <input type="text" name="StartDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}"/>
                                 </div>
                                 <div class="col-md-1 select_hour">
-                                    <?php  $Hour  = array(
-                                            '00'=>'00',
-                                            '01'=>'01',
-                                            '02'=>'02',
-                                            '03'=>'03',
-                                            '04'=>'04',
-                                            '05'=>'05',
-                                            '06'=>'06',
-                                            '07'=>'07',
-                                            '08'=>'08',
-                                            '09'=>'09',
-                                            '10'=>'10',
-                                            '11'=>'11',
-                                            '12'=>'12',
-                                            '13'=>'13',
-                                            '14'=>'14',
-                                            '15'=>'15',
-                                            '16'=>'16',
-                                            '17'=>'17',
-                                            '18'=>'19',
-                                            '19'=>'19',
-                                            '20'=>'20',
-                                            '21'=>'21',
-                                            '22'=>'22',
-                                            '23'=>'23',
-
-                                    );
-                                    ?>
-                                    {{ Form::select('StartHour',$Hour,00, array("class"=>"select2")) }}
+                                    <input type="text" name="StartHour" data-minute-step="30"   data-show-meridian="false" data-default-time="00:00" value=""  data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
                                 <label class="col-sm-1 control-label" for="field-1">End Date</label>
                                 <div class="col-sm-2">
                                     <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d' )}}" />
                                 </div>
                                 <div class="col-md-1 select_hour">
-                                    {{ Form::select('EndHour',$Hour,23, array("class"=>"select2")) }}
+                                    <input type="text" name="EndHour" data-minute-step="30"   data-show-meridian="false" data-default-time="23:30" value=""   data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
-                                @if(Session::get('customer') != 1)
-                                <label class="col-sm-1 control-label" for="field-1">Gateway</label>
-                                <div class="col-sm-2">
-                                    {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2")) }}
-                                </div>
-                                @endif
                                 <label class="col-sm-1 control-label" for="field-1">Country</label>
                                 <div class="col-sm-2">
                                     {{ Form::select('CountryID',$Country,'', array("class"=>"select2")) }}
@@ -89,24 +55,13 @@
                                 <div class="col-sm-2">
                                     {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2")) }}
                                 </div>
-                                @if(Session::get('customer') == 1)
-                                    <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
-                                    <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
-                                    <input type="hidden" name="CompanyGatewayID" value="0">
-                                @else
-
-                                    <label class="col-sm-1 control-label" for="field-1">Account</label>
-                                    <div class="col-sm-2">
-                                        {{ Form::select('AccountID',$account,'', array("class"=>"select2")) }}
-                                    </div>
-                                    <label class="col-sm-1 control-label" for="field-1">Currency</label>
-                                    <div class="col-sm-2">
-                                        {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}
-                                    </div>
-
-
-                                @endif
-
+                                <label class="col-sm-1 control-label" for="field-1">TimeZone</label>
+                                <div class="col-sm-2">
+                                    {{ Form::select('TimeZone',$timezones,'', array("class"=>"select2")) }}
+                                </div>
+                                <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
+                                <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
+                                <input type="hidden" name="CompanyGatewayID" value="0">
                                 <input type="hidden" name="UserID" value="{{$UserID}}">
                                 <input type="hidden" name="Admin" value="{{$isAdmin}}">
                                 <input type="hidden" name="chart_type" value="destination">
