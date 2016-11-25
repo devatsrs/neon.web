@@ -1,4 +1,5 @@
 CREATE TABLE `tmp_tblUsageDetailsReportLive` (
+  `UsageDetailsReportLiveID` int(11) NOT NULL AUTO_INCREMENT,
   `UsageDetailID` int(11) DEFAULT NULL,
   `AccountID` int(11) DEFAULT NULL,
   `CompanyID` int(11) DEFAULT NULL,
@@ -12,6 +13,7 @@ CREATE TABLE `tmp_tblUsageDetailsReportLive` (
   `connect_time` time DEFAULT NULL,
   `connect_date` date DEFAULT NULL,
   `call_status` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`UsageDetailsReportLiveID`),
   KEY `temp_connect_time` (`connect_time`,`connect_date`),
   KEY `IX_CompanyID` (`CompanyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
