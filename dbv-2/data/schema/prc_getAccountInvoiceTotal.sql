@@ -1,17 +1,18 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAccountInvoiceTotal`(IN `p_AccountID` INT, IN `p_CompanyID` INT, IN `p_GatewayID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_checkDuplicate` INT, IN `p_InvoiceDetailID` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getAccountInvoiceTotal`(
+	IN `p_AccountID` INT,
+	IN `p_CompanyID` INT,
+	IN `p_GatewayID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_checkDuplicate` INT,
+	IN `p_InvoiceDetailID` INT
+)
 BEGIN 
 	DECLARE v_InvoiceCount_ INT; 
 	DECLARE v_BillingTime_ INT; 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	
-	SELECT BillingTime INTO v_BillingTime_
-	FROM NeonRMDev.tblCompanyGateway cg
-	INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
-	WHERE AccountID = p_AccountID AND (p_GatewayID = '' OR ga.CompanyGatewayID = p_GatewayID)
-	LIMIT 1;
-	
-	SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
+	SELECT fnGetBillingTime(p_GatewayID,p_AccountID) INTO v_BillingTime_;
 	
 	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,'','','',0); 
 	
