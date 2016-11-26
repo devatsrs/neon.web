@@ -1,17 +1,23 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteVCDR`(IN `p_CompanyID` INT, IN `p_GatewayID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_AccountID` INT, IN `p_CLI` VARCHAR(250), IN `p_CLD` VARCHAR(250), IN `p_zerovaluecost` INT, IN `p_CurrencyID` INT, IN `p_area_prefix` VARCHAR(50), IN `p_trunk` VARCHAR(50))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteVCDR`(
+	IN `p_CompanyID` INT,
+	IN `p_GatewayID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AccountID` INT,
+	IN `p_CLI` VARCHAR(250),
+	IN `p_CLD` VARCHAR(250),
+	IN `p_zerovaluecost` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_area_prefix` VARCHAR(50),
+	IN `p_trunk` VARCHAR(50)
+
+)
     COMMENT 'Delete Vendor CDR'
 BEGIN
 
     DECLARE v_BillingTime_ int;
     SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-
-		SELECT BillingTime INTO v_BillingTime_
-		FROM NeonRMDev.tblCompanyGateway cg
-		INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
-		WHERE AccountID = p_AccountID AND (p_GatewayID = 0 OR ga.CompanyGatewayID = p_GatewayID)
-		LIMIT 1;
-			
-		SET v_BillingTime_ = IFNULL(v_BillingTime_,1);
+		SELECT fnGetBillingTime(p_GatewayID,p_AccountID) INTO v_BillingTime_;
         
         
         CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetail_ AS 
