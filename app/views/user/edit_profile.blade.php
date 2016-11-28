@@ -90,7 +90,7 @@
                         <label for="field-1" class="col-sm-3 control-label">Job Notification</label>
                         <div class="col-sm-6">
                             <div class="make-switch switch-small">
-                                <input type="checkbox" name="JobNotification"  @if($user_profile->JobNotification == 1 )checked=""@endif value="0">
+                                <input type="checkbox" name="JobNotification"  @if($user->JobNotification == 1 )checked=""@endif value="0">
                             </div>
                         </div>
                     </div>
