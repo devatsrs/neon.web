@@ -55,8 +55,8 @@
                                     <div class="col-sm-2">
                                         {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2")) }}
                                     </div>
-                                    <label class="col-sm-1 control-label" for="field-1">TimeZone</label>
-                                    <div class="col-sm-2">
+                                    <label class="col-sm-1 control-label select_hour" for="field-1">TimeZone</label>
+                                    <div class="col-sm-2 select_hour">
                                         {{ Form::select('TimeZone',$timezones,'', array("class"=>"select2")) }}
                                     </div>
                                     <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
@@ -126,9 +126,10 @@
                         end   = new Date($("[name='EndDate']").val()),
                         diff  = new Date(end - start),
                         days  = diff/1000/60/60/24;
-                if(days > 0){
+                if(days > 31){
                     $("[name='StartHour']").attr('disabled','disabled');
                     $("[name='EndHour']").attr('disabled','disabled');
+                    $("[name='TimeZone']").val('').trigger('change');
                     $(".select_hour").hide();
                 }else{
                     $("[name='EndHour']").removeAttr('disabled');
