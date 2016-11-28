@@ -456,29 +456,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('emailmessages/{id}/compose','MessagesController@Compose');
 	Route::any('/emailmessages/ajax_action','MessagesController@Ajax_Action');
 	
-	
-	//Tickets
-	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
-	Route::any('/ticketgroups', array('as' => 'ticketgroups', 'uses' => 'TicketsGroupController@index'));
-	Route::any('/ticketgroups/add', "TicketsGroupController@add");
-	Route::any('/ticketgroups/store', "TicketsGroupController@Store");
-	Route::any('/ticketgroups/ajax_datagrid_groups', "TicketsGroupController@ajax_datagrid");
-	Route::any('/ticketgroups/ajax_datagrid_groups/{type}', 'TicketsGroupController@ajax_datagrid');
-	Route::any('/ticketgroups/{id}/edit', "TicketsGroupController@Edit");
-	Route::any('/ticketgroups/{id}/update', "TicketsGroupController@Update");
-	Route::any('/ticketgroups/{id}/delete', 'TicketsGroupController@delete');
-	Route::any('/ticketgroups/{id}/send_activation', 'TicketsGroupController@send_activation_single');
-	Route::any('/ticketgroups/{id}/getgroupagents', 'TicketsGroupController@get_group_agents');
-	
-	Route::any('/ticketsfields', "TicketsFieldsController@index");
-	Route::any('/ticketsfields/iframe', "TicketsFieldsController@iframe");
-	Route::any('ticketsfields/iframe/submit', "TicketsFieldsController@iframeSubmit");
-	
-	
-	Route::any('/tickets/ajax_datagrid/{type}', "TicketsController@ajax_datagrid");
-	Route::any('/tickets/add', "TicketsController@add");
-	Route::post('/tickets/upload_file', 'TicketsController@uploadFile');
-	Route::any('/tickets/delete_attachment_file', 'TicketsController@deleteUploadFile');
 	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
 	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
 	Route::any('/users/exports/{type}', 'UsersController@exports');
