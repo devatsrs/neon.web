@@ -121,11 +121,11 @@ class UsersController extends BaseController {
             unset($data['password']);
         }
         $data['JobNotification'] = isset($data['JobNotification'])?1:0;
-        $roles = $data['Roles'];
+        $roles = isset($data['Roles'])?$data['Roles']:'';
         unset($data['password_confirmation']);
         unset($data['Roles']);
         if ($user->update($data)) {
-            //@todo: Need to optimize like code implemented in user roles.
+            //@todo: Need to optimize code like implemented in user roles.
             UserRole::where(['UserID' => $id])->delete();
             if(!empty($roles)) {
                 foreach ($roles as $index2 => $roleID) {
