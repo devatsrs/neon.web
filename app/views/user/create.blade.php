@@ -161,9 +161,8 @@
 
         // Replace Checboxes
         $(".save.btn").click(function(ev) {
+            $(this).button('loading');
             $('#form-user-add').submit();
-            $(this).attr('disabled', 'disabled');
-            ;
         });
 
     });

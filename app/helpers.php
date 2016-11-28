@@ -934,16 +934,16 @@ function check_uri($parent_link=''){
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
-	$array_tickets	  =	   array("Tickets");
+	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
 	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
     $array_billing    =    array("Dashboard",'Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR',"Discount","BillingClass");
     $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer',"DashboardCustomer");
-
+	
     if(count($path_array)>0)
     {
-         $controller = $path_array[0];
+  		$controller = $path_array[0];
 	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
 			if(Request::segment(1)!='monitor' && $path_array[1]!='@CrmDashboard'){
@@ -989,6 +989,11 @@ function check_uri($parent_link=''){
         }
 
         if(in_array($controller,$customer_billing) && $parent_link =='Customer_billing')
+        {
+            return 'opened';
+        }
+		
+		 if(in_array($controller,$array_tickets) && $parent_link =='tickets')
         {
             return 'opened';
         }
@@ -1380,4 +1385,15 @@ function ShortName($title,$length=8){
 
 function is_Stripe(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeSlug);
+}
+function change_timezone($billing_timezone,$timezone,$date){
+    if(!empty($timezone) && !empty($billing_timezone)) {
+        date_default_timezone_set($billing_timezone);
+        $strtotime = strtotime($date);
+        date_default_timezone_set($timezone);
+        $changed_date = date('Y-m-d H:i:s', $strtotime);
+        date_default_timezone_set(Config::get('app.timezone'));
+        return $changed_date;
+    }
+    return $date;
 }

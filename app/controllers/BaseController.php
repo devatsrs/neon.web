@@ -14,6 +14,7 @@ class BaseController extends Controller {
             $Timezone = Company::getCompanyTimeZone(0);
             if (isset($Timezone) && $Timezone != '') {
                 date_default_timezone_set($Timezone);
+                Config::set('app.timezone',$Timezone);
             }
         }
 

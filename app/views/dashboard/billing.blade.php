@@ -598,8 +598,15 @@
                 $('.tobehidden').addClass('hidden');
                 if($(this).val()==0){
                     $('.tobehidden').removeClass('hidden');
+                }else if($(this).val()>0){
+                    var date2 = new Date();
+                    var today = new Date();
+                    date2.setMonth(date2.getMonth() - $(this).val());
+                    date2.setDate(1);
+                    $('#billing_filter [name="Closingdate"]').val(date2.getFullYear()+'-'+(date2.getMonth()+1)+'-'+date2.getDate()+' - '+today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate());
                 }
             });
+            $('#billing_filter [name="date-span"]').trigger('change');
 
             $(document).on('click', '.paymentReceived,.totalInvoice,.totalOutstanding', function (e) {
                 e.preventDefault();
