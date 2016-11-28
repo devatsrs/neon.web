@@ -249,6 +249,8 @@ class UsersController extends BaseController {
         $user_data['LastName'] = $data['LastName'];
         $user_data['EmailAddress'] = $data['EmailAddress'];
         $user_data['updated_by'] = User::get_user_full_name();
+        $user_data['JobNotification'] = isset($data['JobNotification'])?1:0;
+
 
         if(Input::hasFile('Picture'))
         {
@@ -290,10 +292,6 @@ class UsersController extends BaseController {
         $user_profile_data['Address3'] = $data['Address3'];
         $user_profile_data['Utc'] = $data['Utc'];
         $user_profile_data['updated_by'] = User::get_user_full_name();
-
-        if (!empty($data['Roles'])) {
-            $user_data['Roles'] = implode(',', (array) $data['Roles']);
-        }
 
         $rules = array(
             'FirstName' => 'required',
