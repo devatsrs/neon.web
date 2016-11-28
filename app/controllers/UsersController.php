@@ -126,8 +126,8 @@ class UsersController extends BaseController {
         unset($data['Roles']);
         if ($user->update($data)) {
             //@todo: Need to optimize like code implemented in user roles.
+            UserRole::where(['UserID' => $id])->delete();
             if(!empty($roles)) {
-                UserRole::where(['UserID' => $id])->delete();
                 foreach ($roles as $index2 => $roleID) {
                     UserRole::create(['UserID' => $id, 'RoleID' => $roleID]);
                 }
