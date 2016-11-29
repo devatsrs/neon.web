@@ -15,7 +15,7 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `fnUsageVendorSummary`(
 BEGIN
 	DECLARE v_TimeId_ INT;
 	
-	IF DATEDIFF(p_StartDate,p_EndDate) > 31 AND p_Detail =2
+	IF DATEDIFF(p_EndDate,p_StartDate) > 31 AND p_Detail =2
 	THEN
 		SET p_Detail = 1;
 	END IF;
