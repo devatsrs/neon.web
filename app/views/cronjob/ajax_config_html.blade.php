@@ -72,9 +72,10 @@
             @elseif($configtitle['type'] == 'select')
             {{Form::select('Setting['.$configtitle['name'].']',$configtitle['value'],$selectd_val,array( "class"=>"select2 small"))}}
             @elseif($configtitle['type'] == 'text' && isset($configtitle['timepicker']))
-
             <input type="{{$configtitle['type']}}"  name="Setting[{{$configtitle['name']}}]" value="{{$selectd_val}}" class="form-control timepicker starttime2" data-minute-step="5" data-show-meridian="true"  data-default-time="12:00:00 AM" data-show-seconds="true" data-template="dropdown">
-
+            @elseif($configtitle['type'] == 'checkbox')
+                <div class="clear"></div>
+                <p class="make-switch switch-small"><input id="" class="form-control" name="Setting[{{$configtitle['name']}}]"  @if($selectd_val) checked @endif type="checkbox" value="1"></p>
             @else
             <input type="{{$configtitle['type']}}" name="Setting[{{$configtitle['name']}}]" value="{{$selectd_val}}" class="form-control @if(isset($configtitle['datepicker'])) datepicker @endif"  id="field-5" placeholder="" @if(isset($configtitle['datepicker']) && isset($configtitle['startdate']) && $configtitle['startdate'] == 'now') data-startdate="{{date('Y-m-d')}}" @endif>
             @endif
@@ -82,20 +83,6 @@
     </div>
 @endforeach
 @endforeach
-
-
-        @if(isset($future_rate_on_off) && $future_rate_on_off == true)
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label class="control-label ">Future Rate</label>
-                    <div class="clear"></div>
-                    <p class="make-switch switch-small">
-                        <input id="" name="Setting[FutureRate]"  @if(isset($commandconfigval->FutureRate) && $commandconfigval->FutureRate == 1) checked @endif type="checkbox" value="1">
-                    </p>
-                </div>
-            </div>
-        @endif
-
 </div>
 
 <script type="text/javascript" >

@@ -158,15 +158,13 @@ class CronJobController extends \BaseController {
                 $accounts = Account::getAccountIDList();
             }else if($CronJobCommand->Command == 'accountbalanceprocess'){
                 $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
-            }else if($CronJobCommand->Command == 'generaterateupdatefile'){
-                $future_rate_on_off = true;
             }
 
 
             $commandconfig = json_decode($commandconfig,true);
 
 
-            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','future_rate_on_off'));
+            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts'));
         }
         return '';
     }
