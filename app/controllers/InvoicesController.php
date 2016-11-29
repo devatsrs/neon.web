@@ -148,6 +148,7 @@ class InvoicesController extends \BaseController {
         $accounts 	= 	Account::getAccountIDList();
         $products 	= 	Product::getProductDropdownList();
         $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice();
+		//echo "<pre>"; 		print_r($taxes);		echo "</pre>"; exit;
         //$gateway_product_ids = Product::getGatewayProductIDs();
         return View::make('invoices.create',compact('accounts','products','taxes'));
 

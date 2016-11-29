@@ -82,58 +82,86 @@ private $validlicense;
 	  function Store(){
 	    $this->IsValidLicense();
 		$data 			= 	Input::all();  
-		
+
+				
+		if(!isset($data['Ticket']))
+		{
+			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
+		}
 		
 		Log::info(print_r($data,true));
-        exit;
-        $rules = array(
-            'GroupName' => 'required|min:2',
-            'GroupAgent' => 'required',
-            'GroupEmailAddress' => 'required',
-            'GroupAssignEmail' => 'required',
-        );
-
-        $validator = Validator::make($data, $rules);
-
+		Log::info(".....................................");
+		$RulesMessages      = 	TicketsTable::GetAgentSubmitRules();       
+        $validator 			= 	Validator::make($data['Ticket'], $RulesMessages['rules'], $RulesMessages['messages']);
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-			$GroupData = array(
-				"CompanyID"=>User::get_companyID(),
-				"GroupName"=>$data['GroupName'],
-				"GroupDescription"=>$data['GroupDescription'],
-				//"GroupEmailAddress"=>$data['GroupEmailAddress'],
-				"GroupAssignTime"=>$data['GroupAssignTime'],
-				"GroupAssignEmail"=>$data['GroupAssignEmail'],
-				//"GroupAuomatedReply"=>$data['GroupAuomatedReply']
+		
+		
+		 $files					=	'';
+		 $attachmentsinfo        =	$data['attachmentsinfo']; 
+        if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
+            $files_array = json_decode($attachmentsinfo,true);
+        }
+
+        if(!empty($files_array) && count($files_array)>0)
+		{
+            $FilesArray = array();
+			
+            foreach($files_array as $key=> $array_file_data)
+			{
+                $file_name  		= 	basename($array_file_data['filepath']); 
+                $amazonPath 		= 	AmazonS3::generate_upload_path(AmazonS3::$dir['TICKET_ATTACHMENT']);
+                $destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;
+
+                if (!file_exists($destinationPath))
+				{
+                    mkdir($destinationPath, 0777, true);
+                }
+                
+				copy($array_file_data['filepath'], $destinationPath . $file_name);
+				
+                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath))
+				{
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+                }
+				
+                $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
+                @unlink($array_file_data['filepath']);
+            }
+            $files		=	json_encode($FilesArray);
+		}
+		
+			$Ticketfields = $data['Ticket'];
+		
+			$TicketData = array(
+				"Requester"=>$Ticketfields['default_requester'],
+				"Subject"=>$Ticketfields['default_subject'],
+				"Type"=>$Ticketfields['default_ticket_type'],
+				"Status"=>$Ticketfields['default_status'],
+				"Priority"=>$Ticketfields['default_priority'],
+				"Group"=>$Ticketfields['default_group'],
+				"Agent"=>$Ticketfields['default_agent'],
+				"Description"=>$Ticketfields['default_description'],	
+				"AttachmentPaths"=>$files,
 				"created_at"=>date("Y-m-d H:i:s"),
 				"created_by"=>User::get_user_full_name()
 			);
 			
 			try{
  			    DB::beginTransaction();
-				$GroupID = TicketGroups::insertGetId($GroupData);		
-				if(is_array($data['GroupAgent'])){
-					foreach($data['GroupAgent'] as $GroupAgents){
-						$TicketGroupAgents =	array("GroupID"=>$GroupID,'UserID'=>$GroupAgents,"created_at"=>date("Y-m-d H:i:s"),"created_by"=>User::get_user_full_name());   
-						TicketGroupAgents::Insert($TicketGroupAgents);						
+				$TicketID = TicketsTable::insertGetId($TicketData);	
+				
+				foreach($Ticketfields as $key => $TicketfieldsData)
+				{
+					if(!in_array($key,Ticketfields::$staticfields))
+					{
+						$TicketFieldsID =  Ticketfields::where(["FieldType"=>$key])->pluck('TicketFieldsID');
+						TicketsDetails::insert(array("TicketID"=>$TicketID,"FieldID"=>$TicketFieldsID,"FieldValue"=>$TicketfieldsData));
 					}
-				}	
-				
-				 $email_addresses = explode(",",$data['GroupEmailAddress']);				
-				 foreach($email_addresses as $email_addresses_data)
-				 {
-				   $already = 	TicketGroupEmailAddresses::where(["EmailAddress"=>trim($email_addresses_data)])->get();	
-				   if(count($already)>0)
-				   {
-					    DB::rollback();
-				  		return Response::json(array("status" => "failed", "message" =>$email_addresses_data." email address already exists."));
-				   }
-				 }
-				
-				$this->SendEmailActivationEmail($data['GroupEmailAddress'],$GroupID);
+				}				
 				 DB::commit();	
-            	return Response::json(array("status" => "success", "message" => "Group Successfully Created",'LastID'=>$GroupID));
+            	return Response::json(array("status" => "success", "message" => "Ticket Successfully Created",'LastID'=>$TicketID));
       		 }catch (Exception $ex){ 	
 			      DB::rollback();
 				 return Response::json(array("status" => "failed", "message" =>$ex->getMessage()));

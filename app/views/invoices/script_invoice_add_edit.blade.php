@@ -260,14 +260,6 @@ $(document).ready(function(){
 			}
 		}
 
-		/*for(loop=1;loop<=Tax_type.length;loop++)
-		{	
-			//alert(Tax_type[loop]);
-			if(Tax_type[loop] != null){
-			$('.grand_total_invoice').before('<tr class="tax_row_'+loop+' tax_rows_invoice"><td>'+Tax_type_title[loop]+'</td><td><input class="form-control text-right" readonly="readonly" name="Tax['+Tax_type_title[loop]+']" value="'+Tax_type[loop].toFixed(decimal_places)+'" type="text">  </td> </tr>');	
-			}
-		}*/
-		
 		
         $('#InvoiceTable tbody tr td .LineTotal').each(function(i, el){
             var $this = $(el);

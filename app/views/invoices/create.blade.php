@@ -181,8 +181,30 @@
                                     <td>Discount </td>
                                     <td>{{Form::text('TotalDiscount','',array("class"=>"form-control TotalDiscount text-right","readonly"=>"readonly"))}}</td>
                             </tr>-->
+                            
+                            <tr>
+                            <td>Tax </td>
+                           <td><div> {{Form::SelectExt(
+                                        [
+                                        "name"=>"InvoiceDetail[TaxRateID][]",
+                                        "data"=>$taxes,
+                                        "selected"=>'',
+                                        "value_key"=>"TaxRateID",
+                                        "title_key"=>"Title",
+                                        "data-title1"=>"data-amount",
+                                        "data-value1"=>"Amount",
+                                        "data-title2"=>"data-flatstatus",
+                                        "data-value2"=>"FlatStatus",
+                                        "class" =>"select2 small Taxentity TaxRateID",
+                                        ]
+                                )}}</div>
+                                <div>
+                                {{Form::text('InvoiceDetail[Description][]','',array("class"=>"form-control"))}} </div>
+                                </td>
+                            </tr>
+                            
                             <tr class="grand_total_invoice">
-                                    <td >Invoice Total </td>
+                                    <td >Total </td>
                                     <td>{{Form::text('GrandTotal','',array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
 

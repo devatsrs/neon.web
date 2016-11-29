@@ -38,7 +38,7 @@
 				$required[] =  array("id"=>$id,"title"=>$TicketfieldsData->FieldName);
 			?>
             <div class="col-sm-6">
-            <input type="text" name='Ticket[{{$TicketfieldsData->FieldName}}]' required id="{{$id}}" class="form-control typeahead formfld" spellcheck="false" dir="auto"  data-local="{{$AllEmails}}"   placeholder="{{$TicketfieldsData->AgentLabel}}" />           
+            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control typeahead formfld" spellcheck="false" dir="auto"  data-local="{{$AllEmails}}"   placeholder="{{$TicketfieldsData->AgentLabel}}" />           
             </div>
             <div class="col-sm-3 dropdown" style="padding:0;">
               <button title="Add new requester" type="button" class="btn btn-success btn-xs  dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-plus-square"></i> </button>
@@ -51,7 +51,7 @@
 				if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
 				 ?>
             <div class="col-sm-9">
-              <input type="text"  name='Ticket[{{$TicketfieldsData->FieldName}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
+              <input type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
             </div>
             <?php } ?>
           </div>
@@ -68,7 +68,7 @@
           <div class="form-group">
             <label for="GroupDescription" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
-              <textarea   id='{{$id}}'  name='Ticket[{{$TicketfieldsData->FieldName}}]' class="form-control formfld {{$class_textarea}}" ></textarea>
+              <textarea   id='{{$id}}'  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld {{$class_textarea}}" ></textarea>
               <div class="form-group email_attachment">
             <input type="hidden" value="1" name="email_send" id="email_send"  />
             <!--   <input id="filecontrole" type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />-->
@@ -91,7 +91,7 @@
           <div class="form-group">
             <label for="GroupDescription" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
-              <input class="checkbox rowcheckbox formfldcheckbox" value="0" name='Ticket[{{$TicketfieldsData->FieldName}}]' id='{{$id}}' type="checkbox">
+              <input class="checkbox rowcheckbox formfldcheckbox" value="0" name='Ticket[{{$TicketfieldsData->FieldType}}]' id='{{$id}}' type="checkbox">
             </div>
           </div>
           <?php 		  
@@ -103,7 +103,7 @@
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
-              <input type="number" name='Ticket[{{$TicketfieldsData->FieldName}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
+              <input type="number" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
             </div>
           </div>
           <?php		 
@@ -115,7 +115,7 @@
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
-              <select name='Ticket[{{$TicketfieldsData->FieldName}}]' class="form-control formfld select2" id="{{$id}}" >
+              <select name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld select2" id="{{$id}}" >
               <option value="0">Select</option>
                 <?php
 			  if($TicketfieldsData->FieldType == 'default_priority'){
@@ -168,7 +168,7 @@
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-6">
-              <input type="text" name='Ticket[{{$TicketfieldsData->FieldName}}]'  class="form-control formfld datepicker" data-date-format="yyyy-mm-dd" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
+              <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld datepicker" data-date-format="yyyy-mm-dd" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
             </div>
             <div class="col-sm-3">
             <i class="fa fa-calendar"></i> 
@@ -183,7 +183,7 @@
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
-              <input type="text" name='Ticket[{{$TicketfieldsData->FieldName}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
+              <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
             </div>
           </div>
           <?php	 
@@ -300,7 +300,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 				success: function(response) {
 				   if(response.status =='success'){					   
 						ShowToastr("success",response.message); 														
-						window.location.href= baseurl+'/ticketgroups';
+						window.location.href= baseurl+'/tickets';
 					}else{
 						toastr.error(response.message, "Error", toastr_opts);
 					}                   

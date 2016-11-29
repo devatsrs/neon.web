@@ -22,6 +22,9 @@ class Ticketfields extends \Eloquent {
 	const  FIELD_HTML_DATE    		= 	6;
 	const  FIELD_HTML_DECIMAL    	= 	7;
 	
+	const  TICKET_SYSTEM    		= 	0;
+	const  TICKET_FRESHDESK    		= 	1;
+	
 	public static $field_html_type = array();
 	
 	
@@ -46,12 +49,8 @@ class Ticketfields extends \Eloquent {
 				'date' => self::FIELD_HTML_DATE,
 				'decimal' => self::FIELD_HTML_DECIMAL,
 			);
-		
-	
-	
-	
-	
-	//0 for unavialable,1 for disable unselecetd,2 for disable seleceted,3 for active unselecetd,4 for active seleceted	
+			
+	public static 	$staticfields = array("default_requester","default_subject" ,"default_ticket_type" ,"default_status" ,"default_priority" ,"default_group","default_agent","default_description");
 	
 
 }
