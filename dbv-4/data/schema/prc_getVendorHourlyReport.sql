@@ -1,4 +1,9 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorHourlyReport`(IN `p_CompanyID` INT, IN `p_UserID` INT, IN `p_isAdmin` INT, IN `p_AccountID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorHourlyReport`(
+	IN `p_CompanyID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_AccountID` INT
+)
 BEGIN
 	
 	DECLARE v_Round_ int;
@@ -13,13 +18,13 @@ BEGIN
 	SELECT ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) as TotalCost FROM tmp_tblUsageVendorSummary_;
 	
 	/* cost per hour*/
-	SELECT dt.hour as HOUR ,ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) as TotalCost FROM tmp_tblUsageVendorSummary_ us INNER JOIN tblDimTime dt on us.TimeID =  dt.TimeID GROUP BY us.TimeID;
+	SELECT dt.hour as HOUR ,ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) as TotalCost FROM tmp_tblUsageVendorSummary_ us INNER JOIN tblDimTime dt on us.TimeID =  dt.TimeID GROUP BY dt.hour;
 	
 	/* total duration or minutes*/
 	SELECT ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes FROM tmp_tblUsageVendorSummary_;
 	
 	/* minutes pre hour*/
-	SELECT dt.hour as HOUR ,ROUND(COALESCE(SUM(TotalBilledDuration),0) / 60,0) as TotalMinutes FROM tmp_tblUsageVendorSummary_ us INNER JOIN tblDimTime dt on us.TimeID =  dt.TimeID GROUP BY us.TimeID;
+	SELECT dt.hour as HOUR ,ROUND(COALESCE(SUM(TotalBilledDuration),0) / 60,0) as TotalMinutes FROM tmp_tblUsageVendorSummary_ us INNER JOIN tblDimTime dt on us.TimeID =  dt.TimeID GROUP BY dt.hour;
 	
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

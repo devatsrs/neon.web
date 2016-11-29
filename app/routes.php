@@ -456,16 +456,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('emailmessages/{id}/compose','MessagesController@Compose');
 	Route::any('/emailmessages/ajax_action','MessagesController@Ajax_Action');
 	
-	
-	//Ticekts
-	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
-	Route::any('/ticketgroups', array('as' => 'ticketgroups', 'uses' => 'TicketsController@TicketGroups'));
-	Route::any('/ticketgroups/add', "TicketsController@addGroups");
-	Route::any('/ticketgroups/store', "TicketsController@StoreGroups");
-	Route::any('/ticketgroups/ajax_datagrid_groups', "TicketsController@ajax_datagrid_groups");
-	Route::any('ticketgroups/ajax_datagrid_groups/{type}', 'TicketsController@ajax_datagrid_groups');
-	
-	
 	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
 	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
 	Route::any('/users/exports/{type}', 'UsersController@exports');
@@ -1065,6 +1055,8 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/registration', "HomeController@registration");
     Route::any('/doRegistration', "HomeController@doRegistration");
     Route::get('/super_admin', "HomeController@home");
+	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
+	
     Route::get('/l/{id}', function($id){
 		$user = User::find($id);
 		$redirect_to = URL::to('/process_redirect');

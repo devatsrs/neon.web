@@ -18,15 +18,14 @@ BEGIN
 		END 
 	INTO
 		v_LastInvoiceDate_ 
-	FROM NeonBillingDev.tblInvoice
-	INNER JOIN NeonBillingDev.tblInvoiceDetail
-		ON tblInvoice.InvoiceID =  tblInvoiceDetail.InvoiceID
-	INNER JOIN NeonRMDev.tblAccount
-		ON tblAccount.AccountID = tblInvoice.AccountID
+ 	FROM NeonRMDev.tblAccount
 	LEFT JOIN NeonRMDev.tblAccountBilling 
-		ON tblAccountBilling.AccountID = tblInvoice.AccountID
-	WHERE InvoiceType =2 
-		AND tblInvoice.AccountID = p_AccountID 
+		ON tblAccountBilling.AccountID = tblAccount.AccountID
+	LEFT JOIN NeonBillingDev.tblInvoice 
+		ON tblAccount.AccountID = tblInvoice.AccountID AND InvoiceType =2
+	LEFT JOIN NeonBillingDev.tblInvoiceDetail
+		ON tblInvoice.InvoiceID =  tblInvoiceDetail.InvoiceID
+	WHERE tblAccount.AccountID = p_AccountID 
 	ORDER BY IssueDate DESC 
 	LIMIT 1;
 
