@@ -1,6 +1,9 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_generateSummary`(IN `p_CompanyID` INT, IN `p_StartDate` DATE, IN `p_EndDate` DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_generateSummary`(
+	IN `p_CompanyID` INT,
+	IN `p_StartDate` DATE,
+	IN `p_EndDate` DATE
+)
 BEGIN
-	
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
 		-- ERROR
@@ -10,7 +13,6 @@ BEGIN
 		SELECT @p2 as Message;
 		ROLLBACK;
 	END;
-	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
 	CALL fnGetCountry(); 
@@ -38,18 +40,36 @@ BEGIN
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 
-	-- DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetailsReport_;
+	UPDATE tmp_UsageSummary
+	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_UsageSummary 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
+	ON tmp_UsageSummary.AreaPrefix = TBL.AreaPrefix
+	SET tmp_UsageSummary.CountryID =TBL.CountryID;
 	
-	UPDATE tmp_UsageSummary  FORCE INDEX (tmp_UsageSummary_AreaPrefix)
-	INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
-	SET tmp_UsageSummary.CountryID =tblCountry.CountryID;
+	DELETE FROM tmp_SummaryHeader WHERE CompanyID = p_CompanyID;
+ 	
+	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT 
+		sh.SummaryHeaderID,
+		sh.DateID,
+		sh.CompanyID,
+		sh.AccountID,
+		sh.GatewayAccountID,
+		sh.CompanyGatewayID,
+		sh.Trunk,
+		sh.AreaPrefix,
+		sh.CountryID,
+		sh.created_at 
+	FROM tblSummaryHeader sh
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummary)TBL
+	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
+	WHERE sh.CompanyID =  p_CompanyID ;
 	
 	START TRANSACTION;
 	
 	INSERT INTO tblSummaryHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
 	FROM tmp_UsageSummary us
-	LEFT JOIN tblSummaryHeader sh	 
+	LEFT JOIN tmp_SummaryHeader sh	 
 	ON 
 		 us.DateID = sh.DateID
 	AND us.CompanyID = sh.CompanyID
@@ -60,7 +80,25 @@ BEGIN
 	WHERE sh.SummaryHeaderID IS NULL
 	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
 	
-	
+	DELETE FROM tmp_SummaryHeader WHERE CompanyID = p_CompanyID;
+ 	
+	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT 
+		sh.SummaryHeaderID,
+		sh.DateID,
+		sh.CompanyID,
+		sh.AccountID,
+		sh.GatewayAccountID,
+		sh.CompanyGatewayID,
+		sh.Trunk,
+		sh.AreaPrefix,
+		sh.CountryID,
+		sh.created_at 
+	FROM tblSummaryHeader sh
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummary)TBL
+	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
+	WHERE sh.CompanyID =  p_CompanyID ;
+
 	DELETE us FROM tblUsageSummary us 
 	INNER JOIN tblSummaryHeader sh ON us.SummaryHeaderID = sh.SummaryHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
@@ -71,10 +109,9 @@ BEGIN
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
 	
-	
 	INSERT INTO tblUsageSummary (SummaryHeaderID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT ANY_VALUE(sh.SummaryHeaderID),SUM(us.TotalCharges),SUM(us.TotalBilledDuration),SUM(us.TotalDuration),SUM(us.NoOfCalls),SUM(us.NoOfFailCalls)
-	FROM tblSummaryHeader sh
+	FROM tmp_SummaryHeader sh
 	INNER JOIN tmp_UsageSummary us FORCE INDEX (Unique_key)	 
 	ON 
 		 us.DateID = sh.DateID
@@ -87,7 +124,7 @@ BEGIN
 	
 	INSERT INTO tblUsageSummaryDetail (SummaryHeaderID,TimeID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT sh.SummaryHeaderID,TimeID,us.TotalCharges,us.TotalBilledDuration,us.TotalDuration,us.NoOfCalls,us.NoOfFailCalls
-	FROM tblSummaryHeader sh
+	FROM tmp_SummaryHeader sh
 	INNER JOIN tmp_UsageSummary us FORCE INDEX (Unique_key)
 	ON 
 		 us.DateID = sh.DateID
