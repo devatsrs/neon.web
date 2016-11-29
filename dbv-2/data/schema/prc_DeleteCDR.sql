@@ -1,16 +1,24 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteCDR`(IN `p_CompanyID` INT, IN `p_GatewayID` INT, IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_AccountID` INT, IN `p_CDRType` CHAR(1), IN `p_CLI` VARCHAR(50), IN `p_CLD` VARCHAR(50), IN `p_zerovaluecost` INT, IN `p_CurrencyID` INT, IN `p_area_prefix` VARCHAR(50), IN `p_trunk` VARCHAR(50))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteCDR`(
+	IN `p_CompanyID` INT,
+	IN `p_GatewayID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AccountID` INT,
+	IN `p_CDRType` CHAR(1),
+	IN `p_CLI` VARCHAR(50),
+	IN `p_CLD` VARCHAR(50),
+	IN `p_zerovaluecost` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_area_prefix` VARCHAR(50),
+	IN `p_trunk` VARCHAR(50)
+
+)
 BEGIN
 
 	DECLARE v_BillingTime_ int;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
-	SELECT BillingTime INTO v_BillingTime_
-	FROM NeonRMDev.tblCompanyGateway cg
-	INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
-	WHERE AccountID = p_AccountID AND (p_GatewayID = 0 OR ga.CompanyGatewayID = p_GatewayID)
-	LIMIT 1;
-			
-	SET v_BillingTime_ = IFNULL(v_BillingTime_,1);
+	SELECT fnGetBillingTime(p_GatewayID,p_AccountID) INTO v_BillingTime_;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetail_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetail_ AS (
