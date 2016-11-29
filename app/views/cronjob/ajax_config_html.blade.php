@@ -82,6 +82,20 @@
     </div>
 @endforeach
 @endforeach
+
+
+        @if(isset($future_rate_on_off) && $future_rate_on_off == true)
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label ">Future Rate</label>
+                    <div class="clear"></div>
+                    <p class="make-switch switch-small">
+                        <input id="" name="Setting[FutureRate]"  @if(isset($commandconfigval->FutureRate) && $commandconfigval->FutureRate == 1) checked @endif type="checkbox" value="1">
+                    </p>
+                </div>
+            </div>
+        @endif
+
 </div>
 
 <script type="text/javascript" >
