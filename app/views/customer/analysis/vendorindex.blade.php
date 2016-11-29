@@ -1,5 +1,8 @@
 @extends('layout.customer.main')
 @section('content')
+    <style>
+        .small_fld{width:80.6667%;}
+    </style>
     <br />
     {{--<link rel="stylesheet" type="text/css" href="assets/js/daterangepicker/daterangepicker-bs3.css" />--}}
 
@@ -28,17 +31,17 @@
                             <div class="panel-body">
                                 <div class="form-group">
                                     <label class="col-sm-1 control-label" for="field-1">Start Date</label>
-                                    <div class="col-sm-2">
+                                    <div class="col-sm-2" style="padding-left:0; padding-right:0; width:10%;">
                                         <input type="text" name="StartDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}"/>
                                     </div>
-                                    <div class="col-md-1 select_hour">
+                                    <div class="col-md-1 select_hour" style="padding: 0px; width: 9%;">
                                         <input type="text" name="StartHour" data-minute-step="30"   data-show-meridian="false" data-default-time="00:00" value="00:00"  data-template="dropdown" class="form-control timepicker small_fld">
                                     </div>
                                     <label class="col-sm-1 control-label" for="field-1">End Date</label>
-                                    <div class="col-sm-2">
+                                    <div class="col-sm-2" style="padding-left:0; padding-right:0; width:10%;">
                                         <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d' )}}" />
                                     </div>
-                                    <div class="col-md-1 select_hour">
+                                    <div class="col-md-1 select_hour" style="padding: 0px; width: 9%;">
                                         <input type="text" name="EndHour" data-minute-step="30"   data-show-meridian="false" data-default-time="23:30" value="23:30"   data-template="dropdown" class="form-control timepicker small_fld">
                                     </div>
                                     <label class="col-sm-1 control-label" for="field-1">Country</label>
