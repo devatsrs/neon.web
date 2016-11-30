@@ -170,6 +170,18 @@ class GatewayController extends \BaseController {
                     $datainput['password'] = Crypt::decrypt($settings["password"]);
                 }
             }
+            $tag = '"CompanyGatewayID":"'.$id.'"';
+            if($datainput['Status']==1){
+                CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->update(['Active'=>1]);
+            }else if($datainput['Status']==0){
+                $cronjobs = CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID,'Active'=>1])->get();
+                if(!empty($cronjobs)) {
+                    foreach ($cronjobs as $job) {
+                        $data = ['JobID' => $job->CronJobID, 'PID' => $job->PID];
+                        CronJob::killactivejobs($data);
+                    }
+                }
+            }
             unset($datainput['CompanyGatewayID']);
             unset($datainput['Title']);
             unset($datainput['GatewayID']);
@@ -202,8 +214,11 @@ class GatewayController extends \BaseController {
         if( intval($id) > 0){
             //if(!CompanyGateway::checkForeignKeyById($id)) {
                 try {
+                    //$CompanyID = User::get_companyID();
+                    //$result = DB::statement('prc_DeleteCompanyGatewayWithReferences('.$CompanyID.','.$id.')');
                     $result = CompanyGateway::find($id);
                     if (!empty($result) && $result->delete()) {
+                    //if($result){
                         return Response::json(array("status" => "success", "message" => "Gateway Successfully Deleted"));
                     } else {
                         return Response::json(array("status" => "failed", "message" => "Problem Deleting Gateway."));
