@@ -59,6 +59,9 @@ class CompaniesController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        if(empty($data['SMTPPassword'])){
+            unset($data['SMTPPassword']);
+        }
         CompanySetting::setKeyVal('UseInBilling',$data['UseInBilling']);
         unset($data['UseInBilling']);
         CompanySetting::setKeyVal('DefaultDashboard',$data['DefaultDashboard']);//Added by Abubakar

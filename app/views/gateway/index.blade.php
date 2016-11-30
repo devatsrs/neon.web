@@ -157,7 +157,7 @@ var postdata;
                    var id = $(this).attr('data-id');
                    var url = baseurl + '/gateway/'+id+'/ajax_existing_gateway_cronjob';
                    $('#delete-gateway-form [name="CompanyGatewayID"]').val(id);
-                   if(confirm('Are you sure you want to delete selected gateway?')) {
+                   if(confirm('Are you sure you want to delete selected gateway? All related data like CDR, summary etc will also delete.')) {
                        $.ajax({
                            url: url,
                            type: 'POST',

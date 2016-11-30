@@ -45,14 +45,14 @@ class IntegrationController extends \BaseController
 				$rules = array(
 					'FreshdeskDomain'	 => 'required',
 					'FreshdeskEmail'	 => 'required|email',
-					'FreshdeskPassword'  => 'required',
+					//'FreshdeskPassword'  => 'required',
 					'Freshdeskkey'		 => 'required',
 				);
 				
 					$messages = [
 				 "FreshdeskDomain.required" => "The Domain field is required",
 				 "FreshdeskEmail.required" => "The email field is required",
-				 "FreshdeskPassword.required" => "The password field is required",
+				 //"FreshdeskPassword.required" => "The password field is required",
 				 "Freshdeskkey.required" => "The key field is required",
 				 
 				];
@@ -67,11 +67,13 @@ class IntegrationController extends \BaseController
 			$FreshdeskData = array(
 					"FreshdeskDomain"=>$data['FreshdeskDomain'],
 					"FreshdeskEmail"=>$data['FreshdeskEmail'],
-					"FreshdeskPassword"=>$data['FreshdeskPassword'],
 					"Freshdeskkey"=>$data['Freshdeskkey'],
 					"FreshdeskGroup"=>$data['FreshdeskGroup']
 					
 			);
+            if(!empty($data['FreshdeskPassword'])){
+                $FreshdeskData['FreshdeskPassword'] = $data['FreshdeskPassword'];
+            }
 			
 		  $data['Status'] = isset($data['Status'])?1:0;	
 		  if($data['Status']==1){ //disable all other support subcategories
@@ -237,7 +239,7 @@ class IntegrationController extends \BaseController
 					'MandrilSmtpServer'	 => 'required',
 					'MandrilPort'	 => 'required',					
 					'MandrilUserName'	 => 'required',
-					'MandrilPassword'	 => 'required',
+					//'MandrilPassword'	 => 'required',
 				);
 		
 				$validator = Validator::make($data, $rules);
@@ -253,10 +255,11 @@ class IntegrationController extends \BaseController
 					"MandrilSmtpServer"=>$data['MandrilSmtpServer'],
 					"MandrilPort"=>$data['MandrilPort'],
 					"MandrilUserName"=>$data['MandrilUserName'],
-					"MandrilPassword"=>$data['MandrilPassword'],
 					"MandrilSSL"=>$data['MandrilSSL'],					
 					);
-			
+                if(!empty($data['MandrilPassword'])){
+                    $MandrilData['MandrilPassword'] = $data['MandrilPassword'];
+                }
 				 
 				$MandrilDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 			
@@ -327,7 +330,7 @@ class IntegrationController extends \BaseController
 					'EmailTrackingEmail'	 => 'required|email',
 					//'EmailTrackingName'	 => 'required',					
 					'EmailTrackingServer'	 => 'required',					
-					'EmailTrackingPassword'	 => 'required',				
+					//'EmailTrackingPassword'	 => 'required',
 				);
 		
 				$validator = Validator::make($data, $rules);
@@ -342,8 +345,12 @@ class IntegrationController extends \BaseController
 					"EmailTrackingEmail"=>$data['EmailTrackingEmail'],
 					//"EmailTrackingName"=>$data['EmailTrackingName'],					
 					"EmailTrackingServer"=>$data['EmailTrackingServer'],
-					"EmailTrackingPassword"=>$data['EmailTrackingPassword'],
+					//"EmailTrackingPassword"=>$data['EmailTrackingPassword'],
 					);
+
+                if(!empty($data['EmailTrackingPassword'])){
+                    $TrackingData['EmailTrackingPassword'] = $data['EmailTrackingPassword'];
+                }
 				 
 				$TrackingDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 			
@@ -368,13 +375,13 @@ class IntegrationController extends \BaseController
 				$rules = array(
 					'OutlookCalendarEmail'	 => 'required|email',
 					'OutlookCalendarServer'	 => 'required',					
-					'OutlookCalendarPassword'	 => 'required',					
+					//'OutlookCalendarPassword'	 => 'required',
 				);
 
 				$messages = [
 							 "OutlookCalendarEmail.required" => "The exchange email field is required",
 							 "OutlookCalendarServer.required" => "The exchange server field is required",
-							 "OutlookCalendarPassword.required" => "The exchange password field is required"
+							 //"OutlookCalendarPassword.required" => "The exchange password field is required"
 							];
 					
 				$validator = Validator::make($data, $rules,$messages);
@@ -387,9 +394,12 @@ class IntegrationController extends \BaseController
 				
 				$outlookcalendarData = array(
 					"OutlookCalendarEmail"=>$data['OutlookCalendarEmail'],
-					"OutlookCalendarServer"=>$data['OutlookCalendarServer'],					
-					"OutlookCalendarPassword"=>$data['OutlookCalendarPassword'],
+					"OutlookCalendarServer"=>$data['OutlookCalendarServer'],
 					);
+
+                if(!empty($data['OutlookCalendarPassword'])){
+                    $outlookcalendarData['OutlookCalendarPassword'] = $data['OutlookCalendarPassword'];
+                }
 				 
 				$outlookcalendarDBData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 			
@@ -411,7 +421,7 @@ class IntegrationController extends \BaseController
 			{
 				$rules = array(
 					'QuickBookLoginID'	  => 'required',
-					'QuickBookPassqord'	  => 'required',
+					//'QuickBookPassqord'	  => 'required',
 					'OauthConsumerKey'	  => 'required',
 					'OauthConsumerSecret' => 'required',
 					'AppToken' => 'required',
@@ -452,6 +462,9 @@ class IntegrationController extends \BaseController
 				unset($QuickBookData['firstcategoryid']);
 				unset($QuickBookData['secondcategoryid']);
 				unset($QuickBookData['Status']);
+                if(empty($QuickBookData['QuickBookPassqord'])){
+                    unset($QuickBookData['QuickBookPassqord']);
+                }
 
 				$QuickBookDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 
