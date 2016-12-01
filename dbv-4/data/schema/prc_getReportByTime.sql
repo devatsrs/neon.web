@@ -11,13 +11,15 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getReportByTime`(
 	IN `p_UserID` INT,
 	IN `p_isAdmin` INT,
 	IN `p_ReportType` INT
+
+
 )
 BEGIN
 	
 	DECLARE v_Round_ INT;
 	DECLARE V_Detail INT;
 	
-	SET V_Detail = 1;
+	SET V_Detail = 2;
 	IF p_ReportType =1
 	THEN
 	SET V_Detail = 2;

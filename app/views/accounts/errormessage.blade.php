@@ -11,6 +11,15 @@
         </div>
     </div>
 @endif
+@if($Account->Blocked == 1)
+    <div class="row">
+        <div class="col-md-12">
+            <div class="alert alert-danger">
+                Account Blocked.
+            </div>
+        </div>
+    </div>
+@endif
 @if(Account::AuthIP($Account) && ($Account->IsCustomer==1 || $Account->IsVendor==1))
     <div  class="row">
         <div class="col-md-12">

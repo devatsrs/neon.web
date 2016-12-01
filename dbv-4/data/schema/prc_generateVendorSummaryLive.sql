@@ -103,12 +103,12 @@ BEGIN
 	WHERE sh.CompanyID =  p_CompanyID ;
 
 	DELETE us FROM tblUsageVendorSummaryLive us 
-	INNER JOIN tmp_SummaryVendorHeaderLive sh ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
+	INNER JOIN tblSummaryVendorHeader sh ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE sh.CompanyID = p_CompanyID;
 
 	DELETE usd FROM tblUsageVendorSummaryDetailLive usd
-	INNER JOIN tmp_SummaryVendorHeaderLive sh ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
+	INNER JOIN tblSummaryVendorHeader sh ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE sh.CompanyID = p_CompanyID;
 

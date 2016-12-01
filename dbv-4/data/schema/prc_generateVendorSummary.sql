@@ -102,12 +102,12 @@ BEGIN
 	WHERE sh.CompanyID =  p_CompanyID ;
 
 	DELETE us FROM tblUsageVendorSummary us 
-	INNER JOIN tmp_SummaryVendorHeader sh ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
+	INNER JOIN tblSummaryVendorHeader sh ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
 
 	DELETE usd FROM tblUsageVendorSummaryDetail usd
-	INNER JOIN tmp_SummaryVendorHeader sh ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
+	INNER JOIN tblSummaryVendorHeader sh ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
 

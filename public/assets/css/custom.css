@@ -2408,6 +2408,15 @@ background-repeat:no-repeat;
 ul.grid li div.low_balance_account:not(.selected){
     background :#ffc9c9 none repeat scroll 0 0;
 }
+.datatable tr.low_balance_account:not(.selected){
+    background :#ffc9c9 none repeat scroll 0 0;
+}
+ul.grid li div.blocked_account:not(.selected){
+    background :#ff9999 none repeat scroll 0 0;
+}
+.datatable tr.blocked_account:not(.selected){
+    background :#ff9999 none repeat scroll 0 0;
+}
 .mail-env{
 background:white none repeat scroll 0 0;
 }
