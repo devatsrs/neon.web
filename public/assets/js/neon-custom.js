@@ -2566,13 +2566,16 @@ reloadJobsDrodown = function(reset){
     }
 	
 };
-try{
-    setTimeout(function(){ reloadJobsDrodown(0); reloadMsgDrodown(0); }, 2000);
-    bindResetCounter();
-	bindResetCounterEmailMsgs();
-}catch(er){
+$(document).ready(function()
+{
+    try{
+        setTimeout(function(){ reloadJobsDrodown(0); reloadMsgDrodown(0); }, 2000);
+        bindResetCounter();
+        bindResetCounterEmailMsgs();
+    }catch(er){
 
-}
+    }
+});
 
 
 reloadMsgDrodown = function(reset){
