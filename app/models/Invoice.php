@@ -94,7 +94,7 @@ class Invoice extends \Eloquent {
 			$print_type = 'Invoice';
             $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates'))->render();
 
-            $body = htmlspecialchars_decode($body); Log::info($body);
+            $body = htmlspecialchars_decode($body); 
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
             $footer = htmlspecialchars_decode($footer);
 
@@ -107,9 +107,9 @@ class Invoice extends \Eloquent {
             RemoteSSH::run("chmod -R 777 " . $destination_dir);
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
-            $local_file = $destination_dir .  $file_name; Log::info('local_file'); Log::info($local_file);
+            $local_file = $destination_dir .  $file_name; 
 
-            $local_htmlfile = $destination_dir .  $htmlfile_name; Log::info('local_htmlfile'); Log::info($local_htmlfile);
+            $local_htmlfile = $destination_dir .  $htmlfile_name; 
             file_put_contents($local_htmlfile,$body);
             @chmod($local_htmlfile,0777);
             $footer_name = 'footer-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
