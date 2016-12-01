@@ -103,7 +103,7 @@ class Invoice extends \Eloquent {
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             } Log::info('destination_dir'); Log::info($destination_dir);
-            //RemoteSSH::run("chmod -R 777 " . $destination_dir);
+            RemoteSSH::run("chmod -R 777 " . $destination_dir);
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
             $local_file = $destination_dir .  $file_name; Log::info('local_file'); Log::info($local_file);
