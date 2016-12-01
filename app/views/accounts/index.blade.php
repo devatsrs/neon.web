@@ -22,7 +22,7 @@
         <i class="entypo-plus"></i>
         Add New
     </a>
-@endif    
+@endif
 </p>
 <div class="row">
     <div class="col-md-12">
@@ -91,6 +91,12 @@
                             {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                         </div>
                         @endif
+                    </div>
+                    <div class="form-group">
+                        <label for="field-5" class="control-label col-md-1">IP/Cli</label>
+                        <div class="col-md-2">
+                            <input type="text" name="IPCLIText" class="form-control">
+                        </div>
                     </div>
                     <p style="text-align: right;">
                         <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -194,7 +200,7 @@
     var view = 1;
     var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
-		
+
 		function check_status(){
             var selected_active_type =  $("#account_filter [name='account_active']").prop("checked");
 			if(selected_active_type){
@@ -204,28 +210,28 @@
 				$('.li_deactive').show();
 			}else{
 				$('.li_active').show();
-				$('.li_deactive').hide();		
+				$('.li_deactive').hide();
 			}
 		}
-		
+
 		$('.type_active_deactive').click(function(e) {
-			
+
             var type_active_deactive  =  $(this).attr('type_ad');
-			var SelectedIDs 		  =  getselectedIDs();	
+			var SelectedIDs 		  =  getselectedIDs();
 			var criteria_ac			  =  '';
-			
+
 			if($('#selectallbutton').is(':checked')){
 				criteria_ac = 'criteria';
 			}else{
-				criteria_ac = 'selected';				
+				criteria_ac = 'selected';
 			}
-			
+
 			if(SelectedIDs=='' || criteria_ac=='')
 			{
 				alert("Please select atleast one account.");
 				return false;
 			}
-			
+
 			account_ac_url =  '{{ URL::to('accounts/update_bulk_account_status')}}';
 			$.ajax({
 				url: account_ac_url,
@@ -237,28 +243,28 @@
 							data_table.fnFilter('', 0);
 						}else{
 							toastr.error(response.message, "Error", toastr_opts);
-                   	 	}				
-					},				
+                   	 	}
+					},
 				data: {
 			"account_name":$("#account_filter [name='account_name']").val(),
 			"account_number":$("#account_filter [name='account_number']").val(),
 			"contact_name":$("#account_filter [name='contact_name']").val(),
 			"tag":$("#account_filter [name='tag']").val(),
 			"verification_status":$("#account_filter [name='verification_status']").val(),
-			"account_owners":$("#account_filter [name='account_owners']").val(),			
+			"account_owners":$("#account_filter [name='account_owners']").val(),
 			"customer_on_off":$("#account_filter [name='customer_on_off']").prop("checked"),
 			"vendor_on_off":$("#account_filter [name='vendor_on_off']").prop("checked"),
             "low_balance":$("#account_filter [name='low_balance']").prop("checked"),
 			"account_active":$("#account_filter [name='account_active']").prop("checked"),
 			"SelectedIDs":SelectedIDs,
-			"criteria_ac":criteria_ac,	
+			"criteria_ac":criteria_ac,
 			"type_active_deactive":type_active_deactive,
-			}			
-				
+			}
+
 			});
-			
+
         });
-		
+
 
         //["tblAccount.Number",
         // "tblAccount.AccountName",
@@ -283,6 +289,7 @@
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
         $searchFilter.low_balance = $("#account_filter [name='low_balance']").prop("checked");
         $searchFilter.account_active = $("#account_filter [name='account_active']").prop("checked");
+        $searchFilter.ipclitext = $("#account_filter [name='IPCLIText']").val();
 
                 data_table = $("#table-4").dataTable({
 
@@ -305,8 +312,10 @@
                                 {"name":"low_balance","value":$searchFilter.low_balance},
                                 {"name":"account_active","value":$searchFilter.account_active},
                                 {"name":"verification_status","value":$searchFilter.verification_status},
-                                {"name":"account_owners","value":$searchFilter.account_owners}
-                        );
+                                {"name":"account_owners","value":$searchFilter.account_owners},
+                                {"name":"ipclitext","value":$searchFilter.ipclitext}
+
+                          );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name":"account_name","value":$searchFilter.account_name},
@@ -319,6 +328,7 @@
                                 {"name":"account_active","value":$searchFilter.account_active},
                                 {"name":"verification_status","value":$searchFilter.verification_status},
                                 {"name":"account_owners","value":$searchFilter.account_owners},
+                                {"name":"ipclitext","value":$searchFilter.ipclitext},
                                 {"name":"Export","value":1}
                         );
                     },
@@ -402,10 +412,10 @@
                                 varification_url = varification_url.replace('{id}',full[0]);
 
                                 NOT_VERIFIED = varification_url +'{{Account::NOT_VERIFIED}}';
-                               
+
                                 VERIFIED = varification_url + '{{Account::VERIFIED}}';
 
-                                 
+
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
                                 /* action += '<select name="varification_status" class="change_verification_status">';
                                  for(var i = 0; i < varification_status.length ; i++){
@@ -524,7 +534,7 @@
                 var BalanceThreshold =  $(temp).find('input[name="BalanceThreshold"]').val();
                 var Blocked =  $(temp).find('input[name="Blocked"]').val();
 
-				
+
                 address1 = (address1=='null'||address1==''?'':''+address1+'<br>');
                 address2 = (address2=='null'||address2==''?'':address2+'<br>');
                 address3 = (address3=='null'||address3==''?'':address3+'<br>');
@@ -554,9 +564,9 @@
                     select+= ' blocked_account'
                     $(this).addClass('blocked_account');
                 }
-				
+
 				//col-xl-2 col-md-4 col-sm-6 col-xsm-12 col-lg-3
-				
+
                 if(checkClass=='1')
 				{
                     html += '<li class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xsm-12">';
@@ -567,12 +577,12 @@
                 }
 				var account_title = childrens.eq(2).text();
 				if(account_title.length>22){
-					account_title  = account_title.substring(0,22)+"...";	
+					account_title  = account_title.substring(0,22)+"...";
 				}
-				
+
 				var account_name = childrens.eq(3).text();
 				if(account_name.length>40){
-					account_name  = account_name.substring(0,40)+"...";	
+					account_name  = account_name.substring(0,40)+"...";
 				}
 
                 popup_html = "<label class='col-sm-6' >Invoice Outstanding:</label><div class='col-sm-6' >" + childrens.eq(5).text() + "</div>";
