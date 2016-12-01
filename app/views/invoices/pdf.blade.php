@@ -153,7 +153,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                                                         @endif
                                                         
                                                         <tr>
-                                                                <td class="text-right"><strong>Gross Total</strong></td>
+                                                                <td class="text-right"><strong>Grand Total</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,$RoundChargesAmount)}} </td>
                                                         </tr>
                                                     </tfoot>
