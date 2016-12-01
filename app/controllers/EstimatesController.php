@@ -140,7 +140,9 @@ class EstimatesController extends \BaseController {
             $CurrencyCode 				= 	 !empty($Currency)?$Currency->Code:'';
             $CompanyName 				= 	 Company::getName();
             $taxes 						= 	 TaxRate::getTaxRateDropdownIDListForInvoice();
-            return View::make('estimates.edit', compact( 'id', 'Estimate','EstimateDetail','EstimateTemplateID','EstimateNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account'));
+			$EstimateAllTax 			= 	 DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$id,"EstimateTaxType"=>1])->orderby('EstimateTaxRateID')->get();
+			
+            return View::make('estimates.edit', compact( 'id', 'Estimate','EstimateDetail','EstimateTemplateID','EstimateNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','EstimateAllTax'));
         }
     }
 
@@ -173,13 +175,14 @@ class EstimatesController extends \BaseController {
             //$EstimateData["TotalDiscount"] 	= 	str_replace(",","",$data["TotalDiscount"]);
 			$EstimateData["TotalDiscount"] 	= 	0;
             $EstimateData["TotalTax"] 		= 	str_replace(",","",$data["TotalTax"]);
-            $EstimateData["GrandTotal"] 	= 	floatval(str_replace(",","",$data["GrandTotal"]));
+            $EstimateData["GrandTotal"] 	= 	floatval(str_replace(",","",$data["GrandTotalEstimate"]));
             $EstimateData["CurrencyID"] 	= 	$data["CurrencyID"];
             $EstimateData["EstimateStatus"] = 	Estimate::DRAFT;
             $EstimateData["Note"] 			= 	$data["Note"];
             $EstimateData["Terms"] 			= 	$data["Terms"];
             $EstimateData["FooterTerm"] 	=	$data["FooterTerm"];
             $EstimateData["CreatedBy"] 		= 	$CreatedBy;
+			$EstimateData['EstimateTotal'] 	 = str_replace(",","",$data["GrandTotal"]);
 			//$EstimateData["converted"] 		= 	'N';
 
             ///////////
@@ -214,7 +217,7 @@ class EstimatesController extends \BaseController {
                     InvoiceTemplate::find(AccountBilling::getInvoiceTemplateID($data["AccountID"]))->update(array("LastEstimateNumber" => $LastEstimateNumber ));
                 }
 				
-                $EstimateDetailData = $EstimateTaxRates = array();
+                $EstimateDetailData = $EstimateTaxRates = $EstimateAllTaxRates = array();
 
                 foreach($data["EstimateDetail"] as $field => $detail)
 				{
@@ -252,6 +255,7 @@ class EstimatesController extends \BaseController {
                     }
                 }
 				
+				//product tax
             	if(isset($data['Tax']) && is_array($data['Tax'])){
 					foreach($data['Tax'] as $j => $taxdata){
 						$EstimateTaxRates[$j]['TaxRateID'] 		= 	$j;
@@ -261,15 +265,35 @@ class EstimatesController extends \BaseController {
 						$EstimateTaxRates[$j]["TaxAmount"] 		= 	$taxdata;
 					}
 				}
-                $EstimateTaxRates = merge_tax($EstimateTaxRates);
+				
+				//estimate tax
+				if(isset($data['EstimateTaxes']) && is_array($data['EstimateTaxes'])){
+					foreach($data['EstimateTaxes']['field'] as  $p =>  $EstimateTaxes){						
+						$EstimateAllTaxRates[$p]['TaxRateID'] 		= 	$EstimateTaxes;
+						$EstimateAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($EstimateTaxes);
+						$EstimateAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
+						$EstimateAllTaxRates[$p]["EstimateTaxType"] = 	1;
+						$EstimateAllTaxRates[$p]["EstimateID"] 		= 	$Estimate->EstimateID; 
+						$EstimateAllTaxRates[$p]["TaxAmount"] 		= 	$data['EstimateTaxes']['value'][$p];
+					}
+				}
+				
+                $EstimateTaxRates 	 = merge_tax($EstimateTaxRates);
+				$EstimateAllTaxRates = merge_tax($EstimateAllTaxRates);
+				
+				
                 $EstimateLogData = array();
                 $EstimateLogData['EstimateID']= $Estimate->EstimateID;
                 $EstimateLogData['Note']= 'Created By '.$CreatedBy;
                 $EstimateLogData['created_at']= date("Y-m-d H:i:s");
                 $EstimateLogData['EstimateLogStatus']= EstimateLog::CREATED;
                 EstimateLog::insert($EstimateLogData);
-                if(!empty($EstimateTaxRates)) {
+                if(!empty($EstimateTaxRates)) { //product tax
                     DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
+                }
+				
+				 if(!empty($EstimateAllTaxRates)) { //estimate tax
+                    DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateAllTaxRates);
                 }
 
                 if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
@@ -329,13 +353,13 @@ class EstimatesController extends \BaseController {
             //$EstimateData["TotalDiscount"] 	= 	str_replace(",","",$data["TotalDiscount"]);
 			$EstimateData["TotalDiscount"] 	= 	0;
             $EstimateData["TotalTax"] 		= 	str_replace(",","",$data["TotalTax"]);
-            $EstimateData["GrandTotal"] 	= 	floatval(str_replace(",","",$data["GrandTotal"]));
+            $EstimateData["GrandTotal"] 	= 	floatval(str_replace(",","",$data["GrandTotalEstimate"]));
             $EstimateData["CurrencyID"] 	= 	$data["CurrencyID"];
             $EstimateData["Note"] 			= 	$data["Note"];
             $EstimateData["Terms"] 			= 	$data["Terms"];
             $EstimateData["FooterTerm"] 	= 	$data["FooterTerm"];
             $EstimateData["ModifiedBy"] 	= 	$CreatedBy;
-
+			$EstimateData['EstimateTotal'] 	=   str_replace(",","",$data["GrandTotal"]);
             ///////////
 
             $rules = array(
@@ -373,7 +397,7 @@ class EstimatesController extends \BaseController {
 					
                     $Estimate->update($EstimateData);
 					
-                    $EstimateDetailData 		= $EstimateTaxRates =	array();
+                    $EstimateDetailData 	= $EstimateTaxRates = $EstimateAllTaxRates = array();
 					
                     //Delete all Estimate Data and then Recreate.
                     EstimateDetail::where(["EstimateID" => $Estimate->EstimateID])->delete();
@@ -423,6 +447,7 @@ class EstimatesController extends \BaseController {
                             }
                         }
 						
+						//product tax
 						if(isset($data['Tax']) && is_array($data['Tax'])){
 							foreach($data['Tax'] as $j => $taxdata){
 							$EstimateTaxRates[$j]['TaxRateID'] 		= 	$j;
@@ -432,11 +457,30 @@ class EstimatesController extends \BaseController {
 							$EstimateTaxRates[$j]["TaxAmount"] 		= 	$taxdata;
 							}
 						}
+						
+							//estimate tax
+						if(isset($data['EstimateTaxes']) && is_array($data['EstimateTaxes'])){
+							foreach($data['EstimateTaxes']['field'] as  $p =>  $EstimateTaxes){						
+								$EstimateAllTaxRates[$p]['TaxRateID'] 		= 	$EstimateTaxes;
+								$EstimateAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($EstimateTaxes);
+								$EstimateAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
+								$EstimateAllTaxRates[$p]["EstimateTaxType"] = 	1;
+								$EstimateAllTaxRates[$p]["EstimateID"] 		= 	$Estimate->EstimateID; 
+								$EstimateAllTaxRates[$p]["TaxAmount"] 		= 	$data['EstimateTaxes']['value'][$p];
+							}
+						}
 
-                        $EstimateTaxRates = merge_tax($EstimateTaxRates);
+                        $EstimateTaxRates 	 = merge_tax($EstimateTaxRates);
+						$EstimateAllTaxRates = merge_tax($EstimateAllTaxRates);
+						
                         if(!empty($EstimateTaxRates)) {
                             DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateTaxRates);
                         }
+						
+						if(!empty($EstimateAllTaxRates)) {
+                            DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateAllTaxRates);
+                        }
+						
                         if (EstimateDetail::insert($EstimateDetailData))
 						{
                             $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
@@ -525,8 +569,9 @@ class EstimatesController extends \BaseController {
                                 "status" => "success",
                                 "product_description" => $ProductDescription,
                                 "product_amount" => $ProductAmount,
-                                "product_tax_rate_id" => $TaxRateId,
-                                "product_total_tax_rate" => $TotalTax,
+                                //"product_tax_rate_id" => $TaxRateId,
+                                //"product_total_tax_rate" => $TotalTax,
+								 "product_total_tax_rate" => 0,	
                                 "sub_total" => $SubTotal,
                                 "decimal_places" => $decimal_places,
                             ];
@@ -569,13 +614,14 @@ class EstimatesController extends \BaseController {
             $CurrencyId 		= 	$Account->CurrencyId;
             $Address 			= 	Account::getFullAddress($Account);			
             $Terms 				= 	$FooterTerm = '';
-			
+			 $AccountTaxRate 	= 	explode(",",AccountBilling::getTaxRate($Account->AccountID));
+			 
             if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0)
 			{
                 $InvoiceTemplate	= 	InvoiceTemplate::find($InvoiceTemplateID);
                 $Terms 				= 	$InvoiceTemplate->Terms;
                 $FooterTerm 		= 	$InvoiceTemplate->FooterTerm;
-                $return 			=	['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID'];
+                $return 			=	['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate'];
             }
 			else
 			{

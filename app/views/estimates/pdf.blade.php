@@ -138,6 +138,19 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                                                         @endif
                                                         <tr>
                                                                 <td class="text-right"><strong>Estimate Total</strong></td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->EstimateTotal,$RoundChargesAmount)}} </td>
+                                                        </tr>
+                                                            @if(count($EstimateAllTaxRates))
+                                                            @foreach($EstimateAllTaxRates as $EstimateTaxRate)
+                                                                <tr>
+                                                                    <td class="text-right"><strong>{{$EstimateTaxRate->Title}}</strong></td>
+                                                                    <td class="text-right">{{$CurrencySymbol}}{{number_format($EstimateTaxRate->TaxAmount,$RoundChargesAmount)}}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @endif
+                                                        
+                                                        <tr>
+                                                                <td class="text-right"><strong>Gross Total</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$RoundChargesAmount)}} </td>
                                                         </tr>
                                                     </tfoot>

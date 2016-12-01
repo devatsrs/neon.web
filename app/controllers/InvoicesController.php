@@ -189,8 +189,7 @@ class InvoicesController extends \BaseController {
      */
     public function store(){
         $data = Input::all();
-			Log::info(print_r($data,true));
-			// exit;
+				
         if($data){
 
             $companyID = User::get_companyID();
