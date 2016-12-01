@@ -205,7 +205,7 @@
                 <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs estimate_tax_add ">+</button>   &nbsp; Tax </td>
                 @else
                 <td>
-                 <button title="Delete Tax" type="button" class="btn btn-primary btn-xs estimate_tax_remove ">-</button>
+                 <button title="Delete Tax" type="button" class="btn btn-danger btn-xs estimate_tax_remove ">X</button>
                  </td>
                 @endif  
                 <td><div class="col-md-8"> {{Form::SelectExt(
@@ -255,7 +255,7 @@ var decimal_places = '{{$RoundChargesAmount}}';
 
 var subscription_array = [{{implode(",",array_keys(BillingSubscription::getSubscriptionsArray(User::get_companyID(),$CurrencyID)))}}];
 
-var estimate_tax_html = '<tr class="all_tax_row"><td><button title="Delete Tax" type="button" class="btn btn-primary btn-xs estimate_tax_remove ">-</button></td><td><div class="col-md-8">{{Form::SelectExt(["name"=>"EstimateTaxes[field][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small EstimateTaxesFld"])}}</div><div class="col-md-4">{{Form::text("EstimateTaxes[value][]","",array("class"=>"form-control EstimateTaxesValue","readonly"=>"readonly"))}}</div></td></tr>';
+var estimate_tax_html = '<tr class="all_tax_row"><td><button title="Delete Tax" type="button" class="btn btn-danger btn-xs estimate_tax_remove ">X</button></td><td><div class="col-md-8">{{Form::SelectExt(["name"=>"EstimateTaxes[field][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small EstimateTaxesFld"])}}</div><div class="col-md-4">{{Form::text("EstimateTaxes[value][]","",array("class"=>"form-control EstimateTaxesValue","readonly"=>"readonly"))}}</div></td></tr>';
 
 var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{Form::select('EstimateDetail[ProductID][]',$products,'',array("class"=>"select2 product_dropdown"))}}</td><td>{{Form::text('EstimateDetail[Description][]','',array("class"=>"form-control descriptions invoice_estimate_textarea"))}}</td><td class="text-center">{{Form::text('EstimateDetail[Price][]','',array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('EstimateDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>'
      //add_row_html += '<td class="text-center">{{Form::text('EstimateDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
