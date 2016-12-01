@@ -199,7 +199,7 @@ Form::macro('SelectExt', function($arg = array())
         "class" => "",
         "extra" => ""
     }*/
-
+		
     $data = $arg['data'];
     if(count($data) > 0) {
         $output = '<select name="'.$arg['name'].'" class="'.$arg['class'].'"  ';

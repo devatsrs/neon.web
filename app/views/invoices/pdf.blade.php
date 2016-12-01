@@ -136,8 +136,24 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->TotalDiscount,$RoundChargesAmount)}}</td>
                                                         </tr>
                                                         @endif
+                                                        
+                                                        
                                                         <tr>
                                                                 <td class="text-right"><strong>Invoice Total</strong></td>
+                                                                <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->InvoiceTotal,$RoundChargesAmount)}} </td>
+                                                        </tr>
+                                                        
+                                                          @if(count($InvoiceAllTaxRates))
+                                                            @foreach($InvoiceAllTaxRates as $InvoiceTaxRate)
+                                                                <tr>
+                                                                    <td class="text-right"><strong>{{$InvoiceTaxRate->Title}}</strong></td>
+                                                                    <td class="text-right">{{$CurrencySymbol}}{{number_format($InvoiceTaxRate->TaxAmount,$RoundChargesAmount)}}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @endif
+                                                        
+                                                        <tr>
+                                                                <td class="text-right"><strong>Gross Total</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,$RoundChargesAmount)}} </td>
                                                         </tr>
                                                     </tfoot>
