@@ -46,7 +46,7 @@ class CompaniesController extends \BaseController {
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
-        $data['PincodeWidget'] = isset($data['PincodeWidget']) ? 1 : 0;
+        //$data['PincodeWidget'] = isset($data['PincodeWidget']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
         $rules = array(
             'CompanyName' => 'required|min:3|unique:tblCompany,CompanyName,'.$companyID.',CompanyID',
@@ -68,7 +68,7 @@ class CompaniesController extends \BaseController {
         unset($data['DefaultDashboard']);
         CompanySetting::setKeyVal('RoundChargesAmount',$data['RoundChargesAmount']);
         unset($data['RoundChargesAmount']);
-        CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish
+        //CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish
         unset($data['PincodeWidget']);
         LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
         unset($data['LastPrefixNo']);
