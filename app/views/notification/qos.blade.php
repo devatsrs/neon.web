@@ -104,7 +104,8 @@
                 {                        // 7 Action
                     "bSortable": false,
                     mRender: function (id, type, full) {
-                        action = '<div class = "hiddenRowData" >';
+                        var action;
+                        action = '<div class = "hiddenRowData pull-left" >';
                         for (var i = 0; i < list_fields.length; i++) {
                             if(list_fields[i] == 'Settings' && IsJsonString(full[i])){
                                 var settings_json = JSON.parse(full[i]);
@@ -117,10 +118,10 @@
                         }
                         action += '</div>';
                         @if(User::checkCategoryPermission('Alert','Update'))
-                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-qos-alert btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>'
+                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-qos-alert btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                         @endif
                                 @if(User::checkCategoryPermission('Alert','Delete'))
-                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-qos-alert btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-trash"></i></a>'
+                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-qos-alert btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-trash"></i></a>';
                         @endif
                                 action += ' <a target="_blank" href="' + alert_history_url.replace("{id}", id) + '" class="btn btn-default btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-back-in-time"></i></a>';
                                 return action;

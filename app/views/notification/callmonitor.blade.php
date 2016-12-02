@@ -109,7 +109,8 @@
                 {                        // 7 Action
                     "bSortable": false,
                     mRender: function (id, type, full) {
-                        action = '<div class = "hiddenRowData" >';
+                        var action;
+                        action = '<div class = "hiddenRowData pull-left" >';
                         for (var i = 0; i < list_fields.length; i++) {
                             if(list_fields[i] == 'Settings' && IsJsonString(full[i])){
                                 var settings_json = JSON.parse(full[i]);
