@@ -209,7 +209,9 @@ $(document).ready(function(){
         $('select.selectboxit').selectBoxIt();*/
 
         $('select.select2').addClass('visible');
-        $('select.select2').select2();
+        $('select.select2').select2();		
+		//$('.autogrow').trigger('autosize.resize');
+		$("textarea.autogrow").autosize();
     });
 
     $('#InvoiceTable > tbody').on('click','.remove-row', function(e){
