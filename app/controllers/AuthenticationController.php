@@ -86,16 +86,19 @@ class AuthenticationController extends \BaseController
         $data = Input::all();
         $data['AccountID'] = $id;
         $data['CompanyID'] = $CompanyID = User::get_companyID();
-        $message = '';
-        $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
+        /*$message = '';
+        $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';*/
 
         $status = AccountAuthenticate::validate_ipclis($data);
-        $save = $status['data'];
+        /*$save = $status['data'];*/
         if($status['status']==0){
             return Response::json(array("status" => "error", "message" => $status['message']));
         }
 
-        if((isset($save['CustomerAuthValue'])) || (isset($save['VendorAuthValue']))){
+        $object = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID']])->first();
+        return Response::json(array("status" => "success","object"=>$object, "message" => $status['message']));
+
+        /*if((isset($save['CustomerAuthValue'])) || (isset($save['VendorAuthValue']))){
             if($isCustomerOrVendor=='Customer' && !empty($save['CustomerAuthValue'])) {
                  $status['toBeInsert']=explode(',',$save['CustomerAuthValue']);
             }elseif($isCustomerOrVendor=='Vendor' && !empty($save['VendorAuthValue'])){
@@ -108,25 +111,22 @@ class AuthenticationController extends \BaseController
             }
             $object = AccountAuthenticate::where(['CompanyID'=>$save['CompanyID'],'AccountID'=>$save['AccountID']])->first();
             return Response::json(array("status" => "success","object"=>$object, "message" => $status['message']));
-        }
+        }*/
     }
 
     public function deleteips($id){
         $data = Input::all();
         $companyID = User::get_companyID();
-        $StartDate = '';
-        $EndDate = '';
+        $Date = '';
         $Confirm = 0;
         if(isset($data['dates'])){
-            $dates = explode(' - ',$data['dates']);
-            $StartDate = $dates[0];
-            $EndDate = $dates[1];
+            $Date = $data['dates'];
             $Confirm = 1;
         }
         $data['AccountID'] = $id;
         $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
-        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$StartDate."','".$EndDate."',".$Confirm.")";
+        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$Date."',".$Confirm.")";
         $postIps = explode(',',$data['ipclis']);
         unset($data['ipclis']);
         unset($data['isCustomerOrVendor']);
