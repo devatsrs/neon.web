@@ -207,6 +207,7 @@ $(document).ready(function(){
 
         $('select.select2').addClass('visible');
         $('select.select2').select2();
+		$("textarea.autogrow").autosize();
     });
 
     $('#EstimateTable > tbody').on('click','.remove-row', function(e){
