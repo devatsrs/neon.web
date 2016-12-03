@@ -65,7 +65,8 @@ class Invoice extends \Eloquent {
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $InvoiceID])->get();
-            $InvoiceTaxRates = InvoiceTaxRate::where("InvoiceID",$InvoiceID)->orderby('InvoiceTaxRateID')->get();
+            $InvoiceTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>0])->orderby('InvoiceTaxRateID')->get();
+			$InvoiceAllTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>1])->orderby('InvoiceTaxRateID')->get();
             $Account = Account::find($Invoice->AccountID);
             $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
@@ -91,7 +92,7 @@ class Invoice extends \Eloquent {
             $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
 
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates','PaymentDueInDays'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates'))->render();
 
             $body = htmlspecialchars_decode($body);
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
@@ -102,13 +103,13 @@ class Invoice extends \Eloquent {
 			
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
-            } Log::info('destination_dir'); Log::info($destination_dir);
-            //RemoteSSH::run("chmod -R 777 " . $destination_dir);
+            } 
+            RemoteSSH::run("chmod -R 777 " . $destination_dir);
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
-            $local_file = $destination_dir .  $file_name; Log::info('local_file'); Log::info($local_file);
+            $local_file = $destination_dir .  $file_name; 
 
-            $local_htmlfile = $destination_dir .  $htmlfile_name; Log::info('local_htmlfile'); Log::info($local_htmlfile);
+            $local_htmlfile = $destination_dir .  $htmlfile_name; 
             file_put_contents($local_htmlfile,$body);
             @chmod($local_htmlfile,0777);
             $footer_name = 'footer-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
