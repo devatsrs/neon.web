@@ -10,6 +10,14 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
+                                <label class="control-label">Name</label>
+                                <input type="text" name="Name" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
                                 <label class="control-label">Alert Type</label>
                                 {{ Form::select('AlertType', $call_monitor_alert_type, '', array("class"=>"select2")) }}
                             </div>
