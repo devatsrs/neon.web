@@ -10,6 +10,14 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
+                                <label class="control-label">Name</label>
+                                <input type="text" name="Name" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
                                 <label class="control-label">Alert Type</label>
                                 {{ Form::select('AlertType', $call_monitor_alert_type, '', array("class"=>"select2")) }}
                             </div>
@@ -67,6 +75,7 @@
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" name="AlertID" value="">
+                        <input type="hidden" name="CallAlert[AccountIDs]" value="{{Customer::get_accountID()}}">
                         <input type="hidden" name="CallAlert[AccountID]" value="{{Customer::get_accountID()}}">
                         <input type="hidden" name="CallAlert[EmailToAccount]" value="1">
                         <input type="hidden" name="AlertGroup" value="call">
