@@ -538,5 +538,6 @@ $(document).ready(function(){
             }
         }, "json");
     });
+	$("textarea.autogrow").autosize();
 });
 </script>
