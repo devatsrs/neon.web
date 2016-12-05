@@ -28,7 +28,7 @@ table{
   border-spacing: 0;
   margin-bottom: 30px;
 }
-.gray_td{color:#CCCCCC;}
+.gray_td{color:#A9A9A9;}
 
 </style>
 <?php
