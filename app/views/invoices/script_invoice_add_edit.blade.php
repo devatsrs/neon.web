@@ -497,11 +497,11 @@ $(document).ready(function(){
 				 $('.gross_total_invoice').before(invoice_tax_html);	
 				 $('.InvoiceTaxesFld').eq(index+1).val(entry);
 				 var change = $('.InvoiceTaxesFld').eq(index+1);			
-				}
-				 change.trigger('change');
-				 $('select.select2').addClass('visible');
-				 $('select.select2').select2();
+				}				
 			});
+			 $('.Taxentity').trigger('change');
+			 $('select.select2').addClass('visible');
+			 $('select.select2').select2();
 			 calculate_total();
 		}
 	
