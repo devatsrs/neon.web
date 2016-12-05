@@ -76,6 +76,7 @@
                     <div class="modal-footer">
                         <input type="hidden" name="AlertID" value="">
                         <input type="hidden" name="CallAlert[AccountIDs]" value="{{Customer::get_accountID()}}">
+                        <input type="hidden" name="CallAlert[AccountID]" value="{{Customer::get_accountID()}}">
                         <input type="hidden" name="CallAlert[EmailToAccount]" value="1">
                         <input type="hidden" name="AlertGroup" value="call">
                         <button type="submit" id="qos-update"  class="save btn btn-success btn-sm btn-icon icon-left" data-loading-text="Loading...">
