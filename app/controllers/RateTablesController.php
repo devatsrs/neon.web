@@ -82,22 +82,29 @@ class RateTablesController extends \BaseController {
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['CreatedBy'] = User::get_user_full_name();
-        $data['RateGeneratorId'] = isset($data['RateGeneratorId'])?$data['RateGeneratorId']:0;
+        /*$data['RateGeneratorId'] = isset($data['RateGeneratorId'])?$data['RateGeneratorId']:0;
         if($data['RateGeneratorId'] > 0) {
-            $data['TrunkID'] = RateGenerator::where(["RateGeneratorId" => $data['RateGeneratorId']])->pluck('TrunkID');
-        }else if(empty($data['TrunkID'])){
-            $data['TrunkID'] = Trunk::where(["CompanyID" => $companyID ])->min('TrunkID');
+            $rateGenerator = RateGenerator::where(["RateGeneratorId" => $data['RateGeneratorId']])->get();
+            $data['TrunkID'] = $rateGenerator[0]->TrunkID;
+            $data['CodeDeckId'] = $rateGenerator[0]->CodeDeckId;
         }
-
+            else if(empty($data['TrunkID'])){
+            $data['TrunkID'] = Trunk::where(["CompanyID" => $companyID ])->min('TrunkID');
+        }*/
         $rules = array(
             'CompanyID' => 'required',
             'RateTableName' => 'required|unique:tblRateTable,RateTableName,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
-            'RateGeneratorId'=>'required',
+            //'RateGeneratorId'=>'required',
+            'CodeDeckId'=>'required',
             'TrunkID'=>'required',
             'CurrencyID'=>'required'
 
         );
-        $message = ['CurrencyID.required'=>'Currency field is required'];
+        $message = ['CurrencyID.required'=>'Currency field is required',
+                    'TrunkID.required'=>'Trunk is required',
+                    'CodeDeckId.required'=>'CodeDeck is required'
+                    //'RateGeneratorId.required'=>'RateGenerator'
+                    ];
         $validator = Validator::make($data, $rules, $message);
         if ($validator->fails()) {
             return json_validator_response($validator);
