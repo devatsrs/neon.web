@@ -448,17 +448,24 @@ $(document).ready(function(){
 					var change = $('.EstimateTaxesFldFirst');
 				}
 				else
-				{
-				 $('.gross_total_estimate').before(estimate_tax_html);	
-				 $('.EstimateTaxesFld').eq(index+1).val(entry);
-				 var change = $('.EstimateTaxesFld').eq(index+1);			
+				{			
+				 ///				 
+				var	estimate_tax_html_final  = '<tr class="all_tax_row EstimateTaxestr'+index+' ">'+estimate_tax_html+"</tr>";
+				
+				 $('.gross_total_estimate').before(estimate_tax_html_final);	
+				 var current_obj = $('.EstimateTaxestr'+index).find('.EstimateTaxesFld');
+				 current_obj.addClass('EstimateTaxesFld'+index);
+				 current_obj.val(entry);
+				 current_obj.addClass('visible');
+				 current_obj.select2();
+				 current_obj.trigger('change');
+				// var change = $('.InvoiceTaxesFld').eq(index+1);			
+				
+				 //	
 				}
-			});
-			 $('.Taxentity').trigger('change');
-			 $('select.select2').addClass('visible');
-			 $('select.select2').select2();
+			});		
 			 calculate_total();
-		}
+		}	
 	}
 	
     //Calculate Total
