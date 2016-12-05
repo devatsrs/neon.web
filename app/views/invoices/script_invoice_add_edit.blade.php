@@ -503,16 +503,15 @@ $(document).ready(function(){
 				}
 				else
 				{
-				invoice_tax_html_final  = '<tr class="all_tax_row InvoiceTaxestr'+index+' ">'+invoice_tax_html+"</tr>";
-				
-				 $('.gross_total_invoice').before(invoice_tax_html_final);	
-				 var current_obj = $('.InvoiceTaxestr'+index).find('.InvoiceTaxesFld');
-				 current_obj.addClass('InvoiceTaxesFld'+index);
-				 current_obj.val(entry);
-				 current_obj.addClass('visible');
-				 current_obj.select2();
-				 current_obj.trigger('change');
-				// var change = $('.InvoiceTaxesFld').eq(index+1);			
+				   var invoice_tax_html_final  = '<tr class="all_tax_row InvoiceTaxestr'+index+' ">'+invoice_tax_html+"</tr>";
+				   $('.gross_total_invoice').before(invoice_tax_html_final);	
+				   var current_obj = $('.InvoiceTaxestr'+index).find('.InvoiceTaxesFld');
+				   current_obj.addClass('InvoiceTaxesFld'+index);
+				   current_obj.val(entry);
+				   current_obj.addClass('visible');
+				   current_obj.select2();
+				   current_obj.trigger('change');
+				   // var change = $('.InvoiceTaxesFld').eq(index+1);			
 				}				
 			});
 			 //$('select.InvoiceTaxesFld').addClass('visible');
