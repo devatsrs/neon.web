@@ -166,7 +166,7 @@ $(document).ready(function(){
                     return false;
                 }
 
-
+			$("textarea.autogrow").autosize();
             }catch (e){
                 console.log(e);
             }
@@ -174,9 +174,10 @@ $(document).ready(function(){
     });
     $("#InvoiceTable").delegate( '.Price , .Qty , .Discount, .TaxRateID, .TaxRateID2' ,'change',function (e) {
         var $this = $(this);
-        var $row = $this.parents("tr");
+        var $row = $this.parents("tr");		
         cal_line_total($row);
         calculate_total();
+		
     });
     $("input[name=discount]").change(function (e) {
         calculate_total();

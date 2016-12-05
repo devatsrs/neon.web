@@ -165,7 +165,7 @@ $(document).ready(function(){
                     return false;
                 }
 
-
+			$("textarea.autogrow").autosize();
             }catch (e){
                 console.log(e);
             }
