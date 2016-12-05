@@ -115,7 +115,10 @@ $(document).ready(function(){
                             });
                         },1000);
                     });
-
+					
+					$('.Taxentity').trigger('change');
+					$("textarea.autogrow").autosize();
+					calculate_total();
                     return false;
                 } else if(product_types[selected_product_type] == SUBSCRIPTION ) {
 
@@ -138,6 +141,10 @@ $(document).ready(function(){
                             }
                         }
                     });
+					
+					$('.Taxentity').trigger('change');
+					$("textarea.autogrow").autosize();
+					calculate_total();
                     return false;
 
 
@@ -162,10 +169,11 @@ $(document).ready(function(){
                             }
                         }
                     });
+					$('.Taxentity').trigger('change');
+					$("textarea.autogrow").autosize();
+					calculate_total();
                     return false;
-                }
-			$('.Taxentity').trigger('change');
-			$("textarea.autogrow").autosize();
+                }			
             }catch (e){
                 console.log(e);
             }

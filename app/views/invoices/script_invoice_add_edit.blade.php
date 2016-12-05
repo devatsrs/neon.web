@@ -115,7 +115,10 @@ $(document).ready(function(){
                         },1000);
                     });
 
-                    return false;
+                    $('.Taxentity').trigger('change');
+					$("textarea.autogrow").autosize();
+					calculate_total();					
+					return false;
                 } else if(product_types[selected_product_type] == SUBSCRIPTION ) {
 
                     getCalculateInvoiceBySubscription(selected_product_type,productID,AccountID,1,function(response){
@@ -138,6 +141,9 @@ $(document).ready(function(){
                             }
                         }
                     });
+					$('.Taxentity').trigger('change');
+					$("textarea.autogrow").autosize();
+					calculate_total();
                     return false;
 
 
@@ -163,11 +169,11 @@ $(document).ready(function(){
                             }
                         }
                     });
+					$('.Taxentity').trigger('change');
+					$("textarea.autogrow").autosize();
+					calculate_total();
                     return false;
-                }
-			$('.Taxentity').trigger('change');
-			$("textarea.autogrow").autosize();
-			 calculate_total();
+                }						 
             }catch (e){
                 console.log(e);
             }
