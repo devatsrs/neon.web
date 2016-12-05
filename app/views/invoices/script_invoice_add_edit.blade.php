@@ -165,8 +165,9 @@ $(document).ready(function(){
                     });
                     return false;
                 }
-
+			$('.Taxentity').trigger('change');
 			$("textarea.autogrow").autosize();
+			 calculate_total();
             }catch (e){
                 console.log(e);
             }

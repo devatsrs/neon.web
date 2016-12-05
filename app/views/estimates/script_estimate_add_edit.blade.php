@@ -164,7 +164,7 @@ $(document).ready(function(){
                     });
                     return false;
                 }
-
+			$('.Taxentity').trigger('change');
 			$("textarea.autogrow").autosize();
             }catch (e){
                 console.log(e);
