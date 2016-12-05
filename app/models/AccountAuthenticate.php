@@ -20,13 +20,14 @@ class AccountAuthenticate extends \Eloquent {
             $status['message'] = $isCustomerOrVendor." ".$type." required";
             return $status;
         }
-        $ipclis = preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']);
+        $ipclis = array_filter(preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']),function($var){return $var!='';});
         $ipclist = implode(',',$ipclis);
         $query = "CALL prc_AddAccountIPCLI(".$data['CompanyID'].",".$data['AccountID'].",".$data['isCustomerOrVendor'].",'".$ipclist."','".$type."')";
         $found = DB::select($query);
         $validation = '';
         if(!empty($found)) {
             $status['message'] = 'Account Successfully Updated.';
+
             foreach ($found as $obj) {
                 $temp = explode(',',$obj->IPCLI);
                 $intersect = array_intersect($ipclis,$temp);
