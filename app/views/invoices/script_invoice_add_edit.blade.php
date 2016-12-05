@@ -105,6 +105,8 @@ $(document).ready(function(){
                                     $row.find(".StartDate").val(start_date);
                                     $row.find(".EndDate").val(end_date);
                                     decimal_places = response.decimal_places;
+									 $('.Taxentity').trigger('change');
+									$("textarea.autogrow").autosize();
                                     calculate_total();
                                 }else{
                                     if(response.message !== undefined){
@@ -114,10 +116,6 @@ $(document).ready(function(){
                             });
                         },1000);
                     });
-
-                    $('.Taxentity').trigger('change');
-					$("textarea.autogrow").autosize();
-					calculate_total();					
 					return false;
                 } else if(product_types[selected_product_type] == SUBSCRIPTION ) {
 
@@ -134,19 +132,16 @@ $(document).ready(function(){
                             decimal_places = response.decimal_places;
                             $row.find(".StartDate").attr("disabled",true);
                             $row.find(".EndDate").attr("disabled",true);
-                            calculate_total();
+                           	$('.Taxentity').trigger('change');
+							$("textarea.autogrow").autosize();
+							calculate_total();
                         }else{
                             if(response.message !== undefined){
                                 toastr.error(response.message, "Error", toastr_opts);
                             }
                         }
                     });
-					$('.Taxentity').trigger('change');
-					$("textarea.autogrow").autosize();
-					calculate_total();
                     return false;
-
-
                 }else{
 
                     getCalculateInvoiceByProduct('item',productID,AccountID,1,function(response){
@@ -162,6 +157,8 @@ $(document).ready(function(){
                             decimal_places = response.decimal_places;
                             $row.find(".StartDate").attr("disabled",true);
                             $row.find(".EndDate").attr("disabled",true);
+							$('.Taxentity').trigger('change');
+							$("textarea.autogrow").autosize();
                             calculate_total();
                         }else{
                             if(response.message !== undefined){
@@ -169,10 +166,7 @@ $(document).ready(function(){
                             }
                         }
                     });
-					$('.Taxentity').trigger('change');
-					$("textarea.autogrow").autosize();
-					calculate_total();
-                    return false;
+		            return false;
                 }						 
             }catch (e){
                 console.log(e);
