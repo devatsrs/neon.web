@@ -454,6 +454,7 @@
                                 action +='<input type="hidden" name="AE" value="'+full[22]+'"/>';
                                 action +='<input type="hidden" name="ACL" value="'+full[23]+'"/>';
                                 action +='<input type="hidden" name="BalanceThreshold" value="'+full[24]+'"/>';
+                                action +='<input type="hidden" name="Blocked" value="'+full[25]+'"/>';
                                 return action;
                             }
                         },
@@ -530,6 +531,7 @@
                 var AE =  $(temp).find('input[name="AE"]').val();
                 var ACL =  $(temp).find('input[name="ACL"]').val();
                 var BalanceThreshold =  $(temp).find('input[name="BalanceThreshold"]').val();
+                var Blocked =  $(temp).find('input[name="Blocked"]').val();
 
 				
                 address1 = (address1=='null'||address1==''?'':''+address1+'<br>');
@@ -545,6 +547,7 @@
                 AE = AE=='null'||AE==''?'':''+AE;
                 ACL = ACL=='null'||ACL==''?'':''+ACL;
                 BalanceThreshold = BalanceThreshold=='null'||BalanceThreshold==''?'':''+BalanceThreshold;
+                Blocked = Blocked=='null'||Blocked==''?'':''+Blocked;
 
                 var url  = baseurl + '/assets/images/placeholder-male.gif';
                 var select = '';
@@ -554,6 +557,11 @@
 
                 if(LowBalance == 1){
                     select+= ' low_balance_account'
+                    $(this).addClass('low_balance_account');
+                }
+                if(Blocked == 1){
+                    select+= ' blocked_account'
+                    $(this).addClass('blocked_account');
                 }
 				
 				//col-xl-2 col-md-4 col-sm-6 col-xsm-12 col-lg-3

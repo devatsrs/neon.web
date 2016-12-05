@@ -1,4 +1,16 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAlertHistory`(IN `p_CompanyID` INT, IN `p_AlertID` INT, IN `p_AlertType` VARCHAR(50), IN `p_StartDate` DATETIME, IN `p_EndDate` DATETIME, IN `p_SearchText` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAlertHistory`(
+	IN `p_CompanyID` INT,
+	IN `p_AlertID` INT,
+	IN `p_AlertType` VARCHAR(50),
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_SearchText` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
 BEGIN
 
 	DECLARE v_OffSet_ int;
@@ -38,10 +50,10 @@ BEGIN
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AlertTypeASC') THEN tblAlert.AlertType
 			END ASC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'send_atDESC') THEN tblAlertLog.send_at
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN tblAlertLog.send_at
 			END DESC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'send_atASC') THEN tblAlertLog.send_at
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN tblAlertLog.send_at
 			END ASC
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 

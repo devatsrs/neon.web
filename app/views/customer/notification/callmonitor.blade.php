@@ -8,6 +8,7 @@
 <table class="table table-bordered datatable" id="table-6">
     <thead>
     <tr>
+        <th width="10%">Name</th>
         <th width="10%">Type</th>
         <th width="10%">Status</th>
         <th width="10%">Last Updated</th>
@@ -19,7 +20,7 @@
     </tbody>
 </table>
 <script type="text/javascript">
-    var list_fields  = ["AlertType","Status","created_at","CreatedBy","AlertID","Settings"];
+    var list_fields  = ["Name","AlertType","Status","created_at","CreatedBy","AlertID","Settings"];
     var CallAlertType = JSON.parse('{{json_encode($call_monitor_alert_type)}}');
     var $search = {};
     var update_new_url;
@@ -55,6 +56,7 @@
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
             "aoColumns": [
+                {"bSortable": true},  // 5 Created At
                 {"bSortable": true,mRender:function(id,type,full){
                     return CallAlertType[id];
                 }},  // 1 Type
