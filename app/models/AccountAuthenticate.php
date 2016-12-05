@@ -21,7 +21,8 @@ class AccountAuthenticate extends \Eloquent {
             return $status;
         }
         $ipclis = preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']);
-        $query = "CALL prc_AddAccountIPCLI(".$data['CompanyID'].",".$data['AccountID'].",".$data['isCustomerOrVendor'].",'".$data['ipclis']."','".$type."')";
+        $ipclis = implode(',',$ipclis);
+        $query = "CALL prc_AddAccountIPCLI(".$data['CompanyID'].",".$data['AccountID'].",".$data['isCustomerOrVendor'].",'".$ipclis."','".$type."')";
         $found = DB::select($query);
         $validation = '';
         if(!empty($found)) {
