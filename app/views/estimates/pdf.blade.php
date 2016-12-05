@@ -29,7 +29,7 @@ table{
   margin-bottom: 30px;
 }
 
-.gray_td{color:#A9A9A9;}
+.gray_td{color:#4a4a4a;}
 
 </style>
 <?php
