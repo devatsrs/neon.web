@@ -446,6 +446,7 @@ $(document).ready(function(){
 				if(index==0){
 					$('.EstimateTaxesFldFirst').val(entry);
 					var change = $('.EstimateTaxesFldFirst');
+					change.trigger('change');
 				}
 				else
 				{
