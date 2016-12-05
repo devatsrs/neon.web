@@ -33,7 +33,7 @@
                         </div>
                         <label class="col-sm-1 control-label">Status</label>
                         <div class="col-sm-2">
-                            {{ Form::select('Status', [""=>"Both",1=>"Success",0=>"Failed"], '', array("class"=>"form-control select2 small")) }}
+                            {{ Form::select('Status', [""=>"Both",1=>"Success",2=>"Failed"], '', array("class"=>"form-control select2 small")) }}
                         </div>
 
                     </div>
