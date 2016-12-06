@@ -186,7 +186,9 @@ $(document).ready(function(){
 	
 	 $(".invoice_tax_add").click(function (e) {
 	   e.preventDefault();
-        $('.gross_total_invoice').before(invoice_tax_html);	
+	    var index_count = $('.all_tax_row').length+1;
+        var invoice_tax_html_final  = '<tr class="all_tax_row InvoiceTaxestr'+index_count+' ">'+invoice_tax_html+"</tr>";
+		$('.gross_total_invoice').before(invoice_tax_html_final);	
 		$('select.select2').addClass('visible');
         $('select.select2').select2();
 		calculate_total();
