@@ -28,6 +28,7 @@ table{
   border-spacing: 0;
   margin-bottom: 30px;
 }
+.gray_td{color:#4a4a4a;}
 
 </style>
 <?php
@@ -119,13 +120,13 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                                                 <table  border="1"  width="100%" cellpadding="0" cellspacing="0" class="bg_graycolor invoice_total col-md-12 table table-bordered">
                                                     <tfoot>
                                                         <tr>
-                                                                <td class="text-right"><strong>SubTotal</strong></td>
+                                                                <td class="text-right"><strong>Sub Total:</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->SubTotal,$RoundChargesAmount)}}</td>
                                                         </tr>
                                                         @if(count($InvoiceTaxRates))
                                                             @foreach($InvoiceTaxRates as $InvoiceTaxRate)
                                                                 <tr>
-                                                                    <td class="text-right"><strong>{{$InvoiceTaxRate->Title}}</strong></td>
+                                                                    <td class="gray_td text-right"><strong>{{$InvoiceTaxRate->Title}}</strong></td>
                                                                     <td class="text-right">{{$CurrencySymbol}}{{number_format($InvoiceTaxRate->TaxAmount,$RoundChargesAmount)}}</td>
                                                                 </tr>
                                                             @endforeach
@@ -139,7 +140,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                                                         
                                                         
                                                         <tr>
-                                                                <td class="text-right"><strong>Invoice Total</strong></td>
+                                                                <td class="text-right"><strong>Invoice Total:</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->InvoiceTotal,$RoundChargesAmount)}} </td>
                                                         </tr>
                                                         
@@ -153,7 +154,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                                                         @endif
                                                         
                                                         <tr>
-                                                                <td class="text-right"><strong>Grand Total</strong></td>
+                                                                <td class="text-right"><strong>Grand Total:</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,$RoundChargesAmount)}} </td>
                                                         </tr>
                                                     </tfoot>

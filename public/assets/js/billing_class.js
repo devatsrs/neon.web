@@ -1,3 +1,4 @@
+jQuery(document).ready(function ($) {
 $('#save_billing').on("click",function(e){
     e.preventDefault();
     $('#save_billing').button('loading');
@@ -5,6 +6,13 @@ $('#save_billing').on("click",function(e){
     return false;
 });
 
+$("body").popover({
+    selector: '[data-toggle="popover_html"]',
+    trigger:'hover',
+    html:true,
+    template:'<div class="popover popover-primary" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+    //template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+});
 $('#payment-add-row').on('click', function(e){
     e.preventDefault();
     var add_row_html_payment = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Day][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
@@ -54,7 +62,7 @@ $("#call-billing-form [name='AlertType']").change(function(){
         }
     }
 });
-
+});
 function rebind() {
 
     $('#PaymentReminderTable > tbody').find(".input-spinner").each(function (i, el) {
@@ -112,27 +120,32 @@ function populateInterval(jobtype,form,formID){
 
         if(jobtype == 'HOUR'){
             for(var i=1;i<'24';i++){
-                options.push(new Option(i+" Hour", i, true, true));
+                options.push(new Option(i+" Hour", i, false, false));
             }
             starttime.show();
         }else if(jobtype == 'MINUTE'){
-            for(var i=1;i<60;i++){
-                options.push(new Option(i+" Minute", i, true, true));
+            if(form == 'QosAlert'){
+                options.push(new Option("30 Minute", 30, false, false));
+            }else{
+                for(var i=1;i<60;i++){
+                    options.push(new Option(i+" Minute", i, false, false));
+                }
             }
+
             starttime.hide();
             starttime.val('');
         }else if(jobtype == 'DAILY'){
             for(var i=1;i<'32';i++){
-                options.push(new Option(i+" Day", i, true, true));
+                options.push(new Option(i+" Day", i, false, false));
             }
 
             starttime.show();
         }else if(jobtype == 'MONTHLY'){
             for(var i=1;i<13;i++){
-                options.push(new Option(i+" Month", i, true, true));
+                options.push(new Option(i+" Month", i, false, false));
             }
             for(var i=1;i<'32';i++){
-                option.push(new Option(i+" Day", i, true, true));
+                option.push(new Option(i+" Day", i, false, false));
             }
             //option.sort();
             selectBoxStartDay.append(option);
@@ -143,6 +156,7 @@ function populateInterval(jobtype,form,formID){
         }
         //options.sort();
         selectBox.append(options);
-        selectBox.val(1).trigger('change');
+        var firstval = selectBox.find('option').first().val();
+        selectBox.val(firstval).trigger('change');
     }
 }

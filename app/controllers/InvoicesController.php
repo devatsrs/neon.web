@@ -1114,6 +1114,7 @@ class InvoicesController extends \BaseController {
             $emailtoCustomer = getenv('EmailToCustomer');
             if(intval($emailtoCustomer) == 1){
                 $CustomerEmail = $data['Email'];
+
             }else{
                 $CustomerEmail = $Company->Email;
             }

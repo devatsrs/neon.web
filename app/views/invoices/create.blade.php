@@ -1,14 +1,23 @@
 @extends('layout.main')
 
 @section('content')
+
 <ol class="breadcrumb bc-3">
-  <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
-  <li class="active"> <a href="{{URL::to('invoice')}}">Invoice</a> </li>
-  <li class="active"> <strong>Create Invoice</strong> </li>
+    <li>
+        <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
+    </li>
+    <li class="active">
+        <a href="{{URL::to('invoice')}}">Invoice</a>
+    </li>
+    <li class="active">
+        <strong>Create Invoice</strong>
+    </li>
 </ol>
 <h3>Create Invoice</h3>
+
 @include('includes.errors')
 @include('includes.success')
+
 <form class="form-horizontal form-groups-bordered" action="{{URL::to('/invoice/store')}}" method="post" id="invoice-from" role="form">
   <p class="text-right">
     <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" data-loading-text="Loading..."> Save Invoice <i class="entypo-mail"></i> </button>
@@ -125,24 +134,24 @@
         </div>
         <div class="col-md-1"></div>
         <div class="col-md-5">
-          <table class="table table-bordered">
-            <tfoot>
-              <tr>
-                <td >Sub Total</td>
-                <td>{{Form::text('SubTotal','',array("class"=>"form-control SubTotal text-right","readonly"=>"readonly"))}}</td>
-              </tr>
-              <tr class="tax_rows_invoice">
-                <td ><span class="product_tax_title">VAT</span></td>
-                <td>{{Form::text('TotalTax','',array("class"=>"form-control TotalTax text-right","readonly"=>"readonly"))}}</td>
-              </tr>
-              <!--<tr>
+                    <table class="table table-bordered">
+                    <tfoot>
+                            <tr>
+                                    <td >Sub Total</td>
+                                    <td>{{Form::text('SubTotal','',array("class"=>"form-control SubTotal text-right","readonly"=>"readonly"))}}</td>
+                            </tr>
+                            <tr class="tax_rows_invoice">
+                                    <td ><span class="product_tax_title">VAT</span> </td>
+                                    <td>{{Form::text('TotalTax','',array("class"=>"form-control TotalTax text-right","readonly"=>"readonly"))}}</td>
+                            </tr>
+                            <!--<tr>
                                     <td>Discount </td>
                                     <td>{{Form::text('TotalDiscount','',array("class"=>"form-control TotalDiscount text-right","readonly"=>"readonly"))}}</td>
                             </tr>-->
-              <tr class="grand_total_invoice">
-                <td >Invoice Total </td>
-                <td>{{Form::text('GrandTotal','',array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
-              </tr>
+                            <tr class="grand_total_invoice">
+                                    <td >Invoice Total </td>
+                                    <td>{{Form::text('GrandTotal','',array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
+                            </tr>
               <tr class="invoice_tax_row">
                 <td>
                 <button title="Add new Tax" type="button" class="btn btn-primary btn-xs invoice_tax_add ">+</button>                
@@ -167,18 +176,22 @@
                 <td >Grand Total </td>
                 <td>{{Form::text('GrandTotalInvoice','',array("class"=>"form-control GrandTotalInvoice text-right","readonly"=>"readonly"))}}</td>
               </tr>
-            </tfoot>
-          </table>
+               		</tfoot>
+                    </table>
+
+                </div>
+
+               </div>
+
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="pull-right">
+</div>
+
+<div class="pull-right">
     <input type="hidden" name="CurrencyID" value="">
     <input type="hidden" name="CurrencyCode" value="">
     <input type="hidden" name="InvoiceTemplateID" value="">
-    <input  type="hidden" name="TotalTax" value="" >
-  </div>
+   <input  type="hidden" name="TotalTax" value="" > 
+</div>
 </form>
 <script type="text/javascript">
 var decimal_places = 2;
@@ -201,42 +214,52 @@ function ajax_form_success(response){
         window.location = response.redirect;
     }
 }
-</script> 
+</script>
 @include('invoices.script_invoice_add_edit')
 @include('includes.ajax_submit_script', array('formID'=>'invoice-from' , 'url' => 'invoice/store','update_url'=>'invoice/{id}/update' ))
 @stop
 @section('footer_ext')
 @parent
 <div class="modal fade" id="add-new-modal-invoice-duration">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="add-new-invoice-duration-form" class="form-horizontal form-groups-bordered" method="post">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Select Duration</h4>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="add-new-invoice-duration-form" class="form-horizontal form-groups-bordered" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Select Duration</h4>
+                </div>
+                <div class="modal-body">
+                         <div class="form-group">
+                            <label class="col-sm-2 control-label" for="field-1">Time From</label>
+                            <div class="col-sm-6">
+                                {{Form::text('start_date','',array("class"=>" form-control datepicker" ,"data-enddate"=>date('Y-m-d',strtotime(" -1 day")), "data-date-format"=>"yyyy-mm-dd"))}}
+                            </div>
+                            <div class="col-sm-4">
+                                <input type="text" name="start_time" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
+                            </div>
+                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="field-1">Time To</label>
+                            <div class="col-sm-6">
+                                {{Form::text('end_date','',array("class"=>" form-control datepicker" , "data-enddate"=>date('Y-m-d'), "data-date-format"=>"yyyy-mm-dd"))}}
+                            </div>
+                            <div class="col-sm-4">
+                                <input type="text" name="end_time" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
+                            </div>
+                         </div>
+                 </div>
+                <div class="modal-footer">
+                    <button type="submit" id="invoice-duration-select"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Select
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Time From</label>
-            <div class="col-sm-6"> {{Form::text('start_date','',array("class"=>" form-control datepicker" ,"data-enddate"=>date('Y-m-d',strtotime(" -1 day")), "data-date-format"=>"yyyy-mm-dd"))}} </div>
-            <div class="col-sm-4">
-              <input type="text" name="start_time" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Time To</label>
-            <div class="col-sm-6"> {{Form::text('end_date','',array("class"=>" form-control datepicker" , "data-enddate"=>date('Y-m-d'), "data-date-format"=>"yyyy-mm-dd"))}} </div>
-            <div class="col-sm-4">
-              <input type="text" name="end_time" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" id="invoice-duration-select"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Select </button>
-          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
-@stop 
+@stop

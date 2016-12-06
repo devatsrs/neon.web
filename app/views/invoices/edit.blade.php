@@ -1,14 +1,23 @@
 @extends('layout.main')
 
 @section('content')
+
 <ol class="breadcrumb bc-3">
-  <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
-  <li class="active"> <a href="{{URL::to('invoice')}}">Invoice</a> </li>
-  <li class="active"> <strong>Edit Invoice</strong> </li>
+    <li>
+        <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
+    </li>
+    <li class="active">
+        <a href="{{URL::to('invoice')}}">Invoice</a>
+    </li>
+    <li class="active">
+        <strong>Edit Invoice</strong>
+    </li>
 </ol>
 <h3>Edit Invoice</h3>
+
 @include('includes.errors')
 @include('includes.success')
+
 <form class="form-horizontal form-groups-bordered" method="post" id="invoice-from" role="form">
   <div class="pull-right"> @if(User::checkCategoryPermission('Invoice','Send')) <a href="Javascript:;" class="send-invoice btn btn-sm btn-success btn-icon icon-left hidden-print"> Send Invoice <i class="entypo-mail"></i> </a> @endif
     &nbsp; <a target="_blank" href="{{URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview')}}" class="btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a> &nbsp;
@@ -136,24 +145,24 @@
         </div>
         <div class="col-md-1"></div>
         <div class="col-md-5">
-          <table class="table table-bordered">
-            <tfoot>
-              <tr>
-                <td >Sub Total</td>
-                <td>{{Form::text('SubTotal',number_format($Invoice->SubTotal,$RoundChargesAmount),array("class"=>"form-control SubTotal text-right","readonly"=>"readonly"))}}</td>
-              </tr>
-              <tr class="tax_rows_invoice">
-                <td ><span class="product_tax_title">VAT</span></td>
-                <td>{{Form::text('TotalTax',number_format($Invoice->TotalTax,$RoundChargesAmount),array("class"=>"form-control TotalTax text-right","readonly"=>"readonly"))}}</td>
-              </tr>
-              <!--<tr>
+                    <table class="table table-bordered">
+                    <tfoot>
+                            <tr>
+                                    <td >Sub Total</td>
+                                    <td>{{Form::text('SubTotal',number_format($Invoice->SubTotal,$RoundChargesAmount),array("class"=>"form-control SubTotal text-right","readonly"=>"readonly"))}}</td>
+                            </tr>
+                            <tr class="tax_rows_invoice">
+                                    <td ><span class="product_tax_title">VAT</span> </td>
+                                    <td>{{Form::text('TotalTax',number_format($Invoice->TotalTax,$RoundChargesAmount),array("class"=>"form-control TotalTax text-right","readonly"=>"readonly"))}}</td>
+                            </tr>
+                            <!--<tr>
                                     <td>Discount </td>
                                     <td>{{Form::text('TotalDiscount',number_format($Invoice->TotalDiscount,$RoundChargesAmount),array("class"=>"form-control TotalDiscount text-right","readonly"=>"readonly"))}}</td>
                             </tr>-->
-              <tr class="grand_total_invoice">
-                <td >Invoice Total </td>
-                <td>{{Form::text('GrandTotal',number_format($Invoice->GrandTotal,$RoundChargesAmount),array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
-              </tr>
+                            <tr class="grand_total_invoice">
+                                    <td >Invoice Total </td>
+                                    <td>{{Form::text('GrandTotal',number_format($Invoice->GrandTotal,$RoundChargesAmount),array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
+                            </tr>
               <?php if(count($InvoiceAllTax)>0){
 				  foreach($InvoiceAllTax as $key => $InvoiceAllTaxData){
 				   ?>
@@ -196,30 +205,29 @@
     <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
     <input type="hidden" name="CurrencyCode" value="{{$CurrencyCode}}">
     <input type="hidden" name="InvoiceTemplateID" value="{{$InvoiceTemplateID}}">
-    <input  type="hidden" name="TotalTax" value="" >
-  </div>
+    <input  type="hidden" name="TotalTax" value="" > 
+</div>
 </form>
 <table class="table table-bordered datatable" id="table-4">
-  <thead>
+    <thead>
     <tr>
-      <th colspan="3">Invoice Biography</th>
+        <th colspan="3">Invoice Biography</th>
     </tr>
-  </thead>
-  <tbody>
+    </thead>
+    <tbody>
     <tr>
-      <td>Created</td>
-      <td>Created By {{$Invoice->CreatedBy}}</td>
-      <td>{{$Invoice->created_at}}</td>
+        <td>Created</td>
+        <td>Created By {{$Invoice->CreatedBy}}</td>
+        <td>{{$Invoice->created_at}}</td>
     </tr>
-  @foreach($invoicelog as $invoicelogrw)
-  <tr>
-    <td>{{InVoiceLog::$log_status[$invoicelogrw->InvoiceLogStatus]}}</td>
-    <td>{{$invoicelogrw->Note}}</td>
-    <td>{{$invoicelogrw->created_at}}</td>
-  </tr>
-  @endforeach
+    @foreach($invoicelog as $invoicelogrw)
+        <tr>
+        <td>{{InVoiceLog::$log_status[$invoicelogrw->InvoiceLogStatus]}}</td>
+        <td>{{$invoicelogrw->Note}}</td>
+        <td>{{$invoicelogrw->created_at}}</td>
+        </tr>
+    @endforeach
     </tbody>
-  
 </table>
 <script type="text/javascript">
 var invoice_id = '{{$Invoice->InvoiceID}}';
@@ -238,75 +246,106 @@ var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-dan
      add_row_html += '<td>{{Form::text('InvoiceDetail[LineTotal][]',0,array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}';
      add_row_html += '{{Form::hidden('InvoiceDetail[StartDate][]','',array("class"=>"StartDate"))}}{{Form::hidden('InvoiceDetail[EndDate][]','',array("class"=>"EndDate"))}}{{Form::hidden('InvoiceDetail[ProductType][]',$ProductRow->ProductType,array("class"=>"ProductType"))}}</td></tr>';
 
-</script> 
+</script>
 @include('invoices.script_invoice_add_edit')
 @include('includes.ajax_submit_script', array('formID'=>'invoice-from' , 'url' => 'invoice/'.$id.'/update' ))
 @stop
 @section('footer_ext')
 @parent
 <div class="modal fade" id="add-new-modal-invoice-duration">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="add-new-invoice-duration-form" class="form-horizontal form-groups-bordered" method="post">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Select Duration</h4>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="add-new-invoice-duration-form" class="form-horizontal form-groups-bordered" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Select Duration</h4>
+                </div>
+                <div class="modal-body">
+                             <div class="form-group">
+                                <label class="col-sm-2 control-label" for="field-1">Time From</label>
+                                <div class="col-sm-6">
+                                    {{Form::text('start_date','',array("class"=>" form-control datepicker" ,"data-enddate"=>date('Y-m-d',strtotime(" -1 day")), "data-date-format"=>"yyyy-mm-dd"))}}
+                                </div>
+                                <div class="col-sm-4">
+                                    <input type="text" name="start_time" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
+                                </div>
+                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" for="field-1">Time To</label>
+                                <div class="col-sm-6">
+                                    {{Form::text('end_date','',array("class"=>" form-control datepicker" , "data-enddate"=>date('Y-m-d'), "data-date-format"=>"yyyy-mm-dd"))}}
+                                </div>
+                                <div class="col-sm-4">
+                                    <input type="text" name="end_time" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
+                                </div>
+                             </div>
+                 </div>
+                <div class="modal-footer">
+                    <button type="submit" id="invoice-duration-select"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Select
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Time From</label>
-            <div class="col-sm-6"> {{Form::text('start_date','',array("class"=>" form-control datepicker" ,"data-enddate"=>date('Y-m-d',strtotime(" -1 day")), "data-date-format"=>"yyyy-mm-dd"))}} </div>
-            <div class="col-sm-4">
-              <input type="text" name="start_time" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-2 control-label" for="field-1">Time To</label>
-            <div class="col-sm-6"> {{Form::text('end_date','',array("class"=>" form-control datepicker" , "data-enddate"=>date('Y-m-d'), "data-date-format"=>"yyyy-mm-dd"))}} </div>
-            <div class="col-sm-4">
-              <input type="text" name="end_time" data-minute-step="5" data-show-meridian="false" data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" id="invoice-duration-select"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Select </button>
-          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
+
 <div class="modal fade custom-width" id="print-modal-invoice">
-  <div class="modal-dialog" style="width: 60%;">
-    <div class="modal-content">
-      <form id="add-new-invoice_template-form" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title"><a href="{{URL::to('/invoice/'.$Invoice->InvoiceID.'/print')}}" class="btn btn-primary print btn-sm btn-icon icon-left" > <i class="entypo-print"></i> Print </a></h4>
+    <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-content">
+            <form id="add-new-invoice_template-form" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"><a href="{{URL::to('/invoice/'.$Invoice->InvoiceID.'/print')}}" class="btn btn-primary print btn-sm btn-icon icon-left" >
+                                                                    <i class="entypo-print"></i>
+                                                                    Print
+                                                                 </a></h4>
+                </div>
+                <div class="modal-body">
+
+
+
+                  </div>
+                <div class="modal-footer">
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="modal-body"> </div>
-        <div class="modal-footer">
-          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
+
 <div class="modal fade in" id="send-modal-invoice">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="send-invoice-form" method="post" class="form-horizontal form-groups-bordered">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Send Invoice By Email</h4>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="send-invoice-form" method="post" class="form-horizontal form-groups-bordered">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Send Invoice By Email</h4>
+                </div>
+                <div class="modal-body">
+
+
+                   </div>
+                <div class="modal-footer">
+                     <button type="submit" class="btn btn-primary send btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-mail"></i>
+                        Send
+                     </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="modal-body"> </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary send btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-mail"></i> Send </button>
-          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
-@stop 
+@stop

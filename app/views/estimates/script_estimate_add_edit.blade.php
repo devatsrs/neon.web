@@ -106,6 +106,8 @@ $(document).ready(function(){
                                     $row.find(".StartDate").val(start_date);
                                     $row.find(".EndDate").val(end_date);
                                     decimal_places = response.decimal_places;
+									$('.Taxentity').trigger('change');
+									$("textarea.autogrow").autosize();
                                     calculate_total();
                                 }else{
                                     if(response.message !== undefined){
@@ -115,8 +117,7 @@ $(document).ready(function(){
                             });
                         },1000);
                     });
-
-                    return false;
+		          return false;
                 } else if(product_types[selected_product_type] == SUBSCRIPTION ) {
 
                     getCalculateEstimateBySubscription(selected_product_type,productID,AccountID,1,function(response){
@@ -131,6 +132,8 @@ $(document).ready(function(){
                             decimal_places = response.decimal_places;
                             $row.find(".StartDate").attr("disabled",true);
                             $row.find(".EndDate").attr("disabled",true);
+							$('.Taxentity').trigger('change');
+							$("textarea.autogrow").autosize();
                             calculate_total();
                         }else{
                             if(response.message !== undefined){
@@ -138,7 +141,7 @@ $(document).ready(function(){
                             }
                         }
                     });
-                    return false;
+		            return false;
 
 
                 }else{
@@ -154,18 +157,18 @@ $(document).ready(function(){
                             $row.find(".LineTotal").val(response.sub_total);
                             decimal_places = response.decimal_places;
                             $row.find(".StartDate").attr("disabled",true);
-                            $row.find(".EndDate").attr("disabled",true);
-                            calculate_total();
+                            $row.find(".EndDate").attr("disabled",true);                            
+							$('.Taxentity').trigger('change');
+							$("textarea.autogrow").autosize();
+							calculate_total();
                         }else{
                             if(response.message !== undefined){
                                 toastr.error(response.message, "Error", toastr_opts);
                             }
                         }
-                    });
+                    });					
                     return false;
-                }
-
-
+                }			
             }catch (e){
                 console.log(e);
             }
@@ -449,16 +452,16 @@ $(document).ready(function(){
 					change.trigger('change');
 				}
 				else
-				{
-					var	estimate_tax_html_final  = '<tr class="all_tax_row EstimateTaxestr'+index+' ">'+estimate_tax_html+"</tr>";
-					 $('.gross_total_estimate').before(estimate_tax_html_final);	
-					 var current_obj = $('.EstimateTaxestr'+index).find('.EstimateTaxesFld');
-					 current_obj.addClass('EstimateTaxesFld'+index);
-					 current_obj.val(entry);
-					 current_obj.addClass('visible');
-					 current_obj.select2();
-					 current_obj.trigger('change');
-					// var change = $('.InvoiceTaxesFld').eq(index+1);			
+				{			
+				  var	estimate_tax_html_final  = '<tr class="all_tax_row EstimateTaxestr'+index+' ">'+estimate_tax_html+"</tr>";
+				  $('.gross_total_estimate').before(estimate_tax_html_final);	
+				  var current_obj = $('.EstimateTaxestr'+index).find('.EstimateTaxesFld');
+				  current_obj.addClass('EstimateTaxesFld'+index);
+				  current_obj.val(entry);
+				  current_obj.addClass('visible');
+				  current_obj.select2();
+				  current_obj.trigger('change');
+ 				  // var change = $('.InvoiceTaxesFld').eq(index+1);			
 				}
 			});		
 			 calculate_total();
@@ -482,5 +485,6 @@ $(document).ready(function(){
             }
         }, "json");
     });
+	$("textarea.autogrow").autosize();
 });
 </script>
