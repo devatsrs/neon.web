@@ -41,7 +41,7 @@
             <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control typeahead formfld" spellcheck="false" dir="auto"  data-local="{{$AllEmails}}"  value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}"  placeholder="{{$TicketfieldsData->AgentLabel}}" />           
             </div>
             <div class="col-sm-3 dropdown" style="padding:0;">
-              <button title="Add new requester" type="button" class="btn btn-success btn-xs  dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-plus-square"></i> </button>
+              <button title="Add new requester" type="button" class="btn btn-primary btn-xs  dropdown-toggle" data-toggle="dropdown">+</button>
               <ul class="dropdown-menu dropdown-green"  role="menu">
                 <li> <a class="unknownemailaction clickable" unknown_action_type="accounts"  >&nbsp;<i class="fa fa-building"></i>&nbsp;&nbsp; Add new Account </a> </li>
                 <li> <a class="unknownemailaction clickable" unknown_action_type="contacts"  > <i class="entypo-user"></i> &nbsp;Add new Contact</a> </li>
