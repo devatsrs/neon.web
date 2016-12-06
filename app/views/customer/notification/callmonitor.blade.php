@@ -2,7 +2,7 @@
 <p style="text-align: right;">
     <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
         <i class="entypo-plus"></i>
-        Add Call Monitor Alert
+        Add Monitoring
     </a>
 </p>
 <table class="table table-bordered datatable" id="table-6">
@@ -138,7 +138,7 @@
         $('#add-call-alert').click(function(ev){
             ev.preventDefault();
             $('#call-billing-form').trigger("reset");
-            $('#add-call-modal h4').html('Add Call Monitor Alert');
+            $('#add-call-modal h4').html('Add Monitoring');
 
             $(".js-example-disabled").prop("disabled", false);
             $('#call-billing-form select').select2("val", "");
@@ -156,7 +156,7 @@
             $('#call-billing-form').trigger("reset");
             var edit_url  = $(this).attr("href");
             $('#call-billing-form').attr("action",edit_url);
-            $('#add-call-modal h4').html('Edit Call Monitor Alert');
+            $('#add-call-modal h4').html('Edit Monitoring');
             $('#call-billing-form select').select2("val", "");
             $(this).prev("div.hiddenRowData").find('input').each(function(i, el){
                 var ele_name = $(el).attr('name');
