@@ -847,8 +847,10 @@
                     widgets += buildbox(option);
                     var ele = $('<div></div>');
                     ele.html(widgets);
-                    $('#invoice-widgets').prepend(ele);
-                    titleState(find('.tile-stats'));
+                    var temp = ele.find('.tile-stats');
+                    $('#invoice-widgets').prepend(temp);
+                    titleState(temp);
+
                 }, "json");
             @endif
         }
