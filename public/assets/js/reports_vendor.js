@@ -63,11 +63,15 @@ function getAnalysisData(chart_type,submitdata){
     });
 }
 function set_search_parameter(submit_form){
-    var start_time = '';
-    var end_time = '';
+    var start_time = ' 00:00:00';
+    var end_time = ' 00:00:00';
     if($(submit_form).find("[name='StartHour']").attr('disabled') !== 'disabled'){
-        start_time = ' '+$(submit_form).find("[name='StartHour']").val()+':00:00';
-        end_time = ' '+$(submit_form).find("[name='EndHour']").val()+':00:00';
+        if($(submit_form).find("[name='StartHour']").val() != ''){
+            start_time = ' '+$(submit_form).find("[name='StartHour']").val()+':00';
+        }
+        if($(submit_form).find("[name='EndHour']").val() != ''){
+            end_time = ' '+$(submit_form).find("[name='EndHour']").val()+':00';
+        }
     }
     $searchFilter.StartDate = $(submit_form).find("input[name='StartDate']").val()+start_time;
     $searchFilter.EndDate = $(submit_form).find("input[name='EndDate']").val()+end_time;
@@ -80,6 +84,7 @@ function set_search_parameter(submit_form){
     $searchFilter.Prefix = $(submit_form).find("input[name='Prefix']").val();
     $searchFilter.TrunkID = $(submit_form).find("[name='TrunkID']").val();
     $searchFilter.CurrencyID = $(submit_form).find("[name='CurrencyID']").val();
+    $searchFilter.TimeZone = $(submit_form).find("[name='TimeZone']").val();
 }
 function loadBarChart(chart_type,submit_data){
     loading(".bar_chart_"+chart_type,1);
@@ -195,6 +200,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                 {"name": "CountryID","value": $searchFilter.CountryID},
                 {"name": "Prefix","value": $searchFilter.Prefix},
                 {"name": "TrunkID","value": $searchFilter.TrunkID},
+                {"name": "TimeZone","value": $searchFilter.TimeZone},
                 {"name": "CurrencyID","value": $searchFilter.CurrencyID}
 
 
@@ -211,6 +217,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                 {"name": "CountryID","value": $searchFilter.CountryID},
                 {"name": "Prefix","value": $searchFilter.Prefix},
                 {"name": "TrunkID","value": $searchFilter.TrunkID},
+                {"name": "TimeZone","value": $searchFilter.TimeZone},
                 {"name": "CurrencyID","value": $searchFilter.CurrencyID},
                 {"name":"Export","value":1});
 

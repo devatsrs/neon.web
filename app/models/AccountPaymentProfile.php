@@ -62,7 +62,7 @@ class AccountPaymentProfile extends \Eloquent
         $PaymentGatewayID = PaymentGateway::where(['Title' => PaymentGateway::$gateways['Authorize']])
             ->where(['CompanyID' => $CompanyID])
             ->pluck('PaymentGatewayID');
-        /*$PaymentProfile = AccountPaymentProfile::where(['AccountID' => $CustomerID])
+        $PaymentProfile = AccountPaymentProfile::where(['AccountID' => $CustomerID])
             ->where(['CompanyID' => $CompanyID])
             ->where(['PaymentGatewayID' => $PaymentGatewayID])
             ->first();
@@ -70,14 +70,19 @@ class AccountPaymentProfile extends \Eloquent
             $options = json_decode($PaymentProfile->Options);
             $ProfileID = $options->ProfileID;
             $ShippingProfileID = $options->ShippingProfileID;
-        }*/
+        }
         $account = Account::where(array('AccountID' => $CustomerID))->first();
-        //if (empty($ProfileID)) {
+
+        $response = $AuthorizeNet->getCustomerProfile($ProfileID);
+        if(empty($ProfileID)){
+            $first = 1;
+        }
+        if ($response == false || empty($ProfileID)) {
             $profile = array('CustomerId' => $CustomerID, 'email' => $account->BillingEmail, 'description' => $account->AccountName);
             $result = $AuthorizeNet->CreateProfile($profile);
             if ($result["status"] == "success") {
                 $ProfileID = $result["ID"];
-                $ProfileID = json_decode(json_encode($ProfileID), true)[0];
+                //$ProfileID = json_decode(json_encode($ProfileID), true)[0];
                 $shipping = array('firstName' => $account->FirstName,
                     'lastName' => $account->LastName,
                     'address' => $account->Address1,
@@ -88,11 +93,10 @@ class AccountPaymentProfile extends \Eloquent
                     'phoneNumber' => $account->Mobile);
                 $result = $AuthorizeNet->CreatShippingAddress($ProfileID, $shipping);
                 $ShippingProfileID = $result["ID"];
-                $first = 1;
             } else {
                 return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
             }
-        //}
+        }
         $title = $data['Title'];
         $result = $AuthorizeNet->CreatePaymentProfile($ProfileID, $data);
         if ($result["status"] == "success") {

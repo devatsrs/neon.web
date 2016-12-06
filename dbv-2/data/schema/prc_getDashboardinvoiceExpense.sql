@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getDashboardinvoiceExpense`(IN `p_CompanyID` INT, IN `p_CurrencyID` INT, IN `p_AccountID` INT, IN `p_StartDate` VARCHAR(50), IN `p_EndDate` VARCHAR(50), IN `p_ListType` VARCHAR(50))
+CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `prc_getDashboardinvoiceExpense`(IN `p_CompanyID` INT, IN `p_CurrencyID` INT, IN `p_AccountID` INT, IN `p_StartDate` VARCHAR(50), IN `p_EndDate` VARCHAR(50), IN `p_ListType` VARCHAR(50))
 BEGIN
 	DECLARE v_Round_ INT;
 
@@ -108,28 +108,30 @@ BEGIN
 		ON TBL.InvoiceID = inv.InvoiceID	
 	GROUP BY TBL.PaymentDate,TBL.InvoiceID;
 
-	INSERT INTO tmp_MonthlyTotalReceived_
-	SELECT YEAR(p.PaymentDate) as Year
-			,MONTH(p.PaymentDate) as Month
-			,WEEKOFYEAR(p.PaymentDate) as week
-			,MONTHNAME(MAX(p.PaymentDate)) as  MonthName
-			,ROUND(COALESCE(SUM(p.Amount),0),v_Round_) as TotalAmount
-			,ROUND(COALESCE(SUM(p.OutAmount),0),v_Round_) as OutAmount
-			,CurrencyID
-	FROM tmp_tblPayment_ p 
-	GROUP BY 
-		YEAR(p.PaymentDate)
-		,MONTH(p.PaymentDate)
-		,week
-		,CurrencyID
-		
-	ORDER BY 
-		Year
-		,Month
-		,week;
+	
 		
 	IF p_ListType = 'Weekly'
 	THEN
+	
+		INSERT INTO tmp_MonthlyTotalReceived_
+		SELECT YEAR(p.PaymentDate) as Year
+				,MONTH(p.PaymentDate) as Month
+				,WEEKOFYEAR(p.PaymentDate) as week
+				,MONTHNAME(MAX(p.PaymentDate)) as  MonthName
+				,ROUND(COALESCE(SUM(p.Amount),0),v_Round_) as TotalAmount
+				,ROUND(COALESCE(SUM(p.OutAmount),0),v_Round_) as OutAmount
+				,CurrencyID
+		FROM tmp_tblPayment_ p 
+		GROUP BY 
+			YEAR(p.PaymentDate)
+			,MONTH(p.PaymentDate)
+			,week
+			,CurrencyID		
+		ORDER BY 
+			Year
+			,Month
+			,week;
+		
 		SELECT 
 			CONCAT(td.`Week`,'-',MAX( td.Year)) AS MonthName ,
 			MAX( td.Year) AS `Year`,
@@ -143,6 +145,7 @@ BEGIN
 		LEFT JOIN tmp_MonthlyTotalReceived_ tr 
 			ON td.Week = tr.Week 
 			AND td.Year = tr.Year 
+			AND td.Month = tr.Month 
 			AND tr.CurrencyID = td.CurrencyID
 		GROUP BY 
 			td.Week,
@@ -155,6 +158,24 @@ BEGIN
 
 	IF p_ListType = 'Monthly'
 	THEN
+		INSERT INTO tmp_MonthlyTotalReceived_
+		SELECT YEAR(p.PaymentDate) as Year
+				,MONTH(p.PaymentDate) as Month
+				,1			
+				,MONTHNAME(MAX(p.PaymentDate)) as  MonthName				
+				,ROUND(COALESCE(SUM(p.Amount),0),v_Round_) as TotalAmount
+				,ROUND(COALESCE(SUM(p.OutAmount),0),v_Round_) as OutAmount
+				,CurrencyID
+		FROM tmp_tblPayment_ p 
+		GROUP BY 
+			YEAR(p.PaymentDate)
+			,MONTH(p.PaymentDate)		
+			,CurrencyID		
+		ORDER BY 
+			Year
+			,Month;
+		
+		
 		SELECT 
 			CONCAT(CONCAT(case when td.Month <10 then concat('0',td.Month) else td.Month End, '/'), td.Year) AS MonthName ,
 			td.Year,
@@ -168,6 +189,7 @@ BEGIN
 		LEFT JOIN tmp_MonthlyTotalReceived_ tr 
 			ON td.Month = tr.Month 
 			AND td.Year = tr.Year 
+			-- AND td.Week = tr.Week 
 			AND tr.CurrencyID = td.CurrencyID
 		GROUP BY 
 			td.Month,
@@ -180,6 +202,23 @@ BEGIN
 
 	IF p_ListType = 'Yearly'
 	THEN
+			INSERT INTO tmp_MonthlyTotalReceived_
+			SELECT YEAR(p.PaymentDate) as Year
+					,1 -- MONTH(p.PaymentDate) as Month
+					,1			
+					,'Oct' as  MonthName
+					,ROUND(COALESCE(SUM(p.Amount),0),v_Round_) as TotalAmount
+					,ROUND(COALESCE(SUM(p.OutAmount),0),v_Round_) as OutAmount
+					,CurrencyID
+			FROM tmp_tblPayment_ p 
+			GROUP BY 
+				YEAR(p.PaymentDate)
+			 	-- ,MONTH(p.PaymentDate)		
+				,CurrencyID		
+			ORDER BY 
+				Year;
+			-- 	,Month;
+			
 		SELECT 
 			td.Year as MonthName,
 			ROUND(COALESCE(SUM(td.TotalAmount),0),v_Round_) TotalInvoice ,  
@@ -191,6 +230,8 @@ BEGIN
 			tmp_MonthlyTotalDue_ td
 		LEFT JOIN tmp_MonthlyTotalReceived_ tr 
 			ON td.Year = tr.Year 
+		-- 	AND td.Week = tr.Week 
+		-- 	AND td.Month = tr.Month 
 			AND tr.CurrencyID = td.CurrencyID
 		GROUP BY 
 			td.Year,

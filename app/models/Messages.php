@@ -82,22 +82,68 @@ class Messages extends \Eloquent {
 	
     }
 	
-	public static function GetAllSystemEmails()
+	public static function GetAllSystemEmails($lead=1)
 	{
 		 $array 		 =  [];
+		
+		 if($lead==0)
+		 {
+			$AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
+		 }
+		 else
+		 {
+			$AccountSearch   =  DB::table('tblAccount')->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
+		 }
 		 
-		$AccountSearch   =  DB::table('tblAccount')->get(array("Email","BillingEmail"));
-		$ContactSearch 	 =  DB::table('tblContact')->get(array("Email"));	
+		 $ContactSearch 	 =  DB::table('tblContact')->get(array("Email"));	
 		
 		if(count($AccountSearch)>0){
 				foreach($AccountSearch as $AccountData){
-					if($AccountData->Email!='' && !in_array($AccountData->Email,$array))
+					//if($AccountData->Email!='' && !in_array($AccountData->Email,$array))
+					if($AccountData->Email!='')
 					{
-						$array[] =  $AccountData->Email;
-					}
-					if($AccountData->BillingEmail!=''  && !in_array($AccountData->BillingEmail,$array))
+						if(!is_array($AccountData->Email))
+						{				  
+						  $email_addresses = explode(",",$AccountData->Email);				
+						}
+						else
+						{
+						  $email_addresses = $emails;
+						}
+						if(count($email_addresses)>0)
+						{
+							foreach($email_addresses as $email_addresses_data)
+							{
+								if(!in_array($email_addresses_data,$array))
+								{
+									$array[] =  $email_addresses_data;	
+								}
+							}
+						}
+						
+					}			
+					
+					if($AccountData->BillingEmail!='')
 					{
-						$array[] =  $AccountData->BillingEmail;
+						if(!is_array($AccountData->BillingEmail))
+						{				  
+						  $email_addresses = explode(",",$AccountData->BillingEmail);				
+						}
+						else
+						{
+						  $email_addresses = $emails;
+						}
+						if(count($email_addresses)>0)
+						{
+							foreach($email_addresses as $email_addresses_data)
+							{
+								if(!in_array($email_addresses_data,$array))
+								{
+									$array[] =  $email_addresses_data;	
+								}
+							}
+						}
+						
 					}
 				}
 		}
@@ -110,6 +156,7 @@ class Messages extends \Eloquent {
 					}
 				}
 		}
+		
 		//return  array_filter(array_unique($array));
 		return $array;
     }
