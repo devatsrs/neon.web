@@ -846,9 +846,9 @@
                     option["round"] = response.data.Round;
                     widgets += buildbox(option);
                     var ele = $('<div></div>');
-                    ele.append(widgets);
+                    ele.html(widgets);
                     $('#invoice-widgets').prepend(ele);
-                    titleState(ele);
+                    titleState(find('.tile-stats'));
                 }, "json");
             @endif
         }
