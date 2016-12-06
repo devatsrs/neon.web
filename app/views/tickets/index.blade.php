@@ -17,11 +17,23 @@
         </div>
         <div class="panel-body" id="paymentsearch">
           <div class="form-group">
-            <label for="field-1" class="col-sm-1 control-label small_label">Assigned User</label>
-            <div class="col-sm-2"> {{Form::select('UsersID', $users, '' ,array("class"=>"select2"))}} </div>
+            <label for="field-1" class="col-sm-1 control-label small_label">Search</label>
+            <div class="col-sm-2">  {{ Form::text('search', '', array("class"=>"form-control")) }} </div>            
+            <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
+            <div class="col-sm-2"> {{Form::select('status', $status, '' ,array("class"=>"select2"))}} </div>  
             
-             <label for="field-1" class="col-sm-1 control-label small_label">Search</label>
-            <div class="col-sm-2">  {{ Form::text('Search', '', array("class"=>"form-control")) }} </div>
+            <label for="field-1" class="col-sm-1 control-label small_label">Type</label>
+            <div class="col-sm-2"> {{Form::select('type', $Type, '' ,array("class"=>"select2"))}} </div>  
+                 
+            </div>
+             <div class="form-group">             
+            <label for="field-1" class="col-sm-1 control-label small_label">Priority</label>
+            <div class="col-sm-2"> {{Form::select('priority', $Priority, '' ,array("class"=>"select2"))}} </div>  
+             
+             <label for="field-1" class="col-sm-1 control-label small_label">Group</label>
+            <div class="col-sm-2"> {{Form::select('group', $Groups, '' ,array("class"=>"select2"))}} </div>    
+              <label for="field-1" class="col-sm-1 control-label small_label">Agent</label>
+            <div class="col-sm-2"> {{Form::select('agent', $Agents, '' ,array("class"=>"select2"))}} </div>    
             
           </div>
           <p style="text-align: right;">
@@ -35,13 +47,15 @@
 <table class="table table-bordered datatable" id="table-4">
   <thead>
     <tr>
-      <th>&nbsp;</th>
-      <th>Name</th>
-      <th>EmailAddress</th>
-      <th>Total Agents</th>
-      <th>Escalation Time</th>
-      <th>Escalation User</th>
-      <th>Actions</th>
+      <th width="1%">&nbsp;</th>
+      <th width="15%">Subject</th>
+      <th width="15%">Requester</th>
+      <th width="15%">Type</th>
+      <th width="10%">Status</th>
+      <th width="10%">Priority</th>
+      <th width="10%">Group</th>
+      <th width="10%">Agent</th>
+      <th width="14%">Actions</th>
     </tr>
   </thead>
   <tbody>
@@ -50,10 +64,13 @@
 <script type="text/javascript">
 	var $searchFilter = {};
     jQuery(document).ready(function($) {
-		var EscalationTimes = {{$EscalationTimes_json}};
 		// return EscalationTimes[full[7]];
-		$searchFilter.UsersID = $("#tickets_filter select[name='UsersID']").val();
-		$searchFilter.Search = $("#tickets_filter [name='Search']").val();
+		$searchFilter.status 		= 	$("#tickets_filter select[name='status']").val();
+		$searchFilter.type 			= 	$("#tickets_filter select[name='type']").val();
+		$searchFilter.priority 		= 	$("#tickets_filter select[name='priority']").val();
+		$searchFilter.group 		= 	$("#tickets_filter select[name='group']").val();
+		$searchFilter.agent 		= 	$("#tickets_filter select[name='agent']").val();	
+		$searchFilter.Search 		= 	$("#tickets_filter [name='search']").val();
 		
         data_table = $("#table-4").dataTable({
             "bProcessing": true,
@@ -65,12 +82,24 @@
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[1, 'asc']],
 			"fnServerParams": function (aoData) {
-                    aoData.push({"name": "UsersID","value": $searchFilter.UsersID},
-                            {"name": "Search", "value": $searchFilter.Search});
+                    aoData.push(
+                            {"name": "status", "value": $searchFilter.status},
+							{"name": "type", "value": $searchFilter.type},
+							{"name": "priority", "value": $searchFilter.priority},
+							{"name": "group", "value": $searchFilter.group},
+							{"name": "agent", "value": $searchFilter.agent},
+							{"name": "Search", "value": $searchFilter.Search}							
+							);
                     data_table_extra_params.length = 0;
-                    data_table_extra_params.push({"name": "UsersID", "value": $searchFilter.UsersID},
-                            {"name": "Search","value": $searchFilter.Search},                          
-                            {"name": "Export", "value": 1});
+                    data_table_extra_params.push(
+					{"name": "Export", "value": 1},
+                    {"name": "status", "value": $searchFilter.status},
+					{"name": "type", "value": $searchFilter.type},
+					{"name": "priority", "value": $searchFilter.priority},
+					{"name": "group", "value": $searchFilter.group},
+					{"name": "agent", "value": $searchFilter.agent},
+					{"name": "Search", "value": $searchFilter.Search}							
+					);
                 },
             "aoColumns":
                     [
@@ -83,24 +112,30 @@
                         }
 
                      },
+					 	{"bSortable": true },
+						{"bSortable": true },
                         {"bSortable": true },
                         {"bSortable": true },
 						{"bSortable": true },
-						{"bSortable": true,mRender: function(id, type, full) { return EscalationTimes[id]; } },
-                        {"bSortable": true,mRender: function(id, type, full) { if(id){return id;}else{return 'None';} } },
+						{"bSortable": true,mRender: function(id, type, full) { return id; } },
+                        {"bSortable": true,mRender: function(id, type, full) { return id  } },
                         {
                             "bSortable": true,
                             mRender: function(id, type, full) { 
                                 var action, edit_, show_,delete_;
-                                edit_ = "{{ URL::to('ticketgroups/{id}/edit')}}";
+                                edit_ = "{{ URL::to('tickets/{id}/edit')}}";								
                                 edit_ = edit_.replace('{id}', full[0]);
+								show_ = "{{ URL::to('tickets/{id}/show')}}";
+								show_ = show_.replace('{id}', full[0]);
 								
                                 action =  '';
-                                <?php if(User::checkCategoryPermission('TicketGroups','Edit')){ ?>
+                                <?php if(User::checkCategoryPermission('tickets','Edit')){ ?>
                                    action = '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                 <?php } ?>
-								<?php if(User::checkCategoryPermission('TicketGroups','Delete')){ ?>
-                                   action += '<br><a data-id="'+full[0]+'" id="group-'+full[0]+'" class="delete-ticket_group btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+								//action += '<a href="' + show_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-search"></i>View </a>';
+								
+								<?php if(User::checkCategoryPermission('tickets','Delete')){ ?>
+                                   action += '<br><a data-id="'+full[0]+'" id="group-'+full[0]+'" class="delete-ticket btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
                                 <?php } ?>
                                 return action;
                             }
@@ -111,13 +146,13 @@
                     {
                         "sExtends": "download",
                         "sButtonText": "EXCEL",
-                        "sUrl": baseurl + "/ticketgroups/ajax_datagrid_groups/xlsx", //baseurl + "/generate_xlsx.php",
+                        "sUrl": baseurl + "/tickets/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                         sButtonClass: "save-collection btn-sm"
                     },
                     {
                         "sExtends": "download",
                         "sButtonText": "CSV",
-                        "sUrl": baseurl + "/ticketgroups/ajax_datagrid_groups/csv", //baseurl + "/generate_csv.php",
+                        "sUrl": baseurl + "/tickets/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                         sButtonClass: "save-collection btn-sm"
                     }
                 ]
@@ -139,11 +174,11 @@
                    result = confirm("Are you Sure?");
                    if(result){
                        var id  = $(this).attr("data-id");
-                       showAjaxScript( baseurl + "/ticketgroups/"+id+"/delete" ,"",FnDeleteGroupSuccess );
+                       showAjaxScript( baseurl + "/tickets/"+id+"/delete" ,"",FnDeleteGroupSuccess );
                    }
                    return false;
                }
-               $(".delete-ticket_group").click(FnDeleteGroup); // Delete Note
+               $(".delete-ticket").click(FnDeleteGroup); // Delete Note
                $(".dataTables_wrapper select").select2({
                    minimumResultsForSearch: -1
                });
@@ -176,8 +211,12 @@
 		
 		 $("#tickets_filter").submit(function (e) {
                 e.preventDefault();
-                $searchFilter.UsersID = $("#tickets_filter select[name='UsersID']").val();
-                $searchFilter.Search  = $("#tickets_filter [name='Search']").val();
+             	$searchFilter.status 		= 	$("#tickets_filter select[name='status']").val();
+				$searchFilter.type 			= 	$("#tickets_filter select[name='type']").val();
+				$searchFilter.priority 		= 	$("#tickets_filter select[name='priority']").val();
+				$searchFilter.group 		= 	$("#tickets_filter select[name='group']").val();
+				$searchFilter.agent 		= 	$("#tickets_filter select[name='agent']").val();	
+				$searchFilter.Search 		= 	$("#tickets_filter [name='search']").val();
                 data_table.fnFilter('', 0);
                 return false;
             });

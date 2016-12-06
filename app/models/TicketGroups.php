@@ -20,4 +20,12 @@ class TicketGroups extends \Eloquent {
 	   "172800"=>"2 Days",
 	   "259200"=>"3 Days",
    );
+   
+   
+   static function getTicketGroups(){
+		//TicketfieldsValues::WHERE
+		   $row =  TicketGroups::orderBy('GroupID', 'asc')->lists('GroupName','GroupID'); 
+		   $row = array("0"=> "Select")+$row;
+		   return $row;
+	}
 }

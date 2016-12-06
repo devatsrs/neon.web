@@ -479,7 +479,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/tickets/add', "TicketsController@add");
 	Route::post('/tickets/upload_file', 'TicketsController@uploadFile');
 	Route::any('/tickets/delete_attachment_file', 'TicketsController@deleteUploadFile');
-	Route::any('/tickets/store', "TicketsController@Store");
+	Route::any('/tickets/store', "TicketsController@Store");	
+	Route::any('tickets/{id}/edit', array('as' => 'tickets_edit', 'uses' => 'TicketsController@edit'));
+	Route::any('/tickets/{id}/update', "TicketsController@Update");
+	Route::any('/tickets/{id}/delete', "TicketsController@delete");
 	
 	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
 	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
