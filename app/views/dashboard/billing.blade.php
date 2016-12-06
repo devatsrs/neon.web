@@ -661,7 +661,6 @@
         });
 
         function reload_invoice_expense() {
-            invoiceExpenseTotalwidgets();
             invoiceExpense();
             invoiceExpenseTotal();
             pin_report();
@@ -859,6 +858,7 @@
             var data = $('#billing_filter').serialize();
             var get_url = baseurl + "/billing_dashboard/invoice_expense_total";
             $.get(get_url, data, function (response) {
+                invoiceExpenseTotalwidgets();
                 var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
                 var option = [];
                 var widgets = '';
