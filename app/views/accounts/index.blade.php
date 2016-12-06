@@ -93,7 +93,7 @@
                         @endif
                     </div>
                     <div class="form-group">
-                        <label for="field-5" class="control-label col-md-1">IP/Cli</label>
+                        <label for="field-5" class="control-label col-md-1">IP/CLI</label>
                         <div class="col-md-2">
                             <input type="text" name="IPCLIText" class="form-control">
                         </div>
