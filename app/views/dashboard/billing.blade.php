@@ -756,44 +756,43 @@
             return html;
         }
 
-        function titleState() {
-            $("#invoice-widgets").find('.tile-stats').each(function (i, el) {
-                var $this = $(el),
-                        $num = $this.find('.num'),
-                        start = attrDefault($num, 'start', 0),
-                        end = attrDefault($num, 'end', 0),
-                        prefix = attrDefault($num, 'prefix', ''),
-                        postfix = attrDefault($num, 'postfix', ''),
-                        duration = attrDefault($num, 'duration', 1000),
-                        delay = attrDefault($num, 'delay', 1000);
-                        round = attrDefault($num, 'round', 0);
+        function titleState(el) {
 
-                if (start < end) {
-                    if (typeof scrollMonitor == 'undefined') {
-                        $num.html(prefix + end + postfix);
-                    }
-                    else {
-                        var tile_stats = scrollMonitor.create(el);
+            var $this = $(el),
+                    $num = $this.find('.num'),
+                    start = attrDefault($num, 'start', 0),
+                    end = attrDefault($num, 'end', 0),
+                    prefix = attrDefault($num, 'prefix', ''),
+                    postfix = attrDefault($num, 'postfix', ''),
+                    duration = attrDefault($num, 'duration', 1000),
+                    delay = attrDefault($num, 'delay', 1000);
+            round = attrDefault($num, 'round', 0);
 
-                        tile_stats.fullyEnterViewport(function () {
+            if (start < end) {
+                if (typeof scrollMonitor == 'undefined') {
+                    $num.html(prefix + end + postfix);
+                }
+                else {
+                    var tile_stats = scrollMonitor.create(el);
 
-                            var o = {curr: start};
+                    tile_stats.fullyEnterViewport(function () {
 
-                            TweenLite.to(o, duration / 1000, {
-                                curr: end, ease: Power1.easeInOut, delay: delay / 1000, onUpdate: function () {
-                                    $num.html(prefix + o.curr.toFixed(2) + postfix);
-                                }
-                            });
+                        var o = {curr: start};
 
-                            tile_stats.destroy()
+                        TweenLite.to(o, duration / 1000, {
+                            curr: end, ease: Power1.easeInOut, delay: delay / 1000, onUpdate: function () {
+                                $num.html(prefix + o.curr.toFixed(2) + postfix);
+                            }
                         });
-                    }
-                }
 
-                if($num.text().indexOf(prefix)==-1){
-                    $num.prepend(prefix);
+                        tile_stats.destroy()
+                    });
                 }
-            });
+            }
+
+            if($num.text().indexOf(prefix)==-1){
+                $num.prepend(prefix);
+            }
         }
 
         function invoiceExpense() {
@@ -846,9 +845,10 @@
                     option["count"] = '';
                     option["round"] = response.data.Round;
                     widgets += buildbox(option);
-
-                    $('#invoice-widgets').prepend(widgets);
-
+                    var ele = $('<div></div>');
+                    ele.append(widgets);
+                    $('#invoice-widgets').prepend(ele);
+                    titleState(ele);
                 }, "json");
             @endif
         }
@@ -971,8 +971,9 @@
                 widgets += buildbox(option);
                 @endif
                 $('#invoice-widgets').html(widgets);
-
-                titleState();
+                $("#invoice-widgets").find('.tile-stats').each(function (i, el) {
+                    titleState(el);
+                });
             }, "json");
         }
 
