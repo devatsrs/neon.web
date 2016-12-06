@@ -490,3 +490,6 @@ $(document).ready(function(){
 	$("textarea.autogrow").autosize();
 });
 </script>
+<style>
+#EstimateTable.table > tbody > tr > td > div > a > span.select2-chosen { width:110px;}
+</style>
