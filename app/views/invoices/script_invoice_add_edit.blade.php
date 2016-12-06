@@ -105,6 +105,8 @@ $(document).ready(function(){
                                     $row.find(".StartDate").val(start_date);
                                     $row.find(".EndDate").val(end_date);
                                     decimal_places = response.decimal_places;
+									 $('.Taxentity').trigger('change');
+									$("textarea.autogrow").autosize();
                                     calculate_total();
                                 }else{
                                     if(response.message !== undefined){
@@ -114,8 +116,7 @@ $(document).ready(function(){
                             });
                         },1000);
                     });
-
-                    return false;
+					return false;
                 } else if(product_types[selected_product_type] == SUBSCRIPTION ) {
 
                     getCalculateInvoiceBySubscription(selected_product_type,productID,AccountID,1,function(response){
@@ -131,7 +132,9 @@ $(document).ready(function(){
                             decimal_places = response.decimal_places;
                             $row.find(".StartDate").attr("disabled",true);
                             $row.find(".EndDate").attr("disabled",true);
-                            calculate_total();
+                           	$('.Taxentity').trigger('change');
+							$("textarea.autogrow").autosize();
+							calculate_total();
                         }else{
                             if(response.message !== undefined){
                                 toastr.error(response.message, "Error", toastr_opts);
@@ -139,8 +142,6 @@ $(document).ready(function(){
                         }
                     });
                     return false;
-
-
                 }else{
 
                     getCalculateInvoiceByProduct('item',productID,AccountID,1,function(response){
@@ -156,6 +157,8 @@ $(document).ready(function(){
                             decimal_places = response.decimal_places;
                             $row.find(".StartDate").attr("disabled",true);
                             $row.find(".EndDate").attr("disabled",true);
+							$('.Taxentity').trigger('change');
+							$("textarea.autogrow").autosize();
                             calculate_total();
                         }else{
                             if(response.message !== undefined){
@@ -163,10 +166,8 @@ $(document).ready(function(){
                             }
                         }
                     });
-                    return false;
-                }
-
-
+		            return false;
+                }						 
             }catch (e){
                 console.log(e);
             }
@@ -174,9 +175,10 @@ $(document).ready(function(){
     });
     $("#InvoiceTable").delegate( '.Price , .Qty , .Discount, .TaxRateID, .TaxRateID2' ,'change',function (e) {
         var $this = $(this);
-        var $row = $this.parents("tr");
+        var $row = $this.parents("tr");		
         cal_line_total($row);
         calculate_total();
+		
     });
     $("input[name=discount]").change(function (e) {
         calculate_total();
@@ -184,7 +186,9 @@ $(document).ready(function(){
 	
 	 $(".invoice_tax_add").click(function (e) {
 	   e.preventDefault();
-        $('.gross_total_invoice').before(invoice_tax_html);	
+	    var index_count = $('.all_tax_row').length+1;
+        var invoice_tax_html_final  = '<tr class="all_tax_row InvoiceTaxestr'+index_count+' ">'+invoice_tax_html+"</tr>";
+		$('.gross_total_invoice').before(invoice_tax_html_final);	
 		$('select.select2').addClass('visible');
         $('select.select2').select2();
 		calculate_total();
@@ -503,16 +507,15 @@ $(document).ready(function(){
 				}
 				else
 				{
-				invoice_tax_html_final  = '<tr class="all_tax_row InvoiceTaxestr'+index+' ">'+invoice_tax_html+"</tr>";
-				
-				 $('.gross_total_invoice').before(invoice_tax_html_final);	
-				 var current_obj = $('.InvoiceTaxestr'+index).find('.InvoiceTaxesFld');
-				 current_obj.addClass('InvoiceTaxesFld'+index);
-				 current_obj.val(entry);
-				 current_obj.addClass('visible');
-				 current_obj.select2();
-				 current_obj.trigger('change');
-				// var change = $('.InvoiceTaxesFld').eq(index+1);			
+				   var invoice_tax_html_final  = '<tr class="all_tax_row InvoiceTaxestr'+index+' ">'+invoice_tax_html+"</tr>";
+				   $('.gross_total_invoice').before(invoice_tax_html_final);	
+				   var current_obj = $('.InvoiceTaxestr'+index).find('.InvoiceTaxesFld');
+				   current_obj.addClass('InvoiceTaxesFld'+index);
+				   current_obj.val(entry);
+				   current_obj.addClass('visible');
+				   current_obj.select2();
+				   current_obj.trigger('change');
+				   // var change = $('.InvoiceTaxesFld').eq(index+1);			
 				}				
 			});
 			 //$('select.InvoiceTaxesFld').addClass('visible');
@@ -538,5 +541,6 @@ $(document).ready(function(){
             }
         }, "json");
     });
+	$("textarea.autogrow").autosize();
 });
 </script>

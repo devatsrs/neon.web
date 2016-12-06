@@ -614,7 +614,8 @@ class EstimatesController extends \BaseController {
             $CurrencyId 		= 	$Account->CurrencyId;
             $Address 			= 	Account::getFullAddress($Account);			
             $Terms 				= 	$FooterTerm = '';
-			 $AccountTaxRate 	= 	explode(",",AccountBilling::getTaxRate($Account->AccountID));
+			//$AccountTaxRate 	= 	explode(",",AccountBilling::getTaxRate($Account->AccountID));
+			$AccountTaxRate 	= 	AccountBilling::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
 			 
             if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0)
 			{

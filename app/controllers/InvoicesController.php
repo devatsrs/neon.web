@@ -626,7 +626,7 @@ class InvoicesController extends \BaseController {
             $Address = Account::getFullAddress($Account);
             $Terms = $FooterTerm = '';
 			
-			 $AccountTaxRate = explode(",",AccountBilling::getTaxRate($Account->AccountID));
+			 $AccountTaxRate = AccountBilling::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
 			//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 		
             if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {

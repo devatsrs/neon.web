@@ -177,11 +177,11 @@ class NotificationCustomerController extends \BaseController {
                 }else{
                     $tag = '"AccountID":"' . $post_data['CallAlert']['AccountID'] . '"';
                     if (!empty($post_data['AlertID'])) {
-                        if (Alert::where('Settings', 'LIKE', '%' . $tag . '%')->where('AlertType', $post_data['AlertType'])->where('AlertID', '<>', $post_data['AlertID'])->count() > 0) {
+                        if (Alert::where('Settings', 'LIKE', '%' . $tag . '%')->where(['AlertType'=>$post_data['AlertType'],'CreatedByCustomer'=>1])->where('AlertID', '<>', $post_data['AlertID'])->count() > 0) {
                             $error_message = 'AlertType is already taken.';
                         }
                     }else{
-                        if (Alert::where('Settings', 'LIKE', '%' . $tag . '%')->where('AlertType', $post_data['AlertType'])->count() > 0) {
+                        if (Alert::where('Settings', 'LIKE', '%' . $tag . '%')->where(['AlertType'=>$post_data['AlertType'],'CreatedByCustomer'=>1])->count() > 0) {
                             $error_message = 'AlertType is already taken.';
                         }
                     }
