@@ -206,10 +206,12 @@ var postdata;
 
         var InvoiceTemplateID = $(this).prev("div.hiddenRowData").find("input[name='InvoiceTemplateID']").val();
 
+        $("#add-new-invoice_template-form [name='CompanyLogoUrl']").attr('width',50);
         $("#add-new-invoice_template-form [name='CompanyLogoUrl']").prop("src",loading);
         CompanyLogoUrl = baseurl + "/invoice_template/"+InvoiceTemplateID +"/get_logo";
         $.get( baseurl + "/invoice_template/"+InvoiceTemplateID+"/get_logo", function( data ) {
             CompanyLogoUrl = data;
+            $("#add-new-invoice_template-form [name='CompanyLogoUrl']").attr('width',100);
             if(CompanyLogoUrl){
                 $("#add-new-invoice_template-form [name='CompanyLogoUrl']").prop("src",CompanyLogoUrl);
             }else{
