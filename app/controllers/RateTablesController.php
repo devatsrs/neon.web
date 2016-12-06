@@ -95,14 +95,14 @@ class RateTablesController extends \BaseController {
             'CompanyID' => 'required',
             'RateTableName' => 'required|unique:tblRateTable,RateTableName,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
             //'RateGeneratorId'=>'required',
-            'CodeDeckId'=>'required',
+            'CodedeckId'=>'required',
             'TrunkID'=>'required',
             'CurrencyID'=>'required'
 
         );
         $message = ['CurrencyID.required'=>'Currency field is required',
-                    'TrunkID.required'=>'Trunk is required',
-                    'CodeDeckId.required'=>'CodeDeck is required'
+                    'TrunkID.required'=>'Trunk field is required',
+                    'CodedeckId.required'=>'Codedeck field is required'
                     //'RateGeneratorId.required'=>'RateGenerator'
                     ];
         $validator = Validator::make($data, $rules, $message);
