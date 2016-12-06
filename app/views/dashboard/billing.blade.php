@@ -850,6 +850,7 @@
 
                 }, "json");
             @endif
+            titleState();
         }
 
         function invoiceExpenseTotal(){
@@ -971,8 +972,6 @@
                 widgets += buildbox(option);
                 @endif
                 $('#invoice-widgets').html(widgets);
-
-                titleState();
             }, "json");
         }
 
