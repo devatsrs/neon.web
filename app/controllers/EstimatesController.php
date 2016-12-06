@@ -648,7 +648,7 @@ class EstimatesController extends \BaseController {
 			catch (Exception $e)
 			{
                 DB::connection('sqlsrv2')->rollback();
-                return Response::json(array("status" => "failed", "message" => "Estimate is in Use, You cant delete this Currrently. \n" . $e->getMessage() ));
+                return Response::json(array("status" => "failed", "message" => "Estimate is in Use, You cant delete this Currently. \n" . $e->getMessage() ));
             }
 
         }
