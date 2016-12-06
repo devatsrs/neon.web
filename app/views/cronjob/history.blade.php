@@ -33,7 +33,7 @@
                         </div>
                         <label class="col-sm-1 control-label">Status</label>
                         <div class="col-sm-2">
-                            {{ Form::select('Status', [""=>"Both",1=>"Success",0=>"Failed"], '', array("class"=>"form-control select2 small")) }}
+                            {{ Form::select('Status', [""=>"Both",1=>"Success",2=>"Failed"], '', array("class"=>"form-control select2 small")) }}
                         </div>
 
                     </div>
@@ -43,7 +43,7 @@
                             {{ Form::text('StartDate', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
                         </div>
                         <div class="col-sm-2  small-date-input">
-                            <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
+                            <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
                         </div>
                         <label for="field-1" class="col-sm-1 control-label">End Date</label>
                         <div class="col-sm-2">

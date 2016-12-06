@@ -1,15 +1,24 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_InsertTempReRateCDR`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_start_date` DATETIME, IN `p_end_date` DATETIME, IN `p_AccountID` INT, IN `p_ProcessID` VARCHAR(50), IN `p_tbltempusagedetail_name` VARCHAR(50), IN `p_CDRType` CHAR(1), IN `p_CLI` VARCHAR(50), IN `p_CLD` VARCHAR(50), IN `p_zerovaluecost` INT, IN `p_CurrencyID` INT, IN `p_area_prefix` VARCHAR(50), IN `p_trunk` VARCHAR(50))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_InsertTempReRateCDR`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_start_date` DATETIME,
+	IN `p_end_date` DATETIME,
+	IN `p_AccountID` INT,
+	IN `p_ProcessID` VARCHAR(50),
+	IN `p_tbltempusagedetail_name` VARCHAR(50),
+	IN `p_CDRType` CHAR(1),
+	IN `p_CLI` VARCHAR(50),
+	IN `p_CLD` VARCHAR(50),
+	IN `p_zerovaluecost` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_area_prefix` VARCHAR(50),
+	IN `p_trunk` VARCHAR(50)
+)
 BEGIN
 	DECLARE v_BillingTime_ INT;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	SELECT BillingTime INTO v_BillingTime_
-	FROM NeonRMDev.tblCompanyGateway cg
-	INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID
-	WHERE AccountID = p_AccountID AND (p_CompanyGatewayID = '' OR ga.CompanyGatewayID = p_CompanyGatewayID)
-	LIMIT 1;
-
-	SET v_BillingTime_ = IFNULL(v_BillingTime_,1);
+	SELECT fnGetBillingTime(p_CompanyGatewayID,p_AccountID) INTO v_BillingTime_;
 
 	Call fnUsageDetail(p_CompanyID,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,p_CDRType,p_CLI,p_CLD,p_zerovaluecost);
 

@@ -1,6 +1,9 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_generateVendorSummary`(IN `p_CompanyID` INT, IN `p_StartDate` DATE, IN `p_EndDate` DATE)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_generateVendorSummary`(
+	IN `p_CompanyID` INT,
+	IN `p_StartDate` DATE,
+	IN `p_EndDate` DATE
+)
 BEGIN
-	
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
 		-- ERROR
@@ -10,12 +13,12 @@ BEGIN
 		SELECT @p2 as Message;
 		ROLLBACK;
 	END;
-	
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	
+
 	CALL fnGetCountry(); 
 	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
-	 
+
  	/* insert into success summary*/
  	DELETE FROM tmp_VendorUsageSummary WHERE CompanyID = p_CompanyID;
 	INSERT INTO tmp_VendorUsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
@@ -39,18 +42,36 @@ BEGIN
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 
-	-- DROP TEMPORARY TABLE IF EXISTS tmp_tblVendorUsageDetailsReport_;
-	
-	UPDATE tmp_VendorUsageSummary  FORCE INDEX (tmp_VendorUsageSummary_AreaPrefix)
-	INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
-	SET tmp_VendorUsageSummary.CountryID =tblCountry.CountryID;
-	
+	UPDATE tmp_VendorUsageSummary
+	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_VendorUsageSummary 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
+	ON tmp_VendorUsageSummary.AreaPrefix = TBL.AreaPrefix
+	SET tmp_VendorUsageSummary.CountryID =TBL.CountryID;
+
+	DELETE FROM tmp_SummaryVendorHeader WHERE CompanyID = p_CompanyID;
+
+	INSERT INTO tmp_SummaryVendorHeader (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT 
+		sh.SummaryVendorHeaderID,
+		sh.DateID,
+		sh.CompanyID,
+		sh.AccountID,
+		sh.GatewayAccountID,
+		sh.CompanyGatewayID,
+		sh.Trunk,
+		sh.AreaPrefix,
+		sh.CountryID,
+		sh.created_at 
+	FROM tblSummaryVendorHeader sh
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummary)TBL
+	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
+	WHERE sh.CompanyID =  p_CompanyID ;
+
 	START TRANSACTION;
-	
+
 	INSERT INTO tblSummaryVendorHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
 	FROM tmp_VendorUsageSummary us
-	LEFT JOIN tblSummaryVendorHeader sh	 
+	LEFT JOIN tmp_SummaryVendorHeader sh	 
 	ON 
 		 us.DateID = sh.DateID
 	AND us.CompanyID = sh.CompanyID
@@ -60,43 +81,60 @@ BEGIN
 	AND us.AreaPrefix = sh.AreaPrefix
 	WHERE sh.SummaryVendorHeaderID IS NULL
 	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
-	
-	
+
+	DELETE FROM tmp_SummaryVendorHeader WHERE CompanyID = p_CompanyID;
+
+	INSERT INTO tmp_SummaryVendorHeader (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT 
+		sh.SummaryVendorHeaderID,
+		sh.DateID,
+		sh.CompanyID,
+		sh.AccountID,
+		sh.GatewayAccountID,
+		sh.CompanyGatewayID,
+		sh.Trunk,
+		sh.AreaPrefix,
+		sh.CountryID,
+		sh.created_at 
+	FROM tblSummaryVendorHeader sh
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummary)TBL
+	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
+	WHERE sh.CompanyID =  p_CompanyID ;
+
 	DELETE us FROM tblUsageVendorSummary us 
 	INNER JOIN tblSummaryVendorHeader sh ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
+
 	DELETE usd FROM tblUsageVendorSummaryDetail usd
 	INNER JOIN tblSummaryVendorHeader sh ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
-	
+
 	INSERT INTO tblUsageVendorSummary (SummaryVendorHeaderID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT ANY_VALUE(sh.SummaryVendorHeaderID),SUM(us.TotalCharges),SUM(us.TotalSales),SUM(us.TotalBilledDuration),SUM(us.TotalDuration),SUM(us.NoOfCalls),SUM(us.NoOfFailCalls)
-	FROM tblSummaryVendorHeader sh
+	FROM tmp_SummaryVendorHeader sh
 	INNER JOIN tmp_VendorUsageSummary us FORCE INDEX (Unique_key)	 
 	ON 
-		 us.DateID = sh.DateID
-	AND us.CompanyID = sh.CompanyID
-	AND us.AccountID = sh.AccountID
-	AND us.CompanyGatewayID = sh.CompanyGatewayID
-	AND us.Trunk = sh.Trunk
-	AND us.AreaPrefix = sh.AreaPrefix
+		 sh.DateID = us.DateID
+	AND sh.CompanyID = us.CompanyID
+	AND sh.AccountID = us.AccountID
+	AND sh.CompanyGatewayID = us.CompanyGatewayID
+	AND sh.Trunk = us.Trunk
+	AND sh.AreaPrefix = us.AreaPrefix
 	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
-	
+
 	INSERT INTO tblUsageVendorSummaryDetail (SummaryVendorHeaderID,TimeID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT sh.SummaryVendorHeaderID,TimeID,us.TotalCharges,us.TotalSales,us.TotalBilledDuration,us.TotalDuration,us.NoOfCalls,us.NoOfFailCalls
-	FROM tblSummaryVendorHeader sh
+	FROM tmp_SummaryVendorHeader sh
 	INNER JOIN tmp_VendorUsageSummary us FORCE INDEX (Unique_key)
 	ON 
-		 us.DateID = sh.DateID
-	AND us.CompanyID = sh.CompanyID
-	AND us.AccountID = sh.AccountID
-	AND us.CompanyGatewayID = sh.CompanyGatewayID
-	AND us.Trunk = sh.Trunk
-	AND us.AreaPrefix = sh.AreaPrefix;
+		sh.DateID = us.DateID
+	AND sh.CompanyID = us.CompanyID
+	AND sh.AccountID = us.AccountID
+	AND sh.CompanyGatewayID = us.CompanyGatewayID
+	AND sh.Trunk = us.Trunk
+	AND sh.AreaPrefix = us.AreaPrefix;
 	
 	COMMIT;
 

@@ -1,4 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateSOAOffSet`(IN `p_CompanyID` INT, IN `p_AccountID` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_updateSOAOffSet`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT
+)
 BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -48,7 +51,10 @@ BEGIN
 	UPDATE NeonRMDev.tblAccountBalance
 	INNER JOIN tmp_AccountSOABal 
 		ON  tblAccountBalance.AccountID = tmp_AccountSOABal.AccountID
-	SET tblAccountBalance.BalanceAmount = tmp_AccountSOABal.Amount + COALESCE(tblAccountBalance.UnbilledAmount,0)  - COALESCE(tblAccountBalance.VendorUnbilledAmount,0) ,SOAOffset=tmp_AccountSOABal.Amount;
+	SET SOAOffset=tmp_AccountSOABal.Amount;
+	
+	UPDATE NeonRMDev.tblAccountBalance SET tblAccountBalance.BalanceAmount = COALESCE(tblAccountBalance.SOAOffset,0) + COALESCE(tblAccountBalance.UnbilledAmount,0)  - COALESCE(tblAccountBalance.VendorUnbilledAmount,0);
+	
 	
 	INSERT INTO NeonRMDev.tblAccountBalance (AccountID,BalanceAmount,UnbilledAmount,SOAOffset)
 	SELECT tmp_AccountSOABal.AccountID,tmp_AccountSOABal.Amount,0,tmp_AccountSOABal.Amount

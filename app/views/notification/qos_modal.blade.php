@@ -42,13 +42,13 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Low Value</label>
+                                <label for="field-5" class="control-label">Low Value <span class="label label-info popover-primary" data-toggle="popover_html" data-trigger="hover" data-placement="top" data-content="Low Value<br><strong>ACD:</strong>Seconds<br><strong>ASR</strong>Percentage(1 to 100)" data-original-title="Forbidden">?</span></label>
                                 <input type="text" name="LowValue"  class="form-control"/>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">High Value</label>
+                                <label for="field-5" class="control-label">High Value <span class="label label-info popover-primary" data-toggle="popover_html" data-trigger="hover" data-placement="top" data-content="High Value<br><strong>ACD:</strong>Seconds<br><strong>ASR</strong>Percentage(1 to 100)" data-original-title="Forbidden">?</span></label>
                                 <input type="text" name="HighValue"  class="form-control"/>
                             </div>
                         </div>
@@ -105,7 +105,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Period</label>
-                                {{Form::select('QosAlert[Time]',array(""=>"Select","HOUR"=>"Hourly","DAILY"=>"Daily"),'',array( "class"=>"select2 small"))}}
+                                {{Form::select('QosAlert[Time]',array(""=>"Select","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily"),'',array( "class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="col-md-6">
