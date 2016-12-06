@@ -100,6 +100,10 @@ class UsersController extends BaseController {
             'Status' => 'required',
         );
 
+        if(!empty($data['password']) || !empty($data['password_confirmation'])){
+            $rules['password'] = 'required|confirmed|min:3';
+        }
+
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
