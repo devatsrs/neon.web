@@ -74,16 +74,16 @@
                         <table id="EstimateTable" class="table table-bordered" style="margin-bottom: 0">
                             <thead>
                                 <tr>
-                                    <th  width="1%" ><button type="button" id="add-row" class="btn btn-primary btn-xs ">+</button></th>
-                                    <th  width="14%" >Item</th>
-                                    <th width="15%" >Description</th>
-                                    <th width="10%" class="text-center">Unit Price</th>
-                                    <th width="10%"  class="text-center">Quantity</th>
+                                    <th  width="1%"><button type="button" id="add-row" class="btn btn-primary btn-xs ">+</button></th>
+                                    <th  width="14%">Item</th>
+                                    <th width="15%">Description</th>
+                                    <th width="10%">Unit Price</th>
+                                    <th width="10%">Quantity</th>
                                    <!-- <th width="10%" >Discount</th>-->
                                     <th width="15%" >Tax 1</th>
                                     <th width="15%" >Tax 2</th>
                                     <th class="hidden" width="10%" >Total Tax</th>
-                                    <th width="10%" class="text-right">Line Total</th>
+                                    <th width="10%">Line Total</th>
                                 </tr>
                             </thead>
                             <tbody>
