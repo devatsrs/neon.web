@@ -66,8 +66,14 @@ class Invoice extends \Eloquent {
             $Invoice = Invoice::find($InvoiceID);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $InvoiceID])->get();
             $InvoiceTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>0])->orderby('InvoiceTaxRateID')->get();
-			$InvoiceAllTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>1])->orderby('InvoiceTaxRateID')->get();
-            $Account = Account::find($Invoice->AccountID);
+			//$InvoiceAllTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>1])->orderby('InvoiceTaxRateID')->get();
+			$InvoiceAllTaxRates = DB::connection('sqlsrv2')->table('tblInvoiceTaxRate')
+                    ->select('TaxRateID', 'Title', DB::Raw('sum(TaxAmount) as TaxAmount'))
+                    ->where("InvoiceID", $InvoiceID)
+                    ->orderBy("InvoiceTaxRateID", "asc")
+                    ->groupBy("TaxRateID")                   
+                    ->get();
+			$Account = Account::find($Invoice->AccountID);
             $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
@@ -119,12 +125,11 @@ class Invoice extends \Eloquent {
             $output= "";
             if(getenv('APP_OS') == 'Linux'){
                 exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
-
             }else{
-                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe  - footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
             @chmod($local_file,0777);
-            Log::info($output);
+            Log::info($output); 
             @unlink($local_htmlfile);
             @unlink($footer_html);
             if (file_exists($local_file)) {
