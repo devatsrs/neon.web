@@ -35,5 +35,19 @@ class BillingClass extends \Eloquent
 	 public static function getTaxRate($BillingClassID){
         return BillingClass::where('BillingClassID',$BillingClassID)->pluck('TaxRateID');
     }
+	
+	public static function getTaxRateType($BillingClassID,$type){
+		$final 			=   array();
+        $result 		=   BillingClass::where('BillingClassID',$BillingClassID)->pluck('TaxRateID');
+	    $resultarray 	= 	explode(",",$result);
+		
+		foreach($resultarray as $resultdata)	{
+			if(TaxRate::where(['TaxRateId'=>$resultdata,'TaxType'=>$type])->count()){
+				$final[]  = $resultdata;
+			}
+		}
+		
+		return $final;
+    }
 
 }

@@ -4,7 +4,7 @@
             <form id="call-billing-form" method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Add Call Monitor Alert</h4>
+                    <h4 class="modal-title">Add Monitoring</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -18,7 +18,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label class="control-label">Alert Type</label>
+                                <label class="control-label">Type</label>
                                 {{ Form::select('AlertType', $call_monitor_alert_type, '', array("class"=>"select2")) }}
                             </div>
                         </div>
@@ -75,6 +75,7 @@
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" name="AlertID" value="">
+                        <input type="hidden" name="CallAlert[AccountIDs]" value="{{Customer::get_accountID()}}">
                         <input type="hidden" name="CallAlert[AccountID]" value="{{Customer::get_accountID()}}">
                         <input type="hidden" name="CallAlert[EmailToAccount]" value="1">
                         <input type="hidden" name="AlertGroup" value="call">
