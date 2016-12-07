@@ -81,7 +81,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                 @endif
                 <th style="text-align: center;">Line Total</th>
                 {{--<th style="text-align: center;">Tax</th>--}}
-             @if(count($InvoiceTaxRates)>0)   <th style="text-align: center;">Tax Amount</th> @endif
+               {{--<th class="hidden" style="text-align: center;">Tax Amount</th> --}}
             </tr>
             </thead>
             <tbody>
@@ -98,7 +98,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                 @endif
                 <td class="text-center">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
                 {{--<td class="text-center">{{TaxRate::getTaxRate($ProductRow->TaxRateID)}}</td>--}}
-              @if(count($InvoiceTaxRates)>0)  <td class="text-center">{{number_format($ProductRow->TaxAmount,$RoundChargesAmount)}}</td>@endif
+                {{--<td class="hidden" class="text-center">{{number_format($ProductRow->TaxAmount,$RoundChargesAmount)}}</td>--}}
             </tr>
             @endif
             @endforeach
@@ -129,7 +129,6 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->TotalDiscount,$RoundChargesAmount)}}</td>
                                                         </tr>
                                                         @endif
-
                                                         @if(count($InvoiceAllTaxRates))
                                                             @foreach($InvoiceAllTaxRates as $InvoiceTaxRate)
                                                                 <tr>

@@ -88,16 +88,16 @@
                         <table id="EstimateTable" class="table table-bordered" style="margin-bottom: 0">
                             <thead>
                                 <tr>
-                                    <th  width="1%" ><button type="button" id="add-row" class="btn btn-primary btn-xs ">+</button></th>
-                                    <th  width="14%" >Item</th>
-                                    <th width="15%" >Description</th>
-                                    <th width="10%" class="text-center">Unit Price</th>
-                                    <th width="10%"  class="text-center">Quantity</th>
+                                    <th  width="1%"><button type="button" id="add-row" class="btn btn-primary btn-xs ">+</button></th>
+                                    <th  width="14%">Item</th>
+                                    <th width="15%">Description</th>
+                                    <th width="10%">Unit Price</th>
+                                    <th width="10%">Quantity</th>
                                     <!--<th width="10%" >Discount</th>-->
-                                    <th width="15%" >Tax 1</th>
-                                    <th width="15%" >Tax 2</th>
-                                    <th width="10%" >Total Tax</th>
-                                    <th width="10%" class="text-right">Line Total</th>
+                                    <th width="15%">Tax 1</th>
+                                    <th width="15%">Tax 2</th>
+                                    <th class="hidden" width="10%" >Total Tax</th>
+                                    <th width="10%">Line Total</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -140,7 +140,7 @@
                                         ]
                                 )}}</td>
                                 
-                                    <td>{{Form::text('EstimateDetail[TaxAmount][]',number_format($ProductRow->TaxAmount,$RoundChargesAmount),array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>
+                                    <td class="hidden">{{Form::text('EstimateDetail[TaxAmount][]',number_format($ProductRow->TaxAmount,$RoundChargesAmount),array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>
                                     <td>{{Form::text('EstimateDetail[LineTotal][]',number_format($ProductRow->LineTotal,$RoundChargesAmount),array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}
                                     {{Form::hidden('EstimateDetail[EstimateDetailID][]',$ProductRow->EstimateDetailID,array("class"=>"EstimateDetailID"))}}
                                     {{Form::hidden('EstimateDetail[ProductType][]',$ProductRow->ProductType,array("class"=>"ProductType"))}}
@@ -261,7 +261,7 @@ var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-dan
      //add_row_html += '<td class="text-center">{{Form::text('EstimateDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
      add_row_html += '<td>{{Form::SelectExt(["name"=>"EstimateDetail[TaxRateID][]","data"=>$taxes,"selected"=>$ProductRow->TaxRateID,"value_key"=>"TaxRateID","title_key"=>"Title","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 small Taxentity TaxRateID"])}}</td>';
 	    add_row_html += '<td>{{Form::SelectExt(["name"=>"EstimateDetail[TaxRateID2][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small TaxRateID2"])}}</td>';
-     add_row_html += '<td>{{Form::text('EstimateDetail[TaxAmount][]',"0",array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>';
+     add_row_html += '<td class="hidden">{{Form::text('EstimateDetail[TaxAmount][]',"0",array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>';
      add_row_html += '<td>{{Form::text('EstimateDetail[LineTotal][]',0,array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}';
      add_row_html += '{{Form::hidden('EstimateDetail[StartDate][]','',array("class"=>"StartDate"))}}{{Form::hidden('EstimateDetail[EndDate][]','',array("class"=>"EndDate"))}}{{Form::hidden('EstimateDetail[ProductType][]',$ProductRow->ProductType,array("class"=>"ProductType"))}}</td></tr>';
 

@@ -100,7 +100,7 @@ class Invoice extends \Eloquent {
 			$print_type = 'Invoice';
             $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates'))->render();
 
-            $body = htmlspecialchars_decode($body);
+            $body = htmlspecialchars_decode($body);  
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
             $footer = htmlspecialchars_decode($footer);
 
