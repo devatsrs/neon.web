@@ -148,6 +148,7 @@ class InvoicesController extends \BaseController {
         $accounts 	= 	Account::getAccountIDList();
         $products 	= 	Product::getProductDropdownList();
         $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice();
+		//echo "<pre>"; 		print_r($taxes);		echo "</pre>"; exit;
         //$gateway_product_ids = Product::getGatewayProductIDs();
         return View::make('invoices.create',compact('accounts','products','taxes'));
 
@@ -177,7 +178,9 @@ class InvoicesController extends \BaseController {
             $CompanyName = Company::getName();
             $taxes =  TaxRate::getTaxRateDropdownIDListForInvoice();
             $invoicelog =  InVoiceLog::where(array('InvoiceID'=>$id))->get();
-            return View::make('invoices.edit', compact( 'id', 'Invoice','InvoiceDetail','InvoiceTemplateID','InvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog'));
+			$InvoiceAllTax =  InvoiceTaxRate::where(["InvoiceID"=>$id,"InvoiceTaxType"=>1])->get();
+			
+            return View::make('invoices.edit', compact( 'id', 'Invoice','InvoiceDetail','InvoiceTemplateID','InvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax'));
         }
     }
 
@@ -186,7 +189,7 @@ class InvoicesController extends \BaseController {
      */
     public function store(){
         $data = Input::all();
-
+				
         if($data){
 
             $companyID = User::get_companyID();
@@ -208,7 +211,8 @@ class InvoicesController extends \BaseController {
             //$InvoiceData["TotalDiscount"] = str_replace(",","",$data["TotalDiscount"]);
 			$InvoiceData["TotalDiscount"] = 0;
             $InvoiceData["TotalTax"] = str_replace(",","",$data["TotalTax"]);
-            $InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotal"]));
+			$InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotalInvoice"]));
+            //$InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceData["CurrencyID"] = $data["CurrencyID"];
             $InvoiceData["InvoiceType"] = Invoice::INVOICE_OUT;
             $InvoiceData["InvoiceStatus"] = Invoice::AWAITING;
@@ -217,6 +221,8 @@ class InvoicesController extends \BaseController {
             $InvoiceData["Terms"] = $data["Terms"];
             $InvoiceData["FooterTerm"] = $data["FooterTerm"];
             $InvoiceData["CreatedBy"] = $CreatedBy;
+			$InvoiceData['InvoiceTotal'] = str_replace(",","",$data["GrandTotal"]);
+			
             $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($data["AccountID"]);
             if((int)$InvoiceTemplateID == 0){
                 return Response::json(array("status" => "failed", "message" => "Please enable billing."));
@@ -251,7 +257,7 @@ class InvoicesController extends \BaseController {
                     InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $LastInvoiceNumber ));
                 }
 
-                $InvoiceDetailData = $InvoiceTaxRates = array();
+                $InvoiceDetailData = $InvoiceTaxRates = $InvoiceAllTaxRates = array();
 
                 foreach($data["InvoiceDetail"] as $field => $detail){ 
                     $i=0;
@@ -281,6 +287,7 @@ class InvoicesController extends \BaseController {
                     }
                 } 
 				
+				//product tax
 				if(isset($data['Tax']) && is_array($data['Tax'])){
 					foreach($data['Tax'] as $j => $taxdata){
 						$InvoiceTaxRates[$j]['TaxRateID'] 	= 	$j;
@@ -291,15 +298,33 @@ class InvoicesController extends \BaseController {
 					}
 				}
 				
-                $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
+				//Invoice tax
+				if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
+					foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){						
+						$InvoiceAllTaxRates[$p]['TaxRateID'] 		= 	$InvoiceTaxes;
+						$InvoiceAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($InvoiceTaxes);
+						$InvoiceAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
+						$InvoiceAllTaxRates[$p]["InvoiceTaxType"] 	= 	1;
+						$InvoiceAllTaxRates[$p]["InvoiceID"] 		= 	$Invoice->InvoiceID; 
+						$InvoiceAllTaxRates[$p]["TaxAmount"] 		= 	$data['InvoiceTaxes']['value'][$p];
+					}
+				}
+				
+                $InvoiceTaxRates 	 = 	merge_tax($InvoiceTaxRates);
+				$InvoiceAllTaxRates  = 	merge_tax($InvoiceAllTaxRates);
+				
                 $invoiceloddata = array();
                 $invoiceloddata['InvoiceID']= $Invoice->InvoiceID;
                 $invoiceloddata['Note']= 'Created By '.$CreatedBy;
                 $invoiceloddata['created_at']= date("Y-m-d H:i:s");
                 $invoiceloddata['InvoiceLogStatus']= InVoiceLog::CREATED;
                 InVoiceLog::insert($invoiceloddata);
-                if(!empty($InvoiceTaxRates)) {
+                if(!empty($InvoiceTaxRates)) { //product tax
                     InvoiceTaxRate::insert($InvoiceTaxRates);
+                }
+				
+				 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
+                    InvoiceTaxRate::insert($InvoiceAllTaxRates);
                 }
                 if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { 
                     $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); 
@@ -351,12 +376,13 @@ class InvoicesController extends \BaseController {
             //$InvoiceData["TotalDiscount"] = str_replace(",","",$data["TotalDiscount"]);
 			$InvoiceData["TotalDiscount"] = 0;
             $InvoiceData["TotalTax"] = str_replace(",","",$data["TotalTax"]);
-            $InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotal"]));
+            $InvoiceData["GrandTotal"] = floatval(str_replace(",","",$data["GrandTotalInvoice"]));
             $InvoiceData["CurrencyID"] = $data["CurrencyID"];
             $InvoiceData["Note"] = $data["Note"];
             $InvoiceData["Terms"] = $data["Terms"];
             $InvoiceData["FooterTerm"] = $data["FooterTerm"];
             $InvoiceData["ModifiedBy"] = $CreatedBy;
+			$InvoiceData['InvoiceTotal'] = str_replace(",","",$data["GrandTotal"]);
             //$InvoiceData["InvoiceType"] = Invoice::INVOICE_OUT;
 
             ///////////
@@ -395,7 +421,7 @@ class InvoicesController extends \BaseController {
                     $invoiceloddata['InvoiceLogStatus']= InVoiceLog::UPDATED;
                     $Invoice->update($InvoiceData);
                     InVoiceLog::insert($invoiceloddata);
-                    $InvoiceDetailData = $InvoiceTaxRates = array();
+					$InvoiceDetailData = $InvoiceTaxRates = $InvoiceAllTaxRates = array();
                     //Delete all Invoice Data and then Recreate.
                     InvoiceDetail::where(["InvoiceID" => $Invoice->InvoiceID])->delete();
                     InvoiceTaxRate::where(["InvoiceID" => $Invoice->InvoiceID])->delete();
@@ -452,10 +478,28 @@ class InvoicesController extends \BaseController {
 							}
 						}
 						
-                        $InvoiceTaxRates = merge_tax($InvoiceTaxRates);
-                        if(!empty($InvoiceTaxRates)) {
+						if(isset($data['InvoiceTaxes']) && is_array($data['InvoiceTaxes'])){
+					foreach($data['InvoiceTaxes']['field'] as  $p =>  $InvoiceTaxes){						
+						$InvoiceAllTaxRates[$p]['TaxRateID'] 		= 	$InvoiceTaxes;
+						$InvoiceAllTaxRates[$p]['Title'] 			= 	TaxRate::getTaxName($InvoiceTaxes);
+						$InvoiceAllTaxRates[$p]["created_at"] 		= 	date("Y-m-d H:i:s");
+						$InvoiceAllTaxRates[$p]["InvoiceTaxType"] 	= 	1;
+						$InvoiceAllTaxRates[$p]["InvoiceID"] 		= 	$Invoice->InvoiceID; 
+						$InvoiceAllTaxRates[$p]["TaxAmount"] 		= 	$data['InvoiceTaxes']['value'][$p];
+					}
+				}
+						
+                        $InvoiceTaxRates 	  =     merge_tax($InvoiceTaxRates);
+						$InvoiceAllTaxRates   = 	merge_tax($InvoiceAllTaxRates);
+						
+                        if(!empty($InvoiceTaxRates)) { //product tax
                             InvoiceTaxRate::insert($InvoiceTaxRates);
                         }
+						
+						 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
+                 		   InvoiceTaxRate::insert($InvoiceAllTaxRates);
+               		 }
+						
                         if (InvoiceDetail::insert($InvoiceDetailData)) {
                             $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID);
                             if (empty($pdf_path)) {
@@ -510,14 +554,14 @@ class InvoicesController extends \BaseController {
                             $ProductDescription = $Product->Description;
 
                             $TaxRates = array();
-                            $TaxRates = TaxRate::where(array('CompanyID' => User::get_companyID(), "TaxType" => TaxRate::TAX_ALL))->select(['TaxRateID', 'Title', 'Amount'])->first();
+                            $TaxRates = TaxRate::where(array('CompanyID' => User::get_companyID(), "TaxType" => TaxRate::TAX_ALL))->select(['TaxRateID', 'Title', 'Amount','FlatStatus'])->first();
                             if(!empty($TaxRates)){
                                 $TaxRates->toArray();
                             }
                             $AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
 							//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 
-                            $TaxRateAmount = $TaxRateId = 0;
+                            $TaxRateAmount = $TaxRateId = $FlatStatus =  0; 
                             $TaxRateTitle = 'VAT';
                             if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
 
@@ -527,18 +571,31 @@ class InvoicesController extends \BaseController {
                                 if (isset($TaxRates['Amount'])) {
                                     $TaxRateAmount = $TaxRates['Amount'];
                                 }
+								
+								if (isset($TaxRates['FlatStatus'])) {
+                                    $FlatStatus = $TaxRates['FlatStatus'];
+                                }
 
                             }
-
-                            $TotalTax = number_format((($ProductAmount * $data['qty'] * $TaxRateAmount) / 100), $decimal_places,".","");
+							
+							if($FlatStatus==1){	
+                           
+						    	$TotalTax  =  number_format($TaxRateAmount, $decimal_places,".","");
+							}
+							else
+							{
+								$TotalTax  =  number_format((($ProductAmount * $data['qty'] * $TaxRateAmount) / 100), $decimal_places,".","");
+							
+							}
                             $SubTotal = number_format($ProductAmount * $data['qty'], $decimal_places,".",""); //number_format(($ProductAmount + $TotalTax) , 2);
 
                             $response = [
                                 "status" => "success",
                                 "product_description" => $ProductDescription,
                                 "product_amount" => $ProductAmount,
-                                "product_tax_rate_id" => $TaxRateId,
-                                "product_total_tax_rate" => $TotalTax,
+                               // "product_tax_rate_id" => $TaxRateId,
+                                //"product_total_tax_rate" => $TotalTax,
+								 "product_total_tax_rate" => 0,								
                                 "sub_total" => $SubTotal,
                                 "decimal_places" => $decimal_places,
                                 "product_tax_title" => $TaxRateTitle,
@@ -581,11 +638,15 @@ class InvoicesController extends \BaseController {
             $CurrencyId = $Account->CurrencyId;
             $Address = Account::getFullAddress($Account);
             $Terms = $FooterTerm = '';
+			
+			 $AccountTaxRate = AccountBilling::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
+			//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
+		
             if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
                 $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
                 $Terms = $InvoiceTemplate->Terms;
                 $FooterTerm = $InvoiceTemplate->FooterTerm;
-                $return = ['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID'];
+                $return = ['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate'];
             }else{
                 return Response::json(array("status" => "failed", "message" => "You can not create Invoice for this Account. as It has no Invoice Template assigned" ));
             }
@@ -1053,6 +1114,7 @@ class InvoicesController extends \BaseController {
             $emailtoCustomer = getenv('EmailToCustomer');
             if(intval($emailtoCustomer) == 1){
                 $CustomerEmail = $data['Email'];
+
             }else{
                 $CustomerEmail = $Company->Email;
             }

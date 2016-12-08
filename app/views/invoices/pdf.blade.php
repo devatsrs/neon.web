@@ -28,6 +28,7 @@ table{
   border-spacing: 0;
   margin-bottom: 30px;
 }
+.gray_td{color:#4a4a4a;}
 
 </style>
 <?php
@@ -80,7 +81,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                 @endif
                 <th style="text-align: center;">Line Total</th>
                 {{--<th style="text-align: center;">Tax</th>--}}
-                <th style="text-align: center;">Tax Amount</th>
+               {{--<th class="hidden" style="text-align: center;">Tax Amount</th> --}}
             </tr>
             </thead>
             <tbody>
@@ -97,7 +98,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                 @endif
                 <td class="text-center">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
                 {{--<td class="text-center">{{TaxRate::getTaxRate($ProductRow->TaxRateID)}}</td>--}}
-                <td class="text-center">{{number_format($ProductRow->TaxAmount,$RoundChargesAmount)}}</td>
+                {{--<td class="hidden" class="text-center">{{number_format($ProductRow->TaxAmount,$RoundChargesAmount)}}</td>--}}
             </tr>
             @endif
             @endforeach
@@ -119,25 +120,26 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                                                 <table  border="1"  width="100%" cellpadding="0" cellspacing="0" class="bg_graycolor invoice_total col-md-12 table table-bordered">
                                                     <tfoot>
                                                         <tr>
-                                                                <td class="text-right"><strong>SubTotal</strong></td>
+                                                                <td class="text-right"><strong>Sub Total:</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->SubTotal,$RoundChargesAmount)}}</td>
-                                                        </tr>
-                                                        @if(count($InvoiceTaxRates))
-                                                            @foreach($InvoiceTaxRates as $InvoiceTaxRate)
-                                                                <tr>
-                                                                    <td class="text-right"><strong>{{$InvoiceTaxRate->Title}}</strong></td>
-                                                                    <td class="text-right">{{$CurrencySymbol}}{{number_format($InvoiceTaxRate->TaxAmount,$RoundChargesAmount)}}</td>
-                                                                </tr>
-                                                            @endforeach
-                                                        @endif
+                                                        </tr>                                                      
                                                         @if($Invoice->TotalDiscount >0)
                                                         <tr>
                                                                 <td class="text-right"><strong>Discount</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->TotalDiscount,$RoundChargesAmount)}}</td>
                                                         </tr>
                                                         @endif
+                                                        @if(count($InvoiceAllTaxRates))
+                                                            @foreach($InvoiceAllTaxRates as $InvoiceTaxRate)
+                                                                <tr>
+                                                                    <td class="text-right"><strong>{{$InvoiceTaxRate->Title}}</strong></td>
+                                                                    <td class="text-right">{{$CurrencySymbol}}{{number_format($InvoiceTaxRate->TaxAmount,$RoundChargesAmount)}}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @endif
+                                                        
                                                         <tr>
-                                                                <td class="text-right"><strong>Invoice Total</strong></td>
+                                                                <td class="text-right"><strong>Grand Total:</strong></td>
                                                                 <td class="text-right">{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,$RoundChargesAmount)}} </td>
                                                         </tr>
                                                     </tfoot>

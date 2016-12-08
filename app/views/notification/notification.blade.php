@@ -98,16 +98,17 @@
                 {                        // 9 Action
                     "bSortable": false,
                     mRender: function (id, type, full) {
-                        action = '<div class = "hiddenRowData" >';
+                        var action;
+                        action = '<div class = "hiddenRowData pull-left" >';
                         for (var i = 0; i < list_fields_index.length; i++) {
                             action += '<input disabled type = "hidden"  name = "' + list_fields_index[i] + '"       value = "' + full[i] + '" / >';
                         }
                         action += '</div>';
                         @if(User::checkCategoryPermission('Notification','Update'))
-                                action += ' <a href="' + notification_edit_url.replace("{id}", id) + '" class="edit-notification btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>'
+                                action += ' <a href="' + notification_edit_url.replace("{id}", id) + '" class="edit-notification btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                         @endif
                                 @if(User::checkCategoryPermission('Notification','Delete'))
-                                action += ' <a href="' + notification_delete_url.replace("{id}", id) + '" class="delete-notification btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-trash"></i></a>'
+                                action += ' <a href="' + notification_delete_url.replace("{id}", id) + '" class="delete-notification btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-trash"></i></a>';
                         @endif
                                 return action;
                     }

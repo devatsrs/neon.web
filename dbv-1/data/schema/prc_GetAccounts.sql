@@ -1,4 +1,21 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetAccounts`(IN `p_CompanyID` int, IN `p_userID` int , IN `p_IsVendor` int , IN `p_isCustomer` int , IN `p_activeStatus` int, IN `p_VerificationStatus` int, IN `p_AccountNo` VARCHAR(100), IN `p_ContactName` VARCHAR(50), IN `p_AccountName` VARCHAR(50), IN `p_tags` VARCHAR(50), IN `p_low_balance` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT )
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetAccounts`(
+	IN `p_CompanyID` int,
+	IN `p_userID` int ,
+	IN `p_IsVendor` int ,
+	IN `p_isCustomer` int ,
+	IN `p_activeStatus` int,
+	IN `p_VerificationStatus` int,
+	IN `p_AccountNo` VARCHAR(100),
+	IN `p_ContactName` VARCHAR(50),
+	IN `p_AccountName` VARCHAR(50),
+	IN `p_tags` VARCHAR(50),
+	IN `p_low_balance` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT 
+)
 BEGIN
 	DECLARE v_OffSet_ int;
 	DECLARE v_Round_ int;
@@ -36,7 +53,9 @@ BEGIN
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.VendorUnbilledAmount,0),v_Round_)) as VUA,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.BalanceAmount,0),v_Round_)) as AE,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,IF(ROUND(COALESCE(abc.PermanentCredit,0),v_Round_) - ROUND(COALESCE(abc.BalanceAmount,0),v_Round_)<0,0,ROUND(COALESCE(abc.PermanentCredit,0),v_Round_) - ROUND(COALESCE(abc.BalanceAmount,0),v_Round_))) as ACL,
-			abc.BalanceThresholdFROM tblAccount
+			abc.BalanceThreshold,
+			tblAccount.Blocked			
+		FROM tblAccount
 		LEFT JOIN tblAccountBalance abc
 			ON abc.AccountID = tblAccount.AccountID
 		LEFT JOIN tblUser

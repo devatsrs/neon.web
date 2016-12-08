@@ -19,7 +19,7 @@ class Alert extends \Eloquent {
 
     protected $fillable = array(
         'CompanyID','Name','AlertType','Status','LowValue','HighValue','AlertGroup',
-        'Settings','created_at','updated_at','UpdatedBy','CreatedBy'
+        'Settings','created_at','updated_at','UpdatedBy','CreatedBy','CreatedByCustomer'
     );
 
     public static function getDropdownIDList($CompanyID){

@@ -10,7 +10,7 @@
     <h3>Notifications</h3>
 
     <ul class="nav nav-tabs">
-        <li class="active"><a  href="#callmonitor" data-toggle="tab">Call Monitor</a></li>
+        <li class="active"><a  href="#callmonitor" data-toggle="tab">Monitoring</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="callmonitor" >

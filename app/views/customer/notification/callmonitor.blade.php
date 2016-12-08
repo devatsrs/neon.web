@@ -2,12 +2,13 @@
 <p style="text-align: right;">
     <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
         <i class="entypo-plus"></i>
-        Add Call Monitor Alert
+        Add Monitoring
     </a>
 </p>
 <table class="table table-bordered datatable" id="table-6">
     <thead>
     <tr>
+        <th width="10%">Name</th>
         <th width="10%">Type</th>
         <th width="10%">Status</th>
         <th width="10%">Last Updated</th>
@@ -19,7 +20,7 @@
     </tbody>
 </table>
 <script type="text/javascript">
-    var list_fields  = ["AlertType","Status","created_at","CreatedBy","AlertID","Settings"];
+    var list_fields  = ["Name","AlertType","Status","created_at","CreatedBy","AlertID","Settings"];
     var CallAlertType = JSON.parse('{{json_encode($call_monitor_alert_type)}}');
     var $search = {};
     var update_new_url;
@@ -55,6 +56,7 @@
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
             "aoColumns": [
+                {"bSortable": true},  // 5 Created At
                 {"bSortable": true,mRender:function(id,type,full){
                     return CallAlertType[id];
                 }},  // 1 Type
@@ -136,7 +138,7 @@
         $('#add-call-alert').click(function(ev){
             ev.preventDefault();
             $('#call-billing-form').trigger("reset");
-            $('#add-call-modal h4').html('Add Call Monitor Alert');
+            $('#add-call-modal h4').html('Add Monitoring');
 
             $(".js-example-disabled").prop("disabled", false);
             $('#call-billing-form select').select2("val", "");
@@ -154,7 +156,7 @@
             $('#call-billing-form').trigger("reset");
             var edit_url  = $(this).attr("href");
             $('#call-billing-form').attr("action",edit_url);
-            $('#add-call-modal h4').html('Edit Call Monitor Alert');
+            $('#add-call-modal h4').html('Edit Monitoring');
             $('#call-billing-form select').select2("val", "");
             $(this).prev("div.hiddenRowData").find('input').each(function(i, el){
                 var ele_name = $(el).attr('name');

@@ -1,4 +1,13 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAlert`(IN `p_CompanyID` INT, IN `p_AlertGroup` VARCHAR(50), IN `p_AlertType` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAlert`(
+	IN `p_CompanyID` INT,
+	IN `p_AlertGroup` VARCHAR(50),
+	IN `p_AlertType` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
 BEGIN
 
 	DECLARE v_OffSet_ int;
@@ -20,7 +29,8 @@ BEGIN
 			AlertID,
 			Settings
 		FROM tblAlert
-		WHERE  CompanyID = p_CompanyID 
+		WHERE  CompanyID = p_CompanyID
+			AND CreatedByCustomer = 0 
 			AND (p_AlertGroup = '' OR AlertGroup = p_AlertGroup)
 			AND (p_AlertType = '' OR AlertType = p_AlertType)
 		ORDER BY
@@ -47,7 +57,8 @@ BEGIN
 		SELECT
 			COUNT(AlertID) AS totalcount
 		FROM tblAlert
-		WHERE  CompanyID = p_CompanyID 
+		WHERE  CompanyID = p_CompanyID
+			AND CreatedByCustomer = 0 
 			AND (p_AlertGroup = '' OR AlertGroup = p_AlertGroup)
 			AND (p_AlertType = '' OR AlertType = p_AlertType);
 
@@ -61,7 +72,8 @@ BEGIN
 			UpdatedBy,
 			updated_at
 		FROM tblAlert
-		WHERE  CompanyID = p_CompanyID 
+		WHERE  CompanyID = p_CompanyID
+			AND CreatedByCustomer = 0 
 			AND (p_AlertGroup = '' OR AlertGroup = p_AlertGroup)
 			AND (p_AlertType = '' OR AlertType = p_AlertType);
 	
