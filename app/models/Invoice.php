@@ -126,7 +126,7 @@ class Invoice extends \Eloquent {
             if(getenv('APP_OS') == 'Linux'){
                 exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }else{
-                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe  - footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe  -- footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
             @chmod($local_file,0777);
             Log::info($output); 
