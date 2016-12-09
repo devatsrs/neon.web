@@ -148,6 +148,7 @@ class InvoicesController extends \BaseController {
         $accounts 	= 	Account::getAccountIDList();
         $products 	= 	Product::getProductDropdownList();
         $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice();
+		//echo "<pre>"; 		print_r($taxes);		echo "</pre>"; exit;
         //$gateway_product_ids = Product::getGatewayProductIDs();
         return View::make('invoices.create',compact('accounts','products','taxes'));
 
@@ -188,7 +189,7 @@ class InvoicesController extends \BaseController {
      */
     public function store(){
         $data = Input::all();
-
+				
         if($data){
 
             $companyID = User::get_companyID();
@@ -553,14 +554,14 @@ class InvoicesController extends \BaseController {
                             $ProductDescription = $Product->Description;
 
                             $TaxRates = array();
-                            $TaxRates = TaxRate::where(array('CompanyID' => User::get_companyID(), "TaxType" => TaxRate::TAX_ALL))->select(['TaxRateID', 'Title', 'Amount'])->first();
+                            $TaxRates = TaxRate::where(array('CompanyID' => User::get_companyID(), "TaxType" => TaxRate::TAX_ALL))->select(['TaxRateID', 'Title', 'Amount','FlatStatus'])->first();
                             if(!empty($TaxRates)){
                                 $TaxRates->toArray();
                             }
                             $AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
 							//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 
-                            $TaxRateAmount = $TaxRateId = 0;
+                            $TaxRateAmount = $TaxRateId = $FlatStatus =  0; 
                             $TaxRateTitle = 'VAT';
                             if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
 
@@ -570,10 +571,22 @@ class InvoicesController extends \BaseController {
                                 if (isset($TaxRates['Amount'])) {
                                     $TaxRateAmount = $TaxRates['Amount'];
                                 }
+								
+								if (isset($TaxRates['FlatStatus'])) {
+                                    $FlatStatus = $TaxRates['FlatStatus'];
+                                }
 
                             }
-
-                            $TotalTax = number_format((($ProductAmount * $data['qty'] * $TaxRateAmount) / 100), $decimal_places,".","");
+							
+							if($FlatStatus==1){	
+                           
+						    	$TotalTax  =  number_format($TaxRateAmount, $decimal_places,".","");
+							}
+							else
+							{
+								$TotalTax  =  number_format((($ProductAmount * $data['qty'] * $TaxRateAmount) / 100), $decimal_places,".","");
+							
+							}
                             $SubTotal = number_format($ProductAmount * $data['qty'], $decimal_places,".",""); //number_format(($ProductAmount + $TotalTax) , 2);
 
                             $response = [
