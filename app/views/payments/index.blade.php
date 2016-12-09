@@ -1006,7 +1006,6 @@
 
                         success: function(response) {
                             $("#payment-update").button('reset');
-                            $(".btn").button('reset');
                             $('#modal-payment').modal('hide');
 
                             if (response.status == 'success') {
@@ -1019,6 +1018,9 @@
                                 toastr.error(response.message, "Error", toastr_opts);
                             }
                             $('.btn.upload').button('reset');
+                        },
+                        complete:function(){
+                            $(".btn").button('reset');
                         },
                         data: data,
                         //Options to tell jQuery not to process data or worry about content-type.
