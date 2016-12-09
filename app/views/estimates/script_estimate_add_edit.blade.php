@@ -188,7 +188,9 @@ $(document).ready(function(){
 	
 	 $(".estimate_tax_add").click(function (e) {
 	   e.preventDefault();
-        $('.gross_total_estimate').before(estimate_tax_html);	
+	   	var index_count = $('.all_tax_row').length+1;
+        var	estimate_tax_html_final  = '<tr class="all_tax_row EstimateTaxestr'+index_count+' ">'+estimate_tax_html+"</tr>";
+		$('.gross_total_estimate').before(estimate_tax_html_final);	
 		$('select.select2').addClass('visible');
         $('select.select2').select2();
 		calculate_total();
@@ -488,3 +490,6 @@ $(document).ready(function(){
 	$("textarea.autogrow").autosize();
 });
 </script>
+<style>
+#EstimateTable.table > tbody > tr > td > div > a > span.select2-chosen { width:110px;}
+</style>
