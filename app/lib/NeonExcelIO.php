@@ -374,10 +374,11 @@ class NeonExcelIO
         $newArray = array();
 
         /* safety recursion limit */
+        /*
         $depth ++;
         if($depth >= '30') {
             return false;
-        }
+        }*/
 
         /* step through inArray */
         foreach($inArray as $key=>$val) {
