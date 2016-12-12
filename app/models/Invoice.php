@@ -65,8 +65,15 @@ class Invoice extends \Eloquent {
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $InvoiceID])->get();
-            $InvoiceTaxRates = InvoiceTaxRate::where("InvoiceID",$InvoiceID)->orderby('InvoiceTaxRateID')->get();
-            $Account = Account::find($Invoice->AccountID);
+            $InvoiceTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>0])->orderby('InvoiceTaxRateID')->get();
+			//$InvoiceAllTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>1])->orderby('InvoiceTaxRateID')->get();
+			$InvoiceAllTaxRates = DB::connection('sqlsrv2')->table('tblInvoiceTaxRate')
+                    ->select('TaxRateID', 'Title', DB::Raw('sum(TaxAmount) as TaxAmount'))
+                    ->where("InvoiceID", $InvoiceID)
+                    ->orderBy("InvoiceTaxRateID", "asc")
+                    ->groupBy("TaxRateID")                   
+                    ->get();
+			$Account = Account::find($Invoice->AccountID);
             $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
@@ -91,9 +98,9 @@ class Invoice extends \Eloquent {
             $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
 
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates','PaymentDueInDays'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates'))->render();
 
-            $body = htmlspecialchars_decode($body);
+            $body = htmlspecialchars_decode($body);  
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
             $footer = htmlspecialchars_decode($footer);
 
@@ -102,13 +109,13 @@ class Invoice extends \Eloquent {
 			
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
-            } Log::info('destination_dir'); Log::info($destination_dir);
-            //RemoteSSH::run("chmod -R 777 " . $destination_dir);
+            } 
+            RemoteSSH::run("chmod -R 777 " . $destination_dir);
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
-            $local_file = $destination_dir .  $file_name; Log::info('local_file'); Log::info($local_file);
+            $local_file = $destination_dir .  $file_name; 
 
-            $local_htmlfile = $destination_dir .  $htmlfile_name; Log::info('local_htmlfile'); Log::info($local_htmlfile);
+            $local_htmlfile = $destination_dir .  $htmlfile_name; 
             file_put_contents($local_htmlfile,$body);
             @chmod($local_htmlfile,0777);
             $footer_name = 'footer-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
@@ -118,12 +125,11 @@ class Invoice extends \Eloquent {
             $output= "";
             if(getenv('APP_OS') == 'Linux'){
                 exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
-
             }else{
-                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe  -- footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
             @chmod($local_file,0777);
-            Log::info($output);
+            Log::info($output); 
             @unlink($local_htmlfile);
             @unlink($footer_html);
             if (file_exists($local_file)) {

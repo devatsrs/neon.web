@@ -4,9 +4,9 @@ class NotificationCustomerController extends \BaseController {
     public function ajax_datagrid($type){
         $data = Input::all();
         $companyID = User::get_companyID();
-        $select = ["AlertType","Status", "created_at" ,"CreatedBy","AlertID","Settings"];
+        $select = ["Name","AlertType","Status", "created_at" ,"CreatedBy","AlertID","Settings"];
         $tag = '"AccountID":"' . Customer::get_accountID() . '"';
-        $Notification = Alert::where(['CompanyID'=>$companyID])->where('Settings', 'LIKE', '%' . $tag . '%');
+        $Notification = Alert::where(['CompanyID'=>$companyID,'CreatedByCustomer'=>1])->where('Settings', 'LIKE', '%' . $tag . '%');
 
         $Notification->select($select);
 
@@ -58,8 +58,9 @@ class NotificationCustomerController extends \BaseController {
 	{
 		$data = Input::all();
         $data["CreatedBy"] = User::get_user_full_name();
+        $data["CreatedByCustomer"] = 1;
         $data['CompanyID'] = User::get_companyID();
-        $data['Name'] = Customer::get_accountName().' - '.Alert::$call_monitor_customer_alert_type[$data['AlertType']];
+        //$data['Name'] = Customer::get_accountName().' - '.Alert::$call_monitor_customer_alert_type[$data['AlertType']];
         $rules = Alert::$rules;
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
@@ -84,7 +85,7 @@ class NotificationCustomerController extends \BaseController {
             $Notification = Alert::find($AlertID);
             $data["ModifiedBy"] = User::get_user_full_name();
             $rules = Alert::$rules;
-            unset($rules['Name']);
+            //unset($rules['Name']);
             $validator = Validator::make($data, $rules);
             if ($validator->fails()) {
                 return json_validator_response($validator);
@@ -176,11 +177,11 @@ class NotificationCustomerController extends \BaseController {
                 }else{
                     $tag = '"AccountID":"' . $post_data['CallAlert']['AccountID'] . '"';
                     if (!empty($post_data['AlertID'])) {
-                        if (Alert::where('Settings', 'LIKE', '%' . $tag . '%')->where('AlertType', $post_data['AlertType'])->where('AlertID', '<>', $post_data['AlertID'])->count() > 0) {
+                        if (Alert::where('Settings', 'LIKE', '%' . $tag . '%')->where(['AlertType'=>$post_data['AlertType'],'CreatedByCustomer'=>1])->where('AlertID', '<>', $post_data['AlertID'])->count() > 0) {
                             $error_message = 'AlertType is already taken.';
                         }
                     }else{
-                        if (Alert::where('Settings', 'LIKE', '%' . $tag . '%')->where('AlertType', $post_data['AlertType'])->count() > 0) {
+                        if (Alert::where('Settings', 'LIKE', '%' . $tag . '%')->where(['AlertType'=>$post_data['AlertType'],'CreatedByCustomer'=>1])->count() > 0) {
                             $error_message = 'AlertType is already taken.';
                         }
                     }
