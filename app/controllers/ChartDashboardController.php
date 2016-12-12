@@ -88,6 +88,29 @@ class ChartDashboardController extends BaseController {
         $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data','customer'))->render();
         return chart_reponse($alldata);
     }
+    public function getWorldMap(){
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
+        $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
+        $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
+        $query = "call prc_getWorldMap ('". $companyID  . "','". $data['UserID']  . "','". $data['Admin']  . "','".$data['AccountID']."')";
+        $CountryChartData = DataTableSql::of($query, 'neon_report')->getProcResult(array('CountryCall'));
+        $CountryCharts = $CountryColors = array();
+        $chartColor = array('#3366cc','#ff9900','#dc3912','#109618','#66aa00','#dd4477','#0099c6','#990099','#ec3b83','#f56954','#0A1EFF','#050FFF','#0000FF');
+        $count = 0;
+        foreach((array)$CountryChartData['data']['CountryCall'] as $HourMinute){
+            if(!isset($chartColor[$count])){
+                $count = 0;
+            }
+            $CountryColors[$HourMinute->ISO_Code] = $chartColor[$count];
+            $CountryCharts[$HourMinute->ISO_Code] = $HourMinute;
+            $count++;
+        }
+        $response['CountryColor'] =  $CountryColors;
+        $response['CountryChart'] =  $CountryCharts;
+        return $response;
+    }
 
 
 }

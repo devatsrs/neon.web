@@ -1,9 +1,9 @@
 @extends('layout.main')
 @section('content')
     <style>
-        .panel-title{
+        /*.panel-title{
             float:none;
-        }
+        }*/
     </style>
     <script type="text/javascript">
         jQuery(document).ready(function ($) {
@@ -16,6 +16,9 @@
 
 
    </script>
+    <link rel="stylesheet" type="text/css" href="assets/js/jvectormap/jquery-jvectormap-2.0.3.css" />
+    <script src="{{ URL::asset('assets/js/jvectormap/jquery-jvectormap-2.0.3.min.js') }}"></script>
+    <script src="{{ URL::asset('assets/js/jvectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
     <script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
     <form class="hidden" id="hidden_form">
         <input type="hidden" name="Admin" value="{{$isAdmin}}">
@@ -40,7 +43,23 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel loading panel-default" data-collapsed="0">
+                <!-- to apply shadow add class "panel-shadow" --> <!-- panel head -->
+                <div class="panel-heading">
+                    <div class="panel-title">World Maps</div>
+                    <div class="panel-options">
 
+                    </div>
+                </div>
+                <!-- panel body -->
+                <div class="panel-body no-padding">
+                    <div id="worldmap" style="height:450px;width:100%;" class="world-map-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <br />
     <div class="row">
         <div class="col-md-12">
