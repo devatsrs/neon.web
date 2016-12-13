@@ -37,7 +37,13 @@ class Estimate extends \Eloquent {
             $Estimate 			= 	Estimate::find($EstimateID);
             $EstimateDetail 	= 	EstimateDetail::where(["EstimateID" => $EstimateID])->get();
             $EstimateTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>0])->orderby('EstimateTaxRateID')->get();
-			 $EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>1])->orderby('EstimateTaxRateID')->get();
+			//$EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>1])->orderby('EstimateTaxRateID')->get();
+			$EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')
+                    ->select('TaxRateID', 'Title', DB::Raw('sum(TaxAmount) as TaxAmount'))
+                    ->where("EstimateID", $EstimateID)
+                    ->orderBy("EstimateTaxRateID", "asc")
+                    ->groupBy("TaxRateID")                   
+                    ->get();
             $Account 			= 	Account::find($Estimate->AccountID);
             $AccountBilling = AccountBilling::getBilling($Estimate->AccountID);
             $Currency 			= 	Currency::find($Account->CurrencyId);
@@ -68,7 +74,7 @@ class Estimate extends \Eloquent {
             $body 	= 	htmlspecialchars_decode($body); 
             $footer = 	View::make('estimates.pdffooter', compact('Estimate','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);
-
+			
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['ESTIMATE_UPLOAD'],$Account->CompanyId,$Estimate->AccountID) ;
             $destination_dir = getenv('UPLOAD_PATH') . '/'. $amazonPath;
             
