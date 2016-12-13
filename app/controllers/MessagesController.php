@@ -97,7 +97,8 @@ class MessagesController extends \BaseController {
 	function GetResult($data){
 		
 		$companyID 					= 	User::get_companyID();
-		$isAdmin 					= 	(User::is_admin() || User::is('RateManager'))?1:0;		
+		//$isAdmin 					= 	(User::is_admin() || User::is('RateManager'))?1:0;
+		$isAdmin 					= 	(User::is_admin())?1:0;
         $data['MsgLoggedUserID'] 	= 	User::get_userID();
 		$data['SearchStr']  		=	isset($data['SearchStr'])?$data['SearchStr']:'';
 		$data['unread']				=	isset($data['show_all_read'])?$data['show_all_read']:0;
@@ -128,8 +129,9 @@ class MessagesController extends \BaseController {
 	function detail($id){
 	
 		 $Emaildata   				= 	AccountEmailLog::find($id);
-		 $isAdmin 					= 	(User::is_admin() || User::is('RateManager'))?1:0;
-		 if(!User::is_admin())
+		 //$isAdmin 					= 	(User::is_admin() || User::is('RateManager'))?1:0;
+        $isAdmin 					= 	(User::is_admin())?1:0;
+        if(!User::is_admin())
 		 {
 		 	if($Emaildata->UserID!=User::get_userID())	
 			{
@@ -207,8 +209,9 @@ class MessagesController extends \BaseController {
 			 if($Emaildata->EmailCall!=Messages::Draft){
 			 	return Redirect::to('/emailmessages');
 			 }
-			 $isAdmin 					= 	(User::is_admin() || User::is('RateManager'))?1:0;
-			 if(!User::is_admin()) {
+			 //$isAdmin 					= 	(User::is_admin() || User::is('RateManager'))?1:0;
+            $isAdmin 					= 	(User::is_admin())?1:0;
+            if(!User::is_admin()) {
 				if($Emaildata->UserID!=User::get_userID()){
 					return Redirect::to('/emailmessages');	 
 				}

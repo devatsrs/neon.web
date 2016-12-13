@@ -13,7 +13,7 @@ class DashboardController extends BaseController {
     public function rmdashboard() {
         return View::make('dashboard.index');
     }
-    public function salesdashboard(){
+    /*public function salesdashboard(){
 
             $companyID = User::get_companyID();
             $userID = '';
@@ -125,7 +125,7 @@ class DashboardController extends BaseController {
             $account_owners = User::getOwnerUsersbyRole();
 
             return View::make('dashboard.sales', compact('dashboardData', 'TotalDueCustomer', 'TotalDueVendor', 'sales_data', 'prev_sales_data', 'top_data', 'prev_top_data', 'compare_with', 'prevsales', 'original_startdate', 'original_enddate', 'account_owners', 'userID','prevSalesExecutive'));
-    }
+    }*/
 
     public function billingdashboard(){
 
@@ -176,7 +176,8 @@ class DashboardController extends BaseController {
         $account 			= 	Account::getAccountIDList();
 		$currency 			= 	Currency::getCurrencyDropdownIDList();
 		$UserID 			= 	User::get_userID();
-		$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
+		//$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
+        $isAdmin 			= 	(User::is_admin()) ? 1 : 0;
 		$users			 	= 	User::getUserIDListAll(0);
 		//$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
 		//$DateEndDefault  	= 	date('m/d/Y');
@@ -316,7 +317,8 @@ class DashboardController extends BaseController {
     public function ajax_get_jobs(){
         $companyID = User::get_companyID();
         $userID = User::get_userID();
-        $isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        //$isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        $isAdmin = (User::is_admin())?1:0;
         $query = "call prc_GetDashboardDataJobs (".$companyID.','.$userID.','.$isAdmin.")";
         $JobResult = DataTableSql::of($query)->getProcResult(array('AllHeaderJobs','CountJobs'));
         $Jobs = [];
@@ -338,7 +340,8 @@ class DashboardController extends BaseController {
     public function ajax_get_processed_files(){
         $companyID = User::get_companyID();
         $userID = User::get_userID();
-        $isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        //$isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        $isAdmin = (User::is_admin())?1:0;
         $query = "call prc_GetDashboardProcessedFiles (".$companyID.','.$userID.','.$isAdmin.")";
         $fileResult = DataTableSql::of($query)->getProcResult(array('RecentJobFiles'));
         $jobFiles = [];
