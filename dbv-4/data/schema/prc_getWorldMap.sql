@@ -1,8 +1,15 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getWorldMap`(
 	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
 	IN `p_UserID` INT,
-	IN `p_isAdmin` INT,
-	IN `p_AccountID` INT
+	IN `p_isAdmin` INT
 )
 BEGIN
 
@@ -14,7 +21,7 @@ BEGIN
 
 	CALL fnGetCountry();
 
-	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,0,'2016-01-01','2016-12-08','','',0,p_UserID,p_isAdmin,1);
+	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
 
 	/* get all country call counts*/	
 	SELECT 
