@@ -20,7 +20,7 @@ class AccountAuthenticate extends \Eloquent {
             $status['message'] = $isCustomerOrVendor." ".$type." required";
             return $status;
         }
-        $ipclis = array_filter(preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']),function($var){return $var!='';});
+        $ipclis = array_filter(preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']),function($var){return trim($var)!='';});
         $ipclist = implode(',',$ipclis);
         $query = "CALL prc_AddAccountIPCLI(".$data['CompanyID'].",".$data['AccountID'].",".$data['isCustomerOrVendor'].",'".$ipclist."','".$type."')";
         $found = DB::select($query);
