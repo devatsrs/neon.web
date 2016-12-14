@@ -79,16 +79,7 @@
                 <div class="form-group">
                     <label for="field-1" class="col-md-2 control-label">Account Owner</label>
                     <div class="col-md-4">
-                    <?php
-                    $disable = '';
-                    if(User::is('RateManager') && !User::is_admin() && !User::is('AccountManager')){
-                    $disable = 'disabled';
-
-                    }?>
-                       {{Form::select('Owner',$account_owners,$account->Owner,array("class"=>"select2",$disable))}}
-                        @if(User::is('RateManager') && !User::is_admin() && !User::is('AccountManager'))
-                            <input type="hidden" value="{{$account->Owner}}" name="Owner">
-                        @endif
+                       {{Form::select('Owner',$account_owners,$account->Owner,array("class"=>"select2"))}}
                     </div>
 
                     <label class="col-md-2 control-label">Ownership</label>
