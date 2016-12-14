@@ -1,7 +1,7 @@
 
             <div class="col-md-12 text-left">
                     <p>
-                   Outstanding Amount: <span id="outstanding_amount"></span>
+                   Total Payment: <span id="outstanding_amount"></span>
                     </p>
 
             </div>
@@ -124,10 +124,19 @@
                         update_new_url = baseurl + '/customer/card/create';
                         ajax_Add_update(update_new_url);
                     });
+                    var paymentInvoiceIDs = [];
+                    var k = 0;
+                    $('#table-4 tr .rowcheckbox:checked').each(function(i, el) {
+                        InvoiceID = $(this).val();
+                        var tr_obj = $(this).parent().parent().parent().parent();
+                        var accoutid = tr_obj.children().find('[name=AccountID]').val();
+                        paymentInvoiceIDs[k++] = InvoiceID;
+                    });
                     $.ajax({
                         url:baseurl+'/customer/getoutstandingamount', //Server script to process data
                         type: 'POST',
                         dataType: 'json',
+                        data:'InvoiceIDs='+paymentInvoiceIDs.join(","),
                         success: function(response) {
                             if (response.status == 'success') {
                                 $('#outstanding_amount').html(response.outstadingtext);
