@@ -91,7 +91,7 @@
 
             <div class="clear"></div>
             </div>
-
+            @include('vendoranalysis.map')
             <ul class="nav nav-tabs">
                 <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
                 <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
@@ -123,7 +123,9 @@
             </div>
         </div>
     </div>
-
+    <link rel="stylesheet" type="text/css" href="assets/js/jvectormap/jquery-jvectormap-2.0.3.css" />
+    <script src="{{ URL::asset('assets/js/jvectormap/jquery-jvectormap-2.0.3.min.js') }}"></script>
+    <script src="{{ URL::asset('assets/js/jvectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
 <script src="{{ URL::asset('assets/js/reports_vendor.js') }}"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>

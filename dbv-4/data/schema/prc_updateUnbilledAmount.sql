@@ -1,4 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateUnbilledAmount`(IN `p_CompanyID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateUnbilledAmount`(
+	IN `p_CompanyID` INT,
+	IN `p_Today` DATETIME
+)
 BEGIN
 	
 	DECLARE v_Round_ INT;
@@ -32,7 +35,7 @@ BEGIN
 		SET v_AccountID_ = (SELECT AccountID FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
 		SET v_LastInvoiceDate_ = (SELECT LastInvoiceDate FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
 		
-		CALL prc_getUnbilledReport(p_CompanyID,v_AccountID_,v_LastInvoiceDate_,3);
+		CALL prc_getUnbilledReport(p_CompanyID,v_AccountID_,v_LastInvoiceDate_,p_Today,3);
 		
 		SELECT FinalAmount INTO v_FinalAmount_ FROM tmp_FinalAmount_;
 		
@@ -48,7 +51,7 @@ BEGIN
 	
 	END WHILE;
 	
-	CALL prc_updateVendorUnbilledAmount(p_CompanyID);
+	CALL prc_updateVendorUnbilledAmount(p_CompanyID,p_Today);
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 

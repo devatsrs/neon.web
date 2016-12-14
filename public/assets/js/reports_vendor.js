@@ -176,6 +176,9 @@ function reloadCharts(table_id,pageSize,$searchFilter){
 
     /* load grid data table*/
     loadTable(table_id,pageSize,$searchFilter);
+
+    /* get world map*/
+    getWorldMap($searchFilter);
 }
 function loadTable(table_id,pageSize,$searchFilter){
     var TotalCall = 0;
@@ -311,4 +314,40 @@ function loadTable(table_id,pageSize,$searchFilter){
 
     });
     return data_table;
+}
+function getWorldMap(submit_data){
+    $('#worldmap').html('');
+    loading(".world-map-chart",1);
+    $.ajax({
+        type: 'GET',
+        url: baseurl+'/getVendorWorldMap',
+        dataType: 'json',
+        data:submit_data,
+        aysync: true,
+        success: function(data) {
+            loading(".world-map-chart",0);
+            map = new jvm.Map({
+                map: 'world_mill_en',
+                container: $('#worldmap'),
+                backgroundColor: '#CCC',
+                series: {
+                    regions: [{
+                        attribute: 'fill'}]
+                },
+                onRegionTipShow: function(e, el, code){
+                    if(data.CountryChart[code]) {
+                        var label_html = '</br>'+
+                            '<b>Calls: </b>'+data.CountryChart[code].CallCount+'</br>'+
+                            '<b>Cost: </b>'+data.CountryChart[code].TotalCost+'</br>'+
+                            '<b>Minutes: </b>'+data.CountryChart[code].TotalMinutes+'</br>'+
+                            '<b>ACD: </b>'+data.CountryChart[code].ACD+'</br>'+
+                            '<b>ASR: </b>'+data.CountryChart[code].ASR+'%';
+
+                        el.html(el.html() + label_html );
+                    }
+                }
+            });
+            map.series.regions[0].setValues(data.CountryColor);
+        }
+    });
 }

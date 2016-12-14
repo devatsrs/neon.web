@@ -13,7 +13,7 @@ class ChartDashboardController extends BaseController {
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
-        $query = "call prc_getHourlyReport ('". $companyID  . "','". $data['UserID']  . "','". $data['Admin']  . "','".$data['AccountID']."')";
+        $query = "call prc_getHourlyReport ('". $companyID  . "','". $data['UserID']  . "','". $data['Admin']  . "','".$data['AccountID']."','".date('Y-m-d 00:00:00') . "','".date('Y-m-d 23:59:59') . "')";
         $HourlyChartData = DataTableSql::of($query, 'neon_report')->getProcResult(array('TotalCost','HourCost','TotalMinutes','HourMinutes'));
         $response['TotalCost'] = $HourlyChartData['data']['TotalCost'][0]->TotalCost;
         $response['TotalMinutes'] = $HourlyChartData['data']['TotalMinutes'][0]->TotalMinutes;
@@ -35,17 +35,19 @@ class ChartDashboardController extends BaseController {
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
+        $query = '';
         if($data['chart_type'] == 'destination') {
-            $query = "call prc_getDestinationReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
+            $query = "call prc_getDestinationReportAll ";
         }elseif($data['chart_type'] == 'prefix') {
-            $query = "call prc_getPrefixReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
+            $query = "call prc_getPrefixReportAll ";
         }elseif($data['chart_type'] == 'trunk') {
-            $query = "call prc_getTrunkReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
+            $query = "call prc_getTrunkReportAll ";
         }elseif($data['chart_type'] == 'gateway') {
-            $query = "call prc_getGatewayReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
+            $query = "call prc_getGatewayReportAll ";
         }elseif($data['chart_type'] == 'account') {
-            $query = "call prc_getAccountReport ('" . $companyID . "','" . $data['UserID'] . "','" . $data['Admin'] . "','" . $data['AccountID'] . "')";
+            $query = "call prc_getAccountReportAll ";
         }
+        $query .= "('" . $companyID . "','0','" . intval($data['AccountID']) ."','0','".date('Y-m-d 00:00:00') . "','".date('Y-m-d 23:59:59') . "' ,'','','0','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'','',2)";
         $TopReports = DataTableSql::of($query, 'neon_report')->getProcResult(array('CallCount','CallCost','CallMinutes'));
         $customer = 1;
         $indexcount = 0;
@@ -94,7 +96,42 @@ class ChartDashboardController extends BaseController {
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
-        $query = "call prc_getWorldMap ('". $companyID  . "','". $data['UserID']  . "','". $data['Admin']  . "','".$data['AccountID']."')";
+        $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d'):$data['StartDate'];
+        $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d'):$data['EndDate'];
+        $data['CompanyGatewayID'] = empty($data['CompanyGatewayID'])?'0':$data['CompanyGatewayID'];
+        $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
+        $data['CountryID'] = empty($data['CountryID'])?'0':$data['CountryID'];
+        $data['Prefix'] = empty($data['Prefix'])?'':$data['Prefix'];
+        $query = "call prc_getWorldMap ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$data['Prefix']."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "')";
+        $CountryChartData = DataTableSql::of($query, 'neon_report')->getProcResult(array('CountryCall'));
+        $CountryCharts = $CountryColors = array();
+        $chartColor = array('#3366cc','#ff9900','#dc3912','#109618','#66aa00','#dd4477','#0099c6','#990099','#ec3b83','#f56954','#0A1EFF','#050FFF','#0000FF');
+        $count = 0;
+        foreach((array)$CountryChartData['data']['CountryCall'] as $HourMinute){
+            if(!isset($chartColor[$count])){
+                $count = 0;
+            }
+            $CountryColors[$HourMinute->ISO_Code] = $chartColor[$count];
+            $CountryCharts[$HourMinute->ISO_Code] = $HourMinute;
+            $count++;
+        }
+        $response['CountryColor'] =  $CountryColors;
+        $response['CountryChart'] =  $CountryCharts;
+        return $response;
+    }
+    public function getVendorWorldMap(){
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
+        $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
+        $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
+        $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d'):$data['StartDate'];
+        $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d'):$data['EndDate'];
+        $data['CompanyGatewayID'] = empty($data['CompanyGatewayID'])?'0':$data['CompanyGatewayID'];
+        $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
+        $data['CountryID'] = empty($data['CountryID'])?'0':$data['CountryID'];
+        $data['Prefix'] = empty($data['Prefix'])?'':$data['Prefix'];
+        $query = "call prc_getVendorWorldMap ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$data['Prefix']."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "')";
         $CountryChartData = DataTableSql::of($query, 'neon_report')->getProcResult(array('CountryCall'));
         $CountryCharts = $CountryColors = array();
         $chartColor = array('#3366cc','#ff9900','#dc3912','#109618','#66aa00','#dd4477','#0099c6','#990099','#ec3b83','#f56954','#0A1EFF','#050FFF','#0000FF');
