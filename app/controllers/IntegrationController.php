@@ -37,25 +37,26 @@ class IntegrationController extends \BaseController
             return json_validator_response($validator);
         }
 		
-		if($data['firstcategory']=='support')
-		{ 
-
-			if($data['secondcategory']=='FreshDesk')
-			{	
+		if($data['firstcategory']=='support') {
+            if($data['secondcategory']=='FreshDesk') {
+                $FreshDeskDbData = IntegrationConfiguration::where(['CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']])->first();
 				$rules = array(
 					'FreshdeskDomain'	 => 'required',
 					'FreshdeskEmail'	 => 'required|email',
-					//'FreshdeskPassword'  => 'required',
 					'Freshdeskkey'		 => 'required',
 				);
 				
-					$messages = [
+				$messages = [
 				 "FreshdeskDomain.required" => "The Domain field is required",
 				 "FreshdeskEmail.required" => "The email field is required",
-				 //"FreshdeskPassword.required" => "The password field is required",
 				 "Freshdeskkey.required" => "The key field is required",
 				 
 				];
+
+                if(count($FreshDeskDbData)==0){
+                    $rules['FreshdeskPassword'] = 'required';
+                    $messages['FreshdeskPassword.required'] = 'required';
+                }
 		
 				$validator = Validator::make($data, $rules,$messages);
 		
@@ -71,7 +72,10 @@ class IntegrationController extends \BaseController
 					"FreshdeskGroup"=>$data['FreshdeskGroup']
 					
 			);
-            if(!empty($data['FreshdeskPassword'])){
+            if(count($FreshDeskDbData) > 0 && empty($data['FreshdeskPassword'])){
+                $setting = json_decode($FreshDeskDbData->Settings);
+                $FreshdeskData['FreshdeskPassword'] = $setting->FreshdeskPassword;
+            }else{
                 $FreshdeskData['FreshdeskPassword'] = $data['FreshdeskPassword'];
             }
 			
@@ -81,28 +85,28 @@ class IntegrationController extends \BaseController
 				IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
 		   }
 			
-			$FreshDeskDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+			//$FreshDeskDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 			
-			if(count($FreshDeskDbData)>0)
-			{
+			if(count($FreshDeskDbData)>0) {
 				$SaveData = array("Settings"=>json_encode($FreshdeskData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
 				IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$FreshDeskDbData->IntegrationConfigurationID))->update($SaveData);	
-				
-			}
-			else
-			{	
-				$SaveData = array("Settings"=>json_encode($FreshdeskData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+            } else {
+				$SaveData = ["Settings"=>json_encode($FreshdeskData),
+                            "IntegrationID"=>$data['secondcategoryid'],
+                            "CompanyId"=>$companyID,
+                            "created_by"=> User::get_user_full_name(),
+                            "Status"=>$data['Status'],
+                            'ParentIntegrationID'=>$data['firstcategoryid']
+                ];
 			 	IntegrationConfiguration::create($SaveData);
-			}
+            }
 			 return Response::json(array("status" => "success", "message" => "FreshDesk Settings Successfully Updated"));
 			}
 		}
 		
-		if($data['firstcategory']=='payment')
-		{ 
+		if($data['firstcategory']=='payment'){
 
-			if($data['secondcategory']=='Authorize.net')
-			{
+			if($data['secondcategory']=='Authorize.net') {
 				$rules = array(
 					'AuthorizeLoginID'	 => 'required',
 					'AuthorizeTransactionKey'	 => 'required',
@@ -230,18 +234,18 @@ class IntegrationController extends \BaseController
 			}
 		}
 		
-		if($data['firstcategory']=='email')
-		{ 
+		if($data['firstcategory']=='email') {
+            if($data['secondcategory']=='Mandrill') {
+                $MandrilDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 
-			if($data['secondcategory']=='Mandrill')
-			{
 				$rules = array(
 					'MandrilSmtpServer'	 => 'required',
 					'MandrilPort'	 => 'required',					
-					'MandrilUserName'	 => 'required',
-					//'MandrilPassword'	 => 'required',
+					'MandrilUserName'	 => 'required'
 				);
-		
+                if(count($MandrilDbData)==0){
+                    $rules['MandrilPassword'] = 'required';
+                }
 				$validator = Validator::make($data, $rules);
 		
 				if ($validator->fails()) {
@@ -257,19 +261,19 @@ class IntegrationController extends \BaseController
 					"MandrilUserName"=>$data['MandrilUserName'],
 					"MandrilSSL"=>$data['MandrilSSL'],					
 					);
-                if(!empty($data['MandrilPassword'])){
+                if(count($MandrilDbData)>0 && empty($data['MandrilPassword'])){
+                    $setting = json_decode($MandrilDbData->Settings);
+                    $MandrilData['MandrilPassword'] = $setting->MandrilPassword;
+                }else{
                     $MandrilData['MandrilPassword'] = $data['MandrilPassword'];
                 }
 				 
-				$MandrilDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+				//$MandrilDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 			
-				if(count($MandrilDbData)>0)
-				{
+				if(count($MandrilDbData)>0) {
 						$SaveData = array("Settings"=>json_encode($MandrilData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
 						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$MandrilDbData->IntegrationConfigurationID))->update($SaveData);						
-				}
-				else
-				{	
+				} else {
 						$SaveData = array("Settings"=>json_encode($MandrilData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
 						IntegrationConfiguration::create($SaveData);
 				}
@@ -326,13 +330,16 @@ class IntegrationController extends \BaseController
 		{ 
 			if($data['secondcategory']=='IMAP')
 			{
+                $TrackingDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 				$rules = array(
 					'EmailTrackingEmail'	 => 'required|email',
 					//'EmailTrackingName'	 => 'required',					
 					'EmailTrackingServer'	 => 'required',					
 					//'EmailTrackingPassword'	 => 'required',
 				);
-		
+                if(count($TrackingDbData)==0){
+                    $rules['EmailTrackingPassword'] = 'required';
+                }
 				$validator = Validator::make($data, $rules);
 		
 				if ($validator->fails()) {
@@ -345,22 +352,22 @@ class IntegrationController extends \BaseController
 					"EmailTrackingEmail"=>$data['EmailTrackingEmail'],
 					//"EmailTrackingName"=>$data['EmailTrackingName'],					
 					"EmailTrackingServer"=>$data['EmailTrackingServer'],
-					//"EmailTrackingPassword"=>$data['EmailTrackingPassword'],
+					"EmailTrackingPassword"=>$data['EmailTrackingPassword'],
 					);
 
-                if(!empty($data['EmailTrackingPassword'])){
+                if(count($TrackingDbData)>0 && empty($data['EmailTrackingPassword'])){
+                    $setting = json_decode($TrackingDbData->Settings);
+                    $TrackingData['EmailTrackingPassword'] = $setting->EmailTrackingPassword;
+                }else{
                     $TrackingData['EmailTrackingPassword'] = $data['EmailTrackingPassword'];
                 }
 				 
-				$TrackingDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+				//$TrackingDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 			
-				if(count($TrackingDbData)>0)
-				{
+				if(count($TrackingDbData)>0) {
 						$SaveData = array("Settings"=>json_encode($TrackingData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
 						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$TrackingDbData->IntegrationConfigurationID))->update($SaveData);						
-				}
-				else
-				{	
+				} else {
 						$SaveData = array("Settings"=>json_encode($TrackingData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);						
 						IntegrationConfiguration::create($SaveData);
 				}
@@ -372,6 +379,7 @@ class IntegrationController extends \BaseController
 		{ 
 			if($data['secondcategory']=='Exchange')
 			{
+                $outlookcalendarDBData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 				$rules = array(
 					'OutlookCalendarEmail'	 => 'required|email',
 					'OutlookCalendarServer'	 => 'required',					
@@ -383,6 +391,10 @@ class IntegrationController extends \BaseController
 							 "OutlookCalendarServer.required" => "The exchange server field is required",
 							 //"OutlookCalendarPassword.required" => "The exchange password field is required"
 							];
+                if(count($outlookcalendarDBData)==0){
+                    $rules['OutlookCalendarPassword'] = 'required';
+                    $messages['OutlookCalendarPassword.required'] = 'The exchange password field is required';
+                }
 					
 				$validator = Validator::make($data, $rules,$messages);
 		
@@ -397,14 +409,16 @@ class IntegrationController extends \BaseController
 					"OutlookCalendarServer"=>$data['OutlookCalendarServer'],
 					);
 
-                if(!empty($data['OutlookCalendarPassword'])){
+                if(count($outlookcalendarDBData)>0 && empty($data['OutlookCalendarPassword'])){
+                    $setting = json_decode($outlookcalendarDBData->Settings);
+                    $outlookcalendarData['OutlookCalendarPassword'] = $setting->OutlookCalendarPassword;
+                }else{
                     $outlookcalendarData['OutlookCalendarPassword'] = $data['OutlookCalendarPassword'];
                 }
 				 
 				$outlookcalendarDBData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 			
-				if(count($outlookcalendarDBData)>0)
-				{
+				if(count($outlookcalendarDBData)>0) {
 						$SaveData = array("Settings"=>json_encode($outlookcalendarData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
 						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$outlookcalendarDBData->IntegrationConfigurationID))->update($SaveData);						
 				}else{	
@@ -412,13 +426,13 @@ class IntegrationController extends \BaseController
 						IntegrationConfiguration::create($SaveData);
 				}
 				 return Response::json(array("status" => "success", "message" => "Exchange Calendar Successfully Updated"));
+            }
+        }
 
-		}}
 		if($data['firstcategory']=='accounting')
 		{
-
-			if($data['secondcategory']=='QuickBook')
-			{
+            if($data['secondcategory']=='QuickBook') {
+                $QuickBookDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 				$rules = array(
 					'QuickBookLoginID'	  => 'required',
 					//'QuickBookPassqord'	  => 'required',
@@ -426,6 +440,10 @@ class IntegrationController extends \BaseController
 					'OauthConsumerSecret' => 'required',
 					'AppToken' => 'required',
 				);
+
+                if(count($QuickBookDbData)==0){
+                    $rules['QuickBookPassqord'] = 'required';
+                }
 
 				$validator = Validator::make($data, $rules);
 
@@ -462,20 +480,18 @@ class IntegrationController extends \BaseController
 				unset($QuickBookData['firstcategoryid']);
 				unset($QuickBookData['secondcategoryid']);
 				unset($QuickBookData['Status']);
-                if(empty($QuickBookData['QuickBookPassqord'])){
-                    unset($QuickBookData['QuickBookPassqord']);
+                if(count($QuickBookDbData)>0 && empty($QuickBookData['QuickBookPassqord'])){
+                    $setting = json_decode($QuickBookDbData->Settings);
+                    $QuickBookData['QuickBookPassqord'] = $setting->QuickBookPassqord;
                 }
 
-				$QuickBookDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+				//$QuickBookDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 
-				if(count($QuickBookDbData)>0)
-				{
+				if(count($QuickBookDbData)>0) {
 					$SaveData = array("Settings"=>json_encode($QuickBookData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
 					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$QuickBookDbData->IntegrationConfigurationID))->update($SaveData);
 
-				}
-				else
-				{
+				} else {
 					$SaveData = array("Settings"=>json_encode($QuickBookData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
 					IntegrationConfiguration::create($SaveData);
 				}
