@@ -103,6 +103,9 @@ class CompaniesController extends \BaseController {
 		$data 				= 		Input::all();
         $companyID 			= 		User::get_companyID();
         $company 			=		Company::find($companyID);
+        if(empty($data['SMTPPassword'])){
+            $data['SMTPPassword'] = $company->SMTPPassword;
+        }
 		
 		 $rules = array(
             'SMTPServer' => 'required',
