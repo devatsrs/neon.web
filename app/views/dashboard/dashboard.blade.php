@@ -29,25 +29,31 @@
 		<input type="hidden" name="UserID" value="{{User::get_userID()}}">
     </form>
     <div class="row">
-        <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-cyan stat-tile panel loading">
-                <h3>Sales</h3>
-                {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
-                <p>Today Sales by hour</p>
-                <span class="hourly-sales-cost"></span>
-            </div>
+        <div class="col-md-9">
+            @include('analysis.map')
         </div>
-
-        <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-aqua stat-tile panel loading">
-                <h3>Minutes 0</h3>
-                {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
-                <p>Today Minutes by hour</p>
-                <span class="hourly-sales-minutes"></span>
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="tile-stats tile-cyan stat-tile panel loading">
+                        <h3>Sales</h3>
+                        {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
+                        <p>Today Sales by hour</p>
+                        <span class="hourly-sales-cost"></span>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="tile-stats tile-aqua stat-tile panel loading">
+                        <h3>Minutes 0</h3>
+                        {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
+                        <p>Today Minutes by hour</p>
+                        <span class="hourly-sales-minutes"></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    @include('analysis.map')
+
     <div class="row">
         <div class="col-md-12">
                 <ul class="nav nav-tabs">

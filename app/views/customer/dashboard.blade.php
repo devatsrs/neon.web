@@ -1,12 +1,12 @@
 @extends('layout.customer.main')
 @section('content')
     <script type="text/javascript">
-        var $searchFilter = {};
-        $searchFilter.map_url = "{{URL::to('getWorldMap')}}";
-        $searchFilter.mapdrill_url = "{{URL::to('getWorldMap')}}";
-        $searchFilter.pageSize = '{{Config::get('app.pageSize')}}';
-        $searchFilter.Admin = '{{$isAdmin}}';
-        $searchFilter.UserID = '{{Customer::get_accountID()}}';
+        var $dashsearchFilter = {};
+        $dashsearchFilter.map_url = "{{URL::to('getWorldMap')}}";
+        $dashsearchFilter.mapdrill_url = "{{URL::to('getWorldMap')}}";
+        $dashsearchFilter.pageSize = '{{Config::get('app.pageSize')}}';
+        $dashsearchFilter.Admin = '{{$isAdmin}}';
+        $dashsearchFilter.UserID = '{{Customer::get_accountID()}}';
         jQuery(document).ready(function ($) {
             setInterval(function(){
                 loadDashboard()
@@ -24,34 +24,41 @@
         <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
     </form>
     <div class="row">
-        <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-cyan stat-tile panel loading">
-                <h3>Sales</h3>
-                {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
-                <p>Today Sales by hour</p>
-                <span class="hourly-sales-cost"></span>
-            </div>
+        <div class="col-md-9">
+            @include('analysis.map')
         </div>
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="tile-stats tile-cyan stat-tile panel loading">
+                        <h3>Sales</h3>
+                        {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
+                        <p>Today Sales by hour</p>
+                        <span class="hourly-sales-cost"></span>
+                    </div>
+                </div>
 
-        <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-aqua stat-tile panel loading">
-                <h3>Minutes 0</h3>
-                {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
-                <p>Today Minutes by hour</p>
-                <span class="hourly-sales-minutes"></span>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-pink stat-tile panel loading">
-                <h3>Account Manager</h3>
-                <div class="icon"><i class="fa fa-user"></i></div>
-                <p style="font-size:12px; ">
-                    Name:{{$AccountManager}}
-                    <br/>
-                    Email:{{$AccountManagerEmail}}
+                <div class="col-md-12">
+                    <div class="tile-stats tile-aqua stat-tile panel loading">
+                        <h3>Minutes 0</h3>
+                        {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
+                        <p>Today Minutes by hour</p>
+                        <span class="hourly-sales-minutes"></span>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="tile-stats tile-pink stat-tile panel loading">
+                        <h3>Account Manager</h3>
+                        <div class="icon"><i class="fa fa-user"></i></div>
+                        <p style="font-size:12px; ">
+                            Name:{{$AccountManager}}
+                            <br/>
+                            Email:{{$AccountManagerEmail}}
 
-                </p>
+                        </p>
 
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -60,6 +67,7 @@
     @include('analysis.map')
 
     <div class="row">
+        <div class="col-md-12">
         <ul class="nav nav-tabs">
             <li class="active"><a href="#tab1" data-toggle="tab">Destination</a></li>
             <li ><a href="#tab2" data-toggle="tab">Prefix</a></li>
@@ -315,6 +323,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </div>
     @if($isDesktop == 1)
