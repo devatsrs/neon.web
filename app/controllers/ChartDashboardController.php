@@ -96,8 +96,8 @@ class ChartDashboardController extends BaseController {
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
-        $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d'):$data['StartDate'];
-        $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d'):$data['EndDate'];
+        $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d 00:00:00'):$data['StartDate'];
+        $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59'):$data['EndDate'];
         $data['CompanyGatewayID'] = empty($data['CompanyGatewayID'])?'0':$data['CompanyGatewayID'];
         $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
         $data['CountryID'] = empty($data['CountryID'])?'0':$data['CountryID'];
@@ -125,8 +125,8 @@ class ChartDashboardController extends BaseController {
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $data['UserID'] = empty($data['UserID'])?'0':$data['UserID'];
         $data['Admin'] = empty($data['Admin'])?'0':$data['Admin'];
-        $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d'):$data['StartDate'];
-        $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d'):$data['EndDate'];
+        $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d 00:00:00'):$data['StartDate'];
+        $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59'):$data['EndDate'];
         $data['CompanyGatewayID'] = empty($data['CompanyGatewayID'])?'0':$data['CompanyGatewayID'];
         $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
         $data['CountryID'] = empty($data['CountryID'])?'0':$data['CountryID'];

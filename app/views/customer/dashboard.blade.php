@@ -1,6 +1,12 @@
 @extends('layout.customer.main')
 @section('content')
     <script type="text/javascript">
+        var $searchFilter = {};
+        $searchFilter.map_url = "{{URL::to('getWorldMap')}}";
+        $searchFilter.mapdrill_url = "{{URL::to('getWorldMap')}}";
+        $searchFilter.pageSize = '{{Config::get('app.pageSize')}}';
+        $searchFilter.Admin = '{{$isAdmin}}';
+        $searchFilter.UserID = '{{Customer::get_accountID()}}';
         jQuery(document).ready(function ($) {
             setInterval(function(){
                 loadDashboard()
@@ -11,6 +17,7 @@
 
 
     </script>
+    <script src="{{ URL::asset('assets/js/reports.js') }}"></script>
     <script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
     <form class="hidden" id="hidden_form">
         <input type="hidden" name="Admin" value="{{$isAdmin}}">
@@ -50,6 +57,7 @@
     </div>
 
     <br />
+    @include('analysis.map')
 
     <div class="row">
         <ul class="nav nav-tabs">

@@ -20,7 +20,7 @@ function loadDashboard(){
         getReportData('gateway');
 
         /* get world map*/
-        getWorldMap();
+        getWorldMap($dashsearchFilter);
 
     });
 }

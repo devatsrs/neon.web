@@ -132,8 +132,8 @@
         var table_name = '#destination_table';
         var chart_type = '#destination';
         var cdr_url = "{{URL::to('vendorcdr_show')}}";
-        $searchFilter.map_url = "{{URL::to('getWorldMap')}}";
-        $searchFilter.mapdrill_url = "{{URL::to('getWorldMap')}}";
+        $searchFilter.map_url = "{{URL::to('getVendorWorldMap')}}";
+        $searchFilter.pageSize = '{{Config::get('app.pageSize')}}';
         jQuery(document).ready(function ($) {
 
             $(".nav-tabs li a").click(function(){

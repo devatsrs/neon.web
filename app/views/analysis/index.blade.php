@@ -134,7 +134,6 @@
         var chart_type = '#destination';
         var cdr_url = "{{URL::to('cdr_show')}}";
         $searchFilter.map_url = "{{URL::to('getWorldMap')}}";
-        $searchFilter.mapdrill_url = "{{URL::to('getWorldMap')}}";
         $searchFilter.pageSize = '{{Config::get('app.pageSize')}}';
         jQuery(document).ready(function ($) {
 

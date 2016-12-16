@@ -6,6 +6,12 @@
         }*/
     </style>
     <script type="text/javascript">
+        var $dashsearchFilter = {};
+        $dashsearchFilter.map_url = "{{URL::to('getWorldMap')}}";
+        $dashsearchFilter.mapdrill_url = "{{URL::to('getWorldMap')}}";
+        $dashsearchFilter.pageSize = '{{Config::get('app.pageSize')}}';
+        $dashsearchFilter.Admin = '{{$isAdmin}}';
+        $dashsearchFilter.UserID = '{{User::get_userID()}}';
         jQuery(document).ready(function ($) {
             setInterval(function(){
                 loadDashboard()
@@ -16,6 +22,7 @@
 
 
    </script>
+    <script src="{{ URL::asset('assets/js/reports.js') }}"></script>
     <script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
     <form class="hidden" id="hidden_form">
         <input type="hidden" name="Admin" value="{{$isAdmin}}">

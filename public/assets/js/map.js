@@ -31,10 +31,12 @@ function getWorldMap(submit_data){
                 },
                 onRegionClick: function(e,code){
                     if(data.CountryChart[code]) {
-                        submit_data.CountryID = data.CountryChart[code].CountryID;
-                        submit_data.chart_type = 'prefix';
+                        var submit_data_new = {};
+                        submit_data_new = jQuery.extend({}, submit_data);
+                        submit_data_new.CountryID = data.CountryChart[code].CountryID;
+                        submit_data_new.chart_type = 'prefix';
                         $('#modal-map').modal('show');
-                        loadTable('#map_destination_table',submit_data.pageSize,submit_data)
+                        loadTable('#map_destination_table',submit_data_new.pageSize,submit_data_new)
                     }
                 }
             });
