@@ -1,4 +1,4 @@
-<link rel="stylesheet" type="text/css" href="assets/js/jvectormap/jquery-jvectormap-2.0.3.css" />
+<link rel="stylesheet" type="text/css" href="{{ URL::asset('assets/js/jvectormap/jquery-jvectormap-2.0.3.css')}}" />
 <div class="row">
     <div class="col-sm-12">
         <div class="panel loading panel-default" data-collapsed="0">

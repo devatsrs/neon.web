@@ -64,7 +64,7 @@
     </div>
 
     <br />
-    @include('analysis.map')
+
 
     <div class="row">
         <div class="col-md-12">
@@ -75,6 +75,7 @@
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="tab1" >
+                <div class="row">
                 <div class="col-md-4">
 
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
@@ -156,8 +157,10 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
             <div class="tab-pane" id="tab2" >
+                <div class="row">
                 <div class="col-md-4">
 
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
@@ -239,8 +242,10 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
             <div class="tab-pane" id="tab3" >
+                <div class="row">
                 <div class="col-md-4">
 
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
@@ -321,6 +326,7 @@
                             <p class="call_minutes_desc"></p>
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
