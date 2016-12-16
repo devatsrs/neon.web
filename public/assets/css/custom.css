@@ -2608,3 +2608,9 @@ a:focus,a:hover{text-decoration:none !important}
 	min-height:inherit !important;
 	padding-left:inherit !important;
 }
+.panel .blockUI.blockOverlay {
+    background-image: url(../images/loader-1.gif);
+    background-image: url(../images/loader-2.gif);
+    background-repeat: no-repeat;
+    background-position: center center;
+}

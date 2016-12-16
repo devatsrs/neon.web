@@ -16,9 +16,6 @@
 
 
    </script>
-    <link rel="stylesheet" type="text/css" href="assets/js/jvectormap/jquery-jvectormap-2.0.3.css" />
-    <script src="{{ URL::asset('assets/js/jvectormap/jquery-jvectormap-2.0.3.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/js/jvectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
     <script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
     <form class="hidden" id="hidden_form">
         <input type="hidden" name="Admin" value="{{$isAdmin}}">

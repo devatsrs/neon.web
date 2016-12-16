@@ -34,42 +34,6 @@ function loading(table,bit){
         panel.removeClass('reloading');
     }
 }
-function getWorldMap(){
-    $('#worldmap').html('');
-    loading(".world-map-chart",1);
-    $.ajax({
-        type: 'GET',
-        url: baseurl+'/getWorldMap',
-        dataType: 'json',
-        data:$('#hidden_form').serialize(),
-        aysync: true,
-        success: function(data) {
-            loading(".world-map-chart",0);
-            map = new jvm.Map({
-                map: 'world_mill_en',
-                container: $('#worldmap'),
-                backgroundColor: '#CCC',
-                series: {
-                    regions: [{
-                        attribute: 'fill'}]
-                },
-                onRegionTipShow: function(e, el, code){
-                    if(data.CountryChart[code]) {
-                      var label_html = '</br>'+
-                        '<b>Calls: </b>'+data.CountryChart[code].CallCount+'</br>'+
-                        '<b>Cost: </b>'+data.CountryChart[code].TotalCost+'</br>'+
-                        '<b>Minutes: </b>'+data.CountryChart[code].TotalMinutes+'</br>'+
-                        '<b>ACD: </b>'+data.CountryChart[code].ACD+'</br>'+
-                        '<b>ASR: </b>'+data.CountryChart[code].ASR+'%';
-
-                        el.html(el.html() + label_html );
-                    }
-                }
-            });
-            map.series.regions[0].setValues(data.CountryColor);
-        }
-    });
-}
 function getReportData(chart_type){
     loading("."+chart_type+"-call-count-pie-chart",1);
     loading("."+chart_type+"-call-cost-pie-chart",1);

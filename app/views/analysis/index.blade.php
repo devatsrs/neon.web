@@ -122,9 +122,6 @@
         </div>
     </div>
 
-<link rel="stylesheet" type="text/css" href="assets/js/jvectormap/jquery-jvectormap-2.0.3.css" />
-<script src="{{ URL::asset('assets/js/jvectormap/jquery-jvectormap-2.0.3.min.js') }}"></script>
-<script src="{{ URL::asset('assets/js/jvectormap/jquery-jvectormap-world-mill-en.js') }}"></script>
 <script src="{{ URL::asset('assets/js/reports.js') }}"></script>
 {{--<script src="{{ URL::asset('assets/js/daterangepicker/moment.min.js') }}"></script>
 <script src="{{ URL::asset('assets/js/daterangepicker/daterangepicker.js') }}"></script>--}}
@@ -136,6 +133,9 @@
         var table_name = '#destination_table';
         var chart_type = '#destination';
         var cdr_url = "{{URL::to('cdr_show')}}";
+        $searchFilter.map_url = "{{URL::to('getWorldMap')}}";
+        $searchFilter.mapdrill_url = "{{URL::to('getWorldMap')}}";
+        $searchFilter.pageSize = '{{Config::get('app.pageSize')}}';
         jQuery(document).ready(function ($) {
 
             $(".nav-tabs li a").click(function(){
