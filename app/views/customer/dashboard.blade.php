@@ -6,7 +6,7 @@
         $dashsearchFilter.mapdrill_url = "{{URL::to('getWorldMap')}}";
         $dashsearchFilter.pageSize = '{{Config::get('app.pageSize')}}';
         $dashsearchFilter.Admin = '{{$isAdmin}}';
-        $dashsearchFilter.UserID = '{{Customer::get_accountID()}}';
+        $dashsearchFilter.AccountID = '{{Customer::get_accountID()}}';
         jQuery(document).ready(function ($) {
             setInterval(function(){
                 loadDashboard()
