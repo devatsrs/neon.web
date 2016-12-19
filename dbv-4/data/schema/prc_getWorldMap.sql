@@ -31,11 +31,12 @@ BEGIN
 		ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,
 		IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD,
 		ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,
-		MAX(ISO2) AS ISO_Code 
+		MAX(ISO2) AS ISO_Code,
+		tblCountry.CountryID
 	FROM tmp_tblUsageSummary_
 	INNER JOIN temptblCountry AS tblCountry 
 		ON tblCountry.CountryID = tmp_tblUsageSummary_.CountryID
-	GROUP BY Country ORDER BY CallCount DESC;
+	GROUP BY Country,tblCountry.CountryID ORDER BY CallCount DESC;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 

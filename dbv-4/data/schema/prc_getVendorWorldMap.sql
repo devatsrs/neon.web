@@ -4,14 +4,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorWorldMap`(
 	IN `p_AccountID` INT,
 	IN `p_CurrencyID` INT,
 	IN `p_StartDate` DATETIME,
-	IN `p_EndDate` DATETIME
-,
+	IN `p_EndDate` DATETIME,
 	IN `p_AreaPrefix` VARCHAR(50),
 	IN `p_Trunk` VARCHAR(50),
 	IN `p_CountryID` INT,
 	IN `p_UserID` INT,
 	IN `p_isAdmin` INT
-
 )
 BEGIN
 
@@ -33,11 +31,12 @@ BEGIN
 		ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,
 		IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD,
 		ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,
-		MAX(ISO2) AS ISO_Code 
+		MAX(ISO2) AS ISO_Code,
+		tblCountry.CountryID
 	FROM tmp_tblUsageVendorSummary_ AS us
 	INNER JOIN temptblCountry AS tblCountry 
 		ON tblCountry.CountryID = us.CountryID
-	GROUP BY Country ORDER BY CallCount DESC;
+	GROUP BY Country,tblCountry.CountryID ORDER BY CallCount DESC;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
