@@ -150,7 +150,7 @@ body {
 
 /* Dev Edited */
 .dataTables_processing{
-    color: #ffffff; background: #303641; display: table; position: fixed; visibility: visible; padding: 10px; text-align: center; left: 50%; top: auto; margin: 71px auto; z-index: 999; border: 1px solid #303641;
+    color: #ffffff; background: #303641; display: table; position: absolute; visibility: visible; padding: 10px; text-align: center; left: 50%; top: auto; margin: 71px auto; z-index: 999; border: 1px solid #303641;
     border-radius:3px;
 }
 .datatable tr.selected{
@@ -2607,4 +2607,10 @@ a:focus,a:hover{text-decoration:none !important}
 .radio label{
 	min-height:inherit !important;
 	padding-left:inherit !important;
+}
+.panel .blockUI.blockOverlay {
+    background-image: url(../images/loader-1.gif);
+    background-image: url(../images/loader-2.gif);
+    background-repeat: no-repeat;
+    background-position: center center;
 }

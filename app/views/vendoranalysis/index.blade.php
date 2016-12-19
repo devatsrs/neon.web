@@ -91,7 +91,7 @@
 
             <div class="clear"></div>
             </div>
-
+            @include('analysis.map')
             <ul class="nav nav-tabs">
                 <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
                 <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
@@ -123,7 +123,6 @@
             </div>
         </div>
     </div>
-
 <script src="{{ URL::asset('assets/js/reports_vendor.js') }}"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
@@ -133,6 +132,8 @@
         var table_name = '#destination_table';
         var chart_type = '#destination';
         var cdr_url = "{{URL::to('vendorcdr_show')}}";
+        $searchFilter.map_url = "{{URL::to('getVendorWorldMap')}}";
+        $searchFilter.pageSize = '{{Config::get('app.pageSize')}}';
         jQuery(document).ready(function ($) {
 
             $(".nav-tabs li a").click(function(){
