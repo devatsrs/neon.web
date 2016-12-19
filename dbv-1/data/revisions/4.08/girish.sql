@@ -748,6 +748,7 @@ DROP PROCEDURE IF EXISTS `prc_getPrefixReport`;
 DROP PROCEDURE IF EXISTS `prc_getVendorPrefixReport`;
 DROP PROCEDURE IF EXISTS `prc_getTrunkReport`;
 DROP PROCEDURE IF EXISTS `prc_getVendorTrunkReport`;
+DROP PROCEDURE IF EXISTS `prc_getVendorHourlyReport`;
 
 -- Dumping structure for procedure NeonReportDev.prc_getHourlyReport
 DROP PROCEDURE IF EXISTS `prc_getHourlyReport`;
