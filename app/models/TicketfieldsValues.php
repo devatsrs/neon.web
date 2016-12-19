@@ -9,4 +9,6 @@ class TicketfieldsValues extends \Eloquent {
   // protected $fillable = ['GroupName','GroupDescription','GroupEmailAddress','GroupAssignTime','GroupAssignEmail','GroupAuomatedReply'];
 	protected $fillable = [];
 	
+	static $Status_Closed = 'Closed';
+	
 }

@@ -43,15 +43,33 @@
             <label for="GroupEmailAddress" class="col-sm-3 control-label">Support Email <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Any email sent on these email addresses (comma separated) gets automatically converted into a ticket that you can get working on." data-original-title="Support Email" class="label label-info popover-primary">?</span></label>
             <div class="col-sm-9">
               <div class="input-group"> <span class="input-group-addon"><i class="entypo-mail"></i></span>
-                <input name='GroupEmailAddress' id="GroupEmailAddress" type="email" class="form-control" placeholder="Email" value="{{$Groupemails}}">             </div>
-                
-			<?php if(count($GroupEmailsUnverified)>0){ ?>                
+                <input name='GroupEmailAddress' id="GroupEmailAddress" type="email" class="form-control" placeholder="Email" value="{{$ticketdata->GroupEmailAddress}}">             </div>
+                @if($ticketdata->GroupEmailStatus==0)
                 <br>                
-                <?php foreach($GroupEmailsUnverified as $GroupEmailsUnverifiedData){ ?>
-                  <div class="email-activation"><span>{{$GroupEmailsUnverifiedData['Email']}}</span>&nbsp;<span> Unverified  </span> - <button email_id="{{$GroupEmailsUnverifiedData['id']}}" type="button" class="btn btn-default btn-xs Send_activation">Send activation</button></div><br>
-                  <?php } } ?>
+                  <div class="email-activation"><span>{{$ticketdata->GroupEmailAddress}}</span>&nbsp;<span> Unverified  </span> - <button email_id="{{$ticketdata->GroupID}}" type="button" class="btn btn-default btn-xs Send_activation">Send activation</button></div><br>
+                  @endif
             </div>
           </div> 
+           <div class="form-group">
+            <label for="GroupName" class="col-sm-3 control-label">Imap Server</label>
+            <div class="col-sm-9">
+              <input type="text" name='GroupEmailServer' class="form-control" id="imapserver" placeholder="Imap Server" value="{{$ticketdata->GroupEmailServer}}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="GroupName" class="col-sm-3 control-label">Password</label>
+            <div class="col-sm-9">
+              <input type="password" name='GroupEmailPassword' class="form-control" id="Imappassword" placeholder="Password" value="{{$ticketdata->GroupEmailPassword}}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="GroupName" class="col-sm-3 control-label">Reply From Address</label>
+            <div class="col-sm-9">            
+            <div class="input-group"> <span class="input-group-addon"><i class="entypo-mail"></i></span>
+                <input name='GroupReplyAddress' id="GroupReplyAddress" type="text" class="form-control" placeholder="Reply From Address" value="{{$ticketdata->GroupReplyAddress}}">
+              </div>
+            </div>
+          </div>
           <div class="form-group">
           <label for="GroupAssignTime" class="col-sm-3 control-label">Escalation Rule</label>              
               <div class="col-sm-6">  {{Form::select('GroupAssignTime', TicketGroups::$EscalationTimes, $ticketdata->GroupAssignTime ,array("class"=>"select2","id"=>"GroupAssignTime"))}}   </div>

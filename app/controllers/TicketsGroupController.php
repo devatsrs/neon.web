@@ -38,24 +38,14 @@ private $validlicense;
 		$Groupagentsdb	=	TicketGroupAgents::where(["GroupID"=>$id])->get(); 
 		foreach($Groupagentsdb as $Groupagentsdata){
 			$Groupagents[] = $Groupagentsdata->UserID;
-		} 
-		
-		$Groupemailsdb			=	TicketGroupEmailAddresses::where(["GroupID"=>$id])->get(); 
-		$GroupEmailsUnverified  = array();
-		foreach($Groupemailsdb as $Groupemailsdbdata){
-			$Groupemails[] = $Groupemailsdbdata->EmailAddress;
-			if($Groupemailsdbdata->EmailStatus==0)
-			{
-				$GroupEmailsUnverified[] = array("Email"=>$Groupemailsdbdata->EmailAddress,"id"=>$Groupemailsdbdata->GroupEmailID) ;
-			}
-		} 
+		} 		
 		$Groupemails	=	implode(',',$Groupemails);
 		$Agents			= 	User::getUserIDListAll(0);
 		$AllUsers		= 	User::getUserIDListAll(0); 
 		$AllUsers[0] 	= 	'None';	
 		ksort($AllUsers);			
-		$data 			= 	array();		
-        return View::make('ticketgroups.group_edit', compact('data','AllUsers','Agents','ticketdata','Groupagents','Groupemails','GroupEmailsUnverified'));  
+		$data 			= 	array(); 
+        return View::make('ticketgroups.group_edit', compact('data','AllUsers','Agents','ticketdata','Groupagents'));  
 	  }	
 	  
 	  public function ajax_datagrid($type){
@@ -96,8 +86,11 @@ private $validlicense;
         $rules = array(
             'GroupName' => 'required|min:2',
             'GroupAgent' => 'required',
-            'GroupEmailAddress' => 'required',
             'GroupAssignEmail' => 'required',
+			'GroupEmailServer' => 'required',
+			'GroupEmailPassword' => 'required',
+			'GroupReplyAddress' => 'email|required',		
+			'GroupEmailAddress'	=> 'email|required|unique:tblTicketGroups,GroupEmailAddress',
         );
 
         $validator = Validator::make($data, $rules);
@@ -109,10 +102,12 @@ private $validlicense;
 				"CompanyID"=>User::get_companyID(),
 				"GroupName"=>$data['GroupName'],
 				"GroupDescription"=>$data['GroupDescription'],
-				//"GroupEmailAddress"=>$data['GroupEmailAddress'],
 				"GroupAssignTime"=>$data['GroupAssignTime'],
 				"GroupAssignEmail"=>$data['GroupAssignEmail'],
-				//"GroupAuomatedReply"=>$data['GroupAuomatedReply']
+				"GroupReplyAddress"=>$data['GroupReplyAddress'],				
+				"EmailTrackingServer"=>$data['GroupEmailServer'],
+				"EmailTrackingPassword"=>$data['GroupEmailPassword'],	
+				"GroupEmailStatus" => 0,
 				"created_at"=>date("Y-m-d H:i:s"),
 				"created_by"=>User::get_user_full_name()
 			);
@@ -126,18 +121,7 @@ private $validlicense;
 						TicketGroupAgents::Insert($TicketGroupAgents);						
 					}
 				}	
-				
-				 $email_addresses = explode(",",$data['GroupEmailAddress']);				
-				 foreach($email_addresses as $email_addresses_data)
-				 {
-				   $already = 	TicketGroupEmailAddresses::where(["EmailAddress"=>trim($email_addresses_data)])->get();	
-				   if(count($already)>0)
-				   {
-					    DB::rollback();
-				  		return Response::json(array("status" => "failed", "message" =>$email_addresses_data." email address already exists."));
-				   }
-				 }
-				
+					
 				$this->SendEmailActivationEmail($data['GroupEmailAddress'],$GroupID);
 				 DB::commit();	
             	return Response::json(array("status" => "success", "message" => "Group Successfully Created",'LastID'=>$GroupID));
@@ -152,11 +136,14 @@ private $validlicense;
 		$data 			= 	Input::all();  
 		$TicketGroup	= 	TicketGroups::find($id);
         
-        $rules = array(
+	    $rules = array(
             'GroupName' => 'required|min:2',
             'GroupAgent' => 'required',
-            'GroupEmailAddress' => 'required',
+            'GroupEmailAddress'	=> 'email|required|unique:tblTicketGroups,GroupEmailAddress,'.$id.',GroupID,CompanyID,'.User::get_companyID(),
             'GroupAssignEmail' => 'required',
+			'GroupEmailServer' => 'required',
+			'GroupEmailPassword' => 'required',
+			'GroupReplyAddress' => 'email|required',	
         );
 
         $validator = Validator::make($data, $rules);
@@ -164,15 +151,18 @@ private $validlicense;
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-			try{
+			/*try{*/
 				 DB::beginTransaction();
 				if(isset($TicketGroup->GroupID)){
 					
 					$grpagents 			= $data['GroupAgent'];
-					$GroupEmailAddress  = $data['GroupEmailAddress'];
+					$GroupEmailAddress  = $data['GroupEmailAddress'];					
 					unset($data['GroupAgent']);
 					unset($data['_wysihtml5_mode']);
 					unset($data['GroupEmailAddress']);
+					//unset($data['GroupEmailServer']);
+					//unset($data['GroupEmailPassword']);
+					//unset($data['GroupReplyAddress']);
 					
 					$TicketGroup->update($data);  	 //update groups
 					TicketGroupAgents::where(["GroupID" => $TicketGroup->GroupID])->delete(); //delete old group agents
@@ -184,129 +174,73 @@ private $validlicense;
 						}
 					}
 					
-					$email_addresses = explode(",",$GroupEmailAddress);				
-				 	foreach($email_addresses as $email_addresses_data)
-				   {
-					   $already = 	TicketGroupEmailAddresses::where(["EmailAddress"=>trim($email_addresses_data)])->whereRaw('GroupID !='.$id.'')->get();	
-					   if(count($already)>0)
-					   {
-							DB::rollback();
-							return Response::json(array("status" => "failed", "message" =>$email_addresses_data." email address already exists."));
-					   }
-				    }
-							
-					$this->SendEmailActivationEmailUpdate($GroupEmailAddress,$id);
+					if($TicketGroup->GroupEmailAddress!=$GroupEmailAddress){						 		 		
+						$this->SendEmailActivationEmailUpdate($GroupEmailAddress,$id);
+					}
 					 DB::commit();	
 					return Response::json(array("status" => "success", "message" => "Group Successfully Updated",'LastID'=>$TicketGroup->GroupID));
 				}
-      		 }catch (Exception $ex){ 	
+      		 /*}catch (Exception $ex){ 	
 				 DB::rollback();
 				 return Response::json(array("status" => "failed", "message" =>$ex->getMessage()));
-       		 } 
+       		 } */
 	  }
 	  
-	  function SendEmailActivationEmail($emails,$groupID){
+	  function SendEmailActivationEmail($email,$groupID){
 		  
-		  if(!empty($emails))
+		  if(!empty($email))
 		  { 
-			    if(!is_array($emails))
-			    {				  
-				  $email_addresses = explode(",",$emails);				
-				}
-				else
-				{
-				  $email_addresses = $emails;
-				}
-					
-				if(count($email_addresses)>0){
-					
-					foreach($email_addresses as $email_address){
+				$remember_token				 = 		str_random(32);
+				$user_reset_link 			 = 		URL::to('/activate_support_email')."?remember_token=".$remember_token;
+				$data 						 = 		array();
+				$data['companyID'] 			 = 		User::get_companyID();
+				$CompanyName 				 =  	Company::getName($data['companyID']);
+				$data['EmailTo'] 			 = 		trim($email);
+				$data['CompanyName'] 		 = 		$CompanyName;
+				$data['Subject'] 			 = 		'Activate support email address';
+				$data['user_reset_link'] 	 = 		$user_reset_link;
+				$result 					 = 		sendMail('emails.auth.email_verify',$data);
 				
-						$remember_token				 = 		str_random(32);
-						$user_reset_link 			 = 		URL::to('/activate_support_email')."?remember_token=".$remember_token;
-						$data 						 = 		array();
-						$data['companyID'] 			 = 		User::get_companyID();
-						$CompanyName 				 =  	Company::getName($data['companyID']);
-						$data['EmailTo'] 			 = 		trim($email_address);
-						$data['CompanyName'] 		 = 		$CompanyName;
-						$data['Subject'] 			 = 		'Activate support email address';
-						$data['user_reset_link'] 	 = 		$user_reset_link;
-						$result 					 = 		sendMail('emails.auth.email_verify',$data);
+				if ($result['status'] == 1) {
+					$GroupEmaildata = array(
+						"GroupEmailAddress"=>$email,
+						"remember_token"=>$remember_token
+						);
 						
-						if ($result['status'] == 1) {
-							$GroupEmaildata = array(
-								"GroupID"=>$groupID,
-								"EmailAddress"=>$email_address,
-								"EmailStatus"=>0,
-								"remember_token"=>$remember_token,
-								"created_at"=>date("Y-m-d H:i:s"),
-								"created_by"=>User::get_user_full_name()
-								);
-								
-							 TicketGroupEmailAddresses::insert($GroupEmaildata);								 					
-						}
-					}
-	   		    }
-		  
+					 TicketGroups::where(['GroupID'=>$groupID])->update($GroupEmaildata);								 					
+				}				
 		  }
 	  	
 	  }
 	  
-	  function SendEmailActivationEmailUpdate($emails,$groupID){
-		  
-		  	$AlreadyaddEmails  =  TicketGroupEmailAddresses::where(['GroupID'=>$groupID])->get();				
+	  function SendEmailActivationEmailUpdate($email,$groupID){
 			
-		  if(!empty($emails))
-		  { 
-			  if(!is_array($emails))
-			  {
-				  
-				$email_addresses = explode(",",$emails);
-				}else{
-					$email_addresses = $emails;
-				}
-					
-				foreach($AlreadyaddEmails as $AlreadyaddEmailsData){ //delete the removed emails 					
-					if(!in_array($AlreadyaddEmailsData->EmailAddress,$email_addresses)){ 	
-						TicketGroupEmailAddresses::where(["GroupEmailID"=>$AlreadyaddEmailsData->GroupEmailID])->delete();		
-					}
-				}
+		  if(!empty($email))
+	 	  {   
+			$remember_token				 = 		str_random(32); //add new
+			$user_reset_link 			 = 		URL::to('/activate_support_email')."?remember_token=".$remember_token;
+			$data 						 = 		array();
+			$data['companyID'] 			 = 		User::get_companyID();
+			$CompanyName 				 =  	Company::getName($data['companyID']);
+			$data['EmailTo'] 			 = 		trim($email);
+			$data['CompanyName'] 		 = 		$CompanyName;
+			$data['Subject'] 			 = 		'Activate support email address';
+			$data['user_reset_link'] 	 = 		$user_reset_link;
+			$result 					 = 		sendMail('emails.auth.email_verify',$data);
 				
-				
-				if(count($email_addresses)>0){
+			if ($result['status'] == 1)
+			{
+				$GroupEmaildata = array(
+					"GroupEmailAddress"=>$email,
+					"GroupEmailStatus"=>0,
+					"remember_token"=>$remember_token,
+					"updated_at"=>date("Y-m-d H:i:s"),
+					"updated_by"=>User::get_user_full_name()
+					);
 					
-					
-					foreach($email_addresses as $email_address){
-					  $already =  TicketGroupEmailAddresses::where(["EmailAddress"=>$email_address,'GroupID'=>$groupID])->get();	 					
-					  if(count($already)>0) {continue;}//check email already exists
-					  
-						$remember_token				 = 		str_random(32); //add new
-						$user_reset_link 			 = 		URL::to('/activate_support_email')."?remember_token=".$remember_token;
-						$data 						 = 		array();
-						$data['companyID'] 			 = 		User::get_companyID();
-						$CompanyName 				 =  	Company::getName($data['companyID']);
-						$data['EmailTo'] 			 = 		trim($email_address);
-						$data['CompanyName'] 		 = 		$CompanyName;
-						$data['Subject'] 			 = 		'Activate support email address';
-						$data['user_reset_link'] 	 = 		$user_reset_link;
-						$result 					 = 		sendMail('emails.auth.email_verify',$data);
-						
-						if ($result['status'] == 1) {
-							$GroupEmaildata = array(
-								"GroupID"=>$groupID,
-								"EmailAddress"=>$email_address,
-								"EmailStatus"=>0,
-								"remember_token"=>$remember_token,
-								"created_at"=>date("Y-m-d H:i:s"),
-								"created_by"=>User::get_user_full_name()
-								);
-								
-							 TicketGroupEmailAddresses::insert($GroupEmaildata);								 					
-						}
-					}
-	   		    }
-		  
-		  }
+				 TicketGroups::where(['GroupID'=>$groupID])->update($GroupEmaildata);	
+			 }				
+	  	  }
 	  }
 	  
 	  function Activate_support_email(){
@@ -314,16 +248,14 @@ private $validlicense;
         //if any open reset password page direct he will redirect login page
 			if(isset($data['remember_token']) && $data['remember_token'] != '')
 			{
-					/////////////////
-					
 				$remember_token  = 	$data['remember_token'];
-				$user 			 = 	TicketGroupEmailAddresses::get_support_email_by_remember_token($remember_token);
+				$user 			 = 	TicketGroups::get_support_email_by_remember_token($remember_token);
 				
 				if (empty($user)) {
 					$data['message']  = "Invalid Token";
 					$data['status']  =  "failed";
 				} else {
-					TicketGroupEmailAddresses::where(["GroupEmailID"=>$user->GroupEmailID])->update(array("remember_token"=>'NUll',"EmailStatus"=>1));				
+					TicketGroups::where(["GroupID"=>$user->GroupID])->update(array("remember_token"=>'NUll',"GroupEmailStatus"=>1));				
 					$data['message']  		=  "Email successfully activated";
 					$data['status'] 		=  "success";				
 				}  
@@ -339,7 +271,6 @@ private $validlicense;
 		{
                try{
 				   TicketGroups::find($id)->delete();
-				   TicketGroupEmailAddresses::where(['GroupID'=>$id])->delete();
 				   TicketGroupAgents::where(['GroupID'=>$id])->delete();
 			       return Response::json(array("status" => "success", "message" => "Subscription Successfully Deleted","GroupID"=>$id));
                 }catch (Exception $ex){
@@ -356,16 +287,16 @@ private $validlicense;
 		{
 			if($id)
 			{
-			   $email_data = 	TicketGroupEmailAddresses::find($id);
+			   $email_data = 	TicketGroups::find($id);
 			  
-			  if(count($email_data)>0 && $email_data->EmailStatus==0)
+			  if(count($email_data)>0 && $email_data->GroupEmailStatus==0)
 			  {
 					$remember_token				 = 		str_random(32); //add new
 					$user_reset_link 			 = 		URL::to('/activate_support_email')."?remember_token=".$remember_token;
 					$data 						 = 		array();
 					$data['companyID'] 			 = 		User::get_companyID();
 					$CompanyName 				 =  	Company::getName($data['companyID']);
-					$data['EmailTo'] 			 = 		trim($email_data->EmailAddress);
+					$data['EmailTo'] 			 = 		trim($email_data->GroupEmailAddress);
 					$data['CompanyName'] 		 = 		$CompanyName;
 					$data['Subject'] 			 = 		'Activate support email address';
 					$data['user_reset_link'] 	 = 		$user_reset_link;
@@ -379,7 +310,7 @@ private $validlicense;
 								"updated_by"=>User::get_user_full_name()
 							);
 
-						 TicketGroupEmailAddresses::where(["GroupEmailID"=>$id])->update($GroupEmaildata);
+						 $email_data->update($GroupEmaildata);
 						 return Response::json(array("status" => "success", "message" => "Activation email successfully sent."));
 					}
 			  }else{

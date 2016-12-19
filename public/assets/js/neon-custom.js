@@ -2941,3 +2941,8 @@ function IsJsonString(str) {
     return true;
 }
 
+function bytesToSize(filesize) {
+  var sizeInMB = (filesize / (1024*1024)).toFixed(2);
+  if(sizeInMB>max_file_size)
+  {return 1;}else{return 0;}  
+}

@@ -1532,7 +1532,7 @@ JSON || (JSON = {}),
         }), e.validator.addClassRules("url_validator", {
             url: !0
         }), e.validator.addMethod("url_without_protocol", function(t, i) {
-            var n = i && e(i).data("domain") || "freshdesk.com",
+            var n = i && e(i).data("domain") || baseurl,
                 r = new RegExp("^(?!.*\\." + n + "$)[/\\w\\.-]+$");
             return t = trim(t), this.optional(i) || /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(t) && r.test(t)
         }, "Please enter a valid URL"), e.validator.addClassRules({
@@ -1925,7 +1925,7 @@ is_touch_device = function() {
             }), e(document).bind("click", function(i) {
                 var n = e(i.target);
                 n.parents().hasClass("nav-drop") || t(), n.parent().hasClass("request_form_options") || e("#canned_response_container").hide()
-            }), e("body").on("click.freshdesk", "#scroll-to-top", function() {
+            }), e("body").on("click.helpdesk", "#scroll-to-top", function() {
                 e.scrollTo("body")
             }), e(window).on("scroll.select2", function() {
                 e(".select2-container.select2-dropdown-open").not(e(this)).select2("positionDropdown")
@@ -3929,149 +3929,7 @@ jQuery(document).ready(function() {
             }
         }
     }(window.jQuery), window.App = window.App || {},
-    function(e) {
-        "use strict";
-        App.ProductNotification = {
-            suggestDelay: null,
-            url: "https://support.freshdesk.com",
-            articles: [{
-                title: "Converting your Support Email into Freshdesk Tickets",
-                url: "/support/solutions/articles/37541-converting-your-support-email-into-freshdesk-tickets"
-            }, {
-                title: "Rebranding your Support Portal to reflect your Theme",
-                url: "/support/solutions/articles/37563-rebranding-your-support-portal-to-reflect-your-theme"
-            }, {
-                title: "Single Sign On / Remote Authentication in Freshdesk",
-                url: "/support/solutions/articles/31166-single-sign-on-remote-authentication-in-freshdesk"
-            }, {
-                title: "Using a Vanity Support URL and pointing the CNAME",
-                url: "/support/solutions/articles/37590-using-a-vanity-support-url-and-pointing-the-cname"
-            }, {
-                title: "Configuring and using Email Notifications",
-                url: "/support/solutions/articles/37542-configuring-and-using-email-notifications"
-            }, {
-                title: "Customizing your ticket form",
-                url: "/support/solutions/articles/37595-customizing-the-ticket-form"
-            }, {
-                title: "Creating an SPF record to ensure proper email delivery",
-                url: "/support/solutions/articles/43170-creating-an-strong-spf-strong-strong-record-strong-to-ensure-proper-email-delivery"
-            }, {
-                title: "Using FreshPlugs to integrate third party Apps",
-                url: "/support/solutions/articles/32031-using-freshplugs-to-integrate-third-party-apps"
-            }, {
-                title: "Getting feedback from your website (with the Feedback Widget)",
-                url: "/support/solutions/articles/37690-getting-feedback-from-your-website-with-the-feedback-widget-"
-            }, {
-                title: "Adding new support agents",
-                url: "/support/solutions/articles/37591-adding-new-support-agents-"
-            }],
-            contacts: [{
-                country: "USA & Canada",
-                phone: "+1 866 832-3090"
-            }, {
-                country: "UK",
-                phone: "+44 800 808-5790"
-            }, {
-                country: "Australia",
-                phone: "+61 894 687-228"
-            }],
-            initialize: function() {
-                this.bindDocumentClick(), this.bindNotification(), this.bindSearchField(), this.bindTabClick(), this.bindFeedbackLink(), this.bindSeeAllOnSearch(), this.renderArticleTemplate(this.articles), this.renderContactTemplate(this.contacts)
-            },
-            searchArticles: function(t) {
-                var i = t.replace(/^\s+|\s+$/g, "");
-                "" !== i && i.length > 2 ? this.searchCallback(i) : (e("#notify-result").empty(), this.renderArticleTemplate(this.articles), e("#search-clear").addClass("hide"), this.appendSearchHeader(0, "hide"), e("#fra-result").removeClass("hide"))
-            },
-            searchCallback: function(t) {
-                e("#notification-article").addClass("loading-right"), e("#search-clear").addClass("hide");
-                var i = t.trim(),
-                    n = this.url + "/support/search/solutions.json",
-                    r = {
-                        term: i
-                    };
-                e.ajax({
-                    type: "get",
-                    url: n,
-                    dataType: "jsonp",
-                    data: r,
-                    success: e.proxy(function(e) {
-                        this.suggestResponse(e, i)
-                    }, this)
-                })
-            },
-            suggestResponse: function(t, i) {
-                e("#fra-result").addClass("hide"), t.length > 0 ? (this.appendSearchHeader(t.length, "show"), e("#notify-result").html(e.tmpl(e("#article-tmpl").template(), t))) : (this.appendSearchHeader(0, "show"), e("#notify-result").html("<p class='no_result'>No results for " + escapeHtml(i) + "</p>")), e("#notification-article").removeClass("loading-right"), e("#search-clear").removeClass("hide")
-            },
-            appendSearchHeader: function(t, i) {
-                var n = "show" === i ? "hide" : "show";
-                e("#search-result-header").html("").html("<span> ( " + t + " ) matching results </span><a target='_blank' id='seeAll' href='#'>See All</a>").removeClass(n).addClass(i)
-            },
-            addNotificationClass: function(t) {
-                if ("" != t) {
-                    var i = e(e("#content-notify").children()[0]).data("timeStamp");
-                    i > t && (jQuery("#notifiication-icon").addClass("notification_present"), jQuery("#notifiication-icon").click())
-                } else jQuery("#notifiication-icon").addClass("notification_present"), jQuery("#notifiication-icon").click()
-            },
-            addHref: function(t, i) {
-                e(t.currentTarget).attr("href", this.url + i)
-            },
-            renderArticleTemplate: function(t) {
-                e("#notify-result").html(e.tmpl(e("#article-tmpl").template(), t))
-            },
-            renderContactTemplate: function(t) {
-                e("#help-us").html(e.tmpl(e("#help-us-tmpl").template(), t))
-            },
-            bindDocumentClick: function() {
-                e(document).on("click.productnotification", function(t) {
-                    var i = e(t.target).parents(".tabbable");
-                    i.get(0) || (e("#popoverContent").addClass("hide"), e("#notifiication-icon").removeClass("active"))
-                })
-            },
-            bindNotification: function() {
-                e(document).on("click.productnotification", "#notifiication-icon", function(t) {
-                    t.stopPropagation(), e("#popoverContent").toggleClass("hide"), e(t.currentTarget).hasClass("notification_present") && e.ajax({
-                        type: "POST",
-                        data: {
-                            _method: "put"
-                        },
-                        url: "/profiles/notification_read",
-                        success: function() {
-                            console.log("***************************************"), e("#notifiication-icon").removeClass("notification_present")
-                        }
-                    }), e(t.currentTarget).addClass("active")
-                })
-            },
-            bindFeedbackLink: function() {
-                e(document).on("click.productnotification", "#notify-feedback", function() {
-                    e("#popoverContent").addClass("hide"), e("#notifiication-icon").removeClass("active"), FreshWidget.show()
-                })
-            },
-            bindSearchField: function() {
-                e(document).on("keydown.productnotification change.productnotification paste.productnotification", "#notification-article", e.proxy(function(t) {
-                    var i = jQuery(t.currentTarget);
-                    return clearTimeout(this.suggestDelay), this.suggestDelay = setTimeout(e.proxy(function() {
-                        this.searchArticles(i.val())
-                    }, this), 500), 13 == t.keyCode ? (t.preventDefault(), !1) : void 0
-                }, this)), e(document).on("click.productnotification", "#search-clear", function(t) {
-                    t.preventDefault(), t.stopPropagation(), e("#notification-article").val(""), e(this).addClass("hide"), e("#notification-article").trigger("change")
-                })
-            },
-            bindTabClick: function() {
-                e(document).on("click.productnotification", "#notify-remote-data", function(t) {
-                    t.preventDefault(), t.stopPropagation(), e("#notification-article")[0].focus()
-                })
-            },
-            bindSeeAllOnSearch: function() {
-                e(document).on("click.productnotification", "#seeAll", e.proxy(function(t) {
-                    var i = "/support/search/solutions?term=" + e("#notification-article").val();
-                    this.addHref(t, i)
-                }, this))
-            },
-            destroy: function() {
-                e(document).off(".productnotification")
-            }
-        }
-    }(window.jQuery), window.App = window.App || {},
+    function(e) {}(window.jQuery), window.App = window.App || {},
     function() {
         "use strict";
         App.Merge = {

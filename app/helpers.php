@@ -1179,13 +1179,15 @@ function run_process($command) {
 
 function Get_Api_file_extentsions($ajax=false){
 
-	 if (Session::has("api_response_extensions")){
-		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions');
-		 return $response_extensions;
+	 if (Session::has("api_response_extensions")){echo "here";
+		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions'); 
+		  if(is_array($response_extensions['allowed_extensions'])){
+			  return $response_extensions;
+		  }		 
 	 } 	 
 	 $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
 	 $response_extensions 	=  [];
-	
+	 	
 	if($response->status=='failed'){
 		if($ajax==true){
 			return $response;

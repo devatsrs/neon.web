@@ -1,6 +1,6 @@
 <?php
 
-class TicketsController extends \BaseController {
+class TicketsCustomerController extends \BaseController {
 
 private $validlicense;	
 
@@ -42,7 +42,7 @@ private $validlicense;
 			
 		
 		//echo "<pre>";		print_r($result);			exit;
-        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns"));  
+        return View::make('customer.tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns"));  
 			/////////
 	  }	
 	  
@@ -89,7 +89,7 @@ private $validlicense;
 				return '';
 			}
 		} 
-       return   View::make('tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns'));     
+       return   View::make('customers.tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns'));     
 	   
 	   //return array('currentpage'=>$data['currentpage'],"Body"=>$body,"result"=>count($result));
     
@@ -97,22 +97,18 @@ private $validlicense;
 	  
 	  
 	  function GetResult($data){
-		
+		  		
 		   $CompanyID 				= 	User::get_companyID();
 		   $search		 			=	isset($data['Search'])?$data['Search']:'';	   		   
 		   $status					=	isset($data['status'])?is_array($data['status'])?implode(",",$data['status']):'':'';		   
 		   $priority				=	isset($data['priority'])?is_array($data['priority'])?implode(",",$data['priority']):'':'';
 		   $Group					=	isset($data['group'])?is_array($data['group'])?implode(",",$data['group']):'':'';
-		   if(User::is_admin())	{		
-		   	$agent					=	isset($data['agent'])?is_array($data['agent'])?implode(",",$data['agent']):'':'';
-		   }else{
-			 $agent					=	user::get_userID();
-		   }
-		   $columns 	 			= 	array('TicketID','Subject','Requester','Type','Status','Priority','Group','Agent','created_at');
-		  // $data['iSortCol_0']		=	'0';
+		   $agent					=	'';		 
+		   $columns 	 			= 	array('TicketID','Subject','Requester','Type','Status','Priority','Group','Agent','created_at');		
 		   $sort_column 			= 	$data['iSortCol_0'];
-	
-			$query 	= 	"call prc_GetSystemTicket (".$CompanyID.",'".$search."','".$status."','".$priority."','".$Group."','".$agent."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";  
+		   $emails 					=	Account::GetAccountAllEmails(User::get_userID());
+		 
+			$query 	= 	"call prc_GetSystemTicketCustomer (".$CompanyID.",'".$search."','".$status."','".$priority."','".$Group."','".$agent."','".$emails."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";  
 		
 		$resultdata   	=  DataTableSql::of($query)->getProcResult(array('ResultCurrentPage','TotalResults'));	
 		$resultpage  	=  DataTableSql::of($query)->make(false);
@@ -170,7 +166,7 @@ private $validlicense;
 		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
 		    $response_extensions		=	json_encode($response_api_extensions['allowed_extensions']); 
 			$max_file_size				=	get_max_file_size();	
-			$AllEmails 					= 	implode(",",(Messages::GetAllSystemEmailsWithName(0))); 
+			$AllEmails 					= 	implode(",",(Messages::GetAllSystemEmails(0))); 
 			
 		   $agentsAll = DB::table('tblTicketGroupAgents')
             ->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()          
@@ -180,7 +176,7 @@ private $validlicense;
 			
 		   
 			//echo "<pre>";			print_r($agentsAll);			echo "</pre>";					exit;
-			return View::make('tickets.create', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails'));  
+			return View::make('customers.tickets.create', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails'));  
 	  }	
 	  
 	public function edit($id)
@@ -204,7 +200,7 @@ private $validlicense;
 		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
 		    $response_extensions		=	json_encode($response_api_extensions['allowed_extensions']);
 			$max_file_size				=	get_max_file_size();	
-			$AllEmails 					= 	implode(",",(Messages::GetAllSystemEmailsWithName(0))); 
+			$AllEmails 					= 	implode(",",(Messages::GetAllSystemEmails(0))); 
 			
 		   $agentsAll = DB::table('tblTicketGroupAgents')
             ->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()          
@@ -212,7 +208,7 @@ private $validlicense;
             ->get();
 		    $ticketSavedData = 	TicketsTable::SetUpdateValues($ticketdata,$ticketdetaildata,$Ticketfields);
 			//echo "<pre>";			print_r($agentsAll);			echo "</pre>";					exit;
-			return View::make('tickets.edit', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails','ticketSavedData','TicketID'));  
+			return View::make('customers.tickets.edit', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails','ticketSavedData','TicketID'));  
 		}
 	}
 	  
@@ -226,8 +222,8 @@ private $validlicense;
 			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
 		}
 		
-		//Log::info(print_r($data,true));
-		//Log::info(".....................................");
+		Log::info(print_r($data,true));
+		Log::info(".....................................");
 		$RulesMessages      = 	TicketsTable::GetAgentSubmitRules();       
         $validator 			= 	Validator::make($data['Ticket'], $RulesMessages['rules'], $RulesMessages['messages']);
         if ($validator->fails()) {
@@ -269,15 +265,11 @@ private $validlicense;
             $files		=	serialize($FilesArray);
 		}
 		
-			$Ticketfields      =  $data['Ticket'];
-			$RequesterData 	   =  explode(" <",$Ticketfields['default_requester']);
-			$RequesterName	   =  $RequesterData[0];
-			$RequesterEmail	   =  substr($RequesterData[1],0,strlen($RequesterData[1])-1);	
+			$Ticketfields = $data['Ticket'];
 		
 			$TicketData = array(
 				"CompanyID"=>User::get_companyID(),
-				"Requester"=>$RequesterEmail,
-				"RequesterName"=>$RequesterName,
+				"Requester"=>$Ticketfields['default_requester'],
 				"Subject"=>$Ticketfields['default_subject'],
 				"Type"=>$Ticketfields['default_ticket_type'],
 				"Status"=>$Ticketfields['default_status'],
@@ -322,8 +314,8 @@ private $validlicense;
 				return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
 			}
 			
-			//Log::info(print_r($data,true));
-			//Log::info(".....................................");
+			Log::info(print_r($data,true));
+			Log::info(".....................................");
 			$RulesMessages      = 	TicketsTable::GetAgentSubmitRules();       
 			$validator 			= 	Validator::make($data['Ticket'], $RulesMessages['rules'], $RulesMessages['messages']);
 			if ($validator->fails()) {
@@ -365,14 +357,10 @@ private $validlicense;
 				$files		=	serialize($FilesArray);
 			}
 			
-				$Ticketfields 	   =  $data['Ticket'];
-				$RequesterData 	   =  explode(" <",$Ticketfields['default_requester']);
-				$RequesterName	   =  $RequesterData[0];
-				$RequesterEmail	   =  substr($RequesterData[1],0,strlen($RequesterData[1])-1);	
+				$Ticketfields = $data['Ticket'];
 			
 				$TicketData = array(
-					"Requester"=>$RequesterEmail,
-					"RequesterName"=>$RequesterName,
+					"Requester"=>$Ticketfields['default_requester'],
 					"Subject"=>$Ticketfields['default_subject'],
 					"Type"=>$Ticketfields['default_ticket_type'],
 					"Status"=>$Ticketfields['default_status'],
@@ -457,16 +445,7 @@ private $validlicense;
 		 $this->IsValidLicense();
 		 if($id)
 		 {
-  		   $ticketdata		=	 TicketsTable::find($id);
-		   
-		   if(!User::is_admin())
-		   {
-			  if($ticketdata->Agent!=user::get_userID())
-			  {
-			 	 	App::abort(403, 'You have not access to' . Request::url());		
-			  }
-		   }
-		   
+  		   $ticketdata					 =	 TicketsTable::find($id);
 		   $status			 			 =   TicketsTable::getTicketStatus();
 		   $Priority		 			 =	 TicketPriority::getTicketPriority();
 		   $Groups			 			 =	 TicketGroups::getTicketGroups(); 
@@ -474,8 +453,8 @@ private $validlicense;
 		   $Agents						 = 	 array("0"=> "Select")+$Agents;		   
 		   $response_api_extensions 	 =   Get_Api_file_extentsions();
 		   $max_file_size				 =	 get_max_file_size();	
-		   
-		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
+		   Log::info(print_r($response_api_extensions,true)); exit;
+		 //  if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
 		    $response_extensions		 =	json_encode($response_api_extensions['allowed_extensions']); 
 	   		$TicketConversation			 =	TicketsConversation::where(array('TicketID'=>$id))->get();
 			
@@ -488,7 +467,7 @@ private $validlicense;
 				$PrevTicket 				 =	TicketsTable::find(TicketsTable::WhereRaw("TicketID < ".$id)->where(array("Agent"=>user::get_userID()))->pluck('TicketID')); 
 			}
 			
-		   return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket"));  		  
+		   return View::make('customer.tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket"));  		  
 		 }
 	}
 	
@@ -515,7 +494,7 @@ private $validlicense;
 			$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data->AttachmentPaths);
 			Log::info(print_r($data,true));
 		}
-		return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id'));  			
+		return View::make('customers.tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id'));  			
 		
 	}
 	

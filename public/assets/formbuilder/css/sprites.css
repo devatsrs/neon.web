@@ -1426,7 +1426,7 @@
     background-position: 0 -112px
 }
 .icons-sprite,
-.ui-form .inline-field .google_contacts_sync li.freshdesk,
+.ui-form .inline-field .google_contacts_sync li.helpdesk,
 .ui-form .inline-field .google_contacts_sync li.google,
 .icons-edit-forum,
 .meta-os,
@@ -1450,7 +1450,7 @@
     background-image: url(assets/cdn-ignored/sprites/icons-sf1158cbc4d.png);
     background-repeat: no-repeat
 }
-.ui-form .inline-field .google_contacts_sync li.freshdesk {
+.ui-form .inline-field .google_contacts_sync li.helpdesk {
     background-position: 0 -240px
 }
 .ui-form .inline-field .google_contacts_sync li.google {
@@ -1820,7 +1820,7 @@ a.tw-tkt-link:before,
 .ficon-forward-tkt:before,
 .ticket-actions .forward-inner:before,
 .ficon-freshchat:before,
-.ficon-freshdesk:before,
+.ficon-helpdesk:before,
 .ficon-freshfone:before,
 .ficon-phone_number:before,
 .ficon-gamification-settings:before,
@@ -2620,7 +2620,7 @@ a.tw-tkt-link:before {
 .ficon-freshchat:before {
     content: "\f150"
 }
-.ficon-freshdesk:before {
+.ficon-helpdesk:before {
     content: "\f151"
 }
 .ficon-freshfone:before,
@@ -3276,7 +3276,7 @@ a[class*="ficon-"] {
     color: #333;
     margin-right: 5px
 }
-.conv-wrapper .ficon-freshdesk {
+.conv-wrapper .ficon-helpdesk {
     color: #4E903E
 }
 .icon-lst i.ficon-twitter {
@@ -3396,7 +3396,7 @@ span.fb_add .adm-social .add-another .pick-response,
 .header-notification-wrapper .notification_present .forum-type-howto {
     color: white
 }
-.header-notification-wrapper .popover-wrapper .ficon-freshdesk,
+.header-notification-wrapper .popover-wrapper .ficon-helpdesk,
 .header-notification-wrapper .popover-wrapper .ficon-search,
 .header-notification-wrapper .popover-wrapper .recent_search_icon,
 .header-notification-wrapper .popover-wrapper .ficon-mail,

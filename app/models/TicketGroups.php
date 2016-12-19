@@ -28,4 +28,17 @@ class TicketGroups extends \Eloquent {
 		   $row = array("0"=> "Select")+$row;
 		   return $row;
 	}
+	
+	
+    static function get_support_email_by_remember_token($remember_token) {
+        if (empty($remember_token)) {
+            return FALSE;
+        }
+        $result = TicketGroups::where(["remember_token"=>$remember_token])->first();
+        if (!empty($result)) {
+            return $result;
+        } else {
+            return FALSE;
+        }
+    }
 }

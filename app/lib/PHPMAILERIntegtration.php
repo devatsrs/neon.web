@@ -67,6 +67,15 @@ class PHPMAILERIntegtration{
 			$mail->AddReplyTo($ImapData->EmailTrackingEmail, $config->CompanyName);
 		}
 		
+		if(isset($data['AttachmentPaths']) && count($data['AttachmentPaths'])>0) {
+        foreach($data['AttachmentPaths'] as $attachment_data) { 
+            $file = \Nathanmac\GUID\Facades\GUID::generate()."_". basename($attachment_data['filepath']); 
+            $Attachmenturl = AmazonS3::unSignedUrl($attachment_data['filepath']);
+            file_put_contents($file,file_get_contents($Attachmenturl));
+            $mail->AddAttachment($file,$attachment_data['filename']);
+        }
+    } 
+		
 		$emailto = is_array($data['EmailTo'])?implode(",",$data['EmailTo']):$data['EmailTo'];
 		if (!$mail->send()) {
 					$status['status'] = 0;

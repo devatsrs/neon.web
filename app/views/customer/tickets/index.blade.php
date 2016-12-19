@@ -1,11 +1,11 @@
-@extends('layout.main')
+@extends('layout.customer.main')
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{ URL::to('/dashboard') }}"><i class="entypo-home"></i>Home</a> </li>
   <li class="active"> <strong>Tickets</strong> </li>
 </ol>
 <h3>Tickets</h3>
-<p class="text-right"> @if( User::checkCategoryPermission('tickets','Add')) <a href="{{ URL::to('/tickets/add') }}" class="btn btn-primary"> <i class="entypo-plus"></i> Add New </a> @endif </p>
+<p class="text-right"> @if( User::checkCategoryPermission('tickets','Add')) <a href="{{ URL::to('customer/tickets/add') }}" class="btn btn-primary"> <i class="entypo-plus"></i> Add New </a> @endif </p>
 <div class="row">
   <div class="col-md-12">
     <form role="form" id="tickets_filter" method="post" action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
@@ -85,7 +85,7 @@
 		 foreach($result as $result_data){ 
 			 ?>
           <tr><!-- new email class: unread -->
-            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span><br>
+            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/customer/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span><br>
               Requester: <?php echo $result_data->Requester; ?><br>
               Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?> </a></td>
             <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>

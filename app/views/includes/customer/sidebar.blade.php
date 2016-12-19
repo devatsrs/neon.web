@@ -38,6 +38,15 @@
                 <span>Dashboard</span>
             </a>
         </li>
+        	   <!--tickets start -->    
+    @if(Tickets::CheckTicketLicense())
+    <li class="{{check_uri('tickets')}}"> <a href="#"> <i class="entypo-ticket"></i> <span>&nbsp;Tickets Management</span> </a>
+      <ul>
+        <li> <a href="{{URL::to('customer/tickets')}}">  <span>Tickets</span> </a> </li>               
+      </ul>
+    </li>
+    @endif
+    <!--tickets end -->
         <li class="{{check_uri('Customer_billing')}}">
             <a href="#">
                 <i class="fa fa-credit-card"></i>

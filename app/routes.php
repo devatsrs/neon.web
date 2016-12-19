@@ -64,6 +64,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/customer/alert/store','NotificationCustomerController@store');
 	Route::any('/customer/alert/update/{id}','NotificationCustomerController@update');
 	Route::any('/customer/alert/delete/{id}','NotificationCustomerController@delete');
+	
+	Route::any('/customer/tickets','TicketsCustomerController@index');
+	Route::any('/customer/tickets/{id}/detail','TicketsCustomerController@Detail');
 
     //Role
     Route::any('/roles', array("as" => "users", "uses" => "RoleController@index"));
@@ -476,6 +479,7 @@ Route::group(array('before' => 'auth'), function () {
 	
 	
 	Route::any('/tickets/ajax_datagrid/{type}', "TicketsController@ajax_datagrid");
+	Route::any('/tickets/ajex_result','TicketsController@ajex_result'); 
 	Route::any('/tickets/add', "TicketsController@add");
 	Route::post('/tickets/upload_file', 'TicketsController@uploadFile');
 	Route::any('/tickets/delete_attachment_file', 'TicketsController@deleteUploadFile');
@@ -483,6 +487,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('tickets/{id}/edit', array('as' => 'tickets_edit', 'uses' => 'TicketsController@edit'));
 	Route::any('/tickets/{id}/update', "TicketsController@Update");
 	Route::any('/tickets/{id}/delete', "TicketsController@delete");
+	Route::any('/tickets/{id}/detail', "TicketsController@Detail");
+	Route::post('tickets/ticket_action', 'TicketsController@TicketAction');
+	Route::post('tickets/{id}/updateticketattributes', 'TicketsController@UpdateTicketAttributes');
+	Route::post('tickets/{id}/actionsubmit', 'TicketsController@ActionSubmit');
+	Route::get('ticketsconversation/{id}/getattachment/{attachmentID}', 'TicketsController@getConversationAttachment');
+	Route::get('tickets/{id}/getattachment/{attachmentID}', 'TicketsController@GetTicketAttachment');
+	Route::post('tickets/{id}/close_ticket', 'TicketsController@CloseTicket');
 	
 	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
 	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));

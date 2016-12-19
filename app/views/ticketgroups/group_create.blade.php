@@ -48,6 +48,26 @@
             </div>
           </div>
           <div class="form-group">
+            <label for="GroupName" class="col-sm-3 control-label">Imap Server</label>
+            <div class="col-sm-9">
+              <input type="text" name='GroupEmailServer' class="form-control" id="imapserver" placeholder="Imap Server" value="{{Input::old('GroupEmailServer')}}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="GroupName" class="col-sm-3 control-label">Password</label>
+            <div class="col-sm-9">
+              <input type="password" name='GroupEmailPassword' class="form-control" id="Imappassword" placeholder="Password" value="{{Input::old('GroupEmailPassword')}}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="GroupName" class="col-sm-3 control-label">Reply From Address</label>
+            <div class="col-sm-9">            
+            <div class="input-group"> <span class="input-group-addon"><i class="entypo-mail"></i></span>
+                <input name='GroupReplyAddress' id="GroupReplyAddress" type="text" class="form-control" placeholder="Reply From Address" value="{{Input::old('GroupEmailAddress')}}">
+              </div>
+            </div>
+          </div>          
+          <div class="form-group">
           <label for="GroupAssignTime" class="col-sm-3 control-label">Escalation Rule</label>              
               <div class="col-sm-6">  {{Form::select('GroupAssignTime', TicketGroups::$EscalationTimes, '' ,array("class"=>"select2","id"=>"GroupAssignTime"))}}   </div>
               <div class="col-sm-3"> <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if a ticket remains un-assigned for more than" data-original-title="Escalation Rule" class="label label-info popover-primary">?</span> </div>

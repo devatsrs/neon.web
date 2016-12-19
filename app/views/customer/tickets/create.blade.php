@@ -21,7 +21,7 @@
         <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
       </div>
       <div class="panel-body">
-        <form role="form" id="form-tickets-edit" method="post" action="{{URL::to('tickets/'.$TicketID.'/update')}}" class="form-horizontal form-groups-bordered">
+        <form role="form" id="form-tickets-add" method="post" action="{{URL::to('tickets/create')}}" class="form-horizontal form-groups-bordered">
           <?php  $required = array();
 			   foreach($Ticketfields as $TicketfieldsData)
 			   {
@@ -38,7 +38,7 @@
 				$required[] =  array("id"=>$id,"title"=>$TicketfieldsData->FieldName);
 			?>
             <div class="col-sm-6">
-            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control typeahead formfld" spellcheck="false" dir="auto"  data-local="{{$AllEmails}}"  value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}"  placeholder="{{$TicketfieldsData->AgentLabel}}" />           
+            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control typeahead formfld" spellcheck="false" dir="auto"  data-local="{{$AllEmails}}"   placeholder="{{$TicketfieldsData->AgentLabel}}" />           
             </div>
             <div class="col-sm-3 dropdown" style="padding:0;">
               <button title="Add new requester" type="button" class="btn btn-primary btn-xs  dropdown-toggle" data-toggle="dropdown">+</button>
@@ -51,7 +51,7 @@
 				if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
 				 ?>
             <div class="col-sm-9">
-              <input type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
+              <input type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
             </div>
             <?php } ?>
           </div>
@@ -68,14 +68,14 @@
           <div class="form-group">
             <label for="GroupDescription" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
-              <textarea   id='{{$id}}'  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld {{$class_textarea}}" >{{$ticketSavedData[$TicketfieldsData->FieldType]}}</textarea>
+              <textarea   id='{{$id}}'  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld {{$class_textarea}}" ></textarea>
               <div class="form-group email_attachment">
             <input type="hidden" value="1" name="email_send" id="email_send"  />
             <!--   <input id="filecontrole" type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden" multiple data-label="<i class='entypo-attach'></i>Attachments" />-->
             
             <input id="emailattachment_sent" type="hidden" name="emailattachment_sent" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"   />
             <input id="info2" type="hidden" name="attachmentsinfo" />
-            <span class="file-input-names">@if(isset($ticketSavedData['AttachmentPaths']['text'])){{$ticketSavedData['AttachmentPaths']['text']}}@endif</span> </div>
+            <span class="file-input-names"></span> </div>
             </div>
           </div>
           <?php if($class_textarea == 'wysihtml5box'){ ?>
@@ -91,7 +91,7 @@
           <div class="form-group">
             <label for="GroupDescription" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
-              <input class="checkbox rowcheckbox formfldcheckbox" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}" name='Ticket[{{$TicketfieldsData->FieldType}}]' @if($ticketSavedData[$TicketfieldsData->FieldType]==1) checked @endif id='{{$id}}' type="checkbox">
+              <input class="checkbox rowcheckbox formfldcheckbox" value="0" name='Ticket[{{$TicketfieldsData->FieldType}}]' id='{{$id}}' type="checkbox">
             </div>
           </div>
           <?php 		  
@@ -103,7 +103,7 @@
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
-              <input type="number" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
+              <input type="number" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
             </div>
           </div>
           <?php		 
@@ -121,8 +121,8 @@
 			  if($TicketfieldsData->FieldType == 'default_priority'){
 				$FieldValues = TicketPriority::orderBy('PriorityID', 'asc')->get(); 
 					foreach($FieldValues as $FieldValuesData){
-					?> 
-                <option  @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->PriorityID) selected @endif  value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
+					?>
+                <option value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
                 <?php 
 					}
 				}else  if($TicketfieldsData->FieldType == 'default_group'){
@@ -132,7 +132,7 @@
                 <?php
 					foreach($FieldValues as $FieldValuesData){
 					?>
-                <option @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->GroupID) selected  @endif value="{{$FieldValuesData->GroupID}}">{{$FieldValuesData->GroupName}}</option>
+                <option value="{{$FieldValuesData->GroupID}}">{{$FieldValuesData->GroupName}}</option>
                 <?php 
 					}
 				} else  if($TicketfieldsData->FieldType == 'default_agent'){		
@@ -141,7 +141,7 @@
                 <?php
 					foreach($agentsAll as $FieldValuesData){
 					?>
-                <option @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->UserID) selected  @endif value="{{$FieldValuesData->UserID}}">{{$FieldValuesData->FirstName}} {{$FieldValuesData->LastName}}</option>
+                <option value="{{$FieldValuesData->UserID}}">{{$FieldValuesData->FirstName}} {{$FieldValuesData->LastName}}</option>
                 <?php 
 					}
 				}					
@@ -150,7 +150,7 @@
 					$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
 					foreach($FieldValues as $FieldValuesData){
 					?>
-                <option @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->ValuesID) selected  @endif  value="{{$FieldValuesData->ValuesID}}">{{$FieldValuesData->FieldValueAgent}}</option>
+                <option value="{{$FieldValuesData->ValuesID}}">{{$FieldValuesData->FieldValueAgent}}</option>
                 <?php
 					}
 				}
@@ -168,7 +168,7 @@
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
-              <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld datepicker" data-date-format="yyyy-mm-dd" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
+              <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld datepicker" data-date-format="yyyy-mm-dd" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
             </div>            
           </div>
           <?php					 
@@ -180,7 +180,7 @@
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
-              <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
+              <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
             </div>
           </div>
           <?php	 
@@ -211,17 +211,6 @@ var max_file_size_txt =	        '{{$max_file_size}}';
 var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 var required_flds	  =          '{{json_encode($required)}}';
 
-@if(isset($ticketSavedData['AttachmentPaths']['attachmentsinfo']))
-var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']}}';
-	
-	$('#info1').val(img_array);
-    $('#info2').val(img_array);
-	var img_array_final = jQuery.parseJSON(img_array);
-	for (var i = 0, len = img_array_final.length; i < len; ++i) {
-   	 emailFileList.push(img_array_final[i].filename);	
- }
-@endif
-
     jQuery(document).ready(function($) {
 		
 		function validate_form()
@@ -251,7 +240,7 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
     // Replace Checboxes
         $(".save.btn").click(function(ev) {
 			if(validate_form()){
-            	$('#form-tickets-edit').submit();      
+            	$('#form-tickets-add').submit();      
 			}
       });
 	  
@@ -288,14 +277,14 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 		   }
 		   
 	  });
-	  $(document).on('submit','#form-tickets-edit',function(e){		 
+	  $(document).on('submit','#form-tickets-add',function(e){		 
 		 $('.btn').attr('disabled', 'disabled');	 
 		 $('.btn').button('loading');
 	
 		e.stopImmediatePropagation();
 		e.preventDefault();
 		var formData = new FormData($(this)[0]);
-		var ajax_url = baseurl+'/tickets/{{$TicketID}}/update';
+		var ajax_url = baseurl+'/tickets/store';
 		 $.ajax({
 				url: ajax_url,
 				type: 'POST',

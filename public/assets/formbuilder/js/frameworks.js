@@ -48,7 +48,7 @@ function catchException(e, t) {
     try {
         return e()
     } catch (i) {
-        log(t || "Freshdesk Error:", i)
+        log(t || "Js Error:", i)
     }
 }
 
@@ -136,16 +136,6 @@ function hideSortableForm(e, t, i) {
     jQuery("#" + t).fadeIn(300), jQuery("#" + e).show(), jQuery("#" + i).hide()
 }
 
-function get_short_url(e, t) {
-    jQuery.getJSON("http://api.bitly.com/v3/shorten?callback=?", {
-        format: "json",
-        apiKey: "R_8ae5a67d8d9930440f0d1d4b794332f0",
-        login: "freshdesk",
-        longUrl: e
-    }, function(e) {
-        t(e.data.url)
-    })
-}
 
 function insertTextAtCursor(e, t) {
     var i, n, s = e.value;
@@ -219,9 +209,9 @@ function setPostParam(e, t, i) {
 function quote_text(e, t) {
     if (t = t || {}, !jQuery(e).attr("data-quoted") || t.force_quote) {
         var i = jQuery("<a href='#' title='Show quoted text'/>").addClass("q-marker tooltip").text(""),
-            n = jQuery(e).find("div.freshdesk_quote").first().prepend(i).children("blockquote.freshdesk_quote");
+            n = jQuery(e).find("div.helpdesk_quote").first().prepend(i).children("blockquote.helpdesk_quote");
         t.force_quote || n.hide(), i.bind("click", function(e) {
-            e.preventDefault(), jQuery(this).siblings("blockquote.freshdesk_quote").toggle()
+            e.preventDefault(), jQuery(this).siblings("blockquote.helpdesk_quote").toggle()
         }), jQuery(e).removeClass("request_mail"), jQuery(e).attr("data-quoted", !0)
     }
 }
@@ -39015,7 +39005,7 @@ function(e) {
             this.$redactor.syncCode(), this.checkQuotedText()
         },
         checkQuotedText: function() {
-            this.$draft_added = this.$redactor.$editor.find(".freshdesk_quote").get(0) ? !0 : !1, this.$template.toggle(!this.$draft_added)
+            this.$draft_added = this.$redactor.$editor.find(".helpdesk_quote").get(0) ? !0 : !1, this.$template.toggle(!this.$draft_added)
         },
         syncQuotedText: function() {
             if (!this.$draft_added) {
@@ -39229,8 +39219,8 @@ function(e) {
         }
     }
 }(jQuery);
-var Freshdesk = {};
-timeStamp = cloudfront_version, Freshdesk.Widget = Class.create(), Freshdesk.Widget.prototype = {
+var Helpdesk = {};
+timeStamp = cloudfront_version, Helpdesk.Widget = Class.create(), Helpdesk.Widget.prototype = {
     initialize: function(e) {
         this.options = e || {}, "OAuth" == this.options.auth_type ? this.options.refresh_count = 0 : null, this.app_name = this.options.app_name || this.app_name || "Integrated Application", this.options.widget_name || (this.options.widget_name = this.app_name.toLowerCase().replace(" ", "_") + "_widget"), this.options.username || (this.options.username = Cookie.retrieve(this.options.widget_name + "_username")), this.options.password || (this.options.password = Cookie.retrieve(this.options.widget_name + "_password") || "x"), this.callbacks_awaiting_access_token = [], this.content_element = $$("#" + this.options.widget_name + " .content")[0], this.error_element = $$("#" + this.options.widget_name + " .error")[0], this.title_element = $$("#" + this.options.widget_name + " #title")[0], this.options.title && (this.title_element.innerHTML = this.options.title), this.display(), this.access_token_renewal_url = e.is_customer ? "/support/user_credentials/refresh_access_token/" : "/integrations/refresh_access_token/", this.http_proxy_url = e.is_customer ? "/support/http_request_proxy/fetch" : "/http_request_proxy/fetch", this.initializeAjaxQueue(), this.call_init_requests()
     },
@@ -39305,7 +39295,7 @@ timeStamp = cloudfront_version, Freshdesk.Widget = Class.create(), Freshdesk.Wid
                 } catch (a) {}
                 return alert("Harvest reported an unknown error processing your Request.\n\n Your Timesheet might be locked. "), void 0
             }
-            this.alert_failure("Unknown server error. Please contact support@freshdesk.com.")
+            this.alert_failure("Unknown server error.")
         } else "undefined" != typeof t.on_failure && null != t.on_failure ? t.on_failure(e) : 404 == e.status ? "Google Calendar" == this.app_name || this.alert_failure("Could not fetch data from " + (this.options.domain || this.domain) + "\n\nPlease verify your integration settings and try again.") : (jQuery(".timeentry_status").hide(), errorStr = e.responseText, this.alert_failure("Problem in connecting to " + this.app_name + ". Response code: " + e.status));
         if (!s) {
             if (loading_elem = jQuery('div[class^="loading-"]').attr("class"))
@@ -39386,7 +39376,7 @@ timeStamp = cloudfront_version, Freshdesk.Widget = Class.create(), Freshdesk.Wid
             n = Math.floor(i / 86400);
         return isNaN(n) || 0 > n || n > 0 ? t.getDate() + " " + t.toDateString().split(" ")[1] : 0 == n && (60 > i && "just now" || 120 > i && "a minute ago" || 3600 > i && Math.floor(i / 60) + " minutes ago" || 7200 > i && "1 hour ago" || 86400 > i && Math.floor(i / 3600) + " hours ago") || 1 == n && "Yesterday" || 7 > n && n + " days ago" || 31 > n && Math.ceil(n / 7) + " weeks ago"
     }
-}, Freshdesk.NativeIntegration = {}, Freshdesk.EmailMarketingWidget = Class.create(Freshdesk.Widget, {
+}, Helpdesk.NativeIntegration = {}, Helpdesk.EmailMarketingWidget = Class.create(Helpdesk.Widget, {
     initialize: function($super, e, t) {
         "" == e.reqEmail ? this.alert_failure("Email not available for this requester. Please make sure a valid Email is set for this requester.") : (cw = this, this.app = e.app_name.toLowerCase(), e.parsers = {
             getUserInfo: this.handleUser.bind(this),
@@ -39633,7 +39623,7 @@ timeStamp = cloudfront_version, Freshdesk.Widget = Class.create(), Freshdesk.Wid
     MailingLists: '<div class="mailing-lists"><div class="lists-load hide"><div class="mailing-msg"><b>Subscribe/Unsubscribe mailing lists below and click Save </b></div><div class="listsExportAll"><input type="submit" class="uiButton lists-submit"  value="Save"></div><div class="all-lists"><div class="lists threecol-form"><%=lists%></div></div></div></div>',
     UserLists: '<div class="item"><label><input type="checkbox" id="<%=listId%>"/><div><%=listTitle%></div></label></div>',
     EmptyData: '<div class="empty-response"><span>No <%=type%> found for <%=contact%></span></div>'
-}), Freshdesk.CRMWidget = Class.create(Freshdesk.Widget, {
+}), Helpdesk.CRMWidget = Class.create(Helpdesk.Widget, {
     initialize: function($super, e, t) {
         if (e.domain)
             if ("" == e.reqEmail) $super(e), this.alert_failure("Email not available for this requester. A valid Email is required to fetch the contact from " + this.options.app_name);

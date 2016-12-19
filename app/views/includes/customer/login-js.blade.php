@@ -1,8 +1,8 @@
 
 <?php
 if ( Request::is('/') || Request::is('login') || Request::is('customer/login') || Request::is('forgot_password') || Request::is('registration') || Request::is('super_admin') || Request::is('global_user_select_company') ) {
-    $js = [
-        "assets/js/jquery-1.11.0.min.js",
+    $js = [        
+		"assets/js/jquery-1.11.0.min.js",
         "assets/js/gsap/main-gsap.js",
         "assets/js/jquery-ui/js/jquery-ui-1.10.3.minimal.min.js",
         "assets/js/bootstrap.js",

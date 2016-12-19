@@ -12129,7 +12129,7 @@ li {
     -webkit-transition: border 200ms cubic-bezier(0.65, 0.05, 0.36, 1);
     transition: border 200ms cubic-bezier(0.65, 0.05, 0.36, 1)
 }
-.commentbox blockquote.freshdesk_quote {
+.commentbox blockquote.helpdesk_quote {
     font-size: 13px;
     line-height: 18px;
     margin: 10px 3px 5px;
@@ -12359,8 +12359,8 @@ li {
 .commentbox #ticket_original_request del {
     text-decoration: none
 }
-.commentbox .details .freshdesk_satisfaction_survey,
-.commentbox #ticket_original_request .freshdesk_satisfaction_survey {
+.commentbox .details .helpdesk_satisfaction_survey,
+.commentbox #ticket_original_request .helpdesk_satisfaction_survey {
     display: none
 }
 .commentbox .tag {
@@ -21623,7 +21623,7 @@ div.gcal-confirm-modal-content {
 .ui-form .inline-field .google_contacts_sync label.caption {
     font-size: 1em
 }
-.ui-form .inline-field .google_contacts_sync div.fields ul.sync_status.freshdesk {
+.ui-form .inline-field .google_contacts_sync div.fields ul.sync_status.helpdesk {
     color: #00868f
 }
 .ui-form .inline-field .google_contacts_sync div.fields ul.sync_status.google {
@@ -21647,7 +21647,7 @@ div.gcal-confirm-modal-content {
     text-transform: uppercase;
     margin: 3px
 }
-.ui-form .inline-field .google_contacts_sync div.fields ul.sync_status li.freshdesk,
+.ui-form .inline-field .google_contacts_sync div.fields ul.sync_status li.helpdesk,
 .ui-form .inline-field .google_contacts_sync div.fields ul.sync_status li.google {
     width: 35px;
     height: 24px
@@ -21677,7 +21677,7 @@ div.gcal-confirm-modal-content {
 }
 .remote-configurations-sprite,
 .remote-configurations-arrow,
-.remote-configurations-freshdesk-logo,
+.remote-configurations-helpdesk-logo,
 .remote-configurations-quickbooks-logo,
 .remote-configurations-seoshop-logo {
     background-image: url(/assets/cdn-ignored/sprites/remote-configurations-s4bb9724c5d.png);
@@ -21688,7 +21688,7 @@ div.gcal-confirm-modal-content {
     height: 26px;
     width: 41px
 }
-.remote-configurations-freshdesk-logo {
+.remote-configurations-helpdesk-logo {
     background-position: 0 -26px;
     height: 44px;
     width: 135px
