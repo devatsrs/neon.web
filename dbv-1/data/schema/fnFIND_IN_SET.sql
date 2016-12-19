@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user-abubakar`@`122.129.78.153` FUNCTION `fnFIND_IN_SET`(
+CREATE DEFINER=`root`@`localhost` FUNCTION `fnFIND_IN_SET`(
 	`p_String1` LONGTEXT,
 	`p_String2` LONGTEXT
 
