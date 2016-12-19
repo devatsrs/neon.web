@@ -247,7 +247,7 @@
         }
 
         function invoiceExpense(){
-            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)))
+
             var data = $('#billing_filter').serialize() + '&' + $('#invoiceExpensefilter-form').serialize();
             CurrencyID = $("[name=CurrencyID]").val();
             data = data+'&CurrencyID='+CurrencyID;
@@ -258,11 +258,10 @@
                 loadingUnload('#invoice_expense_bar_chart',0);
                 $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
             }, "html" );
-            @endif
         }
 
         function invoiceExpenseTotalwidgets(){
-            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
+
             var data = $('#billing_filter').serialize();
             var get_url = baseurl + "/customer/invoice_expense_total_widget";
             $.get(get_url, data, function (response) {
@@ -306,7 +305,6 @@
                 titleState(temp.find('.tile-stats'));
 
             }, "json");
-            @endif
         }
 
         function invoiceExpenseTotal(){
@@ -453,7 +451,6 @@
             }
         }
         function pin_report() {
-            @if(CompanySetting::getKeyVal('PincodeWidget') == 1)
             $("#pin_grid_main").addClass('hidden');
             loadingUnload('#pin_expense_bar_chart', 1);
             data = $('#billing_filter').serialize() + '&' + $('#filter-form').serialize() ;
@@ -464,7 +461,6 @@
                 $(".save.btn").button('reset');
                 $("#pin_expense_bar_chart").html(response);
             }, "html");
-            @endif
         }
 
         $(function() {
