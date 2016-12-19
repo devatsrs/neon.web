@@ -2,7 +2,7 @@ USE `NeonRMDev`;
 
 Delete FROM tblResourceCategories
 WHERE ResourceCategoryName='RateManager' OR
-	    ResourceCategoryName='RmDashboard'
+	    ResourceCategoryName='RmDashboard';
 
 DROP FUNCTION IF EXISTS `fnFIND_IN_SET`;
 CREATE DEFINER=`root`@`localhost` FUNCTION `fnFIND_IN_SET`(

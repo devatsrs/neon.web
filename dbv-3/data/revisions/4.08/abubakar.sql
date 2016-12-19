@@ -1,4 +1,5 @@
 USE `NeonCDRDev`;
+
 DROP PROCEDURE IF EXISTS `prc_unsetCDRUsageAccount`;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_unsetCDRUsageAccount`(
 	IN `p_CompanyID` INT,

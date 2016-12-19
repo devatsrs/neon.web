@@ -1,6 +1,6 @@
 USE `NeonBillingDev`;
 
-Update tblBillingClass SET SendInvoiceSetting='after_admin_review' where SendInvoiceSetting='never'
+Update tblBillingClass SET SendInvoiceSetting='after_admin_review' where SendInvoiceSetting='never';
 
 
 DROP PROCEDURE IF EXISTS `fngetDefaultCodes`;
