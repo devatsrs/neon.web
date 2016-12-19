@@ -47,7 +47,25 @@
     @endif
     @if( User::checkCategoryPermission('Account','View'))
     <li> <a href="{{URL::to('/accounts')}}"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a> </li>
-    @endif    
+    @endif  
+    
+       <!--tickets start -->    
+    @if(Tickets::CheckTicketLicense())
+    <li class="{{check_uri('tickets')}}"> <a href="#"> <i class="entypo-ticket"></i> <span>&nbsp;Tickets Management</span> </a>
+      <ul>
+       @if(User::checkCategoryPermission('Tickets','All'))
+        <li> <a href="{{URL::to('/tickets')}}">  <span>Tickets</span> </a> </li>
+        @endif
+         @if(User::checkCategoryPermission('TicketsFields','All'))
+        <li> <a href="{{URL::to('/ticketsfields')}}">  <span>Tickets Fields</span> </a> </li>
+        @endif
+        @if(User::checkCategoryPermission('TicketsGroups','All'))
+        <li> <a href="{{URL::to('/ticketgroups')}}">  <span>Groups</span> </a> </li>
+        @endif
+      </ul>
+    </li>
+    @endif
+    <!--tickets end -->  
 	
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_RM || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('RateTables','View') || User::checkCategoryPermission('LCR','All') ||
