@@ -7,8 +7,8 @@
         $dashsearchFilter.pageSize = '{{Config::get('app.pageSize')}}';
         $dashsearchFilter.Admin = '{{$isAdmin}}';
         $dashsearchFilter.AccountID = '{{Customer::get_accountID()}}';
-        $dashsearchFilter.StartDate = '{{date("Y-m-d")}}';
-        $dashsearchFilter.EndDate = '{{date("Y-m-d")}}';
+        $dashsearchFilter.StartDate = '{{date("Y-m-d 00:00:00")}}';
+        $dashsearchFilter.EndDate = '{{date("Y-m-d 23:59:59")}}';
         var cdr_url = "{{URL::to('customer/cdr')}}";
         var toFixed = '{{get_round_decimal_places()}}';
         jQuery(document).ready(function ($) {
