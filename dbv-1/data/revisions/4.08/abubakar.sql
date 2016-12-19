@@ -4,10 +4,15 @@ Delete FROM tblResourceCategories
 WHERE ResourceCategoryName='RateManager' OR
 	    ResourceCategoryName='RmDashboard';
 
+-- Dumping structure for function NeonRMDev.fnFIND_IN_SET
 DROP FUNCTION IF EXISTS `fnFIND_IN_SET`;
+DELIMITER //
 CREATE DEFINER=`root`@`localhost` FUNCTION `fnFIND_IN_SET`(
 	`p_String1` LONGTEXT,
 	`p_String2` LONGTEXT
+
+
+
 ) RETURNS int(11)
 BEGIN
 	DECLARE i int;
@@ -46,8 +51,12 @@ BEGIN
 
 	RETURN counter;
 
-END
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure NeonRMDev.prc_AddAccountIPCLI
 DROP PROCEDURE IF EXISTS `prc_AddAccountIPCLI`;
+DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_AddAccountIPCLI`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
@@ -200,8 +209,12 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ ;
 
-END
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure NeonRMDev.prc_GetAccounts
 DROP PROCEDURE IF EXISTS `prc_GetAccounts`;
+DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetAccounts`(
 	IN `p_CompanyID` int,
 	IN `p_userID` int ,
@@ -396,4 +409,5 @@ BEGIN
 		GROUP BY tblAccount.AccountID;
 	END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END
+END//
+DELIMITER ;

@@ -3,7 +3,9 @@ USE `NeonBillingDev`;
 Update tblBillingClass SET SendInvoiceSetting='after_admin_review' where SendInvoiceSetting='never';
 
 
-DROP PROCEDURE IF EXISTS `fngetDefaultCodes`;
+-- Dumping structure for procedure NeonBillingDev.prc_getDashboardinvoiceExpenseTotalOutstanding
+DROP PROCEDURE IF EXISTS `prc_getDashboardinvoiceExpenseTotalOutstanding`;
+DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpenseTotalOutstanding`(
 	IN `p_CompanyID` INT,
 	IN `p_CurrencyID` INT,
@@ -222,9 +224,12 @@ BEGIN
 			v_Round_ as `Round`;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-END
+END//
+DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `fngetDefaultCodes`;
+-- Dumping structure for procedure NeonBillingDev.prc_getDashboardTotalOutStanding
+DROP PROCEDURE IF EXISTS `prc_getDashboardTotalOutStanding`;
+DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardTotalOutStanding`(
 	IN `p_CompanyID` INT,
 	IN `p_CurrencyID` INT,
@@ -268,4 +273,5 @@ BEGIN
 
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END
+END//
+DELIMITER ;
