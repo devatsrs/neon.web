@@ -737,3 +737,334 @@ BEGIN
 
 END//
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getAccountReport`;
+DROP PROCEDURE IF EXISTS `prc_getVendorAccountReport`;
+DROP PROCEDURE IF EXISTS `prc_getDestinationReport`;
+DROP PROCEDURE IF EXISTS `prc_getVendorDestinationReport`;
+DROP PROCEDURE IF EXISTS `prc_getGatewayReport`;
+DROP PROCEDURE IF EXISTS `prc_getVendorGatewayReport`;
+DROP PROCEDURE IF EXISTS `prc_getPrefixReport`;
+DROP PROCEDURE IF EXISTS `prc_getVendorPrefixReport`;
+DROP PROCEDURE IF EXISTS `prc_getTrunkReport`;
+DROP PROCEDURE IF EXISTS `prc_getVendorTrunkReport`;
+
+-- Dumping structure for procedure NeonReportDev.prc_getHourlyReport
+DROP PROCEDURE IF EXISTS `prc_getHourlyReport`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getHourlyReport`(
+	IN `p_CompanyID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_AccountID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME
+)
+BEGIN
+	
+	DECLARE v_Round_ int;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+
+	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,0,p_StartDate,p_EndDate,'','',0,p_UserID,p_isAdmin,2);
+	
+	/* total cost */
+	SELECT ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) as TotalCost FROM tmp_tblUsageSummary_;
+	
+	/* cost per hour*/
+	SELECT dt.hour as HOUR ,ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) as TotalCost FROM tmp_tblUsageSummary_ us INNER JOIN tblDimTime dt on us.TimeID =  dt.TimeID GROUP BY dt.hour;
+	
+	/* total duration or minutes*/
+	SELECT ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes FROM tmp_tblUsageSummary_;
+	
+	/* minutes pre hour*/
+	SELECT dt.hour as HOUR ,ROUND(COALESCE(SUM(TotalBilledDuration),0) / 60,0) as TotalMinutes FROM tmp_tblUsageSummary_ us INNER JOIN tblDimTime dt on us.TimeID =  dt.TimeID GROUP BY dt.hour;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure NeonReportDev.prc_getUnbilledReport
+DROP PROCEDURE IF EXISTS `prc_getUnbilledReport`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getUnbilledReport`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_LastInvoiceDate` DATETIME,
+	IN `p_Today` DATETIME,
+	IN `p_Detail` INT
+)
+BEGIN
+	
+	DECLARE v_Round_ INT;
+	DECLARE v_Detail_ INT;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	IF p_Detail = 3
+	THEN 
+		SET v_Detail_ = 1;
+	ELSE 
+		SET v_Detail_ = p_Detail;
+	END IF;
+	
+	
+	CALL fnUsageSummary(p_CompanyID,0,p_AccountID,0,p_LastInvoiceDate,p_Today,'','',0,0,1,v_Detail_);
+	
+	IF p_Detail = 1
+	THEN
+	
+		SELECT 
+			dd.date,
+			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
+		FROM tmp_tblUsageSummary_ us
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
+		GROUP BY us.DateID;
+	
+	END IF;
+	
+	IF p_Detail = 2
+	THEN
+	
+		SELECT 
+			dd.date,
+			dt.fulltime,
+			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
+		FROM tmp_tblUsageSummary_ us
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
+		INNER JOIN tblDimTime dt on dt.TimeID = us.TimeID
+		GROUP BY us.DateID,us.TimeID;
+	
+	END IF;
+	
+	IF p_Detail = 3
+	THEN
+	
+		DROP TEMPORARY TABLE IF EXISTS tmp_FinalAmount_;
+		CREATE TEMPORARY TABLE tmp_FinalAmount_  (
+			FinalAmount DOUBLE
+		);
+		INSERT INTO tmp_FinalAmount_
+		SELECT 
+		ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+		FROM tmp_tblUsageSummary_ us;
+	
+	END IF;
+ 
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure NeonReportDev.prc_getVendorUnbilledReport
+DROP PROCEDURE IF EXISTS `prc_getVendorUnbilledReport`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorUnbilledReport`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_LastInvoiceDate` DATETIME,
+	IN `p_Today` DATETIME,
+	IN `p_Detail` INT
+)
+BEGIN
+	
+	DECLARE v_Round_ INT;
+	DECLARE v_Detail_ INT;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	IF p_Detail = 3
+	THEN 
+		SET v_Detail_ = 1;
+	ELSE 
+		SET v_Detail_ = p_Detail;
+	END IF;
+	
+	
+	CALL fnUsageVendorSummary(p_CompanyID,0,p_AccountID,0,p_LastInvoiceDate,p_Today,'','',0,0,1,v_Detail_);
+	
+	IF p_Detail = 1
+	THEN
+	
+		SELECT 
+			dd.date,
+			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
+		FROM tmp_tblUsageVendorSummary_ us
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
+		GROUP BY us.DateID;
+	
+	END IF;
+	
+	IF p_Detail = 2
+	THEN
+	
+		SELECT 
+			dd.date,
+			dt.fulltime,
+			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
+		FROM tmp_tblUsageVendorSummary_ us
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
+		INNER JOIN tblDimTime dt on dt.TimeID = us.TimeID
+		GROUP BY us.DateID,us.TimeID;
+	
+	END IF;
+	
+	IF p_Detail = 3
+	THEN
+	
+		DROP TEMPORARY TABLE IF EXISTS tmp_FinalAmount_;
+		CREATE TEMPORARY TABLE tmp_FinalAmount_  (
+			FinalAmount DOUBLE
+		);
+		INSERT INTO tmp_FinalAmount_
+		SELECT 
+		ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+		FROM tmp_tblUsageVendorSummary_ us;
+	
+	END IF;
+ 
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure NeonReportDev.prc_updateUnbilledAmount
+DROP PROCEDURE IF EXISTS `prc_updateUnbilledAmount`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateUnbilledAmount`(
+	IN `p_CompanyID` INT,
+	IN `p_Today` DATETIME
+)
+BEGIN
+	
+	DECLARE v_Round_ INT;
+	DECLARE v_rowCount_ INT;
+	DECLARE v_pointer_ INT;
+	DECLARE v_AccountID_ INT;
+	DECLARE v_LastInvoiceDate_ DATE;
+	DECLARE v_FinalAmount_ DOUBLE;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
+	CREATE TEMPORARY TABLE tmp_Account_  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		AccountID INT,
+		LastInvoiceDate DATE
+	);
+	
+	INSERT INTO tmp_Account_ (AccountID)
+	SELECT DISTINCT tblSummaryHeader.AccountID  FROM tblSummaryHeader INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblSummaryHeader.AccountID WHERE tblSummaryHeader.CompanyID = p_CompanyID;
+	
+	UPDATE tmp_Account_ SET LastInvoiceDate = fngetLastInvoiceDate(AccountID);
+	
+	SET v_pointer_ = 1;
+	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Account_);
+
+	WHILE v_pointer_ <= v_rowCount_
+	DO
+		SET v_AccountID_ = (SELECT AccountID FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
+		SET v_LastInvoiceDate_ = (SELECT LastInvoiceDate FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
+		
+		CALL prc_getUnbilledReport(p_CompanyID,v_AccountID_,v_LastInvoiceDate_,p_Today,3);
+		
+		SELECT FinalAmount INTO v_FinalAmount_ FROM tmp_FinalAmount_;
+		
+		IF (SELECT COUNT(*) FROM NeonRMDev.tblAccountBalance WHERE AccountID = v_AccountID_) > 0
+		THEN
+			UPDATE NeonRMDev.tblAccountBalance SET UnbilledAmount = v_FinalAmount_ WHERE AccountID = v_AccountID_;
+		ELSE
+			INSERT INTO NeonRMDev.tblAccountBalance (AccountID,UnbilledAmount,BalanceAmount)
+			SELECT v_AccountID_,v_FinalAmount_,v_FinalAmount_;
+		END IF;
+		
+		SET v_pointer_ = v_pointer_ + 1;
+	
+	END WHILE;
+	
+	CALL prc_updateVendorUnbilledAmount(p_CompanyID,p_Today);
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure NeonReportDev.prc_updateVendorUnbilledAmount
+DROP PROCEDURE IF EXISTS `prc_updateVendorUnbilledAmount`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateVendorUnbilledAmount`(
+	IN `p_CompanyID` INT,
+	IN `p_Today` DATETIME
+)
+BEGIN
+	
+	DECLARE v_Round_ INT;
+	DECLARE v_rowCount_ INT;
+	DECLARE v_pointer_ INT;
+	DECLARE v_AccountID_ INT;
+	DECLARE v_LastInvoiceDate_ DATETIME;
+	DECLARE v_FinalAmount_ DOUBLE;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
+	CREATE TEMPORARY TABLE tmp_Account_  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		AccountID INT,
+		LastInvoiceDate DATETIME
+	);
+	
+	INSERT INTO tmp_Account_ (AccountID)
+	SELECT DISTINCT tblSummaryVendorHeader.AccountID  FROM tblSummaryVendorHeader INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblSummaryVendorHeader.AccountID WHERE tblSummaryVendorHeader.CompanyID = p_CompanyID;
+	
+	UPDATE tmp_Account_ SET LastInvoiceDate = fngetLastVendorInvoiceDate(AccountID);
+	
+	SET v_pointer_ = 1;
+	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Account_);
+
+	WHILE v_pointer_ <= v_rowCount_
+	DO
+		SET v_AccountID_ = (SELECT AccountID FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
+		SET v_LastInvoiceDate_ = (SELECT LastInvoiceDate FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
+		
+		IF v_LastInvoiceDate_ IS NOT NULL
+		THEN
+		
+			CALL prc_getVendorUnbilledReport(p_CompanyID,v_AccountID_,v_LastInvoiceDate_,p_Today,3);
+			
+			SELECT FinalAmount INTO v_FinalAmount_ FROM tmp_FinalAmount_;
+			
+			IF (SELECT COUNT(*) FROM NeonRMDev.tblAccountBalance WHERE AccountID = v_AccountID_) > 0
+			THEN
+				UPDATE NeonRMDev.tblAccountBalance SET VendorUnbilledAmount = v_FinalAmount_ WHERE AccountID = v_AccountID_;
+			ELSE
+				INSERT INTO NeonRMDev.tblAccountBalance (AccountID,VendorUnbilledAmount,BalanceAmount)
+				SELECT v_AccountID_,v_FinalAmount_,v_FinalAmount_;
+			END IF;
+			
+		END IF;
+		
+		SET v_pointer_ = v_pointer_ + 1;
+	
+	END WHILE;	
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
