@@ -61,6 +61,26 @@ class DashboardCustomerController extends BaseController {
         //return View::make('customer.billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));
 
     }
+
+    public function invoice_expense_total_widget(){
+
+        $data = Input::all();
+        $CurrencyID = "";
+        $CurrencySymbol = $CurrencyCode = "";
+        $CustomerID = Customer::get_accountID();
+        if(isset($data["CurrencyID"]) && !empty($data["CurrencyID"])){
+            $CurrencyID = $data["CurrencyID"];
+            $CurrencyCode = Currency::getCurrency($CurrencyID);
+            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
+        }
+        $companyID = User::get_companyID();
+        $query = "call prc_getDashboardTotalOutStanding ('". $companyID  . "',  '". $CurrencyID  . "',".$CustomerID.")";
+        $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
+        if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
+            return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
+        }
+    }
+
     public function monitor_dashboard(){
 
         $companyID = User::get_companyID();

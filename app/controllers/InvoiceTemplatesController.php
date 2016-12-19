@@ -93,7 +93,7 @@ class InvoiceTemplatesController extends \BaseController {
             {
                 $ext = $file->getClientOriginalExtension();
 				
-                if (!in_array($ext, array("jpg"))){
+                if (!in_array(strtolower($ext) , array("jpg"))){
                     return Response::json(array("status" => "failed", "message" => "Please Upload only jpg file."));
 
                 }

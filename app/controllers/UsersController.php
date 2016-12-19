@@ -12,8 +12,8 @@ class UsersController extends BaseController {
     }
 
     public function add() {
-            //$roles = Role::getRoles();
-            return View::make('user.create',compact(''));
+        $roles = Role::getRoles(0);
+        return View::make('user.create',compact('roles'));
     }
 
     /**
@@ -54,10 +54,19 @@ class UsersController extends BaseController {
         }else{
             unset($data['password']);
         }
+
+        $roles = $data['Roles'];
         unset($data['password_confirmation']);
+        unset($data['Roles']);
 
         if ($user = User::create($data)) {
-            UserProfile::create(array("UserID"=>DB::getPdo()->lastInsertId() ));
+            $UserID = DB::getPdo()->lastInsertId();
+            UserProfile::create(array("UserID"=>$UserID));
+            if(!empty($roles)) {
+                foreach ($roles as $index2 => $roleID) {
+                    UserRole::create(['UserID' => $UserID, 'RoleID' => $roleID]);
+                }
+            }
             Cache::forget('user_defaults');
             return Response::json(array("status" => "success", "message" => "User Successfully Created",'LastID'=>$user->UserID));
         } else {
@@ -66,9 +75,10 @@ class UsersController extends BaseController {
     }
 
     public function edit($id) {
-            $user = DB::table('tblUser')->where(['UserID' => $id])->first();
-            $roles = Role::getRoles();
-            return View::make('user.edit',compact('roles','user'));
+        $user = DB::table('tblUser')->where(['UserID' => $id])->first();
+        $roles = Role::getRoles(0);
+        $userRoles = User::get_user_roles($id);
+        return View::make('user.edit',compact('roles','user','userRoles'));
     }
 
     public function update($id) {
@@ -115,8 +125,17 @@ class UsersController extends BaseController {
             unset($data['password']);
         }
         $data['JobNotification'] = isset($data['JobNotification'])?1:0;
+        $roles = isset($data['Roles'])?$data['Roles']:'';
         unset($data['password_confirmation']);
+        unset($data['Roles']);
         if ($user->update($data)) {
+            //@todo: Need to optimize code like implemented in user roles.
+            UserRole::where(['UserID' => $id])->delete();
+            if(!empty($roles)) {
+                foreach ($roles as $index2 => $roleID) {
+                    UserRole::create(['UserID' => $id, 'RoleID' => $roleID]);
+                }
+            }
             Cache::forget('user_defaults');
             return Response::json(array("status" => "success", "message" => "User Successfully Updated"));
         } else {
@@ -234,6 +253,8 @@ class UsersController extends BaseController {
         $user_data['LastName'] = $data['LastName'];
         $user_data['EmailAddress'] = $data['EmailAddress'];
         $user_data['updated_by'] = User::get_user_full_name();
+        $user_data['JobNotification'] = isset($data['JobNotification'])?1:0;
+
 
         if(Input::hasFile('Picture'))
         {
@@ -276,10 +297,6 @@ class UsersController extends BaseController {
         $user_profile_data['Utc'] = $data['Utc'];
         $user_profile_data['updated_by'] = User::get_user_full_name();
 
-        if (!empty($data['Roles'])) {
-            $user_data['Roles'] = implode(',', (array) $data['Roles']);
-        }
-
         $rules = array(
             'FirstName' => 'required',
             'LastName' => 'required',
@@ -293,6 +310,7 @@ class UsersController extends BaseController {
             }
 
             $user_data['password'] = Hash::make($data['password']);
+            $user_data['JobNotification'] = isset($data['JobNotification'])?1:0;
             unset($data['password_confirmation']);
             //$rules = array_merge($rules , ['password' => 'confirmed']);
 
