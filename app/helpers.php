@@ -1179,7 +1179,7 @@ function run_process($command) {
 
 function Get_Api_file_extentsions($ajax=false){
 
-	 if (Session::has("api_response_extensions")){echo "here";
+	 if (Session::has("api_response_extensions")){
 		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions'); 
 		  if(is_array($response_extensions['allowed_extensions'])){
 			  return $response_extensions;
