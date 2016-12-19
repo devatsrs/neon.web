@@ -7,6 +7,8 @@
         $dashsearchFilter.pageSize = '{{Config::get('app.pageSize')}}';
         $dashsearchFilter.Admin = '{{$isAdmin}}';
         $dashsearchFilter.AccountID = '{{Customer::get_accountID()}}';
+        var cdr_url = "{{URL::to('customer/cdr')}}";
+        var toFixed = '{{get_round_decimal_places()}}';
         jQuery(document).ready(function ($) {
             setInterval(function(){
                 loadDashboard()

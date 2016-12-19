@@ -748,6 +748,7 @@ DROP PROCEDURE IF EXISTS `prc_getPrefixReport`;
 DROP PROCEDURE IF EXISTS `prc_getVendorPrefixReport`;
 DROP PROCEDURE IF EXISTS `prc_getTrunkReport`;
 DROP PROCEDURE IF EXISTS `prc_getVendorTrunkReport`;
+DROP PROCEDURE IF EXISTS `prc_getVendorHourlyReport`;
 
 -- Dumping structure for procedure NeonReportDev.prc_getHourlyReport
 DROP PROCEDURE IF EXISTS `prc_getHourlyReport`;
@@ -1066,5 +1067,25 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `fnGetCountry`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnGetCountry`()
+BEGIN
+
+DROP TEMPORARY TABLE IF EXISTS temptblCountry;
+CREATE TEMPORARY TABLE IF NOT EXISTS `temptblCountry` (
+	`CountryID` INT(11) NOT NULL AUTO_INCREMENT,
+	`Prefix` VARCHAR(50) NULL DEFAULT NULL,
+	`Country` VARCHAR(100) NULL DEFAULT NULL,
+	`ISO2` VARCHAR(5)  NULL DEFAULT NULL,
+	`ISO3` VARCHAR(5) NULL DEFAULT NULL,
+	PRIMARY KEY (`CountryID`),
+	INDEX tempCountry_Prefix(`Prefix`)
+);
+INSERT INTO temptblCountry(CountryID,Prefix,Country,ISO2,ISO3)
+SELECT CountryID,Prefix,Country,ISO2,ISO3 FROM NeonRMDev.tblCountry;
 END//
 DELIMITER ;
