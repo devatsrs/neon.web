@@ -128,6 +128,8 @@ Route::group(array('before' => 'auth'), function () {
 	//new Dashboards ajax
 	Route::any('/getHourlyData', "ChartDashboardController@getHourlyData");
 	Route::any('/getReportData', "ChartDashboardController@getReportData");
+	Route::any('/getWorldMap', "ChartDashboardController@getWorldMap");
+	Route::any('/getVendorWorldMap', "ChartDashboardController@getVendorWorldMap");
 
 
 	//Trunk

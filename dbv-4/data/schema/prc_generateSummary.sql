@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_generateSummary`(
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_generateSummary`(
 	IN `p_CompanyID` INT,
 	IN `p_StartDate` DATE,
 	IN `p_EndDate` DATE
@@ -15,7 +15,8 @@ BEGIN
 	END;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
-	CALL fnGetCountry(); 
+	CALL fnGetCountry();
+	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
  
  	/* insert into success summary*/
@@ -40,11 +41,16 @@ BEGIN
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 
+	UPDATE tmp_UsageSummary 
+	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
+	SET tmp_UsageSummary.CountryID =code.CountryID
+	WHERE tmp_UsageSummary.CompanyID = p_CompanyID AND code.CountryID > 0;
+
 	UPDATE tmp_UsageSummary
 	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_UsageSummary 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
 	ON tmp_UsageSummary.AreaPrefix = TBL.AreaPrefix
-	SET tmp_UsageSummary.CountryID =TBL.CountryID;
-	
+	SET tmp_UsageSummary.CountryID =TBL.CountryID 
+	WHERE tmp_UsageSummary.CompanyID = p_CompanyID AND tmp_UsageSummary.CountryID IS NULL;
 	DELETE FROM tmp_SummaryHeader WHERE CompanyID = p_CompanyID;
  	
 	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)

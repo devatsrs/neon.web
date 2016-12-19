@@ -1,6 +1,12 @@
 @extends('layout.customer.main')
 @section('content')
     <script type="text/javascript">
+        var $dashsearchFilter = {};
+        $dashsearchFilter.map_url = "{{URL::to('getWorldMap')}}";
+        $dashsearchFilter.mapdrill_url = "{{URL::to('getWorldMap')}}";
+        $dashsearchFilter.pageSize = '{{Config::get('app.pageSize')}}';
+        $dashsearchFilter.Admin = '{{$isAdmin}}';
+        $dashsearchFilter.AccountID = '{{Customer::get_accountID()}}';
         jQuery(document).ready(function ($) {
             setInterval(function(){
                 loadDashboard()
@@ -11,47 +17,53 @@
 
 
     </script>
+    <script src="{{ URL::asset('assets/js/reports.js') }}"></script>
     <script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
     <form class="hidden" id="hidden_form">
         <input type="hidden" name="Admin" value="{{$isAdmin}}">
         <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
     </form>
     <div class="row">
-        <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-cyan stat-tile panel loading">
-                <h3>Sales</h3>
-                {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
-                <p>Today Sales by hour</p>
-                <span class="hourly-sales-cost"></span>
-            </div>
+        <div class="col-md-9">
+            @include('analysis.map')
         </div>
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="tile-stats tile-cyan stat-tile panel loading">
+                        <h3>Sales</h3>
+                        {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
+                        <p>Today Sales by hour</p>
+                        <span class="hourly-sales-cost"></span>
+                    </div>
+                </div>
 
-        <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-aqua stat-tile panel loading">
-                <h3>Minutes 0</h3>
-                {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
-                <p>Today Minutes by hour</p>
-                <span class="hourly-sales-minutes"></span>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-pink stat-tile panel loading">
-                <h3>Account Manager</h3>
-                <div class="icon"><i class="fa fa-user"></i></div>
-                <p style="font-size:12px; ">
-                    Name:{{$AccountManager}}
-                    <br/>
-                    Email:{{$AccountManagerEmail}}
+                <div class="col-md-12">
+                    <div class="tile-stats tile-aqua stat-tile panel loading">
+                        <h3>Minutes 0</h3>
+                        {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
+                        <p>Today Minutes by hour</p>
+                        <span class="hourly-sales-minutes"></span>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="tile-stats tile-pink stat-tile panel loading">
+                        <h3>Account Manager</h3>
+                        <div class="icon"><i class="fa fa-user"></i></div>
+                        <p style="font-size:12px; ">
+                            Name:{{$AccountManager}}
+                            <br/>
+                            Email:{{$AccountManagerEmail}}
 
-                </p>
+                        </p>
 
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <br />
-
     <div class="row">
+        <div class="col-md-12">
         <ul class="nav nav-tabs">
             <li class="active"><a href="#tab1" data-toggle="tab">Destination</a></li>
             <li ><a href="#tab2" data-toggle="tab">Prefix</a></li>
@@ -59,6 +71,7 @@
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="tab1" >
+                <div class="row">
                 <div class="col-md-4">
 
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
@@ -140,8 +153,10 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
             <div class="tab-pane" id="tab2" >
+                <div class="row">
                 <div class="col-md-4">
 
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
@@ -223,8 +238,10 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
             <div class="tab-pane" id="tab3" >
+                <div class="row">
                 <div class="col-md-4">
 
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
@@ -306,7 +323,9 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
+        </div>
         </div>
     </div>
     @if($isDesktop == 1)
