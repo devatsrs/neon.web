@@ -89,6 +89,7 @@
             </div>
                 <div class="clear"></div>
             </div>
+            @include('analysis.map')
     <ul class="nav nav-tabs">
         <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
         <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
@@ -132,6 +133,8 @@
         var table_name = '#destination_table';
         var chart_type = '#destination';
         var cdr_url = "{{URL::to('cdr_show')}}";
+        $searchFilter.map_url = "{{URL::to('getWorldMap')}}";
+        $searchFilter.pageSize = '{{Config::get('app.pageSize')}}';
         jQuery(document).ready(function ($) {
 
             $(".nav-tabs li a").click(function(){

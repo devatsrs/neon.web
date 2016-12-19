@@ -99,10 +99,13 @@ class ProfileController extends \BaseController {
     }
 
     public function get_outstanding_amount() {
+        $data = Input::all();
         $id = User::get_userID();
         $account = Account::find($id);
         $companyID = User::get_companyID();
-        $outstanding =Account::getOutstandingAmount($companyID,$account->AccountID,get_round_decimal_places($account->AccountID));
+        $Invoiceids = $data['InvoiceIDs'];
+        $outstanding = Account::getOutstandingInvoiceAmount($companyID, $account->AccountID, $Invoiceids, get_round_decimal_places($account->AccountID));
+        //$outstanding =Account::getOutstandingAmount($companyID,$account->AccountID,get_round_decimal_places($account->AccountID));
         $currency = Currency::getCurrencySymbol($account->CurrencyId);
         $outstandingtext = $currency.$outstanding;
         echo json_encode(array("status" => "success", "message" => "","outstanding"=>$outstanding,"outstadingtext"=>$outstandingtext));

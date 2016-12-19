@@ -19,6 +19,9 @@ function loadDashboard(){
         /* get gateway data for today and display in three chart*/
         getReportData('gateway');
 
+        /* get world map*/
+        getWorldMap($dashsearchFilter);
+
     });
 }
 function loading(table,bit){

@@ -42,7 +42,7 @@
         <div class="col-md-12">
             <div data-collapsed="0" class="panel panel-primary">
                 <div id="invoice-widgets" class="panel-body">
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
+
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-blue"><a target="_blank" class="undefined"
                                                                  data-startdate="" data-enddate=""
@@ -52,8 +52,8 @@
                                     </div>
                                     <p> Total Outstanding</p></a></div>
                         </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
+
+
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
                                                                   data-enddate="" data-currency=""
@@ -63,8 +63,8 @@
                                     </div>
                                     <p>Invoice Sent</p></a></div>
                         </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
+
+
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-plum"><a target="_blank" class="undefined" data-startdate=""
                                                                  data-enddate="" data-currency=""
@@ -74,8 +74,6 @@
                                     </div>
                                     <p>Invoice Received</p></a></div>
                         </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardDueAmount',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
                                                                    data-startdate="" data-enddate=""
@@ -85,8 +83,6 @@
                                     </div>
                                     <p>Due Amount</p></a></div>
                         </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOverDueAmount',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
                                                                 data-enddate="" data-currency=""
@@ -96,8 +92,6 @@
                                     </div>
                                     <p>Overdue Amount</p></a></div>
                         </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentReceived',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-purple"><a target="_blank" class="undefined" data-startdate=""
                                                                    data-enddate="" data-currency=""
@@ -107,8 +101,6 @@
                                     </div>
                                     <p>Payment Received</p></a></div>
                         </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentSent',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-cyan"><a target="_blank" class="undefined" data-startdate=""
                                                                  data-enddate="" data-currency=""
@@ -118,8 +110,6 @@
                                     </div>
                                     <p>Payment Sent</p></a></div>
                         </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-orange">
                                 <a target="_blank" class="undefined" data-startdate="" data-enddate="" data-currency="" href="javascript:void(0)">
@@ -128,8 +118,6 @@
                                 </a>
                             </div>
                         </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingDispute',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
                                                                  data-enddate="" data-currency=""
@@ -139,8 +127,6 @@
                                     </div>
                                     <p>Pending Dispute</p></a></div>
                         </div>
-                    @endif
-                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingEstimate',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-pink"><a target="_blank" class="undefined" data-startdate=""
                                                                  data-enddate="" data-currency=""
@@ -150,12 +136,11 @@
                                     </div>
                                     <p>Pending Eastimate</p></a></div>
                         </div>
-                    @endif
                 </div>
             </div>
         </div>
     </div>
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)))
     <div class="row">
         <div class="col-sm-12">
             <div class="invoice_expsense panel panel-primary panel-table">
@@ -262,6 +247,7 @@
         }
 
         function invoiceExpense(){
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)))
             var data = $('#billing_filter').serialize() + '&' + $('#invoiceExpensefilter-form').serialize();
             CurrencyID = $("[name=CurrencyID]").val();
             data = data+'&CurrencyID='+CurrencyID;
@@ -272,6 +258,55 @@
                 loadingUnload('#invoice_expense_bar_chart',0);
                 $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
             }, "html" );
+            @endif
+        }
+
+        function invoiceExpenseTotalwidgets(){
+            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
+            var data = $('#billing_filter').serialize();
+            var get_url = baseurl + "/customer/invoice_expense_total_widget";
+            $.get(get_url, data, function (response) {
+                var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
+                var option = [];
+                var widgets = '';
+                var startDate = '';
+                var enddate = '{{date('Y-m-d')}}';
+                /*if ($('#billing_filter [name="date-span"]').val() == 6) {
+                    startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -6 months'))}}';
+                } else if ($('#billing_filter [name="date-span"]').val() == 12) {
+                    startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -12 months'))}}';
+                } else{
+                    startDate = $('#billing_filter [name="Closingdate"]').val();
+                    var res = startDate.split(" - ");
+                    console.log(res);
+                    startDate = res[0]+' 00:00:01';
+                    enddate = res[1]+' 23:59:59';
+                }*/
+
+                $(".search.btn").button('reset');
+
+                option["prefix"] = response.CurrencySymbol;
+                option["startdate"] = startDate;
+                option["enddate"] = enddate;
+                option["currency"] = CurrencyID;
+                option["count"] = '';
+
+                option["amount"] = response.data.TotalOutstanding;
+                option["end"] = response.data.TotalOutstanding;
+                option["tileclass"] = 'tile-blue';
+                option["class"] = 'outstanding';
+                option["type"] = 'Total Outstanding';
+                option["count"] = '';
+                option["round"] = response.data.Round;
+                widgets += buildbox(option);
+                var ele = $('<div></div>');
+                ele.html(widgets);
+                var temp = ele.find('.col-xs-6');
+                $('#invoice-widgets').prepend(temp);
+                titleState(temp.find('.tile-stats'));
+
+            }, "json");
+            @endif
         }
 
         function invoiceExpenseTotal(){
@@ -280,6 +315,7 @@
             data = data+'&CurrencyID='+CurrencyID;
             var get_url = baseurl + "/customer/invoice_expense_total";
             $.get(get_url, data, function (response) {
+                invoiceExpenseTotalwidgets();
                 var option = [];
                 var widgets = '';
                 var startDate = '';
@@ -301,14 +337,8 @@
                 option["startdate"] = startDate;
                 option["enddate"] = enddate;
                 option["currency"] = CurrencyID;
-                option["amount"] = response.data.TotalOutstanding;
-                option["end"] = response.data.TotalOutstanding;
-                option["tileclass"] = 'tile-blue';
-                option["class"] = 'outstanding';
-                option["type"] = 'Total Outstanding';
-                option["count"] = '';
-                option["round"] = response.data.Round;
-                widgets += buildbox(option);
+                option['round'] = response.data.Round;
+                option['count'] = '';
 
                 option["amount"] = response.data.TotalInvoiceIn;
                 option["end"] = response.data.TotalInvoiceIn;
@@ -392,10 +422,11 @@
 
                 $('#invoice-widgets').html(widgets);
 
-                titleState();
+                $("#invoice-widgets").find('.tile-stats').each(function (i, el) {
+                    titleState(el);
+                });
             }, "json");
         }
-
         $('#invoiceExpensefilter-form [name="ListType"]').change(function(){
             invoiceExpense();
         });
@@ -891,44 +922,43 @@
             return html;
         }
 
-        function titleState() {
-            $("#invoice-widgets").find('.tile-stats').each(function (i, el) {
-                var $this = $(el),
-                        $num = $this.find('.num'),
-                        start = attrDefault($num, 'start', 0),
-                        end = attrDefault($num, 'end', 0),
-                        prefix = attrDefault($num, 'prefix', ''),
-                        postfix = attrDefault($num, 'postfix', ''),
-                        duration = attrDefault($num, 'duration', 1000),
-                        delay = attrDefault($num, 'delay', 1000);
-                round = attrDefault($num, 'round', 0);
+        function titleState(el) {
 
-                if (start < end) {
-                    if (typeof scrollMonitor == 'undefined') {
-                        $num.html(prefix + end + postfix);
-                    }
-                    else {
-                        var tile_stats = scrollMonitor.create(el);
+            var $this = $(el),
+                    $num = $this.find('.num'),
+                    start = attrDefault($num, 'start', 0),
+                    end = attrDefault($num, 'end', 0),
+                    prefix = attrDefault($num, 'prefix', ''),
+                    postfix = attrDefault($num, 'postfix', ''),
+                    duration = attrDefault($num, 'duration', 1000),
+                    delay = attrDefault($num, 'delay', 1000);
+            round = attrDefault($num, 'round', 0);
 
-                        tile_stats.fullyEnterViewport(function () {
+            if (start < end) {
+                if (typeof scrollMonitor == 'undefined') {
+                    $num.html(prefix + end + postfix);
+                }
+                else {
+                    var tile_stats = scrollMonitor.create(el);
 
-                            var o = {curr: start};
+                    tile_stats.fullyEnterViewport(function () {
 
-                            TweenLite.to(o, duration / 1000, {
-                                curr: end, ease: Power1.easeInOut, delay: delay / 1000, onUpdate: function () {
-                                    $num.html(prefix + o.curr.toFixed(2) + postfix);
-                                }
-                            });
+                        var o = {curr: start};
 
-                            tile_stats.destroy()
+                        TweenLite.to(o, duration / 1000, {
+                            curr: end, ease: Power1.easeInOut, delay: delay / 1000, onUpdate: function () {
+                                $num.html(prefix + o.curr.toFixed(2) + postfix);
+                            }
                         });
-                    }
-                }
 
-                if($num.text().indexOf(prefix)==-1){
-                    $num.prepend(prefix);
+                        tile_stats.destroy()
+                    });
                 }
-            });
+            }
+
+            if($num.text().indexOf(prefix)==-1){
+                $num.prepend(prefix);
+            }
         }
 
     </script>

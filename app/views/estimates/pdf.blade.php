@@ -81,7 +81,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                 @endif
                 <th style="text-align: center;">Line Total</th>
                 {{--<th style="text-align: center;">Tax</th>--}}
-                <th class="hidden" style="text-align: center;">Tax Amount</th> 
+               {{--<th class="hidden" style="text-align: center;">Tax Amount</th> --}}
             </tr>
             </thead>
             <tbody>
@@ -98,7 +98,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                 @endif
                 <td class="text-center">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
                 {{--<td class="text-center">{{TaxRate::getTaxRate($ProductRow->TaxRateID)}}</td>--}}
-               {{--<td class="hidden" class="text-center">{{number_format($ProductRow->TaxAmount,$RoundChargesAmount)}}</td>--}}
+                {{--<td class="hidden" class="text-center">{{number_format($ProductRow->TaxAmount,$RoundChargesAmount)}}</td>--}}
             </tr>
             @endif
             @endforeach

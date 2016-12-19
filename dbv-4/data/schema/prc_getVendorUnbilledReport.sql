@@ -1,4 +1,10 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorUnbilledReport`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_LastInvoiceDate` DATETIME, IN `p_Detail` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorUnbilledReport`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_LastInvoiceDate` DATETIME,
+	IN `p_Today` DATETIME,
+	IN `p_Detail` INT
+)
 BEGIN
 	
 	DECLARE v_Round_ INT;
@@ -16,7 +22,7 @@ BEGIN
 	END IF;
 	
 	
-	CALL fnUsageVendorSummary(p_CompanyID,0,p_AccountID,0,p_LastInvoiceDate,CONCAT(DATE(NOW()),' 23:59:59'),'','',0,0,1,v_Detail_);
+	CALL fnUsageVendorSummary(p_CompanyID,0,p_AccountID,0,p_LastInvoiceDate,p_Today,'','',0,0,1,v_Detail_);
 	
 	IF p_Detail = 1
 	THEN

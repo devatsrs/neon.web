@@ -656,6 +656,7 @@
             });
         });
 
+
         $('#invoiceExpensefilter-form [name="ListType"]').change(function(){
             invoiceExpense();
         });
@@ -691,7 +692,7 @@
         }
 
         function pin_report() {
-            @if(CompanySetting::getKeyVal('PincodeWidget') == 1)
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets)))
             $("#pin_grid_main").addClass('hidden');
             loadingUnload('#pin_expense_bar_chart', 1);
             data = $('#billing_filter').serialize() + '&' + $('#filter-form').serialize();
@@ -703,8 +704,6 @@
                 $("#pin_expense_bar_chart").html(response);
             }, "html");
             @endif
-
-
         }
         $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="reload"]', function (e) {
             e.preventDefault();
@@ -755,62 +754,111 @@
             return html;
         }
 
-        function titleState() {
-            $("#invoice-widgets").find('.tile-stats').each(function (i, el) {
-                var $this = $(el),
-                        $num = $this.find('.num'),
-                        start = attrDefault($num, 'start', 0),
-                        end = attrDefault($num, 'end', 0),
-                        prefix = attrDefault($num, 'prefix', ''),
-                        postfix = attrDefault($num, 'postfix', ''),
-                        duration = attrDefault($num, 'duration', 1000),
-                        delay = attrDefault($num, 'delay', 1000);
-                        round = attrDefault($num, 'round', 0);
+        function titleState(el) {
 
-                if (start < end) {
-                    if (typeof scrollMonitor == 'undefined') {
-                        $num.html(prefix + end + postfix);
-                    }
-                    else {
-                        var tile_stats = scrollMonitor.create(el);
+            var $this = $(el),
+                    $num = $this.find('.num'),
+                    start = attrDefault($num, 'start', 0),
+                    end = attrDefault($num, 'end', 0),
+                    prefix = attrDefault($num, 'prefix', ''),
+                    postfix = attrDefault($num, 'postfix', ''),
+                    duration = attrDefault($num, 'duration', 1000),
+                    delay = attrDefault($num, 'delay', 1000);
+            round = attrDefault($num, 'round', 0);
 
-                        tile_stats.fullyEnterViewport(function () {
+            if (start < end) {
+                if (typeof scrollMonitor == 'undefined') {
+                    $num.html(prefix + end + postfix);
+                }
+                else {
+                    var tile_stats = scrollMonitor.create(el);
 
-                            var o = {curr: start};
+                    tile_stats.fullyEnterViewport(function () {
 
-                            TweenLite.to(o, duration / 1000, {
-                                curr: end, ease: Power1.easeInOut, delay: delay / 1000, onUpdate: function () {
-                                    $num.html(prefix + o.curr.toFixed(2) + postfix);
-                                }
-                            });
+                        var o = {curr: start};
 
-                            tile_stats.destroy()
+                        TweenLite.to(o, duration / 1000, {
+                            curr: end, ease: Power1.easeInOut, delay: delay / 1000, onUpdate: function () {
+                                $num.html(prefix + o.curr.toFixed(2) + postfix);
+                            }
                         });
-                    }
-                }
 
-                if($num.text().indexOf(prefix)==-1){
-                    $num.prepend(prefix);
+                        tile_stats.destroy()
+                    });
                 }
-            });
+            }
+
+            if($num.text().indexOf(prefix)==-1){
+                $num.prepend(prefix);
+            }
         }
 
-        function invoiceExpense() {
-            var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
-            data = $('#billing_filter').serialize() + '&ListType=' + $('#invoiceExpensefilter-form [name="ListType"]').val();
-            var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
-            loadingUnload('#invoice_expense_bar_chart', 1);
-            $.get(get_url, data, function (response) {
-                $(".search.btn").button('reset');
-                loadingUnload('#invoice_expense_bar_chart', 0);
-                $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
-            }, "html");
+            function invoiceExpense() {
+                @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
+                var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
+                data = $('#billing_filter').serialize() + '&ListType=' + $('#invoiceExpensefilter-form [name="ListType"]').val();
+                var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
+                loadingUnload('#invoice_expense_bar_chart', 1);
+                $.get(get_url, data, function (response) {
+                    $(".search.btn").button('reset');
+                    loadingUnload('#invoice_expense_bar_chart', 0);
+                    $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
+                }, "html");
+                @endif
+            }
+        function invoiceExpenseTotalwidgets(){
+            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
+                var data = $('#billing_filter').serialize();
+                var get_url = baseurl + "/billing_dashboard/invoice_expense_total_widget";
+                $.get(get_url, data, function (response) {
+                    var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
+                    var option = [];
+                    var widgets = '';
+                    var startDate = '';
+                    var enddate = '{{date('Y-m-d')}}';
+                    if ($('#billing_filter [name="date-span"]').val() == 6) {
+                        startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -6 months'))}}';
+                    } else if ($('#billing_filter [name="date-span"]').val() == 12) {
+                        startDate = '{{date("Y-m-d",strtotime(''.date('Y-m-d').' -12 months'))}}';
+                    } else{
+                        startDate = $('#billing_filter [name="Closingdate"]').val();
+                        var res = startDate.split(" - ");
+                        console.log(res);
+                        startDate = res[0]+' 00:00:01';
+                        enddate = res[1]+' 23:59:59';
+                    }
+
+                    $(".search.btn").button('reset');
+
+                    option["prefix"] = response.CurrencySymbol;
+                    option["startdate"] = startDate;
+                    option["enddate"] = enddate;
+                    option["currency"] = CurrencyID;
+                    option["count"] = '';
+
+                    option["amount"] = response.data.TotalOutstanding;
+                    option["end"] = response.data.TotalOutstanding;
+                    option["tileclass"] = 'tile-blue';
+                    option["class"] = 'outstanding';
+                    option["type"] = 'Total Outstanding';
+                    option["count"] = '';
+                    option["round"] = response.data.Round;
+                    widgets += buildbox(option);
+                    var ele = $('<div></div>');
+                    ele.html(widgets);
+                    var temp = ele.find('.col-xs-6');
+                    $('#invoice-widgets').prepend(temp);
+                    titleState(temp.find('.tile-stats'));
+
+                }, "json");
+            @endif
         }
 
         function invoiceExpenseTotal(){
             var data = $('#billing_filter').serialize();
             var get_url = baseurl + "/billing_dashboard/invoice_expense_total";
             $.get(get_url, data, function (response) {
+                invoiceExpenseTotalwidgets();
                 var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
                 var option = [];
                 var widgets = '';
@@ -829,22 +877,12 @@
                 }
 
                 $(".search.btn").button('reset');
-
                 option["prefix"] = response.CurrencySymbol;
                 option["startdate"] = startDate;
                 option["enddate"] = enddate;
                 option["currency"] = CurrencyID;
-				option["count"] = '';
-                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
-                option["amount"] = response.data.TotalOutstanding;
-                option["end"] = response.data.TotalOutstanding;
-                option["tileclass"] = 'tile-blue';
-                option["class"] = 'outstanding';
-                option["type"] = 'Total Outstanding';
                 option["count"] = '';
-                option["round"] = response.data.Round;
-                widgets += buildbox(option);
-                @endif
+
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalInvoiceOut;
                 option["end"] = response.data.TotalInvoiceOut;
@@ -935,12 +973,14 @@
                 widgets += buildbox(option);
                 @endif
                 $('#invoice-widgets').html(widgets);
-
-                titleState();
+                $("#invoice-widgets").find('.tile-stats').each(function (i, el) {
+                    titleState(el);
+                });
             }, "json");
         }
 
         function missingAccounts() {
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
             var table = $('#missingAccounts');
             loadingUnload(table, 1);
             var url = baseurl + '/dashboard/ajax_get_missing_accounts?CompanyGatewayID=' + $("#company_gateway").val();
@@ -971,6 +1011,7 @@
                 contentType: false,
                 processData: false
             });
+            @endif
         }
         function dataGrid(Pincode, Startdate, Enddate, PinExt, CurrencyID) {
             $("#pin_grid_main").removeClass('hidden');

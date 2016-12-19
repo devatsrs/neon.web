@@ -12,6 +12,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/subscriptions', 'DashboardCustomerController@subscriptions');	
 	Route::any('customer/subscription/ajax_datagrid', 'DashboardCustomerController@subscriptions_ajax_datagrid');	
     Route::any('customer/getoutstandingamount', 'ProfileController@get_outstanding_amount');
+    Route::any('customer/invoice_expense_total_widget', 'DashboardCustomerController@invoice_expense_total_widget');
     //Invoice
     Route::any('customer/invoice', 'InvoicesCustomerController@index');
     Route::any('customer/invoice/ajax_datagrid/{type}', 'InvoicesCustomerController@ajax_datagrid');
@@ -130,6 +131,8 @@ Route::group(array('before' => 'auth'), function () {
 	//new Dashboards ajax
 	Route::any('/getHourlyData', "ChartDashboardController@getHourlyData");
 	Route::any('/getReportData', "ChartDashboardController@getReportData");
+	Route::any('/getWorldMap', "ChartDashboardController@getWorldMap");
+	Route::any('/getVendorWorldMap', "ChartDashboardController@getVendorWorldMap");
 
 
 	//Trunk
@@ -458,7 +461,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/emailmessages/SendMail','MessagesController@SendMail');
 	Route::any('emailmessages/{id}/compose','MessagesController@Compose');
 	Route::any('/emailmessages/ajax_action','MessagesController@Ajax_Action');
-	
 	
 	//Tickets
 	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
@@ -908,6 +910,7 @@ Route::group(array('before' => 'auth'), function () {
 
     Route::any('/billing_dashboard/invoice_expense_chart', 'BillingDashboard@invoice_expense_chart');
     Route::any('/billing_dashboard/invoice_expense_total', 'BillingDashboard@invoice_expense_total');
+    Route::any('/billing_dashboard/invoice_expense_total_widget', 'BillingDashboard@invoice_expense_total_widget');
 	Route::any('/billing_dashboard/ajax_top_pincode', 'BillingDashboard@ajax_top_pincode');
 	Route::any('/billing_dashboard/ajaxgrid_top_pincode/{type}', 'BillingDashboard@ajaxgrid_top_pincode');
     Route::any('/billing_dashboard/ajax_datagrid_Invoice_Expense/{exporttype}', 'BillingDashboard@ajax_datagrid_Invoice_Expense');

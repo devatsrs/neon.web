@@ -28,7 +28,7 @@ class AccountsController extends \BaseController {
         //$data['contact_name'] = $data['contact_name']!= ''?$data['contact_name']:'';
         $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','UnbilledAmount','PermanentCredit','Email','AccountID');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -1137,6 +1137,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $companyID = User::get_companyID();
         $AccountBilling = AccountBilling::getBilling($id);
         $account = Account::find($id);
+        $today = date('Y-m-d 23:59:59');
         if(empty($AccountBilling->LastInvoiceDate)){
             if(!empty($AccountBilling->BillingStartDate)) {
                 $LastInvoiceDate = $AccountBilling->BillingStartDate;
@@ -1147,14 +1148,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $LastInvoiceDate = $AccountBilling->LastInvoiceDate;
         }
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
-        $query = "call prc_getUnbilledReport (?,?,?,?)";
-        $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
+        $query = "call prc_getUnbilledReport (?,?,?,?,?)";
+        $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,$today,1));
 
         $VendorUnbilledResult  =array();
         $LastInvoiceDate = Account::getVendorLastInvoiceDate($id);
         if(!empty($LastInvoiceDate) && $account->IsVendor == 1){
-            $query = "call prc_getVendorUnbilledReport (?,?,?,?)";
-            $VendorUnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
+            $query = "call prc_getVendorUnbilledReport (?,?,?,?,?)";
+            $VendorUnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,$today,1));
         }
 
         return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol','VendorUnbilledResult','account'));
