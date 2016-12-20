@@ -304,6 +304,7 @@ class InvoiceTemplatesController extends \BaseController {
             Log::info($output);
             @unlink($local_htmlfile);
             @unlink($footer_html);
+            @unlink($header_html);
             $save_path = $destination_dir . $file_name;
 
             //PDF::loadHTML($body)->setPaper('a4')->setOrientation('potrait')->save($save_path);
