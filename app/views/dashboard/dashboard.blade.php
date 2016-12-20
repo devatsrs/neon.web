@@ -14,6 +14,12 @@
         $dashsearchFilter.UserID = '{{User::get_userID()}}';
         $dashsearchFilter.StartDate = '{{date("Y-m-d 00:00:00")}}';
         $dashsearchFilter.EndDate = '{{date("Y-m-d 23:59:59")}}';
+        $dashsearchFilter.AccountID = '0';
+        $dashsearchFilter.CompanyGatewayID = '0';
+        $dashsearchFilter.Prefix = '';
+        $dashsearchFilter.TrunkID = '0';
+        $dashsearchFilter.TimeZone = '';
+        $dashsearchFilter.CurrencyID = '0';
         var cdr_url = "{{URL::to('cdr_show')}}";
         var toFixed = '{{get_round_decimal_places()}}';
         jQuery(document).ready(function ($) {
