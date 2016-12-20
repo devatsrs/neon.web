@@ -74,6 +74,9 @@ class Estimate extends \Eloquent {
             $body 	= 	htmlspecialchars_decode($body); 
             $footer = 	View::make('estimates.pdffooter', compact('Estimate','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);
+
+            $header = View::make('estimates.pdfheader', compact('Estimate','print_type'))->render();
+            $header = htmlspecialchars_decode($header);
 			
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['ESTIMATE_UPLOAD'],$Account->CompanyId,$Estimate->AccountID) ;
             $destination_dir = getenv('UPLOAD_PATH') . '/'. $amazonPath;
@@ -93,14 +96,19 @@ class Estimate extends \Eloquent {
 
 			$footer_name 		= 	'footer-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
             $footer_html 		= 	$destination_dir.$footer_name;
-			
             file_put_contents($footer_html,$footer);
+
+            $header_name = 'header-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
+            $header_html = $destination_dir.$header_name;
+            file_put_contents($header_html,$header);
+			
+
             $output= "";
             if(getenv('APP_OS') == 'Linux'){
-                exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
 
             }else{
-                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
             Log::info($output);
             @unlink($local_htmlfile);
