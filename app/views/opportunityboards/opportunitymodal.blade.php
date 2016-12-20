@@ -123,7 +123,9 @@
 
         $('#add-opportunity-form [name="AccountID"]').change(function () {
             var AccountID = $(this).val();
-            getLeadorAccountInstance(AccountID);
+            if(!isNaN(AccountID) && AccountID>0){
+                getLeadorAccountInstance(AccountID);
+            }
         });
 
         $('#add-opportunity-form [name="UserID"]').change(function () {

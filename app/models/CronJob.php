@@ -229,4 +229,26 @@ class CronJob extends \Eloquent {
         return false;
     }
 
+    public static function killactivejobs($data){
+        $CronJobID = $data['JobID'];
+        $CronJob = CronJob::find($CronJobID);
+
+        $PID = $data['PID'];
+        $CronJobData = array();
+        $CronJobData['Active'] = 0;
+        $CronJobData['PID'] = '';
+        if(!empty($PID)) {
+            if (getenv("APP_OS") == "Linux") {
+                $command = 'kill -9 ' . $PID;
+            } else {
+                $command = 'Taskkill /PID ' . $PID . ' /F';
+            }
+            $output = exec($command, $op);
+            Log::info($command);
+            Log::info($output);
+        }
+        $CronJob->update($CronJobData);
+        return $output;
+    }
+
 }

@@ -196,11 +196,16 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
         return $roles;
     }
-    public static function get_user_roles(){
+    public static function get_user_roles($id=0){
 
         $CompanyID = User::get_companyID();
         $select = ['tblRole.RoleID'];
-        $id = Auth::user()->UserID;
+        $check = 0;
+        if($id==0){
+            $check = 1;
+            $id = Auth::user()->UserID;
+        }
+
         $select[] = DB::raw('tblUserRole.RoleID,tblRole.RoleName');
         $role = Role::join('tblUserRole', function ($join) use ($CompanyID,$id) {
             $join->on('tblUserRole.RoleID', '=', 'tblRole.RoleID');
@@ -208,14 +213,18 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             $join->on('tblUserRole.UserID','=',DB::raw($id));
         });
         $roles = $role->select($select)->distinct()->get()->lists('RoleName');
-        $roless='';
-        if(count($roles)>0){
-            foreach($roles as $role){
-                $roless.=$role.',';
+        if($check==1) {
+            $roless = '';
+            if (count($roles) > 0) {
+                foreach ($roles as $role) {
+                    $roless .= $role . ',';
+                }
+                $roless = rtrim($roless, ',');
+            } elseif (User::is_admin()) {
+                return 'Admin';
             }
-            $roless = rtrim($roless,',');
-        }elseif(User::is_admin()){
-            return 'Admin';
+        }else{
+            $roless = $role->select($select)->distinct()->get()->lists('RoleID');
         }
         return $roless;
     }
