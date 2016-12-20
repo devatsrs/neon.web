@@ -86,7 +86,14 @@
                         </div>
                     </div>
 
-
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-3 control-label">Job Notification</label>
+                        <div class="col-sm-6">
+                            <div class="make-switch switch-small popover-primary" title="Job Notification" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If enabled, system will notify you by email about Job status." data-original-title="Notification">
+                                <input type="checkbox" name="JobNotification"  @if($user->JobNotification == 1 )checked=""@endif value="0">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>

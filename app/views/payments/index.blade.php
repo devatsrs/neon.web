@@ -511,14 +511,14 @@
 
                     $('body').on('click', '.btn.recall,.recall', function (e) {
                         e.preventDefault();
-                        $('#recall-payment-form').trigger("reset");
-                        if($(this).hasClass('btn')){
-                            $('#recall-payment-form').attr("action",$(this).attr('href'));
-                        }else{
+                        setTimeout(function()
+                        {
+                            $('#recall-payment-form').trigger("reset");
                             var PaymentIDs = getselectedIDs();
                             $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
-                        }
-                        $('#recall-modal-payment').modal('show');
+                            $('#recall-modal-payment').modal('show');
+
+                        }, 500);
                     });
 
                     $('#recall-payment-form').submit(function(e){
@@ -1006,7 +1006,6 @@
 
                         success: function(response) {
                             $("#payment-update").button('reset');
-                            $(".btn").button('reset');
                             $('#modal-payment').modal('hide');
 
                             if (response.status == 'success') {
@@ -1019,6 +1018,9 @@
                                 toastr.error(response.message, "Error", toastr_opts);
                             }
                             $('.btn.upload').button('reset');
+                        },
+                        complete:function(){
+                            $(".btn").button('reset');
                         },
                         data: data,
                         //Options to tell jQuery not to process data or worry about content-type.

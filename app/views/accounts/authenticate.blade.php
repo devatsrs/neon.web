@@ -725,10 +725,12 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label class="col-sm-3 control-label">Date</label>
-                                <div class="col-sm-9">
-                                    <input value="{{date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'))}} - {{date('Y-m-d')}}" type="text" id="Closingdate"
-                                           data-format="YYYY-MM-DD" name="Closingdate" class="form-control daterange">
+                                <label class="control-label col-sm-3">Date</label>
+                                <div class="col-sm-6">
+                                    <input type="text" value="{{date('Y-m-d')}}" name="Closingdate" id="Closingdate" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="">
+                                </div>
+                                <div class="col-sm-3">
+                                    <span data-original-title="Date" data-content="Selected Date where from related data will be delete." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span>
                                 </div>
                             </div>
                         </div>

@@ -96,6 +96,15 @@
                                    placeholder="Confirm Password" value="{{Input::old('password_confirmation')}}">
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-3 control-label">Roles</label>
+
+                        <div class="col-sm-6">
+                            {{ Form::select('Roles[]', $roles, explode(',',Input::get('Roles')) , array(  "multiple"=>"multiple", "class"=>"select2")) }}
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="field-1" class="col-sm-3 control-label">Job Notification</label>
                         <div class="col-sm-6">
@@ -104,13 +113,6 @@
                             </div>
                         </div>
                     </div>
-                    {{--<div class="form-group">
-                        <label for="field-1" class="col-sm-3 control-label">Roles</label>
-
-                        <div class="col-sm-6">
-                            {{ Form::select('Roles[]', $roles, explode(',',Input::get('Roles')) , array(  "multiple"=>"multiple", "class"=>"select2")) }}
-                        </div>
-                    </div>--}}
 
                     <div class="form-group">
                         <label for="field-1" class="col-sm-3 control-label">Active</label>

@@ -8,7 +8,7 @@ class BillingClass extends \Eloquent
 
     protected $primaryKey = "BillingClassID";
 
-    public static $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review" , "never"=>"Never");
+    public static $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review");
 
     public static function getDropdownIDList($CompanyID){
         $DropdownIDList = BillingClass::where(array("CompanyID"=>$CompanyID))->lists('Name', 'BillingClassID');

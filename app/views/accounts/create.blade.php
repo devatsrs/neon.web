@@ -306,8 +306,7 @@
 
                     <label for="field-1" class="col-md-2 control-label">Send Invoice via Email</label>
                     <div class="col-md-4">
-                        <?php $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review" , "never"=>"Never");?>
-                        {{Form::select('SendInvoiceSetting', $SendInvoiceSetting, "never" ,array("class"=>"form-control select2"))}}
+                        {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, "after_admin_review" ,array("class"=>"form-control select2"))}}
                     </div>
                 </div>
                 </div>
