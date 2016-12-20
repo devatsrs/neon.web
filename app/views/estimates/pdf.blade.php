@@ -26,7 +26,7 @@ table.invoice td , table.invoice_total td{ padding:3px;}
 table{
   width: 100%;
   border-spacing: 0;
-  margin-bottom: 30px;
+  margin-bottom: 0;
 }
 
 .gray_td{color:#4a4a4a;}
