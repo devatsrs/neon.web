@@ -141,6 +141,7 @@ class Invoice extends \Eloquent {
             Log::info($output); 
             @unlink($local_htmlfile);
             @unlink($footer_html);
+            @unlink($header_html);
             if (file_exists($local_file)) {
                 $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
                 if (AmazonS3::upload($local_file, $amazonPath)) {

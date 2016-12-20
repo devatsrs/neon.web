@@ -5,7 +5,7 @@
 .invoice,
 .invoice table,.invoice table td,.invoice table th,
 .invoice ul li
-{ font-size: 12px; }
+{ font-size: 10px; }
 .page_break{page-break-after: always;}
 #pdf_header, #pdf_footer{
     position: fixed;
