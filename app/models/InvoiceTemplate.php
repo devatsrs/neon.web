@@ -11,7 +11,7 @@ class InvoiceTemplate extends \Eloquent {
 
     static public function checkForeignKeyById($id) {
         $CompanyId = User::get_companyID();
-        if(Account::where(["CompanyID"=>$CompanyId, "InvoiceTemplateID"=>$id])->count()>0){
+        if(BillingClass::where(["CompanyID"=>$CompanyId, "InvoiceTemplateID"=>$id])->count()>0){
             return true;
         }
         return false;
