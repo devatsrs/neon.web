@@ -218,7 +218,6 @@ var required_flds	  =          '{{json_encode($required)}}';
 			
 			 var required_flds_data = jQuery.parseJSON(required_flds);
 			 var error_msg = '';
-			 
 				required_flds_data.forEach(function(element) {
 					var  CurrentElementVal = 	$('#'+element.id).val();  //console.log(element.id+'-'+CurrentElementVal);
 				
@@ -259,18 +258,15 @@ var required_flds	  =          '{{json_encode($required)}}';
 					contentType: false,
 					processData: false,
 					data:{s:1},
-					success: function(response) {
-					   if(response.status =='success')
-					   {			
+					success: function(response) {	  			
 						   var $el = this;		   
-						   console.log(response.data);
-						   $('#{{$htmlagentID}} option:gt(0)').remove();
-						   $.each(response.data, function(key,value) {							  
+						   console.log(response);
+						  // $('#{{$htmlagentID}} option:gt(0)').remove();
+						  $('#{{$htmlagentID}} option').remove();
+						   $.each(response, function(key,value) {							  
 							  $('#{{$htmlagentID}}').append($("<option></option>").attr("value", value).text(key));
 							});					
-						}else{
-							toastr.error(response.message, "Error", toastr_opts);
-						}                   
+						                 
 					}
 					});	
 		return false;		

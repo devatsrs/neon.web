@@ -13,21 +13,21 @@ private $validlicense;
 	
 	function index(){
 		$this->IsValidLicense();
-		$data 			= 	array();	
-		$Ticketfields	=	DB::table('tblTicketfields')->orderBy('FieldOrder', 'asc')->get(); 
-		$Checkboxfields =   json_encode(Ticketfields::$Checkboxfields);
-		//echo Ticketfields::$FIELD_HTML_DROPDOWN; exit;
-		//echo "<pre>"; print_r($Ticketfields); exit;
-		return View::make('ticketsfields.index', compact('data','Ticketfields',"Checkboxfields"));   
+		$data			=	array();
+		$response 		=   NeonAPI::request('ticketsfields/getfields',array(),true,true,false);  
+		return View::make('ticketsfields.index', compact('data'));   
 	}
 	
 	function iframe(){
+		
 		$this->IsValidLicense();
-		$data 			 = 	 array();	
-		$Ticketfields	 =	 DB::table('tblTicketfields')->orderBy('FieldOrder', 'asc')->get(); 
-		$Checkboxfields  =   json_encode(Ticketfields::$Checkboxfields);
-		$final		 	 =   $this->OptimizeDbFields($Ticketfields);
-		$finaljson		 =   json_encode($final);
+		
+		$data 			= 	 array();	
+		$response 		=   NeonAPI::request('ticketsfields/getfields',array(),true,true,false);  
+		$Ticketfields	=	$response['data'];		
+		$Checkboxfields =   json_encode(Ticketfields::$Checkboxfields);
+		$final		 	=   $this->OptimizeDbFields($Ticketfields);
+		$finaljson		=   json_encode($final);
 		
 		//echo Ticketfields::$FIELD_HTML_DROPDOWN; exit;
 		//echo "<pre>"; print_r($final); exit;

@@ -1,9 +1,8 @@
-@extends('layout.main')
+@extends('layout.customer.main')
 
 @section('content')
 <ol class="breadcrumb bc-3">
-  <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
-  <li> <a href="{{action('tickets')}}">Tickets</a> </li>
+  <li><a href="{{ URL::to('/customer/tickets') }}">Tickets</a></li>
   <li class="active"> <strong>New Ticket</strong> </li>
 </ol>
 <h3>New Ticket</h3>
@@ -11,7 +10,7 @@
   @include('includes.success') </div>
 <p style="text-align: right;">
   <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
-  <a href="{{action('tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i> Close </a> </p>
+  <a href="{{URL::to('/customer/tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i> Close </a> </p>
 <br>
 <div class="row">
   <div class="col-md-12">
@@ -249,7 +248,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 		   if(changeGroupID)
 		   {
 		   	 changeGroupID = parseInt(changeGroupID);
-			 var ajax_url  = baseurl+'/ticketgroups/'+changeGroupID+'/getgroupagents';
+			 var ajax_url  = baseurl+'/customer/ticketgroups/'+changeGroupID+'/getgroupagents';
 			 $.ajax({
 					url: ajax_url,
 					type: 'POST',
@@ -284,7 +283,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 		e.stopImmediatePropagation();
 		e.preventDefault();
 		var formData = new FormData($(this)[0]);
-		var ajax_url = baseurl+'/tickets/store';
+		var ajax_url = baseurl+'/customer/tickets/store';
 		 $.ajax({
 				url: ajax_url,
 				type: 'POST',
@@ -297,7 +296,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 				success: function(response) {
 				   if(response.status =='success'){					   
 						ShowToastr("success",response.message); 														
-						window.location.href= baseurl+'/tickets';
+						window.location.href= baseurl+'/customer/tickets';
 					}else{
 						toastr.error(response.message, "Error", toastr_opts);
 					}                   

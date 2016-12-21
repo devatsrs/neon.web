@@ -146,7 +146,7 @@
        }
 
         });
-        data_table.fnFilter(1, 0);
+       // data_table.fnFilter(1, 0);
 
 
         $(".dataTables_wrapper select").select2({

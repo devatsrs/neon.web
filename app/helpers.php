@@ -18,7 +18,7 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
     if(is_array($response)){
         $isArray = true;
     }
-
+	
     if(($isArray && $response['status'] =='failed') || (!$isArray && $response->status=='failed')) {
         $validator = $isArray?$response['message']:(array)$response->message;
         if (count($validator) > 0) {
@@ -1179,12 +1179,12 @@ function run_process($command) {
 
 function Get_Api_file_extentsions($ajax=false){
 
-	 if (Session::has("api_response_extensions")){
+	 /*if (Session::has("api_response_extensions")){
 		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions'); 
 		  if(is_array($response_extensions['allowed_extensions'])){
 			  return $response_extensions;
 		  }		 
-	 } 	 
+	 } 	 */
 	 $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
 	 $response_extensions 	=  [];
 	 	

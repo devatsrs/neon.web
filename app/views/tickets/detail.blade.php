@@ -325,7 +325,8 @@ $(document).ready(function(e) {
 					   {			
 						   var $el = this;		   
 						   console.log(response.data);
-						   $('#ticketagent option:gt(0)').remove();
+						   //$('#ticketagent option:gt(0)').remove();
+						   $('#ticketagent option').remove();
 						   $.each(response.data, function(key,value) {							  
 							  $('#ticketagent').append($("<option></option>").attr("value", value).text(key));
 							});					

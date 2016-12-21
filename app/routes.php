@@ -68,7 +68,8 @@ Route::group(array('before' => 'auth'), function () {
 	
 	Route::any('/customer/tickets','TicketsCustomerController@index');
 	Route::any('/customer/tickets/{id}/detail','TicketsCustomerController@Detail');
-
+	Route::any('/customer/tickets/add','TicketsCustomerController@add');
+		
     //Role
     Route::any('/roles', array("as" => "users", "uses" => "RoleController@index"));
     Route::any('/roles/storerole', "RoleController@storerole");

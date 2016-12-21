@@ -5,7 +5,7 @@
   <li class="active"> <strong>Tickets</strong> </li>
 </ol>
 <h3>Tickets</h3>
-<p class="text-right"> @if( User::checkCategoryPermission('tickets','Add')) <a href="{{ URL::to('customer/tickets/add') }}" class="btn btn-primary"> <i class="entypo-plus"></i> Add New </a> @endif </p>
+<p class="text-right"><a href="{{ URL::to('customer/tickets/add') }}" class="btn btn-primary"> <i class="entypo-plus"></i> Add New </a>  </p>
 <div class="row">
   <div class="col-md-12">
     <form role="form" id="tickets_filter" method="post" action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
@@ -142,7 +142,7 @@ $(document).ready(function(e) {
 	var per_page 		= 	<?php echo $iDisplayLength; ?>;
 	var total			=	<?php echo $totalResults; ?>;
 	var clicktype		=	'';
-	var ajax_url 		= 	baseurl+'/tickets/ajex_result';
+	var ajax_url 		= 	baseurl+'/customer/tickets/ajex_result';
 	var SearchStr		=	'';
 	var sort_fld  		=   "{{$data['iSortCol_0']}}";
 	var sort_type 		=   "{{$data['sSortDir_0']}}";

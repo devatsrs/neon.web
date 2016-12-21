@@ -1,15 +1,14 @@
-@extends('layout.main')
+@extends('layout.customer.main')
 @section('content')
 <ol class="breadcrumb bc-3">
-  <li> <a href="{{ URL::to('/dashboard') }}"><i class="entypo-home"></i>Home</a> </li>
-  <li><a href="{{ URL::to('/tickets') }}">Tickets</a></li>
+  <li><a href="{{ URL::to('/customer/tickets') }}">Tickets</a></li>
   <li class="active"> <strong>Detail</strong> </li>
 </ol>
 <h3>Tickets</h3>
 @include('includes.errors')
 @include('includes.success')
-<p class="text-right"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}"   class="btn btn-red delete_ticket tooltip-primary"><i class="fa fa-close"></i> </a> @if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('tickets/'.$PrevTicket->TicketID.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-backward"></i> </a> @endif
-  @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('tickets/'.$NextTicket->TicketID.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-forward"></i> </a> @endif </p>
+<p class="text-right"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('/customer/tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}"   class="btn btn-red delete_ticket tooltip-primary"><i class="fa fa-close"></i> </a> @if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('/customer/tickets/'.$PrevTicket->TicketID.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-backward"></i> </a> @endif
+  @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('/customer/tickets/'.$NextTicket->TicketID.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-forward"></i> </a> @endif </p>
 <div class="mail-env"> 
   
   <!-- compose new email button -->
@@ -45,7 +44,7 @@
 		{
 			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
 		}
-		$Attachmenturl = URL::to('tickets/'.$ticketdata->TicketID.'/getattachment/'.$key_acttachment);		
+		$Attachmenturl = URL::to('/customer/tickets/'.$ticketdata->TicketID.'/getattachment/'.$key_acttachment);		
    	    ?>
         <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
           <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
@@ -82,7 +81,7 @@
 		{
 			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
 		}
-		$Attachmenturl = URL::to('ticketsconversation/'.$TicketConversationData->TicketConversationID.'/getattachment/'.$key_acttachment);		
+		$Attachmenturl = URL::to('/customer/ticketsconversation/'.$TicketConversationData->TicketConversationID.'/getattachment/'.$key_acttachment);		
    	    ?>
         <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
           <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
@@ -247,7 +246,7 @@ $(document).ready(function(e) {
 	
 			 $("#EmailActionform").submit(function (event) {
 		//////////////////////////          	
-			var email_url 	= 	"<?php echo URL::to('/tickets/'.$ticketdata->TicketID.'/actionsubmit/');?>";
+			var email_url 	= 	"<?php echo URL::to('/customer/tickets/'.$ticketdata->TicketID.'/actionsubmit/');?>";
           	event.stopImmediatePropagation();
             event.preventDefault();			
 			var formData = new FormData($('#EmailActionform')[0]);
@@ -279,7 +278,7 @@ $(document).ready(function(e) {
 	 
 	  $("#tickets_filter").submit(function (event) {
 		  $('#update_ticket').button('loading');
-			var email_url 	= 	"<?php echo URL::to('/tickets/'.$ticketdata->TicketID.'/updateticketattributes/');?>";
+			var email_url 	= 	"<?php echo URL::to('/customer/tickets/'.$ticketdata->TicketID.'/updateticketattributes/');?>";
           	event.stopImmediatePropagation();
             event.preventDefault();			
 			var formData = new FormData($('#tickets_filter')[0]);
@@ -310,7 +309,7 @@ $(document).ready(function(e) {
 		   if(changeGroupID)
 		   {
 		   	 changeGroupID = parseInt(changeGroupID);
-			 var ajax_url  = baseurl+'/ticketgroups/'+changeGroupID+'/getgroupagents';
+			 var ajax_url  = baseurl+'/customer/ticketgroups/'+changeGroupID+'/getgroupagents';
 			 $.ajax({
 					url: ajax_url,
 					type: 'POST',

@@ -172,11 +172,9 @@ private $validlicense;
             ->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()          
             ->select('tblUser.UserID', 'tblUser.FirstName', 'tblUser.LastName')
             ->get();
-			
-			
 		   
 			//echo "<pre>";			print_r($agentsAll);			echo "</pre>";					exit;
-			return View::make('customers.tickets.create', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails'));  
+			return View::make('customer.tickets.create', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails'));  
 	  }	
 	  
 	public function edit($id)
@@ -444,7 +442,7 @@ private $validlicense;
 	function Detail($id){
 		 $this->IsValidLicense();
 		 if($id)
-		 {
+		 { 
   		   $ticketdata					 =	 TicketsTable::find($id);
 		   $status			 			 =   TicketsTable::getTicketStatus();
 		   $Priority		 			 =	 TicketPriority::getTicketPriority();
@@ -453,20 +451,21 @@ private $validlicense;
 		   $Agents						 = 	 array("0"=> "Select")+$Agents;		   
 		   $response_api_extensions 	 =   Get_Api_file_extentsions();
 		   $max_file_size				 =	 get_max_file_size();	
-		   Log::info(print_r($response_api_extensions,true)); exit;
-		 //  if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
+		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
 		    $response_extensions		 =	json_encode($response_api_extensions['allowed_extensions']); 
+			
 	   		$TicketConversation			 =	TicketsConversation::where(array('TicketID'=>$id))->get();
 			
-			if(User::is_admin())
-			{
+			/*if(User::is_admin())
+			{ echo "here1";
 				$NextTicket 				 =	TicketsTable::find(TicketsTable::WhereRaw("TicketID > ".$id)->pluck('TicketID'));
 				$PrevTicket 				 =	TicketsTable::find(TicketsTable::WhereRaw("TicketID < ".$id)->pluck('TicketID'));
 			}else{
 				$NextTicket 				 =	TicketsTable::find(TicketsTable::WhereRaw("TicketID > ".$id)->where(array("Agent"=>user::get_userID()))->pluck('TicketID')); 
 				$PrevTicket 				 =	TicketsTable::find(TicketsTable::WhereRaw("TicketID < ".$id)->where(array("Agent"=>user::get_userID()))->pluck('TicketID')); 
-			}
-			
+			}*/
+			$NextTicket = '';
+			$PrevTicket = '';
 		   return View::make('customer.tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket"));  		  
 		 }
 	}

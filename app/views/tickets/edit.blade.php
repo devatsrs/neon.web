@@ -275,7 +275,8 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 					   {			
 						   var $el = this;		   
 						   console.log(response.data);
-						   $('#{{$htmlagentID}} option:gt(0)').remove();
+						   //$('#{{$htmlagentID}} option:gt(0)').remove();
+						   $('#{{$htmlagentID}} option').remove();
 						   $.each(response.data, function(key,value) {							  
 							  $('#{{$htmlagentID}}').append($("<option></option>").attr("value", value).text(key));
 							});					
