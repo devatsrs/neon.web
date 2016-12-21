@@ -25,7 +25,7 @@
                             <div class="col-sm-2">
                                 <input type="text" name="Enddate" class="form-control datepicker"   data-date-format="yyyy-mm-dd" value="{{$original_enddate}}" data-enddate="{{date('Y-m-d', strtotime('+1 day') )}}" />
                             </div>
-
+                            <input name="CurrencyID" type="hidden" value="{{$account->CurrencyId}}">
                         </div>
                         <p style="text-align: right;">
                             <button class="btn search btn-primary btn-sm btn-icon icon-left" type="submit" data-loading-text="Loading...">
@@ -166,7 +166,6 @@
 
     </div>
     @endif
-    <input name="CurrencyID" type="hidden" value="{{$account->CurrencyId}}">
     @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))&& User::checkCategoryPermission('BillingDashboardPincodeWidget','View'))
         <div class="row">
             <div class="col-sm-12">
