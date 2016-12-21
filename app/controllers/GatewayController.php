@@ -181,8 +181,8 @@ class GatewayController extends \BaseController {
                 $cronjobs = CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID,'Active'=>1])->get();
                 if(!empty($cronjobs)) {
                     foreach ($cronjobs as $job) {
-                        $data = ['JobID' => $job->CronJobID, 'PID' => $job->PID];
-                        CronJob::killactivejobs($data);
+                        $cron = ['JobID' => $job->CronJobID, 'PID' => $job->PID];
+                        CronJob::killactivejobs($cron);
                     }
                 }
             }
