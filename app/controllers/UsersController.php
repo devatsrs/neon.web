@@ -55,7 +55,7 @@ class UsersController extends BaseController {
             unset($data['password']);
         }
 
-        $roles = $data['Roles'];
+        $roles = isset($data['Roles'])?$data['Roles']:'';
         unset($data['password_confirmation']);
         unset($data['Roles']);
 
@@ -182,11 +182,11 @@ class UsersController extends BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Accounts.csv';
+                $file_path = getenv('UPLOAD_PATH') .'/Users.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Accounts.xls';
+                $file_path = getenv('UPLOAD_PATH') .'/Users.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -303,19 +303,20 @@ class UsersController extends BaseController {
             'EmailAddress' => 'required|email|unique:tblUser,EmailAddress,' . $id . ',UserID',
         );
 
-        if(!empty($data['password'])){
-
-            if($data['password'] != $data['password_confirmation']){
-                return Response::json(array("status" => "failed", "message" => "Password and Confirm Password are not matching."));
-            }
-
-            $user_data['password'] = Hash::make($data['password']);
-            $user_data['JobNotification'] = isset($data['JobNotification'])?1:0;
-            unset($data['password_confirmation']);
-            //$rules = array_merge($rules , ['password' => 'confirmed']);
-
+        if(!empty($data['password']) || !empty($data['password_confirmation'])){
+            $rules['password'] = 'required|confirmed|min:3';
+            $user_data['password'] = $data['password'];
+            $user_data['password_confirmation'] = $data['password_confirmation'];
         }
+
         $validator = Validator::make($user_data, $rules);
+
+        if(!empty($data['password'])){
+            $user_data['password'] = Hash::make($data['password']);
+        }else{
+            unset($user_data['password']);
+        }
+        unset($user_data['password_confirmation']);
 
         if ($validator->fails()) {
             return json_validator_response($validator);

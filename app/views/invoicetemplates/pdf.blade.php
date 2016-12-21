@@ -25,6 +25,22 @@ table.invoice td , table.invoice_total td{ padding:3px;}
     th,td{ padding: 1px; margin: 1px;}
 }
 .page_break{page-break-after: always;}
+table{
+    width: 100%;
+    border-spacing: 0;
+    margin-bottom: 0;
+}
+tr {
+    page-break-inside: avoid;
+}
+
+thead {
+    display: table-header-group
+}
+
+tfoot {
+    display: table-row-group
+}
 </style>
 <br/><br/><br/>
         @yield('logo')
