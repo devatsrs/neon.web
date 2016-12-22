@@ -468,8 +468,10 @@
                     $('table tbody').on('click', '.view-payment', function (ev) {
                         ev.preventDefault();
                         ev.stopPropagation();
+                        var self = $(this);
+                        setSelection(self);
                         $('#view-modal-payment').trigger("reset");
-                        var cur_obj = $(this).prev("div.hiddenRowData");
+                        var cur_obj = self.prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){							
                             if(list_fields[i] == 'AmountWithSymbol'){
                                 $("#view-modal-payment [name='Amount']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
@@ -513,20 +515,20 @@
                         e.preventDefault();
                         e.stopPropagation();
                         var self = $(this);
-                        setTimeout(function() {
-                            $('#recall-payment-form').trigger("reset");
-                            if(self.hasClass('btn')){
-                                var tr = self.parents('tr');
-                                if(tr.is('tr') && !tr.hasClass('selected')) {
-                                    tr.find('.rowcheckbox').prop("checked", true);
-                                    tr.addClass('selected');
-                                }
-                            }
-                            var PaymentIDs = getselectedIDs();
-                            $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
-                            $('#recall-modal-payment').modal('show');
+                        var PaymentIDs =[];
+                        $('#recall-payment-form').trigger("reset");
+                        if(self.hasClass('btn')){
+                            setSelection(self);
+                            var tr = self.parents('tr');
+                            var ID = tr.find('.rowcheckbox:checked').val();
+                            PaymentIDs[0] = ID;
 
-                        }, 500,self);
+                        }else{
+                            PaymentIDs = getselectedIDs();
+                        }
+                        $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
+                        $('#recall-modal-payment').modal('show');
+
                     });
 
                     $('#recall-payment-form').submit(function(e){
@@ -709,7 +711,9 @@
 
                     $('table tbody').on('click', '.approvepayment , .rejectpayment', function (e) {
                         e.preventDefault();
+                        e.stopPropagation();
                         var self = $(this);
+                        setSelection(self);
                         var text = (self.hasClass("approvepayment")?'Approve':'Reject');
                         if (!confirm('Are you sure you want to '+ text +' the payment?')) {
                             return;
@@ -1055,6 +1059,14 @@
                 SelectedIDs[i++] = accountIDs;
             });
             return SelectedIDs;
+        }
+
+        function setSelection(self){
+            var tr = self.parents('tr');
+            if(tr.is('tr') && !tr.hasClass('selected')) {
+                tr.find('.rowcheckbox').prop("checked", true);
+                tr.addClass('selected');
+            }
         }
 
 
