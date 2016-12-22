@@ -177,14 +177,7 @@ class GatewayController extends \BaseController {
                 }
                 CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->update(['Status'=>1]);
             }else if($datainput['Status']==0){
-                $cronjobs = CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID,'Status'=>1])->get();
-                if(!empty($cronjobs)) {
-                    foreach ($cronjobs as $job) {
-                        $cron = ['Status' =>0];
-                        CronJob::where(['CronJobID'=>$job->CronJobID])->update($cron);
-                        //CronJob::killactivejobs($cron);
-                    }
-                }
+                CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->update(['Status'=>0]);
             }
             unset($datainput['CompanyGatewayID']);
             unset($datainput['Title']);
