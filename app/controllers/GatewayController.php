@@ -182,7 +182,7 @@ class GatewayController extends \BaseController {
                 if(!empty($cronjobs)) {
                     foreach ($cronjobs as $job) {
                         $cron = ['Status' =>0];
-                        CronJob::where(['JobID'=>$job->CronJobID])->update($cron);
+                        CronJob::where(['CronJobID'=>$job->CronJobID])->update($cron);
                         //CronJob::killactivejobs($cron);
                     }
                 }
