@@ -178,7 +178,7 @@ class GatewayController extends \BaseController {
                     CompanyGateway::createCronJobsByCompanyGateway($id);
                 }
             }else if($datainput['Status']==0){
-                $cronjobs = CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID,'Active'=>1])->get();
+                $cronjobs = CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID,'Status'=>1])->get();
                 if(!empty($cronjobs)) {
                     foreach ($cronjobs as $job) {
                         $cron = ['Status' =>0];
