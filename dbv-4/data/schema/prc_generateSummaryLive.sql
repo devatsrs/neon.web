@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_generateSummaryLive`(
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_generateSummaryLive`(
 	IN `p_CompanyID` INT,
 	IN `p_StartDate` DATE,
 	IN `p_EndDate` DATE
@@ -17,7 +17,8 @@ BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	CALL fnGetCountry(); 
+	CALL fnGetCountry();
+	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetUsageForSummaryLive(p_CompanyID, p_StartDate, p_EndDate);
 	 
  	/* insert into success summary*/
@@ -42,10 +43,16 @@ BEGIN
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 
+	UPDATE tmp_UsageSummaryLive 
+	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
+	SET tmp_UsageSummaryLive.CountryID =code.CountryID
+	WHERE tmp_UsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
+
 	UPDATE tmp_UsageSummaryLive
 	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_UsageSummaryLive 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
 	ON tmp_UsageSummaryLive.AreaPrefix = TBL.AreaPrefix
-	SET tmp_UsageSummaryLive.CountryID =TBL.CountryID;
+	SET tmp_UsageSummaryLive.CountryID =TBL.CountryID 
+	WHERE tmp_UsageSummaryLive.CompanyID = p_CompanyID AND tmp_UsageSummaryLive.CountryID IS NULL ;
 
 	DELETE FROM tmp_SummaryHeaderLive WHERE CompanyID = p_CompanyID;
 

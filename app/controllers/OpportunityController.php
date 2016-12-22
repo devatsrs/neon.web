@@ -140,7 +140,7 @@ class OpportunityController extends \BaseController {
         return json_response_api($response);
     }
 
-    public function getLead($id){
+    public function getLeadorAccount($id){
         $response = NeonAPI::request('account/'.$id.'/get_account',[],false);
         $return=[];
         if($response->status=='failed'){

@@ -264,7 +264,7 @@ class AccountsController extends \BaseController {
 			$Customer = $account->IsCustomer?1:0;
 			
 			//get account card data
-             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."',0,1 ,1,'AccountName','asc',0)";
+             $sql 						= 	 "call prc_GetAccounts (".$companyID.",0,'".$vendor."','".$Customer."','".$account->Status."','".$account->VerificationStatus."','".$account->Number."','','".$account->AccountName."','".$account->tags."','',0,1 ,1,'AccountName','asc',0)";
             $Account_card  				= 	 DB::select($sql);
 			$Account_card  				=	 array_shift($Account_card);
 			
@@ -1137,6 +1137,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $companyID = User::get_companyID();
         $AccountBilling = AccountBilling::getBilling($id);
         $account = Account::find($id);
+        $today = date('Y-m-d 23:59:59');
         if(empty($AccountBilling->LastInvoiceDate)){
             if(!empty($AccountBilling->BillingStartDate)) {
                 $LastInvoiceDate = $AccountBilling->BillingStartDate;
@@ -1147,14 +1148,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $LastInvoiceDate = $AccountBilling->LastInvoiceDate;
         }
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
-        $query = "call prc_getUnbilledReport (?,?,?,?)";
-        $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
+        $query = "call prc_getUnbilledReport (?,?,?,?,?)";
+        $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,$today,1));
 
         $VendorUnbilledResult  =array();
         $LastInvoiceDate = Account::getVendorLastInvoiceDate($id);
         if(!empty($LastInvoiceDate) && $account->IsVendor == 1){
-            $query = "call prc_getVendorUnbilledReport (?,?,?,?)";
-            $VendorUnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,1));
+            $query = "call prc_getVendorUnbilledReport (?,?,?,?,?)";
+            $VendorUnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,$today,1));
         }
 
         return View::make('accounts.unbilled_table', compact('UnbilledResult','CurrencySymbol','VendorUnbilledResult','account'));

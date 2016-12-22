@@ -139,6 +139,8 @@ class AnalysisController extends BaseController {
         $data['iDisplayStart'] +=1;
         $columns = array('Country','CallCount','TotalMinutes','TotalCost','ACD','ASR');
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
+        $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d 00:00:00'):$data['StartDate'];
+        $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59'):$data['EndDate'];
         $query = '';
         if($data['chart_type'] == 'destination') {
             $columns = array('Country','CallCount','TotalMinutes','TotalCost','ACD','ASR');

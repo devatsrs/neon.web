@@ -13,7 +13,6 @@ class AccountAuthenticate extends \Eloquent {
 
     public static function validate_ipclis($data){
         $dbValue = [];
-
         $status = ['status'=>0,'message'=>'','data'=>[]];
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
         $type = $data['type']==1?'CLI':'IP';
@@ -21,27 +20,20 @@ class AccountAuthenticate extends \Eloquent {
             $status['message'] = $isCustomerOrVendor." ".$type." required";
             return $status;
         }
-        $ipclis = preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']);
-        $select = ['tblAccount.AccountName',DB::raw("CONCAT(tblAccountAuthenticate.CustomerAuthValue,',',tblAccountAuthenticate.VendorAuthValue) as authValue")];
-        $found = AccountAuthenticate::where(['tblAccountAuthenticate.CompanyID'=>$data['CompanyID']])
-            ->where(function($where)use($data,$type){
-                $where->Where(['CustomerAuthRule'=>$type]);
-                $where->orWhere(['VendorAuthRule'=>$type]);
-            })
-            ->whereNotNull(DB::raw("CONCAT(tblAccountAuthenticate.CustomerAuthValue,',',tblAccountAuthenticate.VendorAuthValue)"))
-            ->join('tblAccount','tblAccount.AccountID','=','tblAccountAuthenticate.AccountID')
-            ->select($select)
-            ->lists('authValue','AccountName');
+        $ipclis = array_filter(preg_split("/\\r\\n|\\r|\\n/", $data['ipclis']),function($var){return trim($var)!='';});
+        $ipclist = implode(',',$ipclis);
+        $query = "CALL prc_AddAccountIPCLI(".$data['CompanyID'].",".$data['AccountID'].",".$data['isCustomerOrVendor'].",'".$ipclist."','".$type."')";
+        $found = DB::select($query);
         $validation = '';
         if(!empty($found)) {
             $status['message'] = 'Account Successfully Updated.';
-            foreach ($ipclis as $obj) {
-                $input = preg_quote($obj, '~'); // don't forget to quote input string!
-                $result = preg_filter('~' . $input . '~', null, $found);
-                if (!empty($result)) {
-                    unset($ipclis[array_search($obj,$ipclis)]);
-                    foreach($result as $index=>$value) {
-                        $validation .= $obj . ' ' . $type . ' already exist against '.$index.'.<br>';
+
+            foreach ($found as $obj) {
+                $temp = explode(',',$obj->IPCLI);
+                $intersect = array_intersect($ipclis,$temp);
+                if (!empty($intersect)) {
+                    foreach($intersect as $index=>$value) {
+                        $validation .= $value . ' ' . $type . ' already exist against '.$obj->AccountName.'.<br>';
                     }
                 }
             }
@@ -51,7 +43,7 @@ class AccountAuthenticate extends \Eloquent {
             $status['message'] .= '<br>following '.$type.' skipped.<br>'.$validation;
         }
 
-        $rule = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID']])->first();
+        /*$rule = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID']])->first();
         if($data['isCustomerOrVendor'] == 1){
             $data['CustomerAuthRule'] = $type;
             $data['CustomerAuthValue'] = $ipclis;
@@ -84,12 +76,12 @@ class AccountAuthenticate extends \Eloquent {
             $toBeInsert =array_unique(array_merge($dbValue,$postValue));
             $data['VendorAuthValue'] = implode(',',$toBeInsert);
             $data['VendorAuthValue'] = ltrim($data['VendorAuthValue'],',');
-        }
+        }*/
         $status['status'] = 1;
-        unset($data['ipclis']);
+        /*unset($data['ipclis']);
         unset($data['isCustomerOrVendor']);
         unset($data['type']);
-        $status['data'] = $data;
+        $status['data'] = $data;*/
         return $status;
     }
 }

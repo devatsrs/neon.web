@@ -726,6 +726,7 @@
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
         $searchFilter.low_balance = $("#account_filter [name='low_balance']").prop("checked");
         $searchFilter.account_active = $("#account_filter [name='account_active']").prop("checked");
+        $searchFilter.ipclitext = $("#account_filter [name='IPCLIText']").val();
 
         data_table.fnFilter('', 0);
         return false;

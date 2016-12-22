@@ -44,6 +44,7 @@
 <script type="text/javascript">
 var $searchFilter = {};
 var update_new_url;
+var loading = '{{URL::to('/').'/assets/images/loader-1.gif';}}';
 var postdata;
     jQuery(document).ready(function ($) {
         public_vars.$body = $("body");
@@ -205,12 +206,16 @@ var postdata;
 
         var InvoiceTemplateID = $(this).prev("div.hiddenRowData").find("input[name='InvoiceTemplateID']").val();
 
-        $("#add-new-invoice_template-form [name='CompanyLogoUrl']").prop("src",'http://placehold.it/250x100');
+        $("#add-new-invoice_template-form [name='CompanyLogoUrl']").attr('width',50);
+        $("#add-new-invoice_template-form [name='CompanyLogoUrl']").prop("src",loading);
         CompanyLogoUrl = baseurl + "/invoice_template/"+InvoiceTemplateID +"/get_logo";
         $.get( baseurl + "/invoice_template/"+InvoiceTemplateID+"/get_logo", function( data ) {
             CompanyLogoUrl = data;
+            $("#add-new-invoice_template-form [name='CompanyLogoUrl']").attr('width',100);
             if(CompanyLogoUrl){
                 $("#add-new-invoice_template-form [name='CompanyLogoUrl']").prop("src",CompanyLogoUrl);
+            }else{
+                $("#add-new-invoice_template-form [name='CompanyLogoUrl']").prop("src",'http://placehold.it/250x100');
             }
          });
 

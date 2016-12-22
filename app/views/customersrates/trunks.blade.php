@@ -237,8 +237,9 @@ var ratabale = '{{json_encode($rate_tables)}}';
         }).on('change',function (e) {
             var self = $(this);
             var current_obj = self;
-	        var trunkid = self.parent().find('[name="trunkid"]').val();
+	        var trunkid = self.parent().children('[name="trunkid"]').val();
 	        //var RateTableID = self.parent().next().find('[name="[CustomerTrunk['+trunkid+'][RateTableID]"]');
+            var RateTableID = self.parent().next().find('.ratetableid');
             var json = JSON.parse(ratabale);
             if( typeof  json[trunkid] != 'undefined'){
                 var filtereddata = [];
@@ -246,7 +247,6 @@ var ratabale = '{{json_encode($rate_tables)}}';
                     filtereddata = json[trunkid][self.val()];
                 }
                 self.parent().next().find('.ratetableid').select2('destroy');
-                var RateTableID = self.parent().next().find('.ratetableid');
                 rebuildSelect2(RateTableID,filtereddata,'Select');
                 opts = {
                     allowClear: false,
@@ -268,7 +268,7 @@ var ratabale = '{{json_encode($rate_tables)}}';
                                 current_obj.prop('selected', prev_val);
                                 //current_obj.parent().find('select.select2').select2().select2('val',prev_val);
                                 current_obj.parent().find('select.codedeckid').select2().select2('val',prev_val);
-                                RateTableID.select2().select2('val',prev_val);
+                                RateTableID.select2().select2('val','');
                                 //selectBox.selectOption('');
                                 current_obj.parent().find('[name="codedeckid"]').val(prev_val);
                                 current_obj.select2().select2('val',prev_val);

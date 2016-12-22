@@ -93,7 +93,7 @@ class InvoiceTemplatesController extends \BaseController {
             {
                 $ext = $file->getClientOriginalExtension();
 				
-                if (!in_array($ext, array("jpg"))){
+                if (!in_array(strtolower($ext) , array("jpg"))){
                     return Response::json(array("status" => "failed", "message" => "Please Upload only jpg file."));
 
                 }
@@ -268,6 +268,10 @@ class InvoiceTemplatesController extends \BaseController {
 
             $footer = View::make('invoicetemplates.pdffooter', compact('InvoiceTemplate','print_type'))->render();
             $footer = htmlspecialchars_decode($footer);
+
+            $header = View::make('invoicetemplates.pdfheader', compact('InvoiceTemplate','print_type'))->render();
+            $header = htmlspecialchars_decode($header);
+
             $destination_dir = getenv('TEMP_PATH') . '/' . AmazonS3::generate_path( AmazonS3::$dir['INVOICE_UPLOAD'], $InvoiceTemplate->CompanyID);
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
@@ -278,22 +282,29 @@ class InvoiceTemplatesController extends \BaseController {
             $local_file = $destination_dir .  $file_name;
             $local_htmlfile = $destination_dir .  $htmlfile_name;
             file_put_contents($local_htmlfile,$body);
+
             $footer_name = 'footer-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
             $footer_html = $destination_dir.$footer_name;
             file_put_contents($footer_html,$footer);
+
+            $header_name = 'header-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
+            $header_html = $destination_dir.$header_name;
+            file_put_contents($header_html,$header);
+
             $output= "";
             if(getenv('APP_OS') == 'Linux'){
-                exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
-                Log::info(base_path(). '/wkhtmltox/bin/wkhtmltopdf --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                Log::info(base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
 
             }else{
-                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
-                Log::info (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                Log::info (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
 
             Log::info($output);
             @unlink($local_htmlfile);
             @unlink($footer_html);
+            @unlink($header_html);
             $save_path = $destination_dir . $file_name;
 
             //PDF::loadHTML($body)->setPaper('a4')->setOrientation('potrait')->save($save_path);

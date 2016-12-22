@@ -8,12 +8,12 @@ class UsersController extends BaseController {
 
     public function index() {
 
-            return View::make('user.show', compact(''));
+        return View::make('user.show', compact(''));
     }
 
     public function add() {
-            //$roles = Role::getRoles();
-            return View::make('user.create',compact(''));
+        $roles = Role::getRoles(0);
+        return View::make('user.create',compact('roles'));
     }
 
     /**
@@ -25,12 +25,13 @@ class UsersController extends BaseController {
         $CompanyID = User::get_companyID();
 
         $data['Status'] = isset($data['Status']) ? 1 : 0;
-        $AdminUser = User::where([ "AdminUser"=>1,"CompanyID" => $CompanyID])->count();
-        if($AdminUser>0){
+        //$AdminUser = User::where([ "AdminUser"=>1,"CompanyID" => $CompanyID])->count();
+        //if($AdminUser>0){
             $data['AdminUser'] = isset($data['AdminUser']) ? 1 : 0;
-        }else{
-            $data['AdminUser']=1;
-        }
+            $data['JobNotification'] = isset($data['JobNotification']) ? 1 : 0;
+        //}else{
+        //    $data['AdminUser']=0;
+        //}
         $data['CompanyID'] = $CompanyID;
         /*if (!empty($data['Roles'])) {
             $data['Roles'] = implode(',', (array) $data['Roles']);
@@ -54,10 +55,20 @@ class UsersController extends BaseController {
         }else{
             unset($data['password']);
         }
+
+        $roles = isset($data['Roles'])?$data['Roles']:'';
         unset($data['password_confirmation']);
+        unset($data['Roles']);
 
         if ($user = User::create($data)) {
-            UserProfile::create(array("UserID"=>DB::getPdo()->lastInsertId() ));
+            $UserID = DB::getPdo()->lastInsertId();
+            UserProfile::create(array("UserID"=>$UserID));
+
+            if(!empty($roles) && $data['AdminUser']==0) {
+                foreach ($roles as $index2 => $roleID) {
+                    UserRole::create(['UserID' => $UserID, 'RoleID' => $roleID]);
+                }
+            }
             Cache::forget('user_defaults');
             return Response::json(array("status" => "success", "message" => "User Successfully Created",'LastID'=>$user->UserID));
         } else {
@@ -66,9 +77,10 @@ class UsersController extends BaseController {
     }
 
     public function edit($id) {
-            $user = DB::table('tblUser')->where(['UserID' => $id])->first();
-            $roles = Role::getRoles();
-            return View::make('user.edit',compact('roles','user'));
+        $user = DB::table('tblUser')->where(['UserID' => $id])->first();
+        $roles = Role::getRoles(0);
+        $userRoles = User::get_user_roles($id);
+        return View::make('user.edit',compact('roles','user','userRoles'));
     }
 
     public function update($id) {
@@ -78,13 +90,14 @@ class UsersController extends BaseController {
 
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
-        $data['Status'] = isset($data['Status']) ? 1 : 0;        
-        $AdminUser = User::where([ "AdminUser"=>1,"CompanyID" => $companyID])->count();
-        if($AdminUser>0){
-            $data['AdminUser'] = isset($data['AdminUser']) ? 1 : 0;
-        }else{
-            $data['AdminUser']=1;
-        }
+        $data['Status'] = isset($data['Status']) ? 1 : 0;
+        //$AdminUser = User::where([ "AdminUser"=>1,"CompanyID" => $companyID])->count();
+        //if($AdminUser>0){
+        $data['AdminUser'] = isset($data['AdminUser']) ? 1 : 0;
+        $data['JobNotification'] = isset($data['JobNotification']) ? 1 : 0;
+        //}else{
+        //    $data['AdminUser']=1;
+        //}
         /*
         if (!empty($data['Roles'])) {
             $data['Roles'] = implode(',', (array) $data['Roles']);
@@ -100,23 +113,31 @@ class UsersController extends BaseController {
             'Status' => 'required',
         );
 
-        if(!empty($data['password']) || !empty($data['password_confirmation'])){
+        if(!empty($data['password']) && !empty($data['password_confirmation'])){
             $rules['password'] = 'required|confirmed|min:3';
         }
-
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-        if(!empty($data['password'])){
-            $data['password'] = Hash::make($data['password']);
+
+        if(!empty($user_data['password'])){
+            $data['password'] = Hash::make($user_data['password']);
         }else{
             unset($data['password']);
         }
-        $data['JobNotification'] = isset($data['JobNotification'])?1:0;
+        $roles = isset($data['Roles'])?$data['Roles']:'';
         unset($data['password_confirmation']);
+        unset($data['Roles']);
         if ($user->update($data)) {
+            //@todo: Need to optimize code like implemented in user roles.
+            UserRole::where(['UserID' => $id])->delete();
+            if(!empty($roles) && $data['AdminUser']==0) {
+                foreach ($roles as $index2 => $roleID) {
+                    UserRole::create(['UserID' => $id, 'RoleID' => $roleID]);
+                }
+            }
             Cache::forget('user_defaults');
             return Response::json(array("status" => "success", "message" => "User Successfully Updated"));
         } else {
@@ -209,16 +230,16 @@ class UsersController extends BaseController {
     public function edit_profile($id){
         //if( User::checkPermission('User') ) {
 
-            $user_id = User::get_userID();
-            $hasUserProfile = UserProfile::where("UserID",$user_id)->count();
-            if($hasUserProfile == 0){
-                UserProfile::create(array("UserID"=>$user_id));
-            }
-            $countries = Country::getCountryDropdownList();
-            $user = DB::table('tblUser')->where(['UserID' => $id])->first();
-            $user_profile = UserProfile::where(['UserID' => $id])->first();
-            $timezones = TimeZone::getTimeZoneDropdownList();
-            return View::make('user.edit_profile')->with(compact('user', 'user_profile', 'countries','timezones'));
+        $user_id = User::get_userID();
+        $hasUserProfile = UserProfile::where("UserID",$user_id)->count();
+        if($hasUserProfile == 0){
+            UserProfile::create(array("UserID"=>$user_id));
+        }
+        $countries = Country::getCountryDropdownList();
+        $user = DB::table('tblUser')->where(['UserID' => $id])->first();
+        $user_profile = UserProfile::where(['UserID' => $id])->first();
+        $timezones = TimeZone::getTimeZoneDropdownList();
+        return View::make('user.edit_profile')->with(compact('user', 'user_profile', 'countries','timezones'));
         //}
 
     }
@@ -234,14 +255,16 @@ class UsersController extends BaseController {
         $user_data['LastName'] = $data['LastName'];
         $user_data['EmailAddress'] = $data['EmailAddress'];
         $user_data['updated_by'] = User::get_user_full_name();
+        $user_data['JobNotification'] = isset($data['JobNotification'])?1:0;
+
 
         if(Input::hasFile('Picture'))
         {
 
 
-           /* $file = Input::file('Picture');
-            $extension = '.'. $file->getClientOriginalExtension();
-            $destinationPath = public_path() . '/' . Config::get('app.user_profile_pictures_path');*/
+            /* $file = Input::file('Picture');
+             $extension = '.'. $file->getClientOriginalExtension();
+             $destinationPath = public_path() . '/' . Config::get('app.user_profile_pictures_path');*/
 
 
 
@@ -276,26 +299,16 @@ class UsersController extends BaseController {
         $user_profile_data['Utc'] = $data['Utc'];
         $user_profile_data['updated_by'] = User::get_user_full_name();
 
-        if (!empty($data['Roles'])) {
-            $user_data['Roles'] = implode(',', (array) $data['Roles']);
-        }
-
         $rules = array(
             'FirstName' => 'required',
             'LastName' => 'required',
             'EmailAddress' => 'required|email|unique:tblUser,EmailAddress,' . $id . ',UserID',
         );
 
-        if(!empty($data['password'])){
-
-            if($data['password'] != $data['password_confirmation']){
-                return Response::json(array("status" => "failed", "message" => "Password and Confirm Password are not matching."));
-            }
-
-            $user_data['password'] = Hash::make($data['password']);
-            unset($data['password_confirmation']);
-            //$rules = array_merge($rules , ['password' => 'confirmed']);
-
+        if(!empty($data['password']) && !empty($data['password_confirmation'])){
+            $rules['password'] = 'required|confirmed|min:3';
+            $user_data['password'] = $data['password'];
+            $user_data['password_confirmation'] = $data['password_confirmation'];
         }
         $validator = Validator::make($user_data, $rules);
 
@@ -303,12 +316,15 @@ class UsersController extends BaseController {
             return json_validator_response($validator);
         }
 
+        if(!empty($user_data['password'])){
+            $user_data['password'] = Hash::make($user_data['password']);
+        }else{
+            unset($user_data['password']);
+        }
+        unset($user_data['password_confirmation']);
+
         if ($user->update($user_data)) {
-
-
             $user_profile->update($user_profile_data);
-
-
             Cache::forget('user_defaults');
             return Response::json(array("status" => "success", "message" => "User Profile Successfully Updated"));
 

@@ -3,7 +3,7 @@
 <br />
 <div class="row">
 <!------/*Recent Due Rate Sheet*/---->
-    <?php if( User::is('RateManager') || User::is_admin() ){ ?>
+    <?php if( User::is_admin() ){ ?>
     <div class="col-sm-6">
         <?php
         /* Recent Due Rate Sheet */

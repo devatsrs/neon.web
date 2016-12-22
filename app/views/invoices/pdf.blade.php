@@ -4,7 +4,7 @@
 <style>
 *{
     font-family: Arial;
-    font-size: 12px;
+    font-size: 10px;
     line-height: normal;
 }
 p{ line-height: 20px;}
@@ -14,7 +14,7 @@ p{ line-height: 20px;}
 table.invoice th{ padding:3px; background-color: #f5f5f6}
 .bg_graycolor{background-color: #f5f5f6}
 table.invoice td , table.invoice_total td{ padding:3px;}
-.page_break{ padding: 10px 0; page-break-after: always;}
+.page_break{ page-break-after: always;}
 @media print {
     * {
         background-color: auto !important;
@@ -26,9 +26,21 @@ table.invoice td , table.invoice_total td{ padding:3px;}
 table{
   width: 100%;
   border-spacing: 0;
-  margin-bottom: 30px;
+  margin-bottom: 0;
 }
 .gray_td{color:#4a4a4a;}
+
+tr {
+    page-break-inside: avoid;
+}
+
+thead {
+    display: table-header-group
+}
+
+tfoot {
+    display: table-row-group
+}
 
 </style>
 <?php

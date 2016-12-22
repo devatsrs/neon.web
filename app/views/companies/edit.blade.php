@@ -108,11 +108,11 @@
                         <div class="col-sm-4">
                             {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control select2 small"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Pincode/Ext. Widget</label>
+                        <!--<label for="field-1" class="col-sm-2 control-label">Pincode/Ext. Widget</label>
 
                         <p class="make-switch switch-small">
-                            <input id="PincodeWidget" name="PincodeWidget" type="checkbox" value="1" @if($PincodeWidget == 1) checked="checked" @endif>
-                        </p>
+                            <input id="PincodeWidget" name="PincodeWidget" type="checkbox" value="1" if($PincodeWidget == 1) checked="checked" endif>
+                        </p>-->
 
                     </div>
 
@@ -282,7 +282,7 @@
 
                         <label for="field-1" class="col-sm-2 control-label">Password</label>
                         <div class="col-sm-4">
-                            <input type="password" name="SMTPPassword" class="form-control" id="field-1" placeholder="Password" value="{{$company->SMTPPassword}}" />
+                            <input type="password" name="SMTPPassword" class="form-control" id="field-1" placeholder="Password" value="" />
                         </div>
                     </div>
                     <div class="form-group">

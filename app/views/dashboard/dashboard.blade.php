@@ -1,11 +1,27 @@
 @extends('layout.main')
 @section('content')
     <style>
-        .panel-title{
+        /*.panel-title{
             float:none;
-        }
+        }*/
     </style>
     <script type="text/javascript">
+        var $dashsearchFilter = {};
+        $dashsearchFilter.map_url = "{{URL::to('getWorldMap')}}";
+        $dashsearchFilter.mapdrill_url = "{{URL::to('getWorldMap')}}";
+        $dashsearchFilter.pageSize = '{{Config::get('app.pageSize')}}';
+        $dashsearchFilter.Admin = '{{$isAdmin}}';
+        $dashsearchFilter.UserID = '{{User::get_userID()}}';
+        $dashsearchFilter.StartDate = '{{date("Y-m-d 00:00:00")}}';
+        $dashsearchFilter.EndDate = '{{date("Y-m-d 23:59:59")}}';
+        $dashsearchFilter.AccountID = '0';
+        $dashsearchFilter.CompanyGatewayID = '0';
+        $dashsearchFilter.Prefix = '';
+        $dashsearchFilter.TrunkID = '0';
+        $dashsearchFilter.TimeZone = '';
+        $dashsearchFilter.CurrencyID = '0';
+        var cdr_url = "{{URL::to('cdr_show')}}";
+        var toFixed = '{{get_round_decimal_places()}}';
         jQuery(document).ready(function ($) {
             setInterval(function(){
                 loadDashboard()
@@ -16,32 +32,38 @@
 
 
    </script>
+    <script src="{{ URL::asset('assets/js/reports.js') }}"></script>
     <script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
     <form class="hidden" id="hidden_form">
         <input type="hidden" name="Admin" value="{{$isAdmin}}">
 		<input type="hidden" name="UserID" value="{{User::get_userID()}}">
     </form>
     <div class="row">
-        <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-cyan stat-tile panel loading">
-                <h3>Sales</h3>
-                {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
-                <p>Today Sales by hour</p>
-                <span class="hourly-sales-cost"></span>
-            </div>
+        <div class="col-md-9">
+            @include('analysis.map')
         </div>
-
-        <div class="col-md-3 col-sm-6">
-            <div class="tile-stats tile-aqua stat-tile panel loading">
-                <h3>Minutes 0</h3>
-                {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
-                <p>Today Minutes by hour</p>
-                <span class="hourly-sales-minutes"></span>
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="tile-stats tile-cyan stat-tile panel loading">
+                        <h3>Sales</h3>
+                        {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
+                        <p>Today Sales by hour</p>
+                        <span class="hourly-sales-cost"></span>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="tile-stats tile-aqua stat-tile panel loading">
+                        <h3>Minutes 0</h3>
+                        {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
+                        <p>Today Minutes by hour</p>
+                        <span class="hourly-sales-minutes"></span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <br />
     <div class="row">
         <div class="col-md-12">
                 <ul class="nav nav-tabs">
