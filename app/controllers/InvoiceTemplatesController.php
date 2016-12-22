@@ -156,7 +156,7 @@ class InvoiceTemplatesController extends \BaseController {
         {
             $ext = $file->getClientOriginalExtension();
 
-            if (!in_array($ext, array("jpg"))){
+            if (!in_array(strtolower($ext) , array("jpg"))){
                 return Response::json(array("status" => "failed", "message" => "Please Upload only jpg file."));
             }
             $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
@@ -175,6 +175,7 @@ class InvoiceTemplatesController extends \BaseController {
             }
             $AmazonS3Key = $amazonPath . $fileName;
             $data['CompanyLogoAS3Key'] = $AmazonS3Key;
+            $data['CompanyLogoUrl'] = AmazonS3::unSignedUrl($AmazonS3Key);
             @unlink($destinationPath.$fileName); // Remove temp local file.
         }
         unset($data['CompanyLogo']);
