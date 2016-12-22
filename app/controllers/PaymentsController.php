@@ -206,12 +206,14 @@ class PaymentsController extends \BaseController {
                     }
                     $billingadminemails = User::where(["CompanyID" => $companyID, "Status" => 1])->whereIn('UserID', $userid)->get(['EmailAddress']);
                     foreach ($PendingApprovalPayment as $billingemail) {
+                        $billingemail = trim($billingemail);
                         if (filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
                             $data['EmailTo'] = $billingemail;
                             $status = sendMail('emails.admin.payment', $data);
                         }
                     }
                     foreach ($billingadminemails as $billingadminemail) {
+                        $billingadminemail = trim($billingadminemail);
                         if (filter_var($billingadminemail, FILTER_VALIDATE_EMAIL)) {
                             $data['EmailTo'] = $billingadminemail;
                             $status = sendMail('emails.admin.payment', $data);
