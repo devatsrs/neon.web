@@ -172,17 +172,17 @@ class GatewayController extends \BaseController {
             }
             $tag = '"CompanyGatewayID":"'.$id.'"';
             if($datainput['Status']==1){
-                if(CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->count()>0){
-                    CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->update(['Active'=>1]);
-                }else{
+                if(CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->count()==0){
                     CompanyGateway::createCronJobsByCompanyGateway($id);
                 }
+                CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->update(['Status'=>1]);
             }else if($datainput['Status']==0){
-                $cronjobs = CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID,'Active'=>1])->get();
+                $cronjobs = CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID,'Status'=>1])->get();
                 if(!empty($cronjobs)) {
                     foreach ($cronjobs as $job) {
-                        $cron = ['JobID' => $job->CronJobID, 'PID' => $job->PID];
-                        CronJob::killactivejobs($cron);
+                        $cron = ['Status' =>0];
+                        CronJob::where(['CronJobID'=>$job->CronJobID])->update($cron);
+                        //CronJob::killactivejobs($cron);
                     }
                 }
             }
