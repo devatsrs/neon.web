@@ -587,6 +587,10 @@
                                 <label for="minimal-radio-2-11">AuthorizeNet</label>
                             </li>
                             <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-disabled-2-11" name="PaymentMethod" value="Stripe" @if( $account->PaymentMethod == 'Stripe' ) checked="" @endif />
+                                <label for="minimal-radio-2-11">Stripe</label>
+                            </li>
+                            <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-disabled-2-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
                                 <label for="minimal-radio-2-11">Other</label>
                             </li>
