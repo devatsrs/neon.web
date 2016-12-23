@@ -245,10 +245,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 
-	SELECT cs.Value INTO v_Round_
-	FROM Tech1RateManagement.tblCompanySetting cs
-	WHERE cs.`Key` = 'RoundChargesAmount'
-		AND cs.CompanyID = p_CompanyID;
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
 	SELECT IFNULL(SUM(GrandTotal),0) INTO v_TotalInvoice_
 	FROM tblInvoice
