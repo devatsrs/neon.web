@@ -434,7 +434,7 @@
                                     <label for="field-5" class="control-label col-sm-4">Select Board*</label>
 
                                     <div class="col-sm-8">
-                                        {{Form::select('BoardID',$boards,'',array("class"=>"select2 small"))}}
+                                        {{Form::select('BoardID',CRMBoard::getBoards(),'',array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>

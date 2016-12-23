@@ -2,6 +2,8 @@ USE `NeonBillingDev`;
 
 Update tblBillingClass SET SendInvoiceSetting='after_admin_review' where SendInvoiceSetting='never';
 
+Update tblAccountBilling SET SendInvoiceSetting='after_admin_review' where SendInvoiceSetting='never';
+
 
 -- Dumping structure for procedure NeonBillingDev.prc_getDashboardinvoiceExpenseTotalOutstanding
 DROP PROCEDURE IF EXISTS `prc_getDashboardinvoiceExpenseTotalOutstanding`;
