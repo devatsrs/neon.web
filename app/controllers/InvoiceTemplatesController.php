@@ -176,7 +176,7 @@ class InvoiceTemplatesController extends \BaseController {
             $AmazonS3Key = $amazonPath . $fileName;
             $data['CompanyLogoAS3Key'] = $AmazonS3Key;
             $data['CompanyLogoUrl'] = AmazonS3::unSignedUrl($AmazonS3Key);
-            @unlink($destinationPath.$fileName); // Remove temp local file.
+            //@unlink($destinationPath.$fileName); // Remove temp local file.
         }
         unset($data['CompanyLogo']);
         unset($data['Status_name']);
