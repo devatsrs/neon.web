@@ -541,6 +541,7 @@
                             $('#recall-payment-form [name="criteria"]').val(JSON.stringify($searchFilter));
                         }else{
                             criteria_ac = 'selected';
+                            $('#recall-payment-form [name="criteria"]').val('');
                         }
 
                         if(SelectedIDs=='' && criteria_ac=='selected')
