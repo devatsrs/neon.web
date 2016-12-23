@@ -309,9 +309,9 @@ class PaymentsController extends \BaseController {
             if(!empty($criteria['AccountID'])){
                 $where['AccountID'] = $criteria['AccountID'];
             }
-            if(!empty($criteria['InvoiceNo'])){
+            /*if(!empty($criteria['InvoiceNo'])){
                 $where['InvoiceNo'] = $criteria['InvoiceNo'];
-            }
+            }*/
             if(!empty($criteria['Status'])){
                 $where['Status'] = $criteria['Status'];
             }
@@ -325,7 +325,6 @@ class PaymentsController extends \BaseController {
                 $where['CurrencyID'] = $criteria['CurrencyID'];
             }
         }
-
         try {
             $PaymentIDs = !empty($data['PaymentIDs'])?explode(',',$data['PaymentIDs']):'';
             unset($data['PaymentIDs']);
@@ -334,6 +333,9 @@ class PaymentsController extends \BaseController {
                 $Payments = Payment::where($where);
                 if(!empty($criteria['p_paymentstart']) && !empty($criteria['p_paymentend'])){
                     $Payments->whereBetween('PaymentDate', array($criteria['p_paymentstart'], $criteria['p_paymentend']));
+                }
+                if(!empty($criteria['InvoiceNo'])){
+                    $Payments->where('InvoiceNo','like','%'.$criteria['InvoiceNo'].'%');
                 }
                 $result = $Payments->update($data);
             }
