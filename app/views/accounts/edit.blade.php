@@ -79,16 +79,7 @@
                 <div class="form-group">
                     <label for="field-1" class="col-md-2 control-label">Account Owner</label>
                     <div class="col-md-4">
-                    <?php
-                    $disable = '';
-                    if(User::is('RateManager') && !User::is_admin() && !User::is('AccountManager')){
-                    $disable = 'disabled';
-
-                    }?>
-                       {{Form::select('Owner',$account_owners,$account->Owner,array("class"=>"select2",$disable))}}
-                        @if(User::is('RateManager') && !User::is_admin() && !User::is('AccountManager'))
-                            <input type="hidden" value="{{$account->Owner}}" name="Owner">
-                        @endif
+                       {{Form::select('Owner',$account_owners,$account->Owner,array("class"=>"select2"))}}
                     </div>
 
                     <label class="col-md-2 control-label">Ownership</label>
@@ -533,8 +524,7 @@
                  <div class="form-group">
                      <label for="field-1" class="col-md-2 control-label">Send Invoice via Email</label>
                      <div class="col-md-4">
-                         <?php $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review" , "never"=>"Never");?>
-                         {{Form::select('SendInvoiceSetting', $SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'never' ),array("class"=>"form-control select2"))}}
+                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'never' ),array("class"=>"form-control select2"))}}
                      </div>
 
 
@@ -593,12 +583,16 @@
                                 <label for="minimal-radio-2-11">Wire Transfer</label>
                             </li>
                             <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-disabled-2-11" name="PaymentMethod" value="AuthorizeNet" @if( $account->PaymentMethod == 'AuthorizeNet' ) checked="" @endif />
-                                <label for="minimal-radio-2-11">AuthorizeNet</label>
+                                <input type="radio" class="icheck-11" id="minimal-radio-3-11" name="PaymentMethod" value="AuthorizeNet" @if( $account->PaymentMethod == 'AuthorizeNet' ) checked="" @endif />
+                                <label for="minimal-radio-3-11">AuthorizeNet</label>
                             </li>
                             <li>
-                                <input type="radio" class="icheck-11" id="minimal-radio-disabled-2-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
-                                <label for="minimal-radio-2-11">Other</label>
+                                <input type="radio" class="icheck-11" id="minimal-radio-4-11" name="PaymentMethod" value="Stripe" @if( $account->PaymentMethod == 'Stripe' ) checked="" @endif />
+                                <label for="minimal-radio-4-11">Stripe</label>
+                            </li>
+                            <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
+                                <label for="minimal-radio-5-11">Other</label>
                             </li>
                         </ul>
                     </div>

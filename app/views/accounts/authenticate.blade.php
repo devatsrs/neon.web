@@ -725,11 +725,13 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label class="col-sm-3 control-label">Date</label>
+                                <label class="control-label col-sm-3">Date</label>
                                 <div class="col-sm-9">
-                                    <input value="{{date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'))}} - {{date('Y-m-d')}}" type="text" id="Closingdate"
-                                           data-format="YYYY-MM-DD" name="Closingdate" class="form-control daterange">
+                                    <input type="text" value="{{date('Y-m-d')}}" name="Closingdate" id="Closingdate" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="">
                                 </div>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-9">This is the date when you deleted IP against this account from the switch</div>
                             </div>
                         </div>
                     </div>

@@ -120,7 +120,7 @@ var postdata;
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ full[3]+'" class="edit-config btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                          <?php } ?>
                          <?php if(User::checkCategoryPermission('Gateway','Delete') ){ ?>
-                            action += ' <a data-id="'+ full[4] +'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            //action += ' <a data-id="'+ full[4] +'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
                          <?php } ?>
                          if( full[4]>0){
                             action += ' <a data-id="'+ full[4]+'" class="test-connection btn btn-success btn-sm btn-icon icon-left"><i class="entypo-rocket"></i>Test Connection </a>';
@@ -157,7 +157,7 @@ var postdata;
                    var id = $(this).attr('data-id');
                    var url = baseurl + '/gateway/'+id+'/ajax_existing_gateway_cronjob';
                    $('#delete-gateway-form [name="CompanyGatewayID"]').val(id);
-                   if(confirm('Are you sure you want to delete selected gateway?')) {
+                   if(confirm('Are you sure you want to delete selected gateway? All related data like CDR, summary etc will also delete.')) {
                        $.ajax({
                            url: url,
                            type: 'POST',

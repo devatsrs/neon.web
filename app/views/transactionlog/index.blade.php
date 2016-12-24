@@ -120,7 +120,7 @@
                 "iDisplayLength":'{{Config::get('app.pageSize')}}',
                 "sPaginationType": "bootstrap",
                 //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[5, "desc"]],
+                "aaSorting": [[4, "desc"]],
                 "aoColumns":
                         [
                             {}, //2 Transaction
@@ -134,7 +134,7 @@
                                         return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
                                 }
                             }, //5 Status
-                            {} //5 Date
+                            {} //6 Date
 
                         ],
                         "oTableTools":
@@ -175,7 +175,7 @@
                 "iDisplayLength":'{{Config::get('app.pageSize')}}',
                 "sPaginationType": "bootstrap",
                 //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[3, "desc"]],
+                "aaSorting": [[2, "desc"]],
                 "aoColumns":
                         [
                             {}, //4 Amount
@@ -226,7 +226,7 @@
             "iDisplayLength":'{{Config::get('app.pageSize')}}',
             "sPaginationType": "bootstrap",
             //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[3, "desc"]],
+            "aaSorting": [[2, "desc"]],
             "aoColumns":
                     [
                         {   //0 Amount

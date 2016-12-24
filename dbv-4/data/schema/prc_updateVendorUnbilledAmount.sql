@@ -1,5 +1,6 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateVendorUnbilledAmount`(
-	IN `p_CompanyID` INT
+	IN `p_CompanyID` INT,
+	IN `p_Today` DATETIME
 )
 BEGIN
 	
@@ -37,7 +38,7 @@ BEGIN
 		IF v_LastInvoiceDate_ IS NOT NULL
 		THEN
 		
-			CALL prc_getVendorUnbilledReport(p_CompanyID,v_AccountID_,v_LastInvoiceDate_,3);
+			CALL prc_getVendorUnbilledReport(p_CompanyID,v_AccountID_,v_LastInvoiceDate_,p_Today,3);
 			
 			SELECT FinalAmount INTO v_FinalAmount_ FROM tmp_FinalAmount_;
 			

@@ -104,6 +104,9 @@ class Invoice extends \Eloquent {
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
             $footer = htmlspecialchars_decode($footer);
 
+            $header = View::make('invoices.pdfheader', compact('Invoice','print_type'))->render();
+            $header = htmlspecialchars_decode($header);
+
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId,$Invoice->AccountID) ;
              $destination_dir = getenv('UPLOAD_PATH') . '/'. $amazonPath;
 			
@@ -122,16 +125,23 @@ class Invoice extends \Eloquent {
             $footer_html = $destination_dir.$footer_name;
             file_put_contents($footer_html,$footer);
             @chmod($footer_html,0777);
+
+            $header_name = 'header-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
+            $header_html = $destination_dir.$header_name;
+            file_put_contents($header_html,$header);
+            @chmod($footer_html,0777);
+
             $output= "";
             if(getenv('APP_OS') == 'Linux'){
-                exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }else{
-                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe  -- footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe  --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" -- footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
             @chmod($local_file,0777);
             Log::info($output); 
             @unlink($local_htmlfile);
             @unlink($footer_html);
+            @unlink($header_html);
             if (file_exists($local_file)) {
                 $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
                 if (AmazonS3::upload($local_file, $amazonPath)) {

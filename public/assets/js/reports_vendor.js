@@ -176,6 +176,9 @@ function reloadCharts(table_id,pageSize,$searchFilter){
 
     /* load grid data table*/
     loadTable(table_id,pageSize,$searchFilter);
+
+    /* get world map*/
+    getWorldMap($searchFilter);
 }
 function loadTable(table_id,pageSize,$searchFilter){
     var TotalCall = 0;
