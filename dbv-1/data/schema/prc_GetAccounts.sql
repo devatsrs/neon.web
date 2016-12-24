@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetAccounts`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetAccounts`(
 	IN `p_CompanyID` int,
 	IN `p_userID` int ,
 	IN `p_IsVendor` int ,
@@ -9,6 +9,7 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetAccounts`(
 	IN `p_ContactName` VARCHAR(50),
 	IN `p_AccountName` VARCHAR(50),
 	IN `p_tags` VARCHAR(50),
+	IN `p_IPCLI` VARCHAR(50),
 	IN `p_low_balance` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
@@ -54,7 +55,7 @@ BEGIN
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.BalanceAmount,0),v_Round_)) as AE,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,IF(ROUND(COALESCE(abc.PermanentCredit,0),v_Round_) - ROUND(COALESCE(abc.BalanceAmount,0),v_Round_)<0,0,ROUND(COALESCE(abc.PermanentCredit,0),v_Round_) - ROUND(COALESCE(abc.BalanceAmount,0),v_Round_))) as ACL,
 			abc.BalanceThreshold,
-			tblAccount.Blocked			
+			tblAccount.Blocked
 		FROM tblAccount
 		LEFT JOIN tblAccountBalance abc
 			ON abc.AccountID = tblAccount.AccountID
@@ -62,6 +63,8 @@ BEGIN
 			ON tblAccount.Owner = tblUser.UserID
 		LEFT JOIN tblContact
 			ON tblContact.Owner=tblAccount.AccountID
+		LEFT JOIN tblAccountAuthenticate
+			ON tblAccountAuthenticate.AccountID = tblAccount.AccountID
 		WHERE   tblAccount.CompanyID = p_CompanyID
 			AND tblAccount.AccountType = 1
 			AND tblAccount.Status = p_activeStatus
@@ -69,10 +72,11 @@ BEGIN
 			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
-			AND ((p_AccountNo = '' OR tblAccount.Number like p_AccountNo))
-			AND ((p_AccountName = '' OR tblAccount.AccountName like Concat('%',p_AccountName,'%')))
-			AND ((p_tags = '' OR tblAccount.tags like Concat(p_tags,'%')))
-			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')))
+			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
+			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
+			AND ((p_IPCLI = '' OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
+			AND ((p_tags = '' OR tblAccount.tags LIKE Concat(p_tags,'%')))
+			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) LIKE CONCAT('%',p_ContactName,'%')))
 			AND (p_low_balance = 0 OR ( p_low_balance = 1 AND abc.BalanceThreshold <> 0 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) )
 		GROUP BY tblAccount.AccountID
 		ORDER BY
@@ -135,6 +139,8 @@ BEGIN
 			ON tblAccount.Owner = tblUser.UserID
 		LEFT JOIN tblContact
 			ON tblContact.Owner=tblAccount.AccountID
+		LEFT JOIN tblAccountAuthenticate
+			ON tblAccountAuthenticate.AccountID = tblAccount.AccountID
 		WHERE   tblAccount.CompanyID = p_CompanyID
 			AND tblAccount.AccountType = 1
 			AND tblAccount.Status = p_activeStatus
@@ -142,10 +148,11 @@ BEGIN
 			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
-			AND ((p_AccountNo = '' OR tblAccount.Number like p_AccountNo))
-			AND ((p_AccountName = '' OR tblAccount.AccountName like Concat('%',p_AccountName,'%')))
-			AND ((p_tags = '' OR tblAccount.tags like Concat('%',p_tags,'%')))
-			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')))
+			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
+			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
+			AND ((p_IPCLI = '' OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
+			AND ((p_tags = '' OR tblAccount.tags LIKE Concat(p_tags,'%')))
+			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) LIKE CONCAT('%',p_ContactName,'%')))
 			AND (p_low_balance = 0 OR ( p_low_balance = 1 AND abc.BalanceThreshold <> 0 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) );
 
 	END IF;
@@ -167,6 +174,8 @@ BEGIN
 			ON tblAccount.Owner = tblUser.UserID
 		LEFT JOIN tblContact
 			ON tblContact.Owner=tblAccount.AccountID
+		LEFT JOIN tblAccountAuthenticate
+			ON tblAccountAuthenticate.AccountID = tblAccount.AccountID
 		WHERE   tblAccount.CompanyID = p_CompanyID
 			AND tblAccount.AccountType = 1
 			AND tblAccount.Status = p_activeStatus
@@ -174,10 +183,11 @@ BEGIN
 			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
-			AND ((p_AccountNo = '' OR tblAccount.Number like p_AccountNo))
-			AND ((p_AccountName = '' OR tblAccount.AccountName like Concat('%',p_AccountName,'%')))
-			AND ((p_tags = '' OR tblAccount.tags like Concat('%',p_tags,'%')))
-			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) like Concat('%',p_ContactName,'%')))
+			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
+			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
+			AND ((p_IPCLI = '' OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
+			AND ((p_tags = '' OR tblAccount.tags LIKE Concat(p_tags,'%')))
+			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) LIKE CONCAT('%',p_ContactName,'%')))
 			AND (p_low_balance = 0 OR ( p_low_balance = 1 AND abc.BalanceThreshold <> 0 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) )
 		GROUP BY tblAccount.AccountID;
 	END IF;

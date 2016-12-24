@@ -468,8 +468,10 @@
                     $('table tbody').on('click', '.view-payment', function (ev) {
                         ev.preventDefault();
                         ev.stopPropagation();
+                        var self = $(this);
+                        setSelection(self);
                         $('#view-modal-payment').trigger("reset");
-                        var cur_obj = $(this).prev("div.hiddenRowData");
+                        var cur_obj = self.prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){							
                             if(list_fields[i] == 'AmountWithSymbol'){
                                 $("#view-modal-payment [name='Amount']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
@@ -511,14 +513,22 @@
 
                     $('body').on('click', '.btn.recall,.recall', function (e) {
                         e.preventDefault();
+                        e.stopPropagation();
+                        var self = $(this);
+                        var PaymentIDs =[];
                         $('#recall-payment-form').trigger("reset");
-                        if($(this).hasClass('btn')){
-                            $('#recall-payment-form').attr("action",$(this).attr('href'));
+                        if(self.hasClass('btn')){
+                            setSelection(self);
+                            var tr = self.parents('tr');
+                            var ID = tr.find('.rowcheckbox:checked').val();
+                            PaymentIDs[0] = ID;
+
                         }else{
-                            var PaymentIDs = getselectedIDs();
-                            $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
+                            PaymentIDs = getselectedIDs();
                         }
+                        $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
                         $('#recall-modal-payment').modal('show');
+
                     });
 
                     $('#recall-payment-form').submit(function(e){
@@ -531,6 +541,7 @@
                             $('#recall-payment-form [name="criteria"]').val(JSON.stringify($searchFilter));
                         }else{
                             criteria_ac = 'selected';
+                            $('#recall-payment-form [name="criteria"]').val('');
                         }
 
                         if(SelectedIDs=='' && criteria_ac=='selected')
@@ -701,7 +712,9 @@
 
                     $('table tbody').on('click', '.approvepayment , .rejectpayment', function (e) {
                         e.preventDefault();
+                        e.stopPropagation();
                         var self = $(this);
+                        setSelection(self);
                         var text = (self.hasClass("approvepayment")?'Approve':'Reject');
                         if (!confirm('Are you sure you want to '+ text +' the payment?')) {
                             return;
@@ -1006,7 +1019,6 @@
 
                         success: function(response) {
                             $("#payment-update").button('reset');
-                            $(".btn").button('reset');
                             $('#modal-payment').modal('hide');
 
                             if (response.status == 'success') {
@@ -1019,6 +1031,9 @@
                                 toastr.error(response.message, "Error", toastr_opts);
                             }
                             $('.btn.upload').button('reset');
+                        },
+                        complete:function(){
+                            $(".btn").button('reset');
                         },
                         data: data,
                         //Options to tell jQuery not to process data or worry about content-type.
@@ -1045,6 +1060,14 @@
                 SelectedIDs[i++] = accountIDs;
             });
             return SelectedIDs;
+        }
+
+        function setSelection(self){
+            var tr = self.parents('tr');
+            if(tr.is('tr') && !tr.hasClass('selected')) {
+                tr.find('.rowcheckbox').prop("checked", true);
+                tr.addClass('selected');
+            }
         }
 
 

@@ -61,6 +61,35 @@ class BillingDashboard extends \BaseController {
         /*return View::make('billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));*/
 
     }
+
+    public function invoice_expense_total_widget(){
+
+        $data = Input::all();
+        $CurrencyID = "";
+        $CurrencySymbol = $CurrencyCode = "";
+        if(isset($data["CurrencyID"]) && !empty($data["CurrencyID"])){
+            $CurrencyID = $data["CurrencyID"];
+            $CurrencyCode = Currency::getCurrency($CurrencyID);
+            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
+        }
+        if($data['date-span']==0){
+            $Closingdate		=	explode(' - ',$data['Closingdate']);
+            $Startdate			=   $Closingdate[0];
+            $Enddate			=	$Closingdate[1];
+            $data['Startdate'] = trim($Startdate).' 00:00:00';
+            $data['Enddate'] = trim($Enddate).' 23:59:59';
+        }else{
+            $data['Startdate'] = $data['date-span'];
+            $data['Enddate']=0;
+        }
+        $companyID = User::get_companyID();
+        $query = "call prc_getDashboardTotalOutStanding ('". $companyID  . "',  '". $CurrencyID  . "','0')";
+        $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
+        if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
+            return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
+        }
+    }
+
     public function ajax_top_pincode(){
         $data = Input::all();
         $companyID = User::get_companyID();

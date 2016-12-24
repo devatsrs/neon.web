@@ -51,7 +51,8 @@ class Messages extends \Eloquent {
     public static function getMsgDropDown($reset = 0){
         $companyID = User::get_companyID();
         $userID = User::get_userID();
-        $isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        //$isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        $isAdmin 					= 	(User::is_admin())?1:0;
         $query = "Call prc_getMsgsDropdown (".$companyID.",".$userID.",".$isAdmin .",".$reset.")" ; 
         $dropdownData = DataTableSql::of($query)->getProcResult(array('jobs','totalNonVisitedJobs'));
         return $dropdownData;

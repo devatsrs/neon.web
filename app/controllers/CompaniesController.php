@@ -26,10 +26,10 @@ class CompaniesController extends \BaseController {
         $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');
         $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
         $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('DefaultDashboard');
-        $PincodeWidget = CompanySetting::getKeyVal('PincodeWidget') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('PincodeWidget');
+        //$PincodeWidget = CompanySetting::getKeyVal('PincodeWidget') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('PincodeWidget');
         $LastPrefixNo = LastPrefixNo::getLastPrefix();
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
-        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard', 'PincodeWidget','RoundChargesAmount'));
+        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount'));
 
     }
 
@@ -46,7 +46,7 @@ class CompaniesController extends \BaseController {
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
-        $data['PincodeWidget'] = isset($data['PincodeWidget']) ? 1 : 0;
+        //$data['PincodeWidget'] = isset($data['PincodeWidget']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
         $rules = array(
             'CompanyName' => 'required|min:3|unique:tblCompany,CompanyName,'.$companyID.',CompanyID',
@@ -59,14 +59,17 @@ class CompaniesController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        if(empty($data['SMTPPassword'])){
+            unset($data['SMTPPassword']);
+        }
         CompanySetting::setKeyVal('UseInBilling',$data['UseInBilling']);
         unset($data['UseInBilling']);
         CompanySetting::setKeyVal('DefaultDashboard',$data['DefaultDashboard']);//Added by Abubakar
         unset($data['DefaultDashboard']);
         CompanySetting::setKeyVal('RoundChargesAmount',$data['RoundChargesAmount']);
         unset($data['RoundChargesAmount']);
-        CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish
-        unset($data['PincodeWidget']);
+        //CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish
+        //unset($data['PincodeWidget']);
         LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
         unset($data['LastPrefixNo']);
 
@@ -100,6 +103,9 @@ class CompaniesController extends \BaseController {
 		$data 				= 		Input::all();
         $companyID 			= 		User::get_companyID();
         $company 			=		Company::find($companyID);
+        if(empty($data['SMTPPassword'])){
+            $data['SMTPPassword'] = $company->SMTPPassword;
+        }
 		
 		 $rules = array(
             'SMTPServer' => 'required',
