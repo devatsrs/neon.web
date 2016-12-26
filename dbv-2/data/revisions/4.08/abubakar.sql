@@ -1,10 +1,5 @@
 USE `NeonBillingDev`;
 
-Update tblBillingClass SET SendInvoiceSetting='after_admin_review' where SendInvoiceSetting='never';
-
-Update tblAccountBilling SET SendInvoiceSetting='after_admin_review' where SendInvoiceSetting='never';
-
-
 -- Dumping structure for procedure NeonBillingDev.prc_getDashboardinvoiceExpenseTotalOutstanding
 DROP PROCEDURE IF EXISTS `prc_getDashboardinvoiceExpenseTotalOutstanding`;
 DELIMITER //
@@ -258,7 +253,7 @@ BEGIN
 
 	SELECT IFNULL(SUM(p.Amount),0) INTO v_TotalPayment_
 		FROM tblPayment p
-	INNER JOIN Tech1RateManagement.tblAccount ac
+	INNER JOIN NeonRMDev.tblAccount ac
 		ON ac.AccountID = p.AccountID
 	WHERE
 		p.CompanyID = p_CompanyID
