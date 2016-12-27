@@ -168,6 +168,13 @@ function loadBarChart(chart_type,submit_data){
                     },
                     series: seriesdata,
                     drilldown: {
+                        drillUpButton: {
+                            relativeTo: 'spacingBox',
+                            position: {
+                                y: 0,
+                                x: -30
+                            }
+                        },
                         series: []
                     }
                 });

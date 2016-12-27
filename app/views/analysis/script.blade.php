@@ -56,6 +56,11 @@
         };
         // Apply the theme
         Highcharts.setOptions(Highcharts.theme);
+        Highcharts.setOptions({
+            lang: {
+                drillUpText: '◁ Back'
+            }
+        });
         reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
     });
 </script>

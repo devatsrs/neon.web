@@ -2623,3 +2623,12 @@ a:focus,a:hover{text-decoration:none !important}
     background-repeat: no-repeat;
     background-position: center center;
 }
+.highcharts-drillup-button rect {
+    fill:#222;
+    stroke: #000;
+}
+
+.highcharts-drillup-button text {
+    color:#fff !important;
+    fill:#fff !important;
+}
