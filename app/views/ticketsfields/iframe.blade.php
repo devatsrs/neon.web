@@ -5,8 +5,7 @@
 	<meta name="author" content="">
 	<meta name="keywords" content="">
 	<!-- Adding meta tag for CSRF token -->
-	<meta content="authenticity_token" name="csrf-param" />
-<meta content="LyXKMr9Q/zI2QZmVWhSQs+EXnRT2jPnf6l6sxR2yAgE=" name="csrf-token" />
+	
 	<!-- End meta tag for CSRF token -->
 	<!-- Mobile viewport optimized: j.mp/bplateviewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,18 +17,7 @@
 <style>
 .phpdebugbar{display:none;}
 </style>
-<script type="text/javascript">
-	var baseurl = "{{URL::to('/')}}";
-	  /* TODO-RAILS3 need to cross check this area */
-		/*PROFILE_BLANK_THUMB_PATH = 'https://assets1.freshdesk.com/assets/misc/profile_blank_thumb.jpg';
-		PROFILE_BLANK_MEDIUM_PATH = 'https://assets9.freshdesk.com/assets/misc/profile_blank_medium.jpg';
-		SPACER_IMAGE_PATH = 'https://assets2.freshdesk.com/assets/misc/spacer.gif';
-		FILLER_IMAGES = {
-			imageLoading : 'https://assets2.freshdesk.com/assets/animated/image_upload_placeholder.gif'
-		};*/
-		cloudfront_version = "1479315641";
-		/*cloudfront_host_url = "https://assets9.freshdesk.com";*/
-	</script>
+<script type="text/javascript">	var baseurl = "{{URL::to('/')}}"; 	</script>
 <script src="{{ URL::asset('assets/formbuilder/js/defaults.js')}}" type="text/javascript"></script>
 <script src="{{ URL::asset('assets/formbuilder/js/frameworks.js')}}" type="text/javascript"></script>
 <script src="{{ URL::asset('assets/formbuilder/js/workspace.js')}}" type="text/javascript"></script>
@@ -123,7 +111,7 @@ customFields = {{$finaljson}};
       dropdown_items_edit:        'Dropdown items - Edit',
       dropdown_items_preview:     'Dropdown items - Preview',
       nestedfield_helptext_preview: 'This is the preview of sample dropdown items. Click \&quot;Edit\&quot; to change the values for each drop down.',
-      nestedfield_helptext:       'Use the below textarea to add or edit items in your dropdown. Indent items by pressing the tab key once or twice. We will convert it to dropdown items based on the indentation. &lt;a target=\&#x27;_blank\&#x27; href=\&#x27;https://support.freshdesk.com/solution/categories/45957/folders/74594/articles/37599-using-dependent-fields\&#x27;&gt;Learn more&lt;\/a&gt; ',
+      nestedfield_helptext:       'Use the below textarea to add or edit items in your dropdown. Indent items by pressing the tab key once or twice. We will convert it to dropdown items based on the indentation. &lt;a target=\&#x27;_blank\&#x27;',
       confirm_delete:             '<span class="translation_missing" title="translation missing: en.ticket_fields.formfield2_props.confirm_delete">Confirm Delete</span>',
       agent_mandatory_closure:    'Required when closing the ticket',
       remove_type:                'Section is associated with this type',
@@ -209,5 +197,6 @@ customFields = {{$finaljson}};
 //]]>
 </script> 
 <script src="{{ URL::asset('assets/formbuilder/js/ticket_fields.js')}}" type="text/javascript"></script>
+
 </body>
 </html>

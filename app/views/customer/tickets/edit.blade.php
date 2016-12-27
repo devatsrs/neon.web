@@ -1,14 +1,12 @@
-@extends('layout.main')
+@extends('layout.customer.main')
 
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li> <a href="{{action('tickets')}}">Tickets</a> </li>
-  <li class="active"> <strong>New Ticket</strong> </li>
+  <li class="active"> <strong>Update Ticket</strong> </li>
 </ol>
-<h3>New Ticket</h3>
-<div class="panel-title"> @include('includes.errors')
-  @include('includes.success') </div>
+<h3>Update Ticket</h3>
 <p style="text-align: right;">
   <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
   <a href="{{action('tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i> Close </a> </p>
@@ -29,27 +27,13 @@
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXT)
 				 {
 				 ?>
-          <div class="form-group">
-            <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
-            <?php
-			
+          <div class="form-group">            
+            <?php			
 			if($TicketfieldsData->FieldType == 'default_requester')
-			 { 			 	
-				$required[] =  array("id"=>$id,"title"=>$TicketfieldsData->FieldName);
-			?>
-            <div class="col-sm-6">
-            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control typeahead formfld" spellcheck="false" dir="auto"  data-local="{{$AllEmails}}"  value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}"  placeholder="{{$TicketfieldsData->AgentLabel}}" />           
-            </div>
-            <div class="col-sm-3 dropdown" style="padding:0;">
-              <button title="Add new requester" type="button" class="btn btn-primary btn-xs  dropdown-toggle" data-toggle="dropdown">+</button>
-              <ul class="dropdown-menu dropdown-green"  role="menu">
-                <li> <a class="unknownemailaction clickable" unknown_action_type="accounts"  >&nbsp;<i class="fa fa-building"></i>&nbsp;&nbsp; Add new Account </a> </li>
-                <li> <a class="unknownemailaction clickable" unknown_action_type="contacts"  > <i class="entypo-user"></i> &nbsp;Add new Contact</a> </li>
-              </ul>
-            </div>
-            <?php }else{
+			 {continue;}else{
 				if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
 				 ?>
+                 <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
               <input type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
             </div>
@@ -110,6 +94,9 @@
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_DROPDOWN)
 				 { 
+				 if($TicketfieldsData->FieldType == 'default_group' || $TicketfieldsData->FieldType == 'default_agent'){
+			 		continue;
+				 }
 				  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
 					 ?>
           <div class="form-group">
@@ -125,26 +112,7 @@
                 <option  @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->PriorityID) selected @endif  value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
                 <?php 
 					}
-				}else  if($TicketfieldsData->FieldType == 'default_group'){
-				$htmlgroupID = 'Ticket'.$TicketfieldsData->FieldName;
-				$FieldValues = TicketGroups::where(['CompanyID'=>$CompanyID])->orderBy('GroupID', 'asc')->get(); 
-					?>               
-                <?php
-					foreach($FieldValues as $FieldValuesData){
-					?>
-                <option @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->GroupID) selected  @endif value="{{$FieldValuesData->GroupID}}">{{$FieldValuesData->GroupName}}</option>
-                <?php 
-					}
-				} else  if($TicketfieldsData->FieldType == 'default_agent'){		
-				$htmlagentID = 'Ticket'.$TicketfieldsData->FieldName;		
-					?>               
-                <?php
-					foreach($agentsAll as $FieldValuesData){
-					?>
-                <option @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->UserID) selected  @endif value="{{$FieldValuesData->UserID}}">{{$FieldValuesData->FirstName}} {{$FieldValuesData->LastName}}</option>
-                <?php 
-					}
-				}					
+				}				
 				else
 				{	 
 					$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
@@ -295,7 +263,7 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 		e.stopImmediatePropagation();
 		e.preventDefault();
 		var formData = new FormData($(this)[0]);
-		var ajax_url = baseurl+'/tickets/{{$TicketID}}/update';
+		var ajax_url = baseurl+'/customer/tickets/{{$TicketID}}/update';
 		 $.ajax({
 				url: ajax_url,
 				type: 'POST',
@@ -308,7 +276,7 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 				success: function(response) {
 				   if(response.status =='success'){					   
 						ShowToastr("success",response.message); 														
-						window.location.href= baseurl+'/tickets';
+						window.location.href= baseurl+'/customer/tickets';
 					}else{
 						toastr.error(response.message, "Error", toastr_opts);
 					}                   

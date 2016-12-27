@@ -5,10 +5,8 @@
   <li class="active"> <strong>Detail</strong> </li>
 </ol>
 <h3>Tickets</h3>
-@include('includes.errors')
-@include('includes.success')
-<p class="text-right"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('/customer/tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}"   class="btn btn-red delete_ticket tooltip-primary"><i class="fa fa-close"></i> </a> @if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('/customer/tickets/'.$PrevTicket->TicketID.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-backward"></i> </a> @endif
-  @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('/customer/tickets/'.$NextTicket->TicketID.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-forward"></i> </a> @endif </p>
+<p class="text-right"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('/customer/tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}"   class="btn btn-red delete_ticket tooltip-primary"><i class="fa fa-close"></i> </a> @if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('/customer/tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-backward"></i> </a> @endif
+  @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('/customer/tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-forward"></i> </a> @endif </p>
 <div class="mail-env"> 
   
   <!-- compose new email button -->
@@ -133,14 +131,6 @@
                   <label for="field-1" class="col-md-4 control-label">Priority</label>
                   <div class="col-md-8"> {{Form::select('priority', $Priority, $ticketdata->Priority ,array("class"=>"select2"))}} </div>
                 </div>
-                <div class="form-group">
-                  <label for="field-1" class="col-md-4 control-label">Group</label>
-                  <div class="col-md-8"> {{Form::select('group', $Groups, $ticketdata->Group ,array("class"=>"select2 ticketgroup"))}} </div>
-                </div>
-                <div class="form-group">
-                  <label for="field-1" class="col-md-4 control-label">Agent</label>
-                  <div class="col-md-8"> {{Form::select('agent', $Agents, $ticketdata->Agent ,array("class"=>"select2","id"=>"ticketagent"))}} </div>
-                </div>
                 <div class="form-group margin-bottom">
                   <div class="col-md-4">&nbsp;</div>
                   <div class="col-md-8">
@@ -190,7 +180,7 @@ var allow_extensions  	= 		{{$response_extensions}};
 var max_file_size_txt 	=	    '{{$max_file_size}}';
 var max_file_size	  	=	    '{{str_replace("M","",$max_file_size)}}';
 var emailFileListReply 	=		[];
-
+var CloseStatus			=		'{{$CloseStatus}}';
 $(document).ready(function(e) {	
 	
 	$( document ).on("click",'.email_action' ,function(e) {			
@@ -459,17 +449,17 @@ $(document).ready(function(e) {
 					var confirm_close = confirm("Are you sure to close this ticket?");
 					if(confirm_close)
 					{
-						var url 		    = 	  baseurl + '/tickets/'+ticket_number+'/close_ticket';
+						var url 		    = 	  baseurl + '/customer/tickets/'+ticket_number+'/close_ticket';
 						$.ajax({
 							url: url,
 							type: 'POST',
 							dataType: 'json',
 							async :false,
 							data:{s:1,ticket_number:ticket_number},
-							success: function(response){	
+							success: function(response){	console.log(response);
 									if(response.status =='success'){									
 									toastr.success(response.message, "Success", toastr_opts);
-									$('#TicketStatus').val(response.close_id).trigger('change');
+									$('#TicketStatus').val(CloseStatus).trigger('change');
 								}else{
 									toastr.error(response.message, "Error", toastr_opts);
 								}								

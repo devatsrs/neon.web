@@ -169,7 +169,7 @@ class Messages extends \Eloquent {
 		
 		 if($lead==0)
 		 {
-			$AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail","AccountName"));
+			$AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail","FirstName","LastName"));
 		 }
 		 else
 		 {
@@ -195,7 +195,7 @@ class Messages extends \Eloquent {
 						{
 							foreach($email_addresses as $email_addresses_data)
 							{
-								$txt = $AccountData->AccountName." <".$email_addresses_data.">";
+								$txt = $AccountData->FirstName.' '.$AccountData->LastName." <".$email_addresses_data.">";
 								if(!in_array($txt,$array))
 								{
 									$array[] =  $txt;	
@@ -219,7 +219,8 @@ class Messages extends \Eloquent {
 						{
 							foreach($email_addresses as $email_addresses_data)
 							{
-								$txt = $AccountData->AccountName." <".$email_addresses_data.">";
+								//$txt = $AccountData->AccountName." <".$email_addresses_data.">";
+								$txt = $AccountData->FirstName.' '.$AccountData->LastName." <".$email_addresses_data.">";
 								if(!in_array($txt,$array))
 								{
 									//$array[] =  $email_addresses_data;	

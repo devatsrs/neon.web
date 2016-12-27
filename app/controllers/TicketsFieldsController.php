@@ -13,8 +13,14 @@ private $validlicense;
 	
 	function index(){
 		$this->IsValidLicense();
-		$data			=	array();
-		$response 		=   NeonAPI::request('ticketsfields/getfields',array(),true,true,false);  
+		$response 		=   NeonAPI::request('ticketsfields/getfields',array(),true,false,false);   
+		$data			=	array();	
+		if($response->status=='success'){
+			Session::set("ticketsfields", $response->data );
+		}
+		else{
+			Session::set("ticketsfields", array());
+		}
 		return View::make('ticketsfields.index', compact('data'));   
 	}
 	
@@ -23,20 +29,17 @@ private $validlicense;
 		$this->IsValidLicense();
 		
 		$data 			= 	 array();	
-		$response 		=   NeonAPI::request('ticketsfields/getfields',array(),true,true,false);  
-		$Ticketfields	=	$response['data'];		
+		$Ticketfields	=	Session::get("ticketsfields");		
 		$Checkboxfields =   json_encode(Ticketfields::$Checkboxfields);
 		$final		 	=   $this->OptimizeDbFields($Ticketfields);
-		$finaljson		=   json_encode($final);
+		$finaljson		=   json_encode($final);		
 		
-		//echo Ticketfields::$FIELD_HTML_DROPDOWN; exit;
-		//echo "<pre>"; print_r($final); exit;
 		return View::make('ticketsfields.iframe', compact('data','Ticketfields',"Checkboxfields","finaljson"));   
 	}
 	
-	function iframeSubmit(){
-	 	$data 						 = 		Input::all();
-		
+	function iframeSubmit(){ 
+	 	$data = Input::all();
+		////////////////////////////////////////////////////////////////////////////////////////////////
 		//echo "<pre>"; print_r(json_decode($data['jsonData'])); echo "</pre>";exit;
 		$ticket_type = 0; $else_type = 0;
 		foreach(json_decode($data['jsonData']) as $jsonData)

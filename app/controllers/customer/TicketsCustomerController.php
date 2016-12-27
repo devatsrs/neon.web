@@ -32,11 +32,10 @@ private $validlicense;
 			$data['iDisplayLength'] 	= 	 Config::get('app.pageSize');
 			$companyID 					= 	 User::get_companyID();
 			$array						= 	 $this->GetResult($data);
-			$resultdata   				= 	 $array['resultdata'];	
-			$resultpage  				= 	 $array['resultpage'];		 
-			$result 					= 	 $resultdata->data['ResultCurrentPage'];
-			$totalResults 				= 	 $resultdata->data['TotalResults'][0]->totalcount; 
-			$iTotalDisplayRecords 		= 	 $resultpage['iTotalDisplayRecords'];
+			$resultpage  				= 	 $array->resultpage;		 
+			$result 					= 	 $array->ResultCurrentPage;
+			$totalResults 				= 	 $array->totalcount; 
+			$iTotalDisplayRecords 		= 	 $array->iTotalDisplayRecords;
 			$iDisplayLength 			= 	 $data['iDisplayLength'];
 			$data['currentpage'] 		= 	 0;
 			
@@ -71,12 +70,11 @@ private $validlicense;
 		$data['sSortDir_0']			= 	 $data['sort_type'];
 		$data['iDisplayLength'] 	= 	 $data['per_page'];
 		$companyID					= 	 User::get_companyID();
-		$array						=  	 $this->GetResult($data);
-		$resultdata   				=  	 $array['resultdata'];	
-		$resultpage  				=  	 $array['resultpage'];			
-		$result 					= 	 $resultdata->data['ResultCurrentPage'];
-		$totalResults 				=    $resultdata->data['TotalResults'][0]->totalcount; 
-		$iTotalDisplayRecords 		= 	 $resultpage['iTotalDisplayRecords'];
+		$array						= 	 $this->GetResult($data);
+		$resultpage  				= 	 $array->resultpage;		 
+		$result 					= 	 $array->ResultCurrentPage;
+		$totalResults 				= 	 $array->totalcount; 
+		$iTotalDisplayRecords 		= 	 $array->iTotalDisplayRecords;
 		$iDisplayLength 			= 	 $data['iDisplayLength'];
 		$Sortcolumns				=	 TicketsTable::$Sortcolumns;
 		//echo "<pre>";		print_r($resultpage);			exit;
@@ -89,7 +87,7 @@ private $validlicense;
 				return '';
 			}
 		} 
-       return   View::make('customers.tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns'));     
+       return   View::make('customer.tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns'));     
 	   
 	   //return array('currentpage'=>$data['currentpage'],"Body"=>$body,"result"=>count($result));
     
@@ -98,60 +96,24 @@ private $validlicense;
 	  
 	  function GetResult($data){
 		  		
-		   $CompanyID 				= 	User::get_companyID();
-		   $search		 			=	isset($data['Search'])?$data['Search']:'';	   		   
-		   $status					=	isset($data['status'])?is_array($data['status'])?implode(",",$data['status']):'':'';		   
-		   $priority				=	isset($data['priority'])?is_array($data['priority'])?implode(",",$data['priority']):'':'';
-		   $Group					=	isset($data['group'])?is_array($data['group'])?implode(",",$data['group']):'':'';
-		   $agent					=	'';		 
-		   $columns 	 			= 	array('TicketID','Subject','Requester','Type','Status','Priority','Group','Agent','created_at');		
-		   $sort_column 			= 	$data['iSortCol_0'];
-		   $emails 					=	Account::GetAccountAllEmails(User::get_userID());
-		 
-			$query 	= 	"call prc_GetSystemTicketCustomer (".$CompanyID.",'".$search."','".$status."','".$priority."','".$Group."','".$agent."','".$emails."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";  
+		if(User::is_admin())	{		
+		   	$data['agent']					=	isset($data['agent'])?is_array($data['agent'])?implode(",",$data['agent']):'':'';
+		 }else{
+			 $data['agent']					=	user::get_userID();
+		 }
 		
-		$resultdata   	=  DataTableSql::of($query)->getProcResult(array('ResultCurrentPage','TotalResults'));	
-		$resultpage  	=  DataTableSql::of($query)->make(false);
-		//echo "<pre>";		print_r($resultdata);			exit;
-		return array("resultdata"=>$resultdata,"resultpage"=>$resultpage);
+        $response 				= 	NeonAPI::request('tickets/get_tickets',$data,true,false); 
+       
+		if($response->status=='success')
+		{ 
+			return $response->data;
+		}else{
+			return $response->message;
+		}
 	}
 	  
-	 /* function ajax_datagrid($type)
-	  {	
-		   $CompanyID 				= 	User::get_companyID();       
-		   $data 					= 	Input::all();
-		   $data['iDisplayStart'] 	+=	1;
-		   $search		 			=	isset($data['Search'])?$data['Search']:'';	   		   
-		   $status					=	isset($data['status'])?$data['status']:0;		   
-		   $priority				=	isset($data['priority'])?$data['priority']:0;
-		   $Group					=	isset($data['group'])?$data['group']:0;
-		   $agent					=	isset($data['agent'])?$data['agent']:0;
-		   $columns 	 			= 	array('TicketID','Subject','Requester','Type','Status','Priority','Group','Agent');		  
-		   $sort_column 			= 	$data['iSortCol_0'];
-			
-			$query 	= 	"call prc_GetSystemTicket (".$CompanyID.",'".$search."','".$status."','".$priority."','".$Group."','".$agent."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";  
-	
-			if(isset($data['Export']) && $data['Export'] == 1) {
-				$excel_data  = DB::select($query.',1)');
-				$excel_data = json_decode(json_encode($excel_data),true);
-	
-				if($type=='csv'){
-					$file_path = getenv('UPLOAD_PATH') .'/Tickets.csv';
-					$NeonExcel = new NeonExcelIO($file_path);
-					$NeonExcel->download_csv($excel_data);
-				}elseif($type=='xlsx'){
-					$file_path = getenv('UPLOAD_PATH') .'/Tickets.xls';
-					$NeonExcel = new NeonExcelIO($file_path);
-					$NeonExcel->download_excel($excel_data);
-				}          
-			}
-			$query .=',0)';  Log::info($query);
-	
-			return DataTableSql::of($query)->make();
-	 	}  
-	*/	
-		function add()
-		{	
+	function add()
+	{	
 			$this->IsValidLicense();				
 			$Ticketfields	   			=	 DB::table('tblTicketfields')->orderBy('FieldOrder', 'asc')->get(); 
 			$Agents			   			= 	 User::getUserIDListAll(0);
@@ -180,6 +142,47 @@ private $validlicense;
 	public function edit($id)
 	{
 		$this->IsValidLicense();
+		$accountemailaddresses	=	  Account::GetAccountAllEmails(User::get_userID(),true);
+        $response  		    	=  	  NeonAPI::request('tickets/edit/'.$id,array(),true);
+	
+		if(!empty($response) && $response->status == 'success' )
+		{ 	
+			$ResponseData				=	 $response->data;
+			$TicketID 					=	 $id;
+			$ticketdata					=	 $ResponseData->ticketdata;
+			
+
+			if(!in_array($ticketdata->Requester,$accountemailaddresses))
+			{
+					App::abort(403, 'You have not access to' . Request::url());		
+			}
+			
+			
+			$ticketdetaildata			=	 $ResponseData->ticketdetaildata;								
+			$Ticketfields	   			=	 $ResponseData->Ticketfields; 
+			$Agents			   			= 	 $ResponseData->Agents;
+			$AllUsers		   			= 	 $ResponseData->AllUsers; 
+			$CompanyID 		   			= 	 User::get_companyID();	
+			$htmlgroupID 	   			= 	 $ResponseData->htmlgroupID;
+			$htmlagentID       			= 	 $ResponseData->htmlagentID;
+			$AllEmails 					= 	 $ResponseData->AllEmails; 			
+		    $agentsAll 					=	 $ResponseData->agentsAll;			
+		    $ticketSavedData			= 	 json_decode(json_encode($ResponseData->ticketSavedData),true);
+			$random_token	  			=	 get_random_number();
+			
+			$response_api_extensions 	=    Get_Api_file_extentsions();
+		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
+		    $response_extensions		=	json_encode($response_api_extensions['allowed_extensions']);
+			$max_file_size				=	get_max_file_size();	
+			$ticketSavedData['AttachmentPaths']	=	UploadFile::DownloadFileLocal($ticketdata->AttachmentPaths);	
+			
+			return View::make('customer.tickets.edit', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails','ticketSavedData','TicketID'));  
+		}
+		else
+		{
+            return view_response_api($response);
+        }
+		/*$this->IsValidLicense();
 		
         if($id > 0)
 		{	$TicketID 					=	$id;
@@ -206,12 +209,49 @@ private $validlicense;
             ->get();
 		    $ticketSavedData = 	TicketsTable::SetUpdateValues($ticketdata,$ticketdetaildata,$Ticketfields);
 			//echo "<pre>";			print_r($agentsAll);			echo "</pre>";					exit;
-			return View::make('customers.tickets.edit', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails','ticketSavedData','TicketID'));  
-		}
+			return View::make('customer.tickets.edit', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails','ticketSavedData','TicketID'));  
+		}*/
 	}
 	  
 	  function Store(){
+		  
 	    $this->IsValidLicense();
+		$postdata 			= 	Input::all();  
+
+		if(!isset($postdata['Ticket'])){
+			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
+		}
+		
+		 $attachmentsinfo        =	$postdata['attachmentsinfo']; 
+        if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
+            $files_array = json_decode($attachmentsinfo,true);
+        }
+
+        if(!empty($files_array) && count($files_array)>0) {
+            $FilesArray = array();
+            foreach($files_array as $key=> $array_file_data){
+                $file_name  = basename($array_file_data['filepath']); 
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TICKET_ATTACHMENT']);
+                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+                copy($array_file_data['filepath'], $destinationPath . $file_name);
+                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+                }
+                $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
+                @unlink($array_file_data['filepath']);
+            }
+            $postdata['file']		=	json_encode($FilesArray);
+		} 
+			
+        $response 			= 		NeonAPI::request('tickets/store',$postdata,true,false,false);
+		return json_response_api($response);     
+	  
+		  
+	  /*  $this->IsValidLicense();
 		$data 			= 	Input::all();  
 
 				
@@ -297,12 +337,49 @@ private $validlicense;
       		 }catch (Exception $ex){ 	
 			      DB::rollback();
 				 return Response::json(array("status" => "failed", "message" =>$ex->getMessage()));
-       		 }    
+       		 }    */
 	  }
 	  
-	  function Update($id){
-	  
+	  function Update($id)
+	  {	  
+		  	  
 	    $this->IsValidLicense();
+		$postdata 			= 	Input::all(); 		
+		
+		if(!isset($postdata['Ticket'])){
+			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
+		}
+		
+		 $attachmentsinfo        =	$postdata['attachmentsinfo']; 
+        if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
+            $files_array = json_decode($attachmentsinfo,true);
+        }
+
+        if(!empty($files_array) && count($files_array)>0) {
+            $FilesArray = array();
+            foreach($files_array as $key=> $array_file_data){
+                $file_name  = basename($array_file_data['filepath']); 
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TICKET_ATTACHMENT']);
+                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+                copy($array_file_data['filepath'], $destinationPath . $file_name);
+                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+                }
+                $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
+                @unlink($array_file_data['filepath']);
+            }
+            $postdata['file']		=	json_encode($FilesArray);
+		} 
+		
+        $response 			= 		NeonAPI::request('tickets/update/'.$id,$postdata,true,false,false); Log::info(print_r($response,true));
+		return json_response_api($response);  		
+	  
+	  
+	   /* $this->IsValidLicense();
 		$data 			= 	Input::all();  
 		$ticketdata		=	 TicketsTable::find($id);
 	    if($ticketdata)
@@ -392,7 +469,7 @@ private $validlicense;
 				 } 
 		  }else{
 		  	return Response::json(array("status" => "failed", "message" =>"invalid Ticket."));
-		  }
+		  }*/
 	  }
 	  
 	  function uploadFile(){
@@ -422,7 +499,9 @@ private $validlicense;
 	
 	public function delete($id)
     {
-        if( $id > 0){
+		$response  		    =  	  NeonAPI::request('tickets/delete/'.$id,array(),true,true); 
+		return json_response_api($response); 
+       /* if( $id > 0){
             try{
                 DB::beginTransaction();
                 TicketsTable::where(["TicketID"=>$id])->delete();
@@ -436,43 +515,78 @@ private $validlicense;
                 return Response::json(array("status" => "failed", "message" =>$e->getMessage() ));
             }
 
-        }
+        }*/
     }
 	
 	function Detail($id){
-		 $this->IsValidLicense();
-		 if($id)
-		 { 
-  		   $ticketdata					 =	 TicketsTable::find($id);
-		   $status			 			 =   TicketsTable::getTicketStatus();
-		   $Priority		 			 =	 TicketPriority::getTicketPriority();
-		   $Groups			 			 =	 TicketGroups::getTicketGroups(); 
-		   $Agents			 			 = 	 User::getUserIDListAll(0);
-		   $Agents						 = 	 array("0"=> "Select")+$Agents;		   
-		   $response_api_extensions 	 =   Get_Api_file_extentsions();
-		   $max_file_size				 =	 get_max_file_size();	
-		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
-		    $response_extensions		 =	json_encode($response_api_extensions['allowed_extensions']); 
-			
-	   		$TicketConversation			 =	TicketsConversation::where(array('TicketID'=>$id))->get();
-			
-			/*if(User::is_admin())
-			{ echo "here1";
-				$NextTicket 				 =	TicketsTable::find(TicketsTable::WhereRaw("TicketID > ".$id)->pluck('TicketID'));
-				$PrevTicket 				 =	TicketsTable::find(TicketsTable::WhereRaw("TicketID < ".$id)->pluck('TicketID'));
+		
+		$this->IsValidLicense();
+		$accountemailaddresses	=	 Account::GetAccountAllEmails(User::get_userID(),true);
+		$response 				=    NeonAPI::request('tickets/getticket/'.$id,array());
+		
+		if(!empty($response) && $response->status == 'success' )
+		{
+			  $ticketdata		=	 $response->data;
+			  if(!in_array($ticketdata->Requester,$accountemailaddresses))
+			  {
+					App::abort(403, 'You have not access to' . Request::url());		
+			  }
+			   
+			$response_details 			 =  NeonAPI::request('tickets/getticketdetailsdata',array("admin"=>User::is_admin(),"id"=>$id),true);
+		
+			if(!empty($response_details) && $response_details->status == 'success' )
+			{  
+				   $ResponseData				 =   $response_details->data;
+				   $status			 			 =   $ResponseData->status;
+				   $Priority		 			 =	 $ResponseData->Priority;
+				   $Groups			 			 =	 $ResponseData->Groups; 
+				   $Agents			 			 = 	 $ResponseData->Agents;
+				   $response_api_extensions 	 =   Get_Api_file_extentsions();
+				   $max_file_size				 =	 get_max_file_size();	
+				   $CloseStatus					 =   $ResponseData->CloseStatus;  //close status id for ticket 
+				   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
+					$response_extensions		 =	json_encode($response_api_extensions['allowed_extensions']); 
+					
+					$TicketConversation			 =	$ResponseData->TicketConversation;
+					$NextTicket 				 =	$ResponseData->NextTicket;
+					$PrevTicket 				 =	$ResponseData->PrevTicket;
+					
+					return View::make('customer.tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus'));  		  
 			}else{
-				$NextTicket 				 =	TicketsTable::find(TicketsTable::WhereRaw("TicketID > ".$id)->where(array("Agent"=>user::get_userID()))->pluck('TicketID')); 
-				$PrevTicket 				 =	TicketsTable::find(TicketsTable::WhereRaw("TicketID < ".$id)->where(array("Agent"=>user::get_userID()))->pluck('TicketID')); 
-			}*/
-			$NextTicket = '';
-			$PrevTicket = '';
-		   return View::make('customer.tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket"));  		  
-		 }
+          	  return view_response_api($response_details);
+         	}			 
+		 }else{
+            return view_response_api($response);
+         }
+	
 	}
 	
 	function TicketAction(){
 		
 		$data 		   		= 	  Input::all();
+		$action_type   		=     $data['action_type'];
+		$ticket_number  	=     $data['ticket_number'];
+		$ticket_type		=	  $data['ticket_type'];		
+		$response  		    =  	  NeonAPI::request('tickets/ticketcction',$data,true,true);
+		
+		if(!empty($response) && $response['status'] == 'success' )
+		{ 
+			$ResponseData		 =	  $response['data'];
+			$response_data       =    $ResponseData['response_data']; 
+			$AccountEmail 		 = 	  $ResponseData['AccountEmail'];	
+			$parent_id			 =	  $ResponseData['parent_id'];
+			
+			if($action_type=='forward'){ //attach current email attachments
+				$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths']);
+			}
+			
+			
+			return View::make('customer.tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id'));  
+		}else{
+            return view_response_api($response);
+        }		
+		
+		/*$data 		   		= 	  Input::all();
 		$action_type   		=     $data['action_type'];
 		$ticket_number  	=     $data['ticket_number'];
 		$ticket_type		=	  $data['ticket_type'];
@@ -494,12 +608,17 @@ private $validlicense;
 			Log::info(print_r($data,true));
 		}
 		return View::make('customers.tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id'));  			
-		
+		*/
 	}
 	
 	function UpdateTicketAttributes($id)
 	{
-		 $this->IsValidLicense();
+		$this->IsValidLicense();
+		$data 				= 		Input::all();  
+		$data['admin'] 		= 		User::is_admin();		
+		$response 			= 		NeonAPI::request('tickets/updateticketattributes/'.$id,$data,true,false,false);
+		return json_response_api($response);  	
+		/* $this->IsValidLicense();
 		 if($id)
 		 {
 			   $ticketdata		=	 TicketsTable::find($id);
@@ -526,11 +645,49 @@ private $validlicense;
 				return Response::json(array("status" => "success", "message" => "Ticket Successfully Updated")); 
 			}			
 		 }
-		return Response::json(array("status" => "failed", "message" =>"invalid Ticket." ));
+		return Response::json(array("status" => "failed", "message" =>"invalid Ticket." ));*/
 	}
 	
 	function ActionSubmit($id){
-		 $this->IsValidLicense();
+		
+		$this->IsValidLicense();
+		$postdata    =  Input::all();		
+		
+		 $attachmentsinfo        =	$postdata['attachmentsinfo']; 
+        if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
+            $files_array = json_decode($attachmentsinfo,true);
+        }
+
+        	if(!empty($files_array) && count($files_array)>0)
+					{
+						foreach($files_array as $key=> $array_file_data)
+						{
+							$file_name  		= 	basename($array_file_data['filepath']); 
+							$amazonPath 		= 	AmazonS3::generate_upload_path(AmazonS3::$dir['TICKET_ATTACHMENT']);
+							$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;
+			
+							if (!file_exists($destinationPath))
+							{
+								mkdir($destinationPath, 0777, true);
+							}
+							
+							copy($array_file_data['filepath'], $destinationPath . $file_name);
+							
+							if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath))
+							{
+								return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+							}
+							
+							$FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
+							//@unlink($array_file_data['filepath']);
+						}
+						$postdata['file']		=	json_encode($FilesArray);
+					}
+		 
+		$response 			= 		NeonAPI::request('tickets/actionsubmit/'.$id,$postdata,true,false,false);
+		return json_response_api($response);     		   
+		
+		 /*$this->IsValidLicense();
 		 $data    =  Input::all();
 		if($id)
 		{
@@ -624,7 +781,7 @@ private $validlicense;
 				}
 			}	
 			 return Response::json(array("status" => "failed", "message" =>"invalid Ticket." ));
-		}
+		}*/
 		   
 	}
 	
@@ -667,13 +824,16 @@ private $validlicense;
 	
 	function CloseTicket($ticketID)
 	{
-		$Ticketdata 	=   TicketsTable::find($ticketID);					
+		$response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,array(),true,true); 
+		$str =  json_response_api($response);    	Log::info(print_r($str,true));
+		return $str;
+		/*$Ticketdata 	=   TicketsTable::find($ticketID);					
 		if($Ticketdata)
 		{
 			 $CloseStatus =  TicketsTable::getClosedTicketStatus(); 
 			 $Ticketdata->update(array("Status"=>$CloseStatus));	
 			 return Response::json(array("status" => "success", "message" => "Ticket Successfully Closed.","close_id"=>$CloseStatus)); 	
 		}
-		return Response::json(array("status" => "failed", "message" =>"invalid Ticket." ));
+		return Response::json(array("status" => "failed", "message" =>"invalid Ticket." ));*/
 	}
 }

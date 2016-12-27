@@ -4,9 +4,9 @@
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li> <a href="{{action('tickets')}}">Tickets</a> </li>
-  <li class="active"> <strong>New Ticket</strong> </li>
+  <li class="active"> <strong>Update Ticket</strong> </li>
 </ol>
-<h3>New Ticket</h3>
+<h3>Update Ticket</h3>
 <div class="panel-title"> @include('includes.errors')
   @include('includes.success') </div>
 <p style="text-align: right;">

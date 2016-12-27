@@ -6,8 +6,6 @@
   <li class="active"> <strong>New Ticket</strong> </li>
 </ol>
 <h3>New Ticket</h3>
-<div class="panel-title"> @include('includes.errors')
-  @include('includes.success') </div>
 <p style="text-align: right;">
   <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
   <a href="{{URL::to('/customer/tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i> Close </a> </p>
@@ -27,33 +25,24 @@
 				  $id		    =  'Ticket'.str_replace(" ","",$TicketfieldsData->FieldName);
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXT)
 				 {
-				 ?>
-          <div class="form-group">
-            <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
-            <?php
 			
-			if($TicketfieldsData->FieldType == 'default_requester')
-			 { 			 	
-				$required[] =  array("id"=>$id,"title"=>$TicketfieldsData->FieldName);
-			?>
-            <div class="col-sm-6">
-            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control typeahead formfld" spellcheck="false" dir="auto"  data-local="{{$AllEmails}}"   placeholder="{{$TicketfieldsData->AgentLabel}}" />           
-            </div>
-            <div class="col-sm-3 dropdown" style="padding:0;">
-              <button title="Add new requester" type="button" class="btn btn-primary btn-xs  dropdown-toggle" data-toggle="dropdown">+</button>
-              <ul class="dropdown-menu dropdown-green"  role="menu">
-                <li> <a class="unknownemailaction clickable" unknown_action_type="accounts"  >&nbsp;<i class="fa fa-building"></i>&nbsp;&nbsp; Add new Account </a> </li>
-                <li> <a class="unknownemailaction clickable" unknown_action_type="contacts"  > <i class="entypo-user"></i> &nbsp;Add new Contact</a> </li>
-              </ul>
-            </div>
-            <?php }else{
+				if($TicketfieldsData->FieldType == 'default_requester')
+				 {
+			 ?>
+             <input type="hidden"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}"  value="{{Customer::get_user_full_name_with_email()}}">
+             <?php	
+			 continue; 
+			 }else{
 				if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
 				 ?>
+                 <div class="form-group">
+                 <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
             <div class="col-sm-9">
               <input type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
             </div>
+            </div>
             <?php } ?>
-          </div>
+          
           <?php
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXTAREA)
@@ -109,6 +98,9 @@
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_DROPDOWN)
 				 { 
+				  if($TicketfieldsData->FieldType == 'default_group' || $TicketfieldsData->FieldType == 'default_agent'){
+			 		continue;
+				 }
 				  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
 					 ?>
           <div class="form-group">
@@ -124,26 +116,7 @@
                 <option value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
                 <?php 
 					}
-				}else  if($TicketfieldsData->FieldType == 'default_group'){
-				$htmlgroupID = 'Ticket'.$TicketfieldsData->FieldName;
-				$FieldValues = TicketGroups::where(['CompanyID'=>$CompanyID])->orderBy('GroupID', 'asc')->get(); 
-					?>               
-                <?php
-					foreach($FieldValues as $FieldValuesData){
-					?>
-                <option value="{{$FieldValuesData->GroupID}}">{{$FieldValuesData->GroupName}}</option>
-                <?php 
-					}
-				} else  if($TicketfieldsData->FieldType == 'default_agent'){		
-				$htmlagentID = 'Ticket'.$TicketfieldsData->FieldName;		
-					?>               
-                <?php
-					foreach($agentsAll as $FieldValuesData){
-					?>
-                <option value="{{$FieldValuesData->UserID}}">{{$FieldValuesData->FirstName}} {{$FieldValuesData->LastName}}</option>
-                <?php 
-					}
-				}					
+				}				
 				else
 				{	 
 					$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
@@ -210,7 +183,7 @@ var max_file_size_txt =	        '{{$max_file_size}}';
 var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 var required_flds	  =          '{{json_encode($required)}}';
 
-    jQuery(document).ready(function($) {
+    jQuery(document).ready(function(e) {
 		
 		function validate_form()
 		{
@@ -219,7 +192,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 			 var error_msg = '';
 			 
 				required_flds_data.forEach(function(element) {
-					var  CurrentElementVal = 	$('#'+element.id).val();  //console.log(element.id+'-'+CurrentElementVal);
+					var  CurrentElementVal = 	jQuery('#'+element.id).val();  //console.log(element.id+'-'+CurrentElementVal);
 				
 					if(CurrentElementVal=='' || CurrentElementVal==0)
 					{
@@ -237,54 +210,21 @@ var required_flds	  =          '{{json_encode($required)}}';
 		}
 		
     // Replace Checboxes
-        $(".save.btn").click(function(ev) {
+        jQuery(".save.btn").click(function(ev) {
 			if(validate_form()){
-            	$('#form-tickets-add').submit();      
+            	jQuery('#form-tickets-add').submit();      
 			}
       });
 	  
-	  $(document).on('change','#{{$htmlgroupID}}',function(e){
-		   var changeGroupID =  	$(this).val();
-		   if(changeGroupID)
-		   {
-		   	 changeGroupID = parseInt(changeGroupID);
-			 var ajax_url  = baseurl+'/customer/ticketgroups/'+changeGroupID+'/getgroupagents';
-			 $.ajax({
-					url: ajax_url,
-					type: 'POST',
-					dataType: 'json',
-					async :false,
-					cache: false,
-					contentType: false,
-					processData: false,
-					data:{s:1},
-					success: function(response) {
-					   if(response.status =='success')
-					   {			
-						   var $el = this;		   
-						   console.log(response.data);
-						   $('#{{$htmlagentID}} option:gt(0)').remove();
-						   $.each(response.data, function(key,value) {							  
-							  $('#{{$htmlagentID}}').append($("<option></option>").attr("value", value).text(key));
-							});					
-						}else{
-							toastr.error(response.message, "Error", toastr_opts);
-						}                   
-					}
-					});	
-		return false;		
-		   }
-		   
-	  });
-	  $(document).on('submit','#form-tickets-add',function(e){		 
-		 $('.btn').attr('disabled', 'disabled');	 
-		 $('.btn').button('loading');
+	  jQuery(document).on('submit','#form-tickets-add',function(e){		 
+		 jQuery('.btn').attr('disabled', 'disabled');	 
+		 jQuery('.btn').button('loading');
 	
 		e.stopImmediatePropagation();
 		e.preventDefault();
-		var formData = new FormData($(this)[0]);
+		var formData = new FormData(jQuery(this)[0]);
 		var ajax_url = baseurl+'/customer/tickets/store';
-		 $.ajax({
+		 jQuery.ajax({
 				url: ajax_url,
 				type: 'POST',
 				dataType: 'json',
@@ -300,14 +240,14 @@ var required_flds	  =          '{{json_encode($required)}}';
 					}else{
 						toastr.error(response.message, "Error", toastr_opts);
 					}                   
-					$('.btn').button('reset');
-					$('.btn').removeClass('disabled');		
+					jQuery('.btn').button('reset');
+					jQuery('.btn').removeClass('disabled');		
 				}
 				});	
 		return false;		
     });	
 		
-		$('.wysihtml5box').wysihtml5({
+		jQuery('.wysihtml5box').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
 						"Crm":false,
@@ -323,22 +263,24 @@ var required_flds	  =          '{{json_encode($required)}}';
 				});
 				
 				
-				$('.unknownemailaction').click(function(e) {
-				var unknown_action_type 	= 	$(this).attr('unknown_action_type');			
+				jQuery('.unknownemailaction').click(function(e) {
+				var unknown_action_type 	= 	jQuery(this).attr('unknown_action_type');			
 				//window.location = baseurl+'/'+unknown_action_type+'/create';
-				window.open(baseurl+'/'+unknown_action_type+'/create', '_blank');
+				window.open(baseurl+'/customer/'+unknown_action_type+'/create', '_blank');
         });
 		
-		 $('#addTtachment').click(function(){
+		 jQuery('#addTtachment').click(function(){
 			 file_count++;                
 				//var html_img = '<input id="filecontrole'+file_count+'" multiple type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"  />';
 				//$('.emai_attachments_span').html(html_img);
-				$('#filecontrole1').click();
+				jQuery('#filecontrole1').click();
 				
             });
 
 
-            $(document).on('change','#filecontrole1',function(e){
+
+		jQuery(document).on("change","#filecontrole1",function(e){
+	
 				e.stopImmediatePropagation();
   				e.preventDefault();		
                 var files 			 = e.target.files;				
@@ -378,26 +320,29 @@ var required_flds	  =          '{{json_encode($required)}}';
         });
         		if(local_array.length>0 && file_check==1)
 				{	 emailFileList = emailFileList.concat(local_array);
-   					$('#emai_attachments_form').submit();
+   					jQuery('#emai_attachments_form').submit();
 				}
 
             });
 			
-			$('#emai_attachments_form').submit(function(e) {
+			jQuery('#emai_attachments_form').submit(function(e) {
+				
 	e.stopImmediatePropagation();
     e.preventDefault();
 
     var formData = new FormData(this);
-    var url = 	baseurl + '/tickets/upload_file';
-    $.ajax({
+    var url = 	baseurl + '/customer/tickets/upload_file';
+    jQuery.ajax({
         url: url,  //Server script to process data
         type: 'POST',
         dataType: 'json',
+	    contentType: false,
+        processData: false,
         success: function (response) {
             if(response.status =='success'){
-                $('.file-input-names').html(response.data.text);
-                $('#info1').val(JSON.stringify(response.data.attachmentsinfo));
-                $('#info2').val(JSON.stringify(response.data.attachmentsinfo));
+                jQuery('.file-input-names').html(response.data.text);
+                jQuery('#info1').val(JSON.stringify(response.data.attachmentsinfo));
+                jQuery('#info2').val(JSON.stringify(response.data.attachmentsinfo));
 
             }else{
                 toastr.error(response.message, "Error", toastr_opts);
@@ -418,27 +363,29 @@ var required_flds	  =          '{{json_encode($required)}}';
   {return 1;}else{return 0;}  
 }
 
-$(document).on("click",".del_attachment",function(ee){
-                var url  =  baseurl + '/tickets/delete_attachment_file';
-                var fileName   =  $(this).attr('del_file_name');
-                var attachmentsinfo = $('#info1').val();
+jQuery(document).on("click",".del_attachment",function(ee){
+                var url  =  baseurl + '/customer/tickets/delete_attachment_file';
+                var fileName   =  jQuery(this).attr('del_file_name');
+                var attachmentsinfo = jQuery('#info1').val();
                 if(!attachmentsinfo){
                     return true;
                 }
                 attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
-                $(this).parent().remove();
+                jQuery(this).parent().remove();
                 var fileIndex = emailFileList.indexOf(fileName);
                 var fileinfo = attachmentsinfo[fileIndex];
                 emailFileList.splice(fileIndex, 1);
                 attachmentsinfo.splice(fileIndex, 1);
-                $('#info1').val(JSON.stringify(attachmentsinfo));
-                $('#info2').val(JSON.stringify(attachmentsinfo));
-                $.ajax({
+                jQuery('#info1').val(JSON.stringify(attachmentsinfo));
+                jQuery('#info2').val(JSON.stringify(attachmentsinfo));
+                jQuery.ajax({
                     url: url,
                     type: 'POST',
                     dataType: 'json',
                     data:{file:fileinfo},
                     async :false,
+					contentType: false,
+			        processData: false,
                     success: function(response) {
                         if(response.status =='success'){
 
@@ -449,11 +396,11 @@ $(document).on("click",".del_attachment",function(ee){
                 });
             });
 			
-			$('.formfldcheckbox').change(function(e) {
-               if ( $( this ).is( ":checked" ) ){
-				  	$( this ).val(1);
+			jQuery('.formfldcheckbox').change(function(e) {
+               if ( jQuery( this ).is( ":checked" ) ){
+				  	jQuery( this ).val(1);
 				  }else{
-				  	$( this ).val(0);
+				  	jQuery( this ).val(0);
 				  }
             });
     });
