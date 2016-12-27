@@ -640,6 +640,7 @@ class EstimatesController extends \BaseController {
 			{
                 DB::connection('sqlsrv2')->beginTransaction();
                 EstimateDetail::where(["EstimateID"=>$id])->delete();
+                EstimateTaxRate::where(["EstimateID"=>$id])->delete();
                 EstimateLog::where(["EstimateID"=>$id])->delete();
                 Estimate::find($id)->delete();
                 DB::connection('sqlsrv2')->commit();
@@ -666,7 +667,9 @@ class EstimatesController extends \BaseController {
             try
 			{
                 DB::connection('sqlsrv2')->beginTransaction();
-				EstimateDetail::whereIn('EstimateID',$EstimateIDs)->delete();				
+				EstimateDetail::whereIn('EstimateID',$EstimateIDs)->delete();
+                EstimateTaxRate::whereIn("EstimateID",$EstimateIDs)->delete();
+                EstimateLog::whereIn("EstimateID",$EstimateIDs)->delete();
 				Estimate::whereIn('EstimateID',$EstimateIDs)->delete();
                 DB::connection('sqlsrv2')->commit();
                 return Response::json(array("status" => "success", "message" => "Estimate(s) Successfully Deleted"));

@@ -1,10 +1,15 @@
 USE `NeonRMDev`;
 
+
+Update tblBillingClass SET SendInvoiceSetting='after_admin_review' where SendInvoiceSetting='never';
+
+Update tblAccountBilling SET SendInvoiceSetting='after_admin_review' where SendInvoiceSetting='never';
+
 Delete FROM tblResourceCategories
 WHERE ResourceCategoryName='RateManager' OR
 	    ResourceCategoryName='RmDashboard';
 
--- Dumping structure for function NeonRMDev.fnFIND_IN_SET
+-- Dumping structure for function fnFIND_IN_SET
 DROP FUNCTION IF EXISTS `fnFIND_IN_SET`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` FUNCTION `fnFIND_IN_SET`(
@@ -32,7 +37,7 @@ BEGIN
 	SET i = 1;
 	REPEAT
 		INSERT INTO table1
-		SELECT NeonRMDev.FnStringSplit(p_String1, ',', i) WHERE NeonRMDev.FnStringSplit(p_String1, ',', i) IS NOT NULL LIMIT 1;
+		SELECT FnStringSplit(p_String1, ',', i) WHERE FnStringSplit(p_String1, ',', i) IS NOT NULL LIMIT 1;
 		SET i = i + 1;
 		UNTIL ROW_COUNT() = 0
 	END REPEAT;
@@ -40,7 +45,7 @@ BEGIN
 	SET i = 1;
 	REPEAT
 		INSERT INTO table2
-		SELECT NeonRMDev.FnStringSplit(p_String2, ',', i) WHERE NeonRMDev.FnStringSplit(p_String2, ',', i) IS NOT NULL LIMIT 1;
+		SELECT FnStringSplit(p_String2, ',', i) WHERE FnStringSplit(p_String2, ',', i) IS NOT NULL LIMIT 1;
 		SET i = i + 1;
 		UNTIL ROW_COUNT() = 0
 	END REPEAT;
@@ -54,7 +59,7 @@ BEGIN
 END//
 DELIMITER ;
 
--- Dumping structure for procedure NeonRMDev.prc_AddAccountIPCLI
+-- Dumping structure for procedure prc_AddAccountIPCLI
 DROP PROCEDURE IF EXISTS `prc_AddAccountIPCLI`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_AddAccountIPCLI`(
@@ -100,7 +105,7 @@ BEGIN
 	INNER JOIN tblAccount acc ON acc.AccountID = accauth.AccountID
 	AND accauth.CompanyID = p_CompanyID
 	AND ((CustomerAuthRule = p_IPCLICheck) OR (VendorAuthRule = p_IPCLICheck))
-	WHERE (SELECT NeonRMDev.fnFIND_IN_SET(CONCAT(IFNULL(accauth.CustomerAuthValue,''),',',IFNULL(accauth.VendorAuthValue,'')),p_IPCLIString)) > 0;
+	WHERE (SELECT fnFIND_IN_SET(CONCAT(IFNULL(accauth.CustomerAuthValue,''),',',IFNULL(accauth.VendorAuthValue,'')),p_IPCLIString)) > 0;
 
 	SELECT COUNT(AccountName) INTO v_COUNTER FROM AccountIPCLI;
 
@@ -112,7 +117,7 @@ BEGIN
 		SET i = 1;
 		REPEAT
 			INSERT INTO AccountIPCLITable1
-			SELECT NeonRMDev.FnStringSplit(p_IPCLIString, ',', i) WHERE NeonRMDev.FnStringSplit(p_IPCLIString, ',', i) IS NOT NULL LIMIT 1;
+			SELECT FnStringSplit(p_IPCLIString, ',', i) WHERE FnStringSplit(p_IPCLIString, ',', i) IS NOT NULL LIMIT 1;
 			SET i = i + 1;
 			UNTIL ROW_COUNT() = 0
 		END REPEAT;
@@ -161,7 +166,7 @@ BEGIN
 				SET i = 1;
 				REPEAT
 					INSERT INTO AccountIPCLITable1
-					SELECT NeonRMDev.FnStringSplit(v_IPCLI, ',', i) WHERE NeonRMDev.FnStringSplit(v_IPCLI, ',', i) IS NOT NULL LIMIT 1;
+					SELECT FnStringSplit(v_IPCLI, ',', i) WHERE FnStringSplit(v_IPCLI, ',', i) IS NOT NULL LIMIT 1;
 					SET i = i + 1;
 					UNTIL ROW_COUNT() = 0
 				END REPEAT;
@@ -169,7 +174,7 @@ BEGIN
 				SET i = 1;
 				REPEAT
 					INSERT INTO AccountIPCLITable2
-					SELECT NeonRMDev.FnStringSplit(p_IPCLIString, ',', i) WHERE NeonRMDev.FnStringSplit(p_IPCLIString, ',', i) IS NOT NULL LIMIT 1;
+					SELECT FnStringSplit(p_IPCLIString, ',', i) WHERE FnStringSplit(p_IPCLIString, ',', i) IS NOT NULL LIMIT 1;
 					SET i = i + 1;
 					UNTIL ROW_COUNT() = 0
 				END REPEAT;
@@ -212,7 +217,7 @@ BEGIN
 END//
 DELIMITER ;
 
--- Dumping structure for procedure NeonRMDev.prc_GetAccounts
+-- Dumping structure for procedure prc_GetAccounts
 DROP PROCEDURE IF EXISTS `prc_GetAccounts`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetAccounts`(

@@ -237,6 +237,7 @@ class CronJob extends \Eloquent {
         $CronJobData = array();
         $CronJobData['Active'] = 0;
         $CronJobData['PID'] = '';
+        $output = '';
         if(!empty($PID)) {
             if (getenv("APP_OS") == "Linux") {
                 $command = 'kill -9 ' . $PID;
