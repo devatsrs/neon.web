@@ -1,6 +1,7 @@
 <script src="{{ URL::asset('assets/js/reports_vendor.js') }}"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/drilldown.js"></script>
 <script>
     var $searchFilter = {};
     var toFixed = '{{get_round_decimal_places()}}';
