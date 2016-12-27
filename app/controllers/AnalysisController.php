@@ -133,9 +133,11 @@ class AnalysisController extends BaseController {
             }
             $cat_index++;
         }
-        $series[] = array('name' => 'Call Count', 'data' => $category1,'color'=>'#3366cc');
-        $series[] = array('name' => 'Call Cost', 'data' => $category2,'color'=>'#ff9900');
-        $series[] = array('name' => 'Call Minutes', 'data' => $category3,'color'=>'#dc3912');
+        if(!empty($category1)) {
+            $series[] = array('name' => 'Call Count', 'data' => $category1, 'color' => '#3366cc');
+            $series[] = array('name' => 'Call Cost', 'data' => $category2, 'color' => '#ff9900');
+            $series[] = array('name' => 'Call Minutes', 'data' => $category3, 'color' => '#dc3912');
+        }
         $reponse['series'] = $series;
         $reponse['Title'] = get_report_title($report_type);
         return json_encode($reponse,JSON_NUMERIC_CHECK);
