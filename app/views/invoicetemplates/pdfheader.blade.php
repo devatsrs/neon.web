@@ -12,17 +12,6 @@
     text-align: center;
 }
 </style>
-<div id="pdf_footer">
-    <table>
-        <tbody>
-            <tr>
-                <td>
-                    {{nl2br($Invoice->FooterTerm)}}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
 
 
  @stop

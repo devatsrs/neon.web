@@ -26,10 +26,10 @@ class CompaniesController extends \BaseController {
         $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');
         $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
         $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('DefaultDashboard');
-        $PincodeWidget = CompanySetting::getKeyVal('PincodeWidget') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('PincodeWidget');
+        //$PincodeWidget = CompanySetting::getKeyVal('PincodeWidget') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('PincodeWidget');
         $LastPrefixNo = LastPrefixNo::getLastPrefix();
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
-        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard', 'PincodeWidget','RoundChargesAmount'));
+        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount'));
 
     }
 
@@ -69,7 +69,7 @@ class CompaniesController extends \BaseController {
         CompanySetting::setKeyVal('RoundChargesAmount',$data['RoundChargesAmount']);
         unset($data['RoundChargesAmount']);
         //CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish
-        unset($data['PincodeWidget']);
+        //unset($data['PincodeWidget']);
         LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
         unset($data['LastPrefixNo']);
 

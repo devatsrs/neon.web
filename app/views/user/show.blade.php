@@ -56,6 +56,12 @@
             //"sDom": 'T<"clear">lfrtip',
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[1, 'asc']],
+            "fnServerParams": function(aoData) {
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push(
+                        {"name":"Export","value":1}
+                );
+            },
             "aoColumns":
                     [
                         {"bVisible": false, "bSortable": false },

@@ -726,12 +726,12 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label class="control-label col-sm-3">Date</label>
-                                <div class="col-sm-6">
+                                <div class="col-sm-9">
                                     <input type="text" value="{{date('Y-m-d')}}" name="Closingdate" id="Closingdate" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="">
                                 </div>
-                                <div class="col-sm-3">
-                                    <span data-original-title="Date" data-content="Selected Date where from related data will be delete." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span>
-                                </div>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-9">This is the date when you deleted IP against this account from the switch</div>
                             </div>
                         </div>
                     </div>

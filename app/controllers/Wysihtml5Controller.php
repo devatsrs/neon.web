@@ -13,7 +13,7 @@ class Wysihtml5Controller extends \BaseController {
             ->edit_column('UploadedFilePath',function($row){
                 $path = AmazonS3::unSignedUrl($row->UploadedFilePath);
                 if (!is_numeric(strpos($path, "https://"))) {
-                    $path = str_replace('/', '\\', $path);
+                    //$path = str_replace('/', '\\', $path);
                     if (copy($path, './uploads/' . basename($path))) {
                         $path = URL::to('/') . '/uploads/' . basename($path);
                     }
