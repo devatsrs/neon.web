@@ -213,13 +213,7 @@
                     $(document).ready(function() {
                         $(".btn-toolbar .btn").first().button("toggle");
                     });
-                </script>
-                <div class="form-group">
-                                   <label for="field-1" class="col-md-2 control-label">Nominal Code</label>
-                    <div class="col-md-4">
-                        <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{$account->NominalAnalysisNominalAccountNumber}}" />
-                    </div>
-                </div>
+                </script>               
                 
                 <div class="panel-title desc clear">
                     Description
