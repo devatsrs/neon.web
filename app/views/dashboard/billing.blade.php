@@ -304,296 +304,300 @@
             var TotalPaymentSum = 0;
             var TotalPendingSum = 0;
             var url = '{{$url}}';
-            PaymentTable = $("#paymentTable").dataTable({
-                "bDestroy": true,
-                "bProcessing": true,
-                "bServerSide": true,
-                "sAjaxSource": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/type",
-                "fnServerParams": function (aoData) {
-                    aoData.push(
-                            {"name": "PaymentDate_StartDate", "value": $searchFilter.PaymentDate_StartDate},
-                            {"name": "PaymentDate_EndDate", "value": $searchFilter.PaymentDate_EndDate},
-                            {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
-                            {"name": "Type", "value": $searchFilter.Type}
-                    );
-                    data_table_extra_params.length = 0;
-                    data_table_extra_params.push(
-                            {"name": "PaymentDate_StartDate", "value": $searchFilter.PaymentDate_StartDate},
-                            {"name": "PaymentDate_EndDate", "value": $searchFilter.PaymentDate_EndDate},
-                            {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
-                            {"name": "Type", "value": $searchFilter.Type},
-                            {"name": "Export", "value": 1}
-                    );
+            function getDrilDown(type) {
+                if(type==1) {
+                    $("#paymentTable").dataTable({
+                        "bDestroy": true,
+                        "bProcessing": true,
+                        "bServerSide": true,
+                        "sAjaxSource": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/type",
+                        "fnServerParams": function (aoData) {
+                            aoData.push(
+                                    {"name": "PaymentDate_StartDate", "value": $searchFilter.PaymentDate_StartDate},
+                                    {"name": "PaymentDate_EndDate", "value": $searchFilter.PaymentDate_EndDate},
+                                    {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
+                                    {"name": "Type", "value": $searchFilter.Type}
+                            );
+                            data_table_extra_params.length = 0;
+                            data_table_extra_params.push(
+                                    {"name": "PaymentDate_StartDate", "value": $searchFilter.PaymentDate_StartDate},
+                                    {"name": "PaymentDate_EndDate", "value": $searchFilter.PaymentDate_EndDate},
+                                    {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
+                                    {"name": "Type", "value": $searchFilter.Type},
+                                    {"name": "Export", "value": 1}
+                            );
 
-                },
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
-                "sPaginationType": "bootstrap",
-                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[4, 'desc']],
-                "aoColumns": [
-                    {"bSortable": true}, //0   Account Name
-                    {"bSortable": true}, //1   Invoice No
-                    {"bSortable": true}, //2   Amount
-                    {"bSortable": true}, //3   PaymentDate
-                    {"bSortable": true}, //4   Created by
-                    {"bSortable": true}, //5   Notes
-                ],
-                "oTableTools": {
-                    "aButtons": [
-                        {
-                            "sExtends": "download",
-                            "sButtonText": "EXCEL",
-                            "sUrl": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/xlsx", //baseurl + "/generate_xlsx.php",
-                            sButtonClass: "save-collection"
                         },
-                        {
-                            "sExtends": "download",
-                            "sButtonText": "CSV",
-                            "sUrl": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/csv", //baseurl + "/generate_csv.php",
-                            sButtonClass: "save-collection"
-                        }
-                    ]
-                },
-                "fnDrawCallback": function () {
-                    //get_total_grand();
-                    $(".dataTables_wrapper select").select2({
-                        minimumResultsForSearch: -1
-                    });
-                    $("#table-4 tbody input[type=checkbox]").each(function (i, el) {
-                        var $this = $(el),
-                                $p = $this.closest('tr');
-
-                        $(el).on('change', function () {
-                            var is_checked = $this.is(':checked');
-
-                            $p[is_checked ? 'addClass' : 'removeClass']('selected');
-                        });
-                    });
-
-                    $('.tohidden').removeClass('hidden');
-                    $('#selectall').removeClass('hidden');
-                    if ($('#Recall_on_off').prop("checked")) {
-                        $('.tohidden').addClass('hidden');
-                        $('#selectall').addClass('hidden');
-                    }
-                },
-                "fnServerData": function (sSource, aoData, fnCallback) {
-                    /* Add some extra data to the sender */
-                    $.getJSON(sSource, aoData, function (json) {
-                        /* Do whatever additional processing you want on the callback, then tell DataTables */
-                        TotalSum = json.Total.totalsum;
-                        fnCallback(json)
-                    });
-                },
-                "fnFooterCallback": function (row, data, start, end, display) {
-                    if (end > 0) {
-                        $(row).html('');
-                        for (var i = 0; i < 2; i++) {
-                            var a = document.createElement('td');
-                            $(a).html('');
-                            $(row).append(a);
-                        }
-                        if (TotalSum) {
-                            $($(row).children().get(0)).attr('colspan', 2);
-                            $($(row).children().get(0)).html('<strong>Total</strong>');
-                            $($(row).children().get(1)).html('<strong>' + TotalSum + '</strong>');
-                        }
-                    } else {
-                        $("#paymentTable").find('tfoot').find('tr').html('');
-                    }
-                }
-
-            });
-
-
-            invoiceTable = $("#invoiceTable").dataTable({
-                "bDestroy": true,
-                "bProcessing": true,
-                "bServerSide": true,
-                "sAjaxSource": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/type",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
-                "sPaginationType": "bootstrap",
-                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting": [[2, 'desc']],
-                "fnServerParams": function (aoData) {
-                    aoData.push(
-                            {"name": "PaymentDate_StartDate", "value": $searchFilter.PaymentDate_StartDate},
-                            {"name": "PaymentDate_EndDate", "value": $searchFilter.PaymentDate_EndDate},
-                            {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
-                            {"name": "Type", "value": $searchFilter.Type}
-                    );
-                    data_table_extra_params.length = 0;
-                    data_table_extra_params.push(
-                            {"name": "PaymentDate_StartDate", "value": $searchFilter.PaymentDate_StartDate},
-                            {"name": "PaymentDate_EndDate", "value": $searchFilter.PaymentDate_EndDate},
-                            {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
-                            {"name": "Type", "value": $searchFilter.Type},
-                            {"name": "Export", "value": 1}
-                    );
-                },
-                "aoColumns": [
-                    // 0 AccountName
-                    {
-                        "bSortable": true,
-
-                        mRender: function (id, type, full) {
-                            var output, account_url;
-                            output = '<a href="{url}" target="_blank" >{account_name}';
-                            if (full[11] == '') {
-                                output += '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
-                            }
-                            output += '</a>';
-                            account_url = baseurl + "/accounts/" + full[8] + "/show";
-                            output = output.replace("{url}", account_url);
-                            output = output.replace("{account_name}", id);
-                            return output;
-                        }
-
-                    },  // 1 InvoiceNumber
-                    {
-                        "bSortable": true,
-
-                        mRender: function (id, type, full) {
-
-                            var output, account_url;
-                            if (full[0] != '{{Invoice::INVOICE_IN}}') {
-                                output = '<a href="{url}" target="_blank"> ' + id + '</a>';
-                                account_url = baseurl + "/invoice/" + full[7] + "/invoice_preview";
-                                output = output.replace("{url}", account_url);
-                                output = output.replace("{account_name}", id);
-                            } else {
-                                output = id;
-                            }
-                            return output;
-                        }
-
-                    },  // 2 IssueDate
-                    {"bSortable": true},  // 3 IssueDate
-                    {"bSortable": true},  //4 Invoice period
-                    {"bSortable": true},  // 5 GrandTotal
-                    {"bSortable": false},  // 6 PAID/OS
-                    {
-                        "bSortable": true,
-                        mRender: function (id, type, full) {
-                            return invoicestatus[full[6]];
-                        }
-
-                    },  // 6 InvoiceStatus
-                    /*{"bSortable": true},*/ //6   Overdue Aging
-                ],
-                "oTableTools": {
-                    "aButtons": [
-                        {
-                            "sExtends": "download",
-                            "sButtonText": "EXCEL",
-                            "sUrl": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/xlsx", //baseurl + "/generate_xls.php",
-                            sButtonClass: "save-collection btn-sm"
+                        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                        "sPaginationType": "bootstrap",
+                        "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        "aaSorting": [[4, 'desc']],
+                        "aoColumns": [
+                            {"bSortable": true}, //0   Account Name
+                            {"bSortable": true}, //1   Invoice No
+                            {"bSortable": true}, //2   Amount
+                            {"bSortable": true}, //3   PaymentDate
+                            {"bSortable": true}, //4   Created by
+                            {"bSortable": true}, //5   Notes
+                        ],
+                        "oTableTools": {
+                            "aButtons": [
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "EXCEL",
+                                    "sUrl": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/xlsx", //baseurl + "/generate_xlsx.php",
+                                    sButtonClass: "save-collection"
+                                },
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "CSV",
+                                    "sUrl": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/csv", //baseurl + "/generate_csv.php",
+                                    sButtonClass: "save-collection"
+                                }
+                            ]
                         },
-                        {
-                            "sExtends": "download",
-                            "sButtonText": "CSV",
-                            "sUrl": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/csv", //baseurl + "/generate_xls.php",
-                            sButtonClass: "save-collection btn-sm"
-                        }
-                    ]
-                },
-                "fnDrawCallback": function () {
-                    //get_total_grand(); //get result total
-                    $('#table-4 tbody tr').each(function (i, el) {
-                        if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
-                            if (checked != '') {
-                                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
-                                $(this).addClass('selected');
-                                $('#selectallbutton').prop("checked", true);
+                        "fnDrawCallback": function () {
+                            //get_total_grand();
+                            $(".dataTables_wrapper select").select2({
+                                minimumResultsForSearch: -1
+                            });
+                            $("#table-4 tbody input[type=checkbox]").each(function (i, el) {
+                                var $this = $(el),
+                                        $p = $this.closest('tr');
+
+                                $(el).on('change', function () {
+                                    var is_checked = $this.is(':checked');
+
+                                    $p[is_checked ? 'addClass' : 'removeClass']('selected');
+                                });
+                            });
+
+                            $('.tohidden').removeClass('hidden');
+                            $('#selectall').removeClass('hidden');
+                            if ($('#Recall_on_off').prop("checked")) {
+                                $('.tohidden').addClass('hidden');
+                                $('#selectall').addClass('hidden');
+                            }
+                        },
+                        "fnServerData": function (sSource, aoData, fnCallback) {
+                            /* Add some extra data to the sender */
+                            $.getJSON(sSource, aoData, function (json) {
+                                /* Do whatever additional processing you want on the callback, then tell DataTables */
+                                TotalSum = json.Total.totalsum;
+                                fnCallback(json)
+                            });
+                        },
+                        "fnFooterCallback": function (row, data, start, end, display) {
+                            if (end > 0) {
+                                $(row).html('');
+                                for (var i = 0; i < 2; i++) {
+                                    var a = document.createElement('td');
+                                    $(a).html('');
+                                    $(row).append(a);
+                                }
+                                if (TotalSum) {
+                                    $($(row).children().get(0)).attr('colspan', 2);
+                                    $($(row).children().get(0)).html('<strong>Total</strong>');
+                                    $($(row).children().get(1)).html('<strong>' + TotalSum + '</strong>');
+                                }
                             } else {
-                                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
-                                ;
-                                $(this).removeClass('selected');
+                                $("#paymentTable").find('tfoot').find('tr').html('');
                             }
                         }
-                    });
-                    //After Delete done
-                    FnDeleteInvoiceTemplateSuccess = function (response) {
 
-                        if (response.status == 'success') {
-                            $("#Note" + response.NoteID).parent().parent().fadeOut('fast');
-                            ShowToastr("success", response.message);
-                            data_table.fnFilter('', 0);
-                        } else {
-                            ShowToastr("error", response.message);
-                        }
-                    }
-                    //onDelete Click
-                    FnDeleteInvoiceTemplate = function (e) {
-                        result = confirm("Are you Sure?");
-                        if (result) {
-                            var id = $(this).attr("data-id");
-                            showAjaxScript(baseurl + "/invoice/" + id + "/delete", "", FnDeleteInvoiceTemplateSuccess);
-                        }
-                        return false;
-                    }
-                    $(".delete-invoice").click(FnDeleteInvoiceTemplate); // Delete Note
-                    $(".dataTables_wrapper select").select2({
-                        minimumResultsForSearch: -1
                     });
-                    $('#selectallbutton').click(function (ev) {
-                        if ($(this).is(':checked')) {
-                            checked = 'checked=checked disabled';
-                            $("#selectall").prop("checked", true).prop('disabled', true);
-                            if (!$('#changeSelectedInvoice').hasClass('hidden')) {
-                                $('#table-4 tbody tr').each(function (i, el) {
-                                    if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
 
+                }else {
+                    $("#invoiceTable").dataTable({
+                        "bDestroy": true,
+                        "bProcessing": true,
+                        "bServerSide": true,
+                        "sAjaxSource": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/type",
+                        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                        "sPaginationType": "bootstrap",
+                        "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        "aaSorting": [[2, 'desc']],
+                        "fnServerParams": function (aoData) {
+                            aoData.push(
+                                    {"name": "PaymentDate_StartDate", "value": $searchFilter.PaymentDate_StartDate},
+                                    {"name": "PaymentDate_EndDate", "value": $searchFilter.PaymentDate_EndDate},
+                                    {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
+                                    {"name": "Type", "value": $searchFilter.Type}
+                            );
+                            data_table_extra_params.length = 0;
+                            data_table_extra_params.push(
+                                    {"name": "PaymentDate_StartDate", "value": $searchFilter.PaymentDate_StartDate},
+                                    {"name": "PaymentDate_EndDate", "value": $searchFilter.PaymentDate_EndDate},
+                                    {"name": "CurrencyID", "value": $searchFilter.CurrencyID},
+                                    {"name": "Type", "value": $searchFilter.Type},
+                                    {"name": "Export", "value": 1}
+                            );
+                        },
+                        "aoColumns": [
+                            // 0 AccountName
+                            {
+                                "bSortable": true,
+
+                                mRender: function (id, type, full) {
+                                    var output, account_url;
+                                    output = '<a href="{url}" target="_blank" >{account_name}';
+                                    if (full[11] == '') {
+                                        output += '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
+                                    }
+                                    output += '</a>';
+                                    account_url = baseurl + "/accounts/" + full[8] + "/show";
+                                    output = output.replace("{url}", account_url);
+                                    output = output.replace("{account_name}", id);
+                                    return output;
+                                }
+
+                            },  // 1 InvoiceNumber
+                            {
+                                "bSortable": true,
+
+                                mRender: function (id, type, full) {
+
+                                    var output, account_url;
+                                    if (full[0] != '{{Invoice::INVOICE_IN}}') {
+                                        output = '<a href="{url}" target="_blank"> ' + id + '</a>';
+                                        account_url = baseurl + "/invoice/" + full[7] + "/invoice_preview";
+                                        output = output.replace("{url}", account_url);
+                                        output = output.replace("{account_name}", id);
+                                    } else {
+                                        output = id;
+                                    }
+                                    return output;
+                                }
+
+                            },  // 2 IssueDate
+                            {"bSortable": true},  // 3 IssueDate
+                            {"bSortable": true},  //4 Invoice period
+                            {"bSortable": true},  // 5 GrandTotal
+                            {"bSortable": false},  // 6 PAID/OS
+                            {
+                                "bSortable": true,
+                                mRender: function (id, type, full) {
+                                    return invoicestatus[full[6]];
+                                }
+
+                            },  // 6 InvoiceStatus
+                            /*{"bSortable": true},*/ //6   Overdue Aging
+                        ],
+                        "oTableTools": {
+                            "aButtons": [
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "EXCEL",
+                                    "sUrl": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/xlsx", //baseurl + "/generate_xls.php",
+                                    sButtonClass: "save-collection btn-sm"
+                                },
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "CSV",
+                                    "sUrl": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/csv", //baseurl + "/generate_xls.php",
+                                    sButtonClass: "save-collection btn-sm"
+                                }
+                            ]
+                        },
+                        "fnDrawCallback": function () {
+                            //get_total_grand(); //get result total
+                            $('#table-4 tbody tr').each(function (i, el) {
+                                if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                    if (checked != '') {
                                         $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
                                         $(this).addClass('selected');
-                                    }
-                                });
-                            }
-                        } else {
-                            checked = '';
-                            $("#selectall").prop("checked", false).prop('disabled', false);
-                            if (!$('#changeSelectedInvoice').hasClass('hidden')) {
-                                $('#table-4 tbody tr').each(function (i, el) {
-                                    if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
-
+                                        $('#selectallbutton').prop("checked", true);
+                                    } else {
                                         $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                        ;
                                         $(this).removeClass('selected');
                                     }
-                                });
+                                }
+                            });
+                            //After Delete done
+                            FnDeleteInvoiceTemplateSuccess = function (response) {
+
+                                if (response.status == 'success') {
+                                    $("#Note" + response.NoteID).parent().parent().fadeOut('fast');
+                                    ShowToastr("success", response.message);
+                                    data_table.fnFilter('', 0);
+                                } else {
+                                    ShowToastr("error", response.message);
+                                }
+                            }
+                            //onDelete Click
+                            FnDeleteInvoiceTemplate = function (e) {
+                                result = confirm("Are you Sure?");
+                                if (result) {
+                                    var id = $(this).attr("data-id");
+                                    showAjaxScript(baseurl + "/invoice/" + id + "/delete", "", FnDeleteInvoiceTemplateSuccess);
+                                }
+                                return false;
+                            }
+                            $(".delete-invoice").click(FnDeleteInvoiceTemplate); // Delete Note
+                            $(".dataTables_wrapper select").select2({
+                                minimumResultsForSearch: -1
+                            });
+                            $('#selectallbutton').click(function (ev) {
+                                if ($(this).is(':checked')) {
+                                    checked = 'checked=checked disabled';
+                                    $("#selectall").prop("checked", true).prop('disabled', true);
+                                    if (!$('#changeSelectedInvoice').hasClass('hidden')) {
+                                        $('#table-4 tbody tr').each(function (i, el) {
+                                            if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+
+                                                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                                $(this).addClass('selected');
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    checked = '';
+                                    $("#selectall").prop("checked", false).prop('disabled', false);
+                                    if (!$('#changeSelectedInvoice').hasClass('hidden')) {
+                                        $('#table-4 tbody tr').each(function (i, el) {
+                                            if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+
+                                                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                                $(this).removeClass('selected');
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        },
+                        "fnServerData": function (sSource, aoData, fnCallback) {
+                            /* Add some extra data to the sender */
+                            $.getJSON(sSource, aoData, function (json) {
+                                /* Do whatever additional processing you want on the callback, then tell DataTables */
+                                TotalSum = json.Total.currencySymbol + json.Total.totalsum;
+                                TotalPaymentSum = json.Total.currencySymbol + json.Total.totalpaymentsum;
+                                TotalPendingSum = json.Total.currencySymbol + json.Total.totalpendingsum;
+                                fnCallback(json)
+                            });
+                        },
+                        "fnFooterCallback": function (row, data, start, end, display) {
+                            if (end > 0) {
+                                $(row).html('');
+                                for (var i = 0; i < 3; i++) {
+                                    var a = document.createElement('td');
+                                    $(a).html('');
+                                    $(row).append(a);
+                                }
+                                if (TotalSum) {
+                                    $($(row).children().get(0)).attr('colspan', 4);
+                                    $($(row).children().get(0)).html('<strong>Total</strong>');
+                                    $($(row).children().get(1)).html('<strong>' + TotalSum + '</strong>');
+                                    $($(row).children().get(2)).html('<strong>' + TotalPaymentSum + '/' + TotalPendingSum + '</strong>');
+                                }
+                            } else {
+                                $("#invoiceTable").find('tfoot').find('tr').html('');
                             }
                         }
-                    });
-                },
-                "fnServerData": function (sSource, aoData, fnCallback) {
-                    /* Add some extra data to the sender */
-                    $.getJSON(sSource, aoData, function (json) {
-                        /* Do whatever additional processing you want on the callback, then tell DataTables */
-                        TotalSum =  json.Total.currencySymbol + json.Total.totalsum;
-                        TotalPaymentSum = json.Total.currencySymbol + json.Total.totalpaymentsum;
-                        TotalPendingSum = json.Total.currencySymbol + json.Total.totalpendingsum;
-                        fnCallback(json)
-                    });
-                },
-                "fnFooterCallback": function (row, data, start, end, display) {
-                    if (end > 0) {
-                        $(row).html('');
-                        for (var i = 0; i < 3; i++) {
-                            var a = document.createElement('td');
-                            $(a).html('');
-                            $(row).append(a);
-                        }
-                        if (TotalSum) {
-                            $($(row).children().get(0)).attr('colspan', 4);
-                            $($(row).children().get(0)).html('<strong>Total</strong>');
-                            $($(row).children().get(1)).html('<strong>' + TotalSum + '</strong>');
-                            $($(row).children().get(2)).html('<strong>' + TotalPaymentSum + '/' + TotalPendingSum + '</strong>');
-                        }
-                    } else {
-                        $("#invoiceTable").find('tfoot').find('tr').html('');
-                    }
-                }
 
-            });
+                    });
+                }
+            }
             $('#billing_filter [name="date-span"]').change(function(){
                 $('.tobehidden').addClass('hidden');
                 if($(this).val()==0){
@@ -617,19 +621,22 @@
                 $searchFilter.CurrencyID = $(this).attr('data-currency');
                 if ($(this).hasClass('paymentReceived')) {
                     $searchFilter.Type = 1;
-                    PaymentTable.fnFilter('', 0);
+                    //PaymentTable.fnFilter('', 0);
+                    getDrilDown(1);
                     $('#modal-Payment').modal('show');
                 } else if ($(this).hasClass('totalInvoice')) {
                     $searchFilter.Type = 2;
-                    invoiceTable.fnFilter('', 0);
+                    //invoiceTable.fnFilter('', 0);
+                    getDrilDown(2);
                     $('#modal-invoice h4').text('Total Invoices');
                     $('#modal-invoice').modal('show');
                 } else if ($(this).hasClass('totalOutstanding')) {
                     $searchFilter.Type = 3;
-                    invoiceTable.fnFilter('', 0);
+                    //invoiceTable.fnFilter('', 0);
+                    getDrilDown(3);
                     $('#modal-invoice h4').text('Total Outstanding');
                     $('#modal-invoice').modal('show');
-                } else if ($(this).hasClass('unpaid')) {
+                } /*else if ($(this).hasClass('unpaid')) {
                     $searchFilter.Type = 4;
                     invoiceTable.fnFilter('', 0);
                     $('#modal-invoice h4').text('Unpaid Invoices');
@@ -651,7 +658,7 @@
                     $('#modal-invoice').modal('show');
                 }else if ($(this).hasClass('Pendingdispute')) {
 
-                }
+                }*/
 
             });
         });
