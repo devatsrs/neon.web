@@ -1,8 +1,5 @@
 USE `NeonBillingDev`;
 
-Update tblBillingClass SET SendInvoiceSetting='after_admin_review' where SendInvoiceSetting='never';
-
-
 -- Dumping structure for procedure NeonBillingDev.prc_getDashboardinvoiceExpenseTotalOutstanding
 DROP PROCEDURE IF EXISTS `prc_getDashboardinvoiceExpenseTotalOutstanding`;
 DELIMITER //
@@ -243,10 +240,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 
-	SELECT cs.Value INTO v_Round_
-	FROM Tech1RateManagement.tblCompanySetting cs
-	WHERE cs.`Key` = 'RoundChargesAmount'
-		AND cs.CompanyID = p_CompanyID;
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
 	SELECT IFNULL(SUM(GrandTotal),0) INTO v_TotalInvoice_
 	FROM tblInvoice
@@ -259,7 +253,7 @@ BEGIN
 
 	SELECT IFNULL(SUM(p.Amount),0) INTO v_TotalPayment_
 		FROM tblPayment p
-	INNER JOIN Tech1RateManagement.tblAccount ac
+	INNER JOIN NeonRMDev.tblAccount ac
 		ON ac.AccountID = p.AccountID
 	WHERE
 		p.CompanyID = p_CompanyID

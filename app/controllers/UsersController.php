@@ -25,13 +25,15 @@ class UsersController extends BaseController {
         $CompanyID = User::get_companyID();
 
         $data['Status'] = isset($data['Status']) ? 1 : 0;
-        //$AdminUser = User::where([ "AdminUser"=>1,"CompanyID" => $CompanyID])->count();
-        //if($AdminUser>0){
+        $data['JobNotification'] = isset($data['JobNotification']) ? 1 : 0;
+
+        // we need atleast one admin user for admin panele login
+        $AdminUser = User::where([ "AdminUser"=>1,"CompanyID" => $CompanyID])->count();
+        if($AdminUser>0){
             $data['AdminUser'] = isset($data['AdminUser']) ? 1 : 0;
-            $data['JobNotification'] = isset($data['JobNotification']) ? 1 : 0;
-        //}else{
-        //    $data['AdminUser']=0;
-        //}
+        }else{
+            $data['AdminUser']=1;
+        }
         $data['CompanyID'] = $CompanyID;
         /*if (!empty($data['Roles'])) {
             $data['Roles'] = implode(',', (array) $data['Roles']);
@@ -91,13 +93,13 @@ class UsersController extends BaseController {
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['Status'] = isset($data['Status']) ? 1 : 0;
-        //$AdminUser = User::where([ "AdminUser"=>1,"CompanyID" => $companyID])->count();
-        //if($AdminUser>0){
-        $data['AdminUser'] = isset($data['AdminUser']) ? 1 : 0;
         $data['JobNotification'] = isset($data['JobNotification']) ? 1 : 0;
-        //}else{
-        //    $data['AdminUser']=1;
-        //}
+        $AdminUser = User::where([ "AdminUser"=>1,"CompanyID" => $companyID])->count();
+        if($AdminUser>0){
+            $data['AdminUser'] = isset($data['AdminUser']) ? 1 : 0;
+        }else{
+            $data['AdminUser']=1;
+        }
         /*
         if (!empty($data['Roles'])) {
             $data['Roles'] = implode(',', (array) $data['Roles']);
@@ -113,7 +115,7 @@ class UsersController extends BaseController {
             'Status' => 'required',
         );
 
-        if(!empty($data['password']) && !empty($data['password_confirmation'])){
+        if(!empty($data['password']) || !empty($data['password_confirmation'])){
             $rules['password'] = 'required|confirmed|min:3';
         }
         $validator = Validator::make($data, $rules);
@@ -122,8 +124,8 @@ class UsersController extends BaseController {
             return json_validator_response($validator);
         }
 
-        if(!empty($user_data['password'])){
-            $data['password'] = Hash::make($user_data['password']);
+        if(!empty($data['password'])){
+            $data['password'] = Hash::make($data['password']);
         }else{
             unset($data['password']);
         }
@@ -184,11 +186,11 @@ class UsersController extends BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Accounts.csv';
+                $file_path = getenv('UPLOAD_PATH') .'/Users.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Accounts.xls';
+                $file_path = getenv('UPLOAD_PATH') .'/Users.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -305,7 +307,7 @@ class UsersController extends BaseController {
             'EmailAddress' => 'required|email|unique:tblUser,EmailAddress,' . $id . ',UserID',
         );
 
-        if(!empty($data['password']) && !empty($data['password_confirmation'])){
+        if(!empty($data['password']) || !empty($data['password_confirmation'])){
             $rules['password'] = 'required|confirmed|min:3';
             $user_data['password'] = $data['password'];
             $user_data['password_confirmation'] = $data['password_confirmation'];
@@ -316,8 +318,8 @@ class UsersController extends BaseController {
             return json_validator_response($validator);
         }
 
-        if(!empty($user_data['password'])){
-            $user_data['password'] = Hash::make($user_data['password']);
+        if(!empty($data['password'])){
+            $user_data['password'] = Hash::make($data['password']);
         }else{
             unset($user_data['password']);
         }
