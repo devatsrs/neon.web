@@ -5,7 +5,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcesssCDR`(
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
 	IN `p_RateCDR` INT,
 	IN `p_RateFormat` INT,
-	IN `p_NameFormat` VARCHAR(50)
+	IN `p_NameFormat` VARCHAR(50),
+	IN `p_RateMethod` VARCHAR(50),
+	IN `p_SpecifyRate` DECIMAL(18,6)
 )
 BEGIN
 	DECLARE v_rowCount_ INT;
@@ -205,7 +207,7 @@ BEGIN
 		SET v_AccountID_ = (SELECT AccountID FROM tmp_AccountTrunk_ t WHERE t.RowID = v_pointer_);
 
 		/* get outbound rate process*/
-		CALL NeonRMDev.prc_getCustomerCodeRate(v_AccountID_,v_TrunkID_,p_RateCDR);
+		CALL NeonRMDev.prc_getCustomerCodeRate(v_AccountID_,v_TrunkID_,p_RateCDR,p_RateMethod,p_SpecifyRate);
 
 		/* update prefix outbound process*/
 		/* if rate format is prefix base not charge code*/
@@ -277,7 +279,7 @@ BEGIN
 			SET v_AccountID_ = (SELECT AccountID FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
 			
 			/* get inbound rate process*/
-			CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR);
+			CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate);
 			
 			/* update trunk prefix inbound process*/
 			CALL prc_updateInboundPrefix(v_AccountID_, p_processId, p_tbltempusagedetail_name);

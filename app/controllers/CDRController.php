@@ -273,6 +273,10 @@ class CDRController extends BaseController {
         $rules = array(
             'CompanyGatewayID' => 'required',
         );
+        if($data['RateMethod'] == 'SpecifyRate') {
+            $rules['SpecifyRate'] = 'required';
+        }
+
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
             return json_validator_response($validator);
