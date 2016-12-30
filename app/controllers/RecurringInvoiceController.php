@@ -415,14 +415,6 @@ class RecurringInvoiceController extends \BaseController {
                         }
 
                         if (RecurringInvoiceDetail::insert($RecurringInvoiceDetailData)) {
-                            $pdf_path = RecurringInvoice::generate_pdf($RecurringInvoice->RecurringInvoiceID);
-                            if (empty($pdf_path)) {
-                                $error['message'] = 'Failed to generate Invoice PDF File';
-                                $error['status'] = 'failure';
-                                return $error;
-                            } else {
-                                $RecurringInvoice->update(["PDF" => $pdf_path]);
-                            }
                             DB::connection('sqlsrv2')->commit();
                             return Response::json(array("status" => "success", "message" => "RecurringInvoice Successfully Updated", 'LastID' => $RecurringInvoice->RecurringInvoiceID));
                         }
