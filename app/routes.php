@@ -724,6 +724,24 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/estimate/ajax_estimatelog_datagrid/{id}/{type}', 'EstimatesController@ajax_estimatelog_datagrid');
 	///////////////////////////
 
+    /////////////////
+    //Recurring Item Invoices
+    Route::any('/recurringinvoices', 'RecurringInvoiceController@index');
+    Route::any('/recurringinvoices/create', 'RecurringInvoiceController@create');
+    Route::any('/recurringinvoices/store', 'RecurringInvoiceController@store');
+    Route::any('/recurringinvoices/{id}/edit', 'RecurringInvoiceController@edit');
+    Route::any('/recurringinvoices/delete', 'RecurringInvoiceController@delete');
+    Route::any('/recurringinvoices/{id}/update', 'RecurringInvoiceController@update');
+    Route::any('/recurringinvoices/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_datagrid');
+    Route::any('/recurringinvoices/calculate_total', 'RecurringInvoiceController@calculate_total');
+    Route::any('/recurringinvoices/get_account_info', 'RecurringInvoiceController@getAccountInfo');
+    Route::any('/recurringinvoices/{id}/log', 'RecurringInvoiceController@recurringinvoicelog');
+    Route::any('/recurringinvoices/{id}/log/{type}', 'RecurringInvoiceController@recurringinvoicelog');
+    Route::any('/recurringinvoices/{id}/log/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_recurringinvoicelog_datagrid');
+    Route::any('/recurringinvoices/startstop/{start_stop}', 'RecurringInvoiceController@startstop');
+    Route::any('/recurringinvoices/sendinvoice', 'RecurringInvoiceController@sendInvoice');
+    ///////////////////////////
+
 	//Invoice
 	Route::any('/invoice', 'InvoicesController@index');
 	Route::any('/invoice/create', 'InvoicesController@create');

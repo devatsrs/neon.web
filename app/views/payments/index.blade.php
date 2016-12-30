@@ -1062,15 +1062,6 @@
             return SelectedIDs;
         }
 
-        function setSelection(self){
-            var tr = self.parents('tr');
-            if(tr.is('tr') && !tr.hasClass('selected')) {
-                tr.find('.rowcheckbox').prop("checked", true);
-                tr.addClass('selected');
-            }
-        }
-
-
             </script>
     <style>
                 .dataTables_filter label{

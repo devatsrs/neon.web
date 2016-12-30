@@ -686,7 +686,7 @@ toastr_opts = {
                 var $opt = $(
                     '<span class="userName"><i class="entypo-plus"></i>' + $(opt.element).text() + '</span>'
                 );
-                return $opt;1
+                return $opt;
             }
         };
 
@@ -2342,16 +2342,16 @@ function ShowToastr(type, message) {
     }
 
 }
-
-function showAjaxScript(url, formData, FnSucces) {
-
+//@TODO: Pass dataType in function
+function showAjaxScript(url, formData, FnSucces, dataType) {
+    if (typeof(dataType)==='undefined') dataType = 'json';
     $.ajax({
         url: url, //Server script to process data
         type: 'POST',
-        dataType: 'json',
+        dataType: dataType,
         success: FnSucces,
         error: function(error) {
-            $(".save.btn").button('reset');
+            $(".btn").button('reset');
             ShowToastr("error", error);
         },
         // Form data
@@ -2939,5 +2939,13 @@ function IsJsonString(str) {
         return false;
     }
     return true;
+}
+
+function setSelection(self){
+    var tr = self.parents('tr');
+    if(tr.is('tr') && !tr.hasClass('selected')) {
+        tr.find('.rowcheckbox').prop("checked", true);
+        tr.addClass('selected');
+    }
 }
 

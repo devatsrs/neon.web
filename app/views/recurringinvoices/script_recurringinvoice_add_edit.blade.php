@@ -1,0 +1,530 @@
+<script type="text/javascript">
+/**
+* Created by umer on 14/03/2016.
+*/
+
+$(document).ready(function(){
+    var USAGE 						= 	'{{Product::USAGE}}';
+    var SUBSCRIPTION 				= 	'{{Product::SUBSCRIPTION}}';
+    var ITEM 						= 	'{{Product::ITEM}}';
+    var product_types 				= 	[];
+     product_types['usage']			= 	USAGE;
+     product_types['subscription']	= 	SUBSCRIPTION;
+     product_types['item']			= 	ITEM;
+
+    function getTableFieldValue(controller_url, id,field ,callback)
+	{
+        var get_url = baseurl +'/' + controller_url +'/'+id+'/get/'+field;
+        $.get( get_url, callback, "json" );
+    }
+
+    /** RecurringInvoice Usage Functions
+    * */
+
+    function getCalculateRecurringInvoiceByProduct(product_type,productID,AccountID,qty,callback){
+        post_data = {"product_type":product_type,"product_id":productID,"account_id":AccountID,"qty":qty};
+        var _url = baseurl + '/recurringinvoices/calculate_total';
+        $.post( _url, post_data, callback, "json" );
+    }
+
+    function getCalculateRecurringInvoiceBySubscription(product_type,productID,AccountID,qty,callback){
+        post_data = {"product_type":product_type,"product_id":productID,"account_id":AccountID,"qty":qty};
+        var _url = baseurl + '/recurringinvoices/calculate_total';
+        $.post( _url, post_data, callback, "json" );
+    }
+
+    function getCalculateRecurringInvoiceByDuration(product_type,productID,AccountID,qty,start_date,end_date,RecurringInvoiceDetailID,callback){
+        post_data = {"product_type":product_type, "product_id":productID,"account_id":AccountID,"qty":qty,"start_date":start_date,"end_date":end_date,"RecurringInvoiceDetailID":RecurringInvoiceDetailID};
+        var _url = baseurl + '/recurringinvoices/calculate_total';
+        $.post( _url, post_data, callback, "json" );
+    }
+    /** -----------------------------------*/
+
+    function sendRecurringInvoice(recurringinvoice_id,post_data,callback){
+        //post_data = { "recurringinvoice_id":recurringinvoice_id };
+        var _url = baseurl + '/recurringinvoices/'+recurringinvoice_id+'/send';
+        $.post( _url, post_data, callback, "json");
+    }
+
+    $("#RecurringInvoiceTable").delegate( '.product_dropdown' ,'change',function (e) {
+        var $this = $(this);
+        var $row = $this.parents("tr");
+        console.log($row);
+		//alert($row);
+        var productID = $this.val();
+        var AccountID = $('select[name=AccountID]').val();
+        var RecurringInvoiceDetailID = $row.find('.RecurringInvoiceDetailID').val();
+        var  selected_product_type = '';
+        //selected_product_type = ($(this.options[this.selectedIndex]).closest('optgroup').prop('label')).toLowerCase();
+        //$row.find('.ProductType').val(product_types[selected_product_type]);
+        if( productID != ''  && parseInt(AccountID) > 0 ) {
+            try{
+                $row.find(".Qty").val(1);
+                //console.log(productID);
+                //console.log(gateway_product_ids);
+                if(product_types[selected_product_type] == USAGE ) {
+
+                    $('#add-new-recurringinvoice-duration-form').trigger('reset');
+                    $('#add-new-recurringinvoice-duration-form .save.btn').button('reset');
+
+                    $('#add-new-modal-recurringinvoice-duration').modal('show');
+                    $('#add-new-recurringinvoice-duration-form').submit(function(e){
+                        e.preventDefault();
+                        setTimeout(function(e){
+                            start_date = $('#add-new-recurringinvoice-duration-form input[name=start_date]').val();
+                            end_date = $('#add-new-recurringinvoice-duration-form input[name=end_date]').val();
+                            start_time = $('#add-new-recurringinvoice-duration-form input[name=start_time]').val();
+                            end_time = $('#add-new-recurringinvoice-duration-form input[name=end_time]').val();
+                            RecurringInvoiceDetailID = parseInt(RecurringInvoiceDetailID);
+
+                            if(start_time != ''){
+                                start_date += ' '+ start_time;
+                            }
+                            if(end_time != ''){
+                                end_date += ' '+ end_time;
+                            }
+                            getCalculateRecurringInvoiceByDuration(selected_product_type,productID,AccountID,1,start_date,end_date,RecurringInvoiceDetailID,function(response){
+                                $('#add-new-recurringinvoice-duration-form').trigger('reset');
+                                $('#add-new-recurringinvoice-duration-form .save.btn').button('reset');
+                                if(response.status =='success'){
+                                    $('#add-new-modal-recurringinvoice-duration').modal('hide');
+                                    //$row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
+									//$row.find("select.TaxRateID2").val(response.product_tax_rate_id).trigger("change");
+                                    $row.find(".descriptions").val(response.product_description);
+                                    $row.find(".Price").val(response.product_amount);
+                                    $row.find(".TaxAmount").val(response.product_total_tax_rate);
+                                    $row.find(".LineTotal").val(response.sub_total);
+
+                                    $row.find(".StartDate").attr("disabled",false);
+                                    $row.find(".EndDate").attr("disabled",false);
+                                    $row.find(".StartDate").val(start_date);
+                                    $row.find(".EndDate").val(end_date);
+                                    decimal_places = response.decimal_places;
+									$('.Taxentity').trigger('change');
+									$("textarea.autogrow").autosize();
+                                    calculate_total();
+                                }else{
+                                    if(response.message !== undefined){
+                                        toastr.error(response.message, "Error", toastr_opts);
+                                    }
+                                }
+                            });
+                        },1000);
+                    });
+		          return false;
+                } else if(product_types[selected_product_type] == SUBSCRIPTION ) {
+
+                    getCalculateRecurringInvoiceBySubscription(selected_product_type,productID,AccountID,1,function(response){
+                        //console.log(response);
+                        if(response.status =='success'){
+                          //  $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
+							//$row.find("select.TaxRateID2").val(response.product_tax_rate_id).trigger("change");
+                            $row.find(".descriptions").val(response.product_description);
+                            $row.find(".Price").val(response.product_amount);
+                            $row.find(".TaxAmount").val(response.product_total_tax_rate);
+                            $row.find(".LineTotal").val(response.sub_total);
+                            decimal_places = response.decimal_places;
+                            $row.find(".StartDate").attr("disabled",true);
+                            $row.find(".EndDate").attr("disabled",true);
+							$('.Taxentity').trigger('change');
+							$("textarea.autogrow").autosize();
+                            calculate_total();
+                        }else{
+                            if(response.message !== undefined){
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        }
+                    });
+		            return false;
+
+
+                }else{
+
+                    getCalculateRecurringInvoiceByProduct('item',productID,AccountID,1,function(response){
+                        //console.log(response);
+                        if(response.status =='success'){
+                          //  $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
+							//$row.find("select.TaxRateID2").val(response.product_tax_rate_id).trigger("change");
+                            $row.find(".descriptions").val(response.product_description);
+                            $row.find(".Price").val(response.product_amount);
+                            $row.find(".TaxAmount").val(response.product_total_tax_rate);
+                            $row.find(".LineTotal").val(response.sub_total);
+                            decimal_places = response.decimal_places;
+                            $row.find(".StartDate").attr("disabled",true);
+                            $row.find(".EndDate").attr("disabled",true);                            
+							$('.Taxentity').trigger('change');
+							$("textarea.autogrow").autosize();
+							calculate_total();
+                        }else{
+                            if(response.message !== undefined){
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        }
+                    });					
+                    return false;
+                }			
+            }catch (e){
+                console.log(e);
+            }
+        }
+    });
+    $("#RecurringInvoiceTable").delegate( '.Price , .Qty , .Discount, .TaxRateID , .TaxRateID2','change',function (e) {
+		
+        var $this = $(this);
+        var $row = $this.parents("tr");
+        cal_line_total($row);
+        calculate_total();
+    });
+    $("input[name=discount]").change(function (e) {
+        calculate_total();
+    });
+	
+	
+	 $(".recurringinvoice_tax_add").click(function (e) {
+	   e.preventDefault();
+	   	var index_count = $('.all_tax_row').length+1;
+        var	recurringinvoice_tax_html_final  = '<tr class="all_tax_row RecurringInvoiceTaxestr'+index_count+' ">'+recurringinvoice_tax_html+"</tr>";
+		$('.gross_total_recurringinvoice').before(recurringinvoice_tax_html_final);
+		$('select.select2').addClass('visible');
+        $('select.select2').select2();
+		calculate_total();
+    });
+	
+	 $(document).on('click','.recurringinvoice_tax_remove', function(e){
+	    e.preventDefault();
+        var row = $(this).parent().parent();
+        row.remove();  
+		calculate_total();
+    });
+
+    $('#add-row').on('click', function(e){
+        e.preventDefault();
+        $('#RecurringInvoiceTable > tbody').append(add_row_html);
+
+        /*$('select.selectboxit').addClass('visible');
+        $('select.selectboxit').selectBoxIt();*/
+
+        $('select.select2').addClass('visible');
+        $('select.select2').select2();
+		$("textarea.autogrow").autosize();
+    });
+
+    $('#RecurringInvoiceTable > tbody').on('click','.remove-row', function(e){
+        e.preventDefault();
+        var row = $(this).parent().parent();
+        row.remove();
+        calculate_total();
+    });
+	
+	$(document).on('change','.RecurringInvoiceTaxesFld', function(e){
+        e.preventDefault();
+        var row = $(this).parent().parent();
+        calculate_total();
+    });
+	
+
+    function calculate_total(){
+
+        var grand_total = 0;
+        var total_tax = 0;
+        var total_discount = 0.0;		
+		var Tax_type		=	new Array();
+		var Tax_type_title	=	new Array();
+
+        $('#RecurringInvoiceTable tbody tr td .TaxAmount').each(function(i, el){
+            var $this = $(el);
+            if($this.val() != ''){
+                total_tax  = eval(parseFloat(total_tax) + parseFloat($this.val().replace(/,/g,'')));
+            }
+        });
+		
+		$('#RecurringInvoiceTable tbody tr td select.Taxentity').each(function(i, el){
+            var $this 	=	 $(el);
+			var tt		=	 $('option:selected', this);
+            if($this.val() != '' && $this.val() != 0)
+			{ 
+			//Tax_type[$this.val()] = 
+                //total_tax  = eval(parseFloat(total_tax) + parseFloat($this.val().replace(',/g','')));
+				
+				  var obj 		 =   $(el).parent().parent();
+				  var price 	 = 	 parseFloat(obj.find(".Price").val().replace(/,/g,''));	
+ 			      var qty 		 =	 parseInt(obj.find(".Qty").val());
+				  
+				  var taxAmount  =   parseFloat(tt.attr("data-amount").replace(/,/g,''));				
+				  var flatstatus = 	 parseFloat(tt.attr("data-flatstatus").replace(/,/g,''));
+				  var titleTax	 =   tt.text();
+				  
+				  if(flatstatus == 1){
+						var tax = parseFloat( ( taxAmount) );
+				   }else{
+						var tax = parseFloat( (price * qty * taxAmount)/100 );
+				   }				
+             }			
+			 if(Tax_type[$this.val()]!= null){
+				 Tax_type[$this.val()]		 = Tax_type[$this.val()]+tax;
+			 }else{
+				 Tax_type[$this.val()]		 = 		tax;
+			 }
+			 Tax_type_title[$this.val()] = titleTax;
+        });
+		
+	
+		$('.tax_rows_recurringinvoice').remove();
+		
+		
+		Tax_type.forEach(AddTaxRows);
+		function AddTaxRows(value, index) {
+			if(value != null){
+				$('.grand_total_recurringinvoice').before('<tr class="tax_rows_recurringinvoice"><td>'+Tax_type_title[index]+'</td><td><input class="form-control text-right" readonly="readonly" name="Tax['+index+']" value="'+value.toFixed(decimal_places)+'" type="text">  </td> </tr>');
+			}
+		}
+		
+        $('#RecurringInvoiceTable tbody tr td .LineTotal').each(function(i, el){
+            var $this = $(el);
+            if($this.val() != ''){
+                //decimal_places = get_decimal_places($this.val())
+                grand_total = eval(parseFloat(grand_total) + parseFloat($this.val().replace(/,/g,'')));
+            }
+        });
+	
+       /* $('#RecurringInvoiceTable tbody tr td .Discount').each(function(i, el){
+            var $this = $(el);
+            if($this.val() != ''){
+                total_discount = eval(parseFloat(total_discount) + parseFloat($this.val().replace(/,/g,'')));
+            }
+        });*/
+
+        $('input[name=SubTotal]').val(grand_total.toFixed(decimal_places));
+        $('input[name=TotalTax]').val(total_tax.toFixed(decimal_places));
+        total = eval(grand_total + total_tax).toFixed(decimal_places);
+
+        //$('input[name=TotalDiscount]').val(total_discount.toFixed(decimal_places));
+        $('input[name=GrandTotal]').val(total);
+		
+		recurringinvoice_main_total_tax = 0; var taxes_array = new Array();
+	   $('.RecurringInvoiceTaxesFld').each(function(index, element) {
+		   
+            var $this 	=	 $(element);
+			var tt		=	 $('option:selected', this);
+           
+		   
+		    if($this.val() != '' && $this.val() != 0)
+			{ 
+				
+				  var tax_current_id    =   $this.val();	
+				  var tax_already_found =   taxes_array.indexOf(tax_current_id);			
+				  
+				  if(tax_already_found!=-1){
+					toastr.error(tt.text()+" already applied", "Error", toastr_opts);	 
+				  }
+				  
+				  taxes_array.push(tax_current_id);					  
+				  
+				  
+				  var obj 			  =   $(element).parent().parent();
+				  var taxAmount  	  =   parseFloat(tt.attr("data-amount").replace(/,/g,''));				
+				  var flatstatus 	  =   parseFloat(tt.attr("data-flatstatus").replace(/,/g,''));
+				  
+				  if(flatstatus == 1){
+						var tax = parseFloat( ( taxAmount) );
+				   }else{
+						var tax = parseFloat( (total * taxAmount)/100 );
+				   }
+				   
+				   obj.find('.RecurringInvoiceTaxesValue').val(tax.toFixed(decimal_places));
+				   recurringinvoice_main_total_tax = parseFloat(recurringinvoice_main_total_tax)+parseFloat(tax);
+            }
+			else
+			{
+				  var obj 		 =   $(element).parent().parent();
+				   obj.find('.RecurringInvoiceTaxesValue').val(0);
+			}
+    	});
+		var gross_total = parseFloat(total)+recurringinvoice_main_total_tax;
+		 $('input[name=GrandTotalRecurringInvoice]').val(gross_total.toFixed(decimal_places));
+
+    }
+    function cal_line_total(obj){
+
+
+        var price = parseFloat(obj.find(".Price").val().replace(/,/g,''));
+        //decimal_places = get_decimal_places(price);
+
+        var qty = parseInt(obj.find(".Qty").val());
+       // var discount = parseFloat(obj.find(".Discount").val().replace(/,/g,''));
+	 var  discount = 0;
+        var taxAmount = parseFloat(obj.find(".TaxRateID option:selected").attr("data-amount").replace(/,/g,''));
+        var flatstatus = parseFloat(obj.find(".TaxRateID option:selected").attr("data-flatstatus").replace(/,/g,''));
+        if(flatstatus == 1){
+            var tax = parseFloat( ( taxAmount) );
+        }else{
+            var tax = parseFloat( (price * qty * taxAmount)/100 );
+        }
+		
+		var taxAmount2 =  parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-amount").replace(/,/g,''));
+		
+		 var flatstatus2 = parseFloat(obj.find(".TaxRateID2 option:selected").attr("data-flatstatus").replace(/,/g,''));
+        if(flatstatus2 == 1){
+            var tax2 = parseFloat( ( taxAmount2) );
+        }else{
+            var tax2 = parseFloat( (price * qty * taxAmount2)/100 );
+        }
+		
+		var tax1val = obj.find("select.TaxRateID").val();
+		var tax2val = obj.find("select.TaxRateID2").val(); 
+		if(tax1val > 0 &&  (tax1val == tax2val)){
+			toastr.error(obj.find(".TaxRateID2 option:selected").text()+" already applied on product", "Error", toastr_opts);
+		}
+		
+		var tax_final  = 	parseFloat(tax+tax2);
+		tax_final  	   = 	tax_final.toFixed(decimal_places);
+		
+		
+        obj.find('.TaxAmount').val(tax_final);
+        var line_total = parseFloat( parseFloat( parseFloat(price * qty) - discount )) ;
+
+        obj.find('.LineTotal').val(line_total.toFixed(decimal_places));
+        calculate_total();
+    }
+    $('select.TaxRateID').on( "change",function(e){
+
+        var taxTitle =  $(this).find(":selected").text() ;
+        //var taxTitle = $(".TaxRateID option:selected").text();
+
+        var rowCount = $('#RecurringInvoiceTable tbody tr').length;
+        if(taxTitle =='Select a Tax Rate'){
+            taxTitle='VAT';
+        }else if(rowCount >1) {
+            taxTitle='Total Tax';
+        }
+        $(".product_tax_title").text(taxTitle);
+    });
+
+    $(".send-recurringinvoice.btn").click( function (e) {
+        $('#send-modal-recurringinvoice').find(".modal-body").html("Loading Content...");
+        var ajaxurl = baseurl + "/recurringinvoices/sendinvoice";
+        var formData = new FormData($('#send-recurringinvoice-form')[0]);
+        showAjaxScript(ajaxurl,formData,function(response){
+            $('#send-modal-recurringinvoice .modal-body').html(response);
+            $('#send-modal-recurringinvoice').modal('show');
+        },'html');
+        $('#send-modal-recurringinvoice').modal('show');
+    });
+
+    $("select[name=AccountID]").change( function (e) {
+        url = baseurl + "/recurringinvoices/get_account_info";
+        $this = $(this);
+        data = {account_id:$this.val()}
+        if($this.val() > 0){
+            ajax_json(url,data,function(response){
+                if ( typeof response.status != undefined &&  response.status == 'failed') {
+                    toastr.error(response.message, "Error", toastr_opts);
+                    $("#Account_Address").html('');
+                    $("input[name=CurrencyCode]").val('');
+                    $("input[name=CurrencyID]").val('');
+                    $("input[name=InvoiceTemplateID]").val('');
+                    $("[name=Terms]").val('');
+                    $("[name=FooterTerm]").val('');
+                } else {
+                    $("#Account_Address").html(response.Address);
+                    $("input[name=CurrencyCode]").val(response.Currency);
+                    $("input[name=CurrencyID]").val(response.CurrencyId);
+                    $("input[name=RecurringInvoiceTemplateID]").val(response.RecurringInvoiceTemplateID);
+                    $("[name=Terms]").val(response.Terms);
+                    $("[name=FooterTerm]").val(response.FooterTerm);
+					add_recurringinvoice_tax(response.AccountTaxRate);
+                    RecurringInvoiceTemplateID = response.RecurringInvoiceTemplateID;
+                }
+
+            });
+        }
+
+    });
+	
+	function add_recurringinvoice_tax(AccountTaxRate){
+		$('.all_tax_row').remove();
+		if(AccountTaxRate.length>0){			
+			AccountTaxRate.forEach(function(entry,index) {				
+				if(index==0){
+					$('.RecurringInvoiceTaxesFldFirst').val(entry);
+					var change = $('.RecurringInvoiceTaxesFldFirst');
+					change.trigger('change');
+				}
+				else
+				{			
+				  var	recurringinvoice_tax_html_final  = '<tr class="all_tax_row RecurringInvoiceTaxestr'+index+' ">'+recurringinvoice_tax_html+"</tr>";
+				  $('.gross_total_recurringinvoice').before(recurringinvoice_tax_html_final);
+				  var current_obj = $('.RecurringInvoiceTaxestr'+index).find('.RecurringInvoiceTaxesFld');
+				  current_obj.addClass('RecurringInvoiceTaxesFld'+index);
+				  current_obj.val(entry);
+				  current_obj.addClass('visible');
+				  current_obj.select2();
+				  current_obj.trigger('change');
+ 				  // var change = $('.InvoiceTaxesFld').eq(index+1);			
+				}
+			});		
+			 calculate_total();
+		}	
+	}
+	
+    //Calculate Total
+    calculate_total();
+
+    $("#send-recurringinvoice-form").submit(function(e){
+        e.preventDefault();
+        var post_data  = $(this).serialize();
+        var InvoiceID = $(this).find("[name=InvoiceID]").val();
+        var _url = baseurl + '/invoice/'+InvoiceID+'/send';
+        $.post( _url, post_data, function(response){
+            $(".btn.send").button('reset');
+            if (response.status == 'success') {
+                toastr.success(response.message, "Success", toastr_opts);
+            } else {
+                toastr.error(response.message, "Error", toastr_opts);
+            }
+        }, "json");
+    });
+	$("textarea.autogrow").autosize();
+    $("#recurringinvoice-from [name='RecurringInvoice[Time]']").change(function(){
+        populateIntervalInvoice($(this).val(),'RecurringInvoice','recurringinvoice-from');
+    });
+    function populateIntervalInvoice(jobtype,form,formID){
+        $("#"+formID+" [name='"+form+"[Interval]']").addClass('visible');
+        var selectBox = $("#"+formID+" [name='"+form+"[Interval]']");
+        if(selectBox){
+            selectBox.empty();
+            options = [];
+            option = [];
+
+            if(jobtype == 'HOUR'){
+                for(var i=1;i<'24';i++){
+                    options.push(new Option(i+" Hour", i, false, false));
+                }
+            }else if(jobtype == 'MINUTE'){
+                for(var i=1;i<60;i++){
+                    options.push(new Option(i+" Minute", i, false, false));
+                }
+            }else if(jobtype == 'DAILY'){
+                for(var i=1;i<'32';i++){
+                    options.push(new Option(i+" Day", i, false, false));
+                }
+            }else if(jobtype == 'MONTHLY'){
+                for(var i=1;i<13;i++){
+                    options.push(new Option(i+" Month", i, false, false));
+                }
+            }else if(jobtype == 'YEARLY'){
+                for(var i=1;i<13;i++){
+                    options.push(new Option(i+" Year", i, false, false));
+                }
+            }
+            //options.sort();
+            selectBox.append(options);
+            var firstval = selectBox.find('option').first().val();
+            selectBox.val(firstval).trigger('change');
+        }
+    }
+});
+</script>
+<style>
+#RecurringInvoiceTable.table > tbody > tr > td > div > a > span.select2-chosen { width:110px;}
+</style>
