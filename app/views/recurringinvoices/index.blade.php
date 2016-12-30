@@ -338,7 +338,7 @@ var postdata;
                 var tr = self.parents('tr');
                 var ID = tr.find('.rowcheckbox:checked').val();
                 RecurringInvoiceIDs[0] = ID;
-                $("#send-invoice-form").find('[name="recurringInvoiceID"]').val(ID);
+                $("#send-invoice-form").find('[name="RecurringInvoiceID"]').val(ID);
             }else if(self.attr('data-action').indexOf('_bulk')!=-1){ //For bulk action
                 RecurringInvoiceIDs = getselectedIDs();
             }
