@@ -27,7 +27,7 @@
             <label for="field-1" class="col-sm-2 control-label">Account</label>
             <div class="col-sm-2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
             <label for="field-1" class="col-sm-2 control-label">Status</label>
-            <div class="col-sm-2"> {{ Form::select('RecurringInvoiceStatus', RecurringInvoice::get_recurringinvoices_status(), '', array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
+            <div class="col-sm-2"> {{ Form::select('Status', RecurringInvoice::get_recurringinvoices_status(), '', array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
             <label for="field-1" class="col-sm-2 control-label">Currency</label>
             <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}} </div>
           </div>
@@ -129,10 +129,10 @@ var postdata;
         var recurringinvoicesstatus 			=	{{$recurringinvoices_status_json}};
         var recurringinvoices_Status_Url 	= 	"{{ URL::to('recurringinvoices/recurringinvoices_change_Status')}}";
 		var delete_url_bulk 		= 	"{{ URL::to('recurringinvoices/recurringinvoices_delete_bulk')}}";
-        var list_fields  			= 	['AccountName','RecurringInvoiceNumber','IssueDate','GrandTotal','RecurringInvoiceStatus','RecurringInvoiceID','Description','Attachment','AccountID','BillingEmail'];
+        var list_fields  			= 	['AccountName','RecurringInvoiceNumber','IssueDate','GrandTotal','Status','RecurringInvoiceID','Description','Attachment','AccountID','BillingEmail'];
 		
         $searchFilter.AccountID 			= 	$("#recurringinvoices_filter select[name='AccountID']").val();
-        $searchFilter.RecurringInvoiceStatus 		= 	$("#recurringinvoices_filter select[name='RecurringInvoiceStatus']").val();
+        $searchFilter.Status 		= 	$("#recurringinvoices_filter select[name='Status']").val();
 		$searchFilter.CurrencyID            =   $("#recurringinvoices_filter [name='CurrencyID']").val();
 
         data_table = $("#table-4").dataTable({
@@ -145,9 +145,9 @@ var postdata;
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[4, 'desc']],
              "fnServerParams": function(aoData) {				
-                aoData.push({"name":"AccountID","value":$searchFilter.AccountID},{"name":"RecurringInvoiceStatus","value":$searchFilter.RecurringInvoiceStatus},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
+                aoData.push({"name":"AccountID","value":$searchFilter.AccountID},{"name":"Status","value":$searchFilter.Status},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"AccountID","value":$searchFilter.AccountID},{"name":"RecurringInvoiceStatus","value":$searchFilter.RecurringInvoiceStatus},{"name":"CurrencyID","value":$searchFilter.CurrencyID},{ "name": "Export", "value": 1});
+                data_table_extra_params.push({"name":"AccountID","value":$searchFilter.AccountID},{"name":"Status","value":$searchFilter.Status},{"name":"CurrencyID","value":$searchFilter.CurrencyID},{ "name": "Export", "value": 1});
             },
              "aoColumns":
             [
@@ -299,7 +299,7 @@ var postdata;
         $("#recurringinvoices_filter").submit(function(e){
             e.preventDefault();
             $searchFilter.AccountID 			= 	$("#recurringinvoices_filter select[name='AccountID']").val();
-            $searchFilter.RecurringInvoiceStatus 		= 	$("#recurringinvoices_filter select[name='RecurringInvoiceStatus']").val();
+            $searchFilter.Status 		= 	$("#recurringinvoices_filter select[name='Status']").val();
             $searchFilter.CurrencyID            =   $("#recurringinvoices_filter [name='CurrencyID']").val();
             data_table.fnFilter('', 0);
             return false;

@@ -7,12 +7,12 @@ class RecurringInvoiceController extends \BaseController {
         $data 						 = 	Input::all();
         //print_r($data);exit();
         $data['iDisplayStart'] 		+=	1;
-        $data['RecurringInvoiceStatus'] = $data['RecurringInvoiceStatus']==''?2:$data['RecurringInvoiceStatus'];
+        $data['Status'] = $data['Status']==''?2:$data['Status'];
         $companyID 					 =  User::get_companyID();
         $columns 					 =  ['RecurringInvoiceID','Title','AccountName','LastInvoiceNumber','LastInvoicedDate','GrandTotal','Status'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
 
-        $query = "call prc_getRecurringInvoices (".$companyID.",".intval($data['AccountID']).",".intval($data['CurrencyID']).",".$data['RecurringInvoiceStatus'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".strtoupper($data['sSortDir_0'])."'";
+        $query = "call prc_getRecurringInvoices (".$companyID.",".intval($data['AccountID']).",".intval($data['CurrencyID']).",".$data['Status'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".strtoupper($data['sSortDir_0'])."'";
 		//$query = "call prc_getRecurringInvoices('1', '449', '3', '0', '1', '50', '', 'asc', '0')";
         if(isset($data['Export']) && $data['Export'] == 1)
 		{
@@ -137,7 +137,7 @@ class RecurringInvoiceController extends \BaseController {
             $RecurringInvoiceData["TotalTax"] 		= 	str_replace(",","",$data["TotalTax"]);
             $RecurringInvoiceData["GrandTotal"] 	= 	floatval(str_replace(",","",$data["GrandTotalRecurringInvoice"]));
             $RecurringInvoiceData["CurrencyID"] 	= 	$data["CurrencyID"];
-            $RecurringInvoiceData["RecurringInvoiceStatus"] = 	RecurringInvoice::STOP;
+            $RecurringInvoiceData["Status"] = 	RecurringInvoice::STOP;
             $RecurringInvoiceData["Note"] 			= 	$data["Note"];
             $RecurringInvoiceData["Terms"] 			= 	$data["Terms"];
             $RecurringInvoiceData["FooterTerm"] 	=	$data["FooterTerm"];
@@ -450,7 +450,7 @@ class RecurringInvoiceController extends \BaseController {
             if(!empty($criteria['AccountID'])){
                 $where['AccountID']= $criteria['AccountID'];
             }
-            $where['Status'] = $criteria['RecurringInvoiceStatus']==''?2:$criteria['RecurringInvoiceStatus'];
+            $where['Status'] = $criteria['Status']==''?2:$criteria['Status'];
             if(!empty($criteria['CurrencyID'])){
                 $where['CurrencyID']= $criteria['CurrencyID'];
             }
@@ -479,7 +479,7 @@ class RecurringInvoiceController extends \BaseController {
             if(!empty($criteria['AccountID'])){
                 $where['AccountID']= $criteria['AccountID'];
             }
-            $where['Status'] = $criteria['RecurringInvoiceStatus']==''?2:$criteria['RecurringInvoiceStatus'];
+            $where['Status'] = $criteria['Status']==''?2:$criteria['Status'];
             if(!empty($criteria['CurrencyID'])){
                 $where['CurrencyID']= $criteria['CurrencyID'];
             }
@@ -511,7 +511,7 @@ class RecurringInvoiceController extends \BaseController {
             if(!empty($criteria['AccountID'])){
                 $where['AccountID']= $criteria['AccountID'];
             }
-            $where['Status'] = $criteria['RecurringInvoiceStatus']==''?2:$criteria['RecurringInvoiceStatus'];
+            $where['Status'] = $criteria['Status']==''?2:$criteria['Status'];
             if(!empty($criteria['CurrencyID'])){
                 $where['CurrencyID']= $criteria['CurrencyID'];
             }
@@ -524,11 +524,11 @@ class RecurringInvoiceController extends \BaseController {
 
         $processID = GUID::generate();
 
-        //$sql = "call prc_CreateInvoiceFromRecurringInvoice (".$companyID.",".intval($where['AccountID']).",".intval($where['CurrencyID']).",'".$where['Status']."','".$where['selectedIDs']."','".User::get_user_full_name()."',".RecurringInvoiceLog::GENERATE.",'".$processID."')";
-        $processID = 'B0FB6E02-30AF-7CE1-A145-3501C5B9EB3A';
+        $sql = "call prc_CreateInvoiceFromRecurringInvoice (".$companyID.",".intval($where['AccountID']).",".intval($where['CurrencyID']).",'".$where['Status']."','".$where['selectedIDs']."','".User::get_user_full_name()."',".RecurringInvoiceLog::GENERATE.",'".$processID."')";
+        //$processID = 'B0FB6E02-30AF-7CE1-A145-3501C5B9EB3A';
 
         try {
-            //DB::connection('sqlsrv2')->statement($sql);
+            DB::connection('sqlsrv2')->statement($sql);
             if($isSelected==1){
                 $invoices = Invoice::where(['ProcessID'=>$processID])->get();
                 $Invoice = clone $invoices[0];
