@@ -513,62 +513,56 @@ class RecurringInvoiceController extends \BaseController {
                 $isSelected = 1;
             }
         }
-
         $processID = GUID::generate();
-
         $sql = "call prc_CreateInvoiceFromRecurringInvoice (".$companyID.",".intval($where['AccountID']).",".intval($where['CurrencyID']).",'".$where['Status']."','".$where['selectedIDs']."','".User::get_user_full_name()."',".RecurringInvoiceLog::GENERATE.",'".$processID."')";
         //$processID = 'B0FB6E02-30AF-7CE1-A145-3501C5B9EB3A';
 
-        try {
-            DB::connection('sqlsrv2')->statement($sql);
-            if($isSelected==1){
-                $invoices = Invoice::where(['ProcessID'=>$processID])->get();
-                $Invoice = clone $invoices[0];
-                $PDFPath = Invoice::generate_pdf($Invoice->InvoiceID);
-                $invoices[0]->update(['PDF'=>$PDFPath]);
-                $Account = Account::find($Invoice->AccountID);
-                $Currency = Currency::find($Account->CurrencyId);
-                $CompanyName = Company::getName();
-                if (!empty($Currency)) {
-                    $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
-                    $RoundChargesAmount = get_round_decimal_places($Invoice->AccountID);
+        DB::connection('sqlsrv2')->statement($sql);
+        if($isSelected==1){
+            $invoices = Invoice::where(['ProcessID'=>$processID])->get();
+            $Invoice = clone $invoices[0];
+            $PDFPath = Invoice::generate_pdf($Invoice->InvoiceID);
+            $invoices[0]->update(['PDF'=>$PDFPath]);
+            $Account = Account::find($Invoice->AccountID);
+            $Currency = Currency::find($Account->CurrencyId);
+            $CompanyName = Company::getName();
+            if (!empty($Currency)) {
+                $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
+                $RoundChargesAmount = get_round_decimal_places($Invoice->AccountID);
 
-                    $data = [
-                        'CompanyName' => $CompanyName,
-                        'GrandTotal'       => number_format($Invoice->GrandTotal,$RoundChargesAmount),
-                        'CurrencyCode'     =>$Currency->Code
-                    ];
-                    $Message = Invoice::getInvoiceEmailTemplate($data);
-                    return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName'));
-                }
-            }else {
-                $invoices = Invoice::where(['ProcessID'=>$processID])->select(['InvoiceID'])->lists('InvoiceID');
-                $invoicesIDs = implode(',',$invoices);
-                if(!empty($invoicesIDs)){
-                    $data['InvoiceIDs'] = $invoicesIDs;
-                    $data['RecurringInvoice'] = 1;
-                    $jobType = JobType::where(["Code" => 'BIS'])->get(["JobTypeID", "Title"]);
-                    $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
-                    $jobdata["CompanyID"] = $companyID;
-                    $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
-                    $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
-                    $jobdata["JobLoggedUserID"] = User::get_userID();
-                    $jobdata["Title"] =  (isset($jobType[0]->Title) ? $jobType[0]->Title : '');
-                    $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
-                    $jobdata["CreatedBy"] = User::get_user_full_name();
-                    $jobdata["Options"] = json_encode($data);
-                    $jobdata["created_at"] = date('Y-m-d H:i:s');
-                    $jobdata["updated_at"] = date('Y-m-d H:i:s');
-                    $JobID = Job::insertGetId($jobdata);
-                    if($JobID){
-                        return Response::json(array("status" => "success", "message" => "Bulk Invoice Send Job Added in queue to process.You will be notified once job is completed. "));
-                    }else{
-                        return Response::json(array("status" => "success", "message" => "Problem Creating Job Bulk Invoice Send."));
-                    }
+                $data = [
+                    'CompanyName' => $CompanyName,
+                    'GrandTotal'       => number_format($Invoice->GrandTotal,$RoundChargesAmount),
+                    'CurrencyCode'     =>$Currency->Code
+                ];
+                $Message = Invoice::getInvoiceEmailTemplate($data);
+                return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName'));
+            }
+        }else {
+            $invoices = Invoice::where(['ProcessID'=>$processID])->select(['InvoiceID'])->lists('InvoiceID');
+            $invoicesIDs = implode(',',$invoices);
+            if(!empty($invoicesIDs)){
+                $data['InvoiceIDs'] = $invoicesIDs;
+                $data['RecurringInvoice'] = 1;
+                $jobType = JobType::where(["Code" => 'BIS'])->get(["JobTypeID", "Title"]);
+                $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+                $jobdata["CompanyID"] = $companyID;
+                $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+                $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+                $jobdata["JobLoggedUserID"] = User::get_userID();
+                $jobdata["Title"] =  (isset($jobType[0]->Title) ? $jobType[0]->Title : '');
+                $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
+                $jobdata["CreatedBy"] = User::get_user_full_name();
+                $jobdata["Options"] = json_encode($data);
+                $jobdata["created_at"] = date('Y-m-d H:i:s');
+                $jobdata["updated_at"] = date('Y-m-d H:i:s');
+                $JobID = Job::insertGetId($jobdata);
+                if($JobID){
+                    return Response::json(array("status" => "success", "message" => "Bulk Invoice Send Job Added in queue to process.You will be notified once job is completed. "));
+                }else{
+                    return Response::json(array("status" => "success", "message" => "Problem Creating Job Bulk Invoice Send."));
                 }
             }
-        } catch (Exception $e) {
-            return Response::json(array("status" => "failed", "message" =>$e->getMessage()));
         }
 
     }
