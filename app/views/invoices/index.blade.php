@@ -154,7 +154,7 @@
                                         </a>
                                     </li>
                                 @endif
-                                @if(is_authorize())
+                                @if(is_authorize() || is_Stripe())
                                     @if(User::checkCategoryPermission('Invoice','Edit'))
                                         <li>
                                             <a class="pay_now create" id="pay_now" href="javascript:;">
@@ -888,7 +888,10 @@
                         return;
                     }
                     //console.log(InvoiceIDs);
+                    var pgid = '{{PaymentGateway::getPaymentGatewayID()}}';
                     $('#add-credit-card-form').find("[name=AccountID]").val(accoutid);
+                    $('#add-credit-card-form').find("[name=PaymentGatewayID]").val(pgid);
+
                     paynow_url = '/paymentprofile/' + accoutid;
                     showAjaxModal(paynow_url, 'pay_now_modal');
                     $('#pay_now_modal').modal('show');
@@ -1781,6 +1784,7 @@
                                            id="field-5" placeholder="">
                                     <input type="hidden" name="cardID"/>
                                     <input type="hidden" name="AccountID"/>
+                                    <input type="hidden" name="PaymentGatewayID"/>
                                 </div>
                             </div>
                             <div class="col-md-12">

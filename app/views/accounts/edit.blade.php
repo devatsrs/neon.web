@@ -591,7 +591,7 @@
                         </ul>
                     </div>
                     <div class="col-md-9">
-                        @if (is_authorize())
+                        @if (is_authorize() || is_Stripe())
                             @include('customer.paymentprofile.paymentGrid')
                         @endif
                     </div>
