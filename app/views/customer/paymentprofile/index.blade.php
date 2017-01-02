@@ -45,6 +45,7 @@
                                     <label for="field-5" class="control-label">Credit Card Number *</label>
                                     <input type="text" name="CardNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="cardID" />
+                                    <input type="hidden" name="PaymentGatewayID" />
                                 </div>
                             </div>
                             <div class="col-md-12">
