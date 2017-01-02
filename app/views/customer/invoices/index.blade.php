@@ -72,7 +72,7 @@
 <div class="row">
  <div  class="col-md-12">
         <div class="text-right">
-            @if(is_authorize())
+            @if(is_authorize() || is_Stripe())
                 <button type="button"  id="pay_now" class="pay_now create btn btn-primary" >Pay Now</button>
             @endif
         </div>
@@ -89,7 +89,7 @@
     <thead>
     <tr>
         <th width="10%">
-            @if(is_authorize())
+            @if(is_authorize() || is_Stripe())
                 <div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></div>
             @endif
             <div class="pull-right"></div></th>
@@ -151,7 +151,7 @@ var postdata;
                                      invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Sent"><i class="entypo-right-bold"></i>SNT</a>';
                                  }
                                  if (full[0] != '{{Invoice::INVOICE_IN}}'){
-                                     if('{{is_authorize()}}'){
+                                     if('{{is_authorize()}}' || '{{is_Stripe()}}'){
                                         action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[7]+'" name="InvoiceID[]"></div>';
                                      }
                                  }

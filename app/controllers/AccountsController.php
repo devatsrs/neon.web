@@ -57,12 +57,15 @@ class AccountsController extends \BaseController {
     public function ajax_datagrid_PaymentProfiles($AccountID) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault","tblPaymentGateway.Title as gateway","created_at","AccountPaymentProfileID");
-        $carddetail->join('tblPaymentGateway', function($join)
-        {
-            $join->on('tblPaymentGateway.PaymentGatewayID', '=', 'tblAccountPaymentProfile.PaymentGatewayID');
-
-        })->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])->where(["tblAccountPaymentProfile.AccountID"=>$AccountID]);
+        $PaymentGatewayName = '';
+        $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
+        if(!empty($PaymentGatewayID)){
+            $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
+        }
+        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID");
+        $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
+            ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
+            ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID]);
 
         return Datatables::of($carddetail)->make();
     }
@@ -511,27 +514,28 @@ class AccountsController extends \BaseController {
             if(isset($data['password'])) {
                // $this->sendPasswordEmail($account, $password, $data);
             }
-			
-            $PaymentGatewayID = PaymentGateway::where(['Title'=>PaymentGateway::$gateways['Authorize']])
-                ->where(['CompanyID'=>$companyID])
-                ->pluck('PaymentGatewayID');
-            $PaymentProfile = AccountPaymentProfile::where(['AccountID'=>$id])
-                ->where(['CompanyID'=>$companyID])
-                ->where(['PaymentGatewayID'=>$PaymentGatewayID])
-                ->first();
-            if(!empty($PaymentProfile)){
-                $options = json_decode($PaymentProfile->Options);
-                $ProfileID = $options->ProfileID;
-                $ShippingProfileID = $options->ShippingProfileID;
 
-                //If using Authorize.net
-				$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
-				if($isAuthorizedNet){
-                    $AuthorizeNet = new AuthorizeNet();
-                    $result = $AuthorizeNet->UpdateShippingAddress($ProfileID, $ShippingProfileID, $shipping);
-                }else{
-					return Response::json(array("status" => "success", "message" => "Payment Method Not Integrated"));
-				}
+            if(is_authorize()) {
+
+                $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
+                $PaymentProfile = AccountPaymentProfile::where(['AccountID' => $id])
+                    ->where(['CompanyID' => $companyID])
+                    ->where(['PaymentGatewayID' => $PaymentGatewayID])
+                    ->first();
+                if (!empty($PaymentProfile)) {
+                    $options = json_decode($PaymentProfile->Options);
+                    $ProfileID = $options->ProfileID;
+                    $ShippingProfileID = $options->ShippingProfileID;
+
+                    //If using Authorize.net
+                    $isAuthorizedNet = SiteIntegration::CheckIntegrationConfiguration(false, SiteIntegration::$AuthorizeSlug);
+                    if ($isAuthorizedNet) {
+                        $AuthorizeNet = new AuthorizeNet();
+                        $result = $AuthorizeNet->UpdateShippingAddress($ProfileID, $ShippingProfileID, $shipping);
+                    } else {
+                        return Response::json(array("status" => "success", "message" => "Payment Method Not Integrated"));
+                    }
+                }
             }
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated. " . $message));
         } else {
