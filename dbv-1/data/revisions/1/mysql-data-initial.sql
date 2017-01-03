@@ -79,6 +79,9 @@ INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `K
 INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (29, 1, 'CUSTOMER_NOTIFICATION_DISPLAY', '1');
 INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (30, 1, 'CUSTOMER_COMMERCIAL_DISPLAY', '1');
 INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (31, 1, 'BILLING_DASHBOARD', 'BillingDashboardSummaryWidgets,BillingDashboardPincodeWidget,BillingDashboardMissingGatewayWidget,BillingDashboardTotalOutstanding,BillingDashboardTotalInvoiceSent,BillingDashboardTotalInvoiceReceived,BillingDashboardDueAmount,BillingDashboardOverDueAmount,BillingDashboardPaymentReceived,BillingDashboardPaymentSent,BillingDashboardPendingDispute,BillingDashboardPendingEstimate,BillingDashboardInvoiceExpense,BillingDashboardOutstanding');
+INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (35, 1, 'USAGE_PBX_INTERVAL', '180');
+INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (36, 1, 'USAGE_INTERVAL', '100');
+
 
 
 INSERT INTO tblCRMBoards (CompanyID, BoardName, `Status`, BoardType, CreatedBy, created_at)

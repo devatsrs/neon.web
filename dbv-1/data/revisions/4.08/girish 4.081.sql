@@ -1,3 +1,7 @@
+INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (35, 1, 'USAGE_PBX_INTERVAL', '180');
+INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (36, 1, 'USAGE_INTERVAL', '100');
+
+
 DROP PROCEDURE IF EXISTS `prc_getCustomerCodeRate`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerCodeRate`(
