@@ -85,7 +85,8 @@ BEGIN
 		ON t.Trunk = sh.Trunk
 	LEFT JOIN tmp_AreaPrefix_ ap 
 		ON sh.AreaPrefix LIKE REPLACE(ap.Code, '*', '%')
-	WHERE CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
+	WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
+	AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 	AND sh.CompanyID = p_CompanyID
 	AND (p_AccountID = '' OR FIND_IN_SET(sh.AccountID,p_AccountID))
 	AND (p_CompanyGatewayID = '' OR FIND_IN_SET(sh.CompanyGatewayID,p_CompanyGatewayID))
@@ -99,7 +100,7 @@ BEGIN
 	SELECT
 		sh.DateID,
 		dt.TimeID,
-		dt.fulltime,
+		CONCAT(dd.date,' ',dt.fulltime),
 		sh.CompanyID,
 		sh.AccountID,
 		sh.GatewayAccountID,
@@ -140,7 +141,7 @@ BEGIN
 END//
 DELIMITER ;
 
--- Dumping structure for procedure NeonReportDev.fnUsageVendorSummaryDetail
+-- Dumping structure for procedure StagingReport.fnUsageVendorSummaryDetail
 DROP PROCEDURE IF EXISTS `fnUsageVendorSummaryDetail`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageVendorSummaryDetail`(
@@ -225,7 +226,8 @@ BEGIN
 		ON t.Trunk = sh.Trunk
 	LEFT JOIN tmp_AreaPrefix_ ap 
 		ON sh.AreaPrefix LIKE REPLACE(ap.Code, '*', '%')
-	WHERE CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
+	WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
+	AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 	AND sh.CompanyID = p_CompanyID
 	AND (p_AccountID = '' OR FIND_IN_SET(sh.AccountID,p_AccountID))
 	AND (p_CompanyGatewayID = '' OR FIND_IN_SET(sh.CompanyGatewayID,p_CompanyGatewayID))
@@ -239,7 +241,7 @@ BEGIN
 	SELECT
 		sh.DateID,
 		dt.TimeID,
-		dt.fulltime,
+		CONCAT(dd.date,' ',dt.fulltime),
 		sh.CompanyID,
 		sh.AccountID,
 		sh.GatewayAccountID,
