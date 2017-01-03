@@ -15,8 +15,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageSummaryDetail`(
 	IN `p_CountryID` TEXT,
 	IN `p_UserID` INT ,
 	IN `p_isAdmin` INT
-
-
 )
 BEGIN
 	
@@ -157,8 +155,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageVendorSummaryDetail`(
 	IN `p_CountryID` TEXT,
 	IN `p_UserID` INT,
 	IN `p_isAdmin` INT
-
-
 )
 BEGIN
 	
@@ -416,8 +412,6 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getVendorBalanceRepor
 	IN `p_AccountID` TEXT,
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME
-
-
 )
 BEGIN
 	
@@ -587,7 +581,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorWorldMap`(
 	IN `p_CountryID` INT,
 	IN `p_UserID` INT,
 	IN `p_isAdmin` INT
-
 )
 BEGIN
 
@@ -637,7 +630,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getWorldMap`(
 	IN `p_CountryID` INT,
 	IN `p_UserID` INT,
 	IN `p_isAdmin` INT
-
 )
 BEGIN
 
