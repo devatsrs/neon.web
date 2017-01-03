@@ -7,7 +7,12 @@ BEGIN
 	DECLARE v_BillingTime_ INT;
 
 	SELECT 
-		BillingTime 
+		CASE WHEN REPLACE(JSON_EXTRACT(cg.Settings, '$.BillingTime'),'"','') > 0
+		THEN
+			CAST(REPLACE(JSON_EXTRACT(cg.Settings, '$.BillingTime'),'"','') AS UNSIGNED INTEGER)
+		ELSE
+			NULL
+		END 
 	INTO v_BillingTime_
 	FROM NeonRMDev.tblCompanyGateway cg
 	INNER JOIN tblGatewayAccount ga ON ga.CompanyGatewayID = cg.CompanyGatewayID

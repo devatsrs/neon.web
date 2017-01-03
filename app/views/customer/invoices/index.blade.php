@@ -50,7 +50,7 @@
 </div>
 <div class="row">
   <div  class="col-md-12">
-    <div class="text-right"> @if(is_authorize())
+    <div class="text-right"> @if(is_authorize() || is_Stripe())
       <button type="button"  id="pay_now" class="pay_now create btn btn-primary" >Pay Now</button>
       @endif </div>
     <div class="input-group-btn pull-right" style="width:70px;">
@@ -66,7 +66,7 @@
 <table class="table table-bordered datatable" id="table-4">
   <thead>
     <tr>
-      <th width="10%"> @if(is_authorize())
+      <th width="10%"> @if(is_authorize() || is_Stripe())
         <div class="pull-left">
           <input type="checkbox" id="selectall" name="checkbox[]" class="" />
         </div>
@@ -127,7 +127,7 @@ var postdata;
                                      invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Sent"><i class="entypo-right-bold"></i>SNT</a>';
                                  }
                                  if (full[0] != '{{Invoice::INVOICE_IN}}'){
-                                     if('{{is_authorize()}}'){
+                                     if('{{is_authorize()}}' || '{{is_Stripe()}}'){
                                         action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[7]+'" name="InvoiceID[]"></div>';
                                      }
                                  }
@@ -220,6 +220,7 @@ var postdata;
 
         });
         $("#invoice_filter").submit(function(e){
+
             e.preventDefault();
             $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
             $searchFilter.InvoiceNumber = $("#invoice_filter [name='InvoiceNumber']").val();

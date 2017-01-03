@@ -178,8 +178,9 @@
             $('#call-billing-form').trigger("reset");
             $('#add-call-modal h4').html('Add Monitoring');
 
-            $(".js-example-disabled").prop("disabled", false);
             $('#call-billing-form select').select2("val", "");
+            var selected_days = "SUN,MON,TUE,WED,THU,FRI,SAT";
+            $("#call-billing-form [name='CallAlert[Day][]']").val(selected_days.split(',')).trigger('change');
 
             var selectBox = $("#call-billing-form [name='AlertType']");
             selectBox.val('').trigger("change");
@@ -204,9 +205,9 @@
                     var selectBox = $("#call-billing-form [name='"+ele_name+"']");
                     selectBox.prop("disabled", true);
                     selectBox.val(ele_val).trigger("change");
-                }else if(ele_name == 'BlacklistDestination') {
-                    $("#call-billing-form [name='CallAlert[BlacklistDestination][]']").val(ele_val.split(',')).trigger('change');
-                }else if(ele_name == 'AccountID' || ele_name == 'AccountIDs'){
+                }else if(ele_name == 'BlacklistDestination' || ele_name == 'Day' || ele_name == 'VAccountID') {
+                    $("#call-billing-form [name='CallAlert["+ele_name+"][]']").val(ele_val.split(',')).trigger('change');
+                }else if(ele_name == 'AccountID' || ele_name == 'AccountIDs' || ele_name =='Time'){
                     var selectBox = $("#call-billing-form [name='CallAlert["+ele_name+"]']");
                     selectBox.val(ele_val).trigger("change");
                 }else if(ele_name == 'EmailToAccount'){

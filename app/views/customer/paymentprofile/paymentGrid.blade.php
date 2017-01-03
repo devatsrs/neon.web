@@ -176,10 +176,12 @@
 
                 $('#add-new-card').click(function (ev) {
                     ev.preventDefault();
+                    var pgid = '{{PaymentGateway::getPaymentGatewayID()}}';
                     $("#add-credit-card-form")[0].reset();
                     $("#add-credit-card-form").find('input[name="cardID"]').val('');
                     $("#add-credit-card-form [name='ExpirationMonth']").val('').trigger("change");
                     $("#add-credit-card-form [name='ExpirationYear']").val('').trigger("change");
+                    $("#add-credit-card-form").find('input[name="PaymentGatewayID"]').val(pgid);
                     $('#add-modal-card').modal('show');
                 });
 
@@ -297,6 +299,7 @@
                                     <input type="text" name="CardNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="cardID" />
                                     <input type="hidden" name="AccountID" />
+                                    <input type="hidden" name="PaymentGatewayID" />
                                 </div>
                             </div>
                             <div class="col-md-12">

@@ -15,8 +15,6 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
         "assets/js/neon-forgotpassword.js",
         "assets/js/neon-resetpassword.js",
         "assets/js/neon-demo.js",
-        "assets/js/jvectormap/jquery-jvectormap-1.2.2.min.js",
-        "assets/js/jvectormap/jquery-jvectormap-europe-merc-en.js",
         "assets/js/jquery.sparkline.min.js",
         "assets/js/rickshaw/vendor/d3.v3.js",
         "assets/js/rickshaw/rickshaw.min.js",
