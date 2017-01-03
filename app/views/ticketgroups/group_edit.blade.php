@@ -44,7 +44,7 @@
             <div class="col-sm-9">
               <div class="input-group"> <span class="input-group-addon"><i class="entypo-mail"></i></span>
                 <input name='GroupEmailAddress' id="GroupEmailAddress" type="email" class="form-control" placeholder="Email" value="{{$ticketdata->GroupEmailAddress}}">             </div>
-                @if($ticketdata->GroupEmailStatus==0)
+                @if($ticketdata->GroupEmailStatus==0 && !empty($ticketdata->GroupEmailAddress))
                 <br>                
                   <div class="email-activation"><span>{{$ticketdata->GroupEmailAddress}}</span>&nbsp;<span> Unverified  </span> - <button email_id="{{$ticketdata->GroupID}}" type="button" class="btn btn-default btn-xs Send_activation">Send activation</button></div><br>
                   @endif

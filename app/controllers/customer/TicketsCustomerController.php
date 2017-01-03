@@ -598,7 +598,7 @@ private $validlicense;
 			$parent_id			=	  0;
 		}else{
 			$response_data      =     TicketsConversation::find($ticket_number);
-			$AccountEmail 		= 	  TicketsConversation::where(array('TicketConversationID'=>$ticket_number))->pluck('TicketTo');
+			$AccountEmail 		= 	  TicketsConversation::where(array('TicketConversationID'=>$ticket_number))->pluck('Requester');
 			$parent_id			=	  TicketsConversation::where(array('TicketConversationID'=>$ticket_number))->pluck('TicketConversationID');
 		}
 		//$parent_id          =  	  $response_data['EmailParent'];	
@@ -748,7 +748,7 @@ private $validlicense;
 					
 					$ticketCoversationData = array(
 						"TicketID"=>$id,
-						"TicketTo"=>trim($data['email-to']),
+						"Requester"=>trim($data['email-to']),
 						"Cc"=>trim($data['cc']),
 						"Bcc"=>trim($data['bcc']),
 						"Subject"=>trim($data['Subject']),

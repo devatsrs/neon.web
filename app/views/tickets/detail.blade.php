@@ -60,7 +60,7 @@
 		 ?>
     <div class="mail-reply-seperator"></div>
     <div class="mail-info">
-      <div class="mail-sender dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span>To</span> ({{$TicketConversationData->TicketTo}}) </a> </div>
+      <div class="mail-sender dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span>To</span> ({{$TicketConversationData->Requester}}) </a> </div>
       <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->TicketConversationID}}" data-original-title="Forward" class="btn btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
     <div class="mail-text"> {{$TicketConversationData->TicketMessage}} </div>
