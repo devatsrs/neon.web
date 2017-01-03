@@ -53,7 +53,7 @@ BEGIN
 	SELECT
 		sh.DateID,
 		dt.TimeID,
-		dt.fulltime,
+		CONCAT(dd.date,' ',dt.fulltime),
 		sh.CompanyID,
 		sh.AccountID,
 		sh.GatewayAccountID,

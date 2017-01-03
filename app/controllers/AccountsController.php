@@ -1157,7 +1157,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         $VendorUnbilledResult  =array();
         $LastInvoiceDate = Account::getVendorLastInvoiceDate($id);
-        if(!empty($LastInvoiceDate) && $account->IsVendor == 1){
+        if(!empty($LastInvoiceDate)){
             $query = "call prc_getVendorUnbilledReport (?,?,?,?,?)";
             $VendorUnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$LastInvoiceDate,$today,1));
         }

@@ -470,12 +470,23 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     toastr.error("No data available To ReRate", "Error", toastr_opts);
                     return false;
                 }
-                response = confirm('Are you sure?');
+                $("#cdr-rerate-user").modal('show', {backdrop: 'static'});
+                /*response = confirm('Are you sure?');
                 if (response) {
                    submit_ajax(baseurl + "/rate_cdr",$.param($searchFilter))
-                }
+                }*/
             });
-
+        $('#cdr-rerate-form [name="RateMethod"]').change(function (e) {
+            e.preventDefault();
+            $('#cdr-rerate-form [name="SpecifyRate"]').parents('.row').addClass('hidden');
+            if ($(this).val() == 'SpecifyRate') {
+                $('#cdr-rerate-form [name="SpecifyRate"]').parents('.row').removeClass('hidden');
+            }
+        });
+        $("#cdr-rerate-form").submit(function (e) {
+            e.preventDefault();
+            submit_ajax(baseurl + "/rate_cdr",$.param($searchFilter)+'&'+$(this).serialize())
+        });
         $("#delete-customer-cdr").click(function(e) {
             e.preventDefault();
             var criteria='';
@@ -562,4 +573,47 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
     padding: 15px 10px;
 }
 </style>
+@stop
+@section('footer_ext')
+    @parent
+<div class="modal fade in" id="cdr-rerate-user">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="cdr-rerate-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">CDR Rerate</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Rate</label>
+                                {{ Form::select('RateMethod',array('CurrentRate'=>'Current Rate','SpecifyRate'=>'Specify Rate') , '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row hidden">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Rate</label>
+                                <input type="text" name="SpecifyRate" class="form-control" value=""/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." id="rerate-customer-cdr">
+                        <i class="entypo-floppy"></i>
+                        Rerate
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @stop

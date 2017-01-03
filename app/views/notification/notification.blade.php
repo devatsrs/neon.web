@@ -159,7 +159,6 @@
             $('#notification-form').trigger("reset");
             $('#modal-notification h4').html('Add Notification');
             $("#notification-form [name='NotificationEmailAddresses']").val('');
-            $(".js-example-disabled").prop("disabled", false);
             var selectBox = $("#notification-form [name='NotificationType']");
             selectBox.val('').trigger("change");
             selectBox.prop("disabled", false);

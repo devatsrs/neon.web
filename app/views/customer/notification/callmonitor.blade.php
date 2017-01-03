@@ -140,8 +140,10 @@
             $('#call-billing-form').trigger("reset");
             $('#add-call-modal h4').html('Add Monitoring');
 
-            $(".js-example-disabled").prop("disabled", false);
+
             $('#call-billing-form select').select2("val", "");
+            var selected_days = "SUN,MON,TUE,WED,THU,FRI,SAT";
+            $("#call-billing-form [name='CallAlert[Day][]']").val(selected_days.split(',')).trigger('change');
 
             var selectBox = $("#call-billing-form [name='AlertType']");
             selectBox.val('').trigger("change");
