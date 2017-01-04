@@ -1,4 +1,11 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessRateTableRate`(IN `p_ratetableid` INT, IN `p_replaceAllRates` INT, IN `p_effectiveImmediately` INT, IN `p_processId` VARCHAR(200), IN `p_addNewCodesToCodeDeck` INT, IN `p_companyId` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_WSProcessRateTableRate`(
+	IN `p_ratetableid` INT,
+	IN `p_replaceAllRates` INT,
+	IN `p_effectiveImmediately` INT,
+	IN `p_processId` VARCHAR(200),
+	IN `p_addNewCodesToCodeDeck` INT,
+	IN `p_companyId` INT
+)
 BEGIN
 	DECLARE v_AffectedRecords_ INT DEFAULT 0;
 	 DECLARE     v_CodeDeckId_ INT ;
@@ -30,11 +37,17 @@ BEGIN
 			INDEX tmp_Change (`Change`)
     );
     
-     DELETE n1 FROM tblTempRateTableRate n1, tblTempRateTableRate n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
-	 	AND n1.CodeDeckId = n2.CodeDeckId
-		AND  n1.Code = n2.Code
-		AND  n1.ProcessId = n2.ProcessId
- 		AND  n1.ProcessId = p_processId and n2.ProcessId = p_processId;
+     DELETE n1 FROM tblTempRateTableRate n1 
+	  INNER JOIN 
+			(
+			  SELECT MIN(EffectiveDate) as EffectiveDate,Code 
+			  FROM tblTempRateTableRate WHERE ProcessId = p_processId
+			GROUP BY Code
+			HAVING COUNT(*)>1
+			)n2 
+			ON n1.Code = n2.Code
+			AND n2.EffectiveDate = n1.EffectiveDate
+			WHERE n1.ProcessId = p_processId;
 
 		  INSERT INTO tmp_TempRateTableRate_
         SELECT distinct `CodeDeckId`,`Code`,`Description`,`Rate`,`EffectiveDate`,`Change`,`ProcessId`,`Preference`,`ConnectionFee`,`Interval1`,`IntervalN` FROM tblTempRateTableRate WHERE tblTempRateTableRate.ProcessId = p_processId;
@@ -239,7 +252,7 @@ BEGIN
                   THEN
                      INSERT INTO tmp_JobLog_ (Message)
 	                  SELECT DISTINCT
-                        CONCAT(tblTempRateTableRate.Code , ' CODE DOES NOT EXIST IN CODE DECK')
+                        CONCAT(tbl.Code , ' CODE DOES NOT EXIST IN CODE DECK')
                          FROM
                	     (
                         SELECT DISTINCT
