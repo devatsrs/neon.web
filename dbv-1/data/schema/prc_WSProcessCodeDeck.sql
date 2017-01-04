@@ -1,4 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessCodeDeck`(IN `p_processId` VARCHAR(200) , IN `p_companyId` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_WSProcessCodeDeck`(
+	IN `p_processId` VARCHAR(200),
+	IN `p_companyId` INT
+)
 BEGIN
 
     DECLARE v_AffectedRecords_ INT DEFAULT 0;     
@@ -16,12 +19,15 @@ BEGIN
 
     SELECT CodeDeckId INTO v_CodeDeckId_ FROM tblTempCodeDeck WHERE ProcessId = p_processId AND CompanyId = p_companyId LIMIT 1;
     
-    DELETE n1 FROM tblTempCodeDeck n1, tblTempCodeDeck n2 WHERE n1.TempCodeDeckRateID < n2.TempCodeDeckRateID 
-	 	AND n1.CodeDeckId = n2.CodeDeckId
-		AND  n1.CompanyId = n2.CompanyId
-		AND  n1.Code = n2.Code
-		AND  n1.ProcessId = n2.ProcessId
- 		AND  n1.ProcessId = p_processId and n2.ProcessId = p_processId;
+    DELETE n1 
+	 FROM tblTempCodeDeck n1 
+	 INNER JOIN (
+	 	SELECT MAX(TempCodeDeckRateID) as TempCodeDeckRateID FROM tblTempCodeDeck WHERE ProcessId = p_processId
+		GROUP BY Code
+		HAVING COUNT(*)>1
+	) n2 
+	 	ON n1.TempCodeDeckRateID = n2.TempCodeDeckRateID
+	WHERE n1.ProcessId = p_processId;
  		
  	
 	 SELECT COUNT(*) INTO countrycount FROM tblTempCodeDeck WHERE ProcessId = p_processId AND Country !='';
