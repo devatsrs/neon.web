@@ -106,7 +106,7 @@
                   <tbody>
                   <tr>
                       <td style="text-align: center;"  >Item 1</td>
-                      <td style="text-align: center;" >Item Description</td>
+                      <td style="text-align: left;" >Item Description</td>
                       <td style="text-align: center;" >2</td>
                       <td style="text-align: center;" >25</td>
                       <td style="text-align: center;" >50</td>

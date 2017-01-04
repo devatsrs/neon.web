@@ -1915,7 +1915,7 @@ class InvoicesController extends \BaseController {
         $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
         $data['CurrencyCode'] = Currency::getCurrency($Invoice->CurrencyID);
         if(empty($data['CurrencyCode'])){
-            return Response::json(array("status" => "failed", "message" => "No invoice currency avalable"));
+            return Response::json(array("status" => "failed", "message" => "No invoice currency available"));
         }
 
         if(!empty($Invoice)) {
