@@ -73,30 +73,79 @@
                         {{Form::select('InvoiceTemplateID',$invoiceTemplate,$RecurringInvoice->InvoiceTemplateID,array( "class"=>"select2 small"))}}
                     </div>
                     <br><br><br>
-                    <label for="field-5" class="col-sm-2 control-label clear">Period</label>
-                    <div class="col-sm-4">
-                        {{Form::select('RecurringInvoice[Time]',array(""=>"Select","DAILY"=>"Daily",'MONTHLY'=>'Monthly','YEARLY'=>'Yearly'),(isset($RecurringInvoiceReminder->Time)?$RecurringInvoiceReminder->Time:''),array( "class"=>"select2 small"))}}
+
+                    <label for="field-1" class="col-md-2 control-label">Billing Cycle*</label>
+                    <div class="col-md-4">
+                        <?php
+
+                        $billing_disable = $hiden_class= '';
+                        if(isset($RecurringInvoice->BillingCycleType)){
+                            $hiden_class= 'hidden';
+                            $billing_disable = 'disabled';
+                        }
+                        $Days = array( ""=>"Please Start of Day",
+                                "monday"=>"Monday",
+                                "tuesday"=>"Tuesday",
+                                "wednesday"=>"Wednesday",
+                                "thursday"=>"Thursday",
+                                "friday"=>"Friday",
+                                "saturday"=>"Saturday",
+                                "sunday"=>"Sunday");
+
+                        if(!empty($RecurringInvoice->BillingCycleType)){
+                            $BillingCycleType = $RecurringInvoice->BillingCycleType;
+                        }else{
+                            $BillingCycleType = '';
+                        }
+                        ?>
+
+                        {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType ,array("class"=>'form-control select2 '))}}
+                    </div>
+                    <?php
+                    if(!empty($RecurringInvoice->BillingCycleType)){
+                        $BillingCycleValue = $RecurringInvoice->BillingCycleValue;
+                    }else{
+                        $BillingCycleValue = '';
+                    }
+                    ?>
+                    <div id="billing_cycle_weekly" class="billing_options" >
+                        <label for="field-1" class="col-md-2 control-label">Start of Day*</label>
+                        <div class="col-md-4">
+                            {{Form::select('BillingCycleValue',$Days, ($BillingCycleType =='weekly'?$BillingCycleValue:'') ,array("class"=>"form-control select2"))}}
+                        </div>
+                    </div>
+                    <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
+                        <label for="field-1" class="col-md-2 control-label">for Days*</label>
+                        <div class="col-md-4">
+                            {{Form::text('BillingCycleValue', ($BillingCycleType =='in_specific_days'?$BillingCycleValue:'') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
+                        </div>
+                    </div>
+                    <div id="billing_cycle_subscription" class="billing_options" style="display: none">
+                        <label for="field-1" class="col-md-2 control-label">Subscription Qty</label>
+                        <div class="col-md-4">
+                            {{Form::text('BillingCycleValue', ($BillingCycleType =='subscription'?$BillingCycleValue:'') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
+                        </div>
+                    </div>
+                    <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
+                        <label for="field-1" class="col-md-2 control-label">Anniversary Date*</label>
+                        <div class="col-md-4">
+                            {{Form::text('BillingCycleValue', ($BillingCycleType =='monthly_anniversary'?$BillingCycleValue:'') ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                        </div>
                     </div>
 
-                    <label for="field-5" class="col-sm-2 control-label">Interval</label>
-                    <div class="col-sm-4">
-                        {{Form::select('RecurringInvoice[Interval]',array(),(isset($RecurringInvoiceReminder->Interval)?$RecurringInvoiceReminder->Interval:''),array( "class"=>"select2 small"))}}
-                    </div>
                 </div>
 
                 <div class="no-padding-left no-padding-right col-md-3">
-                    <label for="field-1" class="col-sm-5 control-label">*Start Date</label>
-
-                    <div class="col-sm-7">
-                        {{Form::text('StartDate',$RecurringInvoice->StartDate,array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}}
-                    </div>
-                    <br/><br/><br/>
-                    <label for="field-1" class="col-sm-5 control-label">*End Date</label>
-
-                    <div class="col-sm-7">
-                        {{Form::text('EndDate',$RecurringInvoice->EndDate,array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}}
-                    </div>
-                    <br/><br/><br/>
+                    <label for="field-1" class="col-sm-7 control-label">*Start Date</label>
+                    <div class="col-sm-5"> {{Form::text('InvoiceStartDate',date('Y-m-d',strtotime($RecurringInvoice->InvoiceStartDate)),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
+                    <br />
+                    <br />
+                    <label for="field-1" class="col-sm-7 control-label">PO Number</label>
+                    <div class="col-sm-5"> {{Form::text('PONumber',$RecurringInvoice->PONumber,array("class"=>" form-control" ))}} </div>
+                    <br />
+                    <br />
+                    <label for="field-1" class="col-sm-7 control-label">Occurrence</label>
+                    <div class="col-sm-5"> {{Form::text('Occurrence',$RecurringInvoice->Occurrence,array("class"=>" form-control" ))}} </div>
                 </div>
                 </div>
                <div class="form-group">
@@ -250,7 +299,6 @@
 
                		</tfoot>
                     </table>
-
                 </div>
 
                </div>
@@ -308,8 +356,8 @@ var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-dan
 
                    </div>
                 <input type="hidden" name="RecurringInvoice" value="1" >
-                <input type="hidden" name="RecurringInvoiceID" value="{{$RecurringInvoice->RecurringInvoiceID}}" >
-                <input type="hidden" name="selectedIDs" value="{{$RecurringInvoice->RecurringInvoiceID}}" >
+                <input type="hidden" name="RecurringInvoiceID" value="{{$RecurringInvoice->RecurringInvoiceID}}" />
+                <input type="hidden" name="selectedIDs" value="{{$RecurringInvoice->RecurringInvoiceID}}" />
                 <div class="modal-footer">
                      <button type="submit" class="btn btn-primary send btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-mail"></i>

@@ -405,10 +405,18 @@ $(document).ready(function(){
         var ajaxurl = baseurl + "/recurringinvoices/sendinvoice";
         var formData = new FormData($('#send-recurringinvoice-form')[0]);
         showAjaxScript(ajaxurl,formData,function(response){
-            $('#send-modal-recurringinvoice .modal-body').html(response);
-            $('#send-modal-recurringinvoice').modal('show');
-        },'html');
-        $('#send-modal-recurringinvoice').modal('show');
+            if (response.status == 'success') {
+                if(response.invoiceID>0) {
+                    var send_url = (baseurl + "/invoice/{id}/invoice_email").replace("{id}", response.invoiceID);
+                    showAjaxScript(send_url, formData, function (response) {
+                        $('#send-modal-recurringinvoice .modal-body').html(response);
+                        $('#send-modal-recurringinvoice').modal('show');
+                    }, 'html');
+                }
+            }else{
+                toastr.error(response.message, "Error", toastr_opts);
+            }
+        },'json');
     });
 
     $("select[name=AccountID]").change( function (e) {
@@ -488,41 +496,34 @@ $(document).ready(function(){
     $("#recurringinvoice-from [name='RecurringInvoice[Time]']").change(function(){
         populateIntervalInvoice($(this).val(),'RecurringInvoice','recurringinvoice-from');
     });
-    function populateIntervalInvoice(jobtype,form,formID){
-        $("#"+formID+" [name='"+form+"[Interval]']").addClass('visible');
-        var selectBox = $("#"+formID+" [name='"+form+"[Interval]']");
-        if(selectBox){
-            selectBox.empty();
-            options = [];
-            option = [];
 
-            if(jobtype == 'HOUR'){
-                for(var i=1;i<'24';i++){
-                    options.push(new Option(i+" Hour", i, false, false));
-                }
-            }else if(jobtype == 'MINUTE'){
-                for(var i=1;i<60;i++){
-                    options.push(new Option(i+" Minute", i, false, false));
-                }
-            }else if(jobtype == 'DAILY'){
-                for(var i=1;i<'32';i++){
-                    options.push(new Option(i+" Day", i, false, false));
-                }
-            }else if(jobtype == 'MONTHLY'){
-                for(var i=1;i<13;i++){
-                    options.push(new Option(i+" Month", i, false, false));
-                }
-            }else if(jobtype == 'YEARLY'){
-                for(var i=1;i<13;i++){
-                    options.push(new Option(i+" Year", i, false, false));
-                }
-            }
-            //options.sort();
-            selectBox.append(options);
-            var firstval = selectBox.find('option').first().val();
-            selectBox.val(firstval).trigger('change');
+    $('select[name="BillingCycleType"]').on( "change",function(e){
+        var selection = $(this).val();
+        $(".billing_options input, .billing_options select").attr("disabled", "disabled");// This is to avoid not posting same name hidden elements
+        $(".billing_options").hide();
+        console.log(selection);
+        switch (selection){
+            case "weekly":
+                $("#billing_cycle_weekly").show();
+                $("#billing_cycle_weekly select").removeAttr("disabled");
+                break;
+            case "monthly_anniversary":
+                $("#billing_cycle_monthly_anniversary").show();
+                $("#billing_cycle_monthly_anniversary input").removeAttr("disabled");
+                break;
+            case "in_specific_days":
+                $("#billing_cycle_in_specific_days").show();
+                $("#billing_cycle_in_specific_days input").removeAttr("disabled");
+                break;
+            case "subscription":
+                $("#billing_cycle_subscription").show();
+                $("#billing_cycle_subscription input").removeAttr("disabled");
+                break;
         }
-    }
+    });
+
+
+    $('select[name="BillingCycleType"]').trigger( "change" );
 });
 </script>
 <style>

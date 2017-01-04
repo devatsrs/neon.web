@@ -981,7 +981,6 @@
                 var cur_obj = $(this).parent().parent().parent().parent().find("div.hiddenRowData");
                 InvoiceID = cur_obj.find("[name=InvoiceID]").val();
                 send_url = ("/invoice/{id}/invoice_email").replace("{id}", InvoiceID);
-                console.log(send_url)
                 showAjaxModal(send_url, 'send-modal-invoice');
                 $('#send-modal-invoice').modal('show');
             });

@@ -45,14 +45,14 @@
       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
       <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
           @if(User::checkCategoryPermission('RecurringInvoice','Edit'))
-              <li> <a data-action="changestatus_bulk" title="Start" data-startstop="1" href="javascript:void(0);" ><i class="entypo-play"></i>Start</a> </li>
-              <li> <a data-action="changestatus_bulk" title="Stop" data-startstop="0" href="javascript:void(0);" ><i class="entypo-stop"></i>Stop</a> </li>
+              <li> <a data-action="changestatus_bulk" title="Active" data-startstop="1" href="javascript:void(0);" ><i class="entypo-check"></i>Active</a> </li>
+              <li> <a data-action="changestatus_bulk" title="In Active" data-startstop="0" href="javascript:void(0);" ><i class="glyphicon glyphicon-ban-circle"></i> In Active</a> </li>
           @endif
           @if(User::checkCategoryPermission('RecurringInvoice','Delete'))
               <li> <a data-action="delete_bulk" href="javascript:;" ><i class="entypo-cancel"></i> Delete </a> </li>
           @endif
           @if(User::checkCategoryPermission('RecurringInvoice','Send'))
-              <li> <a data-action="sendinvoice_bulk" title="Start" data-startstop="1" href="javascript:void(0);" ><i class="entypo-mail"></i>Send</a> </li>
+              <li> <a data-action="sendinvoice_bulk" title="Start" data-startstop="1" href="javascript:void(0);" ><i class="entypo-mail"></i> Send</a> </li>
           @endif
       </ul>
       @endif
@@ -75,13 +75,14 @@
         </div>
         </th>
         <th width="10%">Title</th>
-        <th width="20%">Account Name</th>
+        <th width="15%">Account Name</th>
         <th width="10%">Invoiced Number</th>
-        <th width="10%">Invoiced Date</th>
+        <th width="10%">Invoice Start Date</th>
+        <th width="10%">Next Invoice Date</th>
         <th width="10%">Grand Total</th>
-        <th width="10%">Status</th>
+        <th width="5%">Status</th>
         <th width="10%">Frequency/Occurrence</th>
-        <th width="20%">Action</th>
+        <th width="15%">Action</th>
     </tr>
   </thead>
   <tbody>
@@ -124,7 +125,8 @@ var postdata;
 		});
 		
         public_vars.$body = $("body");
-        //show_loading_bar(40); 
+        //show_loading_bar(40);
+        var billingCyleType = {{json_encode(SortBillingType())}};
 		var base_url_recurringinvoices 		= 	"{{ URL::to('recurringinvoices')}}";
         var recurringinvoicesstatus 			=	{{$recurringinvoices_status_json}};
         var recurringinvoices_Status_Url 	= 	"{{ URL::to('recurringinvoices/recurringinvoices_change_Status')}}";
@@ -159,10 +161,11 @@ var postdata;
                 },
                 {}, // 1 Title
                 {}, // 2 AccountName
-                {}, // 3 LastInvoiceNo
-                {}, // 4 LastInvoiceDate
-                {}, // 5 GrandTotal
-                {   // 6 Status
+                {}, // 3 Invoice StartDate
+                {}, // 4 Next InvoiceDate
+                {}, // 5 LastInvoiceNo
+                {}, // 6 GrandTotal
+                {   // 7 Status
                     "bSortable":false,
                     mRender:function( status, type, full){
                         if (status == 1)
@@ -171,15 +174,19 @@ var postdata;
                             return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
                     }
                 },
-                {  // 7 Frequency/Occurence
+                {  // 8 Frequency/Occurence
                     "bSortable": false,
                     mRender: function ( id, type, full ) {
+                        var cycle = billingCyleType[full[10]];
+                        var anniversary = ((full[11])?full[11]:'');
+                        if(cycle.indexOf('anniversary')!=-1){
+                            var d = new Date(full[11]);
+                            anniversary = d.getDate();
+                        }
                         var invoice_log = (baseurl + "/recurringinvoices/{id}/log/{{RecurringInvoiceLog::SENT}}").replace("{id}", full[0]);
-                       var json = JSON.parse(full[7]);
-                        var str = '<div><strong>Time:</strong><span>'+json.Time+'</span></div>';
-                            str += '<div><strong>Interval:</strong><span>'+json.Interval+'</span></div>';
-                            str += '<div><strong>Occurence:</strong><span><a href="' + invoice_log + '" target="_blank">'+(full[8]?full[8]:0)+'</a></span></div>';
-
+                        var str = '<div><strong>Frequency:</strong><span>'+billingCyleType[full[10]]+((full[11])?'('+anniversary+')':'');+'</span></div>';
+                        str += '<div><strong>Occurrence:</strong><span>'+full[8]+'</span></div>';
+                        str += '<div><strong>Sent:</strong><span><a href="' + invoice_log + '" target="_blank">'+(full[9]?full[9]:0)+'</a></span></div>';
                         return str;
                     }
                 },
@@ -216,13 +223,11 @@ var postdata;
                         action += '</ul>';
                         action += '</div>';
 
-                        if (full[6] == "1") {
-                            notification_link = ' <button href="#" title="Stop" data-startstop="0" data-action="changestatus_row"  class="btn btn-success btn-sm" data-loading-text="Loading..."><i class="glyphicon entypo-stop"></i></button>';
-                        } else {
-                            notification_link = ' <button href="#"  title="Start" data-startstop="1" data-action="changestatus_row"  class="btn btn-danger btn-sm" data-loading-text="Loading..."><i class="glyphicon entypo-play"></i></button>';
+                        if(full[7] == 1 ) {
+                            action += '&nbsp;<button data-startstop="0" data-action="changestatus_row" class="btn btn-red btn-sm" type="button" title="InActive" data-placement="top" data-toggle="tooltip"><i class="glyphicon glyphicon-ban-circle" ></i></button>';
+                        }else {
+                            action += '&nbsp;<button data-startstop="1" data-action="changestatus_row" class="btn btn-green btn-sm" type="button" title="Active" data-placement="top" data-toggle="tooltip"><i class="entypo-check"></i></button>';
                         }
-                        notification_link = notification_link.replace('{id}', id);
-                        action += notification_link;
                         return action;
                     }
                 }
@@ -367,12 +372,21 @@ var postdata;
                 return false;
             }
             var formData = new FormData($('#invoice-form')[0]);
-            if(row==1){ //Only For showing sendmail modal on Single Invoice.
+            if(row==1){ //Only For showing send mail modal on Single Invoice.
                 $('#send-modal-invoice .modal-body').html("Content is loading...");
                 showAjaxScript(url,formData,function(response){
-                    $('#send-modal-invoice .modal-body').html(response);
-                    $('#send-modal-invoice').modal('show');
-                },'html');
+                    if (response.status == 'success') {
+                        if(response.invoiceID>0) {
+                            var send_url = (baseurl + "/invoice/{id}/invoice_email").replace("{id}", response.invoiceID);
+                            showAjaxScript(send_url, formData, function (response) {
+                                $('#send-modal-invoice .modal-body').html(response);
+                                $('#send-modal-invoice').modal('show');
+                            }, 'html');
+                        }
+                    }else{
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },'json');
             }else {
                 showAjaxScript(url,formData,function(response){
                     $(".btn.save").button('reset');
@@ -394,6 +408,7 @@ var postdata;
             var InvoiceID = $(this).find("[name=InvoiceID]").val();
             var _url = baseurl + '/invoice/' + InvoiceID + '/send';
             submit_ajax(_url, post_data);
+            data_table.fnFilter('', 0);
         });
 
         $('#table-4 tbody').on('click', 'tr', function() {

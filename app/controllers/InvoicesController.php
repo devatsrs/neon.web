@@ -1170,14 +1170,13 @@ class InvoicesController extends \BaseController {
                 $invoiceloddata['InvoiceLogStatus']= InVoiceLog::SENT;
                 InVoiceLog::insert($invoiceloddata);
 
-                if($isRecurringInvoice){
+                if($isRecurringInvoice==1){
                     $RecurringInvoiceLogData = array();
                     $RecurringInvoiceLogData['RecurringInvoiceID']= $recurringInvoiceID;
                     $RecurringInvoiceLogData['Note']= 'Invoice Sent By '.$CreatedBy;
                     $RecurringInvoiceLogData['created_at']= date("Y-m-d H:i:s");
                     $RecurringInvoiceLogData['RecurringInvoiceLogStatus']= RecurringInvoiceLog::SENT;
                     RecurringInvoiceLog::insert($RecurringInvoiceLogData);
-                    RecurringInvoice::find($recurringInvoiceID)->update(['LastInvoicedDate'=>date("Y-m-d H:i:s")]);
                 }
 
                 /*

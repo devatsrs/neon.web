@@ -7,8 +7,8 @@ class RecurringInvoice extends \Eloquent {
     protected $guarded 		= 	array('RecurringInvoiceID');
     protected $table 		= 	'tblRecurringInvoice';
     protected $primaryKey 	= 	"RecurringInvoiceID";
-    const START 			= 	1;
-    const STOP 				= 	0;
+    const ACTIVE 			= 	1;
+    const INACTIVE 				= 	0;
 	
     //public static $estimate_status;
     //public static $estimate_type = array(''=>'Select' ,self::ESTIMATE_OUT => 'Estimate Sent',self::ESTIMATE_IN=>'Estimate Received','All'=>'Both');
@@ -96,7 +96,7 @@ class RecurringInvoice extends \Eloquent {
     }
 
     public static function get_recurringinvoices_status(){
-        return [''=>'All',self::START=>'Start',self::STOP=>'Stop'];
+        return [''=>'All',self::ACTIVE=>'Active',self::INACTIVE=>'InActive'];
     }
 
 }
