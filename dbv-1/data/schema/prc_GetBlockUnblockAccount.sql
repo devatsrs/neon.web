@@ -13,9 +13,11 @@ BEGIN
 		a.AccountName,
 		(COALESCE(ab.BalanceAmount,0) - COALESCE(ab.PermanentCredit,0)) as Balance,
 		IF((COALESCE(ab.BalanceAmount,0) - COALESCE(ab.PermanentCredit,0)) > 0 AND a.`Status` = 1 ,1,0) as BlockStatus,
-		a.`Status`
-	FROM tblAccountBalance ab 
-	INNER JOIN tblAccount a 
+		a.`Status`,
+		a.BillingEmail,
+		a.Blocked
+	FROM tblAccountBalance ab
+	INNER JOIN tblAccount a
 		ON a.AccountID = ab.AccountID
 	INNER JOIN NeonBillingDev.tblGatewayAccount ga
 		ON ga.AccountID = a.AccountID
