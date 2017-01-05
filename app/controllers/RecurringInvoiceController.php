@@ -346,6 +346,7 @@ class RecurringInvoiceController extends \BaseController {
 			{
                 return json_validator_response($validator);
             }
+            unset($RecurringInvoiceData['RecurringInvoiceDetail']);
             try
 			{
                 DB::connection('sqlsrv2')->beginTransaction();
@@ -550,7 +551,7 @@ class RecurringInvoiceController extends \BaseController {
                     if (empty($pdf_path)) {
                         return Response::json(array("status" => "failed", "message" => 'Failed to generate Invoice PDF File'));
                     } else {
-                        Invoice::where(['InvoiceID'])->update(["PDF" => $pdf_path]);
+                        Invoice::where(['InvoiceID'=>$invoiceID])->update(["PDF" => $pdf_path]);
                     }
                 }
                 return Response::json(array("status" => "success", "message" => '', 'invoiceID' => $invoiceID));
