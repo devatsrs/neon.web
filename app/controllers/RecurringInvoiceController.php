@@ -307,6 +307,7 @@ class RecurringInvoiceController extends \BaseController {
             $RecurringInvoiceData["InvoiceStartDate"] = $data["InvoiceStartDate"];
             $RecurringInvoiceData['BillingCycleType'] = $data['BillingCycleType'];
             $RecurringInvoiceData['PaymentDueInDays'] = $data['PaymentDueInDays'];
+            $RecurringInvoiceData['RecurringInvoiceDetail'] = isset($data["RecurringInvoiceDetail"])?$data["RecurringInvoiceDetail"]:'';
             ///////////
 
             $rules = array(
@@ -319,7 +320,8 @@ class RecurringInvoiceController extends \BaseController {
                 'Address' => 'required',
                 'CurrencyID' => 'required',
                 'GrandTotal' => 'required',
-                'BillingCycleType' => 'required'
+                'BillingCycleType' => 'required',
+                'RecurringInvoiceDetail' => 'required'
             );
 
             $BillingCycleValue = '';
@@ -331,7 +333,8 @@ class RecurringInvoiceController extends \BaseController {
             }
 
             $message = ['InvoiceTemplateID.required'=>'Invoice Template field is required',
-                'CurrencyID.required'=>'Currency Field is required'];
+                'CurrencyID.required'=>'Currency Field is required',
+                'RecurringInvoiceDetail.required'=>'Recurring Invoice Details fields are required'];
 			
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
