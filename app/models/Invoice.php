@@ -78,8 +78,15 @@ class Invoice extends \Eloquent {
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
-            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
-            $PaymentDueInDays = AccountBilling::getPaymentDueInDays($Invoice->AccountID);
+            if(!empty($Invoice->RecurringInvoiceID)){
+                $recurringInvoice = RecurringInvoice::find($Invoice->RecurringInvoiceID);
+                $InvoiceTemplateID = $recurringInvoice->InvoiceTemplateID;
+                $PaymentDueInDays = $recurringInvoice->PaymentDueInDays;
+            }else{
+                $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+                $PaymentDueInDays = AccountBilling::getPaymentDueInDays($Invoice->AccountID);
+            }
+
             $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");

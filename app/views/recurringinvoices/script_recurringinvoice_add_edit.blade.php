@@ -504,8 +504,8 @@ $(document).ready(function(){
         console.log(selection);
         switch (selection){
             case "weekly":
-                $("#billing_cycle_weekly").show();
-                $("#billing_cycle_weekly select").removeAttr("disabled");
+                //$("#billing_cycle_weekly").show();
+                //$("#billing_cycle_weekly select").removeAttr("disabled");
                 break;
             case "monthly_anniversary":
                 $("#billing_cycle_monthly_anniversary").show();

@@ -147,6 +147,7 @@ class RecurringInvoiceController extends \BaseController {
             $RecurringInvoiceData['LastInvoicedDate'] =  $data['InvoiceStartDate'];
             $RecurringInvoiceData['NextInvoiceDate'] =  $data['InvoiceStartDate'];
             $RecurringInvoiceData['BillingCycleType']       = $data['BillingCycleType'];
+            $RecurringInvoiceData['PaymentDueInDays'] = $data['PaymentDueInDays'];
             $RecurringInvoiceData['RecurringInvoiceDetail'] = isset($data["RecurringInvoiceDetail"])?$data["RecurringInvoiceDetail"]:'';
 
             ///////////
@@ -304,7 +305,8 @@ class RecurringInvoiceController extends \BaseController {
             $RecurringInvoiceData['Title'] = $data['Title'];
             $RecurringInvoiceData['Occurrence'] = $data['Occurrence'];
             $RecurringInvoiceData["InvoiceStartDate"] = $data["InvoiceStartDate"];
-            $RecurringInvoiceData['BillingCycleType']       = $data['BillingCycleType'];
+            $RecurringInvoiceData['BillingCycleType'] = $data['BillingCycleType'];
+            $RecurringInvoiceData['PaymentDueInDays'] = $data['PaymentDueInDays'];
             ///////////
 
             $rules = array(
@@ -354,6 +356,9 @@ class RecurringInvoiceController extends \BaseController {
 
                     if($RecurringInvoice->BillingCycleType != $data['BillingCycleType']) {
                         $RecurringInvoiceData['NextInvoiceDate'] = next_billing_date($data['BillingCycleType'], $BillingCycleValue, $RecurringInvoice->LastInvoicedDate);
+                    }
+                    if(empty($BillingCycleValue)) {
+                        $RecurringInvoiceData["BillingCycleValue"] = '';
                     }
                     $RecurringInvoice->update($RecurringInvoiceData);
 
