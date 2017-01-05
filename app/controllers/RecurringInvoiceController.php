@@ -513,7 +513,7 @@ class RecurringInvoiceController extends \BaseController {
     public function sendInvoice(){
         $data = Input::all();
         $companyID = User::get_companyID();
-        $isSelected = 0;
+        $isSingle = 0;
         $where=['AccountID'=>'','CurrencyID'=>'','Status'=>'','selectedIDs'=>''];
         if(isset($data['criteria']) && !empty($data['criteria'])){
             $criteria= json_decode($data['criteria'],true);
@@ -527,11 +527,11 @@ class RecurringInvoiceController extends \BaseController {
         }else{
             $where['selectedIDs']= $data['selectedIDs'];
             if(count(explode(',',$data['selectedIDs']))==1){
-                $isSelected = 1;
+                $isSingle = 1;
             }
         }
 
-        if($isSelected==1){
+        if($isSingle==1){
             $processID = GUID::generate();
             $sql = "call prc_CreateInvoiceFromRecurringInvoice (".$companyID.",".intval($where['AccountID']).",".intval($where['CurrencyID']).",'".$where['Status']."','".trim($where['selectedIDs'])."','".User::get_user_full_name()."',".RecurringInvoiceLog::GENERATE.",'".$processID."')";
             $result = DB::connection('sqlsrv2')->select($sql);
@@ -540,10 +540,18 @@ class RecurringInvoiceController extends \BaseController {
             }else {
                 $invoiceID = Invoice::where(['ProcessID' => $processID])->pluck('InvoiceID');
                 if(!empty($invoiceID)) {
+                    //Update recurring invoice status
                     $recurringInvoice = RecurringInvoice::find($data['selectedIDs']);
                     $RecurringInvoiceData['NextInvoiceDate'] = next_billing_date($recurringInvoice->BillingCycleType, $recurringInvoice->BillingCycleValue , $recurringInvoice->NextInvoiceDate);
                     $RecurringInvoiceData['LastInvoicedDate'] = Date("Y-m-d H:i:s");
                     $recurringInvoice->update($RecurringInvoiceData);
+                    //generate pdf for new created invoice
+                    $pdf_path = Invoice::generate_pdf($invoiceID);
+                    if (empty($pdf_path)) {
+                        return Response::json(array("status" => "failed", "message" => 'Failed to generate Invoice PDF File'));
+                    } else {
+                        Invoice::where(['InvoiceID'])->update(["PDF" => $pdf_path]);
+                    }
                 }
                 return Response::json(array("status" => "success", "message" => '', 'invoiceID' => $invoiceID));
             }
