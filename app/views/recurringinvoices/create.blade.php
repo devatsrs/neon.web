@@ -117,12 +117,10 @@
                     <div class="no-padding-left no-padding-right col-md-3">
                         <label for="field-1" class="col-sm-6 control-label">*Issue Date</label>
                         <div class="col-sm-6"> {{Form::text('InvoiceStartDate',date('Y-m-d'),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
-                        <br />
-                        <br />
+                        <div class="clearfix margin-bottom "></div>
                         <label for="field-1" class="col-sm-6 control-label">PO Number</label>
                         <div class="col-sm-6"> {{Form::text('PONumber','',array("class"=>" form-control" ))}} </div>
-                        <br />
-                        <br />
+                        <div class="clearfix margin-bottom "></div>
                         <label for="field-1" class="col-sm-6 control-label">Occurrence</label>
                         <div class="col-sm-6"> {{Form::text('Occurrence',0,array("class"=>" form-control" ))}} </div>
                     </div>

@@ -735,6 +735,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/recurringinvoices/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_datagrid');
     Route::any('/recurringinvoices/calculate_total', 'RecurringInvoiceController@calculate_total');
     Route::any('/recurringinvoices/get_account_info', 'RecurringInvoiceController@getAccountInfo');
+    Route::any('/recurringinvoices/get_invoicetemplate_info', 'RecurringInvoiceController@getInvoiceTemplateInfo');
     Route::any('/recurringinvoices/{id}/log', 'RecurringInvoiceController@recurringinvoicelog');
     Route::any('/recurringinvoices/{id}/log/{type}', 'RecurringInvoiceController@recurringinvoicelog');
     Route::any('/recurringinvoices/{id}/log/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_recurringinvoicelog_datagrid');

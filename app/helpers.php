@@ -1076,7 +1076,10 @@ function get_round_decimal_places($AccountID = 0) {
         $RoundChargesAmount = AccountBilling::getRoundChargesAmount($AccountID);
     }
     if ( empty($RoundChargesAmount) ) {
-        $RoundChargesAmount = 2;
+        $RoundCharges=CompanySetting::getKeyVal('RoundChargesAmount');
+        if($RoundCharges!='Invalid Key'){
+            $RoundChargesAmount = $RoundCharges;
+        }
     }
     return $RoundChargesAmount;
 }

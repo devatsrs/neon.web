@@ -26,7 +26,11 @@ class BillingClass extends \Eloquent
         return BillingClass::where('BillingClassID',$BillingClassID)->pluck('CDRType');
     }
     public static function getRoundChargesAmount($BillingClassID){
-        return BillingClass::where('BillingClassID',$BillingClassID)->pluck('RoundChargesAmount');
+        $RoundChargesAmount = '';
+        if(!empty($BillingClassID)){
+            $RoundChargesAmount = BillingClass::where('BillingClassID',$BillingClassID)->pluck('RoundChargesAmount');
+        }
+        return $RoundChargesAmount;
     }
     public static function getAccounts($BillingClassID){
         return Account::join('tblAccountBilling','tblAccountBilling.AccountID','=','tblAccount.AccountID')->where('BillingClassID',$BillingClassID)->orderBy('AccountName')->get(['AccountName']);

@@ -72,7 +72,6 @@ class RecurringInvoiceController extends \BaseController {
         $products = Product::getProductDropdownList();
         $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice();
         $invoiceTemplate = InvoiceTemplate::getInvoiceTemplateList();
-        //$gateway_product_ids = Product::getGatewayProductIDs();
         return View::make('recurringinvoices.create',compact('accounts','products','taxes','invoiceTemplate'));
 
     }
@@ -174,7 +173,7 @@ class RecurringInvoiceController extends \BaseController {
                 //$BillingCycleValue = $data["BillingCycleValue"];
             }
             $message = ['InvoiceTemplateID.required'=>'Invoice Template field is required',
-                        'CurrencyID.required'=>'Currency Field is required',
+                        'CurrencyID.required'=>'Currency Field is required.',
                         'RecurringInvoiceDetail.required'=>'Recurring Invoice Details fields are required'];
 			
             $verifier = App::make('validation.presence');
@@ -587,82 +586,45 @@ class RecurringInvoiceController extends \BaseController {
         $data = Input::all();
         $response = array();
         $error = "";
-        if(isset($data['product_type']) && Product::$ProductTypes[$data['product_type']] && isset($data['account_id']) && isset($data['product_id']) && isset($data['qty'])) {
-            $AccountID = intval($data['account_id']);
-            $Account = Account::find($AccountID);
-            $AccountBilling = AccountBilling::getBilling($AccountID);
-            if (!empty($Account)) {
-                $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($AccountID);
-                $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
-                if (isset($InvoiceTemplate->InvoiceTemplateID) && $InvoiceTemplate->InvoiceTemplateID > 0) {
-                    $decimal_places = get_round_decimal_places($AccountID);
+        $AccountID = intval($data['account_id']);
+        $InvoiceTemplateID = intval($data['InvoiceTemplateID']);
+        $Account = Account::find($AccountID);
+        if (!empty($Account)) {
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+            if (isset($InvoiceTemplate->InvoiceTemplateID) && $InvoiceTemplate->InvoiceTemplateID > 0) {
+                $decimal_places = get_round_decimal_places($AccountID);
 
-                    if (Product::$ProductTypes[$data['product_type']] == Product::ITEM) {
+                $companyID = User::get_companyID();
+                $data['CompanyID'] = $companyID;
 
-                        $companyID = User::get_companyID();
-                        $data['CompanyID'] = $companyID;
-
-                        $Product = Product::find($data['product_id']);
-                        if (!empty($Product)) {
-
-
-                            $ProductAmount = number_format($Product->Amount, $decimal_places,".","");
-                            $ProductDescription = $Product->Description;
-
-                            $TaxRates = array();
-                            $TaxRates = TaxRate::where(array('CompanyID' => User::get_companyID(), "TaxType" => TaxRate::TAX_ALL))->select(['TaxRateID', 'Title', 'Amount'])->first();
-                            if(!empty($TaxRates)){
-                                $TaxRates->toArray();
-                            }
-                            //$AccountTaxRate = explode(",", $AccountBilling->TaxRateId);
-							$AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
-
-                            $TaxRateAmount = $TaxRateId = 0;
-                            if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
-
-                                $TaxRateId = $TaxRates['TaxRateID'];
-                                $TaxRateAmount = 0;
-                                if (isset($TaxRates['Amount'])) {
-                                    $TaxRateAmount = $TaxRates['Amount'];
-                                }
-
-                            }
-
-                            $TotalTax = number_format((($ProductAmount * $data['qty'] * $TaxRateAmount) / 100), $decimal_places,".","");
-                            $SubTotal = number_format($ProductAmount * $data['qty'], $decimal_places,".",""); //number_format(($ProductAmount + $TotalTax) , 2);
-
-                            $response = [
-                                "status" => "success",
-                                "product_description" => $ProductDescription,
-                                "product_amount" => $ProductAmount,
-                                //"product_tax_rate_id" => $TaxRateId,
-                                //"product_total_tax_rate" => $TotalTax,
-								 "product_total_tax_rate" => 0,	
-                                "sub_total" => $SubTotal,
-                                "decimal_places" => $decimal_places,
-                            ];
-                        } else {
-                            $error = "No Product Found.";
-                        }
-
-                    } else {
-
-                        $error = "No Invoice Template Assigned to Account";
-                    }
-                } else {
-                    $error = "No Account Found";
-                }
-                if (empty($response)) {
+                $Product = Product::find($data['product_id']);
+                if (!empty($Product)) {
+                    $ProductAmount = number_format($Product->Amount, $decimal_places,".","");
+                    $ProductDescription = $Product->Description;
+                    $SubTotal = number_format($ProductAmount * $data['qty'], $decimal_places,".","");
                     $response = [
-                        "status" => "failure",
-                        "message" => $error
+                        "status" => "success",
+                        "product_description" => $ProductDescription,
+                        "product_amount" => $ProductAmount,
+                         "product_total_tax_rate" => 0,
+                        "sub_total" => $SubTotal,
+                        "decimal_places" => $decimal_places,
                     ];
+                } else {
+                    $error = "No Product Found.";
                 }
-                return json_encode($response);
+
+            } else {
+                $error = "No Account Found";
             }
-
+            if (empty($response)) {
+                $response = [
+                    "status" => "failure",
+                    "message" => $error
+                ];
+            }
+            return json_encode($response);
         }
-
     }
 
     /**
@@ -676,21 +638,23 @@ class RecurringInvoiceController extends \BaseController {
             $fields 			=	["CurrencyId","AccountID","Address1","Address2","Address3","City","PostCode","Country"];
             $Account 			= 	Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
             $Currency 			= 	Currency::where(["CurrencyId"=>$Account->CurrencyId])->pluck("Code");
-            $InvoiceTemplateID  = 	AccountBilling::getInvoiceTemplateID($Account->AccountID);
             $CurrencyId 		= 	$Account->CurrencyId;
             $Address 			= 	Account::getFullAddress($Account);			
             $Terms 				= 	$FooterTerm = '';
-			//$AccountTaxRate 	= 	explode(",",AccountBilling::getTaxRate($Account->AccountID));
-			$AccountTaxRate 	= 	AccountBilling::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
-			 
-            if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
-                $InvoiceTemplate	= 	InvoiceTemplate::find($InvoiceTemplateID);
-                $Terms 				= 	$InvoiceTemplate->Terms;
-                $FooterTerm 		= 	$InvoiceTemplate->FooterTerm;
-                $return 			=	['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate'];
-            } else {
-                return Response::json(array("status" => "failed", "message" => "You cannot create RecurringInvoice as no Invoice Template assigned to this account." ));
-            }			
+            $return 			=	['Currency','CurrencyId','Address'];
+            return Response::json(compact($return));
+        }
+    }
+
+
+    public function getInvoiceTemplateInfo()
+    {
+        $data = Input::all();
+        if (isset($data['invoiceTemplateID']) && $data['invoiceTemplateID'] > 0 ) {
+            $InvoiceTemplate = InvoiceTemplate::find($data['invoiceTemplateID']);
+            $Terms = $InvoiceTemplate->Terms;
+            $FooterTerm = $InvoiceTemplate->FooterTerm;
+            $return = ['Terms','FooterTerm'];
             return Response::json(compact($return));
         }
     }
@@ -702,10 +666,7 @@ class RecurringInvoiceController extends \BaseController {
     public function recurringinvoicelog($id,$type='')
     {
         $recurringinvoice = RecurringInvoice::find($id);
-        $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($recurringinvoice->AccountID);
-        //$recurringinvoicenumber = RecurringInvoice::getFullRecurringInvoiceNumber($recurringinvoice,$InvoiceTemplateID);
-        $recurringinvoicenumber = 0;
-        return View::make('recurringinvoices.recurringinvoicelog', compact('recurringinvoice','id','recurringinvoicenumber','type'));
+        return View::make('recurringinvoices.recurringinvoicelog', compact('recurringinvoice','id','type'));
     }
 
 
