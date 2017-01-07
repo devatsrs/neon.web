@@ -1,5 +1,12 @@
 @extends('layout.customer.main')
 @section('content')
+    <script src="{{ URL::asset('assets/js/reports.js') }}"></script>
+    <script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
+    <form class="hidden" id="hidden_form">
+        <input type="hidden" name="Admin" value="{{$isAdmin}}">
+        <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
+    </form>
+    @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
     <script type="text/javascript">
         var $dashsearchFilter = {};
         $dashsearchFilter.map_url = "{{URL::to('getWorldMap')}}";
@@ -27,12 +34,8 @@
 
 
     </script>
-    <script src="{{ URL::asset('assets/js/reports.js') }}"></script>
-    <script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
-    <form class="hidden" id="hidden_form">
-        <input type="hidden" name="Admin" value="{{$isAdmin}}">
-        <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
-    </form>
+
+
     <div class="row">
         <div class="col-md-9">
             @include('analysis.map')
@@ -338,6 +341,10 @@
         </div>
         </div>
     </div>
+    @endif
+    @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
+        @include('dashboard.retailmonitor')
+    @endif
     @if($isDesktop == 1)
         <button id="toNocWall" class="btn btn-primary pull-right" style="display: block;"><i class="fa fa-arrows-alt"></i></button>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/screenfull.js/3.0.0/screenfull.js"></script>

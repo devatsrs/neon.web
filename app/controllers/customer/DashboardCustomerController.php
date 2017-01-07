@@ -93,7 +93,9 @@ class DashboardCustomerController extends BaseController {
         $User = User::find(Customer::get_currentUser()->Owner);
         $AccountManager = $User->FirstName.' '.$User->LastName;
         $AccountManagerEmail = $User->EmailAddress;
-        return View::make('customer.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','AccountManager','AccountManagerEmail'));
+        $MonitorDashboardSetting 	= 	explode(',',CompanyConfiguration::get('CUSTOMER_MONITOR_DASHBOARD'));
+
+        return View::make('customer.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','AccountManager','AccountManagerEmail','MonitorDashboardSetting'));
 
     }
 

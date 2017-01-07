@@ -202,3 +202,45 @@ function getBarWidth(){
     }
     return barWidth;
 }
+function getMostExpensiveCall(){
+    loading(".most-expensive-call",1);
+    $.ajax({
+        type: 'GET',
+        url: baseurl+'/getMonitorDashboradCall',
+        dataType: 'json',
+        data:$('#hidden_form').serialize()+'&Type=call_cost',
+        aysync: true,
+        success: function(data) {
+            loading(".most-expensive-call",0);
+            $(".most-expensive-call").find('tbody').html(data.html);
+        }
+    });
+}
+function getLogestDurationCall(){
+    loading(".long-duration-call",1);
+    $.ajax({
+        type: 'GET',
+        url: baseurl+'/getMonitorDashboradCall',
+        dataType: 'json',
+        data:$('#hidden_form').serialize()+'&Type=call_duraition',
+        aysync: true,
+        success: function(data) {
+            loading(".long-duration-call",0);
+            $(".long-duration-call").find('tbody').html(data.html);
+        }
+    });
+}
+function getMostDailedCall(){
+    loading(".most-dialled-number",1);
+    $.ajax({
+        type: 'GET',
+        url: baseurl+'/getMonitorDashboradCall',
+        dataType: 'json',
+        data:$('#hidden_form').serialize()+'&Type=most_dialed',
+        aysync: true,
+        success: function(data) {
+            loading(".most-dialled-number",0);
+            $(".most-dialled-number").find('tbody').html(data.html);
+        }
+    });
+}
