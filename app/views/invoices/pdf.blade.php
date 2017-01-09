@@ -85,7 +85,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
             <thead>
             <tr>
                 <th style="text-align: center;">Title</th>
-                <th style="text-align: center;">Description</th>
+                <th style="text-align: left;">Description</th>
                 <th style="text-align: center;">Quantity</th>
                 <th style="text-align: center;">Price</th>
                 @if($Invoice->TotalDiscount >0)
