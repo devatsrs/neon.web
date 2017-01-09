@@ -17,7 +17,7 @@
     $searchFilter.pageSize = '{{Config::get('app.pageSize')}}';
     jQuery(document).ready(function ($) {
 
-        $(".nav-tabs li a").click(function(){
+        $(".refresh_tab li a").click(function(){
             table_name = $(this).attr('href')+'_table';
             chart_type = $(this).attr('href');
             $("#customer_analysis").find("input[name='chart_type']").val(chart_type.slice(1));
@@ -26,6 +26,9 @@
                 reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
             }, 10);
         });
+        chart_type = $(".refresh_tab li.active a").attr('href');
+        table_name = $(".refresh_tab li.active a").attr('href')+'_table';
+        $("#customer_analysis").find("input[name='chart_type']").val(chart_type.slice(1));
         $(".datepicker").change(function(e) {
             var start = new Date($("[name='StartDate']").val()),
                     end   = new Date($("[name='EndDate']").val()),

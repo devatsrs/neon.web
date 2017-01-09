@@ -91,7 +91,7 @@
             </div>
             @include('analysis.map')
             @include('analysis.chartreport')
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs refresh_tab">
         @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
         <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
         <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>

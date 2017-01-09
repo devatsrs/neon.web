@@ -521,7 +521,7 @@ function getMostExpensiveCall(submitdata){
         type: 'GET',
         url: baseurl+'/getMonitorDashboradCall',
         dataType: 'json',
-        data:submitdata+'&'+$('#hidden_form').serialize()+'&Type=call_cost',
+        data:$.param(submitdata)+'&'+$('#hidden_form').serialize()+'&Type=call_cost',
         aysync: true,
         success: function(data) {
             loading(".most-expensive-call",0);
@@ -535,7 +535,7 @@ function getLogestDurationCall(submitdata){
         type: 'GET',
         url: baseurl+'/getMonitorDashboradCall',
         dataType: 'json',
-        data:submitdata+'&'+$('#hidden_form').serialize()+'&Type=call_duraition',
+        data:$.param(submitdata)+'&'+$('#hidden_form').serialize()+'&Type=call_duraition',
         aysync: true,
         success: function(data) {
             loading(".long-duration-call",0);
@@ -549,7 +549,7 @@ function getMostDailedCall(submitdata){
         type: 'GET',
         url: baseurl+'/getMonitorDashboradCall',
         dataType: 'json',
-        data:submitdata+'&'+$('#hidden_form').serialize()+'&Type=most_dialed',
+        data:$.param(submitdata)+'&'+$('#hidden_form').serialize()+'&Type=most_dialed',
         aysync: true,
         success: function(data) {
             loading(".most-dialled-number",0);
