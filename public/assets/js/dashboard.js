@@ -4,23 +4,37 @@ function loadDashboard(){
         /* get hourly data for today and display in first bar chart*/
         getHourlyChart();
 
-        /* get destination data for today and display in pie three chart*/
-        getReportData('destination');
+        if(typeof hidecallmonitor =='undefined') {
+            /* get destination data for today and display in pie three chart*/
+            getReportData('destination');
 
-        /* get prefix data for today and display in pie three chart*/
-        getReportData('prefix');
+            /* get prefix data for today and display in pie three chart*/
+            getReportData('prefix');
 
-        /* get trunk data for today and display in three chart*/
-        getReportData('trunk');
+            /* get trunk data for today and display in three chart*/
+            getReportData('trunk');
 
-        /* get trunk data for today and display in three chart*/
-        getReportData('account');
+            /* get trunk data for today and display in three chart*/
+            getReportData('account');
 
-        /* get gateway data for today and display in three chart*/
-        getReportData('gateway');
+            /* get gateway data for today and display in three chart*/
+            getReportData('gateway');
+        }
+
 
         /* get world map*/
         getWorldMap($dashsearchFilter);
+
+        if(typeof retailmonitor != 'undefined' && retailmonitor == 1){
+            /* get calls reports for retail*/
+            getMostExpensiveCall({});
+
+            /* get calls reports for retail*/
+            getMostDailedCall({});
+
+            /* get calls reports for retail*/
+            getLogestDurationCall({});
+        }
 
     });
 }

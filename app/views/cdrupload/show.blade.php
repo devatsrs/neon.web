@@ -179,7 +179,7 @@
                         <th width="10%" >Disconnect Time</th>
                         <th width="10%" >Billed Duration (sec)</th>
                         <th width="10%" >Cost</th>
-                        <th width="10%" >Rate/Min</th>
+                        <th width="10%" >Avg. Rate/Min</th>
                         <th width="10%" >CLI</th>
                         <th width="10%" >CLD</th>
                         <th width="10%" >Prefix</th>
@@ -267,7 +267,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid/type",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push(
                             {"name":"StartDate","value":$searchFilter.StartDate},
@@ -591,7 +591,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Rate</label>
-                                {{ Form::select('RateMethod',array('CurrentRate'=>'Current Rate','SpecifyRate'=>'Specify Rate') , '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                                {{ Form::select('RateMethod',array('CurrentRate'=>'Rate setup against account','SpecifyRate'=>'Specify Rate') , '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
                             </div>
                         </div>
                     </div>

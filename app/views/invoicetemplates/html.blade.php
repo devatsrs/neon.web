@@ -94,7 +94,7 @@
                   <thead>
                   <tr>
                       <th style="text-align: center;">Title</th>
-                      <th style="text-align: center;">Description</th>
+                      <th style="text-align: left;">Description</th>
                       <th style="text-align: center;">Quantity</th>
                       <th style="text-align: center;">Price</th>
                       <th style="text-align: center;">Line Total</th>
@@ -197,7 +197,7 @@
                 <thead>
                 <tr>
                     <th style="text-align: center;">Title</th>
-                    <th style="text-align: center;">Description</th>
+                    <th style="text-align: left;">Description</th>
                     <th style="text-align: center;">Price</th>
                     <th style="text-align: center;">Quantity</th>
                     <th style="text-align: center;">Date From</th>
@@ -208,7 +208,7 @@
                 <tbody>
                 <tr>
                     <td style="text-align: center;"  >Fubruary 1,2006</td>
-                    <td style="text-align: center;" >Usage From 22-06-2015 To 28-06-2015</td>
+                    <td style="text-align: left;" >Usage From 22-06-2015 To 28-06-2015</td>
                     <td style="text-align: center;" >25</td>
                     <td style="text-align: center;" >1</td>
                     <td style="text-align: center;" >12-12-2015</td>
@@ -223,7 +223,7 @@
                 <thead>
                 <tr>
                     <th style="text-align: center;">Title</th>
-                    <th style="text-align: center;">Description</th>
+                    <th style="text-align: left;">Description</th>
                     <th style="text-align: center;">Price</th>
                     <th style="text-align: center;">Quantity</th>
                     <th style="text-align: center;">Date From</th>
@@ -234,7 +234,7 @@
                 <tbody>
                 <tr>
                     <td style="text-align: center;"  >Fubruary 1,2006</td>
-                    <td style="text-align: center;" >Usage From 22-06-2015 To 28-06-2015</td>
+                    <td style="text-align: left;" >Usage From 22-06-2015 To 28-06-2015</td>
                     <td style="text-align: center;" >25</td>
                     <td style="text-align: center;" >1</td>
                     <td style="text-align: center;" >12-12-2015</td>
@@ -249,7 +249,7 @@
                 <thead>
                 <tr>
                     <th style="text-align: center;">Title</th>
-                    <th style="text-align: center;">Description</th>
+                    <th style="text-align: left;">Description</th>
                     <th style="text-align: center;">Price</th>
                     <th style="text-align: center;">Quantity</th>
                     <th style="text-align: center;">Date</th>
@@ -259,7 +259,7 @@
                 <tbody>
                 <tr>
                     <td style="text-align: center;"  >Yealink</td>
-                    <td style="text-align: center;" >Yealink</td>
+                    <td style="text-align: left;" >Yealink</td>
                     <td style="text-align: center;" >25</td>
                     <td style="text-align: center;" >1</td>
                     <td style="text-align: center;" >12-12-2015</td>

@@ -93,7 +93,7 @@ function set_search_parameter(submit_form){
     $searchFilter.TimeZone = $(submit_form).find("[name='TimeZone']").val();
 }
 function loadBarChart(chart_type,submit_data){
-    loading(".bar_chart_"+chart_type,1);
+    loading(".bar_chart",1);
     var seriesdata = [];
     var searchdates = {};
     $.ajax({
@@ -103,10 +103,10 @@ function loadBarChart(chart_type,submit_data){
         data:submit_data,
         aysync: true,
         success: function(data) {
-            loading(".bar_chart_"+chart_type,0);
+            loading(".bar_chart",0);
             if(data.series != '' && data.series.length > 0) {
                 seriesdata = JSON.parse(JSON.stringify(data.series));
-                $('.bar_chart_'+chart_type).highcharts({
+                $('.bar_chart').highcharts({
                     chart: {
                         type: 'column',
                         events: {
@@ -179,7 +179,7 @@ function loadBarChart(chart_type,submit_data){
                     }
                 });
             }else{
-                $('.bar_chart_'+chart_type).html('No Data');
+                $('.bar_chart').html('No Data');
             }
         }
     });
@@ -187,17 +187,36 @@ function loadBarChart(chart_type,submit_data){
 
 function reloadCharts(table_id,pageSize,$searchFilter){
 
-    /* get destination data for today and display in pie three chart*/
-    getAnalysisData($searchFilter.chart_type,$searchFilter);
-
     /* get data by time in bar chart*/
     loadBarChart($searchFilter.chart_type,$searchFilter);
 
-    /* load grid data table*/
-    loadTable(table_id,pageSize,$searchFilter);
+    if(typeof hidecallmonitor == 'undefined' && $searchFilter.chart_type != 'tab6' && $searchFilter.chart_type != 'tab7' && $searchFilter.chart_type != 'tab8') {
+        /* get destination data for today and display in pie three chart*/
+        getAnalysisData($searchFilter.chart_type, $searchFilter);
+
+        /* load grid data table*/
+        loadTable(table_id, pageSize, $searchFilter);
+    }
 
     /* get world map*/
     getWorldMap($searchFilter);
+
+    if(typeof retailmonitor != 'undefined' && retailmonitor == 1){
+
+
+        if($searchFilter.chart_type == 'tab6') {
+            /* get calls reports for retail*/
+            getMostDailedCall($searchFilter);
+        }
+        if($searchFilter.chart_type == 'tab7') {
+            /* get calls reports for retail*/
+            getLogestDurationCall($searchFilter);
+        }
+        if($searchFilter.chart_type == 'tab8') {
+            /* get calls reports for retail*/
+            getMostExpensiveCall($searchFilter);
+        }
+    }
 }
 function loadTable(table_id,pageSize,$searchFilter){
     var TotalCall = 0;
@@ -495,4 +514,46 @@ function getDates(submit_data,row,searchdates) {
     submit_data.EndDate = EndDate + end_time;
     console.log(' start date 2 ' + submit_data.StartDate);
     console.log(' end date 2 ' + submit_data.EndDate);
+}
+function getMostExpensiveCall(submitdata){
+    loading(".most-expensive-call",1);
+    $.ajax({
+        type: 'GET',
+        url: baseurl+'/getMonitorDashboradCall',
+        dataType: 'json',
+        data:$.param(submitdata)+'&'+$('#hidden_form').serialize()+'&Type=call_cost',
+        aysync: true,
+        success: function(data) {
+            loading(".most-expensive-call",0);
+            $(".most-expensive-call").find('tbody').html(data.html);
+        }
+    });
+}
+function getLogestDurationCall(submitdata){
+    loading(".long-duration-call",1);
+    $.ajax({
+        type: 'GET',
+        url: baseurl+'/getMonitorDashboradCall',
+        dataType: 'json',
+        data:$.param(submitdata)+'&'+$('#hidden_form').serialize()+'&Type=call_duraition',
+        aysync: true,
+        success: function(data) {
+            loading(".long-duration-call",0);
+            $(".long-duration-call").find('tbody').html(data.html);
+        }
+    });
+}
+function getMostDailedCall(submitdata){
+    loading(".most-dialled-number",1);
+    $.ajax({
+        type: 'GET',
+        url: baseurl+'/getMonitorDashboradCall',
+        dataType: 'json',
+        data:$.param(submitdata)+'&'+$('#hidden_form').serialize()+'&Type=most_dialed',
+        aysync: true,
+        success: function(data) {
+            loading(".most-dialled-number",0);
+            $(".most-dialled-number").find('tbody').html(data.html);
+        }
+    });
 }
