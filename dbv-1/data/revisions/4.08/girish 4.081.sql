@@ -7,6 +7,9 @@ ALTER TABLE `tblTempRateTableRate` CHANGE COLUMN `ProcessId` `ProcessId` BIGINT 
 
 INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (35, 1, 'USAGE_PBX_INTERVAL', '180');
 INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (36, 1, 'USAGE_INTERVAL', '100');
+INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (37, 1, 'CUSTOMER_MONITOR_DASHBOARD', 'CallMonitor,AnalysisMonitor');
+INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (38, 1, 'MONITOR_DASHBOARD', 'CallMonitor,AnalysisMonitor');
+
 
 
 DROP PROCEDURE IF EXISTS `prc_getCustomerCodeRate`;
