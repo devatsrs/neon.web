@@ -190,7 +190,7 @@ function reloadCharts(table_id,pageSize,$searchFilter){
     /* get data by time in bar chart*/
     loadBarChart($searchFilter.chart_type,$searchFilter);
 
-    if(typeof hidecallmonitor =='undefined') {
+    if(typeof hidecallmonitor == 'undefined' && $searchFilter.chart_type != 'tab6' && $searchFilter.chart_type != 'tab7' && $searchFilter.chart_type != 'tab8') {
         /* get destination data for today and display in pie three chart*/
         getAnalysisData($searchFilter.chart_type, $searchFilter);
 
@@ -202,14 +202,20 @@ function reloadCharts(table_id,pageSize,$searchFilter){
     getWorldMap($searchFilter);
 
     if(typeof retailmonitor != 'undefined' && retailmonitor == 1){
-        /* get calls reports for retail*/
-        getMostExpensiveCall();
 
-        /* get calls reports for retail*/
-        getMostDailedCall();
 
-        /* get calls reports for retail*/
-        getLogestDurationCall();
+        if($searchFilter.chart_type == 'tab6') {
+            /* get calls reports for retail*/
+            getMostExpensiveCall();
+        }
+        if($searchFilter.chart_type == 'tab7') {
+            /* get calls reports for retail*/
+            getMostDailedCall();
+        }
+        if($searchFilter.chart_type == 'tab8') {
+            /* get calls reports for retail*/
+            getLogestDurationCall();
+        }
     }
 }
 function loadTable(table_id,pageSize,$searchFilter){

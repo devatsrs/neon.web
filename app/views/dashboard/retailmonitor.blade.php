@@ -59,8 +59,8 @@
                             <th>#</th>
                             <th>Number</th>
                             <th>Extension</th>
-                            <th>Duration</th>
                             <th>Cost</th>
+                            <th>Duration</th>
                         </tr>
                         </thead>
                         <tbody>
