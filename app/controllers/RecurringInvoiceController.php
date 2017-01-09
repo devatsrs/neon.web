@@ -358,7 +358,7 @@ class RecurringInvoiceController extends \BaseController {
                     }
 
                     if($RecurringInvoice->BillingCycleType != $data['BillingCycleType']) {
-                        $RecurringInvoiceData['NextInvoiceDate'] = next_billing_date($data['BillingCycleType'], $BillingCycleValue, $RecurringInvoice->LastInvoicedDate);
+                        $RecurringInvoiceData['NextInvoiceDate'] = next_billing_date($data['BillingCycleType'], $BillingCycleValue,strtotime($RecurringInvoice->LastInvoicedDate));
                     }
                     if(empty($BillingCycleValue)) {
                         $RecurringInvoiceData["BillingCycleValue"] = '';
@@ -542,7 +542,7 @@ class RecurringInvoiceController extends \BaseController {
                 if(!empty($invoiceID)) {
                     //Update recurring invoice status
                     $recurringInvoice = RecurringInvoice::find($data['selectedIDs']);
-                    $RecurringInvoiceData['NextInvoiceDate'] = next_billing_date($recurringInvoice->BillingCycleType, $recurringInvoice->BillingCycleValue , $recurringInvoice->NextInvoiceDate);
+                    $RecurringInvoiceData['NextInvoiceDate'] = next_billing_date($recurringInvoice->BillingCycleType, $recurringInvoice->BillingCycleValue , strtotime($recurringInvoice->NextInvoiceDate));
                     $RecurringInvoiceData['LastInvoicedDate'] = Date("Y-m-d H:i:s");
                     $recurringInvoice->update($RecurringInvoiceData);
                     //generate pdf for new created invoice
