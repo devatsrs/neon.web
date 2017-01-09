@@ -140,7 +140,7 @@
                         <th width="10%" >Disconnect Time</th>
                         <th width="10%" >Billed Duration (sec)</th>
                         <th width="10%" >Cost</th>
-                        <th width="10%" >Rate/Min</th>
+                        <th width="10%" >Avg. Rate/Min</th>
                         <th width="10%" >CLI</th>
                         <th width="10%" >CLD</th>
                         <th width="10%" >Prefix</th>
