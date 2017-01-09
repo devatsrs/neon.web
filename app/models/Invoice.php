@@ -74,7 +74,6 @@ class Invoice extends \Eloquent {
                     ->groupBy("TaxRateID")                   
                     ->get();
 			$Account = Account::find($Invoice->AccountID);
-            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
@@ -83,6 +82,7 @@ class Invoice extends \Eloquent {
                 $InvoiceTemplateID = $recurringInvoice->InvoiceTemplateID;
                 $PaymentDueInDays = $recurringInvoice->PaymentDueInDays;
             }else{
+                $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
                 $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
                 $PaymentDueInDays = AccountBilling::getPaymentDueInDays($Invoice->AccountID);
             }
