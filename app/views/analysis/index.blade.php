@@ -90,14 +90,23 @@
                 <div class="clear"></div>
             </div>
             @include('analysis.map')
+            @include('analysis.chartreport')
     <ul class="nav nav-tabs">
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
         <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
         <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
         <li ><a href="#trunk" data-toggle="tab">Trunk</a></li>
         <li ><a href="#account" data-toggle="tab">Account</a></li>
         <li ><a href="#gateway" data-toggle="tab">Gateway</a></li>
+        @endif
+        @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
+            <li class="{{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#tab6" data-toggle="tab">Most Dialled Number</a></li>
+            <li ><a href="#tab7" data-toggle="tab">Longest Durations Calls</a></li>
+            <li ><a href="#tab8" data-toggle="tab">Most Expensive Calls</a></li>
+        @endif
     </ul>
     <div class="tab-content">
+        @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
         <div class="tab-pane active" id="destination" >
             @include('analysis.destination')
             @include('analysis.destination_grid')
@@ -118,6 +127,12 @@
             @include('analysis.gateway')
             @include('analysis.gateway_grid')
         </div>
+        @endif
+
+        @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
+            @include('dashboard.retailmonitor')
+        @endif
+
     </div>
         </div>
     </div>
