@@ -27,8 +27,9 @@ class AnalysisController extends BaseController {
         $trunks = Trunk::getTrunkDropdownIDList();
         $currency = Currency::getCurrencyDropdownIDList();
         $timezones = TimeZone::getTimeZoneDropdownList();
+        $MonitorDashboardSetting 	= 	explode(',',CompanyConfiguration::get('MONITOR_DASHBOARD'));
 
-        return View::make('analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones'));
+        return View::make('analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones','MonitorDashboardSetting'));
     }
     /* all tab report */
     public function getAnalysisData(){
@@ -209,7 +210,9 @@ class AnalysisController extends BaseController {
         $is_vendor = Customer::get_currentUser()->IsVendor;
         $CurrencyID = Customer::get_currentUser()->CurrencyId;
         $timezones = TimeZone::getTimeZoneDropdownList();
-        return View::make('customer.analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','is_customer','is_vendor','CurrencyID','timezones'));
+        $MonitorDashboardSetting 	= 	explode(',',CompanyConfiguration::get('CUSTOMER_MONITOR_DASHBOARD'));
+
+        return View::make('customer.analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','is_customer','is_vendor','CurrencyID','timezones','MonitorDashboardSetting'));
     }
     public function vendor_index(){
         $companyID = User::get_companyID();

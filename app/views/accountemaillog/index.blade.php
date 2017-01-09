@@ -39,7 +39,7 @@
                         "sAjaxSource": baseurl + "/accounts/{{$account->AccountID}}/activities/ajax_datagrid_email_log",
                         "fnServerParams": function (aoData) {
                         },
-                        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                        "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'r>",
                         "aaSorting": [[0, 'asc']],

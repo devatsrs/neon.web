@@ -148,7 +148,7 @@
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective});
                 },
-                "iDisplayLength":'{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                 "sPaginationType": "bootstrap",
                 //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[1, "asc"]],
