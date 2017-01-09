@@ -206,15 +206,15 @@ function reloadCharts(table_id,pageSize,$searchFilter){
 
         if($searchFilter.chart_type == 'tab6') {
             /* get calls reports for retail*/
-            getMostExpensiveCall();
+            getMostDailedCall($searchFilter);
         }
         if($searchFilter.chart_type == 'tab7') {
             /* get calls reports for retail*/
-            getMostDailedCall();
+            getLogestDurationCall($searchFilter);
         }
         if($searchFilter.chart_type == 'tab8') {
             /* get calls reports for retail*/
-            getLogestDurationCall();
+            getMostExpensiveCall($searchFilter);
         }
     }
 }
@@ -515,13 +515,13 @@ function getDates(submit_data,row,searchdates) {
     console.log(' start date 2 ' + submit_data.StartDate);
     console.log(' end date 2 ' + submit_data.EndDate);
 }
-function getMostExpensiveCall(){
+function getMostExpensiveCall(submitdata){
     loading(".most-expensive-call",1);
     $.ajax({
         type: 'GET',
         url: baseurl+'/getMonitorDashboradCall',
         dataType: 'json',
-        data:$('#hidden_form').serialize()+'&Type=call_cost',
+        data:submitdata+'&'+$('#hidden_form').serialize()+'&Type=call_cost',
         aysync: true,
         success: function(data) {
             loading(".most-expensive-call",0);
@@ -529,13 +529,13 @@ function getMostExpensiveCall(){
         }
     });
 }
-function getLogestDurationCall(){
+function getLogestDurationCall(submitdata){
     loading(".long-duration-call",1);
     $.ajax({
         type: 'GET',
         url: baseurl+'/getMonitorDashboradCall',
         dataType: 'json',
-        data:$('#hidden_form').serialize()+'&Type=call_duraition',
+        data:submitdata+'&'+$('#hidden_form').serialize()+'&Type=call_duraition',
         aysync: true,
         success: function(data) {
             loading(".long-duration-call",0);
@@ -543,13 +543,13 @@ function getLogestDurationCall(){
         }
     });
 }
-function getMostDailedCall(){
+function getMostDailedCall(submitdata){
     loading(".most-dialled-number",1);
     $.ajax({
         type: 'GET',
         url: baseurl+'/getMonitorDashboradCall',
         dataType: 'json',
-        data:$('#hidden_form').serialize()+'&Type=most_dialed',
+        data:submitdata+'&'+$('#hidden_form').serialize()+'&Type=most_dialed',
         aysync: true,
         success: function(data) {
             loading(".most-dialled-number",0);

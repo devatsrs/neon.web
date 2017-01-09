@@ -27,13 +27,13 @@ function loadDashboard(){
 
         if(typeof retailmonitor != 'undefined' && retailmonitor == 1){
             /* get calls reports for retail*/
-            getMostExpensiveCall();
+            getMostExpensiveCall('');
 
             /* get calls reports for retail*/
-            getMostDailedCall();
+            getMostDailedCall('');
 
             /* get calls reports for retail*/
-            getLogestDurationCall();
+            getLogestDurationCall('');
         }
 
     });
