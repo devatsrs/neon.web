@@ -152,7 +152,7 @@ class ChartDashboardController extends BaseController {
     public function getMonitorDashboradCall(){
         $data = Input::all();
         $companyID = User::get_companyID();
-        $data['StartDate'] = '2016-12-01';
+        //$data['StartDate'] = '2016-12-01';
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
         $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d 00:00:00'):$data['StartDate'];
         $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59'):$data['EndDate'];
