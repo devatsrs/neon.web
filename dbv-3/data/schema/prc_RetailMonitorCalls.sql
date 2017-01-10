@@ -4,7 +4,6 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_RetailMonitorCalls`(
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_Type` VARCHAR(50)
-
 )
 BEGIN
 
@@ -15,7 +14,6 @@ BEGIN
 	THEN
 
 		SELECT 
-			extension,
 			cli,
 			cld,
 			billed_duration  
@@ -35,7 +33,6 @@ BEGIN
 	THEN
 
 		SELECT 
-			extension,
 			cli,
 			cld,
 			cost,

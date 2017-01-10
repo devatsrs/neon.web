@@ -19,7 +19,6 @@ BEGIN
 	THEN
 
 		SELECT 
-			extension,
 			cli,
 			cld,
 			billed_duration  
@@ -39,7 +38,6 @@ BEGIN
 	THEN
 
 		SELECT 
-			extension,
 			cli,
 			cld,
 			cost,
