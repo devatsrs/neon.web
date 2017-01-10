@@ -167,7 +167,6 @@ class ChartDashboardController extends BaseController {
                 $html .= '<tr>
                         <td>' . $count . '</td>
                         <td>' . $RetailMonitorCall->cld . '</td>
-                        <td>' . $RetailMonitorCall->extension . '</td>
                         <td>' . $RetailMonitorCall->billed_duration . '</td>
                     </tr>';
             }
@@ -175,7 +174,6 @@ class ChartDashboardController extends BaseController {
                 $html .= '<tr>
                         <td>' . $count . '</td>
                         <td>' . $RetailMonitorCall->cld . '</td>
-                        <td>' . $RetailMonitorCall->extension . '</td>
                         <td>' . $RetailMonitorCall->cost . '</td>
                         <td>' . $RetailMonitorCall->billed_duration . '</td>
                     </tr>';

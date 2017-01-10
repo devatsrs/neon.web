@@ -10,7 +10,7 @@
                             <th>#</th>
                             <th>Number</th>
                             <th>Number of Times Dialled</th>
-                            <th>Total Talk Time</th>
+                            <th>Total Talk time (sec)</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -35,8 +35,7 @@
                     <tr>
                         <th>#</th>
                         <th>Number</th>
-                        <th>Extension</th>
-                        <th>Duration</th>
+                        <th>Duration(Sec)</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -58,9 +57,8 @@
                         <tr>
                             <th>#</th>
                             <th>Number</th>
-                            <th>Extension</th>
                             <th>Cost</th>
-                            <th>Duration</th>
+                            <th>Duration(Sec)</th>
                         </tr>
                         </thead>
                         <tbody>
