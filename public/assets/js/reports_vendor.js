@@ -1,3 +1,4 @@
+var char_title = [];
 Date.prototype.addDays = function(days)
 {
     var dat = new Date(this.valueOf());
@@ -105,6 +106,8 @@ function loadBarChart(chart_type,submit_data){
         success: function(data) {
             loading(".bar_chart_"+chart_type,0);
             if(data.series != '' && data.series.length > 0) {
+				char_title.length = 0;
+				char_title.push(data.Title);
                 seriesdata = JSON.parse(JSON.stringify(data.series));
                 $('.bar_chart_'+chart_type).highcharts({
                     chart: {
@@ -115,7 +118,12 @@ function loadBarChart(chart_type,submit_data){
                                     var chart = this;
                                     getChartData(submit_data,chart,e,searchdates);
                                 }
-                            }
+                            },
+							drillup: function (e) {
+								var chart = this;
+								char_title.pop();
+								chart.setTitle({ text: char_title[char_title.length -1]});																
+							}
                         }
                     },
                     title: {
@@ -346,6 +354,10 @@ function getChartData(submit_data,chart,e,searchdates){
         aysync: true,
         success: function(data) {
             if(data.series != '') {
+				chart.setTitle({ text: data.Title});
+				char_title.push(data.Title);
+				char_title.push(data.Title);
+				char_title.push(data.Title);
                 var drilldowns = JSON.parse(JSON.stringify(data.series));
                 var series_1 = drilldowns[0];
                 var series_2 = drilldowns[1];
