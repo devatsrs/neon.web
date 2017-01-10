@@ -13,7 +13,6 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         "/assets/css/neon-forms.css",
         "/assets/css/custom.css",
 // Dashboard
-        "assets/js/jvectormap/jquery-jvectormap-1.2.2.css",
         "assets/js/rickshaw/rickshaw.min.css",
 
 

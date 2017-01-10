@@ -140,6 +140,7 @@
                         <th width="10%" >Disconnect Time</th>
                         <th width="10%" >Billed Duration (sec)</th>
                         <th width="10%" >Cost</th>
+                        <th width="10%" >Avg. Rate/Min</th>
                         <th width="10%" >CLI</th>
                         <th width="10%" >CLD</th>
                         <th width="10%" >Prefix</th>
@@ -215,7 +216,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/customer/cdr/ajax_datagrid/type",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push(
                             {"name":"StartDate","value":$searchFilter.StartDate},
@@ -268,6 +269,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "aoColumns":
                 [
                     { "bVisible": false, "bSortable": false  }, //0Checkbox
+                    { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },

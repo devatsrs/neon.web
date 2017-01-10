@@ -170,7 +170,7 @@ jQuery(document).ready(function($) {
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push(  {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description},{"name":"Export","value":1});
             },
-            "iDisplayLength":'{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
             "sPaginationType": "bootstrap",
              "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
              "aaSorting": [[1, "asc"]],

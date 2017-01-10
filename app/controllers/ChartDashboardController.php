@@ -149,5 +149,53 @@ class ChartDashboardController extends BaseController {
         return $response;
     }
 
+    public function getMonitorDashboradCall(){
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        //$data['StartDate'] = '2016-12-01';
+        $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
+        $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d 00:00:00'):$data['StartDate'];
+        $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59'):$data['EndDate'];
+        $data['Type'] = empty($data['Type'])?'':$data['Type'];
+        $html = '';
+
+        $query = "call prc_RetailMonitorCalls ('" . $companyID . "','".intval($data['AccountID']) . "','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Type']."')";
+        $RetailMonitorCalls = DB::connection('sqlsrvcdr')->select($query);
+        $count = 1;
+        foreach($RetailMonitorCalls as $RetailMonitorCall){
+            if($data['Type'] == 'call_duraition') {
+                $html .= '<tr>
+                        <td>' . $count . '</td>
+                        <td>' . $RetailMonitorCall->cld . '</td>
+                        <td>' . $RetailMonitorCall->billed_duration . '</td>
+                    </tr>';
+            }
+            if($data['Type'] == 'call_cost') {
+                $html .= '<tr>
+                        <td>' . $count . '</td>
+                        <td>' . $RetailMonitorCall->cld . '</td>
+                        <td>' . $RetailMonitorCall->cost . '</td>
+                        <td>' . $RetailMonitorCall->billed_duration . '</td>
+                    </tr>';
+
+            }
+            if($data['Type'] == 'most_dialed') {
+                $html .= '<tr>
+                        <td>' . $count . '</td>
+                        <td>' . $RetailMonitorCall->cld . '</td>
+                        <td>' . $RetailMonitorCall->dail_count . '</td>
+                        <td>' . $RetailMonitorCall->billed_duration . '</td>
+                    </tr>';
+
+            }
+            $count++;
+        }
+        if(empty($html)){
+            $html = '<tr><td colspan="'.($data['Type'] == 'call_cost'?5:4).'" valign="top">No data available in table</td></tr>';
+        }
+        $response['html'] = $html;
+        return $response;
+    }
+
 
 }

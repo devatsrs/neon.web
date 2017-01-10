@@ -8,6 +8,7 @@ function getWorldMap(submit_data){
         data:submit_data,
         aysync: true,
         success: function(data) {
+			$('#worldmap').html('');
             loading(".world-map-chart",0);
             map = new jvm.Map({
                 map: 'world_mill_en',

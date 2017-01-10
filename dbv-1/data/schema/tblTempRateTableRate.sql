@@ -6,7 +6,7 @@ CREATE TABLE `tblTempRateTableRate` (
   `Rate` decimal(18,6) NOT NULL DEFAULT '0.000000',
   `EffectiveDate` datetime NOT NULL,
   `Change` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `ProcessId` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `ProcessId` bigint(20) unsigned NOT NULL,
   `Preference` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ConnectionFee` decimal(18,6) DEFAULT NULL,
   `Interval1` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,

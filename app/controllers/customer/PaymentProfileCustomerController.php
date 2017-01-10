@@ -6,12 +6,15 @@ class PaymentProfileCustomerController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $AccountID = User::get_userID();
-        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault","tblPaymentGateway.Title as gateway","created_at","AccountPaymentProfileID");
-        $carddetail->join('tblPaymentGateway', function($join)
-        {
-            $join->on('tblPaymentGateway.PaymentGatewayID', '=', 'tblAccountPaymentProfile.PaymentGatewayID');
-
-        })->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])->where(["tblAccountPaymentProfile.AccountID"=>$AccountID]);
+        $PaymentGatewayName = '';
+        $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
+        if(!empty($PaymentGatewayID)){
+            $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
+        }
+        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID");
+        $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
+            ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
+            ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID]);
 
         return Datatables::of($carddetail)->make();
     }
@@ -96,54 +99,32 @@ class PaymentProfileCustomerController extends \BaseController {
         $data = Input::all();
         $ProfileID = "";
         $isDefault = 0;
+        $ProfileResponse = array();
         $CompanyID = Customer::get_companyID();
         $AccountID = Customer::get_accountID();
-        
-		//If using Authorize.net
-		$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
-		if(!$isAuthorizedNet){
-			return Response::json(array("status" => "failed", "message" => "Payment Method Not Integrated"));
-		}
-		
-		$AuthorizeNet = new AuthorizeNet();
-        $count = AccountPaymentProfile::where(["CompanyID"=>$CompanyID])->where(["AccountID"=>$AccountID])->count();
+
         $PaymentProfile = AccountPaymentProfile::find($id);
         if(!empty($PaymentProfile)){
-            $options = json_decode($PaymentProfile->Options);
-            $ProfileID = $options->ProfileID;
-            $PaymentProfileID = $options->PaymentProfileID;
-            $isDefault = $PaymentProfile->isDefault;
+            $PaymentGatewayID = $PaymentProfile->PaymentGatewayID;
+            if(!empty($PaymentGatewayID)){
+
+                if($PaymentGatewayID==PaymentGateway::Authorize){
+                    $ProfileResponse = AccountPaymentProfile::deleteAuthorizeProfile($CompanyID, $AccountID,$id);
+                }
+                if($PaymentGatewayID==PaymentGateway::Stripe){
+                    $ProfileResponse = AccountPaymentProfile::deleteStripeProfile($CompanyID, $AccountID,$id);
+                }
+
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Payment Gateway not setup"));
+            }
+
         }else{
             return Response::json(array("status" => "failed", "message" => "Record Not Found"));
         }
-        if($isDefault==1){
-            if($count!=1){
-                return Response::json(array("status" => "failed", "message" => "You can not delete default profile. Please set as default an other profile first."));
-            }
-        }
-        $result = $AuthorizeNet->DeletePaymentProfile($ProfileID,$PaymentProfileID);
-        if($result["status"]=="success"){
-            if ($PaymentProfile->delete()) {
-                if($count==1){
-                    $result =  $AuthorizeNet->deleteProfile($ProfileID);
-                    if($result["status"]=="success"){
-                        return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
-                    }
-                }else{
-                    return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted"));
-                }
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
-            }
-        }elseif($result["code"]=='E00040'){
-            if ($PaymentProfile->delete()) {
-                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted"));
-            }else{
-                return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
-            }
-        }else{
-            return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
-        }
+
+        return $ProfileResponse;
+
     }
 
     public function set_default($id)
@@ -159,7 +140,8 @@ class PaymentProfileCustomerController extends \BaseController {
                     $CompanyID = Customer::get_companyID();
                     $AccountID = Customer::get_accountID();
                 }
-                AccountPaymentProfile::where(["CompanyID"=>$CompanyID])->where(["AccountID"=>$AccountID])->where('AccountPaymentProfileID','<>',$id)->update(['isDefault'=>'0']);
+                $PaymentGatewayID = $card->PaymentGatewayID;
+                AccountPaymentProfile::where(["CompanyID"=>$CompanyID,"PaymentGatewayID"=>$PaymentGatewayID])->where(["AccountID"=>$AccountID])->where('AccountPaymentProfileID','<>',$id)->update(['isDefault'=>'0']);
                 return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Payment Method Profile."));

@@ -853,7 +853,7 @@
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/import/account/ajax_get_missing_gatewayaccounts",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"CompanyGatewayID","value":CGatewayID},{"name":"importprocessid","value":cprocessid});
                     data_table_extra_params.length = 0;
@@ -1030,7 +1030,7 @@
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/import/account/ajax_get_missing_quickbookaccounts",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"quickbookimportprocessid","value":cprocessid});
                     data_table_extra_params.length = 0;

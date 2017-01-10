@@ -148,7 +148,7 @@ var postdata;
                 "bProcessing":true,
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/dialstrings/ajax_datagrid/type",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"ft_dialstring","value":$searchFilter.ft_dialstring},{"name":"ft_chargecode","value":$searchFilter.ft_chargecode},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_dialstringid","value":$searchFilter.ft_dialstringid},{"name":"ft_forbidden","value":$searchFilter.ft_forbidden});
                     data_table_extra_params.length = 0;

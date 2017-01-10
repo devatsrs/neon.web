@@ -86,7 +86,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
             <thead>
             <tr>
                 <th style="text-align: center;">Title</th>
-                <th style="text-align: center;">Description</th>
+                <th style="text-align: left;">Description</th>
                 <th style="text-align: center;">Quantity</th>
                 <th style="text-align: center;">Price</th>
                 @if($Estimate->TotalDiscount >0)
@@ -103,7 +103,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
             @if($ProductRow->ProductType == Product::ITEM)
             <tr>
                 <td class="text-center">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
-                <td class="text-center">{{$ProductRow->Description}}</td>
+                <td class="text-left">{{$ProductRow->Description}}</td>
                 <td class="text-center">{{$ProductRow->Qty}}</td>
                 <td class="text-center">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
                 @if($Estimate->TotalDiscount >0)
