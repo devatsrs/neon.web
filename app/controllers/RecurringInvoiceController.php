@@ -555,7 +555,7 @@ class RecurringInvoiceController extends \BaseController {
                 }
                 return Response::json(array("status" => "success", "message" => '', 'invoiceID' => $invoiceID));
             }
-        }else if(isset($data['criteria']) && !empty($data['criteria'])){
+        }else if((isset($data['criteria']) && !empty($data['criteria']))|| !empty($data['selectedIDs'])){
             $data['RecurringInvoice'] = 1;
             $jobType = JobType::where(["Code" => 'BIS'])->get(["JobTypeID", "Title"]);
             $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
