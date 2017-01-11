@@ -252,6 +252,12 @@ class CronJob extends \Eloquent {
         return $output;
     }
 
+    public static function upadteNextTimeRun($CronJobID){
+        $CronJob =  CronJob::find($CronJobID);
+        $data['NextRunTime'] = CronJob::calcNextTimeRun($CronJob->CronJobID);
+        $CronJob->update($data);
+    }
+
     public static function calcNextTimeRun($CronJobID){
         $CronJob =  CronJob::find($CronJobID);
         $cronsetting = json_decode($CronJob->Settings);
