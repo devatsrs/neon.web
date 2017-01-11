@@ -252,4 +252,49 @@ class CronJob extends \Eloquent {
         return $output;
     }
 
+    public static function calcNextTimeRun($CronJobID){
+        $CronJob =  CronJob::find($CronJobID);
+        $cronsetting = json_decode($CronJob->Settings);
+        if(!empty($CronJob) && isset($cronsetting->JobTime)){
+            switch($cronsetting->JobTime) {
+                case 'HOUR':
+                    if($CronJob->LastRunTime == ''){
+                        $strtotime = strtotime('+'.$cronsetting->JobInterval.' hour');
+                    }else{
+                        $strtotime = strtotime($CronJob->LastRunTime)+$cronsetting->JobInterval*60*60;
+                    }
+                    return date('Y-m-d H:i:00',$strtotime);
+                case 'MINUTE':
+                    if($CronJob->LastRunTime == ''){
+                        $strtotime = strtotime('+'.$cronsetting->JobInterval.' minute');
+                    }else{
+                        $strtotime = strtotime($CronJob->LastRunTime)+$cronsetting->JobInterval*60;
+                    }
+                    return date('Y-m-d H:i:00',$strtotime);
+                case 'DAILY':
+                    if($CronJob->LastRunTime == ''){
+                        $strtotime = strtotime('+'.$cronsetting->JobInterval.' day');
+                    }else{
+                        $strtotime = strtotime($CronJob->LastRunTime)+$cronsetting->JobInterval*60*60*24;
+                    }
+                    if(isset($cronsetting->JobStartTime)){
+                        return date('Y-m-d',$strtotime).' '.date("H:i:00", strtotime("$cronsetting->JobStartTime"));;
+                    }
+                    return date('Y-m-d H:i:00',$strtotime);
+                case 'MONTHLY':
+                    if($CronJob->LastRunTime == ''){
+                        $strtotime = strtotime('+'.$cronsetting->JobInterval.' month');
+                    }else{
+                        $strtotime = strtotime("+$cronsetting->JobInterval month", strtotime($CronJob->LastRunTime));
+                    }
+                    if(isset($cronsetting->JobStartTime)){
+                        return date('Y-m-d',$strtotime).' '.date("H:i:00", strtotime("$cronsetting->JobStartTime"));
+                    }
+                    return date('Y-m-d H:i:00',$strtotime);
+                default:
+                    return '';
+            }
+        }
+    }
+
 }
