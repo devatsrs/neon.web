@@ -554,17 +554,16 @@ BEGIN
 	THEN
 
 		SELECT
-			uh.AccountName,
-			uh.connect_time,
-			uh.disconnect_time,
-			uh.billed_duration as duration,
-			CONCAT(IFNULL(v_CurrencyCode_,''),TRIM(uh.cost)+0) AS cost,
-			CONCAT(IFNULL(v_CurrencyCode_,''),TRIM(ROUND((uh.cost/uh.billed_duration)*60.0,6))+0) AS rate,
-			uh.cli,
-			uh.cld,
-			uh.area_prefix,
-			uh.trunk,
-			uh.is_inbound
+			uh.AccountName as 'Account Name',
+			uh.connect_time as 'Connect Time',
+			uh.disconnect_time as 'Disconnect Time',
+			uh.billed_duration as 'Billed Duration (sec)' ,
+			CONCAT(IFNULL(v_CurrencyCode_,''),TRIM(uh.cost)+0) AS 'Cost',
+			CONCAT(IFNULL(v_CurrencyCode_,''),TRIM(ROUND((uh.cost/uh.billed_duration)*60.0,6))+0) AS 'Avg. Rate/Min',
+			uh.cli as 'CLI',
+			uh.cld as 'CLD',
+			uh.area_prefix as 'Prefix',
+			uh.trunk as 'Trunk',
 		FROM tmp_tblUsageDetails_ uh
 		INNER JOIN NeonRMDev.tblAccount a
 			ON uh.AccountID = a.AccountID

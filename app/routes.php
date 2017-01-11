@@ -149,6 +149,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/getReportData', "ChartDashboardController@getReportData");
 	Route::any('/getWorldMap', "ChartDashboardController@getWorldMap");
 	Route::any('/getVendorWorldMap', "ChartDashboardController@getVendorWorldMap");
+	Route::any('/getMonitorDashboradCall', "ChartDashboardController@getMonitorDashboradCall");
 
 
 	//Trunk

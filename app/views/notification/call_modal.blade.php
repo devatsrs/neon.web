@@ -108,7 +108,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Period</label>
+                                <label for="field-5" class="control-label">Interval</label>
                                 {{Form::select('CallAlert[Interval]',array(),'',array( "class"=>"select2 small"))}}
                             </div>
                         </div>
