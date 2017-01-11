@@ -131,7 +131,7 @@
                 "bServerSide":true,
                 "bPaginate": true,
                 "sAjaxSource": baseurl + "/cronjobs/activecronjob_ajax_datagrid",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left  'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "fnServerParams": function(aoData) {

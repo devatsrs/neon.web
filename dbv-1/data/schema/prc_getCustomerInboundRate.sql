@@ -1,10 +1,15 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerInboundRate`(IN `p_AccountID` INT, IN `p_RateCDR` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerInboundRate`(
+	IN `p_AccountID` INT,
+	IN `p_RateCDR` INT,
+	IN `p_RateMethod` VARCHAR(50),
+	IN `p_SpecifyRate` DECIMAL(18,6)
+)
 BEGIN
-	-- DECLARE v_codedeckid_ INT;
+
 	DECLARE v_inboundratetableid_ INT;
 
 	SELECT
-		InboudRateTableID	INTO  v_inboundratetableid_
+		InboudRateTableID INTO v_inboundratetableid_
 	FROM tblAccount
 	WHERE AccountID = p_AccountID;
 	
@@ -36,6 +41,14 @@ BEGIN
 			ON tblRateTableRate.RateID = tblRate.RateID
 		WHERE RateTableID = v_inboundratetableid_
 		AND tblRateTableRate.EffectiveDate <= NOW();
+		
+		/* if Specify Rate is set when cdr rerate */
+		IF p_RateMethod = 'SpecifyRate'
+		THEN
+		
+			UPDATE tmp_inboundcodes_ SET Rate=p_SpecifyRate;
+			
+		END IF;
 
 	END IF;
 END

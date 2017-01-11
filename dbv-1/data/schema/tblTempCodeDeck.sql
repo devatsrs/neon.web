@@ -3,7 +3,7 @@ CREATE TABLE `tblTempCodeDeck` (
   `CountryId` int(11) DEFAULT NULL,
   `CompanyId` int(11) NOT NULL,
   `CodeDeckId` int(11) DEFAULT NULL,
-  `ProcessId` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `ProcessId` bigint(20) unsigned NOT NULL,
   `Code` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Description` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Country` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,

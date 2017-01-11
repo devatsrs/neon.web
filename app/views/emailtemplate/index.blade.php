@@ -91,7 +91,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/email_template/ajax_datagrid",
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type});
                 data_table_extra_params.length = 0;

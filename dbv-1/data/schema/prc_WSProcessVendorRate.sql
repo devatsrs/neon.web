@@ -1,10 +1,16 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessVendorRate`(IN `p_accountId` INT
-, IN `p_trunkId` INT
-, IN `p_replaceAllRates` INT
-, IN `p_effectiveImmediately` INT
-, IN `p_processId` VARCHAR(200)
-, IN `p_addNewCodesToCodeDeck` INT
-, IN `p_companyId` INT, IN `p_forbidden` INT, IN `p_preference` INT, IN `p_dialstringid` INT, IN `p_dialcodeSeparator` VARCHAR(50))
+CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `prc_WSProcessVendorRate`(
+	IN `p_accountId` INT,
+	IN `p_trunkId` INT,
+	IN `p_replaceAllRates` INT,
+	IN `p_effectiveImmediately` INT,
+	IN `p_processId` VARCHAR(200),
+	IN `p_addNewCodesToCodeDeck` INT,
+	IN `p_companyId` INT,
+	IN `p_forbidden` INT,
+	IN `p_preference` INT,
+	IN `p_dialstringid` INT,
+	IN `p_dialcodeSeparator` VARCHAR(50)
+)
 BEGIN
 
     DECLARE v_AffectedRecords_ INT DEFAULT 0;
@@ -184,7 +190,7 @@ BEGIN
                   THEN
                     INSERT INTO tmp_JobLog_ (Message)
                     		SELECT DISTINCT
-                        CONCAT(tblTempRateTableRate.Code , ' CODE DOES NOT EXIST IN CODE DECK')
+                        CONCAT(tbl.Code , ' CODE DOES NOT EXIST IN CODE DECK')
                         FROM
                     (
                         SELECT DISTINCT

@@ -112,21 +112,33 @@ class VendorAnalysisController extends BaseController {
         $report_type = get_report_type($data['StartDate'],$data['EndDate']);
         $query = "call prc_getVendorReportByTime ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.")";
         $TopReports = DB::connection('neon_report')->select($query);
-        $category = $counts = $minutes = $cost = array();
+        $series = $category1 = $category2 = $category3 = array();
         $cat_index = 0;
         foreach($TopReports as $TopReport){
-            $category[$cat_index] = $TopReport->category;
-            $counts[$cat_index] = $TopReport->CallCount;
-            $minutes[$cat_index] = $TopReport->TotalMinutes;
-            $cost[$cat_index] = $TopReport->TotalCost;
+            $category1[$cat_index]['name'] = $TopReport->category;
+            $category1[$cat_index]['y'] = $TopReport->CallCount;
+
+            $category2[$cat_index]['name'] = $TopReport->category;
+            $category2[$cat_index]['y'] = $TopReport->TotalCost;
+
+            $category3[$cat_index]['name'] = $TopReport->category;
+            $category3[$cat_index]['y'] = $TopReport->TotalMinutes;
+
+            if($report_type != 1) {
+                $category1[$cat_index]['drilldown'] = $TopReport->category;
+                $category2[$cat_index]['drilldown'] = $TopReport->category;
+                $category3[$cat_index]['drilldown'] = $TopReport->category;
+            }
             $cat_index++;
         }
-        $reponse['categories'] = implode(',',$category);
-        $reponse['CallCount'] = implode(',',$counts);
-        $reponse['CallCost'] = implode(',',$cost);
-        $reponse['CallMinutes'] = implode(',',$minutes);
+        if(!empty($category1)) {
+            $series[] = array('name' => 'Call Count', 'data' => $category1, 'color' => '#3366cc');
+            $series[] = array('name' => 'Call Cost', 'data' => $category2, 'color' => '#ff9900');
+            $series[] = array('name' => 'Call Minutes', 'data' => $category3, 'color' => '#dc3912');
+        }
+        $reponse['series'] = $series;
         $reponse['Title'] = get_report_title($report_type);
-        return $reponse;
+        return json_encode($reponse,JSON_NUMERIC_CHECK);
 
 
 

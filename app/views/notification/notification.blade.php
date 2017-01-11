@@ -73,7 +73,7 @@
                 data_table_extra_params.push({"name": "NotificationType", "value": $search.NotificationType},{"name":"Export","value":1});
 
             },
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
@@ -159,7 +159,6 @@
             $('#notification-form').trigger("reset");
             $('#modal-notification h4').html('Add Notification');
             $("#notification-form [name='NotificationEmailAddresses']").val('');
-            $(".js-example-disabled").prop("disabled", false);
             var selectBox = $("#notification-form [name='NotificationType']");
             selectBox.val('').trigger("change");
             selectBox.prop("disabled", false);
