@@ -4,7 +4,7 @@
   <li> <a href="{{ URL::to('customer/tickets') }}"><i class="entypo-home"></i>Tickets</a> </li>  
 </ol>
 <h3>Tickets</h3>
-<p class="text-right"><a href="{{ URL::to('customer/tickets/add') }}" class="btn btn-primary"> <i class="entypo-plus"></i> Add New </a>  </p>
+<p class="text-right"><a href="{{ URL::to('/customer/tickets/add') }}" class="btn btn-primary"> <i class="entypo-plus"></i> Add New </a>  </p>
 <div class="row">
   <div class="col-md-12">
     <form role="form" id="tickets_filter" method="post" action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>

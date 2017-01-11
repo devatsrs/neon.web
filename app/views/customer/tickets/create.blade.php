@@ -18,7 +18,7 @@
         <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
       </div>
       <div class="panel-body">
-        <form role="form" id="form-tickets-add" method="post" action="{{URL::to('tickets/create')}}" class="form-horizontal form-groups-bordered">
+        <form role="form" id="form-tickets-add" method="post" action="{{URL::to('/customer/tickets/create')}}" class="form-horizontal form-groups-bordered">
           <?php  $required = array();
 			   foreach($Ticketfields as $TicketfieldsData)
 			   {
@@ -33,7 +33,7 @@
              <?php	
 			 continue; 
 			 }else{
-				if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
+				if($TicketfieldsData->CustomerReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 				 ?>
                  <div class="form-group">
                  <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
@@ -51,7 +51,7 @@
 				 	 if($TicketfieldsData->FieldType == 'default_description'){
 						$class_textarea = 'wysihtml5box';
 					 }
-					 if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
+					 if($TicketfieldsData->CustomerReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 				 ?>
           <div class="form-group">
             <label for="GroupDescription" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
@@ -74,7 +74,7 @@
 			     }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_CHECKBOX)
 				 {
-					  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
+					  if($TicketfieldsData->CustomerReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 			     ?>
           <div class="form-group">
             <label for="GroupDescription" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
@@ -86,7 +86,7 @@
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXTNUMBER)
 				 { 
-				 if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
+				 if($TicketfieldsData->CustomerReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 			       ?>
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
@@ -101,7 +101,7 @@
 				  if($TicketfieldsData->FieldType == 'default_group' || $TicketfieldsData->FieldType == 'default_agent'){
 			 		continue;
 				 }
-				  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
+				  if($TicketfieldsData->CustomerReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 					 ?>
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
@@ -135,7 +135,7 @@
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_DATE)
 				 { 
-				 	if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
+				 	if($TicketfieldsData->CustomerReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 				 ?>
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
@@ -147,7 +147,7 @@
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_DECIMAL)
 				 {
-					  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
+					  if($TicketfieldsData->CustomerReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 				 ?>
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
