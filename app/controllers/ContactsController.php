@@ -247,5 +247,28 @@ class ContactsController extends \BaseController {
                 });
             })->download('xls');*/
     }
+	
+	function UpdateContactOwner($id){
+
+        $postdata 				= 	Input::all();
+        $lead 					= 	Contact::find($id);
+        $data['updated_by'] 	= 	User::get_user_full_name();
+		$data['Owner'] 			= 	$postdata['Owner'];
+        $messages 				= 	array('Owner.required' => 'The Contact Owner is required');
+		
+		 $rules = array(
+            'Owner' =>      'required',          
+        );
+        $validator = Validator::make($postdata, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        if ($lead->update($data)) {
+            return Response::json(array("status" => "success", "message" => "Contact Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Contact."));
+        }
+	}
 
 }

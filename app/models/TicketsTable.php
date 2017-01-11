@@ -125,4 +125,17 @@ class TicketsTable extends \Eloquent
 			//Log::info(print_r($data,true));	
 			return $data;
 	}
+	
+	static function checkTicketFieldPermission($array,$type="agent"){
+		if($type=='agent'){
+			return true;
+		}
+		
+		if($type=='customer'){
+			if(isset($array->CustomerDisplay) && $array->CustomerDisplay==1){
+				return true;
+			}
+		}
+ 	    return false;
+	}
 }

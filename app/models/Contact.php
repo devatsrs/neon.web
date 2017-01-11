@@ -13,4 +13,8 @@ class Contact extends \Eloquent {
         'FirstName' => 'required',
         'LastName' => 'required',
     );
+	
+	public static function checkContactByEmail($email){
+		 return Contact::where(["Email"=>$email])->first();	
+	}
 }

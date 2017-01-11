@@ -73,6 +73,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/customer/tickets/{id}/close_ticket', 'TicketsCustomerController@CloseTicket');
 	Route::any('/customer/tickets/{id}/edit', 'TicketsCustomerController@edit');
 	Route::any('/customer/tickets/{id}/update', "TicketsCustomerController@Update");
+	Route::any('/customer/tickets/{id}/updatedetailpage', "TicketsCustomerController@UpdateDetailPage");	
 	Route::any('/customer/tickets/{id}/delete', "TicketsCustomerController@Delete");	
 	Route::post('/customer/tickets/{id}/updateticketattributes', 'TicketsCustomerController@UpdateTicketAttributes');
 	Route::post('/customer/tickets/{id}/actionsubmit', 'TicketsCustomerController@ActionSubmit');
@@ -354,6 +355,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/contacts/{id}/delete', array('as' => 'contacts_delete', 'uses' => 'ContactsController@destroy'));
 	Route::any('contacts/ajax_datagrid', 'ContactsController@ajax_datagrid');
 	Route::any('contacts/exports/{type}', 'ContactsController@exports');
+	Route::any('contacts/{id}/updatecontactowner', 'ContactsController@UpdateContactOwner');
+	
 	Route::resource('contacts', 'ContactsController');
 
 	//CustomersRates
@@ -491,7 +494,14 @@ Route::group(array('before' => 'auth'), function () {
 	
 	Route::any('/ticketsfields', "TicketsFieldsController@index");
 	Route::any('/ticketsfields/iframe', "TicketsFieldsController@iframe");
-	Route::any('ticketsfields/iframe/submit', "TicketsFieldsController@iframeSubmit");
+	Route::any('/ticketsfields/iframe/submit', "TicketsFieldsController@iframeSubmit");
+	Route::any('/ticketsfields/ajax_ticketsfields', "TicketsFieldsController@ajax_ticketsfields");
+	Route::any('/ticketsfields/ajax_ticketsfields_choices', "TicketsFieldsController@Ajax_Ticketsfields_Choices");
+	Route::any('/ticketsfields/save_single_field', "TicketsFieldsController@Save_Single_Field");
+	Route::any('//ticketsfields/update_fields_sorting', "TicketsFieldsController@Update_Fields_Sorting");
+	
+	
+	
 	
 	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
 	Route::any('/tickets/ajax_datagrid/{type}', "TicketsController@ajax_datagrid");
@@ -502,6 +512,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/tickets/store', "TicketsController@Store");	
 	Route::any('tickets/{id}/edit', array('as' => 'tickets_edit', 'uses' => 'TicketsController@edit'));
 	Route::any('/tickets/{id}/update', "TicketsController@Update");
+	Route::any('/tickets/{id}/updatedetailpage', "TicketsController@UpdateDetailPage");
 	Route::any('/tickets/{id}/delete', "TicketsController@delete");
 	Route::any('/tickets/{id}/detail', "TicketsController@Detail");
 	Route::post('tickets/ticket_action', 'TicketsController@TicketAction');
@@ -510,6 +521,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('ticketsconversation/{id}/getattachment/{attachmentID}', 'TicketsController@getConversationAttachment');
 	Route::get('tickets/{id}/getattachment/{attachmentID}', 'TicketsController@GetTicketAttachment');
 	Route::post('tickets/{id}/close_ticket', 'TicketsController@CloseTicket');
+	Route::post('tickets/user/{id}/detail', 'TicketsController@UserTicketHistory');
 	
 	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
 	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));

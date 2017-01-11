@@ -1,135 +1,758 @@
-    <link href="{{ URL::asset('assets/formbuilder/css/common.css')}}" media="screen" rel="stylesheet" type="text/css" />
-	<link href="{{ URL::asset('assets/formbuilder/css/pattern.css')}}" media="screen, print, projection" rel="stylesheet" type="text/css" />
-    <link href="{{ URL::asset('assets/formbuilder/css/plugins.css')}}" media="screen" rel="stylesheet" type="text/css" />
-    <link href="{{ URL::asset('assets/formbuilder/css/sprites.css')}}" media="screen" rel="stylesheet" type="text/css" />
-    <link href="{{ URL::asset('assets/formbuilder/css/app.css')}}" media="screen" rel="stylesheet" type="text/css" />
+<script>
+	window.odometerOptions = {
+  format: '(ddd).dd'
+};
+        var $searchFilter = {};
+        var currentDrageable = '';
+        var fixedHeader = false;
+        $(document).ready(function ($) {
+			
+            var ticketfields = [
+             'id', 
+            'type', 
+            'name', 
+            'label',
+            'dom_type', 
+            'field_type',
+            'label_in_portal', 
+            'description', 
+            'has_section',
+            'position', 
+            'active', 
+            'required',
+            'required_for_closure',
+            'visible_in_portal',
+            'editable_in_portal', 
+            'required_in_portal', 
+            'FieldStaticType', 
+            'field_options', 
+			'choices'
+            ];
+			
+			getTicketsFields();			
+       
+            var readonly = ['Company','Phone','Email','Title','FirstName','LastName','Worth'];
+            var board = $('#board-start');
 
-<script type="text/javascript">
-	  /* TODO-RAILS3 need to cross check this area */
-		/*PROFILE_BLANK_THUMB_PATH = 'https://assets1.freshdesk.com/assets/misc/profile_blank_thumb.jpg';
-		PROFILE_BLANK_MEDIUM_PATH = 'https://assets9.freshdesk.com/assets/misc/profile_blank_medium.jpg';
-		SPACER_IMAGE_PATH = 'https://assets2.freshdesk.com/assets/misc/spacer.gif';
-		FILLER_IMAGES = {
-			imageLoading : 'https://assets2.freshdesk.com/assets/animated/image_upload_placeholder.gif'
-		};*/
-		cloudfront_version = "1479315641";
-		/*cloudfront_host_url = "https://assets9.freshdesk.com";*/
-	</script>
-    <script src="{{ URL::asset('assets/formbuilder/js/defaults.js')}}" type="text/javascript"></script>
-    <script src="{{ URL::asset('assets/formbuilder/js/frameworks.js')}}" type="text/javascript"></script>
-    <script src="{{ URL::asset('assets/formbuilder/js/workspace.js')}}" type="text/javascript"></script>
-    <script src="{{ URL::asset('assets/formbuilder/js/pattern.js')}}" type="text/javascript"></script>
-    
-    <script type="text/javascript">
-//<![CDATA[ 
+            board.perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
+            board.on('mouseenter',function(){
+                board.perfectScrollbar('update');
+            });
 
-    // Localizing ticket fields js elements
-    customFields = [{"field_type":"default_requester","id":1000044227,"name":"requester","dom_type":"requester","label":"Search a requester","label_in_portal":"Requester","description":"Ticket requester","position":1,"active":true,"required":true,"required_for_closure":false,"visible_in_portal":true,"editable_in_portal":true,"required_in_portal":true,"choices":[],"levels":null,"level_three_present":null,"field_options":{"portalcc":false,"portalcc_to":"company"},"has_section":null},{"field_type":"default_subject","id":1000044228,"name":"subject","dom_type":"text","label":"Subject","label_in_portal":"Subject","description":"Ticket subject","position":2,"active":true,"required":true,"required_for_closure":false,"visible_in_portal":true,"editable_in_portal":true,"required_in_portal":true,"choices":[],"levels":null,"level_three_present":null,"field_options":{"section":false},"has_section":null},{"field_type":"default_ticket_type","id":1000044229,"name":"ticket_type","dom_type":"dropdown_blank","label":"Type","label_in_portal":"Type","description":"Ticket type","position":3,"active":true,"required":true,"required_for_closure":true,"visible_in_portal":true,"editable_in_portal":true,"required_in_portal":true,"choices":[["Call Quality","Call Quality",1001777432],["Call Capacity Change Request","Call Capacity Change Request",1001777433],["New Interconnection Support Request","New Interconnection Support Request",1001777434],["IP Address","IP Address",1001777435],["Payments","Payments",1001777436],["Portal/CDR","Portal/CDR",1001777437],["Other","Other",1001777438],["Rates","Rates",1002743606],["Connectivity","Connectivity",1002743607],["Testing/Routing","Testing/Routing",1002774703],["NEON","NEON",1002891555],["intuPBX","intuPBX",1002891556]],"levels":null,"level_three_present":null,"field_options":{},"has_section":null},{"field_type":"default_source","id":1000044230,"name":"source","dom_type":"hidden","label":"Source","label_in_portal":"Source","description":"Ticket source","position":4,"active":true,"required":false,"required_for_closure":false,"visible_in_portal":false,"editable_in_portal":false,"required_in_portal":false,"choices":[["Email",1],["Portal",2],["Phone",3],["Forum",4],["Twitter",5],["Facebook",6],["Chat",7],["MobiHelp",8],["Feedback Widget",9],["Outbound Email",10],["Ecommerce",11]],"levels":null,"level_three_present":null,"field_options":{"section":false},"has_section":null},{"field_type":"default_status","id":1000044231,"name":"status","dom_type":"dropdown","label":"Status","label_in_portal":"Status","description":"Ticket status","position":5,"active":true,"required":true,"required_for_closure":false,"visible_in_portal":true,"editable_in_portal":false,"required_in_portal":false,"choices":[{"status_id":2,"name":"Open","customer_display_name":"Being Processed","stop_sla_timer":false,"deleted":false},{"status_id":3,"name":"Pending","customer_display_name":"Awaiting your Reply","stop_sla_timer":true,"deleted":false},{"status_id":4,"name":"Resolved","customer_display_name":"This ticket has been Resolved","stop_sla_timer":true,"deleted":false},{"status_id":5,"name":"Closed","customer_display_name":"This ticket has been Closed","stop_sla_timer":true,"deleted":false},{"status_id":6,"name":"Waiting on Customer","customer_display_name":"Awaiting your Reply","stop_sla_timer":true,"deleted":false},{"status_id":7,"name":"Waiting on Third Party","customer_display_name":"Being Processed","stop_sla_timer":false,"deleted":false}],"levels":null,"level_three_present":null,"field_options":{"section":false},"has_section":null},{"field_type":"default_priority","id":1000044232,"name":"priority","dom_type":"dropdown","label":"Priority","label_in_portal":"Priority","description":"Ticket priority","position":6,"active":true,"required":true,"required_for_closure":false,"visible_in_portal":true,"editable_in_portal":true,"required_in_portal":true,"choices":[["Low",1],["Medium",2],["High",3],["Urgent",4]],"levels":null,"level_three_present":null,"field_options":{"section":false},"has_section":null},{"field_type":"default_group","id":1000044233,"name":"group","dom_type":"dropdown_blank","label":"Group","label_in_portal":"Group","description":"Ticket group","position":7,"active":true,"required":false,"required_for_closure":false,"visible_in_portal":false,"editable_in_portal":false,"required_in_portal":false,"choices":[["Business Supplier Support",1000197160],["intuPBX Support",1000191834],["NEON Support",1000196143],["PBX Support",1000187090],["Support",1000085319],["Wavetel Business Orders",1000197136]],"levels":null,"level_three_present":null,"field_options":{"section":false},"has_section":null},{"field_type":"default_agent","id":1000044234,"name":"agent","dom_type":"dropdown_blank","label":"Agent","label_in_portal":"Assigned to","description":"Agent","position":8,"active":true,"required":false,"required_for_closure":false,"visible_in_portal":true,"editable_in_portal":false,"required_in_portal":false,"choices":[["Abdul Samad Ali Shah",1010820579],["Fahad Shaikh",1017766697],["Khurram Saeed",1001328845],["Muhammad Atif",1002131632],["Muhammad Farooq",1001544570],["Muhammad Waqas",1001324770],["Noman Zahoor",1017936630],["Support",1000135497],["Zaid",1021825011]],"levels":null,"level_three_present":null,"field_options":{"section":false},"has_section":null},{"field_type":"default_product","id":1000044235,"name":"product","dom_type":"dropdown_blank","label":"Product","label_in_portal":"Product","description":"Select the product, the ticket belongs to.","position":9,"active":true,"required":false,"required_for_closure":false,"visible_in_portal":true,"editable_in_portal":true,"required_in_portal":false,"choices":[["intuPBX Support",1000005459],["NEON Support",1000006380],["Wavetel Business Orders",1000006611],["Wavetel Business Support",1000004358]],"levels":null,"level_three_present":null,"field_options":{"section":false},"has_section":null},{"field_type":"default_description","id":1000044236,"name":"description","dom_type":"html_paragraph","label":"Description","label_in_portal":"Description","description":"Ticket description","position":9,"active":true,"required":true,"required_for_closure":false,"visible_in_portal":true,"editable_in_portal":true,"required_in_portal":true,"choices":[],"levels":null,"level_three_present":null,"field_options":{},"has_section":null}];
-    customSection = [];
-    shared_ownership_enabled = false;
-    sharedGroups = [];
+            $( window ).resize(function() {
+                board.perfectScrollbar('update');
+            });
+			
+			$('.add_new_field').click(function(e) {
+                var field_type_add 		= 	$(this).attr('field_type');
+				var FieldDomType_add 	= 	$(this).attr('FieldDomType');				
+				$('#add-modal-ticketfield #field_type').val(field_type_add);
+				$('#add-modal-ticketfield #type').val(FieldDomType_add);
+				var position_add = $('#deals-dashboard li').length;				
+				var position_add = 1;
+				var getClass =   $('#deals-dashboard li.count-cards');
+				getClass.each(function () {position_add++;});
+				$('#add-modal-ticketfield #position').val(position_add);
+				$('#add-modal-ticketfield').modal('show');
+				setTimeout(function(){$("#add-modal-ticketfield" ).find('#label').focus()}, 1000);
+				
+            });
+			
+			$(document).on("submit","#add-ticketfields-form",function(e){
+				e.stopPropagation();
+			    e.preventDefault();	
+				var field_type_submit = $(this).find('#field_type').val();	 	
+				
+				var url = baseurl + '/ticketsfields/save_single_field';
+				var formData = new FormData($(this)[0]);
+				
+                $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+						if(response.status =='success'){
+							toastr.success(response.message, "Success", toastr_opts);
+							$('#add-modal-ticketfield').modal('hide');
+							location.reload();
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+						$('#field_model_btn_add').button('reset');
+					},
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+					contentType: false,
+                    processData: false              
+                });						
+				return false;
+			});
+			
+			
+			$(document).on("keyup","#add-modal-ticketfield #label",function(){
+				$('#add-modal-ticketfield #label_in_portal').val($(this).val());				
+			});
+			
 
-    tf_lang = {
-     untitled:                    "Untitled",
-      firstChoice:                "First Choice",
-      secondChoice:               "Second Choice", 
-      customerLabelEmpty:         "Customer label cannot not be empty",
-      noChoiceMessage:            "At least one valid choice has to be present",
-      confirmDelete:              'Warning! You will lose the data pertaining to this field in all old tickets permanently. Are you sure you want to delete this field?',
-      displayCCField:             'Display CC Field',
-      ccCompanyContacts:          'Can CC only company contacts',
-      ccAnyEmail:                 'Can CC any email address',
-      sla_timer:                  'SLA timer',
-      field_delete_disabled:      'Default fields cannot be deleted',
-      section_type_change:        'Please save the ticket form to see the latest changes that you have made to type field.',
-      dropdown_choice_disabled:   'Default choice cant be deleted',
-      dropdown_items_edit:        'Dropdown items - Edit',
-      dropdown_items_preview:     'Dropdown items - Preview',
-      nestedfield_helptext_preview: 'This is the preview of sample dropdown items. Click \&quot;Edit\&quot; to change the values for each drop down.',
-      nestedfield_helptext:       'Use the below textarea to add or edit items in your dropdown. Indent items by pressing the tab key once or twice. We will convert it to dropdown items based on the indentation. &lt;a target=\&#x27;_blank\&#x27; href=\&#x27;https://support.freshdesk.com/solution/categories/45957/folders/74594/articles/37599-using-dependent-fields\&#x27;&gt;Learn more&lt;\/a&gt; ',
-      confirm_delete:             '<span class="translation_missing" title="translation missing: en.ticket_fields.formfield2_props.confirm_delete">Confirm Delete</span>',
-      agent_mandatory_closure:    'Required when closing the ticket',
-      remove_type:                'Section is associated with this type',
-      new_section:                'New Section',
-      confirm_text:               'Please Confirm...',
-      would_you_like_to:          'Would you like to',
-      move_keep_copy:             'Copy field to target section',
-      delete_field_section:       'Delete field from this section',
-      move_field_remove_section:  'Move field to target section',
-      delete_permanent:           'Delete field from all sections',
-      delete_from_section:        'Are you sure you want to delete this field from this section?',
-      field_remove_all_section:   'Moving the field outside will remove the field from all sections',
-      delete_section:             'Are you sure you want to delete this section?',
-      section_has_fields:         'Section has fields',
-      section_delete_disabled:    '<span class="translation_missing" title="translation missing: en.ticket_fields.section.section_delete_disabled">Section Delete Disabled</span>',
-      field_available:            'The field already exists in target section.',
-      delete_section_btn:         'Delete Section',
-      ok_btn:                     'OK',
-      confirm_btn:                'Confirm',
-      oops_btn:                   'Oops!',
-      delete_btn:                 'Delete',
-      continue_btn:               'Continue',
-      section_prop:               'Section Properties',
-      sectino_label:              'Section Title',
-      section_type_is:            'Show section when type is',  
-      unique_section_name:        'Section name already used',  
-      formTitle:                  'Properties',
-      deleteField:                'Delete field',
-      regExp:                     'Regular Expression',
-      regExpExample:              'For example, To match a string that contains only alphabets & numbers: <b> /^[a-zA-Z0-9]*$/ <\/b>. To match a string that starts with word \"fresh\" <b> /^freshw/ <\/b>.',
-      dropdownChoice:             'Dropdown Items',
-      addNewChoice:               'Add Item',
-      label:                      'Label',
-      labelAgent:                 'Field label for agents',
-      labelCustomer:              'Field label for customers',
-      labelAgentLevel2:           'Level 2 label for agents',
-      labelCustomerLevel2:        'Level 2 label for customers',
-      behavior:                   'Behavior',
-      forAgent:                   'For Agents',
-      agentMandatory:             'Required when submitting the form',
-      forCustomer:                'For Customers',
-      customerVisible:            'Display to customer',
-      customerEditable:           'Customer can edit',
-      customerMandatory:          'Required when submitting the form',
-      customerEditSignup:         'Customer can see this when they Sign up',
-      validateRegex:              'Validate using Regular Expression',
-      nested_tree_validation:     'You need atleast one category &amp; sub-category',
-      nested_unique_names:        'Agent label should not be same as other two levels',
-      nested_3rd_level:           'Label required for 3rd level items',
-      mappedInternalGroup:        'Mapped Internal Groups',
+     $(document).on('click','#board-start ul.sortable-list li button.edit-deal',function(e){
+				
+                e.stopPropagation();
+                if($(this).is('a')){
+                    var rowHidden = $(this).prev('div.hiddenRowData');
+                }else {
+                    var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
+                }
+				var Currentfieldtype = $(this).parent().attr('field_type'); 
+				var fieldtype = '';
+                for(var i = 0 ; i< ticketfields.length; i++)
+				{
+                    var val = rowHidden.find('input[name="'+ticketfields[i]+'"]').val();					
+                    var elem = $('#edit-ticketfields-form [name="'+ticketfields[i]+'"]');
+					elem.val(val);
+					if(ticketfields[i]=='FieldStaticType')
+					{       
+						if(val=={{Ticketfields::FIELD_TYPE_STATIC}}){ 
+							$('#edit-modal-ticketfield').find('#label').attr('readonly','readonly');
+						}else{
+							$('#edit-modal-ticketfield').find('#label').removeAttr('readonly');
+						}
+					}
+					else if(ticketfields[i]=='required')
+					{	
+						biuldSwicth2('#AgentReqSubmitSwitch','required','#edit-ticketfields-form',val);						
+					}
+					
+					else if(ticketfields[i]=='visible_in_portal')
+					{
+						biuldSwicth2('#CustomerDisplaySwitch','visible_in_portal','#edit-ticketfields-form',val);	
+					}
+					
+					else if(ticketfields[i]=='required_for_closure')
+					{
+						biuldSwicth2('#AgentReqCloseSwitch','required_for_closure','#edit-ticketfields-form',val);	
+					}
+					else if(ticketfields[i]=='type')
+					{
+						fieldtype = val;
+					}
+					
+					
+					else if(ticketfields[i]=='editable_in_portal')
+					{
+						biuldSwicth2('#CustomerEditSwitch','editable_in_portal','#edit-ticketfields-form',val);	
+					}
+					
+					else if(ticketfields[i]=='required_in_portal')
+					{
+						biuldSwicth2('#CustomerReqSubmitSwitch','required_in_portal','#edit-ticketfields-form',val);	
+					}
+					else if(ticketfields[i]=='choices')
+					{
+						//if(Currentfieldtype=='default_ticket_type' || Currentfieldtype=='default_status')
+						if(fieldtype=='dropdown')
+						{
+							if(Currentfieldtype!='default_agent' && Currentfieldtype!='default_group' && Currentfieldtype!='default_priority' ){
+								call_field_choices(Currentfieldtype,val);
+							}
+						}						
+					}
+					
+                   
+                }
+                $('#edit-modal-ticketfield h4').text('Edit Field');
+                $('#edit-modal-ticketfield').modal('show');
+				
+				var checked_visible_in_portal = $('#edit-modal-ticketfield #visible_in_portal').prop("checked");
+				//alert(checked_visible_in_portal);
+				if(!checked_visible_in_portal){
+					$('#edit-modal-ticketfield #CustomerEditSwitch .make-switch').bootstrapSwitch('setState', false); 
+					$('#edit-modal-ticketfield #CustomerReqSubmitSwitch .make-switch').bootstrapSwitch('setState', false); 
+					
+					$('#edit-modal-ticketfield #editable_in_portal').attr('disabled','disabled');
+					$('#edit-modal-ticketfield #editable_in_portal').parent().parent().addClass('deactivate');
+					
+					$('#edit-modal-ticketfield #required_in_portal').attr('disabled','disabled');
+					$('#edit-modal-ticketfield #required_in_portal').parent().parent().addClass('deactivate');
+					
+				}else{
+					$('#edit-modal-ticketfield #editable_in_portal').removeAttr('disabled');
+					$('#edit-modal-ticketfield #editable_in_portal').parent().parent().removeClass('deactivate');
+					
+					$('#edit-modal-ticketfield #required_in_portal').removeAttr('disabled');
+					$('#edit-modal-ticketfield #required_in_portal').parent().parent().removeClass('deactivate');			
+				}
+				
+				
+				empty_popup_default();
+            });
+			
+			function empty_popup_default()
+			{
+				$('#edit-modal-ticketfield .choices_item').html('');
+				$('#edit-modal-ticketfield #deleted_choices').val('');
+				$('#edit-modal-ticketfield #modalfieldchoicesdata').val('');			
+			}
+			
+			 $('#edit-modal-ticketfield').on('hidden.bs.modal', function(event){		
+					 empty_popup_default();
+              });		
+			
+			function call_field_choices(type,values){
+				
+			    var url = baseurl + '/ticketsfields/ajax_ticketsfields_choices';
+                $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'html',
+                    success: function (response) { 
+						$('.choices_item').html(response);
+						initSortableChoices(type);
+                    },
+                    // Form data
+                    data: {type:type,values:values},
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false                   
+                });
+            
+			}
+            
+			
+            $('#tools .toggle').click(function(){
+                        if($(this).hasClass('list')){
+                            $(this).addClass('active');
+                            $(this).siblings('.toggle').removeClass('active');
+                            $('#board-start').addClass('hidden');
+                            $('#opportunityGrid_wrapper,#opportunityGrid').removeClass('hidden');
+                        }else{
+                            $(this).addClass('active');
+                            $(this).siblings('.toggle').removeClass('active');
+                            $('#board-start').removeClass('hidden');
+                            $('#opportunityGrid_wrapper,#opportunityGrid').addClass('hidden');
+                        }
+                    });
 
-      default:            'Default',
-      number:             'Number',
-      text:               'Single Line Text',
-      empty_section_info: 'Drop fields here',
-      paragraph:          'Multi Line Text',
-      checkbox:           'Checkbox',
-      dropdown:           'Dropdown',
-      dropdown_blank:     'Dropdown',
-      nested_field:       'Dependent field',
-      phone_number:       'Phone Number',
-      url:                'URL',
-      date:               'Date',
-      email:              'Email',
-      decimal:            'Decimal',
-      default_field_error:'Default fields cannot be dropped into section',
-      learnMore:          'Learn more',
-      delete:             'Delete',
-      cancel:             'Cancel',
-      done:               'Done',
-      preview:            'Preview',
-      edit:               'Edit',
-      nestedFieldLabel:   'Dependent field labels',
-      level:              'Level',
-      maxItemsReached:    'Maximum items reached'
-    };
+      
+            $(document).on('mouseover','#attachments a',
+                    function(){
+                        var a = $(this).attr('alt');
+                        $(this).html(a);
+                    }
+            );
 
-    window['translate'] = {}; 
-    translate.get = function(name){
-      return tf_lang[name] || "";
-    };
+            $(document).on('mouseout','#attachments a',function(){
+                var a = $(this).attr('alt');
+                if(a.length>8){
+                    a  = a.substring(0,8)+"..";
+                }
+                $(this).html(a);
+            });
+		
+		
+			$(document).on("click",".delete_main_field",function(ee){
+				var confirm_choice_delete = confirm("Are you sure to delete?");
+				if(confirm_choice_delete){
+					//deleted_choices
+					var choices_id 			= $(this).attr('delete_main_field_id'); 
+					 $(this).parent().remove();
+					 
+					var current_del =  $('#TicketfieldsDataFrom').find('#deleted_main_fields').val(); 
+					if(current_del==''){
+						$('#TicketfieldsDataFrom').find('#deleted_main_fields').val(choices_id);
+					}else{
+						$('#TicketfieldsDataFrom').find('#deleted_main_fields').val(current_del+','+choices_id);
+					}
+					saveOrder();
+				}			
+			});
+			
+			$(document).on("click",".feild_choice_delete",function(ee){
+				var confirm_choice_delete = confirm("Are you sure to delete?");
+				if(confirm_choice_delete){
+					//deleted_choices
+					var choices_id 			= $(this).attr('del_data_id');
+					
+					var current_del =  $('#edit-modal-ticketfield').find('#deleted_choices').val();
+					if(current_del==''){
+						$('#edit-modal-ticketfield').find('#deleted_choices').val(choices_id);
+					}else{
+						$('#edit-modal-ticketfield').find('#deleted_choices').val(current_del+','+choices_id);
+					}
+					var choice_field_type 	= $(this).attr('field_type'); 
+					 $(this).parent().parent().parent().parent().parent().remove();
+					saveOrderchoices(choice_field_type);
+				}			
+			});
 
-//]]>
-</script> 
+            function initEnhancement(){
+                board.find('.board-column-list').perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
+                board.find('.board-column-list').on('mouseenter',function(){
+                    $(this).perfectScrollbar('update');
+                });
 
-<script src="{{ URL::asset('assets/formbuilder/js/ticket_fields.js')}}" type="text/javascript"></script>
+                $( window ).resize(function() {
+                    board.find('.board-column-list').perfectScrollbar('update');
+                });
+            }
+            function initSortable(){
+                // Code using $ as usual goes here.
+                $('#board-start .sortable-list').sortable({
+                    connectWith: '.sortable-list',
+                    placeholder: 'placeholder',
+                    start: function() {
+                        //setting current draggable item
+                        currentDrageable = $('#board-start ul.sortable-list li.dragging');
+                    },
+                    stop: function(ev,ui) {
+                        saveOrder();
+                        //de-setting draggable item after submit order.
+                        currentDrageable = '';
+                    }
+                });
+            }
+			
+			function initSortableChoices(type){
+                // Code using $ as usual goes here.
+                $('.choices_item .sortable-list').sortable({
+                    connectWith: '.sortable-list',
+                    placeholder: 'placeholder',
+                    start: function() {
+                        //setting current draggable item
+                        currentDrageable = $('.choices_item ul.sortable-list li.dragging');
+                    },
+                    stop: function(ev,ui) {
+						saveOrderchoices(type);
+                        //de-setting draggable item after submit order.
+                        currentDrageable = '';
+                    }
+                });
+            }
+
+            function initToolTip(){
+                $('[data-toggle="tooltip"]').each(function(i, el)
+                {
+                    var $this = $(el),
+                            placement = attrDefault($this, 'placement', 'top'),
+                            trigger = attrDefault($this, 'trigger', 'hover'),
+                            popover_class = $this.hasClass('tooltip-secondary') ? 'tooltip-secondary' : ($this.hasClass('tooltip-primary') ? 'tooltip-primary' : ($this.hasClass('tooltip-default') ? 'tooltip-default' : ''));
+
+                    $this.tooltip({
+                        placement: placement,
+                        trigger: trigger
+                    });
+                    $this.on('shown.bs.tooltip', function(ev)
+                    {
+                        var $tooltip = $this.next();
+
+                        $tooltip.addClass(popover_class);
+                    });
+                });
+            }
+
+            function autosizeUpdate(){
+                $('.autogrow').trigger('autosize.resize');
+            }
+
+            function biuldSwicth(container,formID,checked){
+                var make = '<span class="make-switch switch-small">';
+                make += '<input name="opportunityClosed" value="{{Opportunity::Close}}" '+checked+' type="checkbox">';
+                make +='</span>';
+
+                var container = $(formID).find(container);
+                container.empty();
+                container.html(make);
+                container.find('.make-switch').bootstrapSwitch();
+            }
+			
+			function biuldSwicth2(container,name,formID,checked){
+				checkedstr= '';
+				if(checked==1){
+					checkedstr= 'checked';
+				}
+				
+				var make  = '<p class="make-switch  switch-small">';
+                make	 += '<input id="'+name+'" name="'+name+'" type="checkbox" '+checkedstr+'  value="1">';
+                make 	 += '</p>';
+				
+				/*var make = '<span class="make-switch switch-small">';
+				make += '<input name="'+name+'" id="'+name+'" value="checked" '+checked+' type="checkbox">';
+				make +='</span>';*/
+	
+				var container = $(formID).find(container);
+				container.empty();
+				container.html(make);
+				container.find('.make-switch').bootstrapSwitch();
+			} 
+			
+			$(document).on("change","#add-modal-ticketfield #visible_in_portal",function(){
+				var checked_visible_in_portal = $(this).prop("checked");
+				//alert(checked_visible_in_portal);
+				if(!checked_visible_in_portal){
+					$('#add-modal-ticketfield #CustomerEditSwitch .make-switch').bootstrapSwitch('setState', false); 
+					$('#add-modal-ticketfield #CustomerReqSubmitSwitch .make-switch').bootstrapSwitch('setState', false); 
+					
+					$('#add-modal-ticketfield #editable_in_portal').attr('disabled','disabled');
+					$('#add-modal-ticketfield #editable_in_portal').parent().parent().addClass('deactivate');
+					
+					$('#add-modal-ticketfield #required_in_portal').attr('disabled','disabled');
+					$('#add-modal-ticketfield #required_in_portal').parent().parent().addClass('deactivate');
+					
+				}else{
+					$('#add-modal-ticketfield #editable_in_portal').removeAttr('disabled');
+					$('#add-modal-ticketfield #editable_in_portal').parent().parent().removeClass('deactivate');
+					
+					$('#add-modal-ticketfield #required_in_portal').removeAttr('disabled');
+					$('#add-modal-ticketfield #required_in_portal').parent().parent().removeClass('deactivate');			
+				}
+				
+				});
+
+
+			$(document).on("change","#edit-modal-ticketfield #visible_in_portal",function(){
+				var checked_visible_in_portal = $(this).prop("checked");
+				//alert(checked_visible_in_portal);
+				if(!checked_visible_in_portal){
+					$('#edit-modal-ticketfield #CustomerEditSwitch .make-switch').bootstrapSwitch('setState', false); 
+					$('#edit-modal-ticketfield #CustomerReqSubmitSwitch .make-switch').bootstrapSwitch('setState', false); 
+					
+					$('#edit-modal-ticketfield #editable_in_portal').attr('disabled','disabled');
+					$('#edit-modal-ticketfield #editable_in_portal').parent().parent().addClass('deactivate');
+					
+					$('#edit-modal-ticketfield #required_in_portal').attr('disabled','disabled');
+					$('#edit-modal-ticketfield #required_in_portal').parent().parent().addClass('deactivate');
+					
+				}else{
+					$('#edit-modal-ticketfield #editable_in_portal').removeAttr('disabled');
+					$('#edit-modal-ticketfield #editable_in_portal').parent().parent().removeClass('deactivate');
+					
+					$('#edit-modal-ticketfield #required_in_portal').removeAttr('disabled');
+					$('#edit-modal-ticketfield #required_in_portal').parent().parent().removeClass('deactivate');			
+				}
+				
+				});
+
+
+            function getTicketsFields(){
+                var url = baseurl + '/ticketsfields/ajax_ticketsfields';
+                $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'html',
+                    success: function (response) { 
+                        board.html(response);
+                        initEnhancement();
+                        initSortable();
+                        initToolTip();
+                    },
+                    // Form data
+                    data: {s:1},
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+
+            function getComments(){
+                $('#comment_processing').removeClass('hidden');
+                var opportunityID = $('#add-opportunity-comments-form [name="OpportunityID"]').val();
+                var url = baseurl +'/opportunitycomments/'+opportunityID+'/ajax_opportunitycomments';
+                $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'html',
+                    success: function (response) {
+                        $('#comment_processing').addClass('hidden');
+                        if(response.status){
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }else {
+                            $('#allComments').html(response);
+                            $('#allComments .perfect-scrollbar').perfectScrollbar({minScrollbarLength: 20,handlers: ['click-rail','drag-scrollbar', 'keyboard', 'wheel', 'touch']});
+                            $('#allComments .perfect-scrollbar').on('mouseenter',function(){
+                                $(this).perfectScrollbar('update');
+                            });
+                        }
+                    },
+                    // Form data
+                    data: [],
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+
+            function getOpportunityAttachment(){
+                var opportunityID = $('#add-opportunity-comments-form [name="OpportunityID"]').val();
+                var url = baseurl +'/opportunity/'+opportunityID+'/ajax_getattachments';
+                $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'html',
+                    success: function (response) {
+                        $('#attachments').html(response);
+                    },
+                    // Form data
+                    data: [],
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+
+            function fillColumns(){
+                var url = baseurl + '/opportunityboardcolumn/'+BoardID+'/ajax_datacolumn';
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        $('#deals-dashboard').empty();
+                        $(response).each(function(i,item){
+                            $('#deals-dashboard').append(builditem(item));
+                            initdrageable();
+                        });
+                    },
+                    // Form data
+                    //data: {},
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+
+            function postorder(elem){
+                saveOrder(elem);
+                url = baseurl + '/opportunity/'+BoardID+'/updateColumnOrder';
+                var formData = new FormData($('#cardorder')[0]);
+                $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if(response.status =='success'){
+                            getTicketsFields();
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                            fillColumns();
+                        }
+                    },
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+			
+			function postorderChoices(){
+			    saveOrderchoices(elem);
+                url = baseurl + '/opportunity/'+BoardID+'/updateColumnOrder';
+                var formData = new FormData($('#cardorder')[0]);
+                $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if(response.status =='success'){
+                            getTicketsFields();
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                            fillColumns();
+                        }
+                    },
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            
+			}
+
+            function saveOrder() {
+				var Ticketfields_array   = 	new Array();				
+				$('#deals-dashboard li').each(function(index, element) {					
+					var TicketfieldsSortArray  =  {};
+					TicketfieldsSortArray["data_id"] = $(element).attr('data-id');
+					TicketfieldsSortArray["FieldOrder"] = index+1;  				
+					 
+                   	 Ticketfields_array.push(TicketfieldsSortArray); 					
+                });	
+				var data_sort_fields =  JSON.stringify(Ticketfields_array); 
+				$('#main_fields_sort').val(data_sort_fields);
+				$('#TicketfieldsDataFrom').submit();				
+            }
+
+			$('#TicketfieldsDataFrom').submit(function(e){
+				e.stopPropagation();
+			    e.preventDefault();	
+				
+				var formData = new FormData($(this)[0]);
+				var url		 = baseurl + '/ticketsfields/update_fields_sorting';
+				
+				  $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+						if(response.status =='success'){
+							toastr.success(response.message, "Success", toastr_opts);							
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+					},
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+					contentType: false,
+                    processData: false              
+                });					
+				return false;
+			});
+			
+			$(document).on("submit","#edit-ticketfields-form",function(e){
+				e.stopPropagation();
+			    e.preventDefault();	
+				var field_type_submit = $(this).find('#field_type').val();	 	
+				saveOrderchoices(field_type_submit);
+				
+				var url = baseurl + '/ticketsfields/save_single_field';
+				var formData = new FormData($(this)[0]);
+				
+                $.ajax({
+                    url: url,  //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+						if(response.status =='success'){
+							toastr.success(response.message, "Success", toastr_opts);
+							$('#edit-modal-ticketfield').modal('hide');
+							empty_popup_default();
+							location.reload();
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+						$('#field_model_btn').button('reset');
+					},
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+					contentType: false,
+                    processData: false              
+                });						
+				return false;
+			});
+			
+			$(document).on("click",".feild_choice_add",function(){
+				var field_add_type = $(this).attr('field_type')
+					if(field_add_type=='default_status'){
+						$('.field_choices_ui').prepend($('.dropdown_fields_add_row_status').html());
+					}else{
+						$('.field_choices_ui').prepend($('.dropdown_fields_add_row').html());
+					}
+					$('.field_choices_ui li').eq(0).find('.feild_choice_delete').attr('field_type',field_add_type);
+					
+					saveOrderchoices(field_add_type);
+					if(field_add_type=='default_status'){$('.field_choices_ui li').eq(0).find('.make-switch_sla').bootstrapSwitch();}
+				});
+			
+			function saveOrderchoices(type) {
+				
+                var selectedCards 	= 	new Array();
+				var fldli 			= 	$("#deals-dashboard").find("li [field_type='" + type + "']");							
+				
+				var choices_array   = 	new Array();
+				 var choices_data	=   JSON.stringify( $('#edit-ticketfields-form').serializeArray() );
+				
+				var choices_order   = 	$('.choices_item ul.sortable-list li').each(function(index, element) {
+					var attributeArray  =  {};
+					
+					$(element).find('input').each(function(index, element) {
+						var name = $(element).attr('name');
+						var attributetype = $(element).attr('type');
+						if(attributetype =='checkbox'){
+							attributeArray[name] = $(element).prop("checked");
+						}else{						
+                      	  attributeArray[name] = $(element).val();
+						}
+                    });
+					 attributeArray["FieldOrder"] = index+1;  
+                   	 choices_array.push(attributeArray); 					
+                });
+					 
+				//$(fldli).find('.row-hidden').find('[name="choices"]').val( JSON.stringify(choices_array));
+				$('#modalfieldchoicesdata').val(JSON.stringify(choices_array));
+            }
+
+            function setcolor(elem,color){
+                elem.colorpicker('destroy');
+                elem.val(color);
+                elem.colorpicker({color:color});
+                elem.siblings('.input-group-addon').find('.color-preview').css('background-color', color);
+            }
+
+        });
+    </script>
+<style>
+#deals-dashboard .board-column{width:100%;}
+.count-cards{width:100% !important; min-width:100%; max-width:100%;}
+.file-input-wrapper {
+	height: 26px;
+}
+.margin-top {
+	margin-top: 10px;
+}
+.margin-top-group {
+	margin-top: 15px;
+}
+.paddingleft-0 {
+	padding-left: 3px;
+}
+.paddingright-0 {
+	padding-right: 0px;
+}
+#add-modal-opportunity .btn-xs {
+	padding: 0px;
+}
+.resizevertical {
+	resize: vertical;
+}
+.file-input-names span {
+	cursor: pointer;
+}
+.WorthBox {
+	display: none;
+	max-width: 100%;
+	padding-left: 15px;
+}
+.oppertunityworth {
+	border-radius: 5px;
+	border: 2px solid #ccc;
+	background: #fff;
+	padding: 0 6px;
+	margin-bottom: 10px;
+	font-weight: bold;
+	width: 100%;
+}
+.currency_worth, .odometer {
+	font-size: 21px;
+}
+.currency_worth {
+	margin-left: 7px;
+	vertical-align: middle;
+}
+.worth_add_box_ajax {
+	margin-left: -2px;
+}
+#deals-dashboard li:hover {cursor:all-scroll; }
+.choices_item .count-cards{min-height:50px;}
+#deals-dashboard .count-cards{min-height:104px;}
+.choices_field_li:hover {cursor:all-scroll; }
+</style>

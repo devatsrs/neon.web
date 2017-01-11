@@ -5,10 +5,12 @@
   <li class="active"> <strong>Detail</strong> </li>
 </ol>
 <h3>Tickets</h3>
-<p class="text-right"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('/customer/tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}"   class="btn btn-red delete_ticket tooltip-primary"><i class="fa fa-close"></i> </a> @if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('/customer/tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-backward"></i> </a> @endif
-  @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('/customer/tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-forward"></i> </a> @endif </p>
-<div class="mail-env"> 
-  
+<div class="pull-left"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}"   class="btn btn-red delete_ticket tooltip-primary"><i class="fa fa-close"></i> </a>  </div>
+  <div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-backward"></i> </a> @endif
+  @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-forward"></i> </a> @endif</div>
+ <div class="clear clearfix"></div>
+
+<div class="mail-env margin-top">   
   <!-- compose new email button -->
   <div class="mail-sidebar-row visible-xs"> <a href="mailbox-compose.html" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
   
@@ -97,7 +99,7 @@
     <div class="mail-menu">
       <div class="row">
         <div class="col-md-12">
-          <div class="panel panel-primary margin-top" data-collapsed="0"> 
+          <div class="panel panel-primary" data-collapsed="0"> 
             
             <!-- panel head -->
             <div class="panel-heading">
@@ -107,7 +109,11 @@
             
             <!-- panel body -->
             <div class="panel-body">
-              <p> <a class="blue_link" href="#">{{$ticketdata->RequesterName}}</a> <a href="#">({{$ticketdata->Requester}})</a>. </p>
+              @if(!empty($ticketdata->RequesterName))
+            <p><a class="blue_link" href="#">{{$ticketdata->RequesterName}}</a><br><a href="#">({{$ticketdata->Requester}})</a>. </p>
+            @else
+            <p><a href="#">{{$ticketdata->Requester}}</a></p>
+            @endif
             </div>
           </div>
         </div>
@@ -121,24 +127,8 @@
             </div>
             
             <!-- panel body -->
-            <div class="panel-body">
-              <form role="form" id="tickets_filter" method="post" style="padding-right:25px;"  class="form-horizontal form-groups-bordered validate" novalidate>
-                <div class="form-group" style="margin-top: 30px;">
-                  <label for="field-1" class="col-md-4 control-label">Status</label>
-                  <div class="col-md-8"> {{Form::select('status',$status,$ticketdata->Status,array("class"=>"select2","id"=>"TicketStatus"))}} </div>
-                </div>
-                <div class="form-group">
-                  <label for="field-1" class="col-md-4 control-label">Priority</label>
-                  <div class="col-md-8"> {{Form::select('priority', $Priority, $ticketdata->Priority ,array("class"=>"select2"))}} </div>
-                </div>
-                <div class="form-group margin-bottom">
-                  <div class="col-md-4">&nbsp;</div>
-                  <div class="col-md-8">
-                    <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" id="update_ticket" data-loading-text="Loading..."> Update <i class="entypo-mail"></i> </button>
-                  </div>
-                </div>
-              </form>
-            </div>
+             <div class="panel-body">@include('Customer.tickets.ticket_detail_dynamic_fields')</div>
+            
           </div>
         </div>
       </div>
@@ -265,70 +255,6 @@ $(document).ready(function(e) {
 		///////////////////////////////
 		 
 	 });
-	 
-	  $("#tickets_filter").submit(function (event) {
-		  $('#update_ticket').button('loading');
-			var email_url 	= 	"<?php echo URL::to('/customer/tickets/'.$ticketdata->TicketID.'/updateticketattributes/');?>";
-          	event.stopImmediatePropagation();
-            event.preventDefault();			
-			var formData = new FormData($('#tickets_filter')[0]);
-			
-			 $.ajax({
-                url: email_url,
-                type: 'POST',
-                dataType: 'json',
-				data:formData,
-				async :false,
-				cache: false,
-                contentType: false,
-                processData: false,
-                success: function(response) {					
-					$("#update_ticket").button('reset');
-					if (response.status == 'success') {
-						toastr.success(response.message, "Success", toastr_opts);
-					} else {
-						toastr.error(response.message, "Error", toastr_opts);
-					}        
-				},
-			});	
-		 
-	 });
-	 
-	 	  $(document).on('change','.ticketgroup',function(e){
-		   var changeGroupID =  	$(this).val();
-		   if(changeGroupID)
-		   {
-		   	 changeGroupID = parseInt(changeGroupID);
-			 var ajax_url  = baseurl+'/customer/ticketgroups/'+changeGroupID+'/getgroupagents';
-			 $.ajax({
-					url: ajax_url,
-					type: 'POST',
-					dataType: 'json',
-					async :false,
-					cache: false,
-					contentType: false,
-					processData: false,
-					data:{s:1},
-					success: function(response) {
-					   if(response.status =='success')
-					   {			
-						   var $el = this;		   
-						   console.log(response.data);
-						   $('#ticketagent option:gt(0)').remove();
-						   $.each(response.data, function(key,value) {							  
-							  $('#ticketagent').append($("<option></option>").attr("value", value).text(key));
-							});					
-							$('#ticketagent').val('');
-							$('#s2id_ticketagent .select2-chosen').html('Select');
-						}else{
-							toastr.error(response.message, "Error", toastr_opts);
-						}                   
-					}
-					});	
-		return false;		
-		   }
-		   
-	  });
 	  
 	  
 	    $(document).on("click","#addReplyTtachment",function(ee){
@@ -459,7 +385,7 @@ $(document).ready(function(e) {
 							success: function(response){	console.log(response);
 									if(response.status =='success'){									
 									toastr.success(response.message, "Success", toastr_opts);
-									$('#TicketStatus').val(CloseStatus).trigger('change');
+									$('#TicketStatus').val(response.close_id).trigger('change');
 								}else{
 									toastr.error(response.message, "Error", toastr_opts);
 								}								

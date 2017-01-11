@@ -8,9 +8,12 @@
 <h3>Tickets</h3>
 @include('includes.errors')
 @include('includes.success')
-<p class="text-right"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}"   class="btn btn-red delete_ticket tooltip-primary"><i class="fa fa-close"></i> </a> @if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-backward"></i> </a> @endif
-  @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-forward"></i> </a> @endif </p>
-<div class="mail-env"> 
+
+<div class="pull-left"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}"   class="btn btn-red delete_ticket tooltip-primary"><i class="fa fa-close"></i> </a>  </div>
+  <div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-backward"></i> </a> @endif
+  @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-forward"></i> </a> @endif</div>
+ <div class="clear clearfix"></div>
+<div class="mail-env margin-top"> 
   
   <!-- compose new email button -->
   <div class="mail-sidebar-row visible-xs"> <a href="mailbox-compose.html" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
@@ -56,11 +59,10 @@
     @endif
     <?php if(count($TicketConversation)>0){
 		foreach($TicketConversation as $TicketConversationData){
-			
 		 ?>
     <div class="mail-reply-seperator"></div>
     <div class="mail-info">
-      <div class="mail-sender dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span>To</span> ({{$TicketConversationData->Requester}}) </a> </div>
+      <div class="mail-sender dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span>@if($TicketConversationData->EmailCall==Messages::Received)From @elseif($TicketConversationData->EmailCall==Messages::Sent)To @endif</span> ({{$TicketConversationData->Requester}}) </a> </div>
       <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->TicketConversationID}}" data-original-title="Forward" class="btn btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
     <div class="mail-text"> {{$TicketConversationData->TicketMessage}} </div>
@@ -100,7 +102,7 @@
     <div class="mail-menu">
       <div class="row">
         <div class="col-md-12">
-          <div class="panel panel-primary margin-top" data-collapsed="0"> 
+          <div class="panel panel-primary" data-collapsed="0"> 
             
             <!-- panel head -->
             <div class="panel-heading">
@@ -110,7 +112,54 @@
             
             <!-- panel body -->
             <div class="panel-body">
-              <p> <a class="blue_link" href="#">{{$ticketdata->RequesterName}}</a> <a href="#">({{$ticketdata->Requester}})</a>. </p>
+            @if(!empty($ticketdata->RequesterName))
+            <p><a class="blue_link" href="#">{{$ticketdata->RequesterName}}</a><br><a href="#">({{$ticketdata->Requester}})</a>. </p>
+            @else
+            <p><a href="#">{{$ticketdata->Requester}}</a></p>
+            @endif
+			@if($RequesterContact)           
+<form role="form" id="form-tickets-owner_edit" method="post"  class="form-horizontal form-groups-bordered validate" novalidate>
+           <div class="form-group">
+                        <label for="field-1" class="col-sm-3 control-label">Contact Owner</label>
+
+                        <div class="col-sm-9">
+                            <?php
+                                $selected_owner = $RequesterContact->Owner;
+                            ?>
+                             <select name="Owner" class="select2" data-allow-clear="true" data-placeholder="Account Owner...">
+                                <option></option>
+                                <optgroup label="Leads">
+                                    @if( count($lead_owners))
+                                    @foreach($lead_owners as $lead_owner)
+                                    @if(!empty($lead_owner->AccountName) && $lead_owner->Status == 1)
+                                    <option value="{{$lead_owner->AccountID}}" @if($selected_owner == $lead_owner->AccountID) {{"selected"}} @endif >
+                                    {{$lead_owner->AccountName}}
+                                    </option>
+                                    @endif
+                                    @endforeach
+                                    @endif
+                                </optgroup>
+                                <optgroup label="Accounts">
+                                    @if( count($account_owners))
+                                    @foreach($account_owners as $account_owner)
+                                    @if(!empty($account_owner->AccountName) && $account_owner->Status == 1)
+                                    <option value="{{$account_owner->AccountID}}" @if($selected_owner == $account_owner->AccountID) {{"selected"}} @endif >
+                                    {{$account_owner->AccountName}}
+                                    </option>
+                                    @endif
+                                    @endforeach
+                                    @endif
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+    <div class="col-md-5 pull-right">
+      <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left" id="update_ticket_owner" data-loading-text="Loading..."> Update <i class="entypo-mail"></i> </button>
+    </div>
+  </div>
+  </form>
+            @endif
             </div>
           </div>
         </div>
@@ -124,32 +173,7 @@
             </div>
             
             <!-- panel body -->
-            <div class="panel-body">
-              <form role="form" id="tickets_filter" method="post" style="padding-right:25px;"  class="form-horizontal form-groups-bordered validate" novalidate>
-                <div class="form-group" style="margin-top: 30px;">
-                  <label for="field-1" class="col-md-4 control-label">Status</label>
-                  <div class="col-md-8"> {{Form::select('status',$status,$ticketdata->Status,array("class"=>"select2","id"=>"TicketStatus"))}} </div>
-                </div>
-                <div class="form-group">
-                  <label for="field-1" class="col-md-4 control-label">Priority</label>
-                  <div class="col-md-8"> {{Form::select('priority', $Priority, $ticketdata->Priority ,array("class"=>"select2"))}} </div>
-                </div>
-                <div class="form-group">
-                  <label for="field-1" class="col-md-4 control-label">Group</label>
-                  <div class="col-md-8"> {{Form::select('group', $Groups, $ticketdata->Group ,array("class"=>"select2 ticketgroup"))}} </div>
-                </div>
-                <div class="form-group">
-                  <label for="field-1" class="col-md-4 control-label">Agent</label>
-                  <div class="col-md-8"> {{Form::select('agent', $Agents, $ticketdata->Agent ,array("class"=>"select2","id"=>"ticketagent"))}} </div>
-                </div>
-                <div class="form-group margin-bottom">
-                  <div class="col-md-4">&nbsp;</div>
-                  <div class="col-md-8">
-                    <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" id="update_ticket" data-loading-text="Loading..."> Update <i class="entypo-mail"></i> </button>
-                  </div>
-                </div>
-              </form>
-            </div>
+            <div class="panel-body">@include('tickets.ticket_detail_dynamic_fields')</div>
           </div>
         </div>
       </div>
@@ -177,8 +201,16 @@
 .mail-env .mail-body .mail-info{background:#fff none repeat scroll 0 0;}
 .mail-reply-seperator{background:#f3f4f4 none repeat scroll 0 0; width:100%; height:10px;}
 .mail-env{background:none !important;}
+.mail-menu {background:#f1f1f1;}
 .mail-menu .row{margin-right:0px !important; margin-left:0px !important;}
-.blue_link{color:#0066cc; font-size:16px;}
+.mail-menu .panel{margin-bottom:5px;}
+.blue_link{font-size:16px; font-weight:bold;}
+.mail-header{padding:10px !important;}
+.mail-env .mail-body .mail-info .mail-sender, .mail-env .mail-body .mail-info .mail-date{padding:10px;}
+.mail-env .mail-body .mail-attachments{padding-top:10px; padding-left:10px; padding-right:0px; padding-bottom:0px;}
+.mail-env .mail-body .mail-attachments h4{margin-bottom:10px;}
+#tickets_filter .form-groups-bordered .form-group{padding-bottom:10px !important;}
+
 </style>
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
@@ -245,7 +277,7 @@ $(document).ready(function(e) {
 		});
 	});
 	
-			 $("#EmailActionform").submit(function (event) {
+		 $("#EmailActionform").submit(function (event) {
 		//////////////////////////          	
 			var email_url 	= 	"<?php echo URL::to('/tickets/'.$ticketdata->TicketID.'/actionsubmit/');?>";
           	event.stopImmediatePropagation();
@@ -277,72 +309,8 @@ $(document).ready(function(e) {
 		 
 	 });
 	 
-	  $("#tickets_filter").submit(function (event) {
-		  $('#update_ticket').button('loading');
-			var email_url 	= 	"<?php echo URL::to('/tickets/'.$ticketdata->TicketID.'/updateticketattributes/');?>";
-          	event.stopImmediatePropagation();
-            event.preventDefault();			
-			var formData = new FormData($('#tickets_filter')[0]);
-			
-			 $.ajax({
-                url: email_url,
-                type: 'POST',
-                dataType: 'json',
-				data:formData,
-				async :false,
-				cache: false,
-                contentType: false,
-                processData: false,
-                success: function(response) {					
-					$("#update_ticket").button('reset');
-					if (response.status == 'success') {
-						toastr.success(response.message, "Success", toastr_opts);
-					} else {
-						toastr.error(response.message, "Error", toastr_opts);
-					}        
-				},
-			});	
-		 
-	 });
+	
 	 
-	 	  $(document).on('change','.ticketgroup',function(e){
-		   var changeGroupID =  	$(this).val();
-		   if(changeGroupID)
-		   {
-		   	 changeGroupID = parseInt(changeGroupID);
-			 var ajax_url  = baseurl+'/ticketgroups/'+changeGroupID+'/getgroupagents';
-			 $.ajax({
-					url: ajax_url,
-					type: 'POST',
-					dataType: 'json',
-					async :false,
-					cache: false,
-					contentType: false,
-					processData: false,
-					data:{s:1},
-					success: function(response) {
-					   if(response.status =='success')
-					   {			
-						   var $el = this;		   
-						   console.log(response.data);
-						   //$('#ticketagent option:gt(0)').remove();
-						   $('#ticketagent option').remove();
-						   $.each(response.data, function(key,value) {							  
-							  $('#ticketagent').append($("<option></option>").attr("value", value).text(key));
-							});					
-							$('#ticketagent').val('');
-							$('#s2id_ticketagent .select2-chosen').html('Select');
-						}else{
-							toastr.error(response.message, "Error", toastr_opts);
-						}                   
-					}
-					});	
-		return false;		
-		   }
-		   
-	  });
-	  
-	  
 	    $(document).on("click","#addReplyTtachment",function(ee){
 			 file_count++;                
 				$('#filecontrole2').click();
@@ -515,7 +483,36 @@ $(document).ready(function(e) {
 				}
             });
 			
-			
+		@if($RequesterContact)	
+	$('#form-tickets-owner_edit').submit(function(e) {
+		e.preventDefault();
+		e.stopImmediatePropagation();	  
+		$("#form-tickets-owner_edit").find('#update_ticket_owner').addClass('disabled');
+		$("#form-tickets-owner_edit").find('#update_ticket_owner').button('loading');					
+		var formData = new FormData($(this)[0]);
+		var ajax_url = baseurl+'/contacts/{{$RequesterContact->ContactID}}/updatecontactowner';
+		 $.ajax({
+				url: ajax_url,
+				type: 'POST',
+				dataType: 'json',
+				async :false,
+				cache: false,
+				contentType: false,
+				processData: false,
+				data:formData,
+				success: function(response) { 
+				   if(response.status =='success'){					   
+						ShowToastr("success",response.message); 		
+					}else{
+						toastr.error(response.message, "Error", toastr_opts);
+					} 
+					$("#form-tickets-owner_edit").find('.btn').button('reset');	
+				}
+				});	
+	
+				return false;
+            });
+			@endif
 });
 setTimeout(setagentval(),6000);
 	function setagentval(){

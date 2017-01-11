@@ -14,8 +14,11 @@
 <link href="{{ URL::asset('assets/formbuilder/css/plugins.css')}}" media="screen" rel="stylesheet" type="text/css" />
 <link href="{{ URL::asset('assets/formbuilder/css/sprites.css')}}" media="screen" rel="stylesheet" type="text/css" />
 <link href="{{ URL::asset('assets/formbuilder/css/app.css')}}" media="screen" rel="stylesheet" type="text/css" />
+<link href="{{ URL::asset('assets/css/neon-forms.css')}}" media="screen" rel="stylesheet" type="text/css" />
+<link href="{{ URL::asset('assets/css/neon-theme.css')}}" media="screen" rel="stylesheet" type="text/css" />
 <style>
 .phpdebugbar{display:none;}
+.antipattern{background:#f1f1f1 !important;}
 </style>
 <script type="text/javascript">	var baseurl = "{{URL::to('/')}}"; 	</script>
 <script src="{{ URL::asset('assets/formbuilder/js/defaults.js')}}" type="text/javascript"></script>
@@ -30,8 +33,7 @@
     <div id="Pagearea" class="Pagearea">
       <div class="ticket_fields">
         <div class="page-header-sticky custom-field-header" rel="sticky">
-          <div class="sticky-header-wrapper">
-            <h3 class="lead pull-left">Ticket Fields</h3>
+          <div class="sticky-header-wrapper">            
             <div class="pull-right mb20"> <a href="/admin/home" class="btn">Cancel</a>
               <input class="btn btn-primary save-custom-form" data-commit="Save" name="commit" value="Save" type="submit">
             </div>

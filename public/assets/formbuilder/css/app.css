@@ -164,23 +164,6 @@
 .cust-satisfaction-rating .radio {
     padding-right: 0
 }
-.survey-rating {
-    height: 18px;
-    width: 18px;
-    background-color: #eee;
-    vertical-align: middle;
-    display: inline-block;
-    margin-right: 5px;
-    border-radius: 100%
-}
-.flexcontainer {
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: row;
-    flex-direction: row;
-    -webkit-justify-content: space-between;
-    justify-content: space-between
-}
 .survey-card,
 .empty-survey-card {
     float: left;
@@ -6083,11 +6066,10 @@ label.select-header {
 }
 .ticket_fields .custom-field-form .options-wrapper .opt-inner-wrap {
     *zoom: 1;
-    background-color: #F7F7DC;
+    background-color: #fff;
     border: 1px dotted;
-    @iclude border-right(1px solid #eee);
     border-right: 0;
-    border-radius: 5px 0 0 5px
+    border-radius: 5px 0 0 5px;
 }
 .ticket_fields .custom-field-form .options-wrapper .opt-inner-wrap:after {
     content: "";
@@ -6238,7 +6220,7 @@ label.select-header {
     padding-right: 10px
 }
 .ticket_fields .custom-field .options.delete-field {
-    border-right: 1px solid #eee;
+    border-right: 1px solid #fff;
     border-radius: 5px 0 0 5px
 }
 .ticket_fields .custom-field .options[class*='-strike-thru'] {
@@ -6247,7 +6229,7 @@ label.select-header {
 }
 .ticket_fields .custom-field .options:hover:not([class*='-strike-thru']),
 .ticket_fields .custom-field .options.hover:not([class*='-strike-thru']) {
-    background-color: #ebebc3;
+    background-color: #fff;
     color: #000
 }
 .ticket_fields .custom-field.date .ficon-date {
@@ -6328,7 +6310,7 @@ label.select-header {
 .ticket_fields .custom-field:hover,
 .ticket_fields .custom-field.hover,
 .ticket_fields .custom-field.active {
-    background-color: #F7F7DC;
+    background-color: #fff;
     border: 1px dotted;
     filter: progid: DXImageTransform.Microsoft.Alpha(enabled=false);
     opacity: 1;

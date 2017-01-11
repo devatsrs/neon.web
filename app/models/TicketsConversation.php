@@ -4,4 +4,5 @@ class TicketsConversation extends \Eloquent {
     protected $primaryKey 	= 	 "TicketConversationID";
 	protected $guarded 		=	 array("TicketConversationID");
 	protected $fillable		= 	 [];
+	
 }

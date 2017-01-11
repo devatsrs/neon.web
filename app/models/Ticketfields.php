@@ -11,8 +11,8 @@ class Ticketfields extends \Eloquent {
 	protected $fillable = [];
 	
 	
-	static  $FIELD_TYPE_STATIC  		= 	0;
-    static  $FIELD_TYPE_DYNAMIC 		= 	1;
+	const  FIELD_TYPE_STATIC  		= 	0;
+    const  FIELD_TYPE_DYNAMIC 		= 	1;
 	
 	const  FIELD_HTML_TEXT    		= 	1;
 	const  FIELD_HTML_TEXTAREA    	= 	2;
@@ -56,5 +56,64 @@ class Ticketfields extends \Eloquent {
 			
 	public static 	$staticfields = array("default_requester","default_subject" ,"default_ticket_type" ,"default_status" ,"default_priority" ,"default_group","default_agent","default_description");
 	
+	
+	static	function OptimizeDbFields($Ticketfields){
+		//$clas = (object) array();
+		$result 	=  	 array();
+		
+		foreach($Ticketfields as $key =>  $TicketFieldsData){
+				$data						   =		array();
+				$TicketFieldsID 			   = 		$TicketFieldsData->TicketFieldsID;
+				$TicketfieldsValues 	 	   = 		TicketfieldsValues::where(["FieldsID"=>$TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
+				$data['id']       			   = 		$TicketFieldsData->TicketFieldsID;
+				$data['type']        		   = 		Ticketfields::$type[$TicketFieldsData->FieldHtmlType];
+				$data['name']       		   = 		$TicketFieldsData->FieldName;
+				$data['label']       		   = 		$TicketFieldsData->AgentLabel;
+				$data['dom_type']       	   = 		$TicketFieldsData->FieldDomType;
+				$data['field_type']  		   = 		$TicketFieldsData->FieldType;
+				$data['label_in_portal']  	   = 		$TicketFieldsData->CustomerLabel;
+				$data['description']  		   = 		$TicketFieldsData->FieldDesc;
+				$data['has_section']  		   = 		'';				
+				$data['position']  			   = 		$TicketFieldsData->FieldOrder;
+				$data['active']  			   = 		1;
+				$data['required']  			   = 		$TicketFieldsData->AgentReqSubmit;
+				$data['required_for_closure']  = 		$TicketFieldsData->AgentReqClose;
+				$data['visible_in_portal']     = 		$TicketFieldsData->CustomerDisplay;
+				$data['editable_in_portal']    = 		$TicketFieldsData->CustomerEdit;
+				$data['required_in_portal']    = 		$TicketFieldsData->CustomerReqSubmit;
+				$data['FieldStaticType']       = 		$TicketFieldsData->FieldStaticType;				
+				$data['field_options']  	   = 		(object) array();				
+				$choices 					   = 		array();	
+				
+				foreach($TicketfieldsValues as $key => $TicketfieldsValuesData)
+				{
+						if($data['field_type']=='default_status')
+						{
+							$choices[] =  array('ValuesID'=>$TicketfieldsValuesData->ValuesID,'Title'=>$TicketfieldsValuesData->FieldValueAgent,'TitleCustomer'=>$TicketfieldsValuesData->FieldValueCustomer,"Stop_sla_timer"=>$TicketfieldsValuesData->FieldSlaTime,"FieldType"=>$TicketfieldsValuesData->FieldType);
+						}
+						else {
+							$choices[] =  array('Title'=>$TicketfieldsValuesData->FieldValueAgent,"ValuesID"=>$TicketfieldsValuesData->ValuesID,"FieldOrder"=>$TicketfieldsValuesData->FieldOrder);
+						}
+				}				
+				$data['choices']	=  $choices;			
+				$result[] 			=  $data;	
+		}		
+		//echo "<pre>"; print_r($result); echo "<pre>"; exit;
+		return $result;
+	}
+	
+	static function TicketFeildsGridText($fld){
+		if($fld=='dropdown_blank'){
+			return "Dropdown";
+		}
+		
+		if($fld=='html_paragraph'){
+			return "Paragraph";
+		}
+		
+		return ucfirst($fld);
+		
+	
+	}
 
 }

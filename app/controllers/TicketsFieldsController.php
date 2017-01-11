@@ -12,16 +12,8 @@ private $validlicense;
 	 }
 	
 	function index(){
-		$this->IsValidLicense();
-		$response 		=   NeonAPI::request('ticketsfields/getfields',array(),true,false,false);   
-		$data			=	array();	
-		if($response->status=='success'){
-			Session::set("ticketsfields", $response->data );
-		}
-		else{
-			Session::set("ticketsfields", array());
-		}
-		return View::make('ticketsfields.index', compact('data'));   
+		$this->IsValidLicense();		   
+		return View::make('ticketsfields.index', compact('data','response_extensions','final'));   
 	}
 	
 	function iframe(){
@@ -29,9 +21,10 @@ private $validlicense;
 		$this->IsValidLicense();
 		
 		$data 			= 	 array();	
-		$Ticketfields	=	Session::get("ticketsfields");		
+		$final			=	Session::get("ticketsfields");		
 		$Checkboxfields =   json_encode(Ticketfields::$Checkboxfields);
-		$final		 	=   $this->OptimizeDbFields($Ticketfields);
+		$Ticketfields	=	Session::get("ticketsfields");		
+		$final		 	=   Ticketfields::OptimizeDbFields($Ticketfields);
 		$finaljson		=   json_encode($final);		
 		
 		return View::make('ticketsfields.iframe', compact('data','Ticketfields',"Checkboxfields","finaljson"));   
@@ -74,7 +67,7 @@ private $validlicense;
 					$choicesdata['created_at']       		= 		date("Y-m-d H:i:s");
 					$choicesdata['created_by']       		= 		User::get_user_full_name();		
 					 $id	=	TicketfieldsValues::insertGetId($choicesdata);				
-					 Log::info("jsonData create choices id".$id);
+					
 				}	
 			}
 			
@@ -102,7 +95,7 @@ private $validlicense;
 				if(count($jsonData->choices)>0)
 				{
 					foreach($jsonData->choices as $key => $choices)
-					{ Log::info(print_r($choices,true));
+					{ 
 						$choicesdata 	  = 	array();
 						
 						if($data['FieldType']=='default_status')
@@ -198,65 +191,200 @@ private $validlicense;
 		return	Redirect::to('/ticketsfields/iframe'); 	
 	}
 	
-	function OptimizeDbFields($Ticketfields){
-		//$clas = (object) array();
-		$result 	=  	 array();
+	
+	function ajax_ticketsfields(){	
 		
-		foreach($Ticketfields as $key =>  $TicketFieldsData){
-				$data						   =		array();
-				$TicketFieldsID 			   = 		$TicketFieldsData->TicketFieldsID;
-				$TicketfieldsValues 	 	   = 		TicketfieldsValues::where(["FieldsID"=>$TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
-				$data['id']       			   = 		$TicketFieldsData->TicketFieldsID;
-				$data['type']        		   = 		Ticketfields::$type[$TicketFieldsData->FieldHtmlType];
-				$data['name']       		   = 		$TicketFieldsData->FieldName;
-				$data['label']       		   = 		$TicketFieldsData->AgentLabel;
-				$data['dom_type']       	   = 		$TicketFieldsData->FieldDomType;
-				$data['field_type']  		   = 		$TicketFieldsData->FieldType;
-				$data['label_in_portal']  	   = 		$TicketFieldsData->CustomerLabel;
-				$data['description']  		   = 		$TicketFieldsData->FieldDesc;
-				$data['has_section']  		   = 		'';				
-				$data['position']  			   = 		$TicketFieldsData->FieldOrder;
-				$data['active']  			   = 		1;
-				$data['required']  			   = 		$TicketFieldsData->AgentReqSubmit;
-				$data['required_for_closure']  = 		$TicketFieldsData->AgentReqClose;
-				$data['visible_in_portal']     = 		$TicketFieldsData->CustomerDisplay;
-				$data['editable_in_portal']    = 		$TicketFieldsData->CustomerEdit;
-				$data['required_in_portal']    = 		$TicketFieldsData->CustomerReqSubmit;
-				$data['field_options']  	   = 		(object) array();				
-				$choices 					   = 		array();	
+       $response 			=   NeonAPI::request('ticketsfields/getfields',array(),true,false,false);   		
+	   $message 			= 	'';       
+	    $TicketfieldsData	=	array();
+		
+        if($response->status!='failed') {
+            $TicketfieldsData = $response->data;
+        }else{
+            $message = json_response_api($response,false,false);
+        }
+		
+		$Ticketfields		=   Ticketfields::OptimizeDbFields($TicketfieldsData);
+		//Log::info("Ticketfields");		//Log::info(print_r($Ticketfields,true));
+		
+        return View::make('ticketsfields.board', compact('Ticketfields','message'))->render();
+	}
+	
+	function Ajax_Ticketsfields_Choices(){
+		
+		$data    =  Input::all();
+		$field   =  $data['type'];
+		$values  =  json_decode($data['values']);
+		
+		if(!empty($field))
+		{
+			return View::make('ticketsfields.board_choices', compact('field','values'))->render();				
+		}
+	}
+	
+	function Save_Single_Field(){
+		$postdata    =  Input::all();
+			
+		 try
+		 {		//Log::info(print_r($postdata,true)); 			 	Log::info(print_r(json_decode($postdata['choices']),true)); 		 			exit;
+				DB::beginTransaction();
+				$data['CustomerLabel']       			   = 		$postdata['label_in_portal'];
+				$data['FieldHtmlType']        			   = 	 	Ticketfields::$TypeSave[$postdata['type']];				
+				$data['FieldType']  		  			   = 		$postdata['field_type'];
 				
-				if(count($TicketfieldsValues)>0 &&  $data['field_type']!='default_priority' &&  $data['field_type']!='default_group'){
-					foreach($TicketfieldsValues as $key => $TicketfieldsValuesData){
-						if($data['field_type']=='default_status')
-						{
-						$choices[] = (object) array('status_id'=>$TicketfieldsValuesData->ValuesID,'name'=>$TicketfieldsValuesData->FieldValueAgent,'customer_display_name'=>$TicketfieldsValuesData->FieldValueCustomer,"stop_sla_timer"=>$TicketfieldsValuesData->FieldSlaTime,"deleted"=>'');
-						}
-						else if($data['field_type']=='default_ticket_type'){
-						$choices[] =  array('0'=>$TicketfieldsValuesData->FieldValueAgent,'1'=>$TicketfieldsValuesData->FieldValueAgent,"2"=>$TicketfieldsValuesData->ValuesID);
-						}else{
-						$choices[] =  array('0'=>$TicketfieldsValuesData->FieldValueAgent,"1"=>$TicketfieldsValuesData->ValuesID);
-						}
-					}
-				}else{									
-					if($data['field_type']=='default_priority'){						
-						$TicketPriority = DB::table('tblTicketPriority')->orderBy('PriorityID', 'asc')->get(); 								
-						foreach($TicketPriority as $TicketPriorityData){						
-							$choices[] =  array("0"=>$TicketPriorityData->PriorityValue,'1'=>$TicketPriorityData->PriorityID);
-						}
-					}
-					
-					if($data['field_type']=='default_group'){						
-						$TicketGroups = DB::table('tblTicketGroups')->orderBy('GroupID', 'asc')->get(); 						
-						foreach($TicketGroups as $TicketGroupsData){
-							$choices[] =  array("0"=>$TicketGroupsData->GroupName,'1'=>$TicketGroupsData->GroupID);
-						}
-					}
+				if(isset($postdata['label'])){
+					$data['AgentLabel']        			   = 		$postdata['label'];
+					$data['FieldName']        			   = 		$postdata['label'];			
 				}
 				
-				$data['choices']	=  $choices;			
-				$result[] 			=  (object) $data;	
-		}		
-		//echo "<pre>"; print_r($result); echo "<pre>"; exit;
-		return $result;
-	}	
+				$data['FieldDomType']       	  		   = 		$postdata['type'];				
+				$data['AgentReqSubmit']       			   = 		isset($postdata['required'])?$postdata['required']:0;
+				$data['AgentReqClose']       			   = 		isset($postdata['required_for_closure'])?$postdata['required_for_closure']:0;
+				$data['CustomerDisplay']       			   = 		isset($postdata['visible_in_portal'])?$postdata['visible_in_portal']:0;
+				$data['CustomerEdit']       			   = 		isset($postdata['editable_in_portal'])?$postdata['editable_in_portal']:0;
+				$data['CustomerReqSubmit']       		   = 		isset($postdata['required_in_portal'])?$postdata['required_in_portal']:0;
+				$data['FieldOrder']       		   		   = 		$postdata['position'];	
+				$data['FieldStaticType']				   =		Ticketfields::FIELD_TYPE_DYNAMIC;	
+							
+				if(!isset($postdata['id']) && empty($postdata['id']))
+				{	
+						$data['created_at']       		   		   = 		date("Y-m-d H:i:s");
+						$data['created_by']       		   		   = 		User::get_user_full_name();			
+						$TicketFieldsID 						   = 		Ticketfields::insertGetId($data);	
+						
+						if(isset($postdata['choices']))
+						{
+							$choices 								   = 		json_decode($postdata['choices']);
+							
+							foreach($choices as $choices_data)
+							{	
+								$choicesdata 							=		array();
+								$choicesdata['FieldsID']	     		= 		$TicketFieldsID;					
+								$choicesdata['FieldType']	     		= 		1;					
+								$choicesdata['FieldValueAgent']	     	= 		$choices_data->title;
+								$choicesdata['FieldValueCustomer']	 	= 		$choices_data->title;
+								$choicesdata['FieldOrder']			 	= 		isset($choices_data->FieldOrder)?$choices_data->FieldOrder:0;
+								$choicesdata['created_at']       		= 		date("Y-m-d H:i:s");
+								$choicesdata['created_by']       		= 		User::get_user_full_name();	
+								TicketfieldsValues::insertGetId($choicesdata);	
+							}
+						}
+				}
+				else
+				{	
+					$data['updated_at']       		   		   = 		date("Y-m-d H:i:s");
+					$data['updated_by']       		   		   = 		User::get_user_full_name();			
+					Ticketfields::find($postdata['id'])->update($data);	
+					
+					if(($postdata['type']=='dropdown') && ($postdata['field_type']!='default_status'))
+					{	
+						$choices 		= 	json_decode($postdata['choices']);
+						$ticket_types 	= 	TicketfieldsValues::where(["FieldsID"=>$postdata['id']])->get();
+						$found = 0;
+						foreach($choices as $choices_data){ 							
+								
+							$choicesdata 							=		array();
+							$choicesdata['FieldsID']	     		= 		$postdata['id'];															
+							$choicesdata['FieldValueAgent']	     	= 		$choices_data->title;
+							$choicesdata['FieldValueCustomer']	 	= 		$choices_data->title;
+							$choicesdata['FieldOrder']			 	= 		isset($choices_data->FieldOrder)?$choices_data->FieldOrder:0;
+																
+							if(!isset($choices_data->ValuesID)){ 
+								$choicesdata['FieldType']	     		= 		1;	
+								$choicesdata['created_at']       		= 		date("Y-m-d H:i:s");
+								$choicesdata['created_by']       		= 		User::get_user_full_name();	
+								TicketfieldsValues::insertGetId($choicesdata);	
+								continue;				
+							}
+							
+							if(!empty($choices_data->ValuesID)){ 
+								$choicesdata['updated_at']       		= 		date("Y-m-d H:i:s");
+								$choicesdata['updated_by']       		= 		User::get_user_full_name();	
+								TicketfieldsValues::find($choices_data->ValuesID)->update($choicesdata);		
+								continue;
+							}								
+						}
+						if(isset($postdata['deleted_choices']) && !empty($postdata['deleted_choices'])){
+								$deleted_choices = explode(",",$postdata['deleted_choices']);
+								foreach($deleted_choices as $deleted_choices_data){									
+									TicketfieldsValues::find($deleted_choices_data)->delete();		
+								}
+						}					
+					}
+					
+					if(($postdata['type']=='dropdown') && ($postdata['field_type']=='default_status'))
+					{	
+						$choices 		= 	json_decode($postdata['choices']);
+						$ticket_types 	= 	TicketfieldsValues::where(["FieldsID"=>$postdata['id']])->get();
+						$found = 0;
+						foreach($choices as $choices_data){ 							
+							$choicesdata 							=		array();
+							$choicesdata['FieldsID']	     		= 		$postdata['id'];
+							$choicesdata['FieldValueAgent']	     	= 		$choices_data->title;
+							$choicesdata['FieldValueCustomer']	 	= 		$choices_data->titlecustomer;
+							$choicesdata['FieldSlaTime']	 		= 		!empty($choices_data->Stop_sla_timer)?$choices_data->Stop_sla_timer:0;							
+							$choicesdata['FieldOrder']			 	= 		isset($choices_data->FieldOrder)?$choices_data->FieldOrder:0;
+																
+							if(!isset($choices_data->ValuesID)){ 
+								$choicesdata['FieldType']	     		= 		1;					
+								$choicesdata['created_at']       		= 		date("Y-m-d H:i:s");
+								$choicesdata['created_by']       		= 		User::get_user_full_name();	
+								TicketfieldsValues::insertGetId($choicesdata);	
+								continue;				
+							}
+							
+							if(!empty($choices_data->ValuesID)){ 
+								$choicesdata['updated_at']       		= 		date("Y-m-d H:i:s");
+								$choicesdata['updated_by']       		= 		User::get_user_full_name();	
+								TicketfieldsValues::find($choices_data->ValuesID)->update($choicesdata);		
+								continue;
+							}								
+						}
+						if(isset($postdata['deleted_choices']) && !empty($postdata['deleted_choices'])){
+								$deleted_choices = explode(",",$postdata['deleted_choices']);
+								foreach($deleted_choices as $deleted_choices_data){									
+									TicketfieldsValues::find($deleted_choices_data)->delete();		
+								}
+						}					
+					}
+					
+											
+				}
+				 DB::commit();
+				   return Response::json(["status" => "success", "message" => "Successfully updated."]);
+			 } catch (Exception $ex) {
+                    DB::rollback();
+                    return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+        	}				
+	}
+	
+	function Update_Fields_Sorting(){
+		$postdata    =  Input::all(); 
+		if(isset($postdata['main_fields_sort']) && !empty($postdata['main_fields_sort']))
+		{
+			try
+			{
+				DB::beginTransaction();
+				$main_fields_sort = json_decode($postdata['main_fields_sort']);
+				foreach($main_fields_sort as $main_fields_sort_Data){ 
+					Ticketfields::find($main_fields_sort_Data->data_id)->update(array("FieldOrder"=>$main_fields_sort_Data->FieldOrder));		
+				}
+				if(isset($postdata['deleted_main_fields']) && !empty($postdata['deleted_main_fields']))
+				{
+					$main_fields_delete = explode(",",$postdata['deleted_main_fields']);							
+					foreach($main_fields_delete as $main_fields_delete_data){ 
+						Ticketfields::find($main_fields_delete_data)->delete();		
+						TicketfieldsValues::where(["FieldsID"=>$main_fields_delete_data])->delete();
+					}					
+				}
+				
+				DB::commit();
+				 return Response::json(["status" => "success", "message" => "Successfully updated."]);
+			} catch (Exception $ex) {
+                    DB::rollback();
+                    return Response::json(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+        	}	
+		}
+	}
+
 }

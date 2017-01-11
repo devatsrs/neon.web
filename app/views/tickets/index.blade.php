@@ -12,7 +12,7 @@
       <div class="panel panel-primary" data-collapsed="0">
         <div class="panel-heading">
           <div class="panel-title"> Filter </div>
-          <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+          <div class="panel-options"> <a class="filter_minimize_btn" href="#" data-rel="collapse"><i class=" entypo-down-open"></i></a> </div>
         </div>
         <div class="panel-body" id="paymentsearch">
           <div class="form-group">
@@ -51,28 +51,32 @@
         <!-- mail table header -->
         <thead>
           <tr>
-            <th colspan="2"> <?php if(count($result)>0){ ?>
-              <div class="mail-pagination"> <strong>
-                <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
-                -
-                <?php  echo $current+count($result); ?>
-                </strong> <span>of {{$totalResults}}</span>
-                <div class="btn-group">
-                  <?php if(count($result)>=$iDisplayLength){ ?>
-                  <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
-                  <?php } ?>
+            <th colspan="3"> <?php if(count($result)>0){ ?>
+              <div class="mail-select-options" style="width:80px;s"> <span> {{Form::select('page',array("10"=>"10","25"=>"25","50"=>"50","100"=>"100"),$per_page,array("class"=>"select2","id"=>"per_page"))}} </span> </div>
+              <span>records per page</span>
+              <div class="pull-right">
+                <div class="hidden mail-pagination"> <strong>
+                  <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
+                  -
+                  <?php  echo $current+count($result); ?>
+                  </strong> <span>of {{$totalResults}}</span>
+                  <div class="btn-group">
+                    <?php if(count($result)>=$iDisplayLength){ ?>
+                    <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
+                    <?php } ?>
+                  </div>
                 </div>
-              </div>
-              <div class="btn-group">
-                <button type="button" class="btn btn-green dropdown-toggle" data-toggle="dropdown"> Sorted by {{$Sortcolumns[$data['iSortCol_0']]}} <span class="caret"></span> </button>
-                <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">
-                <?php foreach($Sortcolumns as $key => $SortcolumnsData){ ?>
-	              <li><a class="sort_fld @if($key==$data['iSortCol_0']) checked @endif" action_type="sort_field" action_value="{{$key}}"   href="#"> 
-                  <i class="entypo-check" @if($key!=$data['iSortCol_0']) style="visibility:hidden;" @endif ></i>  {{@$SortcolumnsData}}</a></li>				<?php } ?>
-                  <li class="divider"></li>
-                  <li><a class="sort_type @if($data['sSortDir_0']=='asc') checked @endif" action_type="sort_type" action_value="asc" href="#">  <i class="entypo-check" @if($data['sSortDir_0']!='asc') style="visibility:hidden;" @endif  ></i> Ascending</a> </li>
-                  <li><a class="sort_type @if($data['sSortDir_0']=='desc') checked @endif" action_type="sort_type" action_value="desc" href="#">  <i class="entypo-check" @if($data['sSortDir_0']!='desc') style="visibility:hidden;" @endif  ></i>  Descending</a> </li>                  
-                </ul>
+                <div class="pull-right btn-group">
+                  <button type="button" class="btn btn-green dropdown-toggle" data-toggle="dropdown"> Sorted by {{$Sortcolumns[$data['iSortCol_0']]}} <span class="caret"></span> </button>
+                  <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">
+                    <?php foreach($Sortcolumns as $key => $SortcolumnsData){ ?>
+                    <li><a class="sort_fld @if($key==$data['iSortCol_0']) checked @endif" action_type="sort_field" action_value="{{$key}}"   href="#"> <i class="entypo-check" @if($key!=$data['iSortCol_0']) style="visibility:hidden;" @endif ></i> {{@$SortcolumnsData}}</a></li>
+                    <?php } ?>
+                    <li class="divider"></li>
+                    <li><a class="sort_type @if($data['sSortDir_0']=='asc') checked @endif" action_type="sort_type" action_value="asc" href="#"> <i class="entypo-check" @if($data['sSortDir_0']!='asc') style="visibility:hidden;" @endif  ></i> Ascending</a> </li>
+                    <li><a class="sort_type @if($data['sSortDir_0']=='desc') checked @endif" action_type="sort_type" action_value="desc" href="#"> <i class="entypo-check" @if($data['sSortDir_0']!='desc') style="visibility:hidden;" @endif  ></i> Descending</a> </li>
+                  </ul>
+                </div>
               </div>
               <?php } ?>
             </th>
@@ -85,26 +89,28 @@
 		 foreach($result as $result_data){ 
 			 ?>
           <tr><!-- new email class: unread -->
-            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span><br>
-              Requester: <?php echo $result_data->Requester; ?><br>
-              Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?> </a></td>
+            <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span><br>
+              </a> <a href="{{URL::to('/')}}/tickets/user/{{$result_data->TicketID}}/detail" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
+             <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
+             <td><?php if($result_data->CustomerResponse==$result_data->Requester){echo "<span class='customerresponded'>CUSTOMER RESPONDED</span>";}else{echo "<span class='responsedue'>RESPONSE DUE</span>";} ?></td>
             <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
               <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>
-              <div>Agent:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->Agent; ?></span></div></td>
+              <div>Agent:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->Agent; ?></span></div>
+              <div>Group:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->GroupName; ?></span></div></td>
           </tr>
           <?php } }else{ ?>
           <tr>
-            <td align="center" colspan="2">No Result Found.</td>
+            <td align="center" colspan="3">No Result Found.</td>
           </tr>
           <?php } ?>
         </tbody>
         <!-- mail table footer -->
         <tfoot>
           <tr>
-            <th colspan="2"> <?php if(count($result)>0){ ?>
-              <div class="mail-pagination" > <?php echo $current+1; ?>-
+            <th colspan="3"> <?php if(count($result)>0){ ?>
+              <div class="mail-pagination" ><?php echo $current+1; ?> to
                 <?php  echo $current+count($result); ?>
-                <span>of {{$totalResults}}</span>
+                <span>of {{$totalResults}}</span> entries
                 <div class="btn-group">
                   <?php if(count($result)>=$iDisplayLength){ ?>
                   <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
@@ -124,7 +130,7 @@
 <style>
 .margin-left-mail{margin-right:15px;width:21%; }.mailaction{margin-right:10px;}.btn-blue{color:#fff !important;}
 .mail-body{width:100% !important; float:none !important;}
-.blue_link{color:#0066cc; font-size:16px;}
+.blue_link{font-size:16px; font-weight:bold;}
 .ticket_number{font-size:16px;}
 .col-time{text-align:left !important; font-size:12px;}
 .col-time span{color:black;}
@@ -132,10 +138,18 @@
 @if(count($result)>0)	 
 #table-4{display: block; padding-bottom:50px;}
 @endif
+.borderside{border-left-style: solid; border-left-width: 8px;}
+.bordersideLow{border-left-color:#00A651;}
+.bordersideMedium{border-left-color:#008ff9;}
+.bordersideHigh{border-left-color:#ffb613;}
+.bordersideUrgent{border-left-color:#CC2424;}
+.responsedue{color:#CC2424;}
+.customerresponded{color:#008ff9;}
 </style>
 <script type="text/javascript">
 	
-$(document).ready(function(e) {
+$(document).ready(function(e) {	
+	
 	var currentpage 	= 	0;
 	var next_enable 	= 	1;
 	var back_enable 	= 	1;
@@ -151,7 +165,9 @@ $(document).ready(function(e) {
 		var clicktype = $(this).attr('movetype');	
         ShowResult(clicktype);
     });
-	
+	setTimeout(function(){
+	$('.filter_minimize_btn').click();
+	},100);
 
 	
 	$(document).on('submit','#tickets_filter',function(e){		 
@@ -208,7 +224,11 @@ $(document).ready(function(e) {
 							 else
 							 {
 								currentpage =  currentpage-1;
-							 } 		 	 	
+							 } 	
+							   $("#per_page").select2({
+                    				minimumResultsForSearch: -1
+                				});
+								$('.mail-select-options .select2').css("visibility","visible");
 						}
 						else
 						{ 					
@@ -226,6 +246,16 @@ $(document).ready(function(e) {
 				});	
 	}
 	
+	$(document).on('change','#per_page',function(e){
+		e.stopImmediatePropagation();
+		e.preventDefault();		
+		per_page = $(this).val();		
+		clicktype   = 'next';
+		currentpage =  currentpage-1;
+		ShowResult(clicktype);
+		return false;		
+		
+	});
 	
 	$(document).on('click','.dropdown-green li a',function(e){
 		e.preventDefault();	

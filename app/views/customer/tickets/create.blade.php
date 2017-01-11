@@ -33,12 +33,12 @@
              <?php	
 			 continue; 
 			 }else{
-				if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+				if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 				 ?>
                  <div class="form-group">
-                 <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
+                 <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
             <div class="col-sm-9">
-              <input type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
+              <input type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->CustomerLabel}}" value="">
             </div>
             </div>
             <?php } ?>
@@ -51,10 +51,10 @@
 				 	 if($TicketfieldsData->FieldType == 'default_description'){
 						$class_textarea = 'wysihtml5box';
 					 }
-					 if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+					 if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 				 ?>
           <div class="form-group">
-            <label for="GroupDescription" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <label for="GroupDescription" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
             <div class="col-sm-9">
               <textarea   id='{{$id}}'  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld {{$class_textarea}}" ></textarea>
               <div class="form-group email_attachment">
@@ -74,10 +74,10 @@
 			     }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_CHECKBOX)
 				 {
-					  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+					  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 			     ?>
           <div class="form-group">
-            <label for="GroupDescription" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <label for="GroupDescription" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
             <div class="col-sm-9">
               <input class="checkbox rowcheckbox formfldcheckbox" value="0" name='Ticket[{{$TicketfieldsData->FieldType}}]' id='{{$id}}' type="checkbox">
             </div>
@@ -86,12 +86,12 @@
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXTNUMBER)
 				 { 
-				 if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+				 if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 			       ?>
           <div class="form-group">
-            <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
             <div class="col-sm-9">
-              <input type="number" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
+              <input type="number" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->CustomerLabel}}" value="">
             </div>
           </div>
           <?php		 
@@ -101,10 +101,10 @@
 				  if($TicketfieldsData->FieldType == 'default_group' || $TicketfieldsData->FieldType == 'default_agent'){
 			 		continue;
 				 }
-				  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+				  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 					 ?>
           <div class="form-group">
-            <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
             <div class="col-sm-9">
               <select name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld select2" id="{{$id}}" >
               <option value="0">Select</option>
@@ -122,7 +122,7 @@
 					$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
 					foreach($FieldValues as $FieldValuesData){
 					?>
-                <option value="{{$FieldValuesData->ValuesID}}">{{$FieldValuesData->FieldValueAgent}}</option>
+                <option value="{{$FieldValuesData->ValuesID}}">{{$FieldValuesData->FieldValueCustomer}}</option>
                 <?php
 					}
 				}
@@ -135,24 +135,24 @@
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_DATE)
 				 { 
-				 	if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+				 	if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 				 ?>
           <div class="form-group">
-            <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
             <div class="col-sm-9">
-              <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld datepicker" data-date-format="yyyy-mm-dd" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
+              <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld datepicker" data-date-format="yyyy-mm-dd" id="{{$id}}" placeholder="{{$TicketfieldsData->CustomerLabel}}" value="">
             </div>            
           </div>
           <?php					 
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_DECIMAL)
 				 {
-					  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+					  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 				 ?>
           <div class="form-group">
-            <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
             <div class="col-sm-9">
-              <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
+              <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->CustomerLabel}}" value="">
             </div>
           </div>
           <?php	 

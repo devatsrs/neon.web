@@ -497,12 +497,12 @@ label.overlabel {
     margin: 8px
 }
 #inner {
-    background: #fcfcfc;
+    background: #f1f1f1;
     *zoom: 1;
     position: relative;
     z-index: 1;
     margin: 0;
-    padding-right: 300px;
+  /*  padding-right: 300px;*/
 	width:90%;
 }
 #inner:after {
@@ -513,7 +513,7 @@ label.overlabel {
 #inner .leftcontent {
     float: left;
     width: 100%;
-    background: #fff;
+    background: #f1f1f1;
     border-right: 1px solid #eee;
     padding-bottom: 20px;
     -moz-box-sizing: border-box;
@@ -535,7 +535,7 @@ label.overlabel {
 }
 .pagearea,
 .no-helpdesk {
-    background-color: #fff
+    background-color: #f1f1f1;
 }
 .pagearea,
 .sidepanel,
