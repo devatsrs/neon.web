@@ -11,31 +11,24 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getReportByTime`(
 	IN `p_UserID` INT,
 	IN `p_isAdmin` INT,
 	IN `p_ReportType` INT
-
-
 )
 BEGIN
-	
+
 	DECLARE v_Round_ INT;
 	DECLARE V_Detail INT;
-	
+
 	SET V_Detail = 2;
-	IF p_ReportType =1
-	THEN
-	SET V_Detail = 2;
-	END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
 	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,V_Detail);
-	
+
 	/* hourly report */
 	IF p_ReportType =1
 	THEN
 	
-		/* report by hour*/
 		SELECT 
 			CONCAT(dt.hour,' Hour') as category,
 			SUM(NoOfCalls) AS CallCount,
@@ -44,14 +37,13 @@ BEGIN
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN tblDimTime dt on dt.TimeID = us.TimeID
 		GROUP BY  us.DateID,dt.hour;
-		
+
 	END IF;
-	
+
 	/* daily report */
 	IF p_ReportType =2
 	THEN
-	
-		/* report by daily*/
+
 		SELECT 
 			dd.date as category,
 			SUM(NoOfCalls) AS CallCount,
@@ -60,13 +52,12 @@ BEGIN
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
 		GROUP BY  us.DateID;
-		
 	END IF;
+
 	/* weekly report */
 	IF p_ReportType =3
 	THEN
-	
-		/* report by weekly*/
+
 		SELECT 
 			ANY_VALUE(dd.week_year_name) as category,
 			SUM(NoOfCalls) AS CallCount,
@@ -74,14 +65,15 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
-		GROUP BY  dd.week_of_year;
-		
+		GROUP BY  dd.year,dd.week_of_year
+		ORDER BY dd.year,dd.week_of_year;
+
 	END IF;
+
 	/* monthly report */
 	IF p_ReportType =4
 	THEN
-	
-		/* report by monthly*/
+
 		SELECT 
 			ANY_VALUE(dd.month_year_name) as category,
 			SUM(NoOfCalls) AS CallCount,
@@ -89,31 +81,31 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
-		GROUP BY  dd.month_of_year;
-		
+		GROUP BY  dd.year,dd.month_of_year
+		ORDER BY dd.year,dd.month_of_year;
+
 	END IF;
-	
+
 	/* queterly report */
 	IF p_ReportType =5
 	THEN
-	
-		/* report by monthly*/
+
 		SELECT 
-			ANY_VALUE(dd.quarter_year_name) as category,
+			CONCAT('Q-',ANY_VALUE(dd.quarter_year_name)) as category,
 			SUM(NoOfCalls) AS CallCount,
 			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
-		GROUP BY  dd.quarter_of_year;
-		
+		GROUP BY  dd.year,dd.quarter_of_year
+		ORDER BY dd.year,dd.quarter_of_year;
+
 	END IF;
-	
+
 	/* yearly report */
 	IF p_ReportType =6
 	THEN
-	
-		/* report by monthly*/
+
 		SELECT 
 			dd.year as category,
 			SUM(NoOfCalls) AS CallCount,
@@ -122,11 +114,9 @@ BEGIN
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
 		GROUP BY  dd.year;
-		
+
 	END IF;
-	
-	
-	
+
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END

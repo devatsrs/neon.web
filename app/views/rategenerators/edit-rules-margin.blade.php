@@ -225,7 +225,7 @@
             "bDestroy": true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/rategenerators/ajax_margin_datagrid",
-            "iDisplayLength": {{Config::get('app.pageSize')}},
+            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"id","value":{{$id}} },{"name":"RateRuleID","value":{{$RateRuleID}} });
                 data_table_extra_params.length = 0;

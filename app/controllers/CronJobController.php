@@ -78,6 +78,10 @@ class CronJobController extends \BaseController {
             $CronJob = CronJob::findOrFail($id);
             $isvalid = CronJob::validate($id);
             if($isvalid['valid']==1){
+                //If user inactivate the cron job , cron job needs to terminate.
+                if(isset($isvalid['data']["Status"]) && $CronJob->Status == 1 && $isvalid['data']["Status"] == 0){
+                    $this->terminate($id);
+                }
                 if ($CronJob->update($isvalid['data'])) {
                     CronJob::calcNextTimeRun($id);
                     return Response::json(array("status" => "success", "message" => "Cron Job Successfully Updated"));

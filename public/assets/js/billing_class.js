@@ -41,6 +41,9 @@ $("#billing-form [name='LowBalanceReminder[Time]']").change(function(){
 $("#billing-form [name='QosAlert[Time]']").change(function(){
     populateInterval($(this).val(),'QosAlert','billing-form');
 });
+    $("#call-billing-form [name='CallAlert[Time]']").change(function(){
+        populateInterval($(this).val(),'CallAlert','call-billing-form');
+    });
 $("#call-billing-form [name='AlertType']").change(function(){
     $("#call-billing-form .custom_field").addClass('hidden');
     if($(this).val() == 'block_destination'){
@@ -60,6 +63,12 @@ $("#call-billing-form [name='AlertType']").change(function(){
             $("#call-billing-form [name='CallAlert[AccountID]']").parents('.row').removeClass('hidden');
             $("#call-billing-form [name='CallAlert[OpenTime]']").parents('.row').removeClass('hidden');
         }
+    }else if($(this).val() == 'vendor_balance_report'){
+        $("#call-billing-form .ReminderEmail").html('Send Email To');
+        $("#call-billing-form [name='CallAlert[VAccountID][]']").parents('.row').removeClass('hidden');
+        $("#call-billing-form [name='CallAlert[Time]']").parents('.row').removeClass('hidden');
+        $("#call-billing-form [name='CallAlert[Interval]']").parents('.row').removeClass('hidden');
+        $("#call-billing-form [name='CallAlert[Day][]']").parents('.row').removeClass('hidden');
     }
 });
 });
@@ -124,7 +133,7 @@ function populateInterval(jobtype,form,formID){
             }
             starttime.show();
         }else if(jobtype == 'MINUTE'){
-            if(form == 'QosAlert'){
+            if(form == 'QosAlert' || form == 'CallAlert'){
                 options.push(new Option("30 Minute", 30, false, false));
             }else{
                 for(var i=1;i<60;i++){

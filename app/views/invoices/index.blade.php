@@ -154,7 +154,7 @@
                                         </a>
                                     </li>
                                 @endif
-                                @if(is_authorize())
+                                @if(is_authorize() || is_Stripe())
                                     @if(User::checkCategoryPermission('Invoice','Edit'))
                                         <li>
                                             <a class="pay_now create" id="pay_now" href="javascript:;">
@@ -241,7 +241,7 @@
                 "bProcessing": true,
                 "bServerSide": true,
                 "sAjaxSource": baseurl + "/invoice/ajax_datagrid/type",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[3, 'desc']],
@@ -538,7 +538,7 @@
                         "bProcessing": true,
                         "bServerSide": true,
                         "sAjaxSource": baseurl + "/invoice/ajax_datagrid/type",
-                        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                        "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[3, 'desc']]
@@ -888,7 +888,10 @@
                         return;
                     }
                     //console.log(InvoiceIDs);
+                    var pgid = '{{PaymentGateway::getPaymentGatewayID()}}';
                     $('#add-credit-card-form').find("[name=AccountID]").val(accoutid);
+                    $('#add-credit-card-form').find("[name=PaymentGatewayID]").val(pgid);
+
                     paynow_url = '/paymentprofile/' + accoutid;
                     showAjaxModal(paynow_url, 'pay_now_modal');
                     $('#pay_now_modal').modal('show');
@@ -1781,6 +1784,7 @@
                                            id="field-5" placeholder="">
                                     <input type="hidden" name="cardID"/>
                                     <input type="hidden" name="AccountID"/>
+                                    <input type="hidden" name="PaymentGatewayID"/>
                                 </div>
                             </div>
                             <div class="col-md-12">
