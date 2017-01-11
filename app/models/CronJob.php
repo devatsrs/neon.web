@@ -303,4 +303,18 @@ class CronJob extends \Eloquent {
         }
     }
 
+    /**
+     * used when company timezone change we need to update all cron job next run time.
+     * @param $CompanyID
+     */
+    public static function updateAllCronJobNextRunTime($CompanyID) {
+        $AllActiveCronJobs = CronJob::where(['CompanyID' => $CompanyID, "Status" => 1])->get()->toArray();
+        if (count($AllActiveCronJobs) > 0) {
+            foreach ($AllActiveCronJobs as $CronJob) {
+                if (!empty($CronJob['CronJobID']) && $CronJob['CronJobID'] > 0) {
+                    self::upadteNextTimeRun($CronJob['CronJobID']);
+                }
+            }
+        }
+    }
 }
