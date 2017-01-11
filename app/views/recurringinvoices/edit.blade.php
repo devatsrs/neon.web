@@ -318,7 +318,6 @@
 <div class="pull-right">
     <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
     <input type="hidden" name="CurrencyCode" value="{{$CurrencyCode}}">
-    <input type="hidden" name="InvoiceTemplateID" value="{{$RecurringInvoiceTemplateID}}">
     <input type="hidden" name="TotalTax" value="" > 
 </div>
 </form>
