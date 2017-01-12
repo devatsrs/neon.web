@@ -753,6 +753,14 @@
 }
 #deals-dashboard li:hover {cursor:all-scroll; }
 .choices_item .count-cards{min-height:50px;}
-#deals-dashboard .count-cards{min-height:104px;}
+#deals-dashboard .count-cards{min-height:70px;}
 .choices_field_li:hover {cursor:all-scroll; }
+.choices_field_li{margin-bottom:0px !important; }
+.count-cards .info{min-height:55px; padding:0 0 0 5px;}
+.field_model_behavoiur .col-md-6{padding-left:5px !important;}
+.field_model_behavoiur .col-md-6 .form-group{margin-top:5px;}
+.field_model_behavoiur .col-md-6 .form-group label h3{margin-top:3px;}
+.ps-scrollbar-x-rail{display:none !important; }
+.ps-scrollbar-y-rail{display:none !important;}
+
 </style>

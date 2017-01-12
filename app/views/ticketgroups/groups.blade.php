@@ -31,10 +31,10 @@
 </div>
 <table class="table table-bordered datatable" id="table-4">
   <thead>
-    <tr>
+    <tr>           
       <th>&nbsp;</th>
       <th>Name</th>
-      <th>EmailAddress</th>
+      <th>Email Address</th>
       <th>Total Agents</th>
       <th>Escalation Time</th>
       <th>Escalation User</th>
@@ -74,13 +74,13 @@
                         "bSortable": false,
                         mRender: function (id, type, full) {
                             var action, action = '<div class = "hiddenRowData" >';  
-                     action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="' + full[0] + '" name="GroupID[]"></div>';
+                     action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="' + full[0] + '" name="GroupID[]"></div></div>';
                             return action;
                         }
 
                      },
                         {"bSortable": true },
-                        {"bSortable": true },
+                        {"bSortable": true,mRender: function(id, type, full) { if(id==null){return '';}  return "<span class='wrap-text'>"+id+"</span>";  } },
 						{"bSortable": true },
 						{"bSortable": true,mRender: function(id, type, full) { return EscalationTimes[id]; } },
                         {"bSortable": true,mRender: function(id, type, full) { if(id){return id;}else{return 'None';} } },
@@ -93,10 +93,10 @@
 								
                                 action =  '';
                                 <?php if(User::checkCategoryPermission('TicketGroups','Edit')){ ?>
-                                   action = '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                   action = '<a href="' + edit_ + '" class="btn btn-default"><i class="entypo-pencil"></i></a>';
                                 <?php } ?>
 								<?php if(User::checkCategoryPermission('TicketGroups','Delete')){ ?>
-                                   action += '<br><a data-id="'+full[0]+'" id="group-'+full[0]+'" class="delete-ticket_group btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                                   action += '<br><a data-id="'+full[0]+'" id="group-'+full[0]+'" class="delete-ticket_group btn delete btn-danger "><i class="entypo-cancel"></i></a>';
                                 <?php } ?>
                                 return action;
                             }
@@ -180,4 +180,9 @@
     });
 
 </script> 
+<style>
+.table-bordered  tr th:first-child{display:none; }
+.table-bordered  tr td:first-child{display:none; }
+.wrap-text{text-wrap:normal;}
+</style>
 @stop 

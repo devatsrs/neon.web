@@ -18,7 +18,7 @@
 			}
 			?>
       <li class="tile-stats sortable-item count-cards" field_type="{{$TicketfieldsData['field_type']}}"  data-name="{{$TicketfieldsData['label']}}" data-id="{{$TicketfieldsData['id']}}"> @if($TicketfieldsData['FieldStaticType']==Ticketfields::FIELD_TYPE_DYNAMIC)
-        <button type="button" delete_main_field_id="{{$TicketfieldsData['id']}}" title="Delete Field" class="btn btn-default btn-xs delete_main_field pull-right"> <i class="entypo-cancel"></i> </button>
+        <button type="button" delete_main_field_id="{{$TicketfieldsData['id']}}" title="Delete Field" class="btn btn-red btn-xs delete_main_field pull-right"> <i class="entypo-cancel"></i> </button>
         @endif
         <button type="button" title="Edit Field" class="btn btn-default btn-xs edit-deal pull-right"> <i class="entypo-pencil"></i> </button>
         <div class="row-hidden"> {{$hidden}} </div>

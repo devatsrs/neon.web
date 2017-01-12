@@ -44,23 +44,18 @@
       <form id="edit-ticketfields-form" method="post">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Add New Field</h4>
+          <h4 class="modal-title">Edit Field</h4>
         </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-12"> <span>
-              <h3>Behavior</h3>
-              </span> </div>
-          </div>
-          <div class="row">
+        <div class="modal-body">          
+          <div class="row field_model_behavoiur">
             <div class="col-md-6">
               <div class="form-group">
-                <label  class="control-label col-sm-12">For Agents</label>
+                <label  class="control-label col-sm-12"><h3>For Agents</h3></label>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label class="control-label col-sm-12">For Customers</label>
+                <label class="control-label col-sm-12"><h3>For Customers</h3></label>
               </div>
             </div>
           </div>
@@ -89,7 +84,7 @@
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label for="field-5" class="control-label col-sm-6">Required when submitting the form</label>
+                <label for="field-5" class="control-label col-sm-6">Required when closing the ticket</label>
                 <div class="col-sm-6" id="AgentReqCloseSwitch">
                   <p class="make-switch switch-small">
                     <input id="required_for_closure" name="required_for_closure" type="checkbox" value="1">
@@ -125,7 +120,7 @@
               </div>
             </div>
           </div>
-          <div class="row margin-top">
+          <div class="row">
             <div class="col-md-12">&nbsp;<br>
               <br>
             </div>
@@ -173,21 +168,16 @@
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">Add New Field</h4>
         </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-12"> <span>
-              <h3>Behavior</h3>
-              </span> </div>
-          </div>
-          <div class="row">
+        <div class="modal-body">          
+          <div class="row field_model_behavoiur">
             <div class="col-md-6">
               <div class="form-group">
-                <label  class="control-label col-sm-12">For Agents</label>
+                <label  class="control-label col-sm-12"><h3>For Agents</h3></label>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label class="control-label col-sm-12">For Customers</label>
+                <label class="control-label col-sm-12"><h3>For Customers</h3></label>
               </div>
             </div>
           </div>
@@ -216,7 +206,7 @@
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label for="field-5" class="control-label col-sm-6">Required when submitting the form</label>
+                <label for="field-5" class="control-label col-sm-6">Required when closing the ticket</label>
                 <div class="col-sm-6" id="AgentReqCloseSwitch">
                   <p class="make-switch switch-small">
                     <input id="required_for_closure" name="required_for_closure" type="checkbox" value="1">
@@ -252,7 +242,7 @@
               </div>
             </div>
           </div>
-          <div class="row margin-top">
+          <div class="row">
             <div class="col-md-12">&nbsp;<br>
               <br>
             </div>
@@ -295,7 +285,7 @@
       <div class="col-md-12">
         <div class="form-group">
           <div class="col-md-1 margin-top">
-            <button type="button"  title="Delete Field" field_type=""  del_data_id="" class="btn feild_choice_delete btn-default btn-xs"> <i class="entypo-cancel"></i> </button>
+            <button type="button"  title="Delete Field" field_type=""  del_data_id="" class="btn feild_choice_delete btn-red btn-xs"> <i class="entypo-cancel"></i> </button>
           </div>
           <div class="col-md-11">
             <input type="text" name="title" class="form-control" value="">
@@ -311,7 +301,7 @@
       <div class="col-md-12">
         <div class="form-group">
           <div class="col-md-1 margin-top">
-            <button type="button" title="Delete Field" field_type="default_status" del_data_id="" class="btn feild_choice_delete btn-default btn-xs"> <i class="entypo-cancel"></i> </button>
+            <button type="button" title="Delete Field" field_type="default_status" del_data_id="" class="btn feild_choice_delete btn-red btn-xs"> <i class="entypo-cancel"></i> </button>
           </div>
           <div class="col-md-4">
             <input name="title" class="form-control"  value="" type="text">
