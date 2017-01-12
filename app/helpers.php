@@ -128,12 +128,20 @@ function rename_upload_file($destinationPath,$full_name){
 }
 function customer_dropbox($id=0,$data=array()){
     $all_customers = account::getAccountIDList($data);
-    return Form::select('customers', $all_customers, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+    return Form::select('customers', $all_customers, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
 function opportunites_dropbox($id=0,$data=array()){
     $all_opportunites = CRMBoard::getBoards(CRMBoard::OpportunityBoard,-1);
-    return Form::select('crmboard', $all_opportunites, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+    return Form::select('crmboard', $all_opportunites, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+function toandfro_dropdown($id,$type){
+    $list = [];
+    if($type=='recurringInvoice'){
+        $list = RecurringInvoice::getRecurringInvoicesIDList();
+    }
+    return Form::select('drp_toandfro_jump', $list, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
 

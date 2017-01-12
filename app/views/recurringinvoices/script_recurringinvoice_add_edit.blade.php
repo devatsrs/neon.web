@@ -1,7 +1,4 @@
 <script type="text/javascript">
-/**
-* Created by umer on 14/03/2016.
-*/
 
 $(document).ready(function(){
 
@@ -21,11 +18,11 @@ $(document).ready(function(){
         var $row = $this.parents("tr");
         var productID = $this.val();
         var AccountID = $('select[name=AccountID]').val();
-        var InoviceTemplateID = $('select[name="InvoiceTemplateID"]').val();
-        if( productID != '' && InoviceTemplateID!=''  && parseInt(AccountID) > 0 ) {
+        var BillingClassID = $('select[name="BillingClassID"]').val();
+        if( productID != '' && BillingClassID!=''  && parseInt(AccountID) > 0 ) {
             try {
                 $row.find(".Qty").val(1);
-                post_data = {"product_id": productID, "account_id": AccountID, "InvoiceTemplateID":InoviceTemplateID, "qty": 1};
+                post_data = {"product_id": productID, "account_id": AccountID, "BillingClassID":BillingClassID, "qty": 1};
                 var _url = baseurl + '/recurringinvoices/calculate_total';
                 $.post(_url, post_data, function (response) {
                     if (response.status == 'success') {
@@ -316,10 +313,10 @@ $(document).ready(function(){
 
     });
 
-    $("select[name=InvoiceTemplateID]").change( function (e) {
-        url = baseurl + "/recurringinvoices/get_invoicetemplate_info";
+    $("select[name=BillingClassID]").change( function (e) {
+        url = baseurl + "/recurringinvoices/get_billingclassinfo_info";
         $this = $(this);
-        data = {invoiceTemplateID:$this.val()}
+        data = {BillingClassID:$this.val()}
         if($this.val() > 0){
             ajax_json(url,data,function(response){
                 if ( typeof response.status != undefined &&  response.status == 'failed') {
@@ -329,6 +326,7 @@ $(document).ready(function(){
                 } else {
                     $("[name=Terms]").val(response.Terms);
                     $("[name=FooterTerm]").val(response.FooterTerm);
+                    add_recurringinvoice_tax(response.TaxRate);
                 }
 
             });
@@ -390,8 +388,8 @@ $(document).ready(function(){
         console.log(selection);
         switch (selection){
             case "weekly":
-                //$("#billing_cycle_weekly").show();
-                //$("#billing_cycle_weekly select").removeAttr("disabled");
+                $("#billing_cycle_weekly").show();
+                $("#billing_cycle_weekly select").removeAttr("disabled");
                 break;
             case "monthly_anniversary":
                 $("#billing_cycle_monthly_anniversary").show();

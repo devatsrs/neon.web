@@ -62,17 +62,17 @@
                             {{Form::text('Title','',array("Placeholder"=>"", "class"=>"form-control"))}}
                         </div>
                         <br><br><br>
-                        <label for="field-1" class="col-sm-2 control-label">*Invoice Template</label>
+                        <label for="field-1" class="col-sm-2 control-label">*Billing Class</label>
                         <div class="col-sm-10">
-                            {{Form::select('InvoiceTemplateID',$invoiceTemplate,'',array( "class"=>"select2 small"))}}
+                            {{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"select2 small form-control1 small"));}}
                         </div>
                         <br><br><br>
-                        <label for="field-1" class="col-md-2 control-label">Frequency*</label>
+                        <label for="field-1" class="col-md-2 control-label">*Frequency</label>
                         <div class="col-md-4">
                             {{Form::select('BillingCycleType', SortBillingType(), '' ,array("class"=>"form-control select2"))}}
                         </div>
                         <div id="billing_cycle_weekly" class="billing_options" style="display: none">
-                            <label for="field-1" class="col-md-2 control-label no-padding">Start of Day*</label>
+                            <label for="field-1" class="col-md-2 control-label no-padding">*Start of Day</label>
                             <div class="col-md-4">
                                 <?php $Days = array( ""=>"Please Start of Day",
                                         "monday"=>"Monday",
@@ -86,7 +86,7 @@
                             </div>
                         </div>
                         <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                            <label for="field-1" class="col-md-2 control-label no-padding">for Days*</label>
+                            <label for="field-1" class="col-md-2 control-label no-padding">*for Days</label>
                             <div class="col-md-4">
                                 {{Form::text('BillingCycleValue', '' ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
                             </div>
@@ -104,17 +104,9 @@
                             </div>
                         </div>
                         <br><br><br>
-                        <label for="field-1" class="col-sm-5 control-label" style="text-align: left;">Payment is expected within (Days)*</label>
-                        <div class="col-sm-7">
-                            <div class="input-spinner">
-                                <button type="button" class="btn btn-default">-</button>
-                                {{Form::text('PaymentDueInDays',( isset($BillingClass->PaymentDueInDays)?$BillingClass->PaymentDueInDays:'3' ),array("class"=>"form-control","data-min"=>0, "maxlength"=>"2", "data-max"=>30,"Placeholder"=>"Add Numeric value", "data-mask"=>"decimal"))}}
-                                <button type="button" class="btn btn-default">+</button>
-                            </div>
-                        </div>
                     </div>
 
-                    <div class="no-padding-left no-padding-right col-md-3">
+                    <div class="col-md-3">
                         <label for="field-1" class="col-sm-6 control-label">*Issue Date</label>
                         <div class="col-sm-6"> {{Form::text('InvoiceStartDate',date('Y-m-d'),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
                         <div class="clearfix margin-bottom "></div>

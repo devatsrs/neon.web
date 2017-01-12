@@ -12,7 +12,7 @@ class RecurringInvoiceController extends \BaseController {
         $columns 					 =  ['RecurringInvoiceID','Title','AccountName','LastInvoiceNumber','InvoiceStartDate','NextInvoiceDate','GrandTotal','Status'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
 
-        $query = "call prc_getRecurringInvoices (".$companyID.",".intval($data['AccountID']).",".intval($data['CurrencyID']).",".$data['Status'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".strtoupper($data['sSortDir_0'])."'";
+        $query = "call prc_getRecurringInvoices (".$companyID.",".intval($data['AccountID']).",".$data['Status'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".strtoupper($data['sSortDir_0'])."'";
 		//$query = "call prc_getRecurringInvoices('1', '449', '3', '0', '1', '50', '', 'asc', '0')";
         if(isset($data['Export']) && $data['Export'] == 1)
 		{
@@ -53,10 +53,9 @@ class RecurringInvoiceController extends \BaseController {
     public function index()
     {
         $companyID 				= 	User::get_companyID();
-        $DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $accounts 				= 	Account::getAccountIDList();
         $recurringinvoices_status_json 	= 	json_encode(RecurringInvoice::get_recurringinvoices_status());
-        return View::make('recurringinvoices.index',compact('accounts','recurringinvoices_status_json','DefaultCurrencyID'));
+        return View::make('recurringinvoices.index',compact('accounts','recurringinvoices_status_json'));
     }
 
     /**
@@ -71,8 +70,8 @@ class RecurringInvoiceController extends \BaseController {
         $accounts = Account::getAccountIDList();
         $products = Product::getProductDropdownList();
         $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice();
-        $invoiceTemplate = InvoiceTemplate::getInvoiceTemplateList();
-        return View::make('recurringinvoices.create',compact('accounts','products','taxes','invoiceTemplate'));
+        $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+        return View::make('recurringinvoices.create',compact('accounts','products','taxes','BillingClass'));
 
     }
 
@@ -98,10 +97,10 @@ class RecurringInvoiceController extends \BaseController {
             $CompanyName 				= 	 Company::getName();
             $taxes 						= 	 TaxRate::getTaxRateDropdownIDListForInvoice();
 			$RecurringInvoiceAllTax 			= 	 DB::connection('sqlsrv2')->table('tblRecurringInvoiceTaxRate')->where(["RecurringInvoiceID"=>$id,"RecurringInvoiceTaxType"=>1])->orderby('RecurringInvoiceTaxRateID')->get();
-            $invoiceTemplate = InvoiceTemplate::getInvoiceTemplateList();
+            $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
             $RecurringInvoiceReminder = json_decode($RecurringInvoice->RecurringSetting);
 			
-            return View::make('recurringinvoices.edit', compact( 'id', 'RecurringInvoice','RecurringInvoiceDetail','RecurringInvoiceTemplateID','RecurringInvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','RecurringInvoiceAllTax','invoiceTemplate','RecurringInvoiceReminder'));
+            return View::make('recurringinvoices.edit', compact( 'id', 'RecurringInvoice','RecurringInvoiceDetail','RecurringInvoiceTemplateID','RecurringInvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','RecurringInvoiceAllTax','BillingClass','RecurringInvoiceReminder'));
         }
     }
 
@@ -139,21 +138,20 @@ class RecurringInvoiceController extends \BaseController {
             $RecurringInvoiceData["FooterTerm"] 	=	$data["FooterTerm"];
             $RecurringInvoiceData["CreatedBy"] 		= 	$CreatedBy;
 			$RecurringInvoiceData['RecurringInvoiceTotal'] 	 = str_replace(",","",$data["GrandTotal"]);
-            $RecurringInvoiceData['InvoiceTemplateID'] = $data['InvoiceTemplateID'];
+            $RecurringInvoiceData['BillingClassID'] = $data['BillingClassID'];
             $RecurringInvoiceData['Title'] = $data['Title'];
             $RecurringInvoiceData['Occurrence'] = $data['Occurrence'];
             $RecurringInvoiceData["InvoiceStartDate"] = $data["InvoiceStartDate"];
             $RecurringInvoiceData['LastInvoicedDate'] =  $data['InvoiceStartDate'];
             $RecurringInvoiceData['NextInvoiceDate'] =  $data['InvoiceStartDate'];
             $RecurringInvoiceData['BillingCycleType']       = $data['BillingCycleType'];
-            $RecurringInvoiceData['PaymentDueInDays'] = $data['PaymentDueInDays'];
             $RecurringInvoiceData['RecurringInvoiceDetail'] = isset($data["RecurringInvoiceDetail"])?$data["RecurringInvoiceDetail"]:'';
 
             ///////////
             $rules = array(
                 'CompanyID' => 'required',
                 'Title' => 'required|unique:tblRecurringInvoice,Title,NULL,RecurringInvoiceID,CompanyID,'.$companyID,
-                'InvoiceTemplateID'=> 'required',
+                'BillingClassID'=> 'required',
                 'InvoiceStartDate'=>'required',
                 'Occurrence'=>'required',
                 'AccountID' => 'required',
@@ -172,7 +170,7 @@ class RecurringInvoiceController extends \BaseController {
                 $RecurringInvoiceData["BillingCycleValue"] 	    =	$data["BillingCycleValue"];
                 //$BillingCycleValue = $data["BillingCycleValue"];
             }
-            $message = ['InvoiceTemplateID.required'=>'Invoice Template field is required',
+            $message = ['BillingClassID.required'=>'Billing Class field is required',
                         'CurrencyID.required'=>'Currency Field is required.',
                         'RecurringInvoiceDetail.required'=>'Recurring Invoice Details fields are required'];
 			
@@ -300,19 +298,18 @@ class RecurringInvoiceController extends \BaseController {
             $RecurringInvoiceData["FooterTerm"] 	=	$data["FooterTerm"];
             $RecurringInvoiceData["CreatedBy"] 		= 	$CreatedBy;
             $RecurringInvoiceData['RecurringInvoiceTotal'] 	 = str_replace(",","",$data["GrandTotal"]);
-            $RecurringInvoiceData['InvoiceTemplateID'] = $data['InvoiceTemplateID'];
+            $RecurringInvoiceData['BillingClassID'] = $data['BillingClassID'];
             $RecurringInvoiceData['Title'] = $data['Title'];
             $RecurringInvoiceData['Occurrence'] = $data['Occurrence'];
             $RecurringInvoiceData["InvoiceStartDate"] = $data["InvoiceStartDate"];
             $RecurringInvoiceData['BillingCycleType'] = $data['BillingCycleType'];
-            $RecurringInvoiceData['PaymentDueInDays'] = $data['PaymentDueInDays'];
             $RecurringInvoiceData['RecurringInvoiceDetail'] = isset($data["RecurringInvoiceDetail"])?$data["RecurringInvoiceDetail"]:'';
             ///////////
 
             $rules = array(
                 'CompanyID' => 'required',
                 'Title'=>'required|unique:tblRecurringInvoice,Title,'.$id.',RecurringInvoiceID,CompanyID,'.$companyID,
-                'InvoiceTemplateID'=> 'required',
+                'BillingClassID'=> 'required',
                 'InvoiceStartDate'=>'required',
                 'Occurrence'=>'required',
                 'AccountID' => 'required',
@@ -331,7 +328,7 @@ class RecurringInvoiceController extends \BaseController {
                 $BillingCycleValue = $data["BillingCycleValue"];
             }
 
-            $message = ['InvoiceTemplateID.required'=>'Invoice Template field is required',
+            $message = ['BillingClassID.required'=>'Billing Class field is required',
                 'CurrencyID.required'=>'Currency Field is required',
                 'RecurringInvoiceDetail.required'=>'Recurring Invoice Details fields are required'];
 			
@@ -418,7 +415,7 @@ class RecurringInvoiceController extends \BaseController {
 
                         $RecurringInvoiceLogData = array();
                         $RecurringInvoiceLogData['RecurringInvoiceID']= $RecurringInvoice->RecurringInvoiceID;
-                        $RecurringInvoiceLogData['Note']= 'Created By '.$CreatedBy;
+                        $RecurringInvoiceLogData['Note']= 'Updated By '.$CreatedBy;
                         $RecurringInvoiceLogData['created_at']= date("Y-m-d H:i:s");
                         $RecurringInvoiceLogData['RecurringInvoiceLogStatus']= RecurringInvoiceLog::UPDATED;
                         RecurringInvoiceLog::insert($RecurringInvoiceLogData);
@@ -453,20 +450,17 @@ class RecurringInvoiceController extends \BaseController {
     public function delete(){
         $data = Input::all();
         $companyID = User::get_companyID();
-        $where=['AccountID'=>'','CurrencyID'=>'','Status'=>'2','selectedIDs'=>''];
+        $where=['AccountID'=>'','Status'=>'2','selectedIDs'=>''];
         if(isset($data['criteria']) && !empty($data['criteria'])){
             $criteria= json_decode($data['criteria'],true);
             if(!empty($criteria['AccountID'])){
                 $where['AccountID']= $criteria['AccountID'];
             }
             $where['Status'] = $criteria['Status']==''?2:$criteria['Status'];
-            if(!empty($criteria['CurrencyID'])){
-                $where['CurrencyID']= $criteria['CurrencyID'];
-            }
         }else{
             $where['selectedIDs']= $data['selectedIDs'];
         }
-        $sql = "call prc_DeleteRecurringInvoices (".$companyID.",".intval($where['AccountID']).",".intval($where['CurrencyID']).",'".$where['Status']."','".$where['selectedIDs']."')";
+        $sql = "call prc_DeleteRecurringInvoices (".$companyID.",".intval($where['AccountID']).",".$where['Status'].",'".$where['selectedIDs']."')";
 
         try {
             DB::connection('sqlsrv2')->beginTransaction();
@@ -482,16 +476,13 @@ class RecurringInvoiceController extends \BaseController {
     public function startstop($status){
         $data = Input::all();
         $companyID = User::get_companyID();
-        $where=['AccountID'=>'','CurrencyID'=>'','Status'=>'2','selectedIDs'=>''];
+        $where=['AccountID'=>'','Status'=>'2','selectedIDs'=>''];
         if(isset($data['criteria']) && !empty($data['criteria'])){
             $criteria= json_decode($data['criteria'],true);
             if(!empty($criteria['AccountID'])){
                 $where['AccountID']= $criteria['AccountID'];
             }
             $where['Status'] = $criteria['Status']==''?2:$criteria['Status'];
-            if(!empty($criteria['CurrencyID'])){
-                $where['CurrencyID']= $criteria['CurrencyID'];
-            }
         }else{
             $where['selectedIDs']= $data['selectedIDs'];
         }
@@ -501,7 +492,7 @@ class RecurringInvoiceController extends \BaseController {
         }else {
             $StartStop = RecurringInvoiceLog::START;
         }
-        $sql = "call prc_StartStopRecurringInvoices (".$companyID.",".intval($where['AccountID']).",".intval($where['CurrencyID']).",'".$where['Status']."','".$where['selectedIDs']."',".$status.",'".User::get_user_full_name()."',".$StartStop.")";
+        $sql = "call prc_StartStopRecurringInvoices (".$companyID.",".intval($where['AccountID']).",".$where['Status'].",'".$where['selectedIDs']."',".$status.",'".User::get_user_full_name()."',".$StartStop.")";
         try {
             DB::connection('sqlsrv2')->statement($sql);
             return Response::json(array("status" => "success", "message" => "Recurring Invoice Successfully Updated"));
@@ -514,16 +505,13 @@ class RecurringInvoiceController extends \BaseController {
         $data = Input::all();
         $companyID = User::get_companyID();
         $isSingle = 0;
-        $where=['AccountID'=>'','CurrencyID'=>'','Status'=>'','selectedIDs'=>''];
+        $where=['AccountID'=>'','Status'=>'2','selectedIDs'=>''];
         if(isset($data['criteria']) && !empty($data['criteria'])){
             $criteria= json_decode($data['criteria'],true);
             if(!empty($criteria['AccountID'])){
                 $where['AccountID']= $criteria['AccountID'];
             }
             $where['Status'] = $criteria['Status']==''?2:$criteria['Status'];
-            if(!empty($criteria['CurrencyID'])){
-                $where['CurrencyID']= $criteria['CurrencyID'];
-            }
         }else{
             $where['selectedIDs']= $data['selectedIDs'];
             if(count(explode(',',$data['selectedIDs']))==1){
@@ -533,7 +521,7 @@ class RecurringInvoiceController extends \BaseController {
 
         if($isSingle==1){
             $processID = GUID::generate();
-            $sql = "call prc_CreateInvoiceFromRecurringInvoice (".$companyID.",".intval($where['AccountID']).",".intval($where['CurrencyID']).",'".$where['Status']."','".trim($where['selectedIDs'])."','".User::get_user_full_name()."',".RecurringInvoiceLog::GENERATE.",'".$processID."')";
+            $sql = "call prc_CreateInvoiceFromRecurringInvoice (".$companyID.",".intval($where['AccountID']).",".$where['Status'].",'".trim($where['selectedIDs'])."','".User::get_user_full_name()."',".RecurringInvoiceLog::GENERATE.",'".$processID."')";
             $result = DB::connection('sqlsrv2')->select($sql);
             if(!empty($result[0]->message)){
                 return Response::json(array("status" => "failed", "message" => $result[0]->message));
@@ -587,7 +575,8 @@ class RecurringInvoiceController extends \BaseController {
         $response = array();
         $error = "";
         $AccountID = intval($data['account_id']);
-        $InvoiceTemplateID = intval($data['InvoiceTemplateID']);
+        $BillingClassID = intval($data['BillingClassID']);
+        $InvoiceTemplateID = BillingClass::getInvoiceTemplateID($BillingClassID);
         $Account = Account::find($AccountID);
         if (!empty($Account)) {
             $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
@@ -647,15 +636,19 @@ class RecurringInvoiceController extends \BaseController {
     }
 
 
-    public function getInvoiceTemplateInfo()
+    public function getBillingClassInfo()
     {
         $data = Input::all();
-        if (isset($data['invoiceTemplateID']) && $data['invoiceTemplateID'] > 0 ) {
-            $InvoiceTemplate = InvoiceTemplate::find($data['invoiceTemplateID']);
+        $invoiceTemplateID = BillingClass::getInvoiceTemplateID($data['BillingClassID']);
+        if (!empty($invoiceTemplateID) && $invoiceTemplateID > 0 ) {
+            $InvoiceTemplate = InvoiceTemplate::find($invoiceTemplateID);
             $Terms = $InvoiceTemplate->Terms;
             $FooterTerm = $InvoiceTemplate->FooterTerm;
-            $return = ['Terms','FooterTerm'];
+            $TaxRate = BillingClass::getTaxRateType($data['BillingClassID'],TaxRate::TAX_ALL);
+            $return = ['Terms','FooterTerm','TaxRate'];
             return Response::json(compact($return));
+        }else{
+            return Response::json(array("status" => "failed", "message" => "You cannot create invoice as no Invoice Template assigned to this billing Class." ));
         }
     }
 

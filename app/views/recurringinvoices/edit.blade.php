@@ -9,8 +9,11 @@
     <li class="active">
         <a href="{{URL::to('recurringinvoices')}}">Recurring Invoice</a>
     </li>
+    <li>
+        <a><span>{{toandfro_dropdown($RecurringInvoice->RecurringInvoiceID,'recurringInvoice')}}</span></a>
+    </li>
     <li class="active">
-        <strong>Edit Recurring Invoice</strong>
+        <strong>Edit</strong>
     </li>
 </ol>
 <h3>Edit Recurring Invoice</h3>
@@ -22,13 +25,13 @@
 <div class="pull-right">
     @if(User::checkCategoryPermission('Invoice','Send'))
     <a href="Javascript:;" class="send-recurringinvoice btn btn-sm btn-success btn-icon icon-left hidden-print">
-        Send Recurring Invoice
+        Send
         <i class="entypo-mail"></i>
     </a>
     @endif
     &nbsp;
     <button type="submit" class="btn save btn-primary btn-sm btn-icon icon-left hidden-print" data-loading-text="Loading...">
-        Save Recurring Invoice
+        Save
         <i class="entypo-floppy"></i>
     </button>
     <a href="{{URL::to('/recurringinvoices')}}" class="btn btn-danger btn-sm btn-icon icon-left">
@@ -70,7 +73,7 @@
                     <div class="clearfix margin-bottom "></div>
                     <label for="field-1" class="col-sm-2 control-label">*Invoice Template</label>
                     <div class="col-sm-10">
-                        {{Form::select('InvoiceTemplateID',$invoiceTemplate,$RecurringInvoice->InvoiceTemplateID,array( "class"=>"select2 small"))}}
+                        {{Form::select('BillingClassID', $BillingClass, $RecurringInvoice->BillingClassID ,array("class"=>"select2 small form-control1 small"));}}
                     </div>
                     <div class="clearfix margin-bottom "></div>
                     <label for="field-1" class="col-md-2 control-label">*Frequency</label>
@@ -131,20 +134,10 @@
                             {{Form::text('BillingCycleValue', ($BillingCycleType =='monthly_anniversary'?$BillingCycleValue:'') ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                         </div>
                     </div>
-                    <div class="clearfix margin-bottom "></div>
-                    <label for="field-1" class="col-sm-5 control-label" style="text-align: left;">Payment is expected within (Days)*</label>
-                    <div class="col-sm-7">
-                        <div class="input-spinner">
-                            <button type="button" class="btn btn-default">-</button>
-                            {{Form::text('PaymentDueInDays',( isset($BillingClass->PaymentDueInDays)?$BillingClass->PaymentDueInDays:'3' ),array("class"=>"form-control","data-min"=>0, "maxlength"=>"2", "data-max"=>30,"Placeholder"=>"Add Numeric value", "data-mask"=>"decimal"))}}
-                            <button type="button" class="btn btn-default">+</button>
-                        </div>
-                    </div>
-
                 </div>
 
                 <div class="no-padding-left no-padding-right col-md-3">
-                    <label for="field-1" class="col-sm-6 control-label">*Start Date</label>
+                    <label for="field-1" class="col-sm-6 control-label">*Issue Date</label>
                     <div class="col-sm-6"> {{Form::text('InvoiceStartDate',date('Y-m-d',strtotime($RecurringInvoice->InvoiceStartDate)),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
                     <div class="clearfix margin-bottom "></div>
                     <label for="field-1" class="col-sm-6 control-label">PO Number</label>

@@ -8,7 +8,7 @@
 <h3>Recurring Invoices</h3>
 @include('includes.errors')
 @include('includes.success')
-<p style="text-align: right;"> @if(User::checkCategoryPermission('RecurringInvoice','Add')) <a href="{{URL::to("recurringinvoices/create")}}" id="add-new-recurringinvoices" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Recurring Invoices </a> @endif
+<p style="text-align: right;"> @if(User::checkCategoryPermission('RecurringInvoice','Add')) <a href="{{URL::to("recurringinvoices/create")}}" id="add-new-recurringinvoices" class="btn btn-primary "> <i class="entypo-plus"></i> Add New </a> @endif
   <!-- <a href="javascript:;" id="bulk-recurringinvoices" class="btn upload btn-primary ">
         <i class="entypo-upload"></i>
         Bulk recurringinvoices Generate.
@@ -27,9 +27,7 @@
             <label for="field-1" class="col-sm-2 control-label">Account</label>
             <div class="col-sm-2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
             <label for="field-1" class="col-sm-2 control-label">Status</label>
-            <div class="col-sm-2"> {{ Form::select('Status', RecurringInvoice::get_recurringinvoices_status(), '', array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
-            <label for="field-1" class="col-sm-2 control-label">Currency</label>
-            <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}} </div>
+            <div class="col-sm-2"> {{ Form::select('Status', RecurringInvoice::get_recurringinvoices_status(), RecurringInvoice::ACTIVE , array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
           </div>
           <p style="text-align: right;">
             <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
@@ -76,13 +74,12 @@
         </th>
         <th width="10%">Title</th>
         <th width="15%">Account Name</th>
-        <th width="10%">Invoiced Number</th>
-        <th width="10%">Invoice Start Date</th>
-        <th width="10%">Next Invoice Date</th>
+        <th width="15%">Issue Date</th>
+        <th width="15%">Next Invoice Date</th>
         <th width="10%">Grand Total</th>
         <th width="5%">Status</th>
         <th width="10%">Frequency/Occurrence</th>
-        <th width="15%">Action</th>
+        <th width="20%">Action</th>
     </tr>
   </thead>
   <tbody>
@@ -147,9 +144,9 @@ var postdata;
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[4, 'desc']],
              "fnServerParams": function(aoData) {				
-                aoData.push({"name":"AccountID","value":$searchFilter.AccountID},{"name":"Status","value":$searchFilter.Status},{"name":"CurrencyID","value":$searchFilter.CurrencyID});
+                aoData.push({"name":"AccountID","value":$searchFilter.AccountID},{"name":"Status","value":$searchFilter.Status});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"AccountID","value":$searchFilter.AccountID},{"name":"Status","value":$searchFilter.Status},{"name":"CurrencyID","value":$searchFilter.CurrencyID},{ "name": "Export", "value": 1});
+                data_table_extra_params.push({"name":"AccountID","value":$searchFilter.AccountID},{"name":"Status","value":$searchFilter.Status},{ "name": "Export", "value": 1});
             },
              "aoColumns":
             [
@@ -163,9 +160,8 @@ var postdata;
                 {}, // 2 AccountName
                 {}, // 3 Invoice StartDate
                 {}, // 4 Next InvoiceDate
-                {}, // 5 LastInvoiceNo
-                {}, // 6 GrandTotal
-                {   // 7 Status
+                {}, // 5 GrandTotal
+                {   // 6 Status
                     "bSortable":false,
                     mRender:function( status, type, full){
                         if (status == 1)
@@ -174,19 +170,19 @@ var postdata;
                             return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
                     }
                 },
-                {  // 8 Frequency/Occurence
+                {  // 7 Frequency/Occurence
                     "bSortable": false,
                     mRender: function ( id, type, full ) {
-                        var cycle = billingCyleType[full[10]];
-                        var anniversary = ((full[11])?full[11]:'');
+                        var cycle = billingCyleType[full[9]];
+                        var anniversary = ((full[10])?full[10]:'');
                         if(cycle.indexOf('anniversary')!=-1){
-                            var d = new Date(full[11]);
+                            var d = new Date(full[10]);
                             anniversary = d.getDate();
                         }
                         var invoice_log = (baseurl + "/recurringinvoices/{id}/log/{{RecurringInvoiceLog::SENT}}").replace("{id}", full[0]);
-                        var str = '<div><strong>Frequency:</strong><span>'+billingCyleType[full[10]]+((full[11])?'('+anniversary+')':'');+'</span></div>';
-                        str += '<div><strong>Occurrence:</strong><span>'+full[8]+'</span></div>';
-                        str += '<div><strong>Sent:</strong><span><a href="' + invoice_log + '" target="_blank">'+(full[9]?full[9]:0)+'</a></span></div>';
+                        var str = '<div><strong>Frequency:</strong><span>'+billingCyleType[full[9]]+((full[10])?'('+anniversary+')':'');+'</span></div>';
+                        str += '<div><strong>Occurrence:</strong><span>'+full[7]+'</span></div>';
+                        str += '<div><strong>Sent:</strong><span><a href="' + invoice_log + '" target="_blank">'+(full[8]?full[8]:0)+'</a></span></div>';
                         return str;
                     }
                 },
@@ -223,7 +219,7 @@ var postdata;
                         action += '</ul>';
                         action += '</div>';
 
-                        if(full[7] == 1 ) {
+                        if(full[6] == 1 ) {
                             action += '&nbsp;<button data-startstop="0" data-action="changestatus_row" class="btn btn-red btn-sm" type="button" title="InActive" data-placement="top" data-toggle="tooltip"><i class="glyphicon glyphicon-ban-circle" ></i></button>';
                         }else {
                             action += '&nbsp;<button data-startstop="1" data-action="changestatus_row" class="btn btn-green btn-sm" type="button" title="Active" data-placement="top" data-toggle="tooltip"><i class="entypo-check"></i></button>';

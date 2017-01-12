@@ -99,4 +99,13 @@ class RecurringInvoice extends \Eloquent {
         return [''=>'All',self::ACTIVE=>'Active',self::INACTIVE=>'InActive'];
     }
 
+    public static function getRecurringInvoicesIDList(){
+        $result = RecurringInvoice::select(array('Title', 'RecurringInvoiceID'))->orderBy('Title')->lists('Title', 'RecurringInvoiceID');
+        $row = array(""=> "Select");
+        if(!empty($result)){
+            $row = array(""=> "Select")+$result;
+        }
+        return $row;
+    }
+
 }
