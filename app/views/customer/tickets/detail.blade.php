@@ -127,7 +127,7 @@
             </div>
             
             <!-- panel body -->
-             <div class="panel-body">@include('Customer.tickets.ticket_detail_dynamic_fields')</div>
+             <div class="panel-body">@include('customer.tickets.ticket_detail_dynamic_fields')</div>
             
           </div>
         </div>

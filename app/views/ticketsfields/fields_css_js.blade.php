@@ -757,7 +757,7 @@
 .choices_field_li:hover {cursor:all-scroll; }
 .choices_field_li{margin-bottom:0px !important; }
 .count-cards .info{min-height:55px; padding:0 0 0 5px;}
-.field_model_behavoiur .col-md-6{padding-left:5px !important;}
+.field_model_behavoiur .col-md-6{padding-left:1px !important;}
 .field_model_behavoiur .col-md-6 .form-group{margin-top:5px;}
 .field_model_behavoiur .col-md-6 .form-group label h3{margin-top:3px;}
 .ps-scrollbar-x-rail{display:none !important; }

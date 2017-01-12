@@ -24,7 +24,7 @@ private $validlicense;
 			$Agents			 			= 	 array("0"=> "Select")+$Agents;
 			$Type			 			=    TicketsTable::getTicketType();
 			/////////
-			$Sortcolumns				=	 TicketsTable::$Sortcolumns;			
+			$Sortcolumns				=	 TicketsTable::$SortcolumnsCustomer;			
 			
 			$data['iDisplayStart']  	= 	 0;
 			
@@ -93,7 +93,7 @@ private $validlicense;
 		$totalResults 				= 	 $array->totalcount; 
 		$iTotalDisplayRecords 		= 	 $array->iTotalDisplayRecords;
 		$iDisplayLength 			= 	 $data['iDisplayLength'];
-		$Sortcolumns				=	 TicketsTable::$Sortcolumns;
+		$Sortcolumns				=	 TicketsTable::$SortcolumnsCustomer;
 		//echo "<pre>";		print_r($resultpage);			exit;
 		if(count($result)<1)
 		{

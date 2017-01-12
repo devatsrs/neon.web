@@ -24,7 +24,8 @@ private $validlicense;
 			$Agents			 			= 	 array("0"=> "Select")+$Agents;
 			$Type			 			=    TicketsTable::getTicketType();
 			/////////
-			$Sortcolumns				=	 TicketsTable::$Sortcolumns;			
+			$Sortcolumns				=	 TicketsTable::$Sortcolumns;	
+			$pagination					=	 TicketsTable::$pagination;
 			
 			$data['iDisplayStart']  	= 	 0;
 			
@@ -54,7 +55,7 @@ private $validlicense;
 			$data['currentpage'] 		= 	 0;
 			
 		
-        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page"));  
+        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination'));  
 	  }	
 	  
 	  public function ajex_result() {
@@ -92,7 +93,7 @@ private $validlicense;
 		$iTotalDisplayRecords 		= 	 $array->iTotalDisplayRecords;
 		$iDisplayLength 			= 	 $data['iDisplayLength'];
 		$Sortcolumns				=	 TicketsTable::$Sortcolumns;
-		
+		$pagination					=	 TicketsTable::$pagination;
 		if(count($result)<1)
 		{
 			if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
@@ -102,7 +103,7 @@ private $validlicense;
 				return '';
 			}
 		} 
-       return   View::make('tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns'));     
+       return   View::make('tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns','pagination'));     
 	   
 	}
 	  

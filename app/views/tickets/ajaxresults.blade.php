@@ -3,8 +3,7 @@
   <thead>
           <tr>
             <th colspan="3"> <?php if(count($result)>0){ ?>
-              <div class="mail-select-options" style="width:80px;s"> <span> {{Form::select('page',array("10"=>"10","25"=>"25","50"=>"50","100"=>"100"),$iDisplayLength,array("class"=>"select2","id"=>"per_page"))}} </span> </div>
-              <span>records per page</span>
+            <div class="mail-select-options" style=""> <span class="pull-left paginationTicket"> {{Form::select('page'$pagination,$iDisplayLength,array("class"=>"select2 small","id"=>"per_page"))}}</span><span class="pull-right per_page">records per page</span> </div>              
               <div class="pull-right">
                 <div class="hidden mail-pagination"> <strong>
                   <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>

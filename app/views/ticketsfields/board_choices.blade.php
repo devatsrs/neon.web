@@ -2,18 +2,18 @@
 <hr>
 <div class="row row margin-top margin-bottom">
   <div class="col-md-2">DropDown Items</div>
-  <div class="col-md-2 pull-right"> <a  field_type="{{$field}}"  class="feild_choice_add btn btn-primary"> <i class="entypo-plus"></i></a> </div>
+  <div class="col-md-1"> <a  field_type="{{$field}}"  class="feild_choice_add btn btn-primary"> <i class="entypo-plus"></i></a> </div>
 </div>
 <?php if($field =='default_status'){ ?>
 <div class="row">
   <div class="col-md-12">
     <div class="form-group">
       <div class="col-md-2">&nbsp;</div>
-      <div class="col-md-2"><h4>For Agents</h4></div>
+      <div class="col-md-2"><h4><strong>For Agents</strong></h4></div>
       <div class="col-md-2">&nbsp;</div>
-      <div class="col-md-2"><h4>For Customers</h4></div>
+      <div class="col-md-2"><h4><strong>For Customers</strong></h4></div>
       <div class="col-md-2">&nbsp;</div>
-      <div class="col-md-2"><h4>SLA timer</h4></div>
+      <div class="col-md-2"><h4><strong>SLA timer</strong></h4></div>
     </div>
   </div>
 </div>
@@ -30,7 +30,7 @@
         <div class="form-group">
           <div class="col-md-1 margin-top">
             <?php if($valuesData->FieldType==Ticketfields::FIELD_TYPE_DYNAMIC){ ?>
-            <button type="button"  title="Delete Field" field_type="{{$field}}"  del_data_id="{{$valuesData->ValuesID}}" class="btn feild_choice_delete btn-red btn-xs"> <i class="entypo-cancel"></i> </button>
+            <button type="button"  title="Delete Field" field_type="{{$field}}"  del_data_id="{{$valuesData->ValuesID}}" class="btn feild_choice_delete btn-red btn-xs"> <i class="fa fa-trash-o"></i> </button>
             <?php } ?>
           </div>
           <div class="col-md-4">
@@ -56,7 +56,7 @@
       <div class="col-md-12">
         <div class="form-group">
           <div class="col-md-1 margin-top">
-            <button type="button"  title="Delete Field" field_type="{{$field}}"  del_data_id="{{$valuesData->ValuesID}}" class="btn feild_choice_delete btn-red btn-xs"> <i class="entypo-cancel"></i> </button>
+            <button type="button"  title="Delete Field" field_type="{{$field}}"  del_data_id="{{$valuesData->ValuesID}}" class="btn feild_choice_delete btn-red btn-xs"> <i class="fa fa-trash-o"></i> </button>
           </div>
           <div class="col-md-11">
             <input type="text" name="title" class="form-control" value="{{$valuesData->Title}}">

@@ -14,6 +14,10 @@ class TicketsTable extends \Eloquent
 	static  $defaultSortType 		= 	'desc';
 	static  $Sortcolumns			=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","group"=>"Group","updated_at"=>"Last Modified");
 	
+	static $pagination 				= 	array("10"=>"10","25"=>"25","50"=>"50","100"=>"100");
+	
+	static  $SortcolumnsCustomer			=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","updated_at"=>"Last Modified");
+	
 	static function GetAgentSubmitRules(){
 		 $rules 	 =  array();
 		 $messages	 =  array();
