@@ -50,9 +50,8 @@
         <!-- mail table header -->
         <thead>
           <tr>
-            <th colspan="3"> <?php if(count($result)>0){ ?>
-              <div class="mail-select-options" style="width:80px;s"> <span> {{Form::select('page',array("10"=>"10","25"=>"25","50"=>"50","100"=>"100"),$per_page,array("class"=>"select2","id"=>"per_page"))}} </span> </div>
-              <span>records per page</span>
+            <th colspan="3"> <?php if(count($result)>0){ ?>              
+              <div class="mail-select-options" style=""> <span class="pull-left paginationTicket"> {{Form::select('page',$pagination,$per_page,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-right per_page">records per page</span> </div>
               <div class="pull-right">
                 <div class="hidden mail-pagination"> <strong>
                   <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
@@ -144,6 +143,8 @@
 .bordersideUrgent{border-left-color:#CC2424;}
 .responsedue{color:#CC2424;}
 .customerresponded{color:#008ff9;}
+.per_page{margin-left:10px; margin-top:5px; }
+.paginationTicket{width:85px;}
 </style>
 <script type="text/javascript">
 	

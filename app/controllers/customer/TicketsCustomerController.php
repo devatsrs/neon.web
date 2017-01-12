@@ -25,7 +25,7 @@ private $validlicense;
 			$Type			 			=    TicketsTable::getTicketType();
 			/////////
 			$Sortcolumns				=	 TicketsTable::$SortcolumnsCustomer;			
-			
+			$pagination					=	 TicketsTable::$pagination;
 			$data['iDisplayStart']  	= 	 0;
 			
 			$cache_sorting 				= 	 Session::get("TicketsSorting");
@@ -55,7 +55,7 @@ private $validlicense;
 			
 		
 		//echo "<pre>";		print_r($result);			exit;
-        return View::make('customer.tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page"));  
+        return View::make('customer.tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page","pagination"));  
 			/////////
 	  }	
 	  
@@ -94,6 +94,7 @@ private $validlicense;
 		$iTotalDisplayRecords 		= 	 $array->iTotalDisplayRecords;
 		$iDisplayLength 			= 	 $data['iDisplayLength'];
 		$Sortcolumns				=	 TicketsTable::$SortcolumnsCustomer;
+		$pagination					=	 TicketsTable::$pagination;
 		//echo "<pre>";		print_r($resultpage);			exit;
 		if(count($result)<1)
 		{
@@ -104,7 +105,7 @@ private $validlicense;
 				return '';
 			}
 		} 
-       return   View::make('customer.tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns'));     
+       return   View::make('customer.tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns','pagination'));     
 	   
 	   //return array('currentpage'=>$data['currentpage'],"Body"=>$body,"result"=>count($result));
     
