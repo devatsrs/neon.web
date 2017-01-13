@@ -29,7 +29,7 @@ BEGIN
 		AND uh.AccountID IS NOT NULL
 		AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 		AND StartDate BETWEEN p_StartDate AND p_EndDate
-		ORDER BY billed_duration DESC LIMIT 1;
+		ORDER BY billed_duration DESC LIMIT 10;
 
 	END IF;
 
@@ -49,7 +49,7 @@ BEGIN
 		AND uh.AccountID IS NOT NULL
 		AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 		AND StartDate BETWEEN p_StartDate AND p_EndDate
-		ORDER BY cost DESC LIMIT 1;
+		ORDER BY cost DESC LIMIT 10;
 
 	END IF;
 	
@@ -69,7 +69,8 @@ BEGIN
 		AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 		AND StartDate BETWEEN p_StartDate AND p_EndDate
 		GROUP BY cld
-		DESC LIMIT 1;
+		ORDER BY dail_count DESC
+		LIMIT 10;
 
 	END IF;
 
