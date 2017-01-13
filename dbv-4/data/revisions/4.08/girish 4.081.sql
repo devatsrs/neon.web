@@ -352,7 +352,8 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
-		GROUP BY  dd.week_of_year;
+		GROUP BY  dd.year,dd.week_of_year
+		ORDER BY dd.year,dd.week_of_year;
 
 	END IF;
 
@@ -367,7 +368,8 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
-		GROUP BY  dd.month_of_year;
+		GROUP BY  dd.year,dd.month_of_year
+		ORDER BY dd.year,dd.month_of_year;
 
 	END IF;
 
@@ -382,7 +384,8 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
-		GROUP BY  dd.quarter_of_year;
+		GROUP BY  dd.year,dd.quarter_of_year
+		ORDER BY dd.year,dd.quarter_of_year;
 
 	END IF;
 
@@ -515,7 +518,8 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageVendorSummary_ us
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
-		GROUP BY  dd.week_of_year;
+		GROUP BY  dd.year,dd.week_of_year
+		ORDER BY dd.year,dd.week_of_year;
 
 	END IF;
 
@@ -530,7 +534,8 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageVendorSummary_ us
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
-		GROUP BY  dd.month_of_year;
+		GROUP BY  dd.year,dd.month_of_year
+		ORDER BY dd.year,dd.month_of_year;
 
 	END IF;
 
@@ -545,7 +550,8 @@ BEGIN
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
 		FROM tmp_tblUsageVendorSummary_ us
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
-		GROUP BY  dd.quarter_of_year;
+		GROUP BY  dd.year,dd.quarter_of_year
+		ORDER BY dd.year,dd.quarter_of_year;
 
 	END IF;
 

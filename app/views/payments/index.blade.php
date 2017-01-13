@@ -596,8 +596,13 @@
                                 if( typeof response.ProcessID != 'undefined'){
                                     var ProcessID = response.ProcessID;
                                 }else {
-                                    toastr.error("Problem inserting Payment, Try Again.", "Error", toastr_opts);
-                                    return;
+                                    if( typeof response.message != 'undefined'){
+                                        toastr.error(response.message, "Error", toastr_opts);
+                                        return;
+                                    }else{
+                                        toastr.error("Problem inserting Payment, Try Again.", "Error", toastr_opts);
+                                        return;
+                                    }
                                 }
                                 if (response.status == 'success') {
                                     if(response.message) {

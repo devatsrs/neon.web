@@ -52,7 +52,8 @@ class CronJobController extends \BaseController {
 	{
         $isvalid = CronJob::validate();
         if($isvalid['valid']==1){
-            if (CronJob::create($isvalid['data'])) {
+            if ($CronJobID = CronJob::insertGetId($isvalid['data'])) {
+                CronJob::upadteNextTimeRun($CronJobID);
                 return Response::json(array("status" => "success", "message" => "Cron Job Successfully Created"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Cron Job."));
@@ -77,7 +78,12 @@ class CronJobController extends \BaseController {
             $CronJob = CronJob::findOrFail($id);
             $isvalid = CronJob::validate($id);
             if($isvalid['valid']==1){
+                //If user inactivate the cron job , cron job needs to terminate.
+                if(isset($isvalid['data']["Status"]) && $CronJob->Status == 1 && $isvalid['data']["Status"] == 0){
+                    $this->terminate($id);
+                }
                 if ($CronJob->update($isvalid['data'])) {
+                    CronJob::upadteNextTimeRun($id);
                     return Response::json(array("status" => "success", "message" => "Cron Job Successfully Updated"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Creating Cron Job."));

@@ -1,3 +1,8 @@
+USE `NeonCDRDev`;
+
+-- Dumping structure for procedure NeonCDRDev.prc_RetailMonitorCalls
+DROP PROCEDURE IF EXISTS `prc_RetailMonitorCalls`;
+DELIMITER //
 CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_RetailMonitorCalls`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
@@ -71,4 +76,5 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
 
-END
+END//
+DELIMITER ;

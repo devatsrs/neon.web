@@ -109,7 +109,7 @@
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
                                 @if(User::checkCategoryPermission('BillingClass','Delete'))
                                 if(full[4]== 0) {
-                                    action += ' <a href="' + delete_url.replace("{id}", id) + '" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                    action += ' <a href="' + delete_url.replace("{id}", id) + '" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="fa fa-trash"></i>Delete </a>'
                                 }
                                 @endif
                                 return action;

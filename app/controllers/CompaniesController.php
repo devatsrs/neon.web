@@ -90,7 +90,10 @@ class CompaniesController extends \BaseController {
                 CurrencyConversion::create($CurrencyCon);
             }
         }
-
+        //If company timezone changes
+        if($company->TimeZone != $data["Timezone"] ){
+            CronJob::updateAllCronJobNextRunTime($companyID);
+        }
         if ($company->update($data)) {
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
         } else {

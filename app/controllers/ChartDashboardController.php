@@ -17,15 +17,19 @@ class ChartDashboardController extends BaseController {
         $HourlyChartData = DataTableSql::of($query, 'neon_report')->getProcResult(array('TotalCost','HourCost','TotalMinutes','HourMinutes'));
         $response['TotalCost'] = $HourlyChartData['data']['TotalCost'][0]->TotalCost;
         $response['TotalMinutes'] = $HourlyChartData['data']['TotalMinutes'][0]->TotalMinutes;
-        $hourChartCost = $hourChartMinutes = array();
+        $hourChartCost = $hourChartMinutes = $minutesTitle = $costTitle = array();
         foreach((array)$HourlyChartData['data']['HourMinutes'] as $HourMinute){
             $hourChartMinutes[] = $HourMinute->TotalMinutes;
+            $minutesTitle[] = $HourMinute->HOUR.' Hour';
         }
         foreach((array)$HourlyChartData['data']['HourCost'] as $HourCost){
             $hourChartCost[] = $HourCost->TotalCost;
+            $costTitle[] = $HourCost->HOUR.' Hour';
         }
         $response['TotalMinutesChart'] =  implode(',',$hourChartMinutes);
         $response['TotalCostChart'] = implode(',',$hourChartCost);
+        $response['costTitle'] = implode(',',$costTitle);
+        $response['minutesTitle'] = implode(',',$minutesTitle);
         return $response;
     }
     /* all tab report */
@@ -167,7 +171,6 @@ class ChartDashboardController extends BaseController {
                 $html .= '<tr>
                         <td>' . $count . '</td>
                         <td>' . $RetailMonitorCall->cld . '</td>
-                        <td>' . $RetailMonitorCall->extension . '</td>
                         <td>' . $RetailMonitorCall->billed_duration . '</td>
                     </tr>';
             }
@@ -175,7 +178,6 @@ class ChartDashboardController extends BaseController {
                 $html .= '<tr>
                         <td>' . $count . '</td>
                         <td>' . $RetailMonitorCall->cld . '</td>
-                        <td>' . $RetailMonitorCall->extension . '</td>
                         <td>' . $RetailMonitorCall->cost . '</td>
                         <td>' . $RetailMonitorCall->billed_duration . '</td>
                     </tr>';

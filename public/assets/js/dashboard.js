@@ -125,32 +125,7 @@ function getHourlyChart(){
                     barSpacing: 1,
                     tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} ({{value}} Total Sales)',
                     tooltipValueLookups: {
-                        names: {
-                            0: '0 Hour',
-                            1: '1 Hour',
-                            2: '2 Hour',
-                            3: '3 Hour',
-                            4: '4 Hour',
-                            5: '5 Hour',
-                            6: '6 Hour',
-                            7: '7 Hour',
-                            8: '8 Hour',
-                            9: '9 Hour',
-                            10: '10 Hour',
-                            11: '11 Hour',
-                            12: '12 Hour',
-                            13: '13 Hour',
-                            14: '14 Hour',
-                            15: '15 Hour',
-                            16: '16 Hour',
-                            17: '17 Hour',
-                            18: '18 Hour',
-                            19: '19 Hour',
-                            20: '20 Hour',
-                            21: '21 Hour',
-                            22: '22 Hour',
-                            23: '23 Hour'
-                        }
+                        names: data.costTitle.split(',')
                     }
                 });
                 $(".hourly-sales-cost").parent().find('h3').html('Sales '+data.TotalCost)
@@ -168,32 +143,7 @@ function getHourlyChart(){
                     barSpacing: 1,
                     tooltipFormat: '<span style="color: {{color}}">&#9679;</span> {{offset:names}} ({{value}} Total Minutes)',
                     tooltipValueLookups: {
-                        names: {
-                            0: '0 Hour',
-                            1: '1 Hour',
-                            2: '2 Hour',
-                            3: '3 Hour',
-                            4: '4 Hour',
-                            5: '5 Hour',
-                            6: '6 Hour',
-                            7: '7 Hour',
-                            8: '8 Hour',
-                            9: '9 Hour',
-                            10: '10 Hour',
-                            11: '11 Hour',
-                            12: '12 Hour',
-                            13: '13 Hour',
-                            14: '14 Hour',
-                            15: '15 Hour',
-                            16: '16 Hour',
-                            17: '17 Hour',
-                            18: '18 Hour',
-                            19: '19 Hour',
-                            20: '20 Hour',
-                            21: '21 Hour',
-                            22: '22 Hour',
-                            23: '23 Hour'
-                        }
+                        names: data.minutesTitle.split(',')
                     }
                 });
                 $(".hourly-sales-minutes").parent().find('h3').html('Minutes '+data.TotalMinutes)
