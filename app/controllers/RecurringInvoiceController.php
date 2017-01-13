@@ -503,6 +503,7 @@ class RecurringInvoiceController extends \BaseController {
 
     public function sendInvoice(){
         $data = Input::all();
+        $date = Date("Y-m-d H:i:s");
         $companyID = User::get_companyID();
         $isSingle = 0;
         $where=['AccountID'=>'','Status'=>'2','selectedIDs'=>''];
@@ -521,7 +522,7 @@ class RecurringInvoiceController extends \BaseController {
 
         if($isSingle==1){
             $processID = GUID::generate();
-            $sql = "call prc_CreateInvoiceFromRecurringInvoice (".$companyID.",".intval($where['AccountID']).",".$where['Status'].",'".trim($where['selectedIDs'])."','".User::get_user_full_name()."',".RecurringInvoiceLog::GENERATE.",'".$processID."')";
+            $sql = "call prc_CreateInvoiceFromRecurringInvoice (".$companyID.",".intval($where['AccountID']).",".$where['Status'].",'".trim($where['selectedIDs'])."','".User::get_user_full_name()."',".RecurringInvoiceLog::GENERATE.",'".$processID."','".$date."')";
             $result = DB::connection('sqlsrv2')->select($sql);
             if(!empty($result[0]->message)){
                 return Response::json(array("status" => "failed", "message" => $result[0]->message));
@@ -531,7 +532,7 @@ class RecurringInvoiceController extends \BaseController {
                     //Update recurring invoice status
                     $recurringInvoice = RecurringInvoice::find($data['selectedIDs']);
                     $RecurringInvoiceData['NextInvoiceDate'] = next_billing_date($recurringInvoice->BillingCycleType, $recurringInvoice->BillingCycleValue , strtotime($recurringInvoice->NextInvoiceDate));
-                    $RecurringInvoiceData['LastInvoicedDate'] = Date("Y-m-d H:i:s");
+                    $RecurringInvoiceData['LastInvoicedDate'] = $date;
                     $recurringInvoice->update($RecurringInvoiceData);
                     //generate pdf for new created invoice
                     $pdf_path = Invoice::generate_pdf($invoiceID);
@@ -555,8 +556,8 @@ class RecurringInvoiceController extends \BaseController {
             $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
             $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
-            $jobdata["created_at"] = date('Y-m-d H:i:s');
-            $jobdata["updated_at"] = date('Y-m-d H:i:s');
+            $jobdata["created_at"] = $date;
+            $jobdata["updated_at"] = $date;
             $JobID = Job::insertGetId($jobdata);
             if($JobID){
                 return Response::json(array("status" => "success", "message" => "Bulk Invoice Send Job Added in queue to process.You will be notified once job is completed. "));
@@ -628,9 +629,9 @@ class RecurringInvoiceController extends \BaseController {
             $Account 			= 	Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
             $Currency 			= 	Currency::where(["CurrencyId"=>$Account->CurrencyId])->pluck("Code");
             $CurrencyId 		= 	$Account->CurrencyId;
-            $Address 			= 	Account::getFullAddress($Account);			
-            $Terms 				= 	$FooterTerm = '';
-            $return 			=	['Currency','CurrencyId','Address'];
+            $Address 			= 	Account::getFullAddress($Account);
+            $BillingClassID     =   AccountBilling::getBillingClassID($data['account_id']);
+            $return 			=	['Currency','CurrencyId','Address','BillingClassID'];
             return Response::json(compact($return));
         }
     }

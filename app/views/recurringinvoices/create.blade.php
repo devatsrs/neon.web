@@ -86,7 +86,7 @@
                             </div>
                         </div>
                         <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                            <label for="field-1" class="col-md-2 control-label no-padding">*for Days</label>
+                            <label for="field-1" class="col-md-2 control-label no-padding">*For Days</label>
                             <div class="col-md-4">
                                 {{Form::text('BillingCycleValue', '' ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
                             </div>
@@ -113,8 +113,8 @@
                         <label for="field-1" class="col-sm-6 control-label">PO Number</label>
                         <div class="col-sm-6"> {{Form::text('PONumber','',array("class"=>" form-control" ))}} </div>
                         <div class="clearfix margin-bottom "></div>
-                        <label for="field-1" class="col-sm-6 control-label">Occurrence</label>
-                        <div class="col-sm-6"> {{Form::text('Occurrence',0,array("class"=>" form-control" ))}} </div>
+                        <label for="field-1" class="col-sm-6 control-label">Occurrence <span data-original-title="0 Occurrence for forever" data-content="0 Occurrence for forever" data-placement="top" data-trigger="hover" data-toggle="tooltip" class="label label-info popover-primary">?</span> </label>
+                        <div class="col-sm-6"> {{Form::text('Occurrence',0,array("class"=>" form-control" ))}}</div>
                     </div>
                 </div>
                 <div class="form-group">

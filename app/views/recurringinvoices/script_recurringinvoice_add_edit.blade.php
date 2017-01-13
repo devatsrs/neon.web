@@ -306,6 +306,7 @@ $(document).ready(function(){
                     $("#Account_Address").html(response.Address);
                     $("input[name=CurrencyCode]").val(response.Currency);
                     $("input[name=CurrencyID]").val(response.CurrencyId);
+                    $('select[name="BillingClassID"]').val(response.BillingClassID).trigger('change');
                 }
 
             });
@@ -330,8 +331,9 @@ $(document).ready(function(){
                 }
 
             });
+        }else{
+            $('.all_tax_row').remove();
         }
-
     });
 	
 	function add_recurringinvoice_tax(AccountTaxRate){
