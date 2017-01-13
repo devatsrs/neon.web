@@ -8,9 +8,11 @@
 
    		<div class="login-content">
 
-   			<a href="index.html" class="logo">
-   				<img src="assets/images/logo@2x.png" width="120" alt="" />
-   			</a>
+			@if(Session::get('user_site_configrations.Logo')!='')
+				<a href="" class="logo">
+					<img src="{{Session::get('user_site_configrations.Logo')}}" width="120" alt="" />
+				</a>
+			@endif
 
    			<p class="description" style="color: #fff">Create an account, it's free and takes few moments only!</p>
 
