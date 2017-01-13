@@ -41,7 +41,7 @@ class RateGenerator extends \Eloquent {
             $RateRuleSource = RateRuleSource::where(array('RateRuleId'=>$RateRuleRow->RateRuleId))->get();
             foreach($RateRuleSource as $RateRuleSourceRow) {
                 $CurrencyToID = Account::where(["AccountID" => $RateRuleSourceRow->AccountId])->pluck('CurrencyId');
-                if($CurrencyToID != $CurrencyId){ Log::info("CurrencyToID".$CurrencyToID); Log::info("CurrencyId".$CurrencyId);
+                if($CurrencyToID != $CurrencyId){
                     if (!CurrencyConversion::isDefined($CurrencyToID)) {
                         $status['status'] = 1;
                         $CurrencyToCode = Currency::getCurrencyCode($CurrencyToID);

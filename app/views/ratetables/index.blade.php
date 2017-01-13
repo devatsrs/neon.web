@@ -19,7 +19,7 @@
 </p>
 <div class="row">
     <div class="col-md-12">
-        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="get" id="ratetable_filter">
+        <form novalidate class="form-horizontal form-groups-bordered validate" method="get" id="ratetable_filter">
             <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -31,6 +31,10 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
+                    <label for="Search" class="col-sm-2 control-label">Search</label>
+                        <div class="col-sm-2">
+                          <input class="form-control" name="Search" id="Search"  type="text" >
+                        </div>
                         <label class="col-sm-2 control-label" for="field-1">Trunk</label>
                         <div class="col-sm-3">
                             {{ Form::select('TrunkID', $trunks, $trunk_keys, array("class"=>"select2")) }}
@@ -49,7 +53,7 @@
 </div>
 <div class="cler row">
     <div class="col-md-12">
-        <form role="form" id="form1" method="post" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form role="form" id="form1" method="post" class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -89,7 +93,7 @@
     var $searchFilter = {};
     var update_new_url;
         $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
-
+		$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
             "bProcessing": true,
@@ -101,9 +105,9 @@
             "oTableTools": {},
             "aaSorting": [[3, "desc"]],
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID});
+                aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID});
+                data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
             },
             "fnRowCallback": function(nRow, aData) {
                 $(nRow).attr("id", "host_row_" + aData[2]);
@@ -220,6 +224,7 @@
         $("#ratetable_filter").submit(function(e) {
             e.preventDefault();
             $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
+			$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
             data_table.fnFilter('', 0);
             return false;
          });

@@ -4,7 +4,7 @@ class RateGeneratorsController extends \BaseController {
 
     public function ajax_datagrid() {
         $companyID = User::get_companyID();
-        $data = Input::all(); Log::info(print_r($data,true));
+        $data = Input::all(); 
         $where = ["tblRateGenerator.CompanyID" => $companyID];
         if($data['Active']!=''){
             $where['tblRateGenerator.Status'] = $data['Active'];

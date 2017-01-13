@@ -29,7 +29,7 @@
 @elseif($rategenerators->Status==0)   
 <button href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/change_status/1" class="btn change_status btn-success btn-sm " data-loading-text="Loading...">Activate</button>
 @endif
-<a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/delete" data-redirect="{{URL::to('/rategenerators')}}" data-id="{{$rategenerators->RateGeneratorId}}" class="btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a>
+<a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/delete" data-redirect="{{URL::to('/rategenerators')}}" data-id="{{$rategenerators->RateGeneratorId}}" class="btn delete_rate btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a>
 
 <button type="button"  class="update_form btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
@@ -161,8 +161,7 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                     <tr>
-                                        <th>Rate Filter
-                                        </th>
+                                        <th>Rate Filter</th>
                                         <th>Sources</th>
                                         <th>Margins</th>
                                         <th>Action</th>
@@ -335,7 +334,7 @@
         });
 		
 		
-		$(".btn.delete").click(function (e) {
+		$(".btn.delete_rate").click(function (e) {
                         e.preventDefault();
                         var id = $(this).attr('data-id');
                         var url = baseurl + '/rategenerators/'+id+'/ajax_existing_rategenerator_cronjob';
@@ -346,7 +345,7 @@
                                 type: 'POST',
                                 dataType: 'html',
                                 success: function (response) {
-                                    $(".btn.delete").button('reset');
+                                    $(".btn.delete_rate").button('reset');
                                     if (response) {
                                         $('#modal-delete-rategenerator .container').html(response);
                                         $('#modal-delete-rategenerator').modal('show');
@@ -427,7 +426,7 @@
                                 type: 'POST',
                                 dataType: 'html',
                                 success: function (response) {
-                                    $(".btn.delete").button('reset');
+                                    $(".btn.delete_rate").button('reset');
                                     if (response) {
                                         $('#modal-delete-rategenerator .container').html(response);
                                         $('#modal-delete-rategenerator').modal('show');
@@ -450,6 +449,33 @@
                 });
             }
         }
+		
+		   function getselectedIDs(table){
+            var SelectedIDs = [];
+            $('#'+table+' tr .rowcheckbox:checked').each(function (i, el) {
+                var cronjob = $(this).val();
+                SelectedIDs[i++] = cronjob;
+            });
+            return SelectedIDs;
+        }
+		
+		  $(document).on('click','#selectall',function(){
+            if($(this).is(':checked')){
+                checked = 'checked=checked';
+                $(this).prop("checked", true);
+                $(this).parents('table').find('tbody tr').each(function (i, el) {
+                    $(this).find('.rowcheckbox').prop("checked", true);
+                    $(this).addClass('selected');
+                });
+            }else{
+                checked = '';
+                $(this).prop("checked", false);
+                $(this).parents('table').find('tbody tr').each(function (i, el) {
+                    $(this).find('.rowcheckbox').prop("checked", false);
+                    $(this).removeClass('selected');
+                });
+            }
+        });
     });
 </script>
 @include('includes.ajax_submit_script', array('formID'=>'rategenerator-from' , 'url' => ('rategenerators/'.$rategenerators->RateGeneratorId.'/update')))
