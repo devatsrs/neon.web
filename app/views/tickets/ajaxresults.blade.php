@@ -2,8 +2,8 @@
   <!-- mail table header -->
   <thead>
           <tr>
-            <th colspan="3"> <?php if(count($result)>0){ ?>
-            <div class="mail-select-options" style=""> <span class="pull-left paginationTicket"> {{Form::select('page'$pagination,$iDisplayLength,array("class"=>"select2 small","id"=>"per_page"))}}</span><span class="pull-right per_page">records per page</span> </div>              
+            <th colspan="3"> <?php if(count($result)>0){ ?>                  
+            <div class="mail-select-options"><span class="pull-left paginationTicket">{{Form::select('page',$pagination,$iDisplayLength,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-right per_page">records per page</span> </div>        
               <div class="pull-right">
                 <div class="hidden mail-pagination"> <strong>
                   <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
