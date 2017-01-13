@@ -2,83 +2,58 @@
 
 @section('content')
 <ol class="breadcrumb bc-3">
-    <li>
-        <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a>
-    </li>
-    <li class="active">
-        <strong>Rate Generator</strong>
-    </li>
+  <li> <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
+  <li class="active"> <strong>Rate Generator</strong> </li>
 </ol>
-
-
 <h3>Rate Generator </h3>
-<div class="float-right">
-@if(User::checkCategoryPermission('RateGenerator','Add'))
-    <a href="{{URL::to('rategenerators/create')}}" class="btn add btn-primary btn-sm btn-icon icon-left">
-        <i class="entypo-floppy"></i>
-        Add New
-    </a>
-@endif
-
-</div>
+<div class="float-right"> @if(User::checkCategoryPermission('RateGenerator','Add')) <a href="{{URL::to('rategenerators/create')}}" class="btn add btn-primary btn-sm btn-icon icon-left"> <i class="entypo-floppy"></i> Add New </a> @endif </div>
 <br>
 <br>
 <div class="row">
-    <div class="col-md-12">
-        <form id="rategenerator_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-            <div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Filter
-                    </div>
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Active</label>
-                        <div class="col-sm-2">
-                            <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
-                            {{ Form::select('Active', $active, 1, array("class"=>"form-control select2 small")) }}
-                        </div>
-                    </div>
-                    <p style="text-align: right;">
-                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
-                            <i class="entypo-search"></i>
-                            Search
-                        </button>
-                    </p>
-                </div>
+  <div class="col-md-12">
+    <form id="rategenerator_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
+      <div class="panel panel-primary" data-collapsed="0">
+        <div class="panel-heading">
+          <div class="panel-title"> Filter </div>
+          <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="Search" class="col-sm-2 control-label">Search</label>
+            <div class="col-sm-2">
+              <input class="form-control" name="Search" id="Search"  type="text" >
             </div>
-        </form>
-    </div>
+            <label for="Active" class="col-sm-2 control-label">Active</label>
+            <div class="col-sm-2">
+              <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
+              {{ Form::select('Active', $active, 1, array("class"=>"form-control select2 small","id"=>"Active")) }} </div>
+          </div>
+          <p style="text-align: right;">
+            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
+          </p>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
-
-
 <br>
-
 <div class=" clear row">
-    <div class="col-md-12">
-        <table class="table table-bordered datatable" id="table-4">
-            <thead>
-                <tr>
-                    <th width="25%">Name</th>
-                    <th width="25%">Trunk</th>
-                    <th width="10%">Currency</th>
-                    <th width="10%">Status</th>
-                    <th width="25%">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-
-
-
-    </div>
+  <div class="col-md-12">
+    <table class="table table-bordered datatable" id="table-4">
+      <thead>
+        <tr>
+          <th width="25%">Name</th>
+          <th width="25%">Trunk</th>
+          <th width="10%">Currency</th>
+          <th width="10%">Status</th>
+          <th width="25%">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
 </div>
-
 <script type="text/javascript">
     var $searchFilter = {};
     var data_table = '';
@@ -87,13 +62,14 @@
         $('#rategenerator_filter').submit(function(e) {
             e.preventDefault();
             $searchFilter.Active = $('#rategenerator_filter [name="Active"]').val();
+			$searchFilter.Search = $('#rategenerator_filter [name="Search"]').val();
             data_table = $("#table-4").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
                 "bServerSide": true,
                 "sAjaxSource": baseurl + "/rategenerators/ajax_datagrid",
                 "fnServerParams": function (aoData) {
-                    aoData.push({ "name": "Active", "value": $searchFilter.Active });
+                    aoData.push({ "name": "Active", "value": $searchFilter.Active },{ "name": "Search", "value": $searchFilter.Search });
                 },
                 "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                 "sPaginationType": "bootstrap",
@@ -142,7 +118,7 @@
                                 action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>'
                                 action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + generate_new_rate_table_ + '" class="generate_rate create" >Create New Rate Table</a></li><li><a href="' + update_existing_rate_table_ + '" class="generate_rate update" data-trunk="' + full[5] + '" data-codedeck="' + full[6] + '" data-currency="' + full[7] + '">Update Existing Rate Table</a></li></ul></div>';
                             }
-                            <?php } ?>
+                            <?php } ?> 
                             @if(User::checkCategoryPermission('RateGenerator','Delete'))
                                 action += ' <a href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a> '
                             @endif
@@ -435,107 +411,14 @@
         }
     });
 
-</script>
+</script> 
 @include('includes.errors')
-@include('includes.success')
+@include('includes.success') 
 
-<!--Only for Delete operation-->
+<!--Only for Delete operation--> 
 @include('includes.ajax_submit_script', array('formID'=>'' , 'url' => ('')))
 @stop
 @section('footer_ext')
 @parent
-<div class="modal fade" id="modal-update-rate" data-backdrop="static">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <form id="update-rate-generator-form" method="post" >
-
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Update Rate Table</h4>
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="row" id="RateTableIDid">
-                        <div class="col-md-12">
-
-                            <div class="form-group">
-                                <label for="field-4" class="control-label">Select Rate Table</label>
-                                <div id="DropdownRateTableID">
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <div class="row" id="RateTableNameid">
-                        <div class="col-md-12">
-                            <div class="form-group" >
-                                <label for="field-4" class="control-label">Rate Table Name</label>
-                                <input type="text" name="RateTableName" class="form-control"  value="" />
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group" >
-                                <label for="field-4" class="control-label">Effective Date</label>
-                                <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}"  data-date-format="yyyy-mm-dd" value="" />
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <input type="hidden" name="RateGeneratorID" value="">
-                    <button type="submit"  class="save TrunkSelect btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                        <i class="entypo-floppy"></i>
-                        Ok
-                    </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modal-delete-rategenerator" data-backdrop="static">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <form id="delete-rate-generator-form" method="post" >
-
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Delete Rate Generator cron job</h4>
-                </div>
-
-                <div class="modal-body">
-                    <div class="container col-md-12"></div>
-                </div>
-
-                <div class="modal-footer">
-                    <input type="hidden" name="RateGeneratorID" value="">
-                    <button id="rategenerator-select"  class="save TrunkSelect btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                        <i class="entypo-cancel"></i>
-                        Delete
-                    </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+@include('rategenerators.rategenerator_models')
 @stop

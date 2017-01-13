@@ -4,11 +4,14 @@ class RateGeneratorsController extends \BaseController {
 
     public function ajax_datagrid() {
         $companyID = User::get_companyID();
-        $data = Input::all();
+        $data = Input::all(); Log::info(print_r($data,true));
         $where = ["tblRateGenerator.CompanyID" => $companyID];
         if($data['Active']!=''){
             $where['tblRateGenerator.Status'] = $data['Active'];
         }
+		
+		
+		
         $RateGenerators = RateGenerator::
         join("tblTrunk","tblTrunk.TrunkID","=","tblRateGenerator.TrunkID")
         ->leftjoin("tblCurrency","tblCurrency.CurrencyId","=","tblRateGenerator.CurrencyId")
@@ -22,6 +25,9 @@ class RateGeneratorsController extends \BaseController {
             'tblRateGenerator.CodeDeckId',
             'tblRateGenerator.CurrencyID',
                 )); // by Default Status 1
+		if($data['Search']!=''){
+            $RateGenerators->WhereRaw('tblRateGenerator.RateGeneratorName like "%'.$data['Search'].'%"'); 
+        }		
         return Datatables::of($RateGenerators)->make();
     }
     public function ajax_margin_datagrid() {
