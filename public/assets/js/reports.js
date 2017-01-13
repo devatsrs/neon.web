@@ -1,4 +1,5 @@
 var char_title = [];
+var ajax_running = 0;
 Date.prototype.addDays = function(days)
 {
     var dat = new Date(this.valueOf());
@@ -116,7 +117,10 @@ function loadBarChart(chart_type,submit_data){
                             drilldown: function (e) {
                                 if (!e.seriesOptions) {
                                     var chart = this;
-                                    getChartData(submit_data,chart,e,searchdates);
+									if(ajax_running == 0){
+										ajax_running = 1;
+										getChartData(submit_data,chart,e,searchdates);
+									}
                                 }
                             },
 							drillup: function (e) {
@@ -432,6 +436,7 @@ function getChartData(submit_data,chart,e,searchdates){
         data:submit_data,
         aysync: true,
         success: function(data) {
+			ajax_running = 0;
             if(data.series != '') {
 				chart.setTitle({ text: data.Title});
 				char_title.push(data.Title);
