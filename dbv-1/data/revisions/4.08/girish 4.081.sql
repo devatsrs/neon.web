@@ -10,6 +10,9 @@ INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `K
 INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (37, 1, 'CUSTOMER_MONITOR_DASHBOARD', 'CallMonitor,AnalysisMonitor');
 INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (38, 1, 'MONITOR_DASHBOARD', 'CallMonitor,AnalysisMonitor');
 
+INSERT INTO `tblResource` (`ResourceID`, `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES (2077, 'ChartDashboard.getMonitorDashboradCall', 'ChartDashboardController.getMonitorDashboradCall', 1, 'Sumera Khan', NULL, '2017-01-13 07:02:14.000', '2017-01-13 07:02:14.000', 1177);
+
+
 
 
 DROP PROCEDURE IF EXISTS `prc_getCustomerCodeRate`;

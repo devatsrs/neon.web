@@ -22,6 +22,22 @@ class Payment extends \Eloquent {
         "JCB"=>"JCB",
     );
 
+    public static $importpaymentrules = array(
+        'selection.AccountName' => 'required',
+        'selection.PaymentDate'=>'required',
+        'selection.PaymentMethod'=>'required',
+        'selection.PaymentType'=>'required',
+        'selection.Amount'=>'required'
+    );
+
+    public static $importpaymentmessages = array(
+        'selection.AccountName.required' =>'The Account Name field is required',
+        'selection.PaymentDate.required' =>'The Payment Date field is required',
+        'selection.PaymentMethod.required' =>'The Payment Method  field is required',
+        'selection.PaymentType.required' =>'The Action field is required',
+        'selection.Amount.required' =>'The Amount field is required'
+    );
+
     public static function validate($id=0){
         $valid = array('valid'=>0,'message'=>'Some thing wrong with payment validation','data'=>'');
         $data = Input::all();
@@ -221,12 +237,27 @@ class Payment extends \Eloquent {
                         );
 
                         if(isset($selection['InvoiceNo']) && !empty($selection['InvoiceNo']) ) {
-                            $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
-                            $temp['InvoiceID'] = (int)Invoice::where('FullInvoiceNumber',trim($row[$selection['InvoiceNo']]))->pluck('InvoiceID');
+                            if(!empty($row[$selection['InvoiceNo']])){
+                                $temp['InvoiceNo'] = empty(trim($row[$selection['InvoiceNo']])) ? '' : trim($row[$selection['InvoiceNo']]);
+                                if(!empty($temp['InvoiceNo'])){
+                                    $temp['InvoiceID'] = (int)Invoice::where('FullInvoiceNumber',trim($row[$selection['InvoiceNo']]))->pluck('InvoiceID');
+                                }else{
+                                    $temp['InvoiceID'] = '';
+                                }
+
+
+                            }else{
+                                $temp['InvoiceNo'] = '';
+                                $temp['InvoiceID'] = '';
+                            }
                         }
 
                         if(isset($selection['Notes']) && !empty($selection['Notes']) ) {
-                            $temp['Notes'] = trim($row[$selection['Notes']]);
+                            if(!empty($row[$selection['Notes']])){
+                                $temp['Notes'] = empty(trim($row[$selection['Notes']])) ? '' : trim($row[$selection['Notes']]);
+                            }else{
+                                $temp['Notes'] = '';
+                            }
                         }
                         $batch_insert[] = $temp;
                     }

@@ -480,12 +480,22 @@ class PaymentsController extends \BaseController {
     public function validate_column_mapping() {
         $data = Input::all();
 
-        $rules['selection.AccountName'] = 'required';
-        $rules['selection.PaymentDate'] = 'required';
-        $rules['selection.PaymentMethod'] = 'required';
-        $rules['selection.PaymentType'] = 'required';
-        $rules['selection.Amount'] = 'required';
-        $validator = Validator::make($data, $rules);
+        //$rules['selection.AccountName'] = 'required';
+        //$rules['selection.PaymentDate'] = 'required';
+        //$rules['selection.PaymentMethod'] = 'required';
+        //$rules['selection.PaymentType'] = 'required';
+        //$rules['selection.Amount'] = 'required';
+
+        Payment::$importpaymentrules['selection.AccountName'] = 'required';
+        Payment::$importpaymentrules['selection.PaymentDate'] = 'required';
+        Payment::$importpaymentrules['selection.PaymentMethod'] = 'required';
+        Payment::$importpaymentrules['selection.PaymentType'] = 'required';
+        Payment::$importpaymentrules['selection.Amount'] = 'required';
+
+        $validator = Validator::make($data, Payment::$importpaymentrules,Payment::$importpaymentmessages);
+
+
+        //$validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
