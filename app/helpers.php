@@ -1397,3 +1397,16 @@ function change_timezone($billing_timezone,$timezone,$date){
     }
     return $date;
 }
+
+function getQuickBookAccountant(){
+    $ChartofAccounts = array();
+    $Quickbook = new BillingAPI();
+    $check_quickbook = $Quickbook->check_quickbook();
+    if($check_quickbook){
+        $ChartofAccounts = $Quickbook->getChartofAccounts();
+        if(!empty($ChartofAccounts) && count($ChartofAccounts)>0){
+            $ChartofAccounts = array(""=> "Select Chart of accounts")+$ChartofAccounts;
+        }
+    }
+    return $ChartofAccounts;
+}
