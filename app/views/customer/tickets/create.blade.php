@@ -325,7 +325,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 
             });
 			
-			jQuery('#emai_attachments_form').submit(function(e) {
+	jQuery('#emai_attachments_form').submit(function(e) {
 				
 	e.stopImmediatePropagation();
     e.preventDefault();

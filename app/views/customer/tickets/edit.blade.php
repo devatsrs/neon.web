@@ -182,15 +182,15 @@ var required_flds	  =          '{{json_encode($required)}}';
 @if(isset($ticketSavedData['AttachmentPaths']['attachmentsinfo']))
 var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']}}';
 	
-	$('#info1').val(img_array);
-    $('#info2').val(img_array);
+	jQuery('#info1').val(img_array);
+    jQuery('#info2').val(img_array);
 	var img_array_final = jQuery.parseJSON(img_array);
 	for (var i = 0, len = img_array_final.length; i < len; ++i) {
    	 emailFileList.push(img_array_final[i].filename);	
  }
 @endif
 
-    jQuery(document).ready(function($) {
+    jQuery(document).ready(function(e) {
 		
 		function validate_form()
 		{
@@ -199,7 +199,7 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 			 var error_msg = '';
 			 
 				required_flds_data.forEach(function(element) {
-					var  CurrentElementVal = 	$('#'+element.id).val();  //console.log(element.id+'-'+CurrentElementVal);
+					var  CurrentElementVal = 	jQuery('#'+element.id).val();  //console.log(element.id+'-'+CurrentElementVal);
 				
 					if(CurrentElementVal=='' || CurrentElementVal==0)
 					{
@@ -217,54 +217,21 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 		}
 		
     // Replace Checboxes
-        $(".save.btn").click(function(ev) {
+        jQuery(".save.btn").click(function(ev) {
 			if(validate_form()){
-            	$('#form-tickets-edit').submit();      
+            	jQuery('#form-tickets-edit').submit();      
 			}
       });
 	  
-	  $(document).on('change','#{{$htmlgroupID}}',function(e){
-		   var changeGroupID =  	$(this).val();
-		   if(changeGroupID)
-		   {
-		   	 changeGroupID = parseInt(changeGroupID);
-			 var ajax_url  = baseurl+'/ticketgroups/'+changeGroupID+'/getgroupagents';
-			 $.ajax({
-					url: ajax_url,
-					type: 'POST',
-					dataType: 'json',
-					async :false,
-					cache: false,
-					contentType: false,
-					processData: false,
-					data:{s:1},
-					success: function(response) {
-					   if(response.status =='success')
-					   {			
-						   var $el = this;		   
-						   console.log(response.data);
-						   $('#{{$htmlagentID}} option:gt(0)').remove();
-						   $.each(response.data, function(key,value) {							  
-							  $('#{{$htmlagentID}}').append($("<option></option>").attr("value", value).text(key));
-							});					
-						}else{
-							toastr.error(response.message, "Error", toastr_opts);
-						}                   
-					}
-					});	
-		return false;		
-		   }
-		   
-	  });
-	  $(document).on('submit','#form-tickets-edit',function(e){		 
-		 $('.btn').attr('disabled', 'disabled');	 
-		 $('.btn').button('loading');
+	  jQuery(document).on('submit','#form-tickets-edit',function(e){		 
+		 jQuery('.btn').attr('disabled', 'disabled');	 
+		 jQuery('.btn').button('loading');
 	
 		e.stopImmediatePropagation();
 		e.preventDefault();
-		var formData = new FormData($(this)[0]);
+		var formData = new FormData(jQuery(this)[0]);
 		var ajax_url = baseurl+'/customer/tickets/{{$TicketID}}/update';
-		 $.ajax({
+		 jQuery.ajax({
 				url: ajax_url,
 				type: 'POST',
 				dataType: 'json',
@@ -280,14 +247,14 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 					}else{
 						toastr.error(response.message, "Error", toastr_opts);
 					}                   
-					$('.btn').button('reset');
-					$('.btn').removeClass('disabled');		
+					jQuery('.btn').button('reset');
+					jQuery('.btn').removeClass('disabled');		
 				}
 				});	
 		return false;		
     });	
 		
-		$('.wysihtml5box').wysihtml5({
+		jQuery('.wysihtml5box').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
 						"Crm":false,
@@ -303,22 +270,22 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 				});
 				
 				
-				$('.unknownemailaction').click(function(e) {
-				var unknown_action_type 	= 	$(this).attr('unknown_action_type');			
+				jQuery('.unknownemailaction').click(function(e) {
+				var unknown_action_type 	= 	jQuery(this).attr('unknown_action_type');			
 				//window.location = baseurl+'/'+unknown_action_type+'/create';
-				window.open(baseurl+'/'+unknown_action_type+'/create', '_blank');
+				window.open(baseurl+'/customer/'+unknown_action_type+'/create', '_blank');
         });
 		
-		 $('#addTtachment').click(function(){
+		 jQuery('#addTtachment').click(function(){
 			 file_count++;                
 				//var html_img = '<input id="filecontrole'+file_count+'" multiple type="file" name="emailattachment[]" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"  />';
-				//$('.emai_attachments_span').html(html_img);
-				$('#filecontrole1').click();
+				//jQuery('.emai_attachments_span').html(html_img);
+				jQuery('#filecontrole1').click();
 				
             });
 
 
-            $(document).on('change','#filecontrole1',function(e){
+            jQuery(document).on('change','#filecontrole1',function(e){
 				e.stopImmediatePropagation();
   				e.preventDefault();		
                 var files 			 = e.target.files;				
@@ -358,26 +325,28 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
         });
         		if(local_array.length>0 && file_check==1)
 				{	 emailFileList = emailFileList.concat(local_array);
-   					$('#emai_attachments_form').submit();
+   					jQuery('#emai_attachments_form').submit();
 				}
 
             });
 			
-			$('#emai_attachments_form').submit(function(e) {
+jQuery('#emai_attachments_form').submit(function(e) {
 	e.stopImmediatePropagation();
     e.preventDefault();
 
     var formData = new FormData(this);
-    var url = 	baseurl + '/tickets/upload_file';
-    $.ajax({
+    var url = 	baseurl + '/customer/tickets/upload_file';
+    jQuery.ajax({
         url: url,  //Server script to process data
         type: 'POST',
         dataType: 'json',
+	    contentType: false,
+        processData: false,
         success: function (response) {
             if(response.status =='success'){
-                $('.file-input-names').html(response.data.text);
-                $('#info1').val(JSON.stringify(response.data.attachmentsinfo));
-                $('#info2').val(JSON.stringify(response.data.attachmentsinfo));
+                jQuery('.file-input-names').html(response.data.text);
+                jQuery('#info1').val(JSON.stringify(response.data.attachmentsinfo));
+                jQuery('#info2').val(JSON.stringify(response.data.attachmentsinfo));
 
             }else{
                 toastr.error(response.message, "Error", toastr_opts);
@@ -390,7 +359,9 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
         contentType: false,
         processData: false
     });
-});	
+
+			
+			});	
 
 	function bytesToSize(filesize) {
   var sizeInMB = (filesize / (1024*1024)).toFixed(2);
@@ -398,27 +369,29 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
   {return 1;}else{return 0;}  
 }
 
-$(document).on("click",".del_attachment",function(ee){
-                var url  =  baseurl + '/tickets/delete_attachment_file';
-                var fileName   =  $(this).attr('del_file_name');
-                var attachmentsinfo = $('#info1').val();
+jQuery(document).on("click",".del_attachment",function(ee){
+                var url  =  baseurl + '/customer/tickets/delete_attachment_file';
+                var fileName   =  jQuery(this).attr('del_file_name');
+                var attachmentsinfo = jQuery('#info1').val();
                 if(!attachmentsinfo){
                     return true;
                 }
                 attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
-                $(this).parent().remove();
+                jQuery(this).parent().remove();
                 var fileIndex = emailFileList.indexOf(fileName);
                 var fileinfo = attachmentsinfo[fileIndex];
                 emailFileList.splice(fileIndex, 1);
                 attachmentsinfo.splice(fileIndex, 1);
-                $('#info1').val(JSON.stringify(attachmentsinfo));
-                $('#info2').val(JSON.stringify(attachmentsinfo));
-                $.ajax({
+                jQuery('#info1').val(JSON.stringify(attachmentsinfo));
+                jQuery('#info2').val(JSON.stringify(attachmentsinfo));
+                jQuery.ajax({
                     url: url,
                     type: 'POST',
                     dataType: 'json',
                     data:{file:fileinfo},
                     async :false,
+					contentType: false,
+			        processData: false,
                     success: function(response) {
                         if(response.status =='success'){
 
@@ -429,11 +402,11 @@ $(document).on("click",".del_attachment",function(ee){
                 });
             });
 			
-			$('.formfldcheckbox').change(function(e) {
-               if ( $( this ).is( ":checked" ) ){
-				  	$( this ).val(1);
+			jQuery('.formfldcheckbox').change(function(e) {
+               if ( jQuery( this ).is( ":checked" ) ){
+				  	jQuery( this ).val(1);
 				  }else{
-				  	$( this ).val(0);
+				  	jQuery( this ).val(0);
 				  }
             });
     });
