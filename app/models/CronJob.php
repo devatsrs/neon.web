@@ -252,4 +252,69 @@ class CronJob extends \Eloquent {
         return $output;
     }
 
+    public static function upadteNextTimeRun($CronJobID,$skipLastRunTime=false){
+        $CronJob =  CronJob::find($CronJobID);
+        $data['NextRunTime'] = CronJob::calcNextTimeRun($CronJob->CronJobID,$skipLastRunTime);
+        $CronJob->update($data);
+    }
+
+    public static function calcNextTimeRun($CronJobID,$skipLastRunTime = false){
+        $CronJob =  CronJob::find($CronJobID);
+        $cronsetting = json_decode($CronJob->Settings);
+        if(!empty($CronJob) && isset($cronsetting->JobTime)){
+            switch($cronsetting->JobTime) {
+                case 'HOUR':
+                    if($CronJob->LastRunTime == '' || $skipLastRunTime ){
+                        $strtotime = strtotime('+'.$cronsetting->JobInterval.' hour');
+                    }else{
+                        $strtotime = strtotime($CronJob->LastRunTime)+$cronsetting->JobInterval*60*60;
+                    }
+                    return date('Y-m-d H:i:00',$strtotime);
+                case 'MINUTE':
+                    if($CronJob->LastRunTime == ''|| $skipLastRunTime){
+                        $strtotime = strtotime('+'.$cronsetting->JobInterval.' minute');
+                    }else{
+                        $strtotime = strtotime($CronJob->LastRunTime)+$cronsetting->JobInterval*60;
+                    }
+                    return date('Y-m-d H:i:00',$strtotime);
+                case 'DAILY':
+                    if($CronJob->LastRunTime == ''|| $skipLastRunTime){
+                        $strtotime = strtotime('+'.$cronsetting->JobInterval.' day');
+                    }else{
+                        $strtotime = strtotime($CronJob->LastRunTime)+$cronsetting->JobInterval*60*60*24;
+                    }
+                    if(isset($cronsetting->JobStartTime)){
+                        return date('Y-m-d',$strtotime).' '.date("H:i:00", strtotime("$cronsetting->JobStartTime"));;
+                    }
+                    return date('Y-m-d H:i:00',$strtotime);
+                case 'MONTHLY':
+                    if($CronJob->LastRunTime == ''|| $skipLastRunTime){
+                        $strtotime = strtotime('+'.$cronsetting->JobInterval.' month');
+                    }else{
+                        $strtotime = strtotime("+$cronsetting->JobInterval month", strtotime($CronJob->LastRunTime));
+                    }
+                    if(isset($cronsetting->JobStartTime)){
+                        return date('Y-m-d',$strtotime).' '.date("H:i:00", strtotime("$cronsetting->JobStartTime"));
+                    }
+                    return date('Y-m-d H:i:00',$strtotime);
+                default:
+                    return '';
+            }
+        }
+    }
+
+    /**
+     * used when company timezone change we need to update all cron job next run time.
+     * @param $CompanyID
+     */
+    public static function updateAllCronJobNextRunTime($CompanyID) {
+        $AllActiveCronJobs = CronJob::where(['CompanyID' => $CompanyID, "Status" => 1])->get()->toArray();
+        if (count($AllActiveCronJobs) > 0) {
+            foreach ($AllActiveCronJobs as $CronJob) {
+                if (!empty($CronJob['CronJobID']) && $CronJob['CronJobID'] > 0) {
+                    self::upadteNextTimeRun($CronJob['CronJobID'],true);
+                }
+            }
+        }
+    }
 }
