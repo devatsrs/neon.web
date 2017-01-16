@@ -54,6 +54,16 @@ class RateTable extends \Eloquent
         $row = array(""=> "Select")+$row;
         return $row;
     }
+	
+	public static function getRateTables($data=array()){		
+		$compantID = User::get_companyID();
+        $where = ['CompanyID'=>$compantID];      
+        $RateTables = RateTable::select(['RateTableName','RateTableId'])->where($where)->orderBy('RateTableName', 'asc')->lists('RateTableName','RateTableId');
+        if(!empty($RateTables)){
+            $RateTables = [''=>'Select'] + $RateTables;
+        }
+        return $RateTables;
+    }
     public static function getCurrencyCode($RateTableId){
         $CurrencyID = RateTable::where(["RateTableId" => $RateTableId])->pluck('CurrencyID');
         return Currency::getCurrencySymbol($CurrencyID);

@@ -136,6 +136,16 @@ function opportunites_dropbox($id=0,$data=array()){
     return Form::select('crmboard', $all_opportunites, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
+function rategenerators_dropbox($id=0,$data=array()){
+    $all_rategenerators = RateGenerator::getRateGenerators();
+    return Form::select('rategenerators', $all_rategenerators, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+function rate_tables_dropbox($id=0,$data=array()){
+    $all_getRateTables = RateTable::getRateTables();
+    return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
 
 function sendMail($view,$data){
     

@@ -10,10 +10,16 @@
     <li>
         <a href="{{URL::to('/rategenerators')}}">Rate Generator</a>
     </li>
-
-    <li class="active">
-        <strong>{{!empty($rategenerator)?$rategenerator->RateGeneratorName:''}}</strong>
+		<li>
+        <a><span>{{rategenerators_dropbox($rategenerators->RateGeneratorId)}}</span></a>
     </li>
+   <!-- <li class="active">
+        <strong>{{!empty($rategenerator)?$rategenerator->RateGeneratorName:''}}</strong>
+    </li>-->
+    <li class="active">
+        <strong>Edit Rate Generator</strong>
+    </li>
+    
 </ol>
 <h3> Update Rate Generator</h3>
 <div class="float-right" >

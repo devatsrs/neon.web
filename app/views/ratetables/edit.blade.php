@@ -3,6 +3,9 @@
 <ol class="breadcrumb bc-3">
     <li><a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a></li>
     <li><a href="{{URL::to('/rate_tables')}}">Rate Table</a></li>
+    <li>
+        <a><span>{{rate_tables_dropbox($id)}}</span></a>
+    </li>
     <li class="active"><strong>{{$rateTable->RateTableName}}</strong></li>
 </ol>
 <h3>View Rate Table</h3>
@@ -28,7 +31,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form role="form" id="rate-table-search"  method="post" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form role="form" id="rate-table-search"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">Search</div>

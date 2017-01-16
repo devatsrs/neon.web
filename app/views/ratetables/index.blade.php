@@ -72,7 +72,7 @@
                                         <th width="30%">Name</th>
                                         <th width="20%">Currency</th>
                                         <th width="28%">Codedeck</th>
-                                        <th width="20%">last update</th>
+                                        <th width="20%">Last Updated</th>
                                          <th width="20%">Action</th>
                                     </tr>
                                 </thead>
