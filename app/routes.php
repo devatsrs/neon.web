@@ -108,9 +108,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/dashboard/getSalesdata', "DashboardController@getSalesdata");		
 	Route::post('/dashboard/CrmDashboardSalesRevenue', "DashboardController@CrmDashboardSalesRevenue");		
 	Route::post('/dashboard/GetForecastData', "DashboardController@GetForecastData");
-	Route::post('/dashboard/GetRevenueDrillDown', "DashboardController@GetRevenueDrillDown");		
-	
-	
+	Route::post('/dashboard/GetRevenueDrillDown', "DashboardController@GetRevenueDrillDown");
+	Route::any('/dashboard/get_top_alert', "DashboardController@getTopAlerts");
 	
 	
 	Route::any('/monitor', array('as' => 'monitor', 'uses' => 'DashboardController@monitor_dashboard'));

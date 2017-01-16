@@ -166,3 +166,40 @@ function getBarWidth(){
     }
     return barWidth;
 }
+
+function getAlertData(){
+    loading(".today-alerts",1);
+    loading(".yesterday-alerts",1);
+    loading(".yesterday2-alerts",1);
+
+    $.ajax({
+        type: 'GET',
+        url: baseurl+'/dashboard/get_top_alert',
+        data:'Type=today',
+        aysync: true,
+        success: function(data) {
+            loading(".today-alerts",0);
+            $(".today-alerts").find('tbody').html(data);
+        }
+    });
+    $.ajax({
+        type: 'GET',
+        url: baseurl+'/dashboard/get_top_alert',
+        data:'Type=yesterday',
+        aysync: true,
+        success: function(data) {
+            loading(".yesterday-alerts",0);
+            $(".yesterday-alerts").find('tbody').html(data);
+        }
+    });
+    $.ajax({
+        type: 'GET',
+        url: baseurl+'/dashboard/get_top_alert',
+        data:'Type=yesterday2',
+        aysync: true,
+        success: function(data) {
+            loading(".yesterday2-alerts",0);
+            $(".yesterday2-alerts").find('tbody').html(data);
+        }
+    });
+}

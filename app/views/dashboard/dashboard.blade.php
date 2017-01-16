@@ -512,6 +512,7 @@
                 </div>
             </div>
     </div>
+    @include('dashboard.todayalerts')
     @if($isDesktop == 1)
         <button id="toNocWall" class="btn btn-primary pull-right" style="display: block;"><i class="fa fa-arrows-alt"></i></button>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/screenfull.js/3.0.0/screenfull.js"></script>
