@@ -436,9 +436,9 @@ class IntegrationController extends \BaseController
 				$rules = array(
 					'QuickBookLoginID'	  => 'required',
 					//'QuickBookPassqord'	  => 'required',
-					'OauthConsumerKey'	  => 'required',
-					'OauthConsumerSecret' => 'required',
-					'AppToken' => 'required',
+					//'OauthConsumerKey'	  => 'required',
+					//'OauthConsumerSecret' => 'required',
+					//'AppToken' => 'required',
 				);
 
                 if(count($QuickBookDbData)==0){
@@ -451,11 +451,19 @@ class IntegrationController extends \BaseController
 					return json_validator_response($validator);
 				}
 
+				$QuickBook=CompanyConfiguration::get('QuickBook');
+				$QuickBook = json_decode($QuickBook,true);
+				if(empty($QuickBook['OauthConsumerKey']) || empty($QuickBook['OauthConsumerSecret']) || empty($QuickBook['AppToken'])){
+					return Response::json(array("status" => "failed", "message" => "Please Check QuickBook Configuration", "quickbookredirect" =>1));
+				}
+
 				$data['Status'] 				= 	isset($data['Status'])?1:0;
-				$data['QuickBookSandbox'] 	= 	isset($data['QuickBookSandbox'])?1:0;
+				$data['QuickBookSandbox'] 	= 	isset($QuickBook['Sandbox'])?1:0;
 				$data['InvoiceAccount'] 	= 	isset($data['InvoiceAccount'])?$data['InvoiceAccount']:'';
 				$data['PaymentAccount'] 	= 	isset($data['PaymentAccount'])?$data['PaymentAccount']:'';
-
+				$data['OauthConsumerKey'] = $QuickBook['OauthConsumerKey'];
+				$data['OauthConsumerSecret'] = $QuickBook['OauthConsumerSecret'];
+				$data['AppToken'] = $QuickBook['AppToken'];
 
 				/*
 				$QuickBookData = array(
@@ -521,4 +529,5 @@ class IntegrationController extends \BaseController
 		 
 		return Response::json($ImapResult);
 	}
+
 }
