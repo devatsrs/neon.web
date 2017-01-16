@@ -306,7 +306,7 @@ private $validlicense;
     }
 
     function deleteUploadFile(){
-        $data    =  Input::all();
+        $data    =  Input::all();  
         try {
             UploadFile::DeleteUploadFileLocal($data);
             return Response::json(array("status" => "success", "message" => 'Attachments delete successfully'));

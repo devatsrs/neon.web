@@ -373,7 +373,7 @@ jQuery(document).on("click",".del_attachment",function(ee){
                 attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
                 jQuery(this).parent().remove();
                 var fileIndex = emailFileList.indexOf(fileName);
-                var fileinfo = attachmentsinfo[fileIndex];
+                var fileinfo = attachmentsinfo[fileIndex]; 
                 emailFileList.splice(fileIndex, 1);
                 attachmentsinfo.splice(fileIndex, 1);
                 jQuery('#info1').val(JSON.stringify(attachmentsinfo));
@@ -383,9 +383,7 @@ jQuery(document).on("click",".del_attachment",function(ee){
                     type: 'POST',
                     dataType: 'json',
                     data:{file:fileinfo},
-                    async :false,
-					contentType: false,
-			        processData: false,
+                    async :false,					
                     success: function(response) {
                         if(response.status =='success'){
 

@@ -425,7 +425,7 @@ $(document).on("click",".del_attachment",function(ee){
                 attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
                 $(this).parent().remove();
                 var fileIndex = emailFileList.indexOf(fileName);
-                var fileinfo = attachmentsinfo[fileIndex];
+                var fileinfo = attachmentsinfo[fileIndex]; 
                 emailFileList.splice(fileIndex, 1);
                 attachmentsinfo.splice(fileIndex, 1);
                 $('#info1').val(JSON.stringify(attachmentsinfo));
