@@ -62,7 +62,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>Invoice Sent</p></a></div>
+                                    <p>Invoice Sent for selected period</p></a></div>
                         </div>
                         @endif
                         @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
@@ -359,7 +359,7 @@
                 option["end"] = response.data.TotalInvoiceIn;
                 option["tileclass"] = 'tile-green';
                 option["class"] = 'paid';
-                option["type"] = 'Invoice Sent';
+                option["type"] = 'Invoice Sent for selected period';
                 /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
                 @endif

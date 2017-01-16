@@ -123,56 +123,6 @@ class QuickBook {
 
 	}
 
-	public static function getAccount(){
-
-		//Specify QBO or QBD
-		$serviceType = IntuitServicesType::QBO;
-		//$serviceType = 'QBO';
-
-		// Get App Config
-		$realmId = ConfigurationManager::AppSettings('RealmID');
-
-		//$realmId ='12345678';
-		if (!$realmId)
-			exit("Please add realm to App.Config before running this sample.\n");
-
-		// Prep Service Context
-		$requestValidator = new OAuthRequestValidator(ConfigurationManager::AppSettings('AccessToken'),
-													  ConfigurationManager::AppSettings('AccessTokenSecret'),
-													  ConfigurationManager::AppSettings('ConsumerKey'),
-													  ConfigurationManager::AppSettings('ConsumerSecret'));
-		//$AccessToken = 'f1f664d3bf391b4318b89aabcfe28b04c93c';
-		//$AccessTokenSecret = 'f1f664d3bf391b4318b89aabcfe28b04c93c';
-		//$ConsumerKey = 'qyprdGjyW92fBh1eron3vMi2ljRuzv';
-		//$ConsumerSecret = '36MI6Rzg0PrrPMNy31gPBYnZv8JLvdMXajvTeRm5';
-		//$requestValidator = new OAuthRequestValidator($AccessToken,$AccessTokenSecret,$ConsumerKey,$ConsumerSecret);
-		$serviceContext = new ServiceContext($realmId, $serviceType, $requestValidator);
-		if (!$serviceContext)
-			exit("Problem while initializing ServiceContext.\n");
-
-		// Prep Data Services
-		$dataService = new DataService($serviceContext);
-		if (!$dataService)
-			exit("Problem while initializing DataService.\n");
-
-		// Iterate through all Accounts, even if it takes multiple pages
-		$i = 1;
-		while (1) {
-			$allAccounts = $dataService->FindAll('Account', $i, 500);
-			if (!$allAccounts || (0==count($allAccounts)))
-				break;
-
-			foreach($allAccounts as $oneAccount)
-			{
-				echo "Account[".($i++)."]: {$oneAccount->Name}\n";
-				echo "\t * Id: [{$oneAccount->Id}]\n";
-				echo "\t * AccountType: [{$oneAccount->AccountType}]\n";
-				echo "\t * AccountSubType: [{$oneAccount->AccountSubType}]\n";
-				echo "\t * Active: [{$oneAccount->Active}]\n";
-				echo "\n";
-			}
-		}
-	}
 
 	public function quickbook_disconnect(){
 
@@ -924,8 +874,10 @@ class QuickBook {
 		exit;
 	}
 
-	public function getAllAccountPrefrences(){
+	public function getChartofAccounts(){
 		$AccountPrefrences = array();
+		$chartofaccounts = array();
+		$data = array();
 		if ($this->is_quickbook()){
 			if ($this->quickbooks_is_connected) {
 
@@ -936,14 +888,23 @@ class QuickBook {
 				$AccountService = new QuickBooks_IPP_Service_Account();
 
 				$AccountPrefrences = $AccountService->query($Context, $realm, "SELECT * FROM Account");
-
+				if(!empty($AccountPrefrences) && count((array)$AccountPrefrences)>0){
+					foreach((array)$AccountPrefrences as $AccountPrefrence){
+						$name = $AccountPrefrence->getName();
+						if(!empty($name)){
+							$chartofaccounts[$name] = $name;
+							//$chartofaccounts[] = $data;
+						}
+					}
+				}
 
 			}
 		}
 
 		log::info(print_r($AccountPrefrences,true));
 
-		//return $journal;
-		exit;
+		return $chartofaccounts;
+
 	}
+
 }
