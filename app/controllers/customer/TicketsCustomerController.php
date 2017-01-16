@@ -221,7 +221,7 @@ private $validlicense;
 			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
 		}
 		
-		 $attachmentsinfo        =	$postdata['attachmentsinfo']; 
+		 $attachmentsinfo        =	isset($postdata['attachmentsinfo'])?$postdata['attachmentsinfo']:array(); 
         if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
             $files_array = json_decode($attachmentsinfo,true);
         }
@@ -241,7 +241,7 @@ private $validlicense;
                     return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
                 }
                 $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
-                @unlink($array_file_data['filepath']);
+               // @unlink($array_file_data['filepath']);
             }
             $postdata['file']		=	json_encode($FilesArray);
 		} 

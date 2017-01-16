@@ -230,7 +230,7 @@ private $validlicense;
                     return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
                 }
                 $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
-                @unlink($array_file_data['filepath']);
+               // @unlink($array_file_data['filepath']);
             }
             $postdata['file']		=	json_encode($FilesArray);
 		} 
@@ -269,7 +269,7 @@ private $validlicense;
                     return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
                 }
                 $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
-                @unlink($array_file_data['filepath']);
+               // @unlink($array_file_data['filepath']);
             }
             $postdata['file']		=	json_encode($FilesArray);
 		} 

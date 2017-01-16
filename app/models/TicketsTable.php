@@ -16,7 +16,7 @@ class TicketsTable extends \Eloquent
 	
 	static $pagination 				= 	array("10"=>"10","25"=>"25","50"=>"50","100"=>"100");
 	
-	static  $SortcolumnsCustomer			=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","updated_at"=>"Last Modified");
+	static  $SortcolumnsCustomer	=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","updated_at"=>"Last Modified");
 	
 	static function GetAgentSubmitRules(){
 		 $rules 	 =  array();
@@ -54,6 +54,14 @@ class TicketsTable extends \Eloquent
             ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_TYPE_FLD])->lists('FieldValueAgent','ValuesID');
 			$row = array("0"=> "Select")+$row;
 			return $row;
+	}
+	
+	static function getDefaultStatus(){			
+		//TicketfieldsValues::WHERE
+		 $ValuesID =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
+            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->where(['tblTicketfieldsValues.FieldValueAgent'=>TicketfieldsValues::TICKET_SYSTEM_STATUS_DEFAULT,'FieldType'=>Ticketfields::$FIELD_TYPE_STATIC])->pluck('ValuesID');			
+			return $ValuesID;
+	
 	}
 	
 	static function SetUpdateValues($TicketData,$ticketdetaildata,$Ticketfields){

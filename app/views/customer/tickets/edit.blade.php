@@ -3,7 +3,7 @@
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
-  <li> <a href="{{action('tickets')}}">Tickets</a> </li>
+  <li> <a href="{{URL::to('/customer/tickets')}}">Tickets</a> </li>
   <li class="active"> <strong>Update Ticket</strong> </li>
 </ol>
 <h3>Update Ticket</h3>
