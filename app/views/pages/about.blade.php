@@ -13,14 +13,41 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.07</h1>
+    <h1>NEON - 4.08</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.07</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.08</strong></div>
 </p>
 </div>
+
+<h2>
+    <span class="label label-success">4.08</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>17-01-2017</h4>
+                    01. Added option to save stripe account.<br>
+                    02. Added cookie for list view/grid view on account and lead page.<br>
+                    03. Added filter ip/cli on account page.<br>
+                    04. Changed summary creation from one hour to half hour.<br>
+                    05. Added option to mirta account block.<br>
+                    06. Added world map on dashboard.<br>
+                    07. Added vendor stats report.<br>
+                    08. Added drill down analysis chart.<br>
+                    09. Added option to show average rate per minute on invoice and cdr page.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.07</span> &nbsp; Version Highlights

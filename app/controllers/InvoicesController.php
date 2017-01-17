@@ -131,8 +131,10 @@ class InvoicesController extends \BaseController {
         $data['StartDateDefault'] 	  	= 	'';
 		$data['IssueDateEndDefault']  	= 	'';
         $InvoiceHideZeroValue = NeonCookie::getCookie('InvoiceHideZeroValue',1);
+        $Quickbook = new BillingAPI();
+        $check_quickbook = $Quickbook->check_quickbook();
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook'));
 
     }
 

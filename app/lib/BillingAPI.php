@@ -30,7 +30,8 @@ class BillingAPI {
 		}
 		return false;
 	}
-	
+
+	/* not using */
 	public function getAllAcccount()
 	{
 		$accountresponse = array();
@@ -108,56 +109,6 @@ class BillingAPI {
 
 	}
 
-	public static function getAccount(){
-
-		//Specify QBO or QBD
-		$serviceType = IntuitServicesType::QBO;
-		//$serviceType = 'QBO';
-
-		// Get App Config
-		$realmId = ConfigurationManager::AppSettings('RealmID');
-
-		//$realmId ='12345678';
-		if (!$realmId)
-			exit("Please add realm to App.Config before running this sample.\n");
-
-		// Prep Service Context
-		$requestValidator = new OAuthRequestValidator(ConfigurationManager::AppSettings('AccessToken'),
-													  ConfigurationManager::AppSettings('AccessTokenSecret'),
-													  ConfigurationManager::AppSettings('ConsumerKey'),
-													  ConfigurationManager::AppSettings('ConsumerSecret'));
-		//$AccessToken = 'f1f664d3bf391b4318b89aabcfe28b04c93c';
-		//$AccessTokenSecret = 'f1f664d3bf391b4318b89aabcfe28b04c93c';
-		//$ConsumerKey = 'qyprdGjyW92fBh1eron3vMi2ljRuzv';
-		//$ConsumerSecret = '36MI6Rzg0PrrPMNy31gPBYnZv8JLvdMXajvTeRm5';
-		//$requestValidator = new OAuthRequestValidator($AccessToken,$AccessTokenSecret,$ConsumerKey,$ConsumerSecret);
-		$serviceContext = new ServiceContext($realmId, $serviceType, $requestValidator);
-		if (!$serviceContext)
-			exit("Problem while initializing ServiceContext.\n");
-
-		// Prep Data Services
-		$dataService = new DataService($serviceContext);
-		if (!$dataService)
-			exit("Problem while initializing DataService.\n");
-
-		// Iterate through all Accounts, even if it takes multiple pages
-		$i = 1;
-		while (1) {
-			$allAccounts = $dataService->FindAll('Account', $i, 500);
-			if (!$allAccounts || (0==count($allAccounts)))
-				break;
-
-			foreach($allAccounts as $oneAccount)
-			{
-				echo "Account[".($i++)."]: {$oneAccount->Name}\n";
-				echo "\t * Id: [{$oneAccount->Id}]\n";
-				echo "\t * AccountType: [{$oneAccount->AccountType}]\n";
-				echo "\t * AccountSubType: [{$oneAccount->AccountSubType}]\n";
-				echo "\t * Active: [{$oneAccount->Active}]\n";
-				echo "\n";
-			}
-		}
-	}
 
 	public function quickbook_disconnect(){
 		/* Check Connection default return Company Info */
@@ -178,6 +129,7 @@ class BillingAPI {
 		return false;
 	}
 
+	/*not using */
 	public static function addCustomer()
 	{
 
@@ -313,11 +265,14 @@ class BillingAPI {
 				$this->oauth_consumer_secret = $OauthConsumerSecret;
 				$this->token = $AppToken;
 				$this->sandbox = $QuickBookSandbox;
+				$this->quickbooks_oauth_url = URL::to('/quickbook/oauth');
+				$this->quickbooks_success_url = URL::to('/quickbook/success');
+				$this->quickbooks_menu_url = URL::to('/quickbook');
+				$dbconnection = Config::get('database.connections.sqlsrv');
 
-				$this->quickbooks_oauth_url = 'http://localhost/bhavin/neon/web/newbhavin/public/quickbook/oauth';
-				$this->quickbooks_success_url = 'http://localhost/bhavin/neon/web/newbhavin/public/quickbook/success';
-				$this->quickbooks_menu_url = 'http://localhost/bhavin/neon/web/newbhavin/public/quickbook';
-				$this->dsn = 'mysqli://root:root@localhost/LocalRatemanagement';
+				$dsn = 'mysqli://'.$dbconnection['username'].':'.$dbconnection['password'].'@'.$dbconnection['host'].'/'.$dbconnection['database'];
+
+				$this->dsn = $dsn;
 				$this->encryption_key = 'bcde1234';
 				$this->the_username = 'DO_NOT_CHANGE_ME';
 				$this->the_tenant = 12345;
@@ -525,4 +480,14 @@ class BillingAPI {
 		}
 		return false;
 	}
+
+	public function getChartofAccounts(){
+		if($this->quickbooks_is_connected){
+			/* Get All chart of accounts */
+
+			return $this->request->getChartofAccounts();
+		}
+		return false;
+	}
+
 }

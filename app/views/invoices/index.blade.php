@@ -170,7 +170,7 @@
                                         </a>
                                     </li>
                                 @endif
-                                @if(User::checkCategoryPermission('Invoice','Post'))
+                                @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook))
                                     <li>
                                         <a class="quickbookpost create" id="quickbook_post" href="javascript:;">
                                             QuickBook Post
