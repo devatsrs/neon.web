@@ -395,4 +395,34 @@ class DashboardController extends BaseController {
         return json_encode($jsondata);
     }
 
+    public function getTopAlerts(){
+        $getdata = Input::all();
+        $getdata['iDisplayLength'] = 10;
+        $getdata['iDisplayStart'] = 1;
+        $getdata['sSortDir_0'] = 'desc';
+        $getdata['iSortCol_0'] = 2;
+        $getdata['AlertType'] = '';
+        $getdata['StartDate'] = date('Y-m-d 00:00:00');
+        $getdata['EndDate'] = date('Y-m-d 23:59:59');
+        $alertType = array("" => "Select") + Alert::$qos_alert_type + Alert::$call_monitor_alert_type;
+        if ($getdata['Type'] == 'today') {
+            $getdata['StartDate'] = date('Y-m-d');
+            $getdata['EndDate'] = date('Y-m-d 23:59:59');
+        } else if ($getdata['Type'] == 'yesterday') {
+            $getdata['StartDate'] = date('Y-m-d', strtotime('-1 day'));
+            $getdata['EndDate'] = $getdata['StartDate'] . ' 23:59:59';
+        } else if ($getdata['Type'] == 'yesterday2') {
+            $getdata['StartDate'] = date('Y-m-d', strtotime('-2 days'));
+            $getdata['EndDate'] = $getdata['StartDate'] . ' 23:59:59';
+        }
+        $response = NeonAPI::request('alert/history', $getdata, false, false, false);
+        if(!empty($response) && $response->status == 'success') {
+            $html = View::make('dashboard.alert_history', compact('response', 'alertType'))->render();
+        }else{
+            return json_response_api($response,true,true,true);
+        }
+        return $html;
+
+    }
+
 }
