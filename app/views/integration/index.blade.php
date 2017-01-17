@@ -842,7 +842,7 @@
                     processData: false
                 });
             }else{
-                $(".save_template").button('reset');
+                setTimeout( function(){$(".save_template").button('reset')},10);
                 return false;
             }
         });
