@@ -112,7 +112,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('users/ajax_datagrid/{type}', 'UsersController@ajax_datagrid');
 	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
 	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
-    Route::any('/users/tracker', 'UsersController@view_tracker');
     Route::any('/users/{id}/job_notification/{status}', 'UsersController@job_notification')->where('status', '(.[09]*)+');
 
 
@@ -127,9 +126,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/dashboard/getSalesdata', "DashboardController@getSalesdata");		
 	Route::post('/dashboard/CrmDashboardSalesRevenue', "DashboardController@CrmDashboardSalesRevenue");		
 	Route::post('/dashboard/GetForecastData', "DashboardController@GetForecastData");
-	Route::post('/dashboard/GetRevenueDrillDown', "DashboardController@GetRevenueDrillDown");		
-	
-	
+	Route::post('/dashboard/GetRevenueDrillDown', "DashboardController@GetRevenueDrillDown");
+	Route::any('/dashboard/get_top_alert', "DashboardController@getTopAlerts");
 	
 	
 	Route::any('/monitor', array('as' => 'monitor', 'uses' => 'DashboardController@monitor_dashboard'));
