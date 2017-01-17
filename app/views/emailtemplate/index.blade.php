@@ -17,7 +17,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form id="template_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="template_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -208,7 +208,8 @@ var postdata;
                 $("#add-new-template-form [name='TemplateName']").val(data['TemplateName']);
                 $("#add-new-template-form [name='Subject']").val(data['Subject']);
                 $("#add-new-template-form [name='TemplateBody']").val(data['TemplateBody']);
-                $("#add-new-template-form [name='Type']").val(data['Type']).trigger("change");
+                $("#add-new-template-form [name='Type']").val(data['Type']).trigger("change"); 
+				if(data['Privacy']== '' || data['Privacy']=== null){data['Privacy']=0;} 
                 $("#add-new-template-form [name='Email_template_privacy']").val(data['Privacy']).trigger("change");
                 $('#add-new-modal-template h4').html('Edit template');
 
