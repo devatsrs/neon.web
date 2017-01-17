@@ -19,18 +19,15 @@
         </div>
         <div class="panel-body">
           <div class="form-group">
-            <label for="Search" class="col-sm-2 control-label">Name</label>
+            <label for="Search" class="col-sm-1 control-label">Name</label>
             <div class="col-sm-2">
               <input class="form-control" name="Search" id="Search"  type="text" >
-            </div>
-            
-            
-            <label for="Active" class="col-sm-2 control-label">Trunk</label>
+            </div>  
+            <label for="Active" class="col-sm-1 control-label">Trunk</label>
             <div class="col-sm-2">
               {{ Form::select('Trunk', $Trunks, 1, array("class"=>"form-control select2 small","id"=>"Trunk")) }}
-               </div>
-            
-            <label for="Active" class="col-sm-2 control-label">Active</label>
+               </div>            
+            <label for="Active" class="col-sm-1 control-label">Active</label>
             <div class="col-sm-2">
               <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
               {{ Form::select('Active', $active, 1, array("class"=>"form-control select2 small","id"=>"Active")) }}
@@ -107,10 +104,10 @@
                             var status_link = active_ = "";
                             if (full[3] == "1") {
                                 active_ = "{{ URL::to('/rategenerators/{id}/change_status/0')}}";
-                                status_link = ' <button href="' + active_ + '"  class="btn change_status btn-danger btn-sm" data-loading-text="Loading..."><i class="glyphicon glyphicon-ban-circle"></i></button>';
+                                status_link = ' <a title="Deactivate" href="' + active_ + '"  class="btn btn-default change_status btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-minus-circled"></i></a>';
                             } else {
                                 active_ = "{{ URL::to('/rategenerators/{id}/change_status/1')}}";
-                                status_link = ' <button href="' + active_ + '"    class="btn change_status btn-success btn-sm" data-loading-text="Loading..."><i class="entypo-check"></i></button>';
+                                status_link = ' <a title="Activate" href="' + active_ + '"    class="btn btn-default change_status btn-success btn-sm" data-loading-text="Loading..."><i class="entypo-check"></i></a>';
                             }
 
 
@@ -122,16 +119,17 @@
                             action = '';
 
                             <?php if(User::checkCategoryPermission('RateGenerator','Edit')) { ?>
-                            action += '<a href="' + edit_ + '" class="btn btn-default "><i class="entypo-pencil"></i></a> '
+                            action += '<a title="Edit" href="' + edit_ + '" class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a> '
                             action += status_link;
+							
+							 @if(User::checkCategoryPermission('RateGenerator','Delete'))
+                                action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn btn-default btn-sm  delete btn-danger"><i class="entypo-trash"></i></a> '
+                            @endif
                             if (full[3] == 1) { /* When Status is 1 */
                                 action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>'
                                 action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + generate_new_rate_table_ + '" class="generate_rate create" >Create New Rate Table</a></li><li><a href="' + update_existing_rate_table_ + '" class="generate_rate update" data-trunk="' + full[5] + '" data-codedeck="' + full[6] + '" data-currency="' + full[7] + '">Update Existing Rate Table</a></li></ul></div>';
                             }
-                            <?php } ?> 
-                            @if(User::checkCategoryPermission('RateGenerator','Delete'))
-                                action += ' <a href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn btn-default  delete btn-danger"><i class="fa fa-trash-o"></i></a> '
-                            @endif
+                            <?php } ?>                            
                             return action;
                         }
                     },

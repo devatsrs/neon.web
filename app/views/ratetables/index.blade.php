@@ -31,11 +31,11 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                    <label for="Search" class="col-sm-2 control-label">Search</label>
+                    <label for="Search" class="col-sm-1 control-label">Search</label>
                         <div class="col-sm-2">
                           <input class="form-control" name="Search" id="Search"  type="text" >
                         </div>
-                        <label class="col-sm-2 control-label" for="field-1">Trunk</label>
+                        <label class="col-sm-1 control-label" for="field-1">Trunk</label>
                         <div class="col-sm-3">
                             {{ Form::select('TrunkID', $trunks, $trunk_keys, array("class"=>"select2")) }}
                         </div>
@@ -69,11 +69,11 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                     <tr>
-                                        <th width="30%">Name</th>
-                                        <th width="20%">Currency</th>
-                                        <th width="28%">Codedeck</th>
-                                        <th width="20%">Last Updated</th>
-                                         <th width="20%">Action</th>
+                                        <th >Name</th>
+                                        <th >Currency</th>
+                                        <th >Codedeck</th>
+                                        <th >Last Updated</th>
+                                         <th >Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
