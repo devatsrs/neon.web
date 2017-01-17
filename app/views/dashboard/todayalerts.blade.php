@@ -2,15 +2,15 @@
     <div class="col-sm-12">
         <div class="panel panel-primary panel-table">
             <div class="panel-heading">
-                <h4>Notification</h4>
+                <h3>Notification</h3>
             </div>
             <div class="panel-body white-bg">
                 <div class="row">
                     <div class="col-md-12">
                         <ul class="nav nav-tabs">
-                            <li class="active"><a href="#today" data-toggle="tab">Today</a></li>
-                            <li ><a href="#yesterday" data-toggle="tab">Today -1 day</a></li>
-                            <li ><a href="#yesterday2" data-toggle="tab">Today -2 day</a></li>
+                            <li class="active"><a href="#today" data-toggle="tab"><strong>Today</strong></a></li>
+                            <li ><a href="#yesterday" data-toggle="tab"><strong>Today -1</strong></a></li>
+                            <li ><a href="#yesterday2" data-toggle="tab"><strong>Today -2</strong></a></li>
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane active" id="today" >
@@ -23,8 +23,8 @@
                                                     <tr>
                                                         <th width="30%">Name</th>
                                                         <th width="30%">Type</th>
-                                                        <th width="30%">Created Date</th>
-                                                        <th width="10%">Action</th>
+                                                        <th width="30%">Date</th>
+                                                        <th width="10%"></th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
@@ -46,8 +46,8 @@
                                                     <tr>
                                                         <th width="30%">Name</th>
                                                         <th width="30%">Type</th>
-                                                        <th width="30%">Created Date</th>
-                                                        <th width="10%">Action</th>
+                                                        <th width="30%">Date</th>
+                                                        <th width="10%"></th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
@@ -69,8 +69,8 @@
                                                     <tr>
                                                         <th width="30%">Name</th>
                                                         <th width="30%">Type</th>
-                                                        <th width="30%">Created Date</th>
-                                                        <th width="10%">Action</th>
+                                                        <th width="30%">Date</th>
+                                                        <th width="10%"></th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
