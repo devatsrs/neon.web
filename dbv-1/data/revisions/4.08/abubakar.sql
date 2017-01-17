@@ -5,6 +5,8 @@ Update tblBillingClass SET SendInvoiceSetting='after_admin_review' where SendInv
 
 Update tblAccountBilling SET SendInvoiceSetting='after_admin_review' where SendInvoiceSetting='never';
 
+INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (40, 1, 'BILLING_DASHBOARD_CUSTOMER',BillingDashboardPincodeWidget,BillingDashboardTotalOutstanding,BillingDashboardTotalInvoiceSent,BillingDashboardTotalInvoiceReceived,BillingDashboardDueAmount,BillingDashboardOverDueAmount,BillingDashboardPaymentReceived,BillingDashboardPaymentSent,BillingDashboardPendingDispute,BillingDashboardPendingEstimate,BillingDashboardInvoiceExpense,BillingDashboardOutstanding');
+
 Delete FROM tblResourceCategories
 WHERE ResourceCategoryName='RateManager' OR
 	    ResourceCategoryName='RmDashboard';
@@ -416,3 +418,4 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;
+
