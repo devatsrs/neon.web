@@ -53,8 +53,6 @@
                     </div>
                 </form>
                 <div class="login-bottom-links">
-                    <a href="<?php echo URL::to('forgot_password'); ?>" class="link">Forgot your password?</a>
-                    <br />
                     <a href="#">ToS</a>  - <a href="#">Privacy Policy</a>
                 </div>
             </div>

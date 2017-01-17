@@ -52,7 +52,8 @@ class CronJobController extends \BaseController {
 	{
         $isvalid = CronJob::validate();
         if($isvalid['valid']==1){
-            if (CronJob::create($isvalid['data'])) {
+            if ($CronJobID = CronJob::insertGetId($isvalid['data'])) {
+                CronJob::upadteNextTimeRun($CronJobID);
                 return Response::json(array("status" => "success", "message" => "Cron Job Successfully Created"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Cron Job."));
@@ -82,7 +83,7 @@ class CronJobController extends \BaseController {
                     $this->terminate($id);
                 }
                 if ($CronJob->update($isvalid['data'])) {
-
+                    CronJob::upadteNextTimeRun($id);
                     return Response::json(array("status" => "success", "message" => "Cron Job Successfully Updated"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Creating Cron Job."));
