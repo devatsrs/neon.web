@@ -63,7 +63,7 @@
                         }));
                         template_dp_html = '<select class="select2 select2add small form-control visible select2-offscreen" name="InvoiceReminder[TemplateID][]" tabindex="-1" data-active="0">'+$(el).html().replace('<option data-image="1" value="select2-add" disabled="disabled">Add</option>','')+'</select>';
                     });
-
+ 					$('#template_filter').submit();
                 } else {
                     toastr.error(response.message, "Error", toastr_opts);
                 }

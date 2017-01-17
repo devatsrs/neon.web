@@ -12,9 +12,10 @@
             <div class="hidden" name="Subject">{{$alert[3]}}</div>
             <div class="hidden" name="Message">{{$alert[4]}}</div>
         </div>
-        <a class="view-alert btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View </a>
+        <a class="view-alert btn btn-default btn-sm tooltip-primary" data-original-title="View" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>
     </td>
 </tr>
 @endforeach
-    @endif
-<tr><td colspan="4" valign="top">No alerts sent.</td></tr>
+@else
+    <tr><td colspan="4" valign="top">No alerts sent.</td></tr>
+@endif

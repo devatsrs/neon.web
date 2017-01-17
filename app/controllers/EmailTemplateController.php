@@ -60,7 +60,10 @@ class EmailTemplateController extends \BaseController {
         }
         if(isset($data['Email_template_privacy']) && $data['Email_template_privacy']>0){
             $data['userID'] = User::get_userID();
-        }
+        }else
+		{
+			$data['userID'] = NULL;
+		}
         unset($data['Email_template_privacy']);
         if ($obj = EmailTemplate::create($data)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Created","newcreated"=>$obj));
@@ -103,7 +106,7 @@ class EmailTemplateController extends \BaseController {
      * @return Response
      */
     public function update($id) {
-        $data = Input::all();
+        $data = Input::all(); 
         $crmteplate = EmailTemplate::findOrfail($id);
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
@@ -119,10 +122,14 @@ class EmailTemplateController extends \BaseController {
             return json_validator_response($validator);
             exit;
         }
-        if(isset($data['Email_template_privacy'])){
+        if(isset($data['Email_template_privacy']) && $data['Email_template_privacy']>0){
             $data['userID'] = User::get_userID();
         }
-        unset($data['Email_template_privacy']);
+		else
+		{
+			$data['userID'] = NULL;
+		} 
+        unset($data['Email_template_privacy']); 
         if ($crmteplate->update($data)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Updated"));
         } else {

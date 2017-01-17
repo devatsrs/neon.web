@@ -80,6 +80,7 @@
 
     </tbody>
 </table>
+<script src="{{ URL::asset('assets/js/dashboard.js') }}"></script>
 <script type="text/javascript">
     var $searchFilter = {};
     var list_fields_index  = ["Name","AlertType","send_at","Subject","Message"];
@@ -144,7 +145,7 @@
                                 }
                                 action += '</div>';
 
-                                action += ' <a class="view-alert btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View </a>'
+                                action += ' <a class="view-alert btn btn-default btn-sm tooltip-primary" data-original-title="View" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>'
 
                                         return action;
                             }
