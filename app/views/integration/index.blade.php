@@ -805,7 +805,7 @@
 
             }
             if(check){
-                var result = confirm('Mappings are not setup correctly under Chart of Accounts Mapping. System wont be able to post Invoices. Are you sure you want to continue?')
+                var result = confirm("Mappings are not setup correctly under Chart of Accounts Mapping.\nSystem won't be able to post Invoices.\n\nAre you sure you want to continue?")
                 if(!result){
                     quickbookconfirm = false;
                 }
