@@ -183,11 +183,11 @@
                                     }
                                     action += '</div>';
                                     <?php if(User::checkCategoryPermission('RateTables','Edit')) { ?>
-                                        action += '<a href="Javascript:;" class="edit-rate-table btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
+                                        action += '<a href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-sm"><i class="entypo-pencil"></i></a>';
                                     <?php } ?>
                                     if (id != null && id > 0) {
                                         <?php if(User::checkCategoryPermission('RateTables','Delete')) { ?>
-                                            action += ' <button href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Delete</button>';
+                                            action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-cancel"></i></button>';
                                         <?php } ?>
                                     }
                                     return action;

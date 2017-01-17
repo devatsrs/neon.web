@@ -25,9 +25,13 @@ class RateGeneratorsController extends \BaseController {
             'tblRateGenerator.CodeDeckId',
             'tblRateGenerator.CurrencyID',
                 )); // by Default Status 1
-		if($data['Search']!=''){
+		if(isset($data['Search']) && !empty($data['Search'])){
             $RateGenerators->WhereRaw('tblRateGenerator.RateGeneratorName like "%'.$data['Search'].'%"'); 
-        }		
+        }	
+		if(isset($data['Trunk']) && !empty($data['Trunk'])){
+            $RateGenerators->WhereRaw('tblRateGenerator.TrunkID = '.$data['Trunk'].''); 
+        }	
+			
         return Datatables::of($RateGenerators)->make();
     }
     public function ajax_margin_datagrid() {
@@ -50,7 +54,8 @@ class RateGeneratorsController extends \BaseController {
     }
 
     public function index() {
-        return View::make('rategenerators.index', compact(''));
+		$Trunks =  Trunk::getTrunkDropdownIDList();
+		return View::make('rategenerators.index', compact('Trunks'));
     }
 
     

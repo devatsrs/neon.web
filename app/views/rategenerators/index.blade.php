@@ -19,14 +19,22 @@
         </div>
         <div class="panel-body">
           <div class="form-group">
-            <label for="Search" class="col-sm-2 control-label">Search</label>
+            <label for="Search" class="col-sm-2 control-label">Name</label>
             <div class="col-sm-2">
               <input class="form-control" name="Search" id="Search"  type="text" >
             </div>
+            
+            
+            <label for="Active" class="col-sm-2 control-label">Trunk</label>
+            <div class="col-sm-2">
+              {{ Form::select('Trunk', $Trunks, 1, array("class"=>"form-control select2 small","id"=>"Trunk")) }}
+               </div>
+            
             <label for="Active" class="col-sm-2 control-label">Active</label>
             <div class="col-sm-2">
               <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
-              {{ Form::select('Active', $active, 1, array("class"=>"form-control select2 small","id"=>"Active")) }} </div>
+              {{ Form::select('Active', $active, 1, array("class"=>"form-control select2 small","id"=>"Active")) }}
+               </div>
           </div>
           <p style="text-align: right;">
             <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
@@ -63,13 +71,15 @@
             e.preventDefault();
             $searchFilter.Active = $('#rategenerator_filter [name="Active"]').val();
 			$searchFilter.Search = $('#rategenerator_filter [name="Search"]').val();
+			$searchFilter.Trunk  = $('#rategenerator_filter [name="Trunk"]').val();
+			
             data_table = $("#table-4").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
                 "bServerSide": true,
                 "sAjaxSource": baseurl + "/rategenerators/ajax_datagrid",
                 "fnServerParams": function (aoData) {
-                    aoData.push({ "name": "Active", "value": $searchFilter.Active },{ "name": "Search", "value": $searchFilter.Search });
+                    aoData.push({ "name": "Active", "value": $searchFilter.Active },{ "name": "Search", "value": $searchFilter.Search },{ "name": "Trunk", "value": $searchFilter.Trunk });
                 },
                 "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                 "sPaginationType": "bootstrap",
@@ -97,10 +107,10 @@
                             var status_link = active_ = "";
                             if (full[3] == "1") {
                                 active_ = "{{ URL::to('/rategenerators/{id}/change_status/0')}}";
-                                status_link = ' <button href="' + active_ + '"  class="btn change_status btn-danger btn-sm" data-loading-text="Loading...">Deactivate</button>';
+                                status_link = ' <button href="' + active_ + '"  class="btn change_status btn-danger btn-sm" data-loading-text="Loading..."><i class="glyphicon glyphicon-ban-circle"></i></button>';
                             } else {
                                 active_ = "{{ URL::to('/rategenerators/{id}/change_status/1')}}";
-                                status_link = ' <button href="' + active_ + '"    class="btn change_status btn-success btn-sm " data-loading-text="Loading...">Activate</button>';
+                                status_link = ' <button href="' + active_ + '"    class="btn change_status btn-success btn-sm" data-loading-text="Loading..."><i class="entypo-check"></i></button>';
                             }
 
 
@@ -112,7 +122,7 @@
                             action = '';
 
                             <?php if(User::checkCategoryPermission('RateGenerator','Edit')) { ?>
-                            action += '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a> '
+                            action += '<a href="' + edit_ + '" class="btn btn-default "><i class="entypo-pencil"></i></a> '
                             action += status_link;
                             if (full[3] == 1) { /* When Status is 1 */
                                 action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>'
@@ -120,7 +130,7 @@
                             }
                             <?php } ?> 
                             @if(User::checkCategoryPermission('RateGenerator','Delete'))
-                                action += ' <a href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a> '
+                                action += ' <a href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn btn-default  delete btn-danger"><i class="fa fa-trash-o"></i></a> '
                             @endif
                             return action;
                         }

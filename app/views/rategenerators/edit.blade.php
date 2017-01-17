@@ -31,11 +31,11 @@
     <li><a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/generate_rate_table/update" class="generate_rate update" data-trunk="{{$rategenerators->TrunkID}}" data-codedeck="{{$rategenerators->CodeDeckId}}" data-currency="{{$rategenerators->CurrencyID}}">Update Existing Rate Table</a></li>
   </ul>
   </div>
-<button href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/change_status/0" class="btn change_status btn-danger btn-sm" data-loading-text="Loading...">Deactivate</button>    
+<button title="Deactivate" href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/change_status/0" class="btn change_status btn-danger btn-sm" data-loading-text="Loading..."><i class="glyphicon glyphicon-ban-circle"></i></button>    
 @elseif($rategenerators->Status==0)   
-<button href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/change_status/1" class="btn change_status btn-success btn-sm " data-loading-text="Loading...">Activate</button>
+<button title="Activate" href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/change_status/1" class="btn change_status btn-success btn-sm " data-loading-text="Loading..."><i class="entypo-check"></i></button>
 @endif
-<a href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/delete" data-redirect="{{URL::to('/rategenerators')}}" data-id="{{$rategenerators->RateGeneratorId}}" class="btn delete_rate btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a>
+<a title="Delete" href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/delete" data-redirect="{{URL::to('/rategenerators')}}" data-id="{{$rategenerators->RateGeneratorId}}" class="btn btn-default btn-sm delete_rate btn-danger"><i class="fa fa-trash-o"></i></a>
 
 <button type="button"  class="update_form btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
