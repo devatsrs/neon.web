@@ -6,7 +6,7 @@
             <li ><a href="#yesterday2" data-toggle="tab">Today -2 days</a></li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane {{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}" id="today" >
+            <div class="tab-pane active" id="today" >
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="panel panel-default loading">
