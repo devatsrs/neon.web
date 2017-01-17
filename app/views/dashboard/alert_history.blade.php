@@ -1,3 +1,4 @@
+@if(count($response->data->aaData))
 @foreach($response->data->aaData as $alert)
 <tr>
     <td class="">{{$alert[0]}}</td>
@@ -15,3 +16,5 @@
     </td>
 </tr>
 @endforeach
+    @endif
+<tr><td colspan="4" valign="top">No alerts sent.</td></tr>
