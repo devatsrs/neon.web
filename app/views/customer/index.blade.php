@@ -3,7 +3,7 @@
     <br />
     <div class="row">
         <div class="col-sm-12">
-            <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="billing_filter">
+            <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="billing_filter">
                 <div data-collapsed="0" class="panel panel-primary">
                     <div class="panel-heading">
                         <div class="panel-title">
@@ -568,6 +568,7 @@
                                     return full[16]
                                 }
                             },
+
                             {
                                 "bSortable": true, //paymentDate
                                 mRender: function (id, type, full) {
