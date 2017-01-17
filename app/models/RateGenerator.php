@@ -53,4 +53,14 @@ class RateGenerator extends \Eloquent {
         }
         return $status;
     }
+	
+	public static function getRateGenerators(){
+        $compantID = User::get_companyID();
+        $where = ['CompanyID'=>$compantID];      
+        $RateGenerators = RateGenerator::select(['RateGeneratorId','RateGeneratorName'])->where($where)->orderBy('RateGeneratorName', 'asc')->lists('RateGeneratorName','RateGeneratorId');
+        if(!empty($RateGenerators)){
+            $RateGenerators = [''=>'Select'] + $RateGenerators;
+        }
+        return $RateGenerators;
+    }
 }
