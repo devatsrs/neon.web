@@ -85,6 +85,9 @@
                         </div>
                     </div>
                 </div>
+                <div class="text-right">
+                    <a href="{{URL::to('alert/history')}}" class="btn btn-primary text-right">View All</a>
+                </div>
             </div>
         </div>
     </div>
