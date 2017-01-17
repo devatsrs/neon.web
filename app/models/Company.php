@@ -24,7 +24,8 @@ class Company extends \Eloquent {
             "quarterly"=>"Quarterly",
             "daily"=>"Daily",
             "in_specific_days"=>"In Specific days",
-            "monthly_anniversary"=>"Monthly anniversary"
+            "monthly_anniversary"=>"Monthly anniversary",
+            "yearly" => "Yearly"
         );
 
     // CDR Rerate Based on Charge code or Prefix

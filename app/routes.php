@@ -733,6 +733,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/recurringinvoices/{id}/log/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_recurringinvoicelog_datagrid');
     Route::any('/recurringinvoices/startstop/{start_stop}', 'RecurringInvoiceController@startstop');
     Route::any('/recurringinvoices/sendinvoice', 'RecurringInvoiceController@sendInvoice');
+    Route::any('/recurringinvoices/generate', 'RecurringInvoiceController@generate');
     ///////////////////////////
 
 	//Invoice

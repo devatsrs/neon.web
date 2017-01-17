@@ -303,6 +303,7 @@ class RecurringInvoiceController extends \BaseController {
             $RecurringInvoiceData['Occurrence'] = $data['Occurrence'];
             $RecurringInvoiceData["InvoiceStartDate"] = $data["InvoiceStartDate"];
             $RecurringInvoiceData['BillingCycleType'] = $data['BillingCycleType'];
+            $RecurringInvoiceData['NextInvoiceDate'] = $data['NextInvoiceDate'];
             $RecurringInvoiceData['RecurringInvoiceDetail'] = isset($data["RecurringInvoiceDetail"])?$data["RecurringInvoiceDetail"]:'';
             ///////////
 
@@ -317,7 +318,8 @@ class RecurringInvoiceController extends \BaseController {
                 'CurrencyID' => 'required',
                 'GrandTotal' => 'required',
                 'BillingCycleType' => 'required',
-                'RecurringInvoiceDetail' => 'required'
+                'RecurringInvoiceDetail' => 'required',
+                'NextInvoiceDate'=> 'required'
             );
 
             $BillingCycleValue = '';
@@ -360,6 +362,7 @@ class RecurringInvoiceController extends \BaseController {
                     if(empty($BillingCycleValue)) {
                         $RecurringInvoiceData["BillingCycleValue"] = '';
                     }
+
                     $RecurringInvoice->update($RecurringInvoiceData);
 
                     $RecurringInvoiceDetailData 	= $RecurringInvoiceTaxRates = $RecurringInvoiceAllTaxRates = array();
@@ -565,6 +568,39 @@ class RecurringInvoiceController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Job Bulk Invoice Send."));
             }
         }
+
+    }
+
+    public function generate(){
+        $CompanyID = User::get_companyID();
+        $UserID = User::get_userID();
+        $CronJobCommandID = CronJobCommand::where(array('Command'=>'invoicegenerator','CompanyID'=>$CompanyID))->pluck('CronJobCommandID');
+        $CronJobID = CronJob::where(array('CronJobCommandID'=>(int)$CronJobCommandID,'CompanyID'=>$CompanyID))->pluck('CronJobID');
+        if($CronJobID > 0) {
+            $jobType = JobType::where(["Code" => 'BI'])->get(["JobTypeID", "Title"]);
+            $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+            $jobdata["CompanyID"] = $CompanyID;
+            $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+            $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+            $jobdata["JobLoggedUserID"] = $UserID;
+            $jobdata["Title"] = "[Auto] Recurring " . (isset($jobType[0]->Title) ? $jobType[0]->Title : '') . ' Generate & Send';
+            $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
+            $jobdata["CreatedBy"] = User::get_user_full_name($UserID);
+            //$jobdata["Options"] = json_encode(array("accounts" => $AccountIDs));
+            $jobdata['Options'] = json_encode(array('CronJobID'=>$CronJobID));
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
+            $jobdata["updated_at"] = date('Y-m-d H:i:s');
+            $JobID = Job::insertGetId($jobdata);
+            /*if(getenv('APP_OS') == 'Linux'){
+                pclose(popen(CompanyConfiguration::get("PHPExePath") . " " . CompanyConfiguration::get("RMArtisanFileLocation") . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ". " &", "r"));
+            }else{
+                pclose(popen("start /B " . CompanyConfiguration::get("PHPExePath") . " " . CompanyConfiguration::get("RMArtisanFileLocation") . "  invoicegenerator " . $CompanyID . " $CronJobID $UserID ", "r"));
+            }*/
+            if($JobID>0) {
+                return Response::json(array("status" => "success", "message" => "Invoice Generation Job Added in queue to process.You will be notified once job is completed. "));
+            }
+        }
+        return Response::json(array("status" => "error", "message" => "Please Setup Invoice Generator in CronJob"));
 
     }
 

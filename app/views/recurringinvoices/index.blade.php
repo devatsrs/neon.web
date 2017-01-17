@@ -12,7 +12,13 @@
   <!-- <a href="javascript:;" id="bulk-recurringinvoices" class="btn upload btn-primary ">
         <i class="entypo-upload"></i>
         Bulk recurringinvoices Generate.
-    </a>--> 
+    </a>-->
+    @if(User::checkCategoryPermission('RecurringInvoice','Generate'))
+        <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary ">
+            <i class="entypo-plus"></i>
+            Generate New Invoice
+        </a>
+    @endif
 </p>
 <div class="row">
   <div class="col-md-12">
@@ -49,9 +55,9 @@
           @if(User::checkCategoryPermission('RecurringInvoice','Delete'))
               <li> <a data-action="delete_bulk" href="javascript:;" ><i class="entypo-cancel"></i> Delete </a> </li>
           @endif
-          @if(User::checkCategoryPermission('RecurringInvoice','Send'))
+          <!--if(User::checkCategoryPermission('RecurringInvoice','Send'))
               <li> <a data-action="sendinvoice_bulk" title="Start" data-startstop="1" href="javascript:void(0);" ><i class="entypo-mail"></i> Send</a> </li>
-          @endif
+          endif-->
       </ul>
       @endif
       <form id="invoice-form" >
@@ -210,9 +216,9 @@ var postdata;
                             action += '<li><a href="#" data-action="delete_row" class="icon-left"><i class="entypo-cancel"></i>Delete </a></li>';
                         }
 
-                        if('{{User::checkCategoryPermission('RecurringInvoice','Send')}}') {
+                        /*if('{{User::checkCategoryPermission('RecurringInvoice','Send')}}') {
                             action += '<li><a href="#" data-action="sendinvoice_row" class="icon-left"><i class="entypo-mail"></i>Send </a></li>';
-                        }
+                        }*/
 
                         action += '<li><a href="' + invoice_log + '" class="icon-left" target="_blank"><i class="entypo-list"></i>Log </a></li>';
 
@@ -396,6 +402,12 @@ var postdata;
                 })
             }
 
+        });
+
+        $('#generate-new-invoice').click(function (e) {
+            e.preventDefault();
+            update_new_url = "{{URL::to("recurringinvoices/generate")}}";
+            submit_ajax(update_new_url, $('#send-invoice-form').serialize(), 1)
         });
 
         $("#send-invoice-form").submit(function (e) {

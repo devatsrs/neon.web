@@ -146,8 +146,8 @@
                     <label for="field-1" class="col-sm-6 control-label">Occurrence<span data-original-title="0 Occurrence for forever" data-content="0 Occurrence for forever" data-placement="top" data-trigger="hover" data-toggle="tooltip" class="label label-info popover-primary">?</span></label>
                     <div class="col-sm-6"> {{Form::text('Occurrence',$RecurringInvoice->Occurrence,array("class"=>" form-control" ))}} </div>
                     <div class="clearfix margin-bottom "></div>
-                    <label for="field-1" class="col-sm-6 control-label padding-0">Next Invoice Date</label>
-                    <div class="col-sm-6"><strong class="padding-4"> {{date('Y-m-d',strtotime($RecurringInvoice->NextInvoiceDate))}}</strong></div>
+                    <label for="field-1" class="col-sm-6 control-label">Next Invoice Date</label>
+                    <div class="col-sm-6">{{Form::text('NextInvoiceDate',date('Y-m-d',strtotime($RecurringInvoice->NextInvoiceDate)),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
                 </div>
                 </div>
                <div class="form-group">
