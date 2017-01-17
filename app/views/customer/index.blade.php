@@ -140,6 +140,7 @@
             </div>
         </div>
     </div>
+    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets))
     <div class="row">
         <div class="col-sm-12">
             <div class="invoice_expsense panel panel-primary panel-table">
@@ -164,6 +165,8 @@
         </div>
 
     </div>
+    @endif
+    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))
         <div class="row">
             <div class="col-sm-12">
                 <div class="pin_expsense panel panel-primary panel-table">
@@ -240,7 +243,7 @@
         }
 
         function invoiceExpense(){
-
+            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets))
             var data = $('#billing_filter').serialize() + '&' + $('#invoiceExpensefilter-form').serialize();
             CurrencyID = $("[name=CurrencyID]").val();
             data = data+'&CurrencyID='+CurrencyID;
