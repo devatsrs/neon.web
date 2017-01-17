@@ -629,16 +629,14 @@ class AccountsController extends \BaseController {
             $data = Input::all();
             $today = date('Y-m-d');
             $upload_path = Config::get('app.acc_doc_path');
-            $company_name = Account::getCompanyNameByID($id);
-            $destinationPath = $upload_path . sprintf("\\%s\\", $company_name);
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNT_DOCUMENT'],$id) ;
+            $destinationPath = $upload_path . '/' . $amazonPath;
             $excel = Input::file('excel');
             // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
 
             if (in_array($ext, array("doc", "docx", 'xls','xlsx',"pdf",'png','jpg','gif'))) {
                 $filename = rename_upload_file($destinationPath,$excel->getClientOriginalName());
-                $fullPath = $destinationPath .$filename;
-                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNT_DOCUMENT'],$id) ;
                 $excel->move($destinationPath, $filename);
                 if(!AmazonS3::upload($destinationPath.$filename,$amazonPath)){
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));

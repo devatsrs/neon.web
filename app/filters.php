@@ -17,11 +17,6 @@ App::before(function($request)
     if($customer==1) {
         Config::set('auth.model', 'Customer');
         Config::set('auth.table', 'tblAccount');
-        Config::set('tracker::enabled', false);
-        Config::set('tracker::user_model', 'Customer');
-        Config::set('tracker::authenticated_user_id_column', 'AccountID');
-        Config::set('tracker::authenticated_user_username_column', 'BillingEmail');
-        //Config::set('packages/pragmarx/tracker.user_model', 'Account');
     }
 });
 
