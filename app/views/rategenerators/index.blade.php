@@ -144,6 +144,7 @@
                             "sUrl": baseurl + "/rategenerators/exports/xlsx",
                             sButtonClass: "save-collection btn-sm"
                         },
+
                         {
                             "sExtends": "download",
                             "sButtonText": "CSV",
@@ -316,6 +317,7 @@
                             toastr.error(response.message, "Error", toastr_opts);
                         }
                         $(".save.TrunkSelect").button('reset');
+
 
                     },
                     // Form data

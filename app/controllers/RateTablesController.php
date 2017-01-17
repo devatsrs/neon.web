@@ -17,6 +17,7 @@ class RateTablesController extends \BaseController {
 		if($data['Search']!=''){
             $rate_tables->WhereRaw('tblRateTable.RateTableName like "%'.$data['Search'].'%"'); 
         }		
+
         return Datatables::of($rate_tables)->make();
     }
 

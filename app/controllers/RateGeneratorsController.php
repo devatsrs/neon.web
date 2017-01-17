@@ -25,6 +25,7 @@ class RateGeneratorsController extends \BaseController {
             'tblRateGenerator.CodeDeckId',
             'tblRateGenerator.CurrencyID',
                 )); // by Default Status 1
+
 		if(isset($data['Search']) && !empty($data['Search'])){
             $RateGenerators->WhereRaw('tblRateGenerator.RateGeneratorName like "%'.$data['Search'].'%"'); 
         }	

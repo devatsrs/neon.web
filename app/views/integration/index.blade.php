@@ -792,16 +792,22 @@
         $("#SubcategoryForm").submit(function(e){
             e.preventDefault();
             var quickbookconfirm = true;
+            var check = false;
             var sec_cat = $("#SubcategoryForm input[name='secondcategory']").val();
 	        var formData = new FormData($(this)[0]);
             if(sec_cat=='QuickBook'){
-                var InvoiceAccount = $("#SubcategoryForm input[name='InvoiceAccount']").val();
-                var PaymentAccount = $("#SubcategoryForm input[name='InvoiceAccount']").val();
-                if(InvoiceAccount=='' && PaymentAccount==''){
-                    var result = confirm('Are You sure you want save widhout mapping.it will not generate journel widhout mapping.?')
-                    if(!result){
-                        quickbookconfirm = false;
+                $('#SubcategoryForm input:text').each(function()
+                {
+                    if( !$(this).val() ) {
+                        check = true;
                     }
+                });
+
+            }
+            if(check){
+                var result = confirm('Mappings are not setup correctly under Chart of Accounts Mapping. System wont be able to post Invoices. Are you sure you want to continue?')
+                if(!result){
+                    quickbookconfirm = false;
                 }
             }
             var redirecturl = baseurl+ "/quickbook";
