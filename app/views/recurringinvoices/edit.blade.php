@@ -23,12 +23,12 @@
 
 <form class="form-horizontal form-groups-bordered" method="post" id="recurringinvoice-from" role="form">
 <div class="pull-right">
-    @if(User::checkCategoryPermission('Invoice','Send'))
+    <!--if(User::checkCategoryPermission('Invoice','Send'))
     <a href="Javascript:;" class="send-recurringinvoice btn btn-sm btn-success btn-icon icon-left hidden-print">
         Send
         <i class="entypo-mail"></i>
     </a>
-    @endif
+    endif-->
     &nbsp;
     <button type="submit" class="btn save btn-primary btn-sm btn-icon icon-left hidden-print" data-loading-text="Loading...">
         Save
