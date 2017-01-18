@@ -45,6 +45,7 @@
                     11. Added option to enter rate when re-rating CDRs.<br>
                     12. Improved QoS notifications.<br>
                     13. Improved Hourly Analysis chart under Analysis.<br>
+                    14. Added alerts widget on monitor dashboard.<br>
                 </div>
             </li>
         </ul>
