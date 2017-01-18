@@ -238,9 +238,10 @@ class Payment extends \Eloquent {
 
                         if(isset($selection['InvoiceNo']) && !empty($selection['InvoiceNo']) ) {
                             if(!empty($row[$selection['InvoiceNo']])){
-                                $temp['InvoiceNo'] = empty(trim($row[$selection['InvoiceNo']])) ? '' : trim($row[$selection['InvoiceNo']]);
+								$invnumber = trim($row[$selection['InvoiceNo']]);
+                                $temp['InvoiceNo'] = empty($invnumber) ? '' : $invnumber;
                                 if(!empty($temp['InvoiceNo'])){
-                                    $temp['InvoiceID'] = (int)Invoice::where('FullInvoiceNumber',trim($row[$selection['InvoiceNo']]))->pluck('InvoiceID');
+                                    $temp['InvoiceID'] = (int)Invoice::where('FullInvoiceNumber',$invnumber)->pluck('InvoiceID');
                                 }else{
                                     $temp['InvoiceID'] = '';
                                 }
@@ -254,7 +255,8 @@ class Payment extends \Eloquent {
 
                         if(isset($selection['Notes']) && !empty($selection['Notes']) ) {
                             if(!empty($row[$selection['Notes']])){
-                                $temp['Notes'] = empty(trim($row[$selection['Notes']])) ? '' : trim($row[$selection['Notes']]);
+								$note = trim($row[$selection['Notes']]);
+                                $temp['Notes'] = empty($note) ? '' : $note;
                             }else{
                                 $temp['Notes'] = '';
                             }
