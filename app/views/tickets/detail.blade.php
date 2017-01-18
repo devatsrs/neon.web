@@ -217,6 +217,7 @@
 .last_data{border-bottom-left-radius:10px; border-bottom-right-radius:10px;}
 .mail-env .mail-body .mail-header,.first_data{background:#fff none repeat scroll 0 0; border-top-left-radius:10px; border-top-right-radius:10px;}
 .mail-env .mail-body .mail-info .mail-sender{padding-top:2px;}
+.mail-env .mail-body .mail-info .mail-sender.mail-sender span{color:#2c7ea1;}
 </style>
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
