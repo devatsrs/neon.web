@@ -1,4 +1,10 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerCodeRate`(IN `p_AccountID` INT, IN `p_trunkID` INT, IN `p_RateCDR` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerCodeRate`(
+	IN `p_AccountID` INT,
+	IN `p_trunkID` INT,
+	IN `p_RateCDR` INT,
+	IN `p_RateMethod` VARCHAR(50),
+	IN `p_SpecifyRate` DECIMAL(18,6)
+)
 BEGIN
 	DECLARE v_codedeckid_ INT;
 	DECLARE v_ratetableid_ INT;
@@ -129,6 +135,15 @@ BEGIN
 		AND RateTableID = v_ratetableid_
 		AND c.RateID IS NULL
 		AND tblRateTableRate.EffectiveDate <= NOW();
+		
+		
+		/* if Specify Rate is set when cdr rerate */
+		IF p_RateMethod = 'SpecifyRate'
+		THEN
+		
+			UPDATE tmp_codes_ SET Rate=p_SpecifyRate;
+			
+		END IF;
 
 	END IF;
 END

@@ -286,7 +286,7 @@
                             );
 
                         },
-                        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                        "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[4, 'desc']],
@@ -596,8 +596,13 @@
                                 if( typeof response.ProcessID != 'undefined'){
                                     var ProcessID = response.ProcessID;
                                 }else {
-                                    toastr.error("Problem inserting Payment, Try Again.", "Error", toastr_opts);
-                                    return;
+                                    if( typeof response.message != 'undefined'){
+                                        toastr.error(response.message, "Error", toastr_opts);
+                                        return;
+                                    }else{
+                                        toastr.error("Problem inserting Payment, Try Again.", "Error", toastr_opts);
+                                        return;
+                                    }
                                 }
                                 if (response.status == 'success') {
                                     if(response.message) {
@@ -942,7 +947,7 @@
 				"bProcessing":true,
 				"bServerSide":true,
 				"sAjaxSource": baseurl + "/payments/ajax_datagrid_total",
-				"iDisplayLength": '{{Config::get('app.pageSize')}}',
+				"iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
 				"sPaginationType": "bootstrap",
 				/*"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",*/
 				"aaSorting": [[4, 'desc']]},

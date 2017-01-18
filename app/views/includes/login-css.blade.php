@@ -8,7 +8,6 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
             "assets/css/font-icons/font-awesome/css/font-awesome.css",
         "http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic",
         // Dashboard
-        "assets/js/jvectormap/jquery-jvectormap-1.2.2.css",
         "assets/js/rickshaw/rickshaw.min.css",
         "/assets/css/bootstrap.css",
         "/assets/css/neon-core.css",

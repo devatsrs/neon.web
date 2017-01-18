@@ -10,7 +10,7 @@
                 <thead>
                 <tr>
                     <th width="30%">Date</th>
-                    <th width="30%">Billed Duration (sec)</th>
+                    <th width="30%">Billed Duration (minutes)</th>
                     <th width="40%">Charged Amount</th>
                 </tr>
                 </thead>
@@ -53,7 +53,7 @@
                 <thead>
                 <tr>
                     <th width="30%">Date</th>
-                    <th width="30%">Billed Duration (sec)</th>
+                    <th width="30%">Billed Duration (minutes)</th>
                     <th width="40%">Charged Amount</th>
                 </tr>
                 </thead>

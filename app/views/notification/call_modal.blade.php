@@ -91,6 +91,36 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row custom_field">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Vendor</label>
+                                {{ Form::select('CallAlert[VAccountID][]',$Multivendor,array(), array("class"=>"select2",'multiple',"data-placeholder"=>"Select Account")) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row custom_field">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Period</label>
+                                {{Form::select('CallAlert[Time]',array(""=>"Select","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily"),'',array( "class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Interval</label>
+                                {{Form::select('CallAlert[Interval]',array(),'',array( "class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row custom_field">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Day</label>
+                                {{Form::select('CallAlert[Day][]',array("SUN"=>"Sunday","MON"=>"Monday","TUE"=>"Tuesday","WED"=>"Wednesday","THU"=>"Thursday","FRI"=>"Friday","SAT"=>"Saturday"),array('SUN','MON','TUE','WED','THU','FRI','SAT'),array( "class"=>"select2",'multiple',"data-placeholder"=>"Select day"))}}
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">

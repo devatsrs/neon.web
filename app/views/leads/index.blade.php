@@ -140,6 +140,10 @@
     var $searchFilter = {};
     var checked = '';
     var view = 1;
+    var leadview = getCookie('leadview');
+    if(leadview=='list'){
+        view = 2;
+    }
     jQuery(document).ready(function ($) {
         $searchFilter.account_name = $("#lead_filter [name='account_name']").val();
         $searchFilter.account_number = $("#lead_filter [name='account_number']").val();
@@ -154,7 +158,7 @@
                 "bServerSide": true,
                 "bDestroy": true,
                 "sAjaxSource": baseurl + "/leads/ajax_datagrid",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"account_active","value":$searchFilter.account_active},{"name":"account_owners","value":$searchFilter.account_owners},{"name":"tag","value":$searchFilter.tag});
                     data_table_extra_params.length = 0;
@@ -662,8 +666,10 @@
             var activeurl;
             var desctiveurl;
             if(self.hasClass('grid')){
+                setCookie('leadview','grid','30');
                 view = 1;
             }else{
+                setCookie('leadview','list','30');
                 view = 2;
             }
             self.addClass('active');
@@ -734,6 +740,29 @@
             return SelectedIDs;
         }
     });
+
+    function setCookie(cname,cvalue,exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires=" + d.toGMTString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
 
 
 

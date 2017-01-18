@@ -198,6 +198,10 @@
     var $searchFilter = {};
     var checked = '';
     var view = 1;
+    var accountview = getCookie('accountview');
+    if(accountview=='list'){
+        view = 2;
+    }
     var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
 		
@@ -297,7 +301,7 @@
                     "bDestroy": true,
                     "bServerSide":true,
                     "sAjaxSource": baseurl + "/accounts/ajax_datagrid/type",
-                    "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                    "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting"   : [[2, 'asc']],
@@ -980,8 +984,10 @@
             var activeurl;
             var desctiveurl;
             if(self.hasClass('grid')){
+                setCookie('accountview','grid','30');
                 view = 1;
             }else{
+                setCookie('accountview','list','30');
                 view = 2;
             }
             self.addClass('active');
@@ -1118,6 +1124,29 @@
             });
         }
        return SelectedIDs;
+    }
+
+    function setCookie(cname,cvalue,exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires=" + d.toGMTString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
     }
 
 

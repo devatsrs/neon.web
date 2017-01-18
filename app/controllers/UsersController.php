@@ -368,7 +368,4 @@ class UsersController extends BaseController {
         }
     }
 
-    public function view_tracker(){
-        return View::make('user.tracker', compact(''));
-    }
 }
