@@ -14,8 +14,7 @@
  <div class="clear clearfix"></div>
 <div class="mail-env margin-top"> 
   
-  <!-- compose new email button -->
-  <div class="mail-sidebar-row visible-xs"> <a href="mailbox-compose.html" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
+  <!-- compose new email button -->  
   
   <!-- Mail Body -->
   <div class="mail-body">
@@ -198,7 +197,7 @@
 </form>
 <style>
 /*.mail-env .mail-body{float:left; width:70% !important; margin-right:1%; border-right:1px solid #ccc; background:#fff none repeat scroll 0 0;}*/
-.mail-env .mail-body{float:left; width:70% !important; margin-right:1%;  }
+.mail-env .mail-body{float:left; width:71% !important;   }
 .mail-env .mail-sidebar{width:29%; background:#fff none repeat scroll 0 0;}
 .mail-env .mail-body .mail-info{background:#fff none repeat scroll 0 0;}
 .mail-reply-seperator{background:#f1f1f1 none repeat scroll 0 0; width:100%; height:20px;}
