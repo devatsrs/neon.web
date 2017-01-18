@@ -105,9 +105,9 @@
                     </div>
 
                 </div>
-                <div class="form-group account_number_disable">
+                <div class="form-group ">
                     <label for="field-1" class="col-md-2 control-label">Account Number</label>
-                    <div class="col-md-4">
+                    <div class="col-md-4 account_number_disable">
                         <input type="text" name="Number" class="form-control" id="field-1" placeholder="AUTO" value="{{$account->Number}}" />
                         <label class="label_disable form-control" disabled="disabled">{{$account->Number}}</label>
                     </div>
