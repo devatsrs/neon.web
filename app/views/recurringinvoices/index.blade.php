@@ -78,10 +78,10 @@
           <input type="checkbox" id="selectall" name="checkbox[]" class="" />
         </div>
         </th>
-        <th width="10%">Title</th>
-        <th width="15%">Account Name</th>
-        <th width="15%">Date</th>
-        <th width="15%">Next Invoice Date</th>
+        <th width="18%">Title</th>
+        <th width="17%">Account Name</th>
+        <th width="10%">Date</th>
+        <th width="10%">Next Invoice Date</th>
         <th width="10%">Grand Total</th>
         <th width="5%">Status</th>
         <th width="10%">Frequency/Occurrence</th>
