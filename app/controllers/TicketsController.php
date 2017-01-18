@@ -155,13 +155,14 @@ private $validlicense;
 			$max_file_size				=	get_max_file_size();	
 			
 			$AllEmails 					= 	implode(",",(Messages::GetAllSystemEmailsWithName(0))); 
+			$default_status				=	TicketsTable::getDefaultStatus();
 			
 		   $agentsAll = DB::table('tblTicketGroupAgents')
             ->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()          
             ->select('tblUser.UserID', 'tblUser.FirstName', 'tblUser.LastName')
             ->get();
 						
-			return View::make('tickets.create', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails'));  
+			return View::make('tickets.create', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails','default_status'));  
 	  }	
 	  
 	public function edit($id)
@@ -493,5 +494,44 @@ private $validlicense;
 	{
 		$response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,array(),true,true); 
 		return json_response_api($response);    		
+	}
+	
+	function ComposeEmail(){		 
+		$data 						= 		Input::all();
+		$random_token				=	 	get_random_number();
+		$response_api_extensions 	=   	Get_Api_file_extentsions(); 
+		if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); }		
+		$response_extensions		=		json_encode($response_api_extensions['allowed_extensions']);
+		$max_file_size				=		get_max_file_size();
+		$AllEmails 					= 		json_encode(Messages::GetAllSystemEmails()); 	
+		$CompanyID 		 			= 		User::get_companyID(); 
+		
+		$response 		=   NeonAPI::request('ticketsfields/GetDynamicFields',array(),true,false,false);   
+		$data			=	array();	
+		if($response->status=='success'){
+			$ticketsfields = 	$response->data;
+		}
+		else{
+			$ticketsfields = 	array();
+		}    	
+		$default_status				=	TicketsTable::getDefaultStatus();
+		 $agentsAll = DB::table('tblTicketGroupAgents')
+            ->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()          
+            ->select('tblUser.UserID', 'tblUser.FirstName', 'tblUser.LastName')
+            ->get();
+			
+			$FromEmailsQuery  	= "CALL `prc_GetFromEmailAddress`('".$CompanyID."', '0', '1')";
+			$FromEmailsResults	= DB::select($FromEmailsQuery);
+			$FromEmails			= array();
+			foreach($FromEmailsResults as $FromEmailsResultsData){
+				$FromEmails[] = $FromEmailsResultsData->GroupReplyAddress;
+			}
+			//$FromEmails = json_encode($FromEmails);
+		return View::make('tickets.compose', compact('data','random_token','response_extensions','max_file_size','AllEmails','ticketsfields','CompanyID','agentsAll','FromEmails','default_status'));	
+	}
+	
+	function SendMail(){
+		$data 						= 		Input::all();
+		Log::info(print_r($data,true));
 	}
 }

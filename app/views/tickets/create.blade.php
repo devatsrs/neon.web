@@ -120,9 +120,9 @@
                 <?php
 			  if($TicketfieldsData->FieldType == 'default_priority'){
 				$FieldValues = TicketPriority::orderBy('PriorityID', 'asc')->get(); 
-					foreach($FieldValues as $FieldValuesData){
+					foreach($FieldValues as $key => $FieldValuesData){
 					?>
-                <option value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
+                <option @if($key==0) selected @endif value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
                 <?php 
 					}
 				}else  if($TicketfieldsData->FieldType == 'default_group'){
@@ -132,7 +132,7 @@
                 <?php
 					foreach($FieldValues as $FieldValuesData){
 					?>
-                <option value="{{$FieldValuesData->GroupID}}">{{$FieldValuesData->GroupName}}</option>
+                <option @if(count($FieldValues)==1) selected @endif  value="{{$FieldValuesData->GroupID}}">{{$FieldValuesData->GroupName}}</option>
                 <?php 
 					}
 				} else  if($TicketfieldsData->FieldType == 'default_agent'){		
@@ -141,8 +141,16 @@
                 <?php
 					foreach($agentsAll as $FieldValuesData){
 					?>
-                <option value="{{$FieldValuesData->UserID}}">{{$FieldValuesData->FirstName}} {{$FieldValuesData->LastName}}</option>
+                <option @if(count($agentsAll)==1) selected @endif  value="{{$FieldValuesData->UserID}}">{{$FieldValuesData->FirstName}} {{$FieldValuesData->LastName}}</option>
                 <?php 
+					}
+				}		
+				else  if($TicketfieldsData->FieldType == 'default_status'){	 
+					$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
+					foreach($FieldValues as $FieldValuesData){
+					?>
+                <option @if($FieldValuesData->ValuesID == $default_status) selected @endif value="{{$FieldValuesData->ValuesID}}">{{$FieldValuesData->FieldValueAgent}}</option>
+                <?php
 					}
 				}					
 				else
@@ -260,13 +268,16 @@ var required_flds	  =          '{{json_encode($required)}}';
 					data:{s:1},
 					success: function(response) {	  			
 						   var $el = this;		   
-						   console.log(response);
+						   console.log(response); 
 						  // $('#{{$htmlagentID}} option:gt(0)').remove();
-						  $('#{{$htmlagentID}} option').remove();
+						  $('#{{$htmlagentID}} option').remove(); 
+						  var count_agents  = 0;
 						   $.each(response, function(key,value) {							  
 							  $('#{{$htmlagentID}}').append($("<option></option>").attr("value", value).text(key));
+							  count_agents++;
 							});					
-						                 
+							if(count_agents==2){$('#{{$htmlagentID}} option').eq(1).attr("selected","selected"); }
+							$('#{{$htmlagentID}}').trigger('change');
 					}
 					});	
 		return false;		

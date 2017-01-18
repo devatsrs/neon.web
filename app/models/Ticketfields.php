@@ -26,6 +26,7 @@ class Ticketfields extends \Eloquent {
 	const  TICKET_FRESHDESK    		= 	1;
 	
 	const  TICKET_SYSTEM_STATUS_FLD  = 	'default_status';
+	const  TICKET_SYSTEM_STATUS_DEFAULT  	 = 	'Open';
 	const  TICKET_SYSTEM_TYPE_FLD    =  'default_ticket_type';
 	
 	

@@ -521,6 +521,11 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('tickets/{id}/getattachment/{attachmentID}', 'TicketsController@GetTicketAttachment');
 	Route::post('tickets/{id}/close_ticket', 'TicketsController@CloseTicket');
 	Route::post('tickets/user/{id}/detail', 'TicketsController@UserTicketHistory');
+	Route::get('tickets/compose_email', 'TicketsController@ComposeEmail');
+	
+	Route::post('tickets/SendMail', 'TicketsController@SendMail');
+	
+	
 	
 	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
 	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
