@@ -9,7 +9,7 @@ class RecurringInvoiceController extends \BaseController {
         $data['iDisplayStart'] 		+=	1;
         $data['Status'] = $data['Status']==''?2:$data['Status'];
         $companyID 					 =  User::get_companyID();
-        $columns 					 =  ['RecurringInvoiceID','Title','AccountName','LastInvoiceNumber','InvoiceStartDate','NextInvoiceDate','GrandTotal','Status'];
+        $columns 					 =  ['RecurringInvoiceID','Title','AccountName','LastInvoicedDate','NextInvoiceDate','GrandTotal','Status'];
         $sort_column 				 =  $columns[$data['iSortCol_0']];
 
         $query = "call prc_getRecurringInvoices (".$companyID.",".intval($data['AccountID']).",".$data['Status'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".strtoupper($data['sSortDir_0'])."'";
@@ -141,9 +141,8 @@ class RecurringInvoiceController extends \BaseController {
             $RecurringInvoiceData['BillingClassID'] = $data['BillingClassID'];
             $RecurringInvoiceData['Title'] = $data['Title'];
             $RecurringInvoiceData['Occurrence'] = $data['Occurrence'];
-            $RecurringInvoiceData["InvoiceStartDate"] = $data["InvoiceStartDate"];
-            $RecurringInvoiceData['LastInvoicedDate'] =  $data['InvoiceStartDate'];
-            $RecurringInvoiceData['NextInvoiceDate'] =  $data['InvoiceStartDate'];
+            $RecurringInvoiceData['LastInvoicedDate'] =  $data['NextInvoiceDate'];
+            $RecurringInvoiceData['NextInvoiceDate'] =  $data['NextInvoiceDate'];
             $RecurringInvoiceData['BillingCycleType']       = $data['BillingCycleType'];
             $RecurringInvoiceData['RecurringInvoiceDetail'] = isset($data["RecurringInvoiceDetail"])?$data["RecurringInvoiceDetail"]:'';
 
@@ -152,14 +151,12 @@ class RecurringInvoiceController extends \BaseController {
                 'CompanyID' => 'required',
                 'Title' => 'required|unique:tblRecurringInvoice,Title,NULL,RecurringInvoiceID,CompanyID,'.$companyID,
                 'BillingClassID'=> 'required',
-                'InvoiceStartDate'=>'required',
                 'Occurrence'=>'required',
                 'AccountID' => 'required',
                 'Address' => 'required',
                 'CurrencyID' => 'required',
                 'GrandTotal' => 'required',
                 'BillingCycleType' => 'required',
-                'InvoiceStartDate' => 'required',
                 'RecurringInvoiceDetail' => 'required'
             );
 
@@ -301,7 +298,6 @@ class RecurringInvoiceController extends \BaseController {
             $RecurringInvoiceData['BillingClassID'] = $data['BillingClassID'];
             $RecurringInvoiceData['Title'] = $data['Title'];
             $RecurringInvoiceData['Occurrence'] = $data['Occurrence'];
-            $RecurringInvoiceData["InvoiceStartDate"] = $data["InvoiceStartDate"];
             $RecurringInvoiceData['BillingCycleType'] = $data['BillingCycleType'];
             $RecurringInvoiceData['NextInvoiceDate'] = $data['NextInvoiceDate'];
             $RecurringInvoiceData['RecurringInvoiceDetail'] = isset($data["RecurringInvoiceDetail"])?$data["RecurringInvoiceDetail"]:'';
@@ -311,7 +307,6 @@ class RecurringInvoiceController extends \BaseController {
                 'CompanyID' => 'required',
                 'Title'=>'required|unique:tblRecurringInvoice,Title,'.$id.',RecurringInvoiceID,CompanyID,'.$companyID,
                 'BillingClassID'=> 'required',
-                'InvoiceStartDate'=>'required',
                 'Occurrence'=>'required',
                 'AccountID' => 'required',
                 'Address' => 'required',

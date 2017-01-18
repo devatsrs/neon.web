@@ -138,16 +138,13 @@
 
                 <div class="no-padding-left no-padding-right col-md-3">
                     <label for="field-1" class="col-sm-6 control-label">*Issue Date</label>
-                    <div class="col-sm-6"> {{Form::text('InvoiceStartDate',date('Y-m-d',strtotime($RecurringInvoice->InvoiceStartDate)),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
+                    <div class="col-sm-6">{{Form::text('NextInvoiceDate',date('Y-m-d',strtotime($RecurringInvoice->NextInvoiceDate)),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d'),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"" ,"data-start-view"=>"2"))}} </div>
                     <div class="clearfix margin-bottom "></div>
                     <label for="field-1" class="col-sm-6 control-label">PO Number</label>
                     <div class="col-sm-6"> {{Form::text('PONumber',$RecurringInvoice->PONumber,array("class"=>" form-control" ))}} </div>
                     <div class="clearfix margin-bottom "></div>
                     <label for="field-1" class="col-sm-6 control-label">Occurrence<span data-original-title="0 Occurrence for forever" data-content="0 Occurrence for forever" data-placement="top" data-trigger="hover" data-toggle="tooltip" class="label label-info popover-primary">?</span></label>
                     <div class="col-sm-6"> {{Form::text('Occurrence',$RecurringInvoice->Occurrence,array("class"=>" form-control" ))}} </div>
-                    <div class="clearfix margin-bottom "></div>
-                    <label for="field-1" class="col-sm-6 control-label">Next Invoice Date</label>
-                    <div class="col-sm-6">{{Form::text('NextInvoiceDate',date('Y-m-d',strtotime($RecurringInvoice->NextInvoiceDate)),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
                 </div>
                 </div>
                <div class="form-group">

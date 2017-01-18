@@ -80,7 +80,7 @@
         </th>
         <th width="10%">Title</th>
         <th width="15%">Account Name</th>
-        <th width="15%">Issue Date</th>
+        <th width="15%">Date</th>
         <th width="15%">Next Invoice Date</th>
         <th width="10%">Grand Total</th>
         <th width="5%">Status</th>
