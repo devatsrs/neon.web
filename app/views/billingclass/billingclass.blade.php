@@ -291,6 +291,7 @@
 
 </form>
 </div>
+<script src="{{ URL::asset('assets/js/billing_class.js') }}"></script>
 <script>
     var template_dp_html =  '{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select2 select2add small form-control"))}}';
 
@@ -324,5 +325,5 @@
         });
     });
 </script>
-<script src="{{ URL::asset('assets/js/billing_class.js') }}"></script>
+
 @include('emailtemplate.emailtemplatemodal')
