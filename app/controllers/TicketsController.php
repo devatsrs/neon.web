@@ -345,9 +345,9 @@ private $validlicense;
 			else{
 				$ticketsfields = 	array();
 			} 
-			    
+			  
 			$response_details 		=  NeonAPI::request('tickets/getticketdetailsdata',array("admin"=>User::is_admin(),"id"=>$id),true);
-			
+			//echo "<pre>"; 			print_r($response_details);			echo "here";  exit;
 			if(!empty($response_details) && $response_details->status == 'success' )
 			{  
 				   $ResponseData				 =   $response_details->data;
@@ -524,14 +524,46 @@ private $validlicense;
 			$FromEmailsResults	= DB::select($FromEmailsQuery);
 			$FromEmails			= array();
 			foreach($FromEmailsResults as $FromEmailsResultsData){
-				$FromEmails[] = $FromEmailsResultsData->GroupReplyAddress;
+				$FromEmails[$FromEmailsResultsData->GroupReplyAddress] = $FromEmailsResultsData->GroupReplyAddress;
 			}
 			//$FromEmails = json_encode($FromEmails);
 		return View::make('tickets.compose', compact('data','random_token','response_extensions','max_file_size','AllEmails','ticketsfields','CompanyID','agentsAll','FromEmails','default_status'));	
 	}
 	
-	function SendMail(){
-		$data 						= 		Input::all();
-		Log::info(print_r($data,true));
-	}
+	function SendMail(){		   
+	    $this->IsValidLicense();
+		$postdata 			= 	Input::all();  
+Log::info(print_r($postdata,true));
+		if(!isset($postdata['Ticket'])){
+			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
+		}
+		
+		 $attachmentsinfo        =	$postdata['attachmentsinfo']; 
+        if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
+            $files_array = json_decode($attachmentsinfo,true);
+        }
+
+        if(!empty($files_array) && count($files_array)>0) {
+            $FilesArray = array();
+            foreach($files_array as $key=> $array_file_data){
+                $file_name  = basename($array_file_data['filepath']); 
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TICKET_ATTACHMENT']);
+                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+                copy($array_file_data['filepath'], $destinationPath . $file_name);
+                if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+                }
+                $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
+               // @unlink($array_file_data['filepath']);
+            }
+            $postdata['file']		=	json_encode($FilesArray);
+		} 
+			
+        $response 			= 		NeonAPI::request('tickets/SendMailTicket',$postdata,true,false,false);
+		return json_response_api($response);     
+	  }
 }

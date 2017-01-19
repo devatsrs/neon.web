@@ -168,37 +168,10 @@
   </table>
   <input type="hidden" name="Page" value="DetailPage">
 <script type="text/javascript">
-var required_flds	  =          '{{json_encode($required)}}';
-
-
 
     jQuery(document).ready(function($) {
-		
-		function validate_form()
-		{
-			
-			 var required_flds_data = jQuery.parseJSON(required_flds);
-			 var error_msg = '';
-			 
-				required_flds_data.forEach(function(element) {
-					var  CurrentElementVal = 	$('#'+element.id).val();  //console.log(element.id+'-'+CurrentElementVal);
-				
-					if(CurrentElementVal=='' || CurrentElementVal==0)
-					{
-						error_msg += element.title+' field is required<br>';						
-					}				
-				});
-				if(error_msg!='')
-				{
-					toastr.error(error_msg, "Error", toastr_opts);	
-					return false;	
-				}				
-				else{
-					return true;	
-				}		
-		}
-		
-    
+		var required_flds	   =    '{{json_encode($required)}}';
+	 
 	  $(document).on('change','#{{$htmlgroupID}}',function(e){
 		   var changeGroupID =  	$(this).val();
 		   if(changeGroupID)

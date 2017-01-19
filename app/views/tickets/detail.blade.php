@@ -58,16 +58,16 @@
     </div>
     @endif
     <?php if(count($TicketConversation)>0){
-		foreach($TicketConversation as $TicketConversationData){
-		 ?>
+		foreach($TicketConversation as $TicketConversationData){ 
+		 ?>  
     <div class="mail-reply-seperator"></div>
     <div class="mail-info first_data">
-      <div class="mail-sender dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span>@if($TicketConversationData->EmailCall==Messages::Received)From @elseif($TicketConversationData->EmailCall==Messages::Sent)To @endif</span> ({{$TicketConversationData->Requester}}) </a> </div>
-      <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->TicketConversationID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
+      <div class="mail-sender dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span>  </a> </div>
+      <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
-    <div class="mail-text @if(strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->TicketMessage}} </div>
-    @if(strlen($TicketConversationData->AttachmentPaths)>0)
-    <?php $attachments = unserialize($TicketConversationData->AttachmentPaths); ?>
+    <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
+    <div class="mail-text @if(count($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->Message}} </div>       
+     @if(count($attachments)>0)
     <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
       <ul>
@@ -84,7 +84,7 @@
 		{
 			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
 		}
-		$Attachmenturl = URL::to('ticketsconversation/'.$TicketConversationData->TicketConversationID.'/getattachment/'.$key_acttachment);		
+		$Attachmenturl = URL::to('emails/'.$TicketConversationData->AccountEmailLogID.'/getattachment/'.$key_acttachment);
    	    ?>
         <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
           <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>

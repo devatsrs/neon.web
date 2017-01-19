@@ -1,5 +1,5 @@
 @extends('layout.main')
-@section('content')
+@section('content') <?php $required  = array(); ?>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li> <a href="{{action('tickets')}}">Tickets</a> </li>
@@ -7,7 +7,7 @@
 </ol>
 <h3>Emails</h3>
 @include('includes.errors')
-@include('includes.success')
+@include('includes.success')  
 <div class="mail-env"> 
   <!-- compose new email button -->
   <div class="mail-sidebar-row visible-xs"> <a href="mailbox-compose.html" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
@@ -58,7 +58,159 @@
           <span class="file-input-names"></span> </div>
         <input type="submit" class="hidden" value=""  />
         <input type="hidden" class="EmailCall" value="{{Messages::Sent}}" name="EmailCall" />             
-       @include('tickets.ticket_compose_dynamic_fields')
+       <!-- ticket fields start -->
+       <?php if(count($ticketsfields)>0){ ?>
+<table width="100%"  class="compose_table" cellpadding="10" cellspacing="10">
+  <?php  $required = array();
+			   foreach($ticketsfields as $TicketfieldsData)
+			   {	 
+		   		 if($TicketfieldsData->FieldType=='default_requester' || $TicketfieldsData->FieldType=='default_description' || $TicketfieldsData->FieldType=='default_subject'){ continue;	}
+				 
+				  $id		    =  'Ticket'.str_replace(" ","",$TicketfieldsData->FieldName);
+				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXT)
+				 {
+					 
+					if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				 
+				 ?>
+                 
+                 <tr>
+  <td width="20%">
+    <label for="GroupName" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
+ <td>
+      <input type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" >
+    </td>
+  </tr>
+  <?php
+}
+				 }
+				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXTAREA)
+				 { 
+					 if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+					if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				  
+				 ?>
+  <tr>
+  <td width="20%">
+    <label for="GroupDescription" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
+    </td>
+    <td>
+      <textarea   id='{{$id}}'  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" ></textarea>
+    </td>
+  </tr>
+  <?php
+					}
+		}
+				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_CHECKBOX)
+				 {
+					  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+					  if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				 
+			     ?>
+  <tr>
+  <td width="20%">
+    <label for="GroupDescription" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
+    </td>
+    <td>
+      <input class="checkbox rowcheckbox formfldcheckbox" value="" name='Ticket[{{$TicketfieldsData->FieldType}}]'  id='{{$id}}' type="checkbox"> </td>
+  </tr>
+  <?php  }		  
+				 }
+				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXTNUMBER)
+				 { 
+				 if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+				 if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				 
+			       ?>
+  <tr>
+  <td width="20%">
+    <label for="GroupName" class=" control-label">{{$TicketfieldsData->AgentLabel}}</label>
+    </td>
+    <td>
+      <input type="number" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
+      </td>
+  </tr>
+  <?php
+		 }
+				 }
+				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_DROPDOWN)
+				 {  
+				 if($TicketfieldsData->FieldType == 'default_group' || $TicketfieldsData->FieldType == 'default_agent'){	continue;	}	
+				  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+					 if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				 
+					 ?>
+  <tr>
+  	<td width="20%">
+    <label for="GroupName" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
+    </td>
+    <td>
+      <select name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld select2" id="{{$id}}" >
+        <option value="0">Select</option>
+        <?php
+	          
+			  if($TicketfieldsData->FieldType == 'default_priority'){
+				$FieldValues = TicketPriority::orderBy('PriorityID', 'asc')->get(); 
+					foreach($FieldValues as $key => $FieldValuesData){
+					?>
+        <option key="{{$key}}" @if($key==0) selected @endif   value="{{$FieldValuesData->PriorityID}}">{{$FieldValuesData->PriorityValue}}</option>
+        <?php 
+					}
+				}	else  if($TicketfieldsData->FieldType == 'default_status'){	 
+					$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
+					foreach($FieldValues as $FieldValuesData){
+					?>
+                <option @if($FieldValuesData->ValuesID == $default_status) selected @endif value="{{$FieldValuesData->ValuesID}}">{{$FieldValuesData->FieldValueAgent}}</option>
+                <?php
+					}
+				}								
+				else
+				{
+			 	 
+					$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
+					foreach($FieldValues as $FieldValuesData){
+					?>
+        <option value="{{$FieldValuesData->ValuesID}}">{{$FieldValuesData->FieldValueAgent}}</option>
+        <?php
+					}
+		}
+			  	
+				?>
+      </select>
+    </td>
+  </tr>
+  <?php }
+				 }
+				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_DATE)
+				 { 
+				 	if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+					if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				 
+				 ?>
+  <tr>
+  <td width="20%">
+    <label for="GroupName" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
+    </td>
+    <td>
+      <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld datepicker" data-date-format="yyyy-mm-dd" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" >
+    </td>
+  </tr>
+  <?php }					 
+				 }
+				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_DECIMAL)
+				 {
+					  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
+					if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				    
+				 ?>
+  <tr><td width="20%">
+    <label for="GroupName" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
+    </td>
+    <td>
+      <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" >
+    </td>
+  </td>
+  <?php				  }
+				 }
+		  }
+	?>
+  </table>
+  <input type="hidden" name="Page" value="DetailPage">
+  <?php } ?>
+       <!-- ticket fields end -->
        </form>
     </div>
   </div>
@@ -71,7 +223,7 @@
     <input id="info1" type="hidden" name="attachmentsinfo"  />
     <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
   </form>
-</div>
+</div> <?php //print_r($required); exit; ?>
 <style>
 .mail-env .mail-body .mail-header .mail-title{width:70% !important;}
 .mail-env .mail-body .mail-header .mail-search, .mail-env .mail-body .mail-header .mail-links{width:30% !important;}
@@ -93,30 +245,57 @@ $(document).ready(function(e) {
             tags:{{$AllEmails}}
         });
 	
-	 
-	
 	var ajax_url 		   = 	baseurl+'/tickets/SendMail';
 	var file_count 		   =  	0;
 	var allow_extensions   = 	{{$response_extensions}};
 	var emailFileList	   =  	new Array();
 	var max_file_size_txt  =	'{{$max_file_size}}';
 	var max_file_size	   =	'{{str_replace("M","",$max_file_size)}}';
-	@if(isset($data['uploadtext']['attachmentsinfo']))
-	var img_array		   =    '{{$data['uploadtext']['attachmentsinfo']}}';
 	
-	$('#info1').val(img_array);
-    $('#info2').val(img_array);
-	var img_array_final = jQuery.parseJSON(img_array);
-	for (var i = 0, len = img_array_final.length; i < len; ++i) {
-   	 emailFileList.push(img_array_final[i].filename);	
- }
-	@endif
 	
+		var required_flds	   =    '{{json_encode($required)}}';
+	 
+		
+			$('.formfldcheckbox').change(function(e) {
+               if ( $( this ).is( ":checked" ) ){
+				  	$( this ).val(1);
+				  }else{
+				  	$( this ).val(0);
+				  }
+            });
+			
+    
+	
+		function validate_form()
+		{
+			
+			 var required_flds_data = jQuery.parseJSON(required_flds);
+			 var error_msg = '';
+			 
+				required_flds_data.forEach(function(element) {
+					var  CurrentElementVal = 	$('#'+element.id).val();  //console.log(element.id+'-'+CurrentElementVal);
+				
+					if(CurrentElementVal=='' || CurrentElementVal==0)
+					{
+						error_msg += element.title+' field is required<br>';						
+					}				
+				});
+				if(error_msg!='')
+				{
+					toastr.error(error_msg, "Error", toastr_opts);	
+					return false;	
+				}				
+				else{
+					return true;	
+				}		
+		}
 
-	$('.submit_btn').click(function(e) {
-        $('.EmailCall').val($(this).attr('submit_value'));
-		$('.submit_btn').addClass('disabled');
-		$('#MailBoxCompose').submit();
+
+	$('.submit_btn').click(function(e) {  
+		if(validate_form()){
+            $('#MailBoxCompose').submit();
+		}
+		
     });
 	
 	$(document).on('submit','#MailBoxCompose',function(e){		 
