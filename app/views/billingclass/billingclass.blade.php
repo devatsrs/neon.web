@@ -291,21 +291,22 @@
 
 </form>
 </div>
+<script src="{{ URL::asset('assets/js/billing_class.js') }}"></script>
 <script>
     var template_dp_html =  '{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select2 select2add small form-control"))}}';
 
     var target = '';
     jQuery(document).ready(function ($) {
-        $("#billing-form [name='PaymentReminder[Time]']").trigger('change');
-        $("#billing-form [name='LowBalanceReminder[Time]']").trigger('change');
             setTimeout(function(){
+                $("#billing-form [name='PaymentReminder[Time]']").trigger('change');
+                $("#billing-form [name='LowBalanceReminder[Time]']").trigger('change');
                 @if(isset($PaymentReminders->Interval))
                 $("#billing-form [name='PaymentReminder[Interval]']").val('{{$PaymentReminders->Interval}}').trigger('change');
                 @endif
                 @if(isset($LowBalanceReminder->Interval))
                 $("#billing-form [name='LowBalanceReminder[Interval]']").val('{{$LowBalanceReminder->Interval}}').trigger('change');
                 @endif
-            },5);
+            },50);
         $(document).on('select2-open','.select2add' ,function(e) {
             target = $(e.target).attr('name');
             $('.add-new-template-dp').attr('data-active',0);
@@ -324,5 +325,5 @@
         });
     });
 </script>
-<script src="{{ URL::asset('assets/js/billing_class.js') }}"></script>
+
 @include('emailtemplate.emailtemplatemodal')
