@@ -296,16 +296,16 @@
 
     var target = '';
     jQuery(document).ready(function ($) {
-        $("#billing-form [name='PaymentReminder[Time]']").trigger('change');
-        $("#billing-form [name='LowBalanceReminder[Time]']").trigger('change');
             setTimeout(function(){
+                $("#billing-form [name='PaymentReminder[Time]']").trigger('change');
+                $("#billing-form [name='LowBalanceReminder[Time]']").trigger('change');
                 @if(isset($PaymentReminders->Interval))
                 $("#billing-form [name='PaymentReminder[Interval]']").val('{{$PaymentReminders->Interval}}').trigger('change');
                 @endif
                 @if(isset($LowBalanceReminder->Interval))
                 $("#billing-form [name='LowBalanceReminder[Interval]']").val('{{$LowBalanceReminder->Interval}}').trigger('change');
                 @endif
-            },5);
+            },50);
         $(document).on('select2-open','.select2add' ,function(e) {
             target = $(e.target).attr('name');
             $('.add-new-template-dp').attr('data-active',0);
