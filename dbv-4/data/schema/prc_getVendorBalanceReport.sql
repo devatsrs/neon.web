@@ -22,7 +22,7 @@ BEGIN
 		DATE(Time) as Date,
 		HOUR(Time) as Hour,
 		COALESCE(SUM(TotalCharges),0) as Cost,
-		ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+		ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as Minutes,
 		COALESCE(SUM(NoOfCalls),0) as Connected,
 		COALESCE(SUM(NoOfCalls),0)+COALESCE(SUM(NoOfFailCalls),0) as Attempts
 	FROM tmp_tblUsageVendorSummary_ us
