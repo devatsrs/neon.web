@@ -1,10 +1,8 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getVendorBalanceReport`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorBalanceReport`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` TEXT,
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME
-
-
 )
 BEGIN
 	
@@ -24,7 +22,7 @@ BEGIN
 		DATE(Time) as Date,
 		HOUR(Time) as Hour,
 		COALESCE(SUM(TotalCharges),0) as Cost,
-		COALESCE(SUM(TotalBilledDuration),0) as Minutes,
+		ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 		COALESCE(SUM(NoOfCalls),0) as Connected,
 		COALESCE(SUM(NoOfCalls),0)+COALESCE(SUM(NoOfFailCalls),0) as Attempts
 	FROM tmp_tblUsageVendorSummary_ us

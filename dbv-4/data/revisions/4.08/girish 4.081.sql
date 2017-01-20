@@ -436,7 +436,7 @@ BEGIN
 		DATE(Time) as Date,
 		HOUR(Time) as Hour,
 		COALESCE(SUM(TotalCharges),0) as Cost,
-		COALESCE(SUM(TotalBilledDuration),0) as Minutes,
+		ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
 		COALESCE(SUM(NoOfCalls),0) as Connected,
 		COALESCE(SUM(NoOfCalls),0)+COALESCE(SUM(NoOfFailCalls),0) as Attempts
 	FROM tmp_tblUsageVendorSummary_ us
@@ -615,8 +615,9 @@ BEGIN
 	FROM tmp_tblUsageVendorSummary_ AS us
 	INNER JOIN temptblCountry AS tblCountry 
 		ON tblCountry.CountryID = us.CountryID
-	WHERE NoOfCalls > 0
-	GROUP BY Country,tblCountry.CountryID ORDER BY CallCount DESC;
+	GROUP BY Country,tblCountry.CountryID 
+	HAVING SUM(NoOfCalls) > 0
+	ORDER BY CallCount DESC;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
@@ -664,8 +665,159 @@ BEGIN
 	FROM tmp_tblUsageSummary_
 	INNER JOIN temptblCountry AS tblCountry 
 		ON tblCountry.CountryID = tmp_tblUsageSummary_.CountryID
-	WHERE NoOfCalls > 0
-	GROUP BY Country,tblCountry.CountryID ORDER BY CallCount DESC;
+	GROUP BY Country,tblCountry.CountryID 
+	HAVING SUM(NoOfCalls) > 0
+	ORDER BY CallCount DESC;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getACD_ASR_Alert`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getACD_ASR_Alert`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` TEXT,
+	IN `p_AccountID` TEXT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` TEXT,
+	IN `p_Trunk` TEXT,
+	IN `p_CountryID` TEXT
+)
+BEGIN
+	
+	DECLARE v_Round_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnUsageSummaryDetail(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,0,1);
+
+	IF p_AccountID = ''
+	THEN
+		SELECT
+			IF(SUM(NoOfCalls)>0,COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls),0) as ACD , 
+			ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,
+			HOUR(ANY_VALUE(Time)) as Hour,
+			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+			COALESCE(SUM(NoOfCalls),0) as Connected,
+			COALESCE(SUM(NoOfCalls),0)+COALESCE(SUM(NoOfFailCalls),0) as Attempts
+		FROM tmp_tblUsageSummary_ us;
+		
+	END IF;
+	
+	IF p_AccountID != ''
+	THEN
+		SELECT
+			IF(SUM(NoOfCalls)>0,COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls),0) as ACD , 
+			ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,
+			AccountID,
+			HOUR(ANY_VALUE(Time)) as Hour,
+			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+			COALESCE(SUM(NoOfCalls),0) as Connected,
+			COALESCE(SUM(NoOfCalls),0)+COALESCE(SUM(NoOfFailCalls),0) as Attempts
+		FROM tmp_tblUsageSummary_ us
+		GROUP BY AccountID;
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure NeonReportDev.prc_getVendorACD_ASR_Alert
+DROP PROCEDURE IF EXISTS `prc_getVendorACD_ASR_Alert`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorACD_ASR_Alert`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` TEXT,
+	IN `p_AccountID` TEXT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` TEXT,
+	IN `p_Trunk` TEXT,
+	IN `p_CountryID` TEXT
+
+)
+BEGIN
+	
+	DECLARE v_Round_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnUsageVendorSummaryDetail(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,0,1);
+
+	IF p_AccountID = ''
+	THEN
+		SELECT
+			IF(SUM(NoOfCalls)>0,COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls),0) as ACD , 
+			ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,
+			HOUR(ANY_VALUE(Time)) as Hour,
+			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+			COALESCE(SUM(NoOfCalls),0) as Connected,
+			COALESCE(SUM(NoOfCalls),0)+COALESCE(SUM(NoOfFailCalls),0) as Attempts
+		FROM tmp_tblUsageVendorSummary_ us;
+		
+	END IF;
+	
+	IF p_AccountID != ''
+	THEN
+		SELECT
+			IF(SUM(NoOfCalls)>0,COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls),0) as ACD , 
+			ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,
+			AccountID,
+			HOUR(ANY_VALUE(Time)) as Hour,
+			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+			COALESCE(SUM(NoOfCalls),0) as Connected,
+			COALESCE(SUM(NoOfCalls),0)+COALESCE(SUM(NoOfFailCalls),0) as Attempts
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY AccountID;
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
+
+-- Dumping structure for procedure NeonReportDev.prc_getVendorBalanceReport
+DROP PROCEDURE IF EXISTS `prc_getVendorBalanceReport`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorBalanceReport`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` TEXT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME
+)
+BEGIN
+	
+	DECLARE v_Round_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnUsageVendorSummaryDetail(p_CompanyID,'',p_AccountID,0,p_StartDate,p_EndDate,'','','',0,1);
+
+	SELECT
+		MAX(AccountName) as AccountName,
+		IF(SUM(NoOfCalls)>0,COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls),0) as ACD , 
+		ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,
+		AccountID,
+		DATE(Time) as Date,
+		HOUR(Time) as Hour,
+		COALESCE(SUM(TotalCharges),0) as Cost,
+		ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+		COALESCE(SUM(NoOfCalls),0) as Connected,
+		COALESCE(SUM(NoOfCalls),0)+COALESCE(SUM(NoOfFailCalls),0) as Attempts
+	FROM tmp_tblUsageVendorSummary_ us
+	GROUP BY AccountID,DATE(Time),HOUR(Time);
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
