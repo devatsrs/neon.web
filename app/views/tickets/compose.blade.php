@@ -31,9 +31,10 @@
           {{ Form::select('email-from', $FromEmails, '', array("class"=>"form-control select2","id"=>"email-from")) }} </div>
         <div class="form-group">
           <label for="to">To:</label>
-          {{ Form::select('email-to', $AllEmailsTo, '', array("class"=>"form-control useremailssingle","id"=>"email-to")) }} 
-          <div class="field-options"> <a href="javascript:;" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </div>
+          {{ Form::select('email-to', $AllEmailsTo, '', array("class"=>"form-control useremailssingle","id"=>"email-to")) }}           
+          <span><a href="javascript:;" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </span>
         </div>
+        
         <div class="form-group hidden">
           <label for="cc">CC:</label>
           <input type="text" class="form-control useremails" id="cc" name="cc" value="" tabindex="2" />
