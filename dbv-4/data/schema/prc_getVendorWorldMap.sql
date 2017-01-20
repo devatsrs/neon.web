@@ -36,7 +36,9 @@ BEGIN
 	FROM tmp_tblUsageVendorSummary_ AS us
 	INNER JOIN temptblCountry AS tblCountry 
 		ON tblCountry.CountryID = us.CountryID
-	GROUP BY Country,tblCountry.CountryID ORDER BY CallCount DESC;
+	GROUP BY Country,tblCountry.CountryID 
+	HAVING SUM(NoOfCalls) > 0
+	ORDER BY CallCount DESC;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 

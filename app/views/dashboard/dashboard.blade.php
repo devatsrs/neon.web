@@ -4,6 +4,9 @@
         /*.panel-title{
             float:none;
         }*/
+        .white-bg {
+            background: #fff none repeat scroll 0 0 !important;
+        }
     </style>
     <script type="text/javascript">
         var $dashsearchFilter = {};
