@@ -146,7 +146,14 @@ function rate_tables_dropbox($id=0,$data=array()){
     return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
-
+function contacts_dropbox($id=0,$data=array()){
+    $all_contacts = Contact::getContacts($data);
+    return Form::select('contacts', $all_contacts, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+function ticketgroup_dropbox($id=0,$data=array()){
+    $all_ticketsgroups = TicketGroups::getTicketGroups_dropdown($data);
+    return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
 function sendMail($view,$data){
     
 	if(empty($data['companyID']))

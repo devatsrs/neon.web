@@ -5,6 +5,10 @@
 <div class="modal-body">
   <div class="row">
     <div class="col-md-12 margin-top">
+    <div class="form-group">
+        <label for="EmailActionSubject">* From:</label>
+        {{ Form::select('email-from', $FromEmails, '', array("class"=>"form-control select2","id"=>"email-from")) }} 
+      </div>
       <div class="form-group">
         <label for="EmailActionTo">* To:</label>
         <input type="text"  class="form-control" name="email-to" id="EmailActionTo" value="<?php 
@@ -29,7 +33,7 @@
         <label for="bcc">BCC</label>
         <input type="text" name="bcc"  class="form-control tags"  id="replybcc" />
       </div>      
-      <div class="form-group hidden">
+      <div class="form-group">
         <label for="EmailActionSubject">* Subject:</label>
         <input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{$response_data['Subject']}}" />
       </div>

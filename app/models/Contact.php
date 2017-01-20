@@ -17,4 +17,15 @@ class Contact extends \Eloquent {
 	public static function checkContactByEmail($email){
 		 return Contact::where(["Email"=>$email])->first();	
 	}
+	
+	public static function getContacts(){
+        $compantID = User::get_companyID();
+        $where = ['CompanyId'=>$compantID];      
+		           
+        $Contacts = Contact::select([DB::raw("concat(tblContact.FirstName,' ' ,tblContact.LastName)  AS FullName "),"tblContact.ContactID"])->where($where)->orderBy('FirstName', 'asc')->lists('FullName','ContactID');
+        if(!empty($Contacts)){
+            $Contacts = [''=>'Select'] + $Contacts;
+        }
+        return $Contacts;
+    }
 }

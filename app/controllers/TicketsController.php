@@ -54,7 +54,8 @@ private $validlicense;
 			$iDisplayLength 			= 	 $data['iDisplayLength'];
 			$data['currentpage'] 		= 	 0;
 			
-		
+			TicketsTable::SetTicketSession($result);
+			//echo "<pre>";			print_r($result); exit;
         return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination'));  
 	  }	
 	  
@@ -102,7 +103,8 @@ private $validlicense;
 			}else{			
 				return '';
 			}
-		} 
+		}
+		 TicketsTable::SetTicketSession($result);
        return   View::make('tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns','pagination'));     
 	   
 	}
@@ -362,15 +364,18 @@ private $validlicense;
 					$response_extensions		 =	json_encode($response_api_extensions['allowed_extensions']); 
 					
 					$TicketConversation			 =	$ResponseData->TicketConversation;
-					$NextTicket 				 =	$ResponseData->NextTicket;
-					$PrevTicket 				 =	$ResponseData->PrevTicket;
+					//$NextTicket 				 =	$ResponseData->NextTicket;
+					//$PrevTicket 				 =	$ResponseData->PrevTicket;
 					$ticketSavedData			 = 	json_decode(json_encode($ResponseData->ticketSavedData),true);
 					$CompanyID 		 			 = 	User::get_companyID(); 
 					$agentsAll 					 =	$ResponseData->agentsAll;		
 					$RequesterContact			 =	Contact::checkContactByEmail($ticketdata->Requester);
 					$lead_owners 				 =  Lead::getLeadOwnersByRole();
 		            $account_owners 			 =  Account::getAccountsOwnersByRole();
-				//echo "<pre>"; print_r($RequesterContact); exit;
+					
+					 $NextTicket 				 =  TicketsTable::GetNextPageID($id); 
+					 $PrevTicket 				 =	TicketsTable::GetPrevPageID($id);
+					//echo "<pre>"; print_r($RequesterContact); exit;
 					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','RequesterContact','lead_owners', 'account_owners'));  		  
 			}else{
           	  return view_response_api($response_details);
@@ -399,8 +404,8 @@ private $validlicense;
 				$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths']);
 			}
 			
-			
-			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id'));  
+			$FromEmails	 				 =  TicketGroups::GetGroupsFrom();			
+			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails'));  
 		}else{
             return view_response_api($response);
         }		
@@ -504,8 +509,9 @@ private $validlicense;
 		$response_extensions		=		json_encode($response_api_extensions['allowed_extensions']);
 		$max_file_size				=		get_max_file_size();
 		$AllEmails 					= 		json_encode(Messages::GetAllSystemEmails()); 	
+		$AllEmailsTo 				= 		Messages::GetAllSystemEmails(0,true); 	
 		$CompanyID 		 			= 		User::get_companyID(); 
-		
+		//echo "<pre>"; print_r($AllEmailsTo); exit;
 		$response 		=   NeonAPI::request('ticketsfields/GetDynamicFields',array(),true,false,false);   
 		$data			=	array();	
 		if($response->status=='success'){
@@ -520,14 +526,9 @@ private $validlicense;
             ->select('tblUser.UserID', 'tblUser.FirstName', 'tblUser.LastName')
             ->get();
 			
-			$FromEmailsQuery  	= "CALL `prc_GetFromEmailAddress`('".$CompanyID."', '0', '1')";
-			$FromEmailsResults	= DB::select($FromEmailsQuery);
-			$FromEmails			= array();
-			foreach($FromEmailsResults as $FromEmailsResultsData){
-				$FromEmails[$FromEmailsResultsData->GroupReplyAddress] = $FromEmailsResultsData->GroupReplyAddress;
-			}
+			$FromEmails	 		= TicketGroups::GetGroupsFrom();			
 			//$FromEmails = json_encode($FromEmails);
-		return View::make('tickets.compose', compact('data','random_token','response_extensions','max_file_size','AllEmails','ticketsfields','CompanyID','agentsAll','FromEmails','default_status'));	
+		return View::make('tickets.compose', compact('data','random_token','response_extensions','max_file_size','AllEmails','ticketsfields','CompanyID','agentsAll','FromEmails','default_status','AllEmailsTo'));	
 	}
 	
 	function SendMail(){		   

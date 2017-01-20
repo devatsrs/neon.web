@@ -22,13 +22,9 @@
     <div class="mail-header"> 
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
-      <!-- links --> 
-    </div>
-    <div class="mail-info">
-      <div class="mail-sender dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> 
-      @if(!empty($ticketdata->RequesterName))<span>{{$ticketdata->RequesterName}}</span>@endif @if(empty($ticketdata->RequesterName)) {{$ticketdata->Requester}} @endif  </a> </div>
       <div class="mail-date"> {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
-    </div>
+      <!-- links --> 
+    </div>    
      <div class="mail-text @if(strlen($ticketdata->AttachmentPaths)<1) last_data  @endif "> {{$ticketdata->Description}} </div>
     @if(strlen($ticketdata->AttachmentPaths)>0)
     <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?>
@@ -67,7 +63,7 @@
     </div>
     <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
     <div class="mail-text @if(count($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->Message}} </div>       
-     @if(count($attachments)>0)
+     @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
     <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
       <ul>
@@ -217,6 +213,7 @@
 .mail-env .mail-body .mail-header,.first_data{background:#fff none repeat scroll 0 0; border-top-left-radius:10px; border-top-right-radius:10px;}
 .mail-env .mail-body .mail-info .mail-sender{padding-top:2px;}
 .mail-env .mail-body .mail-info .mail-sender.mail-sender span{color:#2c7ea1;}
+.mail-env .mail-body .mail-header .mail-date{display: table-cell; width: 50%; color: #a6a6a6; padding:10px; text-align:right;}
 </style>
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 

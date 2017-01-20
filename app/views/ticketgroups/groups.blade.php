@@ -96,7 +96,7 @@
                                    action = '<a href="' + edit_ + '" class="btn btn-default"><i class="entypo-pencil"></i></a>';
                                 <?php } ?>
 								<?php if(User::checkCategoryPermission('TicketGroups','Delete')){ ?>
-                                   action += '<br><a data-id="'+full[0]+'" id="group-'+full[0]+'" class="delete-ticket_group btn delete btn-danger "><i class="fa fa-trash-o"></i></a>';
+                                   action += '<a data-id="'+full[0]+'" id="group-'+full[0]+'" class="delete-ticket_group btn delete btn-danger "><i class="entypo-trash"></i></a>';
                                 <?php } ?>
                                 return action;
                             }

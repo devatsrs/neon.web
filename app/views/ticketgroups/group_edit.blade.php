@@ -4,6 +4,9 @@
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li> <a href="{{action('ticketgroups')}}">Tickets Groups</a> </li>
+  <li>
+        <a><span>{{ticketgroup_dropbox($ticketdata->GroupID)}}</span></a>
+    </li>
   <li class="active"> <strong>Edit Group</strong> </li>
 </ol>
 <h3>Edit Group</h3>

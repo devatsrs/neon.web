@@ -155,4 +155,41 @@ class TicketsTable extends \Eloquent
 		}
  	    return false;
 	}
+	static function SetTicketSession($result){
+		$session_ticket_array = [];
+		foreach($result as $resultData){
+			$session_ticket_array[] = 	 $resultData->TicketID; 
+		}
+		Session::set("TicketsIDs", $session_ticket_array);			
+	}
+	
+	static function GetNextPageID($id){
+		$NextID		 	 = 	'';
+		$TicketsIDsArray =  Session::get("TicketsIDs");			
+		//echo "<pre>"; print_r($TicketsIDsArray); exit;
+		if(count($TicketsIDsArray)>0){
+			if(in_array($id,$TicketsIDsArray)){
+				$CurrentIndex 	= 	array_search($id,$TicketsIDsArray);
+				if(isset($TicketsIDsArray[$CurrentIndex+1])){
+					$NextID 	  	=   $TicketsIDsArray[$CurrentIndex+1];
+				}
+			}
+		}
+		return $NextID;
+	}
+	
+	static function GetPrevPageID($id){
+		$NextID		 	 = 	'';
+		$TicketsIDsArray =  Session::get("TicketsIDs");			
+		
+		if(count($TicketsIDsArray)>0){
+			if(in_array($id,$TicketsIDsArray)){
+				$CurrentIndex 	= 	array_search($id,$TicketsIDsArray);
+				if(isset($TicketsIDsArray[$CurrentIndex-1])){
+					$NextID 	  	=   $TicketsIDsArray[$CurrentIndex-1];
+				}
+			}
+		}
+		return $NextID;	
+	}
 }

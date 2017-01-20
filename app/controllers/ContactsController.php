@@ -270,5 +270,71 @@ class ContactsController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Problem Updating Contact."));
         }
 	}
+	
+	public function ShowTimeLine($id) {
+            $companyID 					= 	 User::get_companyID();
+			//get contacts data
+		    $contacts 					= 	 Contact::find($id);			 
+			//echo "<pre>"; 			print_r($contacts); 			echo "</pre>";			exit;
+			//get contacts time line data
+            $data['iDisplayStart'] 	    =	 0;
+            $data['iDisplayLength']     =    10;
+            $data['AccountID']          =    $id;
+			$data['GUID']               =    GUID::generate();
+            $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
+            $RowsPerPage                =    $data['iDisplayLength'];			
+			$message 					= 	 '';			
+            $response_timeline 			= 	 NeonAPI::request('contact/GetTimeLine',$data,false,true);
+		/*		echo "<pre>";
+				print_r($response_timeline);		
+				exit;*/
+	
+			if($response_timeline['status']!='failed'){
+				if(isset($response_timeline['data']))
+				{
+					$response_timeline =  $response_timeline['data'];
+				}else{
+					$response_timeline = array();
+				}
+			}else{ 	
+				if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
+					return	Redirect::to('/logout'); 	
+				}		
+				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
+				$message = json_response_api($response_timeline,false,false);
+			}
+			
+		
+			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
+			$random_token				=	 get_random_number();
+            
+			//Backup code for getting extensions from api
+		   $response_api_extensions 	=   Get_Api_file_extentsions();
+		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
+		   $response_extensions			=	json_encode($response_api_extensions['allowed_extensions']);
+		   
+           //all users email address
+			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
+	 		$users						=	 json_encode(array_merge(array(""),$users));
+			$max_file_size				=	get_max_file_size();			
+			$per_scroll 				=   $data['iDisplayLength'];
+			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+			$ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug); //freshdesk
+
+	        return View::make('contacts.timeline.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets')); 	
+		}
+	
+	  public function ajax_getEmailTemplate($privacy, $type){
+        $filter = array();
+        if($type == EmailTemplate::ACCOUNT_TEMPLATE){
+            $filter =array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE);
+        }elseif($type== EmailTemplate::RATESHEET_TEMPLATE){
+            $filter =array('Type'=>EmailTemplate::RATESHEET_TEMPLATE);
+        }
+        if($privacy == 1){
+            $filter ['UserID'] =  User::get_userID();
+        }
+        return EmailTemplate::getTemplateArray($filter);
+    }
 
 }

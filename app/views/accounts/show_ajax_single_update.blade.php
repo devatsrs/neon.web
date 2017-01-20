@@ -65,7 +65,7 @@
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
             <div class="cbp_tmlabel normal_tag">
                <a id="edit_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
-            <a id="delete_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash-o"></i></a>
+            <a id="delete_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="entypo-trash"></i></a>
                   <h2 class="toggle_open" id_toggle="{{$key}}">
                 @if($response->Priority=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                 @if($response->created_by==$current_user_title && $response->Name==$current_user_title)<span>You created a @if($response->followup_task) follow up @endif task</span>

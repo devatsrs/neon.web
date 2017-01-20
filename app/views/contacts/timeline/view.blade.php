@@ -8,20 +8,14 @@
         }
     </style>
 <div  style="min-height: 1050px;">
-  <ol class="breadcrumb bc-3">
-    @if($leadOrAccountCheck=='account')
+  <ol class="breadcrumb bc-3">    
     <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
-    <li> <a href="{{URL::to('accounts')}}">Accounts</a> </li>
+    <li> <a href="{{URL::to('contacts')}}">Contacts</a> </li>
     <li>
-      <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
+      <a><span>{{contacts_dropbox($account->AccountID)}}</span></a>
     </li>
-    <li class="active"> <strong>View Account</strong> </li>
-    @elseif($leadOrAccountCheck=='lead')
-    <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
-    <li> <a href="{{URL::to('/leads')}}">Leads</a> </li>
-    <li class="active"> <strong>View Lead</strong> </li>
-    @endif
-  </ol>
+    <li class="active"> <strong>View Contact</strong> </li>
+      </ol>
   <h3>View {{$leadOrAccountCheck}}
     <div style="float: right; text-align: right; padding-right:0px; " class="col-sm-6"> @if($leadOrAccountCheck =='lead' &&  User::checkCategoryPermission('Leads','Convert')) <a href="{{ URL::to('leads/'.$account->AccountID.'/convert')}}" class="save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-floppy"></i>Convert to Account</a> @endif </div>
   </h3>

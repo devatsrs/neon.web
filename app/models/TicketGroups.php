@@ -24,9 +24,20 @@ class TicketGroups extends \Eloquent {
    
    static function getTicketGroups(){
 		//TicketfieldsValues::WHERE
-		   $row =  TicketGroups::orderBy('GroupID', 'asc')->lists('GroupName','GroupID'); 
-		   $row = array("0"=> "Select")+$row;
-		   return $row;
+	   $row =  TicketGroups::orderBy('GroupID', 'asc')->lists('GroupName','GroupID'); 
+	   $row = array("0"=> "Select")+$row;
+	   return $row;
+	}
+	
+	 static function getTicketGroups_dropdown(){
+		//TicketfieldsValues::WHERE
+	    $compantID 	  = 	User::get_companyID();
+        $where 		  = 	['CompanyID'=>$compantID];      
+        $TicketGroups = 	TicketGroups::select(['GroupID','GroupName'])->where($where)->orderBy('GroupName', 'asc')->lists('GroupName','GroupID');
+        if(!empty($TicketGroups)){
+            $TicketGroups = [''=>'Select'] + $TicketGroups;
+        }
+        return $TicketGroups;
 	}
 	
 	
@@ -41,4 +52,15 @@ class TicketGroups extends \Eloquent {
             return FALSE;
         }
     }
+	
+	static function GetGroupsFrom(){
+		$CompanyID 		 			= 	User::get_companyID(); 
+		$FromEmailsQuery  			= 	"CALL `prc_GetFromEmailAddress`('".$CompanyID."', '0', '1')";
+		$FromEmailsResults			= 	DB::select($FromEmailsQuery);
+		$FromEmails					= 	array();
+		foreach($FromEmailsResults as $FromEmailsResultsData){
+			$FromEmails[$FromEmailsResultsData->GroupReplyAddress] = $FromEmailsResultsData->GroupReplyAddress;
+		}
+		return $FromEmails;
+	}
 }

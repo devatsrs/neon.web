@@ -83,7 +83,7 @@ class Messages extends \Eloquent {
 	
     }
 	
-	public static function GetAllSystemEmails($lead=1)
+	public static function GetAllSystemEmails($lead=1,$indexEmail =false)
 	{
 		 $array 		 =  [];
 		
@@ -117,7 +117,11 @@ class Messages extends \Eloquent {
 							{
 								if(!in_array($email_addresses_data,$array))
 								{
-									$array[] =  $email_addresses_data;	
+									if($indexEmail){
+										$array[$email_addresses_data] =  $email_addresses_data;	
+									}else{
+										$array[] =  $email_addresses_data;	
+									}
 								}
 							}
 						}
@@ -140,7 +144,12 @@ class Messages extends \Eloquent {
 							{
 								if(!in_array($email_addresses_data,$array))
 								{
-									$array[] =  $email_addresses_data;	
+									//$array[] =  $email_addresses_data;
+									if($indexEmail){
+										$array[$email_addresses_data] =  $email_addresses_data;	
+									}else{
+										$array[] =  $email_addresses_data;	
+									}	
 								}
 							}
 						}
@@ -153,7 +162,12 @@ class Messages extends \Eloquent {
 				foreach($ContactSearch as $ContactData){
 					if($ContactData->Email!=''  && !in_array($ContactData->Email,$array))
 					{
-						$array[] =  $ContactData->Email;
+						if($indexEmail){
+							$array[$ContactData->Email] =  $ContactData->Email;	
+						}else{
+							$array[] =  $ContactData->Email;
+						}	
+						
 					}
 				}
 		}
