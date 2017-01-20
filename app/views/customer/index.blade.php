@@ -3,7 +3,7 @@
     <br />
     <div class="row">
         <div class="col-sm-12">
-            <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="billing_filter">
+            <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="billing_filter">
                 <div data-collapsed="0" class="panel panel-primary">
                     <div class="panel-heading">
                         <div class="panel-title">
@@ -42,7 +42,7 @@
         <div class="col-md-12">
             <div data-collapsed="0" class="panel panel-primary">
                 <div id="invoice-widgets" class="panel-body">
-
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-blue"><a target="_blank" class="undefined"
                                                                  data-startdate="" data-enddate=""
@@ -52,7 +52,8 @@
                                     </div>
                                     <p> Total Outstanding</p></a></div>
                         </div>
-
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
 
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
@@ -63,7 +64,8 @@
                                     </div>
                                     <p>Invoice Sent for selected period</p></a></div>
                         </div>
-
+                        @endif
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
 
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-plum"><a target="_blank" class="undefined" data-startdate=""
@@ -74,6 +76,8 @@
                                     </div>
                                     <p>Invoice Received</p></a></div>
                         </div>
+                        @endif
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardDueAmount',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-orange"><a target="_blank" class="undefined"
                                                                    data-startdate="" data-enddate=""
@@ -83,6 +87,8 @@
                                     </div>
                                     <p>Due Amount</p></a></div>
                         </div>
+                        @endif
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOverDueAmount',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
                                                                 data-enddate="" data-currency=""
@@ -92,6 +98,8 @@
                                     </div>
                                     <p>Overdue Amount</p></a></div>
                         </div>
+                        @endif
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentReceived',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-purple"><a target="_blank" class="undefined" data-startdate=""
                                                                    data-enddate="" data-currency=""
@@ -101,6 +109,8 @@
                                     </div>
                                     <p>Payment Received</p></a></div>
                         </div>
+                        @endif
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentSent',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-cyan"><a target="_blank" class="undefined" data-startdate=""
                                                                  data-enddate="" data-currency=""
@@ -110,6 +120,8 @@
                                     </div>
                                     <p>Payment Sent</p></a></div>
                         </div>
+                        @endif
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-orange">
                                 <a target="_blank" class="undefined" data-startdate="" data-enddate="" data-currency="" href="javascript:void(0)">
@@ -118,6 +130,8 @@
                                 </a>
                             </div>
                         </div>
+                        @endif
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingDispute',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
                                                                  data-enddate="" data-currency=""
@@ -127,6 +141,8 @@
                                     </div>
                                     <p>Pending Dispute</p></a></div>
                         </div>
+                        @endif
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingEstimate',$BillingDashboardWidgets))
                         <div class="col-sm-3 col-xs-6">
                             <div class="tile-stats tile-pink"><a target="_blank" class="undefined" data-startdate=""
                                                                  data-enddate="" data-currency=""
@@ -136,10 +152,12 @@
                                     </div>
                                     <p>Pending Eastimate</p></a></div>
                         </div>
+                        @endif
                 </div>
             </div>
         </div>
     </div>
+    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets))
     <div class="row">
         <div class="col-sm-12">
             <div class="invoice_expsense panel panel-primary panel-table">
@@ -164,6 +182,8 @@
         </div>
 
     </div>
+    @endif
+    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))
         <div class="row">
             <div class="col-sm-12">
                 <div class="pin_expsense panel panel-primary panel-table">
@@ -193,6 +213,7 @@
                 </div>
             </div>
         </div>
+
         <div class="row hidden" id="pin_grid_main">
             <div class="col-sm-12">
                 <div class="pin_expsense_report panel panel-primary" style="position: static;">
@@ -223,6 +244,7 @@
             </div>
 
         </div>
+    @endif
     <script type="text/javascript">
         function reload_invoice_expense(){
 
@@ -240,7 +262,7 @@
         }
 
         function invoiceExpense(){
-
+            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets))
             var data = $('#billing_filter').serialize() + '&' + $('#invoiceExpensefilter-form').serialize();
             CurrencyID = $("[name=CurrencyID]").val();
             data = data+'&CurrencyID='+CurrencyID;
@@ -251,10 +273,11 @@
                 loadingUnload('#invoice_expense_bar_chart',0);
                 $(".panel.invoice_expsense #invoice_expense_bar_chart").html(response);
             }, "html" );
+            @endif
         }
 
         function invoiceExpenseTotalwidgets(){
-
+            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
             var data = $('#billing_filter').serialize();
             var get_url = baseurl + "/customer/invoice_expense_total_widget";
             $.get(get_url, data, function (response) {
@@ -298,6 +321,7 @@
                 titleState(temp.find('.tile-stats'));
 
             }, "json");
+            @endif
         }
 
         function invoiceExpenseTotal(){
@@ -330,7 +354,7 @@
                 option["currency"] = CurrencyID;
                 option['round'] = response.data.Round;
                 option['count'] = '';
-
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalInvoiceIn;
                 option["end"] = response.data.TotalInvoiceIn;
                 option["tileclass"] = 'tile-green';
@@ -338,7 +362,8 @@
                 option["type"] = 'Invoice Sent for selected period';
                 /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
-
+                @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalInvoiceOut;
                 option["end"] = response.data.TotalInvoiceOut;
                 option["tileclass"] = 'tile-plum';
@@ -346,7 +371,8 @@
                 option["type"] = 'Invoice Received';
                 /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
-
+                @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardDueAmount',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalDueAmount;
                 option["end"] = response.data.TotalDueAmount;
                 option["tileclass"] = 'tile-orange';
@@ -354,7 +380,8 @@
                 option["type"] = 'Due Amount';
                 /*option["count"] = response.data.CountTotalUnpaidInvoices;*/
                 widgets += buildbox(option);
-
+                @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOverDueAmount',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalOverdueAmount;
                 option["end"] = response.data.TotalOverdueAmount;
                 option["tileclass"] = 'tile-red';
@@ -362,7 +389,7 @@
                 option["type"] = 'Overdue Amount';
                 /*option["count"] = response.data.CountTotalOverdueInvoices;*/
                 widgets += buildbox(option);
-
+                @endif
                 /*option["amount"] = response.data.TotalPartiallyPaidInvoices;
                  option["end"] = response.data.TotalPartiallyPaidInvoices;
                  option["tileclass"] = 'tile-cyan';
@@ -370,7 +397,7 @@
                  option["type"] = 'Partially Paid invoices';
                  option["count"] = response.data.CountTotalPartiallyPaidInvoices;
                  widgets += buildbox(option);*/
-
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentSent',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalPaymentsIn;
                 option["end"] = response.data.TotalPaymentsIn;
                 option["tileclass"] = 'tile-purple';
@@ -378,7 +405,8 @@
                 option["type"] = 'Payments Sent';
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
-
+                @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentReceived',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalPaymentsOut;
                 option["end"] = response.data.TotalPaymentsOut;
                 option["tileclass"] = 'tile-cyan';
@@ -386,7 +414,8 @@
                 option["type"] = 'Payments Received';
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
-
+                @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
                 option["amount"] = response.data.Outstanding;
                 option["end"] = response.data.Outstanding;
                 option["tileclass"] = 'tile-brown';
@@ -394,7 +423,8 @@
                 option["type"] = 'Outstanding For Selected Period';
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
-
+                @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingDispute',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalDispute;
                 option["end"] = response.data.TotalDispute;
                 option["tileclass"] = 'tile-aqua';
@@ -402,7 +432,8 @@
                 option["type"] = 'Pending Dispute';
                 /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
-
+                @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingEstimate',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalEstimate;
                 option["end"] = response.data.TotalEstimate;
                 option["tileclass"] = 'tile-pink';
@@ -410,7 +441,7 @@
                 option["type"] = 'Pending Estimate';
                 /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
-
+                @endif
                 $('#invoice-widgets').html(widgets);
 
                 $("#invoice-widgets").find('.tile-stats').each(function (i, el) {
@@ -444,6 +475,7 @@
             }
         }
         function pin_report() {
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets)))
             $("#pin_grid_main").addClass('hidden');
             loadingUnload('#pin_expense_bar_chart', 1);
             data = $('#billing_filter').serialize() + '&' + $('#filter-form').serialize() ;
@@ -454,6 +486,7 @@
                 $(".save.btn").button('reset');
                 $("#pin_expense_bar_chart").html(response);
             }, "html");
+            @endif
         }
 
         $(function() {
@@ -535,6 +568,7 @@
                                     return full[16]
                                 }
                             },
+
                             {
                                 "bSortable": true, //paymentDate
                                 mRender: function (id, type, full) {
