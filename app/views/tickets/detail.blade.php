@@ -62,7 +62,7 @@
       <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
     <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
-    <div class="mail-text @if(count($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->Message}} </div>       
+    <div class="mail-text @if(count($attachments)<1 || strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->Message}} </div>       
      @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
     <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
