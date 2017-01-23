@@ -139,7 +139,7 @@
                       <div class="meta">Email: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Email']}}</a></div>
                     </div>
                     <div class="cellNo cellNoSmall">
-                      <div class="meta">Phone: <a href="tel:{{$Account_card->Phone}}">{{$contacts_row['Phone']}}</a></div>
+                      <div class="meta">Phone: <a href="tel:{{$contacts_row['Phone']}}">{{$contacts_row['Phone']}}</a></div>
                     </div>
                     <div class="cellNo cellNoSmall">
                       <div class="meta">Fax:{{$contacts_row['Fax']}}</div>
@@ -431,7 +431,7 @@
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
             <div class="cbp_tmlabel @if(!$rows['followup_task']) normal_tag @endif "> 
             <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
-             <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="entypo-trash"></i></a>             
+             <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash"></i></a>             
               <h2 class="toggle_open" id_toggle="{{$key}}"> @if($rows['TaskPriority']=='High') <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                 
                 @if($rows['CreatedBy']==$current_user_title && $rows['TaskName']==$current_user_title)<span>You created a @if($rows['followup_task']) follow up @endif task</span> @elseif ($rows['CreatedBy']==$current_user_title && $rows['TaskName']!=$current_user_title)<span>You assigned @if($rows['followup_task']) follow up @endif task to {{$rows['TaskName']}} </span> @elseif ($rows['CreatedBy']!=$current_user_title && $rows['TaskName']==$current_user_title)<span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  You </span> @else <span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  {{$rows['TaskName']}} </span> @endif </h2>
@@ -459,7 +459,7 @@
               <?php } ?>
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-            <div class="cbp_tmlabel normal_tag"> <a id="edit_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a> <a id="delete_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="entypo-trash"></i></a>
+            <div class="cbp_tmlabel normal_tag"> <a id="edit_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a> <a id="delete_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="fa fa-trash"></i></a>
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>added a note</span></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
                 <p>{{$rows['Note']}}</p>

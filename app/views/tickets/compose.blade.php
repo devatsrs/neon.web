@@ -17,13 +17,15 @@
   <div class="mail-body">
     <div class="mail-header"> 
       <!-- title -->
-      <div class="mail-title"> Compose Mail <i class="entypo-pencil"></i> </div>
-      
+           
       <!-- links -->
-      <div class="mail-links">
-        <button type="submit" data-loading-text="Loading..." submit_value="0" class="btn btn-success submit_btn btn-icon" style="visibility: visible;"> Send <i class="entypo-mail"></i> </button>
+      <div class="mail-links pull-right">      
+        <button type="submit" data-loading-text="Loading..." submit_value="0" class="btn btn-primary submit_btn btn-icon" style="visibility: visible;"> Send <i class="entypo-mail"></i> </button>
+        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
       </div>
     </div>
+    <div class="row">
+    <div class="col-md-12">
     <div class="mail-compose">
       <form  id="MailBoxCompose" name="MailBoxCompose">
         <div class="form-group">
@@ -32,7 +34,7 @@
         <div class="form-group">
           <label for="to">To:</label>
           {{ Form::select('email-to', $AllEmailsTo, '', array("class"=>"form-control useremailssingle","id"=>"email-to")) }}           
-          <span><a href="javascript:;" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </span>
+          <span><a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </span>
         </div>
         
         <div class="form-group hidden">
@@ -48,6 +50,7 @@
           <input type="text" class="form-control subject" id="subject" name="Subject" value="" tabindex="1" />
         </div>
         <div class="compose-message-editor">
+          <label for="Message">Message:</label>
           <textarea id="Message" name="Message" class="form-control wysihtml5box" ></textarea>
         </div>
         <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
@@ -60,7 +63,6 @@
         <input type="hidden" class="EmailCall" value="{{Messages::Sent}}" name="EmailCall" />
         <!-- ticket fields start -->
         <?php if(count($ticketsfields)>0){ ?>
-        <table width="100%"  class="compose_table" cellpadding="10" cellspacing="10">
           <?php  $required = array();
 			   foreach($ticketsfields as $TicketfieldsData)
 			   {	 
@@ -72,10 +74,10 @@
 					 
 					if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				 
 				 ?>
-          <tr>
-            <td width="20%"><label for="GroupName" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
-            <td><input type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" ></td>
-          </tr>
+          <div class="form-group">
+            <label for="GroupName" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <input type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" >
+          </div>
           <?php
 }
 				 }
@@ -84,10 +86,10 @@
 					 if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
 					if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				  
 				 ?>
-          <tr>
-            <td width="20%"><label for="GroupDescription" class="control-label">{{$TicketfieldsData->AgentLabel}}</label></td>
-            <td><textarea   id='{{$id}}'  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" ></textarea></td>
-          </tr>
+          <div class="form-group">
+            <label for="GroupDescription" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <textarea   id='{{$id}}'  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" ></textarea>
+          </div>
           <?php
 					}
 		}
@@ -96,10 +98,10 @@
 					  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
 					  if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				 
 			     ?>
-          <tr>
-            <td width="20%"><label for="GroupDescription" class="control-label">{{$TicketfieldsData->AgentLabel}}</label></td>
-            <td><input class="checkbox rowcheckbox formfldcheckbox" value="" name='Ticket[{{$TicketfieldsData->FieldType}}]'  id='{{$id}}' type="checkbox"></td>
-          </tr>
+           <div class="form-group">
+            <label for="GroupDescription" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <input class="checkbox rowcheckbox formfldcheckbox" value="" name='Ticket[{{$TicketfieldsData->FieldType}}]'  id='{{$id}}' type="checkbox">
+          </div>
           <?php  }		  
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXTNUMBER)
@@ -107,10 +109,10 @@
 				 if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
 				 if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				 
 			       ?>
-          <tr>
-            <td width="20%"><label for="GroupName" class=" control-label">{{$TicketfieldsData->AgentLabel}}</label></td>
-            <td><input type="number" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value=""></td>
-          </tr>
+           <div class="form-group">
+            <label for="GroupName" class=" control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <input type="number" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="">
+          </div>
           <?php
 		 }
 				 }
@@ -120,9 +122,9 @@
 				  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
 					 if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				 
 					 ?>
-          <tr>
-            <td width="20%"><label for="GroupName" class="control-label">{{$TicketfieldsData->AgentLabel}}</label></td>
-            <td><select name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld select2" id="{{$id}}" >
+          <div class="form-group">
+            <label for="GroupName" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <select name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld select2" id="{{$id}}" >
                 <option value="0">Select</option>
                 <?php
 	          
@@ -153,8 +155,8 @@
 		}
 			  	
 				?>
-              </select></td>
-          </tr>
+              </select>
+          </div>
           <?php }
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_DATE)
@@ -162,10 +164,10 @@
 				 	if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
 					if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				 
 				 ?>
-          <tr>
-            <td width="20%"><label for="GroupName" class="control-label">{{$TicketfieldsData->AgentLabel}}</label></td>
-            <td><input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld datepicker" data-date-format="yyyy-mm-dd" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" ></td>
-          </tr>
+          <div class="form-group">
+            <label for="GroupName" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld datepicker" data-date-format="yyyy-mm-dd" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" >
+          </div>
           <?php }					 
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_DECIMAL)
@@ -173,19 +175,20 @@
 					  if($TicketfieldsData->AgentReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->AgentLabel); }
 					if(TicketsTable::checkTicketFieldPermission($TicketfieldsData)){				    
 				 ?>
-          <tr>
-            <td width="20%"><label for="GroupName" class="control-label">{{$TicketfieldsData->AgentLabel}}</label></td>
-            <td><input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" ></td>
-              </td>
+           <div class="form-group">
+            <label for="GroupName" class="control-label">{{$TicketfieldsData->AgentLabel}}</label>
+            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" >
+              </div>
             <?php				  }
 				 }
 		  }
 	?>
-        </table>
         <input type="hidden" name="Page" value="DetailPage">
         <?php } ?>
         <!-- ticket fields end -->
       </form>
+    </div>
+    </div>
     </div>
   </div>
   <!-- Sidebar -->
@@ -202,14 +205,16 @@
 <style>
 .mail-env .mail-body .mail-header .mail-title{width:70% !important;}
 .mail-env .mail-body .mail-header .mail-search, .mail-env .mail-body .mail-header .mail-links{width:30% !important;}
-.select2-container,#s2id_email-to{padding-left:30px !important;}
-#s2id_email-from{padding-left:50px !important;}
+/*#s2id_email-from{padding-left:50px !important;}*/
 .mail-env .mail-body{width:100% !important;}
 .ticketboxlabel{}
 .compose_table tr td{padding:2px; padding-top:15px;}
 .compose_table tr {margin-top:10px;}
 .compose_table .select2-container{padding-left:0px !important; }
-#s2id_email-from a:first-child{border:none !important;}
+.mail-env .mail-body .mail-compose .form-group{position:static;border-bottom:none; padding-bottom:0px;}
+.mail-env .mail-body .mail-compose .form-group label{position:static; left:auto;top:auto;}
+/*#s2id_email-from a:first-child{border:none !important;}*/
+.emailoptiontxt{font-size:10px;}
 </style>
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 

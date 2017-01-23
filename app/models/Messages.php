@@ -11,6 +11,10 @@ class Messages extends \Eloquent {
     const  Received			=   1;
     const  Draft 			= 	2;
 	
+	
+	const  UserTypeAccount	= 	0;
+    const  UserTypeContact	=   1;
+	
 	const  inbox			=	'inbox';
 	const  sentbox			=	'sentbox';
 	const  draftbox			=	'draftbox';

@@ -123,7 +123,7 @@
                             action += status_link;
 							
 							 @if(User::checkCategoryPermission('RateGenerator','Delete'))
-                                action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn btn-default btn-sm  delete btn-danger"><i class="entypo-trash"></i></a> '
+                                action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn btn-default btn-sm  delete btn-danger"><i class="fa fa-trash"></i></a> '
                             @endif
                             if (full[3] == 1) { /* When Status is 1 */
                                 action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>'

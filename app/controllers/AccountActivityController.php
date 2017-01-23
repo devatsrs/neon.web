@@ -148,9 +148,9 @@ class AccountActivityController extends \BaseController {
     }
 	
 	public function sendMailApi($AccountID)
-	{
-
-        $data = Input::all();
+	{ 
+		$usertype = 0;
+        $data = Input::all(); Log::info(print_r($data,true));
         $rules = array(
             'Subject'=>'required',
             'Message'=>'required'
@@ -159,7 +159,15 @@ class AccountActivityController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-		$data['AccountID']		=   $AccountID;
+		
+		if(isset($data['usertype'])  && $data['usertype']==Messages::UserTypeContact){
+				$data['ContactID']   =   $AccountID;
+			$usertype 		  		 =    1;
+		}else{
+			$data['AccountID']		 =   $AccountID;
+		
+		}
+		
         $attachmentsinfo        =	$data['attachmentsinfo']; 
         if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
             $files_array = json_decode($attachmentsinfo,true);
@@ -201,17 +209,30 @@ class AccountActivityController extends \BaseController {
 			
 			$key 			= $data['scrol']!=""?$data['scrol']:0;	
 			$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
-			return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));  
+			if($usertype){
+				return View::make('contacts.timeline.show_ajax_single', compact('response','current_user_title','key'));  
+			}else{
+				return View::make('accounts.show_ajax_single', compact('response','current_user_title','key'));  
+			}
 	}
 
 
 	function EmailAction(){
-		$data 		   		= 	  Input::all();
+		$data 		   		= 	  Input::all(); Log::info(print_r($data,true));
 		$action_type   		=     $data['action_type'];
 		$email_number  		=     $data['email_number'];
-		$AccountID  		=     $data['AccountID'];
-		$AccountName 		= 	  Account::where(array('AccountID'=>$AccountID))->pluck('AccountName');
-		$AccountEmail 		= 	  Account::where(array('AccountID'=>$AccountID))->pluck('Email');
+		$usertype 			= 	  0;
+		if(isset($data['ContactID']) && !empty($data['ContactID'])){
+			$AccountID  		=     $data['ContactID'];
+			$ContactData 		= 	  Contact::where(array('ContactID'=>$AccountID))->select('FirstName','LastName')->first();
+			$AccountName 		= 	  $ContactData->FirstName.' '.$ContactData->LastName;
+			$AccountEmail 		= 	  Contact::where(array('ContactID'=>$AccountID))->pluck('Email');		
+			$usertype			=	  1;
+		}else{
+			$AccountID  		=     $data['AccountID'];
+			$AccountName 		= 	  Account::where(array('AccountID'=>$AccountID))->pluck('AccountName');
+			$AccountEmail 		= 	  Account::where(array('AccountID'=>$AccountID))->pluck('Email');
+		}
 		$response_email     =     NeonAPI::request('account/get_email',array('EmailID'=>$email_number),false,true);
 		
 		if($response_email['status']=='failed'){
@@ -227,7 +248,11 @@ class AccountActivityController extends \BaseController {
 			if($action_type=='forward'){ //attach current email attachments
 			$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths'],'reply');
 			}
+			if($usertype){
+			return View::make('contacts.timeline.emailaction', compact('data','response_data','action_type','parent_data','emailTemplates','AccountName','AccountEmail','uploadtext')); 
+			}else{
 			return View::make('accounts.emailaction', compact('data','response_data','action_type','parent_data','emailTemplates','AccountName','AccountEmail','uploadtext'));  			
+			}
 		}
         
 	}	

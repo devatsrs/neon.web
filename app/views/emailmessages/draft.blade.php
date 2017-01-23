@@ -45,7 +45,7 @@
              <div class="hidden mail-select-options">Mark to Delete</div>
               <div class="mail-pagination" colspan="2">
                
-              <a  action_type="Delete" action_value="1" data-toggle="tooltip" data-placement="top"  data-original-title="Delete" class="btn btn-default mailaction tooltip-primary"> <i class="glyphicon glyphicon-trash"></i> </a>
+              <a  action_type="Delete" action_value="1" data-toggle="tooltip" data-placement="top"  data-original-title="Delete" class="btn btn-default mailaction tooltip-primary"> <i class="fa fa-trash"></i> </a>
               <strong>
                 <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
                 -
