@@ -107,7 +107,7 @@
             </div>
             
             <!-- panel body -->
-            <div class="panel-body">
+            <div class="Requester_Info panel-body">
             @if(!empty($ticketdata->RequesterName))
             <p><a class="blue_link" href="#">{{$ticketdata->RequesterName}}</a><br><a href="#">({{$ticketdata->Requester}})</a>. </p>
             @else
@@ -202,7 +202,7 @@
 .mail-menu .row{margin-right:0px !important; margin-left:0px !important;}
 .mail-menu .panel{margin-bottom:5px;}
 .blue_link{font-size:16px; font-weight:bold;}
-.mail-header{padding:10px !important; padding-bottom:0px !important; border-bottom:none !important;}
+/*.mail-header{padding:10px !important; padding-bottom:0px !important; border-bottom:none !important;}*/
 .mail-env .mail-body .mail-info .mail-sender, .mail-env .mail-body .mail-info .mail-date{padding:10px;}
 .mail-env .mail-body .mail-attachments{padding-top:10px; padding-left:10px; padding-right:0px; padding-bottom:0px; background:#fff none repeat scroll 0 0;}
 .mail-env .mail-body .mail-attachments h4{margin-bottom:10px;}
@@ -214,6 +214,9 @@
 .mail-env .mail-body .mail-info .mail-sender{padding-top:2px;}
 .mail-env .mail-body .mail-info .mail-sender.mail-sender span{color:#2c7ea1;}
 .mail-env .mail-body .mail-header .mail-date{display: table-cell; width: 50%; color: #a6a6a6; padding:10px; text-align:right;}
+.mail-env .mail-body .mail-header .mail-title{float:none !important;}
+.mail-env .mail-body .mail-header .mail-date{padding:0px; text-align:inherit;}
+.Requester_Info{padding:10px !important;}
 </style>
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 

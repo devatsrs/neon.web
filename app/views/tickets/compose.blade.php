@@ -20,9 +20,9 @@
            
       <!-- links -->
       <div class="mail-links pull-right">      
-        <button type="submit" data-loading-text="Loading..." submit_value="0" class="btn btn-primary submit_btn btn-icon" style="visibility: visible;"> Send <i class="entypo-mail"></i> </button>
-        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
-      </div>
+        <button type="submit" data-loading-text="Loading..." submit_value="0" class="btn btn-primary icon-left submit_btn btn-icon" style="visibility: visible;"> Send <i class="entypo-mail"></i> </button>        
+         <a href="{{URL::to('tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Close</a>
+         </div>
     </div>
     <div class="row">
     <div class="col-md-12">
@@ -66,7 +66,11 @@
           <?php  $required = array();
 			   foreach($ticketsfields as $TicketfieldsData)
 			   {	 
-		   		 if($TicketfieldsData->FieldType=='default_requester' || $TicketfieldsData->FieldType=='default_description' || $TicketfieldsData->FieldType=='default_subject'){ continue;	}
+		   		 if($TicketfieldsData->FieldType=='default_requester' || $TicketfieldsData->FieldType=='default_description' || $TicketfieldsData->FieldType=='default_subject'){
+					 if($TicketfieldsData->FieldType=='default_subject'){
+						 $required[]  = array("id"=>'subject',"title"=>$TicketfieldsData->AgentLabel);
+					 }
+					  continue;	}
 				 
 				  $id		    =  'Ticket'.str_replace(" ","",$TicketfieldsData->FieldName);
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXT)
@@ -215,6 +219,31 @@
 .mail-env .mail-body .mail-compose .form-group label{position:static; left:auto;top:auto;}
 /*#s2id_email-from a:first-child{border:none !important;}*/
 .emailoptiontxt{font-size:10px;}
+.mail-env .mail-body .mail-compose .form-group input.subject{padding-left:10px !important;}
+.mail-env .mail-body .mail-compose .form-group input:focus{background:none;}
+.mail-env .mail-body .mail-compose .form-group input{
+
+  padding: 6px 12px;
+  font-size: 12px;
+  line-height: 1.42857143;
+  color: #555555;
+  background-color: #ffffff;
+  background-image: none;
+  border: 1px solid #ebebeb;
+  border-radius: 3px;
+ -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+  -moz-transition: border-color ease-in-out .15s, -moz-box-shadow ease-in-out .15s;
+  -moz-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.mail-env .mail-body .mail-compose .form-group input:focus {
+  border-color: #c8cdd7;
+  outline: 0;
+  -moz-box-shadow:  0 2px 1px rgba(203, 208, 217, 0.08);
+  -webkit-box-shadow:  0 2px 1px rgba(203, 208, 217, 0.08);
+  box-shadow:  0 2px 1px rgba(203, 208, 217, 0.08);
+}
 </style>
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
@@ -305,7 +334,8 @@ $(document).ready(function(e) {
 				   if(response.status =='success'){
 						ShowToastr("success",response.message); 			
 						document.getElementById('MailBoxCompose').reset();		
-						$('.select2-search-choice-close').click();								
+						$('.select2-search-choice-close').click();	
+						window.location = "{{URL::to('tickets')}}";							
 					}else{
 						toastr.error(response.message, "Error", toastr_opts);
 					}                   
