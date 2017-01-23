@@ -5,25 +5,22 @@
   <li class="active"> <strong>Detail</strong> </li>
 </ol>
 <h3>Tickets</h3>
-<div class="pull-left"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('/customer/tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}"   class="btn btn-red delete_ticket tooltip-primary"><i class="fa fa-trash"></i> </a>  </div>
-  <div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('/customer/tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-backward"></i> </a> @endif
-  @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('/customer/tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary"><i class="fa fa-step-forward"></i> </a> @endif</div>
+<div class="pull-left"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('customer/tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}"   class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="fa fa-trash"></i> </a>  </div>
+  <div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('customer/tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-backward"></i> </a> @endif
+  @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('customer/tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-forward"></i> </a> @endif</div>
  <div class="clear clearfix"></div>
 
 <div class="mail-env margin-top">   
   <!-- compose new email button -->
-  <div class="mail-sidebar-row visible-xs"> <a href="mailbox-compose.html" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
+  
   
   <!-- Mail Body -->
-  <div class="mail-body">
+  <div class="mail-body">    
     <div class="mail-header"> 
       <!-- title -->
-      <div class="mail-title">{{$ticketdata->Subject}}</div>
-      <!-- links --> 
-    </div>
-    <div class="mail-info">
-      <div class="mail-sender dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span>Requester</span> ({{$ticketdata->Requester}}) </a> </div>
+      <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date"> {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
+      <!-- links --> 
     </div>
     <div class="mail-text"> {{$ticketdata->Description}} </div>
     @if(strlen($ticketdata->AttachmentPaths)>0)
@@ -54,18 +51,17 @@
     </div>
     @endif
     <?php if(count($TicketConversation)>0){
-		foreach($TicketConversation as $TicketConversationData){
-			
-		 ?>
+		foreach($TicketConversation as $TicketConversationData){ 
+		 ?>  
     <div class="mail-reply-seperator"></div>
-    <div class="mail-info">
-      <div class="mail-sender dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span>To</span> ({{$TicketConversationData->Requester}}) </a> </div>
-      <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->TicketConversationID}}" data-original-title="Forward" class="btn btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
+    <div class="mail-info first_data">
+      <div class="mail-sender dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span>  </a> </div>
+      <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
-    <div class="mail-text"> {{$TicketConversationData->TicketMessage}} </div>
-    @if(strlen($TicketConversationData->AttachmentPaths)>0)
-    <?php $attachments = unserialize($TicketConversationData->AttachmentPaths); ?>
-    <div class="mail-attachments">
+    <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
+    <div class="mail-text @if(count($attachments)<1 || strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->Message}} </div>       
+     @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
+    <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
       <ul>
         @foreach($attachments as $key_acttachment => $attachments_data)
@@ -81,7 +77,7 @@
 		{
 			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
 		}
-		$Attachmenturl = URL::to('/customer/ticketsconversation/'.$TicketConversationData->TicketConversationID.'/getattachment/'.$key_acttachment);		
+		$Attachmenturl = URL::to('customer/ticketsconversation/'.$TicketConversationData->AccountEmailLogID.'/getattachment/'.$key_acttachment);
    	    ?>
         <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
           <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
@@ -90,7 +86,8 @@
       </ul>
     </div>
     @endif
-    <?php } } ?>
+    <?php } 
+		} ?>
   </div>
   
   <!-- Sidebar -->
@@ -151,13 +148,30 @@
   <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
 </form>
 <style>
-.mail-env .mail-body{float:left; width:70% !important; margin-right:1%; border-right:1px solid #ccc; background:#fff none repeat scroll 0 0;}
+.mail-env .mail-body{float:left; width:71% !important;   }
 .mail-env .mail-sidebar{width:29%; background:#fff none repeat scroll 0 0;}
 .mail-env .mail-body .mail-info{background:#fff none repeat scroll 0 0;}
-.mail-reply-seperator{background:#f3f4f4 none repeat scroll 0 0; width:100%; height:10px;}
+.mail-reply-seperator{background:#f1f1f1 none repeat scroll 0 0; width:100%; height:20px;}
 .mail-env{background:none !important;}
+.mail-menu {background:#f1f1f1;}
 .mail-menu .row{margin-right:0px !important; margin-left:0px !important;}
-.blue_link{color:#0066cc; font-size:16px;}
+.mail-menu .panel{margin-bottom:5px;}
+.blue_link{font-size:16px; font-weight:bold;}
+/*.mail-header{padding:10px !important; padding-bottom:0px !important; border-bottom:none !important;}*/
+.mail-env .mail-body .mail-info .mail-sender, .mail-env .mail-body .mail-info .mail-date{padding:10px;}
+.mail-env .mail-body .mail-attachments{padding-top:10px; padding-left:10px; padding-right:0px; padding-bottom:0px; background:#fff none repeat scroll 0 0;}
+.mail-env .mail-body .mail-attachments h4{margin-bottom:10px;}
+#tickets_filter .form-groups-bordered .form-group{padding-bottom:10px !important;}
+.form-groups-bordered .form-group{padding-bottom:6px;}
+.mail-env .mail-body .mail-text{background:#fff none repeat scroll 0 0;}
+.last_data{border-bottom-left-radius:10px; border-bottom-right-radius:10px;}
+.mail-env .mail-body .mail-header,.first_data{background:#fff none repeat scroll 0 0; border-top-left-radius:10px; border-top-right-radius:10px;}
+.mail-env .mail-body .mail-info .mail-sender{padding-top:2px;}
+.mail-env .mail-body .mail-info .mail-sender.mail-sender span{color:#2c7ea1;}
+.mail-env .mail-body .mail-header .mail-date{display: table-cell; width: 50%; color: #a6a6a6; padding:10px; text-align:right;}
+.mail-env .mail-body .mail-header .mail-title{float:none !important;}
+.mail-env .mail-body .mail-header .mail-date{padding:0px; text-align:inherit;}
+.Requester_Info{padding:10px !important;}
 </style>
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 

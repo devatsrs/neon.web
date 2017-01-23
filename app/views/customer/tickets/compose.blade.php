@@ -1,4 +1,4 @@
-@extends('layout.main')
+@extends('layout.customer.main')
 @section('content')
 <?php $required  = array(); ?>
 <ol class="breadcrumb bc-3">
@@ -10,7 +10,7 @@
 @include('includes.errors')
 @include('includes.success')
 <div class="mail-env"> 
-  <!-- compose new email button -->  
+  <!-- compose new email button -->
   
   <!-- Mail Body -->
   <div class="mail-body">

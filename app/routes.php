@@ -84,7 +84,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/customer/tickets/delete_attachment_file', 'TicketsCustomerController@deleteUploadFile');
 	Route::any('/customer/tickets/store', "TicketsCustomerController@Store");	
 	Route::post('/customer/tickets/ticket_action', 'TicketsCustomerController@TicketAction');
-	
+	Route::get('/customer/tickets/compose_email', 'TicketsCustomerController@ComposeEmail');	
     //Role
     Route::any('/roles', array("as" => "users", "uses" => "RoleController@index"));
     Route::any('/roles/storerole', "RoleController@storerole");

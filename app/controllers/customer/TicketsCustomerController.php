@@ -53,7 +53,7 @@ private $validlicense;
 			$iDisplayLength 			= 	 $data['iDisplayLength'];
 			$data['currentpage'] 		= 	 0;
 			
-		
+		TicketsTable::SetTicketSession($result);
 		//echo "<pre>";		print_r($result);			exit;
         return View::make('customer.tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page","pagination"));  
 			/////////
@@ -105,6 +105,7 @@ private $validlicense;
 				return '';
 			}
 		} 
+		TicketsTable::SetTicketSession($result);
        return   View::make('customer.tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns','pagination'));     
 	   
 	   //return array('currentpage'=>$data['currentpage'],"Body"=>$body,"result"=>count($result));
@@ -347,7 +348,7 @@ private $validlicense;
 		 } 
 		
 		$response 				=    NeonAPI::request('tickets/getticket/'.$id,array());
-	
+	//echo "<pre>"; print_r($response); exit;
 		if(!empty($response) && $response->status == 'success' )
 		{
 			  $ticketdata		=	 $response->data;
@@ -357,7 +358,7 @@ private $validlicense;
 			  }
 			   
 			$response_details 			 =  NeonAPI::request('tickets/getticketdetailsdata',array("admin"=>User::is_admin(),"id"=>$id),true);
-		
+		//echo "<pre>"; print_r($response_details); exit;
 			if(!empty($response_details) && $response_details->status == 'success' )
 			{  
 				   $ResponseData				 =   $response_details->data;
@@ -483,7 +484,7 @@ private $validlicense;
 	
 	public function getConversationAttachment($ticketID,$attachmentID){
 		
-		$Ticketdata 	=   TicketsConversation::find($ticketID);	
+		$Ticketdata 	=   AccountEmailLog::find($ticketID);	
 				
 		if($Ticketdata)
 		{
@@ -504,5 +505,35 @@ private $validlicense;
 	{
 		$response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,array(),true,true); 
 		return   json_response_api($response);
+	}
+	
+	function ComposeEmail(){		 
+		$data 						= 		Input::all();
+		$random_token				=	 	get_random_number();
+		$response_api_extensions 	=   	Get_Api_file_extentsions(); 
+		if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); }		
+		$response_extensions		=		json_encode($response_api_extensions['allowed_extensions']);
+		$max_file_size				=		get_max_file_size();
+		$AllEmails 					= 		json_encode(Messages::GetAllSystemEmails()); 	
+		$AllEmailsTo 				= 		Messages::GetAllSystemEmails(0,true); 	
+		$CompanyID 		 			= 		User::get_companyID(); 
+		//echo "<pre>"; print_r($AllEmailsTo); exit;
+		$response 		=   NeonAPI::request('ticketsfields/GetDynamicFields',array(),true,false,false);   
+		$data			=	array();	
+		if($response->status=='success'){
+			$ticketsfields = 	$response->data;
+		}
+		else{
+			$ticketsfields = 	array();
+		}    	
+		$default_status				=	TicketsTable::getDefaultStatus();
+		 $agentsAll = DB::table('tblTicketGroupAgents')
+            ->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()          
+            ->select('tblUser.UserID', 'tblUser.FirstName', 'tblUser.LastName')
+            ->get();
+			
+			$FromEmails	 		= TicketGroups::GetGroupsFrom();			
+			//$FromEmails = json_encode($FromEmails);
+		return View::make('customer.tickets.compose', compact('data','random_token','response_extensions','max_file_size','AllEmails','ticketsfields','CompanyID','agentsAll','FromEmails','default_status','AllEmailsTo'));	
 	}
 }

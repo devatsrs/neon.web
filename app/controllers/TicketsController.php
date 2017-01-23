@@ -478,7 +478,7 @@ private $validlicense;
 	
 	public function getConversationAttachment($ticketID,$attachmentID){
 		
-		$Ticketdata 	=   TicketsConversation::find($ticketID);	
+		$Ticketdata 	=   AccountEmailLog::find($ticketID);	
 				
 		if($Ticketdata)
 		{

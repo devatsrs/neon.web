@@ -1,10 +1,20 @@
 @extends('layout.customer.main')
 @section('content')
 <ol class="breadcrumb bc-3">
-  <li> <a href="{{ URL::to('customer/tickets') }}"><i class="entypo-home"></i>Tickets</a> </li>  
+  <li> <a href="{{ URL::to('/dashboard') }}"><i class="entypo-home"></i>Home</a> </li>
+  <li class="active"> <strong>Tickets</strong> </li>
 </ol>
 <h3>Tickets</h3>
-<p class="text-right"><a href="{{ URL::to('/customer/tickets/add') }}" class="btn btn-primary"> <i class="entypo-plus"></i> Add New </a>  </p>
+<p class="text-right"> 
+<div class="btn-group pull-right">
+<button href="#" class="btn  btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Add New&nbsp;&nbsp;<span class="caret"></span></button>
+ <ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px;" role="menu">
+    <li><a href="{{URL::to('customer/tickets/add')}}">Ticket</a></li>
+    <li><a href="{{URL::to('customer/tickets/compose_email')}}">Email</a></li>
+  </ul>
+  </div>
+   </p>
+  <div class="clear clearfix"><br></div>
 <div class="row">
   <div class="col-md-12">
     <form role="form" id="tickets_filter" method="post" action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
@@ -50,7 +60,7 @@
         <!-- mail table header -->
         <thead>
           <tr>
-            <th colspan="3"> <?php if(count($result)>0){ ?>              
+            <th colspan="2"> <?php if(count($result)>0){ ?>
               <div class="mail-select-options" style=""> <span class="pull-left paginationTicket"> {{Form::select('page',$pagination,$per_page,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-right per_page">records per page</span> </div>
               <div class="pull-right">
                 <div class="hidden mail-pagination"> <strong>
@@ -87,24 +97,25 @@
 		 foreach($result as $result_data){ 
 			 ?>
           <tr><!-- new email class: unread -->
-            <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/customer/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span><br>
-              </a> <a href="{{URL::to('/')}}/customer/tickets/user/{{$result_data->TicketID}}/detail" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
-             <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
-             <td><?php if($result_data->CustomerResponse==$result_data->Requester){echo "<span class='customerresponded'>CUSTOMER RESPONDED</span>";}else{echo "<span class='responsedue'>RESPONSE DUE</span>";} ?></td>
-            <td  class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
-              <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>
+            <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('customer/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
+            <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span>
+              <?php if($result_data->CustomerResponse==$result_data->Requester){echo "<div class='label label-info'>CUSTOMER RESPONDED</div>";}else{echo '<div class="label label-warning">RESPONSE DUE</div>';} ?><br>
+             <a href="#" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
+              <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
+            <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
+              <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>             
               </td>
           </tr>
           <?php } }else{ ?>
           <tr>
-            <td align="center" colspan="3">No Result Found.</td>
+            <td align="center" colspan="2">No Result Found.</td>
           </tr>
           <?php } ?>
         </tbody>
         <!-- mail table footer -->
         <tfoot>
           <tr>
-            <th colspan="3"> <?php if(count($result)>0){ ?>
+            <th colspan="2"> <?php if(count($result)>0){ ?>
               <div class="mail-pagination" ><?php echo $current+1; ?> to
                 <?php  echo $current+count($result); ?>
                 <span>of {{$totalResults}}</span> entries
@@ -125,10 +136,9 @@
 </div>
 <!-- mailbox end -->
 <style>
-.mail-env .mail-body .mail-table tbody tr td.col-time{width:22% !important; }
 .margin-left-mail{margin-right:15px;width:21%; }.mailaction{margin-right:10px;}.btn-blue{color:#fff !important;}
 .mail-body{width:100% !important; float:none !important;}
-.blue_link{font-size:16px; font-weight:bold;}
+.blue_link{font-size:13px; font-weight:bold;}
 .ticket_number{font-size:16px;}
 .col-time{text-align:left !important; font-size:12px;}
 .col-time span{color:black;}
@@ -150,7 +160,7 @@
 	
 $(document).ready(function(e) {	
 	
-		var currentpage 	= 	0;
+	var currentpage 	= 	0;
 	var next_enable 	= 	1;
 	var back_enable 	= 	1;
 	var per_page 		= 	<?php echo $iDisplayLength; ?>;

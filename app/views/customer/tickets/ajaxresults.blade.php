@@ -2,8 +2,8 @@
   <!-- mail table header -->
   <thead>
           <tr>
-            <th colspan="3"> <?php if(count($result)>0){ ?>              
-              <div class="mail-select-options" style=""> <span class="pull-left paginationTicket"> {{Form::select('page',$pagination,$iDisplayLength,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-right per_page">records per page</span> </div>
+            <th colspan="2"> <?php if(count($result)>0){ ?>              
+              <div class="mail-select-options"> <span class="pull-left paginationTicket"> {{Form::select('page',$pagination,$iDisplayLength,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-right per_page">records per page</span> </div>
               <div class="pull-right">
                 <div class="hidden mail-pagination"> <strong>
                   <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
@@ -38,28 +38,26 @@
 		  if(count($result)>0){
 		 foreach($result as $result_data){ 
 			 ?>
-    <tr><!-- new email class: unread -->
-      <td class="col-name  @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/customer/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span><br>       
-       </a>
-         <a href="{{URL::to('/')}}/customer/tickets/user/{{$result_data->TicketID}}/detail" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
-        Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?> 
-       </td>
-          <td><?php if($result_data->CustomerResponse==$result_data->Requester){echo "<span class='customerresponded'>CUSTOMER RESPONDED</span>";}else{echo "<span class='responsedue'>RESPONSE DUE</span>";} ?></td>
-      <td align="left" class="col-time">
-        <div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
-        <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>        
-       </td>
-    </tr>
-    <?php } }else{ ?>
+          <tr><!-- new email class: unread -->
+            <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
+            <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span>
+              <?php if($result_data->CustomerResponse==$result_data->Requester){echo "<div class='label label-info'>CUSTOMER RESPONDED</div>";}else{echo '<div class="label label-warning">RESPONSE DUE</div>';} ?><br>
+             <a href="#" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
+              <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
+            <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
+              <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>              
+              </td>
+          </tr>
+          <?php } }else{ ?>
     <tr>
-      <td align="center" colspan="3">No Result Found.</td>
+      <td align="center" colspan="2">No Result Found.</td>
     </tr>
     <?php } ?>
   </tbody>
   <!-- mail table footer -->
   <tfoot>
     <tr>
-      <th colspan="3"> 
+      <th colspan="2"> 
           <?php if(count($result)>0){ ?>
           <div class="mail-pagination">
           <strong> <?php echo $current+1; ?>-

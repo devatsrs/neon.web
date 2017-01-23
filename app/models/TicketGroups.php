@@ -59,7 +59,7 @@ class TicketGroups extends \Eloquent {
 		$FromEmailsResults			= 	DB::select($FromEmailsQuery);
 		$FromEmails					= 	array();
 		foreach($FromEmailsResults as $FromEmailsResultsData){
-			$FromEmails[$FromEmailsResultsData->GroupReplyAddress] = $FromEmailsResultsData->GroupReplyAddress;
+			$FromEmails[$FromEmailsResultsData->GroupEmailAddress] = $FromEmailsResultsData->GroupEmailAddress;
 		}
 		return $FromEmails;
 	}
