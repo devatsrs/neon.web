@@ -130,7 +130,7 @@ private $validlicense;
 	  
 	 public function delete($id)
      {
-		$response 		= 		NeonAPI::request('ticketgroups/delete/'.$id,array(),true,false,false);
+		$response 		= 		NeonAPI::request('ticketgroups/delete/'.$id,array(),true,false,false); 
 		return json_response_api($response);
     }
 	
@@ -139,7 +139,6 @@ private $validlicense;
 		
 		$postdata 				= 		Input::all();
         $response 				= 		NeonAPI::request('ticketgroups/get_group_agents/'.$id,array(),true,true,false);
-		Log::info(print_r($response,true));
 		return json_response_api($response,true);		
 	}
 }
