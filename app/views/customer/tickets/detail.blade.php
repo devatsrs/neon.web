@@ -16,16 +16,17 @@
   
   <!-- Mail Body -->
   <div class="mail-body">    
+  
     <div class="mail-header"> 
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date"> {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
       <!-- links --> 
-    </div>
-    <div class="mail-text"> {{$ticketdata->Description}} </div>
-    @if(strlen($ticketdata->AttachmentPaths)>0)
-    <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?>
-    <div class="mail-attachments">
+    </div>   
+     <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?> 
+     <div class="mail-text @if(count($attachments)<1 || strlen($ticketdata->AttachmentPaths)<1) last_data  @endif "> {{$ticketdata->Description}} </div>
+    @if(count($attachments)>0 && strlen($ticketdata->AttachmentPaths)>0)
+    <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
       <ul>
         @foreach($attachments as $key_acttachment => $attachments_data)
@@ -41,7 +42,7 @@
 		{
 			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
 		}
-		$Attachmenturl = URL::to('/customer/tickets/'.$ticketdata->TicketID.'/getattachment/'.$key_acttachment);		
+		$Attachmenturl = URL::to('tickets/'.$ticketdata->TicketID.'/getattachment/'.$key_acttachment);		
    	    ?>
         <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
           <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
