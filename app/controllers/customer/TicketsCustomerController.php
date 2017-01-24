@@ -5,11 +5,18 @@ class TicketsCustomerController extends \BaseController {
 private $validlicense;	
 
 	public function __construct(){
-			$this->validlicense = Tickets::CheckTicketLicense();
-		 } 
+		$this->validlicense = Tickets::CheckTicketLicense();
+		 if(!$this->validlicense)
+		 {
+			NeonAPI::logout();
+	        Session::flush();
+    	    //Auth::logout();
+			return Redirect::to('customer/login')->with('message', 'Your are now logged out!');
+		 }
+	 } 
 	 
-	 protected function IsValidLicense(){
-	 	return $this->validlicense;		
+	 protected function IsValidLicense(){		 
+	 	//return $this->validlicense;		
 	 }
 	
 	 public function index(){

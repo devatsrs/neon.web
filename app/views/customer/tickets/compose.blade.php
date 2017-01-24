@@ -20,7 +20,7 @@
       <!-- links -->
       <div class="mail-links pull-right">      
         <button type="submit" data-loading-text="Loading..." submit_value="0" class="btn btn-primary icon-left submit_btn btn-icon" style="visibility: visible;"> Send <i class="entypo-mail"></i> </button>        
-         <a href="{{URL::to('tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Close</a>
+         <a href="{{URL::to('customer/tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Close</a>
          </div>
     </div>
     <div class="row">
