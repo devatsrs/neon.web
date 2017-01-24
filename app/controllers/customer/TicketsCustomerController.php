@@ -10,8 +10,9 @@ private $validlicense;
 		 {
 			NeonAPI::logout();
 	        Session::flush();
-    	    //Auth::logout();
-			return Redirect::to('customer/login')->with('message', 'Your are now logged out!');
+    	    Auth::logout();
+			Redirect::to('customer/login')->send();
+			//return Redirect::to('customer/login')->with('message', 'Your are now logged out!');
 		 }
 	 } 
 	 
