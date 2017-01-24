@@ -58,7 +58,7 @@
 		 ?>  
     <div class="mail-reply-seperator"></div>
     <div class="mail-info first_data">
-      <div class="mail-sender dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span>  </a> </div>
+      <div class="mail-sender">  <span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span>   </div>
       <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
     <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
@@ -109,11 +109,11 @@
             <!-- panel body -->
             <div class="Requester_Info panel-body">
             @if(!empty($ticketdata->RequesterName))
-            <p><a class="blue_link" href="#">{{$ticketdata->RequesterName}}</a><br><a href="#">({{$ticketdata->Requester}})</a>. </p>
+            <p><a class="blue_link" href="@if($RequesterAccount) {{URL::to('/')}}/accounts/{{$RequesterAccount}}/show @elseif(!empty($RequesterContact)) {{URL::to('/')}}/contacts/{{$RequesterContact->ContactID}}/show @else # @endif">{{$ticketdata->RequesterName}}</a><br>({{$ticketdata->Requester}}). </p>
             @else
-            <p><a href="#">{{$ticketdata->Requester}}</a></p>
+            <p><a href="@if($RequesterAccount) {{URL::to('/')}}/accounts/{{$RequesterAccount}}/show @elseif(!empty($RequesterContact)) {{URL::to('/')}}/contacts/{{$RequesterContact->ContactID}}/show @else # @endif">{{$ticketdata->Requester}}</a></p>
             @endif
-			@if($RequesterContact)           
+			@if($RequesterContact && !$RequesterAccount)           
 <form role="form" id="form-tickets-owner_edit" method="post"  class="form-horizontal form-groups-bordered validate" novalidate>
            <div class="form-group">
                         <label for="field-1" class="col-sm-3 control-label">Contact Owner</label>
@@ -212,7 +212,7 @@
 .last_data{border-bottom-left-radius:10px; border-bottom-right-radius:10px;}
 .mail-env .mail-body .mail-header,.first_data{background:#fff none repeat scroll 0 0; border-top-left-radius:10px; border-top-right-radius:10px;}
 .mail-env .mail-body .mail-info .mail-sender{padding-top:2px;}
-.mail-env .mail-body .mail-info .mail-sender.mail-sender span{color:#2c7ea1;}
+.mail-env .mail-body .mail-info .mail-sender.mail-sender span{color:#000;}
 .mail-env .mail-body .mail-header .mail-date{display: table-cell; width: 50%; color: #a6a6a6; padding:10px; text-align:right;}
 .mail-env .mail-body .mail-header .mail-title{float:none !important;}
 .mail-env .mail-body .mail-header .mail-date{padding:0px; text-align:inherit;}
@@ -432,7 +432,7 @@ $(document).ready(function(e) {
 			$('.close_ticket').click(function(e) {
                 var ticket_number   =     parseInt($(this).attr('ticket_number'));
 				if(ticket_number){
-					var confirm_close = confirm("Are you sure to close this ticket?");
+					var confirm_close = confirm("Are you sure you want to close this ticket?");
 					if(confirm_close)
 					{
 						var url 		    = 	  baseurl + '/tickets/'+ticket_number+'/close_ticket';

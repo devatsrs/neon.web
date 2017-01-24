@@ -381,11 +381,13 @@ private $validlicense;
 					$response_extensions		 =	json_encode($response_api_extensions['allowed_extensions']); 
 					
 					$TicketConversation			 =	$ResponseData->TicketConversation;
-					$NextTicket 				 =	$ResponseData->NextTicket;
-					$PrevTicket 				 =	$ResponseData->PrevTicket;
+					//$NextTicket 				 =	$ResponseData->NextTicket;
+					//$PrevTicket 				 =	$ResponseData->PrevTicket;
 					$ticketSavedData			 = 	json_decode(json_encode($ResponseData->ticketSavedData),true);
 					$CompanyID 		 			 = 	 User::get_companyID(); 
 					$agentsAll 					 =	 $ResponseData->agentsAll;			 
+					$NextTicket 				 =  TicketsTable::GetNextPageID($id); 
+					$PrevTicket 				 =	TicketsTable::GetPrevPageID($id);
 					
 					return View::make('customer.tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll'));  		  
 			}else{

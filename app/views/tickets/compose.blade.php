@@ -9,20 +9,15 @@
 <h3>Emails</h3>
 @include('includes.errors')
 @include('includes.success')
+<p style="text-align: right;">
+        <button type="submit" data-loading-text="Loading..." submit_value="0" class="btn btn-primary btn-sm icon-left submit_btn btn-icon" style="visibility: visible;"> Send <i class="entypo-mail"></i> </button>        
+         <a href="{{URL::to('tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Close</a>
+         </p><br>
 <div class="mail-env"> 
-  <!-- compose new email button -->  
+  <!-- compose new email button --> 
   
   <!-- Mail Body -->
-  <div class="mail-body">
-    <div class="mail-header"> 
-      <!-- title -->
-           
-      <!-- links -->
-      <div class="mail-links pull-right">      
-        <button type="submit" data-loading-text="Loading..." submit_value="0" class="btn btn-primary icon-left submit_btn btn-icon" style="visibility: visible;"> Send <i class="entypo-mail"></i> </button>        
-         <a href="{{URL::to('tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Close</a>
-         </div>
-    </div>
+  <div class="mail-body">    
     <div class="row">
     <div class="col-md-12">
     <div class="mail-compose">

@@ -505,4 +505,8 @@ class Account extends \Eloquent {
 	if($ArrayReturn){return $array;}	
 	  return implode(",",$array);
 	}
+	
+	public static function checkAccountByEmail($email){
+		   return Account::whereRaw( "( Email = '".$email."' OR  BillingEmail = '".$email."' )")->pluck('AccountID');
+	}
 }

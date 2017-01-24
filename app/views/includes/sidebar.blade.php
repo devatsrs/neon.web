@@ -51,7 +51,7 @@
     
        <!--tickets start -->    
     @if(Tickets::CheckTicketLicense())
-    <li class="{{check_uri('tickets')}}"><a href="#"><i class="entypo-ticket"></i><span>Tickets Management</span></a>
+    <li class="{{check_uri('tickets')}}"><a href="#"><i class="fa fa-ticket"></i><span>Tickets Management</span></a>
       <ul>
        @if(User::checkCategoryPermission('Tickets','All'))
         <li> <a href="{{URL::to('/tickets')}}">  <span>Tickets</span> </a> </li>
@@ -65,7 +65,7 @@
       </ul>
     </li>
     @endif
-    <!--tickets end -->  
+    <!--tickets end --> 
 	
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_RM || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('RateTables','View') || User::checkCategoryPermission('LCR','All') ||

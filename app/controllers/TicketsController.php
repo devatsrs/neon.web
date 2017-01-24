@@ -378,13 +378,19 @@ private $validlicense;
 					$CompanyID 		 			 = 	User::get_companyID(); 
 					$agentsAll 					 =	$ResponseData->agentsAll;		
 					$RequesterContact			 =	Contact::checkContactByEmail($ticketdata->Requester);
+					$RequesterAccount			 =	Account::checkAccountByEmail($ticketdata->Requester);
+					//echo "<pre>";
+					//print_r($RequesterAccount);
+					//print_r($RequesterContact);
+					//exit;
 					$lead_owners 				 =  Lead::getLeadOwnersByRole();
 		            $account_owners 			 =  Account::getAccountsOwnersByRole();
 					
 					 $NextTicket 				 =  TicketsTable::GetNextPageID($id); 
 					 $PrevTicket 				 =	TicketsTable::GetPrevPageID($id);
+					 
 					//echo "<pre>"; print_r($RequesterContact); exit;
-					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','RequesterContact','lead_owners', 'account_owners'));  		  
+					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','RequesterContact','lead_owners', 'account_owners','RequesterAccount'));  		  
 			}else{
           	  return view_response_api($response_details);
          	}			 
