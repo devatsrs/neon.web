@@ -17,7 +17,7 @@ class Company extends \Eloquent {
     public static $billing_time = array(''=>'Select',self::BILLING_STARTTIME=>'Start Time',self::BILLING_ENDTIME=>'End Time');
     public static $BillingCycleType =
         array(
-             ""=>"Please Select an Option",
+             ""=>"Select",
             "weekly"=>"Weekly",
             "fortnightly"=>"Fortnightly",
             "monthly"=>"Monthly" ,
