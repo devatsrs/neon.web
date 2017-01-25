@@ -48,35 +48,38 @@
             <div class="form-group">
 
                 <div class="col-sm-4">
-                    <label for="field-1" class="col-sm-2 control-label">*Client</label>
-                    <div class="col-sm-10">
+                    <label for="field-1" class="col-sm-3 control-label">*Client</label>
+                    <div class="col-sm-9">
                         {{Form::select('AccountID',$accounts,$RecurringInvoice->AccountID,array("class"=>"select2" ,"disabled"=>"disabled"))}}
                         {{Form::hidden('AccountID',$RecurringInvoice->AccountID)}}
                     </div>
                     <div class="clearfix margin-bottom "></div>
-                    <label for="field-1" class="col-sm-2 control-label">*Address</label>
-                    <div class="col-sm-10">
+                    <label for="field-1" class="col-sm-3 control-label">*Address</label>
+                    <div class="col-sm-9">
 
                         {{Form::textarea('Address',$RecurringInvoice->Address,array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}}
                     </div>
 
-                    <div class="clearfix margin-bottom "></div>
+                    <div class="clearfix"></div>
 
                 </div>
 
                 <div class="col-md-5">
-                    <label for="field-1" class="col-sm-2 control-label">*Title</label>
+                    <div class="clearfix">
+                    <label for="field-1" class="col-sm-2 no-padding-left no-padding-right control-label">*Title</label>
 
                     <div class="col-sm-10">
                         {{Form::text('Title',$RecurringInvoice->Title,array("Placeholder"=>"", "class"=>"form-control"))}}
                     </div>
-                    <div class="clearfix margin-bottom "></div>
-                    <label for="field-1" class="col-sm-2 control-label">*Invoice Template</label>
+                    </div>
+                    <div class="clearfix margin-top">
+                    <label for="field-1" class="col-sm-2 no-padding control-label">*Billing Class</label>
                     <div class="col-sm-10">
                         {{Form::select('BillingClassID', $BillingClass, $RecurringInvoice->BillingClassID ,array("class"=>"select2 small form-control1 small"));}}
                     </div>
-                    <div class="clearfix margin-bottom "></div>
-                    <label for="field-1" class="col-md-2 control-label">*Frequency</label>
+                    </div>
+                    <div class="clearfix margin-top">
+                    <label for="field-1" class="col-md-2 no-padding control-label">*Frequency</label>
                     <div class="col-md-4">
                         <?php
 
@@ -85,7 +88,7 @@
                             $hiden_class= 'hidden';
                             $billing_disable = 'disabled';
                         }
-                        $Days = array( ""=>"Please Start of Day",
+                        $Days = array( ""=>"Select",
                                 "monday"=>"Monday",
                                 "tuesday"=>"Tuesday",
                                 "wednesday"=>"Wednesday",
@@ -111,40 +114,39 @@
                     }
                     ?>
                     <div id="billing_cycle_weekly" class="billing_options" >
-                        <label for="field-1" class="col-md-2 control-label">Start of Day*</label>
+                        <label for="field-1" class="col-md-2 no-padding control-label">Start of Day*</label>
                         <div class="col-md-4">
                             {{Form::select('BillingCycleValue',$Days, ($BillingCycleType =='weekly'?$BillingCycleValue:'') ,array("class"=>"form-control select2"))}}
                         </div>
                     </div>
                     <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-md-2 control-label">For Days*</label>
+                        <label for="field-1" class="col-md-2 no-padding control-label">For Days*</label>
                         <div class="col-md-4">
                             {{Form::text('BillingCycleValue', ($BillingCycleType =='in_specific_days'?$BillingCycleValue:'') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
                         </div>
                     </div>
                     <div id="billing_cycle_subscription" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-md-2 control-label">Subscription Qty</label>
+                        <label for="field-1" class="col-md-2 no-padding control-label">Subscription Qty</label>
                         <div class="col-md-4">
                             {{Form::text('BillingCycleValue', ($BillingCycleType =='subscription'?$BillingCycleValue:'') ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
                         </div>
                     </div>
                     <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-md-2 control-label">Anniversary Date*</label>
+                        <label for="field-1" class="col-md-2 no-padding control-label">Anniversary Date*</label>
                         <div class="col-md-4">
                             {{Form::text('BillingCycleValue', ($BillingCycleType =='monthly_anniversary'?$BillingCycleValue:'') ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                         </div>
                     </div>
+                    </div>
                 </div>
 
                 <div class="no-padding-left no-padding-right col-md-3">
-                    <label for="field-1" class="col-sm-6 control-label">*Issue Date</label>
-                    <div class="col-sm-6">{{Form::text('NextInvoiceDate',date('Y-m-d',strtotime($RecurringInvoice->NextInvoiceDate)),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d'),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"" ,"data-start-view"=>"2"))}} </div>
-                    <div class="clearfix margin-bottom "></div>
-                    <label for="field-1" class="col-sm-6 control-label">PO Number</label>
-                    <div class="col-sm-6"> {{Form::text('PONumber',$RecurringInvoice->PONumber,array("class"=>" form-control" ))}} </div>
-                    <div class="clearfix margin-bottom "></div>
-                    <label for="field-1" class="col-sm-6 control-label">Occurrence<span data-original-title="0 Occurrence for forever" data-content="0 Occurrence for forever" data-placement="top" data-trigger="hover" data-toggle="tooltip" class="label label-info popover-primary">?</span></label>
-                    <div class="col-sm-6"> {{Form::text('Occurrence',$RecurringInvoice->Occurrence,array("class"=>" form-control" ))}} </div>
+                    <label for="field-1" class="col-sm-4 no-padding-left control-label">*Invoice Date</label>
+                    <div class="col-sm-8 no-padding-left mar-top-5">{{Form::text('NextInvoiceDate',date('Y-m-d',strtotime($RecurringInvoice->NextInvoiceDate)),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d'),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"" ,"data-start-view"=>"2"))}} </div>
+                    <label for="field-1" class="col-sm-4 no-padding-left control-label">PO Number</label>
+                    <div class="col-sm-8 no-padding-left mar-top-5"> {{Form::text('PONumber',$RecurringInvoice->PONumber,array("class"=>" form-control" ))}} </div>
+                    <label for="field-1" class="col-sm-4 no-padding-left control-label">Occurrence<span data-original-title="0 Occurrence for forever" data-content="0 Occurrence for forever" data-placement="top" data-trigger="hover" data-toggle="tooltip" class="label label-info popover-primary">?</span></label>
+                    <div class="col-sm-8 no-padding-left mar-top-5"> {{Form::text('Occurrence',$RecurringInvoice->Occurrence,array("class"=>" form-control" ))}} </div>
                 </div>
                 </div>
                <div class="form-group">
@@ -161,7 +163,7 @@
                                     <!--<th width="10%" >Discount</th>-->
                                     <th width="15%" >Tax 1</th>
                                     <th width="15%" >Tax 2</th>
-                                    <th width="10%" >Total Tax</th>
+                                   <th class="hidden" width="10%" >Total Tax</th>
                                     <th width="10%" class="text-right">Line Total</th>
                                 </tr>
                             </thead>
@@ -205,7 +207,7 @@
                                         ]
                                 )}}</td>
                                 
-                                    <td>{{Form::text('RecurringInvoiceDetail[TaxAmount][]',number_format($ProductRow->TaxAmount,$RoundChargesAmount),array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>
+                                    <td class="hidden">{{Form::text('RecurringInvoiceDetail[TaxAmount][]',number_format($ProductRow->TaxAmount,$RoundChargesAmount),array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>
                                     <td>{{Form::text('RecurringInvoiceDetail[LineTotal][]',number_format($ProductRow->LineTotal,$RoundChargesAmount),array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}
                                     {{Form::hidden('RecurringInvoiceDetail[RecurringInvoiceDetailID][]',$ProductRow->RecurringInvoiceDetailID,array("class"=>"RecurringInvoiceDetailID"))}}
                                     {{Form::hidden('RecurringInvoiceDetail[ProductType][]',$ProductRow->ProductType,array("class"=>"ProductType"))}}

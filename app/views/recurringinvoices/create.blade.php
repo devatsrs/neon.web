@@ -56,25 +56,28 @@
                     </div>
 
                     <div class="col-md-5">
-                        <label for="field-1" class="col-sm-2 control-label">*Title</label>
+                        <div class="clearfix">
+                        <label for="field-1" class="col-sm-2  no-padding-left no-padding-right  control-label">*Title</label>
 
                         <div class="col-sm-10">
                             {{Form::text('Title','',array("Placeholder"=>"", "class"=>"form-control"))}}
                         </div>
-                        <br><br><br>
-                        <label for="field-1" class="col-sm-2 control-label">*Billing Class</label>
-                        <div class="col-sm-10">
-                            {{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"select2 small form-control1 small"));}}
                         </div>
-                        <br><br><br>
-                        <label for="field-1" class="col-md-2 control-label">*Frequency</label>
+                        <div class="clearfix margin-top">
+                            <label for="field-1" class="col-sm-2 no-padding control-label">*Billing Class</label>
+                            <div class="col-sm-10">
+                                {{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"select2 small form-control1 small"));}}
+                            </div>
+                        </div>
+                        <div class="clearfix margin-top">
+                        <label for="field-1" class="col-md-2 no-padding-left no-padding-right control-label">*Frequency</label>
                         <div class="col-md-4">
                             {{Form::select('BillingCycleType', SortBillingType(), '' ,array("class"=>"form-control select2"))}}
                         </div>
                         <div id="billing_cycle_weekly" class="billing_options" style="display: none">
-                            <label for="field-1" class="col-md-2 control-label no-padding">*Start of Day</label>
+                            <label for="field-1" class="col-md-2 control-label no-padding-left no-padding-right">*Start of Day</label>
                             <div class="col-md-4">
-                                <?php $Days = array( ""=>"Please Start of Day",
+                                <?php $Days = array( ""=>"Select",
                                         "monday"=>"Monday",
                                         "tuesday"=>"Tuesday",
                                         "wednesday"=>"Wednesday",
@@ -86,35 +89,33 @@
                             </div>
                         </div>
                         <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                            <label for="field-1" class="col-md-2 control-label no-padding">*For Days</label>
+                            <label for="field-1" class="col-md-2 control-label no-padding-left no-padding-right">*For Days</label>
                             <div class="col-md-4">
                                 {{Form::text('BillingCycleValue', '' ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
                             </div>
                         </div>
                         <div id="billing_cycle_subscription" class="billing_options" style="display: none">
-                            <label for="field-1" class="col-md-2 control-label no-padding">Subscription Qty*</label>
+                            <label for="field-1" class="col-md-2 control-label no-padding-left no-padding-right">Subscription Qty*</label>
                             <div class="col-md-4">
                                 {{Form::text('BillingCycleValue', '' ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
                             </div>
                         </div>
                         <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
-                            <label for="field-1" class="col-md-2 control-label no-padding">Anniversary Date*</label>
+                            <label for="field-1" class="col-md-2 control-label no-padding-left no-padding-right">Anniversary Date*</label>
                             <div class="col-md-4">
                                 {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                             </div>
                         </div>
-                        <br><br><br>
+                        </div>
                     </div>
 
-                    <div class="col-md-3">
-                        <label for="field-1" class="col-sm-6 control-label">*Issue Date</label>
-                        <div class="col-sm-6">{{Form::text('NextInvoiceDate',date('Y-m-d'),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d'),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"" ,"data-start-view"=>"2"))}} </div>
-                        <div class="clearfix margin-bottom "></div>
-                        <label for="field-1" class="col-sm-6 control-label">PO Number</label>
-                        <div class="col-sm-6"> {{Form::text('PONumber','',array("class"=>" form-control" ))}} </div>
-                        <div class="clearfix margin-bottom "></div>
-                        <label for="field-1" class="col-sm-6 control-label">Occurrence <span data-original-title="0 Occurrence for forever" data-content="0 Occurrence for forever" data-placement="top" data-trigger="hover" data-toggle="tooltip" class="label label-info popover-primary">?</span> </label>
-                        <div class="col-sm-6"> {{Form::text('Occurrence',0,array("class"=>" form-control" ))}}</div>
+                    <div class="no-padding-left no-padding-right col-md-3">
+                        <label for="field-1" class="col-sm-4 no-padding-left control-label">*Invoice Date</label>
+                        <div class="col-sm-8 no-padding-left mar-top-5">{{Form::text('NextInvoiceDate',date('Y-m-d'),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d'),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"" ,"data-start-view"=>"2"))}} </div>
+                        <label for="field-1" class="col-sm-4 no-padding-left control-label">PO Number</label>
+                        <div class="col-sm-8 no-padding-left mar-top-5"> {{Form::text('PONumber','',array("class"=>" form-control" ))}} </div>
+                        <label for="field-1" class="col-sm-4 no-padding-left control-label">Occurrence<span data-original-title="0 Occurrence for forever" data-content="0 Occurrence for forever" data-placement="top" data-trigger="hover" data-toggle="tooltip" class="label label-info popover-primary">?</span> </label>
+                        <div class="col-sm-8 no-padding-left mar-top-5"> {{Form::text('Occurrence',0,array("class"=>" form-control" ))}}</div>
                     </div>
                 </div>
                 <div class="form-group">
