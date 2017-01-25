@@ -132,7 +132,7 @@ class RecurringInvoiceController extends \BaseController {
             $RecurringInvoiceData["TotalTax"] 		= 	str_replace(",","",$data["TotalTax"]);
             $RecurringInvoiceData["GrandTotal"] 	= 	floatval(str_replace(",","",$data["GrandTotalRecurringInvoice"]));
             $RecurringInvoiceData["CurrencyID"] 	= 	$data["CurrencyID"];
-            $RecurringInvoiceData["Status"]         = 	RecurringInvoice::INACTIVE;
+            $RecurringInvoiceData["Status"]         = 	RecurringInvoice::ACTIVE;
             $RecurringInvoiceData["Note"] 			= 	$data["Note"];
             $RecurringInvoiceData["Terms"] 			= 	$data["Terms"];
             $RecurringInvoiceData["FooterTerm"] 	=	$data["FooterTerm"];
@@ -169,7 +169,8 @@ class RecurringInvoiceController extends \BaseController {
             }
             $message = ['BillingClassID.required'=>'Billing Class field is required',
                         'CurrencyID.required'=>'Currency Field is required.',
-                        'RecurringInvoiceDetail.required'=>'Recurring Invoice Details fields are required'];
+                        'RecurringInvoiceDetail.required'=>'Recurring Invoice Details fields are required',
+                        'BillingCycleType.required'=>'Frequency field is required'];
 			
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
@@ -327,7 +328,8 @@ class RecurringInvoiceController extends \BaseController {
 
             $message = ['BillingClassID.required'=>'Billing Class field is required',
                 'CurrencyID.required'=>'Currency Field is required',
-                'RecurringInvoiceDetail.required'=>'Recurring Invoice Details fields are required'];
+                'RecurringInvoiceDetail.required'=>'Recurring Invoice Details fields are required',
+                'BillingCycleType.required'=>'Frequency field is required'];
 			
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
