@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_updateSOAOffSet`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateSOAOffSet`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT
 )
@@ -47,6 +47,13 @@ BEGIN
 	SELECT AccountID,(SUM(IF(InvoiceType=1,Amount,0)) -  SUM(IF(PaymentType='Payment In',Amount,0))) - (SUM(IF(InvoiceType=2,Amount,0)) - SUM(IF(PaymentType='Payment Out',Amount,0))) as SOAOffSet 
 	FROM tmp_AccountSOA 
 	GROUP BY AccountID;
+	
+	INSERT INTO tmp_AccountSOABal
+	SELECT DISTINCT tblAccount.AccountID ,0 FROM NeonRMDev.tblAccount
+	LEFT JOIN tmp_AccountSOA ON tblAccount.AccountID = tmp_AccountSOA.AccountID
+	WHERE tblAccount.CompanyID = p_CompanyID
+	AND tmp_AccountSOA.AccountID IS NULL
+	AND (p_AccountID = 0 OR  tblAccount.AccountID = p_AccountID);
 	
 	UPDATE NeonRMDev.tblAccountBalance
 	INNER JOIN tmp_AccountSOABal 
