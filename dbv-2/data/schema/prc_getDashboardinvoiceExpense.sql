@@ -1,4 +1,11 @@
-CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `prc_getDashboardinvoiceExpense`(IN `p_CompanyID` INT, IN `p_CurrencyID` INT, IN `p_AccountID` INT, IN `p_StartDate` VARCHAR(50), IN `p_EndDate` VARCHAR(50), IN `p_ListType` VARCHAR(50))
+CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `prc_getDashboardinvoiceExpense`(
+	IN `p_CompanyID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_StartDate` VARCHAR(50),
+	IN `p_EndDate` VARCHAR(50),
+	IN `p_ListType` VARCHAR(50)
+)
 BEGIN
 	DECLARE v_Round_ INT;
 
@@ -28,7 +35,7 @@ BEGIN
 	INSERT INTO tmp_MonthlyTotalDue_
 	SELECT YEAR(IssueDate) as Year
 			,MONTH(IssueDate) as Month
-			,WEEKOFYEAR(IssueDate) as Week
+			,WEEK(IssueDate) as Week
 			,MONTHNAME(MAX(IssueDate)) as  MonthName
 			,ROUND(COALESCE(SUM(GrandTotal),0),v_Round_)as TotalAmount
 			,CurrencyID
@@ -116,7 +123,7 @@ BEGIN
 		INSERT INTO tmp_MonthlyTotalReceived_
 		SELECT YEAR(p.PaymentDate) as Year
 				,MONTH(p.PaymentDate) as Month
-				,WEEKOFYEAR(p.PaymentDate) as week
+				,WEEK(p.PaymentDate) as week
 				,MONTHNAME(MAX(p.PaymentDate)) as  MonthName
 				,ROUND(COALESCE(SUM(p.Amount),0),v_Round_) as TotalAmount
 				,ROUND(COALESCE(SUM(p.OutAmount),0),v_Round_) as OutAmount

@@ -1,4 +1,11 @@
-CREATE DEFINER=`neon-user-umer`@`122.129.78.153` PROCEDURE `prc_GetCrmDashboardSalesManager`(IN `p_CompanyID` INT, IN `p_OwnerID` VARCHAR(500), IN `p_CurrencyID` INT, IN `p_ListType` VARCHAR(50), IN `p_Start` DATETIME, IN `p_End` DATETIME)
+CREATE DEFINER=`neon-user-umer`@`122.129.78.153` PROCEDURE `prc_GetCrmDashboardSalesManager`(
+	IN `p_CompanyID` INT,
+	IN `p_OwnerID` VARCHAR(500),
+	IN `p_CurrencyID` INT,
+	IN `p_ListType` VARCHAR(50),
+	IN `p_Start` DATETIME,
+	IN `p_End` DATETIME
+)
 BEGIN
 	DECLARE v_CurrencyCode_ VARCHAR(50);
 	DECLARE v_Round_ int;
@@ -24,7 +31,7 @@ SELECT
 	sum(`inv`.`GrandTotal`) AS `Revenue`,
 	YEAR(inv.IssueDate) as Year,
 	MONTH(inv.IssueDate) as Month,
-	WEEKOFYEAR(inv.IssueDate)	 as `Week`
+	WEEK(inv.IssueDate)	 as `Week`
 FROM NeonBillingDev.tblInvoice inv
 Inner JOIN tblAccount ac on ac.AccountID = inv.AccountID 
 INNER join tblUser tu on tu.UserID = ac.Owner
@@ -36,11 +43,12 @@ where
 		   AND ac.CompanyID = p_CompanyID
 			AND (p_OwnerID = '' OR   find_in_set(tu.UserID,p_OwnerID))
 			AND `inv`.`InvoiceType` = 1
+			AND `inv`.GrandTotal != 0
 			AND (inv.IssueDate between p_Start and p_End)
 GROUP BY 
 			YEAR(inv.IssueDate) 
 			,MONTH(inv.IssueDate)
-			,WEEKOFYEAR(inv.IssueDate)
+			,WEEK(inv.IssueDate)
 			,CONCAT(tu.FirstName,' ',tu.LastName)
 			,tu.UserID;
 			
