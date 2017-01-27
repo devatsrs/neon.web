@@ -603,6 +603,7 @@
                 </div>
             </div>
         </div>
+        @include('accounts.cli_tables')
     </form>
 </div>
 </div>
