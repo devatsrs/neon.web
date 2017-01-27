@@ -1,3 +1,9 @@
+<?php $emailTemplates = EmailTemplate::getTemplateArray();
+$taxrates = TaxRate::getTaxRateDropdownIDList();
+if(isset($taxrates[""])){unset($taxrates[""]);}
+$type = EmailTemplate::$Type;
+$privacy = EmailTemplate::$privacy;
+?>
 <div class="row">
 <form role="form" id="billing-form" method="post" class="form-horizontal form-groups-bordered">
     <div class="col-sm-12">
@@ -24,7 +30,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('TaxRateID[]', $taxrates, (isset($BillingClass->TaxRateID)? explode(',',$BillingClass->TaxRateID) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
+                                    {{Form::select('TaxRateID[]', TaxRate::getTaxRateDropdownIDList(), (isset($BillingClass->TaxRateID)? explode(',',$BillingClass->TaxRateID) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)*</label>
                                 <div class="col-sm-4">
@@ -46,17 +52,18 @@
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label">Billing Timezone*</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('BillingTimezone', $timezones, ( isset($BillingClass->BillingTimezone)?$BillingClass->BillingTimezone:'' ),array("class"=>"form-control select2"))}}
+                                    {{Form::select('BillingTimezone', TimeZone::getTimeZoneDropdownList(), ( isset($BillingClass->BillingTimezone)?$BillingClass->BillingTimezone:'' ),array("class"=>"form-control select2"))}}
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"select2 small"))}}
+                                    {{Form::SelectControl('invoice_template',1)}}
+                                    <!--{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"select2 select2Add small"))}}-->
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email*</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('SendInvoiceSetting', $SendInvoiceSetting, ( isset($BillingClass->SendInvoiceSetting)?$BillingClass->SendInvoiceSetting:'' ),array("class"=>"form-control select2"))}}
+                                    {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($BillingClass->SendInvoiceSetting)?$BillingClass->SendInvoiceSetting:'' ),array("class"=>"form-control select2"))}}
                                 </div>
                             </div>
                             <div class="form-group">
@@ -133,7 +140,7 @@
 
                                                             </td>
                                                             <td>
-                                                                {{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, $InvoiceReminders->TemplateID[$InvoiceReminder] ,array("class"=>"select2 select2add small form-control add-new-template-dp"))}}
+                                                                {{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, $InvoiceReminders->TemplateID[$InvoiceReminder] ,array("class"=>"select2 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
                                                             </td>
                                                         </tr>
                                                     @endforeach
@@ -170,7 +177,7 @@
                                         </div>
                                         <label class="col-sm-2 control-label">Template</label>
                                         <div class="col-sm-4">
-                                            {{Form::select('PaymentReminder[TemplateID]', $emailTemplates, (isset($PaymentReminders->TemplateID)?$PaymentReminders->TemplateID:'') ,array("class"=>"select2 select2add small form-control add-new-template-dp"))}}
+                                            {{Form::select('PaymentReminder[TemplateID]', $emailTemplates, (isset($PaymentReminders->TemplateID)?$PaymentReminders->TemplateID:'') ,array("class"=>"select2 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -231,7 +238,7 @@
                                 </div>
                                 <label class="col-sm-2 control-label">Email Template</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('LowBalanceReminder[TemplateID]', $emailTemplates, (isset($LowBalanceReminder->TemplateID)?$LowBalanceReminder->TemplateID:'') ,array("class"=>"select2 select2add small form-control add-new-template-dp"))}}
+                                    {{Form::select('LowBalanceReminder[TemplateID]', $emailTemplates, (isset($LowBalanceReminder->TemplateID)?$LowBalanceReminder->TemplateID:'') ,array("class"=>"select2 select2add small form-control add-new-template-dp","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}
                                 </div>
                             </div>
                             <div class="form-group">
@@ -293,7 +300,7 @@
 </div>
 <script src="{{ URL::asset('assets/js/billing_class.js') }}"></script>
 <script>
-    var template_dp_html =  '{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select2 select2add small form-control"))}}';
+    var template_dp_html =  '{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select2 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}';
 
     var target = '';
     jQuery(document).ready(function ($) {
@@ -308,7 +315,7 @@
                 @endif
             },50);
         $(document).on('select2-open','.select2add' ,function(e) {
-            target = $(e.target).attr('name');
+            /*target = $(e.target).attr('name');
             $('.add-new-template-dp').attr('data-active',0);
             $(e.target).attr('data-active',1);
             $('.select2-results .select2-add').parents('li').on('click', function(e) {
@@ -321,9 +328,10 @@
                 $('#add-new-modal-template h4').html('Add New template');
                 $('#add-new-modal-template').modal('show');
                 $('#billing-form [name="'+target+'"]').select2("close");
-            });
+            });*/
         });
     });
 </script>
 
 @include('emailtemplate.emailtemplatemodal')
+@include('invoicetemplates.invoicetemplatemodal')

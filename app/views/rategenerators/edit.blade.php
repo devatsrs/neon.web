@@ -115,7 +115,9 @@
                             unset($array_op['disabled']);
                         }
                         ?>
-                                {{ Form::select('CurrencyID', $currencylist,  $rategenerators->CurrencyID, array_merge( array("class"=>"select2"),$array_op)) }}
+
+                                <!--{ Form::select('CurrencyID', $currencylist,  $rategenerators->CurrencyID, array_merge( array("class"=>"select2"),$array_op)) }}-->
+                            {{Form::SelectControl('currency',0,$rategenerators->CurrencyID,($rategenerators->CurrencyID==''?0:0))}}
                             @if(isset($array_op['disabled']) && $array_op['disabled'] == 'disabled')
                                 <input type="hidden" name="CurrencyID" readonly  value="{{$rategenerators->CurrencyID}}">
                             @endif
@@ -489,7 +491,7 @@
 
 @include('includes.errors')
 @include('includes.success')
-
+@include('currencies.currencymodal')
 @stop
 @section('footer_ext') @parent
 @include('rategenerators.rategenerator_models')

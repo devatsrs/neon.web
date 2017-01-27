@@ -9,9 +9,6 @@
         </li>
     </ol>
     <h3>Discount Plan</h3>
-
-    @include('includes.errors')
-    @include('includes.success')
     @if(User::checkCategoryPermission('DiscountPlan','Edit'))
     <p style="text-align: right;">
         <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Discount Plan</a>
@@ -114,7 +111,7 @@
                             mRender: function ( id, type, full ) {
                                 action = '<div class = "hiddenRowData" >';
                                 for(var i = 0 ; i< list_fields.length; i++){
-                                    action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
+                                    action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + ((full[i])?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
                                 @if(User::checkCategoryPermission('DiscountPlan','Edit'))
@@ -161,16 +158,12 @@
                 $("#modal-form [name=DiscountPlanID]").val("");
                 $("#modal-form [name=DestinationGroupSetID]").select2().select2('val',"");
                 $("#modal-form [name=CurrencyID]").select2().select2('val',"");
-
-                $('#modal-form').attr("action",add_url);
-                $('#modal-list .non-editable').show();
+                $('#modal-list .tobe-hide').removeClass('hidden');
                 $('#modal-list').modal('show');
             });
             $('table tbody').on('click', '.edit-button', function (ev) {
                 ev.preventDefault();
                 $('#modal-form').trigger("reset");
-                var edit_url  = $(this).attr("href");
-                $('#modal-form').attr("action",edit_url);
                 $('#modal-list h4').html('Edit Discount Plan');
                 var cur_obj = $(this).prev("div.hiddenRowData");
                 for(var i = 0 ; i< list_fields.length; i++){
@@ -181,7 +174,7 @@
                         $("#modal-form [name='"+list_fields[i]+"']").select2().select2('val',cur_obj.find("input[name='"+list_fields[i]+"']").val());
                     }
                 }
-                $('#modal-list .non-editable').hide();
+                $('#modal-list .tobe-hide').addClass('hidden');
                 $('#modal-list').modal('show');
             });
             $('table tbody').on('click', '.delete-button', function (ev) {
@@ -196,7 +189,13 @@
 
             $("#modal-form").submit(function(e){
                 e.preventDefault();
-                var _url  = $(this).attr("action");
+                var DiscountPlanID = $(this).find('[name="DiscountPlanID"]').val();
+                if( typeof DiscountPlanID != 'undefined' && DiscountPlanID != ''){
+                    var _url = add_url;
+                }else{
+                    var _url = edit_url;
+                }
+
                 submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
             });
 
@@ -204,7 +203,9 @@
 
         });
     </script>
-
+    @include('includes.errors')
+    @include('includes.success')
+    @include('currencies.currencymodal')
 @stop
 @section('footer_ext')
     @parent
@@ -230,17 +231,20 @@
                                 <input type="text" name="Description" class="form-control" value="" />
                             </div>
                         </div>
-                        <div class="col-md-6 non-editable">
+                        </div>
+                        <div class="row tobe-hide">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Destination Group Set*</label>
                                 {{Form::select('DestinationGroupSetID', $DestinationGroupSets, '' ,array("id"=>"DestinationGroupSetID","class"=>"form-control select2"))}}
 
                             </div>
                         </div>
-                        <div class="col-md-6 non-editable">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Currency*</label>
-                                {{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control select2"))}}
+                                {{Form::SelectControl('currency',1)}}
+                                <!--{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control select2"))}}-->
                             </div>
                         </div>
                         </div>

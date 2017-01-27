@@ -13,7 +13,7 @@
 <h3>Trunks</h3>
 <p class="text-right">
 @if(User::checkCategoryPermission('Trunk','Add'))
-    <a href="{{URL::to('trunks/create')}}" class="btn btn-primary">
+    <a href="#" data-action="showAddModal" data-type="trunk" data-modal="add-new-modal-trunk" class="btn btn-primary">
         <i class="entypo-plus"></i>
         Add New
     </a>

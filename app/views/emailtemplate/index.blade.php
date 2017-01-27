@@ -52,7 +52,7 @@
 
 <p style="text-align: right;">
 @if(User::checkCategoryPermission('EmailTemplate','Add'))
-    <a href="#" id="add-new-template" class="btn btn-primary ">
+    <a href="#" data-action="showAddModal" data-type="email_template" data-modal="add-new-modal-currency" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New Template
     </a>

@@ -16,14 +16,15 @@ class BillingClassController extends \BaseController {
         if(isset($taxrates[""])){unset($taxrates[""]);}
         $privacy = EmailTemplate::$privacy;
         $type = EmailTemplate::$Type;
-        return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','InvoiceTemplates','privacy','type'));
+        return View::make('billingclass.edit', compact(''));
+        //return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','InvoiceTemplates','privacy','type'));
     }
     public function edit($id) {
 
         $getdata['BillingClassID'] = $id;
         $response =  NeonAPI::request('billing_class/get/'.$id,$getdata,false,false,false);
         if(!empty($response) && $response->status == 'success' ){
-            $emailTemplates = EmailTemplate::getTemplateArray();
+            /*$emailTemplates = EmailTemplate::getTemplateArray();
             $SendInvoiceSetting = BillingClass::$SendInvoiceSetting;
             $timezones = TimeZone::getTimeZoneDropdownList();
             $billing_type = AccountApproval::$billing_type;
@@ -37,10 +38,10 @@ class BillingClassController extends \BaseController {
             $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
             //$accounts = BillingClass::getAccounts($id);
             $privacy = EmailTemplate::$privacy;
-            $type = EmailTemplate::$Type;
-            
+            $type = EmailTemplate::$Type;*/
 
-            return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
+            return View::make('billingclass.edit', compact(''));
+            //return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
         }else{
             return view_response_api($response);
         }
@@ -61,10 +62,14 @@ class BillingClassController extends \BaseController {
         return json_response_api($response,true,true,true);
     }
 
-    public function store(){
+    public function store($isModal){
         $postdata = Input::all();
         $response =  NeonAPI::request('billing_class/store',$postdata,true,false,false);
+
         if(!empty($response) && $response->status == 'success'){
+            if($isModal==1){
+                return json_response_api($response);
+            }
             $response->redirect =  URL::to('/billing_class/edit/' . $response->data->BillingClassID);
         }
         return json_response_api($response);

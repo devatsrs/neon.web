@@ -2,7 +2,28 @@ jQuery(document).ready(function ($) {
 $('#save_billing').on("click",function(e){
     e.preventDefault();
     $('#save_billing').button('loading');
-    submit_ajax($('#save_billing').attr('href'),$("#billing-form").serialize());
+    //submit_ajax($('#save_billing').attr('href'),$("#billing-form").serialize());
+    showAjaxScript($('#save_billing').attr('href'), new FormData($('#billing-form')[0]), function(response){
+        $(".btn").button('reset');
+        if (response.status == 'success') {
+            $('#add-new-modal-billingclass').modal('hide');
+            toastr.success(response.message, "Success", toastr_opts);
+            $('select[data-type="billing_class"]').each(function(key,el){
+                if($(el).attr('data-active') == 1) {
+                    var newState = new Option(response.data.Name, response.data.BillingClassID, true, true);
+                }else{
+                    var newState = new Option(response.data.Name, response.data.BillingClassID, false, false);
+                }
+                $(el).append(newState).trigger('change');
+                $(el).append($(el).find("option:gt(1)").sort(function (a, b) {
+                    return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
+                }));
+            });
+        }else{
+            toastr.error(response.message, "Error", toastr_opts);
+        }
+    });
+
     return false;
 });
 

@@ -190,9 +190,11 @@
                     <label class="col-md-2 control-label">Currency</label>
                     <div class="col-md-4">
                             @if($invoice_count == 0)
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}
+                            {{Form::SelectControl('currency',0,$account->CurrencyId)}}
+                            <!--{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}-->
                             @else
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small",'disabled'))}}
+                            {{Form::SelectControl('currency',0,$account->CurrencyId,1)}}
+                            <!--{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small",'disabled'))}}-->
                             {{Form::hidden('CurrencyId', ($account->CurrencyId))}}
                             @endif
                     </div>
@@ -368,7 +370,7 @@
                 $hiden_class= 'hidden';
                 $billing_disable = 'disabled';
             }
-        $Days = array( ""=>"Please Start of Day",
+        $Days = array( ""=>"Select",
                 "monday"=>"Monday",
                 "tuesday"=>"Tuesday",
                 "wednesday"=>"Wednesday",

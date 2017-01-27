@@ -14,11 +14,13 @@ function json_validator_response($validator){
 
 function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEncode=true){
     $message = '';
+    $status = '';
+    $data = '';
     $isArray = false;
     if(is_array($response)){
         $isArray = true;
     }
-
+    $parse_repose = array("status" => $status, "message" => $message);
     if(($isArray && $response['status'] =='failed') || (!$isArray && $response->status=='failed')) {
         $validator = $isArray?$response['message']:(array)$response->message;
         if (count($validator) > 0) {
@@ -33,8 +35,9 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
         $message = $isArray?$response['message']:$response->message;
         $status = 'success';
         if (($isArray && isset($response['data'])) || isset($response->data)) {
+            $result = $isArray ? $response['data'] : $response->data;
+            $data = $result;
             if($datareturn) {
-                $result = $isArray ? $response['data'] : $response->data;
                 if ($isDataEncode) {
                     $result = json_encode($result);
                 }
@@ -42,7 +45,11 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
             }
         }
     }
-    $parse_repose = array("status" => $status, "message" => $message);
+    $parse_repose['status'] =  $status;
+    $parse_repose['message'] = $message;
+    if(!empty($data)) {
+        $parse_repose['data'] = $data;
+    }
     if(($isArray && isset($response['redirect'])) || (!$isArray && isset($response->redirect))){
         $parse_repose['redirect'] =  $isArray ? $response['redirect'] : $response->redirect;
     }
@@ -294,6 +301,43 @@ Form::macro('selectItem', function($name, $data , $selected , $extraparams )
     }
     $output .= "</select>";
     return $output;
+});
+
+Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0) {
+    $small = $compact==1?"small":'';
+    $name = '';
+    $modal = '';
+    $data = [];
+    if($type=='currency') {
+        $name = 'CurrencyID';
+        $modal = 'add-new-modal-currency';
+        $data = Currency::getCurrencyDropdownIDList();
+    }elseif($type=='invoice_template'){
+        $name = 'InvoiceTemplateID';
+        $modal = 'add-new-modal-invoice_template';
+        $data = InvoiceTemplate::getInvoiceTemplateList();
+    }elseif($type=='email_template'){
+        $name = 'TemplateID';
+        $modal = 'add-new-modal-template';
+        $data = EmailTemplate::getTemplateArray();
+    }elseif($type=='trunk'){
+        $name = 'TrunkID';
+        $modal = 'add-new-modal-trunk';
+        $data = Trunk::getTrunkDropdownIDList();
+    }elseif($type=='billing_class'){
+        $name = 'BillingClassID';
+        $modal = 'add-new-modal-billingclass';
+        $data = BillingClass::getDropdownIDList();
+    }elseif($type=='item'){
+        $name = 'ProductID';
+        $modal = 'add-edit-modal-product';
+        $data = Product::getProductDropdownList();
+    }
+    $arr = ['class' => 'select2 select2add '.$small , 'data-modal' => $modal, 'data-active'=>0,'data-type'=>$type];
+    if($disable==1){
+        $arr['disabled'] = 'disabled';
+    }
+    return Form::select($name,$data , $selection, $arr);
 });
 
 function is_amazon(){

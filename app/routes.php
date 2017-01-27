@@ -1015,7 +1015,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_class','BillingClassController@index');
 	Route::any('/billing_class/ajax_datagrid','BillingClassController@ajax_datagrid');
 	Route::any('/billing_class/create','BillingClassController@create');
-	Route::any('/billing_class/store','BillingClassController@store');
+	Route::any('/billing_class/store/{type}','BillingClassController@store');
 	Route::any('/billing_class/edit/{id}','BillingClassController@edit');
 	Route::any('/billing_class/update/{id}','BillingClassController@update');
 	Route::any('/billing_class/delete/{id}','BillingClassController@delete');

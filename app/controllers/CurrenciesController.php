@@ -44,7 +44,7 @@ class CurrenciesController extends \BaseController {
 
         if ($currency = Currency::create($data)) {
             Currency::clearCache();
-            return Response::json(array("status" => "success", "message" => "Currency Successfully Created",'LastID'=>$currency->CurrencyId));
+            return Response::json(array("status" => "success", "message" => "Currency Successfully Created",'LastID'=>$currency->CurrencyId,'newcreated'=>$currency));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Currency."));
         }

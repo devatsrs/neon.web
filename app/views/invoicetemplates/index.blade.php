@@ -20,7 +20,7 @@
 <p style="text-align: right;">
 
 @if( User::checkCategoryPermission('InvoiceTemplates','Add'))
-    <a href="#" id="add-new-invoice_template" class="btn btn-primary ">
+    <a href="#" data-action="showAddModal" data-type="invoice_template" data-modal="add-new-modal-invoice_template" class="btn btn-primary ">
         <i class="entypo-plus"></i>
         Add New Invoice Template
     </a>
@@ -170,12 +170,12 @@ var postdata;
 
         $('#add-new-invoice_template-form').trigger("reset");
         $('#add-new-invoice_template-form').trigger("reset");
-        $('#add-new-modal-invoice_template #InvoiceStartNumberToggle ').hide();
-		$('#add-new-modal-invoice_template #EstimateStartNumberToggle').hide();
+        $('#add-new-modal-invoice_template #InvoiceStartNumberToggle ').addClass('hidden');
+		$('#add-new-modal-invoice_template #EstimateStartNumberToggle').addClass('hidden');
         $('#add-new-modal-invoice_template').modal('show');
 
-        $("#add-new-invoice_template-form .LastInvoiceNumber").show();
-		$("#add-new-invoice_template-form .LastEstimateNumber").show();
+        $("#add-new-invoice_template-form .LastInvoiceNumber").removeClass('hidden');
+		$("#add-new-invoice_template-form .LastEstimateNumber").removeClass('hidden');
         $("#add-new-invoice_template-form [name='CompanyID']").val($(this).prev("div.hiddenRowData").find("input[name='CompanyID']").val());
         $("#add-new-invoice_template-form [name='Name']").val($(this).prev("div.hiddenRowData").find("input[name='Name']").val());
         $("#add-new-invoice_template-form [name='InvoiceTemplateID']").val($(this).prev("div.hiddenRowData").find("input[name='InvoiceTemplateID']").val());

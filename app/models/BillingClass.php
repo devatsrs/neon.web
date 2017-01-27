@@ -10,7 +10,10 @@ class BillingClass extends \Eloquent
 
     public static $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review");
 
-    public static function getDropdownIDList($CompanyID){
+    public static function getDropdownIDList($CompanyID=0){
+        if($CompanyID==0){
+            $CompanyID = User::get_companyID();
+        }
         $DropdownIDList = BillingClass::where(array("CompanyID"=>$CompanyID))->lists('Name', 'BillingClassID');
         $DropdownIDList = array('' => "Select") + $DropdownIDList;
         return $DropdownIDList;

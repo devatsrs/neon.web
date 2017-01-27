@@ -304,6 +304,7 @@ display:none !important;
 right: 30px !important;
 }
 </style>
+@include('currencies.currencymodal')
 @stop
 @section('footer_ext')
 @parent
@@ -354,7 +355,8 @@ right: 30px !important;
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Currency</label>
                         <div class="col-sm-4">
-                            {{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}
+                            {{Form::SelectControl('currency')}}
+                            <!--{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}-->
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label">Activation Fee</label>

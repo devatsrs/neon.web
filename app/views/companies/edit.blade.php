@@ -89,9 +89,11 @@
                                         <label class="col-sm-2 control-label">Currency</label>
                                         <div class="col-sm-4">
                                                 @if(empty($company->CurrencyId))
-                                                {{Form::select('CurrencyId', $currencies, $company->CurrencyId ,array("class"=>"form-control select2"))}}
+                                                    {{Form::SelectControl('currency',1,'')}}
+                                                <!--{Form::select('CurrencyId', $currencies, $company->CurrencyId ,array("class"=>"form-control select2"))}}-->
                                                 @else
-                                                {{Form::select('CurrencyId', $currencies, $company->CurrencyId ,array("class"=>"form-control select2","disabled"))}}
+                                                {{Form::SelectControl('currency',1,$company->CurrencyId,1)}}
+                                                <!--{Form::select('CurrencyId', $currencies, $company->CurrencyId ,array("class"=>"form-control select2","disabled"))}}-->
                                                 {{Form::hidden('CurrencyId', ($company->CurrencyId))}}
                                                 @endif
                                         </div>
@@ -475,4 +477,5 @@
   
 </script>
 @include('includes.ajax_submit_script', array('formID'=>'form-user-add' , 'url' => 'company/update'))
+@include('currencies.currencymodal')
 @stop
