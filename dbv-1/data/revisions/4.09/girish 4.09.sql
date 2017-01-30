@@ -8,6 +8,35 @@ CREATE TABLE IF NOT EXISTS `tblCLIRateTable` (
   PRIMARY KEY (`CLIRateTableID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP PROCEDURE IF EXISTS `migrateCLI`;
+DELIMITER //
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `migrateCLI`()
+BEGIN
+
+DECLARE i INT; 
+DROP TEMPORARY TABLE IF EXISTS `CLIRateTable`; /*Temp table for matching ipcli account*/
+CREATE TEMPORARY TABLE `CLIRateTable` (
+	`CompanyID` INT NOT NULL,
+  `AccountID` INT NOT NULL,
+  `CLI` LONGTEXT NOT NULL
+);
+
+ 
+
+SET i = 1;
+REPEAT
+	INSERT INTO CLIRateTable
+	SELECT CompanyID,AccountID,NeonRMDev.FnStringSplit(CustomerAuthValue, ',', i) FROM tblAccountAuthenticate WHERE CustomerAuthRule = 'CLI' AND NeonRMDev.FnStringSplit(CustomerAuthValue, ',', i) IS NOT NULL LIMIT 1;
+	SET i = i + 1;
+	UNTIL ROW_COUNT() = 0
+END REPEAT;
+
+INSERT INTO tblCLIRateTable (CompanyID,AccountID,CLI,RateTableID)
+SELECT CompanyID,AccountID,CLI,0 FROM CLIRateTable;
+
+
+END//
+DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_GetCrmDashboardSalesManager`;
 DELIMITER //
