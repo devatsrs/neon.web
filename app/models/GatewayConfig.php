@@ -10,7 +10,7 @@ class GatewayConfig extends \Eloquent {
     protected  $primaryKey = "GatewayConfigID";
 
     public static $NameFormat = array('NAMENUB'=>'Account Name - Account Number','NUBNAME'=>'Account Number - Account Name','NAME'=>'Account Name','NUB'=>'Account Number','IP'=>'IP','CLI'=>'CLI');
-    public static $Vos_NameFormat = array('NAMENUB'=>'Account Name - Account Number','NUBNAME'=>'Account Number - Account Name','NAME'=>'Account Name','IP'=>'IP');
+    public static $Vos_NameFormat = array('NAMENUB'=>'Account Name - Account Number','NUBNAME'=>'Account Number - Account Name','NAME'=>'Account Name','NUB'=>'Account Number','IP'=>'IP');
     public static $Porta_NameFormat = array('NAMENUB'=>'Account Name - Account Number','NUBNAME'=>'Account Number - Account Name','NAME'=>'Account Name','NUB'=>'Account Number');
     public static $Sippy_NameFormat = array('IP'=>'IP');
     public static $Mirta_NameFormat = array('NUB'=>'Account Number');
