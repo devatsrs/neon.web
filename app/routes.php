@@ -1039,6 +1039,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/alert/history','NotificationController@history');
 	Route::any('/alert/history_grid/{type}','NotificationController@history_grid');
 
+	// cli tables
+	Route::any('/clitable/ajax_datagrid/{id}','AccountsController@clitable_ajax_datagrid');
+	Route::any('/clitable/store','AccountsController@clitable_store');
+	Route::any('/clitable/delete/{id}','AccountsController@clitable_delete');
+	Route::any('/clitable/update','AccountsController@clitable_update');
+
 });
 
 Route::group(array('before' => 'global_admin'), function () {

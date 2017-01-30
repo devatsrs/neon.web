@@ -1,4 +1,9 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_updateInboundPrefix`(IN `p_AccountID` INT, IN `p_processId` INT, IN `p_tbltempusagedetail_name` VARCHAR(200))
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_updateInboundPrefix`(
+	IN `p_AccountID` INT,
+	IN `p_processId` INT,
+	IN `p_tbltempusagedetail_name` VARCHAR(200),
+	IN `p_CLI` VARCHAR(500)
+)
 BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_TempUsageDetail_;
@@ -25,6 +30,7 @@ BEGIN
 	ON ud.ProcessID = ' , p_processId , '
 		AND ud.is_inbound = 1 
 		AND ud.AccountID = ' , p_AccountID , '
+		AND ("' , p_CLI , '" = "" OR cli = "' , p_CLI , '")
 		AND ud.area_prefix = "Other"
 		AND cld like  CONCAT(c.Code,"%");
 	');
