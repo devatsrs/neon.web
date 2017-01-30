@@ -67,7 +67,7 @@
               <tbody>
                 <tr>
                   <td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td>
-                  <td>{{Form::select('InvoiceDetail[ProductID][]',$products,'',array("class"=>"select2 product_dropdown"))}}</td>
+                  <td>{{Form::select('InvoiceDetail[ProductID][]',$products,'',array("class"=>"select2 select2add product_dropdown",'data-modal'=>'add-edit-modal-product','data-type'=>'item','data-active'=>0))}}</td>
                   <td>{{Form::textarea('InvoiceDetail[Description][]','',array("class"=>"form-control autogrow invoice_estimate_textarea descriptions","rows"=>1))}}</td>
                   <td class="text-center">{{Form::text('InvoiceDetail[Price][]','',array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td>
                   <td class="text-center">{{Form::text('InvoiceDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>
@@ -193,21 +193,22 @@
    <input  type="hidden" name="TotalTax" value="" > 
 </div>
 </form>
+<div id="rowContainer"></div>
 <script type="text/javascript">
 var decimal_places = 2;
 var invoice_id = '';
 var invoice_tax_html = '<td><button title="Delete Tax" type="button" class="btn btn-danger btn-xs invoice_tax_remove ">X</button></td><td><div class="col-md-8">{{Form::SelectExt(["name"=>"InvoiceTaxes[field][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small InvoiceTaxesFld"])}}</div><div class="col-md-4">{{Form::text("InvoiceTaxes[value][]","",array("class"=>"form-control InvoiceTaxesValue","readonly"=>"readonly"))}}</div></td>';
 
-var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{Form::select('InvoiceDetail[ProductID][]',$products,'',array("class"=>"select2 product_dropdown"))}}</td><td>{{Form::textarea('InvoiceDetail[Description][]','',array("class"=>"form-control invoice_estimate_textarea autogrow descriptions","rows"=>1))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Price][]',"0",array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>'
-    // add_row_html += '<td class="text-center">{{Form::text('InvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
-     add_row_html += '<td>{{Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small TaxRateID"])}}</td>';
-	   add_row_html += '<td>{{Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID2][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small TaxRateID2"])}}</td>';
+var add_row_html = '<tr class="itemrow hidden"><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{Form::select('InvoiceDetail[ProductID][]',$products,'',array("class"=>"select22 select2add product_dropdown",'data-modal'=>'add-edit-modal-product','data-type'=>'item','data-active'=>0))}}</td><td>{{Form::textarea('InvoiceDetail[Description][]','',array("class"=>"form-control invoice_estimate_textarea autogrow descriptions","rows"=>1))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Price][]',"0",array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('InvoiceDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>'
+    add_row_html += '<td class="text-center hidden">{{Form::text('InvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
+     add_row_html += '<td>{{Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID"])}}</td>';
+	   add_row_html += '<td>{{Form::SelectExt(["name"=>"InvoiceDetail[TaxRateID2][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID2"])}}</td>';
 	 
      add_row_html += '<td class="hidden">{{Form::text('InvoiceDetail[TaxAmount][]',"0",array("class"=>"form-control  TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>';
      add_row_html += '<td>{{Form::text('InvoiceDetail[LineTotal][]',0,array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}';
      add_row_html += '{{Form::hidden('InvoiceDetail[ProductType][]',Product::ITEM,array("class"=>"ProductType"))}}</td></tr>';
 
-
+$('#rowContainer').append(add_row_html);
 
 function ajax_form_success(response){
     if(typeof response.redirect != 'undefined' && response.redirect != ''){
@@ -216,6 +217,7 @@ function ajax_form_success(response){
 }
 </script>
 @include('invoices.script_invoice_add_edit')
+@include('products.productmodal')
 @include('includes.ajax_submit_script', array('formID'=>'invoice-from' , 'url' => 'invoice/store','update_url'=>'invoice/{id}/update' ))
 @stop
 @section('footer_ext')

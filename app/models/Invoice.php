@@ -77,7 +77,7 @@ class Invoice extends \Eloquent {
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
-            if(!empty($Invoice->RecurringInvoiceID)){
+            if(!empty($Invoice->RecurringInvoiceID) && $Invoice->RecurringInvoiceID > 0){
                 $recurringInvoice = RecurringInvoice::find($Invoice->RecurringInvoiceID);
                 $billingClass = BillingClass::where('BillingClassID',$recurringInvoice->BillingClassID)->first();
                 $InvoiceTemplateID = $billingClass->InvoiceTemplateID;
