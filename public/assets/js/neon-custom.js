@@ -1581,7 +1581,7 @@ function buildselect2(el){
             allowClear: attrDefault($this, 'allowClear', false),
             formatResult: function(item) {
                 if(item.id=='select2-add'){
-                    return '<span class="select2-add"><i class="entypo-plus-circled"></i>'+item.text+'</span>';
+                    return '<span class="select2-add"><i class="entypo-plus"></i></span>';
                 }
                 return '<span class="select2-match"></span>'+ item.text ;
             }
@@ -2781,7 +2781,7 @@ function rebuildSelect2(el,data,defualtText){
     options.reverse();
     el.append(options);
     if(el.hasClass('select2add')){
-        el.prepend('<option data-image="1" value="select2-add" disabled="disabled">Add</option>');
+        el.prepend('<option value="select2-add" disabled="disabled">Add</option>');
     }
     el.trigger('change');
 }
@@ -3118,7 +3118,6 @@ function select_all_top(selectallbutton,table,checked,selectall) {
             });
         } else {
             checked = '';
-            console.log('here');
             $("#" + selectall).prop("checked", false).prop('disabled', false);
             $('#' + table + ' tbody tr').each(function (i, el) {
                 $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);

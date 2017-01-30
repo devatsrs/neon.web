@@ -7,7 +7,7 @@ class BillingClassController extends \BaseController {
         return View::make('billingclass.index');
     }
     public function create() {
-        $emailTemplates = EmailTemplate::getTemplateArray();
+        /*$emailTemplates = EmailTemplate::getTemplateArray();
         $SendInvoiceSetting = BillingClass::$SendInvoiceSetting;
         $timezones = TimeZone::getTimeZoneDropdownList();
         $billing_type = AccountApproval::$billing_type;
@@ -15,8 +15,9 @@ class BillingClassController extends \BaseController {
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
         if(isset($taxrates[""])){unset($taxrates[""]);}
         $privacy = EmailTemplate::$privacy;
-        $type = EmailTemplate::$Type;
-        return View::make('billingclass.edit', compact(''));
+        $type = EmailTemplate::$Type;*/
+        $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
+        return View::make('billingclass.create', compact('BillingClassList'));
         //return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','InvoiceTemplates','privacy','type'));
     }
     public function edit($id) {
@@ -35,12 +36,13 @@ class BillingClassController extends \BaseController {
             $PaymentReminders = json_decode($response->data->PaymentReminderSettings);
             $LowBalanceReminder = json_decode($response->data->LowBalanceReminderSettings);
             $InvoiceReminders = json_decode($response->data->InvoiceReminderSettings);
-            $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
+
             //$accounts = BillingClass::getAccounts($id);
             $privacy = EmailTemplate::$privacy;
             $type = EmailTemplate::$Type;*/
-
-            return View::make('billingclass.edit', compact(''));
+            $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
+            $BillingClass = $response->data;
+            return View::make('billingclass.edit', compact('BillingClassList','BillingClass'));
             //return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
         }else{
             return view_response_api($response);

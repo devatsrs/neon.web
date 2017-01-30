@@ -122,11 +122,10 @@ body {
 }
 
 .select2-results .select2-add{
-    margin-left:-5px;
-}
-.select2-results .select2-add .entypo-plus-circled{
-    font-size: 15px;
-    color:green;
+    background:#222222;
+    color: #ffffff;
+    padding:2px;
+    border-radius:2px;
 }
 .tile-stats .num{
     font-size:20px;
