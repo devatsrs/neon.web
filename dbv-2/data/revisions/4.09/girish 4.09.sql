@@ -1,4 +1,4 @@
--- Dumping structure for procedure NeonBillingDev.prc_ProcesssCDR
+DROP PROCEDURE IF EXISTS `prc_getDashboardinvoiceExpense`;
 DELIMITER //
 CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `prc_getDashboardinvoiceExpense`(
 	IN `p_CompanyID` INT,

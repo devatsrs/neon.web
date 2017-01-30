@@ -1,3 +1,14 @@
+DROP TABLE IF EXISTS `tblCLIRateTable`;
+CREATE TABLE IF NOT EXISTS `tblCLIRateTable` (
+  `CLIRateTableID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) NOT NULL,
+  `AccountID` int(11) NOT NULL,
+  `CLI` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `RateTableID` int(11) NOT NULL,
+  PRIMARY KEY (`CLIRateTableID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
 DROP PROCEDURE IF EXISTS `prc_GetCrmDashboardSalesManager`;
 DELIMITER //
 CREATE DEFINER=`neon-user-umer`@`122.129.78.153` PROCEDURE `prc_GetCrmDashboardSalesManager`(
