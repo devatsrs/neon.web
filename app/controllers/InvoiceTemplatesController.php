@@ -180,7 +180,9 @@ class InvoiceTemplatesController extends \BaseController {
         }
         unset($data['CompanyLogo']);
         unset($data['Status_name']);
-
+		$data['Header']		= InvoiceTemplate::$HeaderDefault;
+		$data['FooterTerm'] = InvoiceTemplate::$TermsDefault;
+		$data['Terms']  	= InvoiceTemplate::$FooterDefault;
         if ($invoiceCompany = InvoiceTemplate::create($data)) {
             if(isset($data['CompanyLogoAS3Key']) && !empty($data['CompanyLogoAS3Key'])){
                 $data['CompanyLogoUrl'] = URL::to("/invoice_templates/".$invoiceCompany->InvoiceTemplateID) ."/get_logo";
