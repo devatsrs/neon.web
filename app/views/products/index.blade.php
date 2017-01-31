@@ -135,10 +135,10 @@
                                         }
                                         action += '</div>';
                                         <?php if(User::checkCategoryPermission('Products','Edit')){ ?>
-                                            action += ' <a data-name = "' + full[0] + '" data-id="' + full[5] + '" class="edit-product btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                            action += ' <a data-name = "' + full[0] + '" data-id="' + full[5] + '" title="Edit" class="edit-product btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                         <?php } ?>
                                         <?php if(User::checkCategoryPermission('Products','Delete') ){ ?>
-                                            action += '<a href="'+delete_+'" data-redirect="{{ URL::to('products')}}"  class="btn delete btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>';
+                                            action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm"><i class="entypo-trash"></i></a>';
                                          <?php } ?>   
                                         return action;
                                     }

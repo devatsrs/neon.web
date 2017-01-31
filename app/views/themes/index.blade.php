@@ -190,7 +190,7 @@ var postdata;
 
                           /*Multiple Dropdown*/              			
                             action += '<div class="btn-group">';
-                            action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
+                            action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                             action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
                                 if('{{User::checkCategoryPermission('themes','Edit')}}')
@@ -206,7 +206,7 @@ var postdata;
                            
 							if ('{{User::checkCategoryPermission('themes','Edit')}}' && delete_url)
 							{
-								action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-cancel"></i>Delete</a></li>';				
+								action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-trash"></i>Delete</a></li>';
                             }
                             
 							

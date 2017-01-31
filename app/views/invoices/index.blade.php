@@ -355,7 +355,7 @@
                             if (full[0] == '{{Invoice::INVOICE_IN}}') {
                                 if ('{{User::checkCategoryPermission('Invoice','Edit')}}') {
                                     action += '<div class="btn-group">';
-                                    action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
+                                    action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                                     action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
                                     action += ' <li><a class="edit-invoice-in icon-left"><i class="entypo-pencil"></i>Edit </a></li>';
                                     //action += ' <li><a class="view-invoice-in icon-left"><i class="entypo-pencil"></i>Print </a></li>';
@@ -367,7 +367,7 @@
                                 }
                             } else {
                                 action += '<div class="btn-group">';
-                                action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
+                                action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                                 action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
                                 if (full[13] == '{{Invoice::ITEM_INVOICE}}') {

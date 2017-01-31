@@ -117,7 +117,7 @@ var postdata;
                          action += '</div>';
 
                          <?php if(User::checkCategoryPermission('Gateway','Edit') ){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-id="'+ full[3]+'" class="edit-config btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-name = "'+full[0]+'" data-id="'+ full[3]+'" title="Title" class="edit-config btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                          <?php } ?>
                          <?php if(User::checkCategoryPermission('Gateway','Delete') ){ ?>
                             //action += ' <a data-id="'+ full[4] +'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';

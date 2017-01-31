@@ -120,8 +120,8 @@
                                             action += '<input type = "hidden"  name = "' + list_fields_activity[i] + '"       value = "' + (full[i] != null ? full[i] : '') + '" / >';
                                         }
                                         action += '</div>';
-                                        action += ' <a data-id="' + id + '" class="edit-activity btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                        action += '<a href="' + delete_ + '" data-redirect="{{ URL::to('products')}}"  class="btn delete btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                        action += ' <a data-id="' + id + '" title="Edit" class="edit-activity btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                                        action += ' <a href="' + delete_ + '" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                         return action;
                                     }
                                 }

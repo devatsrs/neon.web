@@ -55,11 +55,11 @@
             "aaSorting"   : [[5, 'desc']],    
             "aoColumns": 
              [
-                { "bVisible": false, "bSortable": true,  },
-                { "bSortable": true, },
-                { "bSortable": true, },
-                { "bSortable": true, },
-                { "bSortable": true, },
+                { "bVisible": false, "bSortable": true  },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
+                { "bSortable": true },
                 {
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
@@ -68,7 +68,7 @@
                          
                         edit_ = edit_.replace( '{id}', id );
                         <?php if(User::checkCategoryPermission('Trunk','Edit')){ ?>
-                            action = '<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action = '<a href="'+edit_+'" title="View" class="btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?> 
                         return action;
                       }

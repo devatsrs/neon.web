@@ -130,10 +130,10 @@
                                 action += '</div>';
                                 @if($discountplanapplied == 0)
                                     @if(User::checkCategoryPermission('DiscountPlan','Edit'))
-                                        action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                                        action += ' <a href="' + edit_url.replace("{id}",id) +'" title="Edit" class="edit-button btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                                     @endif
                                     @if(User::checkCategoryPermission('DiscountPlan','Delete'))
-                                        action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                        action += ' <a href="' + delete_url.replace("{id}",id) +'" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                     @endif
                                 @endif
                                 return action;

@@ -118,10 +118,10 @@ var postdata;
                          action += '<input type = "hidden"  name = "templateID" value = "' + id + '" / >';
                          action += '</div>';
                         <?php if(User::checkCategoryPermission('EmailTemplate','Edit')) { ?>
-                            action += ' <a data-name = "'+full[4]+'" data-id="'+ id +'" class="edit-template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-name = "'+full[4]+'" data-id="'+ id +'" title="Edit" class="edit-template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('EmailTemplate','Delete')) { ?>
-                            action += ' <a data-id="'+id+'" class="delete-template btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            action += ' <a data-id="'+id+'" title="Delete" class="delete-template btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         <?php } ?>
                         return action;
                       }

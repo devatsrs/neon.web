@@ -114,10 +114,10 @@
                         {
                         mRender: function ( id, type, full ) {
                             if($searchFilter.AccountType == '{{AccountApproval::CUSTOMER}}'){
-                                action = '<a href="'+baseurl+'/customers_rates/'+id+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
+                                action = '<a href="'+baseurl+'/customers_rates/'+id+'" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
                             }
                             if($searchFilter.AccountType == '{{AccountApproval::VENDOR}}'){
-                                action = '<a href="'+baseurl+'/vendor_rates/'+id+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
+                                action = '<a href="'+baseurl+'/vendor_rates/'+id+'" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
                             }
 
                             return action;

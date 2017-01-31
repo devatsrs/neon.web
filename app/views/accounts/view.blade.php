@@ -148,7 +148,7 @@
                       <div class="meta">Skype: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Skype']}}</a></div>
                     </div>
                   </div>
-                  <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/edit')}}"><i class="entypo-pencil"></i> </a>&nbsp;<a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/show')}}"><i class="entypo-search"></i> </a> </div>
+                  <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/edit')}}"><i class="entypo-pencil"></i>&nbsp;</a>&nbsp;<a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/show')}}"><i class="entypo-search"></i> </a> </div>
                 </div>
               </li>
               @endforeach
@@ -430,7 +430,7 @@
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
             <div class="cbp_tmlabel @if(!$rows['followup_task']) normal_tag @endif "> 
-            <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
+            <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i>&nbsp;</a>
              <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash-o"></i></a>             
               <h2 class="toggle_open" id_toggle="{{$key}}"> @if($rows['TaskPriority']=='High') <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                 
@@ -459,7 +459,7 @@
               <?php } ?>
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-            <div class="cbp_tmlabel normal_tag"> <a id="edit_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a> <a id="delete_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="fa fa-trash-o"></i></a>
+            <div class="cbp_tmlabel normal_tag"> <a id="edit_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i>&nbsp;</a> <a id="delete_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="fa fa-trash-o"></i></a>
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>added a note</span></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
                 <p>{{$rows['Note']}}</p>

@@ -204,10 +204,10 @@ var postdata;
                                     action += '</div>';
 
                                     <?php if(User::checkCategoryPermission('DialStrings','Edit')){ ?>
-                                            action += '<a href="javascript:;" class="edit-dialstring btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                            action += ' <a href="javascript:;" title="Edit" class="edit-dialstring btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     <?php } ?>
                                             <?php if(User::checkCategoryPermission('DialStrings','Delete') ){ ?>
-                                            action += ' <a href="'+ delete_ +'" class="delete-dialstringcode btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                                            action += ' <a href="'+ delete_ +'" Title="Delete" class="delete-dialstringcode btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                                     <?php } ?>
 
                                             return action;

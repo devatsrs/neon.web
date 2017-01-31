@@ -234,7 +234,7 @@ var postdata;
 
                           /*Multiple Dropdown*/              			
                             action += '<div class="btn-group">';
-                            action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
+                            action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                             action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
                                 if('{{User::checkCategoryPermission('Invoice','Edit')}}')

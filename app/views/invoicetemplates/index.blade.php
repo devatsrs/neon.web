@@ -84,12 +84,12 @@ var postdata;
                          }
                          action += '</div>';
                          <?php if(User::checkCategoryPermission('InvoiceTemplates','Edit') ){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-invoice_template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                          <?php } ?>
                          action += ' <a  href="'+ view_url +'?Type=2" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Item  View </a>';
                          action += ' <a  href="'+ view_url +'?Type=1" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Periodic View </a>';
                          <?php if(User::checkCategoryPermission('InvoiceTemplates','Delete') ){ ?>
-                            action += ' <a data-id="'+ id +'" class="delete-invoice_template btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            action += ' <a data-id="'+ id +'" title="Delete" class="delete-invoice_template btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                          <?php } ?>
                         return action;
                       }

@@ -187,10 +187,10 @@ var postdata;
                         action += '</div>';
 
                         <?php if(User::checkCategoryPermission('CodeDecks','Edit')){ ?>
-                            action += '<a href="javascript:;" class="edit-codedeck btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a href="javascript:;" title="Edit" class="edit-codedeck btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('CodeDecks','Delete') ){ ?>
-                            action += ' <a data-id="'+ RateID +'" class="delete-codedecks btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            action += ' <a data-id="'+ RateID +'" title="Delete" class="delete-codedecks btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         <?php } ?>
 
                         return action;

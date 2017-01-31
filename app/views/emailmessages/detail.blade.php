@@ -15,7 +15,7 @@
 <div class="mail-env"> 
   
   <!-- compose new email button -->
-  <div class="mail-sidebar-row visible-xs"> <a href="#" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
+  <div class="mail-sidebar-row visible-xs"> <a href="#" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i>&nbsp;</a> </div>
   <!-- Sidebar --> 
   @include("emailmessages.mail_sidebar") 
   <!-- Mail Body -->

@@ -127,7 +127,7 @@
                                 view_ = view_.replace('{id}', id);
                                 delete_ = delete_.replace('{id}', id);
 
-                                action = '<a title="Edit" href="' + view_ + '" class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>';
+                                action = '<a title="Edit" href="' + view_ + '" class="btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
 
                                 <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
                                     action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';

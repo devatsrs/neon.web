@@ -152,8 +152,8 @@
                             action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null ? str : '') + '" / >';
                         }
                         action += '</div>';
-                        action += ' <a href="' + oneofcharge_edit_url.replace("{id}", id) + '" class="edit-oneofcharge btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                        action += ' <a href="' + oneofcharge_delete_url.replace("{id}", id) + '" class="delete-oneofcharge btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                        action += ' <a href="' + oneofcharge_edit_url.replace("{id}", id) + '" title="Edit" class="edit-oneofcharge btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                        action += ' <a href="' + oneofcharge_delete_url.replace("{id}", id) + '" title="Delete" class="delete-oneofcharge btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                         return action;
                     }
                 }

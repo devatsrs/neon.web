@@ -71,10 +71,10 @@ var postdata;
                         action += '<input type = "hidden"  name = "Symbol" value = "' + (full[1] != null ? full[1] : '') + '" / >';
                          action += '<input type = "hidden"  name = "Description" value = "' + (full[2] != null ? full[2] : '') + '" / ></div>';
                          <?php if(User::checkCategoryPermission('Currency','Edit') ){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-currency btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-currency btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                          <?php } ?>   
                          <?php if(User::checkCategoryPermission('Currency','Delete') ){ ?>
-                            action += ' <a data-id="'+ id +'" class="delete-currency btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            action += ' <a data-id="'+ id +'" title="Delete" class="delete-currency btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                          <?php } ?>
                         return action;
                       }

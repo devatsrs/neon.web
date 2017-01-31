@@ -137,10 +137,10 @@ jQuery(document).ready(function ($) {
                      }
                      action += '</div>';
                      <?php if(User::checkCategoryPermission('BillingSubscription','Edit')) { ?>
-                        action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-billing_subscription btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                        action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-billing_subscription btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                      <?php } ?>
                      <?php if(User::checkCategoryPermission('BillingSubscription','Delete')) { ?>
-                        action += ' <a data-id="'+ id +'" class="delete-billing_subscription btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                        action += ' <a data-id="'+ id +'" title="Delete" class="delete-billing_subscription btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                      <?php } ?>
                     return action;
                   }
