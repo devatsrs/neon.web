@@ -8,10 +8,10 @@
             <br>
            <strong>Invoice From:</strong>
            @if(isset($editable))
-           <p><a href="#" id="InvoiceTemplateHeader" title="Invoice Header Content" data-inputclass="editable-textarea" class="invoice-editable form-control autogrow " style="height: auto" data-name="Header" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="Header">@if(trim($InvoiceTemplate->Header)=='')Invoice Company Name {{PHP_EOL}}Address {{PHP_EOL}}Country {{PHP_EOL}}Email @else{{($InvoiceTemplate->Header)}}@endif</a></p>
+           <p><a href="#" id="InvoiceTemplateHeader" title="Invoice Header Content" data-inputclass="editable-textarea" class="invoice-editable form-control autogrow " style="height: auto" data-name="Header" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="Header">{{($InvoiceTemplate->Header)}}</a></p>
            <h3><a href="#" style="display: none;" id="InvoiceTemplateName" data-placeholder="Press Ctrl + Enter to save" class="invoice-editable form-control" data-name="Name" data-type="text" title="Template Name">{{$InvoiceTemplate->Name}}</a></h3>
            @else
-           <p>@if(empty($InvoiceTemplate->Header))Invoice Company Name {{PHP_EOL}}Address {{PHP_EOL}}Country {{PHP_EOL}}Email @else{{nl2br($InvoiceTemplate->Header)}}@endif</p>
+           <p>{{nl2br($InvoiceTemplate->Header)}}</p>
            @endif
         </td>
     </tr>
@@ -154,11 +154,9 @@
  @section('terms')
 
     @if(isset($editable))
-        <p><a href="#" id="InvoiceTemplateTerms" class="invoice-editable form-control" style="height: auto" data-name="Terms" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="Terms">@if(trim($InvoiceTemplate->Terms)=='')Edit This dummy Terms and Condition. Please carefully review the following basic rules that govern your use of the Website. Please note that your use of the Website constitutes your unconditional agreement to follow and be bound by these Terms and Conditions of Use. If you (the "User") do not agree to them, do not use the Website, provide any materials to the Website or download any materials from them. @else{{$InvoiceTemplate->Terms}}@endif</a></p>
+        <p><a href="#" id="InvoiceTemplateTerms" class="invoice-editable form-control" style="height: auto" data-name="Terms" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="Terms">{{$InvoiceTemplate->Terms}}</a></p>
     @else
-        <p>@if(trim($InvoiceTemplate->Terms)=='')Edit This dummy Terms and Condition. Please carefully review the following basic rules that govern your use of the Website. Please note that your use of the Website constitutes your unconditional agreement to follow and be bound by these Terms and Conditions of Use. If you (the "User") do not agree to them, do not use the Website, provide any materials to the Website or download any materials from them.
-            @else {{nl2br($InvoiceTemplate->Terms)}}@endif
-        </p>
+        <p>{{nl2br($InvoiceTemplate->Terms)}}</p>
     @endif
  @stop
 
@@ -169,11 +167,9 @@
             <tr>
           <td>
      @if(isset($editable))
-         <p><a href="#" id="InvoiceTemplateFooter" class="invoice-editable form-control" style="height: auto" data-name="FooterTerm" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="FooterTerm">@if(trim($InvoiceTemplate->FooterTerm)=='')Edit This dummy Terms and Condition. Please carefully review the following basic rules that govern your use of the Website. Please note that your use of the Website constitutes your unconditional agreement to follow and be bound by these Terms and Conditions of Use. If you (the "User") do not agree to them, do not use the Website, provide any materials to the Website or download any materials from them. @else{{$InvoiceTemplate->FooterTerm}}@endif</a></p>
+         <p><a href="#" id="InvoiceTemplateFooter" class="invoice-editable form-control" style="height: auto" data-name="FooterTerm" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="FooterTerm">{{$InvoiceTemplate->FooterTerm}}</a></p>
      @else
-          @if(trim($InvoiceTemplate->FooterTerm)=='')Edit This dummy Terms and Condition. Please carefully review the following basic rules that govern your use of the Website. Please note that your use of the Website constitutes your unconditional agreement to follow and be bound by these Terms and Conditions of Use. If you (the "User") do not agree to them, do not use the Website, provide any materials to the Website or download any materials from them.
-             @else {{nl2br($InvoiceTemplate->FooterTerm)}}@endif
-
+          {{nl2br($InvoiceTemplate->FooterTerm)}}
      @endif
                 </td>
              </tr>
@@ -272,5 +268,9 @@
             <br/>
             <br/>
             <br/>
-
+<style>
+#pdf_footer table {
+	width:100%;
+}
+</style>
  @stop
