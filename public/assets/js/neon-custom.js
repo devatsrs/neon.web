@@ -1581,7 +1581,7 @@ function buildselect2(el){
             allowClear: attrDefault($this, 'allowClear', false),
             formatResult: function(item) {
                 if(item.id=='select2-add'){
-                    return '<span class="select2-add"><i class="entypo-plus"></i></span>';
+                    return '<span class="select2-add"><i class="entypo-plus-circled"></i>'+item.text+'</span>';
                 }
                 return '<span class="select2-match"></span>'+ item.text ;
             }
