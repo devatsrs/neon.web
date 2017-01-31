@@ -10,7 +10,13 @@
         }
         $NameFormat =  GatewayConfig::$NameFormat;
         if($GatewayName == 'Porta'){
-            unset($NameFormat['IP']);
+            $NameFormat = GatewayConfig::$Porta_NameFormat;
+        }else if($GatewayName == 'VOS'){
+            $NameFormat = GatewayConfig::$Vos_NameFormat;
+        }else if($GatewayName == 'SippySFTP'){
+            $NameFormat = GatewayConfig::$Sippy_NameFormat;
+        }else if($GatewayName == 'PBX'){
+            $NameFormat = GatewayConfig::$Mirta_NameFormat;
         }
     ?>
     @if($count%2 == 0)
