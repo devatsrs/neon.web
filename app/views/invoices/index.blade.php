@@ -123,10 +123,7 @@
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <div class="input-group-btn pull-right" style="width:180px;">
-                 <span style="text-align: right;padding-right: 10px;">
-                    <button type="button" id="sage-export" class="btn btn-primary "><span>Sage Export</span></button>
-                </span>
+                    <div class="input-group-btn pull-right" style="width:70px;">
                         @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
                                     aria-expanded="false">Action <span class="caret"></span></button>
@@ -177,6 +174,11 @@
                                         </a>
                                     </li>
                                 @endif
+                                    <li>
+                                        <a class="create" id="sage-export" href="javascript:;">
+                                            Sage Export
+                                        </a>
+                                    </li>
                             </ul>
                         @endif
                         <form id="clear-bulk-rate-form">
