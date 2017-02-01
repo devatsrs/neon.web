@@ -42,11 +42,9 @@ tfoot {
     display: table-row-group
 }
 </style>
-<br/><br/><br/>
         @yield('logo')
 <br />
         @yield('invoice_from')
-<br /><br /><br /><br /><br /><br />
         @if(Input::get('Type') == 1 )
         <table width="100%" border="0">
             <tbody>
@@ -61,14 +59,13 @@ tfoot {
             </tr>
         </tbody>
         </table>
-        <br /><br /><br />
         @yield('subscriptiontotal')
 
         @else
             @yield('items')
         @endif
 
-<br /><br /><br />
+<br />
     <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default">
