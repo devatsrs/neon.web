@@ -123,7 +123,7 @@
                             </table>
                         </div>
 
-                            <label for="field-1" class="col-sm-1 customer_accountcli control-label">Account CLI</label>
+                        <label for="field-1" class="col-sm-1 customer_accountcli control-label">Account CLI</label>
                         <div class="desc col-sm-5 customer_accountcli table_{{count($AccountCLIList)}}" >
                             <div class="row dropdown">
                                 <div  class="col-md-12">
@@ -171,6 +171,11 @@
                                 @endif
                                 </tbody>
                             </table>
+                        </div>
+
+                        <div class="desc col-sm-6 customer_accountcli table_{{count($AccountCLIList)}}" >
+                            @include('accounts.cli_tables')
+
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label hidden customer_value_other">Value</label>
@@ -514,17 +519,9 @@
                 });
             }
         });
-
-        $(document).on('click', '.dataTable tbody tr', function() {
-            $(this).toggleClass('selected');
-            if($(this).is('tr')) {
-                if ($(this).hasClass('selected')) {
-                    $(this).find('.rowcheckbox').prop("checked", true);
-                } else {
-                    $(this).find('.rowcheckbox').prop("checked", false);
-                }
-            }
-        });
+        table_row_select('customeriptable','');
+        table_row_select('vendoriptable','');
+        table_row_select('vendorclitable','');
 
         $(document).on('click','.vendor-delete-ip,.vendor-delete-cli,.customer-delete-ip,.customer-delete-cli',function(e){
             e.preventDefault();

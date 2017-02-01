@@ -3060,9 +3060,12 @@ function IsJsonString(str) {
 }
 
 
-
-function table_row_select(table,checked) {
+function table_row_select(table,selectallbutton) {
     $('#' + table + ' tbody').on('click', 'tr', function () {
+        var checked = '';
+        if ($('#' + selectallbutton).is(':checked')) {
+            checked = 'checked=checked disabled';
+        }
         if (checked == '') {
             if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
                 $(this).toggleClass('selected');
@@ -3091,8 +3094,12 @@ function selected_all(id,table) {
     });
 }
 
-function default_row_selected(table,checked,selectall) {
+function default_row_selected(table,selectall,selectallbutton) {
     $('#' + table + ' tbody tr').each(function (i, el) {
+        var checked = '';
+        if ($('#' + selectallbutton).is(':checked')) {
+            checked = 'checked=checked disabled';
+        }
         if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
             if (checked != '') {
                 $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
@@ -3106,18 +3113,18 @@ function default_row_selected(table,checked,selectall) {
     });
 }
 
-function select_all_top(selectallbutton,table,checked,selectall) {
+function select_all_top(selectallbutton,table,selectall) {
     //select all record
     $('#' + selectallbutton).click(function () {
         if ($('#' + selectallbutton).is(':checked')) {
-            checked = 'checked=checked disabled';
+            //checked = 'checked=checked disabled';
             $("#" + selectall).prop("checked", true).prop('disabled', true);
             $('#' + table + ' tbody tr').each(function (i, el) {
                 $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
                 $(this).addClass('selected');
             });
         } else {
-            checked = '';
+            //checked = '';
             $("#" + selectall).prop("checked", false).prop('disabled', false);
             $('#' + table + ' tbody tr').each(function (i, el) {
                 $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
