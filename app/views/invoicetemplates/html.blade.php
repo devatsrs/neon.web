@@ -20,6 +20,7 @@
         <table border="0" width="100%" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="col-md-6"  valign="top" >
+                		<br>
                         <strong>Invoice To</strong>
                         <p>John Doe
                         <br />
