@@ -1,6 +1,5 @@
 var update_new_url;
 var postdata;
-var checked = '';
 jQuery(document).ready(function ($) {
     var cli_list_fields = ["CLI", "RateTableID", "CLIRateTableID"];
     public_vars.$body = $("body");
@@ -81,8 +80,8 @@ jQuery(document).ready(function ($) {
                     minimumResultsForSearch: -1
                 });
 
-                default_row_selected('table-clitable',checked,'selectallbutton');
-                select_all_top('selectallbutton','table-clitable',checked,'selectall');
+                default_row_selected('table-clitable','selectall','selectallbutton');
+                select_all_top('selectallbutton','table-clitable','selectall');
             }
 
         });
@@ -95,7 +94,7 @@ jQuery(document).ready(function ($) {
 
     selected_all('selectall', 'table-clitable');
 
-    table_row_select('table-clitable', checked);
+    table_row_select('table-clitable', 'selectallbutton');
 
 
     // Replace Checboxes
@@ -120,7 +119,9 @@ jQuery(document).ready(function ($) {
         result = confirm("Are you Sure?");
         if (result) {
             var delete_url = $(this).attr("href");
-            delete_cli(delete_url,"")
+            var AuthRule = $('#clitable-form').find('input[name=AuthRule]').val();
+            var AccountID = $('#clitable-form').find('input[name=AccountID]').val();
+            delete_cli(delete_url,"AuthRule="+AuthRule+'&AccountID='+AccountID)
         }
         return false;
     });
@@ -146,8 +147,10 @@ jQuery(document).ready(function ($) {
                 CLIRateTableIDs[i] = CLIRateTableID;
             }
         });
+        var AuthRule = $('#clitable-form').find('input[name=AuthRule]').val();
+        var AccountID = $('#clitable-form').find('input[name=AccountID]').val();
         if (CLIRateTableIDs.length) {
-            delete_cli(clitable_delete_url.replace("{id}", 0),'CLIRateTableIDs=' + CLIRateTableIDs.join(",") + '&criteria=' + criteria)
+            delete_cli(clitable_delete_url.replace("{id}", 0),'CLIRateTableIDs=' + CLIRateTableIDs.join(",") + '&criteria=' + criteria+'&AuthRule='+AuthRule+'&AccountID='+AccountID)
         }
     });
     $("#changeSelectedCLI").click(function (ev) {

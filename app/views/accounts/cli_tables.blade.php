@@ -18,11 +18,15 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="pull-right">
-                    <a  id="add-clitable" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add CLI</a>
                     <button type="button" class="btn btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown"
                             aria-expanded="false">Action <span class="caret"></span></button>
                     <ul class="dropdown-menu dropdown-menu-left" role="menu"
                         style="background-color: #000; border-color: #000; margin-top:0px;">
+                        <li>
+                            <a class="create" id="add-clitable" href="javascript:;">
+                                Add
+                            </a>
+                        </li>
                         <li>
                             <a class="generate_rate create" id="bulk-delete-cli" href="javascript:;"
                                style="width:100%">
@@ -117,6 +121,7 @@ var AccountID = '{{$account->AccountID}}';
                     <input type="hidden" name="AccountID" value="{{$account->AccountID}}">
                     <input type="hidden" name="CLIRateTableIDs" value="">
                     <input type="hidden" name="CLIRateTableID" value="">
+                    <input type="hidden" name="AuthRule" value="{{$AuthRule or ''}}">
                     <input type="hidden" name="criteria" value="">
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">

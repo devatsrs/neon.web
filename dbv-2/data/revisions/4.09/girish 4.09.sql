@@ -966,14 +966,6 @@ BEGIN
 	UNION 
 	SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL;
 	
-	IF (SELECT COUNT(*) FROM tmp_AuthenticateRules_ WHERE AuthRule ='CLI' ) = 0  AND (SELECT COUNT(*) FROM NeonRMDev.tblCLIRateTable WHERE CompanyID = p_company_id) > 0 
-	THEN
-
-		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-		SELECT 'CLI';
-
-	END IF;
-
 	SET v_pointer_ = 1;
 	SET v_rowCount_ = (SELECT COUNT(*)FROM tmp_AuthenticateRules_);
 
