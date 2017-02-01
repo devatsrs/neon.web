@@ -88,7 +88,7 @@
                                             </li>
                                             <li>
                                                 <a href="javascript:void(0);" class="customer-delete-ip" >
-                                                    <i class="entypo-cancel"></i>
+                                                    <i class="entypo-trash"></i>
                                                     <span>Delete</span>
                                                 </a>
                                             </li>
@@ -114,7 +114,7 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs customer-delete-ip"> <i class="entypo-cancel"></i> </button>
+                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs customer-delete-ip"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -138,7 +138,7 @@
                                             </li>
                                             <li>
                                                 <a href="javascript:void(0);" class="customer-delete-cli" >
-                                                    <i class="entypo-cancel"></i>
+                                                    <i class="entypo-trash"></i>
                                                     <span>Delete</span>
                                                 </a>
                                             </li>
@@ -164,7 +164,7 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs customer-delete-cli"> <i class="entypo-cancel"></i> </button>
+                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs customer-delete-cli"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -235,7 +235,7 @@
                                             </li>
                                             <li>
                                                 <a href="javascript:void(0);" class="vendor-delete-ip" >
-                                                    <i class="entypo-cancel"></i>
+                                                    <i class="entypo-trash"></i>
                                                     <span>Delete</span>
                                                 </a>
                                             </li>
@@ -261,7 +261,7 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs vendor-delete-ip"> <i class="entypo-cancel"></i> </button>
+                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs vendor-delete-ip"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -286,7 +286,7 @@
                                             </li>
                                             <li>
                                                 <a href="javascript:void(0);" class="vendor-delete-cli" >
-                                                    <i class="entypo-cancel"></i>
+                                                    <i class="entypo-trash"></i>
                                                     <span>Delete</span>
                                                 </a>
                                             </li>
@@ -312,7 +312,7 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs vendor-delete-cli"> <i class="entypo-cancel"></i> </button>
+                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs vendor-delete-cli"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -639,7 +639,7 @@
                 }
                 $.each(authValue, function (index, item) {
 					if(item){
-                    accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-cancel"></i> </button></td></tr>';
+                    accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-trash"></i> </button></td></tr>';
 					}
                 });
                 $('.' + acountipclitable).children('tbody').html(accoutipclihtml);

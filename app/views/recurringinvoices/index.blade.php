@@ -53,7 +53,7 @@
               <li> <a data-action="changestatus_bulk" title="In Active" data-startstop="0" href="javascript:void(0);" ><i class="glyphicon glyphicon-ban-circle"></i> In Active</a> </li>
           @endif
           @if(User::checkCategoryPermission('RecurringInvoice','Delete'))
-              <li> <a data-action="delete_bulk" href="javascript:;" ><i class="entypo-cancel"></i> Delete </a> </li>
+              <li> <a data-action="delete_bulk" href="javascript:;" ><i class="entypo-trash"></i> Delete </a> </li>
           @endif
           <!--if(User::checkCategoryPermission('RecurringInvoice','Send'))
               <li> <a data-action="sendinvoice_bulk" title="Start" data-startstop="1" href="javascript:void(0);" ><i class="entypo-mail"></i> Send</a> </li>

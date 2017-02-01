@@ -310,7 +310,7 @@
                     </div>
                     <div class="modal-footer">
                         <button id="activity-add" class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
-                            <i class="entypo-pencil"></i>
+                            <i class="entypo-floppy"></i>
                             Save
                         </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
