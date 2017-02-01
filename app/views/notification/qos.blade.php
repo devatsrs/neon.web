@@ -32,7 +32,7 @@
     <p style="text-align: right;">
         <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-qos-alert">
             <i class="entypo-plus"></i>
-            Add QoS
+            Add New
         </a>
     </p>
 @endif

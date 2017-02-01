@@ -21,7 +21,7 @@
 @if( User::checkCategoryPermission('Gateway','Add') )
     <a href="#" id="add-new-config" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add Gateway
+        Add New
     </a>
 @endif
 </p>

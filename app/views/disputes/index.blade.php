@@ -56,7 +56,7 @@
     <div class="clear"></div>
 
       @if(User::checkCategoryPermission('Disputes','Add'))
-          <p class="text-right"><a href="#" id="add-new-dispute" class="btn btn-primary "><i class="entypo-plus"></i>Add New Dispute</a></p>
+          <p class="text-right"><a href="#" id="add-new-dispute" class="btn btn-primary "><i class="entypo-plus"></i>Add New</a></p>
       @endif
 
 

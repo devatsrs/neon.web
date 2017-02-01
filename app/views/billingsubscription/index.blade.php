@@ -21,7 +21,7 @@
 @if(User::checkCategoryPermission('BillingSubscription','Add'))
 <a href="#" id="add-new-billing_subscription" class="btn btn-primary ">
     <i class="entypo-plus"></i>
-    Add New Subscription
+    Add New
 </a>
 @endif
 </p>

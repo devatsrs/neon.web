@@ -2,7 +2,7 @@
 <p style="text-align: right;">
     <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
         <i class="entypo-plus"></i>
-        Add Monitoring
+        Add New
     </a>
 </p>
 <table class="table table-bordered datatable" id="table-6">

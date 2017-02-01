@@ -14,7 +14,7 @@
     @include('includes.success')
     @if(User::checkCategoryPermission('DestinationGroup','Edit'))
     <p style="text-align: right;">
-        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Destination Group Set</a>
+        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
     </p>
     @endif
 

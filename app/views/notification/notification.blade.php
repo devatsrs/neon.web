@@ -32,7 +32,7 @@
     <p style="text-align: right;">
         <a href="{{URL::to('notification/create')}}" class=" btn btn-primary btn-sm btn-icon icon-left" id="add-notification">
             <i class="entypo-plus"></i>
-            Add Notification
+            Add New
         </a>
     </p>
 @endif

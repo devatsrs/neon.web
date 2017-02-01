@@ -379,10 +379,10 @@
                                 }
                                 if (edit_url) {
                                     //action += ' <a href="' + edit_url +'" class="edit-invoice btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                    action += '<li><a class="icon-left"  target="_blank" href="' + invoice_preview + '"><i class="entypo-pencil"></i>View </a></li>';
+                                    action += '<li><a class="icon-left"  target="_blank" href="' + invoice_preview + '"><i class="fa fa-eye"></i>View </a></li>';
                                 }
                                 if (invoice_log) {
-                                    action += '<li><a href="' + invoice_log + '" class="icon-left" target="_blank"><i class="entypo-pencil"></i>Log </a></li>';
+                                    action += '<li><a href="' + invoice_log + '" class="icon-left" target="_blank"><i class="entypo-list"></i>Log </a></li>';
                                 }
                                 if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                     if ('{{User::checkCategoryPermission('Invoice','Send')}}') {

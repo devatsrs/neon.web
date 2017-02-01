@@ -95,7 +95,7 @@
                   @if($leadOrAccountCheck=='account' && User::checkCategoryPermission('CreditControl','View'))
                     <a  href="{{Url::to('account/get_credit/'.$account->AccountID)}}"  data-id="{{$account->AccountID}}"  title="Credit Control" class="btn btn-default btn-xs redirect_link" > <i class="fa fa-credit-card"></i> </a>
                   @endif
-                  <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit Account" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
+                  <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
                   @if($leadOrAccountCheck=='account')
                   @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED)
                      <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}"><i class="entypo-user"></i></a>

@@ -21,7 +21,7 @@
 @if( User::checkCategoryPermission('Currency','Add') )
     <a href="#" data-action="showAddModal" data-type="currency" data-modal="add-new-modal-currency" class="btn btn-primary">
         <i class="entypo-plus"></i>
-        Add New Currency
+        Add New
     </a>
 @endif
 </p>

@@ -16,7 +16,7 @@
                 @if(User::checkCategoryPermission('OpportunityBoard','Add'))
                 <a href="javascript:void(0)" id="add-new-opportunityboard" class="btn btn-primary ">
                     <i class="fa fa-line-chart"></i>
-                    Add Opportunity Board
+                    Add New
                 </a>
                 @endif
             </p>

@@ -18,7 +18,7 @@
 @if( User::checkCategoryPermission('CronJob','Add') )
     <a href="#" id="add-new-config" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add Cron Job
+        Add New
     </a>
 @endif
 </p>

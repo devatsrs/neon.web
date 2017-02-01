@@ -22,18 +22,18 @@
 <div class="pull-right">
     @if(User::checkCategoryPermission('Invoice','Send'))
     <a href="Javascript:;" class="send-estimate btn btn-sm btn-success btn-icon icon-left hidden-print">
-        Send Estimate
+        Send
         <i class="entypo-mail"></i>
     </a>
     @endif
     &nbsp;
     <a target="_blank" href="{{URL::to('/estimate/'.$Estimate->EstimateID.'/estimate_preview')}}" class="btn btn-sm btn-danger btn-icon icon-left hidden-print">
-        Print Estimate
+        Print
         <i class="entypo-doc-text"></i>
     </a>
     &nbsp;
     <button type="submit" class="btn save btn-primary btn-sm btn-icon icon-left hidden-print" data-loading-text="Loading...">
-        Save Estimate
+        Save
         <i class="entypo-floppy"></i>
     </button>
     <a href="{{URL::to('/estimates')}}" class="btn btn-danger btn-sm btn-icon icon-left">

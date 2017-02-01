@@ -14,7 +14,7 @@
     </div>
     <div class="panel-body">
          <div class="text-right">
-              <a  id="add-oneofcharge" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Additional Charge</a>
+              <a  id="add-oneofcharge" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
               <div class="clear clearfix"><br></div>
         </div>
         <div id="oneofcharge_filter" method="get" action="#" >

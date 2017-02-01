@@ -20,7 +20,7 @@
                 <p style="text-align: right;">
                     <a href="{{URL::to('/uploadtemplate/create')}}" class="btn btn-primary ">
                         <i class="entypo-plus"></i>
-                        Add New template
+                        Add New
                     </a>
                 </p>
             @endif

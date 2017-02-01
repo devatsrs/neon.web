@@ -20,7 +20,7 @@
                 <p style="text-align: right;">
                     <a href="#" data-action="showAddModal" data-type="item" data-modal="add-edit-modal-product" class="btn btn-primary ">
                         <i class="entypo-plus"></i>
-                        Add New Item
+                        Add New
                     </a>
                 </p>
             @endif

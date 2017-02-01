@@ -18,7 +18,7 @@
     <p style="text-align: right;">
         @if(User::checkCategoryPermission('DiscountPlan','Edit'))
         @if($discountplanapplied == 0)
-        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Discount</a>
+        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
         @endif
         @endif
         <a href="{{URL::to('/discount_plan')}}" class="btn btn-danger btn-sm btn-icon icon-left">

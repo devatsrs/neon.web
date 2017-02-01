@@ -11,7 +11,7 @@
     <h3>Discount Plan</h3>
     @if(User::checkCategoryPermission('DiscountPlan','Edit'))
     <p style="text-align: right;">
-        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Discount Plan</a>
+        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
     </p>
     @endif
     <div id="table_filter" method="get" action="#" >

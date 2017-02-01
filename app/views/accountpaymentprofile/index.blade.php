@@ -7,7 +7,7 @@
             </div>
             <div class="col-md-6 text-right">
                 <p>
-                     <a  id="add-new-card" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New Card</a>
+                     <a  id="add-new-card" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
                 </p>
 
             </div>

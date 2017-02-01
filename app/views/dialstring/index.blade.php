@@ -22,7 +22,7 @@
     @if( User::checkCategoryPermission('DialStrings','Add'))
     <a href="#" id="add-new-dialstring" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New Dial String
+        Add New
     </a>
     @endif
 </p>

@@ -22,7 +22,7 @@
 @if( User::checkCategoryPermission('TaxRates','Add') )
     <a href="#" id="add-new-taxrate" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New TaxRate
+        Add New
     </a>
 @endif
 </p>

@@ -21,7 +21,7 @@
 @if(User::checkCategoryPermission('AccountChecklist','Add'))
     <a href="#" id="add-new-config" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New Document
+        Add New
     </a>
 @endif
 </p>

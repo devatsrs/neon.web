@@ -22,7 +22,7 @@
 @if( User::checkCategoryPermission('InvoiceTemplates','Add'))
     <a href="#" data-action="showAddModal" data-type="invoice_template" data-modal="add-new-modal-invoice_template" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New Invoice Template
+        Add New
     </a>
 @endif    
 </p>

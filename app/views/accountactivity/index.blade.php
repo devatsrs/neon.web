@@ -9,7 +9,7 @@
     </div>
     <div class="panel-body">
         <div class="text-right">
-            <a  id="add-new-activity" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Activity</a>
+            <a  id="add-new-activity" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
             <div class="clear clearfix"><br></div>
         </div>
                     <form id="activity_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">

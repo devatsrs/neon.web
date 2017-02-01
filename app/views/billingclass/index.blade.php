@@ -14,7 +14,7 @@
     @include('includes.success')
     @if(User::checkCategoryPermission('BillingClass','Edit'))
     <p style="text-align: right;">
-        <a  id="add-button" href="{{URL::to('billing_class/create')}}" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Billing Class</a>
+        <a  id="add-button" href="{{URL::to('billing_class/create')}}" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
     </p>
     @endif
     <div id="table_filter" method="get" action="#" >
