@@ -11,6 +11,9 @@
     font-size: 10px;
     text-align: center;
 }
+#pdf_footer table {
+	width:100%;
+}
 </style>
 <div id="pdf_footer">
     <table>
