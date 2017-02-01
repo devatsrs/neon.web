@@ -149,7 +149,8 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">Currency</label>
                         <div class="col-md-4">
-                                {{Form::select('CurrencyId', $currencies, '' ,array("class"=>"form-control select2"))}}
+                                <!--{Form::select('CurrencyId', $currencies, '' ,array("class"=>"form-control select2"))}}-->
+                                {{Form::SelectControl('currency')}}
                         </div>
 
                         <label for="field-1" class="col-md-2 control-label">Timezone</label>
@@ -245,7 +246,8 @@
                     <div class="form-group">
                         <label for="field-1" class="col-md-2 control-label">Billing Class*</label>
                         <div class="col-md-4">
-                            {{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"select2 small form-control1"));}}
+                            {{Form::SelectControl('billing_class',1)}}
+                            <!--{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"select2 small form-control1"));}}-->
                         </div>
                         <label for="field-1" class="col-md-2 control-label">Billing Type*</label>
                         <div class="col-md-4">
@@ -272,7 +274,7 @@
                         <div id="billing_cycle_weekly" class="billing_options" style="display: none">
                             <label for="field-1" class="col-md-2 control-label">Billing Cycle - Start of Day*</label>
                             <div class="col-md-4">
-                                <?php $Days = array( ""=>"Please Start of Day",
+                                <?php $Days = array( ""=>"Select",
                                     "monday"=>"Monday",
                                     "tuesday"=>"Tuesday",
                                     "wednesday"=>"Wednesday",
@@ -319,7 +321,7 @@
 <script type="text/javascript">
     jQuery(document).ready(function ($) {
 
-        $(".save.btn").click(function (ev) {
+        $("#save_account").click(function (ev) {
             $('#save_account').button('loading');
             $("#account-from").submit();
 
@@ -391,6 +393,8 @@ function ajax_form_success(response){
     }
  }
 </script>
+@include('currencies.currencymodal');
+@include('billingclass.billingclassmodal');
 @include('includes.ajax_submit_script', array('formID'=>'account-from' , 'url' => 'accounts/store','update_url'=>'accounts/update/{id}' ))
 @stop
 @section('footer_ext')

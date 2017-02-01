@@ -651,8 +651,7 @@ toastr_opts = {
         // Select2 Dropdown replacement
         if ($.isFunction($.fn.select2))
         {
-            $(".select2").each(function(i, el)
-            {
+            $(".select2").each(function(i, el) {
                 buildselect2(el);
             }).promise().done(function(){
                 $('.select2').css('visibility','visible');
@@ -686,7 +685,7 @@ toastr_opts = {
                 var $opt = $(
                     '<span class="userName"><i class="entypo-plus"></i>' + $(opt.element).text() + '</span>'
                 );
-                return $opt;1
+                return $opt;
             }
         };
 
@@ -1582,7 +1581,7 @@ function buildselect2(el){
             allowClear: attrDefault($this, 'allowClear', false),
             formatResult: function(item) {
                 if(item.id=='select2-add'){
-                    return '<span class="select2-add" data-parent="'+$(item).attr('name')+'"><i class="entypo-plus-circled"></i>'+item.text+'</span>';
+                    return '<span class="select2-add"><i class="entypo-plus-circled"></i>'+item.text+'</span>';
                 }
                 return '<span class="select2-match"></span>'+ item.text ;
             }
@@ -1592,7 +1591,7 @@ function buildselect2(el){
         opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search');
     }
     if($this.hasClass('select2add')){
-        $this.prepend('<option data-image="1" value="select2-add" disabled="disabled">Add</option>');
+        $this.prepend('<option value="select2-add" disabled="disabled">Add</option>');
     }
 
     $this.select2(opts);
@@ -2342,16 +2341,16 @@ function ShowToastr(type, message) {
     }
 
 }
-
-function showAjaxScript(url, formData, FnSucces) {
-
+//@TODO: Pass dataType in function
+function showAjaxScript(url, formData, FnSucces, dataType) {
+    if (typeof(dataType)==='undefined') dataType = 'json';
     $.ajax({
         url: url, //Server script to process data
         type: 'POST',
-        dataType: 'json',
+        dataType: dataType,
         success: FnSucces,
         error: function(error) {
-            $(".save.btn").button('reset');
+            $(".btn").button('reset');
             ShowToastr("error", error);
         },
         // Form data
@@ -2654,6 +2653,7 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     }
 });
 
+//Start Block Added by Abubakar
 $('.modal').on('show.bs.modal', function (e) {
     if (isxs()) {
      $('.modal').find('.pull-left,.pull-right').each(function(){
@@ -2661,6 +2661,179 @@ $('.modal').on('show.bs.modal', function (e) {
      });
     }
 });
+
+$(document).on('click','[data-action="showAddModal"]' ,function(e) {
+    e.preventDefault();
+    var self = $(this);
+    var modal = $('#'+self.attr('data-modal'));
+    var form = modal.find('form:eq(0)');
+    resetForm(form,self.attr('data-type'));
+    modal.modal('show');
+    modal.find('h4').html("Add New"+getTitle(self.attr('data-type')));
+});
+
+$(document).on('select2-open','.select2add' ,function(e) {
+    var self = $(e.target);
+    var modal = $('#'+self.attr('data-modal'));
+    var form = modal.find('form:eq(0)');
+    $('select[data-type="'+self.attr('data-type')+'"]').attr('data-active',0);
+    $(self).attr('data-active',1);
+    $('.select2-results .select2-add').parents('li').on('click', function(e) {
+        e.stopPropagation();
+        self.select2("close");
+        resetForm(form,self.attr('data-type'));
+        modal.modal('show');
+        modal.find('h4').html("Add New"+getTitle(self.attr('data-type')));
+    });
+});
+
+function resetForm(form,type){
+    form.trigger("reset");
+    $.each(form[0].elements, function(index,field) {
+        field = $(field);
+        if(field.is("input")){
+            field.val(setDefaultValue(type,field));
+        }else if(field.is("select")){
+            field.val(setDefaultValue(type,field)).trigger('change');
+        }else if(field.is("img")){
+            field.prop("src",setDefaultValue(type,field));
+        }
+    });
+    showHideControls(form);
+}
+
+function showHideControls(form){
+    var toBeHide = [];
+    var toBeShow = [];
+    if(form.attr('id')=="add-new-invoice_template-form"){
+        toBeHide[0] = ".LastInvoiceNumber";
+        toBeHide[1] = ".LastEstimateNumber";
+        toBeShow[0] = "#InvoiceStartNumberToggle";
+        toBeShow[1] = "#EstimateStartNumberToggle";
+    }
+    if(toBeHide.length > 0) {
+        for (var i = 0; i < toBeHide.length; i++) {
+            form.find(toBeHide[i]).addClass('hidden');
+        }
+    }
+
+    if(toBeShow.length > 0) {
+        for (var i = 0; i < toBeHide.length; i++) {
+            form.find(toBeShow[i]).removeClass('hidden');
+        }
+    }
+}
+
+function setDefaultValue(type,field){
+    var value = '';
+    var defaultValue = {};
+    defaultValue.emailtemplate = {Email_template_privacy:"0"};
+    defaultValue.invoice_template = {CompanyLogoUrl:"http://placehold.it/250x100"};
+    defaultValue.billing_class = {PaymentDueInDays:"1",RoundChargesAmount:"2"};
+    if(defaultValue.hasOwnProperty(type)){
+        var sub = defaultValue[type];
+        if(sub.hasOwnProperty(field.attr('name'))){
+            value = sub[field.attr('name')];
+        }
+    }
+    removeAttr(type,field);
+    return value;
+}
+
+function removeAttr(type,field){
+    var removeAttr = {};
+    removeAttr.currency = {Code:"readonly"};
+    if(removeAttr.hasOwnProperty(type)){
+        var sub = removeAttr[type];
+        if(sub.hasOwnProperty(field.attr('name'))){
+            field.removeAttr(sub[field.attr('name')]);
+        }
+    }
+}
+
+function getTitle(string){
+    var title = '';
+    if(string.indexOf('_')!=-1){
+        var arr = string.split('_');
+        for(var i=0;i<arr.length;i++){
+            title+= ' '+arr[i].ucfirst();
+        }
+    }else{
+        title = ' '+string.ucfirst();
+    }
+    return title;
+}
+
+function rebuildSelect2(el,data,defualtText){
+    el.empty();
+    options = [];
+    $.each(data,function(key,value){
+        if(typeof value == 'object'){
+            key = value.id;
+            value = value.text;
+        }
+        options.push(new Option(value, key, false, false));
+    });
+    if(defualtText.length > 0){
+        options.push(new Option(defualtText, '', true, true));
+    }
+    options.sort();
+    options.reverse();
+    el.append(options);
+    if(el.hasClass('select2add')){
+        el.prepend('<option value="select2-add" disabled="disabled">Add</option>');
+    }
+    el.trigger('change');
+}
+
+function setSelection(self){
+    var tr = self.parents('tr');
+    if(tr.is('tr') && !tr.hasClass('selected')) {
+        tr.find('.rowcheckbox').prop("checked", true);
+        tr.addClass('selected');
+    }
+}
+
+String.prototype.ucfirst = function() {
+    return this.charAt(0).toUpperCase() + this.substr(1);
+};
+
+$(document).on('click','[redirecto]',function(){
+    var url = $(this).attr('redirecto');
+    window.location.href=url;
+});
+
+$(document).ajaxComplete(function(event, xhr, settings) {
+    $('.make-switch').each(function(index, elem) {
+        //Initialize all switches if they haven't been already
+        if (!$(elem).hasClass('has-switch')) {
+            $(elem).bootstrapSwitch();
+        }
+    });
+    if (isxs()){
+        $('.dataTables_wrapper').each(function(){
+            var self = $(this);
+            setTimeout(resetWidth, 3000,self);
+            self.css('overflow-x','scroll').css('overflow-y','hidden');
+        });
+    }
+});
+
+$(document).on('change','#drp_toandfro_jump',function(){
+    var val = $(this).val();
+    if(val!="") {
+
+        var url = window.location.href.replace(baseurl,"");
+        var p = new RegExp('(\\/)(\\d+)', ["i"]);
+        var m = p.exec(url);
+        if (m != null) {
+            url = url.replace(m[2], val);
+            window.location.href = baseurl + url;
+        }
+    }
+});
+
+//End Block Added by Abubakar
 
 /* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
 /*$('.modal').on('show.bs.modal', function (e) {
@@ -2805,19 +2978,6 @@ function pie_chart(class_name,data){
     });
 }
 
-$(document).on('change','#drp_customers_jump',function(){
-    var val = $(this).val();
-    if(val!="") {
-
-        var url = window.location.href.replace(baseurl,"");
-        var p = new RegExp('(\\/)(\\d+)', ["i"]);
-        var m = p.exec(url);
-        if (m != null) {
-            url = url.replace(m[2], val);
-            window.location.href = baseurl + url;
-        }
-    }
-});
 function ajax_json(fullurl,data,callback){
     $.ajax({
         url:fullurl, //Server script to process data
@@ -2853,21 +3013,7 @@ function getTableFieldValue(controller_url, id,field ,callback){
     var get_url = baseurl +'/' + controller_url +'/'+id+'/get/'+field;
     $.get( get_url, callback, "json" );
 }
-$(document).ajaxComplete(function(event, xhr, settings) {
-    $('.make-switch').each(function(index, elem) {
-        //Initialize all switches if they haven't been already
-        if (!$(elem).hasClass('has-switch')) {
-            $(elem).bootstrapSwitch();
-        }
-    });
-    if (isxs()){
-        $('.dataTables_wrapper').each(function(){
-            var self = $(this);
-            setTimeout(resetWidth, 3000,self);
-            self.css('overflow-x','scroll').css('overflow-y','hidden');
-        });
-    }
-});
+
 function resetWidth(self){
     var table = self.find('table');
     var width = 0;
@@ -2884,10 +3030,6 @@ function resetWidth(self){
         $(item).find('.col-xs-6').css('padding',0);
     }.bind(width));
 }
-$(document).on('click','[redirecto]',function(){
-    var url = $(this).attr('redirecto');
-    window.location.href=url;
-});
 
 function isJson(str) {
     try {
@@ -2897,30 +3039,6 @@ function isJson(str) {
     }
     return true;
 }
-
-function rebuildSelect2(el,data,defualtText){
-    el.empty();
-    options = [];
-    $.each(data,function(key,value){
-        if(typeof value == 'object'){
-            key = value.id;
-            value = value.text;
-        }
-        options.push(new Option(value, key, false, false));
-    });
-    if(defualtText.length > 0){
-        options.push(new Option(defualtText, '', true, true));
-    }
-    options.sort();
-    options.reverse();
-    el.append(options);
-    if(el.hasClass('select2add')){
-        el.prepend('<option data-image="1" value="select2-add" disabled="disabled">Add</option>');
-    }
-    el.trigger('change');
-}
-
-
 
   $(document).on('mouseover','.shortname',
 		function(){

@@ -21,7 +21,7 @@
 @if(User::checkCategoryPermission('BillingSubscription','Add'))
 <a href="#" id="add-new-billing_subscription" class="btn btn-primary ">
     <i class="entypo-plus"></i>
-    Add New Subscription
+    Add New
 </a>
 @endif
 </p>
@@ -137,10 +137,10 @@ jQuery(document).ready(function ($) {
                      }
                      action += '</div>';
                      <?php if(User::checkCategoryPermission('BillingSubscription','Edit')) { ?>
-                        action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-billing_subscription btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                        action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-billing_subscription btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                      <?php } ?>
                      <?php if(User::checkCategoryPermission('BillingSubscription','Delete')) { ?>
-                        action += ' <a data-id="'+ id +'" class="delete-billing_subscription btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                        action += ' <a data-id="'+ id +'" title="Delete" class="delete-billing_subscription btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                      <?php } ?>
                     return action;
                   }
@@ -304,6 +304,7 @@ display:none !important;
 right: 30px !important;
 }
 </style>
+@include('currencies.currencymodal')
 @stop
 @section('footer_ext')
 @parent
@@ -354,7 +355,8 @@ right: 30px !important;
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Currency</label>
                         <div class="col-sm-4">
-                            {{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}
+                            {{Form::SelectControl('currency')}}
+                            <!--{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}-->
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label">Activation Fee</label>

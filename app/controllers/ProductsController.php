@@ -69,10 +69,10 @@ class ProductsController extends \BaseController {
             return $error;
         }
         $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
-        if (Product::create($data)) {
-            return Response::json(array("status" => "success", "message" => "Payment Successfully Created"));
+        if ($product = Product::create($data)) {
+            return Response::json(array("status" => "success", "message" => "Product Successfully Created",'newcreated'=>$product));
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Creating Payment."));
+            return Response::json(array("status" => "failed", "message" => "Problem Creating Product."));
         }
     }
 

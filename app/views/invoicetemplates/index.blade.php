@@ -20,9 +20,9 @@
 <p style="text-align: right;">
 
 @if( User::checkCategoryPermission('InvoiceTemplates','Add'))
-    <a href="#" id="add-new-invoice_template" class="btn btn-primary ">
+    <a href="#" data-action="showAddModal" data-type="invoice_template" data-modal="add-new-modal-invoice_template" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New Invoice Template
+        Add New
     </a>
 @endif    
 </p>
@@ -84,12 +84,12 @@ var postdata;
                          }
                          action += '</div>';
                          <?php if(User::checkCategoryPermission('InvoiceTemplates','Edit') ){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-invoice_template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                          <?php } ?>
                          action += ' <a  href="'+ view_url +'?Type=2" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Item  View </a>';
                          action += ' <a  href="'+ view_url +'?Type=1" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Periodic View </a>';
                          <?php if(User::checkCategoryPermission('InvoiceTemplates','Delete') ){ ?>
-                            action += ' <a data-id="'+ id +'" class="delete-invoice_template btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            action += ' <a data-id="'+ id +'" title="Delete" class="delete-invoice_template btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                          <?php } ?>
                         return action;
                       }
@@ -170,12 +170,12 @@ var postdata;
 
         $('#add-new-invoice_template-form').trigger("reset");
         $('#add-new-invoice_template-form').trigger("reset");
-        $('#add-new-modal-invoice_template #InvoiceStartNumberToggle ').hide();
-		$('#add-new-modal-invoice_template #EstimateStartNumberToggle').hide();
+        $('#add-new-modal-invoice_template #InvoiceStartNumberToggle ').addClass('hidden');
+		$('#add-new-modal-invoice_template #EstimateStartNumberToggle').addClass('hidden');
         $('#add-new-modal-invoice_template').modal('show');
 
-        $("#add-new-invoice_template-form .LastInvoiceNumber").show();
-		$("#add-new-invoice_template-form .LastEstimateNumber").show();
+        $("#add-new-invoice_template-form .LastInvoiceNumber").removeClass('hidden');
+		$("#add-new-invoice_template-form .LastEstimateNumber").removeClass('hidden');
         $("#add-new-invoice_template-form [name='CompanyID']").val($(this).prev("div.hiddenRowData").find("input[name='CompanyID']").val());
         $("#add-new-invoice_template-form [name='Name']").val($(this).prev("div.hiddenRowData").find("input[name='Name']").val());
         $("#add-new-invoice_template-form [name='InvoiceTemplateID']").val($(this).prev("div.hiddenRowData").find("input[name='InvoiceTemplateID']").val());

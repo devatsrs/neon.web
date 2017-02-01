@@ -32,7 +32,7 @@
     <p style="text-align: right;">
         <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-qos-alert">
             <i class="entypo-plus"></i>
-            Add QoS
+            Add New
         </a>
     </p>
 @endif
@@ -118,10 +118,10 @@
                         }
                         action += '</div>';
                         @if(User::checkCategoryPermission('Alert','Update'))
-                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-qos-alert btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
+                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-qos-alert btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                         @endif
                                 @if(User::checkCategoryPermission('Alert','Delete'))
-                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-qos-alert btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-trash"></i></a>';
+                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-qos-alert btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
                         @endif
                                 action += ' <a target="_blank" href="' + alert_history_url.replace("{id}", id) + '" class="btn btn-default btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-back-in-time"></i></a>';
                                 return action;

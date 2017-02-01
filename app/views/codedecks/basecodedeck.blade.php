@@ -22,7 +22,7 @@
     @if( User::checkCategoryPermission('CodeDecks','Add'))
     <a href="#" id="add-new-codedeck" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New CodeDeck
+        Add New
     </a>
     @endif
 </p>
@@ -82,7 +82,7 @@ var postdata;
                         @endif
                         @if(User::checkCategoryPermission('CodeDecks','Delete') )
                         if(full[4] == 0) {
-                            action += ' <a data-id="' + id + '" class="delete-codedecks btn save delete btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-trash"></i></a>';
+                            action += ' <a data-id="' + id + '" class="delete-codedecks btn save delete btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
                         }
                         @endif
                         @if(User::checkCategoryPermission('CodeDecks','Edit') )

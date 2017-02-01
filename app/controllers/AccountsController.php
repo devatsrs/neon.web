@@ -423,7 +423,9 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $data = Input::all();
         $account = Account::find($id);
-        Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
+        if(isset($data['tags'])){
+            Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
+        }
         $DiscountPlanID = $data['DiscountPlanID'];
         $InboundDiscountPlanID = $data['InboundDiscountPlanID'];
         $message = $password = "";

@@ -188,10 +188,10 @@ var postdata;
                                  }
                                  action += '</div>';
                                  if (full[0] == '{{Invoice::INVOICE_OUT}}'){
-                                     action += ' <a href="'+invoice_preview+'" target="_blank" class="view-invoice-sent btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                                     action += ' <a href="'+invoice_preview+'" target="_blank" title="View" class="view-invoice-sent btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                                  }else{
                                      action += ' <a></a>';
-                                     action += ' <a class="view-invoice-in btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                                     action += ' <a title="View" class="view-invoice-in btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                                  }
 
                                  return action;

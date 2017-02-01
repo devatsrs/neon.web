@@ -88,7 +88,7 @@
                                             </li>
                                             <li>
                                                 <a href="javascript:void(0);" class="customer-delete-ip" >
-                                                    <i class="entypo-cancel"></i>
+                                                    <i class="entypo-trash"></i>
                                                     <span>Delete</span>
                                                 </a>
                                             </li>
@@ -114,7 +114,7 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs customer-delete-ip"> <i class="entypo-cancel"></i> </button>
+                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs customer-delete-ip"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -123,9 +123,59 @@
                             </table>
                         </div>
 
+                        <label for="field-1" class="col-sm-1 customer_accountcli control-label">Account CLI</label>
+                        <div class="desc col-sm-5 customer_accountcli table_{{count($AccountCLIList)}}" >
+                            <div class="row dropdown">
+                                <div  class="col-md-12">
+                                    <div class="input-group-btn pull-right" style="width:70px;">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                                            <li class="li_active">
+                                                <a class="customer-add-cli" type_ad="active" href="javascript:void(0);" >
+                                                    <i class="entypo-plus"></i>
+                                                    <span>Add</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="javascript:void(0);" class="customer-delete-cli" >
+                                                    <i class="entypo-trash"></i>
+                                                    <span>Delete</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div><!-- /btn-group -->
+                                </div>
+                                <div class="clear"></div>
+                            </div>
+                            <br>
+                            <div id="customerclitableprocessing" class="dataTables_processing hidden">Processing...</div>
+                            <table id="customerclitable" class="table table-bordered datatable dataTable customerclitable ">
+                                <thead>
+                                <tr>
+                                    <th><input type="checkbox" name="checkbox[]" class="selectall" /></th><th>CLI</th><th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @if(count($AccountCLIList))
+                                    @foreach($AccountCLIList as $index=>$row2)
+                                        <tr>
+                                            <td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="{{$index}}" class="rowcheckbox" ></div></td>
+                                            <td>
+                                                {{$row2}}
+                                            </td>
+                                            <td>
+                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs customer-delete-cli"> <i class="entypo-trash"></i> </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                                </tbody>
+                            </table>
+                        </div>
 
                         <div class="desc col-sm-6 customer_accountcli table_{{count($AccountCLIList)}}" >
                             @include('accounts.cli_tables')
+
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label hidden customer_value_other">Value</label>
@@ -190,7 +240,7 @@
                                             </li>
                                             <li>
                                                 <a href="javascript:void(0);" class="vendor-delete-ip" >
-                                                    <i class="entypo-cancel"></i>
+                                                    <i class="entypo-trash"></i>
                                                     <span>Delete</span>
                                                 </a>
                                             </li>
@@ -216,7 +266,7 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs vendor-delete-ip"> <i class="entypo-cancel"></i> </button>
+                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs vendor-delete-ip"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -241,7 +291,7 @@
                                             </li>
                                             <li>
                                                 <a href="javascript:void(0);" class="vendor-delete-cli" >
-                                                    <i class="entypo-cancel"></i>
+                                                    <i class="entypo-trash"></i>
                                                     <span>Delete</span>
                                                 </a>
                                             </li>
@@ -267,7 +317,7 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs vendor-delete-cli"> <i class="entypo-cancel"></i> </button>
+                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs vendor-delete-cli"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -586,7 +636,7 @@
                 }
                 $.each(authValue, function (index, item) {
 					if(item){
-                    accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-cancel"></i> </button></td></tr>';
+                    accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-trash"></i> </button></td></tr>';
 					}
                 });
                 $('.' + acountipclitable).children('tbody').html(accoutipclihtml);

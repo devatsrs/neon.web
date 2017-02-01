@@ -16,9 +16,9 @@ class DashboardCustomerController extends BaseController {
         if(Cache::has('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID())){
             $monthfilter = Cache::get('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID());
         }
-        $BillingDashboardWidgets  =  CompanyConfiguration::get('BILLING_DASHBOARD_CUSTOMER');
+        $BillingDashboardWidgets 	= 	CompanyConfiguration::get('BILLING_DASHBOARD_CUSTOMER');
         if(!empty($BillingDashboardWidgets)) {
-            $BillingDashboardWidgets   = explode(",",$BillingDashboardWidgets);
+            $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
         }
         return View::make('customer.index',compact('account','original_startdate','original_enddate','invoice_status_json','monthfilter','BillingDashboardWidgets'));
     }

@@ -115,7 +115,9 @@
                             unset($array_op['disabled']);
                         }
                         ?>
-                                {{ Form::select('CurrencyID', $currencylist,  $rategenerators->CurrencyID, array_merge( array("class"=>"select2"),$array_op)) }}
+
+                                <!--{ Form::select('CurrencyID', $currencylist,  $rategenerators->CurrencyID, array_merge( array("class"=>"select2"),$array_op)) }}-->
+                            {{Form::SelectControl('currency',0,$rategenerators->CurrencyID,($rategenerators->CurrencyID==''?0:0))}}
                             @if(isset($array_op['disabled']) && $array_op['disabled'] == 'disabled')
                                 <input type="hidden" name="CurrencyID" readonly  value="{{$rategenerators->CurrencyID}}">
                             @endif
@@ -200,14 +202,12 @@
 
                                         </td>
                                         <td>
-                                            <a href="{{URL::to('/rategenerators/rules/'.$id. '/edit/' . $rategenerator_rule->RateRuleId )}}" id="add-new-margin" class="update btn btn-primary btn-sm btn-icon icon-left">
-                                                <i class="entypo-floppy"></i>
-                                                Edit
+                                            <a href="{{URL::to('/rategenerators/rules/'.$id. '/edit/' . $rategenerator_rule->RateRuleId )}}" id="add-new-margin" class="update btn btn-primary btn-sm">
+                                                <i class="entypo-pencil"></i>
                                             </a>
 
-                                            <a href="{{URL::to('/rategenerators/rules/'.$id.'/delete/'. $rategenerator_rule->RateRuleId)}}" class="btn delete btn-danger btn-sm btn-icon icon-left">
-                                                <i class="entypo-cancel"></i>
-                                                Delete
+                                            <a href="{{URL::to('/rategenerators/rules/'.$id.'/delete/'. $rategenerator_rule->RateRuleId)}}" class="btn delete btn-danger btn-sm">
+                                                <i class="entypo-trash"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -489,7 +489,7 @@
 
 @include('includes.errors')
 @include('includes.success')
-
+@include('currencies.currencymodal')
 @stop
 @section('footer_ext') @parent
 @include('rategenerators.rategenerator_models')
