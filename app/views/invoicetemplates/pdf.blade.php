@@ -59,6 +59,7 @@ tfoot {
             </tr>
         </tbody>
         </table>
+        <br /><br />
         @yield('subscriptiontotal')
 
         @else
