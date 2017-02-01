@@ -83,7 +83,7 @@
     @endif
     @if( User::checkCategoryPermission('CodeDecks','Delete'))
     <button type="submit" id="delete-bulk-codedeck-selected" class="btn btn-danger btn-sm btn-icon icon-left">
-        <i class="entypo-cancel"></i>
+        <i class="entypo-trash"></i>
         Delete Selected
     </button>
     <!--<button type="submit" id="delete-bulk-codedeck-all" class="btn btn-danger btn-sm btn-icon icon-left">

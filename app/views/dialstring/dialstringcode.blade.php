@@ -95,7 +95,7 @@
     @endif
     @if( User::checkCategoryPermission('DialStrings','Delete'))
     <button type="submit" id="delete-bulk-code" class="btn btn-danger btn-sm btn-icon icon-left">
-        <i class="entypo-cancel"></i>
+        <i class="entypo-trash"></i>
         Delete Selected
     </button>
     @endif

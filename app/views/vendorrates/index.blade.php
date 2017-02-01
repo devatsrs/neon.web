@@ -136,7 +136,7 @@
     @endif
     @if(User::checkCategoryPermission('VendorRates','Delete'))
     <button class="btn btn-danger btn-sm btn-icon icon-left" id="clear-bulk-rate" type="submit">
-        <i class="entypo-cancel"></i>
+        <i class="entypo-trash"></i>
         Delete Selected
     </button>
     @endif

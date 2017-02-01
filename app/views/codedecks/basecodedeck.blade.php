@@ -22,7 +22,7 @@
     @if( User::checkCategoryPermission('CodeDecks','Add'))
     <a href="#" id="add-new-codedeck" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New CodeDeck
+        Add New
     </a>
     @endif
 </p>

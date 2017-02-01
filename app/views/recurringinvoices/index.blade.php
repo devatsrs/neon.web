@@ -213,7 +213,7 @@ var postdata;
                         }
 
                         if ('{{User::checkCategoryPermission('RecurringInvoices','Delete')}}') {
-                            action += '<li><a href="#" data-action="delete_row" class="icon-left"><i class="entypo-cancel"></i>Delete </a></li>';
+                            action += '<li><a href="#" data-action="delete_row" class="icon-left"><i class="entypo-trash"></i>Delete </a></li>';
                         }
 
                         /*if('{{User::checkCategoryPermission('RecurringInvoice','Send')}}') {

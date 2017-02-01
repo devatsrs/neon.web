@@ -31,7 +31,7 @@
     </a>
     @if(User::checkCategoryPermission('Contacts','Delete'))
     <a href="{{URL::to('contacts/'.$contact->ContactID.'/delete')}}" class="btn delete btn-danger btn-sm btn-icon icon-left" >
-        <i class="entypo-cancel"></i>
+        <i class="entypo-trash"></i>
         Delete
     </a>
     @endif

@@ -8,7 +8,7 @@
 <h3>Themes</h3>
 @include('includes.errors')
 @include('includes.success')
-<p style="text-align: right;"> @if(User::checkCategoryPermission('themes','Add')) <a href="{{URL::to("themes/create")}}" id="add-new-themes" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Theme </a> @endif
+<p style="text-align: right;"> @if(User::checkCategoryPermission('themes','Add')) <a href="{{URL::to("themes/create")}}" id="add-new-themes" class="btn btn-primary "> <i class="entypo-plus"></i> Add New</a> @endif
 
 </p>
 <div class="row">
@@ -206,7 +206,7 @@ var postdata;
                            
 							if ('{{User::checkCategoryPermission('themes','Edit')}}' && delete_url)
 							{
-								action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-trash"></i>Delete</a></li>';
+								action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-trash"></i>Delete</li>';
                             }
                             
 							

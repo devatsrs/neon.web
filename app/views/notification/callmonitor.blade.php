@@ -126,7 +126,7 @@
                                 action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-call-alert btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                         @endif
                                 @if(User::checkCategoryPermission('Alert','Delete'))
-                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-call-alert btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-trash"></i></a>';
+                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-call-alert btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
                         @endif
                                 action += ' <a target="_blank" href="' + alert_history_url.replace("{id}", id) + '" class="btn btn-default btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-back-in-time"></i></a>';
                                 return action;
