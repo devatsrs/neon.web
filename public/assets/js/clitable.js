@@ -60,7 +60,7 @@ jQuery(document).ready(function ($) {
                             action += '<input disabled type = "hidden"  name = "' + cli_list_fields[i] + '"       value = "' + (full[i] != null ? full[i] : '') + '" / >';
                         }
                         action += '</div>';
-                        action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-trash"></i></a>'
+                        action += ' <a href="' + clitable_delete_url.replace("{id}", full[0]) + '" class="delete-clitable btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>'
                         return action;
                     }
                 }

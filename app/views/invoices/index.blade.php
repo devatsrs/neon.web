@@ -1556,7 +1556,7 @@
                         <button id="saveinvoice" class="btn btn-primary btn-sm btn-icon icon-left" type="submit"
                                 data-loading-text="Loading...">
                             <i class="entypo-pencil"></i>
-                            Save Invoice
+                            Save
                         </button>
                         <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>

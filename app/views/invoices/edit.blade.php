@@ -19,9 +19,9 @@
 @include('includes.success')
 
 <form class="form-horizontal form-groups-bordered" method="post" id="invoice-from" role="form">
-  <div class="pull-right"> @if(User::checkCategoryPermission('Invoice','Send')) <a href="Javascript:;" class="send-invoice btn btn-sm btn-success btn-icon icon-left hidden-print"> Send Invoice <i class="entypo-mail"></i> </a> @endif
+  <div class="pull-right"> @if(User::checkCategoryPermission('Invoice','Send')) <a href="Javascript:;" class="send-invoice btn btn-sm btn-success btn-icon icon-left hidden-print"> Send <i class="entypo-mail"></i> </a> @endif
     &nbsp; <a target="_blank" href="{{URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview')}}" class="btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a> &nbsp;
-    <button type="submit" class="btn save btn-primary btn-sm btn-icon icon-left hidden-print" data-loading-text="Loading..."> Save Invoice <i class="entypo-floppy"></i> </button>
+    <button type="submit" class="btn save btn-primary btn-sm btn-icon icon-left hidden-print" data-loading-text="Loading..."> Save<i class="entypo-floppy"></i> </button>
     <a href="{{URL::to('/invoice')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i> Close </a> </div>
   <div class="clearfix"></div>
   <br/>

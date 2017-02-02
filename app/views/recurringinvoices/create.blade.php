@@ -24,8 +24,8 @@
         <p class="text-right">
             <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print"
                     data-loading-text="Loading...">
-                Save Recurring Invoice
-                <i class="entypo-mail"></i>
+                <i class="entypo-floppy"></i>
+                Save
             </button>
             <a href="{{URL::to('/recurringinvoices')}}" class="btn btn-danger btn-sm btn-icon icon-left">
                 <i class="entypo-cancel"></i>
