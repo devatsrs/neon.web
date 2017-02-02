@@ -397,8 +397,7 @@
                 <div class="form-group">
                     <label for="field-1" class="col-md-2 control-label">Billing Class*</label>
                     <div class="col-md-4">
-                        {{Form::SelectControl('billing_class',1)}}
-                        <!--{Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"select2 small form-control1"));}}-->
+                        {Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"select2 small form-control1"));}}
                     </div>
                     <label for="field-1" class="col-md-2 control-label">Billing Type*</label>
                     <div class="col-md-4">
@@ -874,7 +873,6 @@
 
 <!--@include('includes.ajax_submit_script', array('formID'=>'account-from' , 'url' => ('accounts/update/'.$account->AccountID)))-->
     @include('opportunityboards.opportunitymodal',array('leadOrAccountID'=>$leadOrAccountID))
-    @include('billingclass.billingclassmodal')
 
 @stop
 @section('footer_ext')
