@@ -20,7 +20,7 @@
 
 <form class="form-horizontal form-groups-bordered" action="{{URL::to('/invoice/store')}}" method="post" id="invoice-from" role="form">
   <p class="text-right">
-    <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" data-loading-text="Loading..."> Save Invoice <i class="entypo-mail"></i> </button>
+    <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" data-loading-text="Loading..."> Save<i class="entypo-floppy"></i> </button>
     <a href="{{URL::to('/invoice')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i> Close </a> </p>
   <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-body">

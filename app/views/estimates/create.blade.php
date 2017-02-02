@@ -23,7 +23,7 @@
 <p class="text-right">
     <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" data-loading-text="Loading...">
         Save
-        <i class="entypo-mail"></i>
+        <i class="entypo-floppy"></i>
    </button>
     <a href="{{URL::to('/estimates')}}" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>
