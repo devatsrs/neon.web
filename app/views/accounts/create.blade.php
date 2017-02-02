@@ -150,7 +150,7 @@
                         <label class="col-md-2 control-label">Currency</label>
                         <div class="col-md-4">
                                 <!--{Form::select('CurrencyId', $currencies, '' ,array("class"=>"form-control select2"))}}-->
-                                {{Form::SelectControl('currency')}}
+                                {{Form::SelectControl('currency',0,'',0,'CurrencyId')}}
                         </div>
 
                         <label for="field-1" class="col-md-2 control-label">Timezone</label>
@@ -393,8 +393,8 @@ function ajax_form_success(response){
     }
  }
 </script>
-@include('currencies.currencymodal');
-@include('billingclass.billingclassmodal');
+@include('currencies.currencymodal')
+@include('billingclass.billingclassmodal')
 @include('includes.ajax_submit_script', array('formID'=>'account-from' , 'url' => 'accounts/store','update_url'=>'accounts/update/{id}' ))
 @stop
 @section('footer_ext')

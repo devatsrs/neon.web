@@ -190,10 +190,10 @@
                     <label class="col-md-2 control-label">Currency</label>
                     <div class="col-md-4">
                             @if($invoice_count == 0)
-                            {{Form::SelectControl('currency',0,$account->CurrencyId)}}
+                            {{Form::SelectControl('currency',0,$account->CurrencyId,'CurrencyId')}}
                             <!--{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}-->
                             @else
-                            {{Form::SelectControl('currency',0,$account->CurrencyId,1)}}
+                            {{Form::SelectControl('currency',0,$account->CurrencyId,1,'CurrencyId')}}
                             <!--{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small",'disabled'))}}-->
                             {{Form::hidden('CurrencyId', ($account->CurrencyId))}}
                             @endif
@@ -397,7 +397,8 @@
                 <div class="form-group">
                     <label for="field-1" class="col-md-2 control-label">Billing Class*</label>
                     <div class="col-md-4">
-                        {{Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"select2 small form-control1"));}}
+                        {{Form::SelectControl('billing_class',1)}}
+                        <!--{Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"select2 small form-control1"));}}-->
                     </div>
                     <label for="field-1" class="col-md-2 control-label">Billing Type*</label>
                     <div class="col-md-4">
@@ -873,6 +874,7 @@
 
 <!--@include('includes.ajax_submit_script', array('formID'=>'account-from' , 'url' => ('accounts/update/'.$account->AccountID)))-->
     @include('opportunityboards.opportunitymodal',array('leadOrAccountID'=>$leadOrAccountID))
+    @include('billingclass.billingclassmodal')
 
 @stop
 @section('footer_ext')
