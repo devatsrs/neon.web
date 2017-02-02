@@ -2941,3 +2941,77 @@ function IsJsonString(str) {
     return true;
 }
 
+
+function table_row_select(table,selectallbutton) {
+    $('#' + table + ' tbody').on('click', 'tr', function () {
+        var checked = '';
+        if ($('#' + selectallbutton).is(':checked')) {
+            checked = 'checked=checked disabled';
+        }
+        if (checked == '') {
+            if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                $(this).toggleClass('selected');
+                if ($(this).hasClass('selected')) {
+                    $(this).find('.rowcheckbox').prop("checked", true);
+                } else {
+                    $(this).find('.rowcheckbox').prop("checked", false);
+                }
+            }
+        }
+    });
+}
+
+function selected_all(id,table) {
+    $("#" + id).click(function (ev) {
+        var is_checked = $(this).is(':checked');
+        $('#' + table + ' tbody tr').each(function (i, el) {
+            if (is_checked) {
+                $(this).find('.rowcheckbox').prop("checked", true);
+                $(this).addClass('selected');
+            } else {
+                $(this).find('.rowcheckbox').prop("checked", false);
+                $(this).removeClass('selected');
+            }
+        });
+    });
+}
+
+function default_row_selected(table,selectall,selectallbutton) {
+    $('#' + table + ' tbody tr').each(function (i, el) {
+        var checked = '';
+        if ($('#' + selectallbutton).is(':checked')) {
+            checked = 'checked=checked disabled';
+        }
+        if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+            if (checked != '') {
+                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                $(this).addClass('selected');
+                $('#' + selectall).prop("checked", true);
+            } else {
+                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                $(this).removeClass('selected');
+            }
+        }
+    });
+}
+
+function select_all_top(selectallbutton,table,selectall) {
+    //select all record
+    $('#' + selectallbutton).click(function () {
+        if ($('#' + selectallbutton).is(':checked')) {
+            //checked = 'checked=checked disabled';
+            $("#" + selectall).prop("checked", true).prop('disabled', true);
+            $('#' + table + ' tbody tr').each(function (i, el) {
+                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                $(this).addClass('selected');
+            });
+        } else {
+            //checked = '';
+            $("#" + selectall).prop("checked", false).prop('disabled', false);
+            $('#' + table + ' tbody tr').each(function (i, el) {
+                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                $(this).removeClass('selected');
+            });
+        }
+    });
+}

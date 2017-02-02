@@ -548,6 +548,7 @@
 
             </div>
         </div>
+        @include('accounts.cli_tables')
         @include('accountdiscountplan.index')
         @include('accountsubscription.index')
         @include('accountoneoffcharge.index')
@@ -603,6 +604,7 @@
                 </div>
             </div>
         </div>
+
     </form>
 </div>
 </div>
