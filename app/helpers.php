@@ -333,7 +333,7 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
         $modal = 'add-edit-modal-product';
         $data = Product::getProductDropdownList();
     }
-    if(empty($nameID)){
+    if(!empty($nameID)){
         $name= $nameID;
     }
     $arr = ['class' => 'select2 select2add '.$small , 'data-modal' => $modal, 'data-active'=>0,'data-type'=>$type];
