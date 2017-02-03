@@ -58,7 +58,7 @@ $privacy = EmailTemplate::$privacy;
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Invoice Template*</label>
                                 <div class="col-sm-4">
-                                    {{Form::SelectControl('invoice_template',1)}}
+                                    {{Form::SelectControl('invoice_template',1,( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ))}}
                                     <!--{Form::select('InvoiceTemplateID', $InvoiceTemplates, ( isset($BillingClass->InvoiceTemplateID)?$BillingClass->InvoiceTemplateID:'' ),array('id'=>'billing_type',"class"=>"select2 select2Add small"))}}-->
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label">Send Invoice via Email*</label>
