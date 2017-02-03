@@ -368,6 +368,7 @@ class RecurringInvoiceController extends \BaseController {
                     RecurringInvoiceDetail::where(["RecurringInvoiceID" => $RecurringInvoice->RecurringInvoiceID])->delete();
                     DB::connection('sqlsrv2')->table('tblRecurringInvoiceTaxRate')->where(["RecurringInvoiceID" => $RecurringInvoice->RecurringInvoiceID])->delete();
                     if (isset($data["RecurringInvoiceDetail"])) {
+                        unset($data["RecurringInvoiceDetail"]["RecurringInvoiceDetailID"]);
                         foreach ($data["RecurringInvoiceDetail"] as $field => $detail) {
                             $i = 0;
                             foreach ($detail as $value) {
@@ -427,7 +428,6 @@ class RecurringInvoiceController extends \BaseController {
 						if(!empty($RecurringInvoiceAllTaxRates)) {
                             DB::connection('sqlsrv2')->table('tblRecurringInvoiceTaxRate')->insert($RecurringInvoiceAllTaxRates);
                         }
-
                         if (RecurringInvoiceDetail::insert($RecurringInvoiceDetailData)) {
                             DB::connection('sqlsrv2')->commit();
                             return Response::json(array("status" => "success", "message" => "RecurringInvoice Successfully Updated", 'LastID' => $RecurringInvoice->RecurringInvoiceID));

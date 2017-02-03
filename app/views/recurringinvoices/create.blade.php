@@ -235,7 +235,7 @@
                                     <td>{{Form::text('TotalDiscount','',array("class"=>"form-control TotalDiscount text-right","readonly"=>"readonly"))}}</td>
                             </tr>-->
                             <tr class="grand_total_recurringinvoice">
-                                <td>Recurring Invoice Total</td>
+                                <td>Invoice Total</td>
                                 <td>{{Form::text('GrandTotal','',array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
                             <tr class="recurringinvoice_tax_row">
@@ -290,7 +290,7 @@
         var recurringinvoice_tax_html = '<td><button title="Delete Tax" type="button" class="btn btn-danger btn-xs recurringinvoice_tax_remove ">X</button></td><td><div class="col-md-8">{{Form::SelectExt(["name"=>"RecurringInvoiceTaxes[field][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small RecurringInvoiceTaxesFld"])}}</div><div class="col-md-4">{{Form::text("RecurringInvoiceTaxes[value][]","",array("class"=>"form-control RecurringInvoiceTaxesValue","readonly"=>"readonly"))}}</div></td>';
 
         var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{Form::select('RecurringInvoiceDetail[ProductID][]',$products,'',array("class"=>"select2 product_dropdown"))}}</td><td>{{Form::textarea('RecurringInvoiceDetail[Description][]','',array("class"=>"form-control invoice_recurringinvoice_textarea autogrow descriptions","rows"=>1))}}</td><td class="text-center">{{Form::text('RecurringInvoiceDetail[Price][]',"0",array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('RecurringInvoiceDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>'
-        // add_row_html += '<td class="text-center">{{Form::text('RecurringInvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
+        add_row_html += '<td class="text-center hidden">{{Form::text('RecurringInvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
         add_row_html += '<td>{{Form::SelectExt(["name"=>"RecurringInvoiceDetail[TaxRateID][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small TaxRateID"])}}</td>';
         add_row_html += '<td>{{Form::SelectExt(["name"=>"RecurringInvoiceDetail[TaxRateID2][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small TaxRateID2"])}}</td>';
 
