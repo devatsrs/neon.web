@@ -119,7 +119,7 @@
                             action = '';
 
                             <?php if(User::checkCategoryPermission('RateGenerator','Edit')) { ?>
-                            action += '<a title="Edit" href="' + edit_ + '" class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a> '
+                            action += ' <a title="Edit" href="' + edit_ + '" class="btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a> '
                             action += status_link;
 							
 							 @if(User::checkCategoryPermission('RateGenerator','Delete'))

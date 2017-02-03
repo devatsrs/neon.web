@@ -298,7 +298,7 @@
                             }
                             action += '</div>';
                             @if(User::checkCategoryPermission('Task','Edit'))
-                            action += ' <a data-id="' + full[2] + '" class="edit-deal btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-id="' + full[2] + '" title="Edit" class="edit-deal btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                             @endif
                             return action;
                         }

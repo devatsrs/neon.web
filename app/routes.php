@@ -715,6 +715,26 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/estimate/ajax_estimatelog_datagrid/{id}/{type}', 'EstimatesController@ajax_estimatelog_datagrid');
 	///////////////////////////
 
+    /////////////////
+    //Recurring Item Invoices
+    Route::any('/recurringinvoices', 'RecurringInvoiceController@index');
+    Route::any('/recurringinvoices/create', 'RecurringInvoiceController@create');
+    Route::any('/recurringinvoices/store', 'RecurringInvoiceController@store');
+    Route::any('/recurringinvoices/{id}/edit', 'RecurringInvoiceController@edit');
+    Route::any('/recurringinvoices/delete', 'RecurringInvoiceController@delete');
+    Route::any('/recurringinvoices/{id}/update', 'RecurringInvoiceController@update');
+    Route::any('/recurringinvoices/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_datagrid');
+    Route::any('/recurringinvoices/calculate_total', 'RecurringInvoiceController@calculate_total');
+    Route::any('/recurringinvoices/get_account_info', 'RecurringInvoiceController@getAccountInfo');
+    Route::any('/recurringinvoices/get_billingclassinfo_info', 'RecurringInvoiceController@getBillingClassInfo');
+    Route::any('/recurringinvoices/{id}/log', 'RecurringInvoiceController@recurringinvoicelog');
+    Route::any('/recurringinvoices/{id}/log/{type}', 'RecurringInvoiceController@recurringinvoicelog');
+    Route::any('/recurringinvoices/{id}/log/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_recurringinvoicelog_datagrid');
+    Route::any('/recurringinvoices/startstop/{start_stop}', 'RecurringInvoiceController@startstop');
+    Route::any('/recurringinvoices/sendinvoice', 'RecurringInvoiceController@sendInvoice');
+    Route::any('/recurringinvoices/generate', 'RecurringInvoiceController@generate');
+    ///////////////////////////
+
 	//Invoice
 	Route::any('/invoice', 'InvoicesController@index');
 	Route::any('/invoice/create', 'InvoicesController@create');
@@ -995,7 +1015,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_class','BillingClassController@index');
 	Route::any('/billing_class/ajax_datagrid','BillingClassController@ajax_datagrid');
 	Route::any('/billing_class/create','BillingClassController@create');
-	Route::any('/billing_class/store','BillingClassController@store');
+	Route::any('/billing_class/store/{type}','BillingClassController@store');
 	Route::any('/billing_class/edit/{id}','BillingClassController@edit');
 	Route::any('/billing_class/update/{id}','BillingClassController@update');
 	Route::any('/billing_class/delete/{id}','BillingClassController@delete');

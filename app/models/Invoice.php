@@ -74,12 +74,20 @@ class Invoice extends \Eloquent {
                     ->groupBy("TaxRateID")                   
                     ->get();
 			$Account = Account::find($Invoice->AccountID);
-            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
-            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
-            $PaymentDueInDays = AccountBilling::getPaymentDueInDays($Invoice->AccountID);
+            if(!empty($Invoice->RecurringInvoiceID) && $Invoice->RecurringInvoiceID > 0){
+                $recurringInvoice = RecurringInvoice::find($Invoice->RecurringInvoiceID);
+                $billingClass = BillingClass::where('BillingClassID',$recurringInvoice->BillingClassID)->first();
+                $InvoiceTemplateID = $billingClass->InvoiceTemplateID;
+                $PaymentDueInDays = $billingClass->PaymentDueInDays;
+            }else{
+                $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
+                $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+                $PaymentDueInDays = AccountBilling::getPaymentDueInDays($Invoice->AccountID);
+            }
+
             $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");

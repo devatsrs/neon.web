@@ -136,7 +136,7 @@
     @endif
     @if(User::checkCategoryPermission('VendorRates','Delete'))
     <button class="btn btn-danger btn-sm btn-icon icon-left" id="clear-bulk-rate" type="submit">
-        <i class="entypo-cancel"></i>
+        <i class="entypo-trash"></i>
         Delete Selected
     </button>
     @endif
@@ -235,11 +235,11 @@ jQuery(document).ready(function($) {
                                 }
                                 action += '</div>';
                                 <?php if(User::checkCategoryPermission('VendorRates','Edit')) { ?>
-                                    action += '<a href="Javascript:;" class="edit-vendor-rate btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
+                                    action += ' <a href="Javascript:;" title="Edit" class="edit-vendor-rate btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                 <?php } ?>
                                 if (full[0] > 0) {
                                     <?php if(User::checkCategoryPermission('VendorRates','Delete')) { ?>
-                                        action += ' <button href="' + clerRate_ + '"  class="btn clear btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Delete</button>';
+                                        action += ' <button href="' + clerRate_ + '" title="Delete"  class="btn clear btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
                                     <?php } ?>
                                 }
                                 return action;

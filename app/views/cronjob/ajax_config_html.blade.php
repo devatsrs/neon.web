@@ -16,7 +16,8 @@
             <div class="col-md-6">
                 <div class="form-group">
                 <label class="control-label ">Email Template</label>
-                    {{Form::select('TemplateID', $emailTemplates, (isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:'') ,array("class"=>"select2 small form-control"))}}
+                    {{Form::SelectControl('email_template',1,(isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:''))}}
+                    <!--{Form::select('TemplateID', $emailTemplates, (isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:'') ,array("class"=>"select2 small form-control"))}}-->
                 </div>
             </div>
             <div class="col-md-6">
@@ -29,7 +30,8 @@
             <div class="col-md-12">
                 <div class="form-group">
                     <label class="control-label ">Email Template</label>
-                    {{Form::select('TemplateID', $emailTemplates, (isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:'') ,array("class"=>"select2 small form-control"))}}
+                    {{Form::SelectControl('email_template',1,(isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:''))}}
+                    <!--{Form::select('TemplateID', $emailTemplates, (isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:'') ,array("class"=>"select2 small form-control"))}}-->
                 </div>
             </div>
         @endif

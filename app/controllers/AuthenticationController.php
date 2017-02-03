@@ -15,7 +15,9 @@ class AuthenticationController extends \BaseController
     public function authenticate($id){
         $account = Account::find($id);
         $AccountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$id))->first();
-        return View::make('accounts.authenticate', compact('account','AccountAuthenticate'));
+        $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
+        $AuthRule = 'CLI';
+        return View::make('accounts.authenticate', compact('account','AccountAuthenticate','Clitables','rate_table','AuthRule'));
     }
     public function authenticate_store(){
         $data = Input::all();

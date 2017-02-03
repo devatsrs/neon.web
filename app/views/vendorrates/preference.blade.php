@@ -193,7 +193,7 @@ jQuery(document).ready(function($) {
                                 }
                                 action += '</div>';
 
-                                action += '<a href="Javascript:;" class="edit-vendor-rate btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
+                                action += ' <a href="Javascript:;" title="Edit" class="edit-vendor-rate btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
 
                                 return action;
                             }

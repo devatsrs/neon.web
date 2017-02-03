@@ -55,6 +55,20 @@ BEGIN
 		SET v_pointer_ = v_pointer_ + 1;
 	
 	END WHILE;	
+	
+	UPDATE 
+		NeonRMDev.tblAccountBalance 
+	INNER JOIN
+		(
+			SELECT 
+				DISTINCT tblAccount.AccountID 
+			FROM NeonRMDev.tblAccount  
+			LEFT JOIN tmp_Account_ 
+				ON tblAccount.AccountID = tmp_Account_.AccountID
+			WHERE tmp_Account_.AccountID IS NULL AND tblAccount.CompanyID = p_CompanyID
+		) TBL
+	ON TBL.AccountID = tblAccountBalance.AccountID
+	SET VendorUnbilledAmount = 0;	
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 

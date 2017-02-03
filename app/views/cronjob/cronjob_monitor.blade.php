@@ -21,7 +21,7 @@
         @if( User::checkCategoryPermission('CronJob','Add') )
             <a href="#" id="add-new-config" class="btn btn-primary ">
                 <i class="entypo-plus"></i>
-                Add Cron Job
+                Add New
             </a>
         @endif
     </p>
@@ -219,7 +219,7 @@
                                     <?php } ?>
 
                                     <?php if(User::checkCategoryPermission('CronJob','Delete')){ ?>
-                                            action += '&nbsp;<button data-id="' + CronJobID + '" class="delete-config btn delete btn-danger btn-sm" title="Delete" data-placement="top" data-toggle="tooltip"><i class="entypo-cancel"></i></button>';
+                                            action += '&nbsp;<button data-id="' + CronJobID + '" class="delete-config btn delete btn-danger btn-sm" title="Delete" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></button>';
                                     <?php } ?>
 
 

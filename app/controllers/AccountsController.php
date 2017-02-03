@@ -423,7 +423,9 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $data = Input::all();
         $account = Account::find($id);
-        Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
+        if(isset($data['tags'])){
+            Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
+        }
         $DiscountPlanID = $data['DiscountPlanID'];
         $InboundDiscountPlanID = $data['InboundDiscountPlanID'];
         $message = $password = "";
@@ -1227,6 +1229,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
         $clis = array_filter(preg_split("/\\r\\n|\\r|\\n/", $data['CLI']),function($var){return trim($var)!='';});
 
+        AccountAuthenticate::add_cli_rule($CompanyID,$data);
         foreach($clis as $cli){
 
             if(CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$cli))->count()){
@@ -1258,6 +1261,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $Date = $data['dates'];
             $Confirm = 1;
         }
+        AccountAuthenticate::add_cli_rule($CompanyID,$data);
         if ($CLIRateTableID > 0) {
             $CLIs = CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->pluck('CLI');
         } else if (!empty($data['criteria'])) {
@@ -1293,6 +1297,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     public function clitable_update(){
         $data = Input::all();
+        $CompanyID = User::get_companyID();
+        AccountAuthenticate::add_cli_rule($CompanyID,$data);
         if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
             CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')->update(array('RateTableID' => $data['RateTableID']));

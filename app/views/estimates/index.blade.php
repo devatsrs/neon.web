@@ -8,7 +8,7 @@
 <h3>Estimate</h3>
 @include('includes.errors')
 @include('includes.success')
-<p style="text-align: right;"> @if(User::checkCategoryPermission('Invoice','Add')) <a href="{{URL::to("estimate/create")}}" id="add-new-estimate" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Estimate </a> @endif 
+<p style="text-align: right;"> @if(User::checkCategoryPermission('Invoice','Add')) <a href="{{URL::to("estimate/create")}}" id="add-new-estimate" class="btn btn-primary "> <i class="entypo-plus"></i> Add New</a> @endif
   <!-- <a href="javascript:;" id="bulk-estimate" class="btn upload btn-primary ">
         <i class="entypo-upload"></i>
         Bulk Estimate Generate.
@@ -234,7 +234,7 @@ var postdata;
 
                           /*Multiple Dropdown*/              			
                             action += '<div class="btn-group">';
-                            action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
+                            action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                             action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
                                 if('{{User::checkCategoryPermission('Invoice','Edit')}}')
@@ -249,16 +249,16 @@ var postdata;
 							
                             if (estimate_preview)
 							{                                
-                                action += '<li><a class="icon-left"  target="_blank" href="' + estimate_preview +'"><i class="entypo-pencil"></i>View </a></li>';
+                                action += '<li><a class="icon-left"  target="_blank" href="' + estimate_preview +'"> <i class="fa fa-eye"></i> View </a></li>';
                             }
 
-                            action += ' <li><a class="icon-left"  href="' + (baseurl + "/estimate/estimatelog/{id}").replace("{id}",full[5]) +'"><i class="entypo-pencil"></i>Log </a></li>';
+                            action += ' <li><a class="icon-left"  href="' + (baseurl + "/estimate/estimatelog/{id}").replace("{id}",full[5]) +'"><i class="entypo-list"></i>Log </a></li>';
 
 							if ('{{User::checkCategoryPermission('Invoice','Edit')}}' && delete_url)
 							{     
 								//if(full[4] != 'accepted')
 								{                           
-                                	action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-cancel"></i>Delete</a></li>';				}
+                                	action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-trash"></i>Delete</a></li>';				}
                             }
                             
 							//if(full[11]== 'N')
