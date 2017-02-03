@@ -580,7 +580,7 @@ class RecurringInvoiceController extends \BaseController {
             $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
             $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
             $jobdata["JobLoggedUserID"] = $UserID;
-            $jobdata["Title"] = "[Auto] Recurring " . (isset($jobType[0]->Title) ? $jobType[0]->Title : '') . ' Generate & Send';
+            $jobdata["Title"] = "[Auto] " . (isset($jobType[0]->Title) ? $jobType[0]->Title : '') . ' Generate & Send';
             $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
             $jobdata["CreatedBy"] = User::get_user_full_name($UserID);
             //$jobdata["Options"] = json_encode(array("accounts" => $AccountIDs));
