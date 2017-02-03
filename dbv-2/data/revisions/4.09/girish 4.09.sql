@@ -626,7 +626,7 @@ BEGIN
 				cld VARCHAR(500) NULL DEFAULT NULL
 			);
 			SET @stm = CONCAT('
-			INSERT INTO tmp_Account_(AccountID,cli)
+			INSERT INTO tmp_Account_(AccountID,cld)
 			SELECT DISTINCT AccountID,"" FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
 			');
 			
