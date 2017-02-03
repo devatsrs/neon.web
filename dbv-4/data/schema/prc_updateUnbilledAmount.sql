@@ -51,6 +51,20 @@ BEGIN
 	
 	END WHILE;
 	
+	UPDATE 
+		NeonRMDev.tblAccountBalance 
+	INNER JOIN
+		(
+			SELECT 
+				DISTINCT tblAccount.AccountID 
+			FROM NeonRMDev.tblAccount  
+			LEFT JOIN tmp_Account_ 
+				ON tblAccount.AccountID = tmp_Account_.AccountID
+			WHERE tmp_Account_.AccountID IS NULL AND tblAccount.CompanyID = p_CompanyID
+		) TBL
+	ON TBL.AccountID = tblAccountBalance.AccountID
+	SET UnbilledAmount = 0;
+	
 	CALL prc_updateVendorUnbilledAmount(p_CompanyID,p_Today);
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

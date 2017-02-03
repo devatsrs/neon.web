@@ -36,7 +36,7 @@
         <p style="text-align: right;">
             <a href="#" id="add-new-role" class="btn btn-primary ">
                 <i class="entypo-plus"></i>
-                Add New Role
+                Add New
             </a>
             <!--<a href="#" id="add-new-permission" class="btn btn-primary ">
                 <i class="entypo-plus"></i>

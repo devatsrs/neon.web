@@ -181,12 +181,15 @@ class InvoiceTemplatesController extends \BaseController {
         unset($data['CompanyLogo']);
         unset($data['Status_name']);
 
+		$data['Header']		= InvoiceTemplate::$HeaderDefault;
+		$data['FooterTerm'] = InvoiceTemplate::$TermsDefault;
+		$data['Terms']  	= InvoiceTemplate::$FooterDefault;
         if ($invoiceCompany = InvoiceTemplate::create($data)) {
             if(isset($data['CompanyLogoAS3Key']) && !empty($data['CompanyLogoAS3Key'])){
                 $data['CompanyLogoUrl'] = URL::to("/invoice_templates/".$invoiceCompany->InvoiceTemplateID) ."/get_logo";
             }
 
-            return Response::json(array("status" => "success", "message" => "Invoice Template Successfully Created",'LastID'=>$invoiceCompany->InvoiceTemplateID));
+            return Response::json(array("status" => "success", "message" => "Invoice Template Successfully Created",'newcreated'=>$invoiceCompany,'LastID'=>$invoiceCompany->InvoiceTemplateID));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Invoice Template."));
         }

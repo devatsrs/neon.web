@@ -17,7 +17,7 @@
     @include('includes.success')
     <p class="pull-right">
         @if(User::checkCategoryPermission('BillingClass','Edit'))
-            <button id="save_billing" href="{{URL::to('billing_class/store')}}" class="btn btn-primary btn-sm btn-icon icon-left">
+            <button id="save_billing" href="{{URL::to('billing_class/store/0')}}" class="btn btn-primary btn-sm btn-icon icon-left">
                 <i class="entypo-floppy"></i>
                 Save
             </button>

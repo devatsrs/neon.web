@@ -11,11 +11,11 @@
         $NameFormat =  GatewayConfig::$NameFormat;
         if($GatewayName == 'Porta'){
             $NameFormat = GatewayConfig::$Porta_NameFormat;
-        }else if($GatewayName == 'Vos'){
+        }else if($GatewayName == 'VOS'){
             $NameFormat = GatewayConfig::$Vos_NameFormat;
-        }else if($GatewayName == 'Sippy'){
+        }else if($GatewayName == 'SippySFTP'){
             $NameFormat = GatewayConfig::$Sippy_NameFormat;
-        }else if($GatewayName == 'Mirta'){
+        }else if($GatewayName == 'PBX'){
             $NameFormat = GatewayConfig::$Mirta_NameFormat;
         }
     ?>

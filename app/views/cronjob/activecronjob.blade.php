@@ -70,7 +70,7 @@
                                         action += '<input type = "hidden"  name = "RunningHour" value = "' + (full[2] !== null ?full[2]:'')+ '" / >';
                                         action += '<input type = "hidden"  name = "LastRunTime" value = "' + (full[2] !== null ?full[2]:'')+ '" / >';
                                         action += '<input type = "hidden"  name = "CronJobID" value = "' + CronJobID + '" / >';
-                                        action += ' <a data-id="'+ CronJobID +'" data-pid="'+(full[1] !== null ?full[1]:'')+'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Terminate</a>';
+                                        action += ' <a data-id="'+ CronJobID +'" data-pid="'+(full[1] !== null ?full[1]:'')+'" class="delete-config btn btn-danger btn-sm"><i class="entypo-cancel"></i>Terminate</a>';
 
                                         return action;
                                     }

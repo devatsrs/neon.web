@@ -291,12 +291,12 @@ a[disabled] {
     margin: 32px 20.5px 0;
 }
 
-#drp_customers_jump{
+#drp_toandfro_jump{
     border: 0px solid #fff;
     background-color: rgba(255,255,255,0);
     padding: 0px;
 }
-#drp_customers_jump option{
+#drp_toandfro_jump option{
     -webkit-appearance: none;
     -moz-appearance: none;
     border: 0px;

@@ -84,4 +84,19 @@ class AccountAuthenticate extends \Eloquent {
         $status['data'] = $data;*/
         return $status;
     }
+
+    public static function add_cli_rule($CompanyID,$data){
+        if(!empty($data['AuthRule'])){
+            $AccountAuthenticate = array();
+            $AccountAuthenticate['CustomerAuthRule'] = 'CLI';
+            $AccountAuthenticate['CustomerAuthValue'] = '';
+            if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->count()){
+                AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update($AccountAuthenticate);
+            }else{
+                $AccountAuthenticate['AccountID'] = $data['AccountID'];
+                $AccountAuthenticate['CompanyID'] = $CompanyID;
+                AccountAuthenticate::insert($AccountAuthenticate);
+            }
+        }
+    }
 }

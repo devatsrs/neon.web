@@ -55,8 +55,6 @@ $(document).ready(function(){
     $("#EstimateTable").delegate( '.product_dropdown' ,'change',function (e) {		
         var $this = $(this);
         var $row = $this.parents("tr");
-        console.log($row);
-		//alert($row);
         var productID = $this.val();
         var AccountID = $('select[name=AccountID]').val();
         var EstimateDetailID = $row.find('.EstimateDetailID').val();
@@ -205,13 +203,19 @@ $(document).ready(function(){
 
     $('#add-row').on('click', function(e){
         e.preventDefault();
-        $('#EstimateTable > tbody').append(add_row_html);
+        var itemrow = $('#rowContainer .itemrow').clone();
+        itemrow.removeAttr('class');
+        itemrow.find('select.select22').each(function(i,item){
+            buildselect2(item);
+        });
+        $('#EstimateTable > tbody').append(itemrow);
 
         /*$('select.selectboxit').addClass('visible');
         $('select.selectboxit').selectBoxIt();*/
 
-        $('select.select2').addClass('visible');
-        $('select.select2').select2();
+        //$('select.select2').addClass('visible');
+        //$('select.select2').select2();
+        nicescroll();
 		$("textarea.autogrow").autosize();
     });
 
