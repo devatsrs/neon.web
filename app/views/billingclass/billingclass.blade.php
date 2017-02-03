@@ -298,10 +298,14 @@ $privacy = EmailTemplate::$privacy;
 
 </form>
 </div>
+<div id="rowContainer"></div>
 <script src="{{ URL::asset('assets/js/billing_class.js') }}"></script>
 <script>
-    var template_dp_html =  '{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select2 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}';
-
+    var template_dp_html =  '{{Form::select('InvoiceReminder[TemplateID][]', $emailTemplates, '' ,array("class"=>"select22 select2add small form-control","data-type"=>'email_template','data-active'=>0,'data-modal'=>'add-new-modal-template'))}}';
+    var add_row_html_payment = '<tr class="itemrow hidden"><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Day][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
+    add_row_html_payment += '<td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Age][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
+    add_row_html_payment += '<td>'+template_dp_html+'</td><tr>';
+    $('#rowContainer').append(add_row_html_payment);
     var target = '';
     jQuery(document).ready(function ($) {
             setTimeout(function(){
@@ -314,22 +318,6 @@ $privacy = EmailTemplate::$privacy;
                 $("#billing-form [name='LowBalanceReminder[Interval]']").val('{{$LowBalanceReminder->Interval}}').trigger('change');
                 @endif
             },50);
-        $(document).on('select2-open','.select2add' ,function(e) {
-            /*target = $(e.target).attr('name');
-            $('.add-new-template-dp').attr('data-active',0);
-            $(e.target).attr('data-active',1);
-            $('.select2-results .select2-add').parents('li').on('click', function(e) {
-                e.stopPropagation();
-                $(this).parents();
-                $('#add-new-template-form').trigger("reset");
-                $("#add-new-template-form [name='TemplateID']").val('');
-                $("#add-new-template-form [name='Email_template_privacy']").val(0).trigger("change");
-                $("#add-new-template-form [name='Type']").val('').trigger("change");
-                $('#add-new-modal-template h4').html('Add New template');
-                $('#add-new-modal-template').modal('show');
-                $('#billing-form [name="'+target+'"]').select2("close");
-            });*/
-        });
     });
 </script>
 
