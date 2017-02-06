@@ -1230,6 +1230,14 @@
                                 </div>
                             </div>
                         </div>
+						<div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-4" class="control-label">From</label>        
+                                    {{Form::select('email_from',TicketGroups::GetGroupsFrom(),'',array("class"=>"select2"))}}                           
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="row">
                             <div class="col-md-12">

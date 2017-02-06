@@ -24,10 +24,11 @@
       <form  id="MailBoxCompose" name="MailBoxCompose">
         <div class="form-group">
           <label  for="subject">From:</label>
-          {{ Form::select('email-from', $FromEmails, '', array("class"=>"form-control select2","id"=>"email-from")) }} </div>
+          {{ Form::select('email-from', $FromEmails, '', array("class"=>"form-control select2","id"=>"email-from")) }}
+           </div>
         <div class="form-group">
           <label for="to">To:</label>
-          {{ Form::select('email-to', $AllEmailsTo, '', array("class"=>"form-control useremailssingle","id"=>"email-to")) }}           
+          <input type="text" class="form-control useremailssingle" id="email-to" name="email-to" value="" tabindex="1" />
           <span><a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </span>
         </div>
         
@@ -38,6 +39,10 @@
         <div class="form-group hidden">
           <label for="bcc">BCC:</label>
           <input type="text" class="form-control useremails" id="bcc" name="bcc" value="" tabindex="2" />
+        </div>
+        <div class="form-group">
+          <label for="bcc">Email Templates:</label>
+          {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"mail-compose"))}}
         </div>
         <div class="form-group">
           <label for="subject">Subject:</label>
@@ -213,7 +218,8 @@
 .mail-env .mail-body .mail-compose .form-group label{position:static; left:auto;top:auto;}
 /*#s2id_email-from a:first-child{border:none !important;}*/
 .emailoptiontxt{font-size:10px;}
-.mail-env .mail-body .mail-compose .form-group input.subject{padding-left:10px !important;}
+#subject{padding-left:10px !important;}
+.mail-env .mail-body .mail-compose .form-group input{padding-left:10px !important; border-color: #c8cdd7;}
 .mail-env .mail-body .mail-compose .form-group input:focus{background:none;}
 .mail-env .mail-body .mail-compose .form-group input{
 
@@ -223,7 +229,6 @@
   color: #555555;
   background-color: #ffffff;
   background-image: none;
-  border: 1px solid #ebebeb;
   border-radius: 3px;
  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
   -moz-transition: border-color ease-in-out .15s, -moz-box-shadow ease-in-out .15s;
@@ -249,11 +254,72 @@ $(document).ready(function(e) {
             tags:{{$AllEmails}}
         });
 		
-		
-		$('.useremailssingle').select2({           
-			 maximumSelectionLength: 1,
+			$( document ).on("change",'.email_template' ,function(e) {
+            var templateID = $(this).val(); 
+            if(templateID>0) {
+                var url = baseurl + '/accounts/' + templateID + '/ajax_template';
+                $.get(url, function (data, status) {
+                    if (Status = "success") {						
+                        editor_reset(data);
+                    } else {
+                        toastr.error(status, "Error", toastr_opts);
+                    }
+                });
+            }
         });
 		
+		
+		  function editor_reset(data){
+				//var doc = $('.mail-compose');
+				var doc = $(document).find('#MailBoxCompose');
+		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+        		doc.find('#Message').show();
+						
+	       if(!Array.isArray(data)){				
+                var EmailTemplate = data['EmailTemplate'];
+                doc.find('[name="Subject"]').val(EmailTemplate.Subject);
+                doc.find('#Message').val(EmailTemplate.TemplateBody);
+            }else{
+                doc.find('[name="Subject"]').val('');
+                doc.find('#Message').val('');
+            }
+			
+			doc.find('#Message').wysihtml5({
+				"Tickets":true,
+				"font-styles": true,
+				"leadoptions":false,
+				"Crm":false,
+				"emphasis": true,
+				"lists": true,
+				"html": true,
+				"link": true,
+				"image": true,
+				"color": false,
+				parser: function(html) {
+					return html;
+				}
+			});
+           
+        }
+		
+		/*$('.useremailssingle').select2({           
+			 maximumSelectionLength: 1,
+			 tags:{{$AllEmails}}
+        });*/
+	/////////////////////////////////////
+	$('.useremailssingle').select2({
+    tags: true,
+	 tags:{{$AllEmails}},
+    tokenSeparators: [','],
+  // max emails is 1
+    maximumSelectionSize:1,
+
+    // override message for max tags
+    formatSelectionTooBig: function (limit) {
+        return "Maximum "+limit+" email is allowed";
+    }
+});
+	////////////////////////////////////////	
 		
 	
 	var ajax_url 		   = 	baseurl+'/tickets/SendMail';
@@ -340,6 +406,7 @@ $(document).ready(function(e) {
 		return false;		
     });		
 	$('.wysihtml5box').wysihtml5({
+						"Tickets":true,
 						"font-styles": true,
 						"leadoptions":false,
 						"Crm":false,

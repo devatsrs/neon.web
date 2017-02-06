@@ -1942,9 +1942,18 @@
                             </div>
                         </div>
                         <div class="row">
+                                <div class="form-group">
+                                 <br/>
+                               <label for="field-1" class="col-sm-2 control-label">From</label>
+                                      <div class="col-sm-4">       
+                                    {{Form::select('email_from',TicketGroups::GetGroupsFrom(),'',array("class"=>"select2"))}}                           
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="row">
                             <div class="form-Group">
                                 <br/>
-                                <label for="field-1" class="col-sm-2 control-label">Subject</label>
+                                <label for="subject" class="col-sm-2 control-label">Subject</label>
 
                                 <div class="col-sm-4">
                                     <input type="text" class="form-control" id="subject" name="subject"/>

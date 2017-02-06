@@ -8,7 +8,8 @@
 @include('includes.errors')
 @include('includes.success')
 
-<div class="pull-left"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}"   class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="fa fa-trash"></i> </a>  </div>
+<div class="pull-left"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Add Note"  class="btn btn-primary add_note tooltip-primary btn-xs"><i class="fa fa-sticky-note"></i> </a> 
+ <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}" class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="fa fa-trash"></i> </a></div>
   <div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-backward"></i> </a> @endif
   @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-forward"></i> </a> @endif</div>
  <div class="clear clearfix"></div>
@@ -31,6 +32,7 @@
     <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
       <ul>
+      @if(is_array($attachments)) 
         @foreach($attachments as $key_acttachment => $attachments_data)
         <?php 
    		//$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
@@ -50,10 +52,12 @@
           <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
         </li>
         @endforeach
+        @endif
       </ul>
     </div>
     @endif
     <?php if(count($TicketConversation)>0){
+		if(is_array($attachments)){
 		foreach($TicketConversation as $TicketConversationData){ 
 		 ?>  
     <div class="mail-reply-seperator"></div>
@@ -89,7 +93,7 @@
       </ul>
     </div>
     @endif
-    <?php } } ?>
+    <?php } } } ?>
   </div>
   
   <!-- Sidebar -->
@@ -183,6 +187,32 @@
       <div class="modal-content"> </div>
     </div>
   </form>
+</div>
+<div class="modal fade" id="add-note-model">
+  <div class="modal-dialog" style="width: 70%;">
+    <div class="modal-content">
+      <form id="add-note-form" method="post">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add Note</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12 margin-top pull-left">
+              <div class="form-group">
+                <textarea name="Note" id="Description_edit_note" class="form-control autogrow editor-note desciriptions " style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" id="NoteID" name="NoteID" value="">
+          <button type="submit" id="note-edit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 <form id="emai_attachments_reply_form" class="hidden" name="emai_attachments_form">
   <span class="emai_attachments_span">
@@ -282,6 +312,54 @@ $(document).ready(function(e) {
 			},
 		});
 	});
+	
+	
+	$( document ).on("click",'.add_note' ,function(e) {			
+		var url 		    = 	  baseurl + '/tickets/ticket_action';
+		var ticket_number   =     $(this).attr('ticket_number');
+		
+		$('#add-note-model').modal("show");
+		return false
+		 $.ajax({
+			url: url,
+			type: 'POST',
+			dataType: 'html',
+			async :false,
+			data:{s:1,action_type:action_type,ticket_number:ticket_number,ticket_type:ticket_type},
+			success: function(response){
+				$('#EmailAction-model .modal-content').html('');
+				$('#EmailAction-model .modal-content').html(response);				
+					var mod =  $(document).find('.EmailAction_box');
+					$('#EmailAction-model').modal('show');
+				 	//mod.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+        			//mod.find('.message').show();
+				mod.find("select").select2({
+                    minimumResultsForSearch: -1
+                });
+				mod.find('.select2-container').css('visibility','visible');
+				setTimeout(function(){ 
+				mod.find('.message').wysihtml5({
+						"font-styles": true,
+						"leadoptions":false,
+						"Crm":false,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
+						parser: function(html) {
+							return html;
+						}
+				});
+				 }, 500);
+				
+		    
+			},
+		});
+	});
+
+	//
 	
 		 $("#EmailActionform").submit(function (event) {
 		//////////////////////////          	

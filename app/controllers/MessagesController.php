@@ -276,8 +276,10 @@ class MessagesController extends \BaseController {
 		 $data['name']			=    Auth::user()->FirstName.' '.Auth::user()->LastName;
 		
 		 $data['address']		=    Auth::user()->EmailAddress; 
-	   
-		 $response 				= 	NeonAPI::request('email/sendemail',$data,true,false,true);		
+	   //    public static function request($call_method,  $post_data=array(),$post=true,$is_array=false,$is_upload=false){
+		 $response 				= 	NeonAPI::request('email/sendemail',$data,true,false,true);	
+		 Log::info("response");	
+		 Log::info(print_r($response,true));	
 		if($response->status=='failed'){
 				return  json_response_api($response);
 		}

@@ -1118,7 +1118,7 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
 	$mail->addAddress($ToEmail);
    if ($mail->send()) {
 	   return "Valid mail settings.";
-	}else{
+	}else{ 
 		return "Invalid mail settings.";
 	}
  }

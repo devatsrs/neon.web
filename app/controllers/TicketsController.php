@@ -540,15 +540,15 @@ private $validlicense;
             ->select('tblUser.UserID', 'tblUser.FirstName', 'tblUser.LastName')
             ->get();
 			
-			$FromEmails	 		= TicketGroups::GetGroupsFrom();			
+		$FromEmails	 		= 	TicketGroups::GetGroupsFrom();			
+		$emailTemplates 	= 	EmailTemplate::GetUserDefinedTemplates();
 			//$FromEmails = json_encode($FromEmails);
-		return View::make('tickets.compose', compact('data','random_token','response_extensions','max_file_size','AllEmails','ticketsfields','CompanyID','agentsAll','FromEmails','default_status','AllEmailsTo'));	
+		return View::make('tickets.compose', compact('data','random_token','response_extensions','max_file_size','AllEmails','ticketsfields','CompanyID','agentsAll','FromEmails','default_status','AllEmailsTo',"emailTemplates"));	
 	}
 	
 	function SendMail(){		   
 	    $this->IsValidLicense();
 		$postdata 			= 	Input::all();  
-Log::info(print_r($postdata,true));
 		if(!isset($postdata['Ticket'])){
 			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
 		}
@@ -580,5 +580,5 @@ Log::info(print_r($postdata,true));
 			
         $response 			= 		NeonAPI::request('tickets/SendMailTicket',$postdata,true,false,false);
 		return json_response_api($response);     
-	  }
+	  }	  
 }

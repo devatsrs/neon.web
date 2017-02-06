@@ -3,6 +3,7 @@
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 <script>
     $(document).ready(function ($) {
+		
         $('#add-new-template-form').submit(function(e){
             e.preventDefault();
             var templateID = $("#add-new-template-form [name='TemplateID']").val();
@@ -35,6 +36,56 @@
             modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
             modal.find('.message').show();
         });
+		
+		$('.template_type').change(function(e) {
+		     var template_type_val_change =  $(this).val();
+			 console.log("old:"+template_type_val);
+			console.log("new:"+template_type_val_change);		
+			 var modal_change = $('#add-new-modal-template');
+			if(template_type_val_change){
+				if(template_type_val_change == {{EmailTemplate::TICKET_TEMPLATE}})
+				{		console.log("Ticket");				
+					modal_change.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+					modal_change.find('.message').show();			
+					modal_change.find('.message').wysihtml5({
+					"font-styles": true,
+					"emphasis": true,
+					"leadoptions":false,
+					"Tickets":true,
+					"invoiceoptions":false,
+					"Crm":false,
+					"lists": true,
+					"html": true,
+					"link": true,
+					"image": true,
+					"color": true
+				});	
+				$(".TicketsScroll").perfectScrollbar();		 
+				}else{ console.log("others");				
+					if(template_type_val == {{EmailTemplate::TICKET_TEMPLATE}})
+					{ console.log("others added");				
+							modal_change.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+							modal_change.find('.message').show();			
+							modal_change.find('.message').wysihtml5({
+								"font-styles": true,
+								"emphasis": true,
+								"leadoptions":false,
+								"invoiceoptions":true,
+								"Crm":false,
+								"lists": true,
+								"html": true,
+								"link": true,
+								"image": true,
+								"color": true
+							});
+					
+					}
+				}
+				
+			}
+			template_type_val = template_type_val_change; 
+        });
+		
     });
 
     function ajax_update(fullurl,data) {
@@ -100,7 +151,7 @@
                                 <br />
                                 <label for="field-1" class="control-label col-sm-2">Template Type</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('Type',$type,'',array("class"=>"select2 small"))}}
+                                    {{Form::select('Type',$type,'',array("class"=>"select2 template_type small"))}}
                                 </div>
                             </div>
                         </div>
@@ -131,6 +182,18 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="form-Group">
+                                <br/>
+                                <label class="col-sm-2 control-label">Status</label>
+                                <div class="col-sm-4">
+                                 <p class="status_switch make-switch switch-small">
+                                   <input type="checkbox" checked=""  name="Status" value="1">
+                                   </p>
+                                </div>
+                            </div>
+                        </div>
+                        
                     </div>
                     <div class="modal-footer">
 

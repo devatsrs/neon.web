@@ -8,11 +8,16 @@ class EmailTemplate extends \Eloquent {
     const ACCOUNT_TEMPLATE =1;
     const INVOICE_TEMPLATE =2;
     const RATESHEET_TEMPLATE = 3;
+	const TICKET_TEMPLATE = 3;
 	const PRIVACY_ON = 1;
     const PRIVACY_OFF = 0;
 	
+	const DYNAMICTEMPLATE = 0;
+	const STATICTEMPLATE  = 1;
+	
+	
     public static $privacy = [0=>'All User',1=>'Only Me'];
-    public static $Type = [0=>'Select Template Type',self::ACCOUNT_TEMPLATE=>'Account',self::INVOICE_TEMPLATE=>'Billing',self::RATESHEET_TEMPLATE=>'Rate sheet'];
+    public static $Type = [0=>'Select Template Type',self::ACCOUNT_TEMPLATE=>'Account',self::INVOICE_TEMPLATE=>'Billing',self::RATESHEET_TEMPLATE=>'Rate sheet',self::TICKET_TEMPLATE=>'Tickets'];
 
     public static function checkForeignKeyById($id){
         $companyID = User::get_companyID();
@@ -42,5 +47,14 @@ class EmailTemplate extends \Eloquent {
 
     public static function getDefaultSystemTemplate($SystemType){
        return  EmailTemplate::where(array('SystemType'=>$SystemType))->pluck('TemplateID');
+    }
+	
+	public static function GetUserDefinedTemplates($select = 1){
+		$select =  isset($select)?$select:1;
+       $row =  EmailTemplate::where(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE,"CompanyID"=>User::get_companyID()))->whereNull('UserID')->select(["TemplateID","TemplateName"])->lists('TemplateName','TemplateID');
+	    if(!empty($row) && $select==1){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
     }
 }

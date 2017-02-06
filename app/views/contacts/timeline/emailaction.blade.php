@@ -38,6 +38,10 @@
       <div class="form-Group" style="margin-bottom: 15px;">
                   <label >Email Template</label>
                   {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"EmailAction_box"))}} </div>
+        <div class="form-Group" style="margin-bottom: 15px;">
+                 <label >From</label>
+                  {{Form::select('email-from',$FromEmails,'',array("class"=>"select2"))}}
+         </div>          
       <div class="form-group">
         <label for="EmailActionSubject">* Subject:</label>
         <input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{$response_data['Subject']}}" />

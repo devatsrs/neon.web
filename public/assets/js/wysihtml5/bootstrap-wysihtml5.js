@@ -94,6 +94,47 @@
               "</ul>" +
             "</li>";
         },
+		"Tickets":function(locale, options){			
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return "<li class='dropdown'>" +
+              "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.Tickets.Subject + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+              "<ul class='TicketsScroll dropdown-menu'>" +
+			   "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Ticket Fields</b></a></li>" +			  
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Subject}}'>" + locale.Tickets.Subject + "</a></li>" +
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TicketID}}'>" + locale.Tickets.TicketID + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Requester}}'>" + locale.Tickets.Requester + "</a></li>" +
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{RequesterName}}'>" + locale.Tickets.RequesterName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Status}}'>" + locale.Tickets.Status + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Description}}'>" + locale.Tickets.Description + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Group}}'>" + locale.Tickets.Group + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Type}}'>" + locale.Tickets.Type + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Date}}'>" + locale.Tickets.Date + "</a></li>" +
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Account Fields</b></a></li>" +
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>" + locale.Tickets.FirstName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.Tickets.LastName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Email}}'>" + locale.Tickets.Email + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address1}}'>" + locale.Tickets.Address1 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.Tickets.Address2 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.Tickets.Address3 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.Tickets.City + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.Tickets.State + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.Tickets.PostCode + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.Tickets.Country + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.Tickets.Currency+ "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.Tickets.OutstandingExcludeUnbilledAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.Tickets.OutstandingIncludeUnbilledAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.Tickets.BalanceThreshold + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.Tickets.Signature + "</a></li>" +
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Invoice Fields</b></a></li>" +
+	                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceNumber}}'>" + locale.Tickets.InvoiceNumber + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceGrandTotal}}'>" + locale.Tickets.InvoiceGrandTotal + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceOutstanding}}'>" + locale.Tickets.InvoiceOutstanding + "</a></li>" +              
+              "</ul>" +
+            "</li>";
+        
+		},
         "emphasis": function(locale, options) {
             var size = (options && options.size) ? ' btn-'+options.size : '';
             return "<li>" +
@@ -584,6 +625,7 @@
         "leadoptions":true ,
         "invoiceoptions":false ,
 		"Crm":true,
+		"Tickets":false,
         "font-styles": true,
         "color": false,
         "emphasis": true,
@@ -1129,6 +1171,35 @@
                 Country:"Country",
                 Signature:"Signature"				
 				},
+			Tickets:{
+				Subject:"Subject",
+				TicketID:"TicketID",
+				Requester:"Requester",
+				Account:"Account",
+				RequesterName:"RequesterName",
+				Status:"Status",
+				Description:"Description",
+				Group:"Group",
+				Type:"Type",
+				Date:"Date",
+				FirstName:"FirstName",
+				LastName:"LastName",
+				Email:"Email",
+				Address1:"Address1",
+				Address2:"Address2",
+				Address3:"Address3",
+				City:"City",
+				State:"State",
+				PostCode:"PostCode",
+				Country:"Country",
+				Currency:"Currency",
+				OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
+				OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
+				Signature:"Signature",
+				InvoiceNumber:"InvoiceNumber",
+				InvoiceGrandTotal:"InvoiceGrandTotal",
+				InvoiceOutstanding:"InvoiceOutstanding",			
+			},	
             font_styles: {
                 normal: "Normal text",
                 h1: "Heading 1",

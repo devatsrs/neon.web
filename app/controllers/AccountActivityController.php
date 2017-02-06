@@ -150,7 +150,7 @@ class AccountActivityController extends \BaseController {
 	public function sendMailApi($AccountID)
 	{ 
 		$usertype = 0;
-        $data = Input::all(); Log::info(print_r($data,true));
+        $data = Input::all();
         $rules = array(
             'Subject'=>'required',
             'Message'=>'required'
@@ -197,11 +197,16 @@ class AccountActivityController extends \BaseController {
 		
 		$data['address']		=    Auth::user()->EmailAddress; 
 	   
-		 $response 				= 	NeonAPI::request('accounts/sendemail',$data,true,false,true);				
-	
+		$response 				= 	NeonAPI::request('accounts/sendemail',$data,true,false,true);				
+		
 		if($response->status=='failed'){
 				return  json_response_api($response);
-		}else{										
+		}else{	
+				if(!empty($files_array) && count($files_array)>0) {
+					foreach($files_array as $key=> $array_file_data){
+						  @unlink($array_file_data['filepath']);
+					}
+				}									
 				$response 		 = 	$response->data;
 				$response->type  = 	Task::Mail;			
 				$response->LogID = 	$response->AccountEmailLogID;
@@ -218,7 +223,7 @@ class AccountActivityController extends \BaseController {
 
 
 	function EmailAction(){
-		$data 		   		= 	  Input::all(); Log::info(print_r($data,true));
+		$data 		   		= 	  Input::all();
 		$action_type   		=     $data['action_type'];
 		$email_number  		=     $data['email_number'];
 		$usertype 			= 	  0;
@@ -245,13 +250,15 @@ class AccountActivityController extends \BaseController {
 			}else{$parent_data = array();}
 			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
 			
+			$FromEmails	 				= 	TicketGroups::GetGroupsFrom();			
+			
 			if($action_type=='forward'){ //attach current email attachments
 			$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths'],'reply');
 			}
 			if($usertype){
-			return View::make('contacts.timeline.emailaction', compact('data','response_data','action_type','parent_data','emailTemplates','AccountName','AccountEmail','uploadtext')); 
+			return View::make('contacts.timeline.emailaction', compact('data','response_data','action_type','parent_data','emailTemplates','AccountName','AccountEmail','uploadtext','FromEmails')); 
 			}else{
-			return View::make('accounts.emailaction', compact('data','response_data','action_type','parent_data','emailTemplates','AccountName','AccountEmail','uploadtext'));  			
+			return View::make('accounts.emailaction', compact('data','response_data','action_type','parent_data','emailTemplates','AccountName','AccountEmail','uploadtext','FromEmails'));  			
 			}
 		}
         

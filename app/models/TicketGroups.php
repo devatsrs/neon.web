@@ -54,12 +54,13 @@ class TicketGroups extends \Eloquent {
     }
 	
 	static function GetGroupsFrom(){
+		$Tickets					=	Tickets::CheckTicketLicense()?1:0;
 		$CompanyID 		 			= 	User::get_companyID(); 
-		$FromEmailsQuery  			= 	"CALL `prc_GetFromEmailAddress`('".$CompanyID."', '0', '1')";
+		$FromEmailsQuery  			= 	"CALL `prc_GetFromEmailAddress`('".$CompanyID."', '0', ".$Tickets.")"; 
 		$FromEmailsResults			= 	DB::select($FromEmailsQuery);
 		$FromEmails					= 	array();
 		foreach($FromEmailsResults as $FromEmailsResultsData){
-			$FromEmails[$FromEmailsResultsData->GroupEmailAddress] = $FromEmailsResultsData->GroupEmailAddress;
+			$FromEmails[$FromEmailsResultsData->EmailFrom] = $FromEmailsResultsData->EmailFrom;
 		}
 		return $FromEmails;
 	}

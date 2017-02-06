@@ -5,8 +5,8 @@ class EmailTemplateController extends \BaseController {
     public function ajax_datagrid() {
 
         $companyID = User::get_companyID();
-        $data = Input::all();
-        $select = ["TemplateName","Subject","Type","CreatedBy","updated_at","TemplateID"];
+        $data = Input::all(); 
+        $select = ["TemplateName","Subject","Type","CreatedBy","updated_at","Status","TemplateID","StaticType"];
         $template = EmailTemplate::select($select);
         $template->where(["CompanyID" => $companyID]);
 
@@ -17,7 +17,12 @@ class EmailTemplateController extends \BaseController {
             $template->Where('userID','=',user::get_userID());
         }else{
             $template->whereNull('userID');
-        }
+        } 
+		if($data['Status']!='false'){ 
+			$template->Where('Status',1);
+		}else{ 
+			$template->Where('Status',0);
+		}
         /*if(trim($data['TemplateName']) != '') {
             $template->where('TemplateName', 'like','%'.trim($data['TemplateName']).'%');
         }*/
@@ -44,7 +49,7 @@ class EmailTemplateController extends \BaseController {
      */
     public function store() {
 
-        $data = Input::all();
+        $data = Input::all(); 
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['CreatedBy'] = User::get_user_full_name();
@@ -64,6 +69,7 @@ class EmailTemplateController extends \BaseController {
 		{
 			$data['userID'] = NULL;
 		}
+		$data['Status'] = isset($data['Status'])?$data['Status']:0;
         unset($data['Email_template_privacy']);
         if ($obj = EmailTemplate::create($data)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Created","newcreated"=>$obj));
@@ -92,6 +98,7 @@ class EmailTemplateController extends \BaseController {
         $instance['Subject'] = $template->Subject;
         $instance['TemplateBody'] = $template->TemplateBody;
         $instance['Type'] = $template->Type;
+		$instance['Status'] = $template->Status;
         if($template->userID==User::get_userID()){
             $instance['Privacy'] = 1;
         } 
@@ -106,7 +113,7 @@ class EmailTemplateController extends \BaseController {
      * @return Response
      */
     public function update($id) {
-        $data = Input::all(); 
+        $data = Input::all();   
         $crmteplate = EmailTemplate::findOrfail($id);
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
@@ -130,6 +137,7 @@ class EmailTemplateController extends \BaseController {
 			$data['userID'] = NULL;
 		} 
         unset($data['Email_template_privacy']); 
+		$data['Status'] = isset($data['Status'])?$data['Status']:0;
         if ($crmteplate->update($data)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Updated"));
         } else {
@@ -176,4 +184,21 @@ class EmailTemplateController extends \BaseController {
             $NeonExcel->download_excel($excel_data);
         }
     }
+	
+	function ChangeStatus($id){
+        $data 		= Input::all();
+		try
+		{
+			$status 	= $data['status'];
+			$statusdb 	= 0;
+			if($status=='true'){
+				$statusdb = 1;
+			}
+			 
+			EmailTemplate::find($id)->update(array("Status"=>$statusdb));
+			return Response::json(array("status" => "success", "message" => "Template status successfully updated"));
+		}catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => "template is in Use, You cant delete this template."));
+        }
+	}
 }
