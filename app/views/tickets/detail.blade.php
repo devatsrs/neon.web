@@ -326,10 +326,13 @@ $(document).ready(function(e) {
 	
 	
 	$( document ).on("click",'.add_note' ,function(e) {			
-		var ticket_number   =     $(this).attr('ticket_number');
+		var mod = $('#add-note-model');
+		 	mod.find('.wysihtml5-toolbar').remove();
+			mod.find('.wysihtml5-sandbox').remove();
+			mod.find('#Description_edit_note').show();
 		
-		$('#add-note-model').modal("show");
-		$('#add-note-model').find('#Description_edit_note').wysihtml5({
+		mod.modal("show");
+		mod.find('#Description_edit_note').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
 						"Tickets":true,
