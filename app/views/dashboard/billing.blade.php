@@ -270,6 +270,7 @@
                         <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
                         <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
                         <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
+                        <a data-rel="empty" href="#"><i class="entypo-trash"></i></a>
                     </div>
                 </div>
                 <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
@@ -719,6 +720,13 @@
                 missingAccounts();
             }
         });
+        $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="empty"]', function (e) {
+            e.preventDefault();
+            var id = $(this).parents('.panel-primary').find('table').attr('id');
+            if (id == 'missingAccounts') {
+                deleteMissingAccounts();
+            }
+        });
         $(function () {
             reload_invoice_expense();
             $("#filter-pin").hide();
@@ -984,6 +992,29 @@
                     titleState(el);
                 });
             }, "json");
+        }
+
+        function deleteMissingAccounts() {
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
+            var gateWayID = $("#company_gateway").val();
+            if(gateWayID) {
+                if(confirm('Are you sure you want to clear missing account against this gateway?')) {
+                    var table = $('#missingAccounts');
+                    loadingUnload(table, 1);
+                    var url = baseurl + '/dashboard/delete_missing_accounts/' + gateWayID;
+                    showAjaxScript(url, [], function (response) {
+                        $(".btn").button('reset');
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                        missingAccounts();
+                        loadingUnload(table, 0);
+                    });
+                }
+            }
+            @endif
         }
 
         function missingAccounts() {
