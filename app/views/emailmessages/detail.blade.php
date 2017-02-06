@@ -157,15 +157,16 @@ $(document).ready(function(e) {
 				mod.find('.select2-container').css('visibility','visible');
 				setTimeout(function(){ 
 				mod.find('.message').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
+				"font-styles": true,
+				"leadoptions":false,
+				"Tickets":true,
+				"Crm":false,
+				"emphasis": true,
+				"lists": true,
+				"html": true,
+				"link": true,
+				"image": true,
+				"color": false,
 						parser: function(html) {
 							return html;
 						}
@@ -340,7 +341,8 @@ function bytesToSize(filesize) {
 			doc.find('.message').wysihtml5({
 				"font-styles": true,
 				"leadoptions":false,
-				"Crm":true,
+				"Tickets":true,
+				"Crm":false,
 				"emphasis": true,
 				"lists": true,
 				"html": true,

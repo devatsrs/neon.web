@@ -33,10 +33,10 @@
                         <div class="col-sm-2">
                             {{Form::select('template_privacy',$privacy,'',array("class"=>"select2 small"))}}
                         </div>
-                        <label class="col-sm-2 control-label">Template Type</label>
+                        <!--<label class="col-sm-2 control-label">Template Type</label>
                         <div class="col-sm-2">
                             {{Form::select('template_type',$type,'',array("class"=>"select2 small"))}}
-                        </div>
+                        </div>-->
                          <label class="col-sm-2 control-label">Status</label>
                          <div class="col-sm-2">
                             <p class="make-switch switch-small">
@@ -71,7 +71,7 @@
     <tr>
         <th width="20%">Template name</th>
         <th width="20%">Subject</th>
-        <th width="10%">Type</th>
+        <!--<th width="10%">Type</th>-->
         <th width="15%">Created By</th>
         <th width="15%">updated Date</th>
         <th width="10%">Status</th>
@@ -115,19 +115,19 @@ var template_type_val =0;
             [
                 {  "bSortable": true },  //0  Template Name', '', '', '
                 {  "bSortable": true }, //1   CreatedBy
-                {  "bSortable": true,
+                /*{  "bSortable": true,
                         mRender: function ( id, type, full ) {
                             return tempatetype[id];
                      }
-                 }, //updated Date
+                 },*/ //updated Date
                 {  "bSortable": true }, //updated Date
                 {  "bSortable": true }, //updated Date
 				{  "bSortable": true,
                     mRender: function ( id, type, full ) { 
 					if(id){					
-						action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[6]+'" checked=""  class="changestatus"  name="template_status" value="1"></p>';
+						action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[5]+'" checked=""  class="changestatus"  name="template_status" value="1"></p>';
 					}else{
-						action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[6]+'" class="changestatus"  name="template_status" value="1"></p>';
+						action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[5]+'" class="changestatus"  name="template_status" value="1"></p>';
 					} return action;
 					
 					 } }, //status
@@ -141,7 +141,7 @@ var template_type_val =0;
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-template btn btn-default btn-sm"><i class="entypo-pencil"></i></a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('EmailTemplate','Delete')) { ?>
-						if(full[7]==0){
+						if(full[6]==0){
                             action += ' <a data-id="'+id+'" class="delete-template btn delete btn-danger btn-sm"><i class="fa fa-trash"></i></a>'; }
                         <?php } ?>
                         return action;

@@ -160,12 +160,14 @@ class CronJobController extends \BaseController {
                     $rateTables = array(""=> "Select")+$rateTables;
                 }
             }else if($CronJobCommand->Command == 'autoinvoicereminder'){
-                $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
+                //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
+				$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
                 $accounts = Account::getAccountIDList();
             }else if($CronJobCommand->Command == 'accountbalanceprocess'){
-                $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
+                //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
+				$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
             }
-
+			 
 
             $commandconfig = json_decode($commandconfig,true);
 

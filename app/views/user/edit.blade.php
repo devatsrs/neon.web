@@ -188,14 +188,16 @@
         });
 
         $('[name="EmailFooter"]').wysihtml5({
-            "leadoptions":false,
-            "font-styles": false,
-            "emphasis": false,
-            "lists": false,
-            "html": true,
-            "link": false,
-            "image": false,
-            "color": false,
+           "font-styles": true,
+			"leadoptions":false,
+			"Tickets":true,
+			"Crm":false,
+			"emphasis": true,
+			"lists": true,
+			"html": true,
+			"link": true,
+			"image": true,
+			"color": false,
             parser: function (html) {
                 return html;
             }

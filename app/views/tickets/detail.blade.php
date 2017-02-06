@@ -295,6 +295,7 @@ $(document).ready(function(e) {
 				mod.find('.message').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
+						"Tickets":true,
 						"Crm":false,
 						"emphasis": true,
 						"lists": true,
@@ -341,6 +342,7 @@ $(document).ready(function(e) {
 				mod.find('.message').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
+						"Tickets":true,
 						"Crm":false,
 						"emphasis": true,
 						"lists": true,

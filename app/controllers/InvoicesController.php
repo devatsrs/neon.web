@@ -126,7 +126,8 @@ class InvoicesController extends \BaseController {
         $accounts = Account::getAccountIDList();
 		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
-        $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
+        //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
+		$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
         $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
         $data['StartDateDefault'] 	  	= 	'';
 		$data['IssueDateEndDefault']  	= 	'';
@@ -1544,7 +1545,8 @@ class InvoicesController extends \BaseController {
 
     }
     public function ajax_getEmailTemplate($id){
-        $filter =array('Type'=>EmailTemplate::INVOICE_TEMPLATE);
+      //  $filter =array('Type'=>EmailTemplate::INVOICE_TEMPLATE);
+		$filter =array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE);
         if($id == 1){
           $filter['UserID'] =   User::get_userID();
         }

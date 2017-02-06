@@ -406,9 +406,9 @@ $(document).ready(function(e) {
 		return false;		
     });		
 	$('.wysihtml5box').wysihtml5({
-						"Tickets":true,
 						"font-styles": true,
 						"leadoptions":false,
+						"Tickets":true,
 						"Crm":false,
 						"emphasis": true,
 						"lists": true,

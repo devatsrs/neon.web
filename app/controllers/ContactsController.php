@@ -339,11 +339,12 @@ class ContactsController extends \BaseController {
 	
 	  public function ajax_getEmailTemplate($privacy, $type){
         $filter = array();
-        if($type == EmailTemplate::ACCOUNT_TEMPLATE){
+        /*if($type == EmailTemplate::ACCOUNT_TEMPLATE){
             $filter =array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE);
         }elseif($type== EmailTemplate::RATESHEET_TEMPLATE){
             $filter =array('Type'=>EmailTemplate::RATESHEET_TEMPLATE);
-        }
+        }*/
+		$filter =array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE);
         if($privacy == 1){
             $filter ['UserID'] =  User::get_userID();
         }

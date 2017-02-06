@@ -18,16 +18,16 @@
         $('#add-new-modal-template').on('shown.bs.modal', function(event){
             var modal = $(this);
             modal.find('.message').wysihtml5({
-                "font-styles": true,
-                "emphasis": true,
-                "leadoptions":false,
-                "invoiceoptions":true,
-                "Crm":false,
-                "lists": true,
-                "html": true,
-                "link": true,
-                "image": true,
-                "color": true
+               "font-styles": true,
+				"leadoptions":false,
+				"Tickets":true,
+				"Crm":false,
+				"emphasis": true,
+				"lists": true,
+				"html": true,
+				"link": true,
+				"image": true,
+				"color": false,
             });
         });
 
@@ -49,16 +49,15 @@
 					modal_change.find('.message').show();			
 					modal_change.find('.message').wysihtml5({
 					"font-styles": true,
-					"emphasis": true,
-					"leadoptions":false,
-					"Tickets":true,
-					"invoiceoptions":false,
-					"Crm":false,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": true
+						"leadoptions":false,
+						"Tickets":true,
+						"Crm":false,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
 				});	
 				$(".TicketsScroll").perfectScrollbar();		 
 				}else{ console.log("others");				
@@ -68,15 +67,15 @@
 							modal_change.find('.message').show();			
 							modal_change.find('.message').wysihtml5({
 								"font-styles": true,
-								"emphasis": true,
 								"leadoptions":false,
-								"invoiceoptions":true,
+								"Tickets":true,
 								"Crm":false,
+								"emphasis": true,
 								"lists": true,
 								"html": true,
 								"link": true,
 								"image": true,
-								"color": true
+								"color": false,
 							});
 					
 					}
@@ -146,7 +145,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                       <!-- <div class="row">
                             <div class="form-group">
                                 <br />
                                 <label for="field-1" class="control-label col-sm-2">Template Type</label>
@@ -154,7 +153,7 @@
                                     {{Form::select('Type',$type,'',array("class"=>"select2 template_type small"))}}
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
                         <div class="row">
                             <div class="form-group">
                                 <br />

@@ -86,18 +86,19 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 				mod.find('.select2-container').css('visibility','visible');
 				setTimeout(function(){ 
 				mod.find('.message').wysihtml5({
-						"font-styles": true,
+					"font-styles": true,
 						"leadoptions":false,
-						"Crm":true,
+						"Tickets":true,
+						"Crm":false,
 						"emphasis": true,
 						"lists": true,
 						"html": true,
 						"link": true,
 						"image": true,
 						"color": false,
-						parser: function(html) {
-							return html;
-						}
+					parser: function(html) {
+						return html;
+					}
 				});
 				 }, 500);
 				
@@ -225,19 +226,20 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
                         modal.find('.editor-note').show();
 						  
                         var modal = $('#edit-note-model');
-                        modal.find('.editor-note').wysihtml5({
-									"font-styles": true,
-									"leadoptions":false,
-									"Crm":false,
-									"emphasis": true,
-									"lists": true,
-									"html": true,
-									"link": true,
-									"image": true,
-									"color": false,
-									parser: function(html) {
-										return html;
-									}
+							modal.find('.editor-note').wysihtml5({
+								"font-styles": true,
+								"leadoptions":false,
+								"Tickets":true,
+								"Crm":false,
+								"emphasis": true,
+								"lists": true,
+								"html": true,
+								"link": true,
+								"image": true,
+								"color": false,
+								parser: function(html) {
+									return html;
+								}
 							});
                     });
 
@@ -314,7 +316,8 @@ toastr.error(status, "Error", toastr_opts);
 			doc.find('.message').wysihtml5({
 				"font-styles": true,
 				"leadoptions":false,
-				"Crm":true,
+				"Tickets":true,
+				"Crm":false,
 				"emphasis": true,
 				"lists": true,
 				"html": true,
@@ -325,6 +328,7 @@ toastr.error(status, "Error", toastr_opts);
 					return html;
 				}
 			});
+
            
         }
 		
@@ -433,10 +437,11 @@ setTimeout(function() {
 			if(divName=='box-2')
 			{				
         	var doc = $('.mail-compose');
-       	 doc.find('.message').wysihtml5({
+		 	doc.find('.message').wysihtml5({
 				"font-styles": true,
 				"leadoptions":false,
-				"Crm":true,
+				"Tickets":true,
+				"Crm":false,
 				"emphasis": true,
 				"lists": true,
 				"html": true,
@@ -459,14 +464,15 @@ setTimeout(function() {
 				var doc = $('#box-1');
 			 doc.find('#note-content').wysihtml5({
 					"font-styles": true,
-					"leadoptions":false,
-					"Crm":false,
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
+						"leadoptions":false,
+						"Tickets":true,
+						"Crm":false,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
 					parser: function(html) {
 						return html;
 					}

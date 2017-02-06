@@ -50,7 +50,8 @@ class LeadsController extends \BaseController {
     }
 
     public function ajax_getEmailTemplate($privacy){
-        $filter =array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE);
+        //$filter =array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE);
+		$filter =array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE);
         if($privacy == 1){
             $filter['UserID'] =  User::get_userID();
         }
