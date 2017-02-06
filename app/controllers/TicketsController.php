@@ -371,7 +371,7 @@ private $validlicense;
 				   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
 					$response_extensions		 =	json_encode($response_api_extensions['allowed_extensions']); 
 					
-					$TicketConversation			 =	$ResponseData->TicketConversation;
+					$TicketConversation			 =	$ResponseData->TicketConversation; Log::info($ResponseData->TicketConversation);
 					//$NextTicket 				 =	$ResponseData->NextTicket;
 					//$PrevTicket 				 =	$ResponseData->PrevTicket;
 					$ticketSavedData			 = 	json_decode(json_encode($ResponseData->ticketSavedData),true);
@@ -580,5 +580,13 @@ private $validlicense;
 			
         $response 			= 		NeonAPI::request('tickets/SendMailTicket',$postdata,true,false,false);
 		return json_response_api($response);     
-	  }	  
+	  }	
+	  
+	  function add_note(){
+    	$this->IsValidLicense();
+		$postdata 			= 	Input::all();  		Log::info(print_r($postdata,true));
+		$response 			= 		NeonAPI::request('tickets/add_note',$postdata,true,false,false);
+		return json_response_api($response);     
+	 
+	  }  
 }

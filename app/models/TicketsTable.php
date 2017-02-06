@@ -14,6 +14,10 @@ class TicketsTable extends \Eloquent
 	const EMAIL						=	1;
 	
 	
+	const TIMELINEEMAIL				=	1;
+	const TIMELINENOTE				=	2;
+	
+	
 	static  $defaultSortField 		= 	'created_at';
 	static  $defaultSortType 		= 	'desc';
 	static  $Sortcolumns			=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","group"=>"Group","updated_at"=>"Last Modified");

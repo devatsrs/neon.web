@@ -57,8 +57,9 @@
     </div>
     @endif
     <?php if(count($TicketConversation)>0){
-		if(is_array($attachments)){
+		if(is_array($TicketConversation)){
 		foreach($TicketConversation as $TicketConversationData){ 
+		if($TicketConversationData->Timeline_type == TicketsTable::TIMELINEEMAIL){
 		 ?>  
     <div class="mail-reply-seperator"></div>
     <div class="mail-info first_data">
@@ -66,7 +67,7 @@
       <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
     <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
-    <div class="mail-text @if(count($attachments)<1 || strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->Message}} </div>       
+    <div class="mail-text @if(count($attachments)<1 || strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->EmailMessage}} </div>       
      @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
     <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
@@ -93,6 +94,15 @@
       </ul>
     </div>
     @endif
+    <?php }else if($TicketConversationData->Timeline_type == TicketsTable::TIMELINENOTE){
+	?>
+    <div class="mail-reply-seperator"></div>
+	<div class="mail-info first_data">
+      <div class="mail-sender">  <span>Note</span>   </div>
+      <div class="mail-date">  {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
+    </div>
+      <div class="mail-text last_data"> {{$TicketConversationData->Note}} </div>   
+	<?php	} ?>
     <?php } } } ?>
   </div>
   
@@ -206,7 +216,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <input type="hidden" id="NoteID" name="NoteID" value="">
+          <input type="hidden" id="TicketID" name="TicketID" value="{{$ticketdata->TicketID}}">
           <button type="submit" id="note-edit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
@@ -316,30 +326,10 @@ $(document).ready(function(e) {
 	
 	
 	$( document ).on("click",'.add_note' ,function(e) {			
-		var url 		    = 	  baseurl + '/tickets/ticket_action';
 		var ticket_number   =     $(this).attr('ticket_number');
 		
 		$('#add-note-model').modal("show");
-		return false
-		 $.ajax({
-			url: url,
-			type: 'POST',
-			dataType: 'html',
-			async :false,
-			data:{s:1,action_type:action_type,ticket_number:ticket_number,ticket_type:ticket_type},
-			success: function(response){
-				$('#EmailAction-model .modal-content').html('');
-				$('#EmailAction-model .modal-content').html(response);				
-					var mod =  $(document).find('.EmailAction_box');
-					$('#EmailAction-model').modal('show');
-				 	//mod.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-        			//mod.find('.message').show();
-				mod.find("select").select2({
-                    minimumResultsForSearch: -1
-                });
-				mod.find('.select2-container').css('visibility','visible');
-				setTimeout(function(){ 
-				mod.find('.message').wysihtml5({
+		$('#add-note-model').find('#Description_edit_note').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
 						"Tickets":true,
@@ -353,13 +343,36 @@ $(document).ready(function(e) {
 						parser: function(html) {
 							return html;
 						}
-				});
-				 }, 500);
-				
-		    
-			},
+				});		
+	});
+	
+	////
+	$( document ).on("submit",'#add-note-form' ,function(e) {			
+		e.preventDefault();
+		var formData = new FormData($('#add-note-form')[0]);
+		var url 		    = 	  baseurl + '/tickets/add_note';
+	 $.ajax({
+			url: url,
+			type: 'POST',
+			dataType: 'json',
+			async :false,
+			cache: false,
+			contentType: false,
+			processData: false,
+			data:formData,
+			success: function(response){
+						$("#add-note-model").find('#note-edit').button('reset');
+						if(response.status =='success'){									
+							toastr.success(response.message, "Success", toastr_opts);
+							location.reload();
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+				},
 		});
 	});
+	
+	////
 
 	//
 	

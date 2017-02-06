@@ -524,6 +524,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('contacts/{id}/show', 'ContactsController@ShowTimeLine');
 	Route::get('tickets/compose_email', 'TicketsController@ComposeEmail');	
 	Route::post('tickets/SendMail', 'TicketsController@SendMail');
+	Route::post('tickets/add_note', 'TicketsController@add_note');
+	
+	
 	Route::any('/contacts/get_note', 'ContactsController@get_note');
 	Route::any('contacts/note/update', 'ContactsController@update_note');
 	Route::any('/contacts/{id}/delete_note', array('as' => 'contacts_delete_note', 'uses' => 'ContactsController@delete_note'));
