@@ -395,6 +395,17 @@ class DashboardController extends BaseController {
         return json_encode($jsondata);
     }
 
+    public function delete_gateway_missing_account($id){
+        try {
+            $result = DB::Connection('sqlsrv2')->statement('delete from tblGatewayAccount where CompanyGatewayID=' . intval($id));
+            if($result){
+                return Response::json(array("status" => "success", "message" => "Messing Account Delete Successfully."));
+            }
+        }catch(Exception $ex){
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
+
     public function getTopAlerts(){
         $getdata = Input::all();
         $getdata['iDisplayLength'] = 10;
