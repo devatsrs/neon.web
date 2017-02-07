@@ -986,6 +986,7 @@
                 send_url = ("/invoice/{id}/invoice_email").replace("{id}", InvoiceID);
                 console.log(send_url)
                 showAjaxModal(send_url, 'send-modal-invoice');
+				
                 $('#send-modal-invoice').modal('show');			
             });
 
@@ -1114,7 +1115,7 @@
                 $("#modal-BulkMail").modal('show');
             });
 			$('#send-modal-invoice').on('shown.bs.modal', function (event) {
-				setTimeout(function(){ $("#send-modal-invoice").find(".select22").select2(); }, 200);
+				setTimeout(function(){ $("#send-modal-invoice").find(".select22").select2(); }, 250);
 			});
             $('#modal-BulkMail').on('shown.bs.modal', function (event) {
                 var modal = $(this);

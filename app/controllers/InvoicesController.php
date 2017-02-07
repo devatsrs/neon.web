@@ -1108,7 +1108,7 @@ class InvoicesController extends \BaseController {
         if($id){
             set_time_limit(600); // 10 min time limit.
             $CreatedBy = User::get_user_full_name();
-            $data = Input::all();
+            $data = Input::all(); 
             $Invoice = Invoice::find($id);
             $Company = Company::find($Invoice->CompanyID);
             $CompanyName = $Company->CompanyName;
@@ -1206,10 +1206,12 @@ class InvoicesController extends \BaseController {
         }
     }
 
-    function sendInvoiceMail($view,$data){
+    function sendInvoiceMail($view,$data){ 
 	
 	   $status 		= 	array('status' => 0, 'message' => 'Something wrong with sending mail.');
-    
+    	if(isset($data['email_from'])){
+			$data['EmailFrom'] = $data['email_from'];
+		}
 	    if(is_array($data['EmailTo']))
 		{
             $status 			= 	sendMail($view,$data);
