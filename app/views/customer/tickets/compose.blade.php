@@ -32,7 +32,7 @@
           {{ Form::select('email-from', $FromEmails, '', array("class"=>"form-control select2","id"=>"email-from")) }} </div>
         <div class="form-group">
           <label for="to">To:</label>
-          {{ Form::select('email-to', $AllEmailsTo, '', array("class"=>"form-control useremailssingle","id"=>"email-to")) }}           
+          <input type="text" class="form-control useremailssingle" id="email-to" name="email-to" value="" tabindex="1" />
           <span><a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </span>
         </div>
         
@@ -218,7 +218,8 @@
 .mail-env .mail-body .mail-compose .form-group label{position:static; left:auto;top:auto;}
 /*#s2id_email-from a:first-child{border:none !important;}*/
 .emailoptiontxt{font-size:10px;}
-.mail-env .mail-body .mail-compose .form-group input.subject{padding-left:10px !important;}
+#subject{padding-left:10px !important;}
+.mail-env .mail-body .mail-compose .form-group input{padding-left:10px !important; border-color: #c8cdd7;}
 .mail-env .mail-body .mail-compose .form-group input:focus{background:none;}
 .mail-env .mail-body .mail-compose .form-group input{
 
@@ -228,7 +229,6 @@
   color: #555555;
   background-color: #ffffff;
   background-image: none;
-  border: 1px solid #ebebeb;
   border-radius: 3px;
  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
   -moz-transition: border-color ease-in-out .15s, -moz-box-shadow ease-in-out .15s;
@@ -252,11 +252,6 @@
 $(document).ready(function(e) {
 	 $('.useremails').select2({
             tags:{{$AllEmails}}
-        });
-		
-		
-		$('.useremailssingle').select2({           
-			 maximumSelectionLength: 1,
         });
 		
 		
@@ -475,6 +470,18 @@ $('#emai_attachments_form').submit(function(e) {
                     }
                 });
             });
+	$('.useremailssingle').select2({
+    tags: true,
+	 tags:{{$AllEmails}},
+    tokenSeparators: [','],
+  // max emails is 1
+    maximumSelectionSize:1,
+
+    // override message for max tags
+    formatSelectionTooBig: function (limit) {
+        return "Maximum "+limit+" email is allowed";
+    }
+});			
 });
 </script> 
 @stop 
