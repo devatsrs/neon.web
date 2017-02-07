@@ -11,7 +11,29 @@
             }else{
                 update_new_url = baseurl + '/email_template/store';
             }
-            ajax_update(update_new_url,$('#add-new-template-form').serialize());
+
+            showAjaxScript(update_new_url, new FormData(($('#add-new-template-form')[0])), function(response){
+                $(".btn").button('reset');
+                if (response.status == 'success') {
+                    $('#add-new-modal-template').modal('hide');
+                    toastr.success(response.message, "Success", toastr_opts);
+                    $('select[data-type="email_template"]').each(function(key,el){
+                        if($(el).attr('data-active') == 1) {
+                            var newState = new Option(response.newcreated.TemplateName, response.newcreated.TemplateID, true, true);
+                        }else{
+                            var newState = new Option(response.newcreated.TemplateName, response.newcreated.TemplateID, false, false);
+                        }
+                        $(el).append(newState).trigger('change');
+                        $(el).append($(el).find("option:gt(1)").sort(function (a, b) {
+                            return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
+                        }));
+                    });
+                    $('#template_filter').submit();
+                }else{
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            });
+
         });
 
         $('#add-new-modal-template').on('shown.bs.modal', function(event){
@@ -36,43 +58,6 @@
             modal.find('.message').show();
         });
     });
-
-    function ajax_update(fullurl,data) {
-        $.ajax({
-            url: fullurl, //Server script to process data
-            type: 'POST',
-            dataType: 'json',
-            success: function (response) {
-                $("#template-update").button('reset');
-                $(".btn").button('reset');
-                $('#modal-template').modal('hide');
-
-                if (response.status == 'success') {
-                    $('#add-new-modal-template').modal('hide');
-                    toastr.success(response.message, "Success", toastr_opts);
-                    $('select.add-new-template-dp').each(function(key,el){
-                        if($(el).attr('data-active') == 1) {
-                            var newState = new Option(response.newcreated.TemplateName, response.newcreated.TemplateID, true, true);
-                        }else{
-                            var newState = new Option(response.newcreated.TemplateName, response.newcreated.TemplateID, false, false);
-                        }
-                        // Append it to the select
-                        $(el).append(newState).trigger('change');
-                        $(el).append($(el).find("option:gt(1)").sort(function (a, b) {
-                            return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
-                        }));
-                        template_dp_html = '<select class="select2 select2add small form-control visible select2-offscreen" name="InvoiceReminder[TemplateID][]" tabindex="-1" data-active="0">'+$(el).html().replace('<option data-image="1" value="select2-add" disabled="disabled">Add</option>','')+'</select>';
-                    });
-
-                } else {
-                    toastr.error(response.message, "Error", toastr_opts);
-                }
-            },
-            data: data,
-            //Options to tell jQuery not to process data or worry about content-type.
-            cache: false
-        });
-    }
 </script>
 
 @section('footer_ext')

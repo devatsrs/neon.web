@@ -3,6 +3,9 @@
 <ol class="breadcrumb bc-3">
     <li><a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a></li>
     <li><a href="{{URL::to('/rate_tables')}}">Rate Table</a></li>
+    <li>
+        <a><span>{{rate_tables_dropbox($id)}}</span></a>
+    </li>
     <li class="active"><strong>{{$rateTable->RateTableName}}</strong></li>
 </ol>
 <h3>View Rate Table</h3>
@@ -28,7 +31,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form role="form" id="rate-table-search"  method="post" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form role="form" id="rate-table-search"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">Search</div>
@@ -90,7 +93,7 @@
         </a>
     @endif
     @if(User::checkCategoryPermission('RateTables','Delete') )
-        <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete Selected </button>
+        <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete Selected </button>
     @endif    
 <form id="clear-bulk-rate-form" ><input type="hidden" name="RateTableRateID" /><input type="hidden" name="criteria" /></form>
 </p>
@@ -180,11 +183,11 @@
                                     }
                                     action += '</div>';
                                     <?php if(User::checkCategoryPermission('RateTables','Edit')) { ?>
-                                        action += '<a href="Javascript:;" class="edit-rate-table btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
+                                        action += ' <a href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     <?php } ?>
                                     if (id != null && id > 0) {
                                         <?php if(User::checkCategoryPermission('RateTables','Delete')) { ?>
-                                            action += ' <button href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Delete</button>';
+                                            action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
                                         <?php } ?>
                                     }
                                     return action;

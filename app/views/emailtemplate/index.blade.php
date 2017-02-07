@@ -17,7 +17,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form id="template_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="template_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -52,9 +52,9 @@
 
 <p style="text-align: right;">
 @if(User::checkCategoryPermission('EmailTemplate','Add'))
-    <a href="#" id="add-new-template" class="btn btn-primary ">
+    <a href="#" data-action="showAddModal" data-type="email_template" data-modal="add-new-modal-template" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New Template
+        Add New
     </a>
 @endif    
 </p>
@@ -118,10 +118,10 @@ var postdata;
                          action += '<input type = "hidden"  name = "templateID" value = "' + id + '" / >';
                          action += '</div>';
                         <?php if(User::checkCategoryPermission('EmailTemplate','Edit')) { ?>
-                            action += ' <a data-name = "'+full[4]+'" data-id="'+ id +'" class="edit-template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-name = "'+full[4]+'" data-id="'+ id +'" title="Edit" class="edit-template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('EmailTemplate','Delete')) { ?>
-                            action += ' <a data-id="'+id+'" class="delete-template btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            action += ' <a data-id="'+id+'" title="Delete" class="delete-template btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         <?php } ?>
                         return action;
                       }
@@ -209,6 +209,7 @@ var postdata;
                 $("#add-new-template-form [name='Subject']").val(data['Subject']);
                 $("#add-new-template-form [name='TemplateBody']").val(data['TemplateBody']);
                 $("#add-new-template-form [name='Type']").val(data['Type']).trigger("change");
+				if(data['Privacy']== '' || data['Privacy']=== null){data['Privacy']=0;} 
                 $("#add-new-template-form [name='Email_template_privacy']").val(data['Privacy']).trigger("change");
                 $('#add-new-modal-template h4').html('Edit template');
 

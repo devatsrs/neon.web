@@ -74,7 +74,7 @@
                         @if(!empty($check_quickbook))
                         <div class="col-md-4">
                             <input type="radio" name="size" data-id="" value="quickbook" id="size_Q"/>
-                            <label for="size_Q" class="newredio">Quickbook</label>
+                            <label for="size_Q" class="newredio">QuickBook</label>
                         </div>
                         @endif
 

@@ -16,7 +16,7 @@
                 @if(User::checkCategoryPermission('OpportunityBoard','Add'))
                 <a href="javascript:void(0)" id="add-new-opportunityboard" class="btn btn-primary ">
                     <i class="fa fa-line-chart"></i>
-                    Add Opportunity Board
+                    Add New
                 </a>
                 @endif
             </p>
@@ -121,7 +121,7 @@
                                     }
                                     action += '</div>';
                                     @if(User::checkCategoryPermission('OpportunityBoard','Edit'))
-                                        action += ' <a data-name = "' + full[0] + '" data-id="' + id + '" class="edit-opportunitybaord btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                        action += ' <a data-name = "' + full[0] + '" data-id="' + id + '" title="Edit" class="edit-opportunitybaord btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     @endif
                                     @if(User::checkCategoryPermission('OpportunityBoard','Configure'))
                                         action += ' <a class="manage-deal-board btn btn-default btn-sm btn-icon icon-left" href="'+configure+'"><i class="entypo-cog"></i> Configure Board</a>';

@@ -5,6 +5,7 @@ Update tblBillingClass SET SendInvoiceSetting='after_admin_review' where SendInv
 
 Update tblAccountBilling SET SendInvoiceSetting='after_admin_review' where SendInvoiceSetting='never';
 
+
 Delete FROM tblResourceCategories
 WHERE ResourceCategoryName='RateManager' OR
 	    ResourceCategoryName='RmDashboard';
@@ -416,3 +417,4 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;
+

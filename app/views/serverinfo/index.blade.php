@@ -155,7 +155,7 @@
                             html += '       <span class="edit btn-xs" title="Edit Server"><i class="entypo-pencil"></i></span>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('ServerInfo','Delete')){ ?>
-                            html += '       <span class="delete btn-xs" title="Delete Server"><i class="fa fa-trash-o"></i></span>';
+                            html += '       <span class="delete btn-xs" title="Delete Server"><i class="entypo-trash"></i></span>';
                         <?php } ?>
                         html += '   </a>';
                         html += '</li>';

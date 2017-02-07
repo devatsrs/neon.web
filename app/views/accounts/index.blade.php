@@ -198,6 +198,10 @@
     var $searchFilter = {};
     var checked = '';
     var view = 1;
+    var accountview = getCookie('accountview');
+    if(accountview=='list'){
+        view = 2;
+    }
     var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
 		
@@ -402,9 +406,9 @@
                                         action +='&nbsp;<button redirecto="'+credit_+'" class="btn btn-default btn-xs" title="Credit Control" data-id="'+full[0]+'" type="button"> <i class="fa fa-credit-card"></i> </button>';
                                 <?php } ?>
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
-                                action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Account" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
+                                action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i></button>';
                                 <?php } ?>
-                                action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View Account" data-id="'+full[0]+'" type="button"> <i class="entypo-search"></i> </button>';//entypo-info
+                                action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View" data-id="'+full[0]+'" type="button"> <i class="fa fa-eye"></i></button>';//entypo-info
                                 /*full[6] == Customer verified
                                  full[7] == Vendor verified */
                                 varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/';
@@ -980,8 +984,10 @@
             var activeurl;
             var desctiveurl;
             if(self.hasClass('grid')){
+                setCookie('accountview','grid','30');
                 view = 1;
             }else{
+                setCookie('accountview','list','30');
                 view = 2;
             }
             self.addClass('active');
@@ -1118,6 +1124,29 @@
             });
         }
        return SelectedIDs;
+    }
+
+    function setCookie(cname,cvalue,exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires=" + d.toGMTString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
     }
 
 

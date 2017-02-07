@@ -22,7 +22,7 @@
     @if( User::checkCategoryPermission('DialStrings','Add'))
     <a href="#" id="add-new-dialstring" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New Dial String
+        Add New
     </a>
     @endif
 </p>
@@ -71,12 +71,12 @@ var postdata;
                         delete_ = "{{ URL::to('dialstrings/{id}/delete_dialstring')}}";
                         show_ = show_.replace( '{id}', id);
                         delete_ = delete_.replace( '{id}', id);
-                        action = '<a href="'+show_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View</a>';
+                        action = '<a href="'+show_+'" title="View" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                         <?php if(User::checkCategoryPermission('DialStrings','Edit') ){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-type = "'+full[4]+'" data-id="'+ id +'" class="edit-dialstring btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-name = "'+full[0]+'" data-type = "'+full[4]+'" data-id="'+ id +'" title="Edit" class="edit-dialstring btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('DialStrings','Delete') ){ ?>
-                            action += ' <a href="'+ delete_ +'" class="delete-dialstring btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            action += ' <a href="'+ delete_ +'" title="Delete" class="delete-dialstring btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         <?php } ?>
 
                         return action;

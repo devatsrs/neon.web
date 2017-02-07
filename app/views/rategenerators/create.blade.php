@@ -15,8 +15,9 @@
     </li>
 </ol>
 <h3>Create Rate Generator</h3>
+<form role="form" id="rategenerator-from" method="post" action="{{URL::to('/rategenerators/store')}}" class="form-horizontal form-groups-bordered">
 <div class="float-right">
-    <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+    <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
         Save
     </button>
@@ -33,7 +34,6 @@
 
 <div class="row">
     <div class="panel-body">
-        <form role="form" id="rategenerator-from" method="post" action="{{URL::to('/rategenerators/store')}}" class="form-horizontal form-groups-bordered">
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -68,7 +68,8 @@
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Trunk</label>
                         <div class="col-sm-4">
-                            {{ Form::select('TrunkID', $trunks, $trunk_keys, array("class"=>"select2")) }}
+                            {{Form::SelectControl('trunk')}}
+                           <!-- { Form::select('TrunkID', $trunks, $trunk_keys, array("class"=>"select2")) }}-->
                         </div>
                     </div>
                     <div class="form-group">
@@ -86,7 +87,8 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Currency</label>
                         <div class="col-sm-4">
-                                {{ Form::select('CurrencyID', $currencylist,  '', array_merge( array("class"=>"select2"))) }}
+                            {{Form::SelectControl('currency')}}
+                               <!-- { Form::select('CurrencyID', $currencylist,  '', array_merge( array("class"=>"select2"))) }}-->
                         </div>
                         <label for="field-1" class="col-sm-2 control-label">Policy</label>
                         <div class="col-sm-4">
@@ -96,21 +98,23 @@
                     </div>
                 </div>
             </div>
-        </form>
+
     </div>
 </div>
-
+</form>
 <script type="text/javascript">
     function ajax_form_success(response){
         if(typeof response.redirect != 'undefined' && response.redirect != ''){
             window.location = response.redirect;
         }
      }
-    jQuery(document).ready(function($) {
+    /*jQuery(document).ready(function($) {
         $(".save.btn").click(function(ev) {
             $("#rategenerator-from").submit();
         });
-    });
+    });*/
 </script>
+@include('currencies.currencymodal');
+@include('trunk.trunkmodal');
 @include('includes.ajax_submit_script', array('formID'=>'rategenerator-from' , 'url' => ('/rategenerators/store'),'update_url'=>'rategenerators/{id}/update'))
 @stop         

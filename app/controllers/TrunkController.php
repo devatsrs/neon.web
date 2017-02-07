@@ -54,7 +54,7 @@ class TrunkController extends BaseController {
             }
             if($trunk = Trunk::create($data)){
                 Cache::forget("trunks_defaults");
-                return  Response::json(array("status" => "success", "message" => "Trunk Successfully Created",'LastID'=>$trunk->TrunkID));
+                return  Response::json(array("status" => "success", "message" => "Trunk Successfully Created",'LastID'=>$trunk->TrunkID,'newcreated'=>$trunk));
             } else {
                 return  Response::json(array("status" => "failed", "message" => "Problem Creating Trunk."));
             }

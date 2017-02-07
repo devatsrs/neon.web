@@ -16,7 +16,7 @@ class DashboardCustomerController extends BaseController {
         if(Cache::has('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID())){
             $monthfilter = Cache::get('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID());
         }
-        $BillingDashboardWidgets 	= 	CompanyConfiguration::get('BILLING_DASHBOARD');
+        $BillingDashboardWidgets 	= 	CompanyConfiguration::get('BILLING_DASHBOARD_CUSTOMER');
         if(!empty($BillingDashboardWidgets)) {
             $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
         }
@@ -55,6 +55,8 @@ class DashboardCustomerController extends BaseController {
         $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."','".$data['Startdate']."','".$data['Enddate']."')";
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
         if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
+            $AccountBallane = AccountBalance::where(['AccountID'=>$CustomerID])->first();
+            $InvoiceExpenseResult[0]->TotalUnbillidAmount = $AccountBallane->UnbilledAmount + $AccountBallane->VendorUnbilledAmount;
             return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
         }
 

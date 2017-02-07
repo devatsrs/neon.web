@@ -280,10 +280,10 @@
                                     action += '<input type = "hidden"  name = "' + list_fields_payments[i] + '" value = "' + (full[i] != null ? full[i] : '') + '" / >';
                                 }
                                 action += '</div>';
-                                action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                                action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" title="View" class="view-payment btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                                 <?php if(User::checkCategoryPermission('Payments','Recall')) {?>
                                 if (full[13] == 0 && full[7] != 'Rejected') {
-                                    action += '<a href="' + recall_ + '" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-ccw"></i>Recall </a>';
+                                    action += ' <a href="' + recall_ + '" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-ccw"></i>Recall </a>';
                                 }
                                 <?php } ?>
                                 if (full[9] != null) {

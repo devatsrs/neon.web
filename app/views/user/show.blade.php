@@ -85,7 +85,7 @@
                                     notification_link = ' <button href="' + active_ + '"  title="Job Notification"  data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If enabled, system will notify you by email about Job status." data-original-title="Notification"  class="btn change_notification btn-danger btn-sm popover-primary" data-loading-text="Loading..."><i class="glyphicon glyphicon-time"></i></button>';
                                 }
                                 <?php if(User::checkCategoryPermission('Users','Edit')){ ?>
-                                    action = '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                    action = '<a href="' + edit_ + '" title="Edit" class="btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                 <?php } ?>
                                 notification_link = notification_link.replace('{id}', id);
                                 action += notification_link;

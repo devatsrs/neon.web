@@ -56,7 +56,7 @@
     <div class="clear"></div>
 
       @if(User::checkCategoryPermission('Disputes','Add'))
-          <p class="text-right"><a href="#" id="add-new-dispute" class="btn btn-primary "><i class="entypo-plus"></i>Add New Dispute</a></p>
+          <p class="text-right"><a href="#" id="add-new-dispute" class="btn btn-primary "><i class="entypo-plus"></i>Add New</a></p>
       @endif
 
 
@@ -184,7 +184,7 @@
                                     }
                                     action += '</div>';
                                     if('{{User::checkCategoryPermission('Disputes','Edit')}}' ){
-                                        action += ' <a href="" class="edit-dispute btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
+                                        action += ' <a href="" class="edit-dispute btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     }
                                     if('{{User::checkCategoryPermission('Disputes','ChangeStatus')}}') {
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Change Status <span class="caret"></span></button>'

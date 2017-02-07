@@ -1,20 +1,27 @@
-CREATE DEFINER=`root`@`localhost` FUNCTION `FnGetInvoiceNumber`(`p_account_id` INT) RETURNS int(11)
+CREATE DEFINER=`root`@`localhost` FUNCTION `FnGetInvoiceNumber`(
+	`p_account_id` INT,
+	`p_BillingClassID` INT
+
+) RETURNS int(11)
     NO SQL
     DETERMINISTIC
     COMMENT 'Return Next Invoice Number'
 BEGIN
-DECLARE lastin VARCHAR(50);
-DECLARE found_val INT(11);
+DECLARE v_LastInv VARCHAR(50);
+DECLARE v_FoundVal INT(11);
+DECLARE v_InvoiceTemplateID INT(11);
 
-set lastin = (select LastInvoiceNumber from tblInvoiceTemplate where InvoiceTemplateID = (select b.InvoiceTemplateID from NeonRMDev.tblAccountBilling ab inner join NeonRMDev.tblBillingClass b on b.BillingClassID = ab.BillingClassID where AccountID = p_account_id));
+SET v_InvoiceTemplateID = CASE WHEN p_BillingClassID=0 THEN (SELECT b.InvoiceTemplateID FROM NeonRMDev.tblAccountBilling ab INNER JOIN NeonRMDev.tblBillingClass b ON b.BillingClassID = ab.BillingClassID WHERE AccountID = p_account_id) ELSE (SELECT b.InvoiceTemplateID FROM  NeonRMDev.tblBillingClass b WHERE b.BillingClassID = p_BillingClassID) END;
 
-set found_val = (select count(*) as total_res from tblInvoice where FnGetIntegerString(InvoiceNumber)=lastin);
-IF found_val>=1 then
-WHILE found_val>0 DO
-	set lastin = lastin+1;
-	set found_val = (select count(*) as total_res from tblInvoice where FnGetIntegerString(InvoiceNumber)=lastin);
+SELECT LastInvoiceNumber INTO v_LastInv FROM tblInvoiceTemplate WHERE InvoiceTemplateID =v_InvoiceTemplateID;
+
+set v_FoundVal = (select count(*) as total_res from tblInvoice where FnGetIntegerString(InvoiceNumber)=v_LastInv);
+IF v_FoundVal>=1 then
+WHILE v_FoundVal>0 DO
+	set v_LastInv = v_LastInv+1;
+	set v_FoundVal = (select count(*) as total_res from tblInvoice where FnGetIntegerString(InvoiceNumber)=v_LastInv);
 END WHILE;
 END IF;
 
-return lastin;
+return v_LastInv;
 END

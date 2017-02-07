@@ -140,6 +140,10 @@
     var $searchFilter = {};
     var checked = '';
     var view = 1;
+    var leadview = getCookie('leadview');
+    if(leadview=='list'){
+        view = 2;
+    }
     jQuery(document).ready(function ($) {
         $searchFilter.account_name = $("#lead_filter [name='account_name']").val();
         $searchFilter.account_number = $("#lead_filter [name='account_number']").val();
@@ -207,12 +211,12 @@
                             action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+id+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
                             <?php } ?>
                             <?php if(User::checkCategoryPermission('Leads','Edit')) { ?>
-                            action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Lead" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
+                            action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
                             <?php } ?>
                             <?php if(User::checkCategoryPermission('Leads','Clone')) { ?>
                             //action += '&nbsp;<a href="' + clone_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone </a>';
                             <?php } ?>
-                            action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View Lead" data-id="'+full[0]+'" type="button"> <i class="entypo-search"></i> </button>';//entypo-info
+                            action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View" data-id="'+full[0]+'" type="button"> <i class="fa fa-eye"></i> </button>';//entypo-info
 
                             action +='<input type="hidden" name="accountid" value="'+id+'"/>';
                             action +='<input type="hidden" name="address1" value="'+full[7]+'"/>';
@@ -662,8 +666,10 @@
             var activeurl;
             var desctiveurl;
             if(self.hasClass('grid')){
+                setCookie('leadview','grid','30');
                 view = 1;
             }else{
+                setCookie('leadview','list','30');
                 view = 2;
             }
             self.addClass('active');
@@ -734,6 +740,29 @@
             return SelectedIDs;
         }
     });
+
+    function setCookie(cname,cvalue,exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires=" + d.toGMTString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
 
 
 

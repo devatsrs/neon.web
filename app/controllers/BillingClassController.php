@@ -7,7 +7,7 @@ class BillingClassController extends \BaseController {
         return View::make('billingclass.index');
     }
     public function create() {
-        $emailTemplates = EmailTemplate::getTemplateArray();
+        /*$emailTemplates = EmailTemplate::getTemplateArray();
         $SendInvoiceSetting = BillingClass::$SendInvoiceSetting;
         $timezones = TimeZone::getTimeZoneDropdownList();
         $billing_type = AccountApproval::$billing_type;
@@ -15,15 +15,17 @@ class BillingClassController extends \BaseController {
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
         if(isset($taxrates[""])){unset($taxrates[""]);}
         $privacy = EmailTemplate::$privacy;
-        $type = EmailTemplate::$Type;
-        return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','InvoiceTemplates','privacy','type'));
+        $type = EmailTemplate::$Type;*/
+        $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
+        return View::make('billingclass.create', compact('BillingClassList'));
+        //return View::make('billingclass.create', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','InvoiceTemplates','privacy','type'));
     }
     public function edit($id) {
 
         $getdata['BillingClassID'] = $id;
         $response =  NeonAPI::request('billing_class/get/'.$id,$getdata,false,false,false);
         if(!empty($response) && $response->status == 'success' ){
-            $emailTemplates = EmailTemplate::getTemplateArray();
+            /*$emailTemplates = EmailTemplate::getTemplateArray();
             $SendInvoiceSetting = BillingClass::$SendInvoiceSetting;
             $timezones = TimeZone::getTimeZoneDropdownList();
             $billing_type = AccountApproval::$billing_type;
@@ -34,13 +36,16 @@ class BillingClassController extends \BaseController {
             $PaymentReminders = json_decode($response->data->PaymentReminderSettings);
             $LowBalanceReminder = json_decode($response->data->LowBalanceReminderSettings);
             $InvoiceReminders = json_decode($response->data->InvoiceReminderSettings);
-            $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
+
             //$accounts = BillingClass::getAccounts($id);
             $privacy = EmailTemplate::$privacy;
-            $type = EmailTemplate::$Type;
-            
-
-            return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
+            $type = EmailTemplate::$Type;*/
+            $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
+            $BillingClass = $response->data;
+            $InvoiceReminders = json_decode($response->data->InvoiceReminderSettings);
+            $LowBalanceReminder = json_decode($response->data->LowBalanceReminderSettings);
+            return View::make('billingclass.edit', compact('BillingClassList','BillingClass','InvoiceReminders','LowBalanceReminder','accounts'));
+            //return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
         }else{
             return view_response_api($response);
         }
@@ -61,10 +66,14 @@ class BillingClassController extends \BaseController {
         return json_response_api($response,true,true,true);
     }
 
-    public function store(){
+    public function store($isModal){
         $postdata = Input::all();
         $response =  NeonAPI::request('billing_class/store',$postdata,true,false,false);
+
         if(!empty($response) && $response->status == 'success'){
+            if($isModal==1){
+                return json_response_api($response);
+            }
             $response->redirect =  URL::to('/billing_class/edit/' . $response->data->BillingClassID);
         }
         return json_response_api($response);
