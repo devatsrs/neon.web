@@ -1,5 +1,7 @@
+USE `D2CallRM`;
+
 INSERT INTO `tblCountry`
-SELECT (`CountryID`, `Prefix`, `Country`, `ISO2`, `ISO3`) from Ratemanagement3.tblCountry;
+SELECT `CountryID`, `Prefix`, `Country`, `ISO2`, `ISO3` from Ratemanagement3.tblCountry;
 
 INSERT INTO `tblCronJobCommand`
 SELECT * from Ratemanagement3.tblCronJobCommand;
@@ -110,11 +112,15 @@ INSERT INTO `tblCRMBoardColumn` ( `BoardID`, `CompanyID`, `BoardColumnName`, `He
 
 -- # One time set up for dim tables
 
-call prc_datedimbuild('2016-01-01','2026-01-01');
-call prc_timedimbuild();
-
 
 INSERT INTO `tblCodeDeck` (`CodeDeckId`, `CompanyId`, `CodeDeckName`, `created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`, `Type`, `DefaultCodedeck`) VALUES (1, 1, 'Default Codedeck', '2016-11-18 09:17:21', 'Dev', '2016-11-18 09:36:18', NULL, NULL, 1);
 
 insert into tblRate
-SELECT * from Ratemanagement4.tblRate where CodeDeckId = 1 ;
+SELECT * from RateManagement4.tblRate where CodeDeckId = 1 ;
+
+
+USE `D2CallReport`;
+
+call prc_datedimbuild('2016-01-01','2026-01-01');
+call prc_timedimbuild();
+
