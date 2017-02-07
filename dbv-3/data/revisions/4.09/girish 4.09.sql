@@ -1,4 +1,6 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_unsetCDRUsageAccount`(
+DROP PROCEDURE IF EXISTS `prc_unsetCDRUsageAccount`;
+DELIMITER //
+CREATE DEFINER=`neon-user-abubakar`@`122.129.78.153` PROCEDURE `prc_unsetCDRUsageAccount`(
 	IN `p_CompanyID` INT,
 	IN `p_IPs` LONGTEXT,
 	IN `p_StartDate` VARCHAR(50),
@@ -55,4 +57,5 @@ BEGIN
 	SELECT v_AccountID as `Status`;
 
 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
-END
+END//
+DELIMITER ;
