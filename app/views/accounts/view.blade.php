@@ -187,6 +187,21 @@
           <div class="col-md-12">
             <div class="mail-compose">
               <form method="post" id="email-from" role="form" enctype="multipart/form-data">
+              <div class="form-Group" >                  
+                  <div class=" @if($SystemTickets) col-md-10 pull-left @else col-md-12 @endif" style="padding-left:0px; @if(!$SystemTickets) padding-right:0px; @endif" >
+                  <label >From</label>
+                  {{Form::select('email-from',$FromEmails,'',array("class"=>"select2"))}}
+                  </div>
+                  @if($SystemTickets)
+                  <div class="col-md-2 pull-right">
+                   <label class="control-label" >Create Ticket</label>
+                    <p class="make-switch switch-small">
+                      <input name="createticket" type="checkbox" value="1" >
+                    </p>
+                  </div>
+                  @endif
+                  </div>
+                  <div class="clearfix" style="margin-bottom: 15px;"></div>
                 <div class="form-group">
                   <label for="to">To *</label>
                   <!--{{ Form::select('email-to', USer::getUserIDList(), '', array("class"=>"select2","id"=>"email-to","tabindex"=>"1")) }}-->
@@ -203,12 +218,8 @@
                 </div>
                 <div class="form-Group" style="margin-bottom: 15px;">
                   <label >Email Template</label>
-                  {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"mail-compose"))}} </div>
-                  
-                  <div class="form-Group" style="margin-bottom: 15px;">
-                  <label >From</label>
-                  {{Form::select('email-from',$FromEmails,'',array("class"=>"select2"))}} </div>
-                  
+                  {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"mail-compose"))}}
+                 </div>                  
                 <div class="form-group">
                   <label for="subject">Subject *</label>
                   <input type="text" class="form-control" id="subject" name="Subject" tabindex="4" />
@@ -225,15 +236,7 @@
                   
                   <input id="emailattachment_sent" type="hidden" name="emailattachment_sent" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"   />
                   <input id="info2" type="hidden" name="attachmentsinfo" />
-                  <span class="file-input-names"></span> </div>
-                  @if($SystemTickets)
-                  <div class="form-group">
-                   <label class="control-label col-sm-12" for="to">Create Ticket</label>
-                    <p class="make-switch switch-small">
-                      <input name="createticket" type="checkbox" value="1" >
-                    </p>
-                  </div>
-                  @endif
+                  <span class="file-input-names"></span> </div>                
                 <div class="form-group end-buttons-timeline">
                   <button name="mail_submit" value="save_mail" id="save-mail" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send</button>
                   @if(count($boards)>0)

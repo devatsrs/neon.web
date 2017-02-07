@@ -134,8 +134,9 @@ class InvoicesController extends \BaseController {
         $InvoiceHideZeroValue = NeonCookie::getCookie('InvoiceHideZeroValue',1);
         $Quickbook = new BillingAPI();
         $check_quickbook = $Quickbook->check_quickbook();
+		$bulk_type = 'invoices';
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','bulk_type'));
 
     }
 

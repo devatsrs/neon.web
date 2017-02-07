@@ -388,9 +388,9 @@ private $validlicense;
 					
 					 $NextTicket 				 =  TicketsTable::GetNextPageID($id); 
 					 $PrevTicket 				 =	TicketsTable::GetPrevPageID($id);
-					 
-					//echo "<pre>"; print_r($RequesterContact); exit;
-					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','RequesterContact','lead_owners', 'account_owners','RequesterAccount'));  		  
+					 $ticketemaildata			 =	AccountEmailLog::find($ticketdata->AccountEmailLogID); 
+					
+					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','RequesterContact','lead_owners', 'account_owners','RequesterAccount','ticketemaildata'));  		  
 			}else{
           	  return view_response_api($response_details);
          	}			 

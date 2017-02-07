@@ -23,7 +23,9 @@
     <div class="mail-header"> 
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
-      <div class="mail-date"> {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
+      <div class="mail-date">
+      @if(!empty($ticketemaildata->Cc))cc {{$ticketemaildata->Cc}}<br>@endif @if(!empty($ticketemaildata->Bcc))bcc{{$ticketemaildata->Bcc}}<br>@endif 
+       {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
       <!-- links --> 
     </div>   
      <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?> 
@@ -63,7 +65,7 @@
 		 ?>  
     <div class="mail-reply-seperator"></div>
     <div class="mail-info first_data">
-      <div class="mail-sender">  <span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span>   </div>
+      <div class="mail-sender">  <span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span> @if(!empty($TicketConversationData->EmailCc))<br>cc {{$TicketConversationData->EmailCc}} @endif @if(!empty($TicketConversationData->EmailBcc))<br>bcc {{$TicketConversationData->EmailBcc}} @endif    </div>
       <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
     <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
@@ -305,7 +307,6 @@ $(document).ready(function(e) {
 				mod.find('.message').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
-						"Tickets":true,
 						"Crm":false,
 						"emphasis": true,
 						"lists": true,
@@ -335,7 +336,6 @@ $(document).ready(function(e) {
 		mod.find('#Description_edit_note').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
-						"Tickets":true,
 						"Crm":false,
 						"emphasis": true,
 						"lists": true,

@@ -6,7 +6,7 @@
   <div class="row">
     <div class="col-md-12 margin-top">
     <div class="form-group">
-        <label for="EmailActionSubject">* From:</label>
+        <label for="email-from">* From:</label>
         {{ Form::select('email-from', $FromEmails, '', array("class"=>"form-control select2","id"=>"email-from")) }} 
       </div>
       <div class="form-group">

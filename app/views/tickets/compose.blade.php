@@ -23,7 +23,7 @@
     <div class="mail-compose">
       <form  id="MailBoxCompose" name="MailBoxCompose">
         <div class="form-group">
-          <label  for="subject">From:</label>
+          <label  for="email-from">From:</label>
           {{ Form::select('email-from', $FromEmails, '', array("class"=>"form-control select2","id"=>"email-from")) }}
            </div>
         <div class="form-group">

@@ -986,7 +986,7 @@
                 send_url = ("/invoice/{id}/invoice_email").replace("{id}", InvoiceID);
                 console.log(send_url)
                 showAjaxModal(send_url, 'send-modal-invoice');
-                $('#send-modal-invoice').modal('show');
+                $('#send-modal-invoice').modal('show');			
             });
 
             $("#send-invoice-form").submit(function (e) {
@@ -1113,19 +1113,22 @@
                 $("#BulkMail-form").trigger('reset')
                 $("#modal-BulkMail").modal('show');
             });
+			$('#send-modal-invoice').on('shown.bs.modal', function (event) {
+				setTimeout(function(){ $("#send-modal-invoice").find(".select22").select2(); }, 200);
+			});
             $('#modal-BulkMail').on('shown.bs.modal', function (event) {
                 var modal = $(this);
                 modal.find('.message').wysihtml5({
-                   "font-styles": true,
-					"leadoptions":false,
-					"Tickets":true,
-					"Crm":false,
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
+                    "font-styles": true,
+                    "emphasis": true,
+                    "leadoptions":false,
+                    "invoiceoptions":true,
+                    "Crm":false,
+                    "lists": true,
+                    "html": true,
+                    "link": true,
+                    "image": true,
+                    "color": false,
                     parser: function (html) {
                         return html;
                     }
@@ -1151,10 +1154,10 @@
                             modal.find('.message').val(EmailTemplate.TemplateBody);
                             modal.find('.message').wysihtml5({
                                 "font-styles": true,
-								"leadoptions":false,
-								"Tickets":true,
-								"Crm":false,
 								"emphasis": true,
+								"leadoptions":false,
+								"invoiceoptions":true,
+								"Crm":false,
 								"lists": true,
 								"html": true,
 								"link": true,
@@ -1363,6 +1366,7 @@
     <link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
     <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
     <script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
+    @include('accounts.bulk_email')
 @stop
 @section('footer_ext')
     @parent
@@ -1631,17 +1635,14 @@
         </div>
     </div>
     <div class="modal fade in" id="send-modal-invoice">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form id="send-invoice-form" method="post" class="form-horizontal form-groups-bordered">
+                 <form id="send-invoice-form" method="post" action="">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">Send Invoice By Email</h4>
                     </div>
-                    <div class="modal-body">
-
-
-                    </div>
+                    <div class="modal-body"></div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left"
                                 data-loading-text="Loading...">
@@ -1912,152 +1913,6 @@
                                 data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="modal-BulkMail">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Bulk Send Email</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="form-Group">
-                                <br/>
-                                <label for="field-1" class="col-sm-2 control-label">Email Template</label>
-
-                                <div class="col-sm-4">
-                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 small"))}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                                <div class="form-group">
-                                 <br/>
-                               <label for="field-1" class="col-sm-2 control-label">From</label>
-                                      <div class="col-sm-4">       
-                                    {{Form::select('email_from',TicketGroups::GetGroupsFrom(),'',array("class"=>"select2"))}}                           
-                                    </div>
-                                </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-Group">
-                                <br/>
-                                <label for="subject" class="col-sm-2 control-label">Subject</label>
-
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control" id="subject" name="subject"/>
-                                    <input type="hidden" name="SelectedIDs"/>
-                                    <input type="hidden" name="criteria"/>
-                                    <input type="hidden" name="Type" value="{{EmailTemplate::INVOICE_TEMPLATE}}"/>
-                                    <input type="hidden" name="type" value="IR"/>
-                                    <input type="hidden" name="test" value="0"/>
-                                    <input type="hidden" name="testEmail" value=""/>
-                                    <input type="hidden" name="email_template_privacy" value="0">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-Group">
-                                <br/>
-                                <label for="field-1" class="col-sm-2 control-label">Message</label>
-
-                                <div class="col-sm-10">
-                                    <textarea class="form-control message" rows="18" name="message"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-group">
-                                <br/>
-                                <label for="field-5" class="col-sm-2 control-label">Attachment</label>
-
-                                <div class="col-sm-10">
-                                    <input type="file" id="attachment" name="attachment"
-                                           class="form-control file2 inline btn btn-primary"
-                                           data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse"/>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="form-Group">
-                                <br/>
-                                <label for="field-1" class="col-sm-2 control-label">Template Option</label>
-
-                                <div class="col-sm-4">
-                                    {{Form::select('template_option',$templateoption,'',array("class"=>"select2 small"))}}
-                                </div>
-                            </div>
-                        </div>
-                        <div id="templatename" class="row hidden">
-                            <div class="form-Group">
-                                <br/>
-                                <label for="field-5" class="col-sm-2 control-label">New Template Name</label>
-
-                                <div class="col-sm-4">
-                                    <input type="text" name="template_name" class="form-control" id="field-5"
-                                           placeholder="">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="bull-email-account" type="submit"
-                                class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Send
-                        </button>
-                        <button id="test" class="savetest btn btn-primary btn-sm btn-icon icon-left"
-                                data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Send Test mail
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="modal-TestMail">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="TestMail-form" method="post" action="">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Test Mail Options</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="form-Group">
-                                <br/>
-                                <label for="field-1" class="col-sm-3 control-label">Email Address</label>
-
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control" name="EmailAddress"/>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="alert btn btn-primary btn-sm btn-icon icon-left"
-                                data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Send
                         </button>
                         <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>

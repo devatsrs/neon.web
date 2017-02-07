@@ -250,7 +250,6 @@ var required_flds	  =          '{{json_encode($required)}}';
 		jQuery('.wysihtml5box').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
-						"Tickets":true,
 						"Crm":false,
 						"emphasis": true,
 						"lists": true,

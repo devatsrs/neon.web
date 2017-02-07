@@ -89,8 +89,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 				mod.find('.message').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
-						"Tickets":true,
-						"Crm":false,
+						"Crm":true,
 						"emphasis": true,
 						"lists": true,
 						"html": true,
@@ -336,10 +335,9 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 						
 							
 						modal.find('.editor-note').wysihtml5({
-							"font-styles": true,
+						"font-styles": true,
 						"leadoptions":false,
-						"Tickets":true,
-						"Crm":false,
+						"Crm":true,
 						"emphasis": true,
 						"lists": true,
 						"html": true,
@@ -427,8 +425,7 @@ toastr.error(status, "Error", toastr_opts);
 				doc.find('.message').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
-						"Tickets":true,
-						"Crm":false,
+						"Crm":true,
 						"emphasis": true,
 						"lists": true,
 						"html": true,
@@ -551,10 +548,9 @@ setTimeout(function() {
 				var doc = $('.mail-compose');
 				
 				doc.find('.message').wysihtml5({
-							"font-styles": true,
+						"font-styles": true,
 						"leadoptions":false,
-						"Tickets":true,
-						"Crm":false,
+						"Crm":true,
 						"emphasis": true,
 						"lists": true,
 						"html": true,
@@ -578,10 +574,9 @@ setTimeout(function() {
 				var doc = $('#box-1');
 				
 				doc.find('#note-content').wysihtml5({
-							"font-styles": true,
+						"font-styles": true,
 						"leadoptions":false,
-						"Tickets":true,
-						"Crm":false,
+						"Crm":true,
 						"emphasis": true,
 						"lists": true,
 						"html": true,

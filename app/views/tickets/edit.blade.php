@@ -323,7 +323,6 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 		$('.wysihtml5box').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
-						"Tickets":true,
 						"Crm":false,
 						"emphasis": true,
 						"lists": true,

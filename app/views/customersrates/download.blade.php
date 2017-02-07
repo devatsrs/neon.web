@@ -367,15 +367,14 @@ jQuery(document).ready(function ($) {
         var modal = $(this);
         modal.find('.message').wysihtml5({
            "font-styles": true,
-			"leadoptions":false,
-			"Tickets":true,
-			"Crm":false,
-			"emphasis": true,
-			"lists": true,
-			"html": true,
-			"link": true,
-			"image": true,
-			"color": false,
+            "emphasis": true,
+            "leadoptions":true,
+            "Crm":false,
+            "lists": true,
+            "html": true,
+            "link": true,
+            "image": true,
+            "color": false,
             parser: function(html) {
                 return html;
             }
@@ -401,16 +400,15 @@ jQuery(document).ready(function ($) {
             modal.find('.message').val('');
         }
         modal.find('.message').wysihtml5({
-           "font-styles": true,
-			"leadoptions":false,
-			"Tickets":true,
-			"Crm":false,
-			"emphasis": true,
-			"lists": true,
-			"html": true,
-			"link": true,
-			"image": true,
-			"color": false,
+            "font-styles": true,
+            "emphasis": true,
+            "leadoptions":true,
+            "Crm":false,
+            "lists": true,
+            "html": true,
+            "link": true,
+            "image": true,
+            "color": false,
             parser: function(html) {
                 return html;
             }
