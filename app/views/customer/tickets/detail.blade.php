@@ -4,23 +4,24 @@
   <li><a href="{{ URL::to('/customer/tickets') }}">Tickets</a></li>
   <li class="active"> <strong>Detail</strong> </li>
 </ol>
-<h3>Tickets</h3>
-<div class="pull-left"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('customer/tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}"   class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="fa fa-trash"></i> </a>  </div>
-  <div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('customer/tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-backward"></i> </a> @endif
-  @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('customer/tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-forward"></i> </a> @endif</div>
+<div class="pull-left"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('/customer/tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Add Note"  class="btn btn-primary add_note tooltip-primary btn-xs"><i class="fa fa-sticky-note"></i> </a> 
+ <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}" class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="fa fa-trash"></i> </a></div>
+  <div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('/customer/tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-backward"></i> </a> @endif
+  @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('/customer/tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-forward"></i> </a> @endif</div>
  <div class="clear clearfix"></div>
-
-<div class="mail-env margin-top">   
-  <!-- compose new email button -->
+<div class="mail-env margin-top"> 
   
+  <!-- compose new email button -->  
   
   <!-- Mail Body -->
-  <div class="mail-body">    
+  <div class="mail-body">
   
     <div class="mail-header"> 
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
-      <div class="mail-date"> {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
+      <div class="mail-date">
+      @if(!empty($ticketemaildata->Cc))cc {{$ticketemaildata->Cc}}<br>@endif @if(!empty($ticketemaildata->Bcc))bcc{{$ticketemaildata->Bcc}}<br>@endif 
+       {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
       <!-- links --> 
     </div>   
      <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?> 
@@ -29,6 +30,7 @@
     <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
       <ul>
+      @if(is_array($attachments)) 
         @foreach($attachments as $key_acttachment => $attachments_data)
         <?php 
    		//$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
@@ -42,25 +44,28 @@
 		{
 			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
 		}
-		$Attachmenturl = URL::to('tickets/'.$ticketdata->TicketID.'/getattachment/'.$key_acttachment);		
+		$Attachmenturl = URL::to('/customer/tickets/'.$ticketdata->TicketID.'/getattachment/'.$key_acttachment);		
    	    ?>
         <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
           <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
         </li>
         @endforeach
+        @endif
       </ul>
     </div>
     @endif
     <?php if(count($TicketConversation)>0){
+		if(is_array($TicketConversation)){
 		foreach($TicketConversation as $TicketConversationData){ 
+		if($TicketConversationData->Timeline_type == TicketsTable::TIMELINEEMAIL){
 		 ?>  
     <div class="mail-reply-seperator"></div>
     <div class="mail-info first_data">
-      <div class="mail-sender dropdown"> <span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span>   </div>
+      <div class="mail-sender">  <span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span> @if(!empty($TicketConversationData->EmailCc))<br>cc {{$TicketConversationData->EmailCc}} @endif @if(!empty($TicketConversationData->EmailBcc))<br>bcc {{$TicketConversationData->EmailBcc}} @endif    </div>
       <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
     <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
-    <div class="mail-text @if(count($attachments)<1 || strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->Message}} </div>       
+    <div class="mail-text @if(count($attachments)<1 || strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->EmailMessage}} </div>       
      @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
     <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
@@ -78,7 +83,7 @@
 		{
 			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
 		}
-		$Attachmenturl = URL::to('customer/ticketsconversation/'.$TicketConversationData->AccountEmailLogID.'/getattachment/'.$key_acttachment);
+		$Attachmenturl = URL::to('/customer/emails/'.$TicketConversationData->AccountEmailLogID.'/getattachment/'.$key_acttachment);
    	    ?>
         <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
           <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
@@ -87,8 +92,16 @@
       </ul>
     </div>
     @endif
-    <?php } 
-		} ?>
+    <?php }else if($TicketConversationData->Timeline_type == TicketsTable::TIMELINENOTE){
+	?>
+    <div class="mail-reply-seperator"></div>
+	<div class="mail-info first_data">
+      <div class="mail-sender">  <span>Note</span>   </div>
+      <div class="mail-date">  {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
+    </div>
+      <div class="mail-text last_data"> {{$TicketConversationData->Note}} </div>   
+	<?php	} ?>
+    <?php } } } ?>
   </div>
   
   <!-- Sidebar -->
@@ -125,9 +138,9 @@
             </div>
             
             <!-- panel body -->
-             <div class="panel-body">@include('customer.tickets.ticket_detail_dynamic_fields')</div>
-            
+            <div class="panel-body">@include('customer.tickets.ticket_detail_dynamic_fields')</div>
           </div>
+
         </div>
       </div>
     </div>
@@ -141,6 +154,32 @@
     </div>
   </form>
 </div>
+<div class="modal fade" id="add-note-model">
+  <div class="modal-dialog" style="width: 70%;">
+    <div class="modal-content">
+      <form id="add-note-form" method="post">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add Note</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12 margin-top pull-left">
+              <div class="form-group">
+                <textarea name="Note" id="Description_edit_note" class="form-control autogrow editor-note desciriptions " style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" id="TicketID" name="TicketID" value="{{$ticketdata->TicketID}}">
+          <button type="submit" id="note-edit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 <form id="emai_attachments_reply_form" class="hidden" name="emai_attachments_form">
   <span class="emai_attachments_span">
   <input type="file" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" name="emailattachment[]" multiple id="filecontrole2">
@@ -149,6 +188,7 @@
   <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
 </form>
 <style>
+/*.mail-env .mail-body{float:left; width:70% !important; margin-right:1%; border-right:1px solid #ccc; background:#fff none repeat scroll 0 0;}*/
 .mail-env .mail-body{float:left; width:71% !important;   }
 .mail-env .mail-sidebar{width:29%; background:#fff none repeat scroll 0 0;}
 .mail-env .mail-body .mail-info{background:#fff none repeat scroll 0 0;}
@@ -239,7 +279,61 @@ $(document).ready(function(e) {
 		});
 	});
 	
-			 $("#EmailActionform").submit(function (event) {
+	
+	$( document ).on("click",'.add_note' ,function(e) {			
+		var mod = $('#add-note-model');
+		 	mod.find('.wysihtml5-toolbar').remove();
+			mod.find('.wysihtml5-sandbox').remove();
+			mod.find('#Description_edit_note').show();
+		
+		mod.modal("show");
+		mod.find('#Description_edit_note').wysihtml5({
+						"font-styles": true,
+						"leadoptions":false,
+						"Crm":false,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
+						parser: function(html) {
+							return html;
+						}
+				});		
+	});
+	
+	////
+	$( document ).on("submit",'#add-note-form' ,function(e) {			
+		e.preventDefault();
+		var formData = new FormData($('#add-note-form')[0]);
+		var url 		    = 	  baseurl + '/tickets/add_note';
+	 $.ajax({
+			url: url,
+			type: 'POST',
+			dataType: 'json',
+			async :false,
+			cache: false,
+			contentType: false,
+			processData: false,
+			data:formData,
+			success: function(response){
+						$("#add-note-model").find('#note-edit').button('reset');
+						if(response.status =='success'){									
+							toastr.success(response.message, "Success", toastr_opts);
+							location.reload();
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+				},
+		});
+	});
+	
+	////
+
+	//
+	
+		 $("#EmailActionform").submit(function (event) {
 		//////////////////////////          	
 			var email_url 	= 	"<?php echo URL::to('/customer/tickets/'.$ticketdata->TicketID.'/actionsubmit/');?>";
           	event.stopImmediatePropagation();
@@ -270,8 +364,9 @@ $(document).ready(function(e) {
 		///////////////////////////////
 		 
 	 });
-	  
-	  
+	 
+	
+	 
 	    $(document).on("click","#addReplyTtachment",function(ee){
 			 file_count++;                
 				$('#filecontrole2').click();
@@ -387,17 +482,17 @@ $(document).ready(function(e) {
 			$('.close_ticket').click(function(e) {
                 var ticket_number   =     parseInt($(this).attr('ticket_number'));
 				if(ticket_number){
-					var confirm_close = confirm("Are you sure to close this ticket?");
+					var confirm_close = confirm("Are you sure you want to close this ticket?");
 					if(confirm_close)
 					{
-						var url 		    = 	  baseurl + '/customer/tickets/'+ticket_number+'/close_ticket';
+						var url 		    = 	  baseurl + '/tickets/'+ticket_number+'/close_ticket';
 						$.ajax({
 							url: url,
 							type: 'POST',
 							dataType: 'json',
 							async :false,
 							data:{s:1,ticket_number:ticket_number},
-							success: function(response){	console.log(response);
+							success: function(response){	
 									if(response.status =='success'){									
 									toastr.success(response.message, "Success", toastr_opts);
 									$('#TicketStatus').val(response.close_id).trigger('change');
@@ -442,9 +537,8 @@ $(document).ready(function(e) {
 						return false;
 					}
 				}
-            });
-			
-			
+            });		
+		
 });
 setTimeout(setagentval(),6000);
 	function setagentval(){

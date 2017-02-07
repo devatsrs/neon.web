@@ -53,7 +53,7 @@ private $validlicense;
 			  }
 			///////
 			$companyID 					= 	 User::get_companyID();
-			$array						= 	 $this->GetResult($data);
+			$array						= 	 $this->GetResult($data); 
 			$resultpage  				= 	 $array->resultpage;		 
 			$result 					= 	 $array->ResultCurrentPage;
 			$totalResults 				= 	 $array->totalcount; 
@@ -130,7 +130,7 @@ private $validlicense;
 		 }
 		
         $response 				= 	NeonAPI::request('tickets/get_tickets',$data,true,false); 
-       
+      
 		if($response->status=='success')
 		{ 
 			return $response->data;

@@ -584,7 +584,7 @@ private $validlicense;
 	  
 	  function add_note(){
     	$this->IsValidLicense();
-		$postdata 			= 	Input::all();  		Log::info(print_r($postdata,true));
+		$postdata 			= 	Input::all();  		
 		$response 			= 		NeonAPI::request('tickets/add_note',$postdata,true,false,false);
 		return json_response_api($response);     
 	 

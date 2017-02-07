@@ -70,10 +70,8 @@ class NeonAPI{
         self::$api_url = getenv('Neon_API_URL');
         $token = self::getToken();
         $curl = new Curl\Curl();
-		
-		if(!$customer) { //customer check
-   	    	$curl->setHeader('Authorization', 'Bearer '.$token);
-		}
+
+    	$curl->setHeader('Authorization', 'Bearer '.$token);
         if($is_upload) {
             //$curl->setOpt(CURLOPT_RETURNTRANSFER, true);
             $curl->setOpt(CURLOPT_POSTFIELDS, true);
@@ -83,6 +81,7 @@ class NeonAPI{
         $post_data['LicenceKey'] = getenv('LICENCE_KEY');
         $post_data['CompanyName']= getenv('COMPANY_NAME');
 		$post_data['LoginType']= 'user';	 //default user
+		
 		
 		$customer 	= Session::get('customer'); //customer check
     	if($customer==1) {
