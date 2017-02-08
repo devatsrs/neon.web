@@ -127,12 +127,12 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.Tickets.Currency+ "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.Tickets.OutstandingExcludeUnbilledAmount + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.Tickets.OutstandingIncludeUnbilledAmount + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.Tickets.BalanceThreshold + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.Tickets.Signature + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.Tickets.BalanceThreshold + "</a></li>" +              
 				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Invoice Fields</b></a></li>" +
 	                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceNumber}}'>" + locale.Tickets.InvoiceNumber + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceGrandTotal}}'>" + locale.Tickets.InvoiceGrandTotal + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceOutstanding}}'>" + locale.Tickets.InvoiceOutstanding + "</a></li>" +              
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceOutstanding}}'>" + locale.Tickets.InvoiceOutstanding + "</a></li>" +   "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Others</b></a></li>" +           
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.Tickets.Signature + "</a></li>" +
               "</ul>" +
             "</li>";
         

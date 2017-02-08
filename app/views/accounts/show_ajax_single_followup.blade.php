@@ -68,9 +68,13 @@
     <?php } ?>
   </time>
   <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
+  <?php
+		$note_type 	= 	isset($response_data['NoteID'])?'NoteID':'ContactNote'; 
+		$noteID		= 	isset($response_data['NoteID'])?$response_data['NoteID']:$response_data['ContactNoteID'];
+	?>
   <div class="cbp_tmlabel normal_tag">  
-                 <a id="edit_note_{{$response_data['NoteID']}}" note-id="{{$response_data['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a>
-            <a id="delete_note_{{$response_data['NoteID']}}" note-id="{{$response_data['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="fa fa-trash"></i></a>
+                 <a id="edit_note_{{$noteID}}" note_type="{{$note_type}}" note-id="{{$noteID}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a>
+            <a id="delete_note_{{$noteID}}" note_type="{{$note_type}}" note-id="{{$noteID}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="fa fa-trash"></i></a>
     <h2 class="toggle_open" id_toggle="{{$key}}">@if($response_data['created_by']==$current_user_title) You @else {{$response_data['created_by']}}  @endif <span>added a note</span></h2>
     <div id="hidden-timeline-{{$key}}" class="details no-display">
       <p>{{$response_data['Note']}}</p>

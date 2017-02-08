@@ -549,6 +549,8 @@
         });
 
         $(document).on('click','.sendemail',function(){
+			document.getElementById('BulkMail-form').reset();
+			$("#modal-BulkMail").find('.file-input-name').html("");
             $("#BulkMail-form [name='email_template']").val('').trigger("change");
             $("#BulkMail-form [name='template_option']").val('').trigger("change");
             $("#BulkMail-form [name='email_template_privacy']").val(0).trigger("change");

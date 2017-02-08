@@ -253,8 +253,9 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 	
 	
 		$( document ).on("click",'.delete_note_link' ,function(e) {
-			var del_note_id  = $(this).attr('note-id');
-			var del_key_id   = $(this).attr('key_id');
+			var del_note_id  	=   $(this).attr('note-id');
+			var del_key_id   	=   $(this).attr('key_id');
+			var edit_note_type  = 	$(this).attr('note_type');
 			
 			var followup = parseInt(del_key_id)+1;
 			if ($('#timeline-'+followup).hasClass("followup_task"))
@@ -279,7 +280,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 			type: 'POST',
 			dataType: 'json',
 			async :false,
-			data:{NoteID:del_note_id},
+			data:{NoteID:del_note_id,note_type:edit_note_type},
 			success: function(response) {
 				console.log('timeline-'+del_key_id);
 				$('#timeline-'+del_key_id).remove();
@@ -305,8 +306,11 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
     });
 	
 	$( document ).on("click",'.edit_note_link' ,function(e) {
-        var edit_note_id = $(this).attr('note-id');
-		var edit_key_id  = $(this).attr('key_id');
+		
+        var edit_note_id 	= 	$(this).attr('note-id');
+		var edit_key_id  	= 	$(this).attr('key_id');
+		var edit_note_type  = 	$(this).attr('note_type');
+		
 		///////
 		var url_get_note 	= 	"<?php echo URL::to('accounts/get_note'); ?>";
 		 $.ajax({
@@ -314,13 +318,12 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 					type: 'POST',
 					dataType: 'json',
 					async :false,
-					data:{NoteID:edit_note_id},
+					data:{NoteID:edit_note_id,note_type:edit_note_type},
 					success: function(response) {
 						$('#edit-note-model #Description_edit_note').val(response.Note);
 						$('#edit-note-model #NoteID').val(parseInt(edit_note_id));
 						$('#edit-note-model #KeyID').val(parseInt(edit_key_id));
-						//
-						
+						$('#edit-note-model #NoteType').val(edit_note_type);						
 						$('#edit-note-model').modal('show'); 								
 					},
 				});	

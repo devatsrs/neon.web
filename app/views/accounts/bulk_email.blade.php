@@ -1,3 +1,4 @@
+<?php   $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing']; ?>
 <div class="modal fade" id="modal-BulkMail">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">

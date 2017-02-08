@@ -83,6 +83,21 @@
           <div class="col-md-12">
             <div class="mail-compose">
               <form method="post" id="email-from" role="form" enctype="multipart/form-data">
+              <div class="form-Group" >                  
+                  <div class=" @if($SystemTickets) col-md-10 pull-left @else col-md-12 @endif" style="padding-left:0px; @if(!$SystemTickets) padding-right:0px; @endif" >
+                  <label >From</label>
+                  {{Form::select('email-from',TicketGroups::GetGroupsFrom(),'',array("class"=>"select2"))}}
+                  </div>
+                  @if($SystemTickets)
+                  <div class="col-md-2 pull-right">
+                   <label class="control-label" >Open ticket</label>
+                    <p class="make-switch switch-small">
+                      <input name="createticket" type="checkbox" value="1" >
+                    </p>
+                  </div>
+                  @endif
+                  </div>
+                  <div class="clearfix" style="margin-bottom: 15px;"></div>
                 <div class="form-group">
                   <label for="to">To *</label>
                   <!--{{ Form::select('email-to', USer::getUserIDList(), '', array("class"=>"select2","id"=>"email-to","tabindex"=>"1")) }}-->

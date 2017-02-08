@@ -371,7 +371,7 @@ private $validlicense;
 				   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
 					$response_extensions		 =	json_encode($response_api_extensions['allowed_extensions']); 
 					
-					$TicketConversation			 =	$ResponseData->TicketConversation; Log::info($ResponseData->TicketConversation);
+					$TicketConversation			 =	$ResponseData->TicketConversation; 					
 					//$NextTicket 				 =	$ResponseData->NextTicket;
 					//$PrevTicket 				 =	$ResponseData->PrevTicket;
 					$ticketSavedData			 = 	json_decode(json_encode($ResponseData->ticketSavedData),true);

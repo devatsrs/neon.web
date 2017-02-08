@@ -285,9 +285,9 @@ $(document).ready(function(e) {
             }
 			
 			doc.find('#Message').wysihtml5({
-				"Tickets":true,
+				"Tickets":false,
 				"font-styles": true,
-				"leadoptions":false,
+				"leadoptions":true,
 				"Crm":false,
 				"emphasis": true,
 				"lists": true,
@@ -407,8 +407,8 @@ $(document).ready(function(e) {
     });		
 	$('.wysihtml5box').wysihtml5({
 						"font-styles": true,
-						"leadoptions":false,
-						"Tickets":true,
+						"leadoptions":true,
+						"Tickets":false,
 						"Crm":false,
 						"emphasis": true,
 						"lists": true,

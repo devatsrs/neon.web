@@ -10,6 +10,14 @@ class EmailTemplateController extends \BaseController {
 		$select = ["TemplateName","Subject","CreatedBy","updated_at","Status","TemplateID","StaticType"];
         $template = EmailTemplate::select($select);
         $template->where(["CompanyID" => $companyID]);
+		
+		
+		if(isset($data['search']) && !empty($data['search'])){
+			$template->Where(function ($template) use ($data) {
+                $template->orWhere('TemplateName',$data['search'])
+                      ->orWhere('Subject',$data['search']);
+            });		
+        }
 
         if(isset($data['type'])&& $data['type']>0){
             $template->Where(['Type'=>$data['type']]);

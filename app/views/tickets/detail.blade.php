@@ -60,7 +60,7 @@
     @endif
     <?php if(count($TicketConversation)>0){
 		if(is_array($TicketConversation)){
-		foreach($TicketConversation as $TicketConversationData){ 
+		foreach($TicketConversation as $key => $TicketConversationData){ 
 		if($TicketConversationData->Timeline_type == TicketsTable::TIMELINEEMAIL){
 		 ?>  
     <div class="mail-reply-seperator"></div>
@@ -69,7 +69,7 @@
       <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
     <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
-    <div class="mail-text @if(count($attachments)<1 || strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->EmailMessage}} </div>       
+    <div @if($key==(count($TicketConversation)-1)) id="last_item" @endif  class="mail-text  @if(count($attachments)<1 || strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->EmailMessage}} </div>       
      @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
     <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
@@ -103,7 +103,7 @@
       <div class="mail-sender">  <span>Note</span>   </div>
       <div class="mail-date">  {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
-      <div class="mail-text last_data"> {{$TicketConversationData->Note}} </div>   
+      <div @if($key==(count($TicketConversation)-1)) id="last_item" @endif class="mail-text last_data"> {{$TicketConversationData->Note}} </div>   
 	<?php	} ?>
     <?php } } } ?>
   </div>
@@ -367,6 +367,8 @@ $(document).ready(function(e) {
 						$("#add-note-model").find('#note-edit').button('reset');
 						if(response.status =='success'){									
 							toastr.success(response.message, "Success", toastr_opts);
+							//location.reload();
+							window.location.href = window.location.href+"#last_item";
 							location.reload();
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
@@ -400,7 +402,8 @@ $(document).ready(function(e) {
                 success: function(response) {
 						$("#EmailAction-model").find('.btn-send-mail').button('reset');
 						if(response.status =='success'){									
-							toastr.success(response.message, "Success", toastr_opts);
+							toastr.success(response.message, "Success", toastr_opts);							
+							window.location.href = window.location.href+"#last_item";
 							location.reload();
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);

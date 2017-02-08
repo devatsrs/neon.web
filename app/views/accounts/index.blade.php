@@ -900,6 +900,8 @@
         });
 
         $(document).on('click','#bulk-Ratesheet,.sendemail',function(){
+			document.getElementById('BulkMail-form').reset();
+			$("#modal-BulkMail").find('.file-input-name').html("");
             $("#BulkMail-form [name='template_option']").val('').trigger("change");
             $('#BulkMail-form [name="email_template_privacy"]').val(0).trigger("change");
             $("#BulkMail-form")[0].reset();

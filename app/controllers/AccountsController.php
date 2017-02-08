@@ -578,8 +578,8 @@ class AccountsController extends \BaseController {
      */
 	function get_note(){
 		$response				=	array();
-		$data 					= 	Input::all();
-		$response_note    		=   NeonAPI::request('account/get_note',array('NoteID'=>$data['NoteID']),false,true);
+		$data 					= 	Input::all(); Log::info(print_r($data,true));
+		$response_note    		=   NeonAPI::request('account/get_note',$data,false,true);
 		if($response_note['status']=='failed'){
 			return json_response_api($response_note,false,true);
 		}else{
@@ -616,7 +616,9 @@ class AccountsController extends \BaseController {
      */
     public function delete_note($id) {
         ///$result = Note::find($id)->delete();
-		$data['NoteID']			=	$id;		 
+		$postdata				= 	Input::all(); 
+		$data['NoteID']			=	$id;
+		$data['NoteType']		=	$postdata['note_type'];		 		
 		$response 				= 	NeonAPI::request('account/delete_note',$data);
 		
 		if($response->status=='failed'){

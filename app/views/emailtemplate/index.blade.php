@@ -7,7 +7,7 @@
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li class="active">
-        <strong>CRM Template</strong>
+        <strong>Email Template</strong>
     </li>
 </ol>
 <h3>Templates</h3>
@@ -29,6 +29,10 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
+                     <label class="col-sm-1 control-label">Search</label>
+                      <div class="col-sm-2">
+                      <input class="form-control" name="search"  type="text" >
+                      </div>
                         <label class="col-sm-2 control-label">Template Privacy</label>
                         <div class="col-sm-2">
                             {{Form::select('template_privacy',$privacy,'',array("class"=>"select2 small"))}}
@@ -69,11 +73,11 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="20%">Template name</th>
+        <th width="20%">Template Name</th>
         <th width="20%">Subject</th>
         <!--<th width="10%">Type</th>-->
         <th width="15%">Created By</th>
-        <th width="15%">updated Date</th>
+        <th width="15%">Last Updated</th>
         <th width="10%">Status</th>
         <th width="10%">Action</th>
     </tr>
@@ -93,6 +97,7 @@ var template_type_val =0;
         public_vars.$body = $("body");
         //show_loading_bar(40);
         var tempatetype						= 	{{json_encode($type)}};
+		$searchFilter.searchTxt				=   $("#template_filter [name='search']").val();
         $searchFilter.template_privacy 		= 	$("#template_filter [name='template_privacy']").val();
         $searchFilter.template_type 		= 	$("#template_filter [name='template_type']").val();
 		$searchFilter.template_status 		= 	$("#template_filter [name='template_status']").prop("checked");
@@ -104,9 +109,9 @@ var template_type_val =0;
             "sAjaxSource": baseurl + "/email_template/ajax_datagrid",
             "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status});
+                aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status});
+                data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt});
             },
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -142,7 +147,7 @@ var template_type_val =0;
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('EmailTemplate','Delete')) { ?>
 						if(full[6]==0){
-                            action += ' <a data-id="'+id+'" class="delete-template btn delete btn-danger btn-sm"><i class="fa fa-trash"></i></a>'; }
+                            action += ' <a data-id="'+id+'" class="delete-template btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>'; }
                         <?php } ?>
                         return action;
                       }
@@ -198,9 +203,10 @@ var template_type_val =0;
         });
         $('#template_filter').submit(function(e){
             e.preventDefault();
-            $searchFilter.template_privacy = $("#template_filter [name='template_privacy']").val();
-            $searchFilter.template_type = $("#template_filter [name='template_type']").val();
-			$searchFilter.template_status = $("#template_filter [name='template_status']").prop("checked");
+			$searchFilter.searchTxt			=   $("#template_filter [name='search']").val();
+            $searchFilter.template_privacy 	= 	$("#template_filter [name='template_privacy']").val();
+            $searchFilter.template_type 	= 	$("#template_filter [name='template_type']").val();
+			$searchFilter.template_status 	= 	$("#template_filter [name='template_status']").prop("checked");
             data_table.fnFilter('', 0);
             return false;
         });

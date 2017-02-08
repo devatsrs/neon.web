@@ -70,7 +70,7 @@ class LeadsController extends \BaseController {
         $userID = User::get_userID();
         $account_owners = User::getOwnerUsersbyRole();
         $emailTemplates = array();
-        $templateoption = ['' => 'Select', 1 => 'New Create', 2 => 'Update'];
+        $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
         $accounts = Account::getAccountIDList(array("AccountType" => 0));
         $privacy = EmailTemplate::$privacy;
         $type = EmailTemplate::$Type;
@@ -236,8 +236,9 @@ class LeadsController extends \BaseController {
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			$ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug); //freshdesk
-			
-            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets'));
+			$SystemTickets				=   Tickets::CheckTicketLicense();			
+			$FromEmails	 				= 	TicketGroups::GetGroupsFrom();			
+            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets','FromEmails'));
     	}
 
     /**
