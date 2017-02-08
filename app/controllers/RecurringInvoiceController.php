@@ -368,6 +368,7 @@ class RecurringInvoiceController extends \BaseController {
                     RecurringInvoiceDetail::where(["RecurringInvoiceID" => $RecurringInvoice->RecurringInvoiceID])->delete();
                     DB::connection('sqlsrv2')->table('tblRecurringInvoiceTaxRate')->where(["RecurringInvoiceID" => $RecurringInvoice->RecurringInvoiceID])->delete();
                     if (isset($data["RecurringInvoiceDetail"])) {
+                        unset($data["RecurringInvoiceDetail"]["RecurringInvoiceDetailID"]);
                         foreach ($data["RecurringInvoiceDetail"] as $field => $detail) {
                             $i = 0;
                             foreach ($detail as $value) {
@@ -427,7 +428,6 @@ class RecurringInvoiceController extends \BaseController {
 						if(!empty($RecurringInvoiceAllTaxRates)) {
                             DB::connection('sqlsrv2')->table('tblRecurringInvoiceTaxRate')->insert($RecurringInvoiceAllTaxRates);
                         }
-
                         if (RecurringInvoiceDetail::insert($RecurringInvoiceDetailData)) {
                             DB::connection('sqlsrv2')->commit();
                             return Response::json(array("status" => "success", "message" => "RecurringInvoice Successfully Updated", 'LastID' => $RecurringInvoice->RecurringInvoiceID));
@@ -580,7 +580,7 @@ class RecurringInvoiceController extends \BaseController {
             $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
             $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
             $jobdata["JobLoggedUserID"] = $UserID;
-            $jobdata["Title"] = "[Auto] Recurring " . (isset($jobType[0]->Title) ? $jobType[0]->Title : '') . ' Generate & Send';
+            $jobdata["Title"] = "[Auto] " . (isset($jobType[0]->Title) ? $jobType[0]->Title : '') . ' Generate & Send';
             $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
             $jobdata["CreatedBy"] = User::get_user_full_name($UserID);
             //$jobdata["Options"] = json_encode(array("accounts" => $AccountIDs));

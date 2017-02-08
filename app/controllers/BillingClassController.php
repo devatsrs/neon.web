@@ -42,7 +42,9 @@ class BillingClassController extends \BaseController {
             $type = EmailTemplate::$Type;*/
             $BillingClassList = BillingClass::getDropdownIDList(User::get_companyID());
             $BillingClass = $response->data;
-            return View::make('billingclass.edit', compact('BillingClassList','BillingClass'));
+            $InvoiceReminders = json_decode($response->data->InvoiceReminderSettings);
+            $LowBalanceReminder = json_decode($response->data->LowBalanceReminderSettings);
+            return View::make('billingclass.edit', compact('BillingClassList','BillingClass','InvoiceReminders','LowBalanceReminder','accounts'));
             //return View::make('billingclass.edit', compact('emailTemplates','taxrates','billing_type','timezones','SendInvoiceSetting','BillingClass','PaymentReminders','LowBalanceReminder','InvoiceTemplates','BillingClassList','InvoiceReminders','accounts','privacy','type'));
         }else{
             return view_response_api($response);

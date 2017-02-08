@@ -190,7 +190,7 @@
                     <label class="col-md-2 control-label">Currency</label>
                     <div class="col-md-4">
                             @if($invoice_count == 0)
-                            {{Form::SelectControl('currency',0,$account->CurrencyId,'CurrencyId')}}
+                            {{Form::SelectControl('currency',0,$account->CurrencyId,0,'CurrencyId')}}
                             <!--{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}-->
                             @else
                             {{Form::SelectControl('currency',0,$account->CurrencyId,1,'CurrencyId')}}

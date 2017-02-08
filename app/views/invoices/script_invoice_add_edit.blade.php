@@ -200,10 +200,6 @@ $(document).ready(function(){
         row.remove();  
 		calculate_total();
     });
-	
-	
-	
-
 
     $('#add-row').on('click', function(e){
         e.preventDefault();
@@ -213,13 +209,6 @@ $(document).ready(function(){
             buildselect2(item);
         });
         $('#InvoiceTable > tbody').append(itemrow);
-
-        /*$('select.selectboxit').addClass('visible');
-        $('select.selectboxit').selectBoxIt();*/
-
-        //$('select.select2').addClass('visible');
-        //$('select.select2').select2();
-		//$('.autogrow').trigger('autosize.resize');
         nicescroll();
 		$("textarea.autogrow").autosize();
     });
