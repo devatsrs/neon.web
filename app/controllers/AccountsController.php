@@ -34,11 +34,11 @@ class AccountsController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Accounts.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Accounts.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Accounts.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Accounts.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -629,7 +629,7 @@ class AccountsController extends \BaseController {
         if (Input::hasFile('excel')) {
             $data = Input::all();
             $today = date('Y-m-d');
-            $upload_path = Config::get('app.acc_doc_path');
+            $upload_path = CompanyConfiguration::get('ACC_DOC_PATH');
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNT_DOCUMENT'],$id) ;
             $destinationPath = $upload_path . '/' . $amazonPath;
             $excel = Input::file('excel');
@@ -721,11 +721,11 @@ class AccountsController extends \BaseController {
                 DB::setFetchMode(Config::get('database.fetch'));
 
                 if($type=='csv'){
-                    $file_path = getenv('UPLOAD_PATH') .'/Recent Due Sheet.csv';
+                    $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Recent Due Sheet.csv';
                     $NeonExcel = new NeonExcelIO($file_path);
                     $NeonExcel->download_csv($due_sheets);
                 }elseif($type=='xlsx'){
-                    $file_path = getenv('UPLOAD_PATH') .'/Recent Due Sheet.xls';
+                    $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Recent Due Sheet.xls';
                     $NeonExcel = new NeonExcelIO($file_path);
                     $NeonExcel->download_excel($due_sheets);
                 }
@@ -805,7 +805,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($password) && $account->VerificationStatus == Account::VERIFIED && $account->Status == 1 ) {
             /* Send mail to Customer */
             $email_data = array();
-            $emailtoCustomer = getenv('EmailToCustomer');
+            $emailtoCustomer = CompanyConfiguration::get('EMAIL_TO_CUSTOMER');
             if(intval($emailtoCustomer) == 1){
                 $email_data['EmailTo'] = $data['BillingEmail'];
             }else{
@@ -1015,11 +1015,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
             $excel_data = json_decode(json_encode($response->data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/CreditHistory.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/CreditHistory.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/CreditHistory.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/CreditHistory.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -1176,7 +1176,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $body = View::make('accounts.printexpensechart',compact('id','CurrencySymbol','response'))->render();
         $body = htmlspecialchars_decode($body);
 
-        $destination_dir = getenv('TEMP_PATH') . '/';
+        $destination_dir = CompanyConfiguration::get('TEMP_PATH') . '/';
         if (!file_exists($destination_dir)) {
             mkdir($destination_dir, 0777, true);
         }

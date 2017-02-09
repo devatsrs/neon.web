@@ -146,11 +146,11 @@ class CurrenciesController extends \BaseController {
         $currencies = Currency::where(["CompanyID" => $CompanyID])->get(['Code','Symbol', 'Description']);
         $currencies = json_decode(json_encode($currencies),true);
         if($type=='csv'){
-            $file_path = getenv('UPLOAD_PATH') .'/Currency.csv';
+            $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Currency.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($currencies);
         }elseif($type=='xlsx'){
-            $file_path = getenv('UPLOAD_PATH') .'/Currency.xls';
+            $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Currency.xls';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_excel($currencies);
         }

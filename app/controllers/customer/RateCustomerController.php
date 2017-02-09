@@ -31,11 +31,11 @@ class RateCustomerController extends \BaseController {
             $excel_data  = DB::select($query.',2)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Outbound Rates.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Outbound Rates.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Outbound Rates.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Outbound Rates.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -170,11 +170,11 @@ class RateCustomerController extends \BaseController {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Inbound Rates.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Inbound Rates.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Inbound Rates.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Inbound Rates.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

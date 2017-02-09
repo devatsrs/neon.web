@@ -186,11 +186,11 @@ class UsersController extends BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Users.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Users.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Users.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Users.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -218,11 +218,11 @@ class UsersController extends BaseController {
 
             $excel_data = json_decode(json_encode($users),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Users.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Users.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Users.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Users.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

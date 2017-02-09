@@ -110,11 +110,11 @@ class TrunkController extends BaseController {
             }
             $trunks = json_decode(json_encode($trunks),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Trunks.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Trunks.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($trunks);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Trunks.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Trunks.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($trunks);
             }

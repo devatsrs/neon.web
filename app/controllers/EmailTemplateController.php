@@ -167,11 +167,11 @@ class EmailTemplateController extends \BaseController {
         $template = EmailTemplate::select($select)->where(["CompanyID" => $companyID])->get();
         $excel_data = json_decode(json_encode($template),true);
         if($type=='csv'){
-            $file_path = getenv('UPLOAD_PATH') .'/Templates.csv';
+            $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Templates.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($excel_data);
         }elseif($type=='xlsx'){
-            $file_path = getenv('UPLOAD_PATH') .'/Templates.xls';
+            $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Templates.xls';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_excel($excel_data);
         }

@@ -111,7 +111,7 @@ class Dispute extends \Eloquent {
 		}
 
 		if (Input::hasFile('Attachment')){
-			$upload_path = getenv("UPLOAD_PATH");
+			$upload_path = CompanyConfiguration::get('UPLOADPATH');
 			$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DISPUTE_ATTACHMENTS'],$data["AccountID"]) ;
 			$destinationPath = $upload_path . '/' . $amazonPath;
 			$proof = Input::file('Attachment');

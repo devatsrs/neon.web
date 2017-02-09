@@ -86,11 +86,11 @@ class VendorBlockingsController extends \BaseController {
 
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Country.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor Blocked By Country.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($vendor_blocking_by_country);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Country.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor Blocked By Country.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($vendor_blocking_by_country);
             }
@@ -118,11 +118,11 @@ class VendorBlockingsController extends \BaseController {
 
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Code.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor Blocked By Code.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($vendor_blocking_by_code);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Blocked By Code.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor Blocked By Code.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($vendor_blocking_by_code);
             }

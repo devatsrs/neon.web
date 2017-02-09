@@ -25,11 +25,11 @@ class InvoicesCustomerController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Invoice.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Invoice.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -111,7 +111,7 @@ class InvoicesCustomerController extends \BaseController {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
-            $logo = getenv('UPLOAD_PATH') . '/' . basename($as3url);
+            $logo = CompanyConfiguration::get('UPLOADPATH') . '/' . basename($as3url);
             file_put_contents($logo, file_get_contents($as3url));
             $usage_data = array();
             $file_name = 'Invoice--' . date('d-m-Y') . '.pdf';
@@ -135,7 +135,7 @@ class InvoicesCustomerController extends \BaseController {
             }
 			$print_type = 'Invoice';
             $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
-            $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
+            $destination_dir = CompanyConfiguration::get('UPLOADPATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             }
@@ -167,7 +167,7 @@ class InvoicesCustomerController extends \BaseController {
             download_file($FilePath);
         }
         exit;
-        /*$DocumentFile = getenv('UPLOAD_PATH') . '/'.$DocumentFile;
+        /*$DocumentFile = CompanyConfiguration::get('UPLOADPATH') . '/'.$DocumentFile;
         if(file_exists($DocumentFile)){
             download_file($DocumentFile);
         }else{

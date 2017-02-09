@@ -120,11 +120,11 @@ class DashboardCustomerController extends BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($exportType=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/'.$typeText[$data['Type']].'.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($exportType=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/'.$typeText[$data['Type']].'.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

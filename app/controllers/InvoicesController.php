@@ -91,11 +91,11 @@ class InvoicesController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Invoice.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Invoice.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -822,7 +822,7 @@ class InvoicesController extends \BaseController {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }  
-            $logo_path = getenv('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
+            $logo_path = CompanyConfiguration::get('UPLOADPATH') . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
             //RemoteSSH::run("chmod -R 777 " . $logo_path); 
             $logo = $logo_path  . '/'  . basename($as3url); 
@@ -850,7 +850,7 @@ class InvoicesController extends \BaseController {
             }
 			$print_type = 'Invoice';
             $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
-            $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
+            $destination_dir = CompanyConfiguration::get('UPLOADPATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             }
@@ -927,7 +927,7 @@ class InvoicesController extends \BaseController {
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
         $message = '';
         if (Input::hasFile('Attachment')) {
-            $upload_path = Config::get('app.upload_path');
+            $upload_path = CompanyConfiguration::get('UPLOADPATH');
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
             $ext = $Attachment->getClientOriginalExtension();
@@ -1010,7 +1010,7 @@ class InvoicesController extends \BaseController {
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
         $message = '';
         if (Input::hasFile('Attachment')) {
-            $upload_path = Config::get('app.upload_path');
+            $upload_path = CompanyConfiguration::get('UPLOADPATH');
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
             $ext = $Attachment->getClientOriginalExtension();
@@ -1119,7 +1119,7 @@ class InvoicesController extends \BaseController {
             //$InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail');
             $InvoiceCopy = Notification::getNotificationMail(Notification::InvoiceCopy);
             $InvoiceCopy = empty($InvoiceCopy)?$Company->Email:$InvoiceCopy;
-            $emailtoCustomer = getenv('EmailToCustomer');
+            $emailtoCustomer = CompanyConfiguration::get('EMAIL_TO_CUSTOMER');
             if(intval($emailtoCustomer) == 1){
                 $CustomerEmail = $data['Email'];
 
@@ -1372,7 +1372,7 @@ class InvoicesController extends \BaseController {
         if(is_amazon() == true){
             $PDFurl =  AmazonS3::preSignedUrl($Invoice->PDF);
         }else{
-            $PDFurl = Config::get('app.upload_path')."/".$Invoice->PDF;
+            $PDFurl = CompanyConfiguration::get('UPLOADPATH')."/".$Invoice->PDF;
         }
         header('Content-type: application/pdf');
         header('Content-Disposition: inline; filename="'.basename($PDFurl).'"');
@@ -1606,7 +1606,7 @@ class InvoicesController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
 
-            $file_path = getenv('UPLOAD_PATH') .'/InvoiceSageExport.csv';
+            $file_path = CompanyConfiguration::get('UPLOADPATH') .'/InvoiceSageExport.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($excel_data);
 
@@ -1641,7 +1641,7 @@ class InvoicesController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
 
-            $file_path = getenv('UPLOAD_PATH') .'/InvoiceSageExport.csv';
+            $file_path = CompanyConfiguration::get('UPLOADPATH') .'/InvoiceSageExport.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($excel_data);
             /*Excel::create('InvoiceSageExport', function ($excel) use ($excel_data) {

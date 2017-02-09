@@ -25,11 +25,11 @@ class LCRController extends \BaseController {
             }
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/LCR.csv';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/LCR.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/LCR.xls';
+                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/LCR.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

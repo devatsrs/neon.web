@@ -154,7 +154,7 @@ class ThemesController extends \BaseController {
 			
 			if (Input::hasFile('Logo'))
 			{
-				$upload_path 	  = 	getenv('TEMP_PATH');
+				$upload_path 	  = 	CompanyConfiguration::get('TEMP_PATH');
 				$Attachment		  = 	Input::file('Logo');
 				$ext 			  = 	$Attachment->getClientOriginalExtension();	
 				if (in_array($ext, array("jpg","png")))
@@ -168,7 +168,7 @@ class ThemesController extends \BaseController {
 					}					
 
 					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
@@ -200,7 +200,7 @@ class ThemesController extends \BaseController {
 			{
 				
 				///////////
-				$upload_path 	  = 	getenv('TEMP_PATH');
+				$upload_path 	  = 	CompanyConfiguration::get('TEMP_PATH');
 				$Attachment		  = 	Input::file('Favicon');
 				$ext 			  = 	$Attachment->getClientOriginalExtension();	
 				
@@ -214,7 +214,7 @@ class ThemesController extends \BaseController {
 					}
 					
 					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
@@ -308,7 +308,7 @@ class ThemesController extends \BaseController {
 			
 			if (Input::hasFile('Logo'))
 			{
-				$upload_path 	  = 	getenv('TEMP_PATH');
+				$upload_path 	  = 	CompanyConfiguration::get('TEMP_PATH');
 				$Attachment		  = 	Input::file('Logo');
 				$ext 			  = 	$Attachment->getClientOriginalExtension();			
 				
@@ -322,7 +322,7 @@ class ThemesController extends \BaseController {
 					}
 
 					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
@@ -357,7 +357,7 @@ class ThemesController extends \BaseController {
 				//////////
 				
 				///////////
-				$upload_path 	  = 	getenv('TEMP_PATH');
+				$upload_path 	  = 	CompanyConfiguration::get('TEMP_PATH');
 				$Attachment		  = 	Input::file('Favicon');
 				$ext 			  = 	$Attachment->getClientOriginalExtension();			
 
@@ -371,7 +371,7 @@ class ThemesController extends \BaseController {
 					}
 					
 					$amazonPath		 	=	AmazonS3::generate_upload_path(AmazonS3::$dir['THEMES_IMAGES']);
-					$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
 					$filename 		 	= 	rename_upload_file($destinationPath,$Attachment->getClientOriginalName());
 					$fullPath 		 	= 	$destinationPath .$filename;										
         	        $Attachment->move($destinationPath, $filename);
