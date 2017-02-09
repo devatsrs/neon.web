@@ -4,6 +4,9 @@
         /*.panel-title{
             float:none;
         }*/
+        .white-bg {
+            background: #fff none repeat scroll 0 0 !important;
+        }
     </style>
     <script type="text/javascript">
         var $dashsearchFilter = {};
@@ -67,13 +70,21 @@
     <div class="row">
         <div class="col-md-12">
                 <ul class="nav nav-tabs">
+                    @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
                     <li class="active"><a href="#tab1" data-toggle="tab">Destination</a></li>
                     <li ><a href="#tab2" data-toggle="tab">Prefix</a></li>
                     <li ><a href="#tab3" data-toggle="tab">Trunk</a></li>
                     <li ><a href="#tab4" data-toggle="tab">Account</a></li>
                     <li ><a href="#tab5" data-toggle="tab">Gateway</a></li>
+                    @endif
+                    @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
+                    <li class="{{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#tab6" data-toggle="tab">Most Dialled Number</a></li>
+                    <li ><a href="#tab7" data-toggle="tab">Longest Durations Calls</a></li>
+                    <li ><a href="#tab8" data-toggle="tab">Most Expensive Calls</a></li>
+                    @endif
                 </ul>
                 <div class="tab-content">
+                    @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
                     <div class="tab-pane active" id="tab1" >
                         <div class="row">
                             <div class="col-md-4">
@@ -497,9 +508,14 @@
                             </div>
                         </div>
                     </div>
+                    @endif
+                    @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
+                    @include('dashboard.retailmonitor')
+                    @endif
                 </div>
             </div>
     </div>
+    @include('dashboard.todayalerts')
     @if($isDesktop == 1)
         <button id="toNocWall" class="btn btn-primary pull-right" style="display: block;"><i class="fa fa-arrows-alt"></i></button>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/screenfull.js/3.0.0/screenfull.js"></script>

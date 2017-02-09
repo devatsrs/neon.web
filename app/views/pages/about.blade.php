@@ -13,14 +13,46 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.07</h1>
+    <h1>NEON - 4.08</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.07</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.08</strong></div>
 </p>
 </div>
+
+<h2>
+    <span class="label label-success">4.08</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>17-01-2017</h4>
+                    01. Improved Stripe integration.<br>
+                    02. Added IP/CLI filter on account page.<br>
+                    03. Added Traffic by region map.<br>
+                    04. Added vendor hourly stats notification.<br>
+                    05. Added Top 10 Most Dialled Numbers, Longest Duration Calls and Most Expensive Calls under Analysis and Monitor Dashboard.<br>
+                    06. Added average rate per minute on cdr page and invoice.<br>
+                    07. Added Job Notification tick box on user page so user can switch ON and OFF job notifcations.<br>
+                    08. Improved filters on Rate Generator page.<br>
+                    09. Fixed issue with logo on forgot password page.<br>
+                    10. Fixed Next run time issue with Cron Jobs.<br>
+                    11. Added option to enter rate when re-rating CDRs.<br>
+                    12. Improved QoS notifications.<br>
+                    13. Improved Hourly Analysis chart under Analysis.<br>
+                    14. Added alerts widget on monitor dashboard.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.07</span> &nbsp; Version Highlights

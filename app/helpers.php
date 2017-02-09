@@ -136,6 +136,16 @@ function opportunites_dropbox($id=0,$data=array()){
     return Form::select('crmboard', $all_opportunites, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
+function rategenerators_dropbox($id=0,$data=array()){
+    $all_rategenerators = RateGenerator::getRateGenerators();
+    return Form::select('rategenerators', $all_rategenerators, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+function rate_tables_dropbox($id=0,$data=array()){
+    $all_getRateTables = RateTable::getRateTables();
+    return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
 
 function sendMail($view,$data){
     
@@ -1396,4 +1406,17 @@ function change_timezone($billing_timezone,$timezone,$date){
         return $changed_date;
     }
     return $date;
+}
+
+function getQuickBookAccountant(){
+    $ChartofAccounts = array();
+    $Quickbook = new BillingAPI();
+    $check_quickbook = $Quickbook->check_quickbook();
+    if($check_quickbook){
+        $ChartofAccounts = $Quickbook->getChartofAccounts();
+        if(!empty($ChartofAccounts) && count($ChartofAccounts)>0){
+            $ChartofAccounts = array(""=> "Select Chart of accounts")+$ChartofAccounts;
+        }
+    }
+    return $ChartofAccounts;
 }

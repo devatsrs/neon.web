@@ -120,7 +120,7 @@
 
                     },
             "bPaginate": false,
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
             "sPaginationType": "bootstrap",
             "aaSorting": [[0, 'asc']],
             "sDom": "<'row'r>",

@@ -7,7 +7,7 @@ class Payment extends \Eloquent {
     protected $table = 'tblPayment';
     protected  $primaryKey = "PaymentID";
 
-    public static $method = array(''=>'Select ','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER', 'DIRECT DEBIT'=>'DIRECT DEBIT','PAYPAL_IPN'=>"PAYPAL");
+    public static $method = array(''=>'Select ','CASH'=>'CASH','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER', 'DIRECT DEBIT'=>'DIRECT DEBIT','PAYPAL_IPN'=>"PAYPAL");
     public static $action = array(''=>'Select ','Payment In'=>'Payment In','Payment Out'=>'Payment Out');
     public static $status = array(''=>'Select ','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
     //public $timestamps = false; // no created_at and updated_at
@@ -20,6 +20,22 @@ class Payment extends \Eloquent {
         'MasterCard'=>'MasterCard',
         'Visa'=>'Visa',
         "JCB"=>"JCB",
+    );
+
+    public static $importpaymentrules = array(
+        'selection.AccountName' => 'required',
+        'selection.PaymentDate'=>'required',
+        'selection.PaymentMethod'=>'required',
+        'selection.PaymentType'=>'required',
+        'selection.Amount'=>'required'
+    );
+
+    public static $importpaymentmessages = array(
+        'selection.AccountName.required' =>'The Account Name field is required',
+        'selection.PaymentDate.required' =>'The Payment Date field is required',
+        'selection.PaymentMethod.required' =>'The Payment Method  field is required',
+        'selection.PaymentType.required' =>'The Action field is required',
+        'selection.Amount.required' =>'The Amount field is required'
     );
 
     public static function validate($id=0){
@@ -221,12 +237,29 @@ class Payment extends \Eloquent {
                         );
 
                         if(isset($selection['InvoiceNo']) && !empty($selection['InvoiceNo']) ) {
-                            $temp['InvoiceNo'] = trim($row[$selection['InvoiceNo']]);
-                            $temp['InvoiceID'] = (int)Invoice::where('FullInvoiceNumber',trim($row[$selection['InvoiceNo']]))->pluck('InvoiceID');
+                            if(!empty($row[$selection['InvoiceNo']])){
+                                $invnumber = trim($row[$selection['InvoiceNo']]);
+                                $temp['InvoiceNo'] = empty($invnumber) ? '' : $invnumber;
+                                if(!empty($temp['InvoiceNo'])){
+                                    $temp['InvoiceID'] = (int)Invoice::where('FullInvoiceNumber',$invnumber)->pluck('InvoiceID');
+                                }else{
+                                    $temp['InvoiceID'] = '';
+                                }
+
+
+                            }else{
+                                $temp['InvoiceNo'] = '';
+                                $temp['InvoiceID'] = '';
+                            }
                         }
 
                         if(isset($selection['Notes']) && !empty($selection['Notes']) ) {
-                            $temp['Notes'] = trim($row[$selection['Notes']]);
+                            if(!empty($row[$selection['Notes']])){
+                                $note = trim($row[$selection['Notes']]);
+                                $temp['Notes'] = empty($note) ? '' : $note;
+                            }else{
+                                $temp['Notes'] = '';
+                            }
                         }
                         $batch_insert[] = $temp;
                     }

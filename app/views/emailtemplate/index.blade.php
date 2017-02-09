@@ -17,7 +17,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form id="template_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form id="template_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -91,7 +91,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/email_template/ajax_datagrid",
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type});
                 data_table_extra_params.length = 0;
@@ -209,6 +209,7 @@ var postdata;
                 $("#add-new-template-form [name='Subject']").val(data['Subject']);
                 $("#add-new-template-form [name='TemplateBody']").val(data['TemplateBody']);
                 $("#add-new-template-form [name='Type']").val(data['Type']).trigger("change");
+				if(data['Privacy']== '' || data['Privacy']=== null){data['Privacy']=0;} 
                 $("#add-new-template-form [name='Email_template_privacy']").val(data['Privacy']).trigger("change");
                 $('#add-new-modal-template h4').html('Edit template');
 

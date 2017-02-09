@@ -82,7 +82,7 @@
                         {"name":"Export","value":1});
 
             },
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
@@ -172,9 +172,8 @@
             ev.preventDefault();
             $('#billing-form').trigger("reset");
             $('#add-qos-modal h4').html('Add QoS');
-            var selected_days = "SUN,MON,TUE,WED,THU,FRI,SAT";
-            $(".js-example-disabled").prop("disabled", false);
             $('#billing-form select').select2("val", "");
+            var selected_days = "SUN,MON,TUE,WED,THU,FRI,SAT";
             $("#billing-form [name='QosAlert[Day][]']").val(selected_days.split(',')).trigger('change');
             var selectBox = $("#billing-form [name='AlertType']");
             selectBox.val('').trigger("change");

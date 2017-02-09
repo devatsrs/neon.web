@@ -225,7 +225,7 @@ var CurrencyCode = '';
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr/type",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push(
                             {"name":"StartDate","value":$searchFilter.StartDate},

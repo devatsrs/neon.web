@@ -78,7 +78,7 @@
                     "bProcessing":true,
                     "bServerSide": true,
                     "sAjaxSource": datagrid_url,
-                    "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                    "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting": [[0, 'asc']],
@@ -109,7 +109,7 @@
                                 action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
                                 @if(User::checkCategoryPermission('BillingClass','Delete'))
                                 if(full[4]== 0) {
-                                    action += ' <a href="' + delete_url.replace("{id}", id) + '" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                    action += ' <a href="' + delete_url.replace("{id}", id) + '" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="fa fa-trash"></i>Delete </a>'
                                 }
                                 @endif
                                 return action;

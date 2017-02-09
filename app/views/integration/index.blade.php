@@ -599,7 +599,7 @@
                             </div>
                         </div>
                         <div class="clear"></div>
-                        <div class="col-md-6  margin-top">
+                        <!--<div class="col-md-6  margin-top">
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-4 control-label">* OAuth Consumer Key:</label>
                                 <div class="col-sm-8">
@@ -636,7 +636,7 @@
 
                             </div>
                         </div>
-                        <div class="clear"></div>
+                        <div class="clear"></div>-->
                         <div class="col-md-6  margin-top">
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Active:</label>
@@ -649,10 +649,11 @@
 
                 </div>
             </div>
+
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Charts of Accounts Mapping
+                        Chart of Accounts Mapping
                     </div>
 
                     <div class="panel-options">
@@ -790,37 +791,60 @@
 
         $("#SubcategoryForm").submit(function(e){
             e.preventDefault();
-	       var formData = new FormData($(this)[0]);
+            var quickbookconfirm = true;
+            var check = false;
+            var sec_cat = $("#SubcategoryForm input[name='secondcategory']").val();
+	        var formData = new FormData($(this)[0]);
+            if(sec_cat=='QuickBook'){
+                $('#SubcategoryForm input:text').each(function()
+                {
+                    if( !$(this).val() ) {
+                        check = true;
+                    }
+                });
+
+            }
+            if(check){
+                var result = confirm("Mappings are not setup correctly under Chart of Accounts Mapping.\nSystem won't be able to post Invoices.\n\nAre you sure you want to continue?")
+                if(!result){
+                    quickbookconfirm = false;
+                }
+            }
             var redirecturl = baseurl+ "/quickbook";
             console.log(formData);
-            $.ajax({
-                url:"{{URL::to('/integration/update')}}", //Server script to process data
-                type: 'POST',
-                dataType: 'json',
-                beforeSend: function(){
-                    $('.btn.save').button('loading');
-                },
-                success: function(response) {
-                    $(".save_template").button('reset');
-                    if (response.status == 'success') {
-                        toastr.success(response.message, "Success", toastr_opts);
-                        reloadJobsDrodown(0);
-                        if(response.quickbookredirect == '1'){
-                            //location.href=redirecturl;
-                        }else{
-                            location.reload();
+            if(quickbookconfirm) {
+                $.ajax({
+                    url: "{{URL::to('/integration/update')}}", //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    beforeSend: function () {
+                        $('.btn.save').button('loading');
+                    },
+                    success: function (response) {
+                        $(".save_template").button('reset');
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            reloadJobsDrodown(0);
+                            if (response.quickbookredirect == '1') {
+                                //location.href=redirecturl;
+                            } else {
+                                location.reload();
+                            }
+                            //location.reload();
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
                         }
-                        //location.reload();
-                    } else {
-                        toastr.error(response.message, "Error", toastr_opts);
-                    }
-                },
-                data: formData,
-                //Options to tell jQuery not to process data or worry about content-type.
-                cache: false,
-                contentType: false,
-                processData: false
-            });
+                    },
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }else{
+                setTimeout( function(){$(".save_template").button('reset')},10);
+                return false;
+            }
         });
 		
 		

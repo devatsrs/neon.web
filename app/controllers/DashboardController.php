@@ -165,7 +165,9 @@ class DashboardController extends BaseController {
         $agent = new Agent();
         $isDesktop = $agent->isDesktop();
         $newAccountCount = Account::where($where)->where('created_at','>=',$original_startdate)->count();
-        return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop'));
+        $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::get('MONITOR_DASHBOARD')));
+
+        return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','MonitorDashboardSetting'));
 
     }
 	
@@ -391,6 +393,36 @@ class DashboardController extends BaseController {
         $missingAccounts = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('getMissingAccounts'));
         $jsondata['missingAccounts']=$missingAccounts['data']['getMissingAccounts'];
         return json_encode($jsondata);
+    }
+
+    public function getTopAlerts(){
+        $getdata = Input::all();
+        $getdata['iDisplayLength'] = 10;
+        $getdata['iDisplayStart'] = 1;
+        $getdata['sSortDir_0'] = 'desc';
+        $getdata['iSortCol_0'] = 2;
+        $getdata['AlertType'] = '';
+        $getdata['StartDate'] = date('Y-m-d 00:00:00');
+        $getdata['EndDate'] = date('Y-m-d 23:59:59');
+        $alertType = array("" => "Select") + Alert::$qos_alert_type + Alert::$call_monitor_alert_type;
+        if ($getdata['Type'] == 'today') {
+            $getdata['StartDate'] = date('Y-m-d');
+            $getdata['EndDate'] = date('Y-m-d 23:59:59');
+        } else if ($getdata['Type'] == 'yesterday') {
+            $getdata['StartDate'] = date('Y-m-d', strtotime('-1 day'));
+            $getdata['EndDate'] = $getdata['StartDate'] . ' 23:59:59';
+        } else if ($getdata['Type'] == 'yesterday2') {
+            $getdata['StartDate'] = date('Y-m-d', strtotime('-2 days'));
+            $getdata['EndDate'] = $getdata['StartDate'] . ' 23:59:59';
+        }
+        $response = NeonAPI::request('alert/history', $getdata, false, false, false);
+        if(!empty($response) && $response->status == 'success') {
+            $html = View::make('dashboard.alert_history', compact('response', 'alertType'))->render();
+        }else{
+            return json_response_api($response,true,true,true);
+        }
+        return $html;
+
     }
 
 }

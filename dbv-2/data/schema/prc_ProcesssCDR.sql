@@ -5,7 +5,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcesssCDR`(
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
 	IN `p_RateCDR` INT,
 	IN `p_RateFormat` INT,
-	IN `p_NameFormat` VARCHAR(50)
+	IN `p_NameFormat` VARCHAR(50),
+	IN `p_RateMethod` VARCHAR(50),
+	IN `p_SpecifyRate` DECIMAL(18,6)
 )
 BEGIN
 	DECLARE v_rowCount_ INT;
@@ -205,7 +207,7 @@ BEGIN
 		SET v_AccountID_ = (SELECT AccountID FROM tmp_AccountTrunk_ t WHERE t.RowID = v_pointer_);
 
 		/* get outbound rate process*/
-		CALL NeonRMDev.prc_getCustomerCodeRate(v_AccountID_,v_TrunkID_,p_RateCDR);
+		CALL NeonRMDev.prc_getCustomerCodeRate(v_AccountID_,v_TrunkID_,p_RateCDR,p_RateMethod,p_SpecifyRate);
 
 		/* update prefix outbound process*/
 		/* if rate format is prefix base not charge code*/
@@ -277,7 +279,7 @@ BEGIN
 			SET v_AccountID_ = (SELECT AccountID FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
 			
 			/* get inbound rate process*/
-			CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR);
+			CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate);
 			
 			/* update trunk prefix inbound process*/
 			CALL prc_updateInboundPrefix(v_AccountID_, p_processId, p_tbltempusagedetail_name);
@@ -313,7 +315,7 @@ BEGIN
 		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Trunk: ",ud.trunk," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
 		FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
 		INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
-		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 and ud.area_prefix = "Other"');
+		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 AND ud.billed_second <> 0 and ud.area_prefix = "Other"');
 		
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
@@ -324,7 +326,7 @@ BEGIN
 		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,3,  CONCAT( "Account:  " , a.AccountName ,  " - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
 		FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
 		INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
-		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 1 AND ud.is_rerated = 0 and ud.area_prefix = "Other"');
+		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 1 AND ud.is_rerated = 0 AND ud.billed_second <> 0 and ud.area_prefix = "Other"');
 		
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;

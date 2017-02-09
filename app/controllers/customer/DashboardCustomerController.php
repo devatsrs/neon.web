@@ -16,9 +16,9 @@ class DashboardCustomerController extends BaseController {
         if(Cache::has('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID())){
             $monthfilter = Cache::get('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID());
         }
-        $BillingDashboardWidgets 	= 	CompanyConfiguration::get('BILLING_DASHBOARD');
+        $BillingDashboardWidgets  =  CompanyConfiguration::get('BILLING_DASHBOARD_CUSTOMER');
         if(!empty($BillingDashboardWidgets)) {
-            $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
+            $BillingDashboardWidgets   = explode(",",$BillingDashboardWidgets);
         }
         return View::make('customer.index',compact('account','original_startdate','original_enddate','invoice_status_json','monthfilter','BillingDashboardWidgets'));
     }
@@ -93,7 +93,9 @@ class DashboardCustomerController extends BaseController {
         $User = User::find(Customer::get_currentUser()->Owner);
         $AccountManager = $User->FirstName.' '.$User->LastName;
         $AccountManagerEmail = $User->EmailAddress;
-        return View::make('customer.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','AccountManager','AccountManagerEmail'));
+        $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::get('CUSTOMER_MONITOR_DASHBOARD')));
+
+        return View::make('customer.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','AccountManager','AccountManagerEmail','MonitorDashboardSetting'));
 
     }
 

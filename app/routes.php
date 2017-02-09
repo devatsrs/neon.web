@@ -93,7 +93,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('users/ajax_datagrid/{type}', 'UsersController@ajax_datagrid');
 	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
 	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
-    Route::any('/users/tracker', 'UsersController@view_tracker');
     Route::any('/users/{id}/job_notification/{status}', 'UsersController@job_notification')->where('status', '(.[09]*)+');
 
 
@@ -108,9 +107,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/dashboard/getSalesdata', "DashboardController@getSalesdata");		
 	Route::post('/dashboard/CrmDashboardSalesRevenue', "DashboardController@CrmDashboardSalesRevenue");		
 	Route::post('/dashboard/GetForecastData', "DashboardController@GetForecastData");
-	Route::post('/dashboard/GetRevenueDrillDown', "DashboardController@GetRevenueDrillDown");		
-	
-	
+	Route::post('/dashboard/GetRevenueDrillDown', "DashboardController@GetRevenueDrillDown");
+	Route::any('/dashboard/get_top_alert', "DashboardController@getTopAlerts");
 	
 	
 	Route::any('/monitor', array('as' => 'monitor', 'uses' => 'DashboardController@monitor_dashboard'));
@@ -130,6 +128,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/getReportData', "ChartDashboardController@getReportData");
 	Route::any('/getWorldMap', "ChartDashboardController@getWorldMap");
 	Route::any('/getVendorWorldMap', "ChartDashboardController@getVendorWorldMap");
+	Route::any('/getMonitorDashboradCall', "ChartDashboardController@getMonitorDashboradCall");
 
 
 	//Trunk
@@ -458,14 +457,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/emailmessages/SendMail','MessagesController@SendMail');
 	Route::any('emailmessages/{id}/compose','MessagesController@Compose');
 	Route::any('/emailmessages/ajax_action','MessagesController@Ajax_Action');
-	
-	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
-	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
-	Route::any('/users/exports/{type}', 'UsersController@exports');
-	Route::any('users/ajax_datagrid/{type}', 'UsersController@ajax_datagrid');
-	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
-	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
-    Route::any('/users/tracker', 'UsersController@view_tracker');*/
 	
 	//RateGenerator
 	Route::any('/rategenerators', array('as' => 'rategenerator_list', 'uses' => 'RateGeneratorsController@index'));
