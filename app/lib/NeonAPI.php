@@ -4,10 +4,10 @@ class NeonAPI{
     protected static $api_url = '';
 
     public function __construct() {
-        self::$api_url = CompanyConfiguration::get('Neon_API_URL');
+        self::$api_url = CompanyConfiguration::get('Neon_API_URL').'/';
     }
     public static function login(){
-        self::$api_url = CompanyConfiguration::get('Neon_API_URL');
+        self::$api_url = CompanyConfiguration::get('Neon_API_URL').'/';
         $curl = new Curl\Curl();
         $call_method = 'login';
         $curl->post(self::$api_url.$call_method, array(
@@ -36,7 +36,7 @@ class NeonAPI{
         $curl = new Curl\Curl();
         $call_method = 'l/'.$id;
 
-       self::$api_url = CompanyConfiguration::get('Neon_API_URL');
+       self::$api_url = CompanyConfiguration::get('Neon_API_URL').'/';
 
        $curl->post(self::$api_url.$call_method, array(
            'LoggedUserID' => $id,
@@ -64,7 +64,7 @@ class NeonAPI{
         return $api_token;
     }
     public static function request($call_method,  $post_data=array(),$post=true,$is_array=false,$is_upload=false){
-        self::$api_url = CompanyConfiguration::get('Neon_API_URL');
+        self::$api_url = CompanyConfiguration::get('Neon_API_URL').'/';
         $token = self::getToken();
         $curl = new Curl\Curl();
 

@@ -70,7 +70,7 @@ class VendorRatesController extends \BaseController
 
             $company_name = Account::getCompanyNameByID($id);
             $upload_path = CompanyConfiguration::get('UPLOADPATH');
-            $destinationPath = $upload_path . sprintf("\\%s\\", $company_name);
+            $destinationPath = $upload_path . sprintf("/%s/", $company_name);
             $excel = Input::file('excel');
              // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
