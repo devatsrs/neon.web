@@ -83,9 +83,10 @@ class AccountPaymentProfile extends \Eloquent
 
         $account = Account::find($AccountID);
         $AccountBilling = AccountBilling::getBilling($AccountID);
-        $outstanginamounttotal = Account::getOutstandingAmount($CompanyID,$account->AccountID,get_round_decimal_places($account->AccountID));
+        /* removed account outstandig condition */
+        //$outstanginamounttotal = Account::getOutstandingAmount($CompanyID,$account->AccountID,get_round_decimal_places($account->AccountID));
         $outstanginamount = Account::getOutstandingInvoiceAmount($CompanyID,$account->AccountID,$Invoiceids, get_round_decimal_places($account->AccountID));
-        if ($outstanginamount > 0 && $outstanginamounttotal > 0 ) {
+        if ($outstanginamount > 0 ) {
             $CustomerProfile = AccountPaymentProfile::getProfile($AccountPaymentProfileID);
             if (!empty($CustomerProfile)) {
                 $PaymentGateway = PaymentGateway::getName($CustomerProfile->PaymentGatewayID);
