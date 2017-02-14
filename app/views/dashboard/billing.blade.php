@@ -48,7 +48,7 @@
             </form>
         </div>
     </div>
-    <?php if(User::checkCategoryPermission('BillingDashboardSummaryWidgets','View')){ ?>
+    <?php if(User::checkCategoryPermission('BillingDashboard','View')){ ?>
         <div class="row">
         <div class="col-md-12">
             <div data-collapsed="0" class="panel panel-primary">
@@ -167,7 +167,7 @@
         </div>
     </div>
     <?php } ?>
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboard','View'))
     <div class="row">
         <div class="col-md-12">
             <div class="invoice_expsense panel panel-primary panel-table">
@@ -196,7 +196,7 @@
         </div>
     </div>
     @endif
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))&& User::checkCategoryPermission('BillingDashboardPincodeWidget','View'))
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))&& User::checkCategoryPermission('BillingDashboard','View'))
         <div class="row">
             <div class="col-sm-12">
                 <div class="pin_expsense panel panel-primary panel-table">
@@ -255,7 +255,7 @@
 
         </div>
     @endif
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboard','View'))
     <div class="row">
         <div class="col-sm-6">
             <div class="panel panel-primary panel-table">
@@ -270,6 +270,7 @@
                         <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
                         <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
                         <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
+                        <a data-rel="empty" href="#"><i class="entypo-trash"></i></a>
                     </div>
                 </div>
                 <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
@@ -719,6 +720,13 @@
                 missingAccounts();
             }
         });
+        $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="empty"]', function (e) {
+            e.preventDefault();
+            var id = $(this).parents('.panel-primary').find('table').attr('id');
+            if (id == 'missingAccounts') {
+                deleteMissingAccounts();
+            }
+        });
         $(function () {
             reload_invoice_expense();
             $("#filter-pin").hide();
@@ -801,7 +809,7 @@
         }
 
             function invoiceExpense() {
-                @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
+                @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboard','View'))
                 var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
                 data = $('#billing_filter').serialize() + '&ListType=' + $('#invoiceExpensefilter-form [name="ListType"]').val();
                 var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
@@ -986,8 +994,31 @@
             }, "json");
         }
 
+        function deleteMissingAccounts() {
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboard','View'))
+            var gateWayID = $("#company_gateway").val();
+            if(gateWayID) {
+                if(confirm('Are you sure you want to clear missing account against this gateway?')) {
+                    var table = $('#missingAccounts');
+                    loadingUnload(table, 1);
+                    var url = baseurl + '/dashboard/delete_missing_accounts/' + gateWayID;
+                    showAjaxScript(url, [], function (response) {
+                        $(".btn").button('reset');
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                        missingAccounts();
+                        loadingUnload(table, 0);
+                    });
+                }
+            }
+            @endif
+        }
+
         function missingAccounts() {
-            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboard','View'))
             var table = $('#missingAccounts');
             loadingUnload(table, 1);
             var url = baseurl + '/dashboard/ajax_get_missing_accounts?CompanyGatewayID=' + $("#company_gateway").val();

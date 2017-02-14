@@ -80,7 +80,7 @@
                             mRender: function(id, type, full) {
                                 var show_="/customers_rates/{{$id}}/history/{id}/view";
                                 show_ = show_.replace('{id}', id); // View id
-                                var action='<a  onclick=" return showAjaxModal(\''+show_+'\',\'modal-customer-rate-history\');" href="javascript:;"   class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                                var action='<a  onclick=" return showAjaxModal(\''+show_+'\',\'modal-customer-rate-history\');" href="javascript:;"  title="View"  class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                                 if(full[4] != null && full[5] != null &&  full[5]!= '' && full[5] != 'No data found!'){
                                     var download_= baseurl +"/jobs/"+full[4]+"/downloaoutputfile";
                                     action += ' <a  href="'+  download_ +'" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>';

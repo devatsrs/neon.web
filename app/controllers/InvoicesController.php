@@ -1110,7 +1110,13 @@ class InvoicesController extends \BaseController {
         if($id){
             set_time_limit(600); // 10 min time limit.
             $CreatedBy = User::get_user_full_name();
-            $data = Input::all(); 
+            $isRecurringInvoice = 0;
+            $recurringInvoiceID = 0;
+            $data = Input::all();
+            if(isset($data['RecurringInvoice'])){
+                $isRecurringInvoice=1;
+                $recurringInvoiceID = $data['RecurringInvoiceID'];
+            }
             $Invoice = Invoice::find($id);
             $Company = Company::find($Invoice->CompanyID);
             $CompanyName = $Company->CompanyName;
@@ -1172,6 +1178,16 @@ class InvoicesController extends \BaseController {
                 $invoiceloddata['created_at']= date("Y-m-d H:i:s");
                 $invoiceloddata['InvoiceLogStatus']= InVoiceLog::SENT;
                 InVoiceLog::insert($invoiceloddata);
+
+                if($isRecurringInvoice==1){
+                    $RecurringInvoiceLogData = array();
+                    $RecurringInvoiceLogData['RecurringInvoiceID']= $recurringInvoiceID;
+                    $RecurringInvoiceLogData['Note']= 'Invoice Sent By '.$CreatedBy;
+                    $RecurringInvoiceLogData['created_at']= date("Y-m-d H:i:s");
+                    $RecurringInvoiceLogData['RecurringInvoiceLogStatus']= RecurringInvoiceLog::SENT;
+                    RecurringInvoiceLog::insert($RecurringInvoiceLogData);
+                }
+
                 /*
                     Insert email log in account
                 */
@@ -1209,7 +1225,6 @@ class InvoicesController extends \BaseController {
             if($StaffStatus['status']==0){
                 $status['message'] .= ', Enable to send email to staff : ' . $StaffStatus['message'];
             }
-
             return Response::json(array("status" => $status['status'], "message" => "".$status['message']));
         }else{
             return Response::json(["status" => "failure", "message" => "Problem Sending Invoice"]);

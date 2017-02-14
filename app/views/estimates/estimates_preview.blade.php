@@ -100,7 +100,7 @@
                     </div>
                     <div class="modal-body"> </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary send btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-mail"></i> Add Comment </button>
+                        <button type="submit" class="btn btn-primary send btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Add Comment </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                     </div>
                 </form>

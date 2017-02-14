@@ -1,5 +1,7 @@
+USE `D2CallRM`;
+
 INSERT INTO `tblCountry`
-SELECT (`CountryID`, `Prefix`, `Country`, `ISO2`, `ISO3`) from Ratemanagement3.tblCountry;
+SELECT `CountryID`, `Prefix`, `Country`, `ISO2`, `ISO3` from Ratemanagement3.tblCountry;
 
 INSERT INTO `tblCronJobCommand`
 SELECT * from Ratemanagement3.tblCronJobCommand;
@@ -49,38 +51,47 @@ SELECT * from Ratemanagement3.tblIntegration;
 VALUES (1, 1, 'D2Call', 'D2Call', 'noc@d2call.com', '$2y$10$PlVXiwVLUxkuiwSyKQJyUeHAVysVkya6VDuinVOrG2GLTmPr1wk4.', 1, 1, 1, 'Admin,Billing Admin', 'mJZaptV7wrwCooghFLeaFtXfQcG3dgAYasFMPzlWGEWuUAxrZ8EqTZF8f1sA', '2016-11-17 10:26:12', '2015-02-07 07:24:02', NULL, 'Sumera Saeed', 'From ,<br><br><b>Sumera Saeed</b><br><br>', '', 1);
 
 
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (1, 1, 'Amazon', '');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (2, 1, 'SSH', '{"host":"188.227.186.98","username":"root","password":"KatiteDo48"}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (3, 1, 'UPLOADPATH', '/home/hostedfolders/d2call/tmp');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (4, 1, 'SITE_URL', 'http://linux1.neon-soft.com/d2call/public');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (5, 1, 'EXTRA_SMTP', '');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (6, 1, 'OUTLOOKCALENDAR_API', '');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (7, 1, 'FRONT_STORAGE_PATH', '/var/www/html/d2call/app/storage');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (8, 1, 'DELETE_STORAGE_LOG_DAYS', '365');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (9, 1, 'TEMP_PATH', '/home/hostedfolders/d2call/tmp');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (10, 1, 'DELETE_TEMP_FILES_DAYS', '365');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (11, 1, 'SIPPYFILE_LOCATION', '');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (12, 1, 'VOS_LOCATION', '');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (14, 1, 'LICENCE_KEY', '613WYHjYi0G1M5zvGAOAd6IRkDdn21TQ');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (15, 1, 'PBX_CRONJOB', '{"MaxInterval":"1440","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (16, 1, 'PORTA_CRONJOB', '{"MaxInterval":"1440","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (17, 1, 'SIPPYSFTP_DOWNLOAD_CRONJOB', '{"FilesDownloadLimit":"50","ThresholdTime":"120","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (18, 1, 'SIPPYSFTP_PROCESS_CRONJOB', '{"FilesMaxProccess":"3","ThresholdTime":"60","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (19, 1, 'VOS_DOWNLOAD_CRONJOB', '{"FilesDownloadLimit":"10","ThresholdTime":"120","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (20, 1, 'VOS_PROCESS_CRONJOB', '{"FilesMaxProccess":"5","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"2","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (21, 1, 'CUSTOMER_SUMMARYDAILY_CRONJOB', '{"ThresholdTime":"500","SuccessEmail":"","ErrorEmail":"","JobTime":"DAILY","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM"}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (22, 1, 'CUSTOMER_SUMMARYLIVE_CRONJOB', '{"ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM"}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (23, 1, 'VENDOR_SUMMARYDAILY_CRONJOB', '{"ThresholdTime":"500","SuccessEmail":"","ErrorEmail":"","JobTime":"DAILY","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"2:00:00 AM"}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (24, 1, 'VENDOR_SUMMARYLIVE_CRONJOB', '{"ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM"}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (25, 1, 'CRM_DASHBOARD', 'CrmDashboardTasks,CrmDashboardRecentAccount,CrmDashboardSalesRevenue,CrmDashboardSalesOpportunity,CrmDashboardPipeline,CrmDashboardForecast,CrmDashboardOpportunities');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (26, 1, 'PAYPAL_IPN', '');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (27, 1, 'PHPExePath', '/usr/bin/php');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (28, 1, 'RMArtisanFileLocation', '/var/www/html/d2call.service/artisan');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (29, 1, 'CUSTOMER_NOTIFICATION_DISPLAY', '1');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (30, 1, 'CUSTOMER_COMMERCIAL_DISPLAY', '1');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (31, 1, 'BILLING_DASHBOARD', 'BillingDashboardSummaryWidgets,BillingDashboardPincodeWidget,BillingDashboardMissingGatewayWidget,BillingDashboardTotalOutstanding,BillingDashboardTotalInvoiceSent,BillingDashboardTotalInvoiceReceived,BillingDashboardDueAmount,BillingDashboardOverDueAmount,BillingDashboardPaymentReceived,BillingDashboardPaymentSent,BillingDashboardPendingDispute,BillingDashboardPendingEstimate,BillingDashboardInvoiceExpense,BillingDashboardOutstanding');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (35, 1, 'USAGE_PBX_INTERVAL', '180');
-INSERT INTO `tblCompanyConfiguration` (`CompanyConfigurationID`, `CompanyID`, `Key`, `Value`) VALUES (36, 1, 'USAGE_INTERVAL', '100');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'Amazon', '');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'SSH', '{"host":"188.227.186.98","username":"root","password":"KatiteDo48"}');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'UPLOADPATH', '/home/hostedfolders/d2call/tmp');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'SITE_URL', 'http://linux1.neon-soft.com/d2call/public');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'EXTRA_SMTP', '');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'OUTLOOKCALENDAR_API', '');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'FRONT_STORAGE_PATH', '/var/www/html/d2call/app/storage');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'DELETE_STORAGE_LOG_DAYS', '365');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'TEMP_PATH', '/home/hostedfolders/d2call/tmp');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'DELETE_TEMP_FILES_DAYS', '365');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'SIPPYFILE_LOCATION', '');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'VOS_LOCATION', '');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'LICENCE_KEY', '613WYHjYi0G1M5zvGAOAd6IRkDdn21TQ');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'PBX_CRONJOB', '{"MaxInterval":"1440","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'PORTA_CRONJOB', '{"MaxInterval":"1440","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'SIPPYSFTP_DOWNLOAD_CRONJOB', '{"FilesDownloadLimit":"50","ThresholdTime":"120","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'SIPPYSFTP_PROCESS_CRONJOB', '{"FilesMaxProccess":"3","ThresholdTime":"60","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'VOS_DOWNLOAD_CRONJOB', '{"FilesDownloadLimit":"10","ThresholdTime":"120","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'VOS_PROCESS_CRONJOB', '{"FilesMaxProccess":"5","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"2","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'CUSTOMER_SUMMARYDAILY_CRONJOB', '{"ThresholdTime":"500","SuccessEmail":"","ErrorEmail":"","JobTime":"DAILY","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM"}');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'CUSTOMER_SUMMARYLIVE_CRONJOB', '{"ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM"}');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'VENDOR_SUMMARYDAILY_CRONJOB', '{"ThresholdTime":"500","SuccessEmail":"","ErrorEmail":"","JobTime":"DAILY","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"2:00:00 AM"}');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'VENDOR_SUMMARYLIVE_CRONJOB', '{"ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM"}');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'CRM_DASHBOARD', 'CrmDashboardTasks,CrmDashboardRecentAccount,CrmDashboardSalesRevenue,CrmDashboardSalesOpportunity,CrmDashboardPipeline,CrmDashboardForecast,CrmDashboardOpportunities');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'PAYPAL_IPN', '');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'PHPExePath', '/usr/bin/php');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'RMArtisanFileLocation', '/var/www/html/d2call.service/artisan');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'CUSTOMER_NOTIFICATION_DISPLAY', '1');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'CUSTOMER_COMMERCIAL_DISPLAY', '1');
+
+#Wholesale
+# INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'BILLING_DASHBOARD', 'BillingDashboardSummaryWidgets,BillingDashboardMissingGatewayWidget,BillingDashboardTotalOutstanding,BillingDashboardTotalInvoiceSent,BillingDashboardDueAmount,BillingDashboardOverDueAmount,BillingDashboardPendingDispute,BillingDashboardInvoiceExpense,BillingDashboardOutstanding');
+#Retail
+# INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'BILLING_DASHBOARD', 'BillingDashboardSummaryWidgets,BillingDashboardPincodeWidget,BillingDashboardMissingGatewayWidget,BillingDashboardTotalOutstanding,BillingDashboardTotalInvoiceSent,BillingDashboardTotalInvoiceReceived,BillingDashboardDueAmount,BillingDashboardOverDueAmount,BillingDashboardPaymentReceived,BillingDashboardPaymentSent,BillingDashboardPendingDispute,BillingDashboardPendingEstimate,BillingDashboardInvoiceExpense,BillingDashboardOutstanding');
+
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'USAGE_PBX_INTERVAL', '180');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'USAGE_INTERVAL', '100');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'CUSTOMER_MONITOR_DASHBOARD', 'AnalysisMonitor');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'MONITOR_DASHBOARD', 'AnalysisMonitor');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'QuickBook', '');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'BILLING_DASHBOARD_CUSTOMER', 'BillingDashboardTotalOutstanding,BillingDashboardTotalInvoiceSent,BillingDashboardDueAmount,BillingDashboardOverDueAmount,BillingDashboardPendingDispute,BillingDashboardInvoiceExpense,BillingDashboardOutstanding');
 
 
 
@@ -110,11 +121,15 @@ INSERT INTO `tblCRMBoardColumn` ( `BoardID`, `CompanyID`, `BoardColumnName`, `He
 
 -- # One time set up for dim tables
 
-call prc_datedimbuild('2016-01-01','2026-01-01');
-call prc_timedimbuild();
-
 
 INSERT INTO `tblCodeDeck` (`CodeDeckId`, `CompanyId`, `CodeDeckName`, `created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`, `Type`, `DefaultCodedeck`) VALUES (1, 1, 'Default Codedeck', '2016-11-18 09:17:21', 'Dev', '2016-11-18 09:36:18', NULL, NULL, 1);
 
 insert into tblRate
-SELECT * from Ratemanagement4.tblRate where CodeDeckId = 1 ;
+SELECT * from RateManagement4.tblRate where CodeDeckId = 1 ;
+
+
+USE `D2CallReport`;
+
+call prc_datedimbuild('2016-01-01','2026-01-01');
+call prc_timedimbuild();
+

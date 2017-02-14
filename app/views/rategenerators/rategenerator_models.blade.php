@@ -54,7 +54,7 @@
         </div>
         <div class="modal-footer">
           <input type="hidden" name="RateGeneratorID" value="">
-          <button id="rategenerator-select"  class="save TrunkSelect btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete </button>
+          <button id="rategenerator-select"  class="save TrunkSelect btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
       </form>

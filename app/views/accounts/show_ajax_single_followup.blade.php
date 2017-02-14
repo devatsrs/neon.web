@@ -73,8 +73,8 @@
 		$noteID		= 	isset($response_data['NoteID'])?$response_data['NoteID']:$response_data['ContactNoteID'];
 	?>
   <div class="cbp_tmlabel normal_tag">  
-                 <a id="edit_note_{{$noteID}}" note_type="{{$note_type}}" note-id="{{$noteID}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a>
-            <a id="delete_note_{{$noteID}}" note_type="{{$note_type}}" note-id="{{$noteID}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="fa fa-trash"></i></a>
+                <a id="edit_note_{{$noteID}}" note_type="{{$note_type}}" note-id="{{$noteID}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i>&nbsp;</a>
+            <a id="delete_note_{{$noteID}}" note_type="{{$note_type}}" note-id="{{$noteID}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="entypo-trash"></i></a>
     <h2 class="toggle_open" id_toggle="{{$key}}">@if($response_data['created_by']==$current_user_title) You @else {{$response_data['created_by']}}  @endif <span>added a note</span></h2>
     <div id="hidden-timeline-{{$key}}" class="details no-display">
       <p>{{$response_data['Note']}}</p>
@@ -94,8 +94,8 @@
             </time>
             <div id_toggle="{{$key+1}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
          <div class="cbp_tmlabel">
-          <a id="edit_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key+1}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
-            <a id="delete_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key+1}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash"></i></a>
+          <a id="edit_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key+1}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i>&nbsp;</a>
+            <a id="delete_task_{{$response->TaskID}}" task-id="{{$response->TaskID}}"  key_id="{{$key+1}}" class="pull-right edit-deal delete_task_link"><i class="entypo-trash"></i></a>
                  <h2 class="toggle_open" id_toggle="{{$key+1}}">
                  @if($response->Priority=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                  

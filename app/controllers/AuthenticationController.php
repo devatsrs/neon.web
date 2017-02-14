@@ -15,7 +15,9 @@ class AuthenticationController extends \BaseController
     public function authenticate($id){
         $account = Account::find($id);
         $AccountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$id))->first();
-        return View::make('accounts.authenticate', compact('account','AccountAuthenticate'));
+        $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
+        $AuthRule = 'CLI';
+        return View::make('accounts.authenticate', compact('account','AccountAuthenticate','Clitables','rate_table','AuthRule'));
     }
     public function authenticate_store(){
         $data = Input::all();
@@ -72,6 +74,8 @@ class AuthenticationController extends \BaseController
         unset($data['vendorclitable_length']);
         unset($data['customeriptable_length']);
         unset($data['customerclitable_length']);
+        unset($data['CLIName']);
+        unset($data['table-clitable_length']);
         if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->count()){
             AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update($data);
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated"));

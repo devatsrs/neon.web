@@ -71,9 +71,7 @@
     </div>
     <div class="row">
       <div class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:180px;"> <span style="text-align: right;padding-right: 10px;">
-          <button type="button" id="sage-export" class="btn btn-primary "><span>Sage Export</span></button>
-          </span> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
+        <div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
           <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
                                     aria-expanded="false">Action <span class="caret"></span></button>
           <ul class="dropdown-menu dropdown-menu-left" role="menu"
@@ -99,6 +97,7 @@
             @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook))
             <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Post </a> </li>
             @endif
+            <li> <a class="create" id="sage-export" href="javascript:;"> Sage Export </a> </li>
           </ul>
           @endif
           <form id="clear-bulk-rate-form">
@@ -294,10 +293,10 @@
                                 }
                                 if (edit_url) {
                                     //action += ' <a href="' + edit_url +'" class="edit-invoice btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                    action += '<li><a class="icon-left"  target="_blank" href="' + invoice_preview + '"><i class="entypo-pencil"></i>View </a></li>';
+                                    action += '<li><a class="icon-left"  target="_blank" href="' + invoice_preview + '"><i class="fa fa-eye"></i>View </a></li>';
                                 }
                                 if (invoice_log) {
-                                    action += '<li><a href="' + invoice_log + '" class="icon-left" target="_blank"><i class="entypo-pencil"></i>Log </a></li>';
+                                    action += '<li><a href="' + invoice_log + '" class="icon-left" target="_blank"><i class="entypo-list"></i>Log </a></li>';
                                 }
                                 if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                     if ('{{User::checkCategoryPermission('Invoice','Send')}}') {
@@ -901,7 +900,6 @@
                 var cur_obj = $(this).parent().parent().parent().parent().find("div.hiddenRowData");
                 InvoiceID = cur_obj.find("[name=InvoiceID]").val();
                 send_url = ("/invoice/{id}/invoice_email").replace("{id}", InvoiceID);
-                console.log(send_url)
                 showAjaxModal(send_url, 'send-modal-invoice');
 				
                 $('#send-modal-invoice').modal('show');			
@@ -1451,7 +1449,7 @@
         </div>
         <div class="modal-footer">
           <button id="saveinvoice" class="btn btn-primary btn-sm btn-icon icon-left" type="submit"
-                                data-loading-text="Loading..."> <i class="entypo-pencil"></i> Save Invoice </button>
+                                data-loading-text="Loading..."> <i class="entypo-pencil"></i> Save</button>
           <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
       </form>

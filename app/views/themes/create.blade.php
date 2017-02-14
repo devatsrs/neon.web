@@ -19,10 +19,10 @@
         <div class="panel-body">
           <div class="form-group">
             <label for="DomainUrl" class="col-sm-2 control-label">Domain Url
-              <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Domain Url example linux1.neon-soft.com" data-original-title="Domain Url" class="label label-info popover-primary">?</span>
+              <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Domain Url example site.com" data-original-title="Domain Url" class="label label-info popover-primary">?</span>
             </label>
             <div class="col-sm-4">
-              <input type="text" name='DomainUrl' class="form-control" id="DomainUrl" placeholder="https://www.site.com" value="">
+              <input type="text" name='DomainUrl' class="form-control" id="DomainUrl" placeholder="site.com" value="">
             </div>
             <label for="Title" class="col-sm-2 control-label">Page Title</label>
             <div class="col-sm-4">

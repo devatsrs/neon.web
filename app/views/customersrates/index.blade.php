@@ -292,7 +292,7 @@
                                                     }
                                                     action += '</div>';
                                                     <?php if(User::checkCategoryPermission('CustomersRates','Edit')) { ?>
-                                                        action += '<a href="Javascript:;" class="edit-customer-rate btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
+                                                        action += ' <a href="Javascript:;" class="edit-customer-rate btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                                     <?php } ?>
                                                     if (CustomerRateID > 0) {
                                                         <?php if(User::checkCategoryPermission('CustomersRates','ClearRate')) { ?>

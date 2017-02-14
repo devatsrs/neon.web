@@ -10,7 +10,7 @@
     </div>
     <div class="panel-body">
         <div class="text-right">
-            <a  id="add-new-card" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New Card</a>
+            <a  id="add-new-card" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
             <div class="clear clearfix"><br></div>
         </div>
         <table class="table table-bordered datatable" id="table-4">
@@ -89,7 +89,7 @@
                                     action += '</div>';
 
                                     //action += ' <a class="edit-card btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                    action += ' <a data-id="'+ id +'" class="delete-card btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                                    action += ' <a data-id="'+ id +'" class="delete-card btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
 
                                     if (full[1]=="1") {
                                         action += ' <button href="' + DeActive_Card + '"  class="btn change_status btn-danger btn-sm disablecard" data-loading-text="Loading...">Deactivate</button>';

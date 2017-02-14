@@ -21,7 +21,7 @@
 @if(User::checkCategoryPermission('AccountChecklist','Add'))
     <a href="#" id="add-new-config" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New Document
+        Add New
     </a>
 @endif
 </p>
@@ -124,10 +124,10 @@ var postdata;
                          action += '<input type = "hidden"  name = "CountryId" value = "' + full[9] + '" / >';
                          action += '</div>';
                          <?php if(User::checkCategoryPermission('AccountChecklist','Edit')){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-config btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-config btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                          <?php } ?>
                          <?php if(User::checkCategoryPermission('AccountChecklist','Delete')){ ?>
-                            action += ' <a data-id="'+ id +'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            action += ' <a data-id="'+ id +'" title="Delete" class="delete-config btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                          <?php } ?>
                         return action;
                       }

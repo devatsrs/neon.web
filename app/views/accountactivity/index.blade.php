@@ -9,7 +9,7 @@
     </div>
     <div class="panel-body">
         <div class="text-right">
-            <a  id="add-new-activity" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Activity</a>
+            <a  id="add-new-activity" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
             <div class="clear clearfix"><br></div>
         </div>
                     <form id="activity_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
@@ -120,8 +120,8 @@
                                             action += '<input type = "hidden"  name = "' + list_fields_activity[i] + '"       value = "' + (full[i] != null ? full[i] : '') + '" / >';
                                         }
                                         action += '</div>';
-                                        action += ' <a data-id="' + id + '" class="edit-activity btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                        action += '<a href="' + delete_ + '" data-redirect="{{ URL::to('products')}}"  class="btn delete btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                        action += ' <a data-id="' + id + '" title="Edit" class="edit-activity btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                                        action += ' <a href="' + delete_ + '" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                         return action;
                                     }
                                 }
@@ -310,7 +310,7 @@
                     </div>
                     <div class="modal-footer">
                         <button id="activity-add" class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
-                            <i class="entypo-pencil"></i>
+                            <i class="entypo-floppy"></i>
                             Save
                         </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">

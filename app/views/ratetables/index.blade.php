@@ -37,7 +37,7 @@
                         </div>
                         <label class="col-sm-1 control-label" for="field-1">Trunk</label>
                         <div class="col-sm-3">
-                            {{ Form::select('TrunkID', $trunks, $trunk_keys, array("class"=>"select2")) }}
+                            {{ Form::select('TrunkID', $trunks, $trunk_keys, array("class"=>"select2","data-type"=>"trunk")) }}
                         </div>
                     </div>
                     <p style="text-align: right;">
@@ -127,7 +127,7 @@
                                 view_ = view_.replace('{id}', id);
                                 delete_ = delete_.replace('{id}', id);
 
-                                action = '<a title="Edit" href="' + view_ + '" class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>';
+                                action = '<a title="Edit" href="' + view_ + '" class="btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
 
                                 <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
                                     action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="fa fa-trash"></i></a>';
@@ -229,6 +229,7 @@
             return false;
          });
          $("#add-new-rate-table").click(function(ev) {
+             ev.preventDefault();
              $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
          });
          $("#add-new-form").submit(function(ev){
@@ -241,6 +242,8 @@
 </script>
 @include('includes.errors')
 @include('includes.success')
+@include('trunk.trunkmodal')
+@include('currencies.currencymodal')
 @stop
 @section('footer_ext')
 @parent
@@ -263,7 +266,8 @@
                          <div class="col-md-6">
                             <div class="form-group ">
                                 <label for="field-5" class="control-label">Trunk</label>
-                                {{Form::select('TrunkID', $trunks, $trunk_keys,array("class"=>"form-control select2"))}}
+                                {{Form::SelectControl('trunk')}}
+                               <!-- {Form::select('TrunkID', $trunks, $trunk_keys,array("class"=>"form-control select2"))}}-->
                             </div>
                         </div>
                          </div>
@@ -271,7 +275,8 @@
                        <div class="col-md-6">
                            <div class="form-group ">
                                <label for="field-5" class="control-label">Currency</label>
-                               {{ Form::select('CurrencyID', $currencylist,  '', array("class"=>"select2")) }}
+                               {{Form::SelectControl('currency')}}
+                               <!--{ Form::select('CurrencyID', $currencylist,  '', array("class"=>"select2")) }}-->
                            </div>
                        </div>
                         <div class="col-md-6">

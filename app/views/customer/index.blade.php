@@ -442,6 +442,15 @@
                 /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
                 @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardUnbilledAmount',$BillingDashboardWidgets))
+                option["amount"] = response.data.TotalUnbillidAmount;
+                option["end"] = response.data.TotalUnbillidAmount;
+                option["tileclass"] = 'tile-pink';
+                option["class"] = 'UnbilledAmount';
+                option["type"] = 'Unbilled Amount';
+                /*option["count"] = response.data.CountTotalDispute;*/
+                widgets += buildbox(option);
+                @endif
                 $('#invoice-widgets').html(widgets);
 
                 $("#invoice-widgets").find('.tile-stats').each(function (i, el) {

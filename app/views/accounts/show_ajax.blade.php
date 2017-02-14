@@ -72,8 +72,8 @@
               </time>
               <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div> 
               <div class="cbp_tmlabel @if(!$rows['followup_task']) normal_tag @endif ">  
-                <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
-            <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash"></i></a>
+                <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i>&nbsp;</a>
+            <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="entypo-trash"></i></a>
             <h2 class="toggle_open" id_toggle="{{$key}}">
                 @if($rows['TaskPriority']=='High')  <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                 @if($rows['CreatedBy']==$current_user_title && $rows['TaskName']==$current_user_title)<span>You created a @if($rows['followup_task']) follow up @endif task</span>
@@ -109,8 +109,8 @@
 					$noteID		= 	isset($rows['NoteID'])?$rows['NoteID']:$rows['ContactNoteID'];
 				?>
               <div class="cbp_tmlabel normal_tag"> 
-               <a id="edit_note_{{$noteID}}" note-id="{{$noteID}}" note_type="{{$note_type}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a>
-            <a id="delete_note_{{$noteID}}" note-id="{{$noteID}}" note_type="{{$note_type}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="fa fa-trash"></i></a>
+               <a id="edit_note_{{$noteID}}" note-id="{{$noteID}}" note_type="{{$note_type}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i>&nbsp;</a>
+            <a id="delete_note_{{$noteID}}" note-id="{{$noteID}}" note_type="{{$note_type}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="entypo-trash"></i></a>
                 <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>added a note</span></h2>
                 <div id="hidden-timeline-{{$key}}" class="details no-display">
                   <p>{{$rows['Note']}}</p>

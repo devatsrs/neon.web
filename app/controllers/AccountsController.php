@@ -412,8 +412,9 @@ class AccountsController extends \BaseController {
         $AccountBilling =  AccountBilling::getBilling($id);
         $AccountNextBilling =  AccountNextBilling::getBilling($id);
 		$decimal_places = get_round_decimal_places($id);
+        $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
 
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places'));
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table'));
     }
 
     /**
@@ -426,7 +427,9 @@ class AccountsController extends \BaseController {
     public function update($id) {
         $data = Input::all();
         $account = Account::find($id);
-        Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
+        if(isset($data['tags'])){
+            Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
+        }
         $DiscountPlanID = $data['DiscountPlanID'];
         $InboundDiscountPlanID = $data['InboundDiscountPlanID'];
         $message = $password = "";
@@ -1203,6 +1206,113 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         @unlink($local_htmlfile);
         $save_path = $destination_dir . $file_name;
         return Response::download($save_path);
+    }
+
+    public function clitable_ajax_datagrid($id){
+        $CompanyID = User::get_companyID();
+        $data = Input::all();
+        $rate_tables = CLIRateTable::
+        leftJoin('tblRateTable','tblRateTable.RateTableId','=','tblCLIRateTable.RateTableID')
+            ->select(['CLIRateTableID','CLI','tblRateTable.RateTableName','CLIRateTableID'])
+            ->where("tblCLIRateTable.CompanyID",$CompanyID)
+            ->where("tblCLIRateTable.AccountID",$id);
+        if(!empty($data['CLIName'])){
+            $rate_tables->WhereRaw('CLI like "%'.$data['CLIName'].'%"');
+        }
+        return Datatables::of($rate_tables)->make();
+    }
+    public function clitable_store(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $message = '';
+
+        $rules['CLI'] = 'required';
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        $clis = array_filter(preg_split("/\\r\\n|\\r|\\n/", $data['CLI']),function($var){return trim($var)!='';});
+
+        AccountAuthenticate::add_cli_rule($CompanyID,$data);
+        foreach($clis as $cli){
+
+            if(CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$cli))->count()){
+                $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$cli))->pluck('AccountID');
+                $message .= $cli.' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
+            }else{
+                $rate_tables['CLI'] = $cli;
+                $rate_tables['RateTableID'] = $data['RateTableID'];
+                $rate_tables['AccountID'] = $data['AccountID'];
+                $rate_tables['CompanyID'] = $CompanyID;
+                CLIRateTable::insert($rate_tables);
+            }
+        }
+        if(!empty($message)){
+            $message = 'following CLI skipped.<br>'.$message;
+            return Response::json(array("status" => "error", "message" => $message));
+        }else{
+            return Response::json(array("status" => "success", "message" => "CLI Successfully Added"));
+        }
+
+    }
+    public function clitable_delete($CLIRateTableID){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $Date = '';
+        $Confirm = 0;
+        $CLIs = '';
+        if(isset($data['dates'])){
+            $Date = $data['dates'];
+            $Confirm = 1;
+        }
+        AccountAuthenticate::add_cli_rule($CompanyID,$data);
+        if ($CLIRateTableID > 0) {
+            $CLIs = CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->pluck('CLI');
+        } else if (!empty($data['criteria'])) {
+            $criteria = json_decode($data['criteria'], true);
+            $CLIRateTables = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')->select(DB::raw('group_concat(CLI) as CLIs'))->get();
+            if(!empty($CLIRateTables)){
+                $CLIs = $CLIRateTables[0]->CLIs;
+            }
+        } else if (!empty($data['CLIRateTableIDs'])) {
+            $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
+            $CLIRateTables = CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->select(DB::raw('group_concat(CLI) as CLIs'))->get();
+            if(!empty($CLIRateTables)){
+                $CLIs = $CLIRateTables[0]->CLIs;
+            }
+        }
+        $query = "call prc_unsetCDRUsageAccount ('" . $CompanyID . "','" . $CLIs . "','".$Date."',".$Confirm.")";
+        $recordFound = DB::Connection('sqlsrvcdr')->select($query);
+        if($recordFound[0]->Status>0){
+            return Response::json(array("status" => "check","check"=>1));
+        }
+        if ($CLIRateTableID > 0) {
+            CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->delete();
+        } else if (!empty($data['criteria'])) {
+            $criteria = json_decode($data['criteria'], true);
+            CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')->delete();
+        } else if (!empty($data['CLIRateTableIDs'])) {
+            $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
+            CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->delete();
+        }
+
+        return Response::json(array("status" => "success", "message" => "CLI Deleted Successfully"));
+    }
+
+    public function clitable_update(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        AccountAuthenticate::add_cli_rule($CompanyID,$data);
+        if (!empty($data['criteria'])) {
+            $criteria = json_decode($data['criteria'], true);
+            CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')->update(array('RateTableID' => $data['RateTableID']));
+        } else if (!empty($data['CLIRateTableIDs'])) {
+            $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
+            CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->update(array('RateTableID' => $data['RateTableID']));
+        }
+        return Response::json(array("status" => "success", "message" => "CLI Updated Successfully"));
     }
 	
 	

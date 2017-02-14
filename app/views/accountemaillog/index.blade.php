@@ -56,8 +56,8 @@
                                     var view_ = "{{ URL::to('/accounts/'.$account->AccountID.'/activities/{id}/view_email_log/')}}";
                                     delete_ = delete_.replace('{id}', id);
                                     view_ = view_.replace('{id}', id);
-                                    action = ' <a href="' + view_ + '" class="view-Email btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>view </a>'
-                                    action += '<a href="' + delete_ + '"  class="btn delete-Email btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                    action = ' <a href="' + view_ + '" title="View" class="view-Email btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
+                                    action += ' <a href="' + delete_ + '" title="Delete" class="btn delete-Email btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                     return action;
                                 }
                             }

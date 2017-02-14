@@ -59,7 +59,7 @@ tfoot {
             </tr>
         </tbody>
         </table>
-        <br /><br />
+        <br><br>
         @yield('subscriptiontotal')
 
         @else
@@ -90,7 +90,7 @@ tfoot {
                     </div>
                 </div>
             </div>
-        </div>
+        </div><div class="page_break"> </div>
       @if(Input::get('Type') == 1 )
          @yield('sub_usage')
      @endif

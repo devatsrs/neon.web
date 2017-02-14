@@ -288,7 +288,7 @@ class CronJob extends \Eloquent {
                         $strtotime = strtotime($CronJob->LastRunTime)+$cronsetting->JobInterval*60*60*24;
                     }
                     if(isset($cronsetting->JobStartTime)){
-                        return date('Y-m-d',$strtotime).' '.date("H:i:00", strtotime("$cronsetting->JobStartTime"));;
+                        return date('Y-m-d',$strtotime).' '.date("H:i:00", strtotime("$cronsetting->JobStartTime"));
                     }
                     return date('Y-m-d H:i:00',$strtotime);
                 case 'MONTHLY':
@@ -301,6 +301,13 @@ class CronJob extends \Eloquent {
                         return date('Y-m-d',$strtotime).' '.date("H:i:00", strtotime("$cronsetting->JobStartTime"));
                     }
                     return date('Y-m-d H:i:00',$strtotime);
+                case 'SECONDS':
+                    if($CronJob->LastRunTime == ''){
+                        $strtotime = strtotime('+'.$cronsetting->JobInterval.' seconds');
+                    }else{
+                        $strtotime = strtotime($CronJob->LastRunTime)+$cronsetting->JobInterval;
+                    }
+                    return date('Y-m-d H:i:s',$strtotime);
                 default:
                     return '';
             }

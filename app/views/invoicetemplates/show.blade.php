@@ -28,7 +28,7 @@
     @if(User::checkCategoryPermission('InvoiceTemplates','Edit') )
     <button type="submit" id="invoice_template-save"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
-        Save Template
+        Save
     </button>
     @endif
     <a  href="Javascript:void(0);" id="invoice_template-print"  class="btn btn-danger btn-sm btn-icon icon-left" >

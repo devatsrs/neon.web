@@ -253,45 +253,7 @@ BEGIN
 	END IF;
 
 	/* inbound rerate process*/
-	IF p_RateCDR = 1  
-	THEN
-		/* temp accounts and trunks*/
-		DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
-		CREATE TEMPORARY TABLE tmp_Account_  (
-			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			AccountID INT
-		);
-		SET @stm = CONCAT('
-		INSERT INTO tmp_Account_(AccountID)
-		SELECT DISTINCT AccountID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
-		');
-		
-		PREPARE stm FROM @stm;
-		EXECUTE stm;
-		DEALLOCATE PREPARE stm;
-		
-		SET v_pointer_ = 1;
-		SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Account_);
-
-		WHILE v_pointer_ <= v_rowCount_
-		DO
-
-			SET v_AccountID_ = (SELECT AccountID FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
-			
-			/* get inbound rate process*/
-			CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate);
-			
-			/* update trunk prefix inbound process*/
-			CALL prc_updateInboundPrefix(v_AccountID_, p_processId, p_tbltempusagedetail_name);
-			
-			/* inbound rerate process*/
-			CALL prc_updateInboundRate(v_AccountID_, p_processId, p_tbltempusagedetail_name);
-			
-			SET v_pointer_ = v_pointer_ + 1;
-			
-		END WHILE;
-
-	END IF;
+	CALL prc_RerateInboundCalls(p_CompanyID,p_processId,p_tbltempusagedetail_name,p_RateCDR,p_RateMethod,p_SpecifyRate);
 
 	SET @stm = CONCAT('
 	INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
