@@ -184,7 +184,13 @@ class EmailsTemplates{
 			foreach($extra as $item){
 				$item_name = str_replace(array('{','}'),array('',''),$item);
 				if(array_key_exists($item_name,$replace_array)) {
-					$EmailMessage = str_replace($item,$replace_array[$item_name],$EmailMessage);
+
+					if($item_name == 'DetailOutput'){
+						$replace_array[$item_name] = implode("<br>",$replace_array[$item_name]);
+						$EmailMessage = str_replace($item,$replace_array[$item_name],$EmailMessage);
+					}else{
+						$EmailMessage = str_replace($item,$replace_array[$item_name],$EmailMessage);
+					}
 				}
 			} 
 			return $EmailMessage; 	
