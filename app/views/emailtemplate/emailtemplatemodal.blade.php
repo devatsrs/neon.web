@@ -16,12 +16,122 @@
         });
 
         $('#add-new-modal-template').on('shown.bs.modal', function(event){
-            var modal = $(this);
+			var modal = $(this); 
+			if(popup_type == {{EmailTemplate::ACCOUNT_TEMPLATE}}){   
+				 modal.find('.message').wysihtml5({ 
+				   "font-styles": true,				
+				   "leadoptions":true,	
+				   "invoiceoptions":false,	
+				    "estimateoptions":false,					
+				    "Tickets":false,
+					"Crm":false,						
+					"emphasis": true,
+					"lists": true,
+					"html": true,
+					"link": true,
+					"image": true,
+					"color": false,
+				});
+			}else if(popup_type == {{EmailTemplate::INVOICE_TEMPLATE}}){   
+				 modal.find('.message').wysihtml5({
+				   "font-styles": true,				
+				  	"leadoptions":false,	
+				    "invoiceoptions":true,	
+				    "estimateoptions":false,
+					"TicketsSingle":false,					
+				    "Tickets":false,
+					"Crm":false,			
+					"emphasis": true,
+					"lists": true,
+					"html": true,
+					"link": true,
+					"image": true,
+					"color": false,
+				});
+			} else if(popup_type == {{EmailTemplate::RATESHEET_TEMPLATE}}){  
+				 modal.find('.message').wysihtml5({
+				   "font-styles": true,				
+				   "leadoptions":true,	
+				   "invoiceoptions":false,	
+				    "estimateoptions":false,					
+					"Crm":false,
+				    "Tickets":false,			
+					"emphasis": true,
+					"lists": true,
+					"html": true,
+					"link": true,
+					"image": true,
+					"color": false,
+				});
+			} else if(popup_type == {{EmailTemplate::TICKET_TEMPLATE}}){   
+				 modal.find('.message').wysihtml5({
+				   "TicketsSingle":true,
+				   "leadoptions":false,	
+				   "TicketsSingle":true,
+				   "Crm":false,
+				   "font-styles": true,								 
+					"emphasis": true,
+					"lists": true,
+					"html": true,
+					"link": true,
+					"image": true,
+					"color": false,
+				});
+			}  else if(popup_type == {{EmailTemplate::ESTIMATE_TEMPLATE}}){   
+				 modal.find('.message').wysihtml5({
+				   "font-styles": true,				
+				    "leadoptions":false,	
+				   "invoiceoptions":false,	
+				    "estimateoptions":true,					
+				    "Tickets":false,						
+					"Crm":false,
+					"emphasis": true,
+					"lists": true,
+					"html": true,
+					"link": true,
+					"image": true,
+					"color": false,
+				});
+			} else if(popup_type == {{EmailTemplate::CONTACT_TEMPLATE}}){   
+				 modal.find('.message').wysihtml5({
+				   "font-styles": true,				
+				   "leadoptions":true,	
+				   "invoiceoptions":false,	
+				    "estimateoptions":false,					
+				    "Tickets":false,						
+					"Crm":false,
+					"emphasis": true,
+					"lists": true,
+					"html": true,
+					"link": true,
+					"image": true,
+					"color": false,
+				});
+			} else if(popup_type == {{EmailTemplate::CRONJOB_TEMPLATE}}){   	
+			 modal.find('.message').wysihtml5({
+				   "font-styles": true,				
+				   "Cronjobs":true,
+				   "leadoptions":false,	
+				   "invoiceoptions":false,	
+				    "estimateoptions":false,					
+				    "Tickets":false,						
+					"Crm":false,
+					"emphasis": true,
+					"lists": true,
+					"html": true,
+					"link": true,
+					"image": true,
+					"color": false,
+				});
+				
+			}else{  
             modal.find('.message').wysihtml5({
                "font-styles": true,
-				"leadoptions":false,
-				"Tickets":true,
-				"Crm":false,
+				"leadoptions":true,	
+				"invoiceoptions":false,	
+				"estimateoptions":false,	
+				"Crm":false,				
+				"Tickets":false,			
 				"emphasis": true,
 				"lists": true,
 				"html": true,
@@ -29,12 +139,15 @@
 				"image": true,
 				"color": false,
             });
+			}
         });
 
         $('#add-new-modal-template').on('hidden.bs.modal', function(event){
             var modal = $(this);
             modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
             modal.find('.message').show();
+			popup_type = 0;
+		$("#add-new-template-form #email_from").val('').trigger('change');
         });
 		
 		$('.template_type').change(function(e) {
@@ -154,6 +267,15 @@
                                 </div>
                             </div>
                         </div>-->
+                        <div class="row email_from">
+                            <div class="form-group">
+                                <br />
+                                <label for="email_from" class="control-label col-sm-2">From</label>
+                                <div class="col-sm-4">
+                                  {{Form::select('email_from',$email_from,'',array("class"=>"select2","id"=>"email_from"))}} 
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="form-group">
                                 <br />
@@ -195,7 +317,7 @@
                         
                     </div>
                     <div class="modal-footer">
-
+ 					<input type="hidden"   name="Type" value="0">
                         <button type="submit" id="template-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save

@@ -1091,16 +1091,18 @@ class InvoicesController extends \BaseController {
             $Currency = Currency::find($Account->CurrencyId);
             $CompanyName = Company::getName();
             if (!empty($Currency)) {
-                $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
-                $RoundChargesAmount = get_round_decimal_places($Invoice->AccountID);
-
-                $data = [
-                    'CompanyName' => $CompanyName,
-                    'GrandTotal'       => number_format($Invoice->GrandTotal,$RoundChargesAmount),
-                    'CurrencyCode'     =>$Currency->Code
-                ];
-                $Message = Invoice::getInvoiceEmailTemplate($data);
-                return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName'));
+               // $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
+			    $templateData	 = 	EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
+				
+				$Subject	 = 	$templateData->Subject;
+				$Message 	 = 	$templateData->TemplateBody;		 
+				if(!empty($Subject) && !empty($Message)){
+					$from	 = $templateData->EmailFrom;	
+					return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName','from'));
+				}
+				return Response::json(["status" => "failure", "message" => "Subject or message is empty"]);
+	            
+                
             }
         }
     }
@@ -1149,9 +1151,12 @@ class InvoicesController extends \BaseController {
                 $singleemail = trim($singleemail);
                 if (filter_var($singleemail, FILTER_VALIDATE_EMAIL)) {
                     $data['EmailTo'] = $singleemail;
-                    $data['InvoiceURL']= URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
-                    $status = $this->sendInvoiceMail('emails.invoices.send',$data);
-					$body 	=   View::make('emails.invoices.send',compact('data'))->render();  // to store in email log
+                    $data['InvoiceURL']	=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
+					$body				=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data['InvoiceURL']);
+					$data['Subject']	=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject");
+					$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
+                    $status 			= 	$this->sendInvoiceMail($body,$data,0);
+					//$body 				=   View::make('emails.invoices.send',compact('data'))->render();  // to store in email log
                 }
             }
             if($status['status']==0){
@@ -1194,8 +1199,13 @@ class InvoicesController extends \BaseController {
             //$data['Subject'] .= ' ('.$Account->AccountName.')';//Added by Abubakar
             $data['EmailTo'] = $sendTo;
             $data['InvoiceURL']= URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview');
+			
+			$body				=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data['InvoiceURL']);
+			$data['Subject']	=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject");
+			$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
+			
             //$StaffStatus = sendMail('emails.invoices.send',$data);
-            $StaffStatus = $this->sendInvoiceMail('emails.invoices.send',$data);
+            $StaffStatus = $this->sendInvoiceMail($body,$data,0);
             if($StaffStatus['status']==0){
                 $status['message'] .= ', Enable to send email to staff : ' . $StaffStatus['message'];
             }
@@ -1206,7 +1216,7 @@ class InvoicesController extends \BaseController {
         }
     }
 
-    function sendInvoiceMail($view,$data){ 
+    function sendInvoiceMail($view,$data,$type=1){ 
 	
 	   $status 		= 	array('status' => 0, 'message' => 'Something wrong with sending mail.');
     	if(isset($data['email_from'])){
@@ -1214,14 +1224,14 @@ class InvoicesController extends \BaseController {
 		}
 	    if(is_array($data['EmailTo']))
 		{
-            $status 			= 	sendMail($view,$data);
+            $status 			= 	sendMail($view,$data,$type);
         }
 		else
 		{ 
             if(!empty($data['EmailTo']))
 			{
 				$data['EmailTo'] 	= 	trim($data['EmailTo']);
-				$status 			= 	sendMail($view,$data);
+				$status 			= 	sendMail($view,$data,0);
             }
         }
         return $status;

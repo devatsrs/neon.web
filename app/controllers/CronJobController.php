@@ -9,7 +9,7 @@ class CronJobController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
         $data['Active'] = $data['Active']==''?2:$data['Active'];
         $query = "call prc_GetCronJob (".$companyID.",".$data['Active'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
-
+	
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);

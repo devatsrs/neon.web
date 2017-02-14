@@ -154,7 +154,7 @@ function ticketgroup_dropbox($id=0,$data=array()){
     $all_ticketsgroups = TicketGroups::getTicketGroups_dropdown($data);
     return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
 }
-function sendMail($view,$data){
+function sendMail($view,$data,$ViewType=1){
     
 	if(empty($data['companyID']))
     {
@@ -162,8 +162,14 @@ function sendMail($view,$data){
     }else{
         $companyID = $data['companyID'];
     }
-	$data   =   $data;
-	$body 	=   View::make($view,compact('data'))->render(); 
+
+	if($ViewType){
+		$body 	=  html_entity_decode(View::make($view,compact('data'))->render()); 
+	}
+	else{
+		$body  = $view;
+	}
+
 	
 	if(SiteIntegration::CheckCategoryConfiguration(false,SiteIntegration::$EmailSlug)){
 		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body); 

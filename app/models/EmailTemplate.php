@@ -5,20 +5,28 @@ class EmailTemplate extends \Eloquent {
     protected $guarded = array("TemplateID");
     protected $table = 'tblEmailTemplate';
     protected  $primaryKey = "TemplateID";
-    const ACCOUNT_TEMPLATE =1;
-    const INVOICE_TEMPLATE =2;
-    const RATESHEET_TEMPLATE = 3;
-	const TICKET_TEMPLATE = 3;
+	
+    const ACCOUNT_TEMPLATE 		=	1;
+    const INVOICE_TEMPLATE 		=	2;
+    const RATESHEET_TEMPLATE 	= 	3;
+	const TICKET_TEMPLATE 		= 	4;
+	const ESTIMATE_TEMPLATE 	=	5;
+	const CONTACT_TEMPLATE 		=	6;
+	const CRONJOB_TEMPLATE 		=	7;
+	
+	
 	const PRIVACY_ON = 1;
     const PRIVACY_OFF = 0;
 	
 	const DYNAMICTEMPLATE = 0;
 	const STATICTEMPLATE  = 1;
 	
-	
+	public static $TemplateType = [self::ACCOUNT_TEMPLATE=>'leadoptions',self::INVOICE_TEMPLATE=>'invoiceoptions',self::RATESHEET_TEMPLATE=>'Ratesheet',self::TICKET_TEMPLATE=>'Tickets'];
+
     public static $privacy = [0=>'All User',1=>'Only Me'];
     public static $Type = [0=>'Select Template Type',self::ACCOUNT_TEMPLATE=>'Account',self::INVOICE_TEMPLATE=>'Billing',self::RATESHEET_TEMPLATE=>'Rate sheet',self::TICKET_TEMPLATE=>'Tickets'];
-
+	
+	
     public static function checkForeignKeyById($id){
         $companyID = User::get_companyID();
         $JobTypeID = JobType::where(["Code" => 'BLE'])->pluck('JobTypeID');

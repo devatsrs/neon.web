@@ -15,7 +15,10 @@ class Estimate extends \Eloquent {
     const REJECTED 			= 	'rejected';
     const ITEM_ESTIMATE 	=	1;
 	const ESTIMATE_TEMPLATE =	2;
-	
+	const EMAILTEMPLATE 		= "EstimateSingleSend";
+	const EMAILTEMPLATEACCEPT 	= "EstimateSingleAccept";
+	const EMAILTEMPLATEREJECT 	= "EstimateSingleReject";
+	const EMAILTEMPLATECOMMENT 	= "EstimateSingleComment";
     //public static $estimate_status;
     public static $estimate_type = array(''=>'Select' ,self::ESTIMATE_OUT => 'Estimate Sent',self::ESTIMATE_IN=>'Estimate Received','All'=>'Both');
     public static $estimate_type_customer = array(''=>'Select' ,self::ESTIMATE_OUT => 'Estimate Received',self::ESTIMATE_IN=>'Estimate sent','All'=>'Both');

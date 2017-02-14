@@ -7,15 +7,15 @@ class EmailTemplateController extends \BaseController {
         $companyID = User::get_companyID();
         $data = Input::all(); 
         //$select = ["TemplateName","Subject","Type","CreatedBy","updated_at","Status","TemplateID","StaticType"];
-		$select = ["TemplateName","Subject","CreatedBy","updated_at","Status","TemplateID","StaticType"];
+		$select = ["TemplateName","Subject","CreatedBy","updated_at","Status","TemplateID","StaticType","Type"];
         $template = EmailTemplate::select($select);
         $template->where(["CompanyID" => $companyID]);
 		
 		
 		if(isset($data['search']) && !empty($data['search'])){
 			$template->Where(function ($template) use ($data) {
-                $template->orWhere('TemplateName',$data['search'])
-                      ->orWhere('Subject',$data['search']);
+                $template->orWhere('TemplateName','like','%'.$data['search'].'%')
+                      ->orWhere('Subject','like','%'.$data['search'].'%');
             });		
         }
 
@@ -44,9 +44,12 @@ class EmailTemplateController extends \BaseController {
      * @return Response
      */
     public function index() {
-        $privacy = EmailTemplate::$privacy;
-        $type = EmailTemplate::$Type;
-        return View::make('emailtemplate.index',compact('privacy','type'));
+        $privacy 		= 	EmailTemplate::$privacy;
+        $type 			= 	EmailTemplate::$Type;
+		$TemplateType 	=   json_encode(EmailTemplate::$TemplateType);
+		$emailfrom	 	=	TicketGroups::GetGroupsFrom();
+		$email_from		=	array_merge(array(""=>"Select"),$emailfrom);
+        return View::make('emailtemplate.index',compact('privacy','type',"TemplateType","email_from"));
     }
 
 
@@ -80,6 +83,7 @@ class EmailTemplateController extends \BaseController {
 		}
 		$data['Status'] = isset($data['Status'])?$data['Status']:0;
         unset($data['Email_template_privacy']);
+		unset($data['email_from']);		
         if ($obj = EmailTemplate::create($data)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Created","newcreated"=>$obj));
         } else {
@@ -107,7 +111,9 @@ class EmailTemplateController extends \BaseController {
         $instance['Subject'] = $template->Subject;
         $instance['TemplateBody'] = $template->TemplateBody;
         $instance['Type'] = $template->Type;
+		$instance['StaticType'] = $template->StaticType;
 		$instance['Status'] = $template->Status;
+		$instance['email_from'] = $template->EmailFrom;
         if($template->userID==User::get_userID()){
             $instance['Privacy'] = 1;
         } 
@@ -122,7 +128,7 @@ class EmailTemplateController extends \BaseController {
      * @return Response
      */
     public function update($id) {
-        $data = Input::all();   
+        $data = Input::all();  Log::info(print_r($data,true)); 
         $crmteplate = EmailTemplate::findOrfail($id);
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
@@ -145,7 +151,9 @@ class EmailTemplateController extends \BaseController {
 		{
 			$data['userID'] = NULL;
 		} 
-        unset($data['Email_template_privacy']); 
+    	 $data['EmailFrom'] =  $data['email_from'];
+		 unset($data['email_from']);
+		 unset($data['Email_template_privacy']); 
 		$data['Status'] = isset($data['Status'])?$data['Status']:0;
         if ($crmteplate->update($data)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Updated"));

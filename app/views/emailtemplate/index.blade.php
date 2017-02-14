@@ -93,6 +93,8 @@ var $searchFilter = {};
 var update_new_url;
 var postdata;
 var template_type_val =0;
+var TemplateType = {{$TemplateType}};
+var popup_type	=	0;
     jQuery(document).ready(function ($) {
         public_vars.$body = $("body");
         //show_loading_bar(40);
@@ -262,15 +264,23 @@ var template_type_val =0;
         templateID = $(this).prev("div.hiddenRowData").find("input[name='templateID']").val();
         var url = baseurl + '/email_template/'+templateID+'/edit';
         $.get(url, function(data, status){
-            if(Status="success"){
+            if(Status="success"){ 
                 $('#add-new-template-form').trigger("reset");
                 $("#add-new-template-form [name='TemplateID']").val(data['TemplateID']);
                 $("#add-new-template-form [name='TemplateName']").val(data['TemplateName']);
                 $("#add-new-template-form [name='Subject']").val(data['Subject']);
                 $("#add-new-template-form [name='TemplateBody']").val(data['TemplateBody']);
-                $("#add-new-template-form [name='Type']").val(data['Type']).trigger("change"); 
+                //$("#add-new-template-form [name='Type']").val(data['Type']).trigger("change");
+				$("#add-new-template-form [name='Type']").val(data['Type']);  popup_type = data['Type']; 
 				if(data['Privacy']== '' || data['Privacy']=== null){data['Privacy']=0;} 
                 $("#add-new-template-form [name='Email_template_privacy']").val(data['Privacy']).trigger("change");
+				console.log(data);
+				if(data['StaticType']){
+					$("#add-new-template-form #email_from").val(data['email_from']).trigger('change');
+					$("#add-new-template-form .email_from").show();					
+				}else{
+					$("#add-new-template-form .email_from").hide();			
+				}
 				if(data['Status'])
 				{ 	
 					$('.status_switch').bootstrapSwitch('setState', true);
@@ -279,8 +289,8 @@ var template_type_val =0;
 					$('.status_switch').bootstrapSwitch('setState', false);
 				}
                 $('#add-new-modal-template h4').html('Edit template');
-				template_type_val = $('#add-new-modal-template').find('.template_type').val();
-                $('#add-new-modal-template').modal('show');
+				template_type_val = $('#add-new-modal-template').find('.template_type').val();				
+              //  $('#add-new-modal-template').modal('show');
             }else{
                 toastr.error(status, "Error", toastr_opts);
             }
@@ -289,7 +299,7 @@ var template_type_val =0;
 
         $("#add-new-template-form [name='templateID']").val($(this).attr('data-id'));
         $('#add-new-modal-template h4').html('Edit template');
-        $('#add-new-modal-template').modal('show');
+        setTimeout(function(){ $('#add-new-modal-template').modal('show'); },1000);
 		replaceCheckboxes();
     });		
 	$('.unclick').click(function(e) {

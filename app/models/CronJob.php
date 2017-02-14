@@ -21,7 +21,7 @@ class CronJob extends \Eloquent {
 
     const ACTIVE = 1;
     const INACTIVE = 0;
-
+	const EMAILTEMPLATE = "CronjobActiveEmail";
     public static $cron_type = array(self::MINUTE=>'Minute',self::HOUR=>'Hourly',self::DAILY=>'Daily');
 
     public static function checkForeignKeyById($id){
@@ -191,8 +191,12 @@ class CronJob extends \Eloquent {
         $emaildata['EmailToName'] = '';
         $emaildata['Subject'] = $JobTitle. ' is terminated, Was running since ' . $minute .' minutes.';
         $emaildata['Url'] = \Illuminate\Support\Facades\URL::to('/cronjob_monitor');
+		
+		$body						=	EmailsTemplates::SendActiveCronJobEmail(CronJob::EMAILTEMPLATE,$CronJob,'body',$emaildata);
+		$emaildata['Subject']		=	EmailsTemplates::SendActiveCronJobEmail(CronJob::EMAILTEMPLATE,$CronJob,"subject",$emaildata);
+		$emaildata['EmailFrom']		=	EmailsTemplates::GetEmailTemplateFrom(CronJob::EMAILTEMPLATE);
 
-        $emailstatus = sendMail('emails.cronjob.ActiveCronJobEmailSend', $emaildata);
+        $emailstatus = sendMail($body, $emaildata,0);
         return $emailstatus;
     }
 
