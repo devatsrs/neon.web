@@ -26,18 +26,16 @@ class CompanyConfiguration extends \Eloquent {
             $CACHE_EXPIRE = self::$cache['CompanyConfiguration']['CACHE_EXPIRE'];
             $time = empty($CACHE_EXPIRE)?60:$CACHE_EXPIRE;
             $minutes = \Carbon\Carbon::now()->addMinutes($time);
+            //Cache::forever($CompanyConfiguration, array('CompanyConfiguration' => self::$cache['CompanyConfiguration']));
             Cache::add($CompanyConfiguration, array('CompanyConfiguration' => self::$cache['CompanyConfiguration']), $minutes);
         }
-
         return self::$cache['CompanyConfiguration'];
     }
 
     public static function get($key = ""){
 
         $cache = CompanyConfiguration::getConfiguration();
-
         if(!empty($key) ){
-
             if(isset($cache[$key])){
                 return $cache[$key];
             }
