@@ -368,7 +368,7 @@ $(document).ready(function(e) {
 						if(response.status =='success'){									
 							toastr.success(response.message, "Success", toastr_opts);
 							//location.reload();
-							window.location.href = window.location.href+"#last_item";
+							//window.location.href = window.location.href+"#last_item";
 							location.reload();
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
@@ -403,7 +403,7 @@ $(document).ready(function(e) {
 						$("#EmailAction-model").find('.btn-send-mail').button('reset');
 						if(response.status =='success'){									
 							toastr.success(response.message, "Success", toastr_opts);							
-							window.location.href = window.location.href+"#last_item";
+						//	window.location.href = window.location.href+"#last_item";
 							location.reload();
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
