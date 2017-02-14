@@ -13,7 +13,7 @@ class EmailsTemplates{
 		 $this->CompanyName = Company::getName();
 	}
 	
-	static function SendinvoiceSingle($InvoiceID,$type="body",$link){ 
+	static function SendinvoiceSingle($InvoiceID,$type="body",$link=''){ 
 		$message										=	 "";
 		/*try{*/
 				$InvoiceData   							=  	 Invoice::find($InvoiceID);
@@ -25,7 +25,12 @@ class EmailsTemplates{
 					$EmailMessage							=	 $EmailTemplate->TemplateBody;
 				}
 				$replace_array['CompanyName']			=	 Company::getName();
-				$replace_array['InvoiceLink'] 			= 	 $link;
+				
+				if($link){		
+					$replace_array['InvoiceLink'] 			= 	 $link;
+				}else{
+					$replace_array['InvoiceLink'] 			= 	 URL::to('/invoice/'.$InvoiceID.'/invoice_preview');
+				}
 				$replace_array['FirstName']				=	 $AccoutData->FirstName;
 				$replace_array['LastName']				=	 $AccoutData->LastName;
 				$replace_array['Email']					=	 $AccoutData->Email;
