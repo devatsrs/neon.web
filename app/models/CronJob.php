@@ -191,12 +191,8 @@ class CronJob extends \Eloquent {
         $emaildata['EmailToName'] = '';
         $emaildata['Subject'] = $JobTitle. ' is terminated, Was running since ' . $minute .' minutes.';
         $emaildata['Url'] = \Illuminate\Support\Facades\URL::to('/cronjob_monitor');
-		
-		$body						=	EmailsTemplates::SendActiveCronJobEmail(CronJob::EMAILTEMPLATE,$CronJob,'body',$emaildata);
-		$emaildata['Subject']		=	EmailsTemplates::SendActiveCronJobEmail(CronJob::EMAILTEMPLATE,$CronJob,"subject",$emaildata);
-		$emaildata['EmailFrom']		=	EmailsTemplates::GetEmailTemplateFrom(CronJob::EMAILTEMPLATE);
 
-        $emailstatus = sendMail($body, $emaildata,0);
+        $emailstatus = sendMail('emails.cronjob.ActiveCronJobEmailSend', $emaildata);
         return $emailstatus;
     }
 

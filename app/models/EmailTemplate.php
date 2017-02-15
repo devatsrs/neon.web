@@ -13,6 +13,7 @@ class EmailTemplate extends \Eloquent {
 	const ESTIMATE_TEMPLATE 	=	5;
 	const CONTACT_TEMPLATE 		=	6;
 	const CRONJOB_TEMPLATE 		=	7;
+	const TASKOPPORTUNITY 		=	8;
 	
 	
 	const PRIVACY_ON = 1;

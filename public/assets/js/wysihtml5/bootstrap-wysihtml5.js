@@ -58,7 +58,46 @@
 		 	 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AccountName}}'>" + locale.invoiceoptions.AccountName + "</a></li>" +
                 "</ul>" +
                 "</li>";
-        },   "estimateoptions": function(locale, options) {
+        }, 
+		"taskopportunity": function(locale, options) {
+			
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return "<li class='dropdown invoiceoptions'>" +
+                "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.taskopportunity.TitleHeading + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+                "<ul class='dropdown-menu'>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TitleHeading}}'>" + locale.taskopportunity.TitleHeading + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{UserProfileImage}}'>" + locale.taskopportunity.UserProfileImage + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TaskBoardUrl}}'>" + locale.taskopportunity.TaskBoardUrl + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Subject_task}}'>" + locale.taskopportunity.Subject + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Description}}'>" + locale.taskopportunity.Description + "</a></li>"+
+				  "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{type}}'>" + locale.taskopportunity.Type + "</a></li>"+
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{user}}'>" + locale.taskopportunity.User + "</a></li>"+
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CommentText}}'>" + locale.taskopportunity.CommentText + "</a></li>"+
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CommentText}}'>" + locale.taskopportunity.Logo + "</a></li>"+
+				   
+				   
+                "</ul>" +
+                "</li>";
+        },
+		  "ratesheetoptions":function(locale, options){		   
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return "<li class='dropdown estimateoptions'>" +
+                "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.ratesheetoptions.FirstName + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+                "<ul class='dropdown-menu'>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>" + locale.ratesheetoptions.FirstName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.ratesheetoptions.LastName + "</a></li>" +
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.ratesheetoptions.RateGeneratorName + "</a></li>" +				
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{RateTableName}}'>" + locale.ratesheetoptions.RateTableName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{EffectiveDate}}'>" + locale.ratesheetoptions.EffectiveDate + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.ratesheetoptions.CompanyName + "</a></li>" +		 "</ul></li>";  
+		 
+        
+		   },
+		  "estimateoptions": function(locale, options) {
             var size = (options && options.size) ? ' btn-'+options.size : '';
             return "<li class='dropdown estimateoptions'>" +
                 "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
@@ -703,6 +742,8 @@
         "invoiceoptions":false ,
 		"Cronjobs":false,
 		"estimateoptions":false,
+		"ratesheetoptions":false,
+		"taskopportunity":false,
 		"Crm":true,
 		"Tickets":false,
         "font-styles": true,
@@ -1217,6 +1258,25 @@
                 BalanceThreshold:"BalanceThreshold"
 
             },
+			ratesheetoptions:{
+	            FirstName:"FirstName",
+                LastName:"LastName",
+				RateTableName:"RateTableName",
+				EffectiveDate:"EffectiveDate",
+				RateGeneratorName:"RateGeneratorName",
+				CompanyName:"CompanyName",
+			},
+			taskopportunity:{
+				TitleHeading:"TitleHeading",
+				TaskBoardUrl:"TaskBoardUrl",
+				UserProfileImage:"UserProfileImage",
+				Subject:"Subject",
+				Description:"Description",
+				type:"Type",
+				user:"User",
+				CommentText:"CommentText",
+				Logo:"Logo"
+			},
             invoiceoptions:{
                 FirstName:"FirstName",
                 LastName:"LastName",

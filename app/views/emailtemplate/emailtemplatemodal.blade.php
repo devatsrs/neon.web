@@ -73,7 +73,8 @@
 			} else if(popup_type == {{EmailTemplate::RATESHEET_TEMPLATE}}){  
 				 modal.find('.message').wysihtml5({
 				   "font-styles": true,				
-				   "leadoptions":true,	
+				   "leadoptions":false,	
+				   "ratesheetoptions":true,
 				   "invoiceoptions":false,	
 				    "estimateoptions":false,					
 					"Crm":false,
@@ -146,6 +147,24 @@
 					"color": false,
 				});
 				
+			}
+			else if(popup_type == {{EmailTemplate::TASKOPPORTUNITY}}){   	
+			 modal.find('.message').wysihtml5({
+				   "font-styles": true,				
+				   "Cronjobs":false,
+				   "taskopportunity":true,
+				   "leadoptions":false,	
+				   "invoiceoptions":false,	
+				    "estimateoptions":false,					
+				    "Tickets":false,						
+					"Crm":false,
+					"emphasis": true,
+					"lists": true,
+					"html": true,
+					"link": true,
+					"image": true,
+					"color": false,
+				});
 			}else{  
             modal.find('.message').wysihtml5({
                "font-styles": true,
