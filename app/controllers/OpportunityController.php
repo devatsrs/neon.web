@@ -76,7 +76,7 @@ class OpportunityController extends \BaseController {
             foreach($opportunityattachment as $file){
                 $ext = $file->getClientOriginalExtension();
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['OPPORTUNITY_ATTACHMENT']);
-                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0777, true);

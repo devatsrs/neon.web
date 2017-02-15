@@ -33,7 +33,7 @@ class ImportsController extends \BaseController {
             ini_set('max_execution_time', 0);
             $data = Input::all();
             if (Input::hasFile('excel')) {
-                $upload_path = getenv('TEMP_PATH');
+                $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
                 if (in_array($ext, array("csv", "xls", "xlsx"))) {
@@ -111,11 +111,11 @@ class ImportsController extends \BaseController {
             return json_validator_response($validator);
         }
         $file_name = basename($data['TemplateFile']);
-        $temp_path = getenv('TEMP_PATH') . '/';
+        $temp_path = CompanyConfiguration::get('TEMP_PATH') . '/';
 
 
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNT_DOCUMENT']);
-        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
         copy($temp_path . $file_name, $destinationPath . $file_name);
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
             return Response::json(array("status" => "failed", "message" => "Failed to upload accounts file."));
@@ -253,7 +253,7 @@ class ImportsController extends \BaseController {
             ini_set('max_execution_time', 0);
             $data = Input::all();
             if (Input::hasFile('excel')) {
-                $upload_path = getenv('TEMP_PATH');
+                $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
                 if (in_array($ext, array("csv", "xls", "xlsx"))) {
@@ -332,11 +332,11 @@ class ImportsController extends \BaseController {
             return json_validator_response($validator);
         }
         $file_name = basename($data['TemplateFile']);
-        $temp_path = getenv('TEMP_PATH') . '/';
+        $temp_path = CompanyConfiguration::get('TEMP_PATH') . '/';
 
 
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNT_DOCUMENT']);
-        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
         copy($temp_path . $file_name, $destinationPath . $file_name);
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
             return Response::json(array("status" => "failed", "message" => "Failed to upload accounts file."));

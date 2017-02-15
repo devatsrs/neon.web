@@ -91,7 +91,7 @@
                     "bProcessing":true,
                     "bServerSide": true,
                     "sAjaxSource": datagrid_url,
-                    "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                    "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting": [[0, 'asc']],

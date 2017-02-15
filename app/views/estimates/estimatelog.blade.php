@@ -52,7 +52,7 @@
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push({"name":"Export","value":1});
                 },
-                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[2, "desc"]],

@@ -4,24 +4,6 @@ return array(
 
     /*
     ----------------------------------------------------------------------------------------------------
-                    New Confirguration
-    ----------------------------------------------------------------------------------------------------
-    */
-    'upload_path' => getenv('UPLOAD_PATH'),
-    'acc_doc_path' => getenv('ACC_DOC_PATH'),
-    'payment_proof_path'=>getenv('PAYMENT_PROOF_PATH'),
-    'user_profile_pictures_path' => getenv('PROFILE_PICTURE_PATH'),
-    'super_admin_emails' =>
-                   ['registration' =>  [
-                         "from" => getenv('REGISTRATION_EMAIL_FROM'),
-                         "from_name" => getenv('REGISTRATION_EMAIL_FROM_NAME'),
-                         "email"=> getenv('REGISTRATION_EMAIL')
-                     ],
-                   ],
-    'pageSize'=>getenv('PAGE_SIZE'),
-
-    /*
-    ----------------------------------------------------------------------------------------------------
                     Default Confirguration Bellow
     ----------------------------------------------------------------------------------------------------
     */
@@ -61,7 +43,7 @@ return array(
     |
     */
 
-    'timezone' => getenv('APP_TIMEZONE'),
+    'timezone' => 'Europe/London',
 
     /*
     |--------------------------------------------------------------------------
@@ -100,7 +82,7 @@ return array(
     |
     */
 
-    'key' => getenv('APP_KEY'),
+    'key' => 'P2bs9zeJGFfAOitXauVjio0G3Q12xQet',
 
     'cipher' => MCRYPT_RIJNDAEL_128,
 
