@@ -47,7 +47,7 @@
     @endif
     @if($account->IsCustomer==1 || $account->IsVendor==1)
     <a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
-        <i class="entypo-cancel"></i>
+        <i class="entypo-lock"></i>
         Authentication Rule
     </a>
     @endif
@@ -361,6 +361,7 @@
                 </div>
             </div>
         </div>
+        @include('accountservices.index')
         <?php
             $billing_disable = $hiden_class= '';
         if($invoice_count > 0){
@@ -752,6 +753,9 @@
                 $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',0);
                 $(".billing-section-hide").nextAll('.panel').find('.panel-body').show();
                 $('.billing-section .select2-container').css('visibility','visible');
+                $("#subscription_filter").find('.panel-body').hide();
+                $("#oneofcharge_filter").find('.panel-body').hide();
+                $("#clitable_filter").find('.panel-body').hide();
             }else{
                 $(".billing-section").hide();
                 $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',1);

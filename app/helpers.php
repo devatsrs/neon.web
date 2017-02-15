@@ -332,6 +332,10 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
         $name = 'ProductID';
         $modal = 'add-edit-modal-product';
         $data = Product::getProductDropdownList();
+    }elseif($type=='service'){
+        $name = 'ServiceID';
+        $modal = 'add-new-modal-service';
+        $data = Service::getDropdownIDList();
     }
     if(!empty($nameID)){
         $name= $nameID;

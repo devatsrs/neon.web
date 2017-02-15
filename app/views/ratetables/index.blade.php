@@ -39,6 +39,10 @@
                         <div class="col-sm-3">
                             {{ Form::select('TrunkID', $trunks, $trunk_keys, array("class"=>"select2","data-type"=>"trunk")) }}
                         </div>
+                        <label class="col-sm-1 control-label" for="field-1">Service</label>
+                        <div class="col-sm-3">
+                            {{ Form::select('ServiceID', $Services, '', array("class"=>"select2","data-type"=>"trunk")) }}
+                        </div>
                     </div>
                     <p style="text-align: right;">
                         <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
@@ -93,6 +97,7 @@
     var $searchFilter = {};
     var update_new_url;
         $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
+        $searchFilter.ServiceID = $("#ratetable_filter [name='ServiceID']").val();
 		$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -105,9 +110,9 @@
             "oTableTools": {},
             "aaSorting": [[3, "desc"]],
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
+                aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"ServiceID","value":$searchFilter.ServiceID},{"name":"Search","value":$searchFilter.Search});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
+                data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"ServiceID","value":$searchFilter.ServiceID},{"name":"Search","value":$searchFilter.Search});
             },
             "fnRowCallback": function(nRow, aData) {
                 $(nRow).attr("id", "host_row_" + aData[2]);
@@ -225,6 +230,7 @@
             e.preventDefault();
             $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
 			$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
+			$searchFilter.ServiceID = $('#ratetable_filter [name="ServiceID"]').val();
             data_table.fnFilter('', 0);
             return false;
          });
@@ -271,7 +277,7 @@
                             </div>
                         </div>
                          </div>
-                       <div class="row">
+                    <div class="row">
                        <div class="col-md-6">
                            <div class="form-group ">
                                <label for="field-5" class="control-label">Currency</label>
@@ -279,13 +285,20 @@
                                <!--{ Form::select('CurrencyID', $currencylist,  '', array("class"=>"select2")) }}-->
                            </div>
                        </div>
+                       <div class="col-md-6">
+                           <div class="form-group">
+                               <label for="field-4" class="control-label">Service</label>
+                               {{ Form::select('ServiceID', $Services,  '', array("class"=>"select2")) }}
+                           </div>
+                       </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-4" class="control-label">RateTable Name</label>
                                 <input type="text" name="RateTableName" class="form-control" value="" />
                             </div>
                         </div>
-
                     </div>
                 </div>
                 <div class="modal-footer">

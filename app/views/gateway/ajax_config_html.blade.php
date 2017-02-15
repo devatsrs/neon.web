@@ -55,6 +55,11 @@
                 <input type="hidden" name="RateFormat" value="{{$selectd_val}}">
                 {{Form::select($configkey,Company::$rerate_format,$selectd_val,$options)}}
 
+            @elseif($configkey == 'ServiceID')
+                <?php if(empty($selectd_val)){
+                        $selectd_val='';
+                    } ?>
+                    {{Form::select($configkey,$Services,$selectd_val,array( "class"=>"select2 small"))}}
             @else
 
                 <input @if($configkey == 'password') type="password" @else type="text" @endif  value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'password'){{''}}@elseif(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){{$gatewayconfigval->$configkey}}@endif" name="{{$configkey}}" class="form-control" id="field-5" placeholder="">
