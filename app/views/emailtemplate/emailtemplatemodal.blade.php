@@ -53,6 +53,9 @@
 					"link": true,
 					"image": true,
 					"color": false,
+				parser: function(html) {
+		        	return html;
+    			}
 				});
 			}else if(popup_type == {{EmailTemplate::INVOICE_TEMPLATE}}){   
 				 modal.find('.message').wysihtml5({
@@ -69,6 +72,9 @@
 					"link": true,
 					"image": true,
 					"color": false,
+				parser: function(html) {
+		        	return html;
+    			}
 				});
 			} else if(popup_type == {{EmailTemplate::RATESHEET_TEMPLATE}}){  
 				 modal.find('.message').wysihtml5({
@@ -85,6 +91,9 @@
 					"link": true,
 					"image": true,
 					"color": false,
+				parser: function(html) {
+		        	return html;
+    			}
 				});
 			} else if(popup_type == {{EmailTemplate::TICKET_TEMPLATE}}){   
 				 modal.find('.message').wysihtml5({
@@ -99,6 +108,9 @@
 					"link": true,
 					"image": true,
 					"color": false,
+				parser: function(html) {
+		        	return html;
+    			}
 				});
 			}  else if(popup_type == {{EmailTemplate::ESTIMATE_TEMPLATE}}){   
 				 modal.find('.message').wysihtml5({
@@ -114,6 +126,9 @@
 					"link": true,
 					"image": true,
 					"color": false,
+				parser: function(html) {
+		        	return html;
+    			}
 				});
 			} else if(popup_type == {{EmailTemplate::CONTACT_TEMPLATE}}){   
 				 modal.find('.message').wysihtml5({
@@ -129,6 +144,9 @@
 					"link": true,
 					"image": true,
 					"color": false,
+				parser: function(html) {
+		        	return html;
+    			}
 				});
 			} else if(popup_type == {{EmailTemplate::CRONJOB_TEMPLATE}}){   	
 			 modal.find('.message').wysihtml5({
@@ -145,6 +163,9 @@
 					"link": true,
 					"image": true,
 					"color": false,
+				parser: function(html) {
+		        	return html;
+    			}
 				});
 				
 			}
@@ -164,6 +185,9 @@
 					"link": true,
 					"image": true,
 					"color": false,
+				parser: function(html) {
+		        	return html;
+    			}
 				});
 			}else{  
             modal.find('.message').wysihtml5({
@@ -179,6 +203,9 @@
 				"link": true,
 				"image": true,
 				"color": false,
+				parser: function(html) {
+		        	return html;
+    			}
             });
 			}
         });
