@@ -47,7 +47,7 @@ class OpportunityCommentsController extends \BaseController {
             foreach($files_array as $key=> $array_file_data){
                 $file_name = basename($array_file_data['filepath']);
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['OPPORTUNITY_ATTACHMENT']);
-                $destinationPath = CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0777, true);

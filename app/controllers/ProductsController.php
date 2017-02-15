@@ -22,11 +22,11 @@ class ProductsController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Item.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Item.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Item.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Item.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

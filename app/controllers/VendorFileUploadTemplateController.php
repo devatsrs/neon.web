@@ -12,11 +12,11 @@ class VendorFileUploadTemplateController extends \BaseController {
             $excel_data = json_decode(json_encode($Vendortemplate),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor Template.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Template.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor Template.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Template.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -175,7 +175,7 @@ class VendorFileUploadTemplateController extends \BaseController {
         }
         $file_name = $data['TemplateFile'];
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_TEMPLATE_FILE']) ;
-        $destinationPath = CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
         rename ($file_name,$destinationPath.basename($file_name));
         if(!AmazonS3::upload($destinationPath.basename($file_name),$amazonPath)){
             return Response::json(array("status" => "failed", "message" => "Failed to upload."));

@@ -498,7 +498,7 @@ function bulk_mail($type,$data){
         }
 
         if (Input::hasFile('attachment')) {
-            $upload_path = CompanyConfiguration::get('UPLOADPATH');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $Attachment = Input::file('attachment');
             $ext = $Attachment->getClientOriginalExtension();
             if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif", 'zip', 'xls', 'xlsx'))) {
@@ -512,7 +512,7 @@ function bulk_mail($type,$data){
                 if ($type == 'IR') {
                     $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['BULK_INVOICE_MAIL_ATTACHEMENT']);
                 }
-                $dir = CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
+                $dir = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
                 if (!file_exists($dir)) {
                     mkdir($dir, 777, TRUE);
                 }

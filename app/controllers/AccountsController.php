@@ -34,11 +34,11 @@ class AccountsController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Accounts.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Accounts.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Accounts.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Accounts.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -721,11 +721,11 @@ class AccountsController extends \BaseController {
                 DB::setFetchMode(Config::get('database.fetch'));
 
                 if($type=='csv'){
-                    $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Recent Due Sheet.csv';
+                    $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Recent Due Sheet.csv';
                     $NeonExcel = new NeonExcelIO($file_path);
                     $NeonExcel->download_csv($due_sheets);
                 }elseif($type=='xlsx'){
-                    $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Recent Due Sheet.xls';
+                    $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Recent Due Sheet.xls';
                     $NeonExcel = new NeonExcelIO($file_path);
                     $NeonExcel->download_excel($due_sheets);
                 }
@@ -1015,11 +1015,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
             $excel_data = json_decode(json_encode($response->data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/CreditHistory.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/CreditHistory.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/CreditHistory.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/CreditHistory.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

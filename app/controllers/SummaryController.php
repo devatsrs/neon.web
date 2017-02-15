@@ -39,11 +39,11 @@ class SummaryController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Summery Report By '.$export_sheet.'.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Summery Report By '.$export_sheet.'.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Summery Report By '.$export_sheet.'.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Summery Report By '.$export_sheet.'.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

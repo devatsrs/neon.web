@@ -113,7 +113,7 @@ class AmazonS3 {
         }
 
         $path .=  $dir . "/". date("Y")."/".date("m") ."/" .date("d") ."/";
-        $dir = CompanyConfiguration::get('UPLOADPATH') . '/'. $path;
+        $dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. $path;
         if (!file_exists($dir)) {
             RemoteSSH::run("mkdir -p " . $dir);
             RemoteSSH::run("chmod -R 777 " . $dir);
@@ -153,7 +153,7 @@ class AmazonS3 {
 
         //When no amazon ;
         if($s3 == 'NoAmazon'){
-            $Uploadpath = CompanyConfiguration::get('UPLOADPATH')."/".$key;
+            $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH')."/".$key;
             if ( file_exists($Uploadpath) ) {
                 return $Uploadpath;
             } else {
@@ -205,7 +205,7 @@ class AmazonS3 {
 
         //When no amazon ;
         if($s3 == 'NoAmazon'){
-            $file = CompanyConfiguration::get('UPLOADPATH') . '/' . $key;
+            $file = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $key;
             if ( file_exists($file) ) {
                 return  get_image_data($file);
             } else {
@@ -223,7 +223,7 @@ class AmazonS3 {
 
             //When no amazon ;
             if($s3 == 'NoAmazon'){
-                $Uploadpath = CompanyConfiguration::get('UPLOADPATH') . "/"."".$file;
+                $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH') . "/"."".$file;
                 if ( file_exists($Uploadpath) ) {
                     @unlink($Uploadpath);
                     return true;

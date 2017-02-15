@@ -15,6 +15,8 @@ DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='QuickBook';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='PHPExePath';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='RMArtisanFileLocation';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='Neon_API_URL';
+DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='UPLOADPATH';
+DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='WEBURL';
 
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'BILLING_DASHBOARD_CUSTOMER', 'BillingDashboardPincodeWidget,BillingDashboardTotalInvoiceSent,BillingDashboardTotalInvoiceReceived,BillingDashboardPaymentReceived,BillingDashboardPaymentSent,BillingDashboardUnbilledAmount');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'EMAIL_TO_CUSTOMER', '0');
@@ -27,7 +29,7 @@ INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1',
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'MAX_UPLOAD_FILE_SIZE', '5M');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'PAGE_SIZE', '50');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'DEFAULT_PREFERENCE', '5');
-INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'WEBURL', 'http://linux1.neon-soft.com/rm.abubakar/public');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'WEB_URL', 'http://linux1.neon-soft.com/rm.abubakar/public');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'DEMO_DATA_PATH', '/home/neon_branches/dev/tmp');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'TRANSACTION_LOG_EMAIL_FREQUENCY', 'Daily');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'DEFAULT_TIMEZONE', 'GMT');
@@ -37,4 +39,5 @@ INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1',
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'SIPPY_CSVDECODER', 'python /var/www/html/neon_branches/dev-mysql/sippy/read_cdr.py');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'DELETE_SUMMARY_TIME', '4 days');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'PHP_EXE_PATH', '/usr/bin/php');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'UPLOAD_PATH', '/home/neon_branches/dev/tmp');
 INSERT INTO `tblcompanyconfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'RM_ARTISAN_FILE_LOCATION', '/var/www/html/neon-service-branch/dev-mysql/girish/artisan');

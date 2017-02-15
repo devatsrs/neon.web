@@ -10,11 +10,11 @@ class InvoiceTemplatesController extends \BaseController {
             $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix')->get();
             $invoiceCompanies = json_decode(json_encode($invoiceCompanies),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Invoice Template.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice Template.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($invoiceCompanies);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Invoice Template.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice Template.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($invoiceCompanies);
             }
@@ -99,7 +99,7 @@ class InvoiceTemplatesController extends \BaseController {
                 }
                 $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['INVOICE_COMPANY_LOGO']) ;
-                $destinationPath = CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
 
                 //Create profile company_logo dir if not exists
                 if (!file_exists($destinationPath)) {
@@ -161,7 +161,7 @@ class InvoiceTemplatesController extends \BaseController {
             }
             $extension = '.'. Input::file('CompanyLogo')->getClientOriginalExtension();
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['INVOICE_COMPANY_LOGO']) ;
-            $destinationPath = CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;// storage_path(). '\\InvoiceLogos\\';
 
             //Create profile company_logo dir if not exists
             if (!file_exists($destinationPath)) {
@@ -254,7 +254,7 @@ class InvoiceTemplatesController extends \BaseController {
             }
             
             if(!empty($InvoiceTemplate->CompanyLogoAS3Key)){
-                $logo_path = CompanyConfiguration::get('UPLOADPATH') . '/logo/' . User::get_companyID();
+                $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . User::get_companyID();
                 @mkdir($logo_path, 0777, true);
                 RemoteSSH::run("chmod -R 777 " . $logo_path);
                 $logo = $logo_path  . '/'  . basename($as3url);

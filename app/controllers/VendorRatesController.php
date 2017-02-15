@@ -69,7 +69,7 @@ class VendorRatesController extends \BaseController
             }
 
             $company_name = Account::getCompanyNameByID($id);
-            $upload_path = CompanyConfiguration::get('UPLOADPATH');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $destinationPath = $upload_path . sprintf("/%s/", $company_name);
             $excel = Input::file('excel');
              // ->move($destinationPath);
@@ -230,11 +230,11 @@ class VendorRatesController extends \BaseController
             $excel_data = json_decode(json_encode($RateSheetHistory),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor Rates History.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Rates History.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor Rates History.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Rates History.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -263,11 +263,11 @@ class VendorRatesController extends \BaseController
             DB::setFetchMode( Config::get('database.fetch'));
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor Rates.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Rates.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($vendor_rates);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor Rates.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Rates.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($vendor_rates);
             }
@@ -514,11 +514,11 @@ class VendorRatesController extends \BaseController
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor Preference.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Preference.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor Preference.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Preference.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -621,7 +621,7 @@ class VendorRatesController extends \BaseController
 
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
  
-        $destinationPath = CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
         copy($temp_path . $file_name, $destinationPath . $file_name);
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
             return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));

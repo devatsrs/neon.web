@@ -25,11 +25,11 @@ class DialStringController extends \BaseController {
         $dialstring = DialString::where(["CompanyID" => $CompanyID])->select(["Name","created_at","CreatedBy"])->get()->toArray();
 
         if($type=='csv'){
-            $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Dial String.csv';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Dial String.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($dialstring);
         }elseif($type=='xlsx'){
-            $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Dial String.xls';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Dial String.xls';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_excel($dialstring);
         }
@@ -134,11 +134,11 @@ class DialStringController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/DialStrings.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DialStrings.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/DialStrings.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/DialStrings.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -434,7 +434,7 @@ class DialStringController extends \BaseController {
         $temp_path = CompanyConfiguration::get('TEMP_PATH') . '/';
 
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DIALSTRING_UPLOAD']);
-        $destinationPath = CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
         copy($temp_path . $file_name, $destinationPath . $file_name);
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
             return Response::json(array("status" => "failed", "message" => "Failed to upload Dial String file."));

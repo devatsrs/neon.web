@@ -233,11 +233,11 @@ class ContactsController extends \BaseController {
             $excel_data = json_decode(json_encode($contacts),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Contacts.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Contacts.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Contacts.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Contacts.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

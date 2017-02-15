@@ -253,7 +253,7 @@ class MessagesController extends \BaseController {
 			{
                 $file_name  		= 	basename($array_file_data['filepath']); 
                 $amazonPath 		= 	AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT']);
-                $destinationPath 	= 	CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
+                $destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath))
 				{

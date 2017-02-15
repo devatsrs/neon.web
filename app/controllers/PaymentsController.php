@@ -93,11 +93,11 @@ class PaymentsController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Payment.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Payment.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Payment.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Payment.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -521,7 +521,7 @@ class PaymentsController extends \BaseController {
         if(JobType::checkJobType('PU') == 0){
             return Response::json(array("status" => "failure", "message" => "Job Type not Defined."));
         }
-        $destinationPath = CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
         copy($temp_path . $file_name, $destinationPath . $file_name);
 
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {

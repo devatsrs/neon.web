@@ -183,11 +183,11 @@ class AnalysisController extends BaseController {
             $excel_data  = DB::connection('neon_report')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if ($type == 'csv') {
-                $file_path = CompanyConfiguration::get('UPLOADPATH') . '/'.ucfirst($data['chart_type']).'Reports.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') . '/'.ucfirst($data['chart_type']).'Reports.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             } elseif ($type == 'xlsx') {
-                $file_path = CompanyConfiguration::get('UPLOADPATH') . '/'.ucfirst($data['chart_type']).'Reports.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') . '/'.ucfirst($data['chart_type']).'Reports.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

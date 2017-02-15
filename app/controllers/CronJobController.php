@@ -14,11 +14,11 @@ class CronJobController extends \BaseController {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Cron Job.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Cron Job.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Cron Job.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Cron Job.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -197,11 +197,11 @@ class CronJobController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Cron Job History.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Cron Job History.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Cron Job History.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Cron Job History.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

@@ -35,7 +35,7 @@
 					}
 					else
 					{
-						$Attachmenturl = CompanyConfiguration::get('UPLOADPATH')."/".$attachments_data['filepath'];
+						$Attachmenturl = CompanyConfiguration::get('UPLOAD_PATH')."/".$attachments_data['filepath'];
 					}			
 					if($key==(count($attachments)-1)){
 						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br><br>";

@@ -52,8 +52,8 @@ VALUES (1, 1, 'D2Call', 'D2Call', 'noc@d2call.com', '$2y$10$PlVXiwVLUxkuiwSyKQJy
 
 
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'SSH', '{"host":"188.227.186.98","username":"root","password":"KatiteDo48"}');
-INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'UPLOADPATH', '/home/hostedfolders/d2call/tmp');
-INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'WEBURL', 'http://linux1.neon-soft.com/d2call/public');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'UPLOAD_PATH', '/home/hostedfolders/d2call/tmp');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'WEB_URL', 'http://linux1.neon-soft.com/d2call/public');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'FRONT_STORAGE_PATH', '/var/www/html/d2call/app/storage');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'DELETE_STORAGE_LOG_DAYS', '365');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'TEMP_PATH', '/home/hostedfolders/d2call/tmp');

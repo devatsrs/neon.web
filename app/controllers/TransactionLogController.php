@@ -33,11 +33,11 @@ class TransactionLogController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Invoice Transaction Log.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice Transaction Log.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Invoice Transaction Log.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice Transaction Log.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -70,11 +70,11 @@ class TransactionLogController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Invoice Log.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice Log.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Invoice Log.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice Log.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -107,11 +107,11 @@ class TransactionLogController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/invoice_'.$invoice->InvoiceNumber.'_payments.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/invoice_'.$invoice->InvoiceNumber.'_payments.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/invoice_'.$invoice->InvoiceNumber.'_payments.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/invoice_'.$invoice->InvoiceNumber.'_payments.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

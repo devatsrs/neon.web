@@ -32,7 +32,7 @@ class CDRController extends BaseController {
                 return json_validator_response($validator);
             }
             if (Input::hasFile('excel')) {
-            $upload_path = CompanyConfiguration::get('UPLOADPATH');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $excel = Input::file('excel');
             // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
@@ -100,7 +100,7 @@ class CDRController extends BaseController {
             return json_validator_response($validator);
         }*/
         if (Input::hasFile('excel')) {
-            $upload_path = CompanyConfiguration::get('UPLOADPATH');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $excel = Input::file('excel');
             // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
@@ -201,11 +201,11 @@ class CDRController extends BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/CDR.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/CDR.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/CDR.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/CDR.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -367,8 +367,8 @@ class CDRController extends BaseController {
         $temp_path = CompanyConfiguration::get('TEMP_PATH').'/';
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TEMPLATE_FILE']);
         $amazonCDRPath = AmazonS3::generate_upload_path(AmazonS3::$dir['CDR_UPLOAD']);
-        $destinationPath = CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
-        $destinationCDRPath = CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonCDRPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+        $destinationCDRPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonCDRPath;
         copy($temp_path.$file_name,$destinationPath.$file_name);
         copy($temp_path.$file_name,$destinationCDRPath.$file_name);
         if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
@@ -505,11 +505,11 @@ class CDRController extends BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor CDR.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor CDR.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOADPATH') .'/Vendor CDR.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor CDR.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -603,8 +603,8 @@ class CDRController extends BaseController {
         $temp_path = CompanyConfiguration::get('TEMP_PATH').'/';
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TEMPLATE_FILE']);
         $amazonCDRPath = AmazonS3::generate_upload_path(AmazonS3::$dir['CDR_UPLOAD']);
-        $destinationPath = CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonPath;
-        $destinationCDRPath = CompanyConfiguration::get('UPLOADPATH') . '/' . $amazonCDRPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+        $destinationCDRPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonCDRPath;
         copy($temp_path.$file_name,$destinationPath.$file_name);
         copy($temp_path.$file_name,$destinationCDRPath.$file_name);
         if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
