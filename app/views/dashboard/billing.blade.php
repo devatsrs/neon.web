@@ -48,7 +48,7 @@
             </form>
         </div>
     </div>
-    <?php if(User::checkCategoryPermission('BillingDashboard','View')){ ?>
+    <?php if(User::checkCategoryPermission('BillingDashboardSummaryWidgets','View')){ ?>
         <div class="row">
         <div class="col-md-12">
             <div data-collapsed="0" class="panel panel-primary">

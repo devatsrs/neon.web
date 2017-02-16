@@ -1,4 +1,8 @@
-USE `NeonRMDev`;
+USE `Ratemanagement3`;
+
+INSERT INTO `tblresourcecategories` (`ResourceCategoryName`) VALUES ('BillingDashboardSummaryWidgets.View');
+UPDATE `RateManagement4`.`tblResource` SET `CategoryID`='1245' WHERE  `ResourceName`='BillingDashboard.invoice_expense_total';
+UPDATE `RateManagement4`.`tblResource` SET `CategoryID`='1245' WHERE  `ResourceName`='BillingDashboard.invoice_expense_total_widget';
 
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FreshdeskDomain';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FreshdeskEmail';
@@ -11,7 +15,6 @@ DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='Amazon';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='ErrorEmail';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FILE_RETENTION_EMAIL';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='SITE_URL';
-DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='Neon_API_URL';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='SIPPY_CSVDECODER';
 
 UPDATE `tblcompanyconfiguration` SET `Value`='UPLOAD_PATH' WHERE  `Key`='UPLOADPATH';
@@ -22,7 +25,6 @@ UPDATE `tblcompanyconfiguration` SET `Value`='RM_ARTISAN_FILE_LOCATION' WHERE  `
 
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'BILLING_DASHBOARD_CUSTOMER', 'BillingDashboardPincodeWidget,BillingDashboardTotalInvoiceSent,BillingDashboardTotalInvoiceReceived,BillingDashboardPaymentReceived,BillingDashboardPaymentSent,BillingDashboardUnbilledAmount');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'EMAIL_TO_CUSTOMER', '0');
-INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'NEON_API_URL', 'http://linux1.neon-soft.com/api.neon/api.abubakar/api.neon-crm/public/api/');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'ACC_DOC_PATH','/home/neon_branches/dev/tmp');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'PAYMENT_PROOF_PATH', '/home/neon_branches/dev/tmp');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'CRM_ALLOWED_FILE_UPLOAD_EXTENSIONS', 'bmp,csv,doc,docx,gif,ini,jpg,msg,odt,pdf,png,ppt,pptx,rar,rtf,txt,xls,xlsx,zip,7z');
