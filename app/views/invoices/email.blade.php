@@ -33,3 +33,8 @@
   </div>
 </div>
 {{Form::hidden('InvoiceID',$Invoice->InvoiceID)}}
+<script>
+jQuery(document).ready(function ($) {
+	 $("#send-modal-invoice").find(".select22").select2();
+});
+</script>

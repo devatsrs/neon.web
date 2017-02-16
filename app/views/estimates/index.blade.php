@@ -710,7 +710,7 @@ var postdata;
         });
 		
 		$('#send-modal-estimate').on('shown.bs.modal', function (event) {
-				setTimeout(function(){ console.log('select2');  $("#send-modal-estimate").find(".select22").select2();  }, 700);
+				//setTimeout(function(){ console.log('select2');  $("#send-modal-estimate").find(".select22").select2();  }, 700);
 			});
 
         $("#send-estimate-form").submit(function(e){

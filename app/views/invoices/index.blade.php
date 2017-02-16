@@ -1032,7 +1032,7 @@
                 $("#modal-BulkMail").modal('show');
             });
 			$('#send-modal-invoice').on('shown.bs.modal', function (event) {
-				setTimeout(function(){ $("#send-modal-invoice").find(".select22").select2(); }, 250);
+				//setTimeout(function(){ $("#send-modal-invoice").find(".select22").select2(); }, 250);
 			});
             $('#modal-BulkMail').on('shown.bs.modal', function (event) {
                 var modal = $(this);

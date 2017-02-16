@@ -33,3 +33,8 @@
   </div>
 </div>
 {{Form::hidden('EstimateID',$Estimate->EstimateID)}}
+<script>
+jQuery(document).ready(function ($) {
+	 $("#send-modal-estimate").find(".select22").select2(); 
+});
+</script>
