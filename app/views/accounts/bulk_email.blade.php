@@ -1,4 +1,5 @@
 <?php   $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing']; ?>
+
 <div class="modal fade" id="modal-BulkMail">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -7,7 +8,7 @@
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">Bulk Send Email</h4>
         </div>
-        <div class="modal-body"> @if(isset($trunks))
+        <div class="modal-body"> @if(isset($trunks) && (isset($bulk_type) && $bulk_type == 'accounts'))
           <div class="row CD">
             <div class="col-md-12">
               <div class="form-group">
@@ -64,7 +65,7 @@
               <div class="form-group">
                 <label for="field-4" class="control-label">Subject</label>
                 <input type="text" class="form-control" id="subject" name="subject" />
-                @if($bulk_type == 'accounts')
+                @if(isset($bulk_type) && $bulk_type == 'accounts')
                 <input type="hidden" name="SelectedIDs" />
                 <input type="hidden" name="criteria" />
                 <input type="hidden" name="Type" value="{{EmailTemplate::ACCOUNT_TEMPLATE}}" />
@@ -72,7 +73,7 @@
                 <input type="hidden" name="ratesheetmail" value="0" />
                 <input type="hidden" name="test" value="0" />
                 <input type="hidden" name="testEmail" value="" />
-                @elseif($bulk_type == 'invoices')
+                @elseif(isset($bulk_type) && $bulk_type == 'invoices')
                 <input type="hidden" name="SelectedIDs"/>
                 <input type="hidden" name="criteria"/>
                 <input type="hidden" name="Type" value="{{EmailTemplate::INVOICE_TEMPLATE}}"/>
@@ -80,6 +81,10 @@
                 <input type="hidden" name="test" value="0"/>
                 <input type="hidden" name="testEmail" value=""/>
                 <input type="hidden" name="email_template_privacy" value="0">
+                @elseif(isset($bulk_type) && $bulk_type == 'customers_rates')
+                <input type="hidden" name="SelectedIDs" />
+                <input type="hidden" name="test" value="0" />
+                <input type="hidden" name="testEmail" value="" />
                 @endif </div>
             </div>
           </div>
@@ -139,7 +144,7 @@
               </div>
             </div>
           </div>
-          @if($bulk_type == 'accounts')
+          @if(isset($bulk_type) && $bulk_type == 'accounts')
           <div class="row">
             <div class="form-Group"> <br />
               <label for="field-1" class="col-sm-3 control-label">Sample Account</label>
@@ -148,10 +153,16 @@
           </div>
           @endif </div>
         <div class="modal-footer">
-          <button type="submit"  class="alert btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Send </button>
+          <button type="submit"  class=" @if(isset($bulk_type) && ($bulk_type == 'customers_rates' || $bulk_type == 'accounts')) lead @elseif(isset($bulk_type) &&  $bulk_type == 'invoices') alerta @endif btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Send </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
       </form>
     </div>
   </div>
 </div>
+<style>
+.alert{
+margin-bottom:inherit !important;
+padding:inherit !important;
+}
+</style>

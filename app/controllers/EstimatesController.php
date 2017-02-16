@@ -1409,6 +1409,8 @@ class EstimatesController extends \BaseController {
                 $emaildata['EstimateNumber'] 		= 	$estimatenumber;
                 $emaildata['Subject'] 		= 	'Comment added to Estimate '.$estimatenumber.' ('.$CustomerName.')';
                 $Email = User::getEmailByUserName($CompanyID,$CreatedBy);
+				$emaildata['user'] 		= 	$CustomerName;
+
                 if(!empty($Email)){
                     $emaildata['EmailTo'] = $Email;
                     $status = $this->sendEstimateMail('emails.estimates.comment',$emaildata);

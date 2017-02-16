@@ -1326,8 +1326,8 @@
 				CompanyName:"CompanyName",
 				InvoiceLink:"InvoiceLink",
 				AccountName:"AccountName",
-				Signature:"Signature",				
-            },
+				Signature:"Signature",	 			
+            }, 
 			estimateoptions:{
                 FirstName:"FirstName",
                 LastName:"LastName",

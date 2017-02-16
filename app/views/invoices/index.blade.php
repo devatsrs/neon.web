@@ -1158,17 +1158,17 @@
                 $('#TestMail-form').find('[name="EmailAddress"]').val('');
                 $('#modal-TestMail').modal({show: true});
             });
-            $('.alert').click(function (e) {
+            $('.alerta').click(function (e) {
                 e.preventDefault();
                 var email = $('#TestMail-form').find('[name="EmailAddress"]').val();
                 var accontID = $('.hiddenRowData').find('.rowcheckbox').val();
                 if (email == '') {
                     toastr.error('Email field should not empty.', "Error", toastr_opts);
-                    $(".alert").button('reset');
+                    $(".alerta").button('reset');
                     return false;
                 } else if (accontID == '') {
                     toastr.error('Please select sample invoice', "Error", toastr_opts);
-                    $(".alert").button('reset');
+                    $(".alerta").button('reset');
                     return false;
                 }
                 $('#BulkMail-form').find('[name="testEmail"]').val(email);
