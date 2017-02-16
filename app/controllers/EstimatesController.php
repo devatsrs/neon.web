@@ -1280,12 +1280,13 @@ class EstimatesController extends \BaseController {
                 $emaildata['AccountName'] 		= 	$CreatedBy;
                 $emaildata['Message'] 		= 	$estimatenumber.' Estimate '.$estimateloddata['Note'];
                 $emaildata['Subject'] 		= 	$estimatenumber.' Estimate Accepted ('.$CustomerName.')';
+				$emaildata['AcceptRejectUser'] 		= 	$CustomerName;
                 $Email = User::getEmailByUserName($CompanyID,$CreatedBy);
                 if(!empty($Email)){
                     $emaildata['EmailTo'] = $Email;
 					
-					$body						=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEACCEPT,$Estimate->EstimateID,'body','');
-					$emaildata['Subject']		=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEACCEPT,$Estimate->EstimateID,"subject");
+					$body						=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEACCEPT,$Estimate->EstimateID,'body','',$emaildata);
+					$emaildata['Subject']		=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEACCEPT,$Estimate->EstimateID,"subject",'',$emaildata);
 					$emaildata['EmailFrom']		=	EmailsTemplates::GetEmailTemplateFrom(Estimate::EMAILTEMPLATEACCEPT);
 					
                     $status = $this->sendEstimateMail($body,$emaildata,0);
@@ -1346,12 +1347,13 @@ class EstimatesController extends \BaseController {
                 $emaildata['AccountName'] 		= 	$CreatedBy;
                 $emaildata['Message'] 			= 	$estimatenumber.' Estimate '.$estimateloddata['Note'];
                 $emaildata['Subject'] 			= 	$estimatenumber.' Estimate Rejected ('.$CustomerName.')';
+				$emaildata['AcceptRejectUser'] 		= 	$CustomerName;
                 $Email 							= 	User::getEmailByUserName($CompanyID,$CreatedBy);
                 
 				if(!empty($Email)){
                     $emaildata['EmailTo'] 		= 		$Email;
-					$body						=		EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEREJECT,$Estimate->EstimateID,'body');
-					$emaildata['Subject']		=		EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEREJECT,$Estimate->EstimateID,"subject");
+					$body						=		EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEREJECT,$Estimate->EstimateID,'body','',$emaildata);
+					$emaildata['Subject']		=		EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEREJECT,$Estimate->EstimateID,"subject",'',$emaildata);
 					$emaildata['EmailFrom']		=		EmailsTemplates::GetEmailTemplateFrom(Estimate::EMAILTEMPLATEREJECT);
 					$status 					= 		$this->sendEstimateMail($body,$emaildata,0);
                 }
@@ -1408,11 +1410,8 @@ class EstimatesController extends \BaseController {
                 $emaildata['Subject'] 		= 	'Comment added to Estimate '.$estimatenumber.' ('.$CustomerName.')';
                 $Email = User::getEmailByUserName($CompanyID,$CreatedBy);
                 if(!empty($Email)){
-                    $emaildata['EmailTo'] 		= 		$Email;					
-					$body						=		EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATECOMMENT,$Estimate->EstimateID,'body','',$data['Comment']);
-					$emaildata['Subject']		=		EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATECOMMENT,$Estimate->EstimateID,"subject");
-					$emaildata['EmailFrom']		=		EmailsTemplates::GetEmailTemplateFrom(Estimate::EMAILTEMPLATECOMMENT);					
-                    $status 					=		$this->sendEstimateMail($body,$emaildata,0);
+                    $emaildata['EmailTo'] = $Email;
+                    $status = $this->sendEstimateMail('emails.estimates.comment',$emaildata);
                 }
             }elseif($data['Type']==1){
                 $CustomerEmail = $Account->BillingEmail;
@@ -1423,7 +1422,7 @@ class EstimatesController extends \BaseController {
                     $data['AccountName'] 		= 	Account::find($Estimate->AccountID)->AccountName;
                     $data['Subject'] 			= 	'Comment added to Estimate '.$estimatenumber;
                     $data['Message'] 			= 	$Comment;
-                    $data['EstimateNumber'] 	= 	$estimatenumber;
+                    $data['EstimateNumber'] 	= 	Estimate::getFullEstimateNumber($Estimate,$InvoiceTemplateID);
                     $data['CompanyName'] 		= 	$CompanyName;
                     $CustomerEmails 			=	$data['EmailTo'];
 
@@ -1434,7 +1433,7 @@ class EstimatesController extends \BaseController {
                         {
                             $data['EmailTo'] 		= 	$singleemail;
                             $EstimateURL			= 	URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview?email='.$singleemail);
-							$body					=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATECOMMENT,$Estimate->EstimateID,'body',$EstimateURL,$data['Comment']);
+							$body					=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATECOMMENT,$Estimate->EstimateID,'body',$EstimateURL,$data);
 							$data['Subject']		=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATECOMMENT,$Estimate->EstimateID,"subject");
 							$data['EmailFrom']		=	EmailsTemplates::GetEmailTemplateFrom(Estimate::EMAILTEMPLATECOMMENT);		
                             $status 				= 	$this->sendEstimateMail($body,$data,0);

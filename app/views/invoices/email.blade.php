@@ -23,9 +23,10 @@
   <div class="col-md-12">
     <div class="form-group">
       <label for="field-4" class="control-label">Message</label>
-      {{Form::textarea('Message',$Message,array("class"=>" form-control ","rows"=>5 ,"readonly"=>"readonly" ))}} <br>
+      {{Form::textarea('Message',$Message,array("class"=>" form-control ","rows"=>5 ,"readonly"=>"readonly" ))}} <br>      
+      <span style="display:none;">
       <a target="_blank" href="{{URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview')}}">View Invoice</a> <br>
-      <span style="display:none;"> <br>
+       <br>
       <br>
       Best Regards,<br>
       <br>

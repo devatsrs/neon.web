@@ -24,7 +24,7 @@ class EmailsTemplates{
 				}else{
 					$EmailMessage							=	 $EmailTemplate->TemplateBody;
 				}
-				$replace_array['CompanyName']			=	 Company::getName();
+				$replace_array								=	EmailsTemplates::setCompanyFields($replace_array);
 				
 				if($link){		
 					$replace_array['InvoiceLink'] 			= 	 $link;
@@ -70,6 +70,8 @@ class EmailsTemplates{
 				'{{BalanceThreshold}}',
 				'{{Currency}}',
 				'{{CompanyName}}',
+				"{{CompanyVAT}}",
+				"{{CompanyAddress}}",
 				"{{AccountName}}",
 				"{{InvoiceLink}}"
 			];
@@ -88,9 +90,12 @@ class EmailsTemplates{
 			}*/
 	}
 	
-	static function SendEstimateSingle($slug,$EstimateID,$type="body",$link='',$comment=''){
+	static function SendEstimateSingle($slug,$EstimateID,$type="body",$link='',$data = array()){
 		 
-			$message										=	 "";
+			$message									=	 "";
+			
+			$replace_array								=	$data;
+			$replace_array								=	EmailsTemplates::setCompanyFields($replace_array); 
 		/*try{*/
 				$EstimateData  							=  	 Estimate::find($EstimateID);
 				$AccoutData 							=	 Account::find($EstimateData->AccountID);
@@ -117,12 +122,12 @@ class EmailsTemplates{
 				$replace_array['PostCode']				=	 $AccoutData->PostCode;
 				$replace_array['Country']				=	 $AccoutData->Country;
 				$replace_array['Address3']				=	 $AccoutData->Address3;
-				$replace_array['EstimateNumber']		=	 $EstimateData->EstimateNumber;		
+				$replace_array['EstimateNumber']		=	 isset($data['EstimateNumber'])?$data['EstimateNumber']:$EstimateData->EstimateNumber;		
 				$replace_array['Currency']				=	 Currency::where(["CurrencyId"=>$AccoutData->CurrencyId])->pluck("Code");
 				$RoundChargesAmount 					= 	 get_round_decimal_places($EstimateData->AccountID);
 				$replace_array['EstimateGrandTotal']	=	 number_format($EstimateData->GrandTotal,$RoundChargesAmount);
 				$replace_array['AccountName']			=	 $AccoutData->AccountName;
-				$replace_array['Comment']				=	 $comment;
+				$replace_array['Comment']				=	 isset($data['Comment'])?$data['Comment']:'';
 				
 				 
 			$extra = [
@@ -144,9 +149,14 @@ class EmailsTemplates{
 				'{{BalanceThreshold}}',
 				'{{Currency}}',
 				'{{CompanyName}}',
+				"{{CompanyVAT}}",
+				"{{CompanyAddress}}",
 				"{{AccountName}}",
 				"{{EstimateLink}}",
-				"{{Comment}}"
+				"{{Comment}}",
+				"{{Message}}",
+				"{{AcceptRejectUser}}",
+				
 			];
 			
 			foreach($extra as $item){
@@ -233,6 +243,12 @@ class EmailsTemplates{
 	
 	static function GetEmailTemplateFrom($slug){
 		return EmailTemplate::where(["SystemType"=>$slug])->pluck("EmailFrom");
+	}
+	static function setCompanyFields($array){
+			$array['CompanyName']					=   Company::getName();
+			$array['CompanyVAT']					=   Company::getCompanyField(User::get_companyID(),"VAT");
+			$array['CompanyAddress']				=   Company::getCompanyFullAddress(User::get_companyID());
+			return $array;
 	}
 }
 ?>

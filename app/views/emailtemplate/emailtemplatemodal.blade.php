@@ -311,7 +311,7 @@
                             <div class="form-group">
                                 <br />
                                 <label for="field-2" class="control-label col-sm-2">Subject</label>
-                                <div class="col-sm-4">
+                                <div class="col-sm-8">
                                     <input type="text" name="Subject" class="form-control" id="field-2" placeholder="">
                                 </div>
                             </div>
