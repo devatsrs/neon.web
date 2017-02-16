@@ -17,6 +17,7 @@ DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='RMArtisanFileLocation';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='Neon_API_URL';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='UPLOADPATH';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='WEBURL';
+DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='SIPPY_CSVDECODER';
 
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'BILLING_DASHBOARD_CUSTOMER', 'BillingDashboardPincodeWidget,BillingDashboardTotalInvoiceSent,BillingDashboardTotalInvoiceReceived,BillingDashboardPaymentReceived,BillingDashboardPaymentSent,BillingDashboardUnbilledAmount');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'EMAIL_TO_CUSTOMER', '0');
@@ -36,8 +37,6 @@ INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1',
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'DEFAULT_BILLING_TIMEZONE', 'Europe/London');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'DELETE_CDR_TIME', '3 month');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'DELETE_SUMMARY_TIME', '4 days');
-INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'SIPPY_CSVDECODER', 'python /var/www/html/neon_branches/dev-mysql/sippy/read_cdr.py');
-INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'DELETE_SUMMARY_TIME', '4 days');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'PHP_EXE_PATH', '/usr/bin/php');
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'UPLOAD_PATH', '/home/neon_branches/dev/tmp');
-INSERT INTO `tblcompanyconfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'RM_ARTISAN_FILE_LOCATION', '/var/www/html/neon-service-branch/dev-mysql/girish/artisan');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'RM_ARTISAN_FILE_LOCATION', '/var/www/html/neon-service-branch/dev-mysql/girish/artisan');
