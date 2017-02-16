@@ -151,7 +151,7 @@ class EmailTemplateController extends \BaseController {
 		{
 			$data['userID'] = NULL;
 		} 
-    	 $data['EmailFrom'] =  $data['email_from'];
+    	 $data['EmailFrom'] =  isset($data['email_from'])?$data['email_from']:"";
 		 unset($data['email_from']);
 		 unset($data['Email_template_privacy']); 
 		$data['Status'] = isset($data['Status'])?$data['Status']:0;
