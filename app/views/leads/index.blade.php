@@ -158,7 +158,7 @@
                 "bServerSide": true,
                 "bDestroy": true,
                 "sAjaxSource": baseurl + "/leads/ajax_datagrid",
-                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"account_active","value":$searchFilter.account_active},{"name":"account_owners","value":$searchFilter.account_owners},{"name":"tag","value":$searchFilter.tag});
                     data_table_extra_params.length = 0;

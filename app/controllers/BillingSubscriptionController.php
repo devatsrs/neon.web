@@ -19,11 +19,11 @@ class BillingSubscriptionController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $billexports = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Billing Subscription.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Billing Subscription.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($billexports);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Billing Subscription.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Billing Subscription.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($billexports);
             }

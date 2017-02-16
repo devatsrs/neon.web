@@ -47,7 +47,7 @@ class AccountApprovalController extends \BaseController {
         }
         $today = date('Y-m-d');
         if (Input::hasFile('DocumentFiles')) {
-            $upload_path = Config::get('app.acc_doc_path');
+            $upload_path = CompanyConfiguration::get('ACC_DOC_PATH');
             //$destinationPath = $upload_path.'/SampleUpload/'.Company::getName().'/';
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNT_APPROVAL_CHECKLIST_FORM']) ;
 	    $destinationPath = $upload_path . '/' . $amazonPath;
@@ -132,7 +132,7 @@ class AccountApprovalController extends \BaseController {
             }
             $today = date('Y-m-d');
             if (Input::hasFile('DocumentFiles')) {
-                $upload_path = Config::get('app.acc_doc_path');
+                $upload_path = CompanyConfiguration::get('ACC_DOC_PATH');
                 //$destinationPath = $upload_path.'/SampleUpload/'.Company::getName().'/';
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNT_APPROVAL_CHECKLIST_FORM']) ;
 		$destinationPath = $upload_path . '/' . $amazonPath;

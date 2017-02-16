@@ -43,7 +43,7 @@ class RecurringInvoice extends \Eloquent {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($RecurringInvoiceTemplate->CompanyLogoAS3Key));
             }
-            $logo_path = getenv('UPLOAD_PATH') . '/logo/' . User::get_companyID();
+            $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . User::get_companyID();
             @mkdir($logo_path, 0777, true);
             RemoteSSH::run("chmod -R 777 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
@@ -59,7 +59,7 @@ class RecurringInvoice extends \Eloquent {
             $footer = 	htmlspecialchars_decode($footer);
 
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['RECURRING_INVOICE_UPLOAD'],$Account->CompanyId,$RecurringInvoice->AccountID) ;
-            $destination_dir = getenv('UPLOAD_PATH') . '/'. $amazonPath;
+            $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. $amazonPath;
 
 			if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);

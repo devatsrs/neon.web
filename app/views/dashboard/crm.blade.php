@@ -285,7 +285,7 @@ if((count($CrmAllowedReports)==0) ||  in_array('CrmDashboardOpportunities',$CrmA
 <?php } ?>
 <div class="salestable_div"> </div>
 <script>
-var pageSize = '{{Config::get('app.pageSize')}}';
+var pageSize = '{{CompanyConfiguration::get('PAGE_SIZE')}}';
 
 @if(User::checkCategoryPermission('Task','Edit'))
 var task_edit = 1;

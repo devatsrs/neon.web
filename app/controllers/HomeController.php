@@ -228,11 +228,13 @@ class HomeController extends BaseController {
             $result  = false;
             $taskBoard = ['CompanyID'=>$CompanyID,'BoardName'=>'Task Board','Status'=>1,'BoardType'=>CRMBoard::TaskBoard];
             CRMBoard::create($taskBoard);
-            $admin_email = Config::get("app.super_admin_emails");
-            Mail::send('emails.admin.registration', array("data"=>$data), function($message) use ($admin_email) {
-                $message->to($admin_email['registration']['email'], $admin_email['registration']['from_name'])->subject('RM: Thanks for Registration!');
-            });
-
+            $str = CompanyConfiguration::get('SUPER_ADMIN_EMAILS');
+            if(!empty($str)) {
+                $admin_email = json_decode($str,true);
+                Mail::send('emails.admin.registration', array("data" => $data), function ($message) use ($admin_email) {
+                    $message->to($admin_email['registration']['email'], $admin_email['registration']['from_name'])->subject('RM: Thanks for Registration!');
+                });
+            }
             Mail::send('emails.auth.registration', array("data"=>$data), function($message) use ($data) {
                 $message->to($data['Email'], $data['FirstName'] . ' ' . $data['LastName'])->subject('RM: Thanks for Registration!');
             });

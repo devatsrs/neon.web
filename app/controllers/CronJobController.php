@@ -14,11 +14,11 @@ class CronJobController extends \BaseController {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Cron Job.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Cron Job.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Cron Job.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Cron Job.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -197,11 +197,11 @@ class CronJobController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Cron Job History.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Cron Job History.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Cron Job History.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Cron Job History.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -280,7 +280,7 @@ class CronJobController extends \BaseController {
         $success = false;
         $CronJob = array_pop($CronJob);
         if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
-            $command = CompanyConfiguration::get("PHPExePath"). " " .CompanyConfiguration::get("RMArtisanFileLocation"). " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
+            $command = CompanyConfiguration::get("PHP_EXE_PATH"). " " .CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"). " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
             $success = run_process($command);
         }
         if($success){

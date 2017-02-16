@@ -14,7 +14,7 @@
         cdr_url = "{{URL::to('cdr_show')}}";
     @endif
     $searchFilter.map_url = "{{URL::to('getWorldMap')}}";
-    $searchFilter.pageSize = '{{Config::get('app.pageSize')}}';
+    $searchFilter.pageSize = '{{CompanyConfiguration::get('PAGE_SIZE')}}';
     jQuery(document).ready(function ($) {
 
         $(".refresh_tab li a").click(function(){
@@ -23,7 +23,7 @@
             $("#customer_analysis").find("input[name='chart_type']").val(chart_type.slice(1));
             setTimeout(function(){
                 set_search_parameter($("#customer_analysis"));
-                reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
+                reloadCharts(table_name,'{{CompanyConfiguration::get('PAGE_SIZE')}}',$searchFilter);
             }, 10);
         });
         chart_type = $(".refresh_tab li.active a").attr('href');
@@ -50,7 +50,7 @@
             public_vars.$body = $("body");
             //show_loading_bar(40);
             set_search_parameter($(this));
-            reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
+            reloadCharts(table_name,'{{CompanyConfiguration::get('PAGE_SIZE')}}',$searchFilter);
             return false;
         });
         set_search_parameter($("#customer_analysis"));
@@ -64,6 +64,6 @@
                 drillUpText: '◁ Back'
             }
         });
-        reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
+        reloadCharts(table_name,'{{CompanyConfiguration::get('PAGE_SIZE')}}',$searchFilter);
     });
 </script>
