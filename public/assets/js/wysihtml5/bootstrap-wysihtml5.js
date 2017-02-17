@@ -81,11 +81,11 @@
 				"</ul>" +
                 "</li>";
         }, 
-		"taskopportunity": function(locale, options) {			
+		"tasks": function(locale, options) {			
             var size = (options && options.size) ? ' btn-'+options.size : '';
             return "<li class='dropdown opportunity'>" +
                 "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
-                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.taskopportunity.Subject + "</span>&nbsp;<b class='caret'></b>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.tasks.Subject + "</span>&nbsp;<b class='caret'></b>" +
                 "</a>" +
                 "<ul class='dropdown-menu'>" +
 				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Account Fields</b></a></li>" +
@@ -100,10 +100,45 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.leadoptions.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.leadoptions.Country + "</a></li>" +
 				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Opportunity Fields</b></a></li>" +            
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{subject}}'>" + locale.taskopportunity.Subject + "</a></li>" +
-				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{user}}'>" + locale.taskopportunity.User + "</a></li>"+
-				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.taskopportunity.Comment + "</a></li>"+
-				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Logo}}'>" + locale.taskopportunity.Logo + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{subject}}'>" + locale.tasks.Subject + "</a></li>" +
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{user}}'>" + locale.tasks.User + "</a></li>"+
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.tasks.Comment + "</a></li>"+
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Logo}}'>" + locale.tasks.Logo + "</a></li>"+
+						"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
+			 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+ 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +		   
+		        "</ul>" +
+                "</li>";
+        },
+			"opportunities": function(locale, options) {			
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return "<li class='dropdown opportunity'>" +
+                "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.opportunities.Subject + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+                "<ul class='dropdown-menu'>" +
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Account Fields</b></a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>" + locale.leadoptions.FirstName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.leadoptions.LastName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Email}}'>" + locale.leadoptions.Email + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address1}}'>" + locale.leadoptions.Address1 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.leadoptions.Address2 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.leadoptions.Address3 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.leadoptions.City + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.leadoptions.State + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.leadoptions.PostCode + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.leadoptions.Country + "</a></li>" +
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Opportunity Fields</b></a></li>" +            
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{subject}}'>" + locale.opportunities.Subject + "</a></li>" +
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{user}}'>" + locale.opportunities.User + "</a></li>"+
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.opportunities.Comment + "</a></li>"+
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Logo}}'>" + locale.opportunities.Logo + "</a></li>"+
 						"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
 			 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
@@ -802,7 +837,8 @@
 		"Cronjobs":false,
 		"estimateoptions":false,
 		"ratesheetoptions":false,
-		"taskopportunity":false,
+		"opportunities":false,
+		"tasks":false,
 		"Crm":true,
 		"Tickets":false,
         "font-styles": true,
@@ -1325,7 +1361,13 @@
 				RateGeneratorName:"RateGeneratorName",
 				CompanyName:"CompanyName",
 			},
-			taskopportunity:{
+			opportunities:{
+				Subject:"Subject",
+				User:"User",
+				Comment:"Comment",
+				Logo:"Logo"
+			},
+			tasks:{
 				Subject:"Subject",
 				User:"User",
 				Comment:"Comment",

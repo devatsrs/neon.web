@@ -39,7 +39,6 @@
 
         $('#add-new-modal-template').on('shown.bs.modal', function(event){
 			var modal = $(this); 
-			alert(popup_type);
 			if(popup_type == {{EmailTemplate::ACCOUNT_TEMPLATE}}){   
 				 modal.find('.message').wysihtml5({ 
 				   "font-styles": true,				
@@ -170,7 +169,7 @@
 				});
 				
 			}
-			else if(popup_type == {{EmailTemplate::TASKOPPORTUNITY}}){   	
+			else if(popup_type == {{EmailTemplate::TASK_TEMPLATE}}){   	
 			 modal.find('.message').wysihtml5({
 				   "font-styles": true,				
 				   "Cronjobs":false,
@@ -190,7 +189,29 @@
 		        	return html;
     			}
 				});
-			}else{  
+			}
+			else if(popup_type == {{EmailTemplate::OPPORTUNITY_TEMPLATE}}){   	
+			 modal.find('.message').wysihtml5({
+				   "font-styles": true,				
+				   "Cronjobs":false,
+				   "taskopportunity":true,
+				   "leadoptions":false,	
+				   "invoiceoptions":false,	
+				    "estimateoptions":false,					
+				    "Tickets":false,						
+					"Crm":false,
+					"emphasis": true,
+					"lists": true,
+					"html": true,
+					"link": true,
+					"image": true,
+					"color": false,
+				parser: function(html) {
+		        	return html;
+    			}
+				});
+			}
+			else{  
             modal.find('.message').wysihtml5({
                "font-styles": true,
 				"leadoptions":true,	
