@@ -1,8 +1,16 @@
 USE `Ratemanagement3`;
 
-INSERT INTO `tblresourcecategories` (`ResourceCategoryName`) VALUES ('BillingDashboardSummaryWidgets.View');
-UPDATE `RateManagement4`.`tblResource` SET `CategoryID`='1245' WHERE  `ResourceName`='BillingDashboard.invoice_expense_total';
-UPDATE `RateManagement4`.`tblResource` SET `CategoryID`='1245' WHERE  `ResourceName`='BillingDashboard.invoice_expense_total_widget';
+INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('BillingDashboardSummaryWidgets.View', '1');
+INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('BillingDashboardMissingGatewayWidget.View', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('BillingDashboardInvoiceExpenseWidgets.View', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('BillingDashboardPincodeWidget.View', '1');
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='BillingDashboardSummaryWidgets.View' limit 1) WHERE  `ResourceName`='BillingDashboard.invoice_expense_total';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='BillingDashboardSummaryWidgets.View' limit 1) WHERE  `ResourceName`='BillingDashboard.invoice_expense_total_widget';
+
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='BillingDashboardMissingGatewayWidget.View' limit 1) WHERE  `ResourceName`='Dashboard.ajax_get_missing_accounts';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='BillingDashboardInvoiceExpenseWidgets.View' limit 1) WHERE  `ResourceName`='BillingDashboard.invoice_expense_chart';
+
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='BillingDashboardPincodeWidget.View' limit 1) WHERE  `ResourceName`='BillingDashboard.ajax_top_pincode';
 
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FreshdeskDomain';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FreshdeskEmail';
