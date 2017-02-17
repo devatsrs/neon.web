@@ -1297,14 +1297,7 @@ class EstimatesController extends \BaseController {
                 $Email = User::getEmailByUserName($CompanyID,$CreatedBy);
                 if(!empty($Email)){
                     $emaildata['EmailTo'] = $Email;
-					if(EmailsTemplates::CheckEmailTemplateStatus(Estimate::EMAILTEMPLATEACCEPT)){
-					
-					$body						=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEACCEPT,$Estimate->EstimateID,'body',$emaildata);
-					$emaildata['Subject']		=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEACCEPT,$Estimate->EstimateID,"subject",$emaildata);
-					$emaildata['EmailFrom']		=	EmailsTemplates::GetEmailTemplateFrom(Estimate::EMAILTEMPLATEACCEPT);
-					
-                    $status = $this->sendEstimateMail($body,$emaildata,0);
-					}
+                    $status = $this->sendEstimateMail('emails.estimates.estimatestatus',$emaildata);
                 }
             }
 
@@ -1315,8 +1308,7 @@ class EstimatesController extends \BaseController {
         {
             return Response::json(array("status" => "failed", "message" => "Problem Accepting Estimate."));
         }
-
-    }
+	}
 
     public function estimate_reject_Status()
     {
@@ -1338,11 +1330,9 @@ class EstimatesController extends \BaseController {
                 $estimateloddata['Note'] = 'Rejected By Unknown';
                 if (!empty($data['Email'])) {
                     $estimateloddata['Note'] = 'Rejected By ' . $data['Email'];
-					$emaildata['User'] 			= 	$data['Email'];
                 }
             }else{
                 $estimateloddata['Note'] = 'Rejected By ' . $modifyby;
-				$emaildata['User'] 			= 	$modifyby;
             }
 
             $estimateloddata['EstimateID']= $data['EstimateIDs'];
@@ -1358,22 +1348,16 @@ class EstimatesController extends \BaseController {
                 $CreatedBy = $Estimate->CreatedBy;
                 $Company 					= 	Company::find($CompanyID);
                 $CompanyName 				= 	$Company->CompanyName;
-                $estimatenumber 				= 	Estimate::getFullEstimateNumber($Estimate,$InvoiceTemplateID);
-                $emaildata['companyID'] 		= 	$CompanyID;
+                $estimatenumber = Estimate::getFullEstimateNumber($Estimate,$InvoiceTemplateID);
+                $emaildata['companyID'] = $CompanyID;
                 $emaildata['CompanyName'] 		= 	$CompanyName;
                 $emaildata['AccountName'] 		= 	$CreatedBy;
-                $emaildata['Message'] 			= 	$estimatenumber.' Estimate '.$estimateloddata['Note'];
-                $emaildata['Subject'] 			= 	$estimatenumber.' Estimate Rejected ('.$CustomerName.')';
-                $Email 							= 	User::getEmailByUserName($CompanyID,$CreatedBy);
-                
-				if(!empty($Email)){
-					if(EmailsTemplates::CheckEmailTemplateStatus(Estimate::EMAILTEMPLATEREJECT)){
-                    $emaildata['EmailTo'] 		= 		$Email;
-					$body						=		EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEREJECT,$Estimate->EstimateID,'body',$emaildata);
-					$emaildata['Subject']		=		EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEREJECT,$Estimate->EstimateID,"subject",$emaildata);
-					$emaildata['EmailFrom']		=		EmailsTemplates::GetEmailTemplateFrom(Estimate::EMAILTEMPLATEREJECT);
-					$status 					= 		$this->sendEstimateMail($body,$emaildata,0);
-					}
+                $emaildata['Message'] 		= 	$estimatenumber.' Estimate '.$estimateloddata['Note'];
+                $emaildata['Subject'] 		= 	$estimatenumber.' Estimate Rejected ('.$CustomerName.')';
+                $Email = User::getEmailByUserName($CompanyID,$CreatedBy);
+                if(!empty($Email)){
+                    $emaildata['EmailTo'] = $Email;
+                    $status = $this->sendEstimateMail('emails.estimates.estimatestatus',$emaildata);
                 }
             }
 

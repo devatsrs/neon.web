@@ -21,13 +21,13 @@
                     </div>
                     <div class="panel-body">
                         <div class="form-group">
-
-                            @if(User::is_admin())
+ 
+                            <!--@if(User::is_admin()) -->
                                 <label for="field-1" class="col-sm-1 control-label">Currency</label>
                                 <div class="col-md-2">
                                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}}
                                 </div>
-                            @endif
+                            <!--@endif -->
                                 <label for="field-1" class="col-sm-1 control-label">Date</label>
                                 <div class="col-md-2">
                                     {{ Form::select('date-span', array(6=>'6 Months',12=>'12 Months',0=>'Custome Date'), 1, array('id'=>'date-span','class'=>'select2 small')) }}

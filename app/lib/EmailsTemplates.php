@@ -6,6 +6,32 @@ class EmailsTemplates{
 	protected $Error;
 	protected $CompanyName;
 	
+	static $fields = array(
+				"{{AccountName}}",
+				'{{FirstName}}',
+				'{{LastName}}',
+				'{{Email}}',
+				'{{Address1}}',
+				'{{Address2}}',
+				'{{Address3}}',
+				'{{City}}',
+				'{{State}}',
+				'{{PostCode}}',
+				'{{Country}}',
+				'{{Signature}}',
+				'{{Currency}}',
+				'{{CompanyName}}',
+				"{{CompanyVAT}}",
+				"{{CompanyAddress1}}",
+				"{{CompanyAddress2}}",
+				"{{CompanyAddress3}}",
+				"{{CompanyCity}}",
+				"{{CompanyPostCode}}",
+				"{{CompanyCountry}}",
+				"{{User}}"								
+				);
+	
+	
 	 public function __construct($data = array()){
 		 foreach($data as $key => $value){
 			 $this->$key = $value;
@@ -16,11 +42,10 @@ class EmailsTemplates{
 	static function SendinvoiceSingle($InvoiceID,$type="body",$data=array(),$postdata = array()){ 
 				$message								=	 "";
 				$replace_array							=	$data;
-		
-		/*try{*/
-				$InvoiceData   							=  	 Invoice::find($InvoiceID);
-				$AccoutData 							=	 Account::find($InvoiceData->AccountID);
-				$EmailTemplate 							= 	 EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
+				$InvoiceData   							=  	Invoice::find($InvoiceID);
+				$EmailTemplate 							= 	EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
+				$replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$InvoiceData->CompanyID);
+				$replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$InvoiceData->AccountID);
 				
 				if($type=="subject"){
 					if(isset($postdata['Subject']) && !empty($postdata['Subject'])){
@@ -36,57 +61,29 @@ class EmailsTemplates{
 					}	
 				}
 				
-				$replace_array								=	EmailsTemplates::setCompanyFields($replace_array,$InvoiceData->CompanyID);
-				
+
 				if($data['InvoiceURL']){		
 					$replace_array['InvoiceLink'] 			= 	 $data['InvoiceURL'];
 				}else{
 					$replace_array['InvoiceLink'] 			= 	 URL::to('/invoice/'.$InvoiceID.'/invoice_preview');
 				}
-				$replace_array['FirstName']				=	 $AccoutData->FirstName;
-				$replace_array['LastName']				=	 $AccoutData->LastName;
-				$replace_array['Email']					=	 $AccoutData->Email;
-				$replace_array['Address1']				=	 $AccoutData->Address1;
-				$replace_array['Address2']				=	 $AccoutData->Address2;
-				$replace_array['Address3']				=	 $AccoutData->Address3;		
-				$replace_array['City']					=	 $AccoutData->City;
-				$replace_array['State']					=	 $AccoutData->State;
-				$replace_array['PostCode']				=	 $AccoutData->PostCode;
-				$replace_array['Country']				=	 $AccoutData->Country;
-				$replace_array['Address3']				=	 $AccoutData->Address3;
 				$replace_array['InvoiceNumber']			=	 $InvoiceData->FullInvoiceNumber;		
-				$replace_array['Currency']				=	 Currency::where(["CurrencyId"=>$AccoutData->CurrencyId])->pluck("Code");
 				$RoundChargesAmount 					= 	 get_round_decimal_places($InvoiceData->AccountID);
 				$replace_array['InvoiceGrandTotal']		=	 number_format($InvoiceData->GrandTotal,$RoundChargesAmount);
-				$replace_array['AccountName']			=	 $AccoutData->AccountName;
-				
-				
-				 
-			$extra = [
-				'{{FirstName}}',
-				'{{LastName}}',
-				'{{Email}}',
-				'{{Address1}}',
-				'{{Address2}}',
-				'{{Address3}}',
-				'{{City}}',
-				'{{State}}',
-				'{{PostCode}}',
-				'{{Country}}',
+		
+			$extraSpecific = [
 				'{{InvoiceNumber}}',
 				'{{InvoiceGrandTotal}}',
 				'{{InvoiceOutstanding}}',
 				'{{OutstandingExcludeUnbilledAmount}}',
-				'{{Signature}}',
 				'{{OutstandingIncludeUnbilledAmount}}',
 				'{{BalanceThreshold}}',
-				'{{Currency}}',
-				'{{CompanyName}}',
-				"{{CompanyVAT}}",
-				"{{CompanyAddress}}",
-				"{{AccountName}}",
 				"{{InvoiceLink}}"
 			];
+			
+			$extraDefault	=	EmailsTemplates::$fields;
+			
+			$extra = array_merge($extraDefault,$extraSpecific);
 			
 			foreach($extra as $item){
 				$item_name = str_replace(array('{','}'),array('',''),$item);
@@ -104,89 +101,60 @@ class EmailsTemplates{
 	
 	static function SendEstimateSingle($slug,$EstimateID,$type="body",$data = array(),$postdata = array()){
 		 
-			$message									=	 "";
-			$EstimateData  								=  	 Estimate::find($EstimateID);
-			$replace_array								=	$data;
-			$replace_array								=	EmailsTemplates::setCompanyFields($replace_array,$EstimateData->CompanyID); 
-		/*try{*/
+			$message								=	"";
+			$EstimateData  							=  	Estimate::find($EstimateID);
+			$replace_array							=	$data;
+			$replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$EstimateData->CompanyID); 
+			$replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$EstimateData->AccountID);
+			$AccoutData 							=	Account::find($EstimateData->AccountID);
+			$EmailTemplate 							= 	EmailTemplate::where(["SystemType"=>$slug])->first();
 				
-				$AccoutData 							=	 Account::find($EstimateData->AccountID);
-				$EmailTemplate 							= 	 EmailTemplate::where(["SystemType"=>$slug])->first();
-				
-				
-				/*if($type=="subject"){
-					$EmailMessage						=	 $EmailTemplate->Subject;
+
+			if($type=="subject"){
+				if(isset($postdata['Subject']) && !empty($postdata['Subject'])){
+					$EmailMessage							=	 $postdata['Subject'];
 				}else{
-					$EmailMessage						=	 $EmailTemplate->TemplateBody;
-				}*/
-				
-				if($type=="subject"){
-					if(isset($postdata['Subject']) && !empty($postdata['Subject'])){
-						$EmailMessage							=	 $postdata['Subject'];
-					}else{
-						$EmailMessage							=	 $EmailTemplate->Subject;
-					}
-				}else{
-					if(isset($postdata['Message']) && !empty($postdata['Message'])){
-						$EmailMessage							=	 $postdata['Message'];
-					}else{
-						$EmailMessage							=	 $EmailTemplate->TemplateBody;
-					}	
-				}			
-				
-				
-				$replace_array['CompanyName']			=	 Company::getName($EstimateData->CompanyID);
-				if(isset($data['EstimateURL'])){		
-					$replace_array['EstimateLink'] 			= 	 $data['EstimateURL'];
-				}else{
-					$replace_array['EstimateLink'] 			= 	 URL::to('/estimate/'.$EstimateID.'/estimate_preview');
+					$EmailMessage							=	 $EmailTemplate->Subject;
 				}
-				$replace_array['FirstName']				=	 $AccoutData->FirstName;
-				$replace_array['LastName']				=	 $AccoutData->LastName;
-				$replace_array['Email']					=	 $AccoutData->Email;
-				$replace_array['Address1']				=	 $AccoutData->Address1;
-				$replace_array['Address2']				=	 $AccoutData->Address2;
-				$replace_array['Address3']				=	 $AccoutData->Address3;		
-				$replace_array['City']					=	 $AccoutData->City;
-				$replace_array['State']					=	 $AccoutData->State;
-				$replace_array['PostCode']				=	 $AccoutData->PostCode;
-				$replace_array['Country']				=	 $AccoutData->Country;
-				$replace_array['Address3']				=	 $AccoutData->Address3;
-				$replace_array['EstimateNumber']		=	 isset($data['EstimateNumber'])?$data['EstimateNumber']:$EstimateData->EstimateNumber;		
-				$replace_array['Currency']				=	 Currency::where(["CurrencyId"=>$AccoutData->CurrencyId])->pluck("Code");
-				$RoundChargesAmount 					= 	 get_round_decimal_places($EstimateData->AccountID);
-				$replace_array['EstimateGrandTotal']	=	 number_format($EstimateData->GrandTotal,$RoundChargesAmount);
-				$replace_array['AccountName']			=	 $AccoutData->AccountName;
-				$replace_array['Comment']				=	 isset($data['Comment'])?$data['Comment']:'';
+			}else{
+				if(isset($postdata['Message']) && !empty($postdata['Message'])){
+					$EmailMessage							=	 $postdata['Message'];
+				}else{
+					$EmailMessage							=	 $EmailTemplate->TemplateBody;
+				}	
+			}			
 				
+			
+			$replace_array['CompanyName']			=	 Company::getName($EstimateData->CompanyID);
+			if(isset($data['EstimateURL'])){		
+				$replace_array['EstimateLink'] 		= 	 $data['EstimateURL'];
+			}else{
+				$replace_array['EstimateLink'] 		= 	 URL::to('/estimate/'.$EstimateID.'/estimate_preview');
+			}
+			
+			$replace_array['EstimateNumber']		=	 isset($data['EstimateNumber'])?$data['EstimateNumber']:$EstimateData->EstimateNumber;		
+			$RoundChargesAmount 					= 	 get_round_decimal_places($EstimateData->AccountID);
+			$replace_array['EstimateGrandTotal']	=	 number_format($EstimateData->GrandTotal,$RoundChargesAmount);
+			$replace_array['Comment']				=	 isset($data['Comment'])?$data['Comment']:EmailsTemplates::GetEstimateComments($EstimateID);
+			
 				 
-			$extra = [
-				'{{FirstName}}',
-				'{{LastName}}',
-				'{{Email}}',
-				'{{Address1}}',
-				'{{Address2}}',
-				'{{Address3}}',
-				'{{City}}',
-				'{{State}}',
-				'{{PostCode}}',
-				'{{Country}}',
+			$extraSpecific = [
 				'{{EstimateNumber}}',
 				'{{EstimateGrandTotal}}',
 				'{{OutstandingExcludeUnbilledAmount}}',
-				'{{Signature}}',
 				'{{OutstandingIncludeUnbilledAmount}}',
 				'{{BalanceThreshold}}',
-				'{{Currency}}',
-				'{{CompanyName}}',
-				"{{CompanyVAT}}",
-				"{{CompanyAddress}}",
-				"{{AccountName}}",
 				"{{EstimateLink}}",
 				"{{Comment}}",
 				"{{Message}}",
-				"{{User}}",
 			];
+
+			
+			$extraDefault	=	EmailsTemplates::$fields;
+			
+			$extra = array_merge($extraDefault,$extraSpecific);
+		
+			
 			
 			foreach($extra as $item){
 				$item_name = str_replace(array('{','}'),array('',''),$item);
@@ -293,6 +261,34 @@ class EmailsTemplates{
 			$array['CompanyCountry']				=   $CompanyData->Country;
 			//$array['CompanyAddress']				=   Company::getCompanyFullAddress(User::get_companyID());
 			return $array;
+	}
+	
+	static function setAccountFields($array,$AccountID){
+			$AccoutData 					= 	 Account::find($AccountID);			
+			$array['AccountName']			=	 $AccoutData->AccountName;
+			$array['FirstName']				=	 $AccoutData->FirstName;
+			$array['LastName']				=	 $AccoutData->LastName;
+			$array['Email']					=	 $AccoutData->Email;
+			$array['Address1']				=	 $AccoutData->Address1;
+			$array['Address2']				=	 $AccoutData->Address2;
+			$array['Address3']				=	 $AccoutData->Address3;		
+			$array['City']					=	 $AccoutData->City;
+			$array['State']					=	 $AccoutData->State;
+			$array['PostCode']				=	 $AccoutData->PostCode;
+			$array['Country']				=	 $AccoutData->Country;
+			$array['Currency']				=	 Currency::where(["CurrencyId"=>$AccoutData->CurrencyId])->pluck("Code");
+			
+			return $array;
+	}
+	static function GetEstimateComments($EstimateID){
+		 $str = '';
+	 	 $EstimateComments = EstimateLog::get_comments($EstimateID);
+		  foreach($EstimateComments as $EstimateComment)
+		  {
+                   $str .= $EstimateComment->Note.'<br>';
+                   $str .= $EstimateComment->created_at.'<br><br>'; 
+		  }
+		 return $str; 
 	}
 }
 ?>
