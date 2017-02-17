@@ -130,7 +130,7 @@ var popup_type	=	0;
                 {  "bSortable": true }, //updated Date
                 {  "bSortable": true }, //updated Date
 				{  "bSortable": true,
-                    mRender: function ( id, type, full ) { console.log(full);
+                    mRender: function ( id, type, full ) { 
 					var readonly = '';	var readonly_title = '';
 						if(full[8]){
 							readonly  = "deactivate";
@@ -279,13 +279,22 @@ var popup_type	=	0;
 				$("#add-new-template-form [name='Type']").val(data['Type']);  popup_type = data['Type']; 
 				if(data['Privacy']== '' || data['Privacy']=== null){data['Privacy']=0;} 
                 $("#add-new-template-form [name='Email_template_privacy']").val(data['Privacy']).trigger("change");
-				console.log(data);
 				if(data['StaticType']){
 					$("#add-new-template-form #email_from").val(data['email_from']).trigger('change');
 					$("#add-new-template-form .email_from").show();					
 				}else{
 					$("#add-new-template-form .email_from").hide();			
 				}
+				if(data['StatusDisabled'])
+				{ 	
+					$('.status_switch').addClass('deactivate');
+					$('.status_switch').attr('title','Cannot deactivate');
+
+				}else{ 
+					$('.status_switch').removeClass('deactivate');
+					$('.status_switch').attr('title','');
+				}
+				
 				if(data['Status'])
 				{ 	
 					$('.status_switch').bootstrapSwitch('setState', true);

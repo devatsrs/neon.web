@@ -114,7 +114,8 @@ class EmailTemplateController extends \BaseController {
 		$instance['StaticType'] = $template->StaticType;
 		$instance['Status'] = $template->Status;
 		$instance['email_from'] = $template->EmailFrom;
-        if($template->userID==User::get_userID()){
+		$instance['StatusDisabled'] = $template->StatusDisabled;
+		if($template->userID==User::get_userID()){
             $instance['Privacy'] = 1;
         } 
         return $instance;

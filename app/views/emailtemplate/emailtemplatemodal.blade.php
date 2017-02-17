@@ -340,7 +340,7 @@
                                 <label class="col-sm-2 control-label">Status</label>
                                 <div class="col-sm-4">
                                  <p class="status_switch make-switch switch-small">
-                                   <input type="checkbox" checked=""  name="Status" value="1">
+                                   <input type="checkbox" checked=""  name="Status" id="StatusEditAdd" value="1">
                                    </p>
                                 </div>
                             </div>
