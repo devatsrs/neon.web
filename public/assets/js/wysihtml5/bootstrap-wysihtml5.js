@@ -92,7 +92,7 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TitleHeading}}'>" + locale.taskopportunity.TitleHeading + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{UserProfileImage}}'>" + locale.taskopportunity.UserProfileImage + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TaskBoardUrl}}'>" + locale.taskopportunity.TaskBoardUrl + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Subject_task}}'>" + locale.taskopportunity.Subject + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{subject}}'>" + locale.taskopportunity.Subject + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Description}}'>" + locale.taskopportunity.Description + "</a></li>"+
 				  "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{type}}'>" + locale.taskopportunity.Type + "</a></li>"+
 				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{user}}'>" + locale.taskopportunity.User + "</a></li>"+
