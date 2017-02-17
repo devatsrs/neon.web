@@ -167,7 +167,7 @@
         </div>
     </div>
     <?php } ?>
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboard','View'))
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
     <div class="row">
         <div class="col-md-12">
             <div class="invoice_expsense panel panel-primary panel-table">
@@ -196,7 +196,7 @@
         </div>
     </div>
     @endif
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))&& User::checkCategoryPermission('BillingDashboard','View'))
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))&& User::checkCategoryPermission('BillingDashboardPincodeWidget','View'))
         <div class="row">
             <div class="col-sm-12">
                 <div class="pin_expsense panel panel-primary panel-table">
@@ -255,7 +255,7 @@
 
         </div>
     @endif
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboard','View'))
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
     <div class="row">
         <div class="col-sm-6">
             <div class="panel panel-primary panel-table">
