@@ -99,7 +99,7 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.leadoptions.State + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.leadoptions.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.leadoptions.Country + "</a></li>" +
-				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Opportunity Fields</b></a></li>" +            
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Tasks Fields</b></a></li>" +            
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{subject}}'>" + locale.tasks.Subject + "</a></li>" +
 				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{user}}'>" + locale.tasks.User + "</a></li>"+
 				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.tasks.Comment + "</a></li>"+
