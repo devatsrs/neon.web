@@ -1157,19 +1157,20 @@ class InvoicesController extends \BaseController {
                 $singleemail = trim($singleemail);
                 if (filter_var($singleemail, FILTER_VALIDATE_EMAIL)) {
 					
-                    $data['EmailTo'] 		= 	$singleemail;
-                    $data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
-					$body					=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data,$postdata);
-					$data['Subject']		=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject",$data,$postdata);
+						$data['EmailTo'] 		= 	$singleemail;
+						$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
+						$body					=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data,$postdata);
+						$data['Subject']		=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject",$data,$postdata);
+						
+						if(isset($postdata['email_from']) && !empty($postdata['email_from']))
+						{
+							$data['EmailFrom']	=	$postdata['email_from'];	
+						}else{
+							$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);				
+						}
+						
+						$status 				= 	$this->sendInvoiceMail($body,$data,0);
 					
-					if(isset($postdata['email_from']) && !empty($postdata['email_from']))
-					{
-						$data['EmailFrom']	=	$postdata['email_from'];	
-					}else{
-						$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);				
-					}
-					
-                    $status 				= 	$this->sendInvoiceMail($body,$data,0);
 					//$body 				=   View::make('emails.invoices.send',compact('data'))->render();  // to store in email log
                 }
             }

@@ -1297,12 +1297,14 @@ class EstimatesController extends \BaseController {
                 $Email = User::getEmailByUserName($CompanyID,$CreatedBy);
                 if(!empty($Email)){
                     $emaildata['EmailTo'] = $Email;
+					if(EmailsTemplates::CheckEmailTemplateStatus(Estimate::EMAILTEMPLATEACCEPT)){
 					
 					$body						=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEACCEPT,$Estimate->EstimateID,'body',$emaildata);
 					$emaildata['Subject']		=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEACCEPT,$Estimate->EstimateID,"subject",$emaildata);
 					$emaildata['EmailFrom']		=	EmailsTemplates::GetEmailTemplateFrom(Estimate::EMAILTEMPLATEACCEPT);
 					
                     $status = $this->sendEstimateMail($body,$emaildata,0);
+					}
                 }
             }
 
@@ -1365,11 +1367,13 @@ class EstimatesController extends \BaseController {
                 $Email 							= 	User::getEmailByUserName($CompanyID,$CreatedBy);
                 
 				if(!empty($Email)){
+					if(EmailsTemplates::CheckEmailTemplateStatus(Estimate::EMAILTEMPLATEREJECT)){
                     $emaildata['EmailTo'] 		= 		$Email;
 					$body						=		EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEREJECT,$Estimate->EstimateID,'body',$emaildata);
 					$emaildata['Subject']		=		EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATEREJECT,$Estimate->EstimateID,"subject",$emaildata);
 					$emaildata['EmailFrom']		=		EmailsTemplates::GetEmailTemplateFrom(Estimate::EMAILTEMPLATEREJECT);
 					$status 					= 		$this->sendEstimateMail($body,$emaildata,0);
+					}
                 }
             }
 
@@ -1449,12 +1453,14 @@ class EstimatesController extends \BaseController {
                         $singleemail = trim($singleemail);
                         if (filter_var($singleemail, FILTER_VALIDATE_EMAIL))
                         {
+							if(EmailsTemplates::CheckEmailTemplateStatus(Estimate::EMAILTEMPLATECOMMENT)){
                             $data['EmailTo'] 		= 	$singleemail;
                             $EstimateURL			= 	URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview?email='.$singleemail);
 							$body					=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATECOMMENT,$Estimate->EstimateID,'body',$data);
 							$data['Subject']		=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATECOMMENT,$Estimate->EstimateID,"subject",$data);
 							$data['EmailFrom']		=	EmailsTemplates::GetEmailTemplateFrom(Estimate::EMAILTEMPLATECOMMENT);		
                             $status 				= 	$this->sendEstimateMail($body,$data,0);
+							}
                         }
                     }
 

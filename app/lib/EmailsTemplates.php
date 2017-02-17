@@ -273,6 +273,10 @@ class EmailsTemplates{
 	static function GetEmailTemplateFrom($slug){
 		return EmailTemplate::where(["SystemType"=>$slug])->pluck("EmailFrom");
 	}
+	
+	static function CheckEmailTemplateStatus($slug){
+		return EmailTemplate::where(["SystemType"=>$slug])->pluck("Status");
+	}
 	static function setCompanyFields($array){
 			$CompanyData							=	Company::find(User::get_companyID());
 			$array['CompanyName']					=   Company::getName();
