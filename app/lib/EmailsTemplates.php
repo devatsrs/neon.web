@@ -36,7 +36,7 @@ class EmailsTemplates{
 					}	
 				}
 				
-				$replace_array								=	EmailsTemplates::setCompanyFields($replace_array);
+				$replace_array								=	EmailsTemplates::setCompanyFields($replace_array,$InvoiceData->CompanyID);
 				
 				if($data['InvoiceURL']){		
 					$replace_array['InvoiceLink'] 			= 	 $data['InvoiceURL'];
@@ -105,11 +105,11 @@ class EmailsTemplates{
 	static function SendEstimateSingle($slug,$EstimateID,$type="body",$data = array(),$postdata = array()){
 		 
 			$message									=	 "";
-			
+			$EstimateData  								=  	 Estimate::find($EstimateID);
 			$replace_array								=	$data;
-			$replace_array								=	EmailsTemplates::setCompanyFields($replace_array); 
+			$replace_array								=	EmailsTemplates::setCompanyFields($replace_array,$EstimateData->CompanyID); 
 		/*try{*/
-				$EstimateData  							=  	 Estimate::find($EstimateID);
+				
 				$AccoutData 							=	 Account::find($EstimateData->AccountID);
 				$EmailTemplate 							= 	 EmailTemplate::where(["SystemType"=>$slug])->first();
 				
@@ -277,9 +277,13 @@ class EmailsTemplates{
 	static function CheckEmailTemplateStatus($slug){
 		return EmailTemplate::where(["SystemType"=>$slug])->pluck("Status");
 	}
-	static function setCompanyFields($array){
-			$CompanyData							=	Company::find(User::get_companyID());
-			$array['CompanyName']					=   Company::getName();
+	static function setCompanyFields($array,$Companyd = 0){
+			if($Companyd){
+				$CompanyData							=	Company::find($Companyd);
+			}else{
+				$CompanyData							=	Company::find(User::get_companyID());
+			}
+			$array['CompanyName']					=   $CompanyData->CompanyName;
 			$array['CompanyVAT']					=   $CompanyData->VAT;			
 			$array['CompanyAddress1']				=   $CompanyData->Address1;
 			$array['CompanyAddress2']				=   $CompanyData->Address1;

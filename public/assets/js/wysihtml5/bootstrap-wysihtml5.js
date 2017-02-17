@@ -143,7 +143,7 @@
 			    "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{EstimateNumber}}'>" + locale.estimateoptions.EstimateNumber+ "</a></li>"+	   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{EstimateGrandTotal}}'>" + locale.estimateoptions.EstimateGrandTotal+ "</a></li>"+ 
 		"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{EstimateLink}}'>" + locale.estimateoptions.EstimateLink + "</a></li>"+
 		"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.estimateoptions.Comment + "</a></li>"+
-		"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AcceptRejectUser}}'>" + locale.estimateoptions.AcceptRejectUser + "</a></li>"+		 		
+		"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{User}}'>" + locale.estimateoptions.User + "</a></li>"+		 		
 		
 		"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company</b></a></li>" +			
 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
@@ -1367,7 +1367,7 @@
 				Comment:"Comment",
 				Message:"Message",
 				Signature:"Signature",
-				AcceptRejectUser:"AcceptRejectUser"								
+				User:"User"								
 			},
 			Crm:{				
                 FirstName:"FirstName",

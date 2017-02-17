@@ -356,13 +356,13 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
     return Form::select($name,$data , $selection, $arr);
 });
 
-function is_amazon(){
+function is_amazon($CompanyID = 0){
 	
   /*  $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
     $AMAZONS3_SECRET = getenv("AMAZONS3_SECRET");
     $AWS_REGION = getenv("AWS_REGION");*/
 
-	$AmazonData			=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
+	$AmazonData			=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug,$CompanyID);
     $AMAZONS3_KEY  		= 	isset($AmazonData->AmazonKey)?$AmazonData->AmazonKey:'';
     $AMAZONS3_SECRET 	= 	isset($AmazonData->AmazonSecret)?$AmazonData->AmazonSecret:'';
     $AWS_REGION 		= 	isset($AmazonData->AmazonAwsRegion)?$AmazonData->AmazonAwsRegion:'';

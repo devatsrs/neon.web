@@ -1192,7 +1192,7 @@ class EstimatesController extends \BaseController {
         $Estimate = Estimate::find($EstimateID);
         $PDFurl = '';
 		
-        if(is_amazon() == true)
+        if(is_amazon($Estimate->CompanyID) == true)
 		{
             $PDFurl =  AmazonS3::preSignedUrl($Estimate->PDF);
         }
