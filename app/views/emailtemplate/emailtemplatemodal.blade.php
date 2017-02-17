@@ -173,7 +173,7 @@
 			 modal.find('.message').wysihtml5({
 				   "font-styles": true,				
 				   "Cronjobs":false,
-				   "taskopportunity":true,
+				   "tasks":true,
 				   "leadoptions":false,	
 				   "invoiceoptions":false,	
 				    "estimateoptions":false,					
@@ -194,7 +194,7 @@
 			 modal.find('.message').wysihtml5({
 				   "font-styles": true,				
 				   "Cronjobs":false,
-				   "taskopportunity":true,
+				   "opportunities":true,
 				   "leadoptions":false,	
 				   "invoiceoptions":false,	
 				    "estimateoptions":false,					
