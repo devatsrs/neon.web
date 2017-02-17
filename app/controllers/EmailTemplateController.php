@@ -7,7 +7,7 @@ class EmailTemplateController extends \BaseController {
         $companyID = User::get_companyID();
         $data = Input::all(); 
         //$select = ["TemplateName","Subject","Type","CreatedBy","updated_at","Status","TemplateID","StaticType"];
-		$select = ["TemplateName","Subject","CreatedBy","updated_at","Status","TemplateID","StaticType","Type"];
+		$select = ["TemplateName","Subject","CreatedBy","updated_at","Status","TemplateID","StaticType","Type","StatusDisabled"];
         $template = EmailTemplate::select($select);
         $template->where(["CompanyID" => $companyID]);
 		

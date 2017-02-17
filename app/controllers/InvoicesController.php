@@ -1113,6 +1113,7 @@ class InvoicesController extends \BaseController {
             $isRecurringInvoice = 0;
             $recurringInvoiceID = 0;
             $data = Input::all();
+			$postdata = Input::all(); Log::info(print_r($data,true));
             if(isset($data['RecurringInvoice'])){
                 $isRecurringInvoice=1;
                 $recurringInvoiceID = $data['RecurringInvoiceID'];
@@ -1126,7 +1127,6 @@ class InvoicesController extends \BaseController {
             $emailtoCustomer = getenv('EmailToCustomer');
             if(intval($emailtoCustomer) == 1){
                 $CustomerEmail = $data['Email'];
-
             }else{
                 $CustomerEmail = $Company->Email;
             }
@@ -1156,12 +1156,20 @@ class InvoicesController extends \BaseController {
             foreach($CustomerEmails as $singleemail){
                 $singleemail = trim($singleemail);
                 if (filter_var($singleemail, FILTER_VALIDATE_EMAIL)) {
-                    $data['EmailTo'] = $singleemail;
-                    $data['InvoiceURL']	=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
-					$body				=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data['InvoiceURL']);
-					$data['Subject']	=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject");
-					$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
-                    $status 			= 	$this->sendInvoiceMail($body,$data,0);
+					
+                    $data['EmailTo'] 		= 	$singleemail;
+                    $data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
+					$body					=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data,$postdata);
+					$data['Subject']		=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject",$data,$postdata);
+					
+					if(isset($postdata['email_from']) && !empty($postdata['email_from']))
+					{
+						$data['EmailFrom']	=	$postdata['email_from'];	
+					}else{
+						$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);				
+					}
+					
+                    $status 				= 	$this->sendInvoiceMail($body,$data,0);
 					//$body 				=   View::make('emails.invoices.send',compact('data'))->render();  // to store in email log
                 }
             }
@@ -1213,12 +1221,17 @@ class InvoicesController extends \BaseController {
             $sendTo = explode(",",$InvoiceCopy);
             //$sendTo[] = User::get_user_email();
             //$data['Subject'] .= ' ('.$Account->AccountName.')';//Added by Abubakar
-            $data['EmailTo'] = $sendTo;
-            $data['InvoiceURL']= URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview');
+            $data['EmailTo'] 		= 	$sendTo;
+            $data['InvoiceURL']		= 	URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview');
+			$body					=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data,$postdata);
+			$data['Subject']		=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject",$data,$postdata);
 			
-			$body				=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data['InvoiceURL']);
-			$data['Subject']	=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject");
-			$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);
+			if(isset($postdata['email_from']) && !empty($postdata['email_from']))
+			{
+				$data['EmailFrom']	=	$postdata['email_from'];	
+			}else{
+				$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);				
+			}
 			
             //$StaffStatus = sendMail('emails.invoices.send',$data);
             $StaffStatus = $this->sendInvoiceMail($body,$data,0);

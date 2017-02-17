@@ -28,11 +28,16 @@
                		"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company</b></a></li>" +			
 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
-		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress}}'>" + locale.Company.Address + "</a></li>" +	
-				 	"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Others</b></a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.leadoptions.Signature + "</a></li>" +
-                "</ul>" +
-                "</li>";
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+ 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +		 	
+	 	 "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Others</b></a></li>" +
+         "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.leadoptions.Signature + "</a></li>" +
+         "</ul>" +
+         "</li>";
         },
         "invoiceoptions": function(locale, options) {
             var size = (options && options.size) ? ' btn-'+options.size : '';
@@ -63,9 +68,14 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.invoiceoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.invoiceoptions.BalanceThreshold + "</a></li>" +*/
 				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company</b></a></li>" +			
-		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
+			 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
-		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress}}'>" + locale.Company.Address + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+ 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +		 	
 				 	"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Others</b></a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.invoiceoptions.Signature + "</a></li>" +
 				"</ul>" +
@@ -74,7 +84,7 @@
 		"taskopportunity": function(locale, options) {
 			
             var size = (options && options.size) ? ' btn-'+options.size : '';
-            return "<li class='dropdown invoiceoptions'>" +
+            return "<li class='dropdown taskopportunity'>" +
                 "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
                 "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.taskopportunity.TitleHeading + "</span>&nbsp;<b class='caret'></b>" +
                 "</a>" +
@@ -133,13 +143,17 @@
 			    "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{EstimateNumber}}'>" + locale.estimateoptions.EstimateNumber+ "</a></li>"+	   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{EstimateGrandTotal}}'>" + locale.estimateoptions.EstimateGrandTotal+ "</a></li>"+ 
 		"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{EstimateLink}}'>" + locale.estimateoptions.EstimateLink + "</a></li>"+
 		"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.estimateoptions.Comment + "</a></li>"+
-		"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.estimateoptions.Message + "</a></li>"+		 		
 		"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AcceptRejectUser}}'>" + locale.estimateoptions.AcceptRejectUser + "</a></li>"+		 		
 		
 		"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company</b></a></li>" +			
 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
-		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress}}'>" + locale.Company.Address + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+ 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +		 	
 		 "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Others</b></a></li>" +
 		  "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.estimateoptions.Signature + "</a></li>" +
 		 "</ul></li>";  
@@ -182,7 +196,12 @@
                	"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company</b></a></li>" +			
 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
-		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress}}'>" + locale.Company.Address + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+ 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +		 	
 		 "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Others</b></a></li>" +
 		  "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.Crm.Signature + "</a></li>" +
               "</ul>" +
@@ -1388,10 +1407,19 @@
 				AgentName:"AgentName",
 				AgentEmail:"AgentEmail",
 				},
-				Company:{
+			Company:{
 				CompanyName:"CompanyName",
-				Vat:"CompanyVat",
-				Address:"CompanyAddress",
+				Vat:"Vat",
+				FirstName:"FirstName",
+                LastName:"LastName",
+                Email:"Email",
+                Address1:"Address1",
+                Address2:"Address2",
+                Address3:"Address3",
+                City:"City",
+                State:"State",
+                PostCode:"PostCode",
+                Country:"Country",
 				},
 			Tickets:{
 				Subject:"Subject",

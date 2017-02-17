@@ -13,21 +13,33 @@ class EmailsTemplates{
 		 $this->CompanyName = Company::getName();
 	}
 	
-	static function SendinvoiceSingle($InvoiceID,$type="body",$link=''){ 
-		$message										=	 "";
+	static function SendinvoiceSingle($InvoiceID,$type="body",$data=array(),$postdata = array()){ 
+				$message								=	 "";
+				$replace_array							=	$data;
+		
 		/*try{*/
 				$InvoiceData   							=  	 Invoice::find($InvoiceID);
 				$AccoutData 							=	 Account::find($InvoiceData->AccountID);
 				$EmailTemplate 							= 	 EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
+				
 				if($type=="subject"){
-					$EmailMessage							=	 $EmailTemplate->Subject;
+					if(isset($postdata['Subject']) && !empty($postdata['Subject'])){
+						$EmailMessage							=	 $postdata['Subject'];
+					}else{
+						$EmailMessage							=	 $EmailTemplate->Subject;
+					}
 				}else{
-					$EmailMessage							=	 $EmailTemplate->TemplateBody;
+					if(isset($postdata['Message']) && !empty($postdata['Message'])){
+						$EmailMessage							=	 $postdata['Message'];
+					}else{
+						$EmailMessage							=	 $EmailTemplate->TemplateBody;
+					}	
 				}
+				
 				$replace_array								=	EmailsTemplates::setCompanyFields($replace_array);
 				
-				if($link){		
-					$replace_array['InvoiceLink'] 			= 	 $link;
+				if($data['InvoiceURL']){		
+					$replace_array['InvoiceLink'] 			= 	 $data['InvoiceURL'];
 				}else{
 					$replace_array['InvoiceLink'] 			= 	 URL::to('/invoice/'.$InvoiceID.'/invoice_preview');
 				}
@@ -90,7 +102,7 @@ class EmailsTemplates{
 			}*/
 	}
 	
-	static function SendEstimateSingle($slug,$EstimateID,$type="body",$link='',$data = array()){
+	static function SendEstimateSingle($slug,$EstimateID,$type="body",$data = array(),$postdata = array()){
 		 
 			$message									=	 "";
 			
@@ -100,14 +112,32 @@ class EmailsTemplates{
 				$EstimateData  							=  	 Estimate::find($EstimateID);
 				$AccoutData 							=	 Account::find($EstimateData->AccountID);
 				$EmailTemplate 							= 	 EmailTemplate::where(["SystemType"=>$slug])->first();
-				if($type=="subject"){
-					$EmailMessage							=	 $EmailTemplate->Subject;
+				
+				
+				/*if($type=="subject"){
+					$EmailMessage						=	 $EmailTemplate->Subject;
 				}else{
-					$EmailMessage							=	 $EmailTemplate->TemplateBody;
-				}
+					$EmailMessage						=	 $EmailTemplate->TemplateBody;
+				}*/
+				
+				if($type=="subject"){
+					if(isset($postdata['Subject']) && !empty($postdata['Subject'])){
+						$EmailMessage							=	 $postdata['Subject'];
+					}else{
+						$EmailMessage							=	 $EmailTemplate->Subject;
+					}
+				}else{
+					if(isset($postdata['Message']) && !empty($postdata['Message'])){
+						$EmailMessage							=	 $postdata['Message'];
+					}else{
+						$EmailMessage							=	 $EmailTemplate->TemplateBody;
+					}	
+				}			
+				
+				
 				$replace_array['CompanyName']			=	 Company::getName($EstimateData->CompanyID);
-				if($link){		
-					$replace_array['EstimateLink'] 			= 	 $link;
+				if(isset($data['EstimateURL'])){		
+					$replace_array['EstimateLink'] 			= 	 $data['EstimateURL'];
 				}else{
 					$replace_array['EstimateLink'] 			= 	 URL::to('/estimate/'.$EstimateID.'/estimate_preview');
 				}
@@ -155,8 +185,7 @@ class EmailsTemplates{
 				"{{EstimateLink}}",
 				"{{Comment}}",
 				"{{Message}}",
-				"{{AcceptRejectUser}}",
-				
+				"{{User}}",
 			];
 			
 			foreach($extra as $item){
@@ -245,9 +274,16 @@ class EmailsTemplates{
 		return EmailTemplate::where(["SystemType"=>$slug])->pluck("EmailFrom");
 	}
 	static function setCompanyFields($array){
+			$CompanyData							=	Company::find(User::get_companyID());
 			$array['CompanyName']					=   Company::getName();
-			$array['CompanyVAT']					=   Company::getCompanyField(User::get_companyID(),"VAT");
-			$array['CompanyAddress']				=   Company::getCompanyFullAddress(User::get_companyID());
+			$array['CompanyVAT']					=   $CompanyData->VAT;			
+			$array['CompanyAddress1']				=   $CompanyData->Address1;
+			$array['CompanyAddress2']				=   $CompanyData->Address1;
+			$array['CompanyAddress3']				=   $CompanyData->Address1;
+			$array['CompanyCity']					=   $CompanyData->City;
+			$array['CompanyPostCode']				=   $CompanyData->PostCode;
+			$array['CompanyCountry']				=   $CompanyData->Country;
+			//$array['CompanyAddress']				=   Company::getCompanyFullAddress(User::get_companyID());
 			return $array;
 	}
 }

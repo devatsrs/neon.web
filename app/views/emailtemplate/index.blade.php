@@ -130,9 +130,14 @@ var popup_type	=	0;
                 {  "bSortable": true }, //updated Date
                 {  "bSortable": true }, //updated Date
 				{  "bSortable": true,
-                    mRender: function ( id, type, full ) { 
+                    mRender: function ( id, type, full ) { console.log(full);
+					var readonly = '';	var readonly_title = '';
+						if(full[8]){
+							readonly  = "deactivate";
+							readonly_title = 'Cannot deactivate';
+						}
 					if(id){					
-						action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[5]+'" checked=""  class="changestatus"  name="template_status" value="1"></p>';
+						action = '<p  title="'+readonly_title+'" class="make-switch switch-small '+readonly+' "><input type="checkbox" data-id="'+full[5]+'" checked=""  class="changestatus" title="'+readonly_title+'"  name="template_status"  value="1"></p>';
 					}else{
 						action = '<p class="make-switch switch-small"><input type="checkbox" data-id="'+full[5]+'" class="changestatus"  name="template_status" value="1"></p>';
 					} return action;
