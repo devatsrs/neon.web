@@ -1391,8 +1391,10 @@ class EstimatesController extends \BaseController {
             if($data['Type']==2) {
                 if (!empty($data['Email'])) {
                     $Email = $data['Email'];
+					$emaildata['User'] 			= 	$data['Email'];
                 }else{
                     $Email = 'Unknown';
+					$emaildata['User'] 			= 	$Email;
                 }
             }else{
                 $Email = User::get_user_full_name();
@@ -1423,7 +1425,7 @@ class EstimatesController extends \BaseController {
                 $emaildata['EstimateNumber'] 		= 	$estimatenumber;
                 $emaildata['Subject'] 		= 	'Comment added to Estimate '.$estimatenumber.' ('.$CustomerName.')';
                 $Email = User::getEmailByUserName($CompanyID,$CreatedBy);
-				$emaildata['user'] 		= 	$CustomerName;
+				//$emaildata['user'] 		= 	$CustomerName;
 
                 if(!empty($Email)){
                     $emaildata['EmailTo'] = $Email;
