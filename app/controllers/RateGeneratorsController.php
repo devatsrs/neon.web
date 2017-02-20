@@ -4,11 +4,14 @@ class RateGeneratorsController extends \BaseController {
 
     public function ajax_datagrid() {
         $companyID = User::get_companyID();
-        $data = Input::all();
+        $data = Input::all(); 
         $where = ["tblRateGenerator.CompanyID" => $companyID];
         if($data['Active']!=''){
             $where['tblRateGenerator.Status'] = $data['Active'];
         }
+		
+		
+		
         $RateGenerators = RateGenerator::
         join("tblTrunk","tblTrunk.TrunkID","=","tblRateGenerator.TrunkID")
         ->leftjoin("tblCurrency","tblCurrency.CurrencyId","=","tblRateGenerator.CurrencyId")

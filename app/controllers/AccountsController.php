@@ -77,11 +77,12 @@ class AccountsController extends \BaseController {
 
     public function ajax_getEmailTemplate($privacy, $type){
         $filter = array();
-        if($type == EmailTemplate::ACCOUNT_TEMPLATE){
+        /*if($type == EmailTemplate::ACCOUNT_TEMPLATE){
             $filter =array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE);
         }elseif($type== EmailTemplate::RATESHEET_TEMPLATE){
             $filter =array('Type'=>EmailTemplate::RATESHEET_TEMPLATE);
-        }
+        }*/
+		$filter =array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE);
         if($privacy == 1){
             $filter ['UserID'] =  User::get_userID();
         }
@@ -109,7 +110,8 @@ class AccountsController extends \BaseController {
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID'));
+		$bulk_type = 'accounts';
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type'));
 
     }
 
@@ -277,7 +279,8 @@ class AccountsController extends \BaseController {
 			
 			
 			
-			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
+			//$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
+			$emailTemplates 			= 	EmailTemplate::GetUserDefinedTemplates();
 			$random_token				=	 get_random_number();
             
 			//Backup code for getting extensions from api
@@ -314,13 +317,14 @@ class AccountsController extends \BaseController {
 			 		Session::set('error_message',$message);
 				}
 			}			*/
-			
+			$FromEmails	 				= 	TicketGroups::GetGroupsFrom();			
 			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			$ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug); //freshdesk
-
-	        return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets')); 	
+			$SystemTickets				=   Tickets::CheckTicketLicense();			
+			 
+	        return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets','FromEmails')); 	
 		}
 	
 	
@@ -577,8 +581,8 @@ class AccountsController extends \BaseController {
      */
 	function get_note(){
 		$response				=	array();
-		$data 					= 	Input::all();
-		$response_note    		=   NeonAPI::request('account/get_note',array('NoteID'=>$data['NoteID']),false,true);
+		$data 					= 	Input::all(); Log::info(print_r($data,true));
+		$response_note    		=   NeonAPI::request('account/get_note',$data,false,true);
 		if($response_note['status']=='failed'){
 			return json_response_api($response_note,false,true);
 		}else{
@@ -615,7 +619,9 @@ class AccountsController extends \BaseController {
      */
     public function delete_note($id) {
         ///$result = Note::find($id)->delete();
-		$data['NoteID']			=	$id;		 
+		$postdata				= 	Input::all(); 
+		$data['NoteID']			=	$id;
+		$data['NoteType']		=	$postdata['note_type'];		 		
 		$response 				= 	NeonAPI::request('account/delete_note',$data);
 		
 		if($response->status=='failed'){

@@ -37,6 +37,8 @@ class AmazonS3 {
 		'DISPUTE_ATTACHMENTS'=>'DisputesAttachment',
         'TASK_ATTACHMENT'=>'TaskAttachment',
         'EMAIL_ATTACHMENT'=>'EmailAttachment',
+		'TICKET_ATTACHMENT'=>'TicketAttachment',
+        'DIALSTRING_UPLOAD'=>'DialString',
         'DIALSTRING_UPLOAD'=>'DialString',
         'RECURRING_INVOICE_UPLOAD'=>'RecurringInvoice'
     );

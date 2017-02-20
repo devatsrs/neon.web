@@ -2,7 +2,6 @@
 <script type="text/javascript">
  
 var GUID			  =			'{{$data['GUID']}}';
-var show_popup		  = 	 	0;
 var rowData 		  = 	 	[];
 var scroll_more 	  =  		1;
 var file_count 		  =  		0;
@@ -16,7 +15,7 @@ Not_ask_delete_Note   = 		0;
 	}
 @endif;
 
-var account_id		  =			'{{$AccountID}}';
+var ContactID		  =			'{{$contacts->ContactID}}';
 var emailFileList	  =  		new Array();
 var emailFileListReply  =  		new Array();
 var token			  =			'{{$token}}';
@@ -73,7 +72,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 			type: 'POST',
 			dataType: 'html',
 			async :false,
-			data:{s:1,action_type:action_type,email_number:email_number,AccountID:account_id},
+			data:{s:1,action_type:action_type,email_number:email_number,ContactID:ContactID},
 			success: function(response){
 				$('#EmailAction-model .modal-content').html('');
 				$('#EmailAction-model .modal-content').html(response);				
@@ -85,9 +84,9 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
                     minimumResultsForSearch: -1
                 });
 				mod.find('.select2-container').css('visibility','visible');
-				setTimeout(function(){ 				
+				setTimeout(function(){ 
 				mod.find('.message').wysihtml5({
-						"font-styles": true,
+					"font-styles": true,
 						"leadoptions":false,
 						"Crm":true,
 						"emphasis": true,
@@ -96,10 +95,10 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 						"link": true,
 						"image": true,
 						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});			
+					parser: function(html) {
+						return html;
+					}
+				});
 				 }, 500);
 				
 		    
@@ -110,7 +109,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 
 	 $("#EmailActionform").submit(function (event) {
 		//////////////////////////          	
-			var email_url 	= 	"<?php echo URL::to('/accounts/'.$AccountID.'/activities/sendemail/api/');?>?scrol="+1;
+			var email_url 	= 	"<?php echo URL::to('/accounts/'.$contacts->ContactID.'/activities/sendemail/api/');?>?scrol="+1;
           	event.stopImmediatePropagation();
             event.preventDefault();			
 			var formData = new FormData($('#EmailActionform')[0]);
@@ -167,138 +166,31 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 			},
 		});
 	});
-	$( document ).on("click",'.delete_task_link' ,function(e) {
-		
-	    var del_task_id  = $(this).attr('task-id');
-		var del_key_id   = $(this).attr('key_id');
-		
-		if(Not_ask_delete_Note==1 && $('#timeline-'+del_key_id).hasClass("followup_task")){
-				Not_ask_delete_Note = 0;	
-		}else{
-		  if (!confirm("Are you sure to delete?")) {
-				return false;
-			}
-		}
-     
-		
-		var url_del_task1 	= 	"<?php echo URL::to('/task/{id}/delete_task'); ?>";
-		var url_del_task	=	url_del_task1.replace( '{id}', del_task_id );
-		 $.ajax({
-			url: url_del_task,
-			type: 'POST',
-			dataType: 'json',
-			async :false,
-			data:{TaskID:del_task_id},
-			success: function(response) {
-				console.log('timeline-'+del_key_id);
-				$('#timeline-'+del_key_id).remove();
-				$('#timeline-ul').append('<li id="timeline-'+del_key_id+'" class="count-li timeline_task_entry"></li>');
-				ShowToastr("success","Task Successfully Deleted"); 
-			},
-		});	
-		
-    });
 	  
 	
-	$( document ).on("click",'.edit_task_link' ,function(e) {
-	    var edit_task_id  = $(this).attr('task-id');
-		var edit_key_id   = $(this).attr('key_id');	
-        
-		if(edit_task_id!='' && edit_key_id!=''){
-			//
-			
-		var url_get_task 	= 	"<?php echo URL::to('task/GetTask'); ?>";
-		 $.ajax({
-					url: url_get_task,
-					type: 'POST',
-					dataType: 'json',
-					async :false,
-					data:{TaskID:edit_task_id},
-					success: function(response) {
-						if(response.Priority!='Low'){							
-							biuldSwicth('.make','Priority','#edit-modal-task','checked');
-						}else{
-							biuldSwicth('.make','Priority','#edit-modal-task','');
-						}
-						
-						$('#edit-modal-task #Subject').val(response.Subject);
-						$('#edit-modal-task #Description_task').val(response.Description);
-						var date_time = response.DueDate.split(" ");
-						$('#edit-modal-task #DueDate_date').val(date_time[0]);
-						$('#edit-modal-task #DueDate_time').val(date_time[1]);
-						var status_id = 0;
-						$('#edit-task-form  [name="TaskStatus"] option').each(function(){
-						  if ($(this).text() == response.TaskStatus){
-								$(this).attr("selected","selected");
-								status_id = $(this).attr("value");
-							}
-						});
-						var account_id = 0;
-						$('#edit-task-form  [name="UsersIDs"] option').each(function(){
-						  if ($(this).text() == response.Name){
-								$(this).attr("selected","selected");
-								account_id = $(this).attr("value");
-							}
-						});
-						$('#edit-task-form  [name="TaskStatus"]').val(status_id).trigger("change");
-						$('#edit-task-form [name="UsersIDs"]').val(account_id).trigger("change");
-						$('#edit-task-form #TaskID').val(edit_task_id);
-						$('#edit-task-form #KeyID').val(edit_key_id);
-						$('#edit-modal-task').modal('show');												
-					},
-				});	
-					
-		}
-    });
-	
-	
 		$( document ).on("click",'.delete_note_link' ,function(e) {
-			var del_note_id  	=   $(this).attr('note-id');
-			var del_key_id   	=   $(this).attr('key_id');
-			var edit_note_type  = 	$(this).attr('note_type');
+			var del_note_id  = $(this).attr('note-id');
+			var del_key_id   = $(this).attr('key_id');
 			
-			var followup = parseInt(del_key_id)+1;
-			if ($('#timeline-'+followup).hasClass("followup_task"))
-			{
-					 if (!confirm("Are you sure you want delete? This note has follow up task against it."))
-					 {
-      	  				return false;
-    				 }
-			}
-			else
-			{
-					if (!confirm("Are you sure to delete?"))
-					{
-      	  				return false;
-    				}					
-			}
 			
-		var url_del_note1 	= 	"<?php echo URL::to('/accounts/{id}/delete_note'); ?>";
+			if (!confirm("Are you sure to delete?"))
+			{
+				return false;
+			}					
+			
+			
+		var url_del_note1 	= 	"<?php echo URL::to('/contacts/{id}/delete_note'); ?>";
 		var url_del_note	=	url_del_note1.replace( '{id}', del_note_id );
 		 $.ajax({
 			url: url_del_note,
 			type: 'POST',
 			dataType: 'json',
 			async :false,
-			data:{NoteID:del_note_id,note_type:edit_note_type},
+			data:{NoteID:del_note_id},
 			success: function(response) {
 				console.log('timeline-'+del_key_id);
 				$('#timeline-'+del_key_id).remove();
 				$('#timeline-ul').append('<li id="timeline-'+del_key_id+'" class="count-li timeline_note_entry"></li>');
-				//follow up delete
-				var followup = parseInt(del_key_id)+1;
-				if ($('#timeline-'+followup).hasClass("followup_task")) {
-					 if (!confirm("Delete Follow up Task?")) {
-      	  				return false;
-    				}
-					else
-					{ 
-						Not_ask_delete_Note = 1;
-						$('#timeline-'+followup+' .delete_task_link').click();
-					}
-					$('#timeline-'+del_key_id+1).remove();
-					$('#timeline-ul').append('<li id="timeline-'+del_key_id+1+'" class="count-li timeline_task_entry"></li>');
-				}
 				ShowToastr("success","Note Successfully Deleted"); 
 			},
 		});	
@@ -306,24 +198,22 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
     });
 	
 	$( document ).on("click",'.edit_note_link' ,function(e) {
-		
-        var edit_note_id 	= 	$(this).attr('note-id');
-		var edit_key_id  	= 	$(this).attr('key_id');
-		var edit_note_type  = 	$(this).attr('note_type');
-		
+        var edit_note_id = $(this).attr('note-id');
+		var edit_key_id  = $(this).attr('key_id');
 		///////
-		var url_get_note 	= 	"<?php echo URL::to('accounts/get_note'); ?>";
+		var url_get_note 	= 	"<?php echo URL::to('contacts/get_note'); ?>";
 		 $.ajax({
 					url: url_get_note,
 					type: 'POST',
 					dataType: 'json',
 					async :false,
-					data:{NoteID:edit_note_id,note_type:edit_note_type},
+					data:{NoteID:edit_note_id},
 					success: function(response) {
 						$('#edit-note-model #Description_edit_note').val(response.Note);
 						$('#edit-note-model #NoteID').val(parseInt(edit_note_id));
 						$('#edit-note-model #KeyID').val(parseInt(edit_key_id));
-						$('#edit-note-model #NoteType').val(edit_note_type);						
+						//
+						
 						$('#edit-note-model').modal('show'); 								
 					},
 				});	
@@ -335,10 +225,8 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
                         modal.find('.editor-note').show();
 						  
                         var modal = $('#edit-note-model');
-						
-							
-						modal.find('.editor-note').wysihtml5({
-						"font-styles": true,
+							modal.find('.editor-note').wysihtml5({
+								"font-styles": true,
 						"leadoptions":false,
 						"Crm":true,
 						"emphasis": true,
@@ -347,10 +235,10 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 						"link": true,
 						"image": true,
 						"color": false,
-							parser: function(html) {
-								return html;
-							}
-					});
+								parser: function(html) {
+									return html;
+								}
+							});
                     });
 
                    	
@@ -423,10 +311,8 @@ toastr.error(status, "Error", toastr_opts);
                 doc.find('.message').val('');
             }
 			
-			///
-			
-				doc.find('.message').wysihtml5({
-						"font-styles": true,
+			doc.find('.message').wysihtml5({
+				"font-styles": true,
 						"leadoptions":false,
 						"Crm":true,
 						"emphasis": true,
@@ -435,12 +321,11 @@ toastr.error(status, "Error", toastr_opts);
 						"link": true,
 						"image": true,
 						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});
-		
-			///
+				parser: function(html) {
+					return html;
+				}
+			});
+
            
         }
 		
@@ -477,8 +362,8 @@ toastr.error(status, "Error", toastr_opts);
 		var getClass =  $("#timeline-ul .count-li");
 		getClass.each(function () {count++;}); 	
 		var ID			=	$(".message_box:last").attr("id");
-		var url_scroll 	= 	"<?php echo URL::to('accounts/{id}/GetTimeLineSrollData'); ?>";
-		url_scroll 	   	= 	url_scroll.replace("{id}",<?php echo $AccountID; ?>);
+		var url_scroll 	= 	"<?php echo URL::to('contacts/{id}/GetTimeLineSrollData'); ?>";
+		url_scroll 	   	= 	url_scroll.replace("{id}",<?php echo $contacts->ContactID; ?>);
 		
 		$('div#last_msg_loader').html('<img src="'+baseurl+'/assets/images/bigLoader.gif">');
 		
@@ -548,10 +433,9 @@ setTimeout(function() {
             $("#" + ctrl).addClass("active");
 			if(divName=='box-2')
 			{				
-				var doc = $('.mail-compose');
-				
-				doc.find('.message').wysihtml5({
-						"font-styles": true,
+        	var doc = $('.mail-compose');
+		 	doc.find('.message').wysihtml5({
+				"font-styles": true,
 						"leadoptions":false,
 						"Crm":true,
 						"emphasis": true,
@@ -560,12 +444,11 @@ setTimeout(function() {
 						"link": true,
 						"image": true,
 						"color": false,
-							parser: function(html) {
-								return html;
-							}
-					});
-		
-	
+				parser: function(html) {
+					return html;
+				}
+			});
+
 			}else{
 				 var doc = $('.mail-compose');
 		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
@@ -575,9 +458,8 @@ setTimeout(function() {
 			if(divName=='box-1')
 			{	
 				var doc = $('#box-1');
-				
-				doc.find('#note-content').wysihtml5({
-						"font-styles": true,
+			 doc.find('#note-content').wysihtml5({
+					"font-styles": true,
 						"leadoptions":false,
 						"Crm":true,
 						"emphasis": true,
@@ -586,10 +468,10 @@ setTimeout(function() {
 						"link": true,
 						"image": true,
 						"color": false,
-							parser: function(html) {
-								return html;
-							}
-					});
+					parser: function(html) {
+						return html;
+					}
+				});
 			}
 			else
 			{
@@ -898,18 +780,7 @@ $('#emai_attachments_form').submit(function(e) {
             	if (isJson(response)) {
 					var response_json  =  JSON.parse(response);
 					ShowToastr("error",response_json.message);
-				} else {
-					
-				if(show_popup==1)
-				{
-					$('.followup_task_data ul li:eq(0)').before(response);
-					document.getElementById('add-task-form').reset();
-					$('#Task_type').val(3);
-					$('#Task_ParentID').val($('.followup_task_data ul li:eq(0)').attr('row-id'));					
-					$('#add-modal-task').modal('show');        	
-				}
-				else
-				{
+				} else {				
 					$('#box-1 .wysihtml5-sandbox').contents().find('body').html('');
 					ShowToastr("success","Note Successfully Created");  
 					document.getElementById('notes-from').reset();
@@ -926,73 +797,13 @@ $('#emai_attachments_form').submit(function(e) {
 					 		var html_end  ='<li class="timeline-end"><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>';
 							$("#timeline-ul").append(html_end);	
 					 }
-				}
+				
 
-            } show_popup=0;
+            } 
 			change_click_filter();
       			},
 			});
 
-        });
-        $("#save-task-form").submit(function (e) {
-			
-			//////////////
-			 $('#save-task').addClass('disabled');  $('#save-task').button('loading');
-			
-            e.preventDefault();
-			e.stopImmediatePropagation();
-            var formid 			= 	$(this).attr('id');            
-            var formData 		= 	new FormData($('#'+formid)[0]);
-			var count 			= 	0;
-			var getClass =  $("#timeline-ul .count-li");
-            getClass.each(function () {count++;}); 	
-			var update_new_url 	= 	baseurl + '/task/create?scrol='+count;
-			
-            $.ajax({
-                url: update_new_url,  //Server script to process data
-                type: 'POST',
-                dataType: 'html',
-                success: function (response) {                  
-					
-					if (isJson(response)) {
-						var response_json  =  JSON.parse(response);
-						 ShowToastr("error",response_json.message);
-					} else {
-						var empty_ul = 0;
-						if($("#timeline-ul").length == 0) {
-							var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';
-							$('.timeline_start').html(html_ul);
-							empty_ul = 1;
-						
-						}
-						per_scroll = count;
-						ShowToastr("success","Task Successfully Created"); 
-						                    
-						$('#timeline-ul li:eq(0)').before(response);
-						if(empty_ul)
-						 {
-					 		var html_end  ='<li class="timeline-end"><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>';
-							$("#timeline-ul").append(html_end);	
-						 }
-						document.getElementById('save-task-form').reset();
-						
-						$('#save-task-form #Description').css("height","48px");
-					}
-                    show_popup=0;
-				    $("#save-task").button('reset');
-			   	    $("#save-task").removeClass('disabled');
-                    //getOpportunities();
-					change_click_filter();
-                },
-                // Form data
-                data: formData,
-                //Options to tell jQuery not to process data or worry about content-type.
-                cache: false,
-                contentType: false,
-                processData: false
-            });
-        
-			//////////////
         });
 		
 		function change_click_filter()
@@ -1054,11 +865,10 @@ $('#emai_attachments_form').submit(function(e) {
             $('#timeline-ul li:eq(0)').before(html);
         });
 		
-		$('#save-mail').click(function(e) {  empty_images_inputs(); $('#email_send').val(1);  $('.btn-send-mail').addClass('disabled'); $(this).button('loading');            show_popup = 0; });
-		$('#save-email-follow').click(function(e) { empty_images_inputs(); $('#email_send').val(0); $('.btn-send-mail').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
+		$('#save-mail').click(function(e) {  empty_images_inputs(); $('#email_send').val(1);  $('.btn-send-mail').addClass('disabled'); $(this).button('loading');    });
 		
-		$('#save-note').click(function(e) {       $('.save-note-btn').addClass('disabled'); $(this).button('loading');      show_popup = 0; });
-		$('#save-note-follow').click(function(e) {  $('.save-note-btn').addClass('disabled'); $(this).button('loading');    show_popup = 1; });
+		
+		$('#save-note').click(function(e) {       $('.save-note-btn').addClass('disabled'); $(this).button('loading');    });
 		
 		
 		function empty_images_inputs()
@@ -1071,7 +881,7 @@ $('#emai_attachments_form').submit(function(e) {
 		    var getClass =  $("#timeline-ul .count-li");
             var count = 0;
             getClass.each(function () {count++;}); 			
-			var email_url 	= 	"<?php echo URL::to('/accounts/'.$AccountID.'/activities/sendemail/api/');?>?scrol="+count;
+			var email_url 	= 	"<?php echo URL::to('/accounts/'.$contacts->ContactID.'/activities/sendemail/api/');?>?scrol="+count;
           	event.stopImmediatePropagation();
             event.preventDefault();			
 			var formData = new FormData($('#email-from')[0]);
@@ -1109,17 +919,7 @@ $('#emai_attachments_form').submit(function(e) {
 				$('.file_upload_span').remove();
                
 					
-				///
-				if(show_popup==1)
-				{
-					$('.followup_task_data ul li:eq(0)').before(response);
-					document.getElementById('add-task-form').reset();
-					$('#Task_type').val(2);
-					$('#Task_ParentID').val($('.followup_task_data ul li:eq(0)').attr('row-id'));					
-					$('#add-modal-task').modal('show');        	
-				}
-				else
-				{
+				///				
 					 ShowToastr("success","Email Sent Successfully"); 
 					 document.getElementById('email-from').reset();	
 					 $('.email_template').change();		
@@ -1137,10 +937,10 @@ $('#emai_attachments_form').submit(function(e) {
 					 		var html_end  ='<li class="timeline-end"><time class="cbp_tmtime"></time><div class="cbp_tmicon bg-info end_timeline_logo "><i class="entypo-infinity"></i></div><div class="end_timeline cbp_tmlabel"><h2></h2><div class="details no-display"></div></div></li>';
 							$("#timeline-ul").append(html_end);	
 					 }
-				}
+				
 				///				
 				
-            } show_popup=0; change_click_filter();
+            }  change_click_filter();
       			},
 			});	
 		 });

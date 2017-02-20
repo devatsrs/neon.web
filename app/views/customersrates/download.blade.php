@@ -366,7 +366,7 @@ jQuery(document).ready(function ($) {
     $('#modal-BulkMail').on('shown.bs.modal', function(event){
         var modal = $(this);
         modal.find('.message').wysihtml5({
-            "font-styles": true,
+           "font-styles": true,
             "emphasis": true,
             "leadoptions":true,
             "Crm":false,
@@ -533,7 +533,9 @@ var data_table_new = $("#"+tableID).dataTable({
 
 @section('footer_ext')
     @parent
-    <div class="modal fade" id="modal-BulkMail">
+    @include('accounts.bulk_email')
+
+<!--    <div class="modal fade" id="modal-BulkMail">
         <div class="modal-dialog" style="width: 80%;">
             <div class="modal-content">
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
@@ -666,5 +668,5 @@ var data_table_new = $("#"+tableID).dataTable({
                 </form>
             </div>
         </div>
-    </div>
+    </div> -->
     @stop

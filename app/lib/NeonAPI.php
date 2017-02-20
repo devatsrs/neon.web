@@ -6,6 +6,7 @@ class NeonAPI{
     public function __construct() {
         self::$api_url = CompanyConfiguration::get('NEON_API_URL').'/';
     }
+
     public static function login(){
         self::$api_url = CompanyConfiguration::get('NEON_API_URL').'/';
         $curl = new Curl\Curl();
@@ -14,11 +15,12 @@ class NeonAPI{
             'LoggedEmailAddress' => Input::get('email'),
             'password' => Input::get('password'),
 			'LicenceKey' =>  getenv('LICENCE_KEY'),
-            'CompanyName'=>getenv('COMPANY_NAME')
+            'CompanyName'=>getenv('COMPANY_NAME'),
+			'LoginType' =>$type
 
         ));
         $curl->close();
-        $response = json_decode($curl->response);
+        $response = json_decode($curl->response);  
         if(isset($response->token)){
             self::setToken($response->token);
             return true;
@@ -32,7 +34,7 @@ class NeonAPI{
 		NeonAPI::request('logout',[]);		 
 	}
 	
-   public static function login_by_id($id){
+   public static function login_by_id($id,$type = 'user'){
         $curl = new Curl\Curl();
         $call_method = 'l/'.$id;
 
@@ -40,12 +42,13 @@ class NeonAPI{
        $curl->post(self::$api_url.$call_method, array(
            'LoggedUserID' => $id,
            "LicenceKey" =>  getenv('LICENCE_KEY'),
-           'CompanyName'=>getenv('COMPANY_NAME')
-       ));
+           'CompanyName'=>getenv('COMPANY_NAME'),
+		   'LoginType' => $type
+       )); Log::info("api_url:".self::$api_url);
 
-        $response = json_decode($curl->response);
+        $response = json_decode($curl->response); Log::info(print_r($response,true));
         if(isset($response->token)){
-            self::setToken($response->token);
+            self::setToken($response->token); 
             return true;
         }else{
             Log::info("-----Not Loggedin on API-----");
@@ -64,6 +67,7 @@ class NeonAPI{
     }
     public static function request($call_method,  $post_data=array(),$post=true,$is_array=false,$is_upload=false){
         self::$api_url = CompanyConfiguration::get('NEON_API_URL').'/';
+		$customer 	= Session::get('customer'); //customer check
         $token = self::getToken();
         $curl = new Curl\Curl();
 
@@ -76,6 +80,15 @@ class NeonAPI{
         }
         $post_data['LicenceKey'] = getenv('LICENCE_KEY');
         $post_data['CompanyName']= getenv('COMPANY_NAME');
+		$post_data['LoginType']= 'user';	 //default user
+		
+		
+		$customer 	= Session::get('customer'); //customer check
+    	if($customer==1) {
+			$post_data['LoginType']= 'customer';	
+		}
+		
+		
         if($post === 'delete') {
             $curl->delete(self::$api_url . $call_method, $post_data);
         }else if($post === 'put') {

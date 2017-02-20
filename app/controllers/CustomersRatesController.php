@@ -217,7 +217,8 @@ class CustomersRatesController extends \BaseController {
             $trunks = CustomerTrunk::getCustomerTrunk($id); //$this->trunks;
             $rate_sheet_formates = $this->rate_sheet_formates;
             $account_owners = User::getOwnerUsersbyRole();
-            $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::RATESHEET_TEMPLATE));
+            //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::RATESHEET_TEMPLATE));
+			$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
             $accounts = Account::getAccountIDList();
             $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
             $downloadtype = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
@@ -226,8 +227,8 @@ class CustomersRatesController extends \BaseController {
             if(count($trunks) == 0){
                 return  Redirect::to('customers_rates/settings/'.$id)->with('info_message', 'Please enable trunks against customer to setup rates');
             }
-
-            return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype'));
+			$bulk_type = 'customers_rates';	
+            return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype','bulk_type'));
     }
 
     public function process_download($id) {

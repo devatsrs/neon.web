@@ -161,8 +161,15 @@ function rate_tables_dropbox($id=0,$data=array()){
     return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
-
-function sendMail($view,$data){
+function contacts_dropbox($id=0,$data=array()){
+    $all_contacts = Contact::getContacts($data);
+    return Form::select('contacts', $all_contacts, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+function ticketgroup_dropbox($id=0,$data=array()){
+    $all_ticketsgroups = TicketGroups::getTicketGroups_dropdown($data);
+    return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+function sendMail($view,$data,$ViewType=1){
     
 	if(empty($data['companyID']))
     {
@@ -170,8 +177,14 @@ function sendMail($view,$data){
     }else{
         $companyID = $data['companyID'];
     }
-	$data   =   $data;
-	$body 	=   View::make($view,compact('data'))->render(); 
+
+	if($ViewType){
+		$body 	=  html_entity_decode(View::make($view,compact('data'))->render()); 
+	}
+	else{
+		$body  = $view;
+	}
+
 	
 	if(SiteIntegration::CheckCategoryConfiguration(false,SiteIntegration::$EmailSlug)){
 		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body); 
@@ -343,13 +356,13 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
     return Form::select($name,$data , $selection, $arr);
 });
 
-function is_amazon(){
+function is_amazon($CompanyID = 0){
 	
   /*  $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
     $AMAZONS3_SECRET = getenv("AMAZONS3_SECRET");
     $AWS_REGION = getenv("AWS_REGION");*/
 
-	$AmazonData			=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
+	$AmazonData			=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug,$CompanyID);
     $AMAZONS3_KEY  		= 	isset($AmazonData->AmazonKey)?$AmazonData->AmazonKey:'';
     $AMAZONS3_SECRET 	= 	isset($AmazonData->AmazonSecret)?$AmazonData->AmazonSecret:'';
     $AWS_REGION 		= 	isset($AmazonData->AmazonAwsRegion)?$AmazonData->AmazonAwsRegion:'';
@@ -1169,7 +1182,7 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
 	$mail->addAddress($ToEmail);
    if ($mail->send()) {
 	   return "Valid mail settings.";
-	}else{
+	}else{ 
 		return "Invalid mail settings.";
 	}
  }
@@ -1247,13 +1260,15 @@ function run_process($command) {
 
 function Get_Api_file_extentsions($ajax=false){
 
-	 if (Session::has("api_response_extensions")){
-		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions');
-		 return $response_extensions;
-	 } 	 
+	 /*if (Session::has("api_response_extensions")){
+		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions'); 
+		  if(is_array($response_extensions['allowed_extensions'])){
+			  return $response_extensions;
+		  }		 
+	 } 	 */
 	 $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
 	 $response_extensions 	=  [];
-	
+	 	
 	if($response->status=='failed'){
 		if($ajax==true){
 			return $response;

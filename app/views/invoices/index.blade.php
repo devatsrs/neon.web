@@ -1,223 +1,137 @@
 @extends('layout.main')
 
 @section('content')
-
-    <ol class="breadcrumb bc-3">
-        <li>
-            <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
-        </li>
-        <li class="active">
-            <strong>Invoice</strong>
-        </li>
-    </ol>
-    <h3>Invoice</h3>
-
-    @include('includes.errors')
+<ol class="breadcrumb bc-3">
+  <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
+  <li class="active"> <strong>Invoice</strong> </li>
+</ol>
+<h3>Invoice</h3>
+@include('includes.errors')
     @include('includes.success')
-    <p style="text-align: right;">
-        @if(User::checkCategoryPermission('Invoice','Add'))
-            <a href="javascript:;" id="invoice-in" class="btn btn-primary ">
-                <i class="entypo-plus"></i>
-                Add New Invoice Received
-            </a>
-            <a href="{{URL::to("invoice/create")}}" id="add-new-invoice" class="btn btn-primary ">
-                <i class="entypo-plus"></i>
-                Add New Invoice
-            </a>
-        @endif
-        @if(User::checkCategoryPermission('Invoice','Generate'))
-            <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary ">
-                <i class="entypo-plus"></i>
-                Generate New Invoice
-            </a>
-            @endif
-                    <!-- <a href="javascript:;" id="bulk-invoice" class="btn upload btn-primary ">
+<p style="text-align: right;"> @if(User::checkCategoryPermission('Invoice','Add')) <a href="javascript:;" id="invoice-in" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Invoice Received </a> <a href="{{URL::to("invoice/create")}}" id="add-new-invoice" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Invoice </a> @endif
+  @if(User::checkCategoryPermission('Invoice','Generate')) <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary "> <i class="entypo-plus"></i> Generate New Invoice </a> @endif 
+  <!-- <a href="javascript:;" id="bulk-invoice" class="btn upload btn-primary ">
         <i class="entypo-upload"></i>
         Bulk Invoice Generate.
-    </a>-->
-    </p>
-    <div class="tab-content">
-        <div class="tab-pane active">
-
-            <div class="row">
-                <div class="col-md-12">
-                    <form id="invoice_filter" method="get" class="form-horizontal form-groups-bordered validate"
+    </a>--> 
+</p>
+<div class="tab-content">
+  <div class="tab-pane active">
+    <div class="row">
+      <div class="col-md-12">
+        <form id="invoice_filter" method="get" class="form-horizontal form-groups-bordered validate"
                           novalidate>
-                        <div class="panel panel-primary" data-collapsed="0">
-                            <div class="panel-heading">
-                                <div class="panel-title">
-                                    Filter
-                                </div>
-                                <div class="panel-options">
-                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                                </div>
-                            </div>
-                            <div class="panel-body">
-                                <div class="form-group">
-                                    <label for="field-1" class="col-sm-1 control-label">Type</label>
-
-                                    <div class="col-sm-2">
-                                        {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"select2 small"))}}
-                                    </div>
-                                    <label for="field-1" class="col-sm-1 control-label">Account</label>
-
-                                    <div class="col-sm-2">
-                                        {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
-                                    </div>
-
-                                    <label for="field-1" class="col-sm-1 control-label">Status</label>
-
-                                    <div class="col-sm-2">
-                                        {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
-                                    </div>
-                                    <label for="field-1" class="col-sm-1 control-label">Hide Zero Value</label>
-
-                                    <div class="col-sm-2">
-                                        <p class="make-switch switch-small">
-                                            <input id="zerovalueinvoice" name="zerovalueinvoice"
+          <div class="panel panel-primary" data-collapsed="0">
+            <div class="panel-heading">
+              <div class="panel-title"> Filter </div>
+              <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+            </div>
+            <div class="panel-body">
+              <div class="form-group">
+                <label for="field-1" class="col-sm-1 control-label">Type</label>
+                <div class="col-sm-2"> {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"select2 small"))}} </div>
+                <label for="field-1" class="col-sm-1 control-label">Account</label>
+                <div class="col-sm-2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
+                <label for="field-1" class="col-sm-1 control-label">Status</label>
+                <div class="col-sm-2"> {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
+                <label for="field-1" class="col-sm-1 control-label">Hide Zero Value</label>
+                <div class="col-sm-2">
+                  <p class="make-switch switch-small">
+                    <input id="zerovalueinvoice" name="zerovalueinvoice"
                                                    type="checkbox" @if($InvoiceHideZeroValue == 1) checked @endif>
-                                        </p>
-                                    </div>
-
-                                </div>
-                                <div class="form-group">
-                                    <label for="field-1" class="col-sm-1 control-label">Invoice Number</label>
-
-                                    <div class="col-sm-2">
-                                        {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
-                                    </div>
-                                    <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
-                                    <div class="col-sm-2">
-                                        {{ Form::text('IssueDateStart', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
-                                    </div>
-                                    <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
-                                    <div class="col-sm-2">
-                                        {{ Form::text('IssueDateEnd', !empty(Input::get('EndDate'))?Input::get('EndDate'):$data['IssueDateEndDefault'], array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
-                                    </div>
-
-                                    <label for="field-1" class="col-sm-1 control-label">Currency</label>
-
-                                    <div class="col-sm-2">
-                                        {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}}
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="field-1" class="col-sm-1 control-label">Overdue</label>
-
-                                    <div class="col-sm-2">
-                                        <p class="make-switch switch-small">
-                                            <input id="Overdue" name="Overdue" type="checkbox">
-                                        </p>
-                                    </div>
-                                </div>
-                                <p style="text-align: right;">
-                                    <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
-                                        <i class="entypo-search"></i>
-                                        Search
-                                    </button>
-                                </p>
-                            </div>
-                        </div>
-                    </form>
+                  </p>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="input-group-btn pull-right" style="width:70px;">
-                        @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
-                                    aria-expanded="false">Action <span class="caret"></span></button>
-                            <ul class="dropdown-menu dropdown-menu-left" role="menu"
-                                style="background-color: #000; border-color: #000; margin-top:0px;">
-                                @if(User::checkCategoryPermission('Invoice','Send'))
-                                    <li>
-                                        <a class="generate_rate create" id="bulk-invoice-send" href="javascript:;"
-                                           style="width:100%">
-                                            Send Invoice
-                                        </a>
-                                    </li>
-                                @endif
-                                @if(User::checkCategoryPermission('Invoice','Edit'))
-                                    <li>
-                                        <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;">
-                                            Change Status
-                                        </a>
-                                    </li>
-                                @endif
-                                @if(User::checkCategoryPermission('Invoice','Generate'))
-                                    <li>
-                                        <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;">
-                                            Regenerate
-                                        </a>
-                                    </li>
-                                @endif
-                                @if(is_authorize() || is_Stripe())
-                                    @if(User::checkCategoryPermission('Invoice','Edit'))
-                                        <li>
-                                            <a class="pay_now create" id="pay_now" href="javascript:;">
-                                                Pay Now
-                                            </a>
-                                        </li>
-                                    @endif
-                                @endif
-                                @if(User::checkCategoryPermission('Invoice','Email'))
-                                    <li>
-                                        <a class="pay_now create" id="bulk_email" href="javascript:;">
-                                            Bulk Email
-                                        </a>
-                                    </li>
-                                @endif
-                                @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook))
-                                    <li>
-                                        <a class="quickbookpost create" id="quickbook_post" href="javascript:;">
-                                            QuickBook Post
-                                        </a>
-                                    </li>
-                                @endif
-                                    <li>
-                                        <a class="create" id="sage-export" href="javascript:;">
-                                            Sage Export
-                                        </a>
-                                    </li>
-                            </ul>
-                        @endif
-                        <form id="clear-bulk-rate-form">
-                            <input type="hidden" name="CustomerRateIDs" value="">
-                        </form>
-                    </div>
-                    <!-- /btn-group -->
-                    <div class="clear"><br></div>
-
+              </div>
+              <div class="form-group">
+                <label for="field-1" class="col-sm-1 control-label">Invoice Number</label>
+                <div class="col-sm-2"> {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }} </div>
+                <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
+                <div class="col-sm-2"> {{ Form::text('IssueDateStart', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar --> 
                 </div>
+                <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
+                <div class="col-sm-2"> {{ Form::text('IssueDateEnd', !empty(Input::get('EndDate'))?Input::get('EndDate'):$data['IssueDateEndDefault'], array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }} </div>
+                <label for="field-1" class="col-sm-1 control-label">Currency</label>
+                <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}} </div>
+              </div>
+              <div class="form-group">
+                <label for="field-1" class="col-sm-1 control-label">Overdue</label>
+                <div class="col-sm-2">
+                  <p class="make-switch switch-small">
+                    <input id="Overdue" name="Overdue" type="checkbox">
+                  </p>
+                </div>
+              </div>
+              <p style="text-align: right;">
+                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
+              </p>
             </div>
-
-
-            <table class="table table-bordered datatable" id="table-4">
-                <thead>
-                <tr>
-                    <th width="10%">
-                        <div class="pull-left"><input type="checkbox" id="selectall" name="checkbox[]" class=""/></div>
-                    </th>
-                    <th width="15%">Account Name</th>
-                    <th width="10%">Invoice Number</th>
-                    <th width="10%">Issue Date</th>
-                    <th width="13%">Invoice Period</th>
-                    <th width="6%">Grand Total</th>
-                    <th width="6%">Paid/OS</th>
-                    <th width="10%">Invoice Status</th>
-                    <th width="20%">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-
-
-                </tbody>
-            </table>
-
-
-        </div>
+          </div>
+        </form>
+      </div>
     </div>
-    <script type="text/javascript">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
+          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+                                    aria-expanded="false">Action <span class="caret"></span></button>
+          <ul class="dropdown-menu dropdown-menu-left" role="menu"
+                                style="background-color: #000; border-color: #000; margin-top:0px;">
+            @if(User::checkCategoryPermission('Invoice','Send'))
+            <li> <a class="generate_rate create" id="bulk-invoice-send" href="javascript:;"
+                                           style="width:100%"> Send Invoice </a> </li>
+            @endif
+            @if(User::checkCategoryPermission('Invoice','Edit'))
+            <li> <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;"> Change Status </a> </li>
+            @endif
+            @if(User::checkCategoryPermission('Invoice','Generate'))
+            <li> <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;"> Regenerate </a> </li>
+            @endif
+            @if(is_authorize() || is_Stripe())
+            @if(User::checkCategoryPermission('Invoice','Edit'))
+            <li> <a class="pay_now create" id="pay_now" href="javascript:;"> Pay Now </a> </li>
+            @endif
+            @endif
+            @if(User::checkCategoryPermission('Invoice','Email'))
+            <li> <a class="pay_now create" id="bulk_email" href="javascript:;"> Bulk Email </a> </li>
+            @endif
+            @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook))
+            <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Post </a> </li>
+            @endif
+            <li> <a class="create" id="sage-export" href="javascript:;"> Sage Export </a> </li>
+          </ul>
+          @endif
+          <form id="clear-bulk-rate-form">
+            <input type="hidden" name="CustomerRateIDs" value="">
+          </form>
+        </div>
+        <!-- /btn-group -->
+        <div class="clear"><br>
+        </div>
+      </div>
+    </div>
+    <table class="table table-bordered datatable" id="table-4">
+      <thead>
+        <tr>
+          <th width="10%"> <div class="pull-left">
+              <input type="checkbox" id="selectall" name="checkbox[]" class=""/>
+            </div>
+          </th>
+          <th width="15%">Account Name</th>
+          <th width="10%">Invoice Number</th>
+          <th width="10%">Issue Date</th>
+          <th width="13%">Invoice Period</th>
+          <th width="6%">Grand Total</th>
+          <th width="6%">Paid/OS</th>
+          <th width="10%">Invoice Status</th>
+          <th width="20%">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script type="text/javascript">
         var $searchFilter = {};
         var checked = '';
         var update_new_url;
@@ -357,7 +271,7 @@
                             if (full[0] == '{{Invoice::INVOICE_IN}}') {
                                 if ('{{User::checkCategoryPermission('Invoice','Edit')}}') {
                                     action += '<div class="btn-group">';
-                                    action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
+                                    action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                                     action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
                                     action += ' <li><a class="edit-invoice-in icon-left"><i class="entypo-pencil"></i>Edit </a></li>';
                                     //action += ' <li><a class="view-invoice-in icon-left"><i class="entypo-pencil"></i>Print </a></li>';
@@ -369,7 +283,7 @@
                                 }
                             } else {
                                 action += '<div class="btn-group">';
-                                action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
+                                action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                                 action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
                                 if (full[13] == '{{Invoice::ITEM_INVOICE}}') {
@@ -987,7 +901,8 @@
                 InvoiceID = cur_obj.find("[name=InvoiceID]").val();
                 send_url = ("/invoice/{id}/invoice_email").replace("{id}", InvoiceID);
                 showAjaxModal(send_url, 'send-modal-invoice');
-                $('#send-modal-invoice').modal('show');
+				
+                $('#send-modal-invoice').modal('show');			
             });
 
             $("#send-invoice-form").submit(function (e) {
@@ -1109,11 +1024,16 @@
 
             });
             $("#bulk_email").click(function () {
+				document.getElementById('BulkMail-form').reset();
+				$("#modal-BulkMail").find('.file-input-name').html("");
                 $("#BulkMail-form [name='email_template']").val('').trigger("change");
                 $("#BulkMail-form [name='template_option']").val('').trigger("change");
                 $("#BulkMail-form").trigger('reset')
                 $("#modal-BulkMail").modal('show');
             });
+			$('#send-modal-invoice').on('shown.bs.modal', function (event) {
+				//setTimeout(function(){ $("#send-modal-invoice").find(".select22").select2(); }, 250);
+			});
             $('#modal-BulkMail').on('shown.bs.modal', function (event) {
                 var modal = $(this);
                 modal.find('.message').wysihtml5({
@@ -1152,15 +1072,15 @@
                             modal.find('.message').val(EmailTemplate.TemplateBody);
                             modal.find('.message').wysihtml5({
                                 "font-styles": true,
-                                "emphasis": true,
-                                "leadoptions":false,
-                                "invoiceoptions":true,
-                                "Crm":false,
-                                "lists": true,
-                                "html": true,
-                                "link": true,
-                                "image": true,
-                                "color": false,
+								"emphasis": true,
+								"leadoptions":false,
+								"invoiceoptions":true,
+								"Crm":false,
+								"lists": true,
+								"html": true,
+								"link": true,
+								"image": true,
+								"color": false,
                                 parser: function (html) {
                                     return html;
                                 }
@@ -1238,17 +1158,17 @@
                 $('#TestMail-form').find('[name="EmailAddress"]').val('');
                 $('#modal-TestMail').modal({show: true});
             });
-            $('.alert').click(function (e) {
+            $('.alerta').click(function (e) {
                 e.preventDefault();
                 var email = $('#TestMail-form').find('[name="EmailAddress"]').val();
                 var accontID = $('.hiddenRowData').find('.rowcheckbox').val();
                 if (email == '') {
                     toastr.error('Email field should not empty.', "Error", toastr_opts);
-                    $(".alert").button('reset');
+                    $(".alerta").button('reset');
                     return false;
                 } else if (accontID == '') {
                     toastr.error('Please select sample invoice', "Error", toastr_opts);
-                    $(".alert").button('reset');
+                    $(".alerta").button('reset');
                     return false;
                 }
                 $('#BulkMail-form').find('[name="testEmail"]').val(email);
@@ -1344,7 +1264,7 @@
         });
 
     </script>
-    <style>
+<style>
         #table-4 .dataTables_filter label {
             display: none !important;
         }
@@ -1361,703 +1281,469 @@
             padding: 15px 10px;
         }
     </style>
-    <link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
-    <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
-    <script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
+<link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
+<script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
+<script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
+@include('accounts.bulk_email')
 @stop
 @section('footer_ext')
-    @parent
-            <!-- Job Modal  (Ajax Modal)-->
-    <div class="modal fade custom-width" id="print-modal-invoice">
-        <div class="modal-dialog" style="width: 60%;">
-            <div class="modal-content">
-                <form id="add-new-invoice_template-form" method="post" class="form-horizontal form-groups-bordered"
+    @parent 
+<!-- Job Modal  (Ajax Modal)-->
+<div class="modal fade custom-width" id="print-modal-invoice">
+  <div class="modal-dialog" style="width: 60%;">
+    <div class="modal-content">
+      <form id="add-new-invoice_template-form" method="post" class="form-horizontal form-groups-bordered"
                       enctype="multipart/form-data">
-                    <div class="modal-header">
-                        <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
-                        <h4 class="modal-title">
-                            <a class="btn btn-primary print btn-sm btn-icon icon-left" href="">
-                                <i class="entypo-print"></i>
-                                Print
-                            </a>
-                        </h4>
-                    </div>
-                    <div class="modal-body">
-                        Content is loading...
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
+        <div class="modal-header">
+          <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+          <h4 class="modal-title"> <a class="btn btn-primary print btn-sm btn-icon icon-left" href=""> <i class="entypo-print"></i> Print </a> </h4>
         </div>
+        <div class="modal-body"> Content is loading... </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        </div>
+      </form>
     </div>
-
-    <div class="modal fade custom-width" id="modal-invoice-in">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <form id="add-invoice_in_template-form" method="post" class="form-horizontal form-groups-bordered">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add Invoice</h4>
-                    </div>
-                    <div class="modal-body">
-
-                        <div class="form-group">
-                            <label for="field-5" class="col-sm-2 control-label">Account Name</label>
-
-                            <div class="col-sm-4">
-                                {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
-                                <input type="hidden" name="InvoiceID">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Start Date</label>
-
-                            <div class="col-sm-2">
-                                <input type="text" name="StartDate" class="form-control datepicker"
+  </div>
+</div>
+<div class="modal fade custom-width" id="modal-invoice-in">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="add-invoice_in_template-form" method="post" class="form-horizontal form-groups-bordered">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add Invoice</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="field-5" class="col-sm-2 control-label">Account Name</label>
+            <div class="col-sm-4"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+              <input type="hidden" name="InvoiceID">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Start Date</label>
+            <div class="col-sm-2">
+              <input type="text" name="StartDate" class="form-control datepicker"
                                        data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}"/>
-                            </div>
-                            <div class="col-sm-2">
-                                <input type="text" name="StartTime" value="00:00:00" data-minute-step="5" data-show-meridian="false"
+            </div>
+            <div class="col-sm-2">
+              <input type="text" name="StartTime" value="00:00:00" data-minute-step="5" data-show-meridian="false"
                                        data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown"
                                        class="form-control timepicker">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">End Date</label>
-
-                            <div class="col-sm-2">
-                                <input type="text" name="EndDate" class="form-control datepicker"
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">End Date</label>
+            <div class="col-sm-2">
+              <input type="text" name="EndDate" class="form-control datepicker"
                                        data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}"/>
-                            </div>
-                            <div class="col-sm-2">
-                                <input type="text" name="EndTime" value="23:59:59" data-minute-step="5" data-show-meridian="false"
+            </div>
+            <div class="col-sm-2">
+              <input type="text" name="EndTime" value="23:59:59" data-minute-step="5" data-show-meridian="false"
                                        data-default-time="00:00 AM" data-show-seconds="true" data-template="dropdown"
                                        class="form-control timepicker">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Issue Date</label>
-
-                            <div class="col-sm-4">
-                                <input type="text" name="IssueDate" class="form-control datepicker"
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Issue Date</label>
+            <div class="col-sm-4">
+              <input type="text" name="IssueDate" class="form-control datepicker"
                                        data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}"/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Invoice Number</label>
-
-                            <div class="col-sm-4">
-                                <input type="text" name="InvoiceNumber" class="form-control" value=""/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Grand Total<span
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Invoice Number</label>
+            <div class="col-sm-4">
+              <input type="text" name="InvoiceNumber" class="form-control" value=""/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Grand Total<span
                                         id="currency"></span></label>
-
-                            <div class="col-sm-4">
-                                <input type="text" name="GrandTotal" class="form-control" value=""/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Total Seconds</label>
-
-                            <div class="col-sm-4">
-                                <input type="text" name="TotalMinutes" class="form-control" value=""/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Dispute Amount</label>
-
-                            <div class="col-sm-4">
-                                <input type="text" name="DisputeAmount" class="form-control" value=""/>
-                            </div>
-                        </div>
-                        <div class="form-group ">
-                            <label class="col-sm-2 control-label" for="field-1">Reconcile</label>
-
-                            <div class="col-sm-4">
-                                <table class="reconcile_table table table-bordered datatable  hidden">
-                                    <thead>
-                                    <th></th>
-                                    <th>Total</th>
-                                    <th>Difference</th>
-                                    <th>Difference %</th>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <th>Amount</th>
-                                        <td><span class="DisputeTotal"></span></td>
-                                        <td><span class="DisputeDifference"></span></td>
-                                        <td><span class="DisputeDifferencePer"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Seconds</th>
-                                        <td><span class="DisputeMinutes"></span></td>
-                                        <td><span class="MinutesDifference"></span></td>
-                                        <td><span class="MinutesDifferencePer"></span></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                                <button class="btn btn-primary reconcile btn-sm btn-icon icon-left" type="button"
-                                        data-loading-text="Loading...">
-                                    <i class="entypo-pencil"></i>
-                                    Reconcile
-                                </button>
-                                <button class="btn ignore btn-danger btn-sm btn-icon icon-left hidden" type="button"
-                                        data-loading-text="Loading...">
-                                    <i class="entypo-pencil"></i>
-                                    Ignore
-                                </button>
-
-                                <input type="hidden" name="DisputeID">
-
-                                {{--<input type="hidden" name="DisputeTotal">--}}
-                                {{--<input type="hidden" name="DisputeDifference">--}}
-                                {{--<input type="hidden" name="DisputeDifferencePer">--}}
-
-                                {{--<input type="hidden" name="DisputeMinutes">--}}
-                                {{--<input type="hidden" name="MinutesDifference">--}}
-                                {{--<input type="hidden" name="MinutesDifferencePer">--}}
-
-
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Description</label>
-
-                            <div class="col-sm-4">
-                                <input type="text" name="Description" class="form-control" value=""/>
-                                <input type="hidden" name="InvoiceDetailID" class="form-control" value=""/>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Attachment(.pdf, .jpg, .png,
-                                .gif)</label>
-
-                            <div class="col-sm-4">
-                                <input id="Attachment" name="Attachment" type="file"
+            <div class="col-sm-4">
+              <input type="text" name="GrandTotal" class="form-control" value=""/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Total Seconds</label>
+            <div class="col-sm-4">
+              <input type="text" name="TotalMinutes" class="form-control" value=""/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Dispute Amount</label>
+            <div class="col-sm-4">
+              <input type="text" name="DisputeAmount" class="form-control" value=""/>
+            </div>
+          </div>
+          <div class="form-group ">
+            <label class="col-sm-2 control-label" for="field-1">Reconcile</label>
+            <div class="col-sm-4">
+              <table class="reconcile_table table table-bordered datatable  hidden">
+                <thead>
+                <th></th>
+                  <th>Total</th>
+                  <th>Difference</th>
+                  <th>Difference %</th>
+                    </thead>
+                <tbody>
+                  <tr>
+                    <th>Amount</th>
+                    <td><span class="DisputeTotal"></span></td>
+                    <td><span class="DisputeDifference"></span></td>
+                    <td><span class="DisputeDifferencePer"></span></td>
+                  </tr>
+                  <tr>
+                    <th>Seconds</th>
+                    <td><span class="DisputeMinutes"></span></td>
+                    <td><span class="MinutesDifference"></span></td>
+                    <td><span class="MinutesDifferencePer"></span></td>
+                  </tr>
+                </tbody>
+              </table>
+              <button class="btn btn-primary reconcile btn-sm btn-icon icon-left" type="button"
+                                        data-loading-text="Loading..."> <i class="entypo-pencil"></i> Reconcile </button>
+              <button class="btn ignore btn-danger btn-sm btn-icon icon-left hidden" type="button"
+                                        data-loading-text="Loading..."> <i class="entypo-pencil"></i> Ignore </button>
+              <input type="hidden" name="DisputeID">
+              {{--
+              <input type="hidden" name="DisputeTotal">
+              --}}
+              {{--
+              <input type="hidden" name="DisputeDifference">
+              --}}
+              {{--
+              <input type="hidden" name="DisputeDifferencePer">
+              --}}
+              
+              {{--
+              <input type="hidden" name="DisputeMinutes">
+              --}}
+              {{--
+              <input type="hidden" name="MinutesDifference">
+              --}}
+              {{--
+              <input type="hidden" name="MinutesDifferencePer">
+              --}} </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Description</label>
+            <div class="col-sm-4">
+              <input type="text" name="Description" class="form-control" value=""/>
+              <input type="hidden" name="InvoiceDetailID" class="form-control" value=""/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Attachment(.pdf, .jpg, .png,
+              .gif)</label>
+            <div class="col-sm-4">
+              <input id="Attachment" name="Attachment" type="file"
                                        class="form-control file2 inline btn btn-primary"
                                        data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse"/>
-
-                                <!--<br><span class="file-input-name"></span>-->
-                            </div>
-                            <div class="col-sm-1 download">
-
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="modal-footer">
-                        <button id="saveinvoice" class="btn btn-primary btn-sm btn-icon icon-left" type="submit"
-                                data-loading-text="Loading...">
-                            <i class="entypo-pencil"></i>
-                            Save
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
+              
+              <!--<br><span class="file-input-name"></span>--> 
             </div>
+            <div class="col-sm-1 download"> </div>
+          </div>
         </div>
+        <div class="modal-footer">
+          <button id="saveinvoice" class="btn btn-primary btn-sm btn-icon icon-left" type="submit"
+                                data-loading-text="Loading..."> <i class="entypo-pencil"></i> Save</button>
+          <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        </div>
+      </form>
     </div>
-    <div class="modal fade custom-width" id="modal-invoice-in-view">
-        <div class="modal-dialog" style="width: 60%;">
-            <div class="modal-content">
-                <form class="form-horizontal form-groups-bordered">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">View Invoice</h4>
-                    </div>
-                    <div class="modal-body">
-
-                        <div class="form-group">
-                            <label for="field-5" class="col-sm-2 control-label">Account Name</label>
-
-                            <div class="col-sm-4 control-label">
-                                <span data-id="AccountName">abcs</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Issue Date</label>
-
-                            <div class="col-sm-4 control-label">
-                                <span data-id="IssueDate"></span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Invoice Number</label>
-
-                            <div class="col-sm-4 control-label">
-                                <span data-id="InvoiceNumber"></span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Grand Total<span
+  </div>
+</div>
+<div class="modal fade custom-width" id="modal-invoice-in-view">
+  <div class="modal-dialog" style="width: 60%;">
+    <div class="modal-content">
+      <form class="form-horizontal form-groups-bordered">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">View Invoice</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="field-5" class="col-sm-2 control-label">Account Name</label>
+            <div class="col-sm-4 control-label"> <span data-id="AccountName">abcs</span> </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Issue Date</label>
+            <div class="col-sm-4 control-label"> <span data-id="IssueDate"></span> </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Invoice Number</label>
+            <div class="col-sm-4 control-label"> <span data-id="InvoiceNumber"></span> </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Grand Total<span
                                         id="currency"></span></label>
-
-                            <div class="col-sm-4 control-label">
-                                <span data-id="GrandTotal"></span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Description</label>
-
-                            <div class="col-sm-4 control-label">
-                                <span data-id="Description"></span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label" for="field-1">Attachment</label>
-
-                            <div class="col-sm-4 control-label">
-                                <span data-id="Attachment"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
+            <div class="col-sm-4 control-label"> <span data-id="GrandTotal"></span> </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Description</label>
+            <div class="col-sm-4 control-label"> <span data-id="Description"></span> </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="field-1">Attachment</label>
+            <div class="col-sm-4 control-label"> <span data-id="Attachment"></span> </div>
+          </div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        </div>
+      </form>
     </div>
-    <div class="modal fade in" id="send-modal-invoice">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="send-invoice-form" method="post" class="form-horizontal form-groups-bordered">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Send Invoice By Email</h4>
-                    </div>
-                    <div class="modal-body">
-
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left"
+  </div>
+</div>
+<div class="modal fade in" id="send-modal-invoice">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="send-invoice-form" method="post" action="">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Send Invoice By Email</h4>
+        </div>
+        <div class="modal-body"> </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left"
+                                data-loading-text="Loading..."> <i class="entypo-mail"></i> Send </button>
+          <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal fade in" id="selected-invoice-status">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="selected-invoice-status-form" method="post">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Change Selected Invoice Status</h4>
+        </div>
+        <div class="modal-body">
+          <div id="text-boxes" class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Invoice Status</label>
+                {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
+            </div>
+            <div class="col-md-6" id="statuscancel">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Cancel Reason</label>
+                <input type="text" name="CancelReason" class="form-control" value=""/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left cancelbutton"
                                 data-loading-text="Loading...">
-                            <i class="entypo-mail"></i>
-                            Send
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
+          <i class="entypo-floppy"></i>
+          <input type="hidden" name="InvoiceIDs" value="">
+          <input type="hidden" name="criteria"/>
+          Save
+          </button>
+          <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
+      </form>
     </div>
-    <div class="modal fade in" id="selected-invoice-status">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="selected-invoice-status-form" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Change Selected Invoice Status</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div id="text-boxes" class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Invoice Status</label>
-                                    {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
-                                </div>
-                            </div>
-                            <div class="col-md-6" id="statuscancel">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Cancel Reason</label>
-                                    <input type="text" name="CancelReason" class="form-control" value=""/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left cancelbutton"
+  </div>
+</div>
+<div class="modal fade in" id="invoice-status-cancel">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="invoice-status-cancel-form" method="post">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Provide Cancel Reason</h4>
+        </div>
+        <div class="modal-body">
+          <div id="text-boxes" class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Cancel Reason</label>
+                <input type="text" name="CancelReason" class="form-control" value=""/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left"
                                 data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            <input type="hidden" name="InvoiceIDs" value="">
-                            <input type="hidden" name="criteria"/>
-                            Save
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
+          <i class="entypo-floppy"></i>
+          <input type="hidden" name="InvoiceIDs" value="">
+          <input type="hidden" name="InvoiceStatus" value="">
+          Save
+          </button>
+          <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
+      </form>
     </div>
-    <div class="modal fade in" id="invoice-status-cancel">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="invoice-status-cancel-form" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Provide Cancel Reason</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div id="text-boxes" class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Cancel Reason</label>
-                                    <input type="text" name="CancelReason" class="form-control" value=""/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left"
-                                data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            <input type="hidden" name="InvoiceIDs" value="">
-                            <input type="hidden" name="InvoiceStatus" value="">
-                            Save
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
+  </div>
+</div>
+<div class="modal fade custom-width" id="pay_now_modal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title"> Pay Now </h4>
+      </div>
+      <div class="modal-body"> </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="add-modal-card" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="add-credit-card-form" method="post">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add New Card</h4>
         </div>
-    </div>
-    <div class="modal fade custom-width" id="pay_now_modal">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title"> Pay Now
-                    </h4>
-                </div>
-                <div class="modal-body">
-
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
-                    </button>
-                </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Title</label>
+                <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
+              </div>
             </div>
-        </div>
-    </div>
-    <div class="modal fade" id="add-modal-card" data-backdrop="static">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="add-credit-card-form" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add New Card</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Title</label>
-                                    <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Name on card*</label>
-                                    <input type="text" name="NameOnCard" autocomplete="off" class="form-control"
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Name on card*</label>
+                <input type="text" name="NameOnCard" autocomplete="off" class="form-control"
                                            id="field-5" placeholder="">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Credit Card Number *</label>
-                                    <input type="text" name="CardNumber" autocomplete="off" class="form-control"
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Credit Card Number *</label>
+                <input type="text" name="CardNumber" autocomplete="off" class="form-control"
                                            id="field-5" placeholder="">
-                                    <input type="hidden" name="cardID"/>
-                                    <input type="hidden" name="AccountID"/>
-                                    <input type="hidden" name="PaymentGatewayID"/>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Card Type*</label>
-                                    {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"select2 small")) }}
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">CVV Number*</label>
-                                    <input type="text" data-mask="decimal" name="CVVNumber" autocomplete="off"
+                <input type="hidden" name="cardID"/>
+                <input type="hidden" name="AccountID"/>
+                <input type="hidden" name="PaymentGatewayID"/>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Card Type*</label>
+                {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"select2 small")) }} </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-5" class="control-label">CVV Number*</label>
+                <input type="text" data-mask="decimal" name="CVVNumber" autocomplete="off"
                                            class="form-control" id="field-5" placeholder="">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <div class="col-md-4">
-                                        <label for="field-5" class="control-label">Expiry Date *</label>
-                                    </div>
-                                    <div class="col-md-4">
-                                        {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"select2 small")) }}
-                                    </div>
-                                    <div class="col-md-4">
-                                        {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"select2 small")) }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" id="card-update" class="save btn btn-primary btn-sm btn-icon icon-left"
-                                data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
+              </div>
             </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <div class="col-md-4">
+                  <label for="field-5" class="control-label">Expiry Date *</label>
+                </div>
+                <div class="col-md-4"> {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"select2 small")) }} </div>
+                <div class="col-md-4"> {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"select2 small")) }} </div>
+              </div>
+            </div>
+          </div>
         </div>
+        <div class="modal-footer">
+          <button type="submit" id="card-update" class="save btn btn-primary btn-sm btn-icon icon-left"
+                                data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+          <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        </div>
+      </form>
     </div>
-    <div class="modal fade" id="add-edit-modal-payment">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="add-edit-payment-form" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add New payment Request</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Account Name * <span
+  </div>
+</div>
+<div class="modal fade" id="add-edit-modal-payment">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="add-edit-payment-form" method="post">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add New payment Request</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Account Name * <span
                                                 id="AccountID_currency"></span></label>
-                                    {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
-                                    <input type="hidden" name="AccountName"/>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Payment Date *</label>
-                                    <input type="text" name="PaymentDate" class="form-control datepicker"
+                {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+                <input type="hidden" name="AccountName"/>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Payment Date *</label>
+                <input type="text" name="PaymentDate" class="form-control datepicker"
                                            data-enddate="{{date('Y-m-d')}}" data-date-format="yyyy-mm-dd" id="field-5"
                                            placeholder="">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Payment Method *</label>
-                                    {{ Form::select('PaymentMethod',Payment::$method, '', array("class"=>"select2 small")) }}
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Action *</label>
-                                    {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"select2 small","id"=>"PaymentTypeAuto")) }}
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Amount *</label>
-                                    <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
-                                    <input type="hidden" name="PaymentID">
-                                    <input type="hidden" name="InvoiceID">
-                                    <input type="hidden" name="OutstandingAmount">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Invoice</label>
-                                    <input type="text" id="InvoiceAuto" name="InvoiceNo" class="form-control"
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Payment Method *</label>
+                {{ Form::select('PaymentMethod',Payment::$method, '', array("class"=>"select2 small")) }} </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Action *</label>
+                {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"select2 small","id"=>"PaymentTypeAuto")) }} </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Amount *</label>
+                <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
+                <input type="hidden" name="PaymentID">
+                <input type="hidden" name="InvoiceID">
+                <input type="hidden" name="OutstandingAmount">
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Invoice</label>
+                <input type="text" id="InvoiceAuto" name="InvoiceNo" class="form-control"
                                            id="field-5" placeholder="">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Notes</label>
-                                    <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
-                                    <input type="hidden" name="PaymentID">
-                                </div>
-                            </div>
-                            @if(User::is_admin() OR User::is('AccountManager'))
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg,
-                                            .png, .gif)</label>
-
-                                        <div class="col-sm-6">
-                                            <input id="PaymentProof" name="PaymentProof" type="file"
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="field-5" class="control-label">Notes</label>
+                <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
+                <input type="hidden" name="PaymentID">
+              </div>
+            </div>
+            @if(User::is_admin() OR User::is('AccountManager'))
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="PaymentProof" class="col-sm-2 control-label">Upload (.pdf, .jpg,
+                  .png, .gif)</label>
+                <div class="col-sm-6">
+                  <input id="PaymentProof" name="PaymentProof" type="file"
                                                    class="form-control file2 inline btn btn-primary" data-label="
                             <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse"/>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" id="payment-update" class="save btn btn-primary btn-sm btn-icon icon-left"
-                                data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
+                </div>
+              </div>
             </div>
+            @endif </div>
         </div>
-    </div>
-    <div class="modal fade" id="modal-BulkMail">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Bulk Send Email</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="form-Group">
-                                <br/>
-                                <label for="field-1" class="col-sm-2 control-label">Email Template</label>
-
-                                <div class="col-sm-4">
-                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 small"))}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-Group">
-                                <br/>
-                                <label for="field-1" class="col-sm-2 control-label">Subject</label>
-
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control" id="subject" name="subject"/>
-                                    <input type="hidden" name="SelectedIDs"/>
-                                    <input type="hidden" name="criteria"/>
-                                    <input type="hidden" name="Type" value="{{EmailTemplate::INVOICE_TEMPLATE}}"/>
-                                    <input type="hidden" name="type" value="IR"/>
-                                    <input type="hidden" name="test" value="0"/>
-                                    <input type="hidden" name="testEmail" value=""/>
-                                    <input type="hidden" name="email_template_privacy" value="0">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-Group">
-                                <br/>
-                                <label for="field-1" class="col-sm-2 control-label">Message</label>
-
-                                <div class="col-sm-10">
-                                    <textarea class="form-control message" rows="18" name="message"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-group">
-                                <br/>
-                                <label for="field-5" class="col-sm-2 control-label">Attachment</label>
-
-                                <div class="col-sm-10">
-                                    <input type="file" id="attachment" name="attachment"
-                                           class="form-control file2 inline btn btn-primary"
-                                           data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse"/>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="form-Group">
-                                <br/>
-                                <label for="field-1" class="col-sm-2 control-label">Template Option</label>
-
-                                <div class="col-sm-4">
-                                    {{Form::select('template_option',$templateoption,'',array("class"=>"select2 small"))}}
-                                </div>
-                            </div>
-                        </div>
-                        <div id="templatename" class="row hidden">
-                            <div class="form-Group">
-                                <br/>
-                                <label for="field-5" class="col-sm-2 control-label">New Template Name</label>
-
-                                <div class="col-sm-4">
-                                    <input type="text" name="template_name" class="form-control" id="field-5"
-                                           placeholder="">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="bull-email-account" type="submit"
-                                class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Send
-                        </button>
-                        <button id="test" class="savetest btn btn-primary btn-sm btn-icon icon-left"
-                                data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Send Test mail
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
+        <div class="modal-footer">
+          <button type="submit" id="payment-update" class="save btn btn-primary btn-sm btn-icon icon-left"
+                                data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+          <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
+      </form>
     </div>
-    <div class="modal fade" id="modal-TestMail">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="TestMail-form" method="post" action="">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Test Mail Options</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="form-Group">
-                                <br/>
-                                <label for="field-1" class="col-sm-3 control-label">Email Address</label>
-
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control" name="EmailAddress"/>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="alert btn btn-primary btn-sm btn-icon icon-left"
-                                data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Send
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+  </div>
+</div>
 @stop

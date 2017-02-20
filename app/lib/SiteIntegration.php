@@ -129,9 +129,10 @@ class SiteIntegration{
 	/*
 	 * check settings addded or not . return true,data or false
 	 */ 	
-	public static function  CheckIntegrationConfiguration($data=false,$slug){
-
-		$companyID = SiteIntegration::GetComapnyIdByKey();
+	public static function  CheckIntegrationConfiguration($data=false,$slug,$companyID = 0){
+		if(!$companyID){
+			$companyID = SiteIntegration::GetComapnyIdByKey();
+		}
 		$companyID = !empty($companyID)?$companyID:User::get_companyID();
 		$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();	
 	
