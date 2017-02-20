@@ -11,12 +11,8 @@ class RateTablesController extends \BaseController {
             ->where("tblRateTable.CompanyId",$CompanyID);
         //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
         $data = Input::all();
-        //$data['ServiceID'] = empty($data['ServiceID']) ? 0 : $data['ServiceID'];
         if($data['TrunkID']){
             $rate_tables->where('tblRateTable.TrunkID',$data['TrunkID']);
-        }
-        if($data['ServiceID']){
-            $rate_tables->where('tblRateTable.ServiceID',$data['ServiceID']);
         }
 		if($data['Search']!=''){
             $rate_tables->WhereRaw('tblRateTable.RateTableName like "%'.$data['Search'].'%"'); 
@@ -73,8 +69,7 @@ class RateTablesController extends \BaseController {
             $codedecks = array(""=>"Select Codedeck")+$codedecks;
             $RateGenerators = array(""=>"Select rate generator")+$RateGenerators;
             $currencylist = Currency::getCurrencyDropdownIDList();
-            $Services = Service::getDropdownIDList(User::get_companyID());
-            return View::make('ratetables.index', compact('trunks','RateGenerators','codedecks','trunk_keys','currencylist','Services'));
+            return View::make('ratetables.index', compact('trunks','RateGenerators','codedecks','trunk_keys','currencylist'));
     }
 
 
@@ -108,14 +103,9 @@ class RateTablesController extends \BaseController {
             'CurrencyID'=>'required',
 
         );
-        if(empty($data['TrunkID']) && empty($data['ServiceID'])){
-            $data['TrunkIdOrServiceId'] = '';
-            $rules['TrunkIdOrServiceId'] = 'required';
-        }
         $message = ['CurrencyID.required'=>'Currency field is required',
                     //'TrunkID.required'=>'Trunk field is required',
                     'CodedeckId.required'=>'Codedeck field is required',
-                    'TrunkIdOrServiceId.required'=>'Select trunk or service field is required'
                     //'RateGeneratorId.required'=>'RateGenerator'
                     ];
 

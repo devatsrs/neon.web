@@ -30,7 +30,8 @@
     <thead>
     <tr>
         <th>Status</th>
-        <th>Title</th>
+        <th>Name</th>
+        <th>Type</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -55,19 +56,20 @@
              [
                 { "bVisible": false, "bSortable": true  },
                 { "bSortable": true },
+                { "bSortable": true },
                 {
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
                         var action , edit_ , show_, delete_ ;
                         action = '<div class = "hiddenRowData" >';
                         action += '<input type = "hidden"  name = "ServiceName" value = "' + (full[1] != null ? full[1] : '') + '" / >';
-                        action += '<input type = "hidden"  name = "ServiceType" value = "' + (full[3] != null ? full[3] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "ServiceType" value = "' + (full[2] != null ? full[2] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Status" value = "' + (full[0] != null ? full[0] : 0) + '" / ></div>';
                         <?php if(User::checkCategoryPermission('Service','Edit')){ ?>
-                                action += ' <a data-name = "'+full[1]+'" data-id="'+ full[2] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                action += ' <a data-name = "'+full[1]+'" data-id="'+ full[3] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('Service','Delete')){ ?>
-                                action += ' <a data-id="'+ full[2] +'" title="Delete" class="delete-service btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                                action += ' <a data-id="'+ full[3] +'" title="Delete" class="delete-service btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         <?php } ?>
                         return action;
                       }

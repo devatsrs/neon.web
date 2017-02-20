@@ -361,7 +361,6 @@
                 </div>
             </div>
         </div>
-        @include('accountservices.index')
         <?php
             $billing_disable = $hiden_class= '';
         if($invoice_count > 0){
@@ -551,10 +550,7 @@
 
             </div>
         </div>
-        @include('accounts.cli_tables')
-        @include('accountdiscountplan.index')
-        @include('accountsubscription.index')
-        @include('accountoneoffcharge.index')
+        @include('accountservices.index')
         <div class="panel panel-primary" data-collapsed="0">
 
             <div class="panel-heading">
@@ -664,6 +660,7 @@
         $("#save_account").click(function (ev) {
             ev.preventDefault();
             //Subscription , Additional charge filter fields should not in account save.
+            $('#service_filter').find('input').attr("disabled","disabled");
             $('#subscription_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('select').attr("disabled", "disabled");
@@ -673,6 +670,7 @@
             ajax_json(url,data,function(response){
 
               //Subscription , Additional charge filter fields to enable again.
+              $('#service_filter').find('input').attr("disabled","disabled");
               $('#subscription_filter').find('input').removeAttr("disabled");
               $('#oneofcharge_filter').find('input').removeAttr("disabled");
               $('#oneofcharge_filter').find('select').removeAttr("disabled");
@@ -756,6 +754,7 @@
                 $("#subscription_filter").find('.panel-body').hide();
                 $("#oneofcharge_filter").find('.panel-body').hide();
                 $("#clitable_filter").find('.panel-body').hide();
+                $("#service_filter").find('.panel-body').hide();
             }else{
                 $(".billing-section").hide();
                 $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',1);
@@ -881,7 +880,6 @@
 @stop
 @section('footer_ext')
 @parent
-@include('accountdiscountplan.discountplanmodal')
 <div class="modal fade" id="upload-modal-account" >
     <div class="modal-dialog">
         <div class="modal-content">

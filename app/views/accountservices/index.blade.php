@@ -56,7 +56,6 @@
             <table id="table-service" class="table table-bordered datatable">
                 <thead>
                 <tr>
-                    <th width="10%">No</th>
                     <th width="60%">Service Name</th>
                     <th width="30%">Action</th>
                 </tr>
@@ -111,21 +110,23 @@
                             "sDom": "<'row'<'col-xs-6 col-left 'l><'col-xs-6 col-right'f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                             "aaSorting": [[0, 'asc']],
                             "aoColumns": [
-                                {  "bSortable": true },  // 0 Sequence NO
-                                {  "bSortable": true },  // 1 Subscription Name
+                                {  "bSortable": true },  // 0 Service Name
+                               // {  "bSortable": false },  // 1 Service Status
+                                //{  "bSortable": false },  // 2 Service ID
+                                //{  "bSortable": false },  // 3 Account Service ID
                                 {                        // 10 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
                                 var Active_Card = baseurl + "/accountservices/{id}/changestatus/active";
                                 var DeActive_Card = baseurl + "/accountservices/{id}/changestatus/deactive";
                                  action = '';
-                                 if (full[2]=="1") {
-                                    action += ' <button href="' + DeActive_Card.replace("{id}",full[0]) + '" title=""  class="btn activeservice btn-danger btn-sm tooltip-primary" data-original-title="Deactivate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-minus-circled"></i></button>';
+                                 if (full[1]=="1") {
+                                    action += ' <button href="' + DeActive_Card.replace("{id}",full[2]) + '" title=""  class="btn activeservice btn-danger btn-sm tooltip-primary" data-original-title="Deactivate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-minus-circled"></i></button>';
                                  } else {
-                                    action += ' <button href="' + Active_Card.replace("{id}",full[0]) + '" title="" class="btn deactiveservice btn-success btn-sm tooltip-primary" data-original-title="Activate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-check"></i></button>';
+                                    action += ' <button href="' + Active_Card.replace("{id}",full[2]) + '" title="" class="btn deactiveservice btn-success btn-sm tooltip-primary" data-original-title="Activate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-check"></i></button>';
                                  }
-                                 action += ' <a href="' + service_edit_url.replace("{id}",full[0]) +'" class="edit-service btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
-                                 action += ' <a href="' + service_delete_url.replace("{id}",full[0]) +'" class="delete-service btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
+                                 action += ' <a href="' + service_edit_url.replace("{id}",full[2]) +'" class="edit-service btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
+                                 action += ' <a href="' + service_delete_url.replace("{id}",full[2]) +'" class="delete-service btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
                                  return action;
                             }
                           }
@@ -170,9 +171,10 @@
                         ev.preventDefault();
                         result = confirm("Are you Sure?");
                        if(result){
+                           $(this).button('loading');
                            var delete_url  = $(this).attr("href");
                            submit_ajax_datatable( delete_url,"",0,data_table_service);
-                            data_table_service.fnFilter('', 0);
+                            //data_table_service.fnFilter('', 0);
                            //console.log('delete');
                           // $('#service_submit').trigger('click');
                        }
@@ -187,9 +189,10 @@
                     var text = (self.hasClass("activeservice")?'Active':'Disable');
                     result = confirm('Are you sure you want to change status');
                     if(result){
+                        $(this).button('loading');
                         var delete_url  = $(this).attr("href");
                         submit_ajax_datatable( delete_url,data,0,data_table_service);
-                        data_table_service.fnFilter('', 0);
+                        //data_table_service.fnFilter('', 0);
                         //console.log('delete');
                         // $('#service_submit').trigger('click');
                     }
@@ -238,7 +241,8 @@
                     var post_data = $(this).serialize();
                     var AccountID = $(this).find("[name=AccountID]").val();
                     var _url = baseurl + '/accountservices/' + AccountID + '/addservices';
-                    submit_ajax(_url, post_data);
+                    submit_ajax_datatable(_url,post_data,0,data_table_service);
+                    //data_table_service.fnFilter('', 0);
                 });
 
             });

@@ -29,7 +29,7 @@
         Save
     </button>
 
-    <a href="{{URL::to('/accounts')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+    <a href="{{URL::to('/accounts/'.$account->AccountID.'/edit')}}" class="btn btn-danger btn-sm btn-icon icon-left">
         <i class="entypo-cancel"></i>
         Close
     </a>
@@ -42,7 +42,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Account Tariff
+                        Tariff
                     </div>
 
                     <div class="panel-options">
@@ -91,34 +91,12 @@
                 </div>
 
                 <div class="panel-options">
-                    <div class="make-switch switch-small">
-                        <input type="checkbox" @if($account->Billing == 1 )checked="" @endif name="Billing" value="1">
-                    </div>
                     <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                 </div>
             </div>
 
             <div class="panel-body billing-section">
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Billing Class*</label>
-                    <div class="col-md-4">
-                        {{Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"select2 small form-control1"));}}
-                    </div>
-                    <label for="field-1" class="col-md-2 control-label">Billing Type*</label>
-                    <div class="col-md-4">
-                        {{Form::select('BillingType', AccountApproval::$billing_type, AccountBilling::getBillingKey($AccountBilling,'BillingType'),array('id'=>'billing_type',"class"=>"select2 small"))}}
-                    </div>
-
-                </div>
-                <div class="form-group">
-
-                    <label for="field-1" class="col-md-2 control-label">Billing Timezone*</label>
-                    <div class="col-md-4">
-                        {{Form::select('BillingTimezone', $timezones, (isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:'' ),array("class"=>"form-control select2",$billing_disable))}}
-                        @if($billing_disable)
-                            <input type="hidden" value="{{isset($AccountBilling->BillingTimezone)?$AccountBilling->BillingTimezone:''}}" name="BillingTimezone">
-                        @endif
-                    </div>
                     <?php
                     $BillingStartDate = isset($AccountBilling->BillingStartDate)?$AccountBilling->BillingStartDate:'';
                     if(!empty($BillingStartDate)){
@@ -128,7 +106,7 @@
                         $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
                     }*/
                     ?>
-                    <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
+                    <label for="field-1" class="col-md-2 control-label">Billing Start Date</label>
                     <div class="col-md-4">
                         @if($hiden_class == '')
                             {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
@@ -154,7 +132,7 @@
                     </div>
                 @endif
                 <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">@if(!empty($AccountNextBilling)) New @endif Billing Cycle*</label>
+                    <label for="field-1" class="col-md-2 control-label">@if(!empty($AccountNextBilling)) New @endif Billing Cycle</label>
                     <div class="col-md-3">
                         <?php
                         if(!empty($AccountNextBilling)){
@@ -189,7 +167,7 @@
                     }
                     ?>
                     <div id="billing_cycle_weekly" class="billing_options" >
-                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - Start of Day*</label>
+                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - Start of Day</label>
                         <div class="col-md-4">
                             @if($hiden_class != '' && $BillingCycleType =='weekly' )
                                 <div class="billing_edit_text"> {{$Days[$BillingCycleValue]}} </div>
@@ -200,7 +178,7 @@
                         </div>
                     </div>
                     <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - for Days*</label>
+                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - for Days</label>
                         <div class="col-md-4">
                             @if($hiden_class != '' && $BillingCycleType =='in_specific_days' )
                                 <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
@@ -218,7 +196,7 @@
                         </div>
                     </div>
                     <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
-                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - Monthly Anniversary Date*</label>
+                        <label for="field-1" class="col-md-2 control-label">Billing Cycle - Monthly Anniversary Date</label>
                         <div class="col-md-4">
                             @if($hiden_class != '' && $BillingCycleType =='monthly_anniversary' )
                                 <div class="billing_edit_text"> {{$BillingCycleValue}} </div>
@@ -226,14 +204,6 @@
                             {{Form::text('BillingCycleValue', ($BillingCycleType =='monthly_anniversary'?$BillingCycleValue:'') ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="field-1" class="col-md-2 control-label">Send Invoice via Email</label>
-                    <div class="col-md-4">
-                        {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'never' ),array("class"=>"form-control select2"))}}
-                    </div>
-
-
                 </div>
                 <div class="form-group">
                     <label for="field-1" class="col-md-2 control-label">Last Invoice Date</label>
@@ -269,9 +239,18 @@
     var FirstTimeTrigger = true;
     jQuery(document).ready(function ($) {
 
+        var AccountBilling = '{{$AccountBilling}}';
+
+        if(AccountBilling == false){
+            $(".billing-section-hide").find('.panel-body').hide();
+        }
+
+
         $("#save_service").click(function (ev) {
             ev.preventDefault();
-            var ServiceID = '{{$ServiceID}}'
+            $(this).button('loading');
+
+            var ServiceID = '{{$ServiceID}}';
             //Subscription , Additional charge filter fields should not in account save.
             $('#subscription_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('input').attr("disabled", "disabled");
@@ -280,7 +259,7 @@
             url= baseurl + '/accountservices/{{$account->AccountID}}/update/'+ServiceID;
             var data =$('#service-edit-form').serialize();
             ajax_json(url,data,function(response){
-
+                $(".btn").button('reset');
                 //Subscription , Additional charge filter fields to enable again.
                 $('#subscription_filter').find('input').removeAttr("disabled");
                 $('#oneofcharge_filter').find('input').removeAttr("disabled");
@@ -288,7 +267,7 @@
 
                 if(response.status =='success'){
                     toastr.success(response.message, "Success", toastr_opts);
-                    if($('[name="Billing"]').prop("checked") == true && BillingChanged) {
+                    if(BillingChanged) {
                         setTimeout(function () {
                             window.location.reload()
                         }, 1000);
@@ -357,22 +336,6 @@
         $('[name="BillingCycleValue"]').on( "change",function(e){
             BillingChanged = true;
         });
-        $('[name="Billing"]').on( "change",function(e){
-            if($('[name="Billing"]').prop("checked") == true){
-                $(".billing-section").show();
-                $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',0);
-                $(".billing-section-hide").nextAll('.panel').find('.panel-body').show();
-                $('.billing-section .select2-container').css('visibility','visible');
-                $("#subscription_filter").find('.panel-body').hide();
-                $("#oneofcharge_filter").find('.panel-body').hide();
-                $("#clitable_filter").find('.panel-body').hide();
-            }else{
-                $(".billing-section").hide();
-                $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',1);
-                $(".billing-section-hide").nextAll('.panel').find('.panel-body').hide();
-            }
-        });
-        $('[name="Billing"]').trigger('change');
 
         $('#billing_edit').on( "click",function(e){
             e.preventDefault();
@@ -385,25 +348,6 @@
 
         $('select[name="BillingCycleType"]').trigger( "change" );
 
-        $('[name="BillingClassID"]').on( "change",function(e){
-            if($(this).val()>0) {
-                $.ajax({
-                    url: baseurl+'/billing_class/getInfo/' + $(this).val(),
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function (response) {
-                        $(this).button('reset');
-                        if (response.status == 'success') {
-                            if($("select[name='BillingTimezone']").val() == '') {
-                                $("select[name='BillingTimezone']").select2().select2('val', response.data.BillingTimezone);
-                            }
-                            $("[name='SendInvoiceSetting']").select2().select2('val',response.data.SendInvoiceSetting);
-                        }
-                    },
-                });
-            }
-
-        });
 
     });
 function ajax_form_success(response){

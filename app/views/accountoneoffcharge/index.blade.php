@@ -231,7 +231,7 @@
                if(result){
                    var delete_url  = $(this).attr("href");
                    submit_ajax_datatable( delete_url,"",0,data_table_char);
-                   data_table_char.fnFilter('', 0);
+                   //data_table_char.fnFilter('', 0);
                }
                return false;
         });
@@ -271,7 +271,7 @@
 		   
            $('#oneofcharge-form [name="TaxAmount"]').val(tax_final.toFixed(parseInt(decimal_places)));
            submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
-           data_table_char.fnFilter('', 0);
+           //data_table_char.fnFilter('', 0);
        });
 	   
 	   $("#oneofcharge-form [name='TaxRateID']").change(function(e) {

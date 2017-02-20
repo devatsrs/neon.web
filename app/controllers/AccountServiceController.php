@@ -49,7 +49,7 @@ class AccountServiceController extends \BaseController {
         if(!empty($services) && count($services)>0 && !empty($accountid)){
             $message = '';
             foreach($services as $service){
-                if(AccountService::where(array('CompanyID'=>$CompanyID,'ServiceID'=>$service))->count()){
+                if(AccountService::where(array('AccountID'=>$accountid,'CompanyID'=>$CompanyID,'ServiceID'=>$service))->count()){
                     $ServiceName = Service::getServiceNameByID($service);
                     $message .= $ServiceName.' already exist against <br>';
                 }else{
@@ -78,7 +78,7 @@ class AccountServiceController extends \BaseController {
     public function ajax_datagrid($id){
         $data = Input::all();        
         $id=$data['account_id'];
-        $select = ["tblAccountService.ServiceID","tblService.ServiceName","tblAccountService.Status"];
+        $select = ["tblService.ServiceName","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
         $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$id);
         if(!empty($data['SubscriptionName'])){
             $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
@@ -108,12 +108,9 @@ class AccountServiceController extends \BaseController {
             $data['Billing'] = isset($data['Billing']) ? 1 : 0;
             $CompanyID = User::get_companyID();
 
-            if(Company::isBillingLicence() && $data['Billing'] == 1) {
-                AccountService::$rules['BillingType'] = 'required';
-                AccountService::$rules['BillingTimezone'] = 'required';
+            if(!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue'])){
                 AccountService::$rules['BillingCycleType'] = 'required';
                 AccountService::$rules['BillingStartDate'] = 'required';
-                AccountService::$rules['BillingClassID'] = 'required';
                 if(isset($data['BillingCycleValue'])){
                     AccountService::$rules['BillingCycleValue'] = 'required';
                 }
@@ -135,7 +132,7 @@ class AccountServiceController extends \BaseController {
                 $data['LastInvoiceDate'] = $data['BillingStartDate'];
             }
 
-            if($data['Billing'] == 1) {
+            if(!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue'])){
                 AccountBilling::insertUpdateBilling($AccountID, $data,$ServiceID);
                 AccountBilling::storeFirstTimeInvoicePeriod($AccountID,$ServiceID);
                 $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),$ServiceID);
@@ -146,6 +143,17 @@ class AccountServiceController extends \BaseController {
                     AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID);
                     AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID);
                 }
+            }else{
+                 if(!empty($OutboundDiscountPlan) || !empty($InboundDiscountPlan)){
+                     $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),0);
+                     if(!empty($AccountPeriod)) {
+                         $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                         $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                         $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                         AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID);
+                         AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID);
+                     }
+                 }
             }
 
             //AccountTariff
@@ -211,24 +219,23 @@ class AccountServiceController extends \BaseController {
         }
     }
 
-	public function delete($AccountID,$AccountSubscriptionID)
+	public function delete($AccountID,$ServiceID)
 	{
-        if( intval($AccountSubscriptionID) > 0){
+        if( intval($AccountID) > 0 && intval($ServiceID) > 0){
 
-            if(!AccountSubscription::checkForeignKeyById($AccountSubscriptionID)){
+            if(AccountService::checkForeignKeyById($AccountID,$ServiceID)){
                 try{
-                    $AccountSubscription = AccountSubscription::find($AccountSubscriptionID);
-                    $result = $AccountSubscription->delete();
+                    $result = AccountService::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->delete();
                     if ($result) {
-                        return Response::json(array("status" => "success", "message" => "Subscription Successfully Deleted"));
+                        return Response::json(array("status" => "success", "message" => "Service Successfully Deleted"));
                     } else {
-                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Subscription."));
+                        return Response::json(array("status" => "failed", "message" => "Problem Deleting Service."));
                     }
                 }catch (Exception $ex){
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
                 }
             }else{
-                return Response::json(array("status" => "failed", "message" => "Subscription is in Use, You cant delete this Subscription."));
+                return Response::json(array("status" => "failed", "message" => "Service is in Use, You cant delete this Service."));
             }
         }
 	}

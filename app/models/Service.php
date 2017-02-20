@@ -11,7 +11,7 @@ class Service extends \Eloquent
     public static $rules = array(
         'ServiceName' =>      'required|unique:tblService',
         'CompanyID' =>  'required',
-        // 'RatePrefix' => 'required',
+        'ServiceType' => 'required',
         // 'AreaPrefix' => 'required',
         // 'Prefix' =>     'required',
         'Status' =>     'between:0,1',

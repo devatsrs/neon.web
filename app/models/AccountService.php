@@ -20,10 +20,20 @@ class AccountService extends \Eloquent {
         'BillingClassID.required' =>'Billing Class is required',
     );
 
-    public static function  checkForeignKeyById($id){
+    // check if serviceid used
+    public static function  checkForeignKeyById($AccountID,$ServiceID){
+        $AccountTariff = AccountTariff::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count();
+        $AccountBilling = AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count();
+        $AccountDiscountPlan = AccountDiscountPlan::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count();
+        $AccountSubscription = AccountSubscription::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count();
+        $AccountOneOffCharge = AccountOneOffCharge::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count();
+        $CLIRateTable = CLIRateTable::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count();
 
-        if($id>0){
+        if(!empty($AccountTariff) || !empty($AccountBilling) || !empty($AccountDiscountPlan) || !empty($AccountSubscription) || !empty($AccountOneOffCharge) || !empty($CLIRateTable)){
             return false;
         }
+        return true;
+
+
     }
 }

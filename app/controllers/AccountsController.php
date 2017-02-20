@@ -430,8 +430,8 @@ class AccountsController extends \BaseController {
         if(isset($data['tags'])){
             Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
         }
-        $DiscountPlanID = $data['DiscountPlanID'];
-        $InboundDiscountPlanID = $data['InboundDiscountPlanID'];
+        //$DiscountPlanID = $data['DiscountPlanID'];
+        //$InboundDiscountPlanID = $data['InboundDiscountPlanID'];
         $message = $password = "";
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
@@ -451,8 +451,8 @@ class AccountsController extends \BaseController {
             'phoneNumber'=>$account['Mobile']);
         unset($data['table-4_length']);
         unset($data['cardID']);
-        unset($data['DiscountPlanID']);
-        unset($data['InboundDiscountPlanID']);
+        //unset($data['DiscountPlanID']);
+        //unset($data['InboundDiscountPlanID']);
         unset($data['DataTables_Table_0_length']);
 
         if(isset($data['TaxRateId'])) {
@@ -505,6 +505,7 @@ class AccountsController extends \BaseController {
             if($data['Billing'] == 1) {
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID);
                 AccountBilling::storeFirstTimeInvoicePeriod($id,$ServiceID);
+                /*
                 $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'),$ServiceID);
                 if(!empty($AccountPeriod)) {
                     $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
@@ -512,7 +513,7 @@ class AccountsController extends \BaseController {
                     $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
                     AccountDiscountPlan::addUpdateDiscountPlan($id, $DiscountPlanID, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID);
                     AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlanID, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID);
-                }
+                } */
             }
 
             if(trim(Input::get('Number')) == ''){

@@ -14,9 +14,9 @@ class ServicesController extends BaseController {
 
        $companyID = User::get_companyID();
        if(isset($_GET['sSearch_0']) && $_GET['sSearch_0'] == ''){
-           $services = Service::select(["Status","ServiceName","ServiceID","ServiceType"])->where(["CompanyID" => $companyID,"Status"=>1]); // by Default Status 1
+           $services = Service::select(["Status","ServiceName","ServiceType","ServiceID"])->where(["CompanyID" => $companyID,"Status"=>1]); // by Default Status 1
        }else{
-           $services = Service::select(["Status","ServiceName","ServiceID","ServiceType"])->where(["CompanyID" => $companyID]);
+           $services = Service::select(["Status","ServiceName","ServiceType","ServiceID"])->where(["CompanyID" => $companyID]);
        }
 
        
@@ -36,6 +36,7 @@ class ServicesController extends BaseController {
             $data['CompanyID'] = User::get_companyID();
             $data['Status'] = isset($data['Status']) ? 1 : 0;
 
+            Service::$rules['ServiceType'] = 'required';
             Service::$rules['ServiceName'] = 'required|unique:tblService,ServiceName,NULL,CompanyID,CompanyID,'.$data['CompanyID'];
 
             $validator = Validator::make($data, Service::$rules);

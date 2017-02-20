@@ -58,14 +58,14 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Service Name</label>
+                                    <label for="field-5" class="control-label">Name</label>
                                     <input type="text" name="ServiceName" class="form-control" id="field-5" placeholder="">
 									<input type="hidden" name="ServiceID" >
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Service Type</label>
+                                    <label for="field-5" class="control-label">Type</label>
 									{{ Form::select('ServiceType',Service::$ServiceType,'', array("class"=>"select2")) }}
                                 </div>
                             </div>

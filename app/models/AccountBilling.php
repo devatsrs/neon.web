@@ -15,11 +15,19 @@ class AccountBilling extends \Eloquent {
         }
         if(AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count() == 0) {
 
-            $AccountBilling['BillingClassID'] = $data['BillingClassID'];
-            $AccountBilling['BillingType'] = $data['BillingType'];
+            if (!empty($data['BillingClassID'])) {
+                $AccountBilling['BillingClassID'] = $data['BillingClassID'];
+            }
+            if (!empty($data['BillingType'])) {
+                $AccountBilling['BillingType'] = $data['BillingType'];
+            }
             $AccountBilling['BillingCycleType'] = $data['BillingCycleType'];
-            $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
-            $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
+            if (!empty($data['BillingTimezone'])) {
+                $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
+            }
+            if (!empty($data['SendInvoiceSetting'])) {
+                $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
+            }
 
             if (!empty($data['BillingStartDate'])) {
                 $AccountBilling['BillingStartDate'] = $data['BillingStartDate'];
@@ -47,11 +55,23 @@ class AccountBilling extends \Eloquent {
             AccountBilling::create($AccountBilling);
         }else{
             AccountNextBilling::insertUpdateBilling($AccountID,$data,$ServiceID);
-            $AccountBilling['BillingClassID'] = $data['BillingClassID'];
-            $AccountBilling['BillingType'] = $data['BillingType'];
-            $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
-            $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
-            AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->update($AccountBilling);
+            if (!empty($data['BillingClassID'])) {
+                $AccountBilling['BillingClassID'] = $data['BillingClassID'];
+            }
+
+            if (!empty($data['BillingType'])) {
+                $AccountBilling['BillingType'] = $data['BillingType'];
+            }
+
+            if (!empty($data['BillingTimezone'])) {
+                $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
+            }
+            if (!empty($data['SendInvoiceSetting'])) {
+                $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
+            }
+            if(!empty($AccountBilling)){
+                AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->update($AccountBilling);
+            }
 
         }
 

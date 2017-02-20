@@ -232,7 +232,7 @@
                        if(result){
                            var delete_url  = $(this).attr("href");
                            submit_ajax_datatable( delete_url,"",0,data_table_subscription);
-                            data_table_subscription.fnFilter('', 0);
+                            //data_table_subscription.fnFilter('', 0);
                            //console.log('delete');
                           // $('#subscription_submit').trigger('click');
                        }
@@ -244,7 +244,7 @@
                    e.preventDefault();
                    var _url  = $(this).attr("action");
                    submit_ajax_datatable(_url,$(this).serialize(),0,data_table_subscription);
-                   data_table_subscription.fnFilter('', 0);
+                   //data_table_subscription.fnFilter('', 0);
                    //console.log('edit');
                   // $('#subscription_submit').trigger('click');
                });

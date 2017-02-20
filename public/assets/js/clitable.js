@@ -158,7 +158,7 @@ jQuery(document).ready(function ($) {
         var AuthRule = $('#clitable-form').find('input[name=AuthRule]').val();
         var AccountID = $('#clitable-form').find('input[name=AccountID]').val();
         if (CLIRateTableIDs.length) {
-            delete_cli(clitable_delete_url.replace("{id}", 0),'CLIRateTableIDs=' + CLIRateTableIDs.join(",") + '&criteria=' + criteria+'&AuthRule='+AuthRule+'&AccountID='+AccountID)
+            delete_cli(clitable_delete_url.replace("{id}", 0),'CLIRateTableIDs=' + CLIRateTableIDs.join(",") + '&criteria=' + criteria+'&AuthRule='+AuthRule+'&AccountID='+AccountID+'&ServiceID=' + ServiceID)
         }
     });
     $("#changeSelectedCLI").click(function (ev) {
