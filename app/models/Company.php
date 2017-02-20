@@ -117,8 +117,6 @@ class Company extends \Eloquent {
         if($CompanyID > 0){
             $Email = Company::where("CompanyID",$CompanyID)->pluck("Email");
             return explode(',',$Email);
-        }else{
-            return  getenv("TEST_EMAIL");
         }
     }
 

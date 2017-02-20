@@ -140,7 +140,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/codedecks/ajax_datagrid",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"ft_country","value":$searchFilter.ft_country},{"name":"ft_code","value":$searchFilter.ft_code},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_codedeckid","value":$searchFilter.ft_codedeckid});
                 data_table_extra_params.length = 0;

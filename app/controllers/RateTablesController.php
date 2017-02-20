@@ -415,11 +415,11 @@ class RateTablesController extends \BaseController {
 
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Rates Table.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Rates Table.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Rates Table.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Rates Table.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -444,11 +444,11 @@ class RateTablesController extends \BaseController {
             $RateTableName = str_replace( '\/','-',$RateTableName);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($rate_table_rates);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($rate_table_rates);
             }
@@ -498,7 +498,7 @@ class RateTablesController extends \BaseController {
             if (!isset($data['Trunk']) || empty($data['Trunk'])) {
                 return json_encode(["status" => "failed", "message" => 'Please Select a Trunk']);
             } else if (Input::hasFile('excel')) {
-                $upload_path = getenv('TEMP_PATH');
+                $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
                 if (in_array($ext, array("csv", "xls", "xlsx"))) {
@@ -581,10 +581,10 @@ class RateTablesController extends \BaseController {
         }
         $file_name = basename($data['TemplateFile']);
 
-        $temp_path = getenv('TEMP_PATH') . '/';
+        $temp_path = CompanyConfiguration::get('TEMP_PATH') . '/';
 
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['RATETABLE_UPLOAD']);
-        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
         copy($temp_path . $file_name, $destinationPath . $file_name);
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
             return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));

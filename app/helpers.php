@@ -511,7 +511,7 @@ function bulk_mail($type,$data){
         }
 
         if (Input::hasFile('attachment')) {
-            $upload_path = Config::get('app.upload_path');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $Attachment = Input::file('attachment');
             $ext = $Attachment->getClientOriginalExtension();
             if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif", 'zip', 'xls', 'xlsx'))) {
@@ -525,7 +525,7 @@ function bulk_mail($type,$data){
                 if ($type == 'IR') {
                     $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['BULK_INVOICE_MAIL_ATTACHEMENT']);
                 }
-                $dir = getenv('UPLOAD_PATH') . '/' . $amazonPath;
+                $dir = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
                 if (!file_exists($dir)) {
                     mkdir($dir, 777, TRUE);
                 }
@@ -1126,8 +1126,8 @@ function get_uploaded_files($session,$data){
 
 function get_max_file_size()
 {
-    $max_file_env   = getenv('MAX_UPLOAD_FILE_SIZE');
-    $max_file_size   = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
+    $max_file_env   = CompanyConfiguration::get('MAX_UPLOAD_FILE_SIZE');
+    $max_file_size   = !empty($max_file_env)?CompanyConfiguration::get('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
     return $max_file_size;
 }
 function isJson($string) {

@@ -62,11 +62,11 @@ class EstimatesController extends \BaseController {
 			
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Estimate.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Estimate.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Estimate.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Estimate.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -820,7 +820,7 @@ class EstimatesController extends \BaseController {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
-            $logo_path = getenv('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
+            $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
             RemoteSSH::run("chmod -R 777 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
@@ -847,7 +847,7 @@ class EstimatesController extends \BaseController {
             }
 			$print_type = 'Estimate';
             $body = View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
-            $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['ESTIMATE_UPLOAD'],$Account->CompanyId) ;
+            $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['ESTIMATE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             }
@@ -913,7 +913,7 @@ class EstimatesController extends \BaseController {
             $CompanyName 				= 	$Company->CompanyName;
             $EstimateGenerationEmail 	= 	CompanySetting::getKeyVal('EstimateGenerationEmail');
             $EstimateGenerationEmail 	= 	($EstimateGenerationEmail =='Invalid Key')?$Company->Email:$EstimateGenerationEmail;
-            $emailtoCustomer 			= 	getenv('EmailToCustomer');
+            $emailtoCustomer 			= 	CompanyConfiguration::get('EMAIL_TO_CUSTOMER');
 
 			if(intval($emailtoCustomer) == 1)
 			{
@@ -1198,7 +1198,7 @@ class EstimatesController extends \BaseController {
         }
 		else
 		{
-            $PDFurl = Config::get('app.upload_path')."/".$Estimate->PDF;
+            $PDFurl = CompanyConfiguration::get('UPLOAD_PATH')."/".$Estimate->PDF;
         }
 		
         header('Content-type: application/pdf');
@@ -1402,7 +1402,7 @@ class EstimatesController extends \BaseController {
             $Company 					= 	Company::find($CompanyID);
             $CompanyName 				= 	$Company->CompanyName;
             $estimatenumber = Estimate::getFullEstimateNumber($Estimate,$InvoiceTemplateID);
-            $emailtoCustomer 			= 	getenv('EmailToCustomer');
+            $emailtoCustomer 			= 	CompanyConfiguration::get('EMAIL_TO_CUSTOMER');
 
             if($data['Type']==2){
 
@@ -1490,11 +1490,11 @@ class EstimatesController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Estimate Log.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Estimate Log.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Estimate Log.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Estimate Log.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

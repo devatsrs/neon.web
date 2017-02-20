@@ -12,7 +12,7 @@ class UploadFile{
             $filesArray = json_decode($attachmentsinfo,true);
         }
         foreach ($files as $file){ 
-            $uploadPath = getenv('TEMP_PATH');
+            $uploadPath = CompanyConfiguration::get('TEMP_PATH');
             $fileNameWithoutExtension = GUID::generate();
             $fileName = $fileNameWithoutExtension . '.' . $file->getClientOriginalExtension();
             $file->move($uploadPath, $fileName);
@@ -44,15 +44,13 @@ class UploadFile{
         $filesArray = unserialize($attachmentsinfo); 
        if(!is_array($filesArray)){return array();}
         foreach ($filesArray as $file){
-			$filetempname 	=  explode("/",$file['filepath']); Log::info($file['filepath']."-------");
-			$FileNewPath    =  getenv('TEMP_PATH').'/'.end($filetempname);  
-			//$FileNewPath    =  getenv('TEMP_PATH').'/'.$file['filepath'];  Log::info($FileNewPath."-------");
+			$FileNewPath    =  CompanyConfiguration::get('TEMP_PATH').'/'.$file['filepath'];
 			$dirpath 		=  dirname($FileNewPath);
 			
 			if (!file_exists($dirpath)){
                     mkdir($dirpath, 0777, true);
              }
-			$Attachmenturl  =  AmazonS3::unSignedUrl($file['filepath']);  
+			$Attachmenturl  =  AmazonS3::unSignedUrl($file['filepath']); 
 			file_put_contents($FileNewPath,file_get_contents($Attachmenturl));
 			$filesArrayreturn[]	=	array("filename"=>$file['filename'],"filepath"=>$FileNewPath);
 		}

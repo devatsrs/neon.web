@@ -626,11 +626,11 @@ class RateGeneratorsController extends \BaseController {
                 ));
             $excel_data = json_decode(json_encode($RateGenerators),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Rate Generator.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Rate Generator.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Rate Generator.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Rate Generator.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

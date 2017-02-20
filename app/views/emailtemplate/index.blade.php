@@ -109,7 +109,7 @@ var popup_type	=	0;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/email_template/ajax_datagrid",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt});
                 data_table_extra_params.length = 0;

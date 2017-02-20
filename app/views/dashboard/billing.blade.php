@@ -48,7 +48,7 @@
             </form>
         </div>
     </div>
-    <?php if(User::checkCategoryPermission('BillingDashboard','View')){ ?>
+    <?php if(User::checkCategoryPermission('BillingDashboardSummaryWidgets','View')){ ?>
         <div class="row">
         <div class="col-md-12">
             <div data-collapsed="0" class="panel panel-primary">
@@ -167,7 +167,7 @@
         </div>
     </div>
     <?php } ?>
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboard','View'))
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
     <div class="row">
         <div class="col-md-12">
             <div class="invoice_expsense panel panel-primary panel-table">
@@ -196,7 +196,7 @@
         </div>
     </div>
     @endif
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))&& User::checkCategoryPermission('BillingDashboard','View'))
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPincodeWidget',$BillingDashboardWidgets))&& User::checkCategoryPermission('BillingDashboardPincodeWidget','View'))
         <div class="row">
             <div class="col-sm-12">
                 <div class="pin_expsense panel panel-primary panel-table">
@@ -255,7 +255,7 @@
 
         </div>
     @endif
-    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboard','View'))
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
     <div class="row">
         <div class="col-sm-6">
             <div class="panel panel-primary panel-table">
@@ -329,7 +329,7 @@
                             );
 
                         },
-                        "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[4, 'desc']],
@@ -414,7 +414,7 @@
                         "bProcessing": true,
                         "bServerSide": true,
                         "sAjaxSource": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/type",
-                        "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[2, 'desc']],

@@ -96,7 +96,7 @@ class Invoice extends \Eloquent {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
-            $logo_path = getenv('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
+            $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
             RemoteSSH::run("chmod -R 777 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
@@ -118,7 +118,7 @@ class Invoice extends \Eloquent {
             $header = htmlspecialchars_decode($header);
 
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId,$Invoice->AccountID) ;
-             $destination_dir = getenv('UPLOAD_PATH') . '/'. $amazonPath;
+             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. $amazonPath;
 			
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);

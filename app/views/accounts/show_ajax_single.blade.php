@@ -35,7 +35,7 @@
 					}
 					else
 					{
-						$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
+						$Attachmenturl = CompanyConfiguration::get('UPLOAD_PATH')."/".$attachments_data['filepath'];
 					}
                     $Attachmenturl = URL::to('emails/'.$response->AccountEmailLogID.'/getattachment/'.$key);
 					if($key==(count($attachments)-1)){

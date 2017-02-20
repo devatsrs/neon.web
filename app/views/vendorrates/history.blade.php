@@ -89,7 +89,7 @@
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/history_ajax_datagrid",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[2, 'desc']],
