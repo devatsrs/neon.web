@@ -1,3 +1,4 @@
+<?php $emailfrom  = array(); if(isset($email_from)){$emailfrom = $email_from;}else{$emailfrom = TicketGroups::GetGroupsFrom();} ?>
 <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
@@ -325,7 +326,7 @@
                                 <br />
                                 <label for="email_from" class="control-label col-sm-2">From</label>
                                 <div class="col-sm-4">
-                                  {{Form::select('email_from',$email_from,'',array("class"=>"select2","id"=>"email_from"))}} 
+                                  {{Form::select('email_from',$emailfrom,'',array("class"=>"select2","id"=>"email_from"))}} 
                                 </div>
                             </div>
                         </div>
