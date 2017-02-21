@@ -56,7 +56,7 @@
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": baseurl + "/ticketgroups/ajax_datagrid_groups/type",
-            "iDisplayLength": {{Config::get('app.pageSize')}},
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             //"sDom": 'T<"clear">lfrtip',
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",

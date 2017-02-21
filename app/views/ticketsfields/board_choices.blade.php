@@ -30,7 +30,7 @@
         <div class="form-group">
           <div class="col-md-1 margin-top">
             <?php if($valuesData->FieldType==Ticketfields::FIELD_TYPE_DYNAMIC){ ?>
-            <button type="button"  title="Delete Field" field_type="{{$field}}"  del_data_id="{{$valuesData->ValuesID}}" class="btn feild_choice_delete btn-red btn-xs"> <i class="fa fa-trash"></i> </button>
+            <button type="button"  title="Delete Field" field_type="{{$field}}"  del_data_id="{{$valuesData->ValuesID}}" class="btn feild_choice_delete btn-red btn-xs"> <i class="entypo-trash"></i> </button>
             <?php } ?>
           </div>
           <div class="col-md-4">
@@ -56,7 +56,7 @@
       <div class="col-md-12">
         <div class="form-group">
           <div class="col-md-1 margin-top">
-            <button type="button"  title="Delete Field" field_type="{{$field}}"  del_data_id="{{$valuesData->ValuesID}}" class="btn feild_choice_delete btn-red btn-xs"> <i class="fa fa-trash"></i> </button>
+            <button type="button"  title="Delete Field" field_type="{{$field}}"  del_data_id="{{$valuesData->ValuesID}}" class="btn feild_choice_delete btn-red btn-xs"> <i class="entypo-trash"></i> </button>
           </div>
           <div class="col-md-11">
             <input type="text" name="title" class="form-control" value="{{$valuesData->Title}}">

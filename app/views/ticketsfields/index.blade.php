@@ -285,7 +285,7 @@
       <div class="col-md-12">
         <div class="form-group">
           <div class="col-md-1 margin-top">
-            <button type="button"  title="Delete Field" field_type=""  del_data_id="" class="btn feild_choice_delete btn-red btn-xs"> <i class="entypo-cancel"></i> </button>
+            <button type="button"  title="Delete Field" field_type=""  del_data_id="" class="btn feild_choice_delete btn-red btn-xs"> <i class="entypo-trash"></i> </button>
           </div>
           <div class="col-md-11">
             <input type="text" name="title" class="form-control" value="">
@@ -301,7 +301,7 @@
       <div class="col-md-12">
         <div class="form-group">
           <div class="col-md-1 margin-top">
-            <button type="button" title="Delete Field" field_type="default_status" del_data_id="" class="btn feild_choice_delete btn-red btn-xs"> <i class="entypo-cancel"></i> </button>
+            <button type="button" title="Delete Field" field_type="default_status" del_data_id="" class="btn feild_choice_delete btn-red btn-xs"> <i class="entypo-trash"></i> </button>
           </div>
           <div class="col-md-4">
             <input name="title" class="form-control"  value="" type="text">

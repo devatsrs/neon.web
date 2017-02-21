@@ -45,8 +45,8 @@ private $validlicense;
 				$data['sSortDir_0']			=	 $cache_sorting['sort_type'];
 				
 		 	 }else{
-				$per_page					= 	 Config::get('app.pageSize'); 
-				$data['iDisplayLength'] 	= 	 Config::get('app.pageSize');
+				$per_page					= 	 CompanyConfiguration::get('PAGE_SIZE'); 
+				$data['iDisplayLength'] 	= 	 CompanyConfiguration::get('PAGE_SIZE');
 				$data['iSortCol_0']			=	 TicketsTable::$defaultSortField;
 				$data['sSortDir_0']			=	 TicketsTable::$defaultSortType;
 				 
