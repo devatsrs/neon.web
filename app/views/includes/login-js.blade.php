@@ -77,7 +77,13 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
 ?>
 <script>
     var customer = JSON.parse('[{"customer":"{{Session::get('customer')}}"}]');
-</script>
+	
+	@if(Tickets::CheckTicketLicense())
+	var tickets_enable       = 1;
+	@else 
+	var tickets_enable       = 0;
+	@endif
+	</script>
 @foreach ($js as $addjs)
 @if( strstr($addjs,"http") )
 

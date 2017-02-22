@@ -74,6 +74,8 @@ class AuthenticationController extends \BaseController
         unset($data['vendorclitable_length']);
         unset($data['customeriptable_length']);
         unset($data['customerclitable_length']);
+        unset($data['CLIName']);
+        unset($data['table-clitable_length']);
         if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->count()){
             AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update($data);
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated"));

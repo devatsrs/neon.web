@@ -10,7 +10,7 @@
         <div class="mail-pagination">
       @if($boxtype == Messages::inbox)  <button type="button" class="btn btn-success mailaction tooltip-primary" data-toggle="tooltip" data-placement="top"  data-original-title="Apply"><i class="entypo-check"></i></button> @endif
       @if($boxtype == Messages::draftbox)  
-      <a  action_type="Delete" action_value="1" data-toggle="tooltip" data-placement="top"  data-original-title="Delete" class="btn btn-default mailaction tooltip-primary"> <i class="glyphicon glyphicon-trash"></i> </a>
+      <a  action_type="Delete" action_value="1" data-toggle="tooltip" data-placement="top"  data-original-title="Delete" class="btn btn-default mailaction tooltip-primary"> <i class="fa fa-trash"></i> </a>
        @endif
          <strong>
           <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>

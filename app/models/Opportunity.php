@@ -13,6 +13,7 @@ class Opportunity extends \Eloquent {
     const Lost = 3;
     const Abandoned = 4;
     const Close  = 5;
+	const OPPERTUNITYTEMPLATE = "OppertunityTaskTagged";
 
     public static $defaultSelectedStatus = [Opportunity::Open,Opportunity::Won,Opportunity::Lost,Opportunity::Abandoned];
 

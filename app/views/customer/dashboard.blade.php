@@ -11,7 +11,7 @@
         var $dashsearchFilter = {};
         $dashsearchFilter.map_url = "{{URL::to('getWorldMap')}}";
         $dashsearchFilter.mapdrill_url = "{{URL::to('getWorldMap')}}";
-        $dashsearchFilter.pageSize = '{{Config::get('app.pageSize')}}';
+        $dashsearchFilter.pageSize = '{{CompanyConfiguration::get('PAGE_SIZE')}}';
         $dashsearchFilter.Admin = '{{$isAdmin}}';
         $dashsearchFilter.AccountID = '{{Customer::get_accountID()}}';
         $dashsearchFilter.StartDate = '{{date("Y-m-d 00:00:00")}}';

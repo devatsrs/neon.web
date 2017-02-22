@@ -145,7 +145,7 @@ $(document).ready(function(e) {
 		return false;		
     });		
 	$('.wysihtml5box').wysihtml5({
-						"font-styles": true,
+					"font-styles": true,
 						"leadoptions":false,
 						"Crm":false,
 						"emphasis": true,

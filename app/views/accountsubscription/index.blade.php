@@ -131,7 +131,7 @@
                                         {"name": "SubscriptionActive", "value": $search.SubscriptionActive});
 
                             },
-                            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                             "sPaginationType": "bootstrap",
                             "sDom": "<'row'r>",
                             "aaSorting": [[0, 'asc']],

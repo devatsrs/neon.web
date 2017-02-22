@@ -93,11 +93,11 @@ class PaymentsController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Payment.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Payment.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Payment.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Payment.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -432,7 +432,7 @@ class PaymentsController extends \BaseController {
         try {
             $data = Input::all();
             if (Input::hasFile('excel')) {
-                $upload_path = getenv('TEMP_PATH');
+                $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
                 if (in_array($ext, array("csv", "xls", "xlsx"))) {
@@ -516,12 +516,12 @@ class PaymentsController extends \BaseController {
         $ProcessID = $data['ProcessID'];
 
         $file_name = basename($data['TemplateFile']);
-        $temp_path = getenv('TEMP_PATH').'/' ;
+        $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
         if(JobType::checkJobType('PU') == 0){
             return Response::json(array("status" => "failure", "message" => "Job Type not Defined."));
         }
-        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
         copy($temp_path . $file_name, $destinationPath . $file_name);
 
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {

@@ -47,11 +47,11 @@ class DisputeController extends \BaseController {
 			$excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
 			$excel_data = json_decode(json_encode($excel_data),true);
 			if($type=='csv'){
-				$file_path = getenv('UPLOAD_PATH') .'/Dispute.csv';
+				$file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Dispute.csv';
 				$NeonExcel = new NeonExcelIO($file_path);
 				$NeonExcel->download_csv($excel_data);
 			}elseif($type=='xlsx'){
-				$file_path = getenv('UPLOAD_PATH') .'/Dispute.xls';
+				$file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Dispute.xls';
 				$NeonExcel = new NeonExcelIO($file_path);
 				$NeonExcel->download_excel($excel_data);
 			}

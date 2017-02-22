@@ -55,7 +55,7 @@ class MessagesController extends \BaseController {
     public function index() {        //inbox       
 		$data['EmailCall'] 			= 	 Messages::Received;
 		$data['iDisplayStart']  	= 	 0;
-		$data['iDisplayLength'] 	= 	 Config::get('app.pageSize');
+		$data['iDisplayLength'] 	= 	 CompanyConfiguration::get('PAGE_SIZE');
 		$companyID 					= 	 User::get_companyID();
 		$array						= 	 $this->GetResult($data);
 		$resultdata   				= 	 $array['resultdata'];	
@@ -76,7 +76,7 @@ class MessagesController extends \BaseController {
 	function SentBox(){
 		$data['EmailCall'] 			= 	 Messages::Sent;
 		$data['iDisplayStart']  	= 	 0;
-		$data['iDisplayLength'] 	= 	 Config::get('app.pageSize');
+		$data['iDisplayLength'] 	= 	 CompanyConfiguration::get('PAGE_SIZE');
 		$companyID 					= 	 User::get_companyID();
 		$array						= 	 $this->GetResult($data);
 		$resultdata   				= 	 $array['resultdata'];	
@@ -143,7 +143,7 @@ class MessagesController extends \BaseController {
 		 $attachments 				= 	unserialize($Emaildata->AttachmentPaths);		
 		 $data['EmailCall'] 		= 	Messages::Received;
 		 $data['iDisplayStart']  	= 	0;
-		 $data['iDisplayLength'] 	=	Config::get('app.pageSize');
+		 $data['iDisplayLength'] 	=	CompanyConfiguration::get('PAGE_SIZE');
 		 $array						=   $this->GetResult($data);
 		 $resultdata   				=   $array['resultdata'];	
 		 $resultpage  				=   $array['resultpage'];		
@@ -253,7 +253,7 @@ class MessagesController extends \BaseController {
 			{
                 $file_name  		= 	basename($array_file_data['filepath']); 
                 $amazonPath 		= 	AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT']);
-                $destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;
+                $destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath))
 				{
@@ -276,8 +276,10 @@ class MessagesController extends \BaseController {
 		 $data['name']			=    Auth::user()->FirstName.' '.Auth::user()->LastName;
 		
 		 $data['address']		=    Auth::user()->EmailAddress; 
-	   
-		 $response 				= 	NeonAPI::request('email/sendemail',$data,true,false,true);		
+	   //    public static function request($call_method,  $post_data=array(),$post=true,$is_array=false,$is_upload=false){
+		 $response 				= 	NeonAPI::request('email/sendemail',$data,true,false,true);	
+		 Log::info("response");	
+		 Log::info(print_r($response,true));	
 		if($response->status=='failed'){
 				return  json_response_api($response);
 		}
@@ -296,7 +298,7 @@ class MessagesController extends \BaseController {
 	public function Draft(){		
 		$data['EmailCall'] 			= 	 Messages::Draft;
 		$data['iDisplayStart']  	= 	 0;
-		$data['iDisplayLength'] 	= 	 Config::get('app.pageSize');
+		$data['iDisplayLength'] 	= 	 CompanyConfiguration::get('PAGE_SIZE');
 		$companyID 					= 	 User::get_companyID();
 		$array						= 	 $this->GetResult($data);  
 		$resultdata   				= 	 $array['resultdata'];	
@@ -319,11 +321,11 @@ class MessagesController extends \BaseController {
 	protected function GetDefaultCounterData(){		
 		$data['EmailCall']			=	Messages::Received;
 		$data['iDisplayStart']  	= 	 0;
-		$data['iDisplayLength'] 	= 	 Config::get('app.pageSize');
+		$data['iDisplayLength'] 	= 	 CompanyConfiguration::get('PAGE_SIZE');
 		$array						= 	 $this->GetResult($data);
 		$resultdata   				= 	 $array['resultdata'];
 		$TotalUnreads				=	 $resultdata->data['totalcountInbox'][0]->totalcountInbox;
-		$iDisplayLength 			= 	 Config::get('app.pageSize');
+		$iDisplayLength 			= 	 CompanyConfiguration::get('PAGE_SIZE');
 		$totalResults 				=    $resultdata->data['TotalResults'][0]->totalcount;
 		$TotalDraft					=	 $resultdata->data['TotalCountDraft'][0]->TotalCountDraft;
 		return array("0"=>$resultdata,"1"=>$TotalUnreads,"2"=>$iDisplayLength,"3"=>$totalResults,4=>$TotalDraft);

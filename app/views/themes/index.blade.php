@@ -78,7 +78,7 @@ var update_new_url;
 var postdata;
     jQuery(document).ready(function ($) {
 		var themestatus 					=	{{$themes_status_json}};
-		var temp_path						=	"{{getenv('TEMP_PATH')}}";
+		var temp_path						=	"{{CompanyConfiguration::get('TEMP_PATH')}}";
         public_vars.$body 					= 	$("body");
 		var base_url_theme 					= 	"{{ URL::to('themes')}}";
 		var delete_url_bulk 				= 	"{{ URL::to('themes/themes_delete_bulk')}}";
@@ -97,7 +97,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/themes/ajax_datagrid",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[1, 'desc']],
