@@ -101,7 +101,7 @@ class Payment extends \Eloquent {
             return $valid;
         }
         if (Input::hasFile('PaymentProof')){
-            $upload_path = Config::get('app.payment_proof_path');
+            $upload_path = CompanyConfiguration::get('PAYMENT_PROOF_PATH');
             $destinationPath = $upload_path.'/SampleUpload/'.Company::getName().'/';
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_PROOF']) ;
             $proof = Input::file('PaymentProof');

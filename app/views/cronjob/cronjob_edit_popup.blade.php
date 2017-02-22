@@ -185,6 +185,12 @@
                 }
                 starttime.hide();
                 starttime.val('');
+            }else if(jobtype == 'SECONDS'){
+                options.push(new Option("10 Second", 10, true, true));
+                options.push(new Option("20 Second", 20, true, true));
+                options.push(new Option("30 Second", 30, true, true));
+                starttime.hide();
+                starttime.val('');
             }else if(jobtype == 'DAILY'){
                 for(var i=1;i<'32';i++){
                     options.push(new Option(i+" Day", i, true, true));
@@ -204,7 +210,8 @@
             }
             //options.sort();
             selectBox.append(options);
-            selectBox.val(1).trigger('change');
+            var firstval = selectBox.find('option').first().val();
+            selectBox.val(firstval).trigger('change');
             @if(isset($commandconfigval->JobInterval))
             selectBox.val('{{$commandconfigval->JobInterval}}').trigger("change");
             @endif
@@ -283,7 +290,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Job Time</label>
-                                {{Form::select('Setting[JobTime]',array(""=>"Select run time","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),'',array( "class"=>"select2 small"))}}
+                                {{Form::select('Setting[JobTime]',array(""=>"Select run time","SECONDS"=>"Seconds","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),'',array( "class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="col-md-6">

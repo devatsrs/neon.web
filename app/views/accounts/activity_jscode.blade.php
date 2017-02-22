@@ -85,7 +85,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
                     minimumResultsForSearch: -1
                 });
 				mod.find('.select2-container').css('visibility','visible');
-				setTimeout(function(){ 
+				setTimeout(function(){ 				
 				mod.find('.message').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
@@ -99,7 +99,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 						parser: function(html) {
 							return html;
 						}
-				});
+				});			
 				 }, 500);
 				
 		    
@@ -253,8 +253,9 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 	
 	
 		$( document ).on("click",'.delete_note_link' ,function(e) {
-			var del_note_id  = $(this).attr('note-id');
-			var del_key_id   = $(this).attr('key_id');
+			var del_note_id  	=   $(this).attr('note-id');
+			var del_key_id   	=   $(this).attr('key_id');
+			var edit_note_type  = 	$(this).attr('note_type');
 			
 			var followup = parseInt(del_key_id)+1;
 			if ($('#timeline-'+followup).hasClass("followup_task"))
@@ -279,7 +280,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 			type: 'POST',
 			dataType: 'json',
 			async :false,
-			data:{NoteID:del_note_id},
+			data:{NoteID:del_note_id,note_type:edit_note_type},
 			success: function(response) {
 				console.log('timeline-'+del_key_id);
 				$('#timeline-'+del_key_id).remove();
@@ -305,8 +306,11 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
     });
 	
 	$( document ).on("click",'.edit_note_link' ,function(e) {
-        var edit_note_id = $(this).attr('note-id');
-		var edit_key_id  = $(this).attr('key_id');
+		
+        var edit_note_id 	= 	$(this).attr('note-id');
+		var edit_key_id  	= 	$(this).attr('key_id');
+		var edit_note_type  = 	$(this).attr('note_type');
+		
 		///////
 		var url_get_note 	= 	"<?php echo URL::to('accounts/get_note'); ?>";
 		 $.ajax({
@@ -314,13 +318,12 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 					type: 'POST',
 					dataType: 'json',
 					async :false,
-					data:{NoteID:edit_note_id},
+					data:{NoteID:edit_note_id,note_type:edit_note_type},
 					success: function(response) {
 						$('#edit-note-model #Description_edit_note').val(response.Note);
 						$('#edit-note-model #NoteID').val(parseInt(edit_note_id));
 						$('#edit-note-model #KeyID').val(parseInt(edit_key_id));
-						//
-						
+						$('#edit-note-model #NoteType').val(edit_note_type);						
 						$('#edit-note-model').modal('show'); 								
 					},
 				});	
@@ -332,20 +335,22 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
                         modal.find('.editor-note').show();
 						  
                         var modal = $('#edit-note-model');
-                        modal.find('.editor-note').wysihtml5({
-									"font-styles": true,
-									"leadoptions":false,
-									"Crm":false,
-									"emphasis": true,
-									"lists": true,
-									"html": true,
-									"link": true,
-									"image": true,
-									"color": false,
-									parser: function(html) {
-										return html;
-									}
-							});
+						
+							
+						modal.find('.editor-note').wysihtml5({
+						"font-styles": true,
+						"leadoptions":false,
+						"Crm":true,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
+							parser: function(html) {
+								return html;
+							}
+					});
                     });
 
                    	
@@ -418,20 +423,24 @@ toastr.error(status, "Error", toastr_opts);
                 doc.find('.message').val('');
             }
 			
-			doc.find('.message').wysihtml5({
-				"font-styles": true,
-				"leadoptions":false,
-				"Crm":true,
-				"emphasis": true,
-				"lists": true,
-				"html": true,
-				"link": true,
-				"image": true,
-				"color": false,
-				parser: function(html) {
-					return html;
-				}
-			});
+			///
+			
+				doc.find('.message').wysihtml5({
+						"font-styles": true,
+						"leadoptions":false,
+						"Crm":true,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
+						parser: function(html) {
+							return html;
+						}
+				});
+		
+			///
            
         }
 		
@@ -539,22 +548,24 @@ setTimeout(function() {
             $("#" + ctrl).addClass("active");
 			if(divName=='box-2')
 			{				
-        	var doc = $('.mail-compose');
-       	 doc.find('.message').wysihtml5({
-				"font-styles": true,
-				"leadoptions":false,
-				"Crm":true,
-				"emphasis": true,
-				"lists": true,
-				"html": true,
-				"link": true,
-				"image": true,
-				"color": false,
-				parser: function(html) {
-					return html;
-				}
-			});
-
+				var doc = $('.mail-compose');
+				
+				doc.find('.message').wysihtml5({
+						"font-styles": true,
+						"leadoptions":false,
+						"Crm":true,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
+							parser: function(html) {
+								return html;
+							}
+					});
+		
+	
 			}else{
 				 var doc = $('.mail-compose');
 		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
@@ -564,20 +575,21 @@ setTimeout(function() {
 			if(divName=='box-1')
 			{	
 				var doc = $('#box-1');
-			 doc.find('#note-content').wysihtml5({
-					"font-styles": true,
-					"leadoptions":false,
-					"Crm":false,
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-					parser: function(html) {
-						return html;
-					}
-				});
+				
+				doc.find('#note-content').wysihtml5({
+						"font-styles": true,
+						"leadoptions":false,
+						"Crm":true,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
+							parser: function(html) {
+								return html;
+							}
+					});
 			}
 			else
 			{

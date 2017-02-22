@@ -143,7 +143,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/estimate/ajax_datagrid/type",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[3, 'desc']],
@@ -409,7 +409,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/estimate/ajax_datagrid/type",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[3, 'desc']],},
@@ -708,6 +708,10 @@ var postdata;
             showAjaxModal( send_url ,'send-modal-estimate');
             $('#send-modal-estimate').modal('show');
         });
+		
+		$('#send-modal-estimate').on('shown.bs.modal', function (event) {
+				//setTimeout(function(){ console.log('select2');  $("#send-modal-estimate").find(".select22").select2();  }, 700);
+			});
 
         $("#send-estimate-form").submit(function(e){
             e.preventDefault();
@@ -832,9 +836,9 @@ var postdata;
   </div>
 </div>
 <div class="modal fade in" id="send-modal-estimate">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <form id="send-estimate-form" method="post" class="form-horizontal form-groups-bordered">
+      <form id="send-estimate-form" method="post" >
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">Send Estimate By Email</h4>

@@ -1,5 +1,5 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_insertCDR`(
-	IN `p_processId` VARCHAR(200),
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertCDR`(
+	IN `p_processId` varchar(200),
 	IN `p_tbltempusagedetail_name` VARCHAR(200)
 )
 BEGIN
@@ -25,37 +25,34 @@ BEGIN
 	EXECUTE stmt2;
 	DEALLOCATE PREPARE stmt2;
 
-	SET @stm3 = CONCAT('
-	INSERT INTO tblUsageDetailFailedCall (UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID)
-	SELECT UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID
-	FROM  `' , p_tbltempusagedetail_name , '` d 
-	INNER JOIN tblUsageHeader h	 
-	ON h.CompanyID = d.CompanyID
+	set @stm3 = CONCAT('
+	insert into tblUsageDetailFailedCall (UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition)
+	select UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition
+		 from  `' , p_tbltempusagedetail_name , '` d inner join tblUsageHeader h	 on h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
-	WHERE   processid = "' , p_processId , '"
-		AND billed_duration = 0 AND cost = 0;
+	where   processid = "' , p_processId , '"
+	and billed_duration = 0 and cost = 0 AND ( disposition <> "ANSWERED" or disposition IS NULL);
 	');
 
-	PREPARE stmt3 FROM @stm3;
-	EXECUTE stmt3;
-	DEALLOCATE PREPARE stmt3;
-
-	SET @stm4 = CONCAT('
-	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '"  AND billed_duration = 0 AND cost = 0;
+    PREPARE stmt3 FROM @stm3;
+    EXECUTE stmt3;
+    DEALLOCATE PREPARE stmt3;
+    
+    
+	set @stm4 = CONCAT('    
+	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '"  and billed_duration = 0 and cost = 0 AND ( disposition <> "ANSWERED" or disposition IS NULL);
 	');
 
 	PREPARE stmt4 FROM @stm4;
 	EXECUTE stmt4;
 	DEALLOCATE PREPARE stmt4;
 
-	SET @stm5 = CONCAT(' 
-	INSERT INTO tblUsageDetails (UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound)
-	SELECT UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound
-	FROM  `' , p_tbltempusagedetail_name , '` d 
-	INNER JOIN tblUsageHeader h	 
-	ON h.CompanyID = d.CompanyID
+	set @stm5 = CONCAT(' 
+	insert into tblUsageDetails (UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition)
+	select UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition
+		 from  `' , p_tbltempusagedetail_name , '` d inner join tblUsageHeader h	 on h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")

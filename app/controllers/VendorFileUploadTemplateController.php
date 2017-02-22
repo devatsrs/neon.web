@@ -12,11 +12,11 @@ class VendorFileUploadTemplateController extends \BaseController {
             $excel_data = json_decode(json_encode($Vendortemplate),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Template.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Template.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor Template.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor Template.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -56,7 +56,7 @@ class VendorFileUploadTemplateController extends \BaseController {
             $data = Input::all();
             if(!empty($data['TemplateName'])){
                 if (Input::hasFile('excel')) {
-                    $upload_path = getenv('TEMP_PATH');
+                    $upload_path = CompanyConfiguration::get('TEMP_PATH');
                     $excel = Input::file('excel');
                     $ext = $excel->getClientOriginalExtension();
                     if (in_array($ext, array("csv", "xls", "xlsx"))) {
@@ -136,7 +136,7 @@ class VendorFileUploadTemplateController extends \BaseController {
                 if(!empty($template->TemplateFile)){
                     $path = AmazonS3::unSignedUrl($template->TemplateFile);
                     if(strpos($path, "https://") !== false){
-                        $file = getenv('TEMP_PATH').'/'.basename($path);
+                        $file = CompanyConfiguration::get('TEMP_PATH').'/'.basename($path);
                         file_put_contents($file,file_get_contents($path));
                         $file_name = $file;
                     }else{
@@ -175,7 +175,7 @@ class VendorFileUploadTemplateController extends \BaseController {
         }
         $file_name = $data['TemplateFile'];
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_TEMPLATE_FILE']) ;
-        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
         rename ($file_name,$destinationPath.basename($file_name));
         if(!AmazonS3::upload($destinationPath.basename($file_name),$amazonPath)){
             return Response::json(array("status" => "failed", "message" => "Failed to upload."));

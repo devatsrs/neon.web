@@ -192,11 +192,11 @@ protected $server;
 				$file_name 		=  \Webpatser\Uuid\Uuid::generate()."_".basename($filename);
 				$amazonPath 	= 	AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT'],'');
 				
-				if(!is_dir(getenv("UPLOAD_PATH").'/'.$amazonPath)){
-					 mkdir(getenv("UPLOAD_PATH").'/'.$amazonPath, 0777, true);
+				if(!is_dir(CompanyConfiguration::get('UPLOAD_PATH').'/'.$amazonPath)){
+					 mkdir(CompanyConfiguration::get('UPLOAD_PATH').'/'.$amazonPath, 0777, true);
 				}
 				
-				$filepath   =  getenv("UPLOAD_PATH").'/'.$amazonPath . $email_number . "-" . $file_name;
+				$filepath   =  CompanyConfiguration::get('UPLOAD_PATH').'/'.$amazonPath . $email_number . "-" . $file_name;
 				$filepath2  =  $amazonPath . $email_number . "-" . $file_name; 
 				$fp = fopen($filepath, "w+");
 				fwrite($fp, $attachment['attachment']);
@@ -302,13 +302,17 @@ protected $server;
 		}
 		
 		if(count($ContactSearch)>0 || count($ContactSearch)>0)													
-		{		Log::info(print_r($ContactSearch,true));
+		{		//Log::info(print_r($ContactSearch,true));
 				$MatchType	  =   'Contact';
 				$MatchID	  =	 $ContactSearch[0]->ContactID;					
 				$AccountID	  =  $ContactSearch[0]->Owner;
 				//$Accountdata  =  
-				$Accountdata  =   DB::table('tblAccount')->where(["AccountID" => $AccountID])->get(array("AccountName"));
-				$AccountTitle =   $ContactSearch[0]->FirstName.' '.$ContactSearch[0]->LastName.' ('. $Accountdata[0]->AccountName .')';							
+				$Accountdata  =   DB::table('tblAccount')->where(["AccountID" => $AccountID])->get(array("AccountName")); 
+				if(count($Accountdata)>0){
+					$AccountTitle =   $ContactSearch[0]->FirstName.' '.$ContactSearch[0]->LastName.' ('. $Accountdata[0]->AccountName .')';							
+				}else{
+					$AccountTitle =   $ContactSearch[0]->FirstName.' '.$ContactSearch[0]->LastName;
+				}
 		}				
         
 		return array('MatchType'=>$MatchType,'MatchID'=>$MatchID,"AccountTitle"=>$AccountTitle,"AccountID"=>$AccountID);  

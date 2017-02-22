@@ -35,7 +35,7 @@
 					}
 					else
 					{
-						$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
+						$Attachmenturl = CompanyConfiguration::get('UPLOAD_PATH')."/".$attachments_data['filepath'];
 					}			
 					if($key==(count($attachments)-1)){
 						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br><br>";
@@ -48,7 +48,7 @@
 	  }
 	   ?>
       <p class="mail_message">Message:<br>{{$response->Message}}. </p>
-      <p><a data_fetch_id="{{$response->AccountEmailLogID}" conversations_type="mail"  class="ticket_conversations">View Conversation</a></p>
+      <p><a data_fetch_id="{{$response->AccountEmailLogID}}" conversations_type="mail"  class="ticket_conversations">View Conversation</a></p>
     </div>
             </div>
 </li>

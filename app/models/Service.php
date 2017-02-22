@@ -17,7 +17,7 @@ class Service extends \Eloquent
         'Status' =>     'between:0,1',
     );
 
-    public static $ServiceType = array(""=>"Please Select an Option", "voice"=>"Voice", "data"=>"Data", "sms"=>"SMS");
+    public static $ServiceType = array(""=>"Select", "voice"=>"Voice", "data"=>"Data", "sms"=>"SMS");
 
     public static function getDropdownIDList($CompanyID=0){
         if($CompanyID==0){

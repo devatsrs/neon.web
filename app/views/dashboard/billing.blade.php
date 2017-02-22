@@ -21,13 +21,13 @@
                     </div>
                     <div class="panel-body">
                         <div class="form-group">
-
-                            @if(User::is_admin())
+ 
+                            <!--@if(User::is_admin()) -->
                                 <label for="field-1" class="col-sm-1 control-label">Currency</label>
                                 <div class="col-md-2">
                                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}}
                                 </div>
-                            @endif
+                            <!--@endif -->
                                 <label for="field-1" class="col-sm-1 control-label">Date</label>
                                 <div class="col-md-2">
                                     {{ Form::select('date-span', array(6=>'6 Months',12=>'12 Months',0=>'Custome Date'), 1, array('id'=>'date-span','class'=>'select2 small')) }}
@@ -329,7 +329,7 @@
                             );
 
                         },
-                        "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[4, 'desc']],
@@ -414,7 +414,7 @@
                         "bProcessing": true,
                         "bServerSide": true,
                         "sAjaxSource": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/type",
-                        "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[2, 'desc']],
@@ -809,7 +809,7 @@
         }
 
             function invoiceExpense() {
-                @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
+                @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboard','View'))
                 var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
                 data = $('#billing_filter').serialize() + '&ListType=' + $('#invoiceExpensefilter-form [name="ListType"]').val();
                 var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
@@ -995,7 +995,7 @@
         }
 
         function deleteMissingAccounts() {
-            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboard','View'))
             var gateWayID = $("#company_gateway").val();
             if(gateWayID) {
                 if(confirm('Are you sure you want to clear missing account against this gateway?')) {
@@ -1018,7 +1018,7 @@
         }
 
         function missingAccounts() {
-            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboard','View'))
             var table = $('#missingAccounts');
             loadingUnload(table, 1);
             var url = baseurl + '/dashboard/ajax_get_missing_accounts?CompanyGatewayID=' + $("#company_gateway").val();

@@ -179,7 +179,7 @@
                 "bDestroy": true, // Destroy when resubmit form
                 "bProcessing":true,
                 "bServerSide": true,
-                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push(
                             {"name": "DestinationGroupSetID", "value": $searchFilter.DestinationGroupSetID},
