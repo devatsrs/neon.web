@@ -76,10 +76,7 @@ class AccountBilling extends \Eloquent {
         }
 
     }
-    public static function getBilling($AccountID,$ServiceID){
-        if(empty($ServiceID)){
-            $ServiceID = 0;
-        }
+    public static function getBilling($AccountID,$ServiceID=0){
         return AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->first();
     }
     public static function getBillingKey($AccountBilling,$key){

@@ -136,25 +136,17 @@ class AccountServiceController extends \BaseController {
                 AccountBilling::insertUpdateBilling($AccountID, $data,$ServiceID);
                 AccountBilling::storeFirstTimeInvoicePeriod($AccountID,$ServiceID);
                 $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),$ServiceID);
-                if(!empty($AccountPeriod)) {
-                    $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
-                    $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
-                    $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
-                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID);
-                    AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID);
-                }
             }else{
-                 if(!empty($OutboundDiscountPlan) || !empty($InboundDiscountPlan)){
-                     $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),0);
-                     if(!empty($AccountPeriod)) {
-                         $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
-                         $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
-                         $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
-                         AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID);
-                         AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID);
-                     }
-                 }
+                $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),0);
             }
+            if(!empty($AccountPeriod)) {
+                $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
+                $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
+                $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $OutboundDiscountPlan, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID);
+                AccountDiscountPlan::addUpdateDiscountPlan($AccountID, $InboundDiscountPlan, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID);
+            }
+
 
             //AccountTariff
             $InboundTariff = empty($data['InboundTariffID']) ? '' : $data['InboundTariffID'];

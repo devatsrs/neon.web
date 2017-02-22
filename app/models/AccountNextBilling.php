@@ -39,10 +39,7 @@ class AccountNextBilling extends \Eloquent {
         }
 
     }
-    public static function getBilling($AccountID,$ServiceID){
-        if(empty($ServiceID)){
-            $ServiceID = 0;
-        }
+    public static function getBilling($AccountID,$ServiceID=0){
         return AccountNextBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->first();
     }
 
