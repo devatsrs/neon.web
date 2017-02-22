@@ -1,6 +1,6 @@
 CREATE TABLE `tblUsageSummaryDetail` (
-  `UsageSummaryDetailID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `SummaryHeaderID` bigint(20) NOT NULL,
+  `UsageSummaryDetailID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `SummaryHeaderID` bigint(20) unsigned NOT NULL,
   `TimeID` int(11) NOT NULL,
   `TotalCharges` double DEFAULT NULL,
   `TotalBilledDuration` int(11) DEFAULT NULL,

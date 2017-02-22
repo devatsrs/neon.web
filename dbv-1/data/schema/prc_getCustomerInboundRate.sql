@@ -3,19 +3,25 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerInboundRate`(
 	IN `p_RateCDR` INT,
 	IN `p_RateMethod` VARCHAR(50),
 	IN `p_SpecifyRate` DECIMAL(18,6),
-	IN `p_CLI` VARCHAR(500)
+	IN `p_CLD` VARCHAR(500),
+	IN `p_InboundTableID` INT
 )
 BEGIN
 
 	DECLARE v_inboundratetableid_ INT;
 
-	IF p_CLI != ''
+	IF p_InboundTableID > 0
+	THEN 
+
+		SET v_inboundratetableid_ = p_InboundTableID;
+
+	ELSEIF p_CLD != ''
 	THEN
 	
 		SELECT
 			RateTableID INTO v_inboundratetableid_
 		FROM tblCLIRateTable
-		WHERE AccountID = p_AccountID AND CLI = p_CLI;
+		WHERE AccountID = p_AccountID AND CLI = p_CLD;
 		
 	ELSE
 	
