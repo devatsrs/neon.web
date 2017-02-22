@@ -39,7 +39,7 @@
                         "sAjaxSource": baseurl + "/accounts/{{$account->AccountID}}/activities/ajax_datagrid_email_log",
                         "fnServerParams": function (aoData) {
                         },
-                        "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'r>",
                         "aaSorting": [[0, 'asc']],
@@ -175,19 +175,21 @@
 
                     $('#modal-SendEmail').on('shown.bs.modal', function(event){
                         var modal = $('#modal-SendEmail');
-                        modal.find('.message').wysihtml5({
-                            "leadoptions":false,
-                            "font-styles": true,
-                            "emphasis": true,
-                            "lists": true,
-                            "html": true,
-                            "link": true,
-                            "image": true,
-                            "color": false,
-                            parser: function (html) {
-                                return html;
-                            }
-                        });
+						modal.find('.message').wysihtml5({
+							"font-styles": true,
+						"leadoptions":false,
+						"Tickets":true,
+						"Crm":false,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
+							parser: function(html) {
+								return html;
+							}
+						});
                     });
 
                     $('#modal-SendEmail').on('hidden.bs.modal', function(event){

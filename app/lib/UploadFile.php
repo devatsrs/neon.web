@@ -12,7 +12,7 @@ class UploadFile{
             $filesArray = json_decode($attachmentsinfo,true);
         }
         foreach ($files as $file){ 
-            $uploadPath = getenv('TEMP_PATH');
+            $uploadPath = CompanyConfiguration::get('TEMP_PATH');
             $fileNameWithoutExtension = GUID::generate();
             $fileName = $fileNameWithoutExtension . '.' . $file->getClientOriginalExtension();
             $file->move($uploadPath, $fileName);
@@ -44,7 +44,7 @@ class UploadFile{
         $filesArray = unserialize($attachmentsinfo); 
        if(!is_array($filesArray)){return array();}
         foreach ($filesArray as $file){
-			$FileNewPath    =  getenv('TEMP_PATH').'/'.$file['filepath']; 
+			$FileNewPath    =  CompanyConfiguration::get('TEMP_PATH').'/'.$file['filepath'];
 			$dirpath 		=  dirname($FileNewPath);
 			
 			if (!file_exists($dirpath)){

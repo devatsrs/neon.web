@@ -14,10 +14,10 @@ class ContactsController extends \BaseController {
         if (User::is('AccountManager')) {
             $userID = User::get_userID();
             $contacts = Contact::leftjoin('tblAccount', 'tblAccount.AccountID', '=', 'tblContact.Owner')
-            ->select([DB::raw("  concat(tblContact.FirstName,' ' ,tblContact.LastName)  AS FullName "), "tblAccount.AccountName","tblContact.Phone", "tblContact.Email", "tblContact.ContactID"])->where(["tblContact.CompanyID" => $companyID])->WhereRaw("( tblAccount.Owner = ".    $userID. " OR tblContact.Owner is NULL   OR tblAccount.AccountType = 0 ) ");
+            ->select([DB::raw("  concat(IFNULL(tblContact.FirstName,''),' ' ,IFNULL(tblContact.LastName,''))  AS FullName "), "tblAccount.AccountName","tblContact.Phone", "tblContact.Email", "tblContact.ContactID"])->where(["tblContact.CompanyID" => $companyID])->WhereRaw("( tblAccount.Owner = ".    $userID. " OR tblContact.Owner is NULL   OR tblAccount.AccountType = 0 ) ");
         }else{
             $contacts = Contact::leftjoin('tblAccount', 'tblAccount.AccountID', '=', 'tblContact.Owner')
-                ->select([DB::raw("  concat(tblContact.FirstName,' ' ,tblContact.LastName)  AS FullName "), "tblAccount.AccountName","tblContact.Phone", "tblContact.Email", "tblContact.ContactID"])->where(["tblContact.CompanyID" => $companyID]);
+                ->select([DB::raw("  concat(IFNULL(tblContact.FirstName,''),' ' ,IFNULL(tblContact.LastName,''))  AS FullName "), "tblAccount.AccountName","tblContact.Phone", "tblContact.Email", "tblContact.ContactID"])->where(["tblContact.CompanyID" => $companyID]);
         }
 
         return Datatables::of($contacts)->make();
@@ -138,65 +138,78 @@ class ContactsController extends \BaseController {
     /**
      * Add notes to account
      * */
-    public function store_note($id) {
-        $data = Input::all();
-        //$contact = Contact::find($id);
+    public function store_note($id) {		
+        $data 					= 	Input::all();
+        $companyID 				= 	User::get_companyID();
+        $user_name 				= 	User::get_user_full_name();
+        $data['CompanyID'] 		= 	$companyID;
+        $data['ContactID'] 		= 	$id;
+        $data['created_by'] 	=	$user_name;
+        $data["Note"] 			= 	nl2br($data["Note"]);
+		$key 					= 	$data['scrol']!=""?$data['scrol']:0;	
+		unset($data["scrol"]);		
+ 		$response 				= 	NeonAPI::request('contact/add_note',$data);
+		
+		if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{
+			$response = $response->data;
+			$response->type = Task::Note;
+		}
+				
+		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+		return View::make('contacts.timeline.show_ajax_single', compact('response','current_user_title','key'));      
+	}
+	
+	function get_note(){
+		$response				=	array();
+		$data 					= 	Input::all();
+		$response_note    		=   NeonAPI::request('contact/get_note',array('NoteID'=>$data['NoteID']),false,true);
+		if($response_note['status']=='failed'){
+			return json_response_api($response_note,false,true);
+		}else{
+			return json_encode($response_note['data']);
+		}
+	}
 
-        $companyID = User::get_companyID();
-        $user_name = User::get_user_full_name();
-
-        $data['CompanyID'] = $companyID;
-        $data['ContactID'] = $id;
-        $data['created_by'] = $user_name;
-        $data["Note"] = nl2br($data["Note"]);
-
-        $rules = array(
-            'CompanyID' => 'required',
-            'ContactID' => 'required',
-            'Note' => 'required',
-        );
-
-        $validator = Validator::make($data, $rules);
-
-
-        if ($validator->fails()) {
-            return json_validator_response($validator);
-        }
-
-        if (empty($data["NoteID"])) {
-            unset($data["NoteID"]);
-
-            $result = ContactNote::create($data);
-            $NoteID = DB::getPdo()->lastInsertId();
-        } else {
-            unset($data['created_by']);
-            $data['updated_by'] = $user_name;
-            $result = ContactNote::find($data["NoteID"]);
-            $result->update($data);
-            $NoteID = $data["NoteID"];
-        }
-
-        if ($result) {
-            if (empty($data["NoteID"])) {
-                return Response::json(array("status" => "success", "message" => "Note Successfully Updated", "NoteID" => $NoteID, "Note" => $result));
-            }
-            return Response::json(array("status" => "success", "message" => "Note Successfully Updated", "update" => true, "NoteID" => $NoteID, "Note" => $result));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Note."));
-        }
-    }
+ 	/**
+     * Update a Note
+     */	
+	function update_note()
+	{ 
+        $data 					= 	Input::all();
+        $companyID 				= 	User::get_companyID();
+        $user_name 				= 	User::get_user_full_name();
+        $data['CompanyID'] 		= 	$companyID;
+        $data['updated_by'] 	=	$user_name;
+        $data["Note"] 			= 	nl2br($data["Note"]);
+		unset($data['KeyID']);
+ 		$response 				= 	NeonAPI::request('contact/update_note',$data);
+		
+		if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{ 
+			$response = $response->data;
+			$response->type = Task::Note;
+		}
+			
+		$current_user_title = Auth::user()->FirstName.' '.Auth::user()->LastName;
+		return View::make('contacts.timeline.show_ajax_single_update', compact('response','current_user_title','key'));   
+	}
 
     /**
      * Delete a Note
      */
     public function delete_note($id) {
-
-        $result = ContactNote::find($id)->delete();
-        if ($result) {
-            return Response::json(array("status" => "success", "message" => "Note Successfully Deleted", "NoteID" => $id));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Deleting Note."));
-        }
+        ///$result = Note::find($id)->delete();
+		$data['NoteID']			=	$id;		 
+		$response 				= 	NeonAPI::request('contact/delete_note',$data);
+		
+		if($response->status=='failed'){
+			return json_response_api($response,false,true);
+		}else{ 
+			return Response::json(array("status" => "success", "message" => "Note Successfully Deleted", "NoteID" => $id));
+		}     
     }
 
     /**
@@ -233,11 +246,11 @@ class ContactsController extends \BaseController {
             $excel_data = json_decode(json_encode($contacts),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Contacts.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Contacts.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Contacts.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Contacts.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -247,5 +260,123 @@ class ContactsController extends \BaseController {
                 });
             })->download('xls');*/
     }
+	
+	function UpdateContactOwner($id){
+
+        $postdata 				= 	Input::all();
+        $lead 					= 	Contact::find($id);
+        $data['updated_by'] 	= 	User::get_user_full_name();
+		$data['Owner'] 			= 	$postdata['Owner'];
+        $messages 				= 	array('Owner.required' => 'The Contact Owner is required');
+		
+		 $rules = array(
+            'Owner' =>      'required',          
+        );
+        $validator = Validator::make($postdata, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        if ($lead->update($data)) {
+            return Response::json(array("status" => "success", "message" => "Contact Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Contact."));
+        }
+	}
+	
+	public function ShowTimeLine($id) {
+            $companyID 					= 	 User::get_companyID();
+			//get contacts data
+		    $contacts 					= 	 Contact::find($id);			 
+			//echo "<pre>"; 			print_r($contacts); 			echo "</pre>";			exit;
+			//get contacts time line data
+            $data['iDisplayStart'] 	    =	 0;
+            $data['iDisplayLength']     =    10;
+            $data['ContactID']          =    $id;
+			$data['GUID']               =    GUID::generate();
+            $PageNumber                 =    ceil($data['iDisplayStart']/$data['iDisplayLength']);
+            $RowsPerPage                =    $data['iDisplayLength'];			
+			$message 					= 	 '';			
+            $response_timeline 			= 	 NeonAPI::request('contact/GetTimeLine',$data,false,true);
+		/*		echo "<pre>";
+				print_r($response_timeline);		
+				exit;*/
+	
+			if($response_timeline['status']!='failed'){
+				if(isset($response_timeline['data']))
+				{
+					$response_timeline =  $response_timeline['data'];
+				}else{
+					$response_timeline = array();
+				}
+			}else{ 	
+				if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
+					return	Redirect::to('/logout'); 	
+				}		
+				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
+				$message = json_response_api($response_timeline,false,false);
+			}
+			
+		
+			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
+			$random_token				=	 get_random_number();
+            
+			//Backup code for getting extensions from api
+		   $response_api_extensions 	=   Get_Api_file_extentsions();
+		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
+		   $response_extensions			=	json_encode($response_api_extensions['allowed_extensions']);
+		   
+           //all users email address
+			$users						=	 USer::select('EmailAddress')->lists('EmailAddress');
+	 		$users						=	 json_encode(array_merge(array(""),$users));
+			$max_file_size				=	get_max_file_size();			
+			$per_scroll 				=   $data['iDisplayLength'];
+			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+			$ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug); //freshdesk
+			$SystemTickets				=   Tickets::CheckTicketLicense();		
+	        return View::make('contacts.timeline.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets')); 	
+		}
+	
+	  public function ajax_getEmailTemplate($privacy, $type){
+        $filter = array();
+        /*if($type == EmailTemplate::ACCOUNT_TEMPLATE){
+            $filter =array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE);
+        }elseif($type== EmailTemplate::RATESHEET_TEMPLATE){
+            $filter =array('Type'=>EmailTemplate::RATESHEET_TEMPLATE);
+        }*/
+		$filter =array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE);
+        if($privacy == 1){
+            $filter ['UserID'] =  User::get_userID();
+        }
+        return EmailTemplate::getTemplateArray($filter);
+    }
+	
+	 public function GetTimeLineSrollData($id,$start)
+	 {
+		  	$data 					   = 	Input::all();
+		 	$data['iDisplayStart'] 	   =	$start;
+            $data['iDisplayLength']    =    10;
+            $data['ContactID']         =    $id;			
+			$response 				   = 	NeonAPI::request('contact/GetTimeLine',$data,false);
+			
+			if($response->status!='failed'){
+				if(!isset($response->data))
+				{
+					return  Response::json(array("status" => "failed", "message" => "No Result Found","scroll"=>"end"));
+				}
+				else
+				{
+					$response =  $response->data;
+				}
+			}
+			else{
+				return json_response_api($response,false,true);
+			}
+					
+			$key 					= 	$data['scrol'];
+			$current_user_title 	= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
+			return View::make('contacts.timeline..show_ajax', compact('response','current_user_title','key'));
+	}
+	
 
 }

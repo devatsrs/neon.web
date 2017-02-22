@@ -1,5 +1,5 @@
 CREATE TABLE `tblUsageDetails` (
-  `UsageDetailID` int(11) NOT NULL AUTO_INCREMENT,
+  `UsageDetailID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `UsageHeaderID` int(11) NOT NULL,
   `connect_time` datetime DEFAULT NULL,
   `disconnect_time` datetime DEFAULT NULL,
@@ -15,8 +15,9 @@ CREATE TABLE `tblUsageDetails` (
   `trunk` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ProcessID` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ID` int(11) DEFAULT NULL,
-  `is_inbound` tinyint(1) DEFAULT '0' COMMENT '0=outbound,1=inbound,2=none',
+  `is_inbound` tinyint(1) DEFAULT '0',
   `billed_second` int(11) DEFAULT NULL,
+  `disposition` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`UsageDetailID`),
   KEY `IXUsageDetailCMP_GaTGatACPrID` (`UsageHeaderID`),
   KEY `Index_ID` (`ID`),

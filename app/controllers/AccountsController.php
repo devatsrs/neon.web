@@ -34,11 +34,11 @@ class AccountsController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Accounts.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Accounts.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Accounts.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Accounts.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -77,11 +77,12 @@ class AccountsController extends \BaseController {
 
     public function ajax_getEmailTemplate($privacy, $type){
         $filter = array();
-        if($type == EmailTemplate::ACCOUNT_TEMPLATE){
+        /*if($type == EmailTemplate::ACCOUNT_TEMPLATE){
             $filter =array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE);
         }elseif($type== EmailTemplate::RATESHEET_TEMPLATE){
             $filter =array('Type'=>EmailTemplate::RATESHEET_TEMPLATE);
-        }
+        }*/
+		$filter =array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE);
         if($privacy == 1){
             $filter ['UserID'] =  User::get_userID();
         }
@@ -109,7 +110,8 @@ class AccountsController extends \BaseController {
         $leadOrAccount = $accounts;
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID'));
+		$bulk_type = 'accounts';
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type'));
 
     }
 
@@ -278,7 +280,8 @@ class AccountsController extends \BaseController {
 			
 			
 			
-			$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
+			//$emailTemplates 			= 	 $this->ajax_getEmailTemplate(EmailTemplate::PRIVACY_OFF,EmailTemplate::ACCOUNT_TEMPLATE);
+			$emailTemplates 			= 	EmailTemplate::GetUserDefinedTemplates();
 			$random_token				=	 get_random_number();
             
 			//Backup code for getting extensions from api
@@ -315,13 +318,14 @@ class AccountsController extends \BaseController {
 			 		Session::set('error_message',$message);
 				}
 			}			*/
-			
+			$FromEmails	 				= 	TicketGroups::GetGroupsFrom();			
 			$max_file_size				=	get_max_file_size();			
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			$ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug); //freshdesk
-
-	        return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets')); 	
+			$SystemTickets				=   Tickets::CheckTicketLicense();			
+			 
+	        return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets','FromEmails')); 	
 		}
 	
 	
@@ -582,8 +586,8 @@ class AccountsController extends \BaseController {
      */
 	function get_note(){
 		$response				=	array();
-		$data 					= 	Input::all();
-		$response_note    		=   NeonAPI::request('account/get_note',array('NoteID'=>$data['NoteID']),false,true);
+		$data 					= 	Input::all(); Log::info(print_r($data,true));
+		$response_note    		=   NeonAPI::request('account/get_note',$data,false,true);
 		if($response_note['status']=='failed'){
 			return json_response_api($response_note,false,true);
 		}else{
@@ -620,7 +624,9 @@ class AccountsController extends \BaseController {
      */
     public function delete_note($id) {
         ///$result = Note::find($id)->delete();
-		$data['NoteID']			=	$id;		 
+		$postdata				= 	Input::all(); 
+		$data['NoteID']			=	$id;
+		$data['NoteType']		=	$postdata['note_type'];		 		
 		$response 				= 	NeonAPI::request('account/delete_note',$data);
 		
 		if($response->status=='failed'){
@@ -634,7 +640,7 @@ class AccountsController extends \BaseController {
         if (Input::hasFile('excel')) {
             $data = Input::all();
             $today = date('Y-m-d');
-            $upload_path = Config::get('app.acc_doc_path');
+            $upload_path = CompanyConfiguration::get('ACC_DOC_PATH');
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNT_DOCUMENT'],$id) ;
             $destinationPath = $upload_path . '/' . $amazonPath;
             $excel = Input::file('excel');
@@ -726,11 +732,11 @@ class AccountsController extends \BaseController {
                 DB::setFetchMode(Config::get('database.fetch'));
 
                 if($type=='csv'){
-                    $file_path = getenv('UPLOAD_PATH') .'/Recent Due Sheet.csv';
+                    $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Recent Due Sheet.csv';
                     $NeonExcel = new NeonExcelIO($file_path);
                     $NeonExcel->download_csv($due_sheets);
                 }elseif($type=='xlsx'){
-                    $file_path = getenv('UPLOAD_PATH') .'/Recent Due Sheet.xls';
+                    $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Recent Due Sheet.xls';
                     $NeonExcel = new NeonExcelIO($file_path);
                     $NeonExcel->download_excel($due_sheets);
                 }
@@ -810,7 +816,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($password) && $account->VerificationStatus == Account::VERIFIED && $account->Status == 1 ) {
             /* Send mail to Customer */
             $email_data = array();
-            $emailtoCustomer = getenv('EmailToCustomer');
+            $emailtoCustomer = CompanyConfiguration::get('EMAIL_TO_CUSTOMER');
             if(intval($emailtoCustomer) == 1){
                 $email_data['EmailTo'] = $data['BillingEmail'];
             }else{
@@ -1020,11 +1026,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
             $excel_data = json_decode(json_encode($response->data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/CreditHistory.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/CreditHistory.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/CreditHistory.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/CreditHistory.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -1182,7 +1188,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $body = View::make('accounts.printexpensechart',compact('id','CurrencySymbol','response'))->render();
         $body = htmlspecialchars_decode($body);
 
-        $destination_dir = getenv('TEMP_PATH') . '/';
+        $destination_dir = CompanyConfiguration::get('TEMP_PATH') . '/';
         if (!file_exists($destination_dir)) {
             mkdir($destination_dir, 0777, true);
         }

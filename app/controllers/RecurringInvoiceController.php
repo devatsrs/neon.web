@@ -20,11 +20,11 @@ class RecurringInvoiceController extends \BaseController {
 			
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/RecurringInvoice.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RecurringInvoice.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/RecurringInvoice.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RecurringInvoice.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -714,11 +714,11 @@ class RecurringInvoiceController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/RecurringInvoice Log.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RecurringInvoice Log.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/RecurringInvoice Log.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/RecurringInvoice Log.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

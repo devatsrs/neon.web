@@ -91,11 +91,11 @@ class InvoicesController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Invoice.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -126,15 +126,17 @@ class InvoicesController extends \BaseController {
         $accounts = Account::getAccountIDList();
 		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
-        $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
+        //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
+		$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
         $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
         $data['StartDateDefault'] 	  	= 	'';
 		$data['IssueDateEndDefault']  	= 	'';
         $InvoiceHideZeroValue = NeonCookie::getCookie('InvoiceHideZeroValue',1);
         $Quickbook = new BillingAPI();
         $check_quickbook = $Quickbook->check_quickbook();
+		$bulk_type = 'invoices';
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','bulk_type'));
 
     }
 
@@ -822,7 +824,7 @@ class InvoicesController extends \BaseController {
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }  
-            $logo_path = getenv('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
+            $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
             //RemoteSSH::run("chmod -R 777 " . $logo_path); 
             $logo = $logo_path  . '/'  . basename($as3url); 
@@ -850,7 +852,7 @@ class InvoicesController extends \BaseController {
             }
 			$print_type = 'Invoice';
             $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'usage_data', 'CurrencyCode', 'logo','print_type'))->render();
-            $destination_dir = getenv('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
+            $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId) ;
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             }
@@ -927,7 +929,7 @@ class InvoicesController extends \BaseController {
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
         $message = '';
         if (Input::hasFile('Attachment')) {
-            $upload_path = Config::get('app.upload_path');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
             $ext = $Attachment->getClientOriginalExtension();
@@ -1010,7 +1012,7 @@ class InvoicesController extends \BaseController {
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
         $message = '';
         if (Input::hasFile('Attachment')) {
-            $upload_path = Config::get('app.upload_path');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
             $ext = $Attachment->getClientOriginalExtension();
@@ -1089,16 +1091,18 @@ class InvoicesController extends \BaseController {
             $Currency = Currency::find($Account->CurrencyId);
             $CompanyName = Company::getName();
             if (!empty($Currency)) {
-                $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
-                $RoundChargesAmount = get_round_decimal_places($Invoice->AccountID);
-
-                $data = [
-                    'CompanyName' => $CompanyName,
-                    'GrandTotal'       => number_format($Invoice->GrandTotal,$RoundChargesAmount),
-                    'CurrencyCode'     =>$Currency->Code
-                ];
-                $Message = Invoice::getInvoiceEmailTemplate($data);
-                return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName'));
+               // $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
+			    $templateData	 = 	EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
+				
+				$Subject	 = 	$templateData->Subject;
+				$Message 	 = 	$templateData->TemplateBody;		 
+				if(!empty($Subject) && !empty($Message)){
+					$from	 = $templateData->EmailFrom;	
+					return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName','from'));
+				}
+				return Response::json(["status" => "failure", "message" => "Subject or message is empty"]);
+	            
+                
             }
         }
     }
@@ -1109,6 +1113,7 @@ class InvoicesController extends \BaseController {
             $isRecurringInvoice = 0;
             $recurringInvoiceID = 0;
             $data = Input::all();
+			$postdata = Input::all(); Log::info(print_r($data,true));
             if(isset($data['RecurringInvoice'])){
                 $isRecurringInvoice=1;
                 $recurringInvoiceID = $data['RecurringInvoiceID'];
@@ -1119,10 +1124,9 @@ class InvoicesController extends \BaseController {
             //$InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail');
             $InvoiceCopy = Notification::getNotificationMail(Notification::InvoiceCopy);
             $InvoiceCopy = empty($InvoiceCopy)?$Company->Email:$InvoiceCopy;
-            $emailtoCustomer = getenv('EmailToCustomer');
+            $emailtoCustomer = CompanyConfiguration::get('EMAIL_TO_CUSTOMER');
             if(intval($emailtoCustomer) == 1){
                 $CustomerEmail = $data['Email'];
-
             }else{
                 $CustomerEmail = $Company->Email;
             }
@@ -1152,10 +1156,22 @@ class InvoicesController extends \BaseController {
             foreach($CustomerEmails as $singleemail){
                 $singleemail = trim($singleemail);
                 if (filter_var($singleemail, FILTER_VALIDATE_EMAIL)) {
-                    $data['EmailTo'] = $singleemail;
-                    $data['InvoiceURL']= URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
-                    $status = $this->sendInvoiceMail('emails.invoices.send',$data);
-					$body 	=   View::make('emails.invoices.send',compact('data'))->render();  // to store in email log
+					
+						$data['EmailTo'] 		= 	$singleemail;
+						$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
+						$body					=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data,$postdata);
+						$data['Subject']		=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject",$data,$postdata);
+						
+						if(isset($postdata['email_from']) && !empty($postdata['email_from']))
+						{
+							$data['EmailFrom']	=	$postdata['email_from'];	
+						}else{
+							$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);				
+						}
+						
+						$status 				= 	$this->sendInvoiceMail($body,$data,0);
+					
+					//$body 				=   View::make('emails.invoices.send',compact('data'))->render();  // to store in email log
                 }
             }
             if($status['status']==0){
@@ -1206,10 +1222,20 @@ class InvoicesController extends \BaseController {
             $sendTo = explode(",",$InvoiceCopy);
             //$sendTo[] = User::get_user_email();
             //$data['Subject'] .= ' ('.$Account->AccountName.')';//Added by Abubakar
-            $data['EmailTo'] = $sendTo;
-            $data['InvoiceURL']= URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview');
+            $data['EmailTo'] 		= 	$sendTo;
+            $data['InvoiceURL']		= 	URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview');
+			$body					=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data,$postdata);
+			$data['Subject']		=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject",$data,$postdata);
+			
+			if(isset($postdata['email_from']) && !empty($postdata['email_from']))
+			{
+				$data['EmailFrom']	=	$postdata['email_from'];	
+			}else{
+				$data['EmailFrom']	=	EmailsTemplates::GetEmailTemplateFrom(Invoice::EMAILTEMPLATE);				
+			}
+			
             //$StaffStatus = sendMail('emails.invoices.send',$data);
-            $StaffStatus = $this->sendInvoiceMail('emails.invoices.send',$data);
+            $StaffStatus = $this->sendInvoiceMail($body,$data,0);
             if($StaffStatus['status']==0){
                 $status['message'] .= ', Enable to send email to staff : ' . $StaffStatus['message'];
             }
@@ -1219,20 +1245,22 @@ class InvoicesController extends \BaseController {
         }
     }
 
-    function sendInvoiceMail($view,$data){
+    function sendInvoiceMail($view,$data,$type=1){ 
 	
 	   $status 		= 	array('status' => 0, 'message' => 'Something wrong with sending mail.');
-    
+    	if(isset($data['email_from'])){
+			$data['EmailFrom'] = $data['email_from'];
+		}
 	    if(is_array($data['EmailTo']))
 		{
-            $status 			= 	sendMail($view,$data);
+            $status 			= 	sendMail($view,$data,$type);
         }
 		else
 		{ 
             if(!empty($data['EmailTo']))
 			{
 				$data['EmailTo'] 	= 	trim($data['EmailTo']);
-				$status 			= 	sendMail($view,$data);
+				$status 			= 	sendMail($view,$data,0);
             }
         }
         return $status;
@@ -1372,7 +1400,7 @@ class InvoicesController extends \BaseController {
         if(is_amazon() == true){
             $PDFurl =  AmazonS3::preSignedUrl($Invoice->PDF);
         }else{
-            $PDFurl = Config::get('app.upload_path')."/".$Invoice->PDF;
+            $PDFurl = CompanyConfiguration::get('UPLOAD_PATH')."/".$Invoice->PDF;
         }
         header('Content-type: application/pdf');
         header('Content-Disposition: inline; filename="'.basename($PDFurl).'"');
@@ -1559,7 +1587,8 @@ class InvoicesController extends \BaseController {
 
     }
     public function ajax_getEmailTemplate($id){
-        $filter =array('Type'=>EmailTemplate::INVOICE_TEMPLATE);
+      //  $filter =array('Type'=>EmailTemplate::INVOICE_TEMPLATE);
+		$filter =array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE);
         if($id == 1){
           $filter['UserID'] =   User::get_userID();
         }
@@ -1606,7 +1635,7 @@ class InvoicesController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
 
-            $file_path = getenv('UPLOAD_PATH') .'/InvoiceSageExport.csv';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/InvoiceSageExport.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($excel_data);
 
@@ -1641,7 +1670,7 @@ class InvoicesController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
 
-            $file_path = getenv('UPLOAD_PATH') .'/InvoiceSageExport.csv';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/InvoiceSageExport.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($excel_data);
             /*Excel::create('InvoiceSageExport', function ($excel) use ($excel_data) {

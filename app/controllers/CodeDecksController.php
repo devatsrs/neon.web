@@ -157,14 +157,14 @@ class CodeDecksController extends \BaseController {
 
             $id = User::get_companyID();
             $company_name = Account::getCompanyNameByID($id);
-            $upload_path = Config::get('app.upload_path');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $excel = Input::file('excel'); // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
 
             if (in_array($ext, array("csv", "xls", "xlsx"))) {
                 $file_name = "Codedeck_". GUID::generate() . '.' . $ext;
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['CODEDECK_UPLOAD']) ;
-                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
                 $excel->move($destinationPath, $file_name);
                 if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
@@ -225,11 +225,11 @@ class CodeDecksController extends \BaseController {
             DB::setFetchMode( Config::get('database.fetch'));
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Code Decks.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($codedecks);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Code Decks.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($codedecks);
             }
@@ -486,11 +486,11 @@ class CodeDecksController extends \BaseController {
 
             $excel_data = json_decode(json_encode($codedecks),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Code Decks.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Code Decks.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Code Decks.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

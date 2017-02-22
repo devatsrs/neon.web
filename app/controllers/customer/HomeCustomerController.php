@@ -20,7 +20,7 @@ class HomeCustomerController extends BaseController {
     public function doLogin() {
         if (Request::ajax()) {
             $data = Input::all();
-            if (User::user_login($data)) {
+            if (User::user_login($data) && NeonAPI::login("customer")) {
                 $redirect_to = URL::to("/customer/monitor");
                 if(isset($data['redirect_to'])){
                     $redirect_to = $data['redirect_to'];

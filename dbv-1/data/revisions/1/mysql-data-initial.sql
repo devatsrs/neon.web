@@ -51,12 +51,9 @@ SELECT * from Ratemanagement3.tblIntegration;
 VALUES (1, 1, 'D2Call', 'D2Call', 'noc@d2call.com', '$2y$10$PlVXiwVLUxkuiwSyKQJyUeHAVysVkya6VDuinVOrG2GLTmPr1wk4.', 1, 1, 1, 'Admin,Billing Admin', 'mJZaptV7wrwCooghFLeaFtXfQcG3dgAYasFMPzlWGEWuUAxrZ8EqTZF8f1sA', '2016-11-17 10:26:12', '2015-02-07 07:24:02', NULL, 'Sumera Saeed', 'From ,<br><br><b>Sumera Saeed</b><br><br>', '', 1);
 
 
-INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'Amazon', '');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'SSH', '{"host":"188.227.186.98","username":"root","password":"KatiteDo48"}');
-INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'UPLOADPATH', '/home/hostedfolders/d2call/tmp');
-INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'SITE_URL', 'http://linux1.neon-soft.com/d2call/public');
-INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'EXTRA_SMTP', '');
-INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'OUTLOOKCALENDAR_API', '');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'UPLOAD_PATH', '/home/hostedfolders/d2call/tmp');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'WEB_URL', 'http://linux1.neon-soft.com/d2call/public');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'FRONT_STORAGE_PATH', '/var/www/html/d2call/app/storage');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'DELETE_STORAGE_LOG_DAYS', '365');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES (1, 'TEMP_PATH', '/home/hostedfolders/d2call/tmp');
@@ -75,9 +72,8 @@ INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1,
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'VENDOR_SUMMARYDAILY_CRONJOB', '{"ThresholdTime":"500","SuccessEmail":"","ErrorEmail":"","JobTime":"DAILY","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"2:00:00 AM"}');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'VENDOR_SUMMARYLIVE_CRONJOB', '{"ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM"}');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'CRM_DASHBOARD', 'CrmDashboardTasks,CrmDashboardRecentAccount,CrmDashboardSalesRevenue,CrmDashboardSalesOpportunity,CrmDashboardPipeline,CrmDashboardForecast,CrmDashboardOpportunities');
-INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'PAYPAL_IPN', '');
-INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'PHPExePath', '/usr/bin/php');
-INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'RMArtisanFileLocation', '/var/www/html/d2call.service/artisan');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'PHP_EXE_PATH', '/usr/bin/php');
+INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'RM_ARTISAN_FILE_LOCATION', '/var/www/html/d2call.service/artisan');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'CUSTOMER_NOTIFICATION_DISPLAY', '1');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'CUSTOMER_COMMERCIAL_DISPLAY', '1');
 
@@ -90,7 +86,6 @@ INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1,
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'USAGE_INTERVAL', '100');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'CUSTOMER_MONITOR_DASHBOARD', 'AnalysisMonitor');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'MONITOR_DASHBOARD', 'AnalysisMonitor');
-INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'QuickBook', '');
 INSERT INTO `tblCompanyConfiguration` ( `CompanyID`, `Key`, `Value`) VALUES ( 1, 'BILLING_DASHBOARD_CUSTOMER', 'BillingDashboardTotalOutstanding,BillingDashboardTotalInvoiceSent,BillingDashboardDueAmount,BillingDashboardOverDueAmount,BillingDashboardPendingDispute,BillingDashboardInvoiceExpense,BillingDashboardOutstanding');
 
 

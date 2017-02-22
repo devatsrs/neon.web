@@ -57,7 +57,7 @@
 		}
 		else
 		{
-			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
+			$Attachmenturl = CompanyConfiguration::get('UPLOAD_PATH')."/".$attachments_data['filepath'];
 		}
 		$Attachmenturl = URL::to('emails/'.$Emaildata->AccountEmailLogID.'/getattachment/'.$key_acttachment);
 		
@@ -338,15 +338,15 @@ function bytesToSize(filesize) {
             }
 			
 			doc.find('.message').wysihtml5({
-				"font-styles": true,
-				"leadoptions":false,
-				"Crm":true,
-				"emphasis": true,
-				"lists": true,
-				"html": true,
-				"link": true,
-				"image": true,
-				"color": false,
+						"font-styles": true,
+						"leadoptions":false,
+						"Crm":false,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
 				parser: function(html) {
 					return html;
 				}
@@ -354,35 +354,35 @@ function bytesToSize(filesize) {
            
         }
 		
-		$(document).on("click",".del_attachment",function(ee){
-                var url  =  baseurl + '/account/delete_actvity_attachment_file';
-                var fileName   =  $(this).attr('del_file_name');
-                var attachmentsinfo = $('#info4').val();
-                if(!attachmentsinfo){
-                    return true;
-                }
-                attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
-                $(this).parent().remove();
-                var fileIndex = emailFileList.indexOf(fileName);
-                var fileinfo = attachmentsinfo[fileIndex];
-                emailFileList.splice(fileIndex, 1);
-                attachmentsinfo.splice(fileIndex, 1);
-                $('#info3').val(JSON.stringify(attachmentsinfo));
-                $('#info4').val(JSON.stringify(attachmentsinfo));
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    dataType: 'json',
-                    data:{file:fileinfo},
-                    async :false,
-                    success: function(response) {
-                        if(response.status =='success'){
-
-                        }else{
-                            toastr.error(response.message, "Error", toastr_opts);
-                        }
-                    }
-                });
+		$(document).on("click",".reply_del_attachment",function(ee){
+				var url  =  baseurl + '/account/delete_actvity_attachment_file';
+					var fileName   =  $(this).attr('del_file_name');
+					var attachmentsinfo = $('#info3').val();
+					if(!attachmentsinfo){
+						return true;
+					}
+					attachmentsinfo = jQuery.parseJSON(attachmentsinfo);
+					$(this).parent().remove();
+					var fileIndex = emailFileListReply.indexOf(fileName);
+					var fileinfo = attachmentsinfo[fileIndex];
+					emailFileListReply.splice(fileIndex, 1);
+					attachmentsinfo.splice(fileIndex, 1);
+					$('#info3').val(JSON.stringify(attachmentsinfo));
+					$('#info4').val(JSON.stringify(attachmentsinfo));
+					$.ajax({
+						url: url,
+						type: 'POST',
+						dataType: 'json',
+						data:{file:fileinfo},
+						async :false,
+						success: function(response) {
+							if(response.status =='success'){
+	
+							}else{
+								toastr.error(response.message, "Error", toastr_opts);
+							}
+						}
+					});
             });
 			
 		$('.unknownemailaction').click(function(e) {

@@ -40,7 +40,7 @@ class Wysihtml5Controller extends \BaseController {
 
             $file_name = "Wysihtml5_". GUID::generate() . '.' . $ext;
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['WYSIHTML5_FILE_UPLOAD']) ;
-            $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
             $file->move($destinationPath, $file_name);
             if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
                 return Response::json(array("status" => "failed", "message" => "Failed to upload."));
