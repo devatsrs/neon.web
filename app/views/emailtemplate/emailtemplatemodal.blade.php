@@ -39,7 +39,7 @@
         });
 
         $('#add-new-modal-template').on('shown.bs.modal', function(event){
-			var modal = $(this); 
+			var modal = $(this);  
 			if(popup_type == {{EmailTemplate::ACCOUNT_TEMPLATE}}){   
 				 modal.find('.message').wysihtml5({ 
 				   "font-styles": true,				
@@ -289,6 +289,11 @@
 			template_type_val = template_type_val_change; 
         });
 		
+	 $('#add-new-modal-template').on('hidden.bs.modal', function(event){				 	
+				var modal = $(this);
+				modal.find('.email_from').addClass('hidden');
+	  });
+		
     });
 </script>
 
@@ -307,7 +312,7 @@
                             <div class="form-group">
                                 <label for="field-1" class="control-label col-sm-2">Template Name</label>
                                 <div class="col-sm-4">
-                                    <input type="text" name="TemplateName" class="form-control" id="field-1" placeholder="">
+                                    <input type="text" name="TemplateName" class="form-control" id="TemplateName" placeholder="">
                                     <input type="hidden" name="TemplateID" />
                                 </div>
                             </div>
@@ -321,7 +326,7 @@
                                 </div>
                             </div>
                         </div>-->
-                        <div class="row email_from">
+                        <div class="row hidden email_from">
                             <div class="form-group">
                                 <br />
                                 <label for="email_from" class="control-label col-sm-2">From</label>

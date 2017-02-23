@@ -225,6 +225,7 @@ var popup_type	=	0;
         $("#add-new-template-form [name='Email_template_privacy']").val(0).trigger("change");
         $("#add-new-template-form [name='Type']").val('').trigger("change");
         $('#add-new-modal-template h4').html('Add New template');
+		$("#add-new-modal-template").find('.email_from').addClass('hidden');	
         $('#add-new-modal-template').modal('show');
 		template_type_val = $('#add-new-modal-template').find('.template_type').val();
     });
@@ -281,9 +282,12 @@ var popup_type	=	0;
                 $("#add-new-template-form [name='Email_template_privacy']").val(data['Privacy']).trigger("change");
 				if(data['StaticType']){
 					$("#add-new-template-form #email_from").val(data['email_from']).trigger('change');
-					$("#add-new-template-form .email_from").show();					
+					$("#add-new-template-form .email_from").removeClass('hidden');	
+					$("#add-new-template-form #TemplateName").attr('readonly','readonly');	 
 				}else{
-					$("#add-new-template-form .email_from").hide();			
+					//$("#add-new-template-form .email_from").hide();			
+					$("#add-new-template-form .email_from").addClass('hidden');	 
+					$("#add-new-template-form #TemplateName").removeAttr('readonly');	 
 				}
 				if(data['StatusDisabled'])
 				{ 	

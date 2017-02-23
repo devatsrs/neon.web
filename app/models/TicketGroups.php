@@ -56,11 +56,18 @@ class TicketGroups extends \Eloquent {
 	static function GetGroupsFrom(){
 		$Tickets					=	Tickets::CheckTicketLicense()?1:0;
 		$CompanyID 		 			= 	User::get_companyID(); 
-		$FromEmailsQuery  			= 	"CALL `prc_GetFromEmailAddress`('".$CompanyID."', '0', ".$Tickets.")"; 
+		$FromEmailsQuery  			= 	"CALL `prc_GetFromEmailAddress`('".$CompanyID."',".User::get_userID()." , ".$Tickets.")"; 
 		$FromEmailsResults			= 	DB::select($FromEmailsQuery);
 		$FromEmails					= 	array();
 		foreach($FromEmailsResults as $FromEmailsResultsData){
 			$FromEmails[$FromEmailsResultsData->EmailFrom] = $FromEmailsResultsData->EmailFrom;
+		}
+		if(!$Tickets){
+			$EmailTrackingDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$imapSlug);
+			$EmailTrackingData   = isset($EmailTrackingDBData->Settings)?json_decode($EmailTrackingDBData->Settings):array();
+			if(isset($EmailTrackingData->EmailTrackingEmail) && !empty($EmailTrackingData->EmailTrackingEmail) && $EmailTrackingDBData->Status){
+				$FromEmails[$EmailTrackingData->EmailTrackingEmail] = $EmailTrackingData->EmailTrackingEmail;			
+			}
 		}
 		return $FromEmails;
 	}

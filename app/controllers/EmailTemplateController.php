@@ -129,16 +129,25 @@ class EmailTemplateController extends \BaseController {
      * @return Response
      */
     public function update($id) {
-        $data = Input::all();  Log::info(print_r($data,true)); 
+        $data = Input::all();  
         $crmteplate = EmailTemplate::findOrfail($id);
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['ModifiedBy'] = User::get_user_full_name();
-        $rules = [
+       if($crmteplate->StaticType ==1){
+		$rules = [
+            "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,$id,TemplateID,CompanyID,".$companyID,
+            "Subject" => "required",
+            "TemplateBody"=>"required",
+			"email_from"=>"required"
+        ];
+		}else{
+	    $rules = [
             "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,$id,TemplateID,CompanyID,".$companyID,
             "Subject" => "required",
             "TemplateBody"=>"required"
         ];
+	   }
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
