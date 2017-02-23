@@ -47,6 +47,7 @@ class EmailTemplate extends \Eloquent {
         if(!isset($data['UserID'])){
             $EmailTemplate->whereNull('UserID');
         }
+		$EmailTemplate->where('StaticType',0);
         $row = $EmailTemplate->select(array('TemplateID', 'TemplateName'))->orderBy('TemplateName')->lists('TemplateName','TemplateID');
 
         if(!empty($row) && $select==1){

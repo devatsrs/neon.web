@@ -7,7 +7,7 @@ class NeonAPI{
         self::$api_url = CompanyConfiguration::get('NEON_API_URL').'/';
     }
 
-    public static function login(){
+    public static function login($type = "user"){
         self::$api_url = CompanyConfiguration::get('NEON_API_URL').'/';
         $curl = new Curl\Curl();
         $call_method = 'login';
@@ -17,8 +17,7 @@ class NeonAPI{
 			'LicenceKey' =>  getenv('LICENCE_KEY'),
             'CompanyName'=>getenv('COMPANY_NAME'),
 			'LoginType' =>$type
-
-        ));
+	    ));
         $curl->close();
         $response = json_decode($curl->response);  
         if(isset($response->token)){
