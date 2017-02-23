@@ -213,9 +213,9 @@ CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorCurrentRates1_(
 			    tblVendorRate.TrunkID, tblRate.CountryID, tblRate.RateID,IFNULL(vp.Preference, 5) AS Preference -- ,SplitCode.RowCode,
 			  FROM      tblVendorRate
 					 Inner join tblVendorTrunk vt on vt.CompanyID = p_companyid AND vt.AccountID = tblVendorRate.AccountID and vt.Status =  1 and vt.TrunkID =  p_trunkID  
-							 AND ( p_codedeckID = 0 OR ( p_codedeckID > 0 AND vt.CodeDeckId = p_codedeckID ) )
+							 -- AND ( p_codedeckID = 0 OR ( p_codedeckID > 0 AND vt.CodeDeckId = p_codedeckID ) )
 						INNER JOIN tblAccount   ON  tblAccount.CompanyID = p_companyid AND tblVendorRate.AccountId = tblAccount.AccountID 
-						INNER JOIN tblRate ON tblRate.CompanyID = p_companyid  AND tblRate.CodeDeckId = vt.CodeDeckId  AND    tblVendorRate.RateId = tblRate.RateID
+						INNER JOIN tblRate ON tblRate.CompanyID = p_companyid  /* AND tblRate.CodeDeckId = vt.CodeDeckId */  AND    tblVendorRate.RateId = tblRate.RateID
 						
 						
 						-- New Way  INNER JOIN tmp_search_code_  SplitCode   on tblRate.Code = SplitCode.Code 

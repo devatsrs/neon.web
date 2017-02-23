@@ -1228,7 +1228,8 @@ class EstimatesController extends \BaseController {
     
     
     public function ajax_getEmailTemplate($id){
-        $filter =array('Type'=>EmailTemplate::ESTIMATE_TEMPLATE);
+      //  $filter =array('Type'=>EmailTemplate::ESTIMATE_TEMPLATE);
+		$filter =array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE);
         if($id == 1){
           $filter['UserID'] =   User::get_userID();
         }
