@@ -9,6 +9,5 @@ Thumbs.db
 /.idea
 /wkhtmltox
 .env
-app/storage/sessions/
-app/storage/views/
-wkhtmltopdf/
+app/storage/sessions/*
+app/storage/views/*
