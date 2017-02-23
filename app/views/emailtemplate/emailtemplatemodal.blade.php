@@ -292,6 +292,7 @@
 	 $('#add-new-modal-template').on('hidden.bs.modal', function(event){				 	
 				var modal = $(this);
 				modal.find('.email_from').addClass('hidden');
+				modal.find('#TemplateName').removeAttr('readonly');
 	  });
 		
     });
