@@ -50,7 +50,7 @@ class AccountStatementController extends \BaseController
 
         $result->nextRowset();
         $BroughtForwardOffset = $result->fetchAll(PDO::FETCH_ASSOC);
-        $BroughtForwardOffset = number_format($BroughtForwardOffset, $roundplaces);
+        $BroughtForwardOffset = $BroughtForwardOffset > 0 ? number_format($BroughtForwardOffset, $roundplaces) : 0;
 
         $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
 
@@ -176,7 +176,7 @@ class AccountStatementController extends \BaseController
 
         $result->nextRowset();
         $BroughtForwardOffset = $result->fetchAll(PDO::FETCH_ASSOC);
-        $BroughtForwardOffset = number_format($BroughtForwardOffset, $roundplaces);
+        $BroughtForwardOffset = $BroughtForwardOffset > 0 ? number_format($BroughtForwardOffset, $roundplaces) : 0;
 
         $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
 
