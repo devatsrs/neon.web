@@ -159,6 +159,7 @@
                                 var CompanyBalance = data.CompanyBalance;
                                 var AccountBalance = data.AccountBalance;
                                 var OffsetBalance = data.OffsetBalance;
+                                var BroughtForwardOffset = data.BroughtForwardOffset;
 
                                 var CurencySymbol  = data.CurencySymbol;
                                 var roundplaces  = data.roundplaces;
@@ -314,7 +315,7 @@
 
                                         '<tr><th colspan="15"></th></tr>'+
 
-                                        '<tr><th colspan="2" style="text-align: right;">BALANCE AFTER OFFSET:</th><th>' + CurencySymbol + OffsetBalance +'</th><th  style="color:#cc2424;text-align: right;font-weight: bold"></th><th colspan="7" ></th><th style="text-align: right;color:#cc2424;font-weight: bold"></th><th colspan="5"></th>' +
+                                        '<tr><th colspan="2" style="text-align: right;">BALANCE AFTER OFFSET:</th><th>' + CurencySymbol + OffsetBalance +'</th><th colspan="2" style="text-align: right;">BROUGHT FORWARD OFFSET:</th><th>' + CurencySymbol + BroughtForwardOffset +'</th><th colspan="6" ></th><th style="text-align: right;color:#cc2424;font-weight: bold"></th><th colspan="5"></th>' +
                                         '</tr>' ;
 
                                 $('#table-4 > tbody > tr:last').after(newRow);

@@ -169,6 +169,9 @@ class AccountStatementController extends \BaseController
         $result->nextRowset();
         $PaymentOutAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
 
+        $result->nextRowset();
+        $BroughtForwardOffset = $result->fetchAll(PDO::FETCH_ASSOC);
+
         $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
 
         $InvoiceOutDisputeAmountTotal = ($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] > 0) ? $InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] : 0;
@@ -209,6 +212,7 @@ class AccountStatementController extends \BaseController
             'CompanyBalance' => $CompanyBalance,
             'AccountBalance' => $AccountBalance,
             'OffsetBalance' => $OffsetBalance,
+            'BroughtForwardOffset' => $BroughtForwardOffset,
             'CurencySymbol' => $CurencySymbol,
             'roundplaces' => $roundplaces,
             'AccountName' => Account::getCompanyNameByID($data['AccountID']),
