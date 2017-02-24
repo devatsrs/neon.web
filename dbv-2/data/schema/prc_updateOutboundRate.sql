@@ -45,7 +45,6 @@ BEGIN
 	WHERE ProcessID = "',p_processId,'"
 	AND AccountID = "',p_AccountID ,'" 
 	AND TrunkID = "',p_TrunkID ,'" 
-	AND ( extension <> cld or extension IS NULL)
 	AND is_inbound = 0') ;
 
 	PREPARE stmt FROM @stm;
