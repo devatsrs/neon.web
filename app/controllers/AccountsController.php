@@ -1308,7 +1308,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $CLIs = CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->pluck('CLI');
         } else if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
-            $CLIRateTables = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')->where(array('ServiceID' => $ServiceID))->select(DB::raw('group_concat(CLI) as CLIs'))->get();
+            $CLIRateTables = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')
+                ->where(array('ServiceID' => $ServiceID))
+                ->where(array('AccountID' => $data['AccountID']))
+                ->select(DB::raw('group_concat(CLI) as CLIs'))->get();
             if(!empty($CLIRateTables)){
                 $CLIs = $CLIRateTables[0]->CLIs;
             }
@@ -1328,7 +1331,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->where(array('ServiceID' => $ServiceID))->delete();
         } else if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
-            CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')->where(array('ServiceID' => $ServiceID))->delete();
+            CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')
+                ->where(array('ServiceID' => $ServiceID))
+                ->where(array('AccountID' => $data['AccountID']))->delete();
         } else if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
             CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->where(array('ServiceID' => $ServiceID))->delete();
@@ -1350,6 +1355,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $criteria = json_decode($data['criteria'], true);
             $query = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"');
                 $query->where(array('ServiceID' => $ServiceID));
+                $query->where(array('AccountID' => $data['AccountID']));
                 $query->update(array('RateTableID' => $data['RateTableID']));
         } else if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);

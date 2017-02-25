@@ -16,24 +16,25 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
 	/* check service enable at gateway*/
-	DROP TEMPORARY TABLE IF EXISTS tmp_AccountsService_;
-	CREATE TEMPORARY TABLE tmp_AccountsService_  (
+	DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
+	CREATE TEMPORARY TABLE tmp_Service_  (
 		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-		AccountID INT,
 		ServiceID INT
 	);
 	SET @stm = CONCAT('
-	INSERT INTO tmp_AccountsService_ (AccountID,ServiceID)
-	SELECT DISTINCT AccountID,ServiceID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ServiceID > 0;
+	INSERT INTO tmp_Service_ (ServiceID)
+	SELECT DISTINCT ServiceID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" ServiceID > 0;
 	');
 	
-	CALL prc_ProcessCDRAccount(p_CompanyID,p_CompanyGatewayID,p_processId,p_tbltempusagedetail_name,p_NameFormat);
-
 	PREPARE stm FROM @stm;
 	EXECUTE stm;
 	DEALLOCATE PREPARE stm;
+
+	CALL prc_ProcessCDRAccount(p_CompanyID,p_CompanyGatewayID,p_processId,p_tbltempusagedetail_name,p_NameFormat);
+
 	
-	IF ( ( SELECT COUNT(*) FROM tmp_AccountsService_ ) > 0 OR p_OutboundTableID > 0)
+	
+	IF ( ( SELECT COUNT(*) FROM tmp_Service_ ) > 0 OR p_OutboundTableID > 0)
 	THEN
 
 		/* rerate cdr service base */

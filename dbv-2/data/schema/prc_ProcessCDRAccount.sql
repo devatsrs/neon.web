@@ -35,7 +35,7 @@ BEGIN
 	DEALLOCATE PREPARE stmt;
 
 	/* active new account */
-	CALL  prc_getActiveGatewayAccount(p_CompanyID,p_CompanyGatewayID,'0','1',p_NameFormat);
+	CALL  prc_getActiveGatewayAccount(p_CompanyID,p_CompanyGatewayID,p_NameFormat);
 
 	/* update cdr account */
 	SET @stm = CONCAT('

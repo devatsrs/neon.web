@@ -11,10 +11,13 @@ BEGIN
 	FROM tblAccountSubscription
 	INNER JOIN tblBillingSubscription
 		ON tblAccountSubscription.SubscriptionID = tblBillingSubscription.SubscriptionID
+	INNER JOIN NeonRMDev.tblAccountService
+		ON tblAccountService.AccountID = tblAccountSubscription.AccountID AND tblAccountService.ServiceID = tblAccountSubscription.ServiceID 
 	LEFT JOIN NeonRMDev.tblAccountBilling 
-		ON tblAccountBilling.AccountID = tblAccountSubscription.AccountID
+		ON tblAccountBilling.AccountID = tblAccountSubscription.AccountID AND tblAccountBilling.ServiceID =  tblAccountSubscription.ServiceID
 	WHERE tblAccountSubscription.AccountID = p_AccountID
-	AND ( p_ServiceID = 0 OR ( p_ServiceID = 1 AND tblAccountBilling.AccountID IS NOT NULL))
+	AND Status = 1
+	AND ( (p_ServiceID = 0 AND tblAccountBilling.ServiceID IS NULL) OR  tblAccountBilling.ServiceID = p_ServiceID)
 	ORDER BY SequenceNo ASC;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
