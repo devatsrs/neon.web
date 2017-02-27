@@ -74,14 +74,11 @@ class AccountStatementCustomerController extends \BaseController {
         $InvoiceOutWithPaymentIn = $this->merge_single_invoice_payments($InvoiceOutWithPaymentIn,Invoice::INVOICE_OUT);
         $InvoiceInWithPaymentOut = $this->merge_single_invoice_payments($InvoiceInWithPaymentOut,Invoice::INVOICE_IN);
 
-
-
         $soa_result = array_map(function ($InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut) {
             return array_merge((array)$InvoiceOutWithPaymentIn, (array)$InvoiceInWithPaymentOut);
-        }, $InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut);
+        }, (array)$InvoiceOutWithPaymentIn, (array)$InvoiceInWithPaymentOut);
 
         $soa_result = $this->cleanup_duplicate_records($soa_result);
-
 
         $output = [
             'result' => $soa_result,
@@ -142,14 +139,9 @@ class AccountStatementCustomerController extends \BaseController {
         //4. Payment Sent
         // ----------------
 
-        $InvoiceOut = $result->fetchAll(PDO::FETCH_ASSOC);
+        $InvoiceOutWithPaymentIn = $result->fetchAll(PDO::FETCH_ASSOC);
         $result->nextRowset();
-        $PaymentIn = $result->fetchAll(PDO::FETCH_ASSOC);
-
-        $result->nextRowset();
-        $InvoiceIn = $result->fetchAll(PDO::FETCH_ASSOC);
-        $result->nextRowset();
-        $PaymentOut = $result->fetchAll(PDO::FETCH_ASSOC);
+        $InvoiceInWithPaymentOut = $result->fetchAll(PDO::FETCH_ASSOC);
 
         //Totals
         $result->nextRowset();
@@ -173,6 +165,8 @@ class AccountStatementCustomerController extends \BaseController {
         $result->nextRowset();
         $BroughtForwardOffset = $result->fetchAll(PDO::FETCH_ASSOC);
 
+        $BroughtForwardOffset = !empty(doubleval($BroughtForwardOffset[0]["BroughtForwardOffset"])) ? number_format(doubleval($BroughtForwardOffset[0]["BroughtForwardOffset"]), $roundplaces) : 0;
+
         $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
 
         $InvoiceOutDisputeAmountTotal = ($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] > 0) ? $InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] : 0;
@@ -192,9 +186,15 @@ class AccountStatementCustomerController extends \BaseController {
         $OffsetBalance = number_format(($InvoiceOutAmountTotal - $PaymentInAmountTotal) - ($InvoiceInAmountTotal - $PaymentOutAmountTotal), $roundplaces);
 
 
-        $soa_result = array_map(function ($InvoiceOut, $PaymentIn, $InvoiceIn, $PaymentOut) {
-            return array_merge((array)$InvoiceOut, (array)$PaymentIn, (array)$InvoiceIn, (array)$PaymentOut);
-        }, $InvoiceOut, $PaymentIn, $InvoiceIn, $PaymentOut);
+        $InvoiceOutWithPaymentIn = $this->format_records($InvoiceOutWithPaymentIn,Invoice::INVOICE_OUT,$roundplaces); // format records to display without using any condition
+        $InvoiceInWithPaymentOut = $this->format_records($InvoiceInWithPaymentOut,Invoice::INVOICE_IN,$roundplaces); // format records to display without using any condition
+
+        $soa_result = array_map(function ($InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut) {
+            return array_merge((array)$InvoiceOutWithPaymentIn, (array)$InvoiceInWithPaymentOut);
+        }, $InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut);
+
+        $soa_result = $this->cleanup_duplicate_records($soa_result);
+
 
         $output = [
             'result' => $soa_result,
@@ -214,11 +214,6 @@ class AccountStatementCustomerController extends \BaseController {
             'CompanyName' => Company::getName(),
         ];
 
-        /*$account_statement['inInvoices'] = $inInvoices;
-        $account_statement['outInvoices'] = $outInvoices;
-        $account_statement['firstCompany'] = Company::getName();
-        $account_statement['secondCompany'] = Account::getCompanyNameByID($data['AccountID']);
-        //$account_statement['roundplaces'] = $roundplaces;*/
         AccountStatementCustomerController::generateExcel($output, $type);
     }
 
