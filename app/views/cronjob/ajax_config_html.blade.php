@@ -64,7 +64,7 @@
                 <div class="form-group">
                     <label for="drp_rateGenerators" class="control-label ">Effective Rate</label>
 
-                    {{Form::select('EffectiveRate', array('now'=>'Current Rate','effective'=>'Effective Same as effective date','future'=>'Future Rate'),(isset($commandconfigval->EffectiveRate)?$commandconfigval->EffectiveRate:'now') ,array("id"=>"" ,"class"=>"select2 small form-control"))}}
+                    {{Form::select('EffectiveRate', array('now'=>'Current','effective'=>'Effective on selected effective date','future'=>'Future'),(isset($commandconfigval->EffectiveRate)?$commandconfigval->EffectiveRate:'now') ,array("id"=>"" ,"class"=>"select2 small form-control"))}}
                 </div>
             </div>
         @endif
