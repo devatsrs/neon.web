@@ -50,6 +50,23 @@
                     {{Form::select('rateTables', $rateTables,(isset($commandconfigval)?$commandconfigval->rateTableID:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"select2 small form-control"))}}
                 </div>
             </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="drp_rateGenerators" class="control-label ">&nbsp;</label>
+                    <div>
+                        <label for="drp_rateGenerators" class="control-label">
+                            <input type="checkbox" id="rd-1" name="replace_rate" value="1" @if (isset($commandconfigval->replace_rate) && ($commandconfigval->replace_rate==1) > 0) checked @endif > &nbsp;&nbsp;Replace all of the existing rates
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="drp_rateGenerators" class="control-label ">Effective Rate</label>
+
+                    {{Form::select('EffectiveRate', array('now'=>'Current','effective'=>'Effective on selected effective date','future'=>'Future'),(isset($commandconfigval->EffectiveRate)?$commandconfigval->EffectiveRate:'now') ,array("id"=>"" ,"class"=>"select2 small form-control"))}}
+                </div>
+            </div>
         @endif
 @foreach((array)$commandconfig as  $config)
 @foreach((array)$config as $configtitle)

@@ -50,7 +50,8 @@ class AccountStatementController extends \BaseController
 
         $result->nextRowset();
         $BroughtForwardOffset = $result->fetchAll(PDO::FETCH_ASSOC);
-        $BroughtForwardOffset = doubleval($BroughtForwardOffset) > 0 ? number_format(doubleval($BroughtForwardOffset), $roundplaces) : 0;
+
+        $BroughtForwardOffset = !empty(doubleval($BroughtForwardOffset[0]["BroughtForwardOffset"])) ? number_format(doubleval($BroughtForwardOffset[0]["BroughtForwardOffset"]), $roundplaces) : 0;
 
         $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
 
@@ -176,7 +177,8 @@ class AccountStatementController extends \BaseController
 
         $result->nextRowset();
         $BroughtForwardOffset = $result->fetchAll(PDO::FETCH_ASSOC);
-        $BroughtForwardOffset = doubleval($BroughtForwardOffset) > 0 ? number_format(doubleval($BroughtForwardOffset), $roundplaces) : 0;
+
+        $BroughtForwardOffset = !empty(doubleval($BroughtForwardOffset[0]["BroughtForwardOffset"])) ? number_format(doubleval($BroughtForwardOffset[0]["BroughtForwardOffset"]), $roundplaces) : 0;
 
         $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
 
@@ -484,11 +486,16 @@ class AccountStatementController extends \BaseController
                  */
                 $RowIndex = $RowIndex + 3; // give some space
 
-                $sheet->mergeCells($Alpha[2].$RowIndex. ':' . $Alpha[count($Alpha)-1] . $RowIndex);
+                $sheet->mergeCells($Alpha[2].$RowIndex. ':' . $Alpha[7] . $RowIndex);
                 AccountStatementController::insertExcelHeaderData($sheet, $Alpha[1].$RowIndex, 'BALANCE AFTER OFFSET:',14);
 
                 $BalanceAfterOffsetFormula = '=('.$PaymentInBalanceIndexCell  . '-' . $PaymentOutBalanceIndexCell . ')';
                 AccountStatementController::insertExcelSummeryData($sheet, $Alpha[2].$RowIndex, $BalanceAfterOffsetFormula);
+
+                // BALANCE BROUGHT FORWARD:
+                $sheet->mergeCells($Alpha[10].$RowIndex. ':' . $Alpha[count($Alpha)-1] . $RowIndex);
+                AccountStatementController::insertExcelHeaderData($sheet, $Alpha[9].$RowIndex, 'BALANCE BROUGHT FORWARD:',14);
+                AccountStatementController::insertExcelSummeryData($sheet, $Alpha[10].$RowIndex, $account_statement['BroughtForwardOffset']);
 
             });
         })->download('xls');

@@ -170,7 +170,7 @@
 								if(result.length<1){
 									$('#table-4 > tbody ').html('<tr class="odd"><td valign="top" colspan="15" class="dataTables_empty">No data available in table</td></tr>');
 									 $('#table-4_processing').hide();
-									return false;
+									//return false;
 								}
                                 $('#table-4 > thead > tr:nth-child(1) > th:nth-child(2)').html(AccountName + " PAYMENT");
                                 $('#table-4 > thead > tr:nth-child(1) > th:nth-child(3)').html(AccountName + " INVOICE");
@@ -315,7 +315,7 @@
 
                                         '<tr><th colspan="15"></th></tr>'+
 
-                                        '<tr><th colspan="2" style="text-align: right;">BALANCE AFTER OFFSET:</th><th>' + CurencySymbol + OffsetBalance +'</th><th></th><th colspan="2" style="text-align: right;">BROUGHT FORWARD OFFSET:</th><th>' + CurencySymbol + BroughtForwardOffset +'</th><th colspan="5" ></th><th style="text-align: right;color:#cc2424;font-weight: bold"></th><th colspan="5"></th>' +
+                                        '<tr><th colspan="2" style="text-align: right;text-transform: uppercase">BALANCE AFTER OFFSET:</th><th>' + CurencySymbol + OffsetBalance +'</th><th></th><th></th><th></th><th></th><th></th><th colspan="2" style="text-align: right;text-transform: uppercase">BALANCE BROUGHT FORWARD: </th><th>' + CurencySymbol + BroughtForwardOffset +'</th><th></th><th></th><th></th><th></th>' +
                                         '</tr>' ;
 
                                 $('#table-4 > tbody > tr:last').after(newRow);
