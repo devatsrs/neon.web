@@ -367,20 +367,17 @@ class AccountStatementCustomerController extends \BaseController {
                             $rowData['PaymentOut_Amount'] = 0;
                         }
 
-                        $InvoiceOut_Amount = number_format($rowData['InvoiceOut_Amount'], $roundplaces,'.','');
-                        $InvoiceIn_Amount = number_format($rowData['InvoiceIn_Amount'], $roundplaces,'.','');
+                        $InvoiceOut_Amount = $rowData['InvoiceOut_Amount'];
 
-                        $InvoiceIn_DisputeAmount = number_format($rowData['InvoiceIn_DisputeAmount'], $roundplaces,'.','');
-                        $InvoiceIn_DisputeAmount = $InvoiceIn_DisputeAmount > 0 ? $InvoiceIn_DisputeAmount : '';
+                        $InvoiceIn_Amount = $rowData['InvoiceIn_Amount'];
 
-                        $InvoiceOut_DisputeAmount = number_format($rowData['InvoiceOut_DisputeAmount'], $roundplaces,'.','');
-                        $InvoiceOut_DisputeAmount = $InvoiceOut_DisputeAmount > 0 ? $InvoiceOut_DisputeAmount : '';
+                        $InvoiceIn_DisputeAmount = $rowData['InvoiceIn_DisputeAmount'];
 
-                        $PaymentIn_Amount = number_format($rowData['PaymentIn_Amount'], $roundplaces,'.','');
-                        $PaymentIn_Amount = $PaymentIn_Amount > 0 ? $PaymentIn_Amount : '';
+                        $InvoiceOut_DisputeAmount = $rowData['InvoiceOut_DisputeAmount'];
 
-                        $PaymentOut_Amount = number_format($rowData['PaymentOut_Amount'], $roundplaces,'.','');
-                        $PaymentOut_Amount = $PaymentOut_Amount > 0 ? $PaymentOut_Amount : '';
+                        $PaymentIn_Amount = $rowData['PaymentIn_Amount'];
+
+                        $PaymentOut_Amount = $rowData['PaymentOut_Amount'];
 
 
                         $columnIndex = 0;
