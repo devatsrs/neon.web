@@ -151,6 +151,7 @@
                                 var CompanyBalance = data.CompanyBalance;
                                 var AccountBalance = data.AccountBalance;
                                 var OffsetBalance = data.OffsetBalance;
+                                var BroughtForwardOffset = data.BroughtForwardOffset;
 
                                 var CurencySymbol  = data.CurencySymbol;
                                 var roundplaces  = data.roundplaces;
@@ -160,7 +161,7 @@
                                 if(result.length<1){
                                     $('#table-4 > tbody ').html('<tr class="odd"><td valign="top" colspan="15" class="dataTables_empty">No data available in table</td></tr>');
                                     $('#table-4_processing').hide();
-                                    return false;
+                                    //return false;
                                 }
                                 $('#table-4 > tbody > tr').remove();
                                 $('#table-4 > tbody').append('<tr></tr>');
@@ -177,10 +178,10 @@
                                         result[i]['InvoiceOut_PeriodCover'] = '';
                                     }
                                     if( typeof result[i]['InvoiceOut_Amount'] == 'undefined' ) {
-                                        result[i]['InvoiceOut_Amount'] = 0;
+                                        result[i]['InvoiceOut_Amount'] = '';
                                     }
                                     if( typeof result[i]['InvoiceOut_DisputeAmount'] == 'undefined' ) {
-                                        result[i]['InvoiceOut_DisputeAmount'] = 0;
+                                        result[i]['InvoiceOut_DisputeAmount'] = '';
                                     }
                                     //Payment In
                                     if( typeof result[i]['PaymentIn_PeriodCover'] == 'undefined' ) {
@@ -190,7 +191,7 @@
                                         result[i]['PaymentIn_PaymentID'] = '';
                                     }
                                     if( typeof result[i]['PaymentIn_Amount'] == 'undefined' ) {
-                                        result[i]['PaymentIn_Amount'] = 0;
+                                        result[i]['PaymentIn_Amount'] = '';
                                     }
                                     //Invoice In
                                     if( typeof result[i]['InvoiceIn_InvoiceNo'] == 'undefined' ) {
@@ -200,10 +201,10 @@
                                         result[i]['InvoiceIn_PeriodCover'] = '';
                                     }
                                     if( typeof result[i]['InvoiceIn_Amount'] == 'undefined' ) {
-                                        result[i]['InvoiceIn_Amount'] = 0;
+                                        result[i]['InvoiceIn_Amount'] = '';
                                     }
                                     if( typeof result[i]['InvoiceIn_DisputeAmount'] == 'undefined' ) {
-                                        result[i]['InvoiceIn_DisputeAmount'] = 0;
+                                        result[i]['InvoiceIn_DisputeAmount'] = '';
                                     }
                                     //Payment Out
                                     if( typeof result[i]['PaymentOut_PeriodCover'] == 'undefined' ) {
@@ -213,46 +214,30 @@
                                         result[i]['PaymentOut_PaymentID'] = '';
                                     }
                                     if( typeof result[i]['PaymentOut_Amount'] == 'undefined' ) {
-                                        result[i]['PaymentOut_Amount'] = 0;
+                                        result[i]['PaymentOut_Amount'] = '';
                                     }
-
-                                    InvoiceOut_Amount = parseFloat(result[i]['InvoiceOut_Amount']).toFixed(roundplaces);
-
-                                    InvoiceIn_Amount = parseFloat(result[i]['InvoiceIn_Amount']).toFixed(roundplaces);
-
-                                    InvoiceIn_DisputeAmount = parseFloat(result[i]['InvoiceIn_DisputeAmount']).toFixed(roundplaces);
-                                    InvoiceIn_DisputeAmount = InvoiceIn_DisputeAmount > 0 ? InvoiceIn_DisputeAmount : '';
-
-                                    InvoiceOut_DisputeAmount = parseFloat(result[i]['InvoiceOut_DisputeAmount']).toFixed(roundplaces);
-                                    InvoiceOut_DisputeAmount = InvoiceOut_DisputeAmount > 0 ? InvoiceOut_DisputeAmount : '';
-
-                                    PaymentIn_Amount = parseFloat(result[i]['PaymentIn_Amount']).toFixed(roundplaces);
-                                    PaymentIn_Amount = PaymentIn_Amount > 0 ? PaymentIn_Amount : '';
-
-                                    PaymentOut_Amount = parseFloat(result[i]['PaymentOut_Amount']).toFixed(roundplaces);
-                                    PaymentOut_Amount = PaymentOut_Amount > 0 ? PaymentOut_Amount : '';
 
 
 
                                     if( result[i]['PaymentIn_PaymentID'] !='' ) {
-                                        result[i]['PaymentIn_PaymentID'] = '<a class="paymentsModel" id="'+result[i]['PaymentIn_PaymentID']+'" href="javascript:;" onClick="paymentsModel(this);">'+PaymentIn_Amount+'</a>';
+                                        result[i]['PaymentIn_PaymentID'] = '<a class="paymentsModel" id="'+result[i]['PaymentIn_PaymentID']+'" href="javascript:;" onClick="paymentsModel(this);">'+result[i]['PaymentIn_Amount']+'</a>';
                                     } else {
                                         result[i]['PaymentIn_PaymentID'] = '';
                                     }
                                     if( result[i]['PaymentOut_PaymentID'] !='' ) {
-                                        result[i]['PaymentOut_PaymentID'] = '<a class="paymentsModel" id="' + result[i]['PaymentOut_PaymentID'] + '" href="javascript:;" onClick="paymentsModel(this);">'+PaymentOut_Amount+'</a>';
+                                        result[i]['PaymentOut_PaymentID'] = '<a class="paymentsModel" id="' + result[i]['PaymentOut_PaymentID'] + '" href="javascript:;" onClick="paymentsModel(this);">'+result[i]['PaymentOut_Amount']+'</a>';
                                     } else {
                                         result[i]['PaymentOut_PaymentID'] = '';
                                     }
 
 
                                     if( result[i]['InvoiceIn_DisputeID'] !='' ) {
-                                        result[i]['InvoiceIn_DisputeID'] = '<a style="color:#cc2424;font-weight: bold" class="DisputeModel" id="' + result[i]['InvoiceIn_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+InvoiceIn_DisputeAmount+'</a>';
+                                        result[i]['InvoiceIn_DisputeID'] = '<a style="color:#cc2424;font-weight: bold" class="DisputeModel" id="' + result[i]['InvoiceIn_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+result[i]['InvoiceIn_DisputeAmount']+'</a>';
                                     } else {
                                         result[i]['InvoiceIn_DisputeID'] = '';
                                     }
                                     if( result[i]['InvoiceOut_DisputeID'] !='' ) {
-                                        result[i]['InvoiceOut_DisputeID'] = '<a style="color:#cc2424;font-weight: bold" class="DisputeModel" id="' + result[i]['InvoiceOut_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+InvoiceOut_DisputeAmount+'</a>';
+                                        result[i]['InvoiceOut_DisputeID'] = '<a style="color:#cc2424;font-weight: bold" class="DisputeModel" id="' + result[i]['InvoiceOut_DisputeID'] + '" href="javascript:;" onClick="disputesModel(this);">'+result[i]['InvoiceOut_DisputeAmount']+'</a>';
                                     } else {
                                         result[i]['InvoiceOut_DisputeID'] = '';
                                     }
@@ -262,7 +247,7 @@
                                                 // Invoice Out
                                             "<td align='center'>"+result[i]['InvoiceOut_InvoiceNo']+"</td>" +
                                             "<td align='center'>"+result[i]['InvoiceOut_PeriodCover']+"</td>" +
-                                            "<td align='right'>"+ InvoiceOut_Amount +"</td>" +
+                                            "<td align='right'>"+ result[i]['InvoiceOut_Amount'] +"</td>" +
                                             "<td align='right'>"+ result[i]['InvoiceOut_DisputeID'] +"</td>" +
                                             "<td> </td>" +
 
@@ -274,7 +259,7 @@
                                                 // Invoice In
                                             "<td align='center'>"+result[i]['InvoiceIn_InvoiceNo']+"</td>" +
                                             "<td align='center'>"+result[i]['InvoiceIn_PeriodCover']+"</td>" +
-                                            "<td align='right'>"+ InvoiceIn_Amount +"</td>" +
+                                            "<td align='right'>"+ result[i]['InvoiceIn_Amount'] +"</td>" +
                                             "<td align='right' >"+ result[i]['InvoiceIn_DisputeID'] +"</td>" +
 
                                             "<td> </td>" +
@@ -310,7 +295,7 @@
 
                                         '<tr><th colspan="15"></th></tr>'+
 
-                                        '<tr><th colspan="2" style="text-align: right;">BALANCE AFTER OFFSET:</th><th>' + CurencySymbol + OffsetBalance +'</th><th  style="color:#cc2424;text-align: right;font-weight: bold"></th><th colspan="7" ></th><th style="text-align: right;color:#cc2424;font-weight: bold"></th><th colspan="5"></th>' +
+                                        '<tr><th colspan="2" style="text-align: right;text-transform: uppercase">BALANCE AFTER OFFSET:</th><th>' + CurencySymbol + OffsetBalance +'</th><th></th><th></th><th></th><th></th><th></th><th colspan="2" style="text-align: right;text-transform: uppercase">BALANCE BROUGHT FORWARD: </th><th>' + CurencySymbol + BroughtForwardOffset +'</th><th></th><th></th><th></th><th></th>' +
                                         '</tr>' ;
 
                                 $('#table-4 > tbody > tr:last').after(newRow);

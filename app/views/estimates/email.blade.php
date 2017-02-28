@@ -24,8 +24,9 @@
     <div class="form-group">
       <label for="field-4" class="control-label">Message</label>
       {{Form::textarea('Message',$Message,array("class"=>"form-control","id"=>"InvoiceMessage","rows"=>8 ))}} <br>
-      <a target="_blank" href="{{URL::to('/estimate/'.$Estimate->EstimateID.'/estimate_preview')}}">View Estimate</a> <br>
-      <span style="display:none;"> <br>
+    <span style="display:none;"> 
+     <a target="_blank" href="{{URL::to('/estimate/'.$Estimate->EstimateID.'/estimate_preview')}}">View Estimate</a> <br>
+      <br>
       <br>
       Best Regards,<br>
       <br>

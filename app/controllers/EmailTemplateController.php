@@ -81,7 +81,7 @@ class EmailTemplateController extends \BaseController {
 		{
 			$data['userID'] = NULL;
 		}
-		$data['Status'] = isset($data['Status'])?$data['Status']:0;
+		$data['Status'] = isset($data['Status'])?1:0;
         unset($data['Email_template_privacy']);
 		unset($data['email_from']);		
         if ($obj = EmailTemplate::create($data)) {
@@ -129,16 +129,25 @@ class EmailTemplateController extends \BaseController {
      * @return Response
      */
     public function update($id) {
-        $data = Input::all();  Log::info(print_r($data,true)); 
+        $data = Input::all();   
         $crmteplate = EmailTemplate::findOrfail($id);
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['ModifiedBy'] = User::get_user_full_name();
-        $rules = [
+       if($crmteplate->StaticType ==1){
+		$rules = [
+            "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,$id,TemplateID,CompanyID,".$companyID,
+            "Subject" => "required",
+            "TemplateBody"=>"required",
+			"email_from"=>"required"
+        ];
+		}else{
+	    $rules = [
             "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,$id,TemplateID,CompanyID,".$companyID,
             "Subject" => "required",
             "TemplateBody"=>"required"
         ];
+	   }
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
@@ -155,7 +164,7 @@ class EmailTemplateController extends \BaseController {
     	 $data['EmailFrom'] =  isset($data['email_from'])?$data['email_from']:"";
 		 unset($data['email_from']);
 		 unset($data['Email_template_privacy']); 
-		$data['Status'] = isset($data['Status'])?$data['Status']:0;
+		$data['Status'] = isset($data['Status'])?1:0;
         if ($crmteplate->update($data)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Updated"));
         } else {
