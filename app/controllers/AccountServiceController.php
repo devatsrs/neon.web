@@ -175,6 +175,11 @@ class AccountServiceController extends \BaseController {
                     $inbounddata['created_at'] = $date;
                     AccountTariff::create($inbounddata);
                 }
+            }else{
+                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::INBOUND))->count();
+                if(!empty($count) && $count>0){
+                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::INBOUND))->delete();
+                }
             }
 
             if(!empty($OutboundTariff)){
@@ -185,6 +190,11 @@ class AccountServiceController extends \BaseController {
                 }else{
                     $outbounddata['created_at'] = $date;
                     AccountTariff::create($outbounddata);
+                }
+            }else{
+                $count = AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::OUTBOUND))->count();
+                if(!empty($count) && $count>0){
+                    AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::OUTBOUND))->delete();
                 }
             }
             return Response::json(array("status" => "success", "message" => "Account Service Successfully updated."));
