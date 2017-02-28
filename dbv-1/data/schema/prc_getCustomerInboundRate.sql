@@ -10,21 +10,21 @@ BEGIN
 
 	DECLARE v_inboundratetableid_ INT;
 
-	IF p_InboundTableID > 0
-	THEN 
-
-		SET v_inboundratetableid_ = p_InboundTableID;
-
-	ELSEIF p_CLD != ''
+	IF p_CLD != ''
 	THEN
-	
+		
 		SELECT
 			RateTableID INTO v_inboundratetableid_
 		FROM tblCLIRateTable
 		WHERE AccountID = p_AccountID AND CLI = p_CLD;
 		
+	ELSEIF p_InboundTableID > 0
+	THEN 
+		
+		SET v_inboundratetableid_ = p_InboundTableID;
+
 	ELSE
-	
+		
 		SELECT
 			InboudRateTableID INTO v_inboundratetableid_
 		FROM tblAccount

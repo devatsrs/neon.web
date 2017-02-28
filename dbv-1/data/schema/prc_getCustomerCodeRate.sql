@@ -156,8 +156,7 @@ BEGIN
 		AND RateTableID = v_ratetableid_
 		AND c.RateID IS NULL
 		AND tblRateTableRate.EffectiveDate <= NOW();
-		
-		
+
 		/* if Specify Rate is set when cdr rerate */
 		IF p_RateMethod = 'SpecifyRate'
 		THEN

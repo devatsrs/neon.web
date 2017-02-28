@@ -23,7 +23,7 @@ BEGIN
 	);
 	SET @stm = CONCAT('
 	INSERT INTO tmp_Service_ (ServiceID)
-	SELECT DISTINCT ServiceID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" ServiceID > 0;
+	SELECT DISTINCT ServiceID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND ServiceID > 0;
 	');
 	
 	PREPARE stm FROM @stm;

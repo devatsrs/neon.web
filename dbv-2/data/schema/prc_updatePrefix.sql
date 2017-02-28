@@ -35,6 +35,8 @@ BEGIN
 			AND ud.TrunkID = ' , p_TrunkID , '
 			AND ud.UseInBilling = 0
 			AND ud.area_prefix = "Other"
+			AND ( extension <> cld or extension IS NULL)
+			AND cld REGEXP "^[0-9]+$"
 			AND cld like  CONCAT(c.Code,"%");
 		');
 
@@ -56,6 +58,8 @@ BEGIN
 			AND ud.TrunkID = ' , p_TrunkID , '
 			AND ud.UseInBilling = 1 
 			AND ud.area_prefix = "Other"
+			AND ( extension <> cld or extension IS NULL)
+			AND cld REGEXP "^[0-9]+$"
 			AND cld like  CONCAT(ud.TrunkPrefix,c.Code,"%");
 		');
 
@@ -77,6 +81,8 @@ BEGIN
 			AND ud.is_inbound = 0 
 			AND ud.AccountID = ' , p_AccountID , '
 			AND ud.area_prefix = "Other"
+			AND ( extension <> cld or extension IS NULL)
+			AND cld REGEXP "^[0-9]+$"
 			AND cld like  CONCAT(c.Code,"%");
 		');
 

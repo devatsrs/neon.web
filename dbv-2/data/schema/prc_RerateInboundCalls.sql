@@ -12,6 +12,7 @@ BEGIN
 	DECLARE v_rowCount_ INT;
 	DECLARE v_pointer_ INT;
 	DECLARE v_AccountID_ INT;
+	DECLARE v_ServiceID_ INT;
 	DECLARE v_cld_ VARCHAR(500);
 
 	IF p_RateCDR = 1  
@@ -37,7 +38,7 @@ BEGIN
 			EXECUTE stm;
 			DEALLOCATE PREPARE stm;
 
-		ELSEIF ( SELECT COUNT(*) FROM tmp_AccountsService_ ) > 0
+		ELSEIF ( SELECT COUNT(*) FROM tmp_Service_ ) > 0
 		THEN
 
 			/* temp accounts*/
@@ -91,12 +92,13 @@ BEGIN
 		DO
 
 			SET v_AccountID_ = (SELECT AccountID FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
+			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
 			SET v_cld_ = (SELECT cld FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
 
 			IF p_InboundTableID =  0
 			THEN 
 
-				SET p_InboundTableID = (SELECT RateTableID FROM NeonRMDev.tblAccountTariff  WHERE AccountID = v_AccountID_ AND Type = 2 LIMIT 1);
+				SET p_InboundTableID = (SELECT RateTableID FROM NeonRMDev.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 2 LIMIT 1);
 				/* get inbound rate process*/
 				CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
 			END IF;
