@@ -120,10 +120,10 @@
                                 </tbody>
                             </table>
                             <p class="float-right " >
-                                <a  id="vendor-trunks-submit" class="btn save btn-primary btn-sm btn-icon icon-left">
+                                <button  id="vendor-trunks-submit" class="btn save btn-primary btn-sm btn-icon icon-left">
                                     <i class="entypo-floppy"></i>
                                     Save
-                                </a>
+                                </button>
                             </p>
                         </div>
                     </div>
@@ -185,20 +185,26 @@ $(".codedeckid").bind('change',function (e) {
                 if(response > 0){
                     changeConfirmation = confirm("Are you sure? Related Rates will be deleted");
                     if(changeConfirmation){
+                        setTimeout(function() {$("#vendor-trunks-submit").button('reset'); $("#vendor-trunks-submit").button('loading')},100);
                         prev_val = current_obj.val();
                         current_obj.prop('selected', prev_val);
                         current_obj.parent().find('select.select2').select2().select2('val',prev_val);
                         //selectBox.selectOption('');
                         current_obj.parent().find('[name="codedeckid"]').val(prev_val);
                         current_obj.select2().select2('val',prev_val);
-                        submit_ajax(baseurl + '/vendor_rates/{{$id}}/delete_vendorrates','Trunkid='+trunkid)
+                        submit_ajax(baseurl + '/vendor_rates/{{$id}}/delete_vendorrates','Trunkid='+trunkid);
+                        $("#vendor-trunks-submit").button('reset');
                     }else{
+                        $("#vendor-trunks-submit").button('reset');
                         current_obj.val(prev_val);
                         current_obj.prop('selected', prev_val);
                         current_obj.parent().find('select.select2').select2().select2('val',prev_val);
                     }
                 }
 
+            },
+            error: function (){
+                $("#vendor-trunks-submit").button('reset');
             },
             data: 'action=check_count&Trunkid='+trunkid,
             //Options to tell jQuery not to process data or worry about content-type.
