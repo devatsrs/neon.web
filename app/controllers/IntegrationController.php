@@ -451,7 +451,7 @@ class IntegrationController extends \BaseController
 					return json_validator_response($validator);
 				}
 
-				$QuickBook=CompanyConfiguration::get('QuickBook');
+				$QuickBook=CompanyConfiguration::get('QUICKBOOK');
 				$QuickBook = json_decode($QuickBook,true);
 				if(empty($QuickBook['OauthConsumerKey']) || empty($QuickBook['OauthConsumerSecret']) || empty($QuickBook['AppToken'])){
 					return Response::json(array("status" => "failed", "message" => "Please Check QuickBook Configuration", "quickbookredirect" =>1));
