@@ -445,7 +445,7 @@
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardUnbilledAmount',$BillingDashboardWidgets))
                 option["amount"] = response.data.TotalUnbillidAmount;
                 option["end"] = response.data.TotalUnbillidAmount;
-                option["tileclass"] = 'tile-pink';
+                option["tileclass"] = 'tile-funchsia';
                 option["class"] = 'UnbilledAmount';
                 option["type"] = 'Unbilled Amount';
                 /*option["count"] = response.data.CountTotalDispute;*/

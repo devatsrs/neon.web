@@ -268,7 +268,7 @@
                         <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
                         <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
                         <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
-                        <a data-rel="empty" href="#"><i class="entypo-trash"></i></a>
+                        <a data-rel="empty" href="#" title="Delete Missing Gateway Accounts"><i class="entypo-trash"></i></a>
                     </div>
                 </div>
                 <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
@@ -996,7 +996,7 @@
             @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboard','View'))
             var gateWayID = $("#company_gateway").val();
             if(gateWayID) {
-                if(confirm('Are you sure you want to clear missing account against this gateway?')) {
+                if(confirm('Are you sure you want to delete missing gateway accounts?')) {
                     var table = $('#missingAccounts');
                     loadingUnload(table, 1);
                     var url = baseurl + '/dashboard/delete_missing_accounts/' + gateWayID;
