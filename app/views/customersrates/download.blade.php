@@ -290,15 +290,15 @@ jQuery(document).ready(function ($) {
     });*/
 	
 	   $('#BulkMail-form [name="email_template_privacy"]').change(function(e){
-            setTimeout(function(){ drodown_reset(); }, 100);
+		   drodown_reset(); 
    });
    
     function drodown_reset(){
-            var privacyID = $('#BulkMail-form [name="email_template_privacy"]').val();
+            var privacyID = $('#BulkMail-form [name="email_template_privacy"]').val(); 
             if(privacyID == null){
                 return false;
-            }
-            var Type = $('#BulkMail-form [name="Type"]').val();
+            } 
+            var Type = $('#BulkMail-form [name="Type"]').val(); 
             var url = baseurl + '/accounts/' + privacyID + '/ajax_getEmailTemplate/'+Type;
             $.get(url, function (data, status) {
                 if (Status = "success") {
@@ -311,8 +311,8 @@ jQuery(document).ready(function ($) {
             });
         }
 
-    $('#BulkMail-form [name="Type"]').change(function(e){
-        var Type =  $(this).val();
+/*    $('#BulkMail-form [name="Type"]').change(function(e){
+        var Type =  $('#BulkMail-form [name="Type"]').val();
         var privacyID = $('#BulkMail-form [name="email_template_privacy"]').val();
         if(Type==''){
             Type =0;
@@ -330,7 +330,7 @@ jQuery(document).ready(function ($) {
                 toastr.error(status, "Error", toastr_opts);
             }
         });
-    });
+    });*/
 
     $("#BulkMail-form [name=template_option]").change(function(e){
         if($(this).val()==1){
