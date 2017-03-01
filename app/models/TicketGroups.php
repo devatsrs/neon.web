@@ -75,6 +75,7 @@ class TicketGroups extends \Eloquent {
 				$FromEmails[$EmailTrackingData->EmailTrackingEmail] = $EmailTrackingData->EmailTrackingEmail;			
 			}
 		}
+		sort($FromEmails);
 		return $FromEmails;
 	}
 }
