@@ -12,6 +12,8 @@ UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourc
 
 UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='BillingDashboardPincodeWidget.View' limit 1) WHERE  `ResourceName`='BillingDashboard.ajax_top_pincode';
 
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='BillingDashboardInvoiceExpenseWidgets.View' limit 1) WHERE  `ResourceName`='BillingDashboard.invoice_expense_total_widget';
+
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FreshdeskDomain';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FreshdeskEmail';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='Freshdeskkey';
