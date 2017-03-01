@@ -53,14 +53,14 @@
     @if(Tickets::CheckTicketLicense())
     <li class="{{check_uri('tickets')}}"><a href="#"><i class="fa fa-ticket"></i><span>Tickets Management</span></a>
       <ul>
-       @if(User::checkCategoryPermission('Tickets','All'))
+       @if(User::checkCategoryPermission('Tickets','View'))
         <li> <a href="{{URL::to('/tickets')}}">  <span>Tickets</span> </a> </li>
         @endif
-         @if(User::checkCategoryPermission('TicketsFields','All'))
-        <li> <a href="{{URL::to('/ticketsfields')}}">  <span>Tickets Fields</span> </a> </li>
+         @if(User::checkCategoryPermission('TicketsFields','Edit'))
+        <li> <a href="{{URL::to('/ticketsfields')}}">  <span>Tickets Fields</span></a></li>
         @endif
-        @if(User::checkCategoryPermission('TicketsGroups','All'))
-        <li> <a href="{{URL::to('/ticketgroups')}}">  <span>Groups</span> </a> </li>
+        @if(User::checkCategoryPermission('TicketsGroups','View'))
+        <li> <a href="{{URL::to('/ticketgroups')}}">  <span>Groups</span></a> </li>
         @endif
       </ul>
     </li>

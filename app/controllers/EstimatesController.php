@@ -907,7 +907,7 @@ class EstimatesController extends \BaseController {
 			
             $CreatedBy 					= 	User::get_user_full_name();
             $data 						= 	Input::all();
-			$postdata 					= 	Input::all(); Log::info(print_r($data,true));
+			$postdata 					= 	Input::all(); 
             $Estimate 					= 	Estimate::find($id);
             $Company 					= 	Company::find($Estimate->CompanyID);
             $CompanyName 				= 	$Company->CompanyName;
@@ -925,7 +925,7 @@ class EstimatesController extends \BaseController {
             }
 			
             $data['EmailTo'] 			= 	explode(",",$CustomerEmail);
-            $data['EstimateURL'] 		= 	"URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview'";
+            $data['EstimateURL'] 		= 	URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview');
             $data['AccountName'] 		= 	Account::find($Estimate->AccountID)->AccountName;
             $data['CompanyName'] 		= 	$CompanyName;
 			
@@ -1380,10 +1380,8 @@ class EstimatesController extends \BaseController {
             if($data['Type']==2) {
                 if (!empty($data['Email'])) {
                     $Email = $data['Email'];
-					$emaildata['User'] 			= 	$data['Email'];
                 }else{
                     $Email = 'Unknown';
-					$emaildata['User'] 			= 	$Email;
                 }
             }else{
                 $Email = User::get_user_full_name();
@@ -1425,7 +1423,7 @@ class EstimatesController extends \BaseController {
                 if(intval($emailtoCustomer) == 1 && isset($CustomerEmail) && $CustomerEmail != '')
                 {
                     $data['EmailTo'] 			= 	explode(",",$CustomerEmail);
-                    $data['EstimateURL'] 		= 	"URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview'";
+                    $data['EstimateURL'] 		= 	URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview');
                     $data['AccountName'] 		= 	Account::find($Estimate->AccountID)->AccountName;
                     $data['Subject'] 			= 	'Comment added to Estimate '.$estimatenumber;
                     $data['Message'] 			= 	$Comment;

@@ -503,7 +503,9 @@ Route::group(array('before' => 'auth'), function () {
 	
 	
 	
-	
+	Route::any('/tickets',"TicketsController@TicketGroupAccess");
+	Route::any('/tickets',"TicketsController@TicketRestrictedAccess");
+	Route::any('/tickets',"TicketsController@TicketsGlobalAccess");
 	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
 	Route::any('/tickets/ajax_datagrid/{type}', "TicketsController@ajax_datagrid");
 	Route::any('/tickets/ajex_result','TicketsController@ajex_result'); 
