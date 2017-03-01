@@ -123,7 +123,7 @@
                             action += status_link;
 							
 							 @if(User::checkCategoryPermission('RateGenerator','Delete'))
-                                action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn btn-default btn-sm  delete btn-danger"><i class="fa fa-trash"></i></a> '
+                                action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn btn-default btn-sm  delete btn-danger"><i class="entypo-trash"></i></a> '
                             @endif
                             if (full[3] == 1) { /* When Status is 1 */
                                 action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>'
@@ -188,8 +188,12 @@
                         e.preventDefault();
                         $('#update-rate-generator-form').trigger("reset");
                         $('#modal-update-rate').modal('show', {backdrop: 'static'});
+                        $('.radio-replace').removeClass('checked');
+                        $('#defaultradiorate').addClass('checked');
                         $('#RateTableIDid').hide();
                         $('#RateTableNameid').show();
+                        $('#RateTableReplaceRate').hide();
+                        $('#RateTableEffectiveRate').show();
                         $('#modal-update-rate h4').html('Generate Rate Table');
                         update_rate_table_url = $(this).attr("href");
 
@@ -259,7 +263,13 @@
             * Submit and Generate Joblog
             * */
             update_rate_table_url = $(this).attr("href");
+
+            $('.radio-replace').removeClass('checked');
+            $('#defaultradiorate').addClass('checked');
+
             $('#RateTableIDid').show();
+            $('#RateTableReplaceRate').show();
+            $('#RateTableEffectiveRate').show();
             $('#RateTableNameid').hide();
             $('#modal-update-rate h4').html('Update Rate Table');
         });

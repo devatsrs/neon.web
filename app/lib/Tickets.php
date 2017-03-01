@@ -11,8 +11,8 @@ class Tickets{
 	 
 	 
 	static function CheckTicketLicense(){
-		return true;
-		//return false;
+		//return true;
+		return false;
 	}
 	
 	
