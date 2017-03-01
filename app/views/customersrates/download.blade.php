@@ -283,11 +283,33 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    $('#BulkMail-form [name="email_template_privacy"]').change(function(e){
+    /*$('#BulkMail-form [name="email_template_privacy"]').change(function(e){
         e.preventDefault();
         e.stopPropagation();
         editor_reset(new Array());
-    });
+    });*/
+	
+	   $('#BulkMail-form [name="email_template_privacy"]').change(function(e){
+            setTimeout(function(){ drodown_reset(); }, 100);
+   });
+   
+    function drodown_reset(){
+            var privacyID = $('#BulkMail-form [name="email_template_privacy"]').val();
+            if(privacyID == null){
+                return false;
+            }
+            var Type = $('#BulkMail-form [name="Type"]').val();
+            var url = baseurl + '/accounts/' + privacyID + '/ajax_getEmailTemplate/'+Type;
+            $.get(url, function (data, status) {
+                if (Status = "success") {
+                    var modal = $("#modal-BulkMail");
+                    var el = modal.find('#BulkMail-form [name=email_template]');
+                    rebuildSelect2(el,data,'');
+                } else {
+                    toastr.error(status, "Error", toastr_opts);
+                }
+            });
+        }
 
     $('#BulkMail-form [name="Type"]').change(function(e){
         var Type =  $(this).val();
