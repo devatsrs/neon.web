@@ -1113,7 +1113,7 @@ class InvoicesController extends \BaseController {
             $isRecurringInvoice = 0;
             $recurringInvoiceID = 0;
             $data = Input::all();
-			$postdata = Input::all(); Log::info(print_r($data,true));
+			$postdata = Input::all(); 
             if(isset($data['RecurringInvoice'])){
                 $isRecurringInvoice=1;
                 $recurringInvoiceID = $data['RecurringInvoiceID'];
