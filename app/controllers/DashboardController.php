@@ -399,7 +399,7 @@ class DashboardController extends BaseController {
         try {
             $result = DB::Connection('sqlsrv2')->statement('delete from tblGatewayAccount where CompanyGatewayID=' . intval($id));
             if($result){
-                return Response::json(array("status" => "success", "message" => "Missing Account Delete Successfully."));
+                return Response::json(array("status" => "success", "message" => "Missing Gateway Accounts deleted successfully."));
             }
         }catch(Exception $ex){
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
