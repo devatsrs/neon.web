@@ -12,7 +12,15 @@ class DashboardCustomerController extends BaseController {
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
-        return View::make('customer.index',compact('account','original_startdate','original_enddate','invoice_status_json'));
+        $monthfilter = 'Weekly';
+        if(Cache::has('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID())){
+            $monthfilter = Cache::get('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID());
+        }
+        $BillingDashboardWidgets 	= 	CompanyConfiguration::get('BILLING_DASHBOARD_CUSTOMER');
+        if(!empty($BillingDashboardWidgets)) {
+            $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
+        }
+        return View::make('customer.index',compact('account','original_startdate','original_enddate','invoice_status_json','monthfilter','BillingDashboardWidgets'));
     }
     public function invoice_expense_chart(){
         $data = Input::all();
@@ -24,7 +32,7 @@ class DashboardCustomerController extends BaseController {
             $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
         $companyID = User::get_companyID();
-        $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."')";
+        $query = "call prc_getDashboardinvoiceExpense ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."','".$data['Startdate']."','".$data['Enddate']."','".$data['ListType']."')";
         $InvoiceExpenseResult = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('InvoiceExpense'));
         $InvoiceExpense = $InvoiceExpenseResult['data']['InvoiceExpense'];
         return View::make('customer.billingdashboard.invoice_expense_chart', compact('InvoiceExpense','CurrencySymbol'));
@@ -44,16 +52,37 @@ class DashboardCustomerController extends BaseController {
         }
         $companyID = User::get_companyID();
 
-        $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."')";
+        $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."','".$data['Startdate']."','".$data['Enddate']."')";
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
-        $TotalOutstanding = 0;
         if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
-            $TotalOutstanding = $InvoiceExpenseResult[0]->TotalOutstanding;
+            $AccountBallane = AccountBalance::where(['AccountID'=>$CustomerID])->first();
+            $InvoiceExpenseResult[0]->TotalUnbillidAmount = $AccountBallane->UnbilledAmount + $AccountBallane->VendorUnbilledAmount;
+            return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
         }
 
-        return View::make('customer.billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));
+        //return View::make('customer.billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));
 
     }
+
+    public function invoice_expense_total_widget(){
+
+        $data = Input::all();
+        $CurrencyID = "";
+        $CurrencySymbol = $CurrencyCode = "";
+        $CustomerID = Customer::get_accountID();
+        if(isset($data["CurrencyID"]) && !empty($data["CurrencyID"])){
+            $CurrencyID = $data["CurrencyID"];
+            $CurrencyCode = Currency::getCurrency($CurrencyID);
+            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
+        }
+        $companyID = User::get_companyID();
+        $query = "call prc_getDashboardTotalOutStanding ('". $companyID  . "',  '". $CurrencyID  . "',".$CustomerID.")";
+        $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
+        if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
+            return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
+        }
+    }
+
     public function monitor_dashboard(){
 
         $companyID = User::get_companyID();
@@ -66,7 +95,9 @@ class DashboardCustomerController extends BaseController {
         $User = User::find(Customer::get_currentUser()->Owner);
         $AccountManager = $User->FirstName.' '.$User->LastName;
         $AccountManagerEmail = $User->EmailAddress;
-        return View::make('customer.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','AccountManager','AccountManagerEmail'));
+        $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::get('CUSTOMER_MONITOR_DASHBOARD')));
+
+        return View::make('customer.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','AccountManager','AccountManagerEmail','MonitorDashboardSetting'));
 
     }
 
@@ -89,11 +120,11 @@ class DashboardCustomerController extends BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($exportType=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($exportType=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

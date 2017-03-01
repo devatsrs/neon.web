@@ -90,6 +90,23 @@
                         </div>
                     </div>
 
+                    <div class="form-group tobehide">
+                        <label for="field-1" class="col-sm-3 control-label">Roles</label>
+
+                        <div class="col-sm-6">
+                            {{ Form::select('Roles[]', $roles, $userRoles , array(  "multiple"=>"multiple", "class"=>"select2")) }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-3 control-label">Job Notification</label>
+                        <div class="col-sm-6">
+                            <div class="make-switch switch-small">
+                                <input type="checkbox" name="JobNotification"  @if($user->JobNotification == 1 )checked=""@endif value="0">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="field-1" class="col-sm-3 control-label">Email footer</label>
 
@@ -121,7 +138,7 @@
                         <label for="field-1" class="col-sm-3 control-label">Admin User</label>
                         <div class="col-sm-6">
                             <div class="make-switch switch-small">
-                                 <input type="checkbox" name="AdminUser"  @if($user->AdminUser == 1 )checked=""@endif value="0">
+                                 <input id="admin" type="checkbox" name="AdminUser"  @if($user->AdminUser == 1 )checked=""@endif value="0">
                             </div>
                         </div>
                     </div>
@@ -140,6 +157,17 @@
 
 <script type="text/javascript">
     jQuery(document).ready(function($) {
+        $('#admin').change(function(){
+            if($(this).prop('checked')){
+                $('.tobehide').addClass('hidden');
+            }else{
+                $('.tobehide').removeClass('hidden');
+            }
+        });
+
+        @if($user->AdminUser == 1 )
+            $('.tobehide').addClass('hidden');
+        @endif
 
 //            $("#Roles").select2({
 //                minimumResultsForSearch: -1,
@@ -155,9 +183,8 @@
 
         // Replace Checboxes
         $(".save.btn").click(function(ev) {
+            $(this).button('loading');
             $('#form-user-add').submit();
-            $(this).attr('disabled', 'disabled');
-            ;
         });
 
         $('[name="EmailFooter"]').wysihtml5({

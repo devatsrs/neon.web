@@ -35,12 +35,12 @@
                                     </div>
                                     <label for="field-1" class="col-sm-1 control-label">Action</label>
                                     <div class="col-sm-2">
-                                        {{ Form::select('type', $action, Input::get('Type'), array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
+                                        {{ Form::select('type', $action, Input::get('Type'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
 
                                     <label for="field-1" class="col-sm-1 control-label">Payment Method</label>
                                     <div class="col-sm-2">
-                                        {{ Form::select('paymentmethod', $method, Input::get('paymentmethod') , array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
+                                        {{ Form::select('paymentmethod', $method, Input::get('paymentmethod') , array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
                                 </div>
 
@@ -51,7 +51,7 @@
                                         <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')}}" data-enddate="{{date('Y-m-d')}}" />
                                     </div>
                                     <div class="col-sm-2 col-sm-e2">
-                                        <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
+                                        <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
                                     </div>
                                     <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">End Date</label>
                                     <div class="col-sm-2 col-sm-e2">
@@ -143,7 +143,7 @@
                                 );
 
                             },
-                            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                             "sPaginationType": "bootstrap",
                             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                             "aaSorting": [[3, 'desc']],
@@ -292,8 +292,8 @@
                     $('#add-new-payment').click(function (ev) {
                         ev.preventDefault();
                         $('#add-edit-payment-form').trigger("reset");
-                        $("#add-edit-payment-form [name='PaymentMethod']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-                        $("#add-edit-payment-form [name='PaymentType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $("#add-edit-payment-form [name='PaymentMethod']").val('').trigger("change");
+                        $("#add-edit-payment-form [name='PaymentType']").val('').trigger("change");
                         $("#add-edit-payment-form [name='PaymentID']").val('')
                         $('#add-edit-modal-payment h4').html('Add New Payment');
                         $('#add-edit-modal-payment').modal('show');
@@ -381,7 +381,7 @@
                             "bProcessing":true,
                             "bServerSide":true,
                             "sAjaxSource": baseurl + "/customer/payments/ajax_datagrid/type",
-                            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                             "sPaginationType": "bootstrap",
                             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                             "aaSorting": [[3, 'desc']],},
@@ -539,13 +539,13 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Payment Method *</label>
-                                    {{ Form::select('PaymentMethod', $method, '', array("class"=>"selectboxit")) }}
+                                    {{ Form::select('PaymentMethod', $method, '', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Action *</label>
-                                    {{ Form::select('PaymentType', $action, '', array("class"=>"selectboxit")) }}
+                                    {{ Form::select('PaymentType', $action, '', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">

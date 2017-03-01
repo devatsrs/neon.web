@@ -1,8 +1,11 @@
 @extends('layout.customer.main')
 @section('content')
+    <style>
+        .small_fld{width:80.6667%;}
+    </style>
     <br />
     {{--<link rel="stylesheet" type="text/css" href="assets/js/daterangepicker/daterangepicker-bs3.css" />--}}
-    <div class="row">
+
         <ul class="nav nav-tabs">
             @if($is_customer == 1)
                 <li ><a href="{{ URL::to('customer/analysis') }}">Customer</a></li>
@@ -13,6 +16,7 @@
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="customer" >
+                <div class="row">
                 <div class="col-md-12">
                     <form novalidate="novalidate" class="form-horizontal form-groups-bordered filter validate" method="post" id="vendor_analysis">
                         <div data-collapsed="0" class="panel panel-primary">
@@ -27,16 +31,18 @@
                             <div class="panel-body">
                                 <div class="form-group">
                                     <label class="col-sm-1 control-label" for="field-1">Start Date</label>
-                                    <div class="col-sm-2">
-                                        <input type="text" name="StartDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}"/>
+                                    <div class="col-sm-2" style="padding-left:0; padding-right:0; width:10%;">
+                                        <input type="text" name="StartDate"  class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}"/>
+                                    </div>
+                                    <div class="col-md-1 select_hour" style="padding: 0px; width: 9%;">
+                                        <input type="text" name="StartHour" data-minute-step="30"   data-show-meridian="false" data-default-time="00:00" value="00:00"  data-template="dropdown" class="form-control timepicker small_fld">
                                     </div>
                                     <label class="col-sm-1 control-label" for="field-1">End Date</label>
-                                    <div class="col-sm-2">
-                                        <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d' )}}" />
+                                    <div class="col-sm-2" style="padding-left:0; padding-right:0; width:10%;">
+                                        <input type="text" name="EndDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d' )}}" />
                                     </div>
-                                    <label class="col-sm-1 control-label" for="field-1">Gateway</label>
-                                    <div class="col-sm-2">
-                                        {{ Form::select('GatewayID',$gateway,'', array("class"=>"select2")) }}
+                                    <div class="col-md-1 select_hour" style="padding: 0px; width: 9%;">
+                                        <input type="text" name="EndHour" data-minute-step="30"   data-show-meridian="false" data-default-time="23:30" value="23:30"   data-template="dropdown" class="form-control timepicker small_fld">
                                     </div>
                                     <label class="col-sm-1 control-label" for="field-1">Country</label>
                                     <div class="col-sm-2">
@@ -52,19 +58,13 @@
                                     <div class="col-sm-2">
                                         {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2")) }}
                                     </div>
-                                    @if(Session::get('customer') == 1)
-                                        <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
-                                        <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
-                                    @else
-                                        <label class="col-sm-1 control-label" for="field-1">Account</label>
-                                        <div class="col-sm-2">
-                                            {{ Form::select('AccountID',$account,'', array("class"=>"select2")) }}
-                                        </div>
-                                        <label class="col-sm-1 control-label" for="field-1">Currency</label>
-                                        <div class="col-sm-2">
-                                            {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}
-                                        </div>
-                                    @endif
+                                    <label class="col-sm-1 control-label select_hour" for="field-1">TimeZone</label>
+                                    <div class="col-sm-2 select_hour">
+                                        {{ Form::select('TimeZone',$timezones,'', array("class"=>"select2")) }}
+                                    </div>
+                                    <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
+                                    <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
+                                    <input type="hidden" name="CompanyGatewayID" value="0">
                                     <input type="hidden" name="UserID" value="{{$UserID}}">
                                     <input type="hidden" name="Admin" value="{{$isAdmin}}">
                                     <input type="hidden" name="chart_type" value="destination">
@@ -82,11 +82,12 @@
                     </form>
                 </div>
                 <div class="clear"></div>
+                </div>
+                @include('analysis.map')
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
                     <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
                     <li ><a href="#trunk" data-toggle="tab">Trunk</a></li>
-                    <li ><a href="#gateway" data-toggle="tab">Gateway</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="destination" >
@@ -101,50 +102,9 @@
                         @include('vendoranalysis.trunk')
                         @include('vendoranalysis.trunk_grid')
                     </div>
-                    <div class="tab-pane" id="gateway" >
-                        @include('vendoranalysis.gateway')
-                        @include('vendoranalysis.gateway_grid')
-                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <script src="{{ URL::asset('assets/js/reports_vendor.js') }}"></script>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    <script>
-        var $searchFilter = {};
-        var toFixed = '{{get_round_decimal_places()}}';
-        var table_name = '#destination_table';
-        var chart_type = '#destination';
-        jQuery(document).ready(function ($) {
 
-            $(".nav-tabs li a").click(function(){
-                table_name = $(this).attr('href')+'_table';
-                chart_type = $(this).attr('href');
-                $("#vendor_analysis").find("input[name='chart_type']").val(chart_type.slice(1));
-                setTimeout(function(){
-                    set_search_parameter($("#vendor_analysis"));
-                    if($('.bar_chart_'+$("#vendor_analysis").find("input[name='chart_type']").val()).html() == ''){
-                        reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
-                    }
-                }, 10);
-            });
-            $("#vendor_analysis").submit(function(e) {
-                e.preventDefault();
-                public_vars.$body = $("body");
-                //show_loading_bar(40);
-                set_search_parameter($(this));
-                reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
-                return false;
-            });
-            set_search_parameter($("#vendor_analysis"));
-            Highcharts.theme = {
-                colors: ['#3366cc', '#ff9900','#dc3912', '#109618', '#66aa00', '#dd4477','#0099c6', '#990099', '#143DFF']
-            };
-            // Apply the theme
-            Highcharts.setOptions(Highcharts.theme);
-            reloadCharts(table_name,'{{Config::get('app.pageSize')}}',$searchFilter);
-        });
-    </script>
+    @include('vendoranalysis.script')
 @stop

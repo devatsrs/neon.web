@@ -32,7 +32,7 @@ class CDRController extends BaseController {
                 return json_validator_response($validator);
             }
             if (Input::hasFile('excel')) {
-            $upload_path = Config::get('app.upload_path');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $excel = Input::file('excel');
             // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
@@ -44,8 +44,7 @@ class CDRController extends BaseController {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 if($data["AccountID"] >0 ){
-                   $AccountBilling = AccountBilling::getBilling($data["AccountID"]);
-                    if(AccountBilling::getBillingKey($AccountBilling,'CDRType') == ''){
+                    if(AccountBilling::getCDRType($data["AccountID"]) == ''){
                         return Response::json(array("status" => "failed", "message" => "Setup CDR Format in Account edit"));
                     }
                 }
@@ -61,6 +60,7 @@ class CDRController extends BaseController {
                 $jobdata["Description"] = Account::getCompanyNameByID($data["AccountID"]) . ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
                 $histdata['CreatedBy'] = $jobdata["CreatedBy"] = User::get_user_full_name();
                 $jobdata["Options"] = json_encode($data);
+                $jobdata["created_at"] = date('Y-m-d H:i:s');
                 $jobdata["updated_at"] = date('Y-m-d H:i:s');
                 $JobID = Job::insertGetId($jobdata);
                 /*$histdata['CompanyGatewayID'] = $data['CompanyGatewayID'];
@@ -100,7 +100,7 @@ class CDRController extends BaseController {
             return json_validator_response($validator);
         }*/
         if (Input::hasFile('excel')) {
-            $upload_path = Config::get('app.upload_path');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $excel = Input::file('excel');
             // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
@@ -122,6 +122,7 @@ class CDRController extends BaseController {
                 $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
                 $histdata['CreatedBy']= $jobdata["CreatedBy"] = User::get_user_full_name();
                 $jobdata["Options"] = json_encode($data);
+                $jobdata["created_at"] = date('Y-m-d H:i:s');
                 $jobdata["updated_at"] = date('Y-m-d H:i:s');
                 $JobID = Job::insertGetId($jobdata);
                 /*$histdata['CompanyGatewayID'] = $data['CompanyGatewayID'];
@@ -192,7 +193,6 @@ class CDRController extends BaseController {
         $companyID 					 =	 User::get_companyID();
         $columns 					 = 	 array('UsageDetailID','AccountName','connect_time','disconnect_time','billed_duration','cost','cli','cld');
         $sort_column 				 = 	 $columns[$data['iSortCol_0']];
-		$data['zerovaluecost'] 	 	 =   $data['zerovaluecost']== 'true'?1:0;
 		$data['CurrencyID'] 		 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
 		
        $query = "call prc_GetCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CDRType']."' ,'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluecost'].",".$data['CurrencyID'].",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
@@ -201,11 +201,11 @@ class CDRController extends BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/CDR.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/CDR.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/CDR.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/CDR.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -224,7 +224,6 @@ class CDRController extends BaseController {
         if(!empty($data['criteria'])){
             $criteria = json_decode($data['criteria'],true);
 
-            $criteria['zerovaluecost'] = $criteria['zerovaluecost']== 'true'?1:0;
             $criteria['CurrencyID'] = empty($criteria['CurrencyID'])?'0':$criteria['CurrencyID'];
             $criteria['AccountID'] = empty($criteria['AccountID'])?'0':$criteria['AccountID'];
             $criteria['CompanyGatewayID'] = empty($criteria['CompanyGatewayID'])?'0':$criteria['CompanyGatewayID'];
@@ -274,6 +273,10 @@ class CDRController extends BaseController {
         $rules = array(
             'CompanyGatewayID' => 'required',
         );
+        if($data['RateMethod'] == 'SpecifyRate') {
+            $rules['SpecifyRate'] = 'required|numeric';
+        }
+
         $validator = Validator::make($data, $rules);
         if ($validator->fails()) {
             return json_validator_response($validator);
@@ -288,6 +291,7 @@ class CDRController extends BaseController {
         $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
         $histdata['CreatedBy'] = $jobdata["CreatedBy"] = User::get_user_full_name();
         $jobdata["Options"] = json_encode($data);
+        $jobdata["created_at"] = date('Y-m-d H:i:s');
         $jobdata["updated_at"] = date('Y-m-d H:i:s');
         $JobID = Job::insertGetId($jobdata);
         if ($JobID) {
@@ -360,11 +364,11 @@ class CDRController extends BaseController {
         }
         $file_name = basename($data['TemplateFile']);
 
-        $temp_path = getenv('TEMP_PATH').'/';
+        $temp_path = CompanyConfiguration::get('TEMP_PATH').'/';
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TEMPLATE_FILE']);
         $amazonCDRPath = AmazonS3::generate_upload_path(AmazonS3::$dir['CDR_UPLOAD']);
-        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
-        $destinationCDRPath = getenv("UPLOAD_PATH") . '/' . $amazonCDRPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+        $destinationCDRPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonCDRPath;
         copy($temp_path.$file_name,$destinationPath.$file_name);
         copy($temp_path.$file_name,$destinationCDRPath.$file_name);
         if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
@@ -397,6 +401,7 @@ class CDRController extends BaseController {
             $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
             $histdata['CreatedBy']= $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             /*$histdata['CompanyGatewayID'] = $data['CompanyGatewayID'];
@@ -437,7 +442,7 @@ class CDRController extends BaseController {
                 return json_validator_response($validator);
             }
             if (Input::hasFile('excel')) {
-                $upload_path = getenv('TEMP_PATH');
+                $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
                 if (in_array($ext, array("csv", "xls", "xlsx"))) {
@@ -491,7 +496,7 @@ class CDRController extends BaseController {
         $companyID 						 = 	 User::get_companyID();
         $columns 						 = 	 array('VendorCDRID','AccountName','connect_time','disconnect_time','billed_duration','selling_cost','buying_cost','cli','cld');
         $sort_column 				 	 = 	 $columns[$data['iSortCol_0']];
-		$data['zerovaluebuyingcost']	 =   $data['zerovaluebuyingcost']== 'true'?1:0;		
+
 		$data['CurrencyID'] 		 	 = 	 empty($data['CurrencyID'])?'0':$data['CurrencyID'];
         $query = "call prc_GetVendorCDR (".$companyID.",".(int)$data['CompanyGatewayID'].",'".$data['StartDate']."','".$data['EndDate']."',".(int)$data['AccountID'].",'".$data['CLI']."','".$data['CLD']."',".$data['zerovaluebuyingcost'].",".$data['CurrencyID'].",'".$data['area_prefix']."','".$data['Trunk']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
@@ -500,11 +505,11 @@ class CDRController extends BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor CDR.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor CDR.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Vendor CDR.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor CDR.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -540,7 +545,7 @@ class CDRController extends BaseController {
                 return json_validator_response($validator);
             }
             if (Input::hasFile('excel')) {
-                $upload_path = getenv('TEMP_PATH');
+                $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
                 if (in_array($ext, array("csv", "xls", "xlsx"))) {
@@ -595,11 +600,11 @@ class CDRController extends BaseController {
         }
         $file_name = basename($data['TemplateFile']);
 
-        $temp_path = getenv('TEMP_PATH').'/';
+        $temp_path = CompanyConfiguration::get('TEMP_PATH').'/';
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TEMPLATE_FILE']);
         $amazonCDRPath = AmazonS3::generate_upload_path(AmazonS3::$dir['CDR_UPLOAD']);
-        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
-        $destinationCDRPath = getenv("UPLOAD_PATH") . '/' . $amazonCDRPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+        $destinationCDRPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonCDRPath;
         copy($temp_path.$file_name,$destinationPath.$file_name);
         copy($temp_path.$file_name,$destinationCDRPath.$file_name);
         if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
@@ -632,6 +637,7 @@ class CDRController extends BaseController {
             $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
             $histdata['CreatedBy']= $jobdata["CreatedBy"] = User::get_user_full_name();
             $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
             $jobdata["updated_at"] = date('Y-m-d H:i:s');
             $JobID = Job::insertGetId($jobdata);
             /*$histdata['CompanyGatewayID'] = $data['CompanyGatewayID'];
@@ -661,7 +667,6 @@ class CDRController extends BaseController {
         if(!empty($data['criteria'])){
             $criteria = json_decode($data['criteria'],true);
 
-            $criteria['zerovaluecost'] = $criteria['zerovaluebuyingcost']== 'true'?1:0;
             $criteria['CurrencyID'] = empty($criteria['CurrencyID'])?'0':$criteria['CurrencyID'];
             $criteria['AccountID'] = empty($criteria['AccountID'])?'0':$criteria['AccountID'];
             $criteria['CompanyGatewayID'] = empty($criteria['CompanyGatewayID'])?'0':$criteria['CompanyGatewayID'];

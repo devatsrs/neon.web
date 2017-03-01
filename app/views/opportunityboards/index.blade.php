@@ -16,7 +16,7 @@
                 @if(User::checkCategoryPermission('OpportunityBoard','Add'))
                 <a href="javascript:void(0)" id="add-new-opportunityboard" class="btn btn-primary ">
                     <i class="fa fa-line-chart"></i>
-                    Add Opportunity Board
+                    Add New
                 </a>
                 @endif
             </p>
@@ -41,7 +41,7 @@
                                     <label for="field-1" class="col-sm-2 control-label">Active</label>
                                     <div class="col-sm-2">
                                         <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
-                                        {{ Form::select('Active', $active, '1', array("class"=>"form-control selectboxit")) }}
+                                        {{ Form::select('Active', $active, '1', array("class"=>"form-control select2 small")) }}
                                     </div>
                                 </div>
                                 <p style="text-align: right;">
@@ -87,7 +87,7 @@
                             aoData.push({ "name": "BoardName", "value": $searchFilter.BoardName },
                                     { "name": "Active", "value": $searchFilter.Active });
                         },
-                        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[0, 'asc']],
@@ -121,7 +121,7 @@
                                     }
                                     action += '</div>';
                                     @if(User::checkCategoryPermission('OpportunityBoard','Edit'))
-                                        action += ' <a data-name = "' + full[0] + '" data-id="' + id + '" class="edit-opportunitybaord btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                        action += ' <a data-name = "' + full[0] + '" data-id="' + id + '" title="Edit" class="edit-opportunitybaord btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     @endif
                                     @if(User::checkCategoryPermission('OpportunityBoard','Configure'))
                                         action += ' <a class="manage-deal-board btn btn-default btn-sm btn-icon icon-left" href="'+configure+'"><i class="entypo-cog"></i> Configure Board</a>';

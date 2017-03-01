@@ -14,11 +14,13 @@ function json_validator_response($validator){
 
 function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEncode=true){
     $message = '';
+    $status = '';
+    $data = '';
     $isArray = false;
     if(is_array($response)){
         $isArray = true;
     }
-
+    $parse_repose = array("status" => $status, "message" => $message);
     if(($isArray && $response['status'] =='failed') || (!$isArray && $response->status=='failed')) {
         $validator = $isArray?$response['message']:(array)$response->message;
         if (count($validator) > 0) {
@@ -33,8 +35,9 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
         $message = $isArray?$response['message']:$response->message;
         $status = 'success';
         if (($isArray && isset($response['data'])) || isset($response->data)) {
+            $result = $isArray ? $response['data'] : $response->data;
+            $data = $result;
             if($datareturn) {
-                $result = $isArray ? $response['data'] : $response->data;
                 if ($isDataEncode) {
                     $result = json_encode($result);
                 }
@@ -42,13 +45,22 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
             }
         }
     }
+    $parse_repose['status'] =  $status;
+    $parse_repose['message'] = $message;
+    if(!empty($data)) {
+        $parse_repose['data'] = $data;
+    }
+    if(($isArray && isset($response['redirect'])) || (!$isArray && isset($response->redirect))){
+        $parse_repose['redirect'] =  $isArray ? $response['redirect'] : $response->redirect;
+    }
+
 
     if($isBrowser){
         if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)){
 
-            return  Response::json(array("status" => $status, "message" => $message),401);
+            return  Response::json($parse_repose,401);
         }else {
-            return Response::json(array("status" => $status, "message" => $message));
+            return Response::json($parse_repose);
         }
     }else{
         return $message;
@@ -123,16 +135,41 @@ function rename_upload_file($destinationPath,$full_name){
 }
 function customer_dropbox($id=0,$data=array()){
     $all_customers = account::getAccountIDList($data);
-    return Form::select('customers', $all_customers, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+    return Form::select('customers', $all_customers, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
 function opportunites_dropbox($id=0,$data=array()){
     $all_opportunites = CRMBoard::getBoards(CRMBoard::OpportunityBoard,-1);
-    return Form::select('crmboard', $all_opportunites, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+    return Form::select('crmboard', $all_opportunites, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
+function toandfro_dropdown($id,$type){
+    $list = [];
+    if($type=='recurringInvoice'){
+        $list = RecurringInvoice::getRecurringInvoicesIDList();
+    }
+    return Form::select('drp_toandfro_jump', $list, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
 
-function sendMail($view,$data){
+function rategenerators_dropbox($id=0,$data=array()){
+    $all_rategenerators = RateGenerator::getRateGenerators();
+    return Form::select('rategenerators', $all_rategenerators, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+function rate_tables_dropbox($id=0,$data=array()){
+    $all_getRateTables = RateTable::getRateTables();
+    return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+function contacts_dropbox($id=0,$data=array()){
+    $all_contacts = Contact::getContacts($data);
+    return Form::select('contacts', $all_contacts, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+function ticketgroup_dropbox($id=0,$data=array()){
+    $all_ticketsgroups = TicketGroups::getTicketGroups_dropdown($data);
+    return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+function sendMail($view,$data,$ViewType=1){
     
 	if(empty($data['companyID']))
     {
@@ -140,17 +177,22 @@ function sendMail($view,$data){
     }else{
         $companyID = $data['companyID'];
     }
-	$data   =   $data;
-	$body 	=   View::make($view,compact('data'))->render(); 
-	
-	if(SiteIntegration::is_EmailIntegration($companyID)){
-		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body);
+
+	if($ViewType){
+		$body 	=  html_entity_decode(View::make($view,compact('data'))->render()); 
 	}
 	else{
+		$body  = $view;
+	}
+
+	
+	if(SiteIntegration::CheckCategoryConfiguration(false,SiteIntegration::$EmailSlug)){
+		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body); 
+	}
+	else{ 
 		$config = Company::select('SMTPServer','SMTPUsername','CompanyName','SMTPPassword','Port','IsSSL','EmailFrom')->where("CompanyID", '=', $companyID)->first();
 		$status = 	PHPMAILERIntegtration::SendMail($view,$data,$config,$companyID,$body);
 	}
-	
 	return $status;
 }
 
@@ -274,13 +316,53 @@ Form::macro('selectItem', function($name, $data , $selected , $extraparams )
     return $output;
 });
 
-function is_amazon(){
+Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,$nameID='') {
+    $small = $compact==1?"small":'';
+    $name = '';
+    $modal = '';
+    $data = [];
+    if($type=='currency') {
+        $name = 'CurrencyID';
+        $modal = 'add-new-modal-currency';
+        $data = Currency::getCurrencyDropdownIDList();
+    }elseif($type=='invoice_template'){
+        $name = 'InvoiceTemplateID';
+        $modal = 'add-new-modal-invoice_template';
+        $data = InvoiceTemplate::getInvoiceTemplateList();
+    }elseif($type=='email_template'){
+        $name = 'TemplateID';
+        $modal = 'add-new-modal-template';
+        $data = EmailTemplate::getTemplateArray();
+    }elseif($type=='trunk'){
+        $name = 'TrunkID';
+        $modal = 'add-new-modal-trunk';
+        $data = Trunk::getTrunkDropdownIDList();
+    }elseif($type=='billing_class'){
+        $name = 'BillingClassID';
+        $modal = 'add-new-modal-billingclass';
+        $data = BillingClass::getDropdownIDList();
+    }elseif($type=='item'){
+        $name = 'ProductID';
+        $modal = 'add-edit-modal-product';
+        $data = Product::getProductDropdownList();
+    }
+    if(!empty($nameID)){
+        $name= $nameID;
+    }
+    $arr = ['class' => 'select2 select2add '.$small , 'data-modal' => $modal, 'data-active'=>0,'data-type'=>$type];
+    if($disable==1){
+        $arr['disabled'] = 'disabled';
+    }
+    return Form::select($name,$data , $selection, $arr);
+});
+
+function is_amazon($CompanyID = 0){
 	
   /*  $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
     $AMAZONS3_SECRET = getenv("AMAZONS3_SECRET");
     $AWS_REGION = getenv("AWS_REGION");*/
 
-	$AmazonData			=	SiteIntegration::is_amazon_configured(true);
+	$AmazonData			=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug,$CompanyID);
     $AMAZONS3_KEY  		= 	isset($AmazonData->AmazonKey)?$AmazonData->AmazonKey:'';
     $AMAZONS3_SECRET 	= 	isset($AmazonData->AmazonSecret)?$AmazonData->AmazonSecret:'';
     $AWS_REGION 		= 	isset($AmazonData->AmazonAwsRegion)?$AmazonData->AmazonAwsRegion:'';
@@ -292,9 +374,7 @@ function is_amazon(){
 }
 
 function is_authorize(){
-	
-	$Integration		=	new SiteIntegration();
-	return				$Integration->is_Authorize();
+	return				SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
 	
 	/*$AuthorizeDbData 	= 	IntegrationConfiguration::where(array('CompanyId'=>User::get_companyID(),"IntegrationID"=>9))->first();
 	if(count($AuthorizeDbData)>0){
@@ -311,6 +391,15 @@ function is_authorize(){
 	else{
 		return false;
 	}	*/
+}
+
+function is_paypal(){
+
+    $paypal = new PaypalIpn();
+    if($paypal->status){
+        return true;
+    }
+    return false;
 }
 
 
@@ -422,7 +511,7 @@ function bulk_mail($type,$data){
         }
 
         if (Input::hasFile('attachment')) {
-            $upload_path = Config::get('app.upload_path');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $Attachment = Input::file('attachment');
             $ext = $Attachment->getClientOriginalExtension();
             if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif", 'zip', 'xls', 'xlsx'))) {
@@ -436,7 +525,7 @@ function bulk_mail($type,$data){
                 if ($type == 'IR') {
                     $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['BULK_INVOICE_MAIL_ATTACHEMENT']);
                 }
-                $dir = getenv('UPLOAD_PATH') . '/' . $amazonPath;
+                $dir = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
                 if (!file_exists($dir)) {
                     mkdir($dir, 777, TRUE);
                 }
@@ -529,6 +618,7 @@ function bulk_mail($type,$data){
     $jobdata["OutputFilePath"] = $fullPath;
     $jobdata["CreatedBy"] = User::get_user_full_name();
     $jobdata["updated_at"] = date('Y-m-d H:i:s');
+    $jobdata["created_at"] = date('Y-m-d H:i:s');
     $JobID = Job::insertGetId($jobdata);
     if($type=='CD'){
         $jobtext = 'ratesheet';
@@ -611,6 +701,11 @@ function email_log($data){
     {
         $data['bcc'] = array();
     }
+	
+	if(!isset($data['message_id']))
+	{
+		$data['message_id'] = '';
+	}
 
     $logData = ['EmailFrom'=>User::get_user_email(),
         'EmailTo'=>$data['EmailTo'],
@@ -621,7 +716,8 @@ function email_log($data){
         'UserID'=>User::get_userID(),
         'CreatedBy'=>User::get_user_full_name(),
         'Cc'=>implode(",",$data['cc']),
-        'Bcc'=>implode(",",$data['bcc'])];
+        'Bcc'=>implode(",",$data['bcc']),
+		"MessageID"=>$data['message_id']];
     if(AccountEmailLog::Create($logData)){
         $status['status'] = 1;
     }
@@ -912,19 +1008,20 @@ function get_random_number(){
 function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
     $path_array 	  =    explode("Controller",$Path); 
-    $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion");
-    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo");
+    $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup","DialString");
+    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
+	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
 	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
-    $array_billing    =    array("Dashboard",'Estimates','Invoices','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR');
-    $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer');
-
+    $array_billing    =    array("Dashboard",'Estimates','Invoices','RecurringInvoice','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR',"Discount","BillingClass");
+    $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer',"DashboardCustomer");
+	
     if(count($path_array)>0)
     {
-         $controller = $path_array[0];
+  		$controller = $path_array[0];
 	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
 			if(Request::segment(1)!='monitor' && $path_array[1]!='@CrmDashboard'){
@@ -941,7 +1038,8 @@ function check_uri($parent_link=''){
         }
 
         if(in_array($controller,$array_admin) && $parent_link =='Admin')
-        {	if(!isset($_REQUEST['sm'])){
+        {
+			if(!isset($_REQUEST['sm'])){
             	return 'opened';
 			}
         }
@@ -958,7 +1056,7 @@ function check_uri($parent_link=''){
 
         if(in_array($controller,$array_crm) && $parent_link =='Crm')
         {
-			if($path_array[1]!='@billingdashboard'){
+			if($path_array[1]!='@billingdashboard' && $path_array[1]!='@monitor_dashboard'){
 				return 'opened';
 			}
         }
@@ -969,6 +1067,11 @@ function check_uri($parent_link=''){
         }
 
         if(in_array($controller,$customer_billing) && $parent_link =='Customer_billing')
+        {
+            return 'opened';
+        }
+		
+		 if(in_array($controller,$array_tickets) && $parent_link =='tickets')
         {
             return 'opened';
         }
@@ -1023,8 +1126,8 @@ function get_uploaded_files($session,$data){
 
 function get_max_file_size()
 {
-    $max_file_env   = getenv('MAX_UPLOAD_FILE_SIZE');
-    $max_file_size   = !empty($max_file_env)?getenv('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
+    $max_file_env   = CompanyConfiguration::get('MAX_UPLOAD_FILE_SIZE');
+    $max_file_size   = !empty($max_file_env)?CompanyConfiguration::get('MAX_UPLOAD_FILE_SIZE'):ini_get('post_max_size');
     return $max_file_size;
 }
 function isJson($string) {
@@ -1047,27 +1150,15 @@ function isJson($string) {
 function get_round_decimal_places($AccountID = 0) {
 
     $RoundChargesAmount = 2;
-
     if($AccountID>0){
-
-        $RoundChargesAmount = AccountBilling::where(["AccountID"=>$AccountID])->pluck("RoundChargesAmount");
-
-        if ( empty($RoundChargesAmount) ) {
-
-            $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount');
-
-        }
-
-    } else {
-
-        $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount')=='Invalid Key'?2:CompanySetting::getKeyVal('RoundChargesAmount');
-
+        $RoundChargesAmount = AccountBilling::getRoundChargesAmount($AccountID);
     }
-
     if ( empty($RoundChargesAmount) ) {
-        $RoundChargesAmount = 2;
+        $RoundCharges=CompanySetting::getKeyVal('RoundChargesAmount');
+        if($RoundCharges!='Invalid Key'){
+            $RoundChargesAmount = $RoundCharges;
+        }
     }
-
     return $RoundChargesAmount;
 }
 
@@ -1091,7 +1182,7 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
 	$mail->addAddress($ToEmail);
    if ($mail->send()) {
 	   return "Valid mail settings.";
-	}else{
+	}else{ 
 		return "Invalid mail settings.";
 	}
  }
@@ -1168,23 +1259,25 @@ function run_process($command) {
 }
 
 function Get_Api_file_extentsions($ajax=false){
-	
-	 if (Session::has("api_response_extensions")){
-		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions');
-		 return $response_extensions;
-	 } 	 
+
+	 /*if (Session::has("api_response_extensions")){
+		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions'); 
+		  if(is_array($response_extensions['allowed_extensions'])){
+			  return $response_extensions;
+		  }		 
+	 } 	 */
 	 $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
 	 $response_extensions 	=  [];
-	
+	 	
 	if($response->status=='failed'){
 		if($ajax==true){
 			return $response;
 		}else{
 			
 			if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
-				return	Redirect::to('/logout'); 	
+					return Redirect::to('/logout'); 	
 			}		
-			if(isset($response->error) && $response->error=='token_expired'){ Redirect::to('/login');}	
+			if(isset($response->error) && $response->error=='token_expired'){ return Redirect::to('/login');}	
 		}
 	}else{		
 		$response_extensions 		 = 	json_response_api($response,true,true); 
@@ -1325,6 +1418,14 @@ function next_billing_date($BillingCycleType,$BillingCycleValue,$BillingStartDat
                     $NextInvoiceDate = date("Y-01-01", strtotime('+1 year ',$BillingStartDate));
                 }
                 break;
+            case 'yearly':
+                $CurrentDate = date("Y-m-d",  $BillingStartDate); // Current date
+                if($CurrentDate<=date("Y-m-d")) {
+                    $NextInvoiceDate = date("Y-m-d", strtotime("+1 year", $BillingStartDate));
+                }else{
+                    $NextInvoiceDate = date("Y-m-d",$CurrentDate);
+                }
+                break;
         }
         $Timezone = Company::getCompanyTimeZone(0);
         if(isset($Timezone) && $Timezone != ''){
@@ -1362,4 +1463,131 @@ function getdaysdiff($date1,$date2){
     $date1 = new DateTime($date1);
     $date2 = new DateTime($date2);
     return $date2->diff($date1)->format("%R%a");
+}
+
+function ShortName($title,$length=8){
+	if(strlen($title)>$length)
+	{
+		return substr($title,0,$length).'..';
+	}else{
+		return $title;
+	}
+}
+
+function is_Stripe(){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeSlug);
+}
+function change_timezone($billing_timezone,$timezone,$date){
+    if(!empty($timezone) && !empty($billing_timezone)) {
+        date_default_timezone_set($billing_timezone);
+        $strtotime = strtotime($date);
+        date_default_timezone_set($timezone);
+        $changed_date = date('Y-m-d H:i:s', $strtotime);
+        date_default_timezone_set(Config::get('app.timezone'));
+        return $changed_date;
+    }
+    return $date;
+}
+
+function getQuickBookAccountant(){
+    $ChartofAccounts = array();
+    $Quickbook = new BillingAPI();
+    $check_quickbook = $Quickbook->check_quickbook();
+    if($check_quickbook){
+        $ChartofAccounts = $Quickbook->getChartofAccounts();
+        if(!empty($ChartofAccounts) && count($ChartofAccounts)>0){
+            $ChartofAccounts = array(""=> "Select Chart of accounts")+$ChartofAccounts;
+        }
+    }
+    return $ChartofAccounts;
+}
+
+	
+	function email_log_data_Ticket($data,$view = '',$status){ 
+	$EmailParent =	 0;
+	if($data['TicketID']){
+		//$EmailParent =	TicketsTable::where(["TicketID"=>$data['TicketID']])->pluck('AccountEmailLogID');
+	}
+
+	
+    $status_return = array('status' => 0, 'message' => 'Something wrong with Saving log.');
+    if(!isset($data['EmailTo']) && empty($data['EmailTo'])){
+        $status_return['message'] = 'Email To not set in Account mail log';
+        return $status_return;
+    }
+    
+    if(!isset($data['Subject']) && empty($data['Subject'])){
+        $status_return['message'] = 'Subject not set in Account mail log';
+        return $status_return;
+    }
+    if(!isset($data['Message']) && empty($data['Message'])){
+        $status_return['message'] = 'Message not set in Account mail log';
+        return $status_return;
+    }
+
+    if(is_array($data['EmailTo'])){
+        $data['EmailTo'] = implode(',',$data['EmailTo']);
+    }
+
+    if(!isset($data['cc']))
+    {
+        $data['cc'] = '';
+    }
+
+    if(!isset($data['bcc']))
+    {
+        $data['bcc'] = '';
+    }
+
+    if(isset($data['AttachmentPaths']) && count($data['AttachmentPaths'])>0)
+    {
+        $data['AttachmentPaths'] = serialize($data['AttachmentPaths']);
+    }
+    else
+    {
+        $data['AttachmentPaths'] = serialize([]);
+    }
+
+    if($view!='')
+    {
+        $body = htmlspecialchars_decode(View::make($view, compact('data'))->render());
+    }
+    else
+    {
+        $body = $data['Message'];
+    } Log::info(print_r($status,true));
+	if(!isset($status['message_id']))
+	{
+		$status['message_id'] = '';
+	} Log::info($status['message_id']);
+	if(!isset($data['EmailCall']))
+	{
+		$data['EmailCall'] = Messages::Sent;
+	}
+
+	if(isset($data['EmailFrom']))
+	{
+		$data['EmailFrom'] = $data['EmailFrom'];
+	}else{
+		$data['EmailFrom'] = User::get_user_email();
+	}
+	
+    $logData = ['EmailFrom'=>$data['EmailFrom'],
+        'EmailTo'=>$data['EmailTo'],
+        'Subject'=>$data['Subject'],
+        'Message'=>$body,
+        'CompanyID'=>User::get_companyID(),
+        'UserID'=>User::get_userID(),
+        'CreatedBy'=>User::get_user_full_name(),
+		"created_at"=>date("Y-m-d H:i:s"),
+        'Cc'=>$data['cc'],
+        'Bcc'=>$data['bcc'],
+        "AttachmentPaths"=>$data['AttachmentPaths'],
+		"MessageID"=>$status['message_id'],
+		"EmailParent"=>isset($data['EmailParent'])?$data['EmailParent']:$EmailParent,
+		"EmailCall"=>$data['EmailCall'],
+    ];
+	Log::info(print_r($logData,true));
+    $data =  AccountEmailLog::insertGetId($logData);
+    return $data;
 }

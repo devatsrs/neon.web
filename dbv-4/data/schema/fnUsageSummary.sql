@@ -1,6 +1,27 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageSummary`(IN `p_CompanyID` int , IN `p_CompanyGatewayID` int , IN `p_AccountID` int , IN `p_CurrencyID` INT, IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_AreaPrefix` VARCHAR(50), IN `p_Trunk` VARCHAR(50), IN `p_CountryID` INT, IN `p_UserID` INT , IN `p_isAdmin` INT, IN `p_Detail` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `fnUsageSummary`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT ,
+	IN `p_isAdmin` INT,
+	IN `p_Detail` INT
+
+
+
+)
 BEGIN
 	DECLARE v_TimeId_ INT;
+	
+	IF DATEDIFF(p_EndDate,p_StartDate) > 31 AND p_Detail = 2
+	THEN
+		SET p_Detail = 1;
+	END IF;
 	
 	IF p_Detail = 1 
 	THEN
@@ -44,7 +65,7 @@ BEGIN
 			ON us.SummaryHeaderID = sh.SummaryHeaderID 
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
-		INNER JOIN LocalRatemanagement.tblAccount a
+		INNER JOIN NeonRMDev.tblAccount a
 			ON sh.AccountID = a.AccountID
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
@@ -77,7 +98,7 @@ BEGIN
 			ON us.SummaryHeaderID = sh.SummaryHeaderID 
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
-		INNER JOIN LocalRatemanagement.tblAccount a
+		INNER JOIN NeonRMDev.tblAccount a
 			ON sh.AccountID = a.AccountID
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
@@ -93,7 +114,7 @@ BEGIN
 		
 	END IF;
 	
-	IF p_Detail = 2 
+	IF p_Detail = 2
 	THEN
 	
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageSummary_;
@@ -140,9 +161,10 @@ BEGIN
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
 			ON dt.TimeID = usd.TimeID
-		INNER JOIN LocalRatemanagement.tblAccount a
+		INNER JOIN NeonRMDev.tblAccount a
 			ON sh.AccountID = a.AccountID
-		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
+		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
 		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
@@ -176,9 +198,10 @@ BEGIN
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
 			ON dt.TimeID = usd.TimeID
-		INNER JOIN LocalRatemanagement.tblAccount a
+		INNER JOIN NeonRMDev.tblAccount a
 			ON sh.AccountID = a.AccountID
-		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
+		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
 		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
@@ -189,4 +212,5 @@ BEGIN
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);			
 		
 	END IF;
+
 END

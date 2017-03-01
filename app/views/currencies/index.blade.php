@@ -19,9 +19,9 @@
 
 <p style="text-align: right;">
 @if( User::checkCategoryPermission('Currency','Add') )
-    <a href="#" id="add-new-currency" class="btn btn-primary ">
+    <a href="#" data-action="showAddModal" data-type="currency" data-modal="add-new-modal-currency" class="btn btn-primary">
         <i class="entypo-plus"></i>
-        Add New Currency
+        Add New
     </a>
 @endif
 </p>
@@ -53,7 +53,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/currency/ajax_datagrid",
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
@@ -71,10 +71,10 @@ var postdata;
                         action += '<input type = "hidden"  name = "Symbol" value = "' + (full[1] != null ? full[1] : '') + '" / >';
                          action += '<input type = "hidden"  name = "Description" value = "' + (full[2] != null ? full[2] : '') + '" / ></div>';
                          <?php if(User::checkCategoryPermission('Currency','Edit') ){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-currency btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-currency btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                          <?php } ?>   
                          <?php if(User::checkCategoryPermission('Currency','Delete') ){ ?>
-                            action += ' <a data-id="'+ id +'" class="delete-currency btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            action += ' <a data-id="'+ id +'" title="Delete" class="delete-currency btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                          <?php } ?>
                         return action;
                       }
@@ -132,14 +132,6 @@ var postdata;
         });
 
 
-    $('#add-new-currency').click(function(ev){
-        ev.preventDefault();
-        $('#add-new-currency-form').trigger("reset");
-        $("#add-new-currency-form [name='Code']").removeAttr('readonly')
-        $("#add-new-currency-form [name='CurrencyID']").val('')
-        $('#add-new-modal-currency h4').html('Add New Currency');
-        $('#add-new-modal-currency').modal('show');
-    });
     $('table tbody').on('click','.edit-currency',function(ev){
         ev.preventDefault();
         ev.stopPropagation();
@@ -158,21 +150,9 @@ var postdata;
         $('#add-new-modal-currency').modal('show');
     })
 
-    $('#add-new-currency-form').submit(function(e){
-        e.preventDefault();
-        var CurrencyID = $("#add-new-currency-form [name='CurrencyID']").val()
-        if( typeof CurrencyID != 'undefined' && CurrencyID != ''){
-            update_new_url = baseurl + '/currency/update/'+CurrencyID;
-        }else{
-            update_new_url = baseurl + '/currency/create';
-        }
-        ajax_update(update_new_url,$('#add-new-currency-form').serialize());
-    })
-
-
     });
 
-function ajax_update(fullurl,data){
+/*function ajax_update(fullurl,data){
 //alert(data)
     $.ajax({
         url:fullurl, //Server script to process data
@@ -197,7 +177,7 @@ function ajax_update(fullurl,data){
         //Options to tell jQuery not to process data or worry about content-type.
         cache: false
     });
-}
+}*/
 
 </script>
 <style>
@@ -208,54 +188,6 @@ function ajax_update(fullurl,data){
     right: 30px !important;
 }
 </style>
+@include('currencies.currencymodal')
 @stop
 
-
-@section('footer_ext')
-@parent
-<div class="modal fade" id="add-new-modal-currency">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="add-new-currency-form" method="post">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Add New Currency</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Currency Code</label>
-                                <input type="text"  maxlength="3"  name="Code" class="form-control" id="field-5" placeholder="">
-                             </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Currency Symbol</label>
-                                <input type="text" name="Symbol" class="form-control" id="field-5" placeholder="">
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Description</label>
-                                <input type="text" name="Description" class="form-control" id="field-5" placeholder="">
-                                <input type="hidden" name="CurrencyID" >
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" id="currency-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                        <i class="entypo-floppy"></i>
-                        Save
-                    </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-@stop

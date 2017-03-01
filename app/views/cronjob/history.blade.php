@@ -5,7 +5,7 @@
         <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
     <li>
-        <a href="{{URL::to('cronjobs')}}">Cron Job</a>
+        <a href="{{URL::to('cronjob_monitor')}}">Cron Job</a>
     </li>
     <li class="active">
         <strong>{{$JobTitle}}</strong>
@@ -33,7 +33,7 @@
                         </div>
                         <label class="col-sm-1 control-label">Status</label>
                         <div class="col-sm-2">
-                            {{ Form::select('Status', [""=>"Both",1=>"Success",0=>"Failed"], '', array("class"=>"form-control selectboxit")) }}
+                            {{ Form::select('Status', [""=>"Both",1=>"Success",2=>"Failed"], '', array("class"=>"form-control select2 small")) }}
                         </div>
 
                     </div>
@@ -43,7 +43,7 @@
                             {{ Form::text('StartDate', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
                         </div>
                         <div class="col-sm-2  small-date-input">
-                            <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
+                            <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
                         </div>
                         <label for="field-1" class="col-sm-1 control-label">End Date</label>
                         <div class="col-sm-2">
@@ -93,7 +93,7 @@
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": baseurl + "/cronjobs/history_ajax_datagrid/{{$id}}/type",
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "fnServerParams": function(aoData) {

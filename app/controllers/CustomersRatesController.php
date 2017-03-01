@@ -30,11 +30,11 @@ class CustomersRatesController extends \BaseController {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Customer Rates.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Customer Rates.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -95,7 +95,7 @@ class CustomersRatesController extends \BaseController {
             $rate_tables =array();
             $rate_table = RateTable::where(["Status" => 1, "CompanyID" => $company_id,'CurrencyID'=>$Account->CurrencyId])->get();
             foreach($rate_table as $row){
-                $rate_tables[$row->TrunkID][$row->CodeDeckId][] = ['text'=>$row->RateTableName,'value'=>$row->RateTableId];
+                $rate_tables[$row->TrunkID][$row->CodeDeckId][] = ['id'=>$row->RateTableId,'text'=>$row->RateTableName];
             }
             $companygateway = CompanyGateway::getCompanyGatewayIdList();
             unset($companygateway['']);
@@ -217,7 +217,8 @@ class CustomersRatesController extends \BaseController {
             $trunks = CustomerTrunk::getCustomerTrunk($id); //$this->trunks;
             $rate_sheet_formates = $this->rate_sheet_formates;
             $account_owners = User::getOwnerUsersbyRole();
-            $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::RATESHEET_TEMPLATE));
+            //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::RATESHEET_TEMPLATE));
+			$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
             $accounts = Account::getAccountIDList();
             $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
             $downloadtype = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
@@ -226,8 +227,8 @@ class CustomersRatesController extends \BaseController {
             if(count($trunks) == 0){
                 return  Redirect::to('customers_rates/settings/'.$id)->with('info_message', 'Please enable trunks against customer to setup rates');
             }
-
-            return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype'));
+			$bulk_type = 'customers_rates';	
+            return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype','bulk_type'));
     }
 
     public function process_download($id) {
@@ -482,11 +483,11 @@ class CustomersRatesController extends \BaseController {
 
             $excel_data = json_decode(json_encode($RateSheetHistory),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates History.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Customer Rates History.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates History.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Customer Rates History.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

@@ -1,14 +1,30 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerInboundRate`(IN `p_AccountID` INT, IN `p_RateCDR` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerInboundRate`(
+	IN `p_AccountID` INT,
+	IN `p_RateCDR` INT,
+	IN `p_RateMethod` VARCHAR(50),
+	IN `p_SpecifyRate` DECIMAL(18,6),
+	IN `p_CLI` VARCHAR(500)
+)
 BEGIN
-	DECLARE v_codedeckid_ INT;
+
 	DECLARE v_inboundratetableid_ INT;
 
-	SELECT
-		CodeDeckId,
-		InboudRateTableID
-		INTO v_codedeckid_, v_inboundratetableid_
-	FROM tblAccount
-	WHERE AccountID = p_AccountID;
+	IF p_CLI != ''
+	THEN
+	
+		SELECT
+			RateTableID INTO v_inboundratetableid_
+		FROM tblCLIRateTable
+		WHERE AccountID = p_AccountID AND CLI = p_CLI;
+		
+	ELSE
+	
+		SELECT
+			InboudRateTableID INTO v_inboundratetableid_
+		FROM tblAccount
+		WHERE AccountID = p_AccountID;
+	
+	END IF;
 	
 	IF p_RateCDR = 1
 	THEN 
@@ -38,6 +54,14 @@ BEGIN
 			ON tblRateTableRate.RateID = tblRate.RateID
 		WHERE RateTableID = v_inboundratetableid_
 		AND tblRateTableRate.EffectiveDate <= NOW();
+		
+		/* if Specify Rate is set when cdr rerate */
+		IF p_RateMethod = 'SpecifyRate'
+		THEN
+		
+			UPDATE tmp_inboundcodes_ SET Rate=p_SpecifyRate;
+			
+		END IF;
 
 	END IF;
 END

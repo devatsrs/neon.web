@@ -38,6 +38,15 @@
                 <span>Dashboard</span>
             </a>
         </li>
+        	   <!--tickets start -->    
+    @if(Tickets::CheckTicketLicense())
+    <li class="{{check_uri('tickets')}}"> <a href="#"> <i class="entypo-ticket"></i> <span>&nbsp;Tickets Management</span> </a>
+      <ul>
+        <li> <a href="{{URL::to('customer/tickets')}}">  <span>Tickets</span> </a> </li>               
+      </ul>
+    </li>
+    @endif
+    <!--tickets end -->
         <li class="{{check_uri('Customer_billing')}}">
             <a href="#">
                 <i class="fa fa-credit-card"></i>
@@ -66,7 +75,7 @@
                         <span>Account Statement</span>
                     </a>
                 </li>
-                @if (is_authorize())
+                @if (is_authorize() || is_Stripe())
                 <li>
                     <a href="{{URL::to('customer/PaymentMethodProfiles')}}">
                         <span>Payment Method Profiles</span>
@@ -80,7 +89,7 @@
                 </li>
             </ul>
         </li>
-        @if(getenv('CUSTOMER_COMMERCIAL_DISPLAY') == 1)
+        @if(CompanyConfiguration::get('CUSTOMER_COMMERCIAL_DISPLAY') == 1)
         <li>
             <a href="{{URL::to('customer/customers_rates')}}">
                 <i class="fa fa-table"></i>
@@ -94,6 +103,14 @@
                 <span>Analysis</span>
             </a>
         </li>
+        @if(CompanyConfiguration::get('CUSTOMER_NOTIFICATION_DISPLAY') == 1)
+        <li>
+            <a href="{{URL::to('customer/notification')}}">
+                <i class="fa fa-bullhorn"></i>
+                <span>Notifications</span>
+            </a>
+        </li>
+        @endif
         <li>
             <a href="{{URL::to('customer/profile')}}">
                 <i class="glyphicon glyphicon-user"></i>

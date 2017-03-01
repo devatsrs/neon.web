@@ -64,7 +64,7 @@
                                </div>
                                <label for="field-1" class="col-sm-1 control-label">Effective</label>
                                <div class="col-sm-2">
-                                   <select name="Effective" class="selectboxit" data-allow-clear="true" data-placeholder="Select Effective">
+                                   <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective">
                                        <option value="Now">Now</option>
                                        <option value="Future">Future</option>
                                        <option value="All">All</option>
@@ -183,7 +183,7 @@
                                     console.log($searchFilter);
                                     console.log("Perm sent...");
                                 },
-                                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                                 "sPaginationType": "bootstrap",
                                  "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                                  "aaSorting": [[8, "asc"]],

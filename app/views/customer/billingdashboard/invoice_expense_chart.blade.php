@@ -8,6 +8,12 @@
     </center>
 @endif
 <script type="text/javascript">
+    Date.prototype.addDays = function(days)
+    {
+        var dat = new Date(this.valueOf());
+        dat.setDate(dat.getDate() + days);
+        return dat;
+    }
 $(function() {
 
         @if(isset($InvoiceExpense) && count($InvoiceExpense))
@@ -35,9 +41,54 @@ $(function() {
                         labels:['Payment Deposited','Total Invoice','Total Outstanding'],
                         barColors: ['#3399FF', '#333399', '#3366CC'],
                             hoverCallback:function (index, options, content, row) {
-                                var StartDate =row.x.split('/')[1]+'-'+row.x.split('/')[0]+'-01';
+                                var StartDate = '';
+                                var EndDate = '';
+                                @if($InvoiceExpenseRow->ftype=='Weekly')
+                                    var arr = row.x.split('-');
+                                    var date =  w2date(arr[1], arr[0]);
+                                    var enddate =  w2date(arr[1], parseInt(arr[0])+parseInt(1));
+                                    var minDate = new Date($('#billing_filter [name="Startdate"]').val());
+                                    var maxDate = new Date($('#billing_filter [name="Enddate"]').val());
+                                    if( minDate > date){
+                                        date = minDate;
+                                    }
+                                    var date2 = enddate.addDays(-1);
+                                    if( maxDate < date2){
+                                        date2 = maxDate;
+                                    }
+                                    StartDate = date.getFullYear()+'-'+( date.getMonth()+1)+'-'+date.getDate();
+                                    EndDate = date2.getFullYear()+'-'+( date2.getMonth()+1)+'-'+date2.getDate();
+                                @elseif($InvoiceExpenseRow->ftype=='Monthly')
+                                    var arr = row.x.split('/');
+                                    var date = new Date(row.x.split('/')[1]+'-'+row.x.split('/')[0]+'-01');
+                                    var date2 = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+                                    var minDate = new Date($('#billing_filter [name="Startdate"]').val());
+                                    var maxDate = new Date($('#billing_filter [name="Enddate"]').val());
+                                    if( minDate > date){
+                                        date = minDate;
+                                    }
+                                    if( maxDate < date2){
+                                        date2 = maxDate;
+                                    }
+                                    StartDate = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
+                                    EndDate = date2.getFullYear()+'-'+(date2.getMonth()+1)+'-'+date2.getDate();
+                                @elseif($InvoiceExpenseRow->ftype=='Yearly')
+                                    var date = new Date(row.x+'-01-01');
+                                    var date2 = new Date(row.x+'-12-31');
+                                    var minDate = new Date($('#billing_filter [name="Startdate"]').val());
+                                    var maxDate = new Date($('#billing_filter [name="Enddate"]').val());
+                                    if( minDate > date){
+                                        date = minDate;
+                                    }
+                                    if( maxDate < date2){
+                                        date2 = maxDate;
+                                    }
+                                    StartDate = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
+                                    EndDate = date2.getFullYear()+'-'+(date2.getMonth()+1)+'-'+date2.getDate();
+                                @endif
+                                /*var StartDate =row.x.split('/')[1]+'-'+row.x.split('/')[0]+'-01';
                                 var lastday = new Date(2008, row.x.split('/')[0], 0).getDate();
-                                var EndDate =row.x.split('/')[1]+'-'+row.x.split('/')[0]+'-'+lastday;
+                                var EndDate =row.x.split('/')[1]+'-'+row.x.split('/')[0]+'-'+lastday;*/
                                 var Currency = $('[name="CurrencyID"]').val();
                                 return '<div class="morris-hover-row-label">'+
                                         row.x+
@@ -58,4 +109,10 @@ $(function() {
             line_chart_demo_2.parent().attr('style', '');
         @endif
 });
+    function w2date(year, wn){
+        var Day10 = new Date( year,0,10,12,0,0),
+                Day4 = new Date( year,0,4,12,0,0),
+                weekmSec = Day4.getTime() - Day10.getDay() * 86400000;  // 7 days in milli sec
+        return new Date(weekmSec + ((wn - 1)  * 7 ) * 86400000);
+    };
 </script>

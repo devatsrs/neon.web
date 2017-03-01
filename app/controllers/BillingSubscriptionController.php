@@ -9,7 +9,7 @@ class BillingSubscriptionController extends \BaseController {
         //$FdilterAdvance = $data['FilterAdvance']== 'true'?1:0;
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
-        $columns = array("Name", "MonthlyFee", "WeeklyFee", "DailyFee");
+        $columns = array("Name", "MonthlyFee", "WeeklyFee", "DailyFee",'Advance');
         $sort_column = $columns[$data['iSortCol_0']];
         if($data['FilterAdvance'] == ''){
             $data['FilterAdvance'] = 'null';
@@ -19,11 +19,11 @@ class BillingSubscriptionController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $billexports = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Billing Subscription.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Billing Subscription.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($billexports);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Billing Subscription.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Billing Subscription.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($billexports);
             }
@@ -40,8 +40,9 @@ class BillingSubscriptionController extends \BaseController {
 
     public function index() {
 
-        $currencies = Currency::getCurrencyDropdownIDList();
-        return View::make('billingsubscription.index', compact('currencies'));
+        $currencies 			= 	Currency::getCurrencyDropdownIDList();
+		$AdvanceSubscription 	= 	json_encode(BillingSubscription::$Advance);
+        return View::make('billingsubscription.index', compact('currencies','AdvanceSubscription'));
 
     }
 

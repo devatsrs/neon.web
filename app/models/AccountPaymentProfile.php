@@ -29,16 +29,11 @@ class AccountPaymentProfile extends \Eloquent
     public static function createProfile($CompanyID, $CustomerID)
     {
         $data = Input::all();
-		
-		$isAuthorizedNet  = 	SiteIntegration::is_authorize_configured();
-		if(!$isAuthorizedNet){
-			return Response::json(array("status" => "failed", "message" => "Payment Method Not Integrated"));
-		}
-		
-        $AuthorizeNet = new AuthorizeNet();
-        $ProfileID = "";
-        $ShippingProfileID = "";
-        $first = 0;
+
+        $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
+        if(empty($PaymentGatewayID)){
+            return Response::json(array("status" => "failed", "message" => "Please Select Payment Gateway"));
+        }
         $rules = array(
             'CardNumber' => 'required|digits_between:14,19',
             'ExpirationMonth' => 'required',
@@ -59,80 +54,55 @@ class AccountPaymentProfile extends \Eloquent
         if ($card['valid'] == 0) {
             return Response::json(array("status" => "failed", "message" => "Please enter valid card number"));
         }
-        $PaymentGatewayID = PaymentGateway::where(['Title' => PaymentGateway::$gateways['Authorize']])
-            ->where(['CompanyID' => $CompanyID])
-            ->pluck('PaymentGatewayID');
-        $PaymentProfile = AccountPaymentProfile::where(['AccountID' => $CustomerID])
-            ->where(['CompanyID' => $CompanyID])
-            ->where(['PaymentGatewayID' => $PaymentGatewayID])
-            ->first();
-        if (!empty($PaymentProfile)) {
-            $options = json_decode($PaymentProfile->Options);
-            $ProfileID = $options->ProfileID;
-            $ShippingProfileID = $options->ShippingProfileID;
+
+        $ProfileResponse = array();
+        if($PaymentGatewayID==PaymentGateway::Authorize){
+            $ProfileResponse = AccountPaymentProfile::createAuthorizeProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data);
         }
-        $account = Account::where(array('AccountID' => $CustomerID))->first();
-        if (empty($ProfileID)) {
-            $profile = array('CustomerId' => $CustomerID, 'email' => $account->BillingEmail, 'description' => $account->AccountName);
-            $result = $AuthorizeNet->CreateProfile($profile);
-            if ($result["status"] == "success") {
-                $ProfileID = $result["ID"];
-                $ProfileID = json_decode(json_encode($ProfileID), true)[0];
-                $shipping = array('firstName' => $account->FirstName,
-                    'lastName' => $account->LastName,
-                    'address' => $account->Address1,
-                    'city' => $account->City,
-                    'state' => $account->state,
-                    'zip' => $account->PostCode,
-                    'country' => $account->Country,
-                    'phoneNumber' => $account->Mobile);
-                $result = $AuthorizeNet->CreatShippingAddress($ProfileID, $shipping);
-                $ShippingProfileID = $result["ID"];
-                $first = 1;
-            } else {
-                return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
-            }
+        if($PaymentGatewayID==PaymentGateway::Stripe){
+            $ProfileResponse = AccountPaymentProfile::createStripeProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data);
         }
-        $title = $data['Title'];
-        $result = $AuthorizeNet->CreatePaymentProfile($ProfileID, $data);
-        if ($result["status"] == "success") {
-            $PaymentProfileID = $result["ID"];
-            /**  @TODO save this field NameOnCard and CCV */
-            $option = array(
-                'ProfileID' => $ProfileID,
-                'ShippingProfileID' => $ShippingProfileID,
-                'PaymentProfileID' => $PaymentProfileID
-            );
-            $CardDetail = array('Title' => $title,
-                'Options' => json_encode($option),
-                'Status' => 1,
-                'isDefault' => $first,
-                'created_by' => Customer::get_accountName(),
-                'CompanyID' => $CompanyID,
-                'AccountID' => $CustomerID,
-                'PaymentGatewayID' => $PaymentGatewayID);
-            if (AccountPaymentProfile::create($CardDetail)) {
-                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
-            }
-        } else {
-            return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
-        }
+
+        return $ProfileResponse;
+
     }
 
     public static function paynow($CompanyID, $AccountID, $Invoiceids, $CreatedBy, $AccountPaymentProfileID)
     {
+        $Invoices = explode(',', $Invoiceids);
+        $fullnumber = '';
+        if(count($Invoices)>0){
+            foreach($Invoices as $inv){
+                $AllInvoice = Invoice::find($inv);
+                $fullnumber.= $AllInvoice->FullInvoiceNumber.',';
+            }
+        }
+        if($fullnumber!=''){
+            $fullnumber = rtrim($fullnumber,',');
+        }
+
         $account = Account::find($AccountID);
         $AccountBilling = AccountBilling::getBilling($AccountID);
-        $outstanginamounttotal = Account::getOutstandingAmount($CompanyID,$account->AccountID,get_round_decimal_places($account->AccountID));
+        /* removed account outstandig condition */
+        //$outstanginamounttotal = Account::getOutstandingAmount($CompanyID,$account->AccountID,get_round_decimal_places($account->AccountID));
         $outstanginamount = Account::getOutstandingInvoiceAmount($CompanyID,$account->AccountID,$Invoiceids, get_round_decimal_places($account->AccountID));
-        if ($outstanginamount > 0 && $outstanginamounttotal > 0 ) {
+        if ($outstanginamount > 0 ) {
             $CustomerProfile = AccountPaymentProfile::getProfile($AccountPaymentProfileID);
             if (!empty($CustomerProfile)) {
                 $PaymentGateway = PaymentGateway::getName($CustomerProfile->PaymentGatewayID);
+                if($PaymentGateway=='Stripe'){
+                    $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+                    if(empty($CurrencyCode)){
+                        return json_encode(array("status" => "failed", "message" => "No account currency available"));
+                    }
+                    $stripestatus = new StripeBilling();
+                    if(empty($stripestatus->status)){
+                        return json_encode(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
+                    }
+                }
                 $AccountPaymentProfileID = $CustomerProfile->AccountPaymentProfileID;
                 $options = json_decode($CustomerProfile->Options);
+                $options->InvoiceNumber = $fullnumber;
                 $transactionResponse = PaymentGateway::addTransaction($PaymentGateway, $outstanginamount, $options, $account, $AccountPaymentProfileID,$CreatedBy);
                 /**  Get All UnPaid  Invoice */
                 $unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $CompanyID . ',' . $account->AccountID.',0)');
@@ -201,6 +171,237 @@ class AccountPaymentProfile extends \Eloquent
             }
         } else {
             return json_encode(array("status" => "failed", "message" => "Total outstanding is less or equal to zero"));
+        }
+    }
+
+    public static function bulkAuthorizePayment($CompanyID, $AccountID, $Invoiceids, $CreatedBy, $AccountPaymentProfileID){
+
+    }
+
+    public static function bulkStripePayment($CompanyID, $AccountID, $Invoiceids, $CreatedBy, $AccountPaymentProfileID){
+
+    }
+
+    public static function createAuthorizeProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data){
+
+        $ProfileID = "";
+        $ShippingProfileID = "";
+        $first = 0;
+
+        $isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
+        if(!$isAuthorizedNet){
+            return Response::json(array("status" => "failed", "message" => "Payment Method Not Integrated"));
+        }
+
+        $AuthorizeNet = new AuthorizeNet();
+
+        $PaymentProfile = AccountPaymentProfile::where(['AccountID' => $CustomerID])
+            ->where(['CompanyID' => $CompanyID])
+            ->where(['PaymentGatewayID' => $PaymentGatewayID])
+            ->first();
+        if (!empty($PaymentProfile)) {
+            $options = json_decode($PaymentProfile->Options);
+            $ProfileID = $options->ProfileID;
+            $ShippingProfileID = $options->ShippingProfileID;
+        }
+        $account = Account::where(array('AccountID' => $CustomerID))->first();
+
+        $response = $AuthorizeNet->getCustomerProfile($ProfileID);
+        if(empty($ProfileID)){
+            $first = 1;
+        }
+        if ($response == false || empty($ProfileID)) {
+            $profile = array('CustomerId' => $CustomerID, 'email' => $account->BillingEmail, 'description' => $account->AccountName);
+            $result = $AuthorizeNet->CreateProfile($profile);
+            if ($result["status"] == "success") {
+                $ProfileID = $result["ID"];
+                //$ProfileID = json_decode(json_encode($ProfileID), true)[0];
+                $shipping = array('firstName' => $account->FirstName,
+                    'lastName' => $account->LastName,
+                    'address' => $account->Address1,
+                    'city' => $account->City,
+                    'state' => $account->state,
+                    'zip' => $account->PostCode,
+                    'country' => $account->Country,
+                    'phoneNumber' => $account->Mobile);
+                $result = $AuthorizeNet->CreatShippingAddress($ProfileID, $shipping);
+                $ShippingProfileID = $result["ID"];
+            } else {
+                return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
+            }
+        }
+        $title = $data['Title'];
+        $result = $AuthorizeNet->CreatePaymentProfile($ProfileID, $data);
+        if ($result["status"] == "success") {
+            $PaymentProfileID = $result["ID"];
+            /**  @TODO save this field NameOnCard and CCV */
+            $option = array(
+                'ProfileID' => $ProfileID,
+                'ShippingProfileID' => $ShippingProfileID,
+                'PaymentProfileID' => $PaymentProfileID
+            );
+            $CardDetail = array('Title' => $title,
+                'Options' => json_encode($option),
+                'Status' => 1,
+                'isDefault' => $first,
+                'created_by' => Customer::get_accountName(),
+                'CompanyID' => $CompanyID,
+                'AccountID' => $CustomerID,
+                'PaymentGatewayID' => $PaymentGatewayID);
+            if (AccountPaymentProfile::create($CardDetail)) {
+                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
+            }
+        } else {
+            return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
+        }
+
+    }
+
+    public static function createStripeProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data)
+    {
+        $stripepayment = new StripeBilling();
+
+        $stripedata = array();
+
+        if (empty($stripepayment->status)) {
+            return Response::json(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
+        }
+
+        $account = Account::where(array('AccountID' => $CustomerID))->first();
+
+        $isDefault = 1;
+
+        $count = AccountPaymentProfile::where(['AccountID' => $CustomerID])
+            ->where(['CompanyID' => $CompanyID])
+            ->where(['PaymentGatewayID' => $PaymentGatewayID])
+            ->where(['isDefault' => 1])
+            ->count();
+
+        if($count>0){
+            $isDefault = 0;
+        }
+
+        $email = empty($account->BillingEmail)?'':$account->BillingEmail;
+        $accountname = empty($account->AccountName)?'':$account->AccountName;
+
+
+        $StripeResponse = array();
+        $stripedata['number'] = $data['CardNumber'];
+        $stripedata['exp_month'] = $data['ExpirationMonth'];
+        $stripedata['cvc'] = $data['CVVNumber'];
+        $stripedata['exp_year'] = $data['ExpirationYear'];
+        $stripedata['name'] = $data['NameOnCard'];
+        $stripedata['email'] = $email;
+        $stripedata['account'] = $accountname;
+
+        $StripeResponse = $stripepayment->create_customer($stripedata);
+
+        if ($StripeResponse["status"] == "Success") {
+            $option = array(
+                'CustomerProfileID' => $StripeResponse['CustomerProfileID'],
+                'CardID' => $StripeResponse['CardID']
+            );
+            $CardDetail = array('Title' => $data['Title'],
+                'Options' => json_encode($option),
+                'Status' => 1,
+                'isDefault' => $isDefault,
+                'created_by' => Customer::get_accountName(),
+                'CompanyID' => $CompanyID,
+                'AccountID' => $CustomerID,
+                'PaymentGatewayID' => $PaymentGatewayID);
+            if (AccountPaymentProfile::create($CardDetail)) {
+                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
+        }
+    }
+
+    public static function deleteAuthorizeProfile($CompanyID,$AccountID,$AccountPaymentProfileID){
+        //If using Authorize.net
+        $isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
+        if(!$isAuthorizedNet){
+            return Response::json(array("status" => "failed", "message" => "Payment Method Not Integrated"));
+        }
+
+        $AuthorizeNet = new AuthorizeNet();
+        $count = AccountPaymentProfile::where(["CompanyID"=>$CompanyID])->where(["AccountID"=>$AccountID])->count();
+        $PaymentProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
+        if(!empty($PaymentProfile)){
+            $options = json_decode($PaymentProfile->Options);
+            $ProfileID = $options->ProfileID;
+            $PaymentProfileID = $options->PaymentProfileID;
+            $isDefault = $PaymentProfile->isDefault;
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+        }
+        if($isDefault==1){
+            if($count!=1){
+                return Response::json(array("status" => "failed", "message" => "You can not delete default profile. Please set as default an other profile first."));
+            }
+        }
+        $result = $AuthorizeNet->DeletePaymentProfile($ProfileID,$PaymentProfileID);
+        if($result["status"]=="success"){
+            if ($PaymentProfile->delete()) {
+                if($count==1){
+                    $result =  $AuthorizeNet->deleteProfile($ProfileID);
+                    if($result["status"]=="success"){
+                        return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
+                    }
+                }else{
+                    return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted"));
+                }
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+            }
+        }elseif($result["code"]=='E00040'){
+            if ($PaymentProfile->delete()) {
+                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted"));
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
+        }
+    }
+
+    public static function deleteStripeProfile($CompanyID,$AccountID,$AccountPaymentProfileID){
+
+        $stripepayment = new StripeBilling();
+
+        if (empty($stripepayment->status)) {
+            return Response::json(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
+        }
+
+        $count = AccountPaymentProfile::where(["CompanyID"=>$CompanyID])->where(["AccountID"=>$AccountID])->count();
+        $PaymentProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
+        if(!empty($PaymentProfile)){
+            $options = json_decode($PaymentProfile->Options);
+            $CustomerProfileID = $options->CustomerProfileID;
+            $isDefault = $PaymentProfile->isDefault;
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+        }
+        if($isDefault==1){
+            if($count!=1){
+                return Response::json(array("status" => "failed", "message" => "You can not delete default profile. Please set as default an other profile first."));
+            }
+        }
+
+        $result = $stripepayment->deleteCustomer($CustomerProfileID);
+
+        if($result["status"]=="Success"){
+            if($PaymentProfile->delete()) {
+                   return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => $result['error']));
         }
     }
 }

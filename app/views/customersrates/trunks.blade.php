@@ -95,7 +95,7 @@
                                         $rate_table = RateTable::getRateTableList(["TrunkID"=>$trunk->TrunkID,'CodeDeckId'=>$CodeDeckId,'CurrencyID'=>$Account->CurrencyId]);
                                         $RateTableID = (isset($customer_trunks[$trunk->TrunkID]->RateTableID))?$customer_trunks[$trunk->TrunkID]->RateTableID:'';
                                         ?>
-                                        {{ Form::select( 'CustomerTrunk['.$trunk->TrunkID.'][RateTableID]'    , $rate_table, $RateTableID   , array("class"=>"selectboxit ratetableid","data-placeholder"=>"Select a Table")) }}
+                                        {{ Form::select( 'CustomerTrunk['.$trunk->TrunkID.'][RateTableID]'    , $rate_table, $RateTableID   , array("class"=>"select2 small ratetableid","data-placeholder"=>"Select a Table")) }}
                                         <input type="hidden" name="ratetableid" value="{{$RateTableID}}">
                                     </td>
                                     <td>
@@ -147,7 +147,7 @@
                                     <?php
                                     $rate_table = RateTable::getRateTableList(['CurrencyID'=>$Account->CurrencyId]);
                                     ?>
-                                    {{ Form::select( 'InboudRateTableID'    , $rate_table, $Account->InboudRateTableID , array("class"=>"selectboxit ratetableid","data-placeholder"=>"Select a Rate Table")) }}
+                                    {{ Form::select( 'InboudRateTableID'    , $rate_table, $Account->InboudRateTableID , array("class"=>"select2 small ratetableid","data-placeholder"=>"Select a Rate Table")) }}
 
                                 </div>
                             </div>
@@ -214,7 +214,7 @@ var ratabale = '{{json_encode($rate_tables)}}';
 	    	$("#CustomerTrunk-form").submit();
             return false;
 	    });
-	    $(".ratetableid").bind('change',function (e) {
+	    /*$(".ratetableid").bind('change',function (e) {
 	        var prev_val = $(this).parent().find('[name="ratetableid"]').val();
 	        if(prev_val > 0){
                 changeConfirmation = confirm("Are you sure?Effective dates will be changed");
@@ -222,6 +222,7 @@ var ratabale = '{{json_encode($rate_tables)}}';
 
                }else{
                     $(this).val(prev_val);
+                    console.log(prev_val);
                     var select  = $(this).parent().find('.ratetableid');
                      setTimeout(function() {
                          select.find("option[value='"+prev_val+"']").attr('selected','selected');
@@ -229,21 +230,32 @@ var ratabale = '{{json_encode($rate_tables)}}';
                      },200);
                 }
             }
-	    });
-
-	    $(".codedeckid").bind('change',function (e) {
-
-	        var prev_val = $(this).parent().find('[name="codedeckid"]').val();
-	        var trunkid = $(this).parent().find('[name="trunkid"]').val();
-	        var current_obj = $(this);
-	        var selectBox = current_obj.parent().next().find('.ratetableid').selectBoxIt().data("selectBox-selectBoxIt");
-	        selectBox.remove();
+	    });*/
+        var prev_val;
+        $('.codedeckid').on('select2-open',function(e){
+            prev_val = $(this).val();
+        }).on('change',function (e) {
+            var self = $(this);
+            var current_obj = self;
+	        var trunkid = self.parent().children('[name="trunkid"]').val();
+	        //var RateTableID = self.parent().next().find('[name="[CustomerTrunk['+trunkid+'][RateTableID]"]');
+            var RateTableID = self.parent().next().find('.ratetableid');
             var json = JSON.parse(ratabale);
-            selectBox.add({'text':'Select a Rate Table','value':''});
             if( typeof  json[trunkid] != 'undefined'){
-                selectBox.add(json[trunkid][current_obj.val()]);
+                var filtereddata = [];
+                if(typeof json[trunkid][self.val()] !='undefined'){
+                    filtereddata = json[trunkid][self.val()];
+                }
+                self.parent().next().find('.ratetableid').select2('destroy');
+                rebuildSelect2(RateTableID,filtereddata,'Select');
+                opts = {
+                    allowClear: false,
+                    minimumResultsForSearch:Infinity,
+                    dropdownCssClass:'no-search'
+                };
+                self.parent().next().find('.ratetableid').select2(opts);
+                self.select2('container').find('.select2-search').addClass ('hidden') ;
             }
-
 	        $.ajax({
                     url:baseurl + '/customers_rates/delete_customerrates/{{$id}}', //Server script to process data
                     type: 'POST',
@@ -254,8 +266,10 @@ var ratabale = '{{json_encode($rate_tables)}}';
                             if(changeConfirmation){
                                 prev_val = current_obj.val();
                                 current_obj.prop('selected', prev_val);
-                                current_obj.parent().find('select.select2').select2().select2('val',prev_val);
-                                selectBox.selectOption('');
+                                //current_obj.parent().find('select.select2').select2().select2('val',prev_val);
+                                current_obj.parent().find('select.codedeckid').select2().select2('val',prev_val);
+                                RateTableID.select2().select2('val','');
+                                //selectBox.selectOption('');
                                 current_obj.parent().find('[name="codedeckid"]').val(prev_val);
                                 current_obj.select2().select2('val',prev_val);
                                 submit_ajax(baseurl + '/customers_rates/delete_customerrates/{{$id}}','Trunkid='+trunkid)
@@ -300,14 +314,15 @@ var ratabale = '{{json_encode($rate_tables)}}';
         /**
          On Inbound Rate Table changed
          */
-        $("select[name=InboudRateTableID]").bind('change',function (e) {
-
-            var InboudRateTableID = $(this).val();
-
+        $('select[name="InboudRateTableID"]').on('select2-selecting',function(e){
             changeConfirmation = confirm("Are you sure to change inbound rate table?");
-
-            if(changeConfirmation) {
-
+            if (changeConfirmation) {
+            }else{
+                e.preventDefault();
+                $(this).select2('close');
+            }
+        }).on('change',function (e) {
+                var InboudRateTableID = $(this).val();
                 $.ajax({
                     url: baseurl + '/accounts/{{$id}}/update_inbound_rate_table', //Server script to process data
                     type: 'POST',
@@ -326,8 +341,6 @@ var ratabale = '{{json_encode($rate_tables)}}';
                     //Options to tell jQuery not to process data or worry about content-type.
                     cache: false
                 });
-            }
-
             return false;
         });
     });

@@ -16,6 +16,9 @@ class Invoice extends \Eloquent {
     const PAID = 'paid';
     const PARTIALLY_PAID = 'partially_paid';
     const ITEM_INVOICE =1;
+    const POST = 'post';
+	const EMAILTEMPLATE 		= "InvoiceSingleSend";
+	
     //public static $invoice_status;
     public static $invoice_type = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Sent',self::INVOICE_IN=>'Invoice Received','All'=>'Both');
     public static $invoice_type_customer = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Received',self::INVOICE_IN=>'Invoice sent','All'=>'Both');
@@ -37,11 +40,7 @@ class Invoice extends \Eloquent {
         * */
 
         //set company billing timezone
-        $BillingTimezone = CompanySetting::getKeyVal("BillingTimezone");
 
-        if($BillingTimezone != 'Invalid Key'){
-            date_default_timezone_set($BillingTimezone);
-        }
 
         $Account = AccountBilling::select(["NextInvoiceDate","LastInvoiceDate","BillingStartDate"])->where("AccountID",$AccountID)->first()->toArray();
 
@@ -64,23 +63,40 @@ class Invoice extends \Eloquent {
 
     }
 
-    public static  function generate_pdf($InvoiceID){
+    public static  function generate_pdf($InvoiceID){  
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $InvoiceID])->get();
-            $InvoiceTaxRates = InvoiceTaxRate::where("InvoiceID",$InvoiceID)->orderby('InvoiceTaxRateID')->get();
-            $Account = Account::find($Invoice->AccountID);
-            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
+            $InvoiceTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>0])->orderby('InvoiceTaxRateID')->get();
+			//$InvoiceAllTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>1])->orderby('InvoiceTaxRateID')->get();
+			$InvoiceAllTaxRates = DB::connection('sqlsrv2')->table('tblInvoiceTaxRate')
+                    ->select('TaxRateID', 'Title', DB::Raw('sum(TaxAmount) as TaxAmount'))
+                    ->where("InvoiceID", $InvoiceID)
+                    ->orderBy("InvoiceTaxRateID", "asc")
+                    ->groupBy("TaxRateID")                   
+                    ->get();
+			$Account = Account::find($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
-            $InvoiceTemplate = InvoiceTemplate::find($AccountBilling->InvoiceTemplateID);
+            if(!empty($Invoice->RecurringInvoiceID) && $Invoice->RecurringInvoiceID > 0){
+                $recurringInvoice = RecurringInvoice::find($Invoice->RecurringInvoiceID);
+                $billingClass = BillingClass::where('BillingClassID',$recurringInvoice->BillingClassID)->first();
+                $InvoiceTemplateID = $billingClass->InvoiceTemplateID;
+                $PaymentDueInDays = $billingClass->PaymentDueInDays;
+            }else{
+                $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
+                $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+                $PaymentDueInDays = AccountBilling::getPaymentDueInDays($Invoice->AccountID);
+            }
+
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
-            $logo_path = getenv('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
+            $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
             RemoteSSH::run("chmod -R 777 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
@@ -92,41 +108,50 @@ class Invoice extends \Eloquent {
             $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
 
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates'))->render();
 
-            $body = htmlspecialchars_decode($body);
+            $body = htmlspecialchars_decode($body);  
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
             $footer = htmlspecialchars_decode($footer);
 
+            $header = View::make('invoices.pdfheader', compact('Invoice','print_type'))->render();
+            $header = htmlspecialchars_decode($header);
+
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId,$Invoice->AccountID) ;
-             $destination_dir = getenv('UPLOAD_PATH') . '/'. $amazonPath;
+             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. $amazonPath;
 			
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
-            }
+            } 
             RemoteSSH::run("chmod -R 777 " . $destination_dir);
             $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
             $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
-            $local_file = $destination_dir .  $file_name;
+            $local_file = $destination_dir .  $file_name; 
 
-            $local_htmlfile = $destination_dir .  $htmlfile_name;
+            $local_htmlfile = $destination_dir .  $htmlfile_name; 
             file_put_contents($local_htmlfile,$body);
             @chmod($local_htmlfile,0777);
             $footer_name = 'footer-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
             $footer_html = $destination_dir.$footer_name;
             file_put_contents($footer_html,$footer);
             @chmod($footer_html,0777);
+
+            $header_name = 'header-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
+            $header_html = $destination_dir.$header_name;
+            file_put_contents($header_html,$header);
+            @chmod($footer_html,0777);
+
             $output= "";
             if(getenv('APP_OS') == 'Linux'){
-                exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
-
+                exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }else{
-                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe  --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" -- footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
             @chmod($local_file,0777);
-            Log::info($output);
+            Log::info($output); 
             @unlink($local_htmlfile);
             @unlink($footer_html);
+            @unlink($header_html);
             if (file_exists($local_file)) {
                 $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
                 if (AmazonS3::upload($local_file, $amazonPath)) {
@@ -140,12 +165,15 @@ class Invoice extends \Eloquent {
     public static function get_invoice_status(){
         $Company = Company::find(User::get_companyID());
         $invoiceStatus = explode(',',$Company->InvoiceStatus);
-       $invoicearray = array(''=>'Select Invoice Status',self::DRAFT=>'Draft',self::SEND=>'Sent',self::AWAITING=>'Awaiting Approval',self::CANCEL=>'Cancel',self::PAID=>'Paid',self::PARTIALLY_PAID=>'Partially Paid');
+       $invoicearray = array(''=>'Select Invoice Status',self::DRAFT=>'Draft',self::SEND=>'Sent',self::AWAITING=>'Awaiting Approval',self::CANCEL=>'Cancel',self::PAID=>'Paid',self::PARTIALLY_PAID=>'Partially Paid',self::POST=>'Post');
         foreach($invoiceStatus as $status){
             $invoicearray[$status] = $status;
         }
         return $invoicearray;
     }
+    /**
+     * not in use
+    */
     public static function getFullInvoiceNumber($Invoice,$AccountBilling){
         $InvoiceNumberPrefix = '';
         if(!empty($AccountBilling->InvoiceTemplateID)) {

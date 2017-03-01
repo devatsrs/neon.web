@@ -9,7 +9,7 @@
     </div>
     <div class="panel-body">
         <div class="text-right">
-            <a  id="add-new-activity" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Activity</a>
+            <a  id="add-new-activity" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
             <div class="clear clearfix"><br></div>
         </div>
                     <form id="activity_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
@@ -30,11 +30,11 @@
                                     </div>
                                     <label for="field-1" class="col-sm-2 control-label">Activity Type</label>
                                     <div class="col-sm-2">
-                                          {{ Form::select('activityType', $activity_type, '', array("class"=>"form-control selectboxit")) }}
+                                          {{ Form::select('activityType', $activity_type, '', array("class"=>"form-control select2 small")) }}
                                     </div>
                                     <label for="field-1" class="col-sm-2 control-label">Activity Status</label>
                                     <div class="col-sm-2">
-                                        {{ Form::select('activityStatus', $activity_status, '', array("class"=>"form-control selectboxit")) }}
+                                        {{ Form::select('activityStatus', $activity_status, '', array("class"=>"form-control select2 small")) }}
                                     </div>
                                 </div>
                                 <p style="text-align: right;">
@@ -88,7 +88,7 @@
                                         {"name": "Export", "value": 1});
 
                             },
-                            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                             "sPaginationType": "bootstrap",
                             "sDom": "<'row'r>",
                             "aaSorting": [[0, 'asc']],
@@ -120,8 +120,8 @@
                                             action += '<input type = "hidden"  name = "' + list_fields_activity[i] + '"       value = "' + (full[i] != null ? full[i] : '') + '" / >';
                                         }
                                         action += '</div>';
-                                        action += ' <a data-id="' + id + '" class="edit-activity btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                        action += '<a href="' + delete_ + '" data-redirect="{{ URL::to('products')}}"  class="btn delete btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                        action += ' <a data-id="' + id + '" title="Edit" class="edit-activity btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                                        action += ' <a href="' + delete_ + '" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                         return action;
                                     }
                                 }
@@ -164,7 +164,7 @@
                             for(var i = 0 ; i< list_fields_activity.length; i++){
 
                                 if(list_fields_activity[i] == 'ActivityType'){
-                                    $("#add-edit-activity-form [name='ActivityType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(cur_obj.find("input[name='"+list_fields_activity[i]+"']").val());
+                                    $("#add-edit-activity-form [name='ActivityType']").val(cur_obj.find("input[name='"+list_fields_activity[i]+"']").val()).trigger("change");
                                 }else if(list_fields_activity[i]=='Date'){
                                     var str = cur_obj.find("input[name='"+list_fields_activity[i]+"']").val();
                                     var datetime = str.split(' ');
@@ -183,7 +183,7 @@
                         ev.preventDefault();
                         $('#add-edit-activity-form').trigger("reset");
                         $("#add-edit-activity-form [name='ActivityID']").val('');
-                        $("#add-edit-activity-form [name='ActivityType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $("#add-edit-activity-form [name='ActivityType']").val('').trigger("change");
                         $('#add-edit-modal-activity h4').html('Add New activity');
                         $('#add-edit-modal-activity').modal('show');
                     });
@@ -289,7 +289,7 @@
                         <div class="form-group">
                             <label for="field-5" class="col-sm-2 control-label">Activity Type<span id="currency"></span></label>
                             <div class="col-sm-4">
-                                {{ Form::select('ActivityType', $activity_type, '', array("class"=>"form-control selectboxit")) }}
+                                {{ Form::select('ActivityType', $activity_type, '', array("class"=>"form-control select2 small")) }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -310,7 +310,7 @@
                     </div>
                     <div class="modal-footer">
                         <button id="activity-add" class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
-                            <i class="entypo-pencil"></i>
+                            <i class="entypo-floppy"></i>
                             Save
                         </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">

@@ -89,9 +89,11 @@
                                         <label class="col-sm-2 control-label">Currency</label>
                                         <div class="col-sm-4">
                                                 @if(empty($company->CurrencyId))
-                                                {{Form::select('CurrencyId', $currencies, $company->CurrencyId ,array("class"=>"form-control select2"))}}
+                                                    {{Form::SelectControl('currency',1,'',0,'CurrencyId')}}
+                                                <!--{Form::select('CurrencyId', $currencies, $company->CurrencyId ,array("class"=>"form-control select2"))}}-->
                                                 @else
-                                                {{Form::select('CurrencyId', $currencies, $company->CurrencyId ,array("class"=>"form-control select2","disabled"))}}
+                                                {{Form::SelectControl('currency',1,$company->CurrencyId,1,'CurrencyId')}}
+                                                <!--{Form::select('CurrencyId', $currencies, $company->CurrencyId ,array("class"=>"form-control select2","disabled"))}}-->
                                                 {{Form::hidden('CurrencyId', ($company->CurrencyId))}}
                                                 @endif
                                         </div>
@@ -106,13 +108,13 @@
                         <label for="field-1" class="col-sm-2 control-label">Default DashBoard</label>
 
                         <div class="col-sm-4">
-                            {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('DefaultDashboard', $dashboardlist, $DefaultDashboard ,array("class"=>"form-control select2 small"))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Pincode/Ext. Widget</label>
+                        <!--<label for="field-1" class="col-sm-2 control-label">Pincode/Ext. Widget</label>
 
                         <p class="make-switch switch-small">
-                            <input id="PincodeWidget" name="PincodeWidget" type="checkbox" value="1" @if($PincodeWidget == 1) checked="checked" @endif>
-                        </p>
+                            <input id="PincodeWidget" name="PincodeWidget" type="checkbox" value="1" if($PincodeWidget == 1) checked="checked" endif>
+                        </p>-->
 
                     </div>
 
@@ -206,7 +208,7 @@
                         </div>
                         <label for=" field-1" class="col-sm-2 control-label">Country</label>
                         <div class="col-sm-4">
-                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('Country', $countries, $company->Country ,array("class"=>"form-control select2 small"))}}
                         </div>
                     </div>
                 </div>
@@ -214,7 +216,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">
-                                    Billing Setting
+                                    Setting
                                 </div>
 
                                 <div class="panel-options">
@@ -222,22 +224,19 @@
                                 </div>
                             </div>
                             <div class="panel-body">
-                                <div class="form-group" >
-                                    <label for="field-1" class="col-sm-2 control-label">Default Tax Rate</label>
+
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-2 control-label">Invoice Status</label>
                                     <div class="col-sm-4">
-                                        {{Form::select('DefaultTextRate[]', $taxrates, (isset($DefaultTextRate)? explode(',',$DefaultTextRate) : '' ) ,array("class"=>"form-control select2",'multiple'))}}
+                                        <input type="text" class="form-control" id="InvoiceStatus" name="InvoiceStatus" value="{{$company->InvoiceStatus}}" />
                                     </div>
-                                    <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)</label>
-                                    <div class="col-sm-4">
-                                        <div class="input-spinner">
-                                            <button type="button" class="btn btn-default">-</button>
-                                            {{Form::text('PaymentDueInDays',$PaymentDueInDays,array("class"=>"form-control","data-min"=>0, "maxlength"=>"2", "data-max"=>30,"Placeholder"=>"Add Numeric value", "data-mask"=>"decimal"))}}
-                                            <button type="button" class="btn btn-default">+</button>
-                                        </div>
-                                    </div>
+                                    <label for="field-1" class="col-sm-2 control-label">Use Prefix In CDR</label>
+                                    <p class="make-switch switch-small">
+                                        <input id="UseInBilling" name="UseInBilling" type="checkbox" value="1" @if($UseInBilling == 1) checked="checked" @endif>
+                                    </p>
                                 </div>
                                 <div class="form-group">
-                                    <label for="field-1" class="col-sm-2 control-label">Round Charged Amount (123.45) </label>
+                                    <label for="field-1" class="col-sm-2 control-label">Decimal Places (123.45) </label>
                                     <div class="col-sm-4">
                                         <div class="input-spinner">
                                             <button type="button" class="btn btn-default">-</button>
@@ -246,72 +245,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="field-1" class="col-sm-2 control-label">Billing Timezone</label>
-                                    <div class="col-sm-4">
-                                        {{Form::select('BillingTimezone', $timezones,$BillingTimezone,array("class"=>"form-control select2"))}}
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                                    <label for="field-1" class="col-sm-2 control-label">Billing cycle</label>
-                                                    <div class="col-sm-4">
-                                                        {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType,array("class"=>"form-control select2"))}}
-                                                    </div>
-                                                    <div id="billing_cycle_weekly" class="billing_options" style="display: none">
-                                                        <label for="field-1" class="col-sm-2 control-label">Billing cycle - Start of Day</label>
-                                                        <div class="col-sm-4">
-                                                            <?php $Days = array( ""=>"Please Start of Day",
-                                                                "monday"=>"Monday",
-                                                                "tuesday"=>"Tuesday",
-                                                                "wednesday"=>"Wednesday",
-                                                                "thursday"=>"Thursday",
-                                                                "friday"=>"Friday",
-                                                                "saturday"=>"Saturday",
-                                                                "sunday"=>"Sunday");?>
-                                                            {{Form::select('BillingCycleValue',$Days, $BillingCycleValue ,array("class"=>"form-control select2"))}}
-                                                        </div>
-                                                    </div>
-                                                    <div id="billing_cycle_in_specific_days" class="billing_options" style="display: none">
-                                                    <label for="field-1" class="col-sm-2 control-label">Billing cycle - for Days</label>
-                                                        <div class="col-sm-4">
-                                                            {{Form::text('BillingCycleValue', $BillingCycleValue ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
-                                                        </div>
-                                                    </div>
-                                                    <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
-                                                        <label for="field-1" class="col-sm-2 control-label">Billing cycle - Monthly Anniversary Date</label>
-                                                        <div class="col-sm-4">
-                                                            {{Form::text('BillingCycleValue', $BillingCycleValue,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                <div class="form-group">
-
-                                        <label for="field-1" class="col-sm-2 control-label">Invoice Template</label>
-                                        <div class="col-sm-4">
-                                            {{Form::select('InvoiceTemplateID', $InvoiceTemplates, $InvoiceTemplateID,array("class"=>"form-control select2"))}}
-                                        </div>
-
-                                    <label for="field-1" class="col-sm-2 control-label">Invoice Status</label>
-                                    <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="InvoiceStatus" name="InvoiceStatus" value="{{$company->InvoiceStatus}}" />
-                                    </div>
-                                </div>
-                                <div class="form-group" >
-                                    <label for="field-1" class="col-sm-2 control-label">CDR Format</label>
-                                    <div class="col-sm-4">
-                                        {{Form::select('CDRType', Account::$cdr_type, $CDRType,array("class"=>"selectboxit"))}}
-                                    </div>
-                                    <label for="field-1" class="col-sm-2 control-label">Use Prefix In CDR</label>
-                                    <p class="make-switch switch-small">
-                                        <input id="UseInBilling" name="UseInBilling" type="checkbox" value="1" @if($UseInBilling == 1) checked="checked" @endif>
-                                    </p>
-                                </div>
-                                <div class="form-group">
+                                {{--<div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">RateSheet excel Note</label>
                                     <div class="col-sm-10">
                                         <textarea type="text" name="RateSheetExcellNote" rows="5" class="form-control" id="field-1" placeholder="Rate Sheet Excell Note">{{$company->RateSheetExcellNote}}</textarea>
                                     </div>
-                                </div>
+                                </div>--}}
                             </div>
                         </div>
 
@@ -345,7 +284,7 @@
 
                         <label for="field-1" class="col-sm-2 control-label">Password</label>
                         <div class="col-sm-4">
-                            <input type="password" name="SMTPPassword" class="form-control" id="field-1" placeholder="Password" value="{{$company->SMTPPassword}}" />
+                            <input type="password" name="SMTPPassword" class="form-control" id="field-1" placeholder="Password" value="" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -476,6 +415,7 @@
 					success: function(Response) {
 				    $('.ValidateSmtp').button('reset');
 					$('.btn_smtp_submit').button('reset');
+					$('.ValidateSmtp').removeAttr('disabled');
 						 if (Response.status == 'failed') {
 	                           toastr.error(Response.message, "Error", toastr_opts);
 							   return false;
@@ -485,7 +425,7 @@
 						  //$('.SmtpResponse').html(Response.response);
 						  $('.model-title-set').html('Test Mail Settings');
 						  
-						},
+						}
 				});	
         
             	
@@ -506,7 +446,7 @@
 		  $('#Test_smtp_mail_modal').on('hidden.bs.modal', function(event){
 			  $('.model-title-set').html('Test Mail Settings');
 			  $('.ValidateSmtp').button('reset');
-
+			  $('.ValidateSmtp').removeAttr('disabled');
 		 });
 		 
         $('select[name="BillingCycleType"]').on( "change",function(e){
@@ -537,4 +477,5 @@
   
 </script>
 @include('includes.ajax_submit_script', array('formID'=>'form-user-add' , 'url' => 'company/update'))
+@include('currencies.currencymodal')
 @stop

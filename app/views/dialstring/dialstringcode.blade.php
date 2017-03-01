@@ -31,12 +31,12 @@
     <!-- available classes "bordered", "right-aligned" -->
     <li class="active">
         <a href="{{URL::to('/dialstrings/'.$id.'/dialstringcode')}}">
-            <span class="hidden-xs">Dial String</span>
+            <span>Dial String</span>
         </a>
     </li>
     @if( User::checkCategoryPermission('DialStrings','Upload') )
-    <li><a href="{{URL::to('/dialstrings/'.$id.'/upload')}}"> <span
-                    class="hidden-xs">Upload</span>
+    <li><a href="{{URL::to('/dialstrings/'.$id.'/upload')}}">
+            <span>Upload</span>
         </a></li>
     @endif
 </ul>
@@ -95,7 +95,7 @@
     @endif
     @if( User::checkCategoryPermission('DialStrings','Delete'))
     <button type="submit" id="delete-bulk-code" class="btn btn-danger btn-sm btn-icon icon-left">
-        <i class="entypo-cancel"></i>
+        <i class="entypo-trash"></i>
         Delete Selected
     </button>
     @endif
@@ -148,7 +148,7 @@ var postdata;
                 "bProcessing":true,
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/dialstrings/ajax_datagrid/type",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"ft_dialstring","value":$searchFilter.ft_dialstring},{"name":"ft_chargecode","value":$searchFilter.ft_chargecode},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_dialstringid","value":$searchFilter.ft_dialstringid},{"name":"ft_forbidden","value":$searchFilter.ft_forbidden});
                     data_table_extra_params.length = 0;
@@ -204,10 +204,10 @@ var postdata;
                                     action += '</div>';
 
                                     <?php if(User::checkCategoryPermission('DialStrings','Edit')){ ?>
-                                            action += '<a href="javascript:;" class="edit-dialstring btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                            action += ' <a href="javascript:;" title="Edit" class="edit-dialstring btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     <?php } ?>
                                             <?php if(User::checkCategoryPermission('DialStrings','Delete') ){ ?>
-                                            action += ' <a href="'+ delete_ +'" class="delete-dialstringcode btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                                            action += ' <a href="'+ delete_ +'" Title="Delete" class="delete-dialstringcode btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                                     <?php } ?>
 
                                             return action;

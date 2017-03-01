@@ -16,10 +16,11 @@ class IntegrationController extends \BaseController
     public function index()
 	{
 		$companyID  			= 	User::get_companyID();
-	    $GatewayConfiguration 	= 	IntegrationConfiguration::GetGatewayConfiguration();
-		$Gateway 				= 	Gateway::getGatWayList();		
+		$GatewayConfiguration 	= 	IntegrationConfiguration::GetGatewayConfiguration();
+		$Gateway 				= 	Gateway::getGatWayList();
 		$categories 			= 	Integration::where(["CompanyID" => $companyID,"ParentID"=>0])->orderBy('Title', 'asc')->get();
-		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway"));
+		$TaxLists =  TaxRate::where(["CompanyId" => $companyID, "Status" => 1])->get();
+		return View::make('integration.index', compact('categories',"companyID","GatewayConfiguration","Gateway","TaxLists"));
     }
 	
 	function Update(){
@@ -36,33 +37,47 @@ class IntegrationController extends \BaseController
             return json_validator_response($validator);
         }
 		
-		if($data['firstcategory']=='support')
-		{ 
-
-			if($data['secondcategory']=='freshdesk')
-			{			
+		if($data['firstcategory']=='support') {
+            if($data['secondcategory']=='FreshDesk') {
+                $FreshDeskDbData = IntegrationConfiguration::where(['CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']])->first();
 				$rules = array(
 					'FreshdeskDomain'	 => 'required',
 					'FreshdeskEmail'	 => 'required|email',
-					'FreshdeskPassword'  => 'required',
 					'Freshdeskkey'		 => 'required',
 				);
+				
+				$messages = [
+				 "FreshdeskDomain.required" => "The Domain field is required",
+				 "FreshdeskEmail.required" => "The email field is required",
+				 "Freshdeskkey.required" => "The key field is required",
+				 
+				];
+
+                if(count($FreshDeskDbData)==0){
+                    $rules['FreshdeskPassword'] = 'required';
+                    $messages['FreshdeskPassword.required'] = 'required';
+                }
 		
-				$validator = Validator::make($data, $rules);
+				$validator = Validator::make($data, $rules,$messages);
 		
 				if ($validator->fails()) {
 					return json_validator_response($validator);
 				}
-			}
+			
 			
 			$FreshdeskData = array(
 					"FreshdeskDomain"=>$data['FreshdeskDomain'],
 					"FreshdeskEmail"=>$data['FreshdeskEmail'],
-					"FreshdeskPassword"=>$data['FreshdeskPassword'],
 					"Freshdeskkey"=>$data['Freshdeskkey'],
 					"FreshdeskGroup"=>$data['FreshdeskGroup']
 					
 			);
+            if(count($FreshDeskDbData) > 0 && empty($data['FreshdeskPassword'])){
+                $setting = json_decode($FreshDeskDbData->Settings);
+                $FreshdeskData['FreshdeskPassword'] = $setting->FreshdeskPassword;
+            }else{
+                $FreshdeskData['FreshdeskPassword'] = $data['FreshdeskPassword'];
+            }
 			
 		  $data['Status'] = isset($data['Status'])?1:0;	
 		  if($data['Status']==1){ //disable all other support subcategories
@@ -70,27 +85,28 @@ class IntegrationController extends \BaseController
 				IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
 		   }
 			
-			$FreshDeskDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+			//$FreshDeskDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 			
-			if(count($FreshDeskDbData)>0)
-			{
+			if(count($FreshDeskDbData)>0) {
 				$SaveData = array("Settings"=>json_encode($FreshdeskData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
 				IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$FreshDeskDbData->IntegrationConfigurationID))->update($SaveData);	
-				
-			}
-			else
-			{	
-				$SaveData = array("Settings"=>json_encode($FreshdeskData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+            } else {
+				$SaveData = ["Settings"=>json_encode($FreshdeskData),
+                            "IntegrationID"=>$data['secondcategoryid'],
+                            "CompanyId"=>$companyID,
+                            "created_by"=> User::get_user_full_name(),
+                            "Status"=>$data['Status'],
+                            'ParentIntegrationID'=>$data['firstcategoryid']
+                ];
 			 	IntegrationConfiguration::create($SaveData);
-			}
+            }
 			 return Response::json(array("status" => "success", "message" => "FreshDesk Settings Successfully Updated"));
+			}
 		}
 		
-		if($data['firstcategory']=='payment')
-		{ 
+		if($data['firstcategory']=='payment'){
 
-			if($data['secondcategory']=='Authorize.net')
-			{
+			if($data['secondcategory']=='Authorize.net') {
 				$rules = array(
 					'AuthorizeLoginID'	 => 'required',
 					'AuthorizeTransactionKey'	 => 'required',
@@ -104,6 +120,11 @@ class IntegrationController extends \BaseController
 				
 				$data['Status'] 				= 	isset($data['Status'])?1:0;	
 				$data['AuthorizeTestAccount'] 	= 	isset($data['AuthorizeTestAccount'])?1:0;	
+				
+				 if($data['Status']==1){ //disable all other payment subcategories
+					$status =	array("Status"=>0);
+					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
+		  		 }
 				
 				$AuthorizeData = array(
 					"AuthorizeLoginID"=>$data['AuthorizeLoginID'],
@@ -127,20 +148,104 @@ class IntegrationController extends \BaseController
 				}
 				 return Response::json(array("status" => "success", "message" => "Authorize.net Settings Successfully Updated"));
 			}
+			
+			if($data['secondcategory']=='Paypal')
+			{
+				$rules = array(
+					'PaypalEmail'	 => 'required|email',
+					//'PaypalLogoUrl'	 => 'required',
+				);
+		
+				$validator = Validator::make($data, $rules);
+		
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+				
+				$data['Status'] 		= 	isset($data['Status'])?1:0;	
+				$data['PaypalLive'] 	= 	isset($data['PaypalLive'])?1:0;	
+				
+				 if($data['Status']==1){ //disable all other payment subcategories
+					$status =	array("Status"=>0);
+					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
+		  		 }
+				
+				$PaypalData = array(
+					"PaypalEmail"=>$data['PaypalEmail'],
+					"PaypalLogoUrl"=>$data['PaypalLogoUrl'],
+					"PaypalLive"=>$data['PaypalLive']					
+					);
+			
+				$PaypalDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+			
+				if(count($PaypalDbData)>0)
+				{
+						$SaveData = array("Settings"=>json_encode($PaypalData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$PaypalDbData->IntegrationConfigurationID))->update($SaveData);	
+						
+				}
+				else
+				{	
+						$SaveData = array("Settings"=>json_encode($PaypalData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						IntegrationConfiguration::create($SaveData);
+				}
+				 return Response::json(array("status" => "success", "message" => "Paypal Settings Successfully Updated"));
+			}
+
+			if($data['secondcategory']=='Stripe')
+			{
+				$rules = array(
+					'SecretKey'	 => 'required',
+					'PublishableKey'	 => 'required',
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['Status'] 		= 	isset($data['Status'])?1:0;
+
+				if($data['Status']==1){ //disable all other payment subcategories
+					$status =	array("Status"=>0);
+					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
+				}
+
+				$StripeData = array(
+					"SecretKey"=>$data['SecretKey'],
+					"PublishableKey"=>$data['PublishableKey']
+				);
+
+				$StripeDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($StripeDbData)>0)
+				{
+					$SaveData = array("Settings"=>json_encode($StripeData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$StripeDbData->IntegrationConfigurationID))->update($SaveData);
+
+				}
+				else
+				{
+					$SaveData = array("Settings"=>json_encode($StripeData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "Stripe Settings Successfully Updated"));
+			}
 		}
 		
-		if($data['firstcategory']=='email')
-		{ 
+		if($data['firstcategory']=='email') {
+            if($data['secondcategory']=='Mandrill') {
+                $MandrilDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 
-			if($data['secondcategory']=='Mandrill')
-			{
 				$rules = array(
 					'MandrilSmtpServer'	 => 'required',
 					'MandrilPort'	 => 'required',					
-					'MandrilUserName'	 => 'required',
-					'MandrilPassword'	 => 'required',
+					'MandrilUserName'	 => 'required'
 				);
-		
+                if(count($MandrilDbData)==0){
+                    $rules['MandrilPassword'] = 'required';
+                }
 				$validator = Validator::make($data, $rules);
 		
 				if ($validator->fails()) {
@@ -154,20 +259,21 @@ class IntegrationController extends \BaseController
 					"MandrilSmtpServer"=>$data['MandrilSmtpServer'],
 					"MandrilPort"=>$data['MandrilPort'],
 					"MandrilUserName"=>$data['MandrilUserName'],
-					"MandrilPassword"=>$data['MandrilPassword'],
 					"MandrilSSL"=>$data['MandrilSSL'],					
 					);
-			
+                if(count($MandrilDbData)>0 && empty($data['MandrilPassword'])){
+                    $setting = json_decode($MandrilDbData->Settings);
+                    $MandrilData['MandrilPassword'] = $setting->MandrilPassword;
+                }else{
+                    $MandrilData['MandrilPassword'] = $data['MandrilPassword'];
+                }
 				 
-				$MandrilDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+				//$MandrilDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
 			
-				if(count($MandrilDbData)>0)
-				{
+				if(count($MandrilDbData)>0) {
 						$SaveData = array("Settings"=>json_encode($MandrilData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
 						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$MandrilDbData->IntegrationConfigurationID))->update($SaveData);						
-				}
-				else
-				{	
+				} else {
 						$SaveData = array("Settings"=>json_encode($MandrilData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
 						IntegrationConfiguration::create($SaveData);
 				}
@@ -217,6 +323,211 @@ class IntegrationController extends \BaseController
 				}
 				 return Response::json(array("status" => "success", "message" => "AmazonS3 Settings Successfully Updated"));
 			}
-		}		
+
+		}	
+		
+		if($data['firstcategory']=='emailtracking')
+		{ 
+			if($data['secondcategory']=='IMAP')
+			{
+                $TrackingDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+				$rules = array(
+					'EmailTrackingEmail'	 => 'required|email',
+					//'EmailTrackingName'	 => 'required',					
+					'EmailTrackingServer'	 => 'required',					
+					//'EmailTrackingPassword'	 => 'required',
+				);
+                if(count($TrackingDbData)==0){
+                    $rules['EmailTrackingPassword'] = 'required';
+                }
+				$validator = Validator::make($data, $rules);
+		
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+				
+				$data['Status'] 	= 	isset($data['Status'])?1:0;	
+				
+				$TrackingData = array(
+					"EmailTrackingEmail"=>$data['EmailTrackingEmail'],
+					//"EmailTrackingName"=>$data['EmailTrackingName'],					
+					"EmailTrackingServer"=>$data['EmailTrackingServer'],
+					"EmailTrackingPassword"=>$data['EmailTrackingPassword'],
+					);
+
+                if(count($TrackingDbData)>0 && empty($data['EmailTrackingPassword'])){
+                    $setting = json_decode($TrackingDbData->Settings);
+                    $TrackingData['EmailTrackingPassword'] = $setting->EmailTrackingPassword;
+                }else{
+                    $TrackingData['EmailTrackingPassword'] = $data['EmailTrackingPassword'];
+                }
+				 
+				//$TrackingDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+			
+				if(count($TrackingDbData)>0) {
+						$SaveData = array("Settings"=>json_encode($TrackingData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$TrackingDbData->IntegrationConfigurationID))->update($SaveData);						
+				} else {
+						$SaveData = array("Settings"=>json_encode($TrackingData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);						
+						IntegrationConfiguration::create($SaveData);
+				}
+				 return Response::json(array("status" => "success", "message" => "Tracking Email Settings Successfully Updated"));
+			}
+		}
+
+		if($data['firstcategory']=='calendar')
+		{ 
+			if($data['secondcategory']=='Exchange')
+			{
+                $outlookcalendarDBData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+				$rules = array(
+					'OutlookCalendarEmail'	 => 'required|email',
+					'OutlookCalendarServer'	 => 'required',					
+					//'OutlookCalendarPassword'	 => 'required',
+				);
+
+				$messages = [
+							 "OutlookCalendarEmail.required" => "The exchange email field is required",
+							 "OutlookCalendarServer.required" => "The exchange server field is required",
+							 //"OutlookCalendarPassword.required" => "The exchange password field is required"
+							];
+                if(count($outlookcalendarDBData)==0){
+                    $rules['OutlookCalendarPassword'] = 'required';
+                    $messages['OutlookCalendarPassword.required'] = 'The exchange password field is required';
+                }
+					
+				$validator = Validator::make($data, $rules,$messages);
+		
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+				
+				$data['Status'] 	= 	isset($data['Status'])?1:0;	
+				
+				$outlookcalendarData = array(
+					"OutlookCalendarEmail"=>$data['OutlookCalendarEmail'],
+					"OutlookCalendarServer"=>$data['OutlookCalendarServer'],
+					);
+
+                if(count($outlookcalendarDBData)>0 && empty($data['OutlookCalendarPassword'])){
+                    $setting = json_decode($outlookcalendarDBData->Settings);
+                    $outlookcalendarData['OutlookCalendarPassword'] = $setting->OutlookCalendarPassword;
+                }else{
+                    $outlookcalendarData['OutlookCalendarPassword'] = $data['OutlookCalendarPassword'];
+                }
+				 
+				$outlookcalendarDBData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+			
+				if(count($outlookcalendarDBData)>0) {
+						$SaveData = array("Settings"=>json_encode($outlookcalendarData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+						IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$outlookcalendarDBData->IntegrationConfigurationID))->update($SaveData);						
+				}else{	
+						$SaveData = array("Settings"=>json_encode($outlookcalendarData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);						
+						IntegrationConfiguration::create($SaveData);
+				}
+				 return Response::json(array("status" => "success", "message" => "Exchange Calendar Successfully Updated"));
+            }
+        }
+
+		if($data['firstcategory']=='accounting')
+		{
+            if($data['secondcategory']=='QuickBook') {
+                $QuickBookDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+				$rules = array(
+					'QuickBookLoginID'	  => 'required',
+					//'QuickBookPassqord'	  => 'required',
+					//'OauthConsumerKey'	  => 'required',
+					//'OauthConsumerSecret' => 'required',
+					//'AppToken' => 'required',
+				);
+
+                if(count($QuickBookDbData)==0){
+                    $rules['QuickBookPassqord'] = 'required';
+                }
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$QuickBook=CompanyConfiguration::get('QUICKBOOK');
+				$QuickBook = json_decode($QuickBook,true);
+				if(empty($QuickBook['OauthConsumerKey']) || empty($QuickBook['OauthConsumerSecret']) || empty($QuickBook['AppToken'])){
+					return Response::json(array("status" => "failed", "message" => "Please Check QuickBook Configuration", "quickbookredirect" =>1));
+				}
+
+				$data['Status'] 				= 	isset($data['Status'])?1:0;
+				$data['QuickBookSandbox'] 	= 	isset($QuickBook['Sandbox'])?1:0;
+				$data['InvoiceAccount'] 	= 	isset($data['InvoiceAccount'])?$data['InvoiceAccount']:'';
+				$data['PaymentAccount'] 	= 	isset($data['PaymentAccount'])?$data['PaymentAccount']:'';
+				$data['OauthConsumerKey'] = $QuickBook['OauthConsumerKey'];
+				$data['OauthConsumerSecret'] = $QuickBook['OauthConsumerSecret'];
+				$data['AppToken'] = $QuickBook['AppToken'];
+
+				/*
+				$QuickBookData = array(
+					"QuickBookLoginID"=>$data['QuickBookLoginID'],
+					"QuickBookPassqord"=>$data['QuickBookPassqord'],
+					"OauthConsumerKey"=>$data['OauthConsumerKey'],
+					"OauthConsumerSecret"=>$data['OauthConsumerSecret'],
+					"AppToken"=>$data['AppToken'],
+					"QuickBookSandbox"=>$data['QuickBookSandbox'],
+					"InvoiceAccount"=>$data['InvoiceAccount'],
+					"PaymentAccount"=>$data['PaymentAccount'],
+					"ExtraTax"=>$data['ExtraTax'],
+					"GST"=>$data['GST'],
+					"ItemTax"=>$data['ItemTax'],
+					"TestTax"=>$data['TestTax']
+				); */
+
+				$QuickBookData = array();
+				$QuickBookData = $data;
+				unset($QuickBookData['firstcategory']);
+				unset($QuickBookData['secondcategory']);
+				unset($QuickBookData['firstcategoryid']);
+				unset($QuickBookData['secondcategoryid']);
+				unset($QuickBookData['Status']);
+                if(count($QuickBookDbData)>0 && empty($QuickBookData['QuickBookPassqord'])){
+                    $setting = json_decode($QuickBookDbData->Settings);
+                    $QuickBookData['QuickBookPassqord'] = $setting->QuickBookPassqord;
+                }
+
+				//$QuickBookDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($QuickBookDbData)>0) {
+					$SaveData = array("Settings"=>json_encode($QuickBookData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$QuickBookDbData->IntegrationConfigurationID))->update($SaveData);
+
+				} else {
+					$SaveData = array("Settings"=>json_encode($QuickBookData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "QuickBook Settings Successfully Updated", "quickbookredirect" =>1));
+
+			}
+		}
 	}
+	
+	function CheckImapConnection(){
+		$data 			 = 	Input::all();
+		$companyID  	 = 	User::get_companyID();
+		
+		$rules = array(
+			'EmailTrackingEmail'	 => 'required|email',
+			'EmailTrackingServer'	 => 'required',					
+			'EmailTrackingPassword'	 => 'required',				
+		);
+
+		$validator = Validator::make($data, $rules);
+	
+		if ($validator->fails()) {
+			return json_validator_response($validator);
+		}
+	
+		$ImapResult =   Imap::CheckConnection($data['EmailTrackingServer'],$data['EmailTrackingEmail'],$data['EmailTrackingPassword']); Log::info(print_r($ImapResult));
+		 
+		return Response::json($ImapResult);
+	}
+
 }

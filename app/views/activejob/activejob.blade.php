@@ -22,7 +22,7 @@
                 var JobID = $(this).attr('data-id');
                 var PID = $(this).attr('data-pid');
                 var form = $('#Terminate-form');
-                form.find('[name="JobStatusID"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                form.find('[name="JobStatusID"]').val('').trigger("change");
                 form.find('[name="message"]').val('');
                 form.find('[name="JobID"]').val(JobID);
                 form.find('[name="PID"]').val(PID);
@@ -101,7 +101,7 @@
                             <div class="form-Group">
                                 <label class="col-sm-3 control-label">Change Status To</label>
                                 <div class="col-sm-9">
-                                    {{Form::select('JobStatusID',$JobStatus,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('JobStatusID',$JobStatus,'',array("class"=>"select2 small"))}}
                                     <input type="hidden" name="JobID" />
                                     <input type="hidden" name="PID" />
                                     <input type="hidden" name="jobtype" />

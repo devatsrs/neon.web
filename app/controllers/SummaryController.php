@@ -8,7 +8,8 @@ class SummaryController extends \BaseController {
         $data['iDisplayStart'] +=1;
         $extra_field = '';
         $userID = User::get_userID();
-        $isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        //$isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        $isAdmin 					= 	(User::is_admin())?1:0;
         $columns = array('AccountName','AreaPrefix','Country','Description','NoOfCalls','TotalDuration','TotalDuration','TotalCharges');
         $companyID = User::get_companyID();
         $pr_name = 'call prc_getSummaryReportByPrefix (';
@@ -38,11 +39,11 @@ class SummaryController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Summery Report By '.$export_sheet.'.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Summery Report By '.$export_sheet.'.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Summery Report By '.$export_sheet.'.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Summery Report By '.$export_sheet.'.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -106,7 +107,8 @@ class SummaryController extends \BaseController {
 
         $data['iDisplayStart'] +=1;
         $userID = User::get_userID();
-        $isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        //$isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        $isAdmin 					= 	(User::is_admin())?1:0;
         $columns = array('AccountName','SalesDate','NoOfCalls','TotalDuration','TotalDuration','TotalCharges');
         $sort_column = $columns[$data['iSortCol_0']];
         $companyID = User::get_companyID();

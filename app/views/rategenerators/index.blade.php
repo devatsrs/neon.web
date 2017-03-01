@@ -2,83 +2,63 @@
 
 @section('content')
 <ol class="breadcrumb bc-3">
-    <li>
-        <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a>
-    </li>
-    <li class="active">
-        <strong>Rate Generator</strong>
-    </li>
+  <li> <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
+  <li class="active"> <strong>Rate Generator</strong> </li>
 </ol>
-
-
 <h3>Rate Generator </h3>
-<div class="float-right">
-@if(User::checkCategoryPermission('RateGenerator','Add'))
-    <a href="{{URL::to('rategenerators/create')}}" class="btn add btn-primary btn-sm btn-icon icon-left">
-        <i class="entypo-floppy"></i>
-        Add New
-    </a>
-@endif
-
-</div>
+<div class="float-right"> @if(User::checkCategoryPermission('RateGenerator','Add')) <a href="{{URL::to('rategenerators/create')}}" class="btn add btn-primary btn-sm btn-icon icon-left"> <i class="entypo-floppy"></i> Add New </a> @endif </div>
 <br>
 <br>
 <div class="row">
-    <div class="col-md-12">
-        <form id="rategenerator_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-            <div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Filter
-                    </div>
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Active</label>
-                        <div class="col-sm-2">
-                            <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
-                            {{ Form::select('Active', $active, 1, array("class"=>"form-control selectboxit")) }}
-                        </div>
-                    </div>
-                    <p style="text-align: right;">
-                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
-                            <i class="entypo-search"></i>
-                            Search
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </form>
-    </div>
+  <div class="col-md-12">
+    <form id="rategenerator_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
+      <div class="panel panel-primary" data-collapsed="0">
+        <div class="panel-heading">
+          <div class="panel-title"> Filter </div>
+          <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="Search" class="col-sm-1 control-label">Name</label>
+            <div class="col-sm-2">
+              <input class="form-control" name="Search" id="Search"  type="text" >
+            </div>  
+            <label for="Active" class="col-sm-1 control-label">Trunk</label>
+            <div class="col-sm-2">
+              {{ Form::select('Trunk', $Trunks, 1, array("class"=>"form-control select2 small","id"=>"Trunk")) }}
+               </div>            
+            <label for="Active" class="col-sm-1 control-label">Active</label>
+            <div class="col-sm-2">
+              <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
+              {{ Form::select('Active', $active, 1, array("class"=>"form-control select2 small","id"=>"Active")) }}
+               </div>
+          </div>
+          <p style="text-align: right;">
+            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
+          </p>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
-
-
 <br>
-
 <div class=" clear row">
-    <div class="col-md-12">
-        <table class="table table-bordered datatable" id="table-4">
-            <thead>
-                <tr>
-                    <th width="25%">Name</th>
-                    <th width="25%">Trunk</th>
-                    <th width="10%">Currency</th>
-                    <th width="10%">Status</th>
-                    <th width="25%">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-
-
-
-    </div>
+  <div class="col-md-12">
+    <table class="table table-bordered datatable" id="table-4">
+      <thead>
+        <tr>
+          <th width="25%">Name</th>
+          <th width="25%">Trunk</th>
+          <th width="10%">Currency</th>
+          <th width="10%">Status</th>
+          <th width="25%">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
 </div>
-
 <script type="text/javascript">
     var $searchFilter = {};
     var data_table = '';
@@ -87,15 +67,18 @@
         $('#rategenerator_filter').submit(function(e) {
             e.preventDefault();
             $searchFilter.Active = $('#rategenerator_filter [name="Active"]').val();
+			$searchFilter.Search = $('#rategenerator_filter [name="Search"]').val();
+			$searchFilter.Trunk  = $('#rategenerator_filter [name="Trunk"]').val();
+			
             data_table = $("#table-4").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
                 "bServerSide": true,
                 "sAjaxSource": baseurl + "/rategenerators/ajax_datagrid",
                 "fnServerParams": function (aoData) {
-                    aoData.push({ "name": "Active", "value": $searchFilter.Active });
+                    aoData.push({ "name": "Active", "value": $searchFilter.Active },{ "name": "Search", "value": $searchFilter.Search },{ "name": "Trunk", "value": $searchFilter.Trunk });
                 },
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[3, "desc"]],
@@ -121,10 +104,10 @@
                             var status_link = active_ = "";
                             if (full[3] == "1") {
                                 active_ = "{{ URL::to('/rategenerators/{id}/change_status/0')}}";
-                                status_link = ' <button href="' + active_ + '"  class="btn change_status btn-danger btn-sm" data-loading-text="Loading...">Deactivate</button>';
+                                status_link = ' <a title="Deactivate" href="' + active_ + '"  class="btn btn-default change_status btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-minus-circled"></i></a>';
                             } else {
                                 active_ = "{{ URL::to('/rategenerators/{id}/change_status/1')}}";
-                                status_link = ' <button href="' + active_ + '"    class="btn change_status btn-success btn-sm " data-loading-text="Loading...">Activate</button>';
+                                status_link = ' <a title="Activate" href="' + active_ + '"    class="btn btn-default change_status btn-success btn-sm" data-loading-text="Loading..."><i class="entypo-check"></i></a>';
                             }
 
 
@@ -136,16 +119,17 @@
                             action = '';
 
                             <?php if(User::checkCategoryPermission('RateGenerator','Edit')) { ?>
-                            action += '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a> '
+                            action += ' <a title="Edit" href="' + edit_ + '" class="btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a> '
                             action += status_link;
+							
+							 @if(User::checkCategoryPermission('RateGenerator','Delete'))
+                                action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn btn-default btn-sm  delete btn-danger"><i class="entypo-trash"></i></a> '
+                            @endif
                             if (full[3] == 1) { /* When Status is 1 */
                                 action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Generate Rate Table <span class="caret"></span></button>'
                                 action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + generate_new_rate_table_ + '" class="generate_rate create" >Create New Rate Table</a></li><li><a href="' + update_existing_rate_table_ + '" class="generate_rate update" data-trunk="' + full[5] + '" data-codedeck="' + full[6] + '" data-currency="' + full[7] + '">Update Existing Rate Table</a></li></ul></div>';
                             }
-                            <?php } ?>
-                            @if(User::checkCategoryPermission('RateGenerator','Delete'))
-                                action += ' <a href="' + delete_ + '" data-redirect="{{URL::to("rategenerators")}}" data-id = '+id+'  class="btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete</a> '
-                            @endif
+                            <?php } ?>                            
                             return action;
                         }
                     },
@@ -158,6 +142,7 @@
                             "sUrl": baseurl + "/rategenerators/exports/xlsx",
                             sButtonClass: "save-collection btn-sm"
                         },
+
                         {
                             "sExtends": "download",
                             "sButtonText": "CSV",
@@ -203,8 +188,12 @@
                         e.preventDefault();
                         $('#update-rate-generator-form').trigger("reset");
                         $('#modal-update-rate').modal('show', {backdrop: 'static'});
+                        $('.radio-replace').removeClass('checked');
+                        $('#defaultradiorate').addClass('checked');
                         $('#RateTableIDid').hide();
                         $('#RateTableNameid').show();
+                        $('#RateTableReplaceRate').hide();
+                        $('#RateTableEffectiveRate').show();
                         $('#modal-update-rate h4').html('Generate Rate Table');
                         update_rate_table_url = $(this).attr("href");
 
@@ -260,8 +249,8 @@
 
                     $("#modal-update-rate #DropdownRateTableID").html('');
                     $("#modal-update-rate #DropdownRateTableID").html(response);
-                    $("#modal-update-rate #DropdownRateTableID select.selectboxit").addClass('visible');
-                    $("#modal-update-rate #DropdownRateTableID select.selectboxit").selectBoxIt();
+                    $("#modal-update-rate #DropdownRateTableID select.select2").addClass('visible');
+                    $("#modal-update-rate #DropdownRateTableID select.select2").select2();
 
                 },
                 // Form data
@@ -274,7 +263,13 @@
             * Submit and Generate Joblog
             * */
             update_rate_table_url = $(this).attr("href");
+
+            $('.radio-replace').removeClass('checked');
+            $('#defaultradiorate').addClass('checked');
+
             $('#RateTableIDid').show();
+            $('#RateTableReplaceRate').show();
+            $('#RateTableEffectiveRate').show();
             $('#RateTableNameid').hide();
             $('#modal-update-rate h4').html('Update Rate Table');
         });
@@ -330,6 +325,7 @@
                             toastr.error(response.message, "Error", toastr_opts);
                         }
                         $(".save.TrunkSelect").button('reset');
+
 
                     },
                     // Form data
@@ -435,107 +431,14 @@
         }
     });
 
-</script>
+</script> 
 @include('includes.errors')
-@include('includes.success')
+@include('includes.success') 
 
-<!--Only for Delete operation-->
+<!--Only for Delete operation--> 
 @include('includes.ajax_submit_script', array('formID'=>'' , 'url' => ('')))
 @stop
 @section('footer_ext')
 @parent
-<div class="modal fade" id="modal-update-rate" data-backdrop="static">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <form id="update-rate-generator-form" method="post" >
-
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Update Rate Table</h4>
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="row" id="RateTableIDid">
-                        <div class="col-md-12">
-
-                            <div class="form-group">
-                                <label for="field-4" class="control-label">Select Rate Table</label>
-                                <div id="DropdownRateTableID">
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <div class="row" id="RateTableNameid">
-                        <div class="col-md-12">
-                            <div class="form-group" >
-                                <label for="field-4" class="control-label">Rate Table Name</label>
-                                <input type="text" name="RateTableName" class="form-control"  value="" />
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group" >
-                                <label for="field-4" class="control-label">Effective Date</label>
-                                <input type="text" name="EffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}"  data-date-format="yyyy-mm-dd" value="" />
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <input type="hidden" name="RateGeneratorID" value="">
-                    <button type="submit"  class="save TrunkSelect btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                        <i class="entypo-floppy"></i>
-                        Ok
-                    </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modal-delete-rategenerator" data-backdrop="static">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <form id="delete-rate-generator-form" method="post" >
-
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Delete Rate Generator cron job</h4>
-                </div>
-
-                <div class="modal-body">
-                    <div class="container col-md-12"></div>
-                </div>
-
-                <div class="modal-footer">
-                    <input type="hidden" name="RateGeneratorID" value="">
-                    <button id="rategenerator-select"  class="save TrunkSelect btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                        <i class="entypo-cancel"></i>
-                        Delete
-                    </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+@include('rategenerators.rategenerator_models')
 @stop

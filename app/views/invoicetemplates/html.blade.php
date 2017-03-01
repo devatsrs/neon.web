@@ -5,13 +5,12 @@
            <img src="{{$logo}}" alt="Company Logo" title="Company Logo" style="max-width: 250px">
         </td>
         <td class="col-md-6 text-right" valign="top">
-            <br>
            <strong>Invoice From:</strong>
            @if(isset($editable))
-           <p><a href="#" id="InvoiceTemplateHeader" title="Invoice Header Content" data-inputclass="editable-textarea" class="invoice-editable form-control autogrow " style="height: auto" data-name="Header" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="Header">@if(trim($InvoiceTemplate->Header)=='')Invoice Company Name {{PHP_EOL}}Address {{PHP_EOL}}Country {{PHP_EOL}}Email @else{{($InvoiceTemplate->Header)}}@endif</a></p>
+           <p><a href="#" id="InvoiceTemplateHeader" title="Invoice Header Content" data-inputclass="editable-textarea" class="invoice-editable form-control autogrow " style="height: auto" data-name="Header" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="Header">{{($InvoiceTemplate->Header)}}</a></p>
            <h3><a href="#" style="display: none;" id="InvoiceTemplateName" data-placeholder="Press Ctrl + Enter to save" class="invoice-editable form-control" data-name="Name" data-type="text" title="Template Name">{{$InvoiceTemplate->Name}}</a></h3>
            @else
-           <p>@if(empty($InvoiceTemplate->Header))Invoice Company Name {{PHP_EOL}}Address {{PHP_EOL}}Country {{PHP_EOL}}Email @else{{nl2br($InvoiceTemplate->Header)}}@endif</p>
+           <p>{{nl2br($InvoiceTemplate->Header)}}</p>
            @endif
         </td>
     </tr>
@@ -21,7 +20,7 @@
         <table border="0" width="100%" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="col-md-6"  valign="top" >
-                        <br>
+                		<br>
                         <strong>Invoice To</strong>
                         <p>John Doe
                         <br />
@@ -30,9 +29,9 @@
                         FoodMaster Ltd</p>
                 </td>
                 <td class="col-md-6 text-right"  valign="top" >
-                        <p><b>Invoice No: </b>{{$InvoiceTemplate->InvoiceNumberPrefix.$InvoiceTemplate->InvoiceStartNumber}}</p>
-                        <p><b>Invoice Date: </b>{{date('d-m-Y')}}</p>
-                        <p><b>Due Date: </b>{{date('d-m-Y',strtotime('+5 days'))}}</p>
+                        <p><b>Invoice No: </b>{{$InvoiceTemplate->InvoiceNumberPrefix.$InvoiceTemplate->InvoiceStartNumber}}<br>
+                        <b>Invoice Date: </b>{{date('d-m-Y')}}<br>
+                        <b>Due Date: </b>{{date('d-m-Y',strtotime('+5 days'))}}</p>
                  </td>
                 </tr>
                 <tr>
@@ -94,7 +93,7 @@
                   <thead>
                   <tr>
                       <th style="text-align: center;">Title</th>
-                      <th style="text-align: center;">Description</th>
+                      <th style="text-align: left;">Description</th>
                       <th style="text-align: center;">Quantity</th>
                       <th style="text-align: center;">Price</th>
                       <th style="text-align: center;">Line Total</th>
@@ -106,7 +105,7 @@
                   <tbody>
                   <tr>
                       <td style="text-align: center;"  >Item 1</td>
-                      <td style="text-align: center;" >Item Description</td>
+                      <td style="text-align: left;" >Item Description</td>
                       <td style="text-align: center;" >2</td>
                       <td style="text-align: center;" >25</td>
                       <td style="text-align: center;" >50</td>
@@ -154,11 +153,9 @@
  @section('terms')
 
     @if(isset($editable))
-        <p><a href="#" id="InvoiceTemplateTerms" class="invoice-editable form-control" style="height: auto" data-name="Terms" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="Terms">@if(trim($InvoiceTemplate->Terms)=='')Edit This dummy Terms and Condition. Please carefully review the following basic rules that govern your use of the Website. Please note that your use of the Website constitutes your unconditional agreement to follow and be bound by these Terms and Conditions of Use. If you (the "User") do not agree to them, do not use the Website, provide any materials to the Website or download any materials from them. @else{{$InvoiceTemplate->Terms}}@endif</a></p>
+        <p><a href="#" id="InvoiceTemplateTerms" class="invoice-editable form-control" style="height: auto" data-name="Terms" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="Terms">{{$InvoiceTemplate->Terms}}</a></p>
     @else
-        <p>@if(trim($InvoiceTemplate->Terms)=='')Edit This dummy Terms and Condition. Please carefully review the following basic rules that govern your use of the Website. Please note that your use of the Website constitutes your unconditional agreement to follow and be bound by these Terms and Conditions of Use. If you (the "User") do not agree to them, do not use the Website, provide any materials to the Website or download any materials from them.
-            @else {{nl2br($InvoiceTemplate->Terms)}}@endif
-        </p>
+        <p>{{nl2br($InvoiceTemplate->Terms)}}</p>
     @endif
  @stop
 
@@ -169,11 +166,9 @@
             <tr>
           <td>
      @if(isset($editable))
-         <p><a href="#" id="InvoiceTemplateFooter" class="invoice-editable form-control" style="height: auto" data-name="FooterTerm" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="FooterTerm">@if(trim($InvoiceTemplate->FooterTerm)=='')Edit This dummy Terms and Condition. Please carefully review the following basic rules that govern your use of the Website. Please note that your use of the Website constitutes your unconditional agreement to follow and be bound by these Terms and Conditions of Use. If you (the "User") do not agree to them, do not use the Website, provide any materials to the Website or download any materials from them. @else{{$InvoiceTemplate->FooterTerm}}@endif</a></p>
+         <p><a href="#" id="InvoiceTemplateFooter" class="invoice-editable form-control" style="height: auto" data-name="FooterTerm" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="FooterTerm">{{$InvoiceTemplate->FooterTerm}}</a></p>
      @else
-          @if(trim($InvoiceTemplate->FooterTerm)=='')Edit This dummy Terms and Condition. Please carefully review the following basic rules that govern your use of the Website. Please note that your use of the Website constitutes your unconditional agreement to follow and be bound by these Terms and Conditions of Use. If you (the "User") do not agree to them, do not use the Website, provide any materials to the Website or download any materials from them.
-             @else {{nl2br($InvoiceTemplate->FooterTerm)}}@endif
-
+          {{nl2br($InvoiceTemplate->FooterTerm)}}
      @endif
                 </td>
              </tr>
@@ -197,7 +192,7 @@
                 <thead>
                 <tr>
                     <th style="text-align: center;">Title</th>
-                    <th style="text-align: center;">Description</th>
+                    <th style="text-align: left;">Description</th>
                     <th style="text-align: center;">Price</th>
                     <th style="text-align: center;">Quantity</th>
                     <th style="text-align: center;">Date From</th>
@@ -208,7 +203,7 @@
                 <tbody>
                 <tr>
                     <td style="text-align: center;"  >Fubruary 1,2006</td>
-                    <td style="text-align: center;" >Usage From 22-06-2015 To 28-06-2015</td>
+                    <td style="text-align: left;" >Usage From 22-06-2015 To 28-06-2015</td>
                     <td style="text-align: center;" >25</td>
                     <td style="text-align: center;" >1</td>
                     <td style="text-align: center;" >12-12-2015</td>
@@ -217,13 +212,13 @@
                 </tr>
                 </tbody>
             </table>
-            <br><br><br>
+            <br>
             <h4>Call Charges</h4>
             <table border="1"  width="100%" cellpadding="0" cellspacing="0" class="invoice col-md-12 table table-bordered">
                 <thead>
                 <tr>
                     <th style="text-align: center;">Title</th>
-                    <th style="text-align: center;">Description</th>
+                    <th style="text-align: left;">Description</th>
                     <th style="text-align: center;">Price</th>
                     <th style="text-align: center;">Quantity</th>
                     <th style="text-align: center;">Date From</th>
@@ -234,7 +229,7 @@
                 <tbody>
                 <tr>
                     <td style="text-align: center;"  >Fubruary 1,2006</td>
-                    <td style="text-align: center;" >Usage From 22-06-2015 To 28-06-2015</td>
+                    <td style="text-align: left;" >Usage From 22-06-2015 To 28-06-2015</td>
                     <td style="text-align: center;" >25</td>
                     <td style="text-align: center;" >1</td>
                     <td style="text-align: center;" >12-12-2015</td>
@@ -243,13 +238,13 @@
                 </tr>
                 </tbody>
             </table>
-            <br><br><br>
+            <br>
             <h4>Additional Charges</h4>
             <table border="1"  width="100%" cellpadding="0" cellspacing="0" class="invoice col-md-12 table table-bordered">
                 <thead>
                 <tr>
                     <th style="text-align: center;">Title</th>
-                    <th style="text-align: center;">Description</th>
+                    <th style="text-align: left;">Description</th>
                     <th style="text-align: center;">Price</th>
                     <th style="text-align: center;">Quantity</th>
                     <th style="text-align: center;">Date</th>
@@ -259,7 +254,7 @@
                 <tbody>
                 <tr>
                     <td style="text-align: center;"  >Yealink</td>
-                    <td style="text-align: center;" >Yealink</td>
+                    <td style="text-align: left;" >Yealink</td>
                     <td style="text-align: center;" >25</td>
                     <td style="text-align: center;" >1</td>
                     <td style="text-align: center;" >12-12-2015</td>
@@ -267,10 +262,10 @@
                 </tr>
                 </tbody>
             </table>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-
+            
+<style>
+#pdf_footer table {
+	width:100%;
+}
+</style>
  @stop

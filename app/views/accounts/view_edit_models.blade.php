@@ -187,6 +187,7 @@
         </div>
         <div class="modal-footer">
           <input type="hidden" id="NoteID" name="NoteID" value="">
+          <input type="hidden" id="NoteType" name="NoteType" value="">
           <input type="hidden" id="KeyID" name="KeyID" value="">
           <button type="submit" id="note-edit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
@@ -208,7 +209,7 @@
             <div class="col-md-6 pull-left">
               <div class="form-group">
                 <label for="field-5" class="control-label col-sm-4">Task Status *</label>
-                <div class="col-sm-8"> {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($boards->BoardID),'',array("class"=>"selectboxit"))}} </div>
+                <div class="col-sm-8"> {{Form::select('TaskStatus',CRMBoardColumn::getTaskStatusList($boards->BoardID),'',array("class"=>"select2 small"))}} </div>
               </div>
             </div>
             @endif
@@ -287,5 +288,13 @@
                     </div>
             </div>
         </div>
+    </div>    
+    <div class="modal fade " id="EmailAction-model">
+     <form id="EmailActionform" method="post">     
+  <div class="modal-dialog EmailAction_box"  style="width: 70%;">
+    <div class="modal-content">     
     </div>
+  </div>
+   </form>
+</div>
 @stop

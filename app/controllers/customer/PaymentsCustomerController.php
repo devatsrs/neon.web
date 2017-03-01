@@ -50,11 +50,11 @@ class PaymentsCustomerController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Payment.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Payment.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Payment.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Payment.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -80,9 +80,9 @@ class PaymentsCustomerController extends \BaseController {
         $CurrencyId = Company::where("CompanyID", '=', $companyID)->pluck('CurrencyId');
         $currency = Currency::where('CurrencyId',$CurrencyId)->pluck('Code');
         $AccountID = User::get_userID();
-        $method = array(''=>'Select Method','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER');
-        $action = array(''=>'Select Action','Payment In'=>'Payment out','Payment Out'=>'Payment In');
-        $status = array(''=>'Select Status','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
+        $method = array(''=>'Select ','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER');
+        $action = array(''=>'Select ','Payment In'=>'Payment out','Payment Out'=>'Payment In');
+        $status = array(''=>'Select ','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
         return View::make('customer.payments.index', compact('id','currency','method','type','status','action','AccountID'));
 	}
 
@@ -128,6 +128,7 @@ class PaymentsCustomerController extends \BaseController {
                 $billingadminemails = User::where(["CompanyID" => $companyID, "Status" => 1])->whereIn('UserID', $userid)->get(['EmailAddress']);
 
                 foreach($PendingApprovalPayment as $billingemail){
+                    $billingemail = trim($billingemail);
                     if(filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
                         $data['EmailTo'] = $billingemail;
                         $status = sendMail('emails.admin.payment', $data);
@@ -135,6 +136,7 @@ class PaymentsCustomerController extends \BaseController {
                 }
 
                 foreach($billingadminemails as $billingadminemail){
+                    $billingadminemail = trim($billingadminemail);
                     if(filter_var($billingadminemail->EmailAddress, FILTER_VALIDATE_EMAIL)) {
                         $data['EmailTo'] = $billingadminemail->EmailAddress;
                         $status = sendMail('emails.admin.payment', $data);

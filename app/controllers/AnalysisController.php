@@ -12,21 +12,24 @@ class AnalysisController extends BaseController {
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
-        $isAdmin = User::is_admin();
+        $isAdmin = 1;
         $UserID  = User::get_userID();
         $where['Status'] = 1;
         $where['VerificationStatus'] = Account::VERIFIED;
         $where['CompanyID']=User::get_companyID();
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
+            $isAdmin = 0;
         }
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $Country = Country::getCountryDropdownIDList();
         $account = Account::getAccountIDList();
         $trunks = Trunk::getTrunkDropdownIDList();
         $currency = Currency::getCurrencyDropdownIDList();
+        $timezones = TimeZone::getTimeZoneDropdownList();
+        $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::get('MONITOR_DASHBOARD')));
 
-        return View::make('analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency'));
+        return View::make('analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones','MonitorDashboardSetting'));
     }
     /* all tab report */
     public function getAnalysisData(){
@@ -45,7 +48,15 @@ class AnalysisController extends BaseController {
             $query = "call prc_getTrunkReportAll ";
         }elseif($data['chart_type'] == 'gateway') {
             $query = "call prc_getGatewayReportAll ";
+        }elseif($data['chart_type'] == 'account') {
+            $query = "call prc_getAccountReportAll ";
         }
+        if(!empty($data['TimeZone'])) {
+            $CompanyTimezone = Config::get('app.timezone');
+            $data['StartDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['StartDate']);
+            $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
+        }
+
         $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
         $query .= ",2)";
         $TopReports = DataTableSql::of($query, 'neon_report')->getProcResult(array('CallCount','CallCost','CallMinutes'));
@@ -96,24 +107,41 @@ class AnalysisController extends BaseController {
         $companyID = User::get_companyID();
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
         $reponse = array();
+        if(!empty($data['TimeZone'])) {
+            $CompanyTimezone = Config::get('app.timezone');
+            $data['StartDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['StartDate']);
+            $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
+        }
         $report_type = get_report_type($data['StartDate'],$data['EndDate']);
         $query = "call prc_getReportByTime ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.")";
         $TopReports = DB::connection('neon_report')->select($query);
-        $category = $counts = $minutes = $cost = array();
+        $series = $category1 = $category2 = $category3 = array();
         $cat_index = 0;
         foreach($TopReports as $TopReport){
-            $category[$cat_index] = $TopReport->category;
-            $counts[$cat_index] = $TopReport->CallCount;
-            $minutes[$cat_index] = $TopReport->TotalMinutes;
-            $cost[$cat_index] = $TopReport->TotalCost;
+            $category1[$cat_index]['name'] = $TopReport->category;
+            $category1[$cat_index]['y'] = $TopReport->CallCount;
+
+            $category2[$cat_index]['name'] = $TopReport->category;
+            $category2[$cat_index]['y'] = $TopReport->TotalCost;
+
+            $category3[$cat_index]['name'] = $TopReport->category;
+            $category3[$cat_index]['y'] = $TopReport->TotalMinutes;
+
+            if($report_type != 1) {
+                $category1[$cat_index]['drilldown'] = $TopReport->category;
+                $category2[$cat_index]['drilldown'] = $TopReport->category;
+                $category3[$cat_index]['drilldown'] = $TopReport->category;
+            }
             $cat_index++;
         }
-        $reponse['categories'] = implode(',',$category);
-        $reponse['CallCount'] = implode(',',$counts);
-        $reponse['CallCost'] = implode(',',$cost);
-        $reponse['CallMinutes'] = implode(',',$minutes);
+        if(!empty($category1)) {
+            $series[] = array('name' => 'Call Count', 'data' => $category1, 'color' => '#3366cc');
+            $series[] = array('name' => 'Call Cost', 'data' => $category2, 'color' => '#ff9900');
+            $series[] = array('name' => 'Call Minutes', 'data' => $category3, 'color' => '#dc3912');
+        }
+        $reponse['series'] = $series;
         $reponse['Title'] = get_report_title($report_type);
-        return $reponse;
+        return json_encode($reponse,JSON_NUMERIC_CHECK);
 
 
 
@@ -124,6 +152,8 @@ class AnalysisController extends BaseController {
         $data['iDisplayStart'] +=1;
         $columns = array('Country','CallCount','TotalMinutes','TotalCost','ACD','ASR');
         $Trunk = Trunk::getTrunkName($data['TrunkID']);
+        $data['StartDate'] = empty($data['StartDate'])?date('Y-m-d 00:00:00'):$data['StartDate'];
+        $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59'):$data['EndDate'];
         $query = '';
         if($data['chart_type'] == 'destination') {
             $columns = array('Country','CallCount','TotalMinutes','TotalCost','ACD','ASR');
@@ -137,6 +167,14 @@ class AnalysisController extends BaseController {
         }elseif($data['chart_type'] == 'gateway') {
             $columns = array('Gateway','CallCount','TotalMinutes','TotalCost','ACD','ASR');
             $query = "call prc_getGatewayReportAll ";
+        }elseif($data['chart_type'] == 'account') {
+            $columns = array('AccountName','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $query = "call prc_getAccountReportAll ";
+        }
+        if(!empty($data['TimeZone'])) {
+            $CompanyTimezone = Config::get('app.timezone');
+            $data['StartDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['StartDate']);
+            $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
         }
         $sort_column = $columns[$data['iSortCol_0']];
 
@@ -145,11 +183,11 @@ class AnalysisController extends BaseController {
             $excel_data  = DB::connection('neon_report')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if ($type == 'csv') {
-                $file_path = getenv('UPLOAD_PATH') . '/'.ucfirst($data['chart_type']).'Reports.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') . '/'.ucfirst($data['chart_type']).'Reports.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             } elseif ($type == 'xlsx') {
-                $file_path = getenv('UPLOAD_PATH') . '/'.ucfirst($data['chart_type']).'Reports.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') . '/'.ucfirst($data['chart_type']).'Reports.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -171,7 +209,10 @@ class AnalysisController extends BaseController {
         $is_customer = Customer::get_currentUser()->IsCustomer;
         $is_vendor = Customer::get_currentUser()->IsVendor;
         $CurrencyID = Customer::get_currentUser()->CurrencyId;
-        return View::make('customer.analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','is_customer','is_vendor','CurrencyID'));
+        $timezones = TimeZone::getTimeZoneDropdownList();
+        $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::get('CUSTOMER_MONITOR_DASHBOARD')));
+
+        return View::make('customer.analysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','is_customer','is_vendor','CurrencyID','timezones','MonitorDashboardSetting'));
     }
     public function vendor_index(){
         $companyID = User::get_companyID();
@@ -187,7 +228,8 @@ class AnalysisController extends BaseController {
         $is_customer = Customer::get_currentUser()->IsCustomer;
         $is_vendor = Customer::get_currentUser()->IsVendor;
         $CurrencyID = Customer::get_currentUser()->CurrencyId;
-        return View::make('customer.analysis.vendorindex',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','is_customer','is_vendor','CurrencyID'));
+        $timezones = TimeZone::getTimeZoneDropdownList();
+        return View::make('customer.analysis.vendorindex',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','is_customer','is_vendor','CurrencyID','timezones'));
     }
 
 

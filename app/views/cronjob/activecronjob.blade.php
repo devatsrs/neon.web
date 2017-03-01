@@ -44,7 +44,7 @@
                     "bProcessing":true,
                     "bServerSide":true,
                     "sAjaxSource": baseurl + "/cronjobs/activecronjob_ajax_datagrid",
-                    "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                    "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "fnServerParams": function(aoData) {
@@ -70,7 +70,7 @@
                                         action += '<input type = "hidden"  name = "RunningHour" value = "' + (full[2] !== null ?full[2]:'')+ '" / >';
                                         action += '<input type = "hidden"  name = "LastRunTime" value = "' + (full[2] !== null ?full[2]:'')+ '" / >';
                                         action += '<input type = "hidden"  name = "CronJobID" value = "' + CronJobID + '" / >';
-                                        action += ' <a data-id="'+ CronJobID +'" data-pid="'+(full[1] !== null ?full[1]:'')+'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Terminate</a>';
+                                        action += ' <a data-id="'+ CronJobID +'" data-pid="'+(full[1] !== null ?full[1]:'')+'" class="delete-config btn btn-danger btn-sm"><i class="entypo-cancel"></i>Terminate</a>';
 
                                         return action;
                                     }

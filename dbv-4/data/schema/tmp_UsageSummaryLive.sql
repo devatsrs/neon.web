@@ -1,4 +1,5 @@
 CREATE TABLE `tmp_UsageSummaryLive` (
+  `UsageSummaryLiveID` int(11) NOT NULL AUTO_INCREMENT,
   `DateID` bigint(20) NOT NULL,
   `TimeID` int(11) NOT NULL,
   `CompanyID` int(11) NOT NULL,
@@ -14,7 +15,9 @@ CREATE TABLE `tmp_UsageSummaryLive` (
   `NoOfFailCalls` int(11) DEFAULT '0',
   `FinalStatus` int(11) DEFAULT '0',
   `CountryID` int(11) DEFAULT NULL,
-  KEY `tblUsageSummary_dim_date` (`DateID`),
+  PRIMARY KEY (`UsageSummaryLiveID`),
   KEY `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`),
-  KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`,`GatewayAccountID`,`CompanyGatewayID`,`Trunk`,`AreaPrefix`)
+  KEY `IX_CompanyID` (`CompanyID`),
+  KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`,`CompanyGatewayID`,`Trunk`,`AreaPrefix`),
+  KEY `tblUsageSummary_dim_date` (`DateID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

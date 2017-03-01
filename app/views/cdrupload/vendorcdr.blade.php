@@ -23,7 +23,7 @@
 <div  class="col-md-12">
     <div class="input-group-btn pull-right" style="width:70px;">
         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
             <li><a class="generate_rate create" id="bulk_clear_cdr" href="javascript:;" style="width:100%">
                     Bulk clear
                 </a>
@@ -48,17 +48,17 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
                     <div class="col-sm-2" style="width: 15%;">
-                        <input type="text" name="StartDate" class="form-control datepicker end_date"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                        <input type="text" name="StartDate" class="form-control datepicker end_date"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?substr(Input::get('StartDate'),0,10):'' }}" data-enddate="{{date('Y-m-d')}}" />
                     </div>
                     <div class="col-sm-1" style="padding: 0px; width: 11%;">
-                        <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker end_date">
+                        <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" value="{{Input::get('StartDate')!=null && strlen(Input::get('StartDate'))> 10 && substr(Input::get('StartDate'),11,8) != '00:00:00'?substr(Input::get('StartDate'),11,8):'00:00:00'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker end_date">
                     </div>
                     <label class="col-sm-2 control-label small_label" style="width: 9%;" for="field-1">End Date</label>
                     <div class="col-sm-2" style=" width: 15%;">
-                        <input type="text" name="EndDate" class="form-control datepicker end_date"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+                        <input type="text" name="EndDate" class="form-control datepicker end_date"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')!=null?substr(Input::get('EndDate'),0,10):'' }}" data-enddate="{{date('Y-m-d')}}" />
                     </div>
                     <div class="col-sm-1" style="padding: 0px; width: 11%;">
-                        <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker end_date">
+                        <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="{{Input::get('EndDate')!=null && strlen(Input::get('EndDate'))> 10?substr(Input::get('EndDate'),11,2).':59:59':'23:59:59'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker end_date">
                     </div>
                     <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
                     <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}} </div>
@@ -78,9 +78,10 @@
                     <div class="col-sm-2" style="width: 10%;" >
                         <input type="text" name="CLD" class="form-control "  value=""  />
                     </div>
-                    <label class="col-sm-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">Prefix</label>
-                    <div class="col-sm-2" style="width: 10%;">
-                        <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
+                    <label for="zerovaluebuyingcost" class="col-sm-1 control-label" style="padding-left: 0px; padding-right: 0px; width: 4%;">Show</label>
+                    <div class="col-sm-2">
+                        <?php $options = [0=>'All',1=>'Zero Cost',2=>'Non Zero Cost'] ?>
+                        {{ Form::select('zerovaluebuyingcost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                     </div>
                 </div>
                 <div class="form-group">
@@ -90,16 +91,15 @@
                         $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
                     }
                     ?>
+                    <label class="col-sm-1 control-label" for="field-1">Prefix</label>
+                    <div class="col-sm-2" style="width: 10%;">
+                        <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
+                    </div>
                     <label class="col-sm-1 control-label" for="field-1">Trunk</label>
                     <div class="col-sm-2">
                         {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                     </div>
-                    <label for="zerovaluebuyingcost" class="col-sm-1 control-label">Hide Zero Cost</label>
-                    <div class="col-sm-1" style="padding: 0px;">
-                        <p class="make-switch switch-small">
-                            <input id="zerovaluebuyingcost" name="zerovaluebuyingcost" type="checkbox">
-                        </p>
-                    </div>
+
                 </div>
               <p style="text-align: right;">
                 <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit"> <i class="entypo-search"></i> Search </button>
@@ -111,7 +111,7 @@
     </div>
       <p style="text-align: right;">
           @if(User::checkCategoryPermission('CDR','Delete') )
-              <button id="delete-vendor-cdr" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete</button>
+              <button id="delete-vendor-cdr" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete</button>
           @endif
               <form id="delete-vendor-cdr-form" >
                   <input type="hidden" name="VendorCDRIDs" />
@@ -202,7 +202,7 @@ var CurrencyCode = '';
 			$searchFilter.CLI 						= 		$("#cdr_filter [name='CLI']").val();
 			$searchFilter.CLD 						= 		$("#cdr_filter [name='CLD']").val();			
 			//$searchFilter.zerovaluesellingcost 		= 		$("#cdr_filter [name='zerovaluesellingcost']").prop("checked");			
-			$searchFilter.zerovaluebuyingcost 		= 		$("#cdr_filter [name='zerovaluebuyingcost']").prop("checked");
+			$searchFilter.zerovaluebuyingcost 		= 		$("#cdr_filter [name='zerovaluebuyingcost']").val();
 			$searchFilter.CurrencyID 				= 		$("#cdr_filter [name='CurrencyID']").val();
             $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
             $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
@@ -225,7 +225,7 @@ var CurrencyCode = '';
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid_vendorcdr/type",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push(
                             {"name":"StartDate","value":$searchFilter.StartDate},

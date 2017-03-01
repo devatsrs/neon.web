@@ -20,7 +20,7 @@
                 <p style="text-align: right;">
                     <a href="{{URL::to('/uploadtemplate/create')}}" class="btn btn-primary ">
                         <i class="entypo-plus"></i>
-                        Add New template
+                        Add New
                     </a>
                 </p>
             @endif
@@ -48,7 +48,7 @@
                             data_table_extra_params.push({"name":"Export","value":1});
 
                         },
-                        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[0, 'asc']],
@@ -64,10 +64,10 @@
                                     edit  = edit .replace( '{id}', id );
                                     var action = '';
                                     <?php if(User::checkCategoryPermission('UploadFileTemplate','Edit') ){ ?>
-                                        action += '<a href="'+edit+'" class="edit-config btn btn-default btn-sm btn-icon icon-left" data-name="Edit Template"><i class="entypo-pencil"></i>Edit </a>';
+                                        action += ' <a href="'+edit+'" title="Edit" class="edit-config btn btn-default btn-sm" data-name="Edit Template"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     <?php } ?>
                                     <?php if(User::checkCategoryPermission('UploadFileTemplate','Delete') ){ ?>
-                                        action += ' <a href="'+delete_+'" class="btn delete btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                                        action += ' <a href="'+delete_+'" title="Delete" class="btn delete btn-danger btn-default btn-sm"><i class="entypo-trash"></i></a>';
                                     <?php } ?>
                                     return action;
                                 }

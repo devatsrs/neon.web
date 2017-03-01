@@ -6,6 +6,9 @@
 .small_label{width:5.0%;}
 .col-sm-e2{width:15%;}
 .small-date-input{width:11%;}
+#selectcheckbox{
+    padding: 15px 10px;
+}
 </style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -21,7 +24,7 @@
             <div class="panel-title"> Filter </div>
             <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
           </div>
-          <div class="panel-body">
+          <div class="panel-body" id="paymentsearch">
             <div class="form-group">
               <label for="field-1" class="col-sm-1 control-label small_label">Account</label>
               <div class="col-sm-2 col-sm-e2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
@@ -30,9 +33,9 @@
                 <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
               </div>
               <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-              <div class="col-sm-2 "> {{ Form::select('Status', Payment::$status, (!empty(Input::get('Status'))?Input::get('Status'):'Pending Approval'), array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
+              <div class="col-sm-2 "> {{ Form::select('Status', Payment::$status, (!empty(Input::get('Status'))?Input::get('Status'):'Pending Approval'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
               <label for="field-1" class="col-sm-1 control-label small_label">Action</label>
-              <div class="col-sm-2 col-sm-e2"> {{ Form::select('type', Payment::$action, Input::get('Type'), array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
+              <div class="col-sm-2 col-sm-e2"> {{ Form::select('type', Payment::$action, Input::get('Type'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
                      <label class="col-sm-1 control-label">Recalled</label>
               <div class="col-sm-1">
                 <p class="make-switch switch-small">
@@ -48,7 +51,7 @@
                 <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')}}" data-enddate="{{date('Y-m-d')}}" />
               </div>
               <div class="col-sm-2  small-date-input">
-                <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
+                <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
               </div>
               <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">End Date</label>
               <div class="col-sm-2  small-date-input">
@@ -62,10 +65,10 @@
             <!--payment date end -->
                        
               <label for="field-1" class="col-sm-1 control-label" style="width: 6%;">Payment Method</label>
-              <div class="col-sm-2"> {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"selectboxit","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
+              <div class="col-sm-2"> {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
               
               <label for="field-1" class="col-sm-2 control-label" style="width: 7%;">Currency</label>
-            <div class="col-sm-2" style="padding:0; width: 14%;"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"selectboxit"))}} </div>
+            <div class="col-sm-2" style="padding:0; width: 14%;"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2 small"))}} </div>
        
             </div> 
             <p style="text-align: right;">
@@ -117,7 +120,7 @@
                       <input type="text" class="form-control" name="option[Escape]" value="" />
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">First row:</label>
-                    <div class="col-sm-4"> {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),'',array("class"=>"select2 small"))}} </div>
                   </div>
                   <p style="text-align: right;"> <br />
                     <br />
@@ -133,30 +136,30 @@
                 <div class="panel-body" id="mapping">
                   <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Account Name*</label>
-                    <div class="col-sm-4"> {{Form::select('selection[AccountName]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[AccountName]', array(),'',array("class"=>"select2 small"))}} </div>
                     <label for="field-1" class="col-sm-2 control-label">Payment Date*</label>
-                    <div class="col-sm-4"> {{Form::select('selection[PaymentDate]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[PaymentDate]', array(),'',array("class"=>"select2 small"))}} </div>
                   </div>
                   <div class="form-group"> <br />
                     <br />
                     <label for="field-1" class="col-sm-2 control-label">Payment Method*</label>
-                    <div class="col-sm-4"> {{Form::select('selection[PaymentMethod]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[PaymentMethod]', array(),'',array("class"=>"select2 small"))}} </div>
                     <label for="field-1" class="col-sm-2 control-label">Action*</label>
-                    <div class="col-sm-4"> {{Form::select('selection[PaymentType]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[PaymentType]', array(),'',array("class"=>"select2 small"))}} </div>
                   </div>
                   <div class="form-group"> <br />
                     <br />
                     <label for="field-1" class="col-sm-2 control-label">Amount*</label>
-                    <div class="col-sm-4"> {{Form::select('selection[Amount]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[Amount]', array(),'',array("class"=>"select2 small"))}} </div>
                     <label for="field-1" class="col-sm-2 control-label">Invoice</label>
-                    <div class="col-sm-4"> {{Form::select('selection[InvoiceNo]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[InvoiceNo]', array(),'',array("class"=>"select2 small"))}} </div>
                   </div>
                   <div class="form-group"> <br />
                     <br />
                     <label for="field-1" class="col-sm-2 control-label">Note</label>
-                    <div class="col-sm-4"> {{Form::select('selection[Notes]', array(),'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[Notes]', array(),'',array("class"=>"select2 small"))}} </div>
                     <label for=" field-1" class="col-sm-2 control-label">Date Format</label>
-                    <div class="col-sm-4"> {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"selectboxit"))}} </div>
+                    <div class="col-sm-4"> {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"select2 small"))}} </div>
                   </div>
                 </div>
               </div>
@@ -167,13 +170,15 @@
                 </div>
                 <div class="panel-body">
                   <div id="table-4_processing" class="dataTables_processing hidden">Processing...</div>
-                  <table class="table table-bordered datatable" id="tablemapping">
-                    <thead>
-                      <tr> </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                  </table>
+                    <div class="dataTables_wrapper">
+                      <table class="table table-bordered datatable" id="tablemapping">
+                        <thead>
+                          <tr> </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                    </div>
                 </div>
               </div>
               <p style="text-align: right;">
@@ -194,7 +199,7 @@
           <div  class="col-md-12">
               <div class="input-group-btn pull-right" style="width:70px;">
                   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       @if(User::can('Payments','Add'))
                       <li class="li_active">
                           <a id="add-new-payment" class="add-cli" type_ad="active" href="javascript:void(0);" >
@@ -281,9 +286,9 @@
                             );
 
                         },
-                        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
-                        "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                        "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[4, 'desc']],
                         "aoColumns": [
                             {
@@ -363,7 +368,7 @@
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';
-                                    action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                                    action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" title="View" class="view-payment btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                                     @if(User::is('BillingAdmin') || User::is_admin())
                                     if(full[7] != "Approved"){
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
@@ -374,7 +379,7 @@
                                     //action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                     <?php if(User::checkCategoryPermission('Payments','Recall')) {?>
                                     if(full[13]==0 && full[7]!='Rejected' ){
-                                        action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-ccw"></i>Recall </a>';
+                                        action += ' <a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-ccw"></i>Recall </a>';
                                     }
                                     <?php } ?>
                                     if(full[9]!= null){
@@ -405,6 +410,11 @@
                             $(".dataTables_wrapper select").select2({
                                 minimumResultsForSearch: -1
                             });
+                            if($('#Recall_on_off').prop("checked")){
+                                $('#selectcheckbox').addClass('hidden');
+                            }else{
+                                $('#selectcheckbox').removeClass('hidden');
+                            }
                             $("#table-4 tbody input[type=checkbox]").each(function (i, el) {
                                 var $this = $(el),
                                         $p = $this.closest('tr');
@@ -422,11 +432,28 @@
                                 $('.tohidden').addClass('hidden');
                                 $('#selectall').addClass('hidden');
                             }
+                            //select all record
+                            $('#selectallbutton').click(function(){
+                                if($('#selectallbutton').is(':checked')){
+                                    checked = 'checked=checked disabled';
+                                    $("#selectall").prop("checked", true).prop('disabled', true);
+                                    $('#table-4 tbody tr').each(function (i, el) {
+                                        $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                                        $(this).addClass('selected');
+                                    });
+                                }else{
+                                    checked = '';
+                                    $("#selectall").prop("checked", false).prop('disabled', false);
+                                    $('#table-4 tbody tr').each(function (i, el) {
+                                        $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                                        $(this).removeClass('selected');
+                                    });
+                                }
+                            });
                         }
 
                     });
-
-
+                    $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
                     // Replace Checboxes
                     $(".pagination a").click(function (ev) {
                         replaceCheckboxes();
@@ -441,8 +468,10 @@
                     $('table tbody').on('click', '.view-payment', function (ev) {
                         ev.preventDefault();
                         ev.stopPropagation();
+                        var self = $(this);
+                        setSelection(self);
                         $('#view-modal-payment').trigger("reset");
-                        var cur_obj = $(this).prev("div.hiddenRowData");
+                        var cur_obj = self.prev("div.hiddenRowData");
                         for(var i = 0 ; i< list_fields.length; i++){							
                             if(list_fields[i] == 'AmountWithSymbol'){
                                 $("#view-modal-payment [name='Amount']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
@@ -470,7 +499,7 @@
                         var select = ['AccountID','PaymentMethod','PaymentType'];
                         for(var i = 0 ; i< list_fields.length; i++){
                             if(select.indexOf(list_fields[i])!=-1){
-                                $("#add-edit-payment-form [name='"+list_fields[i]+"']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                                $("#add-edit-payment-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                             }else if(list_fields[i] == 'PaymentProof'){
 
                             }else{
@@ -484,18 +513,43 @@
 
                     $('body').on('click', '.btn.recall,.recall', function (e) {
                         e.preventDefault();
+                        e.stopPropagation();
+                        var self = $(this);
+                        var PaymentIDs =[];
                         $('#recall-payment-form').trigger("reset");
-                        if($(this).hasClass('btn')){
-                            $('#recall-payment-form').attr("action",$(this).attr('href'));
+                        if(self.hasClass('btn')){
+                            setSelection(self);
+                            var tr = self.parents('tr');
+                            var ID = tr.find('.rowcheckbox:checked').val();
+                            PaymentIDs[0] = ID;
+
                         }else{
-                            var PaymentIDs = getselectedIDs();
-                            $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
+                            PaymentIDs = getselectedIDs();
                         }
+                        $('#recall-payment-form [name="PaymentIDs"]').val(PaymentIDs);
                         $('#recall-modal-payment').modal('show');
+
                     });
 
                     $('#recall-payment-form').submit(function(e){
                         e.preventDefault();
+                        var SelectedIDs 		  =  $('#recall-payment-form [name="PaymentIDs"]').val();
+                        var criteria_ac			  =  '';
+
+                        if($('#selectallbutton').is(':checked')){
+                            criteria_ac = 'criteria';
+                            $('#recall-payment-form [name="criteria"]').val(JSON.stringify($searchFilter));
+                        }else{
+                            criteria_ac = 'selected';
+                            $('#recall-payment-form [name="criteria"]').val('');
+                        }
+
+                        if(SelectedIDs=='' && criteria_ac=='selected')
+                        {
+                            alert("Please select atleast one account.");
+                            $("#payment-recall").button('reset');
+                            return false;
+                        }
                         var formData = new FormData($('#recall-payment-form')[0]);
                         $.ajax({
                             url: $(this).attr("action"),
@@ -506,6 +560,7 @@
                                 if (response.status == 'success') {
                                     toastr.success(response.message, "Success", toastr_opts);
                                     $('#recall-modal-payment').modal('hide');
+                                    $('#selectallbutton').prop('checked',false);
                                     data_table.fnFilter('', 0);
                                 } else {
                                     toastr.error(response.message, "Error", toastr_opts);
@@ -541,8 +596,13 @@
                                 if( typeof response.ProcessID != 'undefined'){
                                     var ProcessID = response.ProcessID;
                                 }else {
-                                    toastr.error("Problem inserting Payment, Try Again.", "Error", toastr_opts);
-                                    return;
+                                    if( typeof response.message != 'undefined'){
+                                        toastr.error(response.message, "Error", toastr_opts);
+                                        return;
+                                    }else{
+                                        toastr.error("Problem inserting Payment, Try Again.", "Error", toastr_opts);
+                                        return;
+                                    }
                                 }
                                 if (response.status == 'success') {
                                     if(response.message) {
@@ -657,7 +717,9 @@
 
                     $('table tbody').on('click', '.approvepayment , .rejectpayment', function (e) {
                         e.preventDefault();
+                        e.stopPropagation();
                         var self = $(this);
+                        setSelection(self);
                         var text = (self.hasClass("approvepayment")?'Approve':'Reject');
                         if (!confirm('Are you sure you want to '+ text +' the payment?')) {
                             return;
@@ -701,8 +763,8 @@
                         ev.preventDefault();
                         $('#add-edit-payment-form').trigger("reset");
                         $("#add-edit-payment-form [name='AccountID']").select2().select2('val','');
-                        $("#add-edit-payment-form [name='PaymentMethod']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-                        $("#add-edit-payment-form [name='PaymentType']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                        $("#add-edit-payment-form [name='PaymentMethod']").val('').trigger("change");
+                        $("#add-edit-payment-form [name='PaymentType']").val('').trigger("change");
                         $("#add-edit-payment-form [name='PaymentID']").val('')
                         $('#add-edit-modal-payment h4').html('Add New Payment');
                         $('.file-input-name').text('');
@@ -827,11 +889,8 @@
                         });
                         $("#mapping select").each(function(i, el){
                             if(el.name !='selection[DateFormat]'){
-                                $(el).data("selectBox-selectBoxIt").remove();
-                                $(el).data("selectBox-selectBoxIt").add({ value: '', text: 'Skip loading' });
-                                $.each(data.columns,function(key,value){
-                                    $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
-                                });
+                                var self = $('#add-template-form [name="'+el.name+'"]');
+                                rebuildSelect2(self,data.columns,'Skip loading');
                             }
                         });
                         if ( data.PaymentUploadTemplate ) {
@@ -845,7 +904,7 @@
                                         if(typeof $("#add-template-form [name='option["+key+"]']").val() != 'undefined'){
                                             $('#add-template-form').find('[name="option['+key+']"]').val(value)
                                             if(key == 'Firstrow'){
-                                                $("#add-template-form [name='option["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                                                $("#add-template-form [name='option["+key+"]']").val(value).trigger("change");
                                             }
                                         }
 
@@ -854,7 +913,7 @@
                                         if(typeof $("#add-template-form input[name='selection["+key+"]']").val() != 'undefined'){
                                             $('#add-template-form').find('input[name="selection['+key+']"]').val(value)
                                         }else if(typeof $("#add-template-form select[name='selection["+key+"]']").val() != 'undefined'){
-                                            $("#add-template-form [name='selection["+key+"]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(value);
+                                            $("#add-template-form [name='selection["+key+"]']").val(value).trigger("change");
                                         }
                                     });
                                 }
@@ -888,10 +947,10 @@
 				"bProcessing":true,
 				"bServerSide":true,
 				"sAjaxSource": baseurl + "/payments/ajax_datagrid_total",
-				"iDisplayLength": '{{Config::get('app.pageSize')}}',
+				"iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
 				"sPaginationType": "bootstrap",
-				"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-				"aaSorting": [[4, 'desc']],},
+				/*"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",*/
+				"aaSorting": [[4, 'desc']]},
 					success: function(response1) {
 						console.log("sum of result"+response1);
 
@@ -903,7 +962,20 @@
 						}
 				});	
 		}
+                    if (isxs()) {
+                        $('#paymentsearch').find('.col-sm-2,.col-sm-1').each(function () {
+                            $(this).removeClass('col-sm-e2');
+                            $(this).removeClass('small-date-input');
+                            $(this).removeAttr('style');
 
+                        });
+                    }
+
+                    $('[name="Status"]').on('select2-open', function() {
+                        $('.select2-results .select2-add').on('click', function(e) {
+                            e.stopPropagation();
+                        });
+                    });
 
                 });
 
@@ -952,7 +1024,6 @@
 
                         success: function(response) {
                             $("#payment-update").button('reset');
-                            $(".btn").button('reset');
                             $('#modal-payment').modal('hide');
 
                             if (response.status == 'success') {
@@ -965,6 +1036,9 @@
                                 toastr.error(response.message, "Error", toastr_opts);
                             }
                             $('.btn.upload').button('reset');
+                        },
+                        complete:function(){
+                            $(".btn").button('reset');
                         },
                         data: data,
                         //Options to tell jQuery not to process data or worry about content-type.
@@ -993,7 +1067,6 @@
             return SelectedIDs;
         }
 
-
             </script>
     <style>
                 .dataTables_filter label{
@@ -1018,31 +1091,39 @@
         <h4 class="modal-title">Add New payment Request</h4>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <div class="col-md-12">
+          <div class="row">
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Account Name * <span id="currency"></span></label>
               {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
               <input type="hidden" name="AccountName" />
             </div>
           </div>
-          <div class="col-md-12">
+          </div>
+          <div class="row">
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Payment Date *</label>
               <input type="text" name="PaymentDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="">
             </div>
           </div>
-          <div class="col-md-12">
+          </div>
+          <div class="row">
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Payment Method *</label>
-              {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"selectboxit")) }} </div>
+              {{ Form::select('PaymentMethod', Payment::$method, '', array("class"=>"select2 small")) }} </div>
           </div>
-          <div class="col-md-12">
+          </div>
+          <div class="row">
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Action *</label>
-              {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"selectboxit","id"=>"PaymentTypeAuto")) }} </div>
+              {{ Form::select('PaymentType', Payment::$action, '', array("class"=>"select2 small","id"=>"PaymentTypeAuto")) }} </div>
           </div>
-          <div class="col-md-12">
+          </div>
+          <div class="row">
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Amount *</label>
               <input type="text" name="Amount" class="form-control" id="field-5" placeholder="">
@@ -1050,19 +1131,25 @@
               <input type="hidden" name="Currency" >
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Invoice</label>
               <input type="text" id="InvoiceAuto" name="InvoiceNo" class="form-control" id="field-5" placeholder="">
             </div>
           </div>
-          <div class="col-md-12">
+          </div>
+          <div class="row">
+            <div class="col-md-12">
             <div class="form-group">
               <label for="field-5" class="control-label">Notes</label>
               <textarea name="Notes" class="form-control" id="field-5" placeholder=""></textarea>
               <input type="hidden" name="PaymentID" >
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label for="PaymentProof" class="control-label">Upload (.pdf, .jpg, .png, .gif)</label>
@@ -1077,8 +1164,8 @@
         <button type="submit" id="payment-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
       </div>
-      </div>
     </form>
+    </div>
   </div>
 </div>
 <div class="modal fade" id="view-modal-payment">
@@ -1089,68 +1176,86 @@
         <h4 class="modal-title">View Payment</h4>
       </div>
       <div class="modal-body">
-        <div class="row">
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Account Name</label>
-              <div class="col-sm-12" name="AccountName"></div>
+              <label for="field-5" class="control-label text-left bold">Account Name</label>
+              <div name="AccountName"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Currency</label>
-              <div class="col-sm-12" name="Currency"></div>
+              <label for="field-5" class="control-label text-left bold">Currency</label>
+              <div name="Currency"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Invoice</label>
-              <div class="col-sm-12" name="InvoiceNo"></div>
+              <label for="field-5" class="control-label text-left bold">Invoice</label>
+              <div name="InvoiceNo"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Payment Date</label>
-              <div class="col-sm-12" name="PaymentDate"></div>
+              <label for="field-5" class="control-label text-left bold">Payment Date</label>
+              <div name="PaymentDate"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Payment Method</label>
-              <div class="col-sm-12" name="PaymentMethod"></div>
+              <label for="field-5" class="control-label text-left bold">Payment Method</label>
+              <div name="PaymentMethod"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Action</label>
-              <div class="col-sm-12" name="PaymentType"></div>
+              <label for="field-5" class="control-label text-left bold">Action</label>
+              <div name="PaymentType"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Amount</label>
-              <div class="col-sm-12" name="Amount"></div>
+              <label for="field-5" class="control-label text-left bold">Amount</label>
+              <div name="Amount"></div>
               <input type="hidden" name="PaymentID" >
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Notes</label>
-              <div class="col-sm-12" name="Notes"></div>
+              <label for="field-5" class="control-label text-left bold">Notes</label>
+              <div name="Notes"></div>
             </div>
           </div>
+          </div>
+          <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label for="field-5" class="control-label">Recall Reasoan</label>
-              <div class="col-sm-12" name="RecallReasoan"></div>
+              <label for="field-5" class="control-label text-left bold">Recall Reasoan</label>
+              <div name="RecallReasoan"></div>
             </div>
           </div>
-          <div class="col-md-12">
-            <div class="form-group">
-              <label for="field-5" class="control-label">Recall By</label>
-              <div class="col-sm-12" name="RecallBy"></div>
-            </div>
           </div>
+          <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="field-5" class="control-label text-left bold">Recall By</label>
+                  <div name="RecallBy"></div>
+                </div>
+              </div>
         </div>
       </div>
     </div>
@@ -1292,6 +1397,7 @@
         </div>
         <div class="modal-footer">
           <input type="hidden" name="PaymentIDs" />
+            <input type="hidden" name="criteria" />
           <button type="submit" id="payment-recall"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Recall </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>

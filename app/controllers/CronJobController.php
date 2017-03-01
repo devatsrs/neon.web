@@ -9,16 +9,16 @@ class CronJobController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
         $data['Active'] = $data['Active']==''?2:$data['Active'];
         $query = "call prc_GetCronJob (".$companyID.",".$data['Active'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
-
+	
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Cron Job.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Cron Job.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Cron Job.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Cron Job.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -52,7 +52,8 @@ class CronJobController extends \BaseController {
 	{
         $isvalid = CronJob::validate();
         if($isvalid['valid']==1){
-            if (CronJob::create($isvalid['data'])) {
+            if ($CronJobID = CronJob::insertGetId($isvalid['data'])) {
+                CronJob::upadteNextTimeRun($CronJobID);
                 return Response::json(array("status" => "success", "message" => "Cron Job Successfully Created"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Cron Job."));
@@ -77,7 +78,12 @@ class CronJobController extends \BaseController {
             $CronJob = CronJob::findOrFail($id);
             $isvalid = CronJob::validate($id);
             if($isvalid['valid']==1){
+                //If user inactivate the cron job , cron job needs to terminate.
+                if(isset($isvalid['data']["Status"]) && $CronJob->Status == 1 && $isvalid['data']["Status"] == 0){
+                    $this->terminate($id);
+                }
                 if ($CronJob->update($isvalid['data'])) {
+                    CronJob::upadteNextTimeRun($id);
                     return Response::json(array("status" => "success", "message" => "Cron Job Successfully Updated"));
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Problem Creating Cron Job."));
@@ -154,12 +160,14 @@ class CronJobController extends \BaseController {
                     $rateTables = array(""=> "Select")+$rateTables;
                 }
             }else if($CronJobCommand->Command == 'autoinvoicereminder'){
-                $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
+                //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
+				$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
                 $accounts = Account::getAccountIDList();
             }else if($CronJobCommand->Command == 'accountbalanceprocess'){
-                $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
+                //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
+				$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
             }
-
+			 
 
             $commandconfig = json_decode($commandconfig,true);
 
@@ -191,11 +199,11 @@ class CronJobController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Cron Job History.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Cron Job History.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Cron Job History.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Cron Job History.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -224,34 +232,19 @@ class CronJobController extends \BaseController {
                 $data['Status'] = -1;
             }
         }
+        $data['Type'] = $data['Type']==''?0:$data['Type'];
+
         $companyID = User::get_companyID();
         $columns = array('Active','PID','JobTitle','RunningTime','LastRunTime','NextRunTime');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_GetActiveCronJob (".$companyID.",'".$data['Title']."',".$data['Status'].",".$data['Active'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        $query = "call prc_GetActiveCronJob (".$companyID.",'".$data['Title']."',".$data['Status'].",".$data['Active'].",".$data['Type'].",'". date('Y-m-d H:i:s') ."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         return DataTableSql::of($query)->make();
     }
 
     public function activeprocessdelete(){
 
         $data = Input::all();
-        $CronJobID = $data['JobID'];
-        $CronJob = CronJob::find($CronJobID);
-
-        $PID = $data['PID'];
-        $CronJobData = array();
-        $CronJobData['Active'] = 0;
-        $CronJobData['PID'] = '';
-
-        if(getenv("APP_OS") == "Linux"){
-            $command = 'kill -9 '.$PID;
-        }else{
-            $command = 'Taskkill /PID '.$PID.' /F';
-        }
-        $output = exec($command,$op);
-        Log::info($command);
-        Log::info($output);
-        $CronJob->update($CronJobData);
-
+        $output = CronJob::killactivejobs($data);
 
         if(isset($output) && $output == !''){
             return Response::json(array("status" => "success", "message" => ".$output."));
@@ -289,7 +282,7 @@ class CronJobController extends \BaseController {
         $success = false;
         $CronJob = array_pop($CronJob);
         if(isset($CronJob["Command"]) && !empty($CronJob["Command"]) ) {
-            $command = CompanyConfiguration::get("PHPExePath"). " " .CompanyConfiguration::get("RMArtisanFileLocation"). " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
+            $command = CompanyConfiguration::get("PHP_EXE_PATH"). " " .CompanyConfiguration::get("RM_ARTISAN_FILE_LOCATION"). " " . $CronJob["Command"] . " " . $CompanyID . " " . $CronJobID ;
             $success = run_process($command);
         }
         if($success){

@@ -15,7 +15,9 @@ class AuthenticationController extends \BaseController
     public function authenticate($id){
         $account = Account::find($id);
         $AccountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$id))->first();
-        return View::make('accounts.authenticate', compact('account','AccountAuthenticate'));
+        $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
+        $AuthRule = 'CLI';
+        return View::make('accounts.authenticate', compact('account','AccountAuthenticate','Clitables','rate_table','AuthRule'));
     }
     public function authenticate_store(){
         $data = Input::all();
@@ -72,6 +74,8 @@ class AuthenticationController extends \BaseController
         unset($data['vendorclitable_length']);
         unset($data['customeriptable_length']);
         unset($data['customerclitable_length']);
+        unset($data['CLIName']);
+        unset($data['table-clitable_length']);
         if(AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->count()){
             AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->update($data);
             return Response::json(array("status" => "success", "message" => "Account Successfully Updated"));
@@ -86,16 +90,19 @@ class AuthenticationController extends \BaseController
         $data = Input::all();
         $data['AccountID'] = $id;
         $data['CompanyID'] = $CompanyID = User::get_companyID();
-        $message = '';
-        $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
+        /*$message = '';
+        $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';*/
 
         $status = AccountAuthenticate::validate_ipclis($data);
-        $save = $status['data'];
+        /*$save = $status['data'];*/
         if($status['status']==0){
             return Response::json(array("status" => "error", "message" => $status['message']));
         }
 
-        if((isset($save['CustomerAuthValue'])) || (isset($save['VendorAuthValue']))){
+        $object = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID']])->first();
+        return Response::json(array("status" => "success","object"=>$object, "message" => $status['message']));
+
+        /*if((isset($save['CustomerAuthValue'])) || (isset($save['VendorAuthValue']))){
             if($isCustomerOrVendor=='Customer' && !empty($save['CustomerAuthValue'])) {
                  $status['toBeInsert']=explode(',',$save['CustomerAuthValue']);
             }elseif($isCustomerOrVendor=='Vendor' && !empty($save['VendorAuthValue'])){
@@ -108,19 +115,32 @@ class AuthenticationController extends \BaseController
             }
             $object = AccountAuthenticate::where(['CompanyID'=>$save['CompanyID'],'AccountID'=>$save['AccountID']])->first();
             return Response::json(array("status" => "success","object"=>$object, "message" => $status['message']));
-        }
+        }*/
     }
 
     public function deleteips($id){
         $data = Input::all();
+        $companyID = User::get_companyID();
+        $Date = '';
+        $Confirm = 0;
+        if(isset($data['dates'])){
+            $Date = $data['dates'];
+            $Confirm = 1;
+        }
         $data['AccountID'] = $id;
         $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
+        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$Date."',".$Confirm.")";
         $postIps = explode(',',$data['ipclis']);
         unset($data['ipclis']);
         unset($data['isCustomerOrVendor']);
+        unset($data['dates']);
         $ips = [];
         if(!empty($accountAuthenticate)){
+            $recordFound = DB::Connection('sqlsrvcdr')->select($query);
+            if($recordFound[0]->Status>0){
+                return Response::json(array("status" => "check","check"=>1));
+            }
             if($isCustomerOrVendor=='Customer'){
                 $data['CustomerAuthRule'] = 'IP';
                 $dbIPs = explode(',', $accountAuthenticate->CustomerAuthValue);
@@ -142,13 +162,29 @@ class AuthenticationController extends \BaseController
 
     public function deleteclis($id){
         $data = Input::all();
+        $companyID = User::get_companyID();
+        $StartDate = '';
+        $EndDate = '';
+        $Confirm = 0;
+        if(isset($data['dates'])){
+            $dates = explode(' - ',$data['dates']);
+            $StartDate = $dates[0];
+            $EndDate = $dates[1];
+            $Confirm = 1;
+        }
         $data['AccountID'] = $id;
         $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID']))->first();
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
+        $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$StartDate."','".$EndDate."',".$Confirm.")";
         $postClis = explode(',',$data['ipclis']);
         unset($data['ipclis']);
         unset($data['isCustomerOrVendor']);
+        unset($data['dates']);
         if(!empty($accountAuthenticate)){
+            $recordFound = DB::Connection('sqlsrvcdr')->select($query);
+            if($recordFound[0]->Status>0){
+                return Response::json(array("status" => "check","check"=>1));
+            }
             if($isCustomerOrVendor=='Customer'){
                 $data['CustomerAuthRule'] = 'CLI';
                 $dbCLIs = explode(',', $accountAuthenticate->CustomerAuthValue);
@@ -166,6 +202,10 @@ class AuthenticationController extends \BaseController
         }else{
             return Response::json(array("status" => "error","message" => "No Cli exist."));
         }
+    }
+
+    public function recordExist(){
+
     }
 
 }

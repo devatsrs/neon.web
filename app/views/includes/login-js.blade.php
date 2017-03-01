@@ -15,8 +15,6 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
         "assets/js/neon-forgotpassword.js",
         "assets/js/neon-resetpassword.js",
         "assets/js/neon-demo.js",
-        "assets/js/jvectormap/jquery-jvectormap-1.2.2.min.js",
-        "assets/js/jvectormap/jquery-jvectormap-europe-merc-en.js",
         "assets/js/jquery.sparkline.min.js",
         "assets/js/rickshaw/vendor/d3.v3.js",
         "assets/js/rickshaw/rickshaw.min.js",
@@ -58,7 +56,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
         "assets/js/fullcalendar/fullcalendar.min.js",
         "assets/js/toastr.js",  // Popup toaster
         "assets/js/bootstrap-datepicker.js", //Date Picker
-        "assets/js/bootstrap-timepicker.min.js", //Date Picker
+        "assets/js/bootstrap-timepicker.min.0.5.2.js", //Date Picker
         "assets/js/icheck/icheck.min.js", //Chebkbox
         "assets/js/datatables/ZeroClipboard.js",
         "assets/js/morris.min.js",
@@ -79,7 +77,13 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
 ?>
 <script>
     var customer = JSON.parse('[{"customer":"{{Session::get('customer')}}"}]');
-</script>
+	
+	@if(Tickets::CheckTicketLicense())
+	var tickets_enable       = 1;
+	@else 
+	var tickets_enable       = 0;
+	@endif
+	</script>
 @foreach ($js as $addjs)
 @if( strstr($addjs,"http") )
 

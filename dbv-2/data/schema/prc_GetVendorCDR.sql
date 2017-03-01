@@ -1,4 +1,21 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetVendorCDR`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_start_date` DATETIME, IN `p_end_date` DATETIME, IN `p_AccountID` INT, IN `p_CLI` VARCHAR(50), IN `p_CLD` VARCHAR(50), IN `p_ZeroValueBuyingCost` INT, IN `p_CurrencyID` INT, IN `p_area_prefix` VARCHAR(50), IN `p_trunk` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetVendorCDR`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_start_date` DATETIME,
+	IN `p_end_date` DATETIME,
+	IN `p_AccountID` INT,
+	IN `p_CLI` VARCHAR(50),
+	IN `p_CLD` VARCHAR(50),
+	IN `p_ZeroValueBuyingCost` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_area_prefix` VARCHAR(50),
+	IN `p_trunk` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
 BEGIN 
 
 	DECLARE v_OffSet_ int;
@@ -9,20 +26,11 @@ BEGIN
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 	
-	SELECT cs.Value INTO v_Round_ FROM NeonRMDev.tblCompanySetting cs WHERE cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID;
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 	
 	SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 	
-	SELECT 
-		BillingTime INTO v_BillingTime_
-	FROM NeonRMDev.tblCompanyGateway cg
-	INNER JOIN tblGatewayAccount ga 
-		ON ga.CompanyGatewayID = cg.CompanyGatewayID
-	WHERE AccountID = p_AccountID 
-		AND (p_CompanyGatewayID = '' OR ga.CompanyGatewayID = p_CompanyGatewayID)
-	LIMIT 1;
-
-	SET v_BillingTime_ = IFNULL(v_BillingTime_,1); 
+	SELECT fnGetBillingTime(p_CompanyGatewayID,p_AccountID) INTO v_BillingTime_;
 
 	Call fnVendorUsageDetail(p_CompanyID,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,p_CLI,p_CLD,p_ZeroValueBuyingCost);
 
@@ -35,7 +43,7 @@ BEGIN
 			uh.connect_time,
 			uh.disconnect_time,
 			uh.billed_duration,
-			CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(uh.buying_cost,v_Round_)) AS buying_cost,
+			CONCAT(IFNULL(v_CurrencyCode_,''),uh.buying_cost) AS buying_cost,
 			uh.cli,
 			uh.cld,
 			uh.area_prefix,
@@ -54,8 +62,8 @@ BEGIN
 	 
 		SELECT
 			COUNT(*) AS totalcount,
-			ROUND(SUM(uh.billed_duration),v_Round_) as total_billed_duration,
-			ROUND(SUM(uh.buying_cost),v_Round_) as total_cost,
+			fnFormateDuration(SUM(uh.billed_duration)) as total_billed_duration,
+			SUM(uh.buying_cost) as total_cost,
 			v_CurrencyCode_ as CurrencyCode
 		FROM tmp_tblVendorUsageDetails_ uh
 		INNER JOIN NeonRMDev.tblAccount a
@@ -73,7 +81,7 @@ BEGIN
 			uh.connect_time,
 			uh.disconnect_time,        
 			uh.billed_duration,
-			CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(uh.buying_cost,v_Round_)) AS Cost,
+			CONCAT(IFNULL(v_CurrencyCode_,''),uh.buying_cost) AS Cost,
 			uh.cli,
 			uh.cld,
 			uh.area_prefix,

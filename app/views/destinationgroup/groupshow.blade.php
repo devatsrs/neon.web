@@ -19,7 +19,7 @@
         @if($discountplanapplied == 0)
         @if(User::checkCategoryPermission('DestinationGroup','Edit'))
         <button  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="fa fa-floppy-o"></i>Add</button>
-            <button  id="delete-button" class=" btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="fa fa-trash"></i>Delete</button>
+            <button  id="delete-button" class=" btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-trash"></i>Delete</button>
         @endif
         @endif
         <a href="{{URL::to('/destination_group_set/show/'.$DestinationGroupSetID)}}" class="btn btn-danger btn-sm btn-icon icon-left">
@@ -179,7 +179,7 @@
                 "bDestroy": true, // Destroy when resubmit form
                 "bProcessing":true,
                 "bServerSide": true,
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push(
                             {"name": "DestinationGroupSetID", "value": $searchFilter.DestinationGroupSetID},

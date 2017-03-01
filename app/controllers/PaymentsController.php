@@ -37,7 +37,7 @@ class PaymentsController extends \BaseController {
 			{
 				$data['p_paymentend'] 			= 	"'".date("Y-m-d H:i:s")."'";
 			}
-	
+
 			$data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
 			$columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy','Notes');
 			$sort_column = $columns[$data['iSortCol_0']];
@@ -93,11 +93,11 @@ class PaymentsController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Payment.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Payment.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Payment.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Payment.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -206,12 +206,14 @@ class PaymentsController extends \BaseController {
                     }
                     $billingadminemails = User::where(["CompanyID" => $companyID, "Status" => 1])->whereIn('UserID', $userid)->get(['EmailAddress']);
                     foreach ($PendingApprovalPayment as $billingemail) {
+                        $billingemail = trim($billingemail);
                         if (filter_var($billingemail, FILTER_VALIDATE_EMAIL)) {
                             $data['EmailTo'] = $billingemail;
                             $status = sendMail('emails.admin.payment', $data);
                         }
                     }
                     foreach ($billingadminemails as $billingadminemail) {
+                        $billingadminemail = trim($billingadminemail);
                         if (filter_var($billingadminemail, FILTER_VALIDATE_EMAIL)) {
                             $data['EmailTo'] = $billingadminemail;
                             $status = sendMail('emails.admin.payment', $data);
@@ -273,10 +275,71 @@ class PaymentsController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        $where=[];
+        if(isset($data['criteria']) && !empty($data['criteria'])){
+            $criteria= json_decode($data['criteria'],true);
+            $criteria['p_paymentstart']			 =		'null';
+            $criteria['p_paymentend']			 =		'null';
+
+            if($criteria['PaymentDate_StartDate']!='' && $criteria['PaymentDate_StartDate']!='null' && $criteria['PaymentDate_StartTime']!='')
+            {
+                $criteria['p_paymentstart']		=	$criteria['PaymentDate_StartDate'].' '.$criteria['PaymentDate_StartTime'];
+            }
+
+            if($criteria['PaymentDate_EndDate']!='' && $criteria['PaymentDate_EndDate']!='null' && $criteria['PaymentDate_EndDate']!='')
+            {
+                $criteria['p_paymentend']			=	$criteria['PaymentDate_EndDate'].' '.$criteria['PaymentDate_EndTime'];
+            }
+
+            if($criteria['p_paymentstart']!='null' && $criteria['p_paymentend']=='null')
+            {
+                $criteria['p_paymentend'] 			= 	date("Y-m-d H:i:s");
+            }
+
+            if($criteria['p_paymentstart']=='null'){
+                $criteria['p_paymentstart'] = '';
+            }
+
+            if($criteria['p_paymentend']=='null'){
+                $criteria['p_paymentend'] = '';
+            }
+
+            $where['Recall'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
+
+            if(!empty($criteria['AccountID'])){
+                $where['AccountID'] = $criteria['AccountID'];
+            }
+            /*if(!empty($criteria['InvoiceNo'])){
+                $where['InvoiceNo'] = $criteria['InvoiceNo'];
+            }*/
+            if(!empty($criteria['Status'])){
+                $where['Status'] = $criteria['Status'];
+            }
+            if(!empty($criteria['type'])){
+                $where['PaymentType'] = $criteria['type'];
+            }
+            if(!empty($criteria['paymentmethod'])){
+                $where['PaymentMethod'] = $criteria['paymentmethod'];
+            }
+            if(!empty($criteria['CurrencyID'])){
+                $where['CurrencyID'] = $criteria['CurrencyID'];
+            }
+        }
         try {
             $PaymentIDs = !empty($data['PaymentIDs'])?explode(',',$data['PaymentIDs']):'';
             unset($data['PaymentIDs']);
-            if(is_array($PaymentIDs)){
+            unset($data['criteria']);
+            if(!empty($where)){
+                $Payments = Payment::where($where);
+                if(!empty($criteria['p_paymentstart']) && !empty($criteria['p_paymentend'])){
+                    $Payments->whereBetween('PaymentDate', array($criteria['p_paymentstart'], $criteria['p_paymentend']));
+                }
+                if(!empty($criteria['InvoiceNo'])){
+                    $Payments->where('InvoiceNo','like','%'.$criteria['InvoiceNo'].'%');
+                }
+                $result = $Payments->update($data);
+            }
+            elseif(is_array($PaymentIDs)){
                 $result = Payment::whereIn('PaymentID',$PaymentIDs)->update($data);
             }else{
                 if($id>0) {
@@ -369,7 +432,7 @@ class PaymentsController extends \BaseController {
         try {
             $data = Input::all();
             if (Input::hasFile('excel')) {
-                $upload_path = getenv('TEMP_PATH');
+                $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
                 if (in_array($ext, array("csv", "xls", "xlsx"))) {
@@ -417,12 +480,22 @@ class PaymentsController extends \BaseController {
     public function validate_column_mapping() {
         $data = Input::all();
 
-        $rules['selection.AccountName'] = 'required';
-        $rules['selection.PaymentDate'] = 'required';
-        $rules['selection.PaymentMethod'] = 'required';
-        $rules['selection.PaymentType'] = 'required';
-        $rules['selection.Amount'] = 'required';
-        $validator = Validator::make($data, $rules);
+        //$rules['selection.AccountName'] = 'required';
+        //$rules['selection.PaymentDate'] = 'required';
+        //$rules['selection.PaymentMethod'] = 'required';
+        //$rules['selection.PaymentType'] = 'required';
+        //$rules['selection.Amount'] = 'required';
+
+        Payment::$importpaymentrules['selection.AccountName'] = 'required';
+        Payment::$importpaymentrules['selection.PaymentDate'] = 'required';
+        Payment::$importpaymentrules['selection.PaymentMethod'] = 'required';
+        Payment::$importpaymentrules['selection.PaymentType'] = 'required';
+        Payment::$importpaymentrules['selection.Amount'] = 'required';
+
+        $validator = Validator::make($data, Payment::$importpaymentrules,Payment::$importpaymentmessages);
+
+
+        //$validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             return json_validator_response($validator);
@@ -443,12 +516,12 @@ class PaymentsController extends \BaseController {
         $ProcessID = $data['ProcessID'];
 
         $file_name = basename($data['TemplateFile']);
-        $temp_path = getenv('TEMP_PATH').'/' ;
+        $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['PAYMENT_UPLOAD']);
         if(JobType::checkJobType('PU') == 0){
             return Response::json(array("status" => "failure", "message" => "Job Type not Defined."));
         }
-        $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+        $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
         copy($temp_path . $file_name, $destinationPath . $file_name);
 
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
@@ -482,6 +555,7 @@ class PaymentsController extends \BaseController {
         $jobdata["Description"] = !empty($jobType[0]->Title) ? $jobType[0]->Title : '';
         $jobdata["CreatedBy"] = User::get_user_full_name();
         $jobdata["Options"] = json_encode($data);
+        $jobdata["created_at"] = date('Y-m-d H:i:s');
         $jobdata["updated_at"] = date('Y-m-d H:i:s');
         $JobID = Job::insertGetId($jobdata);
 

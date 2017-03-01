@@ -41,7 +41,7 @@
 @if($account->IsCustomer == 1 )
 <div class="row">
     <div class="col-md-12">
-        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="customer_detail">
+        <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="customer_detail">
             <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -57,7 +57,7 @@
 
                         </label>
                         <div class="desc col-sm-4">
-                            {{Form::select('CustomerAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->CustomerAuthRule)?$AccountAuthenticate->CustomerAuthRule:''),array( "class"=>"selectboxit"))}}
+                            {{Form::select('CustomerAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->CustomerAuthRule)?$AccountAuthenticate->CustomerAuthRule:''),array( "class"=>"select2 small"))}}
                         </div>
                         <?php
                             $AccountIPList = array();
@@ -79,7 +79,7 @@
                                 <div  class="col-md-12">
                                     <div class="input-group-btn pull-right" style="width:70px;">
                                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                                             <li class="li_active">
                                                 <a class="customer-add-ip" type_ad="active" href="javascript:void(0);" >
                                                     <i class="entypo-plus"></i>
@@ -88,7 +88,7 @@
                                             </li>
                                             <li>
                                                 <a href="javascript:void(0);" class="customer-delete-ip" >
-                                                    <i class="entypo-cancel"></i>
+                                                    <i class="entypo-trash"></i>
                                                     <span>Delete</span>
                                                 </a>
                                             </li>
@@ -114,7 +114,7 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs customer-delete-ip"> <i class="entypo-cancel"></i> </button>
+                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs customer-delete-ip"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -123,54 +123,9 @@
                             </table>
                         </div>
 
-                            <label for="field-1" class="col-sm-1 customer_accountcli control-label">Account CLI</label>
-                        <div class="desc col-sm-5 customer_accountcli table_{{count($AccountCLIList)}}" >
-                            <div class="row dropdown">
-                                <div  class="col-md-12">
-                                    <div class="input-group-btn pull-right" style="width:70px;">
-                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
-                                            <li class="li_active">
-                                                <a class="customer-add-cli" type_ad="active" href="javascript:void(0);" >
-                                                    <i class="entypo-plus"></i>
-                                                    <span>Add</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="javascript:void(0);" class="customer-delete-cli" >
-                                                    <i class="entypo-cancel"></i>
-                                                    <span>Delete</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div><!-- /btn-group -->
-                                </div>
-                                <div class="clear"></div>
-                            </div>
-                            <br>
-                            <div id="customerclitableprocessing" class="dataTables_processing hidden">Processing...</div>
-                            <table id="customerclitable" class="table table-bordered datatable dataTable customerclitable ">
-                                <thead>
-                                <tr>
-                                    <th><input type="checkbox" name="checkbox[]" class="selectall" /></th><th>CLI</th><th>Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @if(count($AccountCLIList))
-                                    @foreach($AccountCLIList as $index=>$row2)
-                                        <tr>
-                                            <td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="{{$index}}" class="rowcheckbox" ></div></td>
-                                            <td>
-                                                {{$row2}}
-                                            </td>
-                                            <td>
-                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs customer-delete-cli"> <i class="entypo-cancel"></i> </button>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                @endif
-                                </tbody>
-                            </table>
+                        <div class="desc col-sm-6 customer_accountcli table_{{count($AccountCLIList)}}" >
+                            @include('accounts.cli_tables')
+
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label hidden customer_value_other">Value</label>
@@ -188,7 +143,7 @@
 @if($account->IsVendor == 1 )
 <div class="row">
     <div class="col-md-12">
-        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="vendor_detail">
+        <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="vendor_detail">
             <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -204,7 +159,7 @@
 
                         </label>
                         <div class="desc col-sm-4">
-                            {{Form::select('VendorAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->VendorAuthRule)?$AccountAuthenticate->VendorAuthRule:''),array( "class"=>"selectboxit"))}}
+                            {{Form::select('VendorAuthRule',$AccountNameFormat,(isset($AccountAuthenticate->VendorAuthRule)?$AccountAuthenticate->VendorAuthRule:''),array( "class"=>"select2 small"))}}
                         </div>
                         <?php
                         $AccountIPList = array();
@@ -226,7 +181,7 @@
                                 <div  class="col-md-12">
                                     <div class="input-group-btn pull-right" style="width:70px;">
                                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                                             <li class="li_active">
                                                 <a class="vendor-add-ip" type_ad="active" href="javascript:void(0);" >
                                                     <i class="entypo-plus"></i>
@@ -235,7 +190,7 @@
                                             </li>
                                             <li>
                                                 <a href="javascript:void(0);" class="vendor-delete-ip" >
-                                                    <i class="entypo-cancel"></i>
+                                                    <i class="entypo-trash"></i>
                                                     <span>Delete</span>
                                                 </a>
                                             </li>
@@ -261,7 +216,7 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs vendor-delete-ip"> <i class="entypo-cancel"></i> </button>
+                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs vendor-delete-ip"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -277,7 +232,7 @@
                                 <div  class="col-md-12">
                                     <div class="input-group-btn pull-right" style="width:70px;">
                                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+                                        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                                             <li class="li_active">
                                                 <a class="vendor-add-cli" type_ad="active" href="javascript:void(0);" >
                                                     <i class="entypo-plus"></i>
@@ -286,7 +241,7 @@
                                             </li>
                                             <li>
                                                 <a href="javascript:void(0);" class="vendor-delete-cli" >
-                                                    <i class="entypo-cancel"></i>
+                                                    <i class="entypo-trash"></i>
                                                     <span>Delete</span>
                                                 </a>
                                             </li>
@@ -312,7 +267,7 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs vendor-delete-cli"> <i class="entypo-cancel"></i> </button>
+                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs vendor-delete-cli"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -338,6 +293,7 @@
         var acountipclitable;
         var type = 0;
         var isCustomerOrVendor=0;
+        var ipclis = '';
         var accountID = {{$account->AccountID}};
         attachchangeevent('vendoriptable');
         attachchangeevent('customeriptable');
@@ -361,17 +317,24 @@
         }});
         $('#save_account').click(function(){
             $(this).button('loading');
-            if($('#customer_detail select[name="CustomerAuthRule"]').val()!='IP'){
-                $('.customeriptable').DataTable().fnClearTable();
-            }else if($('#customer_detail select[name="CustomerAuthRule"]').val()!='CLI'){
-                $('.customerclitable').DataTable().fnClearTable();
+            var post_data = '';
+            if($('#customer_detail select[name="CustomerAuthRule"]').length > 0) {
+                if ($('#customer_detail select[name="CustomerAuthRule"]').val() != 'IP') {
+                    $('.customeriptable').DataTable().fnClearTable();
+                } else if ($('#customer_detail select[name="CustomerAuthRule"]').val() != 'CLI') {
+                    $('.customerclitable').DataTable().fnClearTable();
+                }
+                post_data = $('#customer_detail').serialize();
             }
-            if($('#vendor_detail select[name="VendorAuthRule"]').val()!='IP'){
-                $('.vendoriptable').DataTable().fnClearTable();
-            }else if($('#vendor_detail select[name="VendorAuthRule"]').val()!='CLI'){
-                $('.vendorclitable').DataTable().fnClearTable();
+            if($('#vendor_detail select[name="VendorAuthRule"]').length > 0) {
+                if ($('#vendor_detail select[name="VendorAuthRule"]').val() != 'IP') {
+                    $('.vendoriptable').DataTable().fnClearTable();
+                } else if ($('#vendor_detail select[name="VendorAuthRule"]').val() != 'CLI') {
+                    $('.vendorclitable').DataTable().fnClearTable();
+                }
+                post_data +='&'+$('#vendor_detail').serialize();
             }
-            var post_data = $('#vendor_detail').serialize()+'&'+$('#customer_detail').serialize()+'&AccountID='+'{{$account->AccountID}}';
+            post_data += '&AccountID='+'{{$account->AccountID}}';
             var post_url = '{{URL::to('accounts/authenticate_store')}}';
             submit_ajaxbtn(post_url,post_data,'',$(this),1);
         });
@@ -429,29 +392,35 @@
             $('.customer_accountip').addClass('hidden');
             $('.customer_accountcli').addClass('hidden');
             $('.customer_value_other').addClass('hidden');
+            $('#save_account').removeClass('hidden')
             if($(this).val() == 'Other'){
                 $('.customer_value_other').removeClass('hidden');
             }else if($(this).val() == 'IP'){
                 $('.customer_accountip').removeClass('hidden');
+                $('#save_account').addClass('hidden')
             }else if($(this).val() == 'CLI'){
                 $('.customer_accountcli').removeClass('hidden');
+                $('#save_account').addClass('hidden')
             }
         });
         $('[name="VendorAuthRule"]').change(function(){
             $('.vendor_accountip').addClass('hidden');
             $('.vendor_accountcli').addClass('hidden');
             $('.vendor_value_other').addClass('hidden');
+            $('#save_account').removeClass('hidden')
             if($(this).val() == 'Other'){
                 $('.vendor_value_other').removeClass('hidden');
             }else if($(this).val() == 'IP'){
                 $('.vendor_accountip').removeClass('hidden');
+                $('#save_account').addClass('hidden')
             }else if($(this).val() == 'CLI'){
                 $('.vendor_accountcli').removeClass('hidden');
+                $('#save_account').addClass('hidden')
             }
         });
         $("#form-addipcli-modal").submit(function(e){
             e.preventDefault();
-            var ipclis=$(this).find("[name='AccountIPCLI']").val().trim();
+            ipclis=$(this).find("[name='AccountIPCLI']").val().trim();
             if(type==0) {
                 var url = baseurl + '/accounts/' + accountID + '/addips';
             }else if(type==1){
@@ -500,17 +469,9 @@
                 });
             }
         });
-
-        $(document).on('click', '.dataTable tbody tr', function() {
-            $(this).toggleClass('selected');
-            if($(this).is('tr')) {
-                if ($(this).hasClass('selected')) {
-                    $(this).find('.rowcheckbox').prop("checked", true);
-                } else {
-                    $(this).find('.rowcheckbox').prop("checked", false);
-                }
-            }
-        });
+        table_row_select('customeriptable','');
+        table_row_select('vendoriptable','');
+        table_row_select('vendorclitable','');
 
         $(document).on('click','.vendor-delete-ip,.vendor-delete-cli,.customer-delete-ip,.customer-delete-cli',function(e){
             e.preventDefault();
@@ -552,7 +513,7 @@
                     }else{
                         var url = baseurl + "/accounts/"+accountID+"/deleteclis";
                     }
-                    var ipclis = SelectedIDs.join(",");
+                    ipclis = SelectedIDs.join(",");
                     $.ajax({
                         url: url,
                         type:'POST',
@@ -563,7 +524,10 @@
                                 createTable(response);
                                 $('.selectall').prop("checked", false);
                                 toastr.success(response.message,'Success', toastr_opts);
-                            }else{
+                            }else if (response.status == 'check') {
+                                $('#confirm-modal').modal('show');
+                            }
+                            else{
                                 toastr.error(response.message, "Error", toastr_opts);
                             }
                             $('#'+processing).addClass('hidden');
@@ -572,6 +536,30 @@
                     });
                 }
             }
+        });
+
+        $('#form-confirm-modal').submit(function(e){
+            e.preventDefault();
+            var url = baseurl + "/accounts/"+accountID+"/deleteips";
+            var dates = $('#form-confirm-modal [name="Closingdate"]').val();
+            $.ajax({
+                url: url,
+                type:'POST',
+                data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor,dates:dates},
+                datatype:'json',
+                success: function(response) {
+                    if (response.status == 'success') {
+                        createTable(response);
+                        $('.selectall').prop("checked", false);
+                        toastr.success(response.message,'Success', toastr_opts);
+                    } else{
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                    $('.btn').button('reset');
+                    $('#confirm-modal').modal('hide');
+                }
+
+            });
         });
 
         function createTable(response){
@@ -598,7 +586,7 @@
                 }
                 $.each(authValue, function (index, item) {
 					if(item){
-                    accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-cancel"></i> </button></td></tr>';
+                    accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-trash"></i> </button></td></tr>';
 					}
                 });
                 $('.' + acountipclitable).children('tbody').html(accoutipclihtml);
@@ -638,7 +626,7 @@
 @section('footer_ext')
 @parent
 <div class="modal fade" id="addipcli-modal" >
-    <div class="modal-dialog" style="width: 30%;">
+    <div class="modal-dialog">
         <div class="modal-content">
             <form role="form" id="form-addipcli-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
                 <div class="modal-header">
@@ -646,11 +634,15 @@
                     <h4 class="modal-title">Add IP</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
                         <label class="col-sm-3 control-label">Account IP</label>
                         <div class="col-sm-9">
                             <textarea name="AccountIPCLI" class="form-control autogrow"></textarea>
                             *Adding multiple IPS or CLIs ,Add one IP or CLI in each line.
+                        </div>
+                    </div>
                         </div>
                     </div>
                 </div>
@@ -658,6 +650,43 @@
                     <button type="submit" data-loading-text = "Loading..."  class="btn btn-primary btn-sm btn-icon icon-left">
                         <i class="entypo-floppy"></i>
                         Add
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirm-modal" >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" id="form-confirm-modal" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Delete Ips</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">Date</label>
+                                <div class="col-sm-9">
+                                    <input type="text" value="{{date('Y-m-d')}}" name="Closingdate" id="Closingdate" class="form-control datepicker" data-date-format="yyyy-mm-dd" placeholder="">
+                                </div>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-9">This is the date when you deleted IP against this account from the switch</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" data-loading-text = "Loading..."  class="btn btn-primary btn-sm btn-icon icon-left">
+                        <i class="entypo-floppy"></i>
+                        Delete
                     </button>
                     <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                         <i class="entypo-cancel"></i>

@@ -8,10 +8,13 @@ class InvoiceTemplate extends \Eloquent {
     protected  $primaryKey = "InvoiceTemplateID";
     static protected  $enable_cache = false;
     public static $invoice_date_format = array(''=>'Select','d-m-Y'=>'dd-mm-yyyy','m-d-Y'=>'mm-dd-yyyy');
-
+	public static $HeaderDefault = "Invoice Company Name \n Address \n Country \n Email";
+	public static $TermsDefault = 'Edit This dummy Terms and Condition. Please carefully review the following basic rules that govern your use of the Website. Please note that your use of the Website constitutes your unconditional agreement to follow and be bound by these Terms and Conditions of Use. If you (the "User") do not agree to them, do not use the Website, provide any materials to the Website or download any materials from them.';
+	public static $FooterDefault = 'Edit This dummy Terms and Condition. Please carefully review the following basic rules that govern your use of the Website. Please note that your use of the Website constitutes your unconditional agreement to follow and be bound by these Terms and Conditions of Use. If you (the "User") do not agree to them, do not use the Website, provide any materials to the Website or download any materials from them';
+	
     static public function checkForeignKeyById($id) {
         $CompanyId = User::get_companyID();
-        if(Account::where(["CompanyID"=>$CompanyId, "InvoiceTemplateID"=>$id])->count()>0){
+        if(BillingClass::where(["CompanyID"=>$CompanyId, "InvoiceTemplateID"=>$id])->count()>0){
             return true;
         }
         return false;
@@ -36,7 +39,7 @@ class InvoiceTemplate extends \Eloquent {
     }
     public static function getAccountNextInvoiceNumber($AccountID){
 
-        $InvoiceTemplateID = AccountBilling::where(["AccountID"=>$AccountID])->pluck("InvoiceTemplateID");
+        $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($AccountID);
         if($InvoiceTemplateID > 0){
             return self::getNextInvoiceNumber($InvoiceTemplateID);
         }else{
@@ -56,7 +59,7 @@ class InvoiceTemplate extends \Eloquent {
 	public static function getAccountNextEstimateNumber($AccountID)
 	{
 
-        $InvoiceTemplateID = AccountBilling::where(["AccountID"=>$AccountID])->pluck("InvoiceTemplateID");
+        $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($AccountID);
         
 		if($InvoiceTemplateID > 0)
 		{

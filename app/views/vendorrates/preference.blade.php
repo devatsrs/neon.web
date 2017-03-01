@@ -170,7 +170,7 @@ jQuery(document).ready(function($) {
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push(  {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description},{"name":"Export","value":1});
             },
-            "iDisplayLength":'{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
              "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
              "aaSorting": [[1, "asc"]],
@@ -193,7 +193,7 @@ jQuery(document).ready(function($) {
                                 }
                                 action += '</div>';
 
-                                action += '<a href="Javascript:;" class="edit-vendor-rate btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
+                                action += ' <a href="Javascript:;" title="Edit" class="edit-vendor-rate btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
 
                                 return action;
                             }
@@ -337,7 +337,7 @@ jQuery(document).ready(function($) {
         for(var i = 0 ; i< list_fields.length; i++){
             $("#bulk-edit-vendor-rate-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
         }
-        $("#bulk-edit-vendor-rate-form [name='Preference']").val('{{getenv('DEFULT_PREFERENCE')}}');
+        $("#bulk-edit-vendor-rate-form [name='Preference']").val('{{CompanyConfiguration::get('DEFAULT_PREFERENCE')}}');
         if(criteria!=''){
             $('#modal-BulkVendorRate').modal('show', {backdrop: 'static'});
             $("#bulk-edit-vendor-rate-form [name='Action']").val('bulk');
@@ -379,7 +379,7 @@ jQuery(document).ready(function($) {
     });
     $("#bulk_set_vendor_rate").click(function(ev) {
 
-        $("#bulk-edit-vendor-rate-form").find("input[name='Preference']").val('{{getenv('DEFULT_PREFERENCE')}}');
+        $("#bulk-edit-vendor-rate-form").find("input[name='Preference']").val('{{CompanyConfiguration::get('DEFAULT_PREFERENCE')}}');
         $('#bulk-update-params-show').show();
         var search_html='<div class="row">';
         var col_count=1;
@@ -418,7 +418,7 @@ jQuery(document).ready(function($) {
         }
         $('#modal-BulkVendorRate').modal('show');
         $('#modal-BulkVendorRate .modal-header h4').text('Bulk Update Vendor Preference');
-        $("#bulk-edit-vendor-rate-form [name='Preference']").val('{{getenv('DEFULT_PREFERENCE')}}');
+        $("#bulk-edit-vendor-rate-form [name='Preference']").val('{{CompanyConfiguration::get('DEFAULT_PREFERENCE')}}');
 
 
         $('#modal-BulkVendorRate .modal-body').show();

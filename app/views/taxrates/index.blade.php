@@ -22,7 +22,7 @@
 @if( User::checkCategoryPermission('TaxRates','Add') )
     <a href="#" id="add-new-taxrate" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New TaxRate
+        Add New
     </a>
 @endif
 </p>
@@ -53,7 +53,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/taxrate/ajax_datagrid",
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
@@ -72,10 +72,10 @@ var postdata;
                          action += '<input type = "hidden"  name = "FlatStatus" value = "' + full[4] + '" / >';
                          action += '</div>';
                          <?php if(User::checkCategoryPermission('TaxRates','Edit')){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-taxrate btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-taxrate btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                          <?php } ?>
                          <?php if(User::checkCategoryPermission('TaxRates','Delete')){ ?>
-                            action += ' <a data-id="'+ id +'" class="delete-taxrate btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            action += ' <a data-id="'+ id +'" title="Delete" class="delete-taxrate btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                           <?php } ?>
                         return action;
                       }

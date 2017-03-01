@@ -21,7 +21,7 @@
 @if( User::checkCategoryPermission('Gateway','Add') )
     <a href="#" id="add-new-config" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add Gateway
+        Add New
     </a>
 @endif
 </p>
@@ -81,7 +81,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/gateway/ajax_datagrid/type",
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "fnServerParams": function(aoData) {
@@ -117,10 +117,10 @@ var postdata;
                          action += '</div>';
 
                          <?php if(User::checkCategoryPermission('Gateway','Edit') ){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-id="'+ full[3]+'" class="edit-config btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-name = "'+full[0]+'" data-id="'+ full[3]+'" title="Title" class="edit-config btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                          <?php } ?>
                          <?php if(User::checkCategoryPermission('Gateway','Delete') ){ ?>
-                            action += ' <a data-id="'+ full[4] +'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            //action += ' <a data-id="'+ full[4] +'" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-trash"></i>Delete </a>';
                          <?php } ?>
                          if( full[4]>0){
                             action += ' <a data-id="'+ full[4]+'" class="test-connection btn btn-success btn-sm btn-icon icon-left"><i class="entypo-rocket"></i>Test Connection </a>';
@@ -157,7 +157,7 @@ var postdata;
                    var id = $(this).attr('data-id');
                    var url = baseurl + '/gateway/'+id+'/ajax_existing_gateway_cronjob';
                    $('#delete-gateway-form [name="CompanyGatewayID"]').val(id);
-                   if(confirm('Are you sure you want to delete selected gateway?')) {
+                   if(confirm('Are you sure you want to delete selected gateway? All related data like CDR, summary etc will also delete.')) {
                        $.ajax({
                            url: url,
                            type: 'POST',
@@ -279,6 +279,8 @@ var postdata;
                     type: 'POST',
                     success: function(response) {
                         $('#ajax_config_html').html(response);
+                        initializeSelect2();
+
                     },
                     // Form data
                     data: "GatewayID="+$(this).val()+'&CompanyGatewayID='+$("#add-new-config-form [name='CompanyGatewayID']").val(),
@@ -434,6 +436,37 @@ var postdata;
                 });
             }
         });
+
+        function initializeSelect2(){
+            $("#ajax_config_html .select2").each(function(i, el)
+            {
+                var $this = $(el),
+                        opts = {
+                            allowClear: attrDefault($this, 'allowClear', false)
+                        };
+                if($this.hasClass('small')){
+                    opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
+                    opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search')
+                }
+                $this.select2(opts);
+                if($this.hasClass('small')){
+                    $this.select2('container').find('.select2-search').addClass ('hidden') ;
+                }
+                //$this.select2("open");
+            }).promise().done(function(){
+                $('.select2').css('visibility','visible');
+            });
+
+
+            if ($.isFunction($.fn.perfectScrollbar))
+            {
+                $(".select2-results").niceScroll({
+                    cursorcolor: '#d4d4d4',
+                    cursorborder: '1px solid #ccc',
+                    railpadding: {right: 3}
+                });
+            }
+        }
 
         function getselectedIDs(table){
             var SelectedIDs = [];

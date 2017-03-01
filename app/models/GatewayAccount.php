@@ -17,7 +17,8 @@ class GatewayAccount extends \Eloquent {
     public static function getActiveAccountIDList($CompanyID,$GatewayIDs=array()){
         $accountdata = array();
         $userID = User::get_userID();
-        $isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        //$isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        $isAdmin 					= 	(User::is_admin())?1:0;
         $gatewayids = "'".implode(',',array_filter($GatewayIDs,'intval'))."'";
         $account = DB::connection('sqlsrv2')->select("call prc_getActiveGatewayAccount ($CompanyID,$gatewayids,$userID,$isAdmin,'')");
         foreach($account as $dr){

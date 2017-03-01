@@ -7,8 +7,8 @@
         $("#add-new-config-form [name='CronJobID']").val('');
         $("#CronJobCommandID").select2().select2('val','');
         //$("#add-new-config-form [name='Setting[JobTime]']").val('');
-        $("#add-new-config-form [name='Setting[JobTime]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-        $("#add-new-config-form [name='Setting[JobDay][]']").select2().select2('val','');
+        $("#add-new-config-form [name='Setting[JobTime]']").val('').trigger("change");
+        $("#add-new-config-form [name='Setting[JobDay][]']").val('').trigger("change");
         $("#CronJobCommandID").trigger('change');
         $("#CronJobCommandID").prop("disabled", false);
         $('#add-new-modal-config h4').html('Add New Cron Job');
@@ -42,24 +42,23 @@
                 $("#add-new-config-form [name='Setting[JobStartTime]']").val(json['JobStartTime']);
             }
             if(json !== null && typeof  json['JobTime'] != 'undefined'){
-                $("#add-new-config-form [name='Setting[JobTime]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(json['JobTime']);
+                $("#add-new-config-form [name='Setting[JobTime]']").val(json['JobTime']).trigger("change");
             }
             if(json !== null && typeof  json['JobInterval'] != 'undefined'){
-                $("#add-new-config-form [name='Setting[JobInterval]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(json['JobInterval']);
+                $("#add-new-config-form [name='Setting[JobInterval]']").val(json['JobInterval']).trigger("change");
             }
             if(json !== null && typeof json['JobDay'] != 'undefined'){
                 var str =json['JobDay'].toString().split(",");
-                $("#add-new-config-form [name='Setting[JobDay][]']").select2().select2('val',str);
+                $("#add-new-config-form [name='Setting[JobDay][]']").val(str).trigger("change");
             }else{
-                $("#add-new-config-form [name='Setting[JobDay][]']").select2().select2('val','');
+                $("#add-new-config-form [name='Setting[JobDay][]']").val('').trigger("change");
             }
             if(json !== null && typeof  json['JobStartDay'] != 'undefined'){
-                $("#add-new-config-form [name='Setting[JobStartDay]']").selectBoxIt().data("selectBox-selectBoxIt").selectOption(json['JobStartDay']);
+                $("#add-new-config-form [name='Setting[JobStartDay]']").val(json['JobStartDay']).trigger("change");
             }
 
         }
-        $("#CronJobCommandID").select2().select2('val',prevrow.find("input[name='CronJobCommandID']").val());
-        $("#CronJobCommandID").trigger('change');
+        $("#CronJobCommandID").val(prevrow.find("input[name='CronJobCommandID']").val()).trigger("change");
         $("#CronJobCommandID").prop("disabled", true);
 
         if(prevrow.find("input[name='Status']").val() == 1 ){
@@ -117,6 +116,35 @@
                 type: 'POST',
                 success: function(response) {
                     $('#ajax_config_html').html(response);
+                    $("#ajax_config_html .select2").each(function(i, el)
+                    {
+                        var $this = $(el),
+                                opts = {
+                                    allowClear: attrDefault($this, 'allowClear', false)
+                                };
+                        if($this.hasClass('small')){
+                            opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
+                            opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search')
+                        }
+                        $this.select2(opts);
+                        if($this.hasClass('small')){
+                            $this.select2('container').find('.select2-search').addClass ('hidden') ;
+                        }
+                        //$this.select2("open");
+                    }).promise().done(function(){
+                        $('.select2').css('visibility','visible');
+                    });
+
+
+                    if ($.isFunction($.fn.perfectScrollbar))
+                    {
+                        $(".select2-results").niceScroll({
+                            cursorcolor: '#d4d4d4',
+                            cursorborder: '1px solid #ccc',
+                            railpadding: {right: 3}
+                        });
+                    }
+
                 },
                 // Form data
                 data: "CronJobCommandID="+$(this).val()+'&CronJobID='+$("#add-new-config-form [name='CronJobID']").val(),
@@ -138,42 +166,54 @@
 
         //console.log("in populateJonInterval ");
         $("#add-new-config-form [name='Setting[JobInterval]']").addClass('visible');
-        var selectBox = $("#add-new-config-form [name='Setting[JobInterval]']").selectBoxIt().data("selectBox-selectBoxIt");
-        var selectBoxStartDay = $("#add-new-config-form [name='Setting[JobStartDay]']").selectBoxIt().data("selectBox-selectBoxIt");
+        var selectBox = $("#add-new-config-form [name='Setting[JobInterval]']");
+        //var selectBoxStartDay = $("#add-new-config-form [name='Setting[JobStartDay]']").selectBoxIt().data("selectBox-selectBoxIt");
         $("#add-new-config-form .JobStartDay").hide();
         var starttime = $("#add-new-config-form .starttime");
         if(selectBox){
-            selectBox.remove();
+            selectBox.empty();
+            options = [];
             // console.log("jobtype" + jobtype);
             if(jobtype == 'HOUR'){
                 for(var i=1;i<'24';i++){
-                    selectBox.add({ value: i, text: i+" Hour"})
+                    options.push(new Option(i+" Hour", i, true, true));
                 }
                 starttime.show();
             }else if(jobtype == 'MINUTE'){
                 for(var i=1;i<60;i++){
-                    selectBox.add({ value: i, text: i+" Minute"})
+                    options.push(new Option(i+" Minute", i, true, true));
                 }
+                starttime.hide();
+                starttime.val('');
+            }else if(jobtype == 'SECONDS'){
+                options.push(new Option("10 Second", 10, true, true));
+                options.push(new Option("20 Second", 20, true, true));
+                options.push(new Option("30 Second", 30, true, true));
                 starttime.hide();
                 starttime.val('');
             }else if(jobtype == 'DAILY'){
                 for(var i=1;i<'32';i++){
-                    selectBox.add({ value: i, text: i+" Day"})
+                    options.push(new Option(i+" Day", i, true, true));
                 }
                 //console.log("jobtype" + jobtype);
                 starttime.show();
             }else if(jobtype == 'MONTHLY'){
                 for(var i=1;i<13;i++){
-                    selectBox.add({ value: i, text: i+" Month"})
+                    options.push(new Option(i+" Month", i, true, true));
                 }
                 for(var i=1;i<'32';i++){
-                    selectBoxStartDay.add({ value: i, text: i+" Day"})
+                    options.push(new Option(i+" Day", i, true, true));
+
                 }
                 $("#add-new-config-form .JobStartDay").show();
                 starttime.show();
             }
+            //options.sort();
+            selectBox.append(options);
+            var firstval = selectBox.find('option').first().val();
+            selectBox.val(firstval).trigger('change');
             @if(isset($commandconfigval->JobInterval))
-                selectBox.selectOption('{{$commandconfigval->JobInterval}}');
+            selectBox.val('{{$commandconfigval->JobInterval}}').trigger("change");
             @endif
         }
     }
@@ -250,13 +290,13 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Job Time</label>
-                                {{Form::select('Setting[JobTime]',array(""=>"Select run time","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),'',array( "class"=>"selectboxit"))}}
+                                {{Form::select('Setting[JobTime]',array(""=>"Select run time","SECONDS"=>"Seconds","MINUTE"=>"Minute","HOUR"=>"Hourly","DAILY"=>"Daily",'MONTHLY'=>'Monthly'),'',array( "class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Job Interval</label>
-                                {{Form::select('Setting[JobInterval]',array(),'',array( "class"=>"selectboxit"))}}
+                                {{Form::select('Setting[JobInterval]',array(),'',array( "class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="clear"></div>
@@ -278,7 +318,7 @@
                         <div class="col-md-6 JobStartDay">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Job Start Day</label>
-                                {{Form::select('Setting[JobStartDay]',array(),'',array( "class"=>"selectboxit"))}}
+                                {{Form::select('Setting[JobStartDay]',array(),'',array( "class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="col-md-6">

@@ -1,4 +1,5 @@
 CREATE TABLE `tmp_VendorUsageSummary` (
+  `VendorUsageSummaryID` int(11) NOT NULL AUTO_INCREMENT,
   `DateID` bigint(20) NOT NULL,
   `TimeID` int(11) NOT NULL,
   `CompanyID` int(11) NOT NULL,
@@ -15,7 +16,9 @@ CREATE TABLE `tmp_VendorUsageSummary` (
   `NoOfFailCalls` int(11) DEFAULT '0',
   `FinalStatus` int(11) DEFAULT '0',
   `CountryID` int(11) DEFAULT NULL,
+  PRIMARY KEY (`VendorUsageSummaryID`),
   KEY `tmp_VendorUsageSummary_dim_date` (`DateID`),
   KEY `tmp_VendorUsageSummary_AreaPrefix` (`AreaPrefix`),
-  KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`,`GatewayAccountID`,`CompanyGatewayID`,`Trunk`,`AreaPrefix`)
+  KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`,`GatewayAccountID`,`CompanyGatewayID`,`Trunk`,`AreaPrefix`),
+  KEY `IX_CompanyID` (`CompanyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

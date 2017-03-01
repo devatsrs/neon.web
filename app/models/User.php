@@ -36,7 +36,15 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             Config::set('auth.table', 'tblAccount');
             $auth = Auth::createEloquentDriver();
             Auth::setProvider($auth->getProvider());
-            if (Auth::attempt(array('BillingEmail' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 ,"VerificationStatus"=> Account::VERIFIED ))) {
+            $customer = Customer::where('BillingEmail','like','%'.$data["email"].'%')->first();
+            if($customer) {
+                if (Hash::check($data["password"], $customer->password)) {
+                    Auth::login($customer);
+                    Session::set("customer", 1);
+                    return true;
+                }
+            }
+            /*if (Auth::attempt(array('BillingEmail' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 ,"VerificationStatus"=> Account::VERIFIED ))) {
                 Session::set("customer", 1 );
                 return true;
             }
@@ -188,11 +196,16 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
         return $roles;
     }
-    public static function get_user_roles(){
+    public static function get_user_roles($id=0){
 
         $CompanyID = User::get_companyID();
         $select = ['tblRole.RoleID'];
-        $id = Auth::user()->UserID;
+        $check = 0;
+        if($id==0){
+            $check = 1;
+            $id = Auth::user()->UserID;
+        }
+
         $select[] = DB::raw('tblUserRole.RoleID,tblRole.RoleName');
         $role = Role::join('tblUserRole', function ($join) use ($CompanyID,$id) {
             $join->on('tblUserRole.RoleID', '=', 'tblRole.RoleID');
@@ -200,14 +213,18 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             $join->on('tblUserRole.UserID','=',DB::raw($id));
         });
         $roles = $role->select($select)->distinct()->get()->lists('RoleName');
-        $roless='';
-        if(count($roles)>0){
-            foreach($roles as $role){
-                $roless.=$role.',';
+        if($check==1) {
+            $roless = '';
+            if (count($roles) > 0) {
+                foreach ($roles as $role) {
+                    $roless .= $role . ',';
+                }
+                $roless = rtrim($roless, ',');
+            } elseif (User::is_admin()) {
+                return 'Admin';
             }
-            $roless = rtrim($roless,',');
-        }elseif(User::is_admin()){
-            return 'Admin';
+        }else{
+            $roless = $role->select($select)->distinct()->get()->lists('RoleID');
         }
         return $roless;
     }
@@ -444,5 +461,21 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         }
         return false;
 
+    }
+
+    public static function getEmailByUserName($CompanyID,$Name){
+        $useremail = '';
+        $users = User::where(["CompanyID"=>$CompanyID,"Status"=>'1'])->get();
+        if(count($users)>0){
+            foreach($users as $user){
+                $username = $user->FirstName.' '. $user->LastName;
+                if($username==$Name){
+                    if(!empty($user->EmailAddress)){
+                        $useremail = $user->EmailAddress;
+                    }
+                }
+            }
+        }
+        return $useremail;
     }
 }

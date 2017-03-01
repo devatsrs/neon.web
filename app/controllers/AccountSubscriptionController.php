@@ -23,6 +23,7 @@ class AccountSubscriptionController extends \BaseController {
 
         }elseif(!empty($data['SubscriptionActive']) && $data['SubscriptionActive'] == 'false'){
             $subscriptions->where('tblAccountSubscription.EndDate','<',date('Y-m-d'));
+            $subscriptions->where('tblAccountSubscription.EndDate','<>','0000-00-00') ;
         }
         $subscriptions->select($select);
 
@@ -58,6 +59,10 @@ class AccountSubscriptionController extends \BaseController {
 			 
             //'EndDate'               =>'required'
         );
+        if(!empty($data['EndDate'])) {
+            $rules['StartDate'] = 'required|date|before:EndDate';
+            $rules['EndDate'] = 'required|date';
+        }
         $validator = Validator::make($data, $rules);
         $validator->setPresenceVerifier($verifier);
 
@@ -103,6 +108,10 @@ class AccountSubscriptionController extends \BaseController {
 			 
                 //'EndDate' => 'required'
             );
+            if(!empty($data['EndDate'])) {
+                $rules['StartDate'] = 'required|date|before:EndDate';
+                $rules['EndDate'] = 'required|date';
+            }
             $validator = Validator::make($data, $rules);
             $validator->setPresenceVerifier($verifier);
 

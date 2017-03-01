@@ -10,7 +10,7 @@
     </div>
     <div class="panel-body">
         <div class="text-right">
-            <a  id="add-new-card" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New Card</a>
+            <a  id="add-new-card" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
             <div class="clear clearfix"><br></div>
         </div>
         <table class="table table-bordered datatable" id="table-4">
@@ -39,7 +39,7 @@
                     "bProcessing": true,
                     "bServerSide": true,
                     "sAjaxSource": ajax_url,
-                    "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                    "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting": [[5, 'desc']],
@@ -89,7 +89,7 @@
                                     action += '</div>';
 
                                     //action += ' <a class="edit-card btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                    action += ' <a data-id="'+ id +'" class="delete-card btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                                    action += ' <a data-id="'+ id +'" class="delete-card btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
 
                                     if (full[1]=="1") {
                                         action += ' <button href="' + DeActive_Card + '"  class="btn change_status btn-danger btn-sm disablecard" data-loading-text="Loading...">Deactivate</button>';
@@ -176,10 +176,12 @@
 
                 $('#add-new-card').click(function (ev) {
                     ev.preventDefault();
+                    var pgid = '{{PaymentGateway::getPaymentGatewayID()}}';
                     $("#add-credit-card-form")[0].reset();
                     $("#add-credit-card-form").find('input[name="cardID"]').val('');
-                    $("#add-credit-card-form [name='ExpirationMonth']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-                    $("#add-credit-card-form [name='ExpirationYear']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                    $("#add-credit-card-form [name='ExpirationMonth']").val('').trigger("change");
+                    $("#add-credit-card-form [name='ExpirationYear']").val('').trigger("change");
+                    $("#add-credit-card-form").find('input[name="PaymentGatewayID"]').val(pgid);
                     $('#add-modal-card').modal('show');
                 });
 
@@ -202,8 +204,8 @@
                     ev.preventDefault();
                     ev.stopPropagation();
                     $("#add-credit-card-form")[0].reset();
-                    $("#add-credit-card-form [name='ExpirationMonth']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-                    $("#add-credit-card-form [name='ExpirationYear']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                    $("#add-credit-card-form [name='ExpirationMonth']").val('').trigger("change");
+                    $("#add-credit-card-form [name='ExpirationYear']").val('').trigger("change");
                     cardID = $(this).prev("div.hiddenRowData").find("input[name='cardID']").val();
                     Title = $(this).prev("div.hiddenRowData").find("input[name='Title']").val();
                     $("#add-credit-card-form").find('[name="cardID"]').val(cardID);
@@ -297,12 +299,13 @@
                                     <input type="text" name="CardNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="cardID" />
                                     <input type="hidden" name="AccountID" />
+                                    <input type="hidden" name="PaymentGatewayID" />
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Card Type*</label>
-                                    {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"selectboxit")) }}
+                                    {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -317,10 +320,10 @@
                                         <label for="field-5" class="control-label">Expiry Date *</label>
                                     </div>
                                     <div class="col-md-4">
-                                        {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"selectboxit")) }}
+                                        {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"select2 small")) }}
                                     </div>
                                     <div class="col-md-4">
-                                        {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"selectboxit")) }}
+                                        {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"select2 small")) }}
                                     </div>
 
                                 </div>

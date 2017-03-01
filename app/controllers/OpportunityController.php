@@ -62,6 +62,7 @@ class OpportunityController extends \BaseController {
         if(!empty($opportunityattachment)) {
             $FilesArray = array();
             $allowed = Get_Api_file_extentsions(true);
+			if(isset($allowed->headers)){ return	Redirect::to('/logout'); 	}
 			if(!isset($allowed['allowed_extensions'])){
 				return json_response_api($allowed,false,true);
 			}
@@ -75,7 +76,7 @@ class OpportunityController extends \BaseController {
             foreach($opportunityattachment as $file){
                 $ext = $file->getClientOriginalExtension();
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['OPPORTUNITY_ATTACHMENT']);
-                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0777, true);
@@ -139,7 +140,7 @@ class OpportunityController extends \BaseController {
         return json_response_api($response);
     }
 
-    public function getLead($id){
+    public function getLeadorAccount($id){
         $response = NeonAPI::request('account/'.$id.'/get_account',[],false);
         $return=[];
         if($response->status=='failed'){

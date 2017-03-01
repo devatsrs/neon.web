@@ -48,8 +48,6 @@ class Account extends \Eloquent {
 
     public static $messages = array(
         'CurrencyId.required' =>'The currency field is required',
-        'InvoiceTemplateID.required' =>'Invoice Template  field is required',
-        'CDRType.required' =>'Invoice Format field is required',
         'BillingCycleType.required' =>'Billing Cycle field is required',
         'BillingCycleValue.required' =>'Billing Cycle Value field is required',
     );
@@ -389,5 +387,126 @@ class Account extends \Eloquent {
 		{
 			return 0;	
 		}
+	}
+
+    public static function getAccountIDByName($Name){
+        $companyID  	 = User::get_companyID();
+        return  Account::where(["AccountName"=>$Name,"CompanyID" => $companyID])->pluck('AccountID');
+    }
+
+    public static function getVendorLastInvoiceDate($AccountID){
+        $LastInvoiceDate = '';
+        $invoiceDetail =   Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')->where(array('AccountID'=>$AccountID,'InvoiceType'=>Invoice::INVOICE_IN))->orderBy('IssueDate','DESC')->limit(1)->first(['EndDate']);
+        if(!empty($invoiceDetail)){
+            $LastInvoiceDate = $invoiceDetail->EndDate;
+        }else{
+            $account = Account::find($AccountID);
+            $LastInvoiceDate = date('Y-m-d',strtotime($account->created_at));
+        }
+        return $LastInvoiceDate;
+
+    }
+    public static function getCustomerIDList($data=array()){
+
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
+        $data['Status'] = 1;
+        $data['AccountType'] = 1;
+        $data['VerificationStatus'] = Account::VERIFIED;
+        $data['CompanyID']=User::get_companyID();
+        $row = Account::where($data)
+            ->where(function($where){
+                $where->Where(['IsCustomer'=>1]);
+                $where->orwhereNull('IsCustomer');
+                $where->orwhereRaw('(IsCustomer = 0 AND IsVendor = 0)');
+            })
+            ->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+    }
+	
+	 public static function GetAccountAllEmails($id,$ArrayReturn=false){
+	  $array			 =  array();
+	  $accountemails	 = 	Account::where(array("AccountID"=>$id))->select(array('Email', 'BillingEmail'))->get();
+	  $acccountcontact 	 =  DB::table('tblContact')->where(array("AccountID"=>$id))->get(array("Email"));	
+	  
+	  	
+		if(count($accountemails)>0){
+				foreach($accountemails as $AccountData){
+					//if($AccountData->Email!='' && !in_array($AccountData->Email,$array))
+					if($AccountData->Email!='')
+					{
+						if(!is_array($AccountData->Email))
+						{				  
+						  $email_addresses = explode(",",$AccountData->Email);				
+						}
+						else
+						{
+						  $email_addresses = $emails;
+						}
+						if(count($email_addresses)>0)
+						{
+							foreach($email_addresses as $email_addresses_data)
+							{
+								$txt = $email_addresses_data;
+								if(!in_array($txt,$array))
+								{
+									$array[] =  $txt;	
+								}
+							}
+						}
+						
+					}			
+					
+					if($AccountData->BillingEmail!='')
+					{
+						if(!is_array($AccountData->BillingEmail))
+						{				  
+						  $email_addresses = explode(",",$AccountData->BillingEmail);				
+						}
+						else
+						{
+						  $email_addresses = $emails;
+						}
+						if(count($email_addresses)>0)
+						{
+							foreach($email_addresses as $email_addresses_data)
+							{
+								$txt = $email_addresses_data;
+								if(!in_array($txt,$array))
+								{
+									//$array[] =  $email_addresses_data;	
+									$array[] =  $txt;	
+								}
+							}
+						}
+						
+					}
+				}
+		}
+		
+		if(count($acccountcontact)>0){
+				foreach($acccountcontact as $ContactData){
+					$txt = $ContactData->Email;
+					if($ContactData->Email!=''  && !in_array($txt,$array))
+					{
+						$array[] =  $txt;
+						//$array[] =  $ContactData->Email;
+					}
+				}
+		}
+	if($ArrayReturn){return $array;}	
+	  return implode(",",$array);
+	}
+	
+	public static function checkAccountByEmail($email){
+		   return Account::whereRaw( "( Email = '".$email."' OR  BillingEmail = '".$email."' )")->pluck('AccountID');
 	}
 }

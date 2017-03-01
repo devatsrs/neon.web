@@ -416,7 +416,14 @@ toastr_opts = {
                 $popover.addClass(popover_class);
             });
         });
-
+        $("body").tooltip({
+            selector: '[data-toggle="tooltip"]'
+        });
+		$('[data-toggle="tooltip"]').click(function() {
+            $('.tooltip').fadeOut('fast', function() {
+                $('.tooltip').remove();
+            });
+        });
         $('[data-toggle="tooltip"]').each(function(i, el)
         {
             var $this = $(el),
@@ -644,30 +651,43 @@ toastr_opts = {
         // Select2 Dropdown replacement
         if ($.isFunction($.fn.select2))
         {
-            $(".select2").each(function(i, el)
-            {
-                var $this = $(el),
-                    opts = {
-                        allowClear: attrDefault($this, 'allowClear', false)
-                    };
-
-                $this.select2(opts);
-                $this.addClass('visible');
-
-                //$this.select2("open");
+            $(".select2").each(function(i, el) {
+                buildselect2(el);
+            }).promise().done(function(){
+                $('.select2').css('visibility','visible');
             });
-
 
             if ($.isFunction($.fn.perfectScrollbar))
             {
-                $(".select2-results").niceScroll({
-                    cursorcolor: '#d4d4d4',
-                    cursorborder: '1px solid #ccc',
-                    railpadding: {right: 3}
-                });
+                nicescroll();
             }
+
         }
 
+        function formatState (state) {
+            console.log(state);
+            if (!state.id) { return state.text; }
+            var $state = $(
+                '<span><img src="vendor/images/flags/' + state.element.value.toLowerCase() + '.png" class="img-flag" /> ' + state.text + '</span>'
+            );
+            return $state;
+        };
+
+        function addUserPic (opt) {
+            console.log(opt);
+            if (!opt.id) {
+                return opt.text;
+            }
+            var optimage = $(opt.element).data('image');
+            if(!optimage){
+                return opt.text;
+            } else {
+                var $opt = $(
+                    '<span class="userName"><i class="entypo-plus"></i>' + $(opt.element).text() + '</span>'
+                );
+                return $opt;
+            }
+        };
 
 
 
@@ -1554,6 +1574,41 @@ toastr_opts = {
 
 
 /* Functions */
+
+function buildselect2(el){
+    var $this = $(el),
+        opts = {
+            allowClear: attrDefault($this, 'allowClear', false),
+            formatResult: function(item) {
+                if(item.id=='select2-add'){
+                    return '<span class="select2-add"><i class="entypo-plus-circled"></i>'+item.text+'</span>';
+                }
+                return '<span class="select2-match"></span>'+ item.text ;
+            }
+        };
+    if($this.hasClass('small')){
+        opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
+        opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search');
+    }
+    if($this.hasClass('select2add')){
+        $this.prepend('<option value="select2-add" disabled="disabled">Add</option>');
+    }
+
+    $this.select2(opts);
+    if($this.hasClass('small')){
+        $this.select2('container').find('.select2-search').addClass ('hidden') ;
+    }
+}
+
+function nicescroll(){
+    $(".select2-results").niceScroll({
+        cursorcolor: '#d4d4d4',
+        cursorborder: '1px solid #ccc',
+        railpadding: {right: 3}
+    });
+}
+
+
 function fit_main_content_height()
 {
     var $ = jQuery;
@@ -1565,13 +1620,15 @@ function fit_main_content_height()
 
         if (isxs())
         {
-            if (typeof reset_mail_container_height != 'undefined')
-                reset_mail_container_height();
-            return;
+            public_vars.$sidebarMenu.css('display','block');
+            public_vars.$mainContent.css('display','inherit');
 
             if (typeof fit_calendar_container_height != 'undefined')
                 reset_calendar_container_height();
             return;
+        }else{
+            public_vars.$sidebarMenu.css('display','table-cell');
+            public_vars.$mainContent.css('display','table-cell');
         }
 
         var sm_height = public_vars.$sidebarMenu.outerHeight(),
@@ -2284,16 +2341,16 @@ function ShowToastr(type, message) {
     }
 
 }
-
-function showAjaxScript(url, formData, FnSucces) {
-
+//@TODO: Pass dataType in function
+function showAjaxScript(url, formData, FnSucces, dataType) {
+    if (typeof(dataType)==='undefined') dataType = 'json';
     $.ajax({
         url: url, //Server script to process data
         type: 'POST',
-        dataType: 'json',
+        dataType: dataType,
         success: FnSucces,
         error: function(error) {
-            $(".save.btn").button('reset');
+            $(".btn").button('reset');
             ShowToastr("error", error);
         },
         // Form data
@@ -2315,6 +2372,23 @@ function showJobAjaxModal(id)
         success: function(response)
         {
             jQuery('#modal-job .modal-body').html(response);
+            jobID = id;
+            jobRead(jobID);
+
+        }
+    });
+}
+
+function showEmailMessageAjaxModal(id)
+{
+    jQuery('#modal-mailmsg').modal('show', {backdrop: 'static'});
+
+    jQuery('#modal-mailmsg .modal-body').html("Content is loading...");
+    $.ajax({
+        url: baseurl + "/emailmessages/" + id + "/show",
+        success: function(response)
+        {
+            jQuery('#modal-mailmsg .modal-body').html(response);
             jobID = id;
             jobRead(jobID);
 
@@ -2443,6 +2517,15 @@ bindResetCounter = function(){
     });
 }
 
+bindResetCounterEmailMsgs = function(){
+    $('.dropdown-toggle.msgs').on('click', function (e) {
+        /* Load Data only when Dropdown open */
+        if(!$(this).parent().hasClass("open")){
+            reloadMsgDrodown(1);
+        }
+    });
+}
+
 /*
  * Reset the new job Alert Counter to 0
  * */
@@ -2480,14 +2563,40 @@ reloadJobsDrodown = function(reset){
             bindResetCounter();
         });
     }
+	
 };
 try{
-    setTimeout(function(){ reloadJobsDrodown(0); }, 2000);
+    setTimeout(function(){ reloadJobsDrodown(0); reloadMsgDrodown(0); }, 2000);
     bindResetCounter();
+	bindResetCounterEmailMsgs();
 }catch(er){
 
 }
 
+
+reloadMsgDrodown = function(reset){
+	 if(customer[0].customer!=1){
+        $.get( baseurl + "/loadDashboardMsgsDropDown?reset="+reset, function( data ) {
+
+            $( ".notifications.msgs.dropdown" ).html( data );
+
+            //Add Scroller
+            if ($.isFunction($.fn.niceScroll))
+            {
+                public_vars.$body.find('.dropdown .scroller').niceScroll({
+                    cursorcolor: '#d4d4d4',
+                    cursorborder: '1px solid #ccc',
+                    railpadding: {right: 3},
+                    cursorborderradius: 1,
+                    autohidemode: true,
+                    sensitiverail: true
+                });
+            }
+			bindResetCounterEmailMsgs();
+        });		
+    }
+	
+};
 
 /*
  * Ajax: Job Read
@@ -2544,10 +2653,192 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
     }
 });
 
-/* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
+//Start Block Added by Abubakar
 $('.modal').on('show.bs.modal', function (e) {
+    if (isxs()) {
+     $('.modal').find('.pull-left,.pull-right').each(function(){
+         $(this).removeClass('pull-left').removeClass('pull-right'); 		
+		 });
+    }
+});
+
+$(document).on('click','[data-action="showAddModal"]' ,function(e) {
+    e.preventDefault();
+    var self = $(this);
+    var modal = $('#'+self.attr('data-modal'));
+    var form = modal.find('form:eq(0)');
+    resetForm(form,self.attr('data-type'));
+    modal.modal('show');
+    modal.find('h4').html("Add New"+getTitle(self.attr('data-type')));
+});
+
+$(document).on('select2-open','.select2add' ,function(e) {
+    var self = $(e.target);
+    var modal = $('#'+self.attr('data-modal'));
+    var form = modal.find('form:eq(0)');
+    $('select[data-type="'+self.attr('data-type')+'"]').attr('data-active',0);
+    $(self).attr('data-active',1);
+    $('.select2-results .select2-add').parents('li').on('click', function(e) {
+        e.stopPropagation();
+        self.select2("close");
+        resetForm(form,self.attr('data-type'));
+        modal.modal('show');
+        modal.find('h4').html("Add New"+getTitle(self.attr('data-type')));
+    });
+});
+
+function resetForm(form,type){
+    form.trigger("reset");
+    $.each(form[0].elements, function(index,field) {
+        field = $(field);
+        if(field.is("input")){
+            field.val(setDefaultValue(type,field));
+        }else if(field.is("select")){
+            field.val(setDefaultValue(type,field)).trigger('change');
+        }else if(field.is("img")){
+            field.prop("src",setDefaultValue(type,field));
+        }
+    });
+    showHideControls(form);
+}
+
+function showHideControls(form){
+    var toBeHide = [];
+    var toBeShow = [];
+    if(form.attr('id')=="add-new-invoice_template-form"){
+        toBeHide[0] = ".LastInvoiceNumber";
+        toBeHide[1] = ".LastEstimateNumber";
+        toBeShow[0] = "#InvoiceStartNumberToggle";
+        toBeShow[1] = "#EstimateStartNumberToggle";
+    }
+    if(toBeHide.length > 0) {
+        for (var i = 0; i < toBeHide.length; i++) {
+            form.find(toBeHide[i]).addClass('hidden');
+        }
+    }
+
+    if(toBeShow.length > 0) {
+        for (var i = 0; i < toBeHide.length; i++) {
+            form.find(toBeShow[i]).removeClass('hidden');
+        }
+    }
+}
+
+function setDefaultValue(type,field){
+    var value = '';
+    var defaultValue = {};
+    defaultValue.emailtemplate = {Email_template_privacy:"0"};
+    defaultValue.invoice_template = {CompanyLogoUrl:"http://placehold.it/250x100"};
+    defaultValue.billing_class = {PaymentDueInDays:"1",RoundChargesAmount:"2"};
+    if(defaultValue.hasOwnProperty(type)){
+        var sub = defaultValue[type];
+        if(sub.hasOwnProperty(field.attr('name'))){
+            value = sub[field.attr('name')];
+        }
+    }
+    removeAttr(type,field);
+    return value;
+}
+
+function removeAttr(type,field){
+    var removeAttr = {};
+    removeAttr.currency = {Code:"readonly"};
+    if(removeAttr.hasOwnProperty(type)){
+        var sub = removeAttr[type];
+        if(sub.hasOwnProperty(field.attr('name'))){
+            field.removeAttr(sub[field.attr('name')]);
+        }
+    }
+}
+
+function getTitle(string){
+    var title = '';
+    if(string.indexOf('_')!=-1){
+        var arr = string.split('_');
+        for(var i=0;i<arr.length;i++){
+            title+= ' '+arr[i].ucfirst();
+        }
+    }else{
+        title = ' '+string.ucfirst();
+    }
+    return title;
+}
+
+function rebuildSelect2(el,data,defualtText){
+    el.empty();
+    options = [];
+    $.each(data,function(key,value){
+        if(typeof value == 'object'){
+            key = value.id;
+            value = value.text;
+        }
+        options.push(new Option(value, key, false, false));
+    });
+    if(defualtText.length > 0){
+        options.push(new Option(defualtText, '', true, true));
+    }
+    options.sort();
+    options.reverse();
+    el.append(options);
+    if(el.hasClass('select2add')){
+        el.prepend('<option value="select2-add" disabled="disabled">Add</option>');
+    }
+    el.trigger('change');
+}
+
+function setSelection(self){
+    var tr = self.parents('tr');
+    if(tr.is('tr') && !tr.hasClass('selected')) {
+        tr.find('.rowcheckbox').prop("checked", true);
+        tr.addClass('selected');
+    }
+}
+
+String.prototype.ucfirst = function() {
+    return this.charAt(0).toUpperCase() + this.substr(1);
+};
+
+$(document).on('click','[redirecto]',function(){
+    var url = $(this).attr('redirecto');
+    window.location.href=url;
+});
+
+$(document).ajaxComplete(function(event, xhr, settings) {
+    $('.make-switch').each(function(index, elem) {
+        //Initialize all switches if they haven't been already
+        if (!$(elem).hasClass('has-switch')) {
+            $(elem).bootstrapSwitch();
+        }
+    });
+    if (isxs()){
+        $('.dataTables_wrapper').each(function(){
+            var self = $(this);
+            setTimeout(resetWidth, 3000,self);
+            self.css('overflow-x','scroll').css('overflow-y','hidden');
+        });
+    }
+});
+
+$(document).on('change','#drp_toandfro_jump',function(){
+    var val = $(this).val();
+    if(val!="") {
+
+        var url = window.location.href.replace(baseurl,"");
+        var p = new RegExp('(\\/)(\\d+)', ["i"]);
+        var m = p.exec(url);
+        if (m != null) {
+            url = url.replace(m[2], val);
+            window.location.href = baseurl + url;
+        }
+    }
+});
+
+//End Block Added by Abubakar
+
+/* Firefox Modal Position : fixed issue and chrome rate field edit issue  */
+/*$('.modal').on('show.bs.modal', function (e) {
     $('.modal').css('top', $(document).scrollTop() + 20);
-})
+})*/
 function submit_ajax(fullurl,data,refreshjob){
     $.ajax({
         url:fullurl, //Server script to process data
@@ -2563,6 +2854,10 @@ function submit_ajax(fullurl,data,refreshjob){
                 }
                 if(refreshjob){
                     reloadJobsDrodown(0);
+					reloadMsgDrodown(0);
+                }
+                if(typeof response.redirect != 'undefined' && response.redirect != ''){
+                    window.location = response.redirect;
                 }
             } else {
                 toastr.error(response.message, "Error", toastr_opts);
@@ -2588,6 +2883,7 @@ function submit_ajax_datatable(fullurl,data,refreshjob,data_table_reload){
                 }
                 if(refreshjob){
                     reloadJobsDrodown(0);
+					reloadMsgDrodown(0);
                 }
             } else {
                 toastr.error(response.message, "Error", toastr_opts);
@@ -2621,6 +2917,7 @@ function submit_ajax_withfile(fullurl,formData,refreshjob,loading_bar) {
                 }
                 if(refreshjob){
                     reloadJobsDrodown(0);
+					reloadMsgDrodown(0);
                 }
                 if(loading_bar){
                     show_loading_bar({
@@ -2657,6 +2954,7 @@ function submit_ajaxbtn(fullurl,data,refreshjob,btn,reload){
                 }
                 if(refreshjob){
                     reloadJobsDrodown(0);
+					reloadMsgDrodown(0);
                 }
                 if(reload){
                     location.reload();
@@ -2680,19 +2978,6 @@ function pie_chart(class_name,data){
     });
 }
 
-$(document).on('change','#drp_customers_jump',function(){
-    var val = $(this).val();
-    if(val!="") {
-
-        var url = window.location.href.replace(baseurl,"");
-        var p = new RegExp('(\\/)(\\d+)', ["i"]);
-        var m = p.exec(url);
-        if (m != null) {
-            url = url.replace(m[2], val);
-            window.location.href = baseurl + url;
-        }
-    }
-});
 function ajax_json(fullurl,data,callback){
     $.ajax({
         url:fullurl, //Server script to process data
@@ -2728,18 +3013,23 @@ function getTableFieldValue(controller_url, id,field ,callback){
     var get_url = baseurl +'/' + controller_url +'/'+id+'/get/'+field;
     $.get( get_url, callback, "json" );
 }
-$(document).ajaxComplete(function(event, xhr, settings) {
-    $('.make-switch').each(function(index, elem) {
-        //Initialize all switches if they haven't been already
-        if (!$(elem).hasClass('has-switch')) {
-            $(elem).bootstrapSwitch();
-        }
-    });
-});
-$(document).on('click','[redirecto]',function(){
-    var url = $(this).attr('redirecto');
-    window.location.href=url;
-});
+
+function resetWidth(self){
+    var table = self.find('table');
+    var width = 0;
+    if(table.hasClass('hidden')){
+        table.removeClass('hidden');
+        width = self.find('table').outerWidth();
+        table.addClass('hidden');
+    }else{
+        width = self.find('table').outerWidth();
+    }
+    self.find('div.row').each(function(index,item){
+        $(item).css('width',width);
+        $(item).css('margin',0);
+        $(item).find('.col-xs-6').css('padding',0);
+    }.bind(width));
+}
 
 function isJson(str) {
     try {
@@ -2750,5 +3040,101 @@ function isJson(str) {
     return true;
 }
 
+  $(document).on('mouseover','.shortname',
+		function(){
+			var a = $(this).attr('FullName');
+			$(this).html(a);
+		}
+  ).on('mouseout',function(){
+		var a = $(this).attr('ShortName');                
+		$(this).html(a);
+	});
 
+function IsJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
 
+function bytesToSize(filesize) {
+  var sizeInMB = (filesize / (1024*1024)).toFixed(2);
+  if(sizeInMB>max_file_size)
+  {return 1;}else{return 0;}  
+}
+
+function table_row_select(table,selectallbutton) {
+    $('#' + table + ' tbody').on('click', 'tr', function () {
+        var checked = '';
+        if ($('#' + selectallbutton).is(':checked')) {
+            checked = 'checked=checked disabled';
+        }
+        if (checked == '') {
+            if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                $(this).toggleClass('selected');
+                if ($(this).hasClass('selected')) {
+                    $(this).find('.rowcheckbox').prop("checked", true);
+                } else {
+                    $(this).find('.rowcheckbox').prop("checked", false);
+                }
+            }
+        }
+    });
+}
+
+function selected_all(id,table) {
+    $("#" + id).click(function (ev) {
+        var is_checked = $(this).is(':checked');
+        $('#' + table + ' tbody tr').each(function (i, el) {
+            if (is_checked) {
+                $(this).find('.rowcheckbox').prop("checked", true);
+                $(this).addClass('selected');
+            } else {
+                $(this).find('.rowcheckbox').prop("checked", false);
+                $(this).removeClass('selected');
+            }
+        });
+    });
+}
+
+function default_row_selected(table,selectall,selectallbutton) {
+    $('#' + table + ' tbody tr').each(function (i, el) {
+        var checked = '';
+        if ($('#' + selectallbutton).is(':checked')) {
+            checked = 'checked=checked disabled';
+        }
+        if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+            if (checked != '') {
+                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                $(this).addClass('selected');
+                $('#' + selectall).prop("checked", true);
+            } else {
+                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                $(this).removeClass('selected');
+            }
+        }
+    });
+}
+
+function select_all_top(selectallbutton,table,selectall) {
+    //select all record
+    $('#' + selectallbutton).click(function () {
+        if ($('#' + selectallbutton).is(':checked')) {
+            //checked = 'checked=checked disabled';
+            $("#" + selectall).prop("checked", true).prop('disabled', true);
+            $('#' + table + ' tbody tr').each(function (i, el) {
+                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                $(this).addClass('selected');
+            });
+        } else {
+            //checked = '';
+            $("#" + selectall).prop("checked", false).prop('disabled', false);
+            $('#' + table + ' tbody tr').each(function (i, el) {
+                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                $(this).removeClass('selected');
+            });
+        }
+    });
+}

@@ -9,8 +9,8 @@ BEGIN
 			area_prefix VARCHAR(50),
 			VendorCDRID INT,
 			billed_duration INT,
-			cli VARCHAR(100),
-			cld VARCHAR(100),
+			cli VARCHAR(500),
+			cld VARCHAR(500),
 			selling_cost DECIMAL(18,6),
 			buying_cost DECIMAL(18,6),
 			connect_time DATETIME,
@@ -46,7 +46,7 @@ BEGIN
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID)) 
 	AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))	
 	AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))	
-	AND (p_ZeroValueBuyingCost = 0 OR ( p_ZeroValueBuyingCost = 1 AND buying_cost > 0))		
+	AND (p_ZeroValueBuyingCost = 0 OR ( p_ZeroValueBuyingCost = 1 AND buying_cost = 0) OR ( p_ZeroValueBuyingCost = 2 AND buying_cost > 0))		
 	) tbl
 	WHERE 
 	

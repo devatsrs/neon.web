@@ -83,7 +83,7 @@
                                 </div>
                                 <label for="field-1" class="col-sm-1 control-label">Status</label>
                                 <div class="col-sm-3">
-                                    {{Form::select('TaskStatus',[''=>'Select a Status']+$taskStatus,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('TaskStatus',[''=>'Select a Status']+$taskStatus,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                             <div class="form-group">
@@ -99,7 +99,7 @@
                                 </div>
                                 <label for="field-1" class="col-sm-1 control-label">Due Date</label>
                                 <div class="col-sm-2">
-                                    {{Form::select('DueDateFilter',Task::$tasks,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('DueDateFilter',Task::$tasks,'',array("class"=>"select2 small"))}}
                                 </div>
                                 <div class="col-sm-2 hidden tohidden">
                                     <input autocomplete="off" id="DueDateFrom" placeholder="From" type="text" name="DueDateFrom" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" />
@@ -132,7 +132,7 @@
         </p>
 
         <section class="deals-board">
-            <table class="table table-bordered datatable" id="taskGrid">
+            <table class="table table-bordered datatable hidden" id="taskGrid">
                 <thead>
                 <tr>
                     <th width="30%" >Subject</th>
@@ -221,7 +221,7 @@
                             {"name": "taskClosed","value": $searchFilter.taskClosed}
                     );
                 },
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[1, 'desc']],
@@ -265,7 +265,7 @@
                             }
                             action += '</div>';
                             @if(User::checkCategoryPermission('Task','Edit'))
-                            action += ' <a data-id="' + full[2] + '" class="edit-deal btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-id="' + full[2] + '" class="edit-deal btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                             @endif
                             return action;
                         }
@@ -316,7 +316,7 @@
                         if(task[i]=='TaggedUsers') {
                             $('#edit-task-form [name="' + task[i] + '[]"]').select2('val', val.split(','));
                         }else {
-                            elem.selectBoxIt().data("selectBox-selectBoxIt").selectOption(val);
+                            elem.val(val).trigger("change");
                         }
                     } else{
                         elem.val(val);
@@ -855,7 +855,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label col-sm-4">Task Status *</label>
                                     <div class="col-sm-8">
-                                        {{Form::select('TaskStatus',$taskStatus,'',array("class"=>"selectboxit"))}}
+                                        {{Form::select('TaskStatus',$taskStatus,'',array("class"=>"select2 small"))}}
                                     </div>
                                 </div>
                             </div>
@@ -951,22 +951,19 @@
                     </div>
                     <div class="modal-body">
                         <form id="add-task-comments-form" method="post" enctype="multipart/form-data">
-                            <div class="form-group">
+                            <div class="row">
                                 <div class="col-md-12 text-left">
                                     <h4>Add Comment</h4>
                                 </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-12">
-                                    <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                    <div class="form-group">
+                                        <textarea class="form-control autogrow resizevertical" name="CommentText" placeholder="Write a comment."></textarea>
+                                    </div>
                                 </div>
-                                <div class="col-md-11">
-                                </div>
-                                <div class="col-md-1">
-                                    <p class="comment-box-options">
-                                        <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
-                                            <i class="entypo-attach"></i>
-                                        </a>
-                                    </p>
-                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-sm-6 pull-left end-buttons sendmail" style="text-align: left;">
                                     <label for="field-5" class="control-label">Send Mail To Customer:</label>
                                     <span id="label-switch" class="make-switch switch-small">
@@ -974,6 +971,11 @@
                                     </span>
                                 </div>
                                 <div class="col-sm-6 pull-right end-buttons" style="text-align: right;">
+                                    <p class="comment-box-options">
+                                        <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)">
+                                            <i class="entypo-attach"></i>
+                                        </a>
+                                    </p>
                                     <input type="hidden" name="TaskID" >
                                     <input type="hidden" name="AccountID" >
                                     <button data-loading-text="Loading..." id="commentadd" class="add btn btn-primary btn-sm btn-icon icon-left" type="submit" style="visibility: visible;">
@@ -990,19 +992,25 @@
                                 </div>
                             </div>
                         </form>
-                        <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
-                        <br>
-                        <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
-                        <div id="allComments" class="form-group">
-
+                        <div class="row">
+                            <div class="co-md-12">
+                                <div id="comment_processing" class="dataTables_processing hidden">Processing...</div>
+                                <div id="attachment_processing" class="dataTables_processing hidden">Processing...</div>
+                                <div id="allComments"></div>
+                            </div>
                         </div>
-                        <div id="attachments" class="form-group">
+                        <div class="row">
+                            <div class="co-md-12">
+                                <div id="attachments" class="form-group"></div>
+                            </div>
                         </div>
                         <form id="add-task-attachment-form" method="post" enctype="multipart/form-data">
-                            <div class="col-md-8"></div>
-                            <div class="col-md-4" id="addattachmentop" style="text-align: right;">
-                                <input type="file" name="taskattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
-                                <input type="hidden" name="TaskID" >
+                            <div class="row">
+                                <div class="col-md-8"></div>
+                                <div class="col-md-4" id="addattachmentop" style="text-align: right;">
+                                    <input type="file" name="taskattachment[]" data-loading-text="Loading..." class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" multiple data-label="<i class='entypo-attach'></i>Add Attachments" />
+                                    <input type="hidden" name="TaskID" >
+                                </div>
                             </div>
                         </form>
                     </div>

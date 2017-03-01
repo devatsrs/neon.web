@@ -7,7 +7,7 @@
             <div class="col-md-12">
                 <div class="form-group">
                 <label for="drp_rateGenerators" class="control-label ">Gateway</label>
-                    {{Form::select('CompanyGatewayID', $CompanyGateway, (isset($commandconfigval->CompanyGatewayID)?$commandconfigval->CompanyGatewayID:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"selectboxit form-control"))}}
+                    {{Form::select('CompanyGatewayID', $CompanyGateway, (isset($commandconfigval->CompanyGatewayID)?$commandconfigval->CompanyGatewayID:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"select2 small form-control"))}}
                 </div>
             </div>
         @endif
@@ -16,20 +16,22 @@
             <div class="col-md-6">
                 <div class="form-group">
                 <label class="control-label ">Email Template</label>
-                    {{Form::select('TemplateID', $emailTemplates, (isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:'') ,array("class"=>"selectboxit form-control"))}}
+                    {{Form::SelectControl('email_template',1,(isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:''))}}
+                    <!--{Form::select('TemplateID', $emailTemplates, (isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:'') ,array("class"=>"select2 small form-control"))}}-->
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                 <label class="control-label ">Account</label>
-                    {{Form::select('AccountID', $accounts, (isset($commandconfigval->AccountID)?$commandconfigval->AccountID:'') ,array("class"=>"selectboxit form-control"))}}
+                    {{Form::select('AccountID', $accounts, (isset($commandconfigval->AccountID)?$commandconfigval->AccountID:'') ,array("class"=>"select2 small form-control"))}}
                 </div>
             </div>
         @elseif(isset($emailTemplates) && count($emailTemplates) > 0)
             <div class="col-md-12">
                 <div class="form-group">
                     <label class="control-label ">Email Template</label>
-                    {{Form::select('TemplateID', $emailTemplates, (isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:'') ,array("class"=>"selectboxit form-control"))}}
+                    {{Form::SelectControl('email_template',1,(isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:''))}}
+                    <!--{Form::select('TemplateID', $emailTemplates, (isset($commandconfigval->TemplateID)?$commandconfigval->TemplateID:'') ,array("class"=>"select2 small form-control"))}}-->
                 </div>
             </div>
         @endif
@@ -38,14 +40,31 @@
             <div class="col-md-6">
                 <div class="form-group">
                 <label for="drp_rateGenerators" class="control-label ">Rate Generator</label>
-                    {{Form::select('rateGenerators', $rateGenerators, (isset($commandconfigval)?$commandconfigval->rateGeneratorID:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"selectboxit form-control"))}}
+                    {{Form::select('rateGenerators', $rateGenerators, (isset($commandconfigval)?$commandconfigval->rateGeneratorID:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"select2 small form-control"))}}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="drp_rateGenerators" class="control-label ">Rate Table</label>
 
-                    {{Form::select('rateTables', $rateTables,(isset($commandconfigval)?$commandconfigval->rateTableID:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"selectboxit form-control"))}}
+                    {{Form::select('rateTables', $rateTables,(isset($commandconfigval)?$commandconfigval->rateTableID:'') ,array("id"=>"drp_rateGenerators" ,"class"=>"select2 small form-control"))}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="drp_rateGenerators" class="control-label ">&nbsp;</label>
+                    <div>
+                        <label for="drp_rateGenerators" class="control-label">
+                            <input type="checkbox" id="rd-1" name="replace_rate" value="1" @if (isset($commandconfigval->replace_rate) && ($commandconfigval->replace_rate==1) > 0) checked @endif > &nbsp;&nbsp;Replace all of the existing rates
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="drp_rateGenerators" class="control-label ">Effective Rate</label>
+
+                    {{Form::select('EffectiveRate', array('now'=>'Current','effective'=>'Effective on selected effective date','future'=>'Future'),(isset($commandconfigval->EffectiveRate)?$commandconfigval->EffectiveRate:'now') ,array("id"=>"" ,"class"=>"select2 small form-control"))}}
                 </div>
             </div>
         @endif
@@ -70,7 +89,7 @@
             @if($configtitle['type'] == 'select' && isset($configtitle['multiple']) &&  $configtitle['multiple'] == 'multiple')
             {{Form::select('Setting['.$configtitle['name'].'][]',$configtitle['value'],$selectd_val, array( "class"=>"select2",'multiple',"data-placeholder"=>$configtitle['placeholder']))}}
             @elseif($configtitle['type'] == 'select')
-            {{Form::select('Setting['.$configtitle['name'].']',$configtitle['value'],$selectd_val,array( "class"=>"selectboxit"))}}
+            {{Form::select('Setting['.$configtitle['name'].']',$configtitle['value'],$selectd_val,array( "class"=>"select2 small"))}}
             @elseif($configtitle['type'] == 'text' && isset($configtitle['timepicker']))
 
             <input type="{{$configtitle['type']}}"  name="Setting[{{$configtitle['name']}}]" value="{{$selectd_val}}" class="form-control timepicker starttime2" data-minute-step="5" data-show-meridian="true"  data-default-time="12:00:00 AM" data-show-seconds="true" data-template="dropdown">
@@ -85,24 +104,6 @@
 </div>
 
 <script type="text/javascript" >
-
-
-
-if ($.isFunction($.fn.selectBoxIt))
-{
-    $("select.selectboxit").each(function(i, el)
-    {
-        var $this = $(el),
-                opts = {
-            showFirstOption: attrDefault($this, 'first-option', true),
-            'native': attrDefault($this, 'native', false),
-            defaultText: attrDefault($this, 'text', '')
-        };
-
-        $this.addClass('visible');
-        $this.selectBoxIt(opts);
-    });
-}
 // Timepicker
         if ($.isFunction($.fn.timepicker))
         {

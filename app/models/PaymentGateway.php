@@ -5,17 +5,23 @@ class PaymentGateway extends \Eloquent {
     protected $primaryKey = "PaymentGatewayID";
     protected $guarded = array('PaymentGatewayID');
     public static $gateways = array('Authorize'=>'AuthorizeNet');
+    const  Authorize 	= 	1;
+    const  Stripe		=	2;
+    public static $paymentgateway_name = array(''=>'' ,self::Authorize => 'AuthorizeNet',self::Stripe=>'Stripe');
 
     public static function getName($PaymentGatewayID)
     {
-        return PaymentGateway::where(array('PaymentGatewayID' => $PaymentGatewayID))->pluck('Title');
+        return PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
+
+        //return PaymentGateway::where(array('PaymentGatewayID' => $PaymentGatewayID))->pluck('Title');
     }
 
     public static function addTransaction($PaymentGateway,$amount,$options,$account,$AccountPaymentProfileID,$CreatedBy)
     {
         switch($PaymentGateway) {
             case 'AuthorizeNet':
-                $transaction = AuthorizeNet::addAuthorizeNetTransaction($amount,$options);
+                $authorize = new AuthorizeNet();
+                $transaction = $authorize->addAuthorizeNetTransaction($amount,$options);
 				$Notes = '';
                 if($transaction->response_code == 1) {
                     $Notes = 'AuthorizeNet transaction_id ' . $transaction->transaction_id;
@@ -44,6 +50,57 @@ class PaymentGateway extends \Eloquent {
                 $transactiondata['Reposnse'] = json_encode($transaction);
                 TransactionLog::insert($transactiondata);
                 return $transactionResponse;
+            case 'Stripe':
+
+                $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+                $stripedata = array();
+                $stripedata['currency'] = strtolower($CurrencyCode);
+                $stripedata['amount'] = $amount;
+                $stripedata['description'] = $options->InvoiceNumber.' (Invoice) Payment';
+                $stripedata['customerid'] = $options->CustomerProfileID;
+
+                $transactionResponse = array();
+
+                $stripepayment = new StripeBilling();
+                $transaction = $stripepayment->createchargebycustomer($stripedata);
+
+                $Notes = '';
+                if(!empty($transaction['response_code']) && $transaction['response_code'] == 1) {
+                    $Notes = 'Stripe transaction_id ' . $transaction['id'];
+                    $Status = TransactionLog::SUCCESS;
+                }else{
+                    $Status = TransactionLog::FAILED;
+                    $Notes = empty($transaction['error']) ? '' : $transaction['error'];
+                    AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
+                }
+                $transactionResponse['transaction_notes'] =$Notes;
+                if(!empty($transaction['response_code'])) {
+                    $transactionResponse['response_code'] = $transaction['response_code'];
+                }
+                $transactionResponse['transaction_payment_method'] = 'CREDIT CARD';
+                $transactionResponse['failed_reason'] = $Notes;
+                if(!empty($transaction['id'])) {
+                    $transactionResponse['transaction_id'] = $transaction['id'];
+                }
+                $transactiondata = array();
+                $transactiondata['CompanyID'] = $account->CompanyId;
+                $transactiondata['AccountID'] = $account->AccountID;
+                if(!empty($transaction['id'])) {
+                    $transactiondata['Transaction'] = $transaction['id'];
+                }
+                $transactiondata['Notes'] = $Notes;
+                if(!empty($transaction['amount'])) {
+                    $transactiondata['Amount'] = floatval($transaction['amount']);
+                }
+                $transactiondata['Status'] = $Status;
+                $transactiondata['created_at'] = date('Y-m-d H:i:s');
+                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+                $transactiondata['CreatedBy'] = $CreatedBy;
+                $transactiondata['ModifyBy'] = $CreatedBy;
+                $transactiondata['Reposnse'] = json_encode($transaction);
+                TransactionLog::insert($transactiondata);
+                return $transactionResponse;
+
             case '':
                 return '';
 
@@ -51,6 +108,15 @@ class PaymentGateway extends \Eloquent {
 
     }
 
-    
+    public static function getPaymentGatewayID(){
+        $PaymentGatewayID = 0;
+        if(is_authorize()){
+            $PaymentGatewayID = PaymentGateway::Authorize;
+        }
+        if(is_Stripe()){
+            $PaymentGatewayID = PaymentGateway::Stripe;
+        }
+        return $PaymentGatewayID;
+    }
 
 }

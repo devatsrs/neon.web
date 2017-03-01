@@ -1,50 +1,53 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_WSGenerateRateTableWithPrefix`(IN `p_jobId` INT
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateRateTableWithPrefix`(IN `p_jobId` INT
 , IN `p_RateGeneratorId` INT
 , IN `p_RateTableId` INT
-, IN `p_rateTableName` VARCHAR(200) 
+, IN `p_rateTableName` VARCHAR(200)
 , IN `p_EffectiveDate` VARCHAR(10))
-GenerateRateTable:BEGIN   		
-   
-    
-	DECLARE v_RTRowCount_ INT;       
+	LANGUAGE SQL
+	NOT DETERMINISTIC
+	CONTAINS SQL
+	SQL SECURITY DEFINER
+	COMMENT ''
+GenerateRateTable:BEGIN
+	DECLARE v_RTRowCount_ INT;
 	DECLARE v_RatePosition_ INT;
 	DECLARE v_Use_Preference_ INT;
 	DECLARE v_CurrencyID_ INT;
 	DECLARE v_CompanyCurrencyID_ INT;
-	DECLARE v_Average_ TINYINT;  
+	DECLARE v_Average_ TINYINT;
 	DECLARE v_CompanyId_ INT;
 	DECLARE v_codedeckid_ INT;
-	DECLARE v_trunk_ INT; 
+	DECLARE v_trunk_ INT;
 	DECLARE v_rateRuleId_ INT;
 	DECLARE v_RateGeneratorName_ VARCHAR(200);
 	DECLARE v_pointer_ INT ;
 	DECLARE v_rowCount_ INT ;
 
-	
-	-- ----- LCR Variables 
+
+	-- ----- LCR Variables
 	DECLARE v_tmp_code_cnt int ;
 	DECLARE v_tmp_code_pointer int;
 	DECLARE v_p_code varchar(50);
 	DECLARE v_Codlen_ int;
 	DECLARE v_p_code__ VARCHAR(50);
 	DECLARE v_Commit int;
-	DECLARE EXIT HANDLER FOR SQLEXCEPTION 
-    BEGIN      
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
              show warnings;
-		   ROLLBACK;	  
-		   CALL prc_WSJobStatusUpdate(p_jobId, 'F', 'RateTable generation failed', ''); 
-               		   
-    END; 
-	
+		   ROLLBACK;
+		   CALL prc_WSJobStatusUpdate(p_jobId, 'F', 'RateTable generation failed', '');
+
+    END;
+
      SET @@session.collation_connection='utf8_unicode_ci';
      SET @@session.character_set_client='utf8';
-     
+
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-    
-   -- 
+
+   --
 
     SET p_EffectiveDate = CAST(p_EffectiveDate AS DATE);
-       
+
     -- when Rate Table Name is given to generate new Rate Table.
     	IF p_rateTableName IS NOT NULL
 	 	THEN
@@ -71,7 +74,8 @@ GenerateRateTable:BEGIN
 		  code VARCHAR(50) COLLATE utf8_unicode_ci,
 		  rate DECIMAL(18, 6),
 		  ConnectionFee DECIMAL(18, 6),
-		  INDEX tmp_Rates_code (`code`) 
+		  INDEX tmp_Rates_code (`code`),
+ 	     UNIQUE KEY `unique_code` (`code`)
 		);
 		DROP TEMPORARY TABLE IF EXISTS tmp_Rates2_;
 		CREATE TEMPORARY TABLE tmp_Rates2_  (
@@ -107,8 +111,8 @@ GenerateRateTable:BEGIN
         INDEX tmp_Vendorrates_code (`code`),
         INDEX tmp_Vendorrates_rate (`rate`)
     	);
-    	
-    	
+
+
     	DROP TEMPORARY TABLE IF EXISTS tmp_VRatesstage2_;
      	CREATE TEMPORARY TABLE tmp_VRatesstage2_  (
 		RowCode VARCHAR(50) COLLATE utf8_unicode_ci,
@@ -130,8 +134,8 @@ GenerateRateTable:BEGIN
         rate DECIMAL(18, 6),
         ConnectionFee DECIMAL(18, 6),
         INDEX tmp_Vendorrates_stage2__code (`RowCode`)
-    	);    	
-    	
+    	);
+
      	DROP TEMPORARY TABLE IF EXISTS tmp_code_;
      	CREATE TEMPORARY TABLE tmp_code_  (
         code VARCHAR(50) COLLATE utf8_unicode_ci,
@@ -139,14 +143,14 @@ GenerateRateTable:BEGIN
     	);
 
      DROP TEMPORARY TABLE IF EXISTS tmp_all_code_;
-  CREATE TEMPORARY TABLE tmp_all_code_ ( 
+  CREATE TEMPORARY TABLE tmp_all_code_ (
      RowCode  varchar(50) COLLATE utf8_unicode_ci,
      Code  varchar(50) COLLATE utf8_unicode_ci,
      RowNo int,
      INDEX Index2 (Code)
    );
 
- 
+
 
       DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_stage_;
        CREATE TEMPORARY TABLE tmp_VendorRate_stage_ (
@@ -163,7 +167,7 @@ GenerateRateTable:BEGIN
           prev_prev_RowCode VARCHAR(50),
           prev_AccountID int
         );
--- LCR Logic Table 
+-- LCR Logic Table
  DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_;
   CREATE TEMPORARY TABLE tmp_VendorRate_ (
      AccountId INT ,
@@ -174,7 +178,7 @@ GenerateRateTable:BEGIN
      EffectiveDate DATETIME ,
      Description VARCHAR(255),
      Preference INT,
-     RowCode VARCHAR(50) COLLATE utf8_unicode_ci  
+     RowCode VARCHAR(50) COLLATE utf8_unicode_ci
    );
    DROP TEMPORARY TABLE IF EXISTS tmp_final_VendorRate_;
   CREATE TEMPORARY TABLE tmp_final_VendorRate_ (
@@ -190,7 +194,7 @@ GenerateRateTable:BEGIN
      FinalRankNumber int,
 		INDEX IX_CODE (RowCode)
    );
-   
+
    DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorCurrentRates_(
 			AccountId int,
@@ -198,13 +202,13 @@ GenerateRateTable:BEGIN
 			Code varchar(50) COLLATE utf8_unicode_ci,
 			Description varchar(200) ,
 			Rate DECIMAL(18,6) ,
-               ConnectionFee DECIMAL(18,6) , 
+               ConnectionFee DECIMAL(18,6) ,
 			EffectiveDate date,
 			TrunkID int,
 			CountryID int,
 			RateID int,
 			Preference int,
-			INDEX IX_CODE (Code)			
+			INDEX IX_CODE (Code)
 	);
 	DROP TEMPORARY TABLE IF EXISTS tmp_VendorCurrentRates1_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorCurrentRates1_(
@@ -213,7 +217,7 @@ GenerateRateTable:BEGIN
 		Code varchar(50),
 		Description varchar(200),
 		Rate DECIMAL(18,6) ,
-		ConnectionFee DECIMAL(18,6) , 
+		ConnectionFee DECIMAL(18,6) ,
 		EffectiveDate date,
 		TrunkID int,
 		CountryID int,
@@ -226,7 +230,7 @@ GenerateRateTable:BEGIN
     	SELECT CurrencyID INTO v_CurrencyID_ FROM  tblRateGenerator WHERE RateGeneratorId = p_RateGeneratorId;
 
     	SELECT
-        UsePreference,  
+        UsePreference,
         rateposition,
         companyid ,
         CodeDeckId,
@@ -268,12 +272,12 @@ GenerateRateTable:BEGIN
 	    SET v_pointer_ = 1;
 	    SET v_rowCount_ = (SELECT COUNT(distinct Code ) FROM tmp_Raterules_);
 
-		
-		-- Step 1 
+
+		-- Step 1
 		-- Get all Codes in one go.
-		
-		
-		-- Old Way - Exact Match Code 
+
+
+		-- Old Way - Exact Match Code
 		insert into tmp_code_
 		SELECT
 			tblRate.code
@@ -283,57 +287,57 @@ GenerateRateTable:BEGIN
 		JOIN tmp_Raterules_ rr
 			ON tblRate.code LIKE (REPLACE(rr.code,'*', '%%'))
 		Order by tblRate.code ;
-			
+
 
 		-- New Way 9134,913,91
 		/*
 		insert into tmp_code_
           SELECT  DISTINCT LEFT(f.Code, x.RowNo) as loopCode FROM (
           SELECT @RowNo  := @RowNo + 1 as RowNo
-          FROM mysql.help_category 
+          FROM mysql.help_category
           ,(SELECT @RowNo := 0 ) x
           limit 15
           ) x
-          INNER JOIN 
-          (SELECT 
+          INNER JOIN
+          (SELECT
                     distinct
 	                tblRate.code
 	            FROM tblRate
 	            JOIN tmp_Raterules_ rr
 	                ON tblRate.code LIKE (REPLACE(rr.code,
 	                '*', '%%'))
-					where  tblRate.CodeDeckId = v_codedeckid_    	                
-	          Order by tblRate.code 
+					where  tblRate.CodeDeckId = v_codedeckid_
+	          Order by tblRate.code
           ) as f
-          ON   x.RowNo   <= LENGTH(f.Code) 
+          ON   x.RowNo   <= LENGTH(f.Code)
           order by loopCode   desc;
 		  */
 
- 
-  
-	/*	
+
+
+	/*
  	-- Step3
 	-- get All VendorRates against tmp_code_
   		*/
-          
+
 		SELECT CurrencyId INTO v_CompanyCurrencyID_ FROM  tblCompany WHERE CompanyID = v_CompanyId_;
 		SET @IncludeAccountIds = (SELECT GROUP_CONCAT(AccountId) from tblRateRule rr inner join  tblRateRuleSource rrs on rr.RateRuleId = rrs.RateRuleId where rr.RateGeneratorId = p_RateGeneratorId ) ;
-     
-	
-     -- Collect Vendor Rates 
-	 INSERT INTO tmp_VendorCurrentRates1_ 
-	 Select DISTINCT AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference					
+
+
+     -- Collect Vendor Rates
+	 INSERT INTO tmp_VendorCurrentRates1_
+	 Select DISTINCT AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference
       FROM (
-				SELECT  tblVendorRate.AccountId,tblAccount.AccountName, tblRate.Code, tblRate.Description, 
+				SELECT  tblVendorRate.AccountId,tblAccount.AccountName, tblRate.Code, tblRate.Description,
 				 CASE WHEN  tblAccount.CurrencyId = v_CurrencyID_
 								THEN
 									   tblVendorRate.Rate
-					 WHEN  v_CompanyCurrencyID_ = v_CurrencyID_  
+					 WHEN  v_CompanyCurrencyID_ = v_CurrencyID_
 							 THEN
 								  (
 								   ( tblVendorRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ) )
 								 )
-							  ELSE 
+							  ELSE
 							  (
 										-- Convert to base currrncy and x by RateGenerator Exhange
 								  (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = v_CurrencyID_ and  CompanyID = v_CompanyId_ )
@@ -342,17 +346,22 @@ GenerateRateTable:BEGIN
 							 END
 								as  Rate,
 								 ConnectionFee,
-			  DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') AS EffectiveDate, 
-			    tblVendorRate.TrunkID, tblRate.CountryID, tblRate.RateID,IFNULL(vp.Preference, 5) AS Preference
+			  DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') AS EffectiveDate,
+			    tblVendorRate.TrunkID, tblRate.CountryID, tblRate.RateID,IFNULL(vp.Preference, 5) AS Preference,
+				@row_num := IF(@prev_AccountId = tblVendorRate.AccountID AND @prev_TrunkID = tblVendorRate.TrunkID AND @prev_RateId = tblVendorRate.RateID AND @prev_EffectiveDate >= tblVendorRate.EffectiveDate, @row_num + 1, 1) AS RowID,
+				@prev_AccountId := tblVendorRate.AccountID,
+				@prev_TrunkID := tblVendorRate.TrunkID,
+				@prev_RateId := tblVendorRate.RateID,
+				@prev_EffectiveDate := tblVendorRate.EffectiveDate
 			  FROM      tblVendorRate
-			  
-					 Inner join tblVendorTrunk vt on vt.CompanyID = v_CompanyId_ AND vt.AccountID = tblVendorRate.AccountID and 
+
+					 Inner join tblVendorTrunk vt on vt.CompanyID = v_CompanyId_ AND vt.AccountID = tblVendorRate.AccountID and
 							-- ( p_codedeckID = 0 OR ( p_codedeckID > 0 AND vt.CodeDeckId = p_codedeckID ) )
-							  vt.Status =  1 and vt.TrunkID =  v_trunk_  
+							  vt.Status =  1 and vt.TrunkID =  v_trunk_
                               inner join tmp_Codedecks_ tcd on vt.CodeDeckId = tcd.CodeDeckId
 						INNER JOIN tblAccount   ON  tblAccount.CompanyID = v_CompanyId_ AND tblVendorRate.AccountId = tblAccount.AccountID and tblAccount.IsVendor = 1
 						INNER JOIN tblRate ON tblRate.CompanyID = v_CompanyId_  AND tblRate.CodeDeckId = vt.CodeDeckId  AND    tblVendorRate.RateId = tblRate.RateID
-						INNER JOIN tmp_code_ tcode ON tcode.Code  = tblRate.Code 
+						INNER JOIN tmp_code_ tcode ON tcode.Code  = tblRate.Code
 						LEFT JOIN tblVendorPreference vp
 										 ON vp.AccountId = tblVendorRate.AccountId
 										 AND vp.TrunkID = tblVendorRate.TrunkID
@@ -363,9 +372,10 @@ GenerateRateTable:BEGIN
 						LEFT OUTER JOIN tblVendorBlocking AS blockCountry    ON tblRate.CountryID = blockCountry.CountryId
 																	  AND tblVendorRate.AccountId = blockCountry.AccountId
 																	  AND tblVendorRate.TrunkID = blockCountry.TrunkID
-						
-					 
-			  WHERE      
+
+						,(SELECT @row_num := 1,  @prev_AccountId := '',@prev_TrunkID := '', @prev_RateId := '', @prev_EffectiveDate := '') x
+
+			  WHERE
 						( EffectiveDate <= NOW() )
 						AND tblAccount.IsVendor = 1
 						AND tblAccount.Status = 1
@@ -375,15 +385,14 @@ GenerateRateTable:BEGIN
 					   AND blockCountry.CountryId IS NULL
 						AND ( @IncludeAccountIds = NULL
 							  OR ( @IncludeAccountIds IS NOT NULL
-								   AND FIND_IN_SET(tblVendorRate.AccountId,@IncludeAccountIds) > 0                    
+								   AND FIND_IN_SET(tblVendorRate.AccountId,@IncludeAccountIds) > 0
 								 )
 							)
-				ORDER BY tblVendorRate.AccountId, tblVendorRate.TrunkID, tblVendorRate.RateId, tblVendorRate.EffectiveDate DESC	
+				ORDER BY tblVendorRate.AccountId, tblVendorRate.TrunkID, tblVendorRate.RateId, tblVendorRate.EffectiveDate DESC
 		) tbl
 		order by Code asc;
-		
-		-- filter by Effective Dates
-     INSERT INTO tmp_VendorCurrentRates_ 
+
+      INSERT INTO tmp_VendorCurrentRates_
 	  Select AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference 
       FROM (
 			  SELECT * ,
@@ -707,7 +716,7 @@ now take only where  MaxMatchRank =  1
                               INNER JOIN tmp_dupVRatesstage2_ vr2
                                 ON (vr.RowCode = vr2.RowCode AND  vr.FinalRankNumber = vr2.FinalRankNumber);
 
-                    INSERT INTO tmp_Rates_
+                    INSERT IGNORE INTO tmp_Rates_
                    SELECT
 	                    RowCode,
 	                    IFNULL((SELECT 
@@ -726,7 +735,7 @@ now take only where  MaxMatchRank =  1
 						 
 	         ELSE -- AVERAGE
 
-	           INSERT INTO tmp_Rates_
+	           INSERT IGNORE INTO tmp_Rates_
 					SELECT
 	                    RowCode,
 	                    IFNULL((SELECT 

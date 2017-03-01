@@ -43,40 +43,47 @@
                             <input class="form-control" name="account_name"  type="text" >
                         </div>
                         <label for="field-1" class="col-sm-1 control-label">Number</label>
-                        <div class="col-sm-2">
+                        <div class="col-sm-1">
                             <input class="form-control" name="account_number" type="text"  >
                         </div>
                         <label class="col-sm-1 control-label">Contact Name</label>
-                        <div class="col-sm-2">
+                        <div class="col-sm-1">
                             <input class="form-control" name="contact_name" type="text" >
                         </div>
                         <label class="col-sm-1 control-label">Tag</label>
-                        <div class="col-sm-2">
+                        <div class="col-sm-1">
                             <input class="form-control tags" name="tag" type="text" >
+                        </div>
+                        <label class="col-sm-1 control-label">Low Balance</label>
+                        <div class="col-sm-1">
+                            <p class="make-switch switch-small">
+                                <input id="low_balance" name="low_balance" type="checkbox" value="1">
+                            </p>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-1 control-label">Customer</label>
+                        <label class="col-sm-1 control-label"  >Customer</label>
                         <div class="col-sm-1">
                             <p class="make-switch switch-small">
                                 <input id="Customer_on_off" name="customer_on_off" type="checkbox" value="1" >
                             </p>
                         </div>
-                        <label class="col-sm-1 control-label">Vendor</label>
+                        <label class="col-sm-1 control-label"  >Vendor</label>
                         <div class="col-sm-1">
                             <p class="make-switch switch-small">
                                 <input id="Vendor_on_off" name="vendor_on_off" type="checkbox" value="1">
                             </p>
                         </div>
-                        <label class="col-sm-1 control-label">Active</label>
+                        <label class="col-sm-1 control-label"  >Active</label>
                         <div class="col-sm-1">
                             <p class="make-switch switch-small">
                                 <input id="account_active" name="account_active" type="checkbox" value="1" checked="checked">
                             </p>
                         </div>
+
                         <label class="col-sm-1 control-label">Status</label>
                         <div class="col-sm-2">
-                            {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"selectboxit"))}}
+                            {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"select2 small"))}}
                         </div>
                         @if(User::is_admin())
                          <label for="field-1" class="col-sm-1 control-label">Owner</label>
@@ -84,6 +91,12 @@
                             {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
                         </div>
                         @endif
+                    </div>
+                    <div class="form-group">
+                        <label for="field-5" class="control-label col-md-1">IP/CLI</label>
+                        <div class="col-md-2">
+                            <input type="text" name="IPCLIText" class="form-control">
+                        </div>
                     </div>
                     <p style="text-align: right;">
                         <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
@@ -102,7 +115,7 @@
     <div  class="col-md-12">
         <div class="input-group-btn pull-right" style="width:70px;">
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                 @if(User::checkCategoryPermission('Account','Email'))
                 <li>
                     <a href="javascript:void(0)" class="sendemail">
@@ -164,12 +177,14 @@
     <tr>
         <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
         <th width="10%" >No.</th>
-        <th width="15%" >Name</th>
-        <th width="10%" >Owner</th>
+        <th width="15%" >Account Name</th>
+        <th width="10%" >Name</th>
         <th width="10%">Phone</th>
-        <th width="10%">OS</th>
-        <th width="10%">Email</th>
-        <th width="30%">Actions</th>
+        <th width="8%">OS</th>
+        <th width="5%">UA</th>
+        <th width="5%">CL</th>
+        <th width="7%">Email</th>
+        <th width="25%">Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -183,6 +198,10 @@
     var $searchFilter = {};
     var checked = '';
     var view = 1;
+    var accountview = getCookie('accountview');
+    if(accountview=='list'){
+        view = 2;
+    }
     var readonly = ['Company','Phone','Email','ContactName'];
     jQuery(document).ready(function ($) {
 		
@@ -239,6 +258,7 @@
 			"account_owners":$("#account_filter [name='account_owners']").val(),			
 			"customer_on_off":$("#account_filter [name='customer_on_off']").prop("checked"),
 			"vendor_on_off":$("#account_filter [name='vendor_on_off']").prop("checked"),
+            "low_balance":$("#account_filter [name='low_balance']").prop("checked"),
 			"account_active":$("#account_filter [name='account_active']").prop("checked"),
 			"SelectedIDs":SelectedIDs,
 			"criteria_ac":criteria_ac,	
@@ -271,7 +291,9 @@
         $searchFilter.account_owners = $("#account_filter [name='account_owners']").val();
         $searchFilter.customer_on_off = $("#account_filter [name='customer_on_off']").prop("checked");
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
+        $searchFilter.low_balance = $("#account_filter [name='low_balance']").prop("checked");
         $searchFilter.account_active = $("#account_filter [name='account_active']").prop("checked");
+        $searchFilter.ipclitext = $("#account_filter [name='IPCLIText']").val();
 
                 data_table = $("#table-4").dataTable({
 
@@ -279,14 +301,39 @@
                     "bDestroy": true,
                     "bServerSide":true,
                     "sAjaxSource": baseurl + "/accounts/ajax_datagrid/type",
-                    "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                    "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting"   : [[2, 'asc']],
                       "fnServerParams": function(aoData) {
-                        aoData.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"tag","value":$searchFilter.tag},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"customer_on_off","value":$searchFilter.customer_on_off},{"name":"vendor_on_off","value":$searchFilter.vendor_on_off},{"name":"account_active","value":$searchFilter.account_active},{"name":"verification_status","value":$searchFilter.verification_status},{"name":"account_owners","value":$searchFilter.account_owners});
+                        aoData.push(
+                                {"name":"account_name","value":$searchFilter.account_name},
+                                {"name":"account_number","value":$searchFilter.account_number},
+                                {"name":"tag","value":$searchFilter.tag},
+                                {"name":"contact_name","value":$searchFilter.contact_name},
+                                {"name":"customer_on_off","value":$searchFilter.customer_on_off},
+                                {"name":"vendor_on_off","value":$searchFilter.vendor_on_off},
+                                {"name":"low_balance","value":$searchFilter.low_balance},
+                                {"name":"account_active","value":$searchFilter.account_active},
+                                {"name":"verification_status","value":$searchFilter.verification_status},
+                                {"name":"account_owners","value":$searchFilter.account_owners},
+                                {"name":"ipclitext","value":$searchFilter.ipclitext}
+                        );
                         data_table_extra_params.length = 0;
-                        data_table_extra_params.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"tag","value":$searchFilter.tag},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"customer_on_off","value":$searchFilter.customer_on_off},{"name":"vendor_on_off","value":$searchFilter.vendor_on_off},{"name":"account_active","value":$searchFilter.account_active},{"name":"verification_status","value":$searchFilter.verification_status},{"name":"account_owners","value":$searchFilter.account_owners},{"name":"Export","value":1});
+                        data_table_extra_params.push(
+                                {"name":"account_name","value":$searchFilter.account_name},
+                                {"name":"account_number","value":$searchFilter.account_number},
+                                {"name":"tag","value":$searchFilter.tag},
+                                {"name":"contact_name","value":$searchFilter.contact_name},
+                                {"name":"customer_on_off","value":$searchFilter.customer_on_off},
+                                {"name":"vendor_on_off","value":$searchFilter.vendor_on_off},
+                                {"name":"low_balance","value":$searchFilter.low_balance},
+                                {"name":"account_active","value":$searchFilter.account_active},
+                                {"name":"verification_status","value":$searchFilter.verification_status},
+                                {"name":"account_owners","value":$searchFilter.account_owners},
+                                {"name":"ipclitext","value":$searchFilter.ipclitext},
+                                {"name":"Export","value":1}
+                        );
                     },
                     "aoColumns":
                     [
@@ -299,7 +346,33 @@
                         { "bSortable": true},
                         { "bSortable": true},
                         { "bSortable": true},
-                        { "bSortable": true},
+                        { "bSortable": true,
+                            mRender:function(id, type, full){
+                                if(id !== null) {
+                                    popup_html = "<label class='col-sm-6' >Invoice Outstanding:</label><div class='col-sm-6' >" + id + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >" + (full[20] !== null ? full[20] : '')  + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Vendor Unbilled Amount:</label><div class='col-sm-6' >" + (full[21] !== null ? full[21] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Account Exposure:</label><div class='col-sm-6' >" + (full[22] !== null ? full[22] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Available Credit Limit:</label><div class='col-sm-6' >" + (full[23] !== null ? full[23] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Balance Threshold:</label><div class='col-sm-6' >" + (full[24] !== null ? full[24] : '') + "</div>";
+
+                                    return '<div class="pull-left" data-toggle="popover" data-trigger="hover" data-original-title="aaa" data-content="'+popup_html+'">' +id+ '</div>';
+                                }else{
+                                    return '';
+                                }
+                            }
+                        },
+						{ "bSortable": true,
+                            mRender:function(id, type, full){
+                                if(id !== null) {
+                                    return '<a class="unbilled_report" data-id="' + full[0] + '">' + id + '</a>';
+                                }else{
+                                    return '';
+                                }
+
+                            }
+                        },
+						{ "bSortable": true},
                         { "bSortable": true},
                         {
                             "bSortable": false,
@@ -333,9 +406,9 @@
                                         action +='&nbsp;<button redirecto="'+credit_+'" class="btn btn-default btn-xs" title="Credit Control" data-id="'+full[0]+'" type="button"> <i class="fa fa-credit-card"></i> </button>';
                                 <?php } ?>
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
-                                action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Account" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
+                                action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i></button>';
                                 <?php } ?>
-                                action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View Account" data-id="'+full[0]+'" type="button"> <i class="entypo-search"></i> </button>';//entypo-info
+                                action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View" data-id="'+full[0]+'" type="button"> <i class="fa fa-eye"></i></button>';//entypo-info
                                 /*full[6] == Customer verified
                                  full[7] == Vendor verified */
                                 varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/';
@@ -358,25 +431,34 @@
                                  action += '</select>';*/
                                 <?php } ?>
 
-                                if(full[7]==1 && full[9]=='{{Account::VERIFIED}}'){
+                                if(full[9]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
                                         action += '&nbsp;<a href="'+customer_rate_+'" title="Customer" class="btn btn-warning btn-xs"><i class="entypo-user"></i></a>';
                                     <?php } ?>
                                 }
 
-                                if(full[8]==1 && full[9]=='{{Account::VERIFIED}}'){
+                                if(full[10]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
                                         action += '&nbsp;<a href="'+vendor_blocking_+'" title="Vendor" class="btn btn-info btn-xs"><i class="fa fa-slideshare"></i></a>';
                                     <?php } ?>
                                 }
                                 action +='<input type="hidden" name="accountid" value="'+full[0]+'"/>';
-                                action +='<input type="hidden" name="address1" value="'+full[10]+'"/>';
-                                action +='<input type="hidden" name="address2" value="'+full[11]+'"/>';
-                                action +='<input type="hidden" name="address3" value="'+full[12]+'"/>';
-                                action +='<input type="hidden" name="city" value="'+full[13]+'"/>';
-                                action +='<input type="hidden" name="country" value="'+full[14]+'"/>';
-								action +='<input type="hidden" name="PostCode" value="'+full[15]+'"/>';
-                                action +='<input type="hidden" name="picture" value="'+full[16]+'"/>';
+                                action +='<input type="hidden" name="address1" value="'+full[12]+'"/>';
+                                action +='<input type="hidden" name="address2" value="'+full[13]+'"/>';
+                                action +='<input type="hidden" name="address3" value="'+full[14]+'"/>';
+                                action +='<input type="hidden" name="city" value="'+full[15]+'"/>';
+                                action +='<input type="hidden" name="country" value="'+full[16]+'"/>';
+								action +='<input type="hidden" name="PostCode" value="'+full[17]+'"/>';
+                                action +='<input type="hidden" name="picture" value="'+full[18]+'"/>';
+                                action +='<input type="hidden" name="UnbilledAmount" value="'+full[6]+'"/>';
+                                action +='<input type="hidden" name="PermanentCredit" value="'+full[7]+'"/>';
+                                action +='<input type="hidden" name="LowBalance" value="'+full[19]+'"/>';
+                                action +='<input type="hidden" name="CUA" value="'+full[20]+'"/>';
+                                action +='<input type="hidden" name="VUA" value="'+full[21]+'"/>';
+                                action +='<input type="hidden" name="AE" value="'+full[22]+'"/>';
+                                action +='<input type="hidden" name="ACL" value="'+full[23]+'"/>';
+                                action +='<input type="hidden" name="BalanceThreshold" value="'+full[24]+'"/>';
+                                action +='<input type="hidden" name="Blocked" value="'+full[25]+'"/>';
                                 return action;
                             }
                         },
@@ -428,7 +510,7 @@
                 if(childrens.eq(0).hasClass('dataTables_empty')){
                     return true;
                 }
-                var temp = childrens.eq(7).clone();
+                var temp = childrens.eq(9).clone();
                 $(temp).find('a').each(function () {
                    // $(this).find('i').remove();
                     $(this).removeClass('btn btn-icon icon-left');
@@ -443,7 +525,18 @@
                 var city = $(temp).find('input[name="city"]').val();
                 var country = $(temp).find('input[name="country"]').val();
 				var PostCode = $(temp).find('input[name="PostCode"]').val();
-				
+
+                var PermanentCredit = $(temp).find('input[name="PermanentCredit"]').val();
+                var UnbilledAmount = $(temp).find('input[name="UnbilledAmount"]').val();
+                var accountid =  $(temp).find('input[name="accountid"]').val();
+                var LowBalance =  $(temp).find('input[name="LowBalance"]').val();
+                var CUA =  $(temp).find('input[name="CUA"]').val();
+                var VUA =  $(temp).find('input[name="VUA"]').val();
+                var AE =  $(temp).find('input[name="AE"]').val();
+                var ACL =  $(temp).find('input[name="ACL"]').val();
+                var BalanceThreshold =  $(temp).find('input[name="BalanceThreshold"]').val();
+                var Blocked =  $(temp).find('input[name="Blocked"]').val();
+
 				
                 address1 = (address1=='null'||address1==''?'':''+address1+'<br>');
                 address2 = (address2=='null'||address2==''?'':address2+'<br>');
@@ -451,10 +544,28 @@
                 city 	 = (city=='null'||city==''?'':city+'<br>');
 				PostCode = (PostCode=='null'||PostCode==''?'':PostCode+'<br>');
                 country  = (country=='null'||country==''?'':country);
+                PermanentCredit = PermanentCredit=='null'||PermanentCredit==''?'':''+PermanentCredit;
+                UnbilledAmount = UnbilledAmount=='null'||UnbilledAmount==''?'':''+UnbilledAmount;
+                CUA = CUA=='null'||CUA==''?'':''+CUA;
+                VUA = VUA=='null'||VUA==''?'':''+VUA;
+                AE = AE=='null'||AE==''?'':''+AE;
+                ACL = ACL=='null'||ACL==''?'':''+ACL;
+                BalanceThreshold = BalanceThreshold=='null'||BalanceThreshold==''?'':''+BalanceThreshold;
+                Blocked = Blocked=='null'||Blocked==''?'':''+Blocked;
+
                 var url  = baseurl + '/assets/images/placeholder-male.gif';
                 var select = '';
                 if (checked != '') {
                     select = ' selected';
+                }
+
+                if(LowBalance == 1){
+                    select+= ' low_balance_account'
+                    $(this).addClass('low_balance_account');
+                }
+                if(Blocked == 1){
+                    select+= ' blocked_account'
+                    $(this).addClass('blocked_account');
                 }
 				
 				//col-xl-2 col-md-4 col-sm-6 col-xsm-12 col-lg-3
@@ -476,6 +587,14 @@
 				if(account_name.length>40){
 					account_name  = account_name.substring(0,40)+"...";	
 				}
+
+                popup_html = "<label class='col-sm-6' >Invoice Outstanding:</label><div class='col-sm-6' >" + childrens.eq(5).text() + "</div>";
+                popup_html += "<div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >" + CUA + "</div>";
+                popup_html += "<div class='clear'></div><label class='col-sm-6' >Vendor Unbilled Amount:</label><div class='col-sm-6' >" + VUA + "</div>";
+                popup_html += "<div class='clear'></div><label class='col-sm-6' >Account Exposure:</label><div class='col-sm-6' >" + AE + "</div>";
+                popup_html += "<div class='clear'></div><label class='col-sm-6' >Available Credit Limit:</label><div class='col-sm-6' >" + ACL + "</div>";
+                popup_html += "<div class='clear'></div><label class='col-sm-6' >Balance Threshold:</label><div class='col-sm-6' >" + BalanceThreshold + "</div>";
+
                 html += '  <div class="box clearfix ' + select + '">';
                // html += '  <div class="col-sm-4 header padding-0"> <img class="thumb" alt="default thumb" height="50" width="50" src="' + url + '"></div>';
                 html += '  <div class="col-sm-12 header padding-left-1">  <span class="head">' + account_title + '</span><br>';
@@ -483,16 +602,15 @@
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
                 html += '     <div class="meta">Email</div>';
-                html += '     <div><a href="javascript:void(0)" class="sendemail">' + childrens.eq(6).text() + '</a></div>';
+                html += '     <div><a href="javascript:void(0)" class="sendemail">' + childrens.eq(8).text() + '</a></div>';
                 html += '  </div>';
                 html += '  <div class="cellNo">';
                 html += '     <div class="meta">Phone</div>';
                 html += '     <div><a href="tel:' + childrens.eq(4).text() + '">' + childrens.eq(4).text() + '</a></div>';
                 html += '  </div>';
-                html += '  <div>';
-                html += '     <div class="meta">Outstanding</div>';
-                html += '     <div>' + childrens.eq(5).text() + '</div>';
-                html += '  </div>';
+                html += '  <div class="block"><div class="meta clear pull-left tooltip-primary" data-original-title="Invoice Outstanding" title="" data-placement="right" data-toggle="tooltip">OS : </div> <div class="pull-left" data-toggle="popover"  data-trigger="hover" data-original-title="" data-content="'+popup_html+'"> ' + childrens.eq(5).text() + ' </div>';
+                html += '  <div class="meta clear pull-left tooltip-primary" data-original-title="(Unbilled Amount). Click on amount to view breakdown" title="" data-placement="right" data-toggle="tooltip">UA : </div> <div class="pull-left"> <a class="unbilled_report" data-id="'+accountid+'">' + UnbilledAmount + '</a> </div>';
+                html += '  <div class="meta clear pull-left tooltip-primary" data-original-title="Credit Limit" title="" data-placement="right" data-toggle="tooltip">CL : </div> <div class="pull-left"> ' + PermanentCredit + ' </div></div>';
                 html += '  </div>';
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
@@ -588,6 +706,13 @@
                     //}
                 }
             });
+            $("body").popover({
+                selector: '[data-toggle="popover"]',
+                trigger:'hover',
+                html:true,
+                template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+                //template:'<div class="popover3" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>'
+            });
 
         }
     });
@@ -602,7 +727,9 @@
         $searchFilter.account_owners = $("#account_filter [name='account_owners']").val();
         $searchFilter.customer_on_off = $("#account_filter [name='customer_on_off']").prop("checked");
         $searchFilter.vendor_on_off = $("#account_filter [name='vendor_on_off']").prop("checked");
+        $searchFilter.low_balance = $("#account_filter [name='low_balance']").prop("checked");
         $searchFilter.account_active = $("#account_filter [name='account_active']").prop("checked");
+        $searchFilter.ipclitext = $("#account_filter [name='IPCLIText']").val();
 
         data_table.fnFilter('', 0);
         return false;
@@ -750,18 +877,20 @@
 
         $('#modal-BulkMail').on('shown.bs.modal', function(event){
             var modal = $(this);
-            modal.find('.message').wysihtml5({
-                "font-styles": true,
+			modal.find('.message').wysihtml5({
+					"font-styles": true,
                 "emphasis": true,
+                "leadoptions":true,
+                "Crm":false,
                 "lists": true,
                 "html": true,
                 "link": true,
                 "image": true,
                 "color": false,
-                parser: function(html) {
-                    return html;
-                }
-            });
+					parser: function(html) {
+						return html;
+					}
+				});
         });
 
         $('#modal-BulkMail').on('hidden.bs.modal', function(event){
@@ -771,10 +900,10 @@
         });
 
         $(document).on('click','#bulk-Ratesheet,.sendemail',function(){
-            $("#BulkMail-form [name='template_option']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            //$("#BulkMail-form [name='email_template']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            //$("#BulkMail-form [name='Format']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            $('#BulkMail-form [name="email_template_privacy"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(0);
+			document.getElementById('BulkMail-form').reset();
+			$("#modal-BulkMail").find('.file-input-name').html("");
+            $("#BulkMail-form [name='template_option']").val('').trigger("change");
+            $('#BulkMail-form [name="email_template_privacy"]').val(0).trigger("change");
             $("#BulkMail-form")[0].reset();
             if($(this).hasClass('sendemail')){
                 $("#BulkMail-form [name='type']").val('BAE');
@@ -802,7 +931,7 @@
             $('#TestMail-form').find('[name="EmailAddress"]').val('');
             $('#modal-TestMail').modal({show: true});
         });
-        $("#bull-email-account").click(function(e){
+        $("#mail-send").click(function(e){
             $("#BulkMail-form").find('[name="test"]').val(0);
         });
         $('.lead').click(function(e){
@@ -857,8 +986,10 @@
             var activeurl;
             var desctiveurl;
             if(self.hasClass('grid')){
+                setCookie('accountview','grid','30');
                 view = 1;
             }else{
+                setCookie('accountview','list','30');
                 view = 2;
             }
             self.addClass('active');
@@ -946,11 +1077,7 @@
                 if (Status = "success") {
                     var modal = $("#modal-BulkMail");
                     var el = modal.find('#BulkMail-form [name=email_template]');
-                    $(el).data("selectBox-selectBoxIt").remove();
-                    $.each(data,function(key,value){
-                        $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
-                    });
-                    $(el).selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                    rebuildSelect2(el,data,'');
                 } else {
                     toastr.error(status, "Error", toastr_opts);
                 }
@@ -969,17 +1096,19 @@
                 modal.find('.message').val('');
             }
             modal.find('.message').wysihtml5({
-                "font-styles": true,
+					"font-styles": true,
                 "emphasis": true,
+                "leadoptions":true,
+                "Crm":false,
                 "lists": true,
                 "html": true,
                 "link": true,
                 "image": true,
                 "color": false,
-                parser: function(html) {
-                    return html;
-                }
-            });
+					parser: function(html) {
+						return html;
+					}
+				});
         }
     });
 
@@ -997,6 +1126,29 @@
             });
         }
        return SelectedIDs;
+    }
+
+    function setCookie(cname,cvalue,exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires=" + d.toGMTString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
     }
 
 
@@ -1018,187 +1170,12 @@
 <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
 <script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 @include('opportunityboards.opportunitymodal')
+@include('accounts.unbilledreportmodal')
+@include('accounts.bulk_email')
 @stop
 
 @section('footer_ext')
     @parent
-    <div class="modal fade" id="modal-BulkMail">
-        <div class="modal-dialog" style="width: 80%;">
-            <div class="modal-content">
-                <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Bulk Send Email</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row CD">
-                            <div class="form-group">
-                                <label for="field-1" class="col-sm-2 control-label">Trunk</label>
-                                <div class="col-sm-9">
-                                    @foreach ($trunks as $index=>$trunk)
-                                        @if(!empty($trunk) && !empty($index))
-                                            <div class="col-sm-2">
-                                                <div class="checkbox">
-                                                    <label>
-                                                        <input type="checkbox" name="Trunks[]" value="{{$index}}" >{{$trunk}}
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row CD">
-                            <div class="form-group">
-                                <br />
-                                <label for="field-1" class="col-sm-2 control-label">Merge Output file By Trunk</label>
-                                <div class="col-sm-5">
-                                    <div class="make-switch switch-small" data-on-label="<i class='entypo-check'></i>" data-off-label="<i class='entypo-cancel'></i>" data-animated="false">
-                                        <input type="hidden" name="isMerge" value="0">
-                                        <input type="checkbox" name="isMerge" value="1">
-                                        <input type="hidden" name="sendMail" value="1">
-                                        <input type="hidden" name="Format" value="{{RateSheetFormate::RATESHEET_FORMAT_RATESHEET}}">
-                                        <input type="hidden" name="Type" value="1">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-2 control-label">Show Template</label>
-                                <div class="col-sm-2">
-                                    {{Form::select('email_template_privacy',EmailTemplate::$privacy,'',array("class"=>"selectboxit"))}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-2 control-label">Email Template</label>
-                                <div class="col-sm-4">
-                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"selectboxit"))}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-2 control-label">Subject</label>
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control" id="subject" name="subject" />
-                                    <input type="hidden" name="SelectedIDs" />
-                                    <input type="hidden" name="criteria" />
-                                    <input type="hidden" name="Type" value="{{EmailTemplate::ACCOUNT_TEMPLATE}}" />
-                                    <input type="hidden" name="type" value="BAE" />
-                                    <input type="hidden" name="test" value="0" />
-                                    <input type="hidden" name="testEmail" value="" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-2 control-label">Message</label>
-                                <div class="col-sm-10">
-                                    <textarea class="form-control message" rows="18" name="message"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="form-group">
-                                <br/>
-                                <label for="field-5" class="col-sm-2 control-label">Attachment</label>
-                                <div class="col-sm-10">
-                                    <input type="file" id="attachment"  name="attachment" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-2 control-label">Template Option</label>
-                                <div class="col-sm-4">
-                                    {{Form::select('template_option',$templateoption,'',array("class"=>"selectboxit"))}}
-                                </div>
-                            </div>
-                        </div>
-                        <div id="templatename" class="row hidden">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-5" class="col-sm-2 control-label">New Template Name</label>
-                                <div class="col-sm-4">
-                                    <input type="text" name="template_name" class="form-control" id="field-5" placeholder="">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="bull-email-account" type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Send
-                        </button>
-                        <button id="test"  class="savetest btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Send Test mail
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="modal-TestMail">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="TestMail-form" method="post" action="">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Test Mail Options</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-3 control-label">Email Address</label>
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control" name="EmailAddress" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-3 control-label">Sample Account</label>
-                                <div class="col-sm-4">
-                                    {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit"  class="lead btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Send
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <div class="modal fade" id="modal-BulkTags">
         <div class="modal-dialog">
             <div class="modal-content">

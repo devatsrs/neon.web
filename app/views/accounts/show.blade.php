@@ -16,6 +16,9 @@
     <li>
         <a href="{{URL::to('accounts')}}">Accounts</a>
     </li>
+    <li>
+        <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
+    </li>
     <li class="active">
         <strong>View Account</strong>
     </li>
@@ -206,7 +209,7 @@
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 text-right">Tax Rate</label>
                         <div class="col-sm-4">
-                            {{ TaxRate::getTaxRate(AccountBilling::getBillingKey($AccountBilling,'TaxRateId'))}}
+                            {{ TaxRate::getTaxRate(AccountBilling::getTaxRate($account->AccountID))}}
                         </div>
                         <label for="field-1" class="col-sm-2 text-right">Billing Type*</label>
                         @if(isset($AccountBilling->BillingType))

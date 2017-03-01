@@ -7,7 +7,7 @@
             </div>
             <div class="col-md-6 text-right">
                 <p>
-                     <a  id="add-new-card" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New Card</a>
+                     <a  id="add-new-card" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
                 </p>
 
             </div>
@@ -38,7 +38,7 @@
                             "bProcessing": true,
                             "bServerSide": true,
                             "sAjaxSource": baseurl + "/paymentprofile/{{$AccountID}}/ajax_datagrid",
-                            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                             "sPaginationType": "bootstrap",
                             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                             "aaSorting": [[0, 'asc']],

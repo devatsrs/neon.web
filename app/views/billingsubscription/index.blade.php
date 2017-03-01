@@ -21,13 +21,13 @@
 @if(User::checkCategoryPermission('BillingSubscription','Add'))
 <a href="#" id="add-new-billing_subscription" class="btn btn-primary ">
     <i class="entypo-plus"></i>
-    Add New Subscription
+    Add New
 </a>
 @endif
 </p>
 <div class="row">
 <div class="col-md-12">
-    <form id="billing_subscription_filter" method="post"    class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+    <form id="billing_subscription_filter" method="post"    class="form-horizontal form-groups-bordered validate" novalidate>
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
@@ -45,13 +45,13 @@
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">Currency</label>
                     <div class="col-sm-2">
-                           {{Form::select('FilterCurrencyID', $currencies, '' ,array("class"=>"form-control selectboxit"))}}
+                           {{Form::select('FilterCurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}
                     </div>
                     <label for="field-1" class="col-sm-2 control-label">Advance Subscription</label>
                         <div class="col-sm-2">
 
                            <!-- <input id="FilterAdvance" name="FilterAdvance" type="checkbox" value="1" >-->
-                            {{Form::select('FilterAdvance', array(''=>'All' , 0 => 'Off',1=>'On'), '' ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::select('FilterAdvance', BillingSubscription::$Advance, '' ,array("class"=>"form-control select2 small"))}}
 
 
                     </div>
@@ -74,6 +74,7 @@
     <th width="15%">Monthly Fee</th>
     <th width="15%">Weekly Fee</th>
     <th width="15%">Daily Fee</th>
+    <th width="15%">Advance Subscription</th>
     <th width="15%">Action</th>
 </tr>
 </thead>
@@ -85,13 +86,14 @@
 
 <script type="text/javascript">
 var $searchFilter = {};
+var AdvanceSubscription = {{$AdvanceSubscription}};
 var update_new_url;
 var postdata;
 jQuery(document).ready(function ($) {
     public_vars.$body = $("body");
     //show_loading_bar(40);
 
-    var list_fields  = ["Name","MonthlyFeeWithSymbol","WeeklyFeeWithSymbol","DailyFeeWithSymbol", "SubscriptionID" , "ActivationFee","CurrencyID","InvoiceLineDescription","Description","Advance", "MonthlyFee", "WeeklyFee", "DailyFee"];
+    var list_fields  = ["Name","MonthlyFeeWithSymbol","WeeklyFeeWithSymbol","DailyFeeWithSymbol","Advance","SubscriptionID" , "ActivationFee","CurrencyID","InvoiceLineDescription","Description", "MonthlyFee", "WeeklyFee", "DailyFee"];
     $searchFilter.FilterName = $("#billing_subscription_filter [name='FilterName']").val();
     $searchFilter.FilterCurrencyID = $("#billing_subscription_filter select[name='FilterCurrencyID']").val();
     $searchFilter.FilterAdvance = $("#billing_subscription_filter select[name='FilterAdvance']").val();
@@ -102,7 +104,7 @@ jQuery(document).ready(function ($) {
         "bProcessing":true,
         "bServerSide":true,
         "sAjaxSource": baseurl + "/billing_subscription/ajax_datagrid/type",
-        "iDisplayLength": '{{Config::get('app.pageSize')}}',
+        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
         "sPaginationType": "bootstrap",
         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
         "aaSorting": [[0, 'asc']],
@@ -117,7 +119,14 @@ jQuery(document).ready(function ($) {
             {  "bSortable": true }, //1   [MonthlyFee]
             {  "bSortable": true }, //2   [WeeklyFee]
             {  "bSortable": true }, //3   [DailyFee]
-            {                       //4  [SubscriptionID]
+			{  
+                        "bSortable": true,
+                        mRender: function (id, type, full) {
+                            return AdvanceSubscription[id];
+                        }
+
+                     }, //4   [Advance Subscription]
+            {                       //5  [SubscriptionID]
                "bSortable": true,
                 mRender: function ( id, type, full ) {
                     var action , edit_ , show_ , delete_;
@@ -128,10 +137,10 @@ jQuery(document).ready(function ($) {
                      }
                      action += '</div>';
                      <?php if(User::checkCategoryPermission('BillingSubscription','Edit')) { ?>
-                        action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-billing_subscription btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                        action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-billing_subscription btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                      <?php } ?>
                      <?php if(User::checkCategoryPermission('BillingSubscription','Delete')) { ?>
-                        action += ' <a data-id="'+ id +'" class="delete-billing_subscription btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                        action += ' <a data-id="'+ id +'" title="Delete" class="delete-billing_subscription btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                      <?php } ?>
                     return action;
                   }
@@ -205,7 +214,7 @@ $('#add-new-billing_subscription').click(function(ev){
     $('#add-new-modal-billing_subscription h4').html('Add New Subscription');
     $('#add-new-modal-billing_subscription').modal('show');
     $("#add-new-modal-billing_subscription [name=CurrencyID]").prop("disabled",false);
-    $("#add-new-billing_subscription-form select[name=CurrencyID]").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+    $("#add-new-billing_subscription-form select[name=CurrencyID]").val('').trigger("change");
 
 });
 $('table tbody').on('click','.edit-billing_subscription',function(e){
@@ -219,7 +228,7 @@ $('table tbody').on('click','.edit-billing_subscription',function(e){
     $.each(list_fields, function( index, field_name ) {
         $("#add-new-billing_subscription-form [name='"+field_name+"']").val($this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val());
         if(field_name =='CurrencyID'){
-            $("#add-new-billing_subscription-form [name='"+field_name+"']").selectBoxIt().data("selectBox-selectBoxIt").selectOption($this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val());
+            $("#add-new-billing_subscription-form [name='"+field_name+"']").val($this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val()).trigger("change");
         }else if(field_name == 'Advance'){
             if($this.prev("div.hiddenRowData").find("input[name='Advance']").val() == 1 ){
                 $('#add-new-billing_subscription-form [name="Advance"]').prop('checked',true)
@@ -295,11 +304,12 @@ display:none !important;
 right: 30px !important;
 }
 </style>
+@include('currencies.currencymodal')
 @stop
 @section('footer_ext')
 @parent
 <div class="modal fade custom-width" id="add-new-modal-billing_subscription">
-<div class="modal-dialog" style="width: 60%;">
+<div class="modal-dialog modal-lg">
     <div class="modal-content">
         <form id="add-new-billing_subscription-form" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
             <div class="modal-header">
@@ -345,7 +355,8 @@ right: 30px !important;
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Currency</label>
                         <div class="col-sm-4">
-                            {{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control selectboxit"))}}
+                            {{Form::SelectControl('currency')}}
+                            <!--{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}-->
                         </div>
 
                         <label for="field-1" class="col-sm-2 control-label">Activation Fee</label>

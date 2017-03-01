@@ -83,7 +83,7 @@
                 <label for="field-1" class="col-sm-3 control-label">Output format</label>
                 <div class="col-sm-5">
  
-                   {{ Form::select('Format', $rate_sheet_formates, Input::get('Format') , array("class"=>"selectboxit","id"=>"fileformat")) }}
+                   {{ Form::select('Format', $rate_sheet_formates, Input::get('Format') , array("class"=>"select2 small","id"=>"fileformat")) }}
                 </div>
             </div>
             <div class="form-group">
@@ -97,7 +97,7 @@
                 <label for="field-1" class="col-sm-3 control-label">Effective</label>
                 <div class="col-sm-5">
 
-                    <select name="Effective" class="selectboxit" data-allow-clear="true" data-placeholder="Select Effective">
+                    <select name="Effective" class="select2 small" data-allow-clear="true" data-placeholder="Select Effective" id="fileeffective">
                         <option value="Now">Now</option>
                         <option value="Future">Future</option>
                         <option value="All">All</option>
@@ -185,6 +185,17 @@ jQuery(document).ready(function ($) {
                 cache: false
             });
 
+            if($(this).val()=='Vos 3.2'){
+                $('#fileeffective').empty();
+                var html ='<option value="Now">Now</option><option value="Future">Future</option>';
+                $('#fileeffective').append(html);
+            }else{
+                $('#fileeffective').empty();
+                var html ='<option value="Now">Now</option><option value="Future">Future</option><option value="All">All</option>';
+                $('#fileeffective').append(html);
+            }
+
+
         }else{
             $('#filetype').empty();
             $("#filetype").select2('val','');
@@ -249,8 +260,8 @@ jQuery(document).ready(function ($) {
 
     $(".btn.emailsend").click(function (e) {
         e.preventDefault();
-        $("#BulkMail-form [name='email_template']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-        $("#BulkMail-form [name='template_option']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+        $("#BulkMail-form [name='email_template']").val('').trigger("change");
+        $("#BulkMail-form [name='template_option']").val('').trigger("change");
         //$("#BulkMail-form [name='Type']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('')
         $("#BulkMail-form")[0].reset();
         $("#modal-BulkMail").modal({
@@ -292,11 +303,7 @@ jQuery(document).ready(function ($) {
             if (Status = "success") {
                 var modal = $("#modal-BulkMail");
                 var el = modal.find('#BulkMail-form [name=email_template]');
-                $(el).data("selectBox-selectBoxIt").remove();
-                $.each(data,function(key,value){
-                    $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
-                });
-                $(el).selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                rebuildSelect2(el,data,'')
             } else {
                 toastr.error(status, "Error", toastr_opts);
             }
@@ -359,8 +366,10 @@ jQuery(document).ready(function ($) {
     $('#modal-BulkMail').on('shown.bs.modal', function(event){
         var modal = $(this);
         modal.find('.message').wysihtml5({
-            "font-styles": true,
+           "font-styles": true,
             "emphasis": true,
+            "leadoptions":true,
+            "Crm":false,
             "lists": true,
             "html": true,
             "link": true,
@@ -393,6 +402,8 @@ jQuery(document).ready(function ($) {
         modal.find('.message').wysihtml5({
             "font-styles": true,
             "emphasis": true,
+            "leadoptions":true,
+            "Crm":false,
             "lists": true,
             "html": true,
             "link": true,
@@ -522,7 +533,9 @@ var data_table_new = $("#"+tableID).dataTable({
 
 @section('footer_ext')
     @parent
-    <div class="modal fade" id="modal-BulkMail">
+    @include('accounts.bulk_email')
+
+<!--    <div class="modal fade" id="modal-BulkMail">
         <div class="modal-dialog" style="width: 80%;">
             <div class="modal-content">
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
@@ -536,7 +549,7 @@ var data_table_new = $("#"+tableID).dataTable({
                                 <br />
                                 <label for="field-1" class="col-sm-2 control-label">Email Template Privacy</label>
                                 <div class="col-sm-2">
-                                    {{Form::select('email_template_privacy',$privacy,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('email_template_privacy',$privacy,'',array("class"=>"select2 small"))}}
                                 </div>
                                 {{--<label for="field-1" class="control-label col-sm-1">Template Type</label>
                                 <div class="col-sm-2">
@@ -549,7 +562,7 @@ var data_table_new = $("#"+tableID).dataTable({
                                 <br />
                                 <label for="field-1" class="col-sm-2 control-label">Email Template</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -580,7 +593,7 @@ var data_table_new = $("#"+tableID).dataTable({
                                 <br />
                                 <label for="field-1" class="col-sm-2 control-label">Template Option</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('template_option',$templateoption,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('template_option',$templateoption,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -655,5 +668,5 @@ var data_table_new = $("#"+tableID).dataTable({
                 </form>
             </div>
         </div>
-    </div>
+    </div> -->
     @stop

@@ -25,12 +25,26 @@ table.invoice td , table.invoice_total td{ padding:3px;}
     th,td{ padding: 1px; margin: 1px;}
 }
 .page_break{page-break-after: always;}
+table{
+    width: 100%;
+    border-spacing: 0;
+    margin-bottom: 0;
+}
+tr {
+    page-break-inside: avoid;
+}
+
+thead {
+    display: table-header-group
+}
+
+tfoot {
+    display: table-row-group
+}
 </style>
-<br/><br/><br/>
         @yield('logo')
 <br />
         @yield('invoice_from')
-<br /><br /><br /><br /><br /><br />
         @if(Input::get('Type') == 1 )
         <table width="100%" border="0">
             <tbody>
@@ -45,14 +59,14 @@ table.invoice td , table.invoice_total td{ padding:3px;}
             </tr>
         </tbody>
         </table>
-        <br /><br /><br />
+        <br><br>
         @yield('subscriptiontotal')
 
         @else
             @yield('items')
         @endif
 
-<br /><br /><br />
+<br />
     <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default">
@@ -76,7 +90,7 @@ table.invoice td , table.invoice_total td{ padding:3px;}
                     </div>
                 </div>
             </div>
-        </div>
+        </div><div class="page_break"> </div>
       @if(Input::get('Type') == 1 )
          @yield('sub_usage')
      @endif

@@ -19,7 +19,7 @@
 </p>
 <div class="row">
     <div class="col-md-12">
-        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="get" id="ratetable_filter">
+        <form novalidate class="form-horizontal form-groups-bordered validate" method="get" id="ratetable_filter">
             <div data-collapsed="0" class="panel panel-primary">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -31,9 +31,13 @@
                 </div>
                 <div class="panel-body">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="field-1">Trunk</label>
+                    <label for="Search" class="col-sm-1 control-label">Search</label>
+                        <div class="col-sm-2">
+                          <input class="form-control" name="Search" id="Search"  type="text" >
+                        </div>
+                        <label class="col-sm-1 control-label" for="field-1">Trunk</label>
                         <div class="col-sm-3">
-                            {{ Form::select('TrunkID', $trunks, $trunk_keys, array("class"=>"select2")) }}
+                            {{ Form::select('TrunkID', $trunks, $trunk_keys, array("class"=>"select2","data-type"=>"trunk")) }}
                         </div>
                     </div>
                     <p style="text-align: right;">
@@ -49,7 +53,7 @@
 </div>
 <div class="cler row">
     <div class="col-md-12">
-        <form role="form" id="form1" method="post" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+        <form role="form" id="form1" method="post" class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -65,11 +69,11 @@
                             <table class="table table-bordered datatable" id="table-4">
                                 <thead>
                                     <tr>
-                                        <th width="30%">Name</th>
-                                        <th width="20%">Currency</th>
-                                        <th width="28%">Codedeck</th>
-                                        <th width="20%">last update</th>
-                                         <th width="20%">Action</th>
+                                        <th >Name</th>
+                                        <th >Currency</th>
+                                        <th >Codedeck</th>
+                                        <th >Last Updated</th>
+                                         <th >Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -89,21 +93,21 @@
     var $searchFilter = {};
     var update_new_url;
         $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
-
+		$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": baseurl + "/rate_tables/ajax_datagrid",
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "oTableTools": {},
             "aaSorting": [[3, "desc"]],
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID});
+                aoData.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID});
+                data_table_extra_params.push({"name":"TrunkID","value":$searchFilter.TrunkID},{"name":"Search","value":$searchFilter.Search});
             },
             "fnRowCallback": function(nRow, aData) {
                 $(nRow).attr("id", "host_row_" + aData[2]);
@@ -123,10 +127,10 @@
                                 view_ = view_.replace('{id}', id);
                                 delete_ = delete_.replace('{id}', id);
 
-                                action = '<a href="' + view_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View</a>';
+                                action = '<a title="Edit" href="' + view_ + '" class="btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
 
                                 <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
-                                    action += ' <a href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn delete btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Delete</a>';
+                                    action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
                                 <?php } ?>
                                 //action += status_link;
                                 return action;
@@ -220,10 +224,12 @@
         $("#ratetable_filter").submit(function(e) {
             e.preventDefault();
             $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
+			$searchFilter.Search = $('#ratetable_filter [name="Search"]').val();
             data_table.fnFilter('', 0);
             return false;
          });
          $("#add-new-rate-table").click(function(ev) {
+             ev.preventDefault();
              $('#modal-add-new-rate-table').modal('show', {backdrop: 'static'});
          });
          $("#add-new-form").submit(function(ev){
@@ -236,6 +242,8 @@
 </script>
 @include('includes.errors')
 @include('includes.success')
+@include('trunk.trunkmodal')
+@include('currencies.currencymodal')
 @stop
 @section('footer_ext')
 @parent
@@ -258,7 +266,8 @@
                          <div class="col-md-6">
                             <div class="form-group ">
                                 <label for="field-5" class="control-label">Trunk</label>
-                                {{Form::select('TrunkID', $trunks, $trunk_keys,array("class"=>"form-control select2"))}}
+                                {{Form::SelectControl('trunk')}}
+                               <!-- {Form::select('TrunkID', $trunks, $trunk_keys,array("class"=>"form-control select2"))}}-->
                             </div>
                         </div>
                          </div>
@@ -266,7 +275,8 @@
                        <div class="col-md-6">
                            <div class="form-group ">
                                <label for="field-5" class="control-label">Currency</label>
-                               {{ Form::select('CurrencyID', $currencylist,  '', array("class"=>"select2")) }}
+                               {{Form::SelectControl('currency')}}
+                               <!--{ Form::select('CurrencyID', $currencylist,  '', array("class"=>"select2")) }}-->
                            </div>
                        </div>
                         <div class="col-md-6">

@@ -55,10 +55,10 @@
                                 <div class="input-group-addon" style="padding: 0px; width: 85px;">
                                     <?php $nameprefix_array = array("Mr" => "Mr", "Miss" => "Miss", "Mrs" => "Mrs"); ?>
                                     {{Form::select('NamePrefix', $nameprefix_array, Input::old('NamePrefix')
-                                    ,array("class"=>"selectboxit"))}}
+                                    ,array("class"=>"select2 small"))}}
                                 </div>
                                 <input type="text" name="FirstName" class="form-control"
-                                       value="{{Input::old('FirstName')}}"/>
+                                       value="@if(Input::old('FirstName')!=''){{Input::old('FirstName')}}@elseif(Input::get('name')!=''){{Input::get('name')}}@endif"/>
                             </div>
                         </div>
 
@@ -118,7 +118,7 @@
 
                         <div class="col-sm-4">
                             <input type="text" class="form-control" id="field-1" placeholder="" name="Email"
-                                   value="{{Input::old('Email')}}"/>
+                                   value="@if(Input::old('Email')!=''){{Input::old('Email')}}@elseif(Input::get('email')!=''){{Input::get('email')}}@endif"/>
                         </div>
 
                         <label class="col-sm-2 control-label">Department</label>
@@ -273,7 +273,7 @@
 
                         <div class="col-sm-4">
 
-                            {{Form::select('Country', $countries, Input::old('Country') ,array("class"=>"selectboxit"))}}
+                            {{Form::select('Country', $countries, Input::old('Country') ,array("class"=>"select2 small"))}}
                         </div>
                     </div>
                 </div>

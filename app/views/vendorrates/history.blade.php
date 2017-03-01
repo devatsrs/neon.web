@@ -89,7 +89,7 @@
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": baseurl + "/vendor_rates/{{$id}}/history_ajax_datagrid",
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[2, 'desc']],
@@ -107,7 +107,7 @@
                                 var jobID = full[5] ;
                                 var download_ = "";
 
-                                action = '<a  onclick=" return showAjaxModal(\''+show_+'\',\'modal-customer-rate-history\');" href="javascript:;"   class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                                action = '<a  onclick=" return showAjaxModal(\''+show_+'\',\'modal-customer-rate-history\');" href="javascript:;" title="View"   class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                                 if( jobID != null ){
                                     /*Customer Upload*/
                                     if(download_upload_type == 'VU' && full[5]!= ''){

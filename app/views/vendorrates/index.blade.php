@@ -136,7 +136,7 @@
     @endif
     @if(User::checkCategoryPermission('VendorRates','Delete'))
     <button class="btn btn-danger btn-sm btn-icon icon-left" id="clear-bulk-rate" type="submit">
-        <i class="entypo-cancel"></i>
+        <i class="entypo-trash"></i>
         Delete Selected
     </button>
     @endif
@@ -199,7 +199,7 @@ jQuery(document).ready(function($) {
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push({"name": "Effective", "value": Effective}, {"name": "Trunk", "value": Trunk}, {"name": "Country", "value": Country},  {"name": "Code", "value": Code}, {"name": "Description", "value": Description});
             },
-            "iDisplayLength":'{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
              "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
              "aaSorting": [[0, "asc"], [1, "asc"]],
@@ -235,11 +235,11 @@ jQuery(document).ready(function($) {
                                 }
                                 action += '</div>';
                                 <?php if(User::checkCategoryPermission('VendorRates','Edit')) { ?>
-                                    action += '<a href="Javascript:;" class="edit-vendor-rate btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
+                                    action += ' <a href="Javascript:;" title="Edit" class="edit-vendor-rate btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                 <?php } ?>
                                 if (full[0] > 0) {
                                     <?php if(User::checkCategoryPermission('VendorRates','Delete')) { ?>
-                                        action += ' <button href="' + clerRate_ + '"  class="btn clear btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."><i class="entypo-cancel"></i>Delete</button>';
+                                        action += ' <button href="' + clerRate_ + '" title="Delete"  class="btn clear btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
                                     <?php } ?>
                                 }
                                 return action;

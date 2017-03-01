@@ -6,6 +6,12 @@
         .controle{
             width:100%;
         }
+        .tab-pane{
+            max-width:400px;
+        }
+        .form-control{
+            max-width:250px;
+        }
         .scroll{
             height: 400px;
             overflow: auto;
@@ -30,7 +36,7 @@
         <p style="text-align: right;">
             <a href="#" id="add-new-role" class="btn btn-primary ">
                 <i class="entypo-plus"></i>
-                Add New Role
+                Add New
             </a>
             <!--<a href="#" id="add-new-permission" class="btn btn-primary ">
                 <i class="entypo-plus"></i>
@@ -50,46 +56,41 @@
                     <div class="tab-content">
                         <div class="tab-pane active" id="lefttab1">
                             <div class="form-group">
-                                <div class="col-sm-6">
-                                    <input type="text" name="txtleftuser" class="form-control" placeholder="User Search" value="">
+                                <input type="text" name="txtleftuser" class="form-control" placeholder="User Search" value="">
+                                <div class="scroll">
+                                    <table class="clear table table-bordered datatable controle user">
+                                        <thead>
+                                        <tr>
+                                            <th width="10%">
+                                                <div class="checkbox">
+                                                    <input type="checkbox" name="checkbox[]" class="selectall">
+                                                </div>
+                                            </th>
+                                            <th width="90%">Users</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @if(count($users))
+                                            @foreach($users as $index=>$user)
+                                                <tr search="{{strtolower($user)}}">
+                                                    <td>
+                                                        <div class="checkbox">
+                                                            {{Form::checkbox("UserIds[]" , $index ) }}
+                                                        </div>
+                                                    </td>
+                                                    <td>{{$user}}</td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <div class="col-sm-10 scroll">
-                                <table class="clear table table-bordered datatable controle user">
-                                    <thead>
-                                    <tr>
-                                        <th width="10%">
-                                            <div class="checkbox">
-                                                <input type="checkbox" name="checkbox[]" class="selectall">
-                                            </div>
-                                        </th>
-                                        <th width="90%">Users</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @if(count($users))
-                                        @foreach($users as $index=>$user)
-                                            <tr search="{{strtolower($user)}}">
-                                                <td>
-                                                    <div class="checkbox">
-                                                        {{Form::checkbox("UserIds[]" , $index ) }}
-                                                    </div>
-                                                </td>
-                                                <td>{{$user}}</td>
-                                            </tr>
-                                        @endforeach
-                                    @endif
-                                    </tbody>
-                                </table>
-                            </div>
                             </div>
                         </div>
                         <div class="tab-pane" id="lefttab2">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <div class="col-sm-6">
-                                        <input type="text" name="txtleftgroup" class="form-control" placeholder="Role Sreach" value="">
-                                    </div>
-                                    <div class="col-sm-10 scroll">
+                            <div class="form-group">
+                                <input type="text" name="txtleftgroup" class="form-control" placeholder="Role Sreach" value="">
+                                <div class="scroll">
                                         <table class="clear table table-bordered datatable controle role">
                                             <thead>
                                             <tr>
@@ -117,16 +118,12 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                </div>
                             </div>
                         </div>
                         <div class="tab-pane" id="lefttab3">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <div class="col-sm-6">
-                                        <input type="text" name="vender" class="form-control" placeholder="Permission Search" value="">
-                                    </div>
-                                    <div class="col-sm-10 scroll">
+                            <div class="form-group">
+                                <input type="text" name="vender" class="form-control" placeholder="Permission Search" value="">
+                                <div class="scroll">
                                         <table class="clear table table-bordered datatable controle resource">
                                             <thead>
                                             <tr>
@@ -154,8 +151,6 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                </div>
-
                             </div>
                         </div>
                     </div>
@@ -169,49 +164,42 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane" id="righttab1">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <div class="col-sm-6">
-                                        <input type="text" name="vender" class="form-control" placeholder="User search" value="">
-                                    </div>
-                                    <div class="col-sm-10 scroll">
-                                        <table class="clear table table-bordered datatable controle user">
-                                            <thead>
-                                            <tr>
-                                                <th width="10%">
-                                                    <div class="checkbox">
-                                                        <input type="checkbox" name="checkbox[]" class="selectall">
-                                                    </div>
-                                                </th>
-                                                <th width="90%">Users</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @if(count($users))
-                                                @foreach($users as $index=>$user)
-                                                    <tr search="{{strtolower($user)}}">
-                                                        <td>
-                                                            <div class="checkbox">
-                                                                {{Form::checkbox("UserIds[]" , $index ) }}
-                                                            </div>
-                                                        </td>
-                                                        <td>{{$user}}</td>
-                                                    </tr>
-                                                @endforeach
-                                            @endif
-                                            </tbody>
-                                        </table>
-                                    </div>
+                            <div class="form-group">
+                                <input type="text" name="vender" class="form-control" placeholder="User search" value="">
+                                <div class="scroll">
+                                    <table class="clear table table-bordered datatable controle user">
+                                        <thead>
+                                        <tr>
+                                            <th width="10%">
+                                                <div class="checkbox">
+                                                    <input type="checkbox" name="checkbox[]" class="selectall">
+                                                </div>
+                                            </th>
+                                            <th width="90%">Users</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @if(count($users))
+                                            @foreach($users as $index=>$user)
+                                                <tr search="{{strtolower($user)}}">
+                                                    <td>
+                                                        <div class="checkbox">
+                                                            {{Form::checkbox("UserIds[]" , $index ) }}
+                                                        </div>
+                                                    </td>
+                                                    <td>{{$user}}</td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                         <div class="tab-pane active" id="righttab2">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <div class="col-sm-6">
-                                        <input type="text" name="vender" class="form-control"placeholder="Role Search" value="">
-                                    </div>
-                                    <div class="col-sm-10 scroll">
+                            <div class="form-group">
+                                <input type="text" name="vender" class="form-control"placeholder="Role Search" value="">
+                                <div class="scroll">
                                         <table class="clear table table-bordered datatable controle role">
                                             <thead>
                                             <tr>
@@ -239,17 +227,12 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                </div>
-
                             </div>
                         </div>
                         <div class="tab-pane" id="righttab3">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <div class="col-sm-6">
-                                        <input type="text" name="vender" class="form-control" placeholder="Permission search" value="">
-                                    </div>
-                                    <div class="col-sm-10 scroll">
+                            <div class="form-group">
+                                <input type="text" name="vender" class="form-control" placeholder="Permission search" value="">
+                                <div class="col-sm-10 scroll">
                                         <table class="clear table table-bordered datatable controle resource">
                                             <thead>
                                             <tr>
@@ -277,8 +260,6 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                </div>
-
                             </div>
                         </div>
                     </div>

@@ -47,7 +47,7 @@
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/contacts/ajax_datagrid",
-            "iDisplayLength": {{Config::get('app.pageSize')}},
+             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sPaginationType": "bootstrap",
             "oTableTools": {},
@@ -71,11 +71,11 @@
                         delete_  = delete_ .replace( '{id}', id );
                         action = '';
                         <?php if(User::checkCategoryPermission('Contacts','Edit') ){ ?>
-                        action += '<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                        action += ' <a href="'+edit_+'" title="Edit" class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>';
                         <?php } ?>
-                        action += '<a href="'+show_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                        action += ' <a href="'+show_+'" Title="View" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                         <?php if(User::checkCategoryPermission('Contacts','Delete') ){ ?>
-                        action += '<a href="'+delete_+'" data-redirect="{{ URL::to('contacts')}}"  class="btn delete btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>';
+                        action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('contacts')}}" title="Delete"  class="btn btn-danger btn-default btn-sm"><i class="entypo-trash"></i></a>';
                         <?php } ?>
                         return action;
                       }

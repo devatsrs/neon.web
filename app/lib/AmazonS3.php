@@ -37,13 +37,16 @@ class AmazonS3 {
 		'DISPUTE_ATTACHMENTS'=>'DisputesAttachment',
         'TASK_ATTACHMENT'=>'TaskAttachment',
         'EMAIL_ATTACHMENT'=>'EmailAttachment',
-        'DIALSTRING_UPLOAD'=>'DialString'
+		'TICKET_ATTACHMENT'=>'TicketAttachment',
+        'DIALSTRING_UPLOAD'=>'DialString',
+        'DIALSTRING_UPLOAD'=>'DialString',
+        'RECURRING_INVOICE_UPLOAD'=>'RecurringInvoice'
     );
 
     // Instantiate an S3 client
     public static function getS3Client(){
 		     	
-	 	$AmazonData		=	SiteIntegration::is_amazon_configured(true);
+	 	$AmazonData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
 		
 		if(!$AmazonData){
             return 'NoAmazon';
@@ -78,7 +81,7 @@ class AmazonS3 {
 	
 	 public static function getAmazonSettings(){     
 		$amazon 		= 	array();
-		$AmazonData		=	SiteIntegration::is_amazon_configured(true);
+		$AmazonData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
 		
 		if($AmazonData){
 			$amazon 	=	 array("AWS_BUCKET"=>$AmazonData->AmazonAwsBucket,"AMAZONS3_KEY"=>$AmazonData->AmazonKey,"AMAZONS3_SECRET"=>$AmazonData->AmazonSecret,"AWS_REGION"=>$AmazonData->AmazonAwsRegion);	
@@ -112,9 +115,11 @@ class AmazonS3 {
         }
 
         $path .=  $dir . "/". date("Y")."/".date("m") ."/" .date("d") ."/";
-        $dir = getenv('UPLOAD_PATH') . '/'. $path;
+        $dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. $path;
         if (!file_exists($dir)) {
-            mkdir($dir, 0777, TRUE);
+            RemoteSSH::run("mkdir -p " . $dir);
+            RemoteSSH::run("chmod -R 777 " . $dir);
+            @mkdir($dir, 0777, TRUE);
         }
 
         return $path;
@@ -150,7 +155,7 @@ class AmazonS3 {
 
         //When no amazon ;
         if($s3 == 'NoAmazon'){
-            $Uploadpath = Config::get('app.upload_path')."/".$key;
+            $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH')."/".$key;
             if ( file_exists($Uploadpath) ) {
                 return $Uploadpath;
             } else {
@@ -202,7 +207,7 @@ class AmazonS3 {
 
         //When no amazon ;
         if($s3 == 'NoAmazon'){
-            $file = getenv("UPLOAD_PATH") . '/' . $key;
+            $file = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $key;
             if ( file_exists($file) ) {
                 return  get_image_data($file);
             } else {
@@ -220,7 +225,7 @@ class AmazonS3 {
 
             //When no amazon ;
             if($s3 == 'NoAmazon'){
-                $Uploadpath = getenv('UPLOAD_PATH') . "/"."".$file;
+                $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH') . "/"."".$file;
                 if ( file_exists($Uploadpath) ) {
                     @unlink($Uploadpath);
                     return true;

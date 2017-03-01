@@ -18,7 +18,7 @@
     <p style="text-align: right;">
         @if(User::checkCategoryPermission('DiscountPlan','Edit'))
         @if($discountplanapplied == 0)
-        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Discount</a>
+        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
         @endif
         @endif
         <a href="{{URL::to('/discount_plan')}}" class="btn btn-danger btn-sm btn-icon icon-left">
@@ -95,7 +95,7 @@
                     "bProcessing":true,
                     "bServerSide": true,
                     "sAjaxSource": datagrid_url,
-                    "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                    "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting": [[0, 'asc']],
@@ -130,10 +130,10 @@
                                 action += '</div>';
                                 @if($discountplanapplied == 0)
                                     @if(User::checkCategoryPermission('DiscountPlan','Edit'))
-                                        action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                                        action += ' <a href="' + edit_url.replace("{id}",id) +'" title="Edit" class="edit-button btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                                     @endif
                                     @if(User::checkCategoryPermission('DiscountPlan','Delete'))
-                                        action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                        action += ' <a href="' + delete_url.replace("{id}",id) +'" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                     @endif
                                 @endif
                                 return action;
@@ -240,7 +240,7 @@
 @section('footer_ext')
     @parent
     <div class="modal fade custom-width in " id="modal-list">
-        <div class="modal-dialog" style="width: 60%;">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="modal-form" method="post">
                     <div class="modal-header">

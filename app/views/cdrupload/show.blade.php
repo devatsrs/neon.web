@@ -27,15 +27,15 @@
 .small_fld{width:80.6667%;}
 .small_label{width:5.0%;}
 
-.col-sm-e1{ padding-left:8px;padding-right:8px;}
-.col-sm-e12{padding-left:5px;padding-right:5px; width:11%;}
+.col-md-e1{ padding-left:8px;padding-right:8px;}
+.col-md-e12{padding-left:5px;padding-right:5px; width:11%;}
 </style>
 <!--
 <div class="row">
 <div  class="col-md-12">
     <div class="input-group-btn pull-right" style="width:70px;">
         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
             <li><a class="generate_rate create" id="bulk_clear_cdr" href="javascript:;" style="width:100%">
                     Bulk clear
                 </a>
@@ -63,7 +63,7 @@
         <div class="row">
             <div class="col-md-12">
                 <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="cdr_filter">
-                    <div data-collapsed="0" class="panel panel-primary filter">
+                    <div id="cdrfilter" data-collapsed="0" class="panel panel-primary filter">
                         <div class="panel-heading">
                             <div class="panel-title">
                                 Filter
@@ -74,61 +74,62 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label class="col-sm-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
-                                <div class="col-sm-2" style="padding-left:0; padding-right:0; width:10%;">
-                                    <input type="text" name="StartDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+
+                                <label class="col-md-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
+                                <div class="col-md-2" style="padding-left:0; padding-right:0; width:10%;">
+                                    <input type="text" name="StartDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?substr(Input::get('StartDate'),0,10):'' }}" data-enddate="{{date('Y-m-d')}}" />
                                 </div>
-                                <div class="col-sm-1" style="padding: 0px; width: 9%;">
-                                    <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:01" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
+                                <div class="col-md-1" style="padding: 0px; width: 9%;">
+                                    <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" value="{{Input::get('StartDate')!=null && strlen(Input::get('StartDate'))> 10 && substr(Input::get('StartDate'),11,8) != '00:00:00' ?substr(Input::get('StartDate'),11,8):'00:00:00'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
-                                <label class="col-sm-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">End Date</label>
-                                <div class="col-sm-2" style="padding-right: 0px; padding-left: 0px; width: 10%;">
-                                    <input type="text" name="EndDate" class="form-control datepicker small_fld"  data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}" />
+
+                                <label class="col-md-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">End Date</label>
+                                <div class="col-md-2" style="padding-right: 0px; padding-left: 0px; width: 10%;">
+                                    <input type="text" name="EndDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')!=null?substr(Input::get('EndDate'),0,10):'' }}" data-enddate="{{date('Y-m-d')}}" />
                                 </div>
-                                <div class="col-sm-1" style="padding: 0px; width: 9%;">
-                                    <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
+                                <div class="col-md-1" style="padding: 0px; width: 9%;">
+                                    <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="{{Input::get('EndDate')!=null && strlen(Input::get('EndDate'))> 10?substr(Input::get('EndDate'),11,2).':59:59':'23:59:59'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
-                                <label for="field-1" class="col-sm-2 control-label" style="width: 6%;">Currency</label>
-                                <div class="col-sm-2">
-                                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"selectboxit"))}}
+                                <label for="field-1" class="col-md-2 control-label" style="width: 6%;">Currency</label>
+                                <div class="col-md-2">
+                                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2 small"))}}
                                 </div>
-                                <label class="col-sm-1 control-label small_label" for="field-1">Type</label>
-                                <div class="col-sm-2" style="padding-right: 0px; width: 14%;">
-                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"selectboxit small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                <label class="col-md-1 control-label small_label" for="field-1">Type</label>
+                                <div class="col-md-2" style="padding-right: 0px; width: 14%;">
+                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2 small small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
              
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-1 control-label" for="field-1">Gateway</label>
-                                <div class="col-sm-2">
+                                <label class="col-md-1 control-label" for="field-1">Gateway</label>
+                                <div class="col-md-2">
                                     {{ Form::select('CompanyGatewayID',$gateway,Input::get('CompanyGatewayID'), array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
                                 </div>
-                                <label class="col-sm-1 control-label" for="field-1">Account</label>
-                                <div class="col-sm-2">
+                                <label class="col-md-1 control-label" for="field-1">Account</label>
+                                <div class="col-md-2">
                                     {{ Form::select('AccountID',$accounts,Input::get('AccountID'), array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
 
                                          
                             
-                               <label class="col-sm-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 4%;">CLI</label>
-                               <div class="col-sm-1 col-sm-e1" style="width: 10%;">
+                               <label class="col-md-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 4%;">CLI</label>
+                               <div class="col-md-1 col-md-e1" style="width: 10%;">
                                     <input type="text" name="CLI" class="form-control mid_fld "  value=""  />
                                 </div>
-                                 <label class="col-sm-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">CLD</label>
-                               <div class="col-sm-1 col-sm-e1" style="width: 10%;">
+                                 <label class="col-md-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">CLD</label>
+                               <div class="col-md-1 col-md-e1" style="width: 10%;">
                                     <input type="text" name="CLD" class="form-control mid_fld  "  value=""  />
                                 </div>
 
-                                <label for="field-1" class="col-sm-1 control-label" style="padding-left: 0px; width: 8%;">Hide Zero Cost</label>
-                                <div class="col-sm-1">
-                                    <p class="make-switch switch-small">
-                                        <input id="zerovaluecost" name="zerovaluecost" type="checkbox">
-                                    </p>
+                                <label for="field-1" class="col-md-1 control-label" style="width: 4%;">Show</label>
+                                <div class="col-md-2">
+                                    <?php $options = [0=>'All',1=>'Zero Cost',2=>'Non Zero Cost'] ?>
+                                    {{ Form::select('zerovaluecost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
                 </div>
                             <div class="form-group">
-                                <label class="col-sm-1 control-label" for="field-1">Prefix</label>
-                                <div class="col-sm-2">
+                                <label class="col-md-1 control-label" for="field-1">Prefix</label>
+                                <div class="col-md-2">
                                     <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
                                 </div>
                                 <?php
@@ -137,8 +138,8 @@
                                         $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
                                     }
                                 ?>
-                                <label class="col-sm-1 control-label" for="field-1">Trunk</label>
-                                <div class="col-sm-2">
+                                <label class="col-md-1 control-label" for="field-1">Trunk</label>
+                                <div class="col-md-2">
                                     {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
 
@@ -156,7 +157,7 @@
         </div>
         <p style="text-align: right;">
             @if(User::checkCategoryPermission('CDR','Delete') )
-                <button id="delete-customer-cdr" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete</button>
+                <button id="delete-customer-cdr" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete</button>
             @endif
             <form id="delete-customer-cdr-form" >
                 <input type="hidden" name="UsageDetailIDs" />
@@ -178,6 +179,7 @@
                         <th width="10%" >Disconnect Time</th>
                         <th width="10%" >Billed Duration (sec)</th>
                         <th width="10%" >Cost</th>
+                        <th width="10%" >Avg. Rate/Min</th>
                         <th width="10%" >CLI</th>
                         <th width="10%" >CLD</th>
                         <th width="10%" >Prefix</th>
@@ -242,7 +244,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
             $searchFilter.CDRType 				= 		$("#cdr_filter [name='CDRType']").val();			
 			$searchFilter.CLI 					= 		$("#cdr_filter [name='CLI']").val();
 			$searchFilter.CLD 					= 		$("#cdr_filter [name='CLD']").val();			
-			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").prop("checked");
+			$searchFilter.zerovaluecost 		= 		$("#cdr_filter [name='zerovaluecost']").val();
 			$searchFilter.CurrencyID 			= 		$("#cdr_filter [name='CurrencyID']").val();
             $searchFilter.area_prefix 			= 		$("#cdr_filter [name='area_prefix']").val();
             $searchFilter.Trunk 			    = 		$("#cdr_filter [name='Trunk']").val();
@@ -265,7 +267,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "bServerSide":true,
                 "sAjaxSource": baseurl + "/cdr_upload/ajax_datagrid/type",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push(
                             {"name":"StartDate","value":$searchFilter.StartDate},
@@ -322,6 +324,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                         }
                     }, //0Checkbox
+                    { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },
@@ -469,12 +472,23 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     toastr.error("No data available To ReRate", "Error", toastr_opts);
                     return false;
                 }
-                response = confirm('Are you sure?');
+                $("#cdr-rerate-user").modal('show', {backdrop: 'static'});
+                /*response = confirm('Are you sure?');
                 if (response) {
                    submit_ajax(baseurl + "/rate_cdr",$.param($searchFilter))
-                }
+                }*/
             });
-
+        $('#cdr-rerate-form [name="RateMethod"]').change(function (e) {
+            e.preventDefault();
+            $('#cdr-rerate-form [name="SpecifyRate"]').parents('.row').addClass('hidden');
+            if ($(this).val() == 'SpecifyRate') {
+                $('#cdr-rerate-form [name="SpecifyRate"]').parents('.row').removeClass('hidden');
+            }
+        });
+        $("#cdr-rerate-form").submit(function (e) {
+            e.preventDefault();
+            submit_ajax(baseurl + "/rate_cdr",$.param($searchFilter)+'&'+$(this).serialize())
+        });
         $("#delete-customer-cdr").click(function(e) {
             e.preventDefault();
             var criteria='';
@@ -534,9 +548,17 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 
 
         });
-			
-			
 
+
+        if (isxs()|| is('tabletscreen')) {
+            $('#cdrfilter').find('.col-md-1,.col-md-2').each(function () {
+                $(this).removeAttr('style');
+                $(this).removeClass("small_label");
+            });
+            $('#cdrfilter').find('.small_fld').each(function () {
+                $(this).removeClass("small_fld");
+            });
+        }
 
 
             });
@@ -553,4 +575,47 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
     padding: 15px 10px;
 }
 </style>
+@stop
+@section('footer_ext')
+    @parent
+<div class="modal fade in" id="cdr-rerate-user">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="cdr-rerate-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">CDR Rerate</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Rate</label>
+                                {{ Form::select('RateMethod',array('CurrentRate'=>'Rate setup against account','SpecifyRate'=>'Specify Rate') , '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row hidden">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Rate</label>
+                                <input type="text" name="SpecifyRate" class="form-control" value=""/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." id="rerate-customer-cdr">
+                        <i class="entypo-floppy"></i>
+                        Rerate
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @stop

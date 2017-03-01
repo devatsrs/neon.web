@@ -19,12 +19,13 @@
 
             <li class="caret"></li>
 
-            <li>
-                <a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}">
-                    <i class="entypo-user"></i>
-                    Edit Profile
-                </a>
-            </li>
+		 @if( User::checkCategoryPermission('Users','View'))
+        <li> <a href="{{Url::to('users')}}">&nbsp;<i class="fa fa-user-secret"></i><span>Users</span> </a></li>
+        @endif
+        @if(User::is_admin())
+        <li> <a href="{{Url::to('roles')}}">&nbsp;<i class="fa fa-key"></i><span>User Roles</span></a></li>
+        @endif
+        <li><a href="{{URL::to('users/edit_profile/'. User::get_userID() )}}"><i class="entypo-user"></i>Edit Profile</a></li>
 
             <!-- <li>
                  <a href="mailbox.html">
@@ -40,12 +41,11 @@
                  </a>
              </li>
 -->
-            <li>
-                <a href="{{URL::to('/jobs')}}">
-                    <i class="entypo-clipboard"></i>
-                    Jobs
-                </a>
-            </li>
+		@if(User::checkCategoryPermission('emailmessages','All'))
+        <li> <a href="{{Url::to('/emailmessages')}}"> <i class="entypo-mail"></i> <span>Mailbox</span> </a></li>
+      	@endif
+
+           <li><a href="{{URL::to('/jobs')}}"><i class="entypo-clipboard"></i>Jobs</a></li>
         </ul>
     </li>
 
@@ -62,6 +62,19 @@
          </li>
      </ul>
 </li>
+	<!-- Message Notifications -->
+@if(User::checkCategoryPermission('emailmessages','All'))    
+<li class="notifications msgs dropdown">
+        
+        <!-- Ajax Content here : Messages -->
+		<a data-close-others="true" data-hover="dropdown" data-toggle="dropdown" class="dropdown-toggle msgs" href="#"><i class="entypo-mail"></i></a>
+		<ul class="dropdown-menu">
+        	 <li class="top">
+          	   <p>Loading...</p>
+         	</li>
+       </ul>				
+</li>
+ @endif	
 </ul>
 </div>
 <!-- Raw Links -->
@@ -216,6 +229,19 @@
              <div class="modal-header">
                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                  <h4 class="modal-title">Job Content</h4>
+             </div>
+             <div class="modal-body">
+                 Content is loading...
+             </div>
+         </div>
+     </div>
+ </div>
+ <div class="modal fade" id="modal-mailmsg">
+     <div class="modal-dialog">
+         <div class="modal-content">
+             <div class="modal-header">
+                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                 <h4 class="modal-title">Message Content</h4>
              </div>
              <div class="modal-body">
                  Content is loading...

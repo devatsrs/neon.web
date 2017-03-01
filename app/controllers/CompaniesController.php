@@ -10,9 +10,8 @@ class CompaniesController extends \BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit()
-	{
-        $LicenceApiResponse=Company::ValidateLicenceKey();
+	public function edit(){
+        $LicenceApiResponse = Company::ValidateLicenceKey();
         $company_id = User::get_companyID();
         $company = Company::find($company_id);
         $countries = Country::getCountryDropdownList();
@@ -20,26 +19,17 @@ class CompaniesController extends \BaseController {
         $timezones = TimeZone::getTimeZoneDropdownList();
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
 
-        if($company->CustomerAccountPrefix == ''){
+        if ($company->CustomerAccountPrefix == '') {
             $LastPrefixNo = DB::table('tblGlobalSetting')->where(["Key" => 'Default_Customer_Trunk_Prefix'])->first();
             $company->CustomerAccountPrefix = $LastPrefixNo->Value;
         }
-        $BillingTimezone =  CompanySetting::getKeyVal('BillingTimezone');
-        $CDRType = CompanySetting::getKeyVal('CDRType');
         $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');
-        $PaymentDueInDays = CompanySetting::getKeyVal('PaymentDueInDays');
-        $BillingCycleType = CompanySetting::getKeyVal('BillingCycleType');
-        $BillingCycleValue = CompanySetting::getKeyVal('BillingCycleValue');
-        $InvoiceTemplateID = CompanySetting::getKeyVal('InvoiceTemplateID');
         $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
-        $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultDashboard');
-        $PincodeWidget = CompanySetting::getKeyVal('PincodeWidget')=='Invalid Key'?'':CompanySetting::getKeyVal('PincodeWidget');
-        $DefaultTextRate = CompanySetting::getKeyVal('DefaultTextRate')=='Invalid Key'?'':CompanySetting::getKeyVal('DefaultTextRate');
+        $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('DefaultDashboard');
+        //$PincodeWidget = CompanySetting::getKeyVal('PincodeWidget') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('PincodeWidget');
         $LastPrefixNo = LastPrefixNo::getLastPrefix();
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
-        $taxrates = TaxRate::getTaxRateDropdownIDList();//Default TaxRate functionality Added by Abubakar
-        if(isset($taxrates[""])){unset($taxrates[""]);}
-        return View::make('companies.edit')->with(compact('company', 'countries','currencies','timezones','InvoiceTemplates','BillingTimezone','CDRType','RoundChargesAmount','PaymentDueInDays','BillingCycleType','BillingCycleValue','InvoiceTemplateID','LastPrefixNo','LicenceApiResponse','UseInBilling','dashboardlist','DefaultDashboard','PincodeWidget','taxrates','DefaultTextRate'));
+        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount'));
 
     }
 
@@ -56,12 +46,11 @@ class CompaniesController extends \BaseController {
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
-        $data['PincodeWidget'] = isset($data['PincodeWidget']) ? 1 : 0;
+        //$data['PincodeWidget'] = isset($data['PincodeWidget']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
         $rules = array(
             'CompanyName' => 'required|min:3|unique:tblCompany,CompanyName,'.$companyID.',CompanyID',
             //'Port' => 'required|numeric',
-            'BillingTimezone' => 'required',
             'CurrencyId' => 'required'
         );
 
@@ -70,36 +59,17 @@ class CompaniesController extends \BaseController {
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        if(empty($data['SMTPPassword'])){
+            unset($data['SMTPPassword']);
+        }
         CompanySetting::setKeyVal('UseInBilling',$data['UseInBilling']);
         unset($data['UseInBilling']);
-        CompanySetting::setKeyVal('BillingTimezone',$data['BillingTimezone']);
-        unset($data['BillingTimezone']);
-        CompanySetting::setKeyVal('CDRType',$data['CDRType']);
-        unset($data['CDRType']);
-        CompanySetting::setKeyVal('RoundChargesAmount',$data['RoundChargesAmount']);
-        unset($data['RoundChargesAmount']);
-        CompanySetting::setKeyVal('PaymentDueInDays',$data['PaymentDueInDays']);
-        unset($data['PaymentDueInDays']);
-        CompanySetting::setKeyVal('BillingCycleType',$data['BillingCycleType']);
-        unset($data['BillingCycleType']);
-        if(isset($data['BillingCycleValue'])) {
-            CompanySetting::setKeyVal('BillingCycleValue', $data['BillingCycleValue']);
-            unset($data['BillingCycleValue']);
-        }
-        CompanySetting::setKeyVal('InvoiceTemplateID',$data['InvoiceTemplateID']);
-        unset($data['InvoiceTemplateID']);
         CompanySetting::setKeyVal('DefaultDashboard',$data['DefaultDashboard']);//Added by Abubakar
         unset($data['DefaultDashboard']);
-        CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish
-        unset($data['PincodeWidget']);
-        if(!isset($data['DefaultTextRate'])) {
-            $data['DefaultTextRate'] = '';
-        }
-		if(isset($data['DefaultTextRate']) && is_array($data['DefaultTextRate'])){
-			CompanySetting::setKeyVal('DefaultTextRate', implode(',', $data['DefaultTextRate']));//Added by Abubakar
-		}
-		unset($data['DefaultTextRate']);
-
+        CompanySetting::setKeyVal('RoundChargesAmount',$data['RoundChargesAmount']);
+        unset($data['RoundChargesAmount']);
+        //CompanySetting::setKeyVal('PincodeWidget',$data['PincodeWidget']);//Added by Girish
+        //unset($data['PincodeWidget']);
         LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
         unset($data['LastPrefixNo']);
 
@@ -120,7 +90,10 @@ class CompaniesController extends \BaseController {
                 CurrencyConversion::create($CurrencyCon);
             }
         }
-
+        //If company timezone changes
+        if($company->TimeZone != $data["Timezone"] ){
+            CronJob::updateAllCronJobNextRunTime($companyID);
+        }
         if ($company->update($data)) {
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
         } else {
@@ -133,6 +106,9 @@ class CompaniesController extends \BaseController {
 		$data 				= 		Input::all();
         $companyID 			= 		User::get_companyID();
         $company 			=		Company::find($companyID);
+        if(empty($data['SMTPPassword'])){
+            $data['SMTPPassword'] = $company->SMTPPassword;
+        }
 		
 		 $rules = array(
             'SMTPServer' => 'required',

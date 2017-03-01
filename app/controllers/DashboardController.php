@@ -10,7 +10,10 @@ class DashboardController extends BaseController {
     public function home() {
         return Redirect::to('/process_redirect');
     }
-    public function salesdashboard(){
+    public function rmdashboard() {
+        return View::make('dashboard.index');
+    }
+    /*public function salesdashboard(){
 
             $companyID = User::get_companyID();
             $userID = '';
@@ -122,7 +125,7 @@ class DashboardController extends BaseController {
             $account_owners = User::getOwnerUsersbyRole();
 
             return View::make('dashboard.sales', compact('dashboardData', 'TotalDueCustomer', 'TotalDueVendor', 'sales_data', 'prev_sales_data', 'top_data', 'prev_top_data', 'compare_with', 'prevsales', 'original_startdate', 'original_enddate', 'account_owners', 'userID','prevSalesExecutive'));
-    }
+    }*/
 
     public function billingdashboard(){
 
@@ -132,7 +135,17 @@ class DashboardController extends BaseController {
         $original_enddate = date('Y-m-d');
         $company_gateway =  CompanyGateway::getCompanyGatewayIdList();
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json'));
+        $StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+        $DateEndDefault  	= 	date('Y-m-d');
+        $monthfilter = 'Weekly';
+        if(Cache::has('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID())){
+            $monthfilter = Cache::get('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID());
+        }
+        $BillingDashboardWidgets 	= 	CompanyConfiguration::get('BILLING_DASHBOARD');
+        if(!empty($BillingDashboardWidgets)) {
+            $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
+        }
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json','StartDateDefault','DateEndDefault','monthfilter','BillingDashboardWidgets'));
 
     }
     public function monitor_dashboard(){
@@ -141,17 +154,20 @@ class DashboardController extends BaseController {
         $DefaultCurrencyID = Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
-        $isAdmin = User::is_admin();
+        $isAdmin = 1;
         $where['Status'] = 1;
         $where['VerificationStatus'] = Account::VERIFIED;
         $where['CompanyID']=User::get_companyID();
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
+            $isAdmin = 0;
         }
         $agent = new Agent();
         $isDesktop = $agent->isDesktop();
         $newAccountCount = Account::where($where)->where('created_at','>=',$original_startdate)->count();
-        return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop'));
+        $MonitorDashboardSetting 	= 	array_filter(explode(',',CompanyConfiguration::get('MONITOR_DASHBOARD')));
+
+        return View::make('dashboard.dashboard',compact('DefaultCurrencyID','original_startdate','original_enddate','isAdmin','newAccountCount','isDesktop','MonitorDashboardSetting'));
 
     }
 	
@@ -162,7 +178,8 @@ class DashboardController extends BaseController {
         $account 			= 	Account::getAccountIDList();
 		$currency 			= 	Currency::getCurrencyDropdownIDList();
 		$UserID 			= 	User::get_userID();
-		$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
+		//$isAdmin 			= 	(User::is_admin() || User::is('RateManager')) ? 1 : 0;
+        $isAdmin 			= 	(User::is_admin()) ? 1 : 0;
 		$users			 	= 	User::getUserIDListAll(0);
 		//$StartDateDefault 	= 	date("m/d/Y",strtotime(''.date('Y-m-d').' -1 months'));
 		//$DateEndDefault  	= 	date('m/d/Y');
@@ -174,6 +191,7 @@ class DashboardController extends BaseController {
 		$TaskBoard			= 	CRMBoard::getTaskBoard();
         $taskStatus 		= 	CRMBoardColumn::getTaskStatusList($TaskBoard[0]->BoardID);
 		$CloseStatus		=	Opportunity::Close;
+		$CrmAllowedReports	=	array();
 		$where['Status']=1;
         if(User::is('AccountManager')){
             $where['Owner'] = User::get_userID();
@@ -182,8 +200,15 @@ class DashboardController extends BaseController {
 		  if(!empty($leadOrAccount)){
             $leadOrAccount = array(""=> "Select a Company")+$leadOrAccount;
         }
-        $tasktags 			= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
-		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus'));	
+        $tasktags 						= 	json_encode(Tags::getTagsArray(Tags::Task_tag));
+		$CompanyCrmDashboardSetting 	= 	CompanyConfiguration::get('CRM_DASHBOARD');
+		if(!empty($CompanyCrmDashboardSetting))
+		{
+			$CrmAllowedReports			=	explode(",",$CompanyCrmDashboardSetting);
+		}
+		
+		
+		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus',"CrmAllowedReports"));	
 	}
 	
 	public function GetUsersTasks(){
@@ -294,7 +319,8 @@ class DashboardController extends BaseController {
     public function ajax_get_jobs(){
         $companyID = User::get_companyID();
         $userID = User::get_userID();
-        $isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        //$isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        $isAdmin = (User::is_admin())?1:0;
         $query = "call prc_GetDashboardDataJobs (".$companyID.','.$userID.','.$isAdmin.")";
         $JobResult = DataTableSql::of($query)->getProcResult(array('AllHeaderJobs','CountJobs'));
         $Jobs = [];
@@ -316,7 +342,8 @@ class DashboardController extends BaseController {
     public function ajax_get_processed_files(){
         $companyID = User::get_companyID();
         $userID = User::get_userID();
-        $isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        //$isAdmin = (User::is_admin() || User::is('RateManager'))?1:0;
+        $isAdmin = (User::is_admin())?1:0;
         $query = "call prc_GetDashboardProcessedFiles (".$companyID.','.$userID.','.$isAdmin.")";
         $fileResult = DataTableSql::of($query)->getProcResult(array('RecentJobFiles'));
         $jobFiles = [];
@@ -366,6 +393,47 @@ class DashboardController extends BaseController {
         $missingAccounts = DataTableSql::of($query, 'sqlsrv2')->getProcResult(array('getMissingAccounts'));
         $jsondata['missingAccounts']=$missingAccounts['data']['getMissingAccounts'];
         return json_encode($jsondata);
+    }
+
+    public function delete_gateway_missing_account($id){
+        try {
+            $result = DB::Connection('sqlsrv2')->statement('delete from tblGatewayAccount where CompanyGatewayID=' . intval($id));
+            if($result){
+                return Response::json(array("status" => "success", "message" => "Messing Account Delete Successfully."));
+            }
+        }catch(Exception $ex){
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
+
+    public function getTopAlerts(){
+        $getdata = Input::all();
+        $getdata['iDisplayLength'] = 10;
+        $getdata['iDisplayStart'] = 1;
+        $getdata['sSortDir_0'] = 'desc';
+        $getdata['iSortCol_0'] = 2;
+        $getdata['AlertType'] = '';
+        $getdata['StartDate'] = date('Y-m-d 00:00:00');
+        $getdata['EndDate'] = date('Y-m-d 23:59:59');
+        $alertType = array("" => "Select") + Alert::$qos_alert_type + Alert::$call_monitor_alert_type;
+        if ($getdata['Type'] == 'today') {
+            $getdata['StartDate'] = date('Y-m-d');
+            $getdata['EndDate'] = date('Y-m-d 23:59:59');
+        } else if ($getdata['Type'] == 'yesterday') {
+            $getdata['StartDate'] = date('Y-m-d', strtotime('-1 day'));
+            $getdata['EndDate'] = $getdata['StartDate'] . ' 23:59:59';
+        } else if ($getdata['Type'] == 'yesterday2') {
+            $getdata['StartDate'] = date('Y-m-d', strtotime('-2 days'));
+            $getdata['EndDate'] = $getdata['StartDate'] . ' 23:59:59';
+        }
+        $response = NeonAPI::request('alert/history', $getdata, false, false, false);
+        if(!empty($response) && $response->status == 'success') {
+            $html = View::make('dashboard.alert_history', compact('response', 'alertType'))->render();
+        }else{
+            return json_response_api($response,true,true,true);
+        }
+        return $html;
+
     }
 
 }

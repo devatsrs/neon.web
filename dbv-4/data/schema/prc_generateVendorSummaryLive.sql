@@ -1,4 +1,8 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_generateVendorSummaryLive`(IN `p_CompanyID` INT, IN `p_StartDate` DATE, IN `p_EndDate` DATE)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_generateVendorSummaryLive`(
+	IN `p_CompanyID` INT,
+	IN `p_StartDate` DATE,
+	IN `p_EndDate` DATE
+)
 BEGIN
 	
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -10,12 +14,13 @@ BEGIN
 		SELECT @p2 as Message;
 		ROLLBACK;
 	END;
-	
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	
-	CALL fnGetCountry(); 
+
+	CALL fnGetCountry();
+	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetVendorUsageForSummaryLive(p_CompanyID, p_StartDate, p_EndDate);
-	
+
  	/* insert into success summary*/
  	DELETE FROM tmp_VendorUsageSummaryLive WHERE CompanyID = p_CompanyID;
 	INSERT INTO tmp_VendorUsageSummaryLive(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
@@ -39,18 +44,42 @@ BEGIN
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 
-	-- DELETE FROM tmp_tblVendorUsageDetailsReport WHERE CompanyID = p_CompanyID;
-	
-	UPDATE tmp_VendorUsageSummaryLive  FORCE INDEX (tmp_VendorUsageSummary_AreaPrefix)
-	INNER JOIN  temptblCountry as tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")
-	SET tmp_VendorUsageSummaryLive.CountryID =tblCountry.CountryID;
-	
+	UPDATE tmp_VendorUsageSummaryLive 
+	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
+	SET tmp_VendorUsageSummaryLive.CountryID =code.CountryID
+	WHERE tmp_VendorUsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
+
+	UPDATE tmp_VendorUsageSummaryLive
+	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_VendorUsageSummaryLive 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
+	ON tmp_VendorUsageSummaryLive.AreaPrefix = TBL.AreaPrefix
+	SET tmp_VendorUsageSummaryLive.CountryID =TBL.CountryID 
+	WHERE tmp_VendorUsageSummaryLive.CompanyID = p_CompanyID AND tmp_VendorUsageSummaryLive.CountryID IS NULL ;
+
+	DELETE FROM tmp_SummaryVendorHeaderLive WHERE CompanyID = p_CompanyID;
+
+	INSERT INTO tmp_SummaryVendorHeaderLive (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT 
+		sh.SummaryVendorHeaderID,
+		sh.DateID,
+		sh.CompanyID,
+		sh.AccountID,
+		sh.GatewayAccountID,
+		sh.CompanyGatewayID,
+		sh.Trunk,
+		sh.AreaPrefix,
+		sh.CountryID,
+		sh.created_at 
+	FROM tblSummaryVendorHeader sh
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummaryLive)TBL
+	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
+	WHERE sh.CompanyID =  p_CompanyID ;
+
 	START TRANSACTION;
-	
+
 	INSERT INTO tblSummaryVendorHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
 	FROM tmp_VendorUsageSummaryLive us
-	LEFT JOIN tblSummaryVendorHeader sh	 
+	LEFT JOIN tmp_SummaryVendorHeaderLive sh	 
 	ON 
 		 us.DateID = sh.DateID
 	AND us.CompanyID = sh.CompanyID
@@ -60,41 +89,60 @@ BEGIN
 	AND us.AreaPrefix = sh.AreaPrefix
 	WHERE sh.SummaryVendorHeaderID IS NULL
 	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
-	
+
+	DELETE FROM tmp_SummaryVendorHeaderLive WHERE CompanyID = p_CompanyID;
+
+	INSERT INTO tmp_SummaryVendorHeaderLive (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT 
+		sh.SummaryVendorHeaderID,
+		sh.DateID,
+		sh.CompanyID,
+		sh.AccountID,
+		sh.GatewayAccountID,
+		sh.CompanyGatewayID,
+		sh.Trunk,
+		sh.AreaPrefix,
+		sh.CountryID,
+		sh.created_at 
+	FROM tblSummaryVendorHeader sh
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummaryLive)TBL
+	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
+	WHERE sh.CompanyID =  p_CompanyID ;
+
 	DELETE us FROM tblUsageVendorSummaryLive us 
 	INNER JOIN tblSummaryVendorHeader sh ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE sh.CompanyID = p_CompanyID;
-	
+
 	DELETE usd FROM tblUsageVendorSummaryDetailLive usd
 	INNER JOIN tblSummaryVendorHeader sh ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE sh.CompanyID = p_CompanyID;
-	
+
 	INSERT INTO tblUsageVendorSummaryLive (SummaryVendorHeaderID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT ANY_VALUE(sh.SummaryVendorHeaderID),SUM(us.TotalCharges),SUM(us.TotalSales),SUM(us.TotalBilledDuration),SUM(us.TotalDuration),SUM(us.NoOfCalls),SUM(us.NoOfFailCalls)
-	FROM tblSummaryVendorHeader sh
+	FROM tmp_SummaryVendorHeaderLive sh
 	INNER JOIN tmp_VendorUsageSummaryLive us FORCE INDEX (Unique_key)	 
 	ON 
-		 us.DateID = sh.DateID
-	AND us.CompanyID = sh.CompanyID
-	AND us.AccountID = sh.AccountID
-	AND us.CompanyGatewayID = sh.CompanyGatewayID
-	AND us.Trunk = sh.Trunk
-	AND us.AreaPrefix = sh.AreaPrefix
+		 sh.DateID = us.DateID
+	AND sh.CompanyID = us.CompanyID
+	AND sh.AccountID = us.AccountID
+	AND sh.CompanyGatewayID = us.CompanyGatewayID
+	AND sh.Trunk = us.Trunk
+	AND sh.AreaPrefix = us.AreaPrefix
 	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
-	
+
 	INSERT INTO tblUsageVendorSummaryDetailLive (SummaryVendorHeaderID,TimeID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT sh.SummaryVendorHeaderID,TimeID,us.TotalCharges,us.TotalSales,us.TotalBilledDuration,us.TotalDuration,us.NoOfCalls,us.NoOfFailCalls
-	FROM tblSummaryVendorHeader sh
+	FROM tmp_SummaryVendorHeaderLive sh
 	INNER JOIN tmp_VendorUsageSummaryLive us FORCE INDEX (Unique_key)
 	ON 
-		 us.DateID = sh.DateID
-	AND us.CompanyID = sh.CompanyID
-	AND us.AccountID = sh.AccountID
-	AND us.CompanyGatewayID = sh.CompanyGatewayID
-	AND us.Trunk = sh.Trunk
-	AND us.AreaPrefix = sh.AreaPrefix;
+		 sh.DateID = us.DateID
+	AND sh.CompanyID = us.CompanyID
+	AND sh.AccountID = us.AccountID
+	AND sh.CompanyGatewayID = us.CompanyGatewayID
+	AND sh.Trunk = us.Trunk
+	AND sh.AreaPrefix = us.AreaPrefix;
 
 	COMMIT;
 	

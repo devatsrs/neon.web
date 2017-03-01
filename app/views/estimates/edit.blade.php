@@ -18,22 +18,22 @@
 @include('includes.errors')
 @include('includes.success')
 
-<form class="form-horizontal form-groups-bordered" method="post" id="invoice-from" role="form">
+<form class="form-horizontal form-groups-bordered" method="post" id="estimate-from" role="form">
 <div class="pull-right">
     @if(User::checkCategoryPermission('Invoice','Send'))
     <a href="Javascript:;" class="send-estimate btn btn-sm btn-success btn-icon icon-left hidden-print">
-        Send Estimate
+        Send
         <i class="entypo-mail"></i>
     </a>
     @endif
     &nbsp;
     <a target="_blank" href="{{URL::to('/estimate/'.$Estimate->EstimateID.'/estimate_preview')}}" class="btn btn-sm btn-danger btn-icon icon-left hidden-print">
-        Print Estimate
+        Print
         <i class="entypo-doc-text"></i>
     </a>
     &nbsp;
     <button type="submit" class="btn save btn-primary btn-sm btn-icon icon-left hidden-print" data-loading-text="Loading...">
-        Save Estimate
+        Save
         <i class="entypo-floppy"></i>
     </button>
     <a href="{{URL::to('/estimates')}}" class="btn btn-danger btn-sm btn-icon icon-left">
@@ -84,64 +84,79 @@
                 </div>
                <div class="form-group">
                 <div class="col-sm-12">
-
-
-                	<table id="EstimateTable" class="table table-bordered" style="margin-bottom: 0">
-                		<thead>
-                			<tr>
-                				<th  width="1%" ><button type="button" id="add-row" class="btn btn-primary btn-xs ">+</button></th>
-                				<th  width="20%" >Item</th>
-                                <th width="20%" >Description</th>
-                                <th width="10%" class="text-center">Unit Price</th>
-                                <th width="10%"  class="text-center">Quantity</th>
-                                <!--<th width="10%" >Discount</th>-->
-                                <th width="15%" >Tax Rate </th>
-                                <th width="10%" >Tax</th>
-                                <th width="15%" class="text-right">Line Total</th>
-                			</tr>
-                		</thead>
-                		<tbody>
-                		    @if(count($EstimateDetail)>0)
-                		    @foreach($EstimateDetail as $ProductRow)
-                			<tr>
-                			    <td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td>
-                                <td>{{Form::select('EstimateDetail[ProductID][]',$products,$ProductRow->ProductID,array("class"=>"select2 product_dropdown"))}}</td>
-                                <td>{{Form::text('EstimateDetail[Description][]',$ProductRow->Description,array("class"=>"form-control descriptions"))}}</td>
-                                <td class="text-center">{{Form::text('EstimateDetail[Price][]', number_format($ProductRow->Price,$RoundChargesAmount),array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td>
-                                <td class="text-center">{{Form::text('EstimateDetail[Qty][]',$ProductRow->Qty,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>
-                              <!--  <td class="text-center">{{Form::text('EstimateDetail[Discount][]',number_format($ProductRow->Discount,$RoundChargesAmount),array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>-->
-                                <td>{{Form::SelectExt(
+                    <div class="dataTables_wrapper">
+                        <table id="EstimateTable" class="table table-bordered" style="margin-bottom: 0">
+                            <thead>
+                                <tr>
+                                    <th  width="1%"><button type="button" id="add-row" class="btn btn-primary btn-xs ">+</button></th>
+                                    <th  width="14%">Item</th>
+                                    <th width="15%">Description</th>
+                                    <th width="10%">Unit Price</th>
+                                    <th width="10%">Quantity</th>
+                                    <!--<th width="10%" >Discount</th>-->
+                                    <th width="15%">Tax 1</th>
+                                    <th width="15%">Tax 2</th>
+                                    <th class="hidden" width="10%" >Total Tax</th>
+                                    <th width="10%">Line Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if(count($EstimateDetail)>0)
+                                @foreach($EstimateDetail as $ProductRow)
+                                <tr>
+                                    <td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td>
+                                    <td>{{Form::select('EstimateDetail[ProductID][]',$products,$ProductRow->ProductID,array("class"=>"select2 select2add product_dropdown",'data-modal'=>'add-edit-modal-product','data-type'=>'item','data-active'=>0))}}</td>
+                                    <td>{{Form::textarea('EstimateDetail[Description][]',$ProductRow->Description,array("class"=>"form-control autogrow descriptions invoice_estimate_textarea","rows"=>1))}}</td>
+                                    <td class="text-center">{{Form::text('EstimateDetail[Price][]', number_format($ProductRow->Price,$RoundChargesAmount),array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td>
+                                    <td class="text-center">{{Form::text('EstimateDetail[Qty][]',$ProductRow->Qty,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>
+                                  <!--  <td class="text-center">{{Form::text('EstimateDetail[Discount][]',number_format($ProductRow->Discount,$RoundChargesAmount),array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>-->
+                                    <td>{{Form::SelectExt(
+                                            [
+                                            "name"=>"EstimateDetail[TaxRateID][]",
+                                            "data"=>$taxes,
+                                            "selected"=>$ProductRow->TaxRateID,
+                                            "value_key"=>"TaxRateID",
+                                            "title_key"=>"Title",
+                                            "data-title1"=>"data-amount",
+                                            "data-value1"=>"Amount",
+                                            "data-title2"=>"data-flatstatus",
+                                            "data-value2"=>"FlatStatus",
+                                            "class" =>"select2 small Taxentity TaxRateID",
+                                            ]
+                                    )}}</td>
+                                    
+                                    <td>{{Form::SelectExt(
                                         [
-                                        "name"=>"EstimateDetail[TaxRateID][]",
+                                        "name"=>"EstimateDetail[TaxRateID2][]",
                                         "data"=>$taxes,
-                                        "selected"=>$ProductRow->TaxRateID,
+                                        "selected"=>$ProductRow->TaxRateID2,
                                         "value_key"=>"TaxRateID",
                                         "title_key"=>"Title",
                                         "data-title1"=>"data-amount",
                                         "data-value1"=>"Amount",
                                         "data-title2"=>"data-flatstatus",
                                         "data-value2"=>"FlatStatus",
-                                        "class" =>"selectboxit TaxRateID",
+                                        "class" =>"select2 small Taxentity TaxRateID2",
                                         ]
                                 )}}</td>
-                                <td>{{Form::text('EstimateDetail[TaxAmount][]',number_format($ProductRow->TaxAmount,$RoundChargesAmount),array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>
-                                <td>{{Form::text('EstimateDetail[LineTotal][]',number_format($ProductRow->LineTotal,$RoundChargesAmount),array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}
-                                {{Form::hidden('EstimateDetail[EstimateDetailID][]',$ProductRow->EstimateDetailID,array("class"=>"EstimateDetailID"))}}
-                                {{Form::hidden('EstimateDetail[ProductType][]',$ProductRow->ProductType,array("class"=>"ProductType"))}}
-                                </td>
-                            </tr>
-                            @endforeach
-                            @endif
-                		</tbody>
+                                
+                                    <td class="hidden">{{Form::text('EstimateDetail[TaxAmount][]',number_format($ProductRow->TaxAmount,$RoundChargesAmount),array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>
+                                    <td>{{Form::text('EstimateDetail[LineTotal][]',number_format($ProductRow->LineTotal,$RoundChargesAmount),array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}
+                                    {{Form::hidden('EstimateDetail[EstimateDetailID][]',$ProductRow->EstimateDetailID,array("class"=>"EstimateDetailID"))}}
+                                    {{Form::hidden('EstimateDetail[ProductType][]',$ProductRow->ProductType,array("class"=>"ProductType"))}}
+                                    </td>
+                                </tr>
+                                @endforeach
+                                @endif
+                            </tbody>
 
-                	</table>
-
+                        </table>
+                    </div>
                 </div>
             </div>
                <div class="form-group">
-                <div class="col-sm-9">
-
-                    <table  width="50%" >
+                <div class="col-md-6">
+                        <table>
                         <tr>
                             <td><label for="field-1" class=" control-label">*Terms</label></td>
                         </tr>
@@ -161,16 +176,16 @@
                             <td>{{Form::textarea('Note',$Estimate->Note,array("class"=>" form-control" ,"rows"=>5))}}</td>
                         </tr>
                     </table>
-
                 </div>
-                <div class="col-sm-3">
+                <div class="col-md-1"></div>
+                <div class="col-md-5">
                     <table class="table table-bordered">
                     <tfoot>
                             <tr>
                                     <td >Sub Total</td>
                                     <td>{{Form::text('SubTotal',number_format($Estimate->SubTotal,$RoundChargesAmount),array("class"=>"form-control SubTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
-                            <tr>
+                            <tr class="tax_rows_estimate">
                                     <td ><span class="product_tax_title">VAT</span> </td>
                                     <td>{{Form::text('TotalTax',number_format($Estimate->TotalTax,$RoundChargesAmount),array("class"=>"form-control TotalTax text-right","readonly"=>"readonly"))}}</td>
                             </tr>
@@ -178,10 +193,42 @@
                                     <td>Discount </td>
                                     <td>{{Form::text('TotalDiscount',number_format($Estimate->TotalDiscount,$RoundChargesAmount),array("class"=>"form-control TotalDiscount text-right","readonly"=>"readonly"))}}</td>
                             </tr>
--->                            <tr>
-                                    <td >Invoice Total </td>
+-->                            <tr class="grand_total_estimate">
+                                    <td >Estimate Total </td>
                                     <td>{{Form::text('GrandTotal',number_format($Estimate->GrandTotal,$RoundChargesAmount),array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
+                            <?php if(count($EstimateAllTax)>0){
+				  foreach($EstimateAllTax as $key => $EstimateAllTaxData){
+				   ?>
+              <tr class="  @if($key==0) estimate_tax_row @else all_tax_row @endif">
+                @if($key==0)                
+                <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs estimate_tax_add ">+</button>   &nbsp; Tax </td>
+                @else
+                <td>
+                 <button title="Delete Tax" type="button" class="btn btn-danger btn-xs estimate_tax_remove ">X</button>
+                 </td>
+                @endif  
+                <td><div class="col-md-8"> {{Form::SelectExt(
+                    [
+                    "name"=>"EstimateTaxes[field][]",
+                    "data"=>$taxes,
+                    "selected"=>$EstimateAllTaxData->TaxRateID,
+                    "value_key"=>"TaxRateID",
+                    "title_key"=>"Title",
+                    "data-title1"=>"data-amount",
+                    "data-value1"=>"Amount",
+                    "data-title2"=>"data-flatstatus",
+                    "data-value2"=>"FlatStatus",
+                    "class" =>"select2 small Taxentity EstimateTaxesFld  EstimateTaxesFldFirst",
+                    ]
+                    )}}</div>
+                  <div class="col-md-4"> {{Form::text('EstimateTaxes[value][]',$EstimateAllTaxData->TaxAmount,array("class"=>"form-control EstimateTaxesValue","readonly"=>"readonly"))}} </div></td>
+              </tr>
+              <?php } } ?>
+              <tr class="gross_total_estimate">
+                <td >Grand Total </td>
+                <td>{{Form::text('GrandTotalEstimate','',array("class"=>"form-control GrandTotalEstimate text-right","readonly"=>"readonly"))}}</td>
+              </tr>
 
 
                		</tfoot>
@@ -198,25 +245,34 @@
     <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
     <input type="hidden" name="CurrencyCode" value="{{$CurrencyCode}}">
     <input type="hidden" name="InvoiceTemplateID" value="{{$EstimateTemplateID}}">
+    <input type="hidden" name="TotalTax" value="" > 
 </div>
 </form>
-
+<div id="rowContainer"></div>
+<link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
+<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
+<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script type="text/javascript">
 var estimate_id = '{{$Estimate->EstimateID}}';
 var decimal_places = '{{$RoundChargesAmount}}';
 
 var subscription_array = [{{implode(",",array_keys(BillingSubscription::getSubscriptionsArray(User::get_companyID(),$CurrencyID)))}}];
 
-var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{Form::select('EstimateDetail[ProductID][]',$products,'',array("class"=>"select2 product_dropdown"))}}</td><td>{{Form::text('EstimateDetail[Description][]','',array("class"=>"form-control descriptions"))}}</td><td class="text-center">{{Form::text('EstimateDetail[Price][]','',array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('EstimateDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>'
-     //add_row_html += '<td class="text-center">{{Form::text('EstimateDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
-     add_row_html += '<td>{{Form::SelectExt(["name"=>"EstimateDetail[TaxRateID][]","data"=>$taxes,"selected"=>$ProductRow->TaxRateID,"value_key"=>"TaxRateID","title_key"=>"Title","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"selectboxit TaxRateID"])}}</td>';
-     add_row_html += '<td>{{Form::text('EstimateDetail[TaxAmount][]','',array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>';
-     add_row_html += '<td>{{Form::text('EstimateDetail[LineTotal][]',0,array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}';
-     add_row_html += '{{Form::hidden('EstimateDetail[StartDate][]','',array("class"=>"StartDate"))}}{{Form::hidden('EstimateDetail[EndDate][]','',array("class"=>"EndDate"))}}{{Form::hidden('EstimateDetail[ProductType][]',$ProductRow->ProductType,array("class"=>"ProductType"))}}</td></tr>';
+var estimate_tax_html = '<td><button title="Delete Tax" type="button" class="btn btn-danger btn-xs estimate_tax_remove ">X</button></td><td><div class="col-md-8">{{Form::SelectExt(["name"=>"EstimateTaxes[field][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small EstimateTaxesFld"])}}</div><div class="col-md-4">{{Form::text("EstimateTaxes[value][]","",array("class"=>"form-control EstimateTaxesValue","readonly"=>"readonly"))}}</div></td>';
 
+var add_row_html = '<tr class="itemrow hidden"><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{Form::select('EstimateDetail[ProductID][]',$products,'',array("class"=>"select22 select2add product_dropdown",'data-modal'=>'add-edit-modal-product','data-type'=>'item','data-active'=>0))}}</td><td>{{Form::textarea('EstimateDetail[Description][]','',array("class"=>"form-control invoice_estimate_textarea autogrow descriptions","rows"=>1))}}</td><td class="text-center">{{Form::text('EstimateDetail[Price][]',"0",array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('EstimateDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>'
+    add_row_html += '<td class="text-center hidden">{{Form::text('EstimateDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
+    add_row_html += '<td>{{Form::SelectExt(["name"=>"EstimateDetail[TaxRateID][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID"])}}</td>';
+    add_row_html += '<td>{{Form::SelectExt(["name"=>"EstimateDetail[TaxRateID2][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID2"])}}</td>';
+
+    add_row_html += '<td class="hidden">{{Form::text('EstimateDetail[TaxAmount][]',"0",array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>';
+    add_row_html += '<td>{{Form::text('EstimateDetail[LineTotal][]',0,array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}';
+    add_row_html += '{{Form::hidden('EstimateDetail[ProductType][]',Product::ITEM,array("class"=>"ProductType"))}}</td></tr>';
+$('#rowContainer').append(add_row_html);
 </script>
 @include('estimates.script_estimate_add_edit')
-@include('includes.ajax_submit_script', array('formID'=>'invoice-from' , 'url' => 'estimate/'.$id.'/update' ))
+@include('products.productmodal')
+@include('includes.ajax_submit_script', array('formID'=>'estimate-from' , 'url' => 'estimate/'.$id.'/update' ))
 @stop
 @section('footer_ext')
 @parent
@@ -293,7 +349,7 @@ var add_row_html = '<tr><td><button type="button" class=" remove-row btn btn-dan
 <div class="modal fade in" id="send-modal-estimate">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="send-estimate-form" method="post" class="form-horizontal form-groups-bordered">
+            <form id="send-estimate-form" method="post" >
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">Send Estimate By Email</h4>

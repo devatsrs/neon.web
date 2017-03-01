@@ -101,7 +101,7 @@
                             </div>
                             <label for="field-1" class="col-sm-2 control-label">First row:</label>
                             <div class="col-sm-4">
-                                {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),$csvoption->Firstrow,array("class"=>"selectboxit"))}}
+                                {{Form::select('option[Firstrow]', array('columnname'=>'Column Name','data'=>'Data'),$csvoption->Firstrow,array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <p style="text-align: right;">
@@ -129,29 +129,29 @@
                             <br />
                             <label for="field-1" class="col-sm-2 control-label">Code*</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[Code]', $columns,(isset($attrselection->Code)?$attrselection->Code:''),array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[Code]', $columns,(isset($attrselection->Code)?$attrselection->Code:''),array("class"=>"select2 small"))}}
                             </div>
 
                             <label for="field-1" class="col-sm-2 control-label">Description*</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[Description]', $columns,(isset($attrselection->Description)?$attrselection->Description:''),array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[Description]', $columns,(isset($attrselection->Description)?$attrselection->Description:''),array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Rate*</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[Rate]', $columns,(isset($attrselection->Rate)?$attrselection->Rate:''),array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[Rate]', $columns,(isset($attrselection->Rate)?$attrselection->Rate:''),array("class"=>"select2 small"))}}
                             </div>
 
                             <label for="field-1" class="col-sm-2 control-label">EffectiveDate*</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[EffectiveDate]', $columns,(isset($attrselection->EffectiveDate)?$attrselection->EffectiveDate:''),array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[EffectiveDate]', $columns,(isset($attrselection->EffectiveDate)?$attrselection->EffectiveDate:''),array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Action</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[Action]', $columns,(isset($attrselection->Action)?$attrselection->Action:''),array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[Action]', $columns,(isset($attrselection->Action)?$attrselection->Action:''),array("class"=>"select2 small"))}}
                             </div>
                             <label for="field-1" class="col-sm-2 control-label">Action Insert</label>
                             <div class="col-sm-4">
@@ -171,22 +171,22 @@
                         <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Interval1</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[Interval1]', $columns,(isset($attrselection->Interval1)?$attrselection->Interval1:''),array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[Interval1]', $columns,(isset($attrselection->Interval1)?$attrselection->Interval1:''),array("class"=>"select2 small"))}}
                             </div>
 
                             <label for=" field-1" class="col-sm-2 control-label">IntervalN</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[IntervalN]', $columns,(isset($attrselection->IntervalN)?$attrselection->IntervalN:''),array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[IntervalN]', $columns,(isset($attrselection->IntervalN)?$attrselection->IntervalN:''),array("class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="form-group">
                             <label for=" field-1" class="col-sm-2 control-label">Connection Fee</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[ConnectionFee]', $columns,(isset($attrselection->ConnectionFee)?$attrselection->ConnectionFee:''),array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[ConnectionFee]', $columns,(isset($attrselection->ConnectionFee)?$attrselection->ConnectionFee:''),array("class"=>"select2 small"))}}
                             </div>
                             <label for=" field-1" class="col-sm-2 control-label">Date Format</label>
                             <div class="col-sm-4">
-                                {{Form::select('selection[DateFormat]',Company::$date_format ,(isset($attrselection->DateFormat)?$attrselection->DateFormat:''),array("class"=>"selectboxit"))}}
+                                {{Form::select('selection[DateFormat]',Company::$date_format ,(isset($attrselection->DateFormat)?$attrselection->DateFormat:''),array("class"=>"select2 small"))}}
                             </div>
                         </div>
                     </div>

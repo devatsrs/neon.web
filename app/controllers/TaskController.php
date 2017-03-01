@@ -61,6 +61,7 @@ class TaskController extends \BaseController {
         if(!empty($taskattachment)) {
             $FilesArray = array();
             $allowed = Get_Api_file_extentsions(true);
+			if(isset($allowed->headers)){ return	Redirect::to('/logout'); 	}
 			if(!isset($allowed['allowed_extensions'])){
 				return json_response_api($allowed,false,true);
 			}
@@ -74,7 +75,7 @@ class TaskController extends \BaseController {
             foreach($taskattachment as $file){
                 $ext = $file->getClientOriginalExtension();
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TASK_ATTACHMENT']);
-                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0777, true);
@@ -194,11 +195,11 @@ class TaskController extends \BaseController {
 				$key = $data['KeyID'];
 			}
 			unset($data['KeyID']);
-            $response = NeonAPI::request('task/'.$id.'/update_task',$data);
+            $response = NeonAPI::request('task/'.$id.'/update_task',$data); 
 			if(isset($data['required_data']) && $data['required_data']!=''){
 					$required_data = 1;
 			}
-			if($required_data==1){
+			if($required_data==1 && $response->status=='success'){ 			
 				$response = $response->data;
 				$response = $response[0];
 				$response->type = Task::Tasks;

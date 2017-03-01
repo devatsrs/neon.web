@@ -5,12 +5,16 @@ class AccountsPaymentProfileController extends \BaseController {
     public function ajax_datagrid($AccountID){
 
         $CompanyID = User::get_companyID();
-        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title as ProfileTitle","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault","tblPaymentGateway.Title","created_at","AccountPaymentProfileID","tblAccountPaymentProfile.Options");
-        $carddetail->join('tblPaymentGateway', function($join)
-        {
-            $join->on('tblPaymentGateway.PaymentGatewayID', '=', 'tblAccountPaymentProfile.PaymentGatewayID');
 
-        })->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])->where(["tblAccountPaymentProfile.AccountID"=>$AccountID]);
+        $PaymentGatewayName = '';
+        $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
+        if(!empty($PaymentGatewayID)){
+            $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
+        }
+        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID");
+        $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
+            ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
+            ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID]);
 
         return Datatables::of($carddetail)->make();
 

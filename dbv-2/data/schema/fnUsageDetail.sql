@@ -1,6 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetail`(IN `p_CompanyID` int , IN `p_AccountID` int , IN `p_GatewayID` int , IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_UserID` INT , IN `p_CLI` VARCHAR(50), IN `p_CLD` VARCHAR(50), IN `p_zerovaluecost` INT, IN `p_isAdmin` INT, IN `p_billing_time` INT   
-
-, IN `p_cdr_type` CHAR(1))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetail`(IN `p_CompanyID` int , IN `p_AccountID` int , IN `p_GatewayID` int , IN `p_StartDate` datetime , IN `p_EndDate` datetime , IN `p_UserID` INT , IN `p_isAdmin` INT, IN `p_billing_time` INT, IN `p_cdr_type` CHAR(1), IN `p_CLI` VARCHAR(50), IN `p_CLD` VARCHAR(50), IN `p_zerovaluecost` INT)
 BEGIN
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetails_;
    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetails_(
@@ -15,8 +13,8 @@ BEGIN
 			duration int,
 			billed_duration int,
 			billed_second int,
-			cli varchar(100),
-			cld varchar(100),
+			cli varchar(500),
+			cld varchar(500),
 			cost decimal(18,6),
 			connect_time datetime,
 			disconnect_time datetime,
@@ -61,7 +59,7 @@ BEGIN
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID)) 
 	AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))	
 	AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))	
-	AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost > 0))	
+	AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost = 0) OR ( p_zerovaluecost = 2 AND cost > 0))	
 	) tbl
 	WHERE 
 	(p_billing_time =1 and connect_time >= p_StartDate AND connect_time <= p_EndDate)

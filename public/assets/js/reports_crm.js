@@ -152,7 +152,7 @@
                                 action += '<input type = "hidden"  name = "' + opportunity[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                             }
                             action += '</div>';
-                           if(task_edit==1){
+                           if(Opportunity_edit==1){
                             action += ' <button type="button" data-id="' + full[2] + '" class="edit-deal btn btn-default"><i class="entypo-pencil"></i></button>';
 							}
 							$('.loaderopportunites').hide();
@@ -168,19 +168,20 @@
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
-                    if($('#tools .active').hasClass('grid')){
-                        $('#opportunityGrid_wrapper').addClass('hidden');
-                        $('#opportunityGrid').addClass('hidden');
-                    }else{
-                        $('#opportunityGrid_wrapper').removeClass('hidden');
-                        $('#opportunityGrid').removeClass('hidden');
-                    }
                     $('#opportunityGrid .knob').knob({"readOnly":true});
+                    $('#opportunityGrid .knob').each(function(){
+                        var self = $(this);
+                        self.css('position','relative');
+                        self.css('margin-top',self.css('margin-left'));
+                    });
+					$('.loaderopportunites').hide();
                 }
 		});
 		}
 			//opportunites grid end
 			
+			function GetUsersTasks(){ 
+			if(CrmDashboardTasks===0){return false;} 
 			///task grid start
 			 data_table1 = $("#taskGrid").dataTable({
                 "bDestroy": true,
@@ -266,10 +267,12 @@
                         $('#taskGrid_wrapper').removeClass('hidden');
                         $('#taskGrid').removeClass('hidden');
                     }
+					$('#taskGrid').find('#blockOverlay').hide();
                 }
 
             });
 			///task grid end
+			}
 			
             Highcharts.theme = {
                 colors: ['#3366cc', '#ff9900' ,'#dc3912' , '#109618', '#66aa00', '#dd4477','#0099c6', '#990099', '#143DFF']
@@ -429,7 +432,8 @@ function reloadCrmCharts(){
 $(function() {   
 	 
 	  $("#DueDateFilter").change(function(){
-       data_table1.fnFilter('',0);
+       //data_table1.fnFilter('',0); 
+	   GetUsersTasks();
     });
 	
 	$('#crm_dashboard_Sales').submit(function(e) {
@@ -469,8 +473,8 @@ $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="re
     var id = $(this).parents().attr('id');
 	var submit_form = $("#crm_dashboard");
     if(id=='UsersTasks'){
-      //  GetUsersTasks();
-	  data_table1.fnFilter('',0);
+        GetUsersTasks();
+	 // data_table1.fnFilter('',0);
 	  return false;
     }
 	if(id=='Pipeline'){
@@ -869,10 +873,7 @@ function GetSalesData(){
     });
 	}
 
-function GetUsersTasks(){	
-	 if(CrmDashboardTasks===0){return false;} 
-	data_table1.fnFilter('',0);
-}
+
 
 function GetAccounts(){
 	////////////////////
@@ -920,7 +921,7 @@ function GetAccounts(){
 
 //opportunity edit start
             $(document).on('click','#board-start ul.sortable-list li button.edit-deal,#opportunityGrid .edit-deal',function(e){
-				 if(Opportunity_edit==1){
+				 if(CrmDashboardOpportunities==1){
 	            e.stopPropagation();
                 if($(this).is('button')){
                     var rowHidden = $(this).prev('div.hiddenRowData');
@@ -1052,7 +1053,7 @@ function GetAccounts(){
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);
                     }
-					data_table.fnFilter('',0);
+					Getopportunities();
                     $("#opportunity-update").button('reset');                   
                   
                 },
@@ -1090,9 +1091,9 @@ function GetAccounts(){
                     }else{
                         toastr.error(response.message, "Error", toastr_opts);
                     }
-					data_table1.fnFilter('',0);
+					//data_table1.fnFilter('',0);
+					GetUsersTasks();
                     $("#task-update").button('reset');     
-                    //getOpportunities();
                 },
                 // Form data
                 data: formData,

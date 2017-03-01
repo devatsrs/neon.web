@@ -1,8 +1,8 @@
 
 <?php
 if ( Request::is('/') || Request::is('login') || Request::is('customer/login') || Request::is('forgot_password') || Request::is('registration') || Request::is('super_admin') || Request::is('global_user_select_company') ) {
-    $js = [
-        "assets/js/jquery-1.11.0.min.js",
+    $js = [        
+		"assets/js/jquery-1.11.0.min.js",
         "assets/js/gsap/main-gsap.js",
         "assets/js/jquery-ui/js/jquery-ui-1.10.3.minimal.min.js",
         "assets/js/bootstrap.js",
@@ -15,8 +15,6 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
         "assets/js/neon-forgotpassword.js",
         "assets/js/neon-resetpassword.js",
         "assets/js/neon-demo.js",
-        "assets/js/jvectormap/jquery-jvectormap-1.2.2.min.js",
-        "assets/js/jvectormap/jquery-jvectormap-europe-merc-en.js",
         "assets/js/jquery.sparkline.min.js",
         "assets/js/rickshaw/vendor/d3.v3.js",
         "assets/js/rickshaw/rickshaw.min.js",
@@ -58,7 +56,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
         "assets/js/fullcalendar/fullcalendar.min.js",
         "assets/js/toastr.js",  // Popup toaster
         "assets/js/bootstrap-datepicker.js", //Date Picker
-        "assets/js/bootstrap-timepicker.min.js", //Date Picker
+        "assets/js/bootstrap-timepicker.min.0.5.2.js", //Date Picker
         "assets/js/icheck/icheck.min.js", //Chebkbox
         "assets/js/datatables/ZeroClipboard.js",
         "assets/js/morris.min.js",

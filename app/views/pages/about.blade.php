@@ -13,15 +13,85 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.06</h1>
+    <h1>NEON - 4.08</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.06</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.08</strong></div>
 </p>
 </div>
 
+<h2>
+    <span class="label label-success">4.08</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>17-01-2017</h4>
+                    01. Improved Stripe integration.<br>
+                    02. Added IP/CLI filter on account page.<br>
+                    03. Added Traffic by region map.<br>
+                    04. Added vendor hourly stats notification.<br>
+                    05. Added Top 10 Most Dialled Numbers, Longest Duration Calls and Most Expensive Calls under Analysis and Monitor Dashboard.<br>
+                    06. Added average rate per minute on cdr page and invoice.<br>
+                    07. Added Job Notification tick box on user page so user can switch ON and OFF job notifcations.<br>
+                    08. Improved filters on Rate Generator page.<br>
+                    09. Fixed issue with logo on forgot password page.<br>
+                    10. Fixed Next run time issue with Cron Jobs.<br>
+                    11. Added option to enter rate when re-rating CDRs.<br>
+                    12. Improved QoS notifications.<br>
+                    13. Improved Hourly Analysis chart under Analysis.<br>
+                    14. Added alerts widget on monitor dashboard.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
+
+<h2>
+    <span class="label label-success">4.07</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>11-11-2016</h4>
+                    01. Added Integration with QuickBook , Stripe and PayPal.<br>
+                    02. Added Accept/Reject/Comments button on Estimate so that customer can accept/reject estimate or add comments against it.<br>
+                    03. Added QOS alert (ACD/ASR).<br>
+                    04. Added Call monitoring alert (Blacklisted Destinations/Longest Calls/Expensive Calls/Calls outside business hours).<br>
+                    05. Added Analysis by Account under Monitor dashboard and Analysis.<br>
+                    06. Added Translation rule at Gateway level.<br>
+                    07. Added Base code deck option.<br>
+                    08. Added option to specify Tax1 and Tax2 in Invoices/Estimates and Additional Charges.<br>
+                    09. Added payments view option under Invoice log. From invoice page you can see all payments against the invoice.<br>
+                    10. Improved Billing dashboard.<br>
+                    11. Improved responsiveness.<br>
+                    12. Fixed Invoice No filter on Invoice and Payments page. Now you will be able to do wild card search.<br>
+                    13. Changed Sorting under Rate Generator -> Margin to Min Rate ASC.<br>
+                    14. Added option to switch ON and OFF Job notifications.<br>
+                    15. Fixed issue with Code Deck country update.<br>
+                    16. Fixed issue with Previous balance on the invoice.<br>
+                    17. Added Vendor Unbilled Usage and Account Exposure under Credit Control.<br>
+                    18. Improved Account Card.<br>
+                    19. Added Email Tracking and Mailbox.<br>
+                    20. Added Payment Reminders.<br>
+                    21. Added Low Balance Reminders.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
 <h2>
     <span class="label label-success">4.06</span> &nbsp; Version Highlights
 </h2>
@@ -32,34 +102,31 @@
                 <div class="notes full-width ">
                     <h3>ChangeLog</h3>
                     <h4>06-09-2016</h4>
-                    01. Added an option of ISO country codes in country.<br>
-                    02. Added an option of Discontinued column in porta download sheet.<br>
-                    03. Added an option of Data Retention and File Retention.<br>
-                    04. Improved CDR upload mapping.<br>
-                    05. Added Drill down option on dashboards.<br>
-                    06. Added an option of Billing Enable in account page.<br>
-                    07. Added an option of show unbilled usage on account card.<br>
-                    08. Added Available Credit limit in negative.<br>
-                    09. Added Laravel error log integration.<br>
-                    10. Added Notification emails.<br>
-                    11. Added an option to overdue invoices.<br>
-                    12. Added Ticket Logging.<br>
-                    13. Added an option of Drill down Sales by revenue chart.<br>
-                    14. Added Widgets on CRM dashboard.<br>
-                    15. Improved NetData for other servers.<br>
-                    16. Added Integration Page.<br>
-                    17. Auto cron job setup.<br>
-                    18. Added MS Exchange calender.<br>
+                    01 .Added new feature ‘Discount Plans’.<br>
+                    02 .Added ISO code to Code deck.<br>
+                    03. Added Billing Enable option on Accounts.<br>
+                    04. Added Overdue invoices filter under Invoices.<br>
+                    05. Added Drill down option on Analysis and Monitor dashboard.<br>
+                    06. Added new functionality to setup Data and File Retention.<br>
+                    07. Added Integration section to setup third party integrations.<br>
+                    08. Integration with Fresh desk.<br>
+                    09. Integration with MS Exchange calendar.<br>
+                    10. Added Recent accounts widget on CRM dashboard.<br>
+                    11. Added Notification option under Admin to setup email notifications.<br>
+                    12. Added option to setup multiple servers under Server Monitor.<br>
+                    13. Added new column in porta sheet ‘Discontinued’.<br>
+                    14. Added No against subscription under account. Subscriptions will be displayed in ‘No’ order on the invoice.<br>
                 </div>
             </li>
         </ul>
     </div>
 
 </div>
-
+<div class="clear"></div>
 <h2>
     <span class="label label-success">4.05</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
@@ -81,11 +148,12 @@
     </div>
 
 </div>
-
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.04</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
@@ -122,10 +190,12 @@
     </div>
 
 </div>
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.03</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
@@ -154,9 +224,12 @@
 
 </div>
 
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">4.02</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
         <ul class="version-highlights full-width">
@@ -190,9 +263,12 @@
 
 </div>
 
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">4.01</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
 <ul class="version-highlights full-width">
@@ -209,11 +285,12 @@
 
  </div>
 
-
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.00</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
 <ul class="version-highlights full-width">
@@ -239,9 +316,12 @@
 
  </div>
 
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">3.03</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
 <ul class="version-highlights full-width">
@@ -261,9 +341,13 @@
 </ul>
  </div>
  </div>
+
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">3.02</span> &nbsp; Version Highlights
 </h2>
+
 <div class="col-md-12">
     <div class="row">
 <ul class="version-highlights full-width">
@@ -286,6 +370,9 @@
 </ul>
  </div>
  </div>
+
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">3.01</span> &nbsp; Version Highlights
 </h2>
@@ -306,6 +393,8 @@
 </ul>
  </div>
  </div>
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">3.00</span> &nbsp; Version Highlights
 </h2>
@@ -353,4 +442,5 @@
 </ul>
  </div>
  </div>
+<div class="clear"></div>
 @stop

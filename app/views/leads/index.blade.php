@@ -84,7 +84,7 @@
     <div  class="col-md-12">
         <div class="input-group-btn pull-right" style="width:70px;">
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
-            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #1f232a; border-color: #1f232a; margin-top:0px;">
+            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                 @if(User::checkCategoryPermission('Leads','Email'))
                 <li>
                     <a href="javascript:void(0)" class="sendemail">
@@ -140,6 +140,10 @@
     var $searchFilter = {};
     var checked = '';
     var view = 1;
+    var leadview = getCookie('leadview');
+    if(leadview=='list'){
+        view = 2;
+    }
     jQuery(document).ready(function ($) {
         $searchFilter.account_name = $("#lead_filter [name='account_name']").val();
         $searchFilter.account_number = $("#lead_filter [name='account_number']").val();
@@ -154,7 +158,7 @@
                 "bServerSide": true,
                 "bDestroy": true,
                 "sAjaxSource": baseurl + "/leads/ajax_datagrid",
-                "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"account_name","value":$searchFilter.account_name},{"name":"account_number","value":$searchFilter.account_number},{"name":"contact_name","value":$searchFilter.contact_name},{"name":"account_active","value":$searchFilter.account_active},{"name":"account_owners","value":$searchFilter.account_owners},{"name":"tag","value":$searchFilter.tag});
                     data_table_extra_params.length = 0;
@@ -207,12 +211,12 @@
                             action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+id+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
                             <?php } ?>
                             <?php if(User::checkCategoryPermission('Leads','Edit')) { ?>
-                            action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit Lead" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
+                            action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i> </button>';
                             <?php } ?>
                             <?php if(User::checkCategoryPermission('Leads','Clone')) { ?>
                             //action += '&nbsp;<a href="' + clone_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-users"></i>Clone </a>';
                             <?php } ?>
-                            action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View Lead" data-id="'+full[0]+'" type="button"> <i class="entypo-search"></i> </button>';//entypo-info
+                            action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View" data-id="'+full[0]+'" type="button"> <i class="fa fa-eye"></i> </button>';//entypo-info
 
                             action +='<input type="hidden" name="accountid" value="'+id+'"/>';
                             action +='<input type="hidden" name="address1" value="'+full[7]+'"/>';
@@ -525,6 +529,8 @@
             modal.find('.message').wysihtml5({
                 "font-styles": true,
                 "emphasis": true,
+                "leadoptions":true,
+                "Crm":false,
                 "lists": true,
                 "html": true,
                 "link": true,
@@ -543,9 +549,11 @@
         });
 
         $(document).on('click','.sendemail',function(){
-            $("#BulkMail-form [name='email_template']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            $("#BulkMail-form [name='template_option']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
-            $('#BulkMail-form [name="email_template_privacy"]').selectBoxIt().data("selectBox-selectBoxIt").selectOption(0);
+			document.getElementById('BulkMail-form').reset();
+			$("#modal-BulkMail").find('.file-input-name').html("");
+            $("#BulkMail-form [name='email_template']").val('').trigger("change");
+            $("#BulkMail-form [name='template_option']").val('').trigger("change");
+            $("#BulkMail-form [name='email_template_privacy']").val(0).trigger("change");
             $("#BulkMail-form")[0].reset();
             $("#modal-BulkMail").modal({
                 show: true
@@ -660,8 +668,10 @@
             var activeurl;
             var desctiveurl;
             if(self.hasClass('grid')){
+                setCookie('leadview','grid','30');
                 view = 1;
             }else{
+                setCookie('leadview','list','30');
                 view = 2;
             }
             self.addClass('active');
@@ -681,11 +691,7 @@
                 if (Status = "success") {
                     var modal = $("#modal-BulkMail");
                     var el = modal.find('#BulkMail-form [name=email_template]');
-                    $(el).data("selectBox-selectBoxIt").remove();
-                    $.each(data,function(key,value){
-                        $(el).data("selectBox-selectBoxIt").add({ value: key, text: value });
-                    });
-                    $(el).selectBoxIt().data("selectBox-selectBoxIt").selectOption('');
+                    rebuildSelect2(el,data,'');
                 } else {
                     toastr.error(status, "Error", toastr_opts);
                 }
@@ -707,6 +713,8 @@
             modal.find('.message').wysihtml5({
                 "font-styles": true,
                 "emphasis": true,
+                "leadoptions":true,
+                "Crm":false,
                 "lists": true,
                 "html": true,
                 "link": true,
@@ -735,6 +743,29 @@
         }
     });
 
+    function setCookie(cname,cvalue,exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires=" + d.toGMTString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+
 
 
 </script>
@@ -753,12 +784,13 @@
 <script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
 <script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 @include('opportunityboards.opportunitymodal')
+@include('accounts.bulk_email')
 @stop
 
 @section('footer_ext')
     @parent
-    <div class="modal fade" id="modal-BulkMail">
-        <div class="modal-dialog" style="width: 80%;">
+    <div class="modal fade" id="modal-BulkMailtemp">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
                     <div class="modal-header">
@@ -769,9 +801,9 @@
                         <div class="row">
                             <div class="form-Group">
                                 <br />
-                                <label for="field-1" class="col-sm-2 control-label">Show Template</label>
-                                <div class="col-sm-2">
-                                    {{Form::select('email_template_privacy',$privacy,'',array("class"=>"selectboxit"))}}
+                                <label for="field-1" class="col-md-2 control-label">Show Template</label>
+                                <div class="col-md-2">
+                                    {{Form::select('email_template_privacy',$privacy,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -780,7 +812,7 @@
                                 <br />
                                 <label for="field-1" class="col-sm-2 control-label">Email Template</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -797,7 +829,7 @@
                                             <input type="hidden" name="ratesheetmail" value="0" />
                                             <input type="hidden" name="test" value="0" />
                                             <input type="hidden" name="testEmail" value="" />
-                                        </div>
+                                    </div>
                             </div>
                         </div>
                         <div class="row">
@@ -824,7 +856,7 @@
                                 <br />
                                 <label for="field-1" class="col-sm-2 control-label">Template Option</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('template_option',$templateoption,'',array("class"=>"selectboxit"))}}
+                                    {{Form::select('template_option',$templateoption,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                         </div>
@@ -857,49 +889,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modal-TestMail">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="TestMail-form" method="post" action="">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Test Mail Options</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-3 control-label">Email Address</label>
-                                <div class="col-sm-4">
-                                    <input type="text" class="form-control" name="EmailAddress" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="form-Group">
-                                <br />
-                                <label for="field-1" class="col-sm-3 control-label">Sample Account</label>
-                                <div class="col-sm-4">
-                                    {{Form::select('accountID',$accounts,'',array("class"=>"select2"))}}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit"  class="alert btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                            <i class="entypo-floppy"></i>
-                            Send
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    
 
     <div class="modal fade" id="modal-BulkTags">
         <div class="modal-dialog">

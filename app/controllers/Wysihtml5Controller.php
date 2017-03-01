@@ -13,7 +13,7 @@ class Wysihtml5Controller extends \BaseController {
             ->edit_column('UploadedFilePath',function($row){
                 $path = AmazonS3::unSignedUrl($row->UploadedFilePath);
                 if (!is_numeric(strpos($path, "https://"))) {
-                    $path = str_replace('/', '\\', $path);
+                    //$path = str_replace('/', '\\', $path);
                     if (copy($path, './uploads/' . basename($path))) {
                         $path = URL::to('/') . '/uploads/' . basename($path);
                     }
@@ -40,7 +40,7 @@ class Wysihtml5Controller extends \BaseController {
 
             $file_name = "Wysihtml5_". GUID::generate() . '.' . $ext;
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['WYSIHTML5_FILE_UPLOAD']) ;
-            $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
             $file->move($destinationPath, $file_name);
             if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
                 return Response::json(array("status" => "failed", "message" => "Failed to upload."));

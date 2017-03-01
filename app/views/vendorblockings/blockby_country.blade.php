@@ -291,7 +291,7 @@ jQuery(document).ready(function($) {
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push({"name": "Trunk", "value": $searchFilter.Trunk}, {"name": "Status", "value": $searchFilter.Status},{"name": "Country", "value": $searchFilter.Country});
             },
-            "iDisplayLength": {{Config::get('app.pageSize')}},
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
              "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
              "aaSorting": [[1, "asc"]],

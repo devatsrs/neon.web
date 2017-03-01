@@ -83,7 +83,7 @@
     @endif
     @if( User::checkCategoryPermission('CodeDecks','Delete'))
     <button type="submit" id="delete-bulk-codedeck-selected" class="btn btn-danger btn-sm btn-icon icon-left">
-        <i class="entypo-cancel"></i>
+        <i class="entypo-trash"></i>
         Delete Selected
     </button>
     <!--<button type="submit" id="delete-bulk-codedeck-all" class="btn btn-danger btn-sm btn-icon icon-left">
@@ -140,7 +140,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/codedecks/ajax_datagrid",
-            "iDisplayLength": '{{Config::get('app.pageSize')}}',
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"ft_country","value":$searchFilter.ft_country},{"name":"ft_code","value":$searchFilter.ft_code},{"name":"ft_description","value":$searchFilter.ft_description},{"name":"ft_codedeckid","value":$searchFilter.ft_codedeckid});
                 data_table_extra_params.length = 0;
@@ -187,10 +187,10 @@ var postdata;
                         action += '</div>';
 
                         <?php if(User::checkCategoryPermission('CodeDecks','Edit')){ ?>
-                            action += '<a href="javascript:;" class="edit-codedeck btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a href="javascript:;" title="Edit" class="edit-codedeck btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('CodeDecks','Delete') ){ ?>
-                            action += ' <a data-id="'+ RateID +'" class="delete-codedecks btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            action += ' <a data-id="'+ RateID +'" title="Delete" class="delete-codedecks btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         <?php } ?>
 
                         return action;
@@ -377,6 +377,7 @@ var postdata;
             Codedecks[i++] = Codedeck;
         });
         if(Codedecks.length){
+            $("#bulk-edit-codedeck-form [name='CountryID']").select2().select2('val','');
             $('#bulk-edit-codedeck-form').trigger("reset");
             $('#modal-Codedeck').modal('show', {backdrop: 'static'});
         }

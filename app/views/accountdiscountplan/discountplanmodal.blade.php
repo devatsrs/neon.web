@@ -14,7 +14,7 @@
         });
         $('select[name="DiscountPlanID"]').on( "change",function(e){
             if(alert_inbound_first == true) {
-                alert('If you change discount plan,it will refresh current used minutes.');
+                alert('Are you sure? Current used minutes will be refreshed.');
             }else if($(this).val()){
                 alert_inbound_first = true;
             }
@@ -27,7 +27,7 @@
         $('select[name="DiscountPlanID"]').trigger( "change" );
         $('select[name="InboundDiscountPlanID"]').on( "change",function(e){
             if(alert_outbound_first == true) {
-                alert('If you change discount plan,it will refresh current used minutes.');
+                alert('Are you sure? Current used minutes will be refreshed.');
             }else if($(this).val()){
                 alert_outbound_first = true;
             }

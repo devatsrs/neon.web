@@ -15,7 +15,7 @@
     <p style="text-align: right;">
         @if(User::checkCategoryPermission('DestinationGroup','Edit'))
         @if($discountplanapplied ==0)
-        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Destination Group</a>
+        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
         @endif
         @endif
         <a href="{{URL::to('/destination_group_set')}}" class="btn btn-danger btn-sm btn-icon icon-left">
@@ -94,7 +94,7 @@
                     "bProcessing":true,
                     "bServerSide": true,
                     "sAjaxSource": datagrid_url,
-                    "iDisplayLength": '{{Config::get('app.pageSize')}}',
+                    "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting": [[0, 'asc']],
@@ -125,12 +125,12 @@
                                 }
                                 action += '</div>';
                                 @if(User::checkCategoryPermission('DestinationGroup','Edit'))
-                                action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-pencil"></i>Edit </a>'
+                                action += ' <a href="' + edit_url.replace("{id}",id) +'" title="Edit" class="edit-button btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                                 @endif
-                                action += ' <a href="' + view_url.replace("{id}",id) +'" class="view-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View </a>'
+                                action += ' <a href="' + view_url.replace("{id}",id) +'" title="View" class="view-button btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
                                 @if($discountplanapplied ==0)
                                 @if(User::checkCategoryPermission('DestinationGroup','Delete'))
-                                action += ' <a href="' + delete_url.replace("{id}",id) +'" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="fa fa-trash"></i>Delete </a>'
+                                action += ' <a href="' + delete_url.replace("{id}",id) +'" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                 @endif
                                 @endif
                                 return action;
@@ -218,10 +218,12 @@
                         <h4 class="modal-title">Add Destination Group</h4>
                     </div>
                     <div class="modal-body">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Destination Group Name</label>
-                                <input type="text" name="Name" class="form-control" value="" />
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Destination Group Name</label>
+                                    <input type="text" name="Name" class="form-control" value="" />
+                                </div>
                             </div>
                         </div>
                     </div>
