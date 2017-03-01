@@ -263,6 +263,7 @@
                 "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.TicketsSingle.Subject + "</span>&nbsp;<b class='caret'></b>" +
                 "</a>" +
               "<ul class='dropdown-menu'>" +
+			  "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Ticket Fields</b></a></li>" +
                  "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Subject}}'>" + locale.TicketsSingle.Subject + "</a></li>"+
 				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TicketID}}'>" + locale.TicketsSingle.TicketID + "</a></li>"+
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Requester}}'>" + locale.TicketsSingle.Requester + "</a></li>"+
@@ -274,8 +275,18 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Type}}'>" + locale.TicketsSingle.Type + "</a></li>"+
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Date}}'>" + locale.TicketsSingle.Date + "</a></li>"+
 				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AgentName}}'>" + locale.TicketsSingle.AgentName + "</a></li>"+
-				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AgentEmail}}'>" + locale.TicketsSingle.AgentEmail+ "</a></li>"+				
-              "</ul>" +
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AgentEmail}}'>" + locale.TicketsSingle.AgentEmail+ "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TicketUrl}}'>" + locale.TicketsSingle.TicketUrl+ "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TicketCustomerUrl}}'>" + locale.TicketsSingle.TicketCustomerUrl+ "</a></li>"+	"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.TicketsSingle.Comment+ "</a></li>"+
+               	"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +		              "</ul>" +
             "</li>";        
 		},
 		"Cronjobs":function(locale, options){
@@ -1456,6 +1467,9 @@
 				Date:"Date",
 				AgentName:"AgentName",
 				AgentEmail:"AgentEmail",
+				Comment:"Comment",
+				TicketCustomerUrl:"TicketCustomerUrl",
+				TicketUrl:"TicketUrl"			
 				},
 			Company:{
 				CompanyName:"CompanyName",

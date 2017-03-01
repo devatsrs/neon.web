@@ -7,24 +7,23 @@ class TicketsTable extends \Eloquent
 
     protected $primaryKey = "TicketID";
 	
-    static  $FreshdeskTicket  		= 	1;
-    static  $SystemTicket 			= 	0;
+    static  $FreshdeskTicket  			= 	1;
+    static  $SystemTicket 				= 	0;
 	
-	const TICKET					=	0;
-	const EMAIL						=	1;
+	const TICKET						=	0;
+	const EMAIL							=	1;
+	const TIMELINEEMAIL					=	1;
+	const TIMELINENOTE					=	2;
+	const TICKETGLOBALACCESS			=	1;
+	const TICKETGROUPACCESS				=	2;
+	const TICKETRESTRICTEDACCESS		=	3;
 	
-	
-	const TIMELINEEMAIL				=	1;
-	const TIMELINENOTE				=	2;
-	
-	
-	static  $defaultSortField 		= 	'created_at';
-	static  $defaultSortType 		= 	'desc';
-	static  $Sortcolumns			=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","group"=>"Group","updated_at"=>"Last Modified");
-	
-	static $pagination 				= 	array("10"=>"10","25"=>"25","50"=>"50","100"=>"100");
-	
-	static  $SortcolumnsCustomer	=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","updated_at"=>"Last Modified");
+	static  $defaultSortField 			= 	'created_at';
+	static  $defaultSortType 			= 	'desc';
+	static  $pagination 				= 	array("10"=>"10","25"=>"25","50"=>"50","100"=>"100");
+	static  $SortcolumnsCustomer		=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","updated_at"=>"Last Modified");
+	static  $Sortcolumns				=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","group"=>"Group","updated_at"=>"Last Modified");
+
 	
 	static function GetAgentSubmitRules(){
 		 $rules 	 =  array();
@@ -210,5 +209,19 @@ class TicketsTable extends \Eloquent
 			}
 		}
 		return $NextID;	
+	}
+	
+	static function GetTicketAccessPermission(){
+		if(User::is_admin())
+		{
+			return TicketsTable::TICKETGLOBALACCESS;
+		}		
+		if(User::checkCategoryPermission('Tickets','View.GlobalAccess')){
+			return TicketsTable::TICKETGLOBALACCESS;
+		}else if(User::checkCategoryPermission('Tickets','View.GroupAccess')){
+			return TicketsTable::TICKETGROUPACCESS;		
+		}else{
+			return TicketsTable::TICKETRESTRICTEDACCESS;
+		}
 	}
 }

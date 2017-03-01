@@ -20,9 +20,11 @@ private $validlicense;
 	 	//return $this->validlicense;		
 	 }
 	
-	 public function index(){
-		 
-			$this->IsValidLicense();
+	 public function index(){	
+	 		$this->IsValidLicense();
+			$this->TicketGroupAccess();
+			$this->TicketGroupAccess();
+			$this->TicketRestrictedAccess();
 			$CompanyID 		 			= 	 User::get_companyID(); 
 			$data 			 			= 	 array();	
 			$status			 			=    TicketsTable::getTicketStatus();
@@ -52,6 +54,8 @@ private $validlicense;
 				$data['sSortDir_0']			=	 TicketsTable::$defaultSortType;
 				 
 			  }
+			  
+			$data['AccessPermission'] 	=	 TicketsTable::GetTicketAccessPermission();
 			$companyID 					= 	 User::get_companyID();
 			$array						= 	 $this->GetResult($data); 
 			$resultpage  				= 	 $array->resultpage;		 
@@ -60,6 +64,7 @@ private $validlicense;
 			$iTotalDisplayRecords 		= 	 $array->iTotalDisplayRecords;
 			$iDisplayLength 			= 	 $data['iDisplayLength'];
 			$data['currentpage'] 		= 	 0;
+			
 			
 			TicketsTable::SetTicketSession($result);
 			//echo "<pre>";			print_r($result); exit;
@@ -122,7 +127,11 @@ private $validlicense;
 		 if(User::is_admin())	{		
 		   	$data['agent']					=	isset($data['agent'])?is_array($data['agent'])?implode(",",$data['agent']):'':'';
 		 }else{
-			 $data['agent']					=	user::get_userID();
+			 if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)	{
+			 	$data['agent']				=	user::get_userID();
+			 }else{
+				 $data['agent']					=	'';
+			 }
 		 }
 		
         $response 				= 	NeonAPI::request('tickets/get_tickets',$data,true,false); 
@@ -343,7 +352,7 @@ private $validlicense;
 			   {
 				  if($ticketdata->Agent!=user::get_userID())
 				  {
-						App::abort(403, 'You have not access to' . Request::url());		
+						//App::abort(403, 'You have not access to' . Request::url());		
 				  }
 			   } 
 		    $response 		=   NeonAPI::request('ticketsfields/GetDynamicFields',array(),true,false,false);   
@@ -586,6 +595,12 @@ private $validlicense;
 		$postdata 			= 	Input::all();  		
 		$response 			= 		NeonAPI::request('tickets/add_note',$postdata,true,false,false);
 		return json_response_api($response);     
-	 
 	  }  
+
+	function TicketsGlobalAccess(){
+	}
+	function TicketGroupAccess(){
+	}
+	function TicketRestrictedAccess(){
+	}
 }

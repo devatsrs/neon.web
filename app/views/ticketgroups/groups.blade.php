@@ -6,7 +6,7 @@
   <li class="active"> <strong>Ticket Groups</strong> </li>
 </ol>
 <h3>Ticket Groups</h3>
-<p class="text-right"> @if( User::checkCategoryPermission('ticketgroups','Add')) <a href="{{ URL::to('/ticketgroups/add') }}" class="btn btn-primary"> <i class="entypo-plus"></i> Add New </a> @endif </p>
+@if( User::checkCategoryPermission('TicketsGroups','Add'))<p class="text-right"> <a href="{{ URL::to('/ticketgroups/add') }}" class="btn btn-primary"> <i class="entypo-plus"></i> Add New </a></p> @endif 
 <div class="row">
   <div class="col-md-12">
     <form role="form" id="ticketgroup_filter" method="post" action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
@@ -18,8 +18,7 @@
         <div class="panel-body" id="paymentsearch">
           <div class="form-group">
              <label for="field-1" class="col-sm-1 control-label small_label">Search</label>
-            <div class="col-sm-2">  {{ Form::text('Search', '', array("class"=>"form-control")) }} </div>
-            
+            <div class="col-sm-2">  {{ Form::text('Search', '', array("class"=>"form-control")) }} </div>            
           </div>
           <p style="text-align: right;">
             <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>

@@ -8,8 +8,22 @@
 @include('includes.errors')
 @include('includes.success')
 
-<div class="pull-left"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="entypo-pencil"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Add Note"  class="btn btn-primary add_note tooltip-primary btn-xs"><i class="fa fa-sticky-note"></i> </a> 
- <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}" class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="fa fa-trash"></i> </a></div>
+<div class="pull-left"> 
+@if( User::checkCategoryPermission('Tickets','Edit'))
+<a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a> 
+<a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> 
+ <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="entypo-pencil"></i> </a>
+ @endif
+  @if( User::checkCategoryPermission('Tickets','AddNote'))
+  <a data-toggle="tooltip"  data-placement="top" data-original-title="Add Note"  class="btn btn-primary add_note tooltip-primary btn-xs"><i class="fa fa-sticky-note"></i> </a> 
+  @endif
+  @if( User::checkCategoryPermission('Tickets','Edit'))
+ <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a>
+ @endif
+  @if( User::checkCategoryPermission('Tickets','Delete'))
+  <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}" class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="fa fa-trash"></i> </a>
+ @endif 
+  </div>
   <div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-backward"></i> </a> @endif
   @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-forward"></i> </a> @endif</div>
  <div class="clear clearfix"></div>
@@ -66,7 +80,11 @@
     <div class="mail-reply-seperator"></div>
     <div class="mail-info first_data">
       <div class="mail-sender">  <span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span> @if(!empty($TicketConversationData->EmailCc))<br>cc {{$TicketConversationData->EmailCc}} @endif @if(!empty($TicketConversationData->EmailBcc))<br>bcc {{$TicketConversationData->EmailBcc}} @endif    </div>
-      <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
+      <div class="mail-date"> 
+      @if( User::checkCategoryPermission('Tickets','Edit'))
+      <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a>
+      @endif
+       {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
     <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
     <div @if($key==(count($TicketConversation)-1)) id="last_item" @endif  class="mail-text  @if(count($attachments)<1 || strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->EmailMessage}} </div>       
@@ -100,7 +118,7 @@
 	?>
     <div class="mail-reply-seperator"></div>
 	<div class="mail-info first_data">
-      <div class="mail-sender">  <span>Note</span>   </div>
+      <div class="mail-sender">  <span>Note</span> by ({{$TicketConversationData->CreatedBy}})   </div>
       <div class="mail-date">  {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
       <div @if($key==(count($TicketConversation)-1)) id="last_item" @endif class="mail-text last_data"> {{$TicketConversationData->Note}} </div>   
@@ -129,7 +147,8 @@
             @else
             <p><a href="@if($RequesterAccount) {{URL::to('/')}}/accounts/{{$RequesterAccount}}/show @elseif(!empty($RequesterContact)) {{URL::to('/')}}/contacts/{{$RequesterContact->ContactID}}/show @else # @endif">{{$ticketdata->Requester}}</a></p>
             @endif
-			@if($RequesterContact && !$RequesterAccount)           
+			@if($RequesterContact && !$RequesterAccount)   
+      		@if(User::checkCategoryPermission('Contacts','Edit'))    
 <form role="form" id="form-tickets-owner_edit" method="post"  class="form-horizontal form-groups-bordered validate" novalidate>
            <div class="form-group">
                         <label for="field-1" class="col-sm-3 control-label">Contact Owner</label>
@@ -172,9 +191,11 @@
   </div>
   </form>
             @endif
+            @endif
             </div>
           </div>
         </div>
+        @if( User::checkCategoryPermission('Tickets','Edit'))
         <div class="col-md-12">
           <div class="panel panel-primary margin-top" data-collapsed="0"> 
             
@@ -188,6 +209,7 @@
             <div class="panel-body">@include('tickets.ticket_detail_dynamic_fields')</div>
           </div>
         </div>
+        @endif
       </div>
     </div>
     <!-- menu --> 
@@ -326,14 +348,14 @@ $(document).ready(function(e) {
 	});
 	
 	
-	$( document ).on("click",'.add_note' ,function(e) {			
+	$( document ).on("click",'.add_note' ,function(e) {		 alert('aaa');	
 		var mod = $('#add-note-model');
 		 	mod.find('.wysihtml5-toolbar').remove();
 			mod.find('.wysihtml5-sandbox').remove();
 			mod.find('#Description_edit_note').show();
 		
 		mod.modal("show");
-		mod.find('#Description_edit_note').wysihtml5({
+		$('#Description_edit_note').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
 						"Crm":false,

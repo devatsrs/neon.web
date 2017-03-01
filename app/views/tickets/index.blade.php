@@ -5,7 +5,8 @@
   <li class="active"> <strong>Tickets</strong> </li>
 </ol>
 <h3>Tickets</h3>
-<p class="text-right"> @if( User::checkCategoryPermission('tickets','Add'))
+ @if( User::checkCategoryPermission('Tickets','Add'))
+<p class="text-right">
 <div class="btn-group pull-right">
 <button href="#" class="btn  btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Add New&nbsp;&nbsp;<span class="caret"></span></button>
  <ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px;" role="menu">
@@ -13,7 +14,7 @@
     <li><a href="{{URL::to('/tickets/compose_email')}}">Email</a></li>
   </ul>
   </div>
-  @endif </p>
+   </p>@endif
   <div class="clear clearfix"><br></div>
 <div class="row">
   <div class="col-md-12">
@@ -40,7 +41,11 @@
             <div class="col-sm-2"> {{Form::select('agent[]', $Agents, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
           </div>
           @else
-          <input type="hidden" name="agent" value="{{user::get_userID()}}" >
+              @if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)	
+              <input type="hidden" name="agent" value="{{user::get_userID()}}" >
+              @else
+              <input type="hidden" name="agent" value="" >
+              @endif
           @endif
           <p style="text-align: right;">
             <button type="submit" class="btn btn-primary btn_form_submit btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>

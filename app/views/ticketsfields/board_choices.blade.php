@@ -1,8 +1,8 @@
 <br>
 <hr>
 <div class="row row margin-top margin-bottom">
-  <div class="col-md-2">DropDown Items</div>
-  <div class="col-md-1"> <a  field_type="{{$field}}"  class="feild_choice_add btn btn-primary"> <i class="entypo-plus"></i></a> </div>
+  <div class="padding-right-0 col-md-2">DropDown Items</div>
+  <div class="padding-left-0 col-md-1"> <a  field_type="{{$field}}"  class="feild_choice_add btn btn-primary btn-xs"> <i class="entypo-plus"></i></a> </div>
 </div>
 <?php if($field =='default_status'){ ?>
 <div class="row">

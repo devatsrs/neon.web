@@ -762,5 +762,6 @@
 .field_model_behavoiur .col-md-6 .form-group label h3{margin-top:3px;}
 .ps-scrollbar-x-rail{display:none !important; }
 .ps-scrollbar-y-rail{display:none !important;}
-
+.padding-left-0{padding-left:0px;}
+.padding-right-0{padding-right:0px; width:14%;}
 </style>

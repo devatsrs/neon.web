@@ -50,12 +50,12 @@
           <div class="row field_model_behavoiur">
             <div class="col-md-6">
               <div class="form-group">
-                <label  class="control-label col-sm-12"><h3>For Agents</h3></label>
+                <label  class="control-label col-sm-12"><h4><strong>For Agents</strong></h4></label>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label class="control-label col-sm-12"><h3>For Customers</h3></label>
+                <label class="control-label col-sm-12"><h4><strong>For Customers</strong></h4></label>
               </div>
             </div>
           </div>
@@ -172,12 +172,12 @@
           <div class="row field_model_behavoiur">
             <div class="col-md-6">
               <div class="form-group">
-                <label  class="control-label col-sm-12"><h3>For Agents</h3></label>
+                <label  class="control-label col-sm-12"><h4><strong>For Agents</strong></h4></label>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label class="control-label col-sm-12"><h3>For Customers</h3></label>
+                <label class="control-label col-sm-12"><h4><strong>For Customers</strong></h4></label>
               </div>
             </div>
           </div>
