@@ -9,7 +9,7 @@ CREATE TABLE `tblSummaryVendorHeader` (
   `AreaPrefix` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `CountryID` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `ServiceID` int(11) DEFAULT NULL,
+  `ServiceID` int(11) DEFAULT '0',
   PRIMARY KEY (`SummaryVendorHeaderID`),
   KEY `FK_tblSummaryVendorHeader_dim_date` (`DateID`),
   KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`,`GatewayAccountID`,`CompanyGatewayID`,`Trunk`,`AreaPrefix`),

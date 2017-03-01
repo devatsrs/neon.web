@@ -133,7 +133,7 @@ BEGIN
 	AND sh.CompanyGatewayID = us.CompanyGatewayID
 	AND sh.Trunk = us.Trunk
 	AND sh.AreaPrefix = us.AreaPrefix
-	AND sh.ServiceID -  us.ServiceID
+	AND sh.ServiceID = us.ServiceID
 	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
 
 	INSERT INTO tblUsageVendorSummaryDetail (SummaryVendorHeaderID,TimeID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
