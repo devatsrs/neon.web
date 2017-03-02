@@ -1,5 +1,7 @@
+USE `StagingReport`;
+
 DROP PROCEDURE IF EXISTS `prc_updateUnbilledAmount`;
-DELIMITER //
+DELIMITER |
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateUnbilledAmount`(
 	IN `p_CompanyID` INT,
 	IN `p_Today` DATETIME
@@ -25,7 +27,7 @@ BEGIN
 	);
 	
 	INSERT INTO tmp_Account_ (AccountID)
-	SELECT DISTINCT tblSummaryHeader.AccountID  FROM tblSummaryHeader INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblSummaryHeader.AccountID WHERE tblSummaryHeader.CompanyID = p_CompanyID;
+	SELECT DISTINCT tblSummaryHeader.AccountID  FROM tblSummaryHeader INNER JOIN Ratemanagement3.tblAccount ON tblAccount.AccountID = tblSummaryHeader.AccountID WHERE tblSummaryHeader.CompanyID = p_CompanyID;
 	
 	UPDATE tmp_Account_ SET LastInvoiceDate = fngetLastInvoiceDate(AccountID);
 	
@@ -41,11 +43,11 @@ BEGIN
 		
 		SELECT FinalAmount INTO v_FinalAmount_ FROM tmp_FinalAmount_;
 		
-		IF (SELECT COUNT(*) FROM NeonRMDev.tblAccountBalance WHERE AccountID = v_AccountID_) > 0
+		IF (SELECT COUNT(*) FROM Ratemanagement3.tblAccountBalance WHERE AccountID = v_AccountID_) > 0
 		THEN
-			UPDATE NeonRMDev.tblAccountBalance SET UnbilledAmount = v_FinalAmount_ WHERE AccountID = v_AccountID_;
+			UPDATE Ratemanagement3.tblAccountBalance SET UnbilledAmount = v_FinalAmount_ WHERE AccountID = v_AccountID_;
 		ELSE
-			INSERT INTO NeonRMDev.tblAccountBalance (AccountID,UnbilledAmount,BalanceAmount)
+			INSERT INTO Ratemanagement3.tblAccountBalance (AccountID,UnbilledAmount,BalanceAmount)
 			SELECT v_AccountID_,v_FinalAmount_,v_FinalAmount_;
 		END IF;
 		
@@ -54,12 +56,12 @@ BEGIN
 	END WHILE;
 	
 	UPDATE 
-		NeonRMDev.tblAccountBalance 
+		Ratemanagement3.tblAccountBalance 
 	INNER JOIN
 		(
 			SELECT 
 				DISTINCT tblAccount.AccountID 
-			FROM NeonRMDev.tblAccount  
+			FROM Ratemanagement3.tblAccount  
 			LEFT JOIN tmp_Account_ 
 				ON tblAccount.AccountID = tmp_Account_.AccountID
 			WHERE tmp_Account_.AccountID IS NULL AND tblAccount.CompanyID = p_CompanyID
@@ -71,12 +73,12 @@ BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-END//
+END|
 DELIMITER ;
 
--- Dumping structure for procedure NeonReportDev.prc_updateVendorUnbilledAmount
+-- Dumping structure for procedure StagingReport.prc_updateVendorUnbilledAmount
 DROP PROCEDURE IF EXISTS `prc_updateVendorUnbilledAmount`;
-DELIMITER //
+DELIMITER |
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateVendorUnbilledAmount`(
 	IN `p_CompanyID` INT,
 	IN `p_Today` DATETIME
@@ -102,7 +104,7 @@ BEGIN
 	);
 	
 	INSERT INTO tmp_Account_ (AccountID)
-	SELECT DISTINCT tblSummaryVendorHeader.AccountID  FROM tblSummaryVendorHeader INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblSummaryVendorHeader.AccountID WHERE tblSummaryVendorHeader.CompanyID = p_CompanyID;
+	SELECT DISTINCT tblSummaryVendorHeader.AccountID  FROM tblSummaryVendorHeader INNER JOIN Ratemanagement3.tblAccount ON tblAccount.AccountID = tblSummaryVendorHeader.AccountID WHERE tblSummaryVendorHeader.CompanyID = p_CompanyID;
 	
 	UPDATE tmp_Account_ SET LastInvoiceDate = fngetLastVendorInvoiceDate(AccountID);
 	
@@ -121,11 +123,11 @@ BEGIN
 			
 			SELECT FinalAmount INTO v_FinalAmount_ FROM tmp_FinalAmount_;
 			
-			IF (SELECT COUNT(*) FROM NeonRMDev.tblAccountBalance WHERE AccountID = v_AccountID_) > 0
+			IF (SELECT COUNT(*) FROM Ratemanagement3.tblAccountBalance WHERE AccountID = v_AccountID_) > 0
 			THEN
-				UPDATE NeonRMDev.tblAccountBalance SET VendorUnbilledAmount = v_FinalAmount_ WHERE AccountID = v_AccountID_;
+				UPDATE Ratemanagement3.tblAccountBalance SET VendorUnbilledAmount = v_FinalAmount_ WHERE AccountID = v_AccountID_;
 			ELSE
-				INSERT INTO NeonRMDev.tblAccountBalance (AccountID,VendorUnbilledAmount,BalanceAmount)
+				INSERT INTO Ratemanagement3.tblAccountBalance (AccountID,VendorUnbilledAmount,BalanceAmount)
 				SELECT v_AccountID_,v_FinalAmount_,v_FinalAmount_;
 			END IF;
 			
@@ -136,12 +138,12 @@ BEGIN
 	END WHILE;
 	
 	UPDATE 
-		NeonRMDev.tblAccountBalance 
+		Ratemanagement3.tblAccountBalance 
 	INNER JOIN
 		(
 			SELECT 
 				DISTINCT tblAccount.AccountID 
-			FROM NeonRMDev.tblAccount  
+			FROM Ratemanagement3.tblAccount  
 			LEFT JOIN tmp_Account_ 
 				ON tblAccount.AccountID = tmp_Account_.AccountID
 			WHERE tmp_Account_.AccountID IS NULL AND tblAccount.CompanyID = p_CompanyID
@@ -151,5 +153,5 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-END//
+END|
 DELIMITER ;

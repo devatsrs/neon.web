@@ -1,6 +1,13 @@
+USE `RMCDR3`;
+
+ALTER TABLE `tblUsageDetailFailedCall`
+	ADD COLUMN `disposition` VARCHAR(50) NULL DEFAULT NULL;
+ALTER TABLE `tblUsageDetails`
+	ADD COLUMN `disposition` VARCHAR(50) NULL DEFAULT NULL;
+
 DROP PROCEDURE IF EXISTS `prc_unsetCDRUsageAccount`;
-DELIMITER //
-CREATE DEFINER=`neon-user-abubakar`@`122.129.78.153` PROCEDURE `prc_unsetCDRUsageAccount`(
+DELIMITER |
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_unsetCDRUsageAccount`(
 	IN `p_CompanyID` INT,
 	IN `p_IPs` LONGTEXT,
 	IN `p_StartDate` VARCHAR(50),
@@ -14,7 +21,7 @@ BEGIN
 
 	SET v_AccountID = 0;
 		SELECT DISTINCT GAC.AccountID INTO v_AccountID 
-		FROM NeonBillingDev.tblGatewayAccount GAC
+		FROM RMBilling3.tblGatewayAccount GAC
 		WHERE GAC.CompanyID = p_CompanyID
 		AND AccountID IS NOT NULL
 		AND  FIND_IN_SET(GAC.GatewayAccountID, p_IPs) > 0
@@ -38,7 +45,7 @@ BEGIN
 			LIMIT 1; 
 	END IF;
 	IF v_AccountID >0 AND p_Confirm = 1 THEN
-			UPDATE NeonBillingDev.tblGatewayAccount GAC SET GAC.AccountID = NULL
+			UPDATE RMBilling3.tblGatewayAccount GAC SET GAC.AccountID = NULL
 			WHERE GAC.CompanyID = p_CompanyID
 			AND  FIND_IN_SET(GAC.GatewayAccountID, p_IPs) > 0;
 	
@@ -57,10 +64,10 @@ BEGIN
 	SELECT v_AccountID as `Status`;
 
 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
-END//
+END|
 DELIMITER ;
 
-DELIMITER //
+DELIMITER |
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertCDR`(
 	IN `p_processId` varchar(200),
 	IN `p_tbltempusagedetail_name` VARCHAR(200)
@@ -138,5 +145,5 @@ BEGIN
 
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END//
+END|
 DELIMITER ;
