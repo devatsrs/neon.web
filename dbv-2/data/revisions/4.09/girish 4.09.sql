@@ -2,7 +2,7 @@ USE `RMBilling3`;
 
 DROP PROCEDURE IF EXISTS `prc_getDashboardinvoiceExpense`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardinvoiceExpense`(
+CREATE PROCEDURE `prc_getDashboardinvoiceExpense`(
 	IN `p_CompanyID` INT,
 	IN `p_CurrencyID` INT,
 	IN `p_AccountID` INT,
@@ -257,7 +257,7 @@ DELIMITER ;
 -- Dumping structure for procedure RMBilling3.prc_ProcesssCDR
 DROP PROCEDURE IF EXISTS `prc_ProcesssCDR`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcesssCDR`(
+CREATE  PROCEDURE `prc_ProcesssCDR`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_processId` INT,
@@ -580,7 +580,7 @@ DELIMITER ;
 -- Dumping structure for procedure RMBilling3.prc_RerateInboundCalls
 DROP PROCEDURE IF EXISTS `prc_RerateInboundCalls`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_RerateInboundCalls`(
+CREATE  PROCEDURE `prc_RerateInboundCalls`(
 	IN `p_CompanyID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
@@ -671,7 +671,7 @@ DELIMITER ;
 -- Dumping structure for procedure RMBilling3.prc_updateInboundPrefix
 DROP PROCEDURE IF EXISTS `prc_updateInboundPrefix`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateInboundPrefix`(
+CREATE  PROCEDURE `prc_updateInboundPrefix`(
 	IN `p_AccountID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
@@ -760,7 +760,7 @@ DELIMITER ;
 -- Dumping structure for procedure RMBilling3.prc_updateInboundRate
 DROP PROCEDURE IF EXISTS `prc_updateInboundRate`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateInboundRate`(
+CREATE  PROCEDURE `prc_updateInboundRate`(
 	IN `p_AccountID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
@@ -818,7 +818,7 @@ DELIMITER ;
 -- Dumping structure for procedure RMBilling3.prc_updateSOAOffSet
 DROP PROCEDURE IF EXISTS `prc_updateSOAOffSet`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateSOAOffSet`(
+CREATE  PROCEDURE `prc_updateSOAOffSet`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT
 )
@@ -896,7 +896,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getActiveGatewayAccount`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getActiveGatewayAccount`(
+CREATE  PROCEDURE `prc_getActiveGatewayAccount`(
 	IN `p_company_id` INT,
 	IN `p_gatewayid` INT,
 	IN `p_UserID` INT,
@@ -1133,7 +1133,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_updateOutboundRate`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateOutboundRate`(
+CREATE  PROCEDURE `prc_updateOutboundRate`(
 	IN `p_AccountID` INT,
 	IN `p_TrunkID` INT,
 	IN `p_processId` INT,
@@ -1192,7 +1192,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_updatePrefix`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updatePrefix`(
+CREATE  PROCEDURE `prc_updatePrefix`(
 	IN `p_AccountID` INT,
 	IN `p_TrunkID` INT,
 	IN `p_processId` INT,

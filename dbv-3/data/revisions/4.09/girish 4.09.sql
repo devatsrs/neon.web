@@ -7,7 +7,7 @@ ALTER TABLE `tblUsageDetails`
 
 DROP PROCEDURE IF EXISTS `prc_unsetCDRUsageAccount`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_unsetCDRUsageAccount`(
+CREATE PROCEDURE `prc_unsetCDRUsageAccount`(
 	IN `p_CompanyID` INT,
 	IN `p_IPs` LONGTEXT,
 	IN `p_StartDate` VARCHAR(50),
@@ -68,7 +68,7 @@ END|
 DELIMITER ;
 
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertCDR`(
+CREATE PROCEDURE `prc_insertCDR`(
 	IN `p_processId` varchar(200),
 	IN `p_tbltempusagedetail_name` VARCHAR(200)
 )

@@ -1,3 +1,4 @@
+USE `Ratemanagement3`;
 CREATE TABLE IF NOT EXISTS `tblHelpDeskTickets` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) DEFAULT NULL,
@@ -28,10 +29,10 @@ CREATE TABLE IF NOT EXISTS `tblHelpDeskTickets` (
 -- ALTER TABLE `tblAccountTickets`	CHANGE COLUMN `TicketType` `TicketType` TINYINT(4) NOT NULL DEFAULT '0' AFTER `RequestEmail`;
 -- ALTER TABLE `tblAccountTickets`	ADD COLUMN `TicketAgent` INT NOT NULL DEFAULT '0' AFTER `TicketType`;
 -- ##############################################################
- INSERT INTO tblHelpDeskTickets FROM tblAccountTickets;
+-- INSERT INTO tblHelpDeskTickets FROM tblAccountTickets;
 -- ##############################################################
 insert into tblHelpDeskTickets (CompanyID,AccountID,TicketID,Subject,Description,Priority,`Status`,`Type`,GUID,`Group`,to_emails,RequestEmail,TicketType,TicketAgent,ApiCreatedDate,ApiUpdateDate,created_at,created_by,updated_at,updated_by)
-(select CompanyID,AccountID,TicketID,Subject,Description,Priority,`Status`,`Type`,GUID,`Group`,to_emails,RequestEmail,0 as TicketType, 0 as TicketAgent,ApiCreatedDate,ApiUpdateDate,created_at,created_by,updated_at,updated_by from tblAccountTickets ta);
+select CompanyID,AccountID,TicketID,Subject,Description,Priority,`Status`,`Type`,GUID,`Group`,to_emails,RequestEmail,0 as TicketType, 0 as TicketAgent,ApiCreatedDate,ApiUpdateDate,created_at,created_by,updated_at,updated_by from tblAccountTickets;
 -- ##############################################################
 ALTER TABLE `AccountEmailLog`
 	ADD COLUMN `ContactID` INT(11) NULL DEFAULT NULL AFTER `AccountID`,
