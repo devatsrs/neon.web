@@ -156,7 +156,7 @@ class CustomersRatesController extends \BaseController {
                     }*/
 
                     //check if duplicate
-                    if (CustomerTrunk::isPrefixExists($data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
+                    if (CustomerTrunk::isPrefixExists($id,$data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
 
                         return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " for " . $trunk . " Trunk");
                         //return  Response::json(array("status" => "failed", "message" => "duplicate Prefix ".$data['Prefix']." for " . $trunk ." Trunk" ));
