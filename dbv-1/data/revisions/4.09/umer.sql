@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS `tbl_Account_Contacts_Activity` (
   PRIMARY KEY (`Timeline_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='temp table';
 -- ##############################################################
+DROP PROCEDURE IF EXISTS `prc_GetFromEmailAddress`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetFromEmailAddress`(
 	IN `p_CompanyID` int,
@@ -125,6 +126,7 @@ BEGIN
 END//
 DELIMITER ;
 -- ####################################################################
+DROP PROCEDURE IF EXISTS `prc_getAccountTimeLine`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAccountTimeLine`(
 	IN `p_AccountID` INT,
@@ -276,6 +278,7 @@ END IF;
 END//
 DELIMITER ;
 -- ##########################################################
+DROP PROCEDURE IF EXISTS `prc_getContactTimeLine`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getContactTimeLine`(
 	IN `p_ContactID` INT,
