@@ -139,10 +139,10 @@ class CustomersRatesController extends \BaseController {
                     //$data['Status'] = $data['Status'];
                     $data['CreatedBy'] = User::get_user_full_name();
                     $data['ModifiedBy'] = !empty($data['CustomerTrunkID']) ? User::get_user_full_name() : '';
-
+                    $TrunkName = Trunk::where(["TrunkID"=>$trunk])-pluck("Trunk");
                     if (!empty($data['CustomerTrunkID']) && trim($data['Prefix']) == '') {
                         // On Update Validate Prefix
-                        return Redirect::back()->with('error_message', "Please Add Prefix for " . $trunk . " Trunk");
+                        return Redirect::back()->with('error_message', "Please Add Prefix for " . $TrunkName . " Trunk");
                         //return Response::json(array("status" => "failed", "message" => "Please Add Prefix for " . $trunk . " Trunk"));
                     } else if (empty($data['CustomerTrunkID']) && $data['Prefix'] == '') {
                         $data['Prefix'] = $LastPrefixNo = LastPrefixNo::getLastPrefix();
@@ -158,7 +158,7 @@ class CustomersRatesController extends \BaseController {
                     //check if duplicate
                     if (CustomerTrunk::isPrefixExists($id,$data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
 
-                        return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " for " . $trunk . " Trunk");
+                        return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " for " . $TrunkName . " Trunk");
                         //return  Response::json(array("status" => "failed", "message" => "duplicate Prefix ".$data['Prefix']." for " . $trunk ." Trunk" ));
                     }
 
@@ -190,7 +190,7 @@ class CustomersRatesController extends \BaseController {
                                 LastPrefixNo::updateLastPrefixNo($LastPrefixNo);
                             }
                         } else {
-                            return Redirect::back()->with('error_message', "Problem Creating Customer Trunk for " . $trunk . " Trunk");
+                            return Redirect::back()->with('error_message', "Problem Creating Customer Trunk for " . $TrunkName . " Trunk");
                             ///return  Response::json(array("status" => "failed", "message" => "Problem Creating Customer Trunk for " . $trunk ." Trunk" )); // For Ajax
                         }
                     }
