@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `tblCLIRateTable` (
 
 DROP PROCEDURE IF EXISTS `migrateCLI`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `migrateCLI`()
+CREATE  PROCEDURE `migrateCLI`()
 BEGIN
 
 DECLARE i INT; 
@@ -41,7 +41,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_GetCrmDashboardSalesManager`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCrmDashboardSalesManager`(
+CREATE  PROCEDURE `prc_GetCrmDashboardSalesManager`(
 	IN `p_CompanyID` INT,
 	IN `p_OwnerID` VARCHAR(500),
 	IN `p_CurrencyID` INT,
@@ -141,7 +141,7 @@ DELIMITER ;
 -- Dumping structure for procedure Ratemanagement3.prc_GetCrmDashboardSalesUser
 DROP PROCEDURE IF EXISTS `prc_GetCrmDashboardSalesUser`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCrmDashboardSalesUser`(
+CREATE  PROCEDURE `prc_GetCrmDashboardSalesUser`(
 	IN `p_CompanyID` INT,
 	IN `p_OwnerID` VARCHAR(500),
 	IN `p_CurrencyID` INT,
@@ -198,7 +198,7 @@ DELIMITER ;
 -- Dumping structure for procedure Ratemanagement3.prc_getCustomerInboundRate
 DROP PROCEDURE IF EXISTS `prc_getCustomerInboundRate`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerInboundRate`(
+CREATE  PROCEDURE `prc_getCustomerInboundRate`(
 	IN `p_AccountID` INT,
 	IN `p_RateCDR` INT,
 	IN `p_RateMethod` VARCHAR(50),
