@@ -17,22 +17,15 @@ class CustomerTrunk extends \Eloquent {
         }
         return $records;
     }
-    public static function isPrefixExists($Prefix='',$CustomerTrunkID = ''){
-
-
+    public static function isPrefixExists($AccountID,$Prefix='',$CustomerTrunkID = ''){
        $CompanyID = User::get_companyID();
        if(!empty($CustomerTrunkID) && $CustomerTrunkID > 0 ){
-        $row = CustomerTrunk::where("CustomerTrunkID", "!=" ,$CustomerTrunkID)->where(["CompanyID"=>$CompanyID, "Prefix"=>$Prefix])->get();
-       }else{
-        $row = CustomerTrunk::where([ "CompanyID"=>$CompanyID, "Prefix"=>$Prefix])->get(); 
+            $row = CustomerTrunk::where(["CompanyID"=>$CompanyID, "AccountID" =>$AccountID , "Prefix"=>$Prefix])->where("CustomerTrunkID", "!=" ,$CustomerTrunkID)->get();
+           if( count($row) > 0 ){
+               return true;
+           }
        }
-       
-
-       if( count($row) > 0 &&  isset($row[0]->Prefix) && $row[0]->Prefix > 0){
-            return true;
-       }else{
-            return false;
-       }     
+       return false;
     }
 
     public static function getCustomerTrunk($AccountID=0){
