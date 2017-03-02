@@ -7,8 +7,5 @@ composer.lock
 .DS_Store
 Thumbs.db
 /.idea
-/wkhtmltox
 .env
-app/storage/sessions/
-app/storage/views/
-wkhtmltopdf/
+
