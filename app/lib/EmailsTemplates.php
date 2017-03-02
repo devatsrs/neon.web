@@ -290,8 +290,9 @@ class EmailsTemplates{
 			$array['OutstandingIncludeUnbilledAmount'] = AccountBalance::getBalanceAmount($AccountID);
 			$array['BalanceThreshold'] 				   = AccountBalance::getBalanceThresholdAmount($AccountID);
 			$array['User'] 							   = User::get_user_full_name();
-			   if(!empty(user::get_userID())){
-				   $UserData = user::find(user::get_userID());
+			$UserID = user::get_userID();
+			   if(!empty($UserID)){
+				   $UserData = user::find($UserID);
 				  if(isset($UserData->EmailFooter) && trim($UserData->EmailFooter) != '')
 					{
 						$array['Signature']= $UserData->EmailFooter;	
