@@ -139,7 +139,7 @@ class CustomersRatesController extends \BaseController {
                     //$data['Status'] = $data['Status'];
                     $data['CreatedBy'] = User::get_user_full_name();
                     $data['ModifiedBy'] = !empty($data['CustomerTrunkID']) ? User::get_user_full_name() : '';
-                    $TrunkName = Trunk::where(["TrunkID"=>$trunk])-pluck("Trunk");
+                    $TrunkName = Trunk::where(["TrunkID"=>$trunk])->pluck("Trunk");
                     if (!empty($data['CustomerTrunkID']) && trim($data['Prefix']) == '') {
                         // On Update Validate Prefix
                         return Redirect::back()->with('error_message', "Please Add Prefix for " . $TrunkName . " Trunk");
