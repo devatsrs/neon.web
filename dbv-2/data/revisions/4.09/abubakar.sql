@@ -1,10 +1,11 @@
-USE `NeonBillingDev`;
+USE `RMBilling3`;
 
 ALTER TABLE `tblInvoice`
 	ADD COLUMN `RecurringInvoiceID` INT(50) NULL DEFAULT NULL AFTER `EstimateID`,
 	ADD COLUMN `ProcessID` VARCHAR(50) NULL DEFAULT NULL AFTER `RecurringInvoiceID`;
 
--- Dumping structure for function NeonBillingDev.FnGetInvoiceNumber
+
+-- Dumping structure for function RMBilling3.FnGetInvoiceNumber
 DROP FUNCTION IF EXISTS `FnGetInvoiceNumber`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` FUNCTION `FnGetInvoiceNumber`(
@@ -20,7 +21,7 @@ DECLARE v_LastInv VARCHAR(50);
 DECLARE v_FoundVal INT(11);
 DECLARE v_InvoiceTemplateID INT(11);
 
-SET v_InvoiceTemplateID = CASE WHEN p_BillingClassID=0 THEN (SELECT b.InvoiceTemplateID FROM NeonRMDev.tblAccountBilling ab INNER JOIN NeonRMDev.tblBillingClass b ON b.BillingClassID = ab.BillingClassID WHERE AccountID = p_account_id) ELSE (SELECT b.InvoiceTemplateID FROM  NeonRMDev.tblBillingClass b WHERE b.BillingClassID = p_BillingClassID) END;
+SET v_InvoiceTemplateID = CASE WHEN p_BillingClassID=0 THEN (SELECT b.InvoiceTemplateID FROM Ratemanagement3.tblAccountBilling ab INNER JOIN Ratemanagement3.tblBillingClass b ON b.BillingClassID = ab.BillingClassID WHERE AccountID = p_account_id) ELSE (SELECT b.InvoiceTemplateID FROM  Ratemanagement3.tblBillingClass b WHERE b.BillingClassID = p_BillingClassID) END;
 
 SELECT LastInvoiceNumber INTO v_LastInv FROM tblInvoiceTemplate WHERE InvoiceTemplateID =v_InvoiceTemplateID;
 
@@ -36,7 +37,7 @@ return v_LastInv;
 END//
 DELIMITER ;
 
--- Dumping structure for procedure NeonBillingDev.prc_Convert_Invoices_to_Estimates
+-- Dumping structure for procedure RMBilling3.prc_Convert_Invoices_to_Estimates
 DROP PROCEDURE IF EXISTS `prc_Convert_Invoices_to_Estimates`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_Convert_Invoices_to_Estimates`(
@@ -172,9 +173,9 @@ where
 insert into tblInvoiceLog (InvoiceID,Note,InvoiceLogStatus,created_at)
 select inv.InvoiceID,concat(note_text, CONCAT(LTRIM(RTRIM(IFNULL(it.EstimateNumberPrefix,''))), LTRIM(RTRIM(ti.EstimateNumber)))) as Note,1 as InvoiceLogStatus,NOW() as created_at  from tblInvoice inv
 INNER JOIN tblEstimate ti ON  inv.EstimateID =  ti.EstimateID
-INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
-INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
-INNER JOIN NeonRMDev.tblBillingClass b ON ab.BillingClassID = b.BillingClassID
+INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
+INNER JOIN Ratemanagement3.tblAccountBilling ab ON ab.AccountID = ac.AccountID
+INNER JOIN Ratemanagement3.tblBillingClass b ON ab.BillingClassID = b.BillingClassID
 LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
 where
 			(p_convert_all=0 and ti.EstimateID = p_EstimateID)
@@ -199,9 +200,9 @@ where
 
 	UPDATE tblInvoice
 	INNER JOIN tblEstimate ON  tblInvoice.EstimateID =  tblEstimate.EstimateID
-	INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblInvoice.AccountID
-	INNER JOIN NeonRMDev.tblAccountBilling ON tblAccount.AccountID = tblAccountBilling.AccountID
-	INNER JOIN NeonRMDev.tblBillingClass ON tblAccountBilling.BillingClassID = tblBillingClass.BillingClassID
+	INNER JOIN Ratemanagement3.tblAccount ON tblAccount.AccountID = tblInvoice.AccountID
+	INNER JOIN Ratemanagement3.tblAccountBilling ON tblAccount.AccountID = tblAccountBilling.AccountID
+	INNER JOIN Ratemanagement3.tblBillingClass ON tblAccountBilling.BillingClassID = tblBillingClass.BillingClassID
 	INNER JOIN tblInvoiceTemplate ON tblBillingClass.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
 	SET FullInvoiceNumber = IF(InvoiceType=1,CONCAT(ltrim(rtrim(IFNULL(tblInvoiceTemplate.InvoiceNumberPrefix,''))), ltrim(rtrim(tblInvoice.InvoiceNumber))),ltrim(rtrim(tblInvoice.InvoiceNumber)))
 	WHERE FullInvoiceNumber IS NULL AND tblInvoice.CompanyID = p_CompanyID AND tblInvoice.InvoiceType = 1;
