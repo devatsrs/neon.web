@@ -120,6 +120,18 @@ class CustomersRatesController extends \BaseController {
         $post_data = Input::all();
         if (!empty($post_data)) {
 
+            //Check duplicate Prefix
+            $prefix_array  = array();
+            foreach ($post_data['CustomerTrunk'] as $trunk => $data) {
+                if(!empty($data['Prefix'])) {
+                    if (isset($data['Status']) && $data['Status'] == 1 && in_array($data['Prefix'], $prefix_array)) {
+                        return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " Found.");
+                    } else {
+                        $prefix_array[] = $data['Prefix'];
+                    }
+                }
+            }
+
             $companyID = User::get_companyID();
             foreach ($post_data['CustomerTrunk'] as $trunk => $data) {
 
@@ -156,11 +168,11 @@ class CustomersRatesController extends \BaseController {
                     }*/
 
                     //check if duplicate
-                    if (CustomerTrunk::isPrefixExists($id,$data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
+                    /*if (CustomerTrunk::isPrefixExists($id,$data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
 
                         return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " for " . $TrunkName . " Trunk");
                         //return  Response::json(array("status" => "failed", "message" => "duplicate Prefix ".$data['Prefix']." for " . $trunk ." Trunk" ));
-                    }
+                    }*/
 
                     $rules = array("CodeDeckId"=>"required","AccountID" => "required", "CompanyID" => "required", "TrunkID" => "required", "IncludePrefix" => "required", "Status" => "required",);
 
