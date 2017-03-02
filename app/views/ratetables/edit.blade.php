@@ -93,7 +93,7 @@
         </a>
     @endif
     @if(User::checkCategoryPermission('RateTables','Delete') )
-        <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete Selected </button>
+        <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete Selected </button>
     @endif    
 <form id="clear-bulk-rate-form" ><input type="hidden" name="RateTableRateID" /><input type="hidden" name="criteria" /></form>
 </p>
@@ -151,7 +151,7 @@
                     data_table_extra_params.length = 0;
                     data_table_extra_params.push({"name": "Code", "value": $searchFilter.Code}, {"name": "Description", "value": $searchFilter.Description}, {"name": "Country", "value": $searchFilter.Country},{"name": "TrunkID", "value": $searchFilter.TrunkID},{"name": "Effective", "value": $searchFilter.Effective});
                 },
-                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[1, "asc"]],
@@ -183,11 +183,11 @@
                                     }
                                     action += '</div>';
                                     <?php if(User::checkCategoryPermission('RateTables','Edit')) { ?>
-                                        action += '<a href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-sm"><i class="entypo-pencil"></i></a>';
+                                        action += ' <a href="Javascript:;"  title="Edit" class="edit-rate-table btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     <?php } ?>
                                     if (id != null && id > 0) {
                                         <?php if(User::checkCategoryPermission('RateTables','Delete')) { ?>
-                                            action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-cancel"></i></button>';
+                                            action += ' <button title="Delete" href="' + clerRate_ + '"  class="btn clear-rate-table btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></button>';
                                         <?php } ?>
                                     }
                                     return action;

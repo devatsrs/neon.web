@@ -20,14 +20,12 @@
                         </div>
                     </div>
                     <div class="panel-body">
-                        <div class="form-group">
-
-                            @if(User::is_admin())
+                        <div class="form-group">  
+ 
                                 <label for="field-1" class="col-sm-1 control-label">Currency</label>
                                 <div class="col-md-2">
                                     {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}}
                                 </div>
-                            @endif
                                 <label for="field-1" class="col-sm-1 control-label">Date</label>
                                 <div class="col-md-2">
                                     {{ Form::select('date-span', array(6=>'6 Months',12=>'12 Months',0=>'Custome Date'), 1, array('id'=>'date-span','class'=>'select2 small')) }}
@@ -270,6 +268,7 @@
                         <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
                         <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
                         <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
+                        <a data-rel="empty" href="#" title="Delete Missing Gateway Accounts"><i class="entypo-trash"></i></a>
                     </div>
                 </div>
                 <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
@@ -328,7 +327,7 @@
                             );
 
                         },
-                        "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[4, 'desc']],
@@ -413,7 +412,7 @@
                         "bProcessing": true,
                         "bServerSide": true,
                         "sAjaxSource": baseurl + "/billing_dashboard/ajax_datagrid_Invoice_Expense/type",
-                        "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[2, 'desc']],
@@ -719,6 +718,13 @@
                 missingAccounts();
             }
         });
+        $('body').on('click', '.panel > .panel-heading > .panel-options > a[data-rel="empty"]', function (e) {
+            e.preventDefault();
+            var id = $(this).parents('.panel-primary').find('table').attr('id');
+            if (id == 'missingAccounts') {
+                deleteMissingAccounts();
+            }
+        });
         $(function () {
             reload_invoice_expense();
             $("#filter-pin").hide();
@@ -801,7 +807,7 @@
         }
 
             function invoiceExpense() {
-                @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
+                @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboard','View'))
                 var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
                 data = $('#billing_filter').serialize() + '&ListType=' + $('#invoiceExpensefilter-form [name="ListType"]').val();
                 var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
@@ -986,8 +992,31 @@
             }, "json");
         }
 
+        function deleteMissingAccounts() {
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboard','View'))
+            var gateWayID = $("#company_gateway").val();
+            if(gateWayID) {
+                if(confirm('Are you sure you want to delete missing gateway accounts?')) {
+                    var table = $('#missingAccounts');
+                    loadingUnload(table, 1);
+                    var url = baseurl + '/dashboard/delete_missing_accounts/' + gateWayID;
+                    showAjaxScript(url, [], function (response) {
+                        $(".btn").button('reset');
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                        missingAccounts();
+                        loadingUnload(table, 0);
+                    });
+                }
+            }
+            @endif
+        }
+
         function missingAccounts() {
-            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboard','View'))
             var table = $('#missingAccounts');
             loadingUnload(table, 1);
             var url = baseurl + '/dashboard/ajax_get_missing_accounts?CompanyGatewayID=' + $("#company_gateway").val();

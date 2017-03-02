@@ -1,3 +1,11 @@
+<style>
+    .radio{
+        margin-top:0 !important;
+    }
+    .radio label{
+        min-height:16px !important;
+    }
+</style>
 <div class="modal fade" id="modal-update-rate" data-backdrop="static">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -31,7 +39,37 @@
               </div>
             </div>
           </div>
-        </div>
+            <div class="row" id="RateTableReplaceRate">
+                <div class="col-md-12">
+                    <div class="form-group" >
+                        <label class="control-label">
+                            <input type="checkbox" id="rd-1" name="checkbox_replace_all" value="1" > &nbsp;&nbsp;Replace all of the existing rates
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="RateTableEffectiveRate">
+                <div class="col-md-12">
+                    <div class="form-group" >
+                        <div class="">
+                            <label for="field-4" class="control-label pull-left">Rate :&nbsp;&nbsp;&nbsp;</label>
+                            <div class="radio radio-replace color-primary pull-left checked" id="defaultradiorate">
+                                <input class="icheck-11 timeline_filter" type="radio" id="minimal-radio-1" name="EffectiveRate" value="now">
+                                <label for="minimal-radio-1">Current</label>
+                                &nbsp;&nbsp;</div>
+                            <div class="radio radio-replace color-green pull-left">
+                                <input class="icheck-11 timeline_filter" type="radio" id="minimal-radio-2" name="EffectiveRate" value="effective">
+                                <label for="minimal-radio-2">Effective on selected effective date</label>
+                                &nbsp;&nbsp;</div>
+                            <div class="radio radio-replace color-blue pull-left">
+                                <input class="icheck-11 timeline_filter" type="radio" id="minimal-radio-3" name="EffectiveRate" value="future">
+                                <label for="minimal-radio-3">Future</label>
+                                &nbsp;&nbsp;</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- modal body div over-->
         <div class="modal-footer">
           <input type="hidden" name="RateGeneratorID" value="">
           <button type="submit"  class="save TrunkSelect btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Ok </button>
@@ -54,7 +92,7 @@
         </div>
         <div class="modal-footer">
           <input type="hidden" name="RateGeneratorID" value="">
-          <button id="rategenerator-select"  class="save TrunkSelect btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-cancel"></i> Delete </button>
+          <button id="rategenerator-select"  class="save TrunkSelect btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
         </div>
       </form>

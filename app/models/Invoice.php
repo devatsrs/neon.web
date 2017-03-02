@@ -17,6 +17,8 @@ class Invoice extends \Eloquent {
     const PARTIALLY_PAID = 'partially_paid';
     const ITEM_INVOICE =1;
     const POST = 'post';
+	const EMAILTEMPLATE 		= "InvoiceSingleSend";
+	
     //public static $invoice_status;
     public static $invoice_type = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Sent',self::INVOICE_IN=>'Invoice Received','All'=>'Both');
     public static $invoice_type_customer = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Received',self::INVOICE_IN=>'Invoice sent','All'=>'Both');
@@ -74,19 +76,27 @@ class Invoice extends \Eloquent {
                     ->groupBy("TaxRateID")                   
                     ->get();
 			$Account = Account::find($Invoice->AccountID);
-            $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
             $CurrencySymbol =  Currency::getCurrencySymbol($Account->CurrencyId);
-            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
-            $PaymentDueInDays = AccountBilling::getPaymentDueInDays($Invoice->AccountID);
+            if(!empty($Invoice->RecurringInvoiceID) && $Invoice->RecurringInvoiceID > 0){
+                $recurringInvoice = RecurringInvoice::find($Invoice->RecurringInvoiceID);
+                $billingClass = BillingClass::where('BillingClassID',$recurringInvoice->BillingClassID)->first();
+                $InvoiceTemplateID = $billingClass->InvoiceTemplateID;
+                $PaymentDueInDays = $billingClass->PaymentDueInDays;
+            }else{
+                $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
+                $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+                $PaymentDueInDays = AccountBilling::getPaymentDueInDays($Invoice->AccountID);
+            }
+
             $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key) == '') {
                 $as3url =  public_path("/assets/images/250x100.png");
             } else {
                 $as3url = (AmazonS3::unSignedUrl($InvoiceTemplate->CompanyLogoAS3Key));
             }
-            $logo_path = getenv('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
+            $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . $Account->CompanyId;
             @mkdir($logo_path, 0777, true);
             RemoteSSH::run("chmod -R 777 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);
@@ -108,7 +118,7 @@ class Invoice extends \Eloquent {
             $header = htmlspecialchars_decode($header);
 
             $amazonPath = AmazonS3::generate_path(AmazonS3::$dir['INVOICE_UPLOAD'],$Account->CompanyId,$Invoice->AccountID) ;
-             $destination_dir = getenv('UPLOAD_PATH') . '/'. $amazonPath;
+             $destination_dir = CompanyConfiguration::get('UPLOAD_PATH') . '/'. $amazonPath;
 			
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);

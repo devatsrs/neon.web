@@ -54,7 +54,7 @@
                 </div>
 
                 <div class="panel-body">
-                   @if(User::is('AccountManager') || User::is_admin())
+
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">*Lead Owner</label>
                         <div class="col-sm-4">
@@ -65,7 +65,7 @@
                             <input type="text" class="form-control" name="AccountName" data-validate="required" data-message-required="This is custom message for required field." id="field-1" placeholder="" value="{{$lead->AccountName}}" />
                         </div>
                     </div>
-                    @endif
+
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">*First Name</label>
                         <div class="col-sm-4">

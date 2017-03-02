@@ -2,7 +2,7 @@
 <p style="text-align: right;">
     <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
         <i class="entypo-plus"></i>
-        Add Monitoring
+        Add New
     </a>
 </p>
 <table class="table table-bordered datatable" id="table-6">
@@ -51,7 +51,7 @@
                 );
 
             },
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
@@ -86,10 +86,10 @@
                         }
                         action += '</div>';
 
-                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" class="edit-call-alert btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" title="Edit" class="edit-call-alert btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
 
 
-                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" class="delete-call-alert btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" title="Delete" class="delete-call-alert btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
 
                                 return action;
                     }

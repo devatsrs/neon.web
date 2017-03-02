@@ -2,7 +2,28 @@ jQuery(document).ready(function ($) {
 $('#save_billing').on("click",function(e){
     e.preventDefault();
     $('#save_billing').button('loading');
-    submit_ajax($('#save_billing').attr('href'),$("#billing-form").serialize());
+    //submit_ajax($('#save_billing').attr('href'),$("#billing-form").serialize());
+    showAjaxScript($('#save_billing').attr('href'), new FormData($('#billing-form')[0]), function(response){
+        $(".btn").button('reset');
+        if (response.status == 'success') {
+            $('#add-new-modal-billingclass').modal('hide');
+            toastr.success(response.message, "Success", toastr_opts);
+            $('select[data-type="billing_class"]').each(function(key,el){
+                if($(el).attr('data-active') == 1) {
+                    var newState = new Option(response.data.Name, response.data.BillingClassID, true, true);
+                }else{
+                    var newState = new Option(response.data.Name, response.data.BillingClassID, false, false);
+                }
+                $(el).append(newState).trigger('change');
+                $(el).append($(el).find("option:gt(1)").sort(function (a, b) {
+                    return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
+                }));
+            });
+        }else{
+            toastr.error(response.message, "Error", toastr_opts);
+        }
+    });
+
     return false;
 });
 
@@ -15,14 +36,14 @@ $("body").popover({
 });
 $('#payment-add-row').on('click', function(e){
     e.preventDefault();
-    var add_row_html_payment = '<tr><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Day][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
-    add_row_html_payment += '<td><div class="input-spinner"><button type="button" class="btn btn-default">-</button><input type="text" name="InvoiceReminder[Age][]" class="form-control" id="field-1" placeholder="" value="" Placeholder="Add Numeric value" data-mask="decimal"/><button type="button" class="btn btn-default">+</button></div></td>';
-    add_row_html_payment += '<td>'+template_dp_html+'</td><tr>';
-    $('#PaymentReminderTable > tbody').append(add_row_html_payment);
-    var selectBox = $('#PaymentReminderTable select.select2').last();
-    selectBox.addClass('visible');
-    buildselect2(selectBox);
+    var itemrow = $('#rowContainer .itemrow').clone();
+    itemrow.removeAttr('class');
+    itemrow.find('select.select22').each(function(i,item){
+        buildselect2(item);
+    });
+    $('#PaymentReminderTable > tbody').append(itemrow);
     rebind();
+    nicescroll();
 });
 
 $('#PaymentReminderTable > tbody').on('click','.remove-row', function(e){

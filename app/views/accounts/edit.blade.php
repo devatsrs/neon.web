@@ -190,9 +190,11 @@
                     <label class="col-md-2 control-label">Currency</label>
                     <div class="col-md-4">
                             @if($invoice_count == 0)
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}
+                            {{Form::SelectControl('currency',0,$account->CurrencyId,0,'CurrencyId')}}
+                            <!--{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}-->
                             @else
-                            {{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small",'disabled'))}}
+                            {{Form::SelectControl('currency',0,$account->CurrencyId,1,'CurrencyId')}}
+                            <!--{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small",'disabled'))}}-->
                             {{Form::hidden('CurrencyId', ($account->CurrencyId))}}
                             @endif
                     </div>
@@ -278,7 +280,7 @@
 
                                                 <td>
                                                     <a class="btn btn-success btn-sm btn-icon icon-left"  href="{{URL::to('accounts/download_doc/'.$row2->AccountApprovalListID)}}" title="" ><i class="entypo-down"></i>Download</a>
-                                                    <a class="btn  btn-danger btn-sm btn-icon icon-left delete-doc"  href="{{URL::to('accounts/delete_doc/'.$row2->AccountApprovalListID)}}" ><i class="entypo-cancel"></i>Delete</a>
+                                                    <a class="btn  btn-danger btn-sm btn-icon icon-left delete-doc"  href="{{URL::to('accounts/delete_doc/'.$row2->AccountApprovalListID)}}" ><i class="entypo-trash"></i>Delete</a>
 
                                                 </td>
                                             </tr>
@@ -368,7 +370,7 @@
                 $hiden_class= 'hidden';
                 $billing_disable = 'disabled';
             }
-        $Days = array( ""=>"Please Start of Day",
+        $Days = array( ""=>"Select",
                 "monday"=>"Monday",
                 "tuesday"=>"Tuesday",
                 "wednesday"=>"Wednesday",
@@ -801,7 +803,7 @@
                         if($('.table_'+$("#form-upload [name='AccountApprovalID']").val()).html().trim() === ''){
                             $('.table_'+$("#form-upload [name='AccountApprovalID']").val()).html('<table class="table table-bordered datatable dataTable "><thead><tr><th>File Name</th><th>Action</th></tr></thead><tbody class="doc_'+$("#form-upload [name='AccountApprovalID']").val()+'"></tbody></table>');
                         }
-                        var down_html = $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html()+'<tr><td>'+filename+'</td><td><a class="btn btn-success btn-sm btn-icon icon-left"  href="'+url3+'" title="" ><i class="entypo-down"></i>Download</a> <a class="btn  btn-danger delete-doc btn-sm btn-icon icon-left"  href="'+delete_doc_url+'" title="" ><i class="entypo-cancel"></i>Delete</a></td></tr>';
+                        var down_html = $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html()+'<tr><td>'+filename+'</td><td><a class="btn btn-success btn-sm btn-icon icon-left"  href="'+url3+'" title="" ><i class="entypo-down"></i>Download</a> <a class="btn  btn-danger delete-doc btn-sm btn-icon icon-left"  href="'+delete_doc_url+'" title="" ><i class="entypo-trash"></i>Delete</a></td></tr>';
                         $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html(down_html);
                         if(response.refresh){
                             setTimeout(function(){window.location.reload()},1000);

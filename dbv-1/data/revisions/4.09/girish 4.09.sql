@@ -1,4 +1,5 @@
-DROP TABLE IF EXISTS `tblCLIRateTable`;
+USE `Ratemanagement3`;
+
 CREATE TABLE IF NOT EXISTS `tblCLIRateTable` (
   `CLIRateTableID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) NOT NULL,
@@ -9,8 +10,8 @@ CREATE TABLE IF NOT EXISTS `tblCLIRateTable` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP PROCEDURE IF EXISTS `migrateCLI`;
-DELIMITER //
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `migrateCLI`()
+DELIMITER |
+CREATE DEFINER=`root`@`localhost` PROCEDURE `migrateCLI`()
 BEGIN
 
 DECLARE i INT; 
@@ -26,7 +27,7 @@ CREATE TEMPORARY TABLE `CLIRateTable` (
 SET i = 1;
 REPEAT
 	INSERT INTO CLIRateTable
-	SELECT CompanyID,AccountID,NeonRMDev.FnStringSplit(CustomerAuthValue, ',', i) FROM tblAccountAuthenticate WHERE CustomerAuthRule = 'CLI' AND NeonRMDev.FnStringSplit(CustomerAuthValue, ',', i) IS NOT NULL LIMIT 1;
+	SELECT CompanyID,AccountID,Ratemanagement3.FnStringSplit(CustomerAuthValue, ',', i) FROM tblAccountAuthenticate WHERE CustomerAuthRule = 'CLI' AND Ratemanagement3.FnStringSplit(CustomerAuthValue, ',', i) IS NOT NULL LIMIT 1;
 	SET i = i + 1;
 	UNTIL ROW_COUNT() = 0
 END REPEAT;
@@ -35,12 +36,12 @@ INSERT INTO tblCLIRateTable (CompanyID,AccountID,CLI,RateTableID)
 SELECT CompanyID,AccountID,CLI,0 FROM CLIRateTable;
 
 
-END//
+END|
 DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_GetCrmDashboardSalesManager`;
-DELIMITER //
-CREATE DEFINER=`neon-user-umer`@`122.129.78.153` PROCEDURE `prc_GetCrmDashboardSalesManager`(
+DELIMITER |
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCrmDashboardSalesManager`(
 	IN `p_CompanyID` INT,
 	IN `p_OwnerID` VARCHAR(500),
 	IN `p_CurrencyID` INT,
@@ -73,7 +74,7 @@ BEGIN
 		YEAR(inv.IssueDate) AS Year,
 		MONTH(inv.IssueDate) AS Month,
 		WEEK(inv.IssueDate)	 AS `Week`
-	FROM NeonBillingDev.tblInvoice inv
+	FROM RMBilling3.tblInvoice inv
 	Inner JOIN tblAccount ac 
 		ON ac.AccountID = inv.AccountID 
 	INNER JOIN tblUser tu 
@@ -134,13 +135,13 @@ BEGIN
 			`Weekday` ASC;
 	END IF;
 
-END//
+END|
 DELIMITER ;
 
--- Dumping structure for procedure NeonRMDev.prc_GetCrmDashboardSalesUser
+-- Dumping structure for procedure Ratemanagement3.prc_GetCrmDashboardSalesUser
 DROP PROCEDURE IF EXISTS `prc_GetCrmDashboardSalesUser`;
-DELIMITER //
-CREATE DEFINER=`neon-user-umer`@`122.129.78.153` PROCEDURE `prc_GetCrmDashboardSalesUser`(
+DELIMITER |
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCrmDashboardSalesUser`(
 	IN `p_CompanyID` INT,
 	IN `p_OwnerID` VARCHAR(500),
 	IN `p_CurrencyID` INT,
@@ -167,7 +168,7 @@ BEGIN
 	SELECT
 		ac.AccountName  AS `AssignedUserText`,
 		SUM(`inv`.`GrandTotal`) AS `Revenue`
-	FROM NeonBillingDev.tblInvoice inv
+	FROM RMBilling3.tblInvoice inv
 	INNER JOIN  tblAccount ac 
 		ON ac.AccountID = inv.AccountID
 	INNER JOIN tblUser tu 
@@ -191,12 +192,12 @@ BEGIN
 		v_Round_ AS round_number
 	FROM  tmp_Dashboard_user_invoices_  td;
 
-END//
+END|
 DELIMITER ;
 
--- Dumping structure for procedure NeonRMDev.prc_getCustomerInboundRate
+-- Dumping structure for procedure Ratemanagement3.prc_getCustomerInboundRate
 DROP PROCEDURE IF EXISTS `prc_getCustomerInboundRate`;
-DELIMITER //
+DELIMITER |
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerInboundRate`(
 	IN `p_AccountID` INT,
 	IN `p_RateCDR` INT,
@@ -263,5 +264,5 @@ BEGIN
 		END IF;
 
 	END IF;
-END//
+END|
 DELIMITER ;

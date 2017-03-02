@@ -14,7 +14,7 @@
     @include('includes.success')
     @if(User::checkCategoryPermission('DestinationGroup','Edit'))
     <p style="text-align: right;">
-        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Destination Group Set</a>
+        <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
     </p>
     @endif
 
@@ -91,7 +91,7 @@
                     "bProcessing":true,
                     "bServerSide": true,
                     "sAjaxSource": datagrid_url,
-                    "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                    "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting": [[0, 'asc']],
@@ -122,12 +122,12 @@
                                 }
                                 action += '</div>';
                                 @if(User::checkCategoryPermission('DestinationGroup','Edit'))
-                                action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-pencil"></i>Edit </a>'
+                                action += ' <a href="' + edit_url.replace("{id}",id) +'" title="Edit" class="edit-button btn btn-default btn-sm"><i class="fa fa-pencil"></i></a>'
                                 @endif
-                                action += ' <a href="' + view_url.replace("{id}",id) +'" class="view-button btn btn-default btn-sm btn-icon icon-left"><i class="fa fa-eye"></i>View </a>'
+                                action += ' <a href="' + view_url.replace("{id}",id) +'" title="View" class="view-button btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
                                 @if(User::checkCategoryPermission('DestinationGroup','Delete'))
                                 if(full[7]== null) {
-                                    action += ' <a href="' + delete_url.replace("{id}", id) + '" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="fa fa-trash"></i>Delete </a>'
+                                    action += ' <a href="' + delete_url.replace("{id}", id) + '" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                 }
                                 @endif
                                 return action;

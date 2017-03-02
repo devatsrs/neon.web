@@ -21,7 +21,7 @@ class CronJob extends \Eloquent {
 
     const ACTIVE = 1;
     const INACTIVE = 0;
-
+	const EMAILTEMPLATE = "CronjobActiveEmail";
     public static $cron_type = array(self::MINUTE=>'Minute',self::HOUR=>'Hourly',self::DAILY=>'Daily');
 
     public static function checkForeignKeyById($id){
@@ -125,8 +125,16 @@ class CronJob extends \Eloquent {
             if (isset($data['rateGenerators'])) {
                 $data['Setting']['rateGeneratorID'] = $data['rateGenerators'];
                 $data['Setting']['rateTableID'] = $data['rateTables'];
+                $data['Setting']['EffectiveRate'] = $data['EffectiveRate'];
+                if(!empty($data['replace_rate'])&& $data['replace_rate']==1){
+                    $data['Setting']['replace_rate'] = 1;
+                    unset($data['replace_rate']);
+                }else{
+                    $data['Setting']['replace_rate'] = 0;
+                }
                 unset($data['rateGenerators']);
                 unset($data['rateTables']);
+                unset($data['EffectiveRate']);
 
             }
             if(isset($data['CompanyGatewayID'])){
@@ -284,7 +292,7 @@ class CronJob extends \Eloquent {
                         $strtotime = strtotime($CronJob->LastRunTime)+$cronsetting->JobInterval*60*60*24;
                     }
                     if(isset($cronsetting->JobStartTime)){
-                        return date('Y-m-d',$strtotime).' '.date("H:i:00", strtotime("$cronsetting->JobStartTime"));;
+                        return date('Y-m-d',$strtotime).' '.date("H:i:00", strtotime("$cronsetting->JobStartTime"));
                     }
                     return date('Y-m-d H:i:00',$strtotime);
                 case 'MONTHLY':
@@ -297,6 +305,13 @@ class CronJob extends \Eloquent {
                         return date('Y-m-d',$strtotime).' '.date("H:i:00", strtotime("$cronsetting->JobStartTime"));
                     }
                     return date('Y-m-d H:i:00',$strtotime);
+                case 'SECONDS':
+                    if($CronJob->LastRunTime == ''){
+                        $strtotime = strtotime('+'.$cronsetting->JobInterval.' seconds');
+                    }else{
+                        $strtotime = strtotime($CronJob->LastRunTime)+$cronsetting->JobInterval;
+                    }
+                    return date('Y-m-d H:i:s',$strtotime);
                 default:
                     return '';
             }

@@ -65,7 +65,26 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/customer/alert/store','NotificationCustomerController@store');
 	Route::any('/customer/alert/update/{id}','NotificationCustomerController@update');
 	Route::any('/customer/alert/delete/{id}','NotificationCustomerController@delete');
-
+	
+	Route::any('/customer/tickets','TicketsCustomerController@index');
+	Route::any('/customer/tickets/{id}/detail','TicketsCustomerController@Detail');
+	Route::any('/customer/tickets/add','TicketsCustomerController@add');
+	Route::any('/customer/tickets/ajex_result','TicketsCustomerController@ajex_result'); 
+	Route::post('/customer/tickets/{id}/close_ticket', 'TicketsCustomerController@CloseTicket');
+	Route::any('/customer/tickets/{id}/edit', 'TicketsCustomerController@edit');
+	Route::any('/customer/tickets/{id}/update', "TicketsCustomerController@Update");
+	Route::any('/customer/tickets/{id}/updatedetailpage', "TicketsCustomerController@UpdateDetailPage");	
+	Route::any('/customer/tickets/{id}/delete', "TicketsCustomerController@Delete");	
+	Route::post('/customer/tickets/{id}/updateticketattributes', 'TicketsCustomerController@UpdateTicketAttributes');
+	Route::post('/customer/tickets/{id}/actionsubmit', 'TicketsCustomerController@ActionSubmit');
+	Route::get('/customer/ticketsconversation/{id}/getattachment/{attachmentID}', 'TicketsCustomerController@getConversationAttachment');
+	Route::get('/customer/tickets/{id}/getattachment/{attachmentID}', 'TicketsCustomerController@GetTicketAttachment');
+	Route::any('/customer/tickets/ajax_datagrid/{type}', "TicketsCustomerController@ajax_datagrid");
+	Route::post('/customer/tickets/upload_file', 'TicketsCustomerController@uploadFile');
+	Route::any('/customer/tickets/delete_attachment_file', 'TicketsCustomerController@deleteUploadFile');
+	Route::any('/customer/tickets/store', "TicketsCustomerController@Store");	
+	Route::post('/customer/tickets/ticket_action', 'TicketsCustomerController@TicketAction');
+	Route::get('/customer/tickets/compose_email', 'TicketsCustomerController@ComposeEmail');	
     //Role
     Route::any('/roles', array("as" => "users", "uses" => "RoleController@index"));
     Route::any('/roles/storerole', "RoleController@storerole");
@@ -119,6 +138,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/dashboard/ajax_get_processed_files', "DashboardController@ajax_get_processed_files");
     Route::any('/dashboard/ajax_get_recent_accounts', "DashboardController@ajax_get_recent_accounts");
     Route::any('/dashboard/ajax_get_missing_accounts', "DashboardController@ajax_get_missing_accounts");
+    Route::any('/dashboard/delete_missing_accounts/{id}', "DashboardController@delete_gateway_missing_account");
 	Route::any('/crmdashboard/ajax_opportunity_grid', 'DashboardController@GetOpportunites');
 	
 	Route::any('/crmdashboard/ajax_task_grid', 'DashboardController@GetUsersTasks');
@@ -303,6 +323,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('email_template/storetemplate', 'EmailTemplateController@storetemplate');
 	Route::any('email_template/ajax_datagrid', 'EmailTemplateController@ajax_datagrid');
 	Route::any('email_template/exports/{type}', 'EmailTemplateController@exports');
+	Route::any('email_template/{id}/changestatus', 'EmailTemplateController@ChangeStatus');
 
 	//Leads
 	//Leads
@@ -335,6 +356,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/contacts/{id}/delete', array('as' => 'contacts_delete', 'uses' => 'ContactsController@destroy'));
 	Route::any('contacts/ajax_datagrid', 'ContactsController@ajax_datagrid');
 	Route::any('contacts/exports/{type}', 'ContactsController@exports');
+	Route::any('contacts/{id}/updatecontactowner', 'ContactsController@UpdateContactOwner');
+	
 	Route::resource('contacts', 'ContactsController');
 
 	//CustomersRates
@@ -457,6 +480,70 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/emailmessages/SendMail','MessagesController@SendMail');
 	Route::any('emailmessages/{id}/compose','MessagesController@Compose');
 	Route::any('/emailmessages/ajax_action','MessagesController@Ajax_Action');
+	
+	//Tickets	
+	Route::any('/ticketgroups', array('as' => 'ticketgroups', 'uses' => 'TicketsGroupController@index'));
+	Route::any('/ticketgroups/add', "TicketsGroupController@add");
+	Route::any('/ticketgroups/store', "TicketsGroupController@Store");
+	Route::any('/ticketgroups/ajax_datagrid_groups', "TicketsGroupController@ajax_datagrid");
+	Route::any('/ticketgroups/ajax_datagrid_groups/{type}', 'TicketsGroupController@ajax_datagrid');
+	Route::any('/ticketgroups/{id}/edit', "TicketsGroupController@Edit");
+	Route::any('/ticketgroups/{id}/update', "TicketsGroupController@Update");
+	Route::any('/ticketgroups/{id}/delete', 'TicketsGroupController@delete');
+	Route::any('/ticketgroups/{id}/send_activation', 'TicketsGroupController@send_activation_single');
+	Route::any('/ticketgroups/{id}/getgroupagents', 'TicketsGroupController@get_group_agents');
+	
+	Route::any('/ticketsfields', "TicketsFieldsController@index");
+	Route::any('/ticketsfields/iframe', "TicketsFieldsController@iframe");
+	Route::any('/ticketsfields/iframe/submit', "TicketsFieldsController@iframeSubmit");
+	Route::any('/ticketsfields/ajax_ticketsfields', "TicketsFieldsController@ajax_ticketsfields");
+	Route::any('/ticketsfields/ajax_ticketsfields_choices', "TicketsFieldsController@Ajax_Ticketsfields_Choices");
+	Route::any('/ticketsfields/save_single_field', "TicketsFieldsController@Save_Single_Field");
+	Route::any('//ticketsfields/update_fields_sorting', "TicketsFieldsController@Update_Fields_Sorting");
+	
+	
+	
+	Route::any('/tickets',"TicketsController@TicketGroupAccess");
+	Route::any('/tickets',"TicketsController@TicketRestrictedAccess");
+	Route::any('/tickets',"TicketsController@TicketsGlobalAccess");
+	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
+	Route::any('/tickets/ajax_datagrid/{type}', "TicketsController@ajax_datagrid");
+	Route::any('/tickets/ajex_result','TicketsController@ajex_result'); 
+	Route::any('/tickets/add', "TicketsController@add");
+	Route::post('/tickets/upload_file', 'TicketsController@uploadFile');
+	Route::any('/tickets/delete_attachment_file', 'TicketsController@deleteUploadFile');
+	Route::any('/tickets/store', "TicketsController@Store");	
+	Route::any('tickets/{id}/edit', array('as' => 'tickets_edit', 'uses' => 'TicketsController@edit'));
+	Route::any('/tickets/{id}/update', "TicketsController@Update");
+	Route::any('/tickets/{id}/updatedetailpage', "TicketsController@UpdateDetailPage");
+	Route::any('/tickets/{id}/delete', "TicketsController@delete");
+	Route::any('/tickets/{id}/detail', "TicketsController@Detail");
+	Route::post('tickets/ticket_action', 'TicketsController@TicketAction');
+	Route::post('tickets/{id}/updateticketattributes', 'TicketsController@UpdateTicketAttributes');
+	Route::post('tickets/{id}/actionsubmit', 'TicketsController@ActionSubmit');
+	Route::get('ticketsconversation/{id}/getattachment/{attachmentID}', 'TicketsController@getConversationAttachment');
+	Route::get('tickets/{id}/getattachment/{attachmentID}', 'TicketsController@GetTicketAttachment');
+	Route::post('tickets/{id}/close_ticket', 'TicketsController@CloseTicket');
+	Route::get('contacts/{id}/show', 'ContactsController@ShowTimeLine');
+	Route::get('tickets/compose_email', 'TicketsController@ComposeEmail');	
+	Route::post('tickets/SendMail', 'TicketsController@SendMail');
+	Route::post('tickets/add_note', 'TicketsController@add_note');
+	
+	
+	Route::any('/contacts/get_note', 'ContactsController@get_note');
+	Route::any('contacts/note/update', 'ContactsController@update_note');
+	Route::any('/contacts/{id}/delete_note', array('as' => 'contacts_delete_note', 'uses' => 'ContactsController@delete_note'));
+	Route::post('/contacts/{id}/GetTimeLineSrollData/{scroll}', 'ContactsController@GetTimeLineSrollData');
+	
+	
+	
+	/*Route::any('users/edit/{id}', array('as' => 'edit_user', 'uses' => 'UsersController@edit'));
+	Route::any('/users/update/{id}', array('as' => 'user_update', 'uses' => 'UsersController@update'));
+	Route::any('/users/exports/{type}', 'UsersController@exports');
+	Route::any('users/ajax_datagrid/{type}', 'UsersController@ajax_datagrid');
+	Route::any('users/edit_profile/{id}', 'UsersController@edit_profile');
+	Route::any('users/update_profile/{id}', 'UsersController@update_profile');
+    Route::any('/users/tracker', 'UsersController@view_tracker');*/
 	
 	//RateGenerator
 	Route::any('/rategenerators', array('as' => 'rategenerator_list', 'uses' => 'RateGeneratorsController@index'));
@@ -714,6 +801,26 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/estimate/estimatelog/{id}', 'EstimatesController@estimatelog');
 	Route::any('/estimate/ajax_estimatelog_datagrid/{id}/{type}', 'EstimatesController@ajax_estimatelog_datagrid');
 	///////////////////////////
+
+    /////////////////
+    //Recurring Item Invoices
+    Route::any('/recurringinvoices', 'RecurringInvoiceController@index');
+    Route::any('/recurringinvoices/create', 'RecurringInvoiceController@create');
+    Route::any('/recurringinvoices/store', 'RecurringInvoiceController@store');
+    Route::any('/recurringinvoices/{id}/edit', 'RecurringInvoiceController@edit');
+    Route::any('/recurringinvoices/delete', 'RecurringInvoiceController@delete');
+    Route::any('/recurringinvoices/{id}/update', 'RecurringInvoiceController@update');
+    Route::any('/recurringinvoices/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_datagrid');
+    Route::any('/recurringinvoices/calculate_total', 'RecurringInvoiceController@calculate_total');
+    Route::any('/recurringinvoices/get_account_info', 'RecurringInvoiceController@getAccountInfo');
+    Route::any('/recurringinvoices/get_billingclassinfo_info', 'RecurringInvoiceController@getBillingClassInfo');
+    Route::any('/recurringinvoices/{id}/log', 'RecurringInvoiceController@recurringinvoicelog');
+    Route::any('/recurringinvoices/{id}/log/{type}', 'RecurringInvoiceController@recurringinvoicelog');
+    Route::any('/recurringinvoices/{id}/log/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_recurringinvoicelog_datagrid');
+    Route::any('/recurringinvoices/startstop/{start_stop}', 'RecurringInvoiceController@startstop');
+    Route::any('/recurringinvoices/sendinvoice', 'RecurringInvoiceController@sendInvoice');
+    Route::any('/recurringinvoices/generate', 'RecurringInvoiceController@generate');
+    ///////////////////////////
 
 	//Invoice
 	Route::any('/invoice', 'InvoicesController@index');
@@ -995,7 +1102,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_class','BillingClassController@index');
 	Route::any('/billing_class/ajax_datagrid','BillingClassController@ajax_datagrid');
 	Route::any('/billing_class/create','BillingClassController@create');
-	Route::any('/billing_class/store','BillingClassController@store');
+	Route::any('/billing_class/store/{type}','BillingClassController@store');
 	Route::any('/billing_class/edit/{id}','BillingClassController@edit');
 	Route::any('/billing_class/update/{id}','BillingClassController@update');
 	Route::any('/billing_class/delete/{id}','BillingClassController@delete');

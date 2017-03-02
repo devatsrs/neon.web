@@ -8,7 +8,7 @@
 <h3>Estimate</h3>
 @include('includes.errors')
 @include('includes.success')
-<p style="text-align: right;"> @if(User::checkCategoryPermission('Invoice','Add')) <a href="{{URL::to("estimate/create")}}" id="add-new-estimate" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Estimate </a> @endif 
+<p style="text-align: right;"> @if(User::checkCategoryPermission('Invoice','Add')) <a href="{{URL::to("estimate/create")}}" id="add-new-estimate" class="btn btn-primary "> <i class="entypo-plus"></i> Add New</a> @endif
   <!-- <a href="javascript:;" id="bulk-estimate" class="btn upload btn-primary ">
         <i class="entypo-upload"></i>
         Bulk Estimate Generate.
@@ -143,7 +143,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/estimate/ajax_datagrid/type",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[3, 'desc']],
@@ -234,7 +234,7 @@ var postdata;
 
                           /*Multiple Dropdown*/              			
                             action += '<div class="btn-group">';
-                            action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
+                            action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                             action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
                                 if('{{User::checkCategoryPermission('Invoice','Edit')}}')
@@ -249,16 +249,16 @@ var postdata;
 							
                             if (estimate_preview)
 							{                                
-                                action += '<li><a class="icon-left"  target="_blank" href="' + estimate_preview +'"><i class="entypo-pencil"></i>View </a></li>';
+                                action += '<li><a class="icon-left"  target="_blank" href="' + estimate_preview +'"> <i class="fa fa-eye"></i> View </a></li>';
                             }
 
-                            action += ' <li><a class="icon-left"  href="' + (baseurl + "/estimate/estimatelog/{id}").replace("{id}",full[5]) +'"><i class="entypo-pencil"></i>Log </a></li>';
+                            action += ' <li><a class="icon-left"  href="' + (baseurl + "/estimate/estimatelog/{id}").replace("{id}",full[5]) +'"><i class="entypo-list"></i>Log </a></li>';
 
 							if ('{{User::checkCategoryPermission('Invoice','Edit')}}' && delete_url)
 							{     
 								//if(full[4] != 'accepted')
 								{                           
-                                	action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-cancel"></i>Delete</a></li>';				}
+                                	action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-trash"></i>Delete</a></li>';				}
                             }
                             
 							//if(full[11]== 'N')
@@ -409,7 +409,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/estimate/ajax_datagrid/type",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[3, 'desc']],},
@@ -708,6 +708,10 @@ var postdata;
             showAjaxModal( send_url ,'send-modal-estimate');
             $('#send-modal-estimate').modal('show');
         });
+		
+		$('#send-modal-estimate').on('shown.bs.modal', function (event) {
+				//setTimeout(function(){ console.log('select2');  $("#send-modal-estimate").find(".select22").select2();  }, 700);
+			});
 
         $("#send-estimate-form").submit(function(e){
             e.preventDefault();
@@ -832,9 +836,9 @@ var postdata;
   </div>
 </div>
 <div class="modal fade in" id="send-modal-estimate">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <form id="send-estimate-form" method="post" class="form-horizontal form-groups-bordered">
+      <form id="send-estimate-form" method="post" >
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">Send Estimate By Email</h4>

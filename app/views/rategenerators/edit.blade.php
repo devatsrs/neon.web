@@ -115,7 +115,9 @@
                             unset($array_op['disabled']);
                         }
                         ?>
-                                {{ Form::select('CurrencyID', $currencylist,  $rategenerators->CurrencyID, array_merge( array("class"=>"select2"),$array_op)) }}
+
+                                <!--{ Form::select('CurrencyID', $currencylist,  $rategenerators->CurrencyID, array_merge( array("class"=>"select2"),$array_op)) }}-->
+                            {{Form::SelectControl('currency',0,$rategenerators->CurrencyID,($rategenerators->CurrencyID==''?0:1))}}
                             @if(isset($array_op['disabled']) && $array_op['disabled'] == 'disabled')
                                 <input type="hidden" name="CurrencyID" readonly  value="{{$rategenerators->CurrencyID}}">
                             @endif
@@ -200,14 +202,12 @@
 
                                         </td>
                                         <td>
-                                            <a href="{{URL::to('/rategenerators/rules/'.$id. '/edit/' . $rategenerator_rule->RateRuleId )}}" id="add-new-margin" class="update btn btn-primary btn-sm btn-icon icon-left">
-                                                <i class="entypo-floppy"></i>
-                                                Edit
+                                            <a href="{{URL::to('/rategenerators/rules/'.$id. '/edit/' . $rategenerator_rule->RateRuleId )}}" id="add-new-margin" class="update btn btn-primary btn-sm">
+                                                <i class="entypo-pencil"></i>
                                             </a>
 
-                                            <a href="{{URL::to('/rategenerators/rules/'.$id.'/delete/'. $rategenerator_rule->RateRuleId)}}" class="btn delete btn-danger btn-sm btn-icon icon-left">
-                                                <i class="entypo-cancel"></i>
-                                                Delete
+                                            <a href="{{URL::to('/rategenerators/rules/'.$id.'/delete/'. $rategenerator_rule->RateRuleId)}}" class="btn delete btn-danger btn-sm">
+                                                <i class="entypo-trash"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -265,8 +265,12 @@
                         e.preventDefault();
                         $('#update-rate-generator-form').trigger("reset");
                         $('#modal-update-rate').modal('show', {backdrop: 'static'});
+                        $('.radio-replace').removeClass('checked');
+                        $('#defaultradiorate').addClass('checked');
                         $('#RateTableIDid').hide();
                         $('#RateTableNameid').show();
+                        $('#RateTableReplaceRate').hide();
+                        $('#RateTableEffectiveRate').show();
                         $('#modal-update-rate h4').html('Generate Rate Table');
                         update_rate_table_url = $(this).attr("href");
 
@@ -303,7 +307,13 @@
             * Submit and Generate Joblog
             * */
             update_rate_table_url = $(this).attr("href");
+
+            $('.radio-replace').removeClass('checked');
+            $('#defaultradiorate').addClass('checked');
+
             $('#RateTableIDid').show();
+            $('#RateTableReplaceRate').show();
+            $('#RateTableEffectiveRate').show();
             $('#RateTableNameid').hide();
             $('#modal-update-rate h4').html('Update Rate Table');
         });
@@ -489,7 +499,7 @@
 
 @include('includes.errors')
 @include('includes.success')
-
+@include('currencies.currencymodal')
 @stop
 @section('footer_ext') @parent
 @include('rategenerators.rategenerator_models')

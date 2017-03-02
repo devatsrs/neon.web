@@ -200,21 +200,16 @@ $(document).ready(function(){
         row.remove();  
 		calculate_total();
     });
-	
-	
-	
-
 
     $('#add-row').on('click', function(e){
         e.preventDefault();
-        $('#InvoiceTable > tbody').append(add_row_html);
-
-        /*$('select.selectboxit').addClass('visible');
-        $('select.selectboxit').selectBoxIt();*/
-
-        $('select.select2').addClass('visible');
-        $('select.select2').select2();		
-		//$('.autogrow').trigger('autosize.resize');
+        var itemrow = $('#rowContainer .itemrow').clone();
+        itemrow.removeAttr('class');
+        itemrow.find('select.select22').each(function(i,item){
+            buildselect2(item);
+        });
+        $('#InvoiceTable > tbody').append(itemrow);
+        nicescroll();
 		$("textarea.autogrow").autosize();
     });
 

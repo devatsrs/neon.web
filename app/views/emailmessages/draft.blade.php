@@ -11,7 +11,7 @@
 <div class="mail-env"> 
   
   <!-- compose new email button -->
-  <div class="mail-sidebar-row visible-xs"> <a href="#" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
+  <div class="mail-sidebar-row visible-xs"> <a href="#" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i>&nbsp;</a> </div>
   <!-- Sidebar -->
   @include("emailmessages.mail_sidebar")   
   <!-- Mail Body -->
@@ -45,7 +45,7 @@
              <div class="hidden mail-select-options">Mark to Delete</div>
               <div class="mail-pagination" colspan="2">
                
-              <a  action_type="Delete" action_value="1" data-toggle="tooltip" data-placement="top"  data-original-title="Delete" class="btn btn-default mailaction tooltip-primary"> <i class="glyphicon glyphicon-trash"></i> </a>
+              <a  action_type="Delete" action_value="1" data-toggle="tooltip" data-placement="top"  data-original-title="Delete" class="btn btn-default mailaction tooltip-primary"> <i class="fa fa-trash"></i> </a>
               <strong>
                 <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
                 -

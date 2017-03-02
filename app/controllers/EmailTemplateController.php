@@ -5,10 +5,19 @@ class EmailTemplateController extends \BaseController {
     public function ajax_datagrid() {
 
         $companyID = User::get_companyID();
-        $data = Input::all();
-        $select = ["TemplateName","Subject","Type","CreatedBy","updated_at","TemplateID"];
+        $data = Input::all(); 
+        //$select = ["TemplateName","Subject","Type","CreatedBy","updated_at","Status","TemplateID","StaticType"];
+		$select = ["TemplateName","Subject","CreatedBy","updated_at","Status","TemplateID","StaticType","Type","StatusDisabled"];
         $template = EmailTemplate::select($select);
         $template->where(["CompanyID" => $companyID]);
+		
+		
+		if(isset($data['search']) && !empty($data['search'])){
+			$template->Where(function ($template) use ($data) {
+                $template->orWhere('TemplateName','like','%'.$data['search'].'%')
+                      ->orWhere('Subject','like','%'.$data['search'].'%');
+            });		
+        }
 
         if(isset($data['type'])&& $data['type']>0){
             $template->Where(['Type'=>$data['type']]);
@@ -17,7 +26,15 @@ class EmailTemplateController extends \BaseController {
             $template->Where('userID','=',user::get_userID());
         }else{
             $template->whereNull('userID');
-        }
+        } 
+		if($data['Status']!='false'){ 
+			$template->Where('Status',1);
+		}else{ 
+			$template->Where('Status',0);
+		}
+		if(isset($data['system_templates']) && $data['system_templates']!='false'){
+			$template->Where('StaticType',1);
+		}
         /*if(trim($data['TemplateName']) != '') {
             $template->where('TemplateName', 'like','%'.trim($data['TemplateName']).'%');
         }*/
@@ -30,9 +47,12 @@ class EmailTemplateController extends \BaseController {
      * @return Response
      */
     public function index() {
-        $privacy = EmailTemplate::$privacy;
-        $type = EmailTemplate::$Type;
-        return View::make('emailtemplate.index',compact('privacy','type'));
+        $privacy 		= 	EmailTemplate::$privacy;
+        $type 			= 	EmailTemplate::$Type;
+		$TemplateType 	=   json_encode(EmailTemplate::$TemplateType);
+		$emailfrom	 	=	TicketGroups::GetGroupsFrom();
+		$email_from		=	array_merge(array(""=>"Select"),$emailfrom);
+        return View::make('emailtemplate.index',compact('privacy','type',"TemplateType","email_from"));
     }
 
 
@@ -44,7 +64,7 @@ class EmailTemplateController extends \BaseController {
      */
     public function store() {
 
-        $data = Input::all();
+        $data = Input::all(); 
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['CreatedBy'] = User::get_user_full_name();
@@ -64,7 +84,9 @@ class EmailTemplateController extends \BaseController {
 		{
 			$data['userID'] = NULL;
 		}
+		$data['Status'] = isset($data['Status'])?1:0;
         unset($data['Email_template_privacy']);
+		unset($data['email_from']);		
         if ($obj = EmailTemplate::create($data)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Created","newcreated"=>$obj));
         } else {
@@ -92,9 +114,13 @@ class EmailTemplateController extends \BaseController {
         $instance['Subject'] = $template->Subject;
         $instance['TemplateBody'] = $template->TemplateBody;
         $instance['Type'] = $template->Type;
-        if($template->userID==User::get_userID()){
+		$instance['StaticType'] = $template->StaticType;
+		$instance['Status'] = $template->Status;
+		$instance['email_from'] = $template->EmailFrom;
+		$instance['StatusDisabled'] = $template->StatusDisabled;
+		if($template->userID==User::get_userID()){
             $instance['Privacy'] = 1;
-        }
+        } 
         return $instance;
     }
 
@@ -106,16 +132,25 @@ class EmailTemplateController extends \BaseController {
      * @return Response
      */
     public function update($id) {
-        $data = Input::all(); 
+        $data = Input::all();   
         $crmteplate = EmailTemplate::findOrfail($id);
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['ModifiedBy'] = User::get_user_full_name();
-        $rules = [
+       if($crmteplate->StaticType ==1){
+		$rules = [
+            "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,$id,TemplateID,CompanyID,".$companyID,
+            "Subject" => "required",
+            "TemplateBody"=>"required",
+			"email_from"=>"required"
+        ];
+		}else{
+	    $rules = [
             "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,$id,TemplateID,CompanyID,".$companyID,
             "Subject" => "required",
             "TemplateBody"=>"required"
         ];
+	   }
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
@@ -129,7 +164,10 @@ class EmailTemplateController extends \BaseController {
 		{
 			$data['userID'] = NULL;
 		} 
-        unset($data['Email_template_privacy']); 
+    	 $data['EmailFrom'] =  isset($data['email_from'])?$data['email_from']:"";
+		 unset($data['email_from']);
+		 unset($data['Email_template_privacy']); 
+		$data['Status'] = isset($data['Status'])?1:0;
         if ($crmteplate->update($data)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Updated"));
         } else {
@@ -167,13 +205,30 @@ class EmailTemplateController extends \BaseController {
         $template = EmailTemplate::select($select)->where(["CompanyID" => $companyID])->get();
         $excel_data = json_decode(json_encode($template),true);
         if($type=='csv'){
-            $file_path = getenv('UPLOAD_PATH') .'/Templates.csv';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Templates.csv';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_csv($excel_data);
         }elseif($type=='xlsx'){
-            $file_path = getenv('UPLOAD_PATH') .'/Templates.xls';
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Templates.xls';
             $NeonExcel = new NeonExcelIO($file_path);
             $NeonExcel->download_excel($excel_data);
         }
     }
+	
+	function ChangeStatus($id){
+        $data 		= Input::all();
+		try
+		{
+			$status 	= $data['status'];
+			$statusdb 	= 0;
+			if($status=='true'){
+				$statusdb = 1;
+			}
+			 
+			EmailTemplate::find($id)->update(array("Status"=>$statusdb));
+			return Response::json(array("status" => "success", "message" => "Template status successfully updated"));
+		}catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => "template is in Use, You cant delete this template."));
+        }
+	}
 }

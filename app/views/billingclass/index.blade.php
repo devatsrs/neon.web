@@ -14,7 +14,7 @@
     @include('includes.success')
     @if(User::checkCategoryPermission('BillingClass','Edit'))
     <p style="text-align: right;">
-        <a  id="add-button" href="{{URL::to('billing_class/create')}}" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Billing Class</a>
+        <a  id="add-button" href="{{URL::to('billing_class/create')}}" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
     </p>
     @endif
     <div id="table_filter" method="get" action="#" >
@@ -78,7 +78,7 @@
                     "bProcessing":true,
                     "bServerSide": true,
                     "sAjaxSource": datagrid_url,
-                    "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                    "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting": [[0, 'asc']],
@@ -106,10 +106,10 @@
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                 }
                                 action += '</div>';
-                                action += ' <a href="' + edit_url.replace("{id}",id) +'" class="edit-button btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
+                                action += ' <a href="' + edit_url.replace("{id}",id) +'" title="Edit" class="edit-button btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                                 @if(User::checkCategoryPermission('BillingClass','Delete'))
                                 if(full[4]== 0) {
-                                    action += ' <a href="' + delete_url.replace("{id}", id) + '" class="delete-button btn btn-danger btn-sm btn-icon icon-left"><i class="fa fa-trash"></i>Delete </a>'
+                                    action += ' <a href="' + delete_url.replace("{id}", id) + '" title="Delete" class="delete-button btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                 }
                                 @endif
                                 return action;

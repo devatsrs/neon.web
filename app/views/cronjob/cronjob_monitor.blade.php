@@ -21,7 +21,7 @@
         @if( User::checkCategoryPermission('CronJob','Add') )
             <a href="#" id="add-new-config" class="btn btn-primary ">
                 <i class="entypo-plus"></i>
-                Add Cron Job
+                Add New
             </a>
         @endif
     </p>
@@ -131,7 +131,7 @@
                 "bServerSide":true,
                 "bPaginate": true,
                 "sAjaxSource": baseurl + "/cronjobs/activecronjob_ajax_datagrid",
-                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left  'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "fnServerParams": function(aoData) {
@@ -219,7 +219,7 @@
                                     <?php } ?>
 
                                     <?php if(User::checkCategoryPermission('CronJob','Delete')){ ?>
-                                            action += '&nbsp;<button data-id="' + CronJobID + '" class="delete-config btn delete btn-danger btn-sm" title="Delete" data-placement="top" data-toggle="tooltip"><i class="entypo-cancel"></i></button>';
+                                            action += '&nbsp;<button data-id="' + CronJobID + '" class="delete-config btn delete btn-danger btn-sm" title="Delete" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></button>';
                                     <?php } ?>
 
 

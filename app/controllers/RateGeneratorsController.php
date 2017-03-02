@@ -4,11 +4,14 @@ class RateGeneratorsController extends \BaseController {
 
     public function ajax_datagrid() {
         $companyID = User::get_companyID();
-        $data = Input::all();
+        $data = Input::all(); 
         $where = ["tblRateGenerator.CompanyID" => $companyID];
         if($data['Active']!=''){
             $where['tblRateGenerator.Status'] = $data['Active'];
         }
+		
+		
+		
         $RateGenerators = RateGenerator::
         join("tblTrunk","tblTrunk.TrunkID","=","tblRateGenerator.TrunkID")
         ->leftjoin("tblCurrency","tblCurrency.CurrencyId","=","tblRateGenerator.CurrencyId")
@@ -543,7 +546,18 @@ class RateGeneratorsController extends \BaseController {
                 $RateGeneratorId = $id;
                 $data = compact("RateGeneratorId");
                 $data["EffectiveDate"] = Input::get('EffectiveDate');
+                $checkbox_replace_all = Input::get('checkbox_replace_all');
+                $data['EffectiveRate'] = Input::get('EffectiveRate');
+                if(empty($data['EffectiveRate'])){
+                    $data['EffectiveRate']='now';
+                }
+                if(!empty($checkbox_replace_all) && $checkbox_replace_all == 1){
+                    $data['replace_rate'] = 1;
+                }else{
+                    $data['replace_rate'] = 0;
+                }
                 $data ['CompanyID'] = User::get_companyID();
+
                 if($action == 'create'){
                     $RateTableName = Input::get('RateTableName');
                     $data["rate_table_name"] = $RateTableName;
@@ -623,11 +637,11 @@ class RateGeneratorsController extends \BaseController {
                 ));
             $excel_data = json_decode(json_encode($RateGenerators),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Rate Generator.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Rate Generator.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Rate Generator.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Rate Generator.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

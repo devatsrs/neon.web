@@ -30,11 +30,11 @@ class CustomersRatesController extends \BaseController {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Customer Rates.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Customer Rates.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -120,6 +120,18 @@ class CustomersRatesController extends \BaseController {
         $post_data = Input::all();
         if (!empty($post_data)) {
 
+            //Check duplicate Prefix
+            $prefix_array  = array();
+            foreach ($post_data['CustomerTrunk'] as $trunk => $data) {
+                if(!empty($data['Prefix'])) {
+                    if (isset($data['Status']) && $data['Status'] == 1 && in_array($data['Prefix'], $prefix_array)) {
+                        return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " Found.");
+                    } else {
+                        $prefix_array[] = $data['Prefix'];
+                    }
+                }
+            }
+
             $companyID = User::get_companyID();
             foreach ($post_data['CustomerTrunk'] as $trunk => $data) {
 
@@ -139,10 +151,10 @@ class CustomersRatesController extends \BaseController {
                     //$data['Status'] = $data['Status'];
                     $data['CreatedBy'] = User::get_user_full_name();
                     $data['ModifiedBy'] = !empty($data['CustomerTrunkID']) ? User::get_user_full_name() : '';
-
+                    $TrunkName = Trunk::where(["TrunkID"=>$trunk])->pluck("Trunk");
                     if (!empty($data['CustomerTrunkID']) && trim($data['Prefix']) == '') {
                         // On Update Validate Prefix
-                        return Redirect::back()->with('error_message', "Please Add Prefix for " . $trunk . " Trunk");
+                        return Redirect::back()->with('error_message', "Please Add Prefix for " . $TrunkName . " Trunk");
                         //return Response::json(array("status" => "failed", "message" => "Please Add Prefix for " . $trunk . " Trunk"));
                     } else if (empty($data['CustomerTrunkID']) && $data['Prefix'] == '') {
                         $data['Prefix'] = $LastPrefixNo = LastPrefixNo::getLastPrefix();
@@ -156,11 +168,11 @@ class CustomersRatesController extends \BaseController {
                     }*/
 
                     //check if duplicate
-                    if (CustomerTrunk::isPrefixExists($data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
+                    /*if (CustomerTrunk::isPrefixExists($id,$data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
 
-                        return Redirect::back()->with('error_message', "duplicate Prefix " . $data['Prefix'] . " for " . $trunk . " Trunk");
+                        return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " for " . $TrunkName . " Trunk");
                         //return  Response::json(array("status" => "failed", "message" => "duplicate Prefix ".$data['Prefix']." for " . $trunk ." Trunk" ));
-                    }
+                    }*/
 
                     $rules = array("CodeDeckId"=>"required","AccountID" => "required", "CompanyID" => "required", "TrunkID" => "required", "IncludePrefix" => "required", "Status" => "required",);
 
@@ -190,7 +202,7 @@ class CustomersRatesController extends \BaseController {
                                 LastPrefixNo::updateLastPrefixNo($LastPrefixNo);
                             }
                         } else {
-                            return Redirect::back()->with('error_message', "Problem Creating Customer Trunk for " . $trunk . " Trunk");
+                            return Redirect::back()->with('error_message', "Problem Creating Customer Trunk for " . $TrunkName . " Trunk");
                             ///return  Response::json(array("status" => "failed", "message" => "Problem Creating Customer Trunk for " . $trunk ." Trunk" )); // For Ajax
                         }
                     }
@@ -217,7 +229,8 @@ class CustomersRatesController extends \BaseController {
             $trunks = CustomerTrunk::getCustomerTrunk($id); //$this->trunks;
             $rate_sheet_formates = $this->rate_sheet_formates;
             $account_owners = User::getOwnerUsersbyRole();
-            $emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::RATESHEET_TEMPLATE));
+            //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::RATESHEET_TEMPLATE));
+			$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
             $accounts = Account::getAccountIDList();
             $templateoption = [''=>'Select',1=>'New Create',2=>'Update'];
             $downloadtype = [''=>'Select','xlsx'=>'EXCEL','csv'=>'CSV'];
@@ -226,8 +239,8 @@ class CustomersRatesController extends \BaseController {
             if(count($trunks) == 0){
                 return  Redirect::to('customers_rates/settings/'.$id)->with('info_message', 'Please enable trunks against customer to setup rates');
             }
-
-            return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype'));
+			$bulk_type = 'customers_rates';	
+            return View::make('customersrates.download', compact('id', 'trunks', 'rate_sheet_formates','Account','account_owners','emailTemplates','templateoption','privacy','type','accounts','downloadtype','bulk_type'));
     }
 
     public function process_download($id) {
@@ -482,11 +495,11 @@ class CustomersRatesController extends \BaseController {
 
             $excel_data = json_decode(json_encode($RateSheetHistory),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates History.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Customer Rates History.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Customer Rates History.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Customer Rates History.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

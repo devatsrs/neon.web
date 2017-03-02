@@ -9,7 +9,7 @@
 @include('includes.success')
 <div class="mail-env"> 
   <!-- compose new email button -->
-  <div class="mail-sidebar-row visible-xs"> <a href="mailbox-compose.html" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i> </a> </div>
+  <div class="mail-sidebar-row visible-xs"> <a href="mailbox-compose.html" class="btn btn-success btn-icon btn-block"> Compose Mail <i class="entypo-pencil"></i>&nbsp;</a> </div>
   
   <!-- Mail Body -->
   <div class="mail-body">
@@ -145,7 +145,7 @@ $(document).ready(function(e) {
 		return false;		
     });		
 	$('.wysihtml5box').wysihtml5({
-						"font-styles": true,
+					"font-styles": true,
 						"leadoptions":false,
 						"Crm":false,
 						"emphasis": true,

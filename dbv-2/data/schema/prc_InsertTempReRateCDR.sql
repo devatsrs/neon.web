@@ -44,7 +44,8 @@ BEGIN
 		ProcessID,
 		ID,
 		is_inbound,
-		billed_second
+		billed_second,
+		disposition
 	)
 
 	SELECT
@@ -69,7 +70,8 @@ BEGIN
 		"',p_ProcessID,'",
 		ID,
 		is_inbound,
-		billed_second
+		billed_second,
+		disposition
 	FROM NeonCDRDev.tblUsageDetails  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID

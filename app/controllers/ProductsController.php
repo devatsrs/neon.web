@@ -22,11 +22,11 @@ class ProductsController extends \BaseController {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Item.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Item.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Item.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Item.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -69,10 +69,10 @@ class ProductsController extends \BaseController {
             return $error;
         }
         $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
-        if (Product::create($data)) {
-            return Response::json(array("status" => "success", "message" => "Payment Successfully Created"));
+        if ($product = Product::create($data)) {
+            return Response::json(array("status" => "success", "message" => "Product Successfully Created",'newcreated'=>$product));
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Creating Payment."));
+            return Response::json(array("status" => "failed", "message" => "Problem Creating Product."));
         }
     }
 

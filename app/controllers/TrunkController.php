@@ -54,7 +54,7 @@ class TrunkController extends BaseController {
             }
             if($trunk = Trunk::create($data)){
                 Cache::forget("trunks_defaults");
-                return  Response::json(array("status" => "success", "message" => "Trunk Successfully Created",'LastID'=>$trunk->TrunkID));
+                return  Response::json(array("status" => "success", "message" => "Trunk Successfully Created",'LastID'=>$trunk->TrunkID,'newcreated'=>$trunk));
             } else {
                 return  Response::json(array("status" => "failed", "message" => "Problem Creating Trunk."));
             }
@@ -110,11 +110,11 @@ class TrunkController extends BaseController {
             }
             $trunks = json_decode(json_encode($trunks),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Trunks.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Trunks.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($trunks);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Trunks.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Trunks.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($trunks);
             }

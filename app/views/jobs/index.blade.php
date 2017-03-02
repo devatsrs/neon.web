@@ -91,7 +91,7 @@
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": baseurl + "/jobs/ajax_datagrid",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             //"sDom": 'T<"clear">lfrtip',
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sPaginationType": "bootstrap",
@@ -113,17 +113,17 @@
                             mRender: function(id, type, full) {
                                 var action, edit_, show_;
 
-                                action = '<a  onclick=" return showJobAjaxModal(' + id + ');" href="javascript:;"   class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                                action = '<a  onclick=" return showJobAjaxModal(' + id + ');" href="javascript:;" title="View"   class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
 
                                 Status = full[2].toLowerCase();
 
                                 if(Status == 'in progress'){
 
-                                    action += ' <button data-id="'+ id +'" class="job_terminate btn btn-red btn-sm btn-icon icon-left" type="button" data-loading-text="Loading..."><i class="entypo-stop"></i> Terminate</button>';
+                                    action += ' <button data-id="'+ id +'" title="Stop" class="job_terminate btn btn-red btn-sm" type="button" data-loading-text="Loading..."><i class="entypo-stop"></i></button>';
 
                                 }else  if( Status == 'failed' ){
 
-                                    action += ' <button data-id="'+ id +'" class="job_restart btn btn-primary btn-sm btn-icon icon-left" type="button" data-loading-text="Loading..."><i class="glyphicon glyphicon-repeat"></i> Restart</button>';
+                                    action += ' <button data-id="'+ id +'" title="Start" class="job_restart btn btn-primary btn-sm" type="button" data-loading-text="Loading..."><i class="glyphicon glyphicon-repeat"></i></button>';
                                 } else  if( Status == 'pending' ){
 
                                     action += ' <button data-id="'+ id +'" class="job_cancel btn btn-primary btn-sm btn-icon icon-left" type="button" data-loading-text="Loading..."><i class="glyphicon glyphicon-repeat"></i> Cancel</button>';

@@ -8,7 +8,7 @@
 <h3>Themes</h3>
 @include('includes.errors')
 @include('includes.success')
-<p style="text-align: right;"> @if(User::checkCategoryPermission('themes','Add')) <a href="{{URL::to("themes/create")}}" id="add-new-themes" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Theme </a> @endif
+<p style="text-align: right;"> @if(User::checkCategoryPermission('themes','Add')) <a href="{{URL::to("themes/create")}}" id="add-new-themes" class="btn btn-primary "> <i class="entypo-plus"></i> Add New</a> @endif
 
 </p>
 <div class="row">
@@ -78,7 +78,7 @@ var update_new_url;
 var postdata;
     jQuery(document).ready(function ($) {
 		var themestatus 					=	{{$themes_status_json}};
-		var temp_path						=	"{{getenv('TEMP_PATH')}}";
+		var temp_path						=	"{{CompanyConfiguration::get('TEMP_PATH')}}";
         public_vars.$body 					= 	$("body");
 		var base_url_theme 					= 	"{{ URL::to('themes')}}";
 		var delete_url_bulk 				= 	"{{ URL::to('themes/themes_delete_bulk')}}";
@@ -97,7 +97,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/themes/ajax_datagrid",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[1, 'desc']],
@@ -190,7 +190,7 @@ var postdata;
 
                           /*Multiple Dropdown*/              			
                             action += '<div class="btn-group">';
-                            action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
+                            action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                             action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
                                 if('{{User::checkCategoryPermission('themes','Edit')}}')
@@ -206,7 +206,7 @@ var postdata;
                            
 							if ('{{User::checkCategoryPermission('themes','Edit')}}' && delete_url)
 							{
-								action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-cancel"></i>Delete</a></li>';				
+								action += '<li><a class="icon-left delete_link"  target="_blank" href="' + delete_url +'"><i class="entypo-trash"></i>Delete</li>';
                             }
                             
 							

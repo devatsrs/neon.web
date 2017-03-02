@@ -95,7 +95,7 @@
                   @if($leadOrAccountCheck=='account' && User::checkCategoryPermission('CreditControl','View'))
                     <a  href="{{Url::to('account/get_credit/'.$account->AccountID)}}"  data-id="{{$account->AccountID}}"  title="Credit Control" class="btn btn-default btn-xs redirect_link" > <i class="fa fa-credit-card"></i> </a>
                   @endif
-                  <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit Account" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
+                  <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
                   @if($leadOrAccountCheck=='account')
                   @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED)
                      <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}"><i class="entypo-user"></i></a>
@@ -139,7 +139,7 @@
                       <div class="meta">Email: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Email']}}</a></div>
                     </div>
                     <div class="cellNo cellNoSmall">
-                      <div class="meta">Phone: <a href="tel:{{$Account_card->Phone}}">{{$contacts_row['Phone']}}</a></div>
+                      <div class="meta">Phone: <a href="tel:{{$contacts_row['Phone']}}">{{$contacts_row['Phone']}}</a></div>
                     </div>
                     <div class="cellNo cellNoSmall">
                       <div class="meta">Fax:{{$contacts_row['Fax']}}</div>
@@ -148,7 +148,7 @@
                       <div class="meta">Skype: <a class="sendemail" href="javascript:void(0)">{{$contacts_row['Skype']}}</a></div>
                     </div>
                   </div>
-                  <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/edit')}}"><i class="entypo-pencil"></i> </a>&nbsp;<a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/show')}}"><i class="entypo-search"></i> </a> </div>
+                  <div class="col-sm-11 padding-0 action"> <a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/edit')}}"><i class="entypo-pencil"></i>&nbsp;</a>&nbsp;<a class="btn-default btn-sm label padding-3" href="{{ URL::to('contacts/'.$contacts_row['ContactID'].'/show')}}"><i class="entypo-search"></i> </a> </div>
                 </div>
               </li>
               @endforeach
@@ -187,6 +187,21 @@
           <div class="col-md-12">
             <div class="mail-compose">
               <form method="post" id="email-from" role="form" enctype="multipart/form-data">
+              <div class="form-Group" >                  
+                  <div class=" @if($SystemTickets) col-md-10 pull-left @else col-md-12 @endif" style="padding-left:0px; @if(!$SystemTickets) padding-right:0px; @endif" >
+                  <label >From</label>
+                  {{Form::select('email-from',$FromEmails,'',array("class"=>"select2"))}}
+                  </div>
+                  @if($SystemTickets)
+                  <div class="col-md-2 pull-right">
+                   <label class="control-label" >Open ticket</label>
+                    <p class="make-switch switch-small">
+                      <input name="createticket" type="checkbox" value="1" >
+                    </p>
+                  </div>
+                  @endif
+                  </div>
+                  <div class="clearfix" style="margin-bottom: 15px;"></div>
                 <div class="form-group">
                   <label for="to">To *</label>
                   <!--{{ Form::select('email-to', USer::getUserIDList(), '', array("class"=>"select2","id"=>"email-to","tabindex"=>"1")) }}-->
@@ -203,7 +218,8 @@
                 </div>
                 <div class="form-Group" style="margin-bottom: 15px;">
                   <label >Email Template</label>
-                  {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"mail-compose"))}} </div>
+                  {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"mail-compose"))}}
+                 </div>                  
                 <div class="form-group">
                   <label for="subject">Subject *</label>
                   <input type="text" class="form-control" id="subject" name="Subject" tabindex="4" />
@@ -220,7 +236,7 @@
                   
                   <input id="emailattachment_sent" type="hidden" name="emailattachment_sent" class="form-control file2 inline btn btn-primary btn-sm btn-icon icon-left hidden"   />
                   <input id="info2" type="hidden" name="attachmentsinfo" />
-                  <span class="file-input-names"></span> </div>
+                  <span class="file-input-names"></span> </div>                
                 <div class="form-group end-buttons-timeline">
                   <button name="mail_submit" value="save_mail" id="save-mail" class="pull-right save btn btn-primary btn-sm btn-icon btn-send-mail icon-left hidden-print" type="submit" data-loading-text="Loading..."><i class="entypo-mail"></i>Send</button>
                   @if(count($boards)>0)
@@ -397,7 +413,7 @@
 					}
 					else
 					{
-						$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
+						$Attachmenturl = CompanyConfiguration::get('UPLOAD_PATH')."/".$attachments_data['filepath'];
 					}
                     $Attachmenturl = URL::to('emails/'.$rows['AccountEmailLogID'].'/getattachment/'.$key_acttachment);
 					if($key_acttachment==(count($attachments)-1)){
@@ -430,8 +446,8 @@
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-info"> <i class="entypo-tag"></i> </div>
             <div class="cbp_tmlabel @if(!$rows['followup_task']) normal_tag @endif "> 
-            <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i></a>
-             <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="fa fa-trash-o"></i></a>             
+            <a id="edit_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_task_link"><i class="entypo-pencil"></i>&nbsp;</a>
+             <a id="delete_task_{{$rows['TaskID']}}" task-id="{{$rows['TaskID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_task_link"><i class="entypo-trash"></i></a>             
               <h2 class="toggle_open" id_toggle="{{$key}}"> @if($rows['TaskPriority']=='High') <i class="edit-deal entypo-record" style="color:#cc2424;font-size:15px;"></i> @endif
                 
                 @if($rows['CreatedBy']==$current_user_title && $rows['TaskName']==$current_user_title)<span>You created a @if($rows['followup_task']) follow up @endif task</span> @elseif ($rows['CreatedBy']==$current_user_title && $rows['TaskName']!=$current_user_title)<span>You assigned @if($rows['followup_task']) follow up @endif task to {{$rows['TaskName']}} </span> @elseif ($rows['CreatedBy']!=$current_user_title && $rows['TaskName']==$current_user_title)<span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  You </span> @else <span> {{$rows['CreatedBy']}} assigned @if($rows['followup_task']) follow up @endif task to  {{$rows['TaskName']}} </span> @endif </h2>
@@ -459,12 +475,17 @@
               <?php } ?>
             </time>
             <div id_toggle="{{$key}}" class="cbp_tmicon bg-success"><i class="entypo-doc-text"></i></div>
-            <div class="cbp_tmlabel normal_tag"> <a id="edit_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a> <a id="delete_note_{{$rows['NoteID']}}" note-id="{{$rows['NoteID']}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="fa fa-trash-o"></i></a>
+            <?php
+				 $note_type 	= isset($rows['NoteID'])?'NoteID':'ContactNote'; 
+				 $noteID		= isset($rows['NoteID'])?$rows['NoteID']:$rows['ContactNoteID'];
+			?>
+            <div class="cbp_tmlabel normal_tag"> <a id="edit_note_{{$noteID}}" note_type="{{$note_type}}" note-id="{{$noteID}}"  key_id="{{$key}}" class="pull-right edit-deal edit_note_link"><i class="entypo-pencil"></i></a> <a id="delete_note_{{$noteID}}" note_type="{{$note_type}}" note-id="{{$noteID}}"  key_id="{{$key}}" class="pull-right edit-deal delete_note_link"><i class="entypo-trash"></i></a>
               <h2 class="toggle_open" id_toggle="{{$key}}">@if($rows['CreatedBy']==$current_user_title) You @else {{$rows['CreatedBy']}}  @endif <span>added a note</span></h2>
               <div id="hidden-timeline-{{$key}}" class="details no-display">
                 <p>{{$rows['Note']}}</p>
               </div>
             </div>
+            
           </li>          
            @elseif(isset($rows['Timeline_type']) && $rows['Timeline_type']==Task::Ticket)
           <li id="timeline-{{$key}}" class="count-li timeline_ticket_entry">

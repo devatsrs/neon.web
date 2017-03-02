@@ -221,7 +221,7 @@
                             {"name": "taskClosed","value": $searchFilter.taskClosed}
                     );
                 },
-                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[1, 'desc']],
@@ -265,7 +265,7 @@
                             }
                             action += '</div>';
                             @if(User::checkCategoryPermission('Task','Edit'))
-                            action += ' <a data-id="' + full[2] + '" class="edit-deal btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-id="' + full[2] + '" class="edit-deal btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                             @endif
                             return action;
                         }

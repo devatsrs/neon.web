@@ -18,7 +18,7 @@
 @if( User::checkCategoryPermission('CronJob','Add') )
     <a href="#" id="add-new-config" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add Cron Job
+        Add New
     </a>
 @endif
 </p>
@@ -84,7 +84,7 @@ var postdata;
                 "bProcessing": true,
                 "bServerSide": true,
                 "sAjaxSource": baseurl + "/cronjobs/ajax_datagrid/type",
-                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "fnServerParams": function (aoData) {
@@ -124,12 +124,12 @@ var postdata;
                             var history_url = baseurl + "/cronjobs/history/" + CronJobID;
 
                             <?php if(User::checkCategoryPermission('CronJob','Edit') ){ ?>
-                            action += ' <a data-name = "' + full[1] + '" data-id="' + CronJobID + '" class="edit-config btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                            action += ' <a data-name = "' + full[1] + '" data-id="' + CronJobID + '" title="Edit" class="edit-config btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                             <?php } ?>
                             <?php if(User::checkCategoryPermission('CronJob','Delete')){ ?>
-                            action += ' <a data-id="' + CronJobID + '" class="delete-config btn delete btn-danger btn-sm btn-icon icon-left"><i class="entypo-cancel"></i>Delete </a>';
+                            action += ' <a data-id="' + CronJobID + '" title="Delete" class="delete-config btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                             <?php } ?>
-                            action += ' <a href="' + history_url + '" class=" btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>History </a>';
+                            action += ' <a href="' + history_url + '" title="History" class=" btn btn-default btn-sm"><i class="entypo-list"></i>History </a>';
 
                             return action;
                         }

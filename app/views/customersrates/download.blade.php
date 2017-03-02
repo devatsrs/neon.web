@@ -283,14 +283,36 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    $('#BulkMail-form [name="email_template_privacy"]').change(function(e){
+    /*$('#BulkMail-form [name="email_template_privacy"]').change(function(e){
         e.preventDefault();
         e.stopPropagation();
         editor_reset(new Array());
-    });
+    });*/
+	
+	   $('#BulkMail-form [name="email_template_privacy"]').change(function(e){
+		   drodown_reset(); 
+   });
+   
+    function drodown_reset(){
+            var privacyID = $('#BulkMail-form [name="email_template_privacy"]').val(); 
+            if(privacyID == null){
+                return false;
+            } 
+            var Type = $('#BulkMail-form [name="Type"]').val(); 
+            var url = baseurl + '/accounts/' + privacyID + '/ajax_getEmailTemplate/'+Type;
+            $.get(url, function (data, status) {
+                if (Status = "success") {
+                    var modal = $("#modal-BulkMail");
+                    var el = modal.find('#BulkMail-form [name=email_template]');
+                    rebuildSelect2(el,data,'');
+                } else {
+                    toastr.error(status, "Error", toastr_opts);
+                }
+            });
+        }
 
-    $('#BulkMail-form [name="Type"]').change(function(e){
-        var Type =  $(this).val();
+/*    $('#BulkMail-form [name="Type"]').change(function(e){
+        var Type =  $('#BulkMail-form [name="Type"]').val();
         var privacyID = $('#BulkMail-form [name="email_template_privacy"]').val();
         if(Type==''){
             Type =0;
@@ -308,7 +330,7 @@ jQuery(document).ready(function ($) {
                 toastr.error(status, "Error", toastr_opts);
             }
         });
-    });
+    });*/
 
     $("#BulkMail-form [name=template_option]").change(function(e){
         if($(this).val()==1){
@@ -366,7 +388,7 @@ jQuery(document).ready(function ($) {
     $('#modal-BulkMail').on('shown.bs.modal', function(event){
         var modal = $(this);
         modal.find('.message').wysihtml5({
-            "font-styles": true,
+           "font-styles": true,
             "emphasis": true,
             "leadoptions":true,
             "Crm":false,
@@ -533,7 +555,9 @@ var data_table_new = $("#"+tableID).dataTable({
 
 @section('footer_ext')
     @parent
-    <div class="modal fade" id="modal-BulkMail">
+    @include('accounts.bulk_email')
+
+<!--    <div class="modal fade" id="modal-BulkMail">
         <div class="modal-dialog" style="width: 80%;">
             <div class="modal-content">
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
@@ -666,5 +690,5 @@ var data_table_new = $("#"+tableID).dataTable({
                 </form>
             </div>
         </div>
-    </div>
+    </div> -->
     @stop

@@ -51,7 +51,7 @@
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": baseurl + "/users/ajax_datagrid/type",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             //"sDom": 'T<"clear">lfrtip',
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -85,7 +85,7 @@
                                     notification_link = ' <button href="' + active_ + '"  title="Job Notification"  data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If enabled, system will notify you by email about Job status." data-original-title="Notification"  class="btn change_notification btn-danger btn-sm popover-primary" data-loading-text="Loading..."><i class="glyphicon glyphicon-time"></i></button>';
                                 }
                                 <?php if(User::checkCategoryPermission('Users','Edit')){ ?>
-                                    action = '<a href="' + edit_ + '" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
+                                    action = '<a href="' + edit_ + '" title="Edit" class="btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                 <?php } ?>
                                 notification_link = notification_link.replace('{id}', id);
                                 action += notification_link;

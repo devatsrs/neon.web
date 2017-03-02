@@ -78,7 +78,7 @@
                 "fnServerParams": function (aoData) {
                     aoData.push({ "name": "Active", "value": $searchFilter.Active },{ "name": "Search", "value": $searchFilter.Search },{ "name": "Trunk", "value": $searchFilter.Trunk });
                 },
-                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[3, "desc"]],
@@ -119,7 +119,7 @@
                             action = '';
 
                             <?php if(User::checkCategoryPermission('RateGenerator','Edit')) { ?>
-                            action += '<a title="Edit" href="' + edit_ + '" class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a> '
+                            action += ' <a title="Edit" href="' + edit_ + '" class="btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a> '
                             action += status_link;
 							
 							 @if(User::checkCategoryPermission('RateGenerator','Delete'))
@@ -188,8 +188,12 @@
                         e.preventDefault();
                         $('#update-rate-generator-form').trigger("reset");
                         $('#modal-update-rate').modal('show', {backdrop: 'static'});
+                        $('.radio-replace').removeClass('checked');
+                        $('#defaultradiorate').addClass('checked');
                         $('#RateTableIDid').hide();
                         $('#RateTableNameid').show();
+                        $('#RateTableReplaceRate').hide();
+                        $('#RateTableEffectiveRate').show();
                         $('#modal-update-rate h4').html('Generate Rate Table');
                         update_rate_table_url = $(this).attr("href");
 
@@ -259,7 +263,13 @@
             * Submit and Generate Joblog
             * */
             update_rate_table_url = $(this).attr("href");
+
+            $('.radio-replace').removeClass('checked');
+            $('#defaultradiorate').addClass('checked');
+
             $('#RateTableIDid').show();
+            $('#RateTableReplaceRate').show();
+            $('#RateTableEffectiveRate').show();
             $('#RateTableNameid').hide();
             $('#modal-update-rate h4').html('Update Rate Table');
         });

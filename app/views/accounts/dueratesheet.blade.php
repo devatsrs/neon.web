@@ -94,7 +94,7 @@
             "bProcessing": true,
             "bServerSide": true,
             "sAjaxSource": baseurl + "/accounts/ajax_datagrid_sheet/type",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[2, "desc"]],
@@ -114,10 +114,10 @@
                         {
                         mRender: function ( id, type, full ) {
                             if($searchFilter.AccountType == '{{AccountApproval::CUSTOMER}}'){
-                                action = '<a href="'+baseurl+'/customers_rates/'+id+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
+                                action = '<a href="'+baseurl+'/customers_rates/'+id+'" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
                             }
                             if($searchFilter.AccountType == '{{AccountApproval::VENDOR}}'){
-                                action = '<a href="'+baseurl+'/vendor_rates/'+id+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
+                                action = '<a href="'+baseurl+'/vendor_rates/'+id+'" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
                             }
 
                             return action;

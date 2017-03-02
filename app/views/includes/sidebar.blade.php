@@ -47,7 +47,25 @@
     @endif
     @if( User::checkCategoryPermission('Account','View'))
     <li> <a href="{{URL::to('/accounts')}}"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a> </li>
-    @endif    
+    @endif  
+    
+       <!--tickets start -->    
+    @if(Tickets::CheckTicketLicense())
+    <li class="{{check_uri('tickets')}}"><a href="#"><i class="fa fa-ticket"></i><span>Tickets Management</span></a>
+      <ul>
+       @if(User::checkCategoryPermission('Tickets','View'))
+        <li> <a href="{{URL::to('/tickets')}}">  <span>Tickets</span> </a> </li>
+        @endif
+         @if(User::checkCategoryPermission('TicketsFields','Edit'))
+        <li> <a href="{{URL::to('/ticketsfields')}}">  <span>Tickets Fields</span></a></li>
+        @endif
+        @if(User::checkCategoryPermission('TicketsGroups','View'))
+        <li> <a href="{{URL::to('/ticketgroups')}}">  <span>Groups</span></a> </li>
+        @endif
+      </ul>
+    </li>
+    @endif
+    <!--tickets end --> 
 	
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type']== Company::LICENCE_RM || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
     @if( User::checkCategoryPermission('RateTables','View') || User::checkCategoryPermission('LCR','All') ||
@@ -114,9 +132,12 @@
         @if(User::checkCategoryPermission('Invoice','View'))
         <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
         @endif
-          @if(User::checkCategoryPermission('Payments','View'))
-            <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
-          @endif
+        @if(User::checkCategoryPermission('RecurringInvoices','View'))
+            <li> <a href="{{URL::to('/recurringinvoices')}}">  <span>Recurring</span> </a> </li>
+        @endif
+      @if(User::checkCategoryPermission('Payments','View'))
+        <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
+      @endif
         @if(User::checkCategoryPermission('Disputes','View'))
         <li> <a href="{{URL::to('/disputes')}}">  <span>Disputes</span> </a> </li>
         @endif

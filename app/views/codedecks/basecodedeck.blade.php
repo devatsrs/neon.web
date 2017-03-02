@@ -22,7 +22,7 @@
     @if( User::checkCategoryPermission('CodeDecks','Add'))
     <a href="#" id="add-new-codedeck" class="btn btn-primary ">
         <i class="entypo-plus"></i>
-        Add New CodeDeck
+        Add New
     </a>
     @endif
 </p>
@@ -54,7 +54,7 @@ var postdata;
             "bProcessing":true,
             "bServerSide":true,
             "sAjaxSource": baseurl + "/codedecks/base_datagrid",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "aaSorting": [[0, 'asc']],
@@ -82,7 +82,7 @@ var postdata;
                         @endif
                         @if(User::checkCategoryPermission('CodeDecks','Delete') )
                         if(full[4] == 0) {
-                            action += ' <a data-id="' + id + '" class="delete-codedecks btn save delete btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="fa fa-trash"></i></a>';
+                            action += ' <a data-id="' + id + '" class="delete-codedecks btn save delete btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
                         }
                         @endif
                         @if(User::checkCategoryPermission('CodeDecks','Edit') )

@@ -14,7 +14,7 @@
     </div>
     <div class="panel-body">
          <div class="text-right">
-              <a  id="add-subscription" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Subscription</a>
+              <a  id="add-subscription" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
               <div class="clear clearfix"><br></div>
         </div>
          <div id="subscription_filter" method="get" action="#" >
@@ -131,7 +131,7 @@
                                         {"name": "SubscriptionActive", "value": $search.SubscriptionActive});
 
                             },
-                            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                             "sPaginationType": "bootstrap",
                             "sDom": "<'row'r>",
                             "aaSorting": [[0, 'asc']],
@@ -155,8 +155,8 @@
                                     action += '<input disabled type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                  }
                                  action += '</div>';
-                                 action += ' <a href="' + subscription_edit_url.replace("{id}",id) +'" class="edit-subscription btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                 action += ' <a href="' + subscription_delete_url.replace("{id}",id) +'" class="delete-subscription btn btn-danger btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                 action += ' <a href="' + subscription_edit_url.replace("{id}",id) +'" title="Edit" class="edit-subscription btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                                 action += ' <a href="' + subscription_delete_url.replace("{id}",id) +'" title="Delete" class="delete-subscription btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                  return action;
                             }
                           }

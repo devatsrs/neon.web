@@ -286,7 +286,7 @@
                             );
 
                         },
-                        "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                         "aaSorting": [[4, 'desc']],
@@ -368,7 +368,7 @@
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '" value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
                                     action += '</div>';
-                                    action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="view-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>';
+                                    action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" title="View" class="view-payment btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                                     @if(User::is('BillingAdmin') || User::is_admin())
                                     if(full[7] != "Approved"){
                                         action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
@@ -379,7 +379,7 @@
                                     //action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                     <?php if(User::checkCategoryPermission('Payments','Recall')) {?>
                                     if(full[13]==0 && full[7]!='Rejected' ){
-                                        action += '<a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-ccw"></i>Recall </a>';
+                                        action += ' <a href="'+recall_+'" data-redirect="{{ URL::to('payments')}}"  class="btn recall btn-danger btn-sm btn-icon icon-left"><i class="entypo-ccw"></i>Recall </a>';
                                     }
                                     <?php } ?>
                                     if(full[9]!= null){
@@ -947,7 +947,7 @@
 				"bProcessing":true,
 				"bServerSide":true,
 				"sAjaxSource": baseurl + "/payments/ajax_datagrid_total",
-				"iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+				"iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
 				"sPaginationType": "bootstrap",
 				/*"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",*/
 				"aaSorting": [[4, 'desc']]},
@@ -1066,15 +1066,6 @@
             });
             return SelectedIDs;
         }
-
-        function setSelection(self){
-            var tr = self.parents('tr');
-            if(tr.is('tr') && !tr.hasClass('selected')) {
-                tr.find('.rowcheckbox').prop("checked", true);
-                tr.addClass('selected');
-            }
-        }
-
 
             </script>
     <style>

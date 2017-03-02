@@ -39,7 +39,7 @@
                         "sAjaxSource": baseurl + "/accounts/{{$account->AccountID}}/activities/ajax_datagrid_email_log",
                         "fnServerParams": function (aoData) {
                         },
-                        "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                        "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                         "sPaginationType": "bootstrap",
                         "sDom": "<'row'r>",
                         "aaSorting": [[0, 'asc']],
@@ -56,8 +56,8 @@
                                     var view_ = "{{ URL::to('/accounts/'.$account->AccountID.'/activities/{id}/view_email_log/')}}";
                                     delete_ = delete_.replace('{id}', id);
                                     view_ = view_.replace('{id}', id);
-                                    action = ' <a href="' + view_ + '" class="view-Email btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>view </a>'
-                                    action += '<a href="' + delete_ + '"  class="btn delete-Email btn-danger btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Delete </a>'
+                                    action = ' <a href="' + view_ + '" title="View" class="view-Email btn btn-default btn-sm"><i class="fa fa-eye"></i></a>'
+                                    action += ' <a href="' + delete_ + '" title="Delete" class="btn delete-Email btn-danger btn-sm"><i class="entypo-trash"></i></a>'
                                     return action;
                                 }
                             }
@@ -175,19 +175,21 @@
 
                     $('#modal-SendEmail').on('shown.bs.modal', function(event){
                         var modal = $('#modal-SendEmail');
-                        modal.find('.message').wysihtml5({
-                            "leadoptions":false,
-                            "font-styles": true,
-                            "emphasis": true,
-                            "lists": true,
-                            "html": true,
-                            "link": true,
-                            "image": true,
-                            "color": false,
-                            parser: function (html) {
-                                return html;
-                            }
-                        });
+						modal.find('.message').wysihtml5({
+							"font-styles": true,
+						"leadoptions":false,
+						"Tickets":true,
+						"Crm":false,
+						"emphasis": true,
+						"lists": true,
+						"html": true,
+						"link": true,
+						"image": true,
+						"color": false,
+							parser: function(html) {
+								return html;
+							}
+						});
                     });
 
                     $('#modal-SendEmail').on('hidden.bs.modal', function(event){

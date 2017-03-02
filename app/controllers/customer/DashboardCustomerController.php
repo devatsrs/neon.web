@@ -16,9 +16,9 @@ class DashboardCustomerController extends BaseController {
         if(Cache::has('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID())){
             $monthfilter = Cache::get('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID());
         }
-        $BillingDashboardWidgets  =  CompanyConfiguration::get('BILLING_DASHBOARD_CUSTOMER');
+        $BillingDashboardWidgets 	= 	CompanyConfiguration::get('BILLING_DASHBOARD_CUSTOMER');
         if(!empty($BillingDashboardWidgets)) {
-            $BillingDashboardWidgets   = explode(",",$BillingDashboardWidgets);
+            $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
         }
         return View::make('customer.index',compact('account','original_startdate','original_enddate','invoice_status_json','monthfilter','BillingDashboardWidgets'));
     }
@@ -55,7 +55,23 @@ class DashboardCustomerController extends BaseController {
         $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."','".$data['Startdate']."','".$data['Enddate']."')";
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
         if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
-            return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
+            $UnbilledAmount = $VendorUnbilledAmount = $BalanceAmount = 0;
+            $getdata['AccountID'] = $CustomerID;
+            $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
+            if(!empty($response) && $response->status == 'success' ) {
+                $SOA_Amount = AccountBalance::getAccountSOA($companyID, $CustomerID);
+                if(!empty($response->data->UnbilledAmount)){
+                    $UnbilledAmount = $response->data->UnbilledAmount;
+                }
+                if(!empty($response->data->VendorUnbilledAmount)){
+                    $VendorUnbilledAmount = $response->data->VendorUnbilledAmount;
+                }
+                $BalanceAmount = $SOA_Amount+($UnbilledAmount-$VendorUnbilledAmount);
+                $InvoiceExpenseResult[0]->TotalUnbillidAmount = $BalanceAmount>=0?$BalanceAmount:0;
+                return Response::json(array("data" => $InvoiceExpenseResult[0], 'CurrencyCode' => $CurrencyCode, 'CurrencySymbol' => $CurrencySymbol));
+            }else {
+                return view_response_api($response);
+            }
         }
 
         //return View::make('customer.billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));
@@ -118,11 +134,11 @@ class DashboardCustomerController extends BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($exportType=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($exportType=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$typeText[$data['Type']].'.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

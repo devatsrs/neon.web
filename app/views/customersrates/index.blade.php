@@ -232,7 +232,7 @@
                                     console.log($searchFilter);
                                     console.log("Perm sent...");
                                 },
-                                "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+                                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                                 "sPaginationType": "bootstrap",
                                  "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                                  "aaSorting": [[8, "asc"]],
@@ -292,7 +292,7 @@
                                                     }
                                                     action += '</div>';
                                                     <?php if(User::checkCategoryPermission('CustomersRates','Edit')) { ?>
-                                                        action += '<a href="Javascript:;" class="edit-customer-rate btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit</a>';
+                                                        action += ' <a href="Javascript:;" class="edit-customer-rate btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                                     <?php } ?>
                                                     if (CustomerRateID > 0) {
                                                         <?php if(User::checkCategoryPermission('CustomersRates','ClearRate')) { ?>
