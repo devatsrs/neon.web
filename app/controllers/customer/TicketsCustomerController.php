@@ -388,8 +388,9 @@ private $validlicense;
 					$agentsAll 					 =	 $ResponseData->agentsAll;			 
 					$NextTicket 				 =  TicketsTable::GetNextPageID($id); 
 					$PrevTicket 				 =	TicketsTable::GetPrevPageID($id);
+					$show_edit					 =	0;
 					
-					return View::make('customer.tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll'));  		  
+					return View::make('customer.tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','show_edit'));  		  
 			}else{
           	  return view_response_api($response_details);
          	}			 

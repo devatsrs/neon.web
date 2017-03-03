@@ -55,7 +55,7 @@ private $validlicense;
 				 
 			  }
 			  
-			$data['AccessPermission'] 	=	 TicketsTable::GetTicketAccessPermission();
+			$data['AccessPermission'] 	=	 TicketsTable::GetTicketAccessPermission(); 
 			$companyID 					= 	 User::get_companyID();
 			$array						= 	 $this->GetResult($data); 
 			$resultpage  				= 	 $array->resultpage;		 

@@ -91,10 +91,10 @@
                                 edit_ = edit_.replace('{id}', full[0]);
 								
                                 action =  '';
-                                <?php if(User::checkCategoryPermission('TicketGroups','Edit')){ ?>
+                                <?php if(User::checkCategoryPermission('TicketsGroups','Edit')){ ?>
                                    action = '<a href="' + edit_ + '" class="btn btn-sm btn-default"><i class="entypo-pencil"></i></a>';
                                 <?php } ?>
-								<?php if(User::checkCategoryPermission('TicketGroups','Delete')){ ?>
+								<?php if(User::checkCategoryPermission('TicketsGroups','Delete')){ ?>
                                    action += '<a data-id="'+full[0]+'" id="group-'+full[0]+'" class="delete-ticket_group btn-sm btn delete btn-danger "><i class="fa fa-trash"></i></a>';
                                 <?php } ?>
                                 return action;

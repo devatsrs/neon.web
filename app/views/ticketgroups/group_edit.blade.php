@@ -13,7 +13,7 @@
 <div class="panel-title"> @include('includes.errors')
   @include('includes.success') </div>
 <p style="text-align: right;">
-@if(User::checkCategoryPermission('TicketGroups','Edit'))  <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>@endif
+@if(User::checkCategoryPermission('TicketsGroups','Edit'))  <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>@endif
   <a href="{{action('ticketgroups')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i> Close </a> </p>
 <br>
 <div class="row">
