@@ -4,7 +4,7 @@ ALTER TABLE `tblInvoice`
 	ADD COLUMN `RecurringInvoiceID` INT(50) NULL DEFAULT NULL AFTER `EstimateID`,
 	ADD COLUMN `ProcessID` VARCHAR(50) NULL DEFAULT NULL AFTER `RecurringInvoiceID`;
 
-CREATE TABLE `tblRecurringInvoice` (
+CREATE TABLE IF NOT EXISTS `tblRecurringInvoice` (
   `RecurringInvoiceID` int(11) NOT NULL auto_increment,
   `CompanyID` int(11) NULL,
   `Title` varchar(100) NULL,
@@ -41,7 +41,7 @@ CREATE TABLE `tblRecurringInvoice` (
   PRIMARY KEY (`RecurringInvoiceID`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `tblRecurringInvoiceDetail` (
+CREATE TABLE IF NOT EXISTS `tblRecurringInvoiceDetail` (
   `RecurringInvoiceDetailID` int(11) NOT NULL auto_increment,
   `RecurringInvoiceID` int(11) NOT NULL,
   `ProductID` int(11) NULL,
@@ -61,7 +61,7 @@ CREATE TABLE `tblRecurringInvoiceDetail` (
   PRIMARY KEY (`RecurringInvoiceDetailID`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `tblRecurringInvoiceLog` (
+CREATE TABLE IF NOT EXISTS `tblRecurringInvoiceLog` (
   `RecurringInvoicesLogID` int(11) NOT NULL auto_increment,
   `RecurringInvoiceID` int(11) NULL,
   `Note` longtext NULL,
@@ -71,7 +71,7 @@ CREATE TABLE `tblRecurringInvoiceLog` (
   PRIMARY KEY (`RecurringInvoicesLogID`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `tblRecurringInvoiceTaxRate` (
+CREATE TABLE IF NOT EXISTS `tblRecurringInvoiceTaxRate` (
   `RecurringInvoiceTaxRateID` int(11) NOT NULL auto_increment,
   `RecurringInvoiceID` int(11) NOT NULL,
   `TaxRateID` int(11) NOT NULL,
@@ -88,7 +88,6 @@ CREATE TABLE `tblRecurringInvoiceTaxRate` (
 
 DROP FUNCTION `FnGetInvoiceNumber`;
 
-DELIMITER |
 CREATE FUNCTION `FnGetInvoiceNumber`(
 	`p_account_id` INT,
 	`p_BillingClassID` INT
@@ -117,12 +116,9 @@ END WHILE;
 END IF;
 
 return v_LastInv;
-END|
-DELIMITER ;
+END
 
-DROP PROCEDURE `prc_Convert_Invoices_to_Estimates`;
-
-DELIMITER |
+DROP PROCEDURE IF EXISTS `prc_Convert_Invoices_to_Estimates`;
 CREATE PROCEDURE `prc_Convert_Invoices_to_Estimates`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` VARCHAR(50),
@@ -290,10 +286,9 @@ where
 	WHERE FullInvoiceNumber IS NULL AND tblInvoice.CompanyID = p_CompanyID AND tblInvoice.InvoiceType = 1;
 
 				SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END|
-DELIMITER ;
+END
 
-DELIMITER |
+DROP PROCEDURE IF EXISTS `prc_CreateInvoiceFromRecurringInvoice`;
 CREATE PROCEDURE `prc_CreateInvoiceFromRecurringInvoice`(
 	IN `p_CompanyID` INT,
 	IN `p_InvoiceIDs` VARCHAR(200),
@@ -531,10 +526,10 @@ BEGIN
 	SELECT v_Message as Message, IFNULL(v_InvoiceID,0) as InvoiceID;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END|
-DELIMITER ;
+END
 
-DELIMITER |
+
+DROP PROCEDURE IF EXISTS `prc_DeleteRecurringInvoices`;
 CREATE PROCEDURE `prc_DeleteRecurringInvoices`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
@@ -590,10 +585,10 @@ BEGIN
 		 );
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END|
-DELIMITER ;
+END
 
-DELIMITER |
+
+DROP PROCEDURE IF EXISTS `prc_GetRecurringInvoiceLog`;
 CREATE PROCEDURE `prc_GetRecurringInvoiceLog`(
 	IN `p_CompanyID` INT,
 	IN `p_RecurringInvoiceID` INT,
@@ -668,10 +663,10 @@ BEGIN
       AND (p_Status=0 OR rinvlg.RecurringInvoiceLogStatus=p_Status);
     END IF;
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END|
-DELIMITER ;
+END
 
-DELIMITER |
+
+DROP PROCEDURE IF EXISTS `prc_getRecurringInvoices`;
 CREATE PROCEDURE `prc_getRecurringInvoices`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
@@ -767,6 +762,6 @@ BEGIN
 	  AND (p_Status =2 OR rinv.`Status` = p_Status);
 	END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END|
-DELIMITER ;
+END
+
 
