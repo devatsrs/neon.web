@@ -303,8 +303,11 @@ Form::macro('selectItem', function($name, $data , $selected , $extraparams )
     return $output;
 });
 
-Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,$nameID='') {
+Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,$nameID='',$initialize=1) {
     $small = $compact==1?"small":'';
+    $select2 = $initialize==1?"select2":'select22';//for manual initialize set 0.
+    $isComposit = 0;
+    $extraClass = '';
     $name = '';
     $modal = '';
     $data = [];
@@ -332,16 +335,54 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
         $name = 'ProductID';
         $modal = 'add-edit-modal-product';
         $data = Product::getProductDropdownList();
+    }elseif($type=='item_and_Subscription'){
+        $name = 'ProductItemID';
+        $modal = 'add-edit-modal-product-subscription';
+        $data = [Product::ITEM=>Product::getProductDropdownList() ,Product::SUBSCRIPTION=> BillingSubscription::getSubscriptionsList()];
+        $extraClass = 'product_dropdown';
+        $isComposit = 1;
     }
     if(!empty($nameID)){
         $name= $nameID;
     }
-    $arr = ['class' => 'select2 select2add '.$small , 'data-modal' => $modal, 'data-active'=>0,'data-type'=>$type];
+    //select2add    :for Add button
+    //data-modal    :for target open modal
+    //data-active   :For current active drop-down
+    //data-type     :For drop-down recognition while adding new item
+    //small         :For compact drop-down
+    //extraClass    :Any extra class add to drop-down
+    //data-composite :For drop-down recognition while adding new item
+    $arr = ['class' => $select2.' select2add '.$small.' '.$extraClass , 'data-modal' => $modal, 'data-active'=>0,'data-type'=>$type];
     if($disable==1){
         $arr['disabled'] = 'disabled';
     }
-    return Form::select($name,$data , $selection, $arr);
+    if($isComposit==1){
+        $arr['data-composite'] = 1;
+       return compositDropdown($name, $data, $selection, $arr);
+    }
+    return Form::select($name, $data, $selection, $arr);
 });
+
+function compositDropdown($name,$data,$selection,$arr)
+{
+    $attr = '';
+    foreach($arr as $index=>$att){
+        $attr .= $index.'="'.$att.'" ';
+    }
+    $select = '<select name="'.$name.'" '.$attr.'>';
+    foreach($data as $index=>$cate){
+        $select .= ' <optgroup class="optgroup_'.Product::$TypetoProducts[$index].' unclick" label="'.ucfirst(Product::$TypetoProducts[$index]).'">';
+        foreach($cate as $key=>$val) {
+            $selected = (!empty($selection) && $key==$selection['ID'] && $index==$selection['Type'])?'selected':'';
+            $select .= '    <option value="' . $key . '" '.$selected.'>';
+            $select .= $val;
+            $select .= '    </option>';
+        }
+        $select .= ' </optgroup>';
+    }
+    $select .= '</select>';
+    return $select;
+}
 
 function is_amazon(){
 	

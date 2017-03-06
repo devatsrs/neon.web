@@ -89,7 +89,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
   
   @foreach($InvoiceDetail as $ProductRow)
   <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); } ?>
-  @if($ProductRow->ProductType == Product::ITEM)
+  <!--if($ProductRow->ProductType == Product::ITEM)-->
   <tr>
     <td class="text-center">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
     <td class="text-left">{{$ProductRow->Description}}</td>
@@ -107,7 +107,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
     {{number_format($ProductRow->TaxAmount,$RoundChargesAmount)}}
       </td>
     --}} </tr>
-  @endif
+  <!--endif-->
   @endforeach
     </tbody>
   
