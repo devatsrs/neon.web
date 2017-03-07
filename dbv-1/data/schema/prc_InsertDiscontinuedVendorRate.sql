@@ -41,13 +41,12 @@ BEGIN
 		-- delete old code or duplicate code from tblVendorRateDiscontinued
 		
 		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDiscontinued_;
-		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRateDiscontinued_ as (select * from tblVendorRateDiscontinued);
+		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRateDiscontinued_ (PRIMARY KEY (DiscontinuedID), INDEX tmp_UK_tblVendorRateDiscontinued (AccountId, RateId)) as (select * from tblVendorRateDiscontinued);
 
 		  DELETE n1 FROM tblVendorRateDiscontinued n1, tmp_VendorRateDiscontinued_ n2 WHERE n1.DiscontinuedID < n2.DiscontinuedID
 		  	 AND  n1.RateId = n2.RateId
 		  	 AND  n1.AccountId = n2.AccountId
-			 AND  n1.AccountId = p_AccountId
-			 AND  n2.AccountId = p_AccountId;
+			 AND  n1.AccountId = p_AccountId;
 	
 		-- delete vendor rate from tblVendorRate
 	

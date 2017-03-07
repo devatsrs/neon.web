@@ -65,7 +65,7 @@ class PaymentGateway extends \Eloquent {
                 $transaction = $stripepayment->createchargebycustomer($stripedata);
 
                 $Notes = '';
-                if($transaction['response_code'] == 1) {
+                if(!empty($transaction['response_code']) && $transaction['response_code'] == 1) {
                     $Notes = 'Stripe transaction_id ' . $transaction['id'];
                     $Status = TransactionLog::SUCCESS;
                 }else{
@@ -74,16 +74,24 @@ class PaymentGateway extends \Eloquent {
                     AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
                 }
                 $transactionResponse['transaction_notes'] =$Notes;
-                $transactionResponse['response_code'] = $transaction['response_code'];
+                if(!empty($transaction['response_code'])) {
+                    $transactionResponse['response_code'] = $transaction['response_code'];
+                }
                 $transactionResponse['transaction_payment_method'] = 'CREDIT CARD';
                 $transactionResponse['failed_reason'] = $Notes;
-                $transactionResponse['transaction_id'] = $transaction['id'];
+                if(!empty($transaction['id'])) {
+                    $transactionResponse['transaction_id'] = $transaction['id'];
+                }
                 $transactiondata = array();
                 $transactiondata['CompanyID'] = $account->CompanyId;
                 $transactiondata['AccountID'] = $account->AccountID;
-                $transactiondata['Transaction'] = $transaction['id'];
+                if(!empty($transaction['id'])) {
+                    $transactiondata['Transaction'] = $transaction['id'];
+                }
                 $transactiondata['Notes'] = $Notes;
-                $transactiondata['Amount'] = floatval($transaction['amount']);
+                if(!empty($transaction['amount'])) {
+                    $transactiondata['Amount'] = floatval($transaction['amount']);
+                }
                 $transactiondata['Status'] = $Status;
                 $transactiondata['created_at'] = date('Y-m-d H:i:s');
                 $transactiondata['updated_at'] = date('Y-m-d H:i:s');

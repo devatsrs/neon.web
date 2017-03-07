@@ -48,7 +48,7 @@
 	  }
 	   ?>
       <p class="mail_message">Message:<br>{{$response->Message}}. </p>
-      <p><a data_fetch_id="{{$response->AccountEmailLogID}" conversations_type="mail"  class="ticket_conversations">View Conversation</a></p>
+      <p><a data_fetch_id="{{$response->AccountEmailLogID}}" conversations_type="mail"  class="ticket_conversations">View Conversation</a></p>
     </div>
             </div>
 </li>

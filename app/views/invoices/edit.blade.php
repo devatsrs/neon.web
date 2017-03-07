@@ -231,8 +231,8 @@
     </tbody>
 </table>
 <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
+<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
+<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script type="text/javascript">
 var invoice_id = '{{$Invoice->InvoiceID}}';
 var decimal_places = '{{$RoundChargesAmount}}';
@@ -331,7 +331,7 @@ var add_row_html = '<tr class="itemrow hidden"><td><button type="button" class="
 <div class="modal fade in" id="send-modal-invoice">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="send-invoice-form" method="post">
+            <form id="send-invoice-form" method="post" >
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">Send Invoice By Email</h4>

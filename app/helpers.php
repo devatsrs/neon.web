@@ -161,8 +161,15 @@ function rate_tables_dropbox($id=0,$data=array()){
     return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
-
-function sendMail($view,$data){
+function contacts_dropbox($id=0,$data=array()){
+    $all_contacts = Contact::getContacts($data);
+    return Form::select('contacts', $all_contacts, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+function ticketgroup_dropbox($id=0,$data=array()){
+    $all_ticketsgroups = TicketGroups::getTicketGroups_dropdown($data);
+    return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+function sendMail($view,$data,$ViewType=1){
     
 	if(empty($data['companyID']))
     {
@@ -170,8 +177,14 @@ function sendMail($view,$data){
     }else{
         $companyID = $data['companyID'];
     }
-	$data   =   $data;
-	$body 	=   View::make($view,compact('data'))->render(); 
+
+	if($ViewType){
+		$body 	=  html_entity_decode(View::make($view,compact('data'))->render()); 
+	}
+	else{
+		$body  = $view;
+	}
+
 	
 	if(SiteIntegration::CheckCategoryConfiguration(false,SiteIntegration::$EmailSlug)){
 		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body); 
@@ -384,13 +397,14 @@ function compositDropdown($name,$data,$selection,$arr)
     return $select;
 }
 
-function is_amazon(){
+
+function is_amazon($CompanyID = 0){
 	
   /*  $AMAZONS3_KEY  = getenv("AMAZONS3_KEY");
     $AMAZONS3_SECRET = getenv("AMAZONS3_SECRET");
     $AWS_REGION = getenv("AWS_REGION");*/
 
-	$AmazonData			=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
+	$AmazonData			=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug,$CompanyID);
     $AMAZONS3_KEY  		= 	isset($AmazonData->AmazonKey)?$AmazonData->AmazonKey:'';
     $AMAZONS3_SECRET 	= 	isset($AmazonData->AmazonSecret)?$AmazonData->AmazonSecret:'';
     $AWS_REGION 		= 	isset($AmazonData->AmazonAwsRegion)?$AmazonData->AmazonAwsRegion:'';
@@ -1210,7 +1224,7 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
 	$mail->addAddress($ToEmail);
    if ($mail->send()) {
 	   return "Valid mail settings.";
-	}else{
+	}else{ 
 		return "Invalid mail settings.";
 	}
  }
@@ -1288,13 +1302,15 @@ function run_process($command) {
 
 function Get_Api_file_extentsions($ajax=false){
 
-	 if (Session::has("api_response_extensions")){
-		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions');
-		 return $response_extensions;
-	 } 	 
+	 /*if (Session::has("api_response_extensions")){
+		  $response_extensions['allowed_extensions'] =  Session::get('api_response_extensions'); 
+		  if(is_array($response_extensions['allowed_extensions'])){
+			  return $response_extensions;
+		  }		 
+	 } 	 */
 	 $response     			=  NeonAPI::request('get_allowed_extensions',[],false);
 	 $response_extensions 	=  [];
-	
+	 	
 	if($response->status=='failed'){
 		if($ajax==true){
 			return $response;
@@ -1526,4 +1542,94 @@ function getQuickBookAccountant(){
         }
     }
     return $ChartofAccounts;
+}
+
+	
+	function email_log_data_Ticket($data,$view = '',$status){ 
+	$EmailParent =	 0;
+	if($data['TicketID']){
+		//$EmailParent =	TicketsTable::where(["TicketID"=>$data['TicketID']])->pluck('AccountEmailLogID');
+	}
+
+	
+    $status_return = array('status' => 0, 'message' => 'Something wrong with Saving log.');
+    if(!isset($data['EmailTo']) && empty($data['EmailTo'])){
+        $status_return['message'] = 'Email To not set in Account mail log';
+        return $status_return;
+    }
+    
+    if(!isset($data['Subject']) && empty($data['Subject'])){
+        $status_return['message'] = 'Subject not set in Account mail log';
+        return $status_return;
+    }
+    if(!isset($data['Message']) && empty($data['Message'])){
+        $status_return['message'] = 'Message not set in Account mail log';
+        return $status_return;
+    }
+
+    if(is_array($data['EmailTo'])){
+        $data['EmailTo'] = implode(',',$data['EmailTo']);
+    }
+
+    if(!isset($data['cc']))
+    {
+        $data['cc'] = '';
+    }
+
+    if(!isset($data['bcc']))
+    {
+        $data['bcc'] = '';
+    }
+
+    if(isset($data['AttachmentPaths']) && count($data['AttachmentPaths'])>0)
+    {
+        $data['AttachmentPaths'] = serialize($data['AttachmentPaths']);
+    }
+    else
+    {
+        $data['AttachmentPaths'] = serialize([]);
+    }
+
+    if($view!='')
+    {
+        $body = htmlspecialchars_decode(View::make($view, compact('data'))->render());
+    }
+    else
+    {
+        $body = $data['Message'];
+    } Log::info(print_r($status,true));
+	if(!isset($status['message_id']))
+	{
+		$status['message_id'] = '';
+	} Log::info($status['message_id']);
+	if(!isset($data['EmailCall']))
+	{
+		$data['EmailCall'] = Messages::Sent;
+	}
+
+	if(isset($data['EmailFrom']))
+	{
+		$data['EmailFrom'] = $data['EmailFrom'];
+	}else{
+		$data['EmailFrom'] = User::get_user_email();
+	}
+	
+    $logData = ['EmailFrom'=>$data['EmailFrom'],
+        'EmailTo'=>$data['EmailTo'],
+        'Subject'=>$data['Subject'],
+        'Message'=>$body,
+        'CompanyID'=>User::get_companyID(),
+        'UserID'=>User::get_userID(),
+        'CreatedBy'=>User::get_user_full_name(),
+		"created_at"=>date("Y-m-d H:i:s"),
+        'Cc'=>$data['cc'],
+        'Bcc'=>$data['bcc'],
+        "AttachmentPaths"=>$data['AttachmentPaths'],
+		"MessageID"=>$status['message_id'],
+		"EmailParent"=>isset($data['EmailParent'])?$data['EmailParent']:$EmailParent,
+		"EmailCall"=>$data['EmailCall'],
+    ];
+	Log::info(print_r($logData,true));
+    $data =  AccountEmailLog::insertGetId($logData);
+    return $data;
 }

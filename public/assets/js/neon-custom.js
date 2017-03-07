@@ -2658,8 +2658,8 @@ $('.modal').on('show.bs.modal', function (e) {
     //Code for smart devices
     if (isxs()) {
      $('.modal').find('.pull-left,.pull-right').each(function(){
-         $(this).removeClass('pull-left').removeClass('pull-right');
-     });
+         $(this).removeClass('pull-left').removeClass('pull-right'); 		
+		 });
     }
 });
 //Code for add button
@@ -3067,6 +3067,11 @@ function IsJsonString(str) {
     return true;
 }
 
+function bytesToSize(filesize) {
+  var sizeInMB = (filesize / (1024*1024)).toFixed(2);
+  if(sizeInMB>max_file_size)
+  {return 1;}else{return 0;}  
+}
 
 function table_row_select(table,selectallbutton) {
     $('#' + table + ' tbody').on('click', 'tr', function () {

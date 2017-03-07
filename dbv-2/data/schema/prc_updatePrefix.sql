@@ -1,4 +1,9 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updatePrefix`(IN `p_AccountID` INT, IN `p_TrunkID` INT, IN `p_processId` INT, IN `p_tbltempusagedetail_name` VARCHAR(200))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updatePrefix`(
+	IN `p_AccountID` INT,
+	IN `p_TrunkID` INT,
+	IN `p_processId` INT,
+	IN `p_tbltempusagedetail_name` VARCHAR(200)
+)
 BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_TempUsageDetail_;
@@ -28,6 +33,8 @@ BEGIN
 		AND ud.TrunkID = ' , p_TrunkID , '
 		AND ud.UseInBilling = 0
 		AND ud.area_prefix = "Other"
+		AND ( extension <> cld or extension IS NULL)
+		AND cld REGEXP "^[0-9]+$"
 		AND cld like  CONCAT(c.Code,"%");
 	');
 
@@ -49,6 +56,8 @@ BEGIN
 		AND ud.TrunkID = ' , p_TrunkID , '
 		AND ud.UseInBilling = 1 
 		AND ud.area_prefix = "Other"
+		AND ( extension <> cld or extension IS NULL)
+		AND cld REGEXP "^[0-9]+$"
 		AND cld like  CONCAT(ud.TrunkPrefix,c.Code,"%");
 	');
 

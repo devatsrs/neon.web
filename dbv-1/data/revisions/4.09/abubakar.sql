@@ -12,6 +12,8 @@ UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourc
 
 UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='BillingDashboardPincodeWidget.View' limit 1) WHERE  `ResourceName`='BillingDashboard.ajax_top_pincode';
 
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='BillingDashboardInvoiceExpenseWidgets.View' limit 1) WHERE  `ResourceName`='BillingDashboard.invoice_expense_total_widget';
+
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FreshdeskDomain';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FreshdeskEmail';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='Freshdeskkey';
@@ -24,10 +26,12 @@ DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='ErrorEmail';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FILE_RETENTION_EMAIL';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='SIPPY_CSVDECODER';
 
+UPDATE `tblcompanyconfiguration` SET `Value`='UPLOAD_PATH' WHERE  `Key`='UPLOADPATH';
+UPDATE `tblcompanyconfiguration` SET `Value`='NEON_API_URL' WHERE  `Key`='Neon_API_URL';
+UPDATE `tblcompanyconfiguration` SET `Value`='PHP_EXE_PATH' WHERE  `Key`='PHPExePath';
+UPDATE `tblcompanyconfiguration` SET `Value`='RM_ARTISAN_FILE_LOCATION' WHERE  `Key`='RMArtisanFileLocation';
 UPDATE `tblcompanyconfiguration` SET `Key`='UPLOAD_PATH' WHERE  `Key`='UPLOADPATH';
 UPDATE `tblcompanyconfiguration` SET `Key`='WEB_URL' WHERE  `Key`='SITE_URL';
-UPDATE `tblcompanyconfiguration` SET `Key`='PHP_EXE_PATH' WHERE  `Key`='PHPExePath';
-UPDATE `tblcompanyconfiguration` SET `Key`='RM_ARTISAN_FILE_LOCATION' WHERE  `Key`='RMArtisanFileLocation';
 UPDATE `tblcompanyconfiguration` SET `Key`='QUICKBOOK' WHERE `Key`='Quickbook' ;
 
 

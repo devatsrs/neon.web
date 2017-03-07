@@ -302,13 +302,17 @@ protected $server;
 		}
 		
 		if(count($ContactSearch)>0 || count($ContactSearch)>0)													
-		{		Log::info(print_r($ContactSearch,true));
+		{		//Log::info(print_r($ContactSearch,true));
 				$MatchType	  =   'Contact';
 				$MatchID	  =	 $ContactSearch[0]->ContactID;					
 				$AccountID	  =  $ContactSearch[0]->Owner;
 				//$Accountdata  =  
-				$Accountdata  =   DB::table('tblAccount')->where(["AccountID" => $AccountID])->get(array("AccountName"));
-				$AccountTitle =   $ContactSearch[0]->FirstName.' '.$ContactSearch[0]->LastName.' ('. $Accountdata[0]->AccountName .')';							
+				$Accountdata  =   DB::table('tblAccount')->where(["AccountID" => $AccountID])->get(array("AccountName")); 
+				if(count($Accountdata)>0){
+					$AccountTitle =   $ContactSearch[0]->FirstName.' '.$ContactSearch[0]->LastName.' ('. $Accountdata[0]->AccountName .')';							
+				}else{
+					$AccountTitle =   $ContactSearch[0]->FirstName.' '.$ContactSearch[0]->LastName;
+				}
 		}				
         
 		return array('MatchType'=>$MatchType,'MatchID'=>$MatchID,"AccountTitle"=>$AccountTitle,"AccountID"=>$AccountID);  

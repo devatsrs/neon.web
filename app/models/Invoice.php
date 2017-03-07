@@ -17,6 +17,8 @@ class Invoice extends \Eloquent {
     const PARTIALLY_PAID = 'partially_paid';
     const ITEM_INVOICE =1;
     const POST = 'post';
+	const EMAILTEMPLATE 		= "InvoiceSingleSend";
+	
     //public static $invoice_status;
     public static $invoice_type = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Sent',self::INVOICE_IN=>'Invoice Received','All'=>'Both');
     public static $invoice_type_customer = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Received',self::INVOICE_IN=>'Invoice sent','All'=>'Both');

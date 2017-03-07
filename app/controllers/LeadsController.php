@@ -50,7 +50,8 @@ class LeadsController extends \BaseController {
     }
 
     public function ajax_getEmailTemplate($privacy){
-        $filter =array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE);
+        //$filter =array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE);
+		$filter =array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE);
         if($privacy == 1){
             $filter['UserID'] =  User::get_userID();
         }
@@ -69,7 +70,7 @@ class LeadsController extends \BaseController {
         $userID = User::get_userID();
         $account_owners = User::getOwnerUsersbyRole();
         $emailTemplates = array();
-        $templateoption = ['' => 'Select', 1 => 'New Create', 2 => 'Update'];
+        $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
         $accounts = Account::getAccountIDList(array("AccountType" => 0));
         $privacy = EmailTemplate::$privacy;
         $type = EmailTemplate::$Type;
@@ -84,7 +85,8 @@ class LeadsController extends \BaseController {
         $leadOrAccount = $leads;
         $leadOrAccountCheck = 'lead';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
-        return View::make('leads.index', compact('leads', 'account_owners', 'emailTemplates', 'templateoption', 'leadTags', 'accounts', 'privacy', 'tags', 'type','opportunityTags','boards','leads','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID'));
+		$bulk_type = 'accounts';
+        return View::make('leads.index', compact('leads', 'account_owners', 'emailTemplates', 'templateoption', 'leadTags', 'accounts', 'privacy', 'tags', 'type','opportunityTags','boards','leads','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type'));
     }
 
     /**
@@ -234,8 +236,9 @@ class LeadsController extends \BaseController {
 			$per_scroll 				=   $data['iDisplayLength'];
 			$current_user_title 		= 	Auth::user()->FirstName.' '.Auth::user()->LastName;
 			$ShowTickets				=   SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$freshdeskSlug); //freshdesk
-			
-            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets'));
+			$SystemTickets				=   Tickets::CheckTicketLicense();			
+			$FromEmails	 				= 	TicketGroups::GetGroupsFrom();			
+            return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets','FromEmails'));
     	}
 
     /**

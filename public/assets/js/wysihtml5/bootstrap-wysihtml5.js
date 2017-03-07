@@ -5,11 +5,12 @@
     var tpl = {
         "leadoptions": function(locale, options) {
             var size = (options && options.size) ? ' btn-'+options.size : '';
-            return "<li class='dropdown'>" +
+            return "<li class='dropdown leadoptions'>" +
                 "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
                 "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.leadoptions.FirstName + "</span>&nbsp;<b class='caret'></b>" +
                 "</a>" +
                 "<ul class='dropdown-menu'>" +
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Account Fields</b></a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>" + locale.leadoptions.FirstName + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.leadoptions.LastName + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Email}}'>" + locale.leadoptions.Email + "</a></li>" +
@@ -24,18 +25,31 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.leadoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.leadoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.leadoptions.BalanceThreshold + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.leadoptions.Signature + "</a></li>" +
-                "</ul>" +
-                "</li>";
+               		"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+ 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +		 
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Logo}}'>" + locale.Company.Logo + "</a></li>"+		   	
+	 	 "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Others</b></a></li>" +
+         "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.leadoptions.Signature + "</a></li>" +
+         "</ul>" +
+         "</li>";
         },
         "invoiceoptions": function(locale, options) {
             var size = (options && options.size) ? ' btn-'+options.size : '';
-            return "<li class='dropdown'>" +
+            return "<li class='dropdown invoiceoptions'>" +
                 "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
                 "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.invoiceoptions.FirstName + "</span>&nbsp;<b class='caret'></b>" +
                 "</a>" +
                 "<ul class='dropdown-menu'>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>" + locale.invoiceoptions.FirstName + "</a></li>" +
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Account Fields</b></a></li>" +
+			   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AccountName}}'>"+locale.invoiceoptions.AccountName +"</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>"+locale.invoiceoptions.FirstName + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.invoiceoptions.LastName + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Email}}'>" + locale.invoiceoptions.Email + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address1}}'>" + locale.invoiceoptions.Address1 + "</a></li>" +
@@ -46,19 +60,160 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.invoiceoptions.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.invoiceoptions.Country + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.invoiceoptions.Currency + "</a></li>" +
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Invoice Fields</b></a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceNumber}}'>" + locale.invoiceoptions.InvoiceNumber + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceGrandTotal}}'>" + locale.invoiceoptions.InvoiceGrandTotal + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceOutstanding}}'>" + locale.invoiceoptions.InvoiceOutstanding + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.invoiceoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceLink}}'>" + locale.invoiceoptions.InvoiceLink + "</a></li>" +	
+               /* "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.invoiceoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.invoiceoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.invoiceoptions.BalanceThreshold + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.invoiceoptions.BalanceThreshold + "</a></li>" +*/
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
+			 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+ 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +
+		    "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Logo}}'>" + locale.Company.Logo + "</a></li>"+		   		 	
+				 	"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Others</b></a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.invoiceoptions.Signature + "</a></li>" +
-                "</ul>" +
+				"</ul>" +
                 "</li>";
+        }, 
+		"tasks": function(locale, options) {			
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return "<li class='dropdown opportunity'>" +
+                "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.tasks.Subject + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+                "<ul class='dropdown-menu'>" +
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Account Fields</b></a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>" + locale.leadoptions.FirstName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.leadoptions.LastName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Email}}'>" + locale.leadoptions.Email + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address1}}'>" + locale.leadoptions.Address1 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.leadoptions.Address2 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.leadoptions.Address3 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.leadoptions.City + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.leadoptions.State + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.leadoptions.PostCode + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.leadoptions.Country + "</a></li>" +
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Tasks Fields</b></a></li>" +            
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{subject}}'>" + locale.tasks.Subject + "</a></li>" +
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{User}}'>" + locale.tasks.User + "</a></li>"+
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.tasks.Comment + "</a></li>"+			 
+						"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
+			 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+ 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +
+		   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Logo}}'>" + locale.Company.Logo + "</a></li>"+		   
+		        "</ul>" +
+                "</li>";
+        },
+			"opportunities": function(locale, options) {			
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return "<li class='dropdown opportunity'>" +
+                "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.opportunities.Subject + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+                "<ul class='dropdown-menu'>" +
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Account Fields</b></a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>" + locale.leadoptions.FirstName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.leadoptions.LastName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Email}}'>" + locale.leadoptions.Email + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address1}}'>" + locale.leadoptions.Address1 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.leadoptions.Address2 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.leadoptions.Address3 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.leadoptions.City + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.leadoptions.State + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.leadoptions.PostCode + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.leadoptions.Country + "</a></li>" +
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Opportunity Fields</b></a></li>" +            
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{subject}}'>" + locale.opportunities.Subject + "</a></li>" +
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{User}}'>" + locale.opportunities.User + "</a></li>"+
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.opportunities.Comment + "</a></li>"+
+				   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Logo}}'>" + locale.opportunities.Logo + "</a></li>"+
+						"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
+			 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+ 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Logo}}'>" + locale.Company.Logo + "</a></li>"+		   	   
+		        "</ul>" +
+                "</li>";
+        },
+		  "ratesheetoptions":function(locale, options){		   
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return "<li class='dropdown estimateoptions'>" +
+                "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.ratesheetoptions.FirstName + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+                "<ul class='dropdown-menu'>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>" + locale.ratesheetoptions.FirstName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.ratesheetoptions.LastName + "</a></li>" +
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.ratesheetoptions.RateGeneratorName + "</a></li>" +				
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{RateTableName}}'>" + locale.ratesheetoptions.RateTableName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{EffectiveDate}}'>" + locale.ratesheetoptions.EffectiveDate + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.ratesheetoptions.CompanyName + "</a></li>" +		 "</ul></li>";  
+		 
+        
+		   },
+		  "estimateoptions": function(locale, options) {
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return "<li class='dropdown estimateoptions'>" +
+                "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.estimateoptions.FirstName + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+                "<ul class='dropdown-menu'>" +
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Account Fields</b></a></li>" +
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AccountName}}'>" + locale.estimateoptions.AccountName + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>" + locale.estimateoptions.FirstName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.estimateoptions.LastName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Email}}'>" + locale.estimateoptions.Email + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address1}}'>" + locale.estimateoptions.Address1 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.estimateoptions.Address2 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.estimateoptions.Address3 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.estimateoptions.City + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.estimateoptions.State + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.estimateoptions.PostCode + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.estimateoptions.Country + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.estimateoptions.Currency + "</a></li>" +
+              "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Estimate Fields</b></a></li>" +
+			    "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{EstimateNumber}}'>" + locale.estimateoptions.EstimateNumber+ "</a></li>"+	   "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{EstimateGrandTotal}}'>" + locale.estimateoptions.EstimateGrandTotal+ "</a></li>"+ 
+		"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{EstimateLink}}'>" + locale.estimateoptions.EstimateLink + "</a></li>"+
+		"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.estimateoptions.Comment + "</a></li>"+
+		"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{User}}'>" + locale.estimateoptions.User + "</a></li>"+		 		
+		
+		"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+ 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Logo}}'>" + locale.Company.Logo + "</a></li>"+		   		 	
+		 "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Others</b></a></li>" +
+		  "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.estimateoptions.Signature + "</a></li>" +
+		 "</ul></li>";  
+		 
         },
         "font-styles": function(locale, options) {
             var size = (options && options.size) ? ' btn-'+options.size : '';
-            return "<li class='dropdown'>" +
+            return "<li class='dropdown font-styles'>" +
               "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
               "<i class='icon-font'></i>&nbsp;<span class='current-font'>" + locale.font_styles.normal + "</span>&nbsp;<b class='caret'></b>" +
               "</a>" +
@@ -75,7 +230,7 @@
         },
 		  "Crm": function(locale, options) {
             var size = (options && options.size) ? ' btn-'+options.size : '';
-            return "<li class='dropdown'>" +
+            return "<li class='dropdown Crm'>" +
               "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
                 "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.Crm.FirstName + "</span>&nbsp;<b class='caret'></b>" +
                 "</a>" +
@@ -90,10 +245,122 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.Crm.State + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.Crm.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.Crm.Country + "</a></li>" +  
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.Crm.Signature + "</a></li>" +
+               	"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+ 		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+		 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +		
+		    "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Logo}}'>" + locale.Company.Logo + "</a></li>"+		    	
+		 "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Others</b></a></li>" +
+		  "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.Crm.Signature + "</a></li>" +
               "</ul>" +
             "</li>";
         },
+		"TicketsSingle":function(locale, options){
+			
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return "<li class='dropdown TicketsSingle'>" +
+              "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.TicketsSingle.Subject + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+              "<ul class='dropdown-menu'>" +
+			  "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Ticket Fields</b></a></li>" +
+                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Subject}}'>" + locale.TicketsSingle.Subject + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TicketID}}'>" + locale.TicketsSingle.TicketID + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Requester}}'>" + locale.TicketsSingle.Requester + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{RequesterName}}'>" + locale.TicketsSingle.RequesterName + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Status}}'>" + locale.TicketsSingle.Status + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Priority}}'>" + locale.TicketsSingle.Priority + "</a></li>"+				
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Description}}'>" + locale.TicketsSingle.Description + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Group}}'>" + locale.TicketsSingle.Group + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Type}}'>" + locale.TicketsSingle.Type + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Date}}'>" + locale.TicketsSingle.Date + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AgentName}}'>" + locale.TicketsSingle.AgentName + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AgentEmail}}'>" + locale.TicketsSingle.AgentEmail+ "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TicketUrl}}'>" + locale.TicketsSingle.TicketUrl+ "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TicketCustomerUrl}}'>" + locale.TicketsSingle.TicketCustomerUrl+ "</a></li>"+	"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.TicketsSingle.Comment+ "</a></li>"+
+               	"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress1}}'>" + locale.Company.Address1 + "</a></li>" +
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress2}}'>" + locale.Company.Address2 + "</a></li>" +
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyAddress3}}'>" + locale.Company.Address3+ "</a></li>" +	
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCity}}'>" + locale.Company.City + "</a></li>" +
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyPostCode}}'>" + locale.Company.PostCode + "</a></li>" +	
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyCountry}}'>" + locale.Company.Country + "</a></li>" +	
+			    "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Logo}}'>" + locale.Company.Logo + "</a></li>"+		   	              "</ul>" +
+            "</li>";        
+		},
+		"Cronjobs":function(locale, options){
+			
+            var size = (options && options.size) ? ' btn-'+options.size : '';
+            return "<li class='dropdown Cronjobs'>" +
+              "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.Cronjobs.KillCommand + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+              "<ul class='dropdown-menu'>" +
+                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{KillCommand}}'>" + locale.Cronjobs.KillCommand + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{ReturnStatus}}'>" + locale.Cronjobs.ReturnStatus + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{DetailOutput}}'>" + locale.Cronjobs.DetailOutput + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Minute}}'>" + locale.Cronjobs.Minute + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{JobTitle}}'>" + locale.Cronjobs.JobTitle + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PID}}'>" + locale.Cronjobs.PID + "</a></li>"+				
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Cronjobs.CompanyName + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Url}}'>" + locale.Cronjobs.Url + "</a></li>"+			
+              "</ul>" +
+            "</li>";        
+		},
+		"Tickets":function(locale, options){			
+            var size = (options && options.size) ? ' btn-'+options.size : '';			var tickets_data  = '';
+			if(tickets_enable == 1){
+				tickets_data  = "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Ticket Fields</b></a></li>"+			                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Subject}}'>" + locale.Tickets.Subject + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TicketID}}'>" + locale.Tickets.TicketID + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Requester}}'>" + locale.Tickets.Requester + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{RequesterName}}'>" + locale.Tickets.RequesterName + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Status}}'>" + locale.Tickets.Status + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Priority}}'>" + locale.Tickets.Priority + "</a></li>"+				
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Description}}'>" + locale.Tickets.Description + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Group}}'>" + locale.Tickets.Group + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Type}}'>" + locale.Tickets.Type + "</a></li>"+
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Date}}'>" + locale.Tickets.Date + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AgentName}}'>" + locale.Tickets.AgentName + "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AgentEmail}}'>" + locale.Tickets.AgentEmail+ "</a></li>"				
+				;
+			}
+
+            return "<li class='dropdown Tickets'>" +
+              "<a class='btn btn-white dropdown-toggle" + size + "' data-toggle='dropdown' href='#'>" +
+                "<i class='icon-font'></i>&nbsp;<span class='current-option'>" + locale.Tickets.Subject + "</span>&nbsp;<b class='caret'></b>" +
+                "</a>" +
+              "<ul class='TicketsScroll dropdown-menu'>" +tickets_data+			  
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Account Fields</b></a></li>" +
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{FirstName}}'>" + locale.Tickets.FirstName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{LastName}}'>" + locale.Tickets.LastName + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Email}}'>" + locale.Tickets.Email + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address1}}'>" + locale.Tickets.Address1 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.Tickets.Address2 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.Tickets.Address3 + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.Tickets.City + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.Tickets.State + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.Tickets.PostCode + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.Tickets.Country + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.Tickets.Currency+ "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.Tickets.OutstandingExcludeUnbilledAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.Tickets.OutstandingIncludeUnbilledAmount + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.Tickets.BalanceThreshold + "</a></li>" +              
+				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Invoice Fields</b></a></li>" +
+	                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceNumber}}'>" + locale.Tickets.InvoiceNumber + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceGrandTotal}}'>" + locale.Tickets.InvoiceGrandTotal + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceOutstanding}}'>" + locale.Tickets.InvoiceOutstanding + "</a></li>" +   "<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Others</b></a></li>" +           
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Signature}}'>" + locale.Tickets.Signature + "</a></li>" +
+              "</ul>" +
+            "</li>";
+        
+		},
         "emphasis": function(locale, options) {
             var size = (options && options.size) ? ' btn-'+options.size : '';
             return "<li>" +
@@ -582,8 +849,15 @@
 
     var defaultOptions = $.fn.wysihtml5.defaultOptions = {
         "leadoptions":true ,
+		"TicketsSingle":false,
         "invoiceoptions":false ,
+		"Cronjobs":false,
+		"estimateoptions":false,
+		"ratesheetoptions":false,
+		"opportunities":false,
+		"tasks":false,
 		"Crm":true,
+		"Tickets":false,
         "font-styles": true,
         "color": false,
         "emphasis": true,
@@ -1096,6 +1370,25 @@
                 BalanceThreshold:"BalanceThreshold"
 
             },
+			ratesheetoptions:{
+	            FirstName:"FirstName",
+                LastName:"LastName",
+				RateTableName:"RateTableName",
+				EffectiveDate:"EffectiveDate",
+				RateGeneratorName:"RateGeneratorName",
+				CompanyName:"CompanyName",
+			},
+			opportunities:{
+				Subject:"Subject",
+				User:"User",
+				Comment:"Comment",
+				Logo:"Logo"
+			},
+			tasks:{
+				Subject:"Subject",
+				User:"User",
+				Comment:"Comment",				
+			},
             invoiceoptions:{
                 FirstName:"FirstName",
                 LastName:"LastName",
@@ -1115,7 +1408,33 @@
                 OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
                 BalanceThreshold:"BalanceThreshold",
                 Signature:"Signature",
-            },
+				CompanyName:"CompanyName",
+				InvoiceLink:"InvoiceLink",
+				AccountName:"AccountName",
+				Signature:"Signature",	 			
+            }, 
+			estimateoptions:{
+                FirstName:"FirstName",
+                LastName:"LastName",
+                Email:"Email",
+                Address1:"Address1",
+                Address2:"Address2",
+                Address3:"Address3",
+                City:"City",
+                State:"State",
+                PostCode:"PostCode",
+                Country:"Country",
+                Currency:"Currency",
+			 	EstimateNumber:"EstimateNumber",
+				EstimateGrandTotal:"EstimateGrandTotal",
+				CompanyName:"CompanyName",
+				EstimateLink:"EstimateLink",
+				AccountName:"AccountName",
+				Comment:"Comment",
+				Message:"Message",
+				Signature:"Signature",
+				User:"User"								
+			},
 			Crm:{				
                 FirstName:"FirstName",
                 LastName:"LastName",
@@ -1129,6 +1448,82 @@
                 Country:"Country",
                 Signature:"Signature"				
 				},
+		Cronjobs:{
+				KillCommand:"KillCommand",
+				ReturnStatus:"ReturnStatus",
+				DetailOutput:"DetailOutput",
+				Minute:"Minute",
+				JobTitle:"JobTitle",
+				PID:"PID",
+				CompanyName:"CompanyName",
+				Url:"Url"
+				},
+		TicketsSingle:{
+				Subject:"Subject",
+				TicketID:"TicketID",
+				Requester:"Requester",
+				Account:"Account",
+				RequesterName:"RequesterName",
+				Status:"Status",
+				Priority:'Priority',
+				Description:"Description",
+				Group:"Group",
+				Type:"Type",
+				Date:"Date",
+				AgentName:"AgentName",
+				AgentEmail:"AgentEmail",
+				Comment:"Comment",
+				TicketCustomerUrl:"TicketCustomerUrl",
+				TicketUrl:"TicketUrl"			
+				},
+			Company:{
+				CompanyName:"CompanyName",
+				Vat:"Vat",
+				FirstName:"FirstName",
+                LastName:"LastName",
+                Email:"Email",
+                Address1:"Address1",
+                Address2:"Address2",
+                Address3:"Address3",
+                City:"City",
+                State:"State",
+                PostCode:"PostCode",
+                Country:"Country",
+				Logo:"Logo"
+				},
+			Tickets:{
+				Subject:"Subject",
+				TicketID:"TicketID",
+				Requester:"Requester",
+				Account:"Account",
+				RequesterName:"RequesterName",
+				Status:"Status",
+				Priority:'Priority',
+				Description:"Description",
+				Group:"Group",
+				Type:"Type",
+				Date:"Date",
+				AgentName:"AgentName",
+				AgentEmail:"AgentEmail",
+				FirstName:"FirstName",				
+				LastName:"LastName",
+				Email:"Email",
+				Address1:"Address1",
+				Address2:"Address2",
+				Address3:"Address3",
+				City:"City",
+				State:"State",
+				PostCode:"PostCode",
+				Country:"Country",
+				Currency:"Currency",
+				OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
+				OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
+				BalanceThreshold:"BalanceThreshold",
+				Signature:"Signature",
+				InvoiceNumber:"InvoiceNumber",
+				InvoiceGrandTotal:"InvoiceGrandTotal",
+				InvoiceOutstanding:"InvoiceOutstanding",			
+			},	
             font_styles: {
                 normal: "Normal text",
                 h1: "Heading 1",
