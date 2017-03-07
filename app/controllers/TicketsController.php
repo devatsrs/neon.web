@@ -25,6 +25,7 @@ private $validlicense;
 			$this->TicketGroupAccess();
 			$this->TicketGroupAccess();
 			$this->TicketRestrictedAccess();
+			$TicketPermission			=	TicketsTable::GetTicketAccessPermission();
 			$CompanyID 		 			= 	 User::get_companyID(); 
 			$data 			 			= 	 array();	
 			$status			 			=    TicketsTable::getTicketStatus();
@@ -64,10 +65,13 @@ private $validlicense;
 			$iTotalDisplayRecords 		= 	 $array->iTotalDisplayRecords;
 			$iDisplayLength 			= 	 $data['iDisplayLength'];
 			$data['currentpage'] 		= 	 0;
-			
-			
+		
 			TicketsTable::SetTicketSession($result);
-			//echo "<pre>";			print_r($result); exit;
+		
+			if($TicketPermission!=TicketsTable::TICKETGLOBALACCESS)	{
+				$Groups	= TicketGroups::getTicketGroupsFromData($array->GroupsData);				
+			}
+			//echo "<pre>";			print_r($Groups); exit;
         return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination'));  
 	  }	
 	  
@@ -602,5 +606,18 @@ private $validlicense;
 	function TicketGroupAccess(){
 	}
 	function TicketRestrictedAccess(){
+	}
+	
+	function GetUserGroups($data){
+		$group = array();
+		if(is_array($data)){
+			foreach($data as $TicketData){
+				if(!in_array($TicketData->GroupName,$group)){
+					$GroupData   =  TicketGroups::where(["GroupName"=>$TicketData->GroupName])->pluck("GroupID");
+					$group[]	 =  $TicketData->GroupName;
+				}
+			}
+		}
+		return $group;
 	}
 }
