@@ -350,29 +350,33 @@ $(document).ready(function(e) {
 	
 	$( document ).on("click",'.add_note' ,function(e) {		 
 		var mod = $('#add-note-model');
-		 	mod.find('.wysihtml5-toolbar').remove();
-			mod.find('.wysihtml5-sandbox').remove();
-			mod.find('#Description_edit_note').show();
-		
 		mod.modal("show");	
-		console.log("aaa");
-		mod.find('#Description_edit_note').wysihtml5({
+	
+	 $('#add-note-model').on('shown.bs.modal', function(event){
+						  var modal = $(this);
+                        modal.find('.wysihtml5-toolbar').remove();
+						modal.find('.wysihtml5-sandbox').remove();
+                        modal.find('.editor-note').show();
+						  
+                        var modal = $('#add-note-model');
+						
+							
+						modal.find('.editor-note').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
-						"Crm":false,
+						"Crm":true,
 						"emphasis": true,
 						"lists": true,
 						"html": true,
 						"link": true,
 						"image": true,
 						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});	
-				
-	});
-	
+							parser: function(html) {
+								return html;
+							}
+					});
+                    });
+	 });
 	////
 	$( document ).on("submit",'#add-note-form' ,function(e) {			
 		e.preventDefault();
