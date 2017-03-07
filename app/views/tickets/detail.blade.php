@@ -354,8 +354,8 @@ $(document).ready(function(e) {
 			mod.find('.wysihtml5-sandbox').remove();
 			mod.find('#Description_edit_note').show();
 		
-		
-		mod.find('#Description_edit_note').wysihtml5({
+		mod.modal("show");	
+		setTimeout(mod.find('#Description_edit_note').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
 						"Crm":false,
@@ -368,8 +368,7 @@ $(document).ready(function(e) {
 						parser: function(html) {
 							return html;
 						}
-				});	
-				mod.modal("show");	
+				}),1000);	
 				
 	});
 	
