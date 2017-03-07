@@ -27,15 +27,11 @@ DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FILE_RETENTION_EMAIL';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='SIPPY_CSVDECODER';
 
 UPDATE `tblcompanyconfiguration` SET `Value`='UPLOAD_PATH' WHERE  `Key`='UPLOADPATH';
-UPDATE `tblcompanyconfiguration` SET `Value`='WEB_PATH' WHERE  `Key`='SITE_URL';
 UPDATE `tblcompanyconfiguration` SET `Value`='NEON_API_URL' WHERE  `Key`='Neon_API_URL';
 UPDATE `tblcompanyconfiguration` SET `Value`='PHP_EXE_PATH' WHERE  `Key`='PHPExePath';
 UPDATE `tblcompanyconfiguration` SET `Value`='RM_ARTISAN_FILE_LOCATION' WHERE  `Key`='RMArtisanFileLocation';
-UPDATE `tblcompanyconfiguration` SET `Value`='Quickbook' WHERE  `Key`='QUICKBOOK';
 UPDATE `tblcompanyconfiguration` SET `Key`='UPLOAD_PATH' WHERE  `Key`='UPLOADPATH';
 UPDATE `tblcompanyconfiguration` SET `Key`='WEB_URL' WHERE  `Key`='SITE_URL';
-UPDATE `tblcompanyconfiguration` SET `Key`='PHP_EXE_PATH' WHERE  `Key`='PHPExePath';
-UPDATE `tblcompanyconfiguration` SET `Key`='RM_ARTISAN_FILE_LOCATION' WHERE  `Key`='RMArtisanFileLocation';
 UPDATE `tblcompanyconfiguration` SET `Key`='QUICKBOOK' WHERE `Key`='Quickbook' ;
 
 
