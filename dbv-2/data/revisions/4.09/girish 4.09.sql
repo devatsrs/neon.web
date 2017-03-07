@@ -1,6 +1,8 @@
+USE `RMBilling3`;
+
 DROP PROCEDURE IF EXISTS `prc_getDashboardinvoiceExpense`;
-DELIMITER //
-CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `prc_getDashboardinvoiceExpense`(
+DELIMITER |
+CREATE PROCEDURE `prc_getDashboardinvoiceExpense`(
 	IN `p_CompanyID` INT,
 	IN `p_CurrencyID` INT,
 	IN `p_AccountID` INT,
@@ -93,7 +95,7 @@ BEGIN
 			ac.CurrencyId
 			
 		FROM tblPayment p 
-		INNER JOIN NeonRMDev.tblAccount ac 
+		INNER JOIN Ratemanagement3.tblAccount ac 
 			ON ac.AccountID = p.AccountID
 		LEFT JOIN tblInvoice inv ON p.AccountID = inv.AccountID
 			AND p.InvoiceID = inv.InvoiceID
@@ -249,13 +251,13 @@ BEGIN
 			td.Year;
 	END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END//
+END|
 DELIMITER ;
 
--- Dumping structure for procedure NeonBillingDev.prc_ProcesssCDR
+-- Dumping structure for procedure RMBilling3.prc_ProcesssCDR
 DROP PROCEDURE IF EXISTS `prc_ProcesssCDR`;
-DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcesssCDR`(
+DELIMITER |
+CREATE  PROCEDURE `prc_ProcesssCDR`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_processId` INT,
@@ -294,7 +296,7 @@ BEGIN
 		ud.CompanyGatewayID,
 		ud.GatewayAccountID,
 		ud.GatewayAccountID
-	FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
+	FROM RMCDR3.' , p_tbltempusagedetail_name , ' ud
 	LEFT JOIN tblGatewayAccount ga
 		ON ga.GatewayAccountID = ud.GatewayAccountID
 		AND ga.CompanyGatewayID = ud.CompanyGatewayID
@@ -313,7 +315,7 @@ BEGIN
 
 	/* update cdr account */
 	SET @stm = CONCAT('
-	UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` uh
+	UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` uh
 	INNER JOIN tblGatewayAccount ga
 		ON  ga.CompanyID = uh.CompanyID
 		AND ga.CompanyGatewayID = uh.CompanyGatewayID
@@ -329,7 +331,7 @@ BEGIN
 	DEALLOCATE PREPARE stmt;
 
 	SELECT COUNT(*) INTO v_NewAccountIDCount_ 
-	FROM NeonCDRDev.tblUsageHeader uh
+	FROM RMCDR3.tblUsageHeader uh
 	INNER JOIN tblGatewayAccount ga
 		ON  ga.CompanyID = uh.CompanyID
 		AND ga.CompanyGatewayID = uh.CompanyGatewayID
@@ -343,7 +345,7 @@ BEGIN
 	THEN
 
 		/* update header cdr account */
-		UPDATE NeonCDRDev.tblUsageHeader uh
+		UPDATE RMCDR3.tblUsageHeader uh
 		INNER JOIN tblGatewayAccount ga
 			ON  ga.CompanyID = uh.CompanyID
 			AND ga.CompanyGatewayID = uh.CompanyGatewayID
@@ -365,7 +367,7 @@ BEGIN
 	);
 	SET @stm = CONCAT('
 	INSERT INTO tmp_AccountTrunkCdrUpload_(AccountID,TrunkID)
-	SELECT DISTINCT AccountID,TrunkID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL AND ud.is_inbound = 0;
+	SELECT DISTINCT AccountID,TrunkID FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL AND ud.is_inbound = 0;
 	');
 
 	SET v_CDRUpload_ = (SELECT COUNT(*) FROM tmp_AccountTrunkCdrUpload_);
@@ -374,10 +376,10 @@ BEGIN
 	THEN
 		/* update UseInBilling when cdr upload*/
 		SET @stm = CONCAT('
-		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tblCustomerTrunk ct 
+		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN Ratemanagement3.tblCustomerTrunk ct 
 			ON ct.AccountID = ud.AccountID AND ct.TrunkID = ud.TrunkID AND ct.Status =1
-		INNER JOIN NeonRMDev.tblTrunk t 
+		INNER JOIN Ratemanagement3.tblTrunk t 
 			ON t.TrunkID = ct.TrunkID  
 			SET ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
 		WHERE  ud.ProcessID = "' , p_processId , '";
@@ -394,11 +396,11 @@ BEGIN
 
 		/* update trunk without use in billing*/
 		SET @stm = CONCAT('
-		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tblCustomerTrunk ct 
+		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN Ratemanagement3.tblCustomerTrunk ct 
 			ON ct.AccountID = ud.AccountID AND ct.Status =1 
 			AND ct.UseInBilling = 0 
-		INNER JOIN NeonRMDev.tblTrunk t 
+		INNER JOIN Ratemanagement3.tblTrunk t 
 			ON t.TrunkID = ct.TrunkID  
 			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling
 		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.is_inbound = 0 AND ud.TrunkID IS NULL;
@@ -410,11 +412,11 @@ BEGIN
 
 		/* update trunk with use in billing*/
 		SET @stm = CONCAT('
-		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tblCustomerTrunk ct 
+		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN Ratemanagement3.tblCustomerTrunk ct 
 			ON ct.AccountID = ud.AccountID AND ct.Status =1 
 			AND ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
-		INNER JOIN NeonRMDev.tblTrunk t 
+		INNER JOIN Ratemanagement3.tblTrunk t 
 			ON t.TrunkID = ct.TrunkID  
 			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
 		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.is_inbound = 0 AND ud.TrunkID IS NULL;
@@ -430,7 +432,7 @@ BEGIN
 	IF p_RateCDR = 1
 	THEN
 
-		SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( AccountID IS NULL OR TrunkID IS NULL ) ') ;
+		SET @stm = CONCAT('UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( AccountID IS NULL OR TrunkID IS NULL ) ') ;
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
@@ -447,7 +449,7 @@ BEGIN
 	);
 	SET @stm = CONCAT('
 	INSERT INTO tmp_AccountTrunk_(AccountID,TrunkID)
-	SELECT DISTINCT AccountID,TrunkID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL AND ud.is_inbound = 0;
+	SELECT DISTINCT AccountID,TrunkID FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL AND ud.is_inbound = 0;
 	');
 
 	PREPARE stm FROM @stm;
@@ -464,7 +466,7 @@ BEGIN
 		SET v_AccountID_ = (SELECT AccountID FROM tmp_AccountTrunk_ t WHERE t.RowID = v_pointer_);
 
 		/* get outbound rate process*/
-		CALL NeonRMDev.prc_getCustomerCodeRate(v_AccountID_,v_TrunkID_,p_RateCDR,p_RateMethod,p_SpecifyRate);
+		CALL Ratemanagement3.prc_getCustomerCodeRate(v_AccountID_,v_TrunkID_,p_RateCDR,p_RateMethod,p_SpecifyRate);
 
 		/* update prefix outbound process*/
 		/* if rate format is prefix base not charge code*/
@@ -493,7 +495,7 @@ BEGIN
 		);
 		SET @stm = CONCAT('
 		INSERT INTO tmp_Accounts_(AccountID)
-		SELECT DISTINCT AccountID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
+		SELECT DISTINCT AccountID FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
 		');
 
 		PREPARE stm FROM @stm;
@@ -501,7 +503,7 @@ BEGIN
 		DEALLOCATE PREPARE stm;
 
 		/* get default code */
-		CALL NeonRMDev.prc_getDefaultCodes(p_CompanyID);
+		CALL Ratemanagement3.prc_getDefaultCodes(p_CompanyID);
 
 		/* update prefix from default codes 
 		 if rate format is prefix base not charge code*/
@@ -515,12 +517,12 @@ BEGIN
 	SET @stm = CONCAT('
 	INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
 	SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,1,  CONCAT( "Account:  " , ga.AccountName ," - Gateway: ",cg.Title," - Doesnt exist in NEON") as Message ,DATE(NOW())
-	FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
+	FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud
 	INNER JOIN tblGatewayAccount ga 
 		ON ga.CompanyGatewayID = ud.CompanyGatewayID
 		AND ga.CompanyID = ud.CompanyID
 		AND ga.GatewayAccountID = ud.GatewayAccountID
-	INNER JOIN NeonRMDev.tblCompanyGateway cg ON cg.CompanyGatewayID = ud.CompanyGatewayID
+	INNER JOIN Ratemanagement3.tblCompanyGateway cg ON cg.CompanyGatewayID = ud.CompanyGatewayID
 	WHERE ud.ProcessID = "' , p_processid  , '" and ud.AccountID IS NULL');
 	
 	PREPARE stmt FROM @stm;
@@ -532,8 +534,8 @@ BEGIN
 		SET @stm = CONCAT('
 		INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
 		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Trunk: ",ud.trunk," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
-		FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
+		FROM  RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN Ratemanagement3.tblAccount a on  ud.AccountID = a.AccountID
 		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 AND ud.billed_second <> 0 and ud.area_prefix = "Other"');
 		
 		PREPARE stmt FROM @stm;
@@ -543,8 +545,8 @@ BEGIN
 		SET @stm = CONCAT('
 		INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
 		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,3,  CONCAT( "Account:  " , a.AccountName ,  " - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
-		FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
+		FROM  RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN Ratemanagement3.tblAccount a on  ud.AccountID = a.AccountID
 		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 1 AND ud.is_rerated = 0 AND ud.billed_second <> 0 and ud.area_prefix = "Other"');
 		
 		PREPARE stmt FROM @stm;
@@ -552,9 +554,9 @@ BEGIN
 		DEALLOCATE PREPARE stmt;
 		
 		SET @stm = CONCAT('
-		INSERT INTO NeonRMDev.tblTempRateLog (CompanyID,CompanyGatewayID,MessageType,Message,RateDate,SentStatus,created_at)
+		INSERT INTO Ratemanagement3.tblTempRateLog (CompanyID,CompanyGatewayID,MessageType,Message,RateDate,SentStatus,created_at)
 		SELECT rt.CompanyID,rt.CompanyGatewayID,rt.MessageType,rt.Message,rt.RateDate,0 as SentStatus,NOW() as created_at FROM tmp_tblTempRateLog_ rt
-		LEFT JOIN NeonRMDev.tblTempRateLog rt2 
+		LEFT JOIN Ratemanagement3.tblTempRateLog rt2 
 			ON rt.CompanyID = rt2.CompanyID
 			AND rt.CompanyGatewayID = rt2.CompanyGatewayID
 			AND rt.MessageType = rt2.MessageType
@@ -572,13 +574,13 @@ BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
 
-END//
+END|
 DELIMITER ;
 
--- Dumping structure for procedure NeonBillingDev.prc_RerateInboundCalls
+-- Dumping structure for procedure RMBilling3.prc_RerateInboundCalls
 DROP PROCEDURE IF EXISTS `prc_RerateInboundCalls`;
-DELIMITER //
-CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `prc_RerateInboundCalls`(
+DELIMITER |
+CREATE  PROCEDURE `prc_RerateInboundCalls`(
 	IN `p_CompanyID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
@@ -596,7 +598,7 @@ BEGIN
 	IF p_RateCDR = 1  
 	THEN
 	
-		IF (SELECT COUNT(*) FROM NeonRMDev.tblCLIRateTable WHERE CompanyID = p_CompanyID AND RateTableID > 0) > 0
+		IF (SELECT COUNT(*) FROM Ratemanagement3.tblCLIRateTable WHERE CompanyID = p_CompanyID AND RateTableID > 0) > 0
 		THEN
 		
 			/* temp accounts*/
@@ -608,7 +610,7 @@ BEGIN
 			);
 			SET @stm = CONCAT('
 			INSERT INTO tmp_Account_(AccountID,cld)
-			SELECT DISTINCT AccountID,cld FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
+			SELECT DISTINCT AccountID,cld FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
 			');
 			
 			PREPARE stm FROM @stm;
@@ -627,7 +629,7 @@ BEGIN
 			);
 			SET @stm = CONCAT('
 			INSERT INTO tmp_Account_(AccountID,cld)
-			SELECT DISTINCT AccountID,"" FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
+			SELECT DISTINCT AccountID,"" FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
 			');
 			
 			PREPARE stm FROM @stm;
@@ -648,7 +650,7 @@ BEGIN
 			SET v_cld_ = (SELECT cld FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
 			
 			/* get inbound rate process*/
-			CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_);
+			CALL Ratemanagement3.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_);
 			
 			/* update prefix inbound process*/
 			CALL prc_updateInboundPrefix(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_);
@@ -663,13 +665,13 @@ BEGIN
 	END IF;
 
 
-END//
+END|
 DELIMITER ;
 
--- Dumping structure for procedure NeonBillingDev.prc_updateInboundPrefix
+-- Dumping structure for procedure RMBilling3.prc_updateInboundPrefix
 DROP PROCEDURE IF EXISTS `prc_updateInboundPrefix`;
-DELIMITER //
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_updateInboundPrefix`(
+DELIMITER |
+CREATE  PROCEDURE `prc_updateInboundPrefix`(
 	IN `p_AccountID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
@@ -699,8 +701,8 @@ BEGIN
 		SELECT
 			TempUsageDetailID,
 			c.code AS prefix
-		FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud 
-		INNER JOIN NeonRMDev.tmp_inboundcodes_ c 
+		FROM RMCDR3.' , p_tbltempusagedetail_name , ' ud 
+		INNER JOIN Ratemanagement3.tmp_inboundcodes_ c 
 		ON ud.ProcessID = ' , p_processId , '
 			AND ud.is_inbound = 1 
 			AND ud.AccountID = ' , p_AccountID , '
@@ -717,8 +719,8 @@ BEGIN
 		SELECT
 			TempUsageDetailID,
 			c.code AS prefix
-		FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud 
-		INNER JOIN NeonRMDev.tmp_inboundcodes_ c 
+		FROM RMCDR3.' , p_tbltempusagedetail_name , ' ud 
+		INNER JOIN Ratemanagement3.tmp_inboundcodes_ c 
 		ON ud.ProcessID = ' , p_processId , '
 			AND ud.is_inbound = 1 
 			AND ud.AccountID = ' , p_AccountID , '
@@ -741,7 +743,7 @@ BEGIN
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 
-	SET @stm = CONCAT('UPDATE NeonCDRDev.' , p_tbltempusagedetail_name , ' tbl2
+	SET @stm = CONCAT('UPDATE RMCDR3.' , p_tbltempusagedetail_name , ' tbl2
 	INNER JOIN tmp_TempUsageDetail2_ tbl
 		ON tbl2.TempUsageDetailID = tbl.TempUsageDetailID
 	SET area_prefix = prefix
@@ -752,13 +754,13 @@ BEGIN
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;     
 
-END//
+END|
 DELIMITER ;
 
--- Dumping structure for procedure NeonBillingDev.prc_updateInboundRate
+-- Dumping structure for procedure RMBilling3.prc_updateInboundRate
 DROP PROCEDURE IF EXISTS `prc_updateInboundRate`;
-DELIMITER //
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_updateInboundRate`(
+DELIMITER |
+CREATE  PROCEDURE `prc_updateInboundRate`(
 	IN `p_AccountID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
@@ -766,15 +768,15 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_updateInboundRate`(
 )
 BEGIN
 	
-	SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND ("' , p_CLD , '" = "" OR cld = "' , p_CLD , '") AND is_inbound = 1 ') ;
+	SET @stm = CONCAT('UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND ("' , p_CLD , '" = "" OR cld = "' , p_CLD , '") AND is_inbound = 1 ') ;
 
 	PREPARE stmt FROM @stm;
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 
 	SET @stm = CONCAT('
-	UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud 
-	INNER JOIN NeonRMDev.tmp_inboundcodes_ cr ON cr.Code = ud.area_prefix
+	UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud 
+	INNER JOIN Ratemanagement3.tmp_inboundcodes_ cr ON cr.Code = ud.area_prefix
 	SET cost = 
 		CASE WHEN  billed_second >= Interval1
 		THEN
@@ -810,13 +812,13 @@ BEGIN
    EXECUTE stmt;
    DEALLOCATE PREPARE stmt;
 	
-END//
+END|
 DELIMITER ;
 
--- Dumping structure for procedure NeonBillingDev.prc_updateSOAOffSet
+-- Dumping structure for procedure RMBilling3.prc_updateSOAOffSet
 DROP PROCEDURE IF EXISTS `prc_updateSOAOffSet`;
-DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateSOAOffSet`(
+DELIMITER |
+CREATE  PROCEDURE `prc_updateSOAOffSet`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT
 )
@@ -867,34 +869,34 @@ BEGIN
 	GROUP BY AccountID;
 	
 	INSERT INTO tmp_AccountSOABal
-	SELECT DISTINCT tblAccount.AccountID ,0 FROM NeonRMDev.tblAccount
+	SELECT DISTINCT tblAccount.AccountID ,0 FROM Ratemanagement3.tblAccount
 	LEFT JOIN tmp_AccountSOA ON tblAccount.AccountID = tmp_AccountSOA.AccountID
 	WHERE tblAccount.CompanyID = p_CompanyID
 	AND tmp_AccountSOA.AccountID IS NULL
 	AND (p_AccountID = 0 OR  tblAccount.AccountID = p_AccountID);
 	
-	UPDATE NeonRMDev.tblAccountBalance
+	UPDATE Ratemanagement3.tblAccountBalance
 	INNER JOIN tmp_AccountSOABal 
 		ON  tblAccountBalance.AccountID = tmp_AccountSOABal.AccountID
 	SET SOAOffset=tmp_AccountSOABal.Amount;
 	
-	UPDATE NeonRMDev.tblAccountBalance SET tblAccountBalance.BalanceAmount = COALESCE(tblAccountBalance.SOAOffset,0) + COALESCE(tblAccountBalance.UnbilledAmount,0)  - COALESCE(tblAccountBalance.VendorUnbilledAmount,0);
+	UPDATE Ratemanagement3.tblAccountBalance SET tblAccountBalance.BalanceAmount = COALESCE(tblAccountBalance.SOAOffset,0) + COALESCE(tblAccountBalance.UnbilledAmount,0)  - COALESCE(tblAccountBalance.VendorUnbilledAmount,0);
 	
-	INSERT INTO NeonRMDev.tblAccountBalance (AccountID,BalanceAmount,UnbilledAmount,SOAOffset)
+	INSERT INTO Ratemanagement3.tblAccountBalance (AccountID,BalanceAmount,UnbilledAmount,SOAOffset)
 	SELECT tmp_AccountSOABal.AccountID,tmp_AccountSOABal.Amount,0,tmp_AccountSOABal.Amount
 	FROM tmp_AccountSOABal 
-	LEFT JOIN NeonRMDev.tblAccountBalance
+	LEFT JOIN Ratemanagement3.tblAccountBalance
 		ON tblAccountBalance.AccountID = tmp_AccountSOABal.AccountID
 	WHERE tblAccountBalance.AccountID IS NULL;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-END//
+END|
 DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_getActiveGatewayAccount`;
-DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getActiveGatewayAccount`(
+DELIMITER |
+CREATE  PROCEDURE `prc_getActiveGatewayAccount`(
 	IN `p_company_id` INT,
 	IN `p_gatewayid` INT,
 	IN `p_UserID` INT,
@@ -946,7 +948,7 @@ BEGIN
 			CASE WHEN Settings LIKE '%"NameFormat":"NAME"%'
 			THEN 'NAME'
 			ELSE 'NAME' END END END END END END   AS  NameFormat 
-		FROM NeonRMDev.tblCompanyGateway
+		FROM Ratemanagement3.tblCompanyGateway
 		WHERE Settings LIKE '%NameFormat%' AND
 		CompanyGatewayID = p_gatewayid
 		LIMIT 1;
@@ -962,9 +964,9 @@ BEGIN
 	END IF;
 
 	INSERT INTO tmp_AuthenticateRules_  (AuthRule)  
-	SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL
+	SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL
 	UNION 
-	SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL;
+	SELECT DISTINCT VendorAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL;
 	
 	SET v_pointer_ = 1;
 	SET v_rowCount_ = (SELECT COUNT(*)FROM tmp_AuthenticateRules_);
@@ -982,7 +984,7 @@ BEGIN
 				GatewayAccountID,
 				a.AccountID,
 				a.AccountName
-			FROM NeonRMDev.tblAccount  a
+			FROM Ratemanagement3.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
 				ON concat(a.AccountName , '-' , a.Number) = ga.AccountName
 				AND a.Status = 1 
@@ -1001,7 +1003,7 @@ BEGIN
 				GatewayAccountID,
 				a.AccountID,
 				a.AccountName
-			FROM NeonRMDev.tblAccount  a
+			FROM Ratemanagement3.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
 				ON concat(a.Number, '-' , a.AccountName) = ga.AccountName
 				AND a.Status = 1 
@@ -1020,7 +1022,7 @@ BEGIN
 				GatewayAccountID,
 				a.AccountID,
 				a.AccountName
-			FROM NeonRMDev.tblAccount  a
+			FROM Ratemanagement3.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
 				ON a.Number = ga.AccountName
 				AND a.Status = 1 
@@ -1039,8 +1041,8 @@ BEGIN
 				GatewayAccountID,
 				a.AccountID,
 				a.AccountName
-			FROM NeonRMDev.tblAccount  a
-			INNER JOIN NeonRMDev.tblAccountAuthenticate aa 
+			FROM Ratemanagement3.tblAccount  a
+			INNER JOIN Ratemanagement3.tblAccountAuthenticate aa 
 				ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'IP' OR aa.VendorAuthRule ='IP')
 			INNER JOIN tblGatewayAccount ga
 				ON   a.Status = 1 	
@@ -1060,8 +1062,8 @@ BEGIN
 			GatewayAccountID,
 			a.AccountID,
 			a.AccountName
-			FROM NeonRMDev.tblAccount  a
-			INNER JOIN NeonRMDev.tblAccountAuthenticate aa ON 
+			FROM Ratemanagement3.tblAccount  a
+			INNER JOIN Ratemanagement3.tblAccountAuthenticate aa ON 
 			a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'CLI' OR aa.VendorAuthRule ='CLI')
 			INNER JOIN tblGatewayAccount ga
 			ON   a.Status = 1 	
@@ -1077,8 +1079,8 @@ BEGIN
 				GatewayAccountID,
 				a.AccountID,
 				a.AccountName
-			FROM NeonRMDev.tblAccount  a
-			INNER JOIN NeonRMDev.tblCLIRateTable aa 
+			FROM Ratemanagement3.tblAccount  a
+			INNER JOIN Ratemanagement3.tblCLIRateTable aa 
 				ON a.AccountID = aa.AccountID 
 			INNER JOIN tblGatewayAccount ga
 				ON   a.Status = 1 	
@@ -1099,8 +1101,8 @@ BEGIN
 				GatewayAccountID,
 				a.AccountID,
 				a.AccountName
-			FROM NeonRMDev.tblAccount  a
-			LEFT JOIN NeonRMDev.tblAccountAuthenticate aa 
+			FROM Ratemanagement3.tblAccount  a
+			LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa 
 				ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'Other' OR aa.VendorAuthRule ='Other')
 			INNER JOIN tblGatewayAccount ga
 				ON    a.Status = 1
@@ -1125,13 +1127,13 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-END//
+END|
 DELIMITER ;
 
 
 DROP PROCEDURE IF EXISTS `prc_updateOutboundRate`;
-DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateOutboundRate`(
+DELIMITER |
+CREATE  PROCEDURE `prc_updateOutboundRate`(
 	IN `p_AccountID` INT,
 	IN `p_TrunkID` INT,
 	IN `p_processId` INT,
@@ -1139,15 +1141,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateOutboundRate`(
 )
 BEGIN
 	
-	SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND TrunkID = "',p_TrunkID ,'" AND is_inbound = 0 ') ;
+	SET @stm = CONCAT('UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND TrunkID = "',p_TrunkID ,'" AND is_inbound = 0 ') ;
 
 	PREPARE stmt FROM @stm;
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 
 	SET @stm = CONCAT('
-	UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud 
-	INNER JOIN NeonRMDev.tmp_codes_ cr ON cr.Code = ud.area_prefix
+	UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud 
+	INNER JOIN Ratemanagement3.tmp_codes_ cr ON cr.Code = ud.area_prefix
 	SET cost = 
 		CASE WHEN  billed_second >= Interval1
 		THEN
@@ -1184,13 +1186,13 @@ BEGIN
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 
-END//
+END|
 DELIMITER ;
 
 
 DROP PROCEDURE IF EXISTS `prc_updatePrefix`;
-DELIMITER //
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updatePrefix`(
+DELIMITER |
+CREATE  PROCEDURE `prc_updatePrefix`(
 	IN `p_AccountID` INT,
 	IN `p_TrunkID` INT,
 	IN `p_processId` INT,
@@ -1217,8 +1219,8 @@ BEGIN
 	SELECT
 		TempUsageDetailID,
 		c.code AS prefix
-	FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
-	INNER JOIN NeonRMDev.tmp_codes_ c 
+	FROM RMCDR3.' , p_tbltempusagedetail_name , ' ud
+	INNER JOIN Ratemanagement3.tmp_codes_ c 
 	ON ud.ProcessID = ' , p_processId , '
 		AND ud.is_inbound = 0 
 		AND ud.AccountID = ' , p_AccountID , '
@@ -1240,8 +1242,8 @@ BEGIN
 	SELECT
 		TempUsageDetailID,
 		c.code AS prefix
-	FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
-	INNER JOIN NeonRMDev.tmp_codes_ c 
+	FROM RMCDR3.' , p_tbltempusagedetail_name , ' ud
+	INNER JOIN Ratemanagement3.tmp_codes_ c 
 	ON ud.ProcessID = ' , p_processId , '
 		AND ud.is_inbound = 0
 		AND ud.AccountID = ' , p_AccountID , '
@@ -1266,7 +1268,7 @@ BEGIN
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 
-	SET @stm = CONCAT('UPDATE NeonCDRDev.' , p_tbltempusagedetail_name , ' tbl2
+	SET @stm = CONCAT('UPDATE RMCDR3.' , p_tbltempusagedetail_name , ' tbl2
 	INNER JOIN tmp_TempUsageDetail2_ tbl
 		ON tbl2.TempUsageDetailID = tbl.TempUsageDetailID
 	SET area_prefix = prefix
@@ -1277,5 +1279,5 @@ BEGIN
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;     
 
-END//
+END|
 DELIMITER ;

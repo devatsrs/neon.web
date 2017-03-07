@@ -193,6 +193,7 @@ $(".codedeckid").bind('change',function (e) {
                         current_obj.parent().find('[name="codedeckid"]').val(prev_val);
                         current_obj.select2().select2('val',prev_val);
                         submit_ajax(baseurl + '/vendor_rates/{{$id}}/delete_vendorrates','Trunkid='+trunkid);
+                        $("#VendorTrunk-form").submit();
                         $("#vendor-trunks-submit").button('reset');
                     }else{
                         $("#vendor-trunks-submit").button('reset');
