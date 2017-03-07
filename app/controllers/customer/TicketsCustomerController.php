@@ -27,7 +27,7 @@ private $validlicense;
 			$data 			 			= 	 array();	
 			$status			 			=    TicketsTable::getTicketStatus();
 			$Priority		 			=	 TicketPriority::getTicketPriority();
-			$Groups			 			=	 TicketGroups::getTicketGroups(); 
+			//$Groups			 			=	 TicketGroups::getTicketGroups(); 
 			$Agents			 			= 	 User::getUserIDListAll(0);
 			$Agents			 			= 	 array("0"=> "Select")+$Agents;
 			$Type			 			=    TicketsTable::getTicketType();
@@ -60,9 +60,11 @@ private $validlicense;
 			$iTotalDisplayRecords 		= 	 $array->iTotalDisplayRecords;
 			$iDisplayLength 			= 	 $data['iDisplayLength'];
 			$data['currentpage'] 		= 	 0;
+			//echo "<pre>";		print_r($result);			exit;
+			$Groups						= 	TicketGroups::getTicketGroupsFromData($array->GroupsData);				
 			
 		TicketsTable::SetTicketSession($result);
-		//echo "<pre>";		print_r($result);			exit;
+		
         return View::make('customer.tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page","pagination"));  
 			/////////
 	  }	
