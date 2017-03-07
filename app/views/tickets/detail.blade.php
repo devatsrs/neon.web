@@ -348,14 +348,14 @@ $(document).ready(function(e) {
 	});
 	
 	
-	$( document ).on("click",'.add_note' ,function(e) {		 alert('aaa');	
+	$( document ).on("click",'.add_note' ,function(e) {		 
 		var mod = $('#add-note-model');
 		 	mod.find('.wysihtml5-toolbar').remove();
 			mod.find('.wysihtml5-sandbox').remove();
 			mod.find('#Description_edit_note').show();
 		
-		mod.modal("show");
-		$('#Description_edit_note').wysihtml5({
+		
+		mod.find('#Description_edit_note').wysihtml5({
 						"font-styles": true,
 						"leadoptions":false,
 						"Crm":false,
@@ -368,7 +368,9 @@ $(document).ready(function(e) {
 						parser: function(html) {
 							return html;
 						}
-				});		
+				});	
+				mod.modal("show");	
+				
 	});
 	
 	////
