@@ -114,7 +114,7 @@
         });
     });*/
 </script>
-@include('currencies.currencymodal');
-@include('trunk.trunkmodal');
+@include('currencies.currencymodal')
+@include('trunk.trunkmodal')
 @include('includes.ajax_submit_script', array('formID'=>'rategenerator-from' , 'url' => ('/rategenerators/store'),'update_url'=>'rategenerators/{id}/update'))
 @stop         
