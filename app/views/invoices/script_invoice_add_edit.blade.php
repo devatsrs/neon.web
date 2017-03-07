@@ -475,6 +475,10 @@ $(document).ready(function(){
                     $("#Account_Address").html('');
                     $("input[name=CurrencyCode]").val('');
                     $("input[name=CurrencyID]").val('');
+                    $('#add-new-billing_subscription-form [data-type="currency"]').val('').trigger('change');
+                    if($('#add-new-billing_subscription-form input[name=CurrencyID]').length > 0) {
+                        $('#add-new-billing_subscription-form input[name=CurrencyID]').val('');
+                    }
                     $("input[name=InvoiceTemplateID]").val('');
                     $("[name=Terms]").val('');
                     $("[name=FooterTerm]").val('');
@@ -482,6 +486,12 @@ $(document).ready(function(){
                     $("#Account_Address").html(response.Address);
                     $("input[name=CurrencyCode]").val(response.Currency);
                     $("input[name=CurrencyID]").val(response.CurrencyId);
+                    $('#add-new-billing_subscription-form [data-type="currency"]').val(response.CurrencyId).trigger('change');
+                    if($('#add-new-billing_subscription-form input[name=CurrencyID]').length > 0) {
+                        $('#add-new-billing_subscription-form input[name=CurrencyID]').val(response.CurrencyId);
+                    }else{
+                        $('#add-new-billing_subscription-form select[data-type="currency"]').after($('<input type="hidden" name="CurrencyID" value="' + response.CurrencyId + '" />'));
+                    }
                     $("input[name=InvoiceTemplateID]").val(response.InvoiceTemplateID);
                     $("[name=Terms]").val(response.Terms);
                     $("[name=FooterTerm]").val(response.FooterTerm);

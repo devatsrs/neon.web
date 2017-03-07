@@ -67,7 +67,7 @@
               <tbody>
                 <tr>
                   <td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td>
-                  <td>{{Form::SelectControl('item_and_Subscription',0,'',0,'EstimateDetail[ProductID][]')}}</td>
+                  <td>{{Form::SelectControl('item_and_Subscription',0,'',0,'InvoiceDetail[ProductID][]')}}</td>
                   <td>{{Form::textarea('InvoiceDetail[Description][]','',array("class"=>"form-control autogrow invoice_estimate_textarea descriptions","rows"=>1))}}</td>
                   <td class="text-center">{{Form::text('InvoiceDetail[Price][]','',array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td>
                   <td class="text-center">{{Form::text('InvoiceDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>

@@ -2696,7 +2696,7 @@ $(document).on('select2-open','.select2add' ,function(e) {
 });
 
 function resetForm(form,type){
-    form.trigger("reset");
+    //form.trigger("reset");
     $.each(form[0].elements, function(index,field) {
         field = $(field);
         setDefaultValue(type,field);
