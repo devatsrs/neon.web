@@ -384,7 +384,7 @@ function compositDropdown($name,$data,$selection,$arr)
     }
     $select = '<select name="'.$name.'" '.$attr.'>';
     foreach($data as $index=>$cate){
-        $select .= ' <optgroup class="optgroup_'.Product::$TypetoProducts[$index].' unclick" label="'.ucfirst(Product::$TypetoProducts[$index]).'">';
+        $select .= ' <optgroup class="optgroup_'.Product::$TypetoProducts[$index].'" label="'.ucfirst(Product::$TypetoProducts[$index]).'">';
         foreach($cate as $key=>$val) {
             $selected = (!empty($selection) && $key==$selection['ID'] && $index==$selection['Type'])?'selected':'';
             $select .= '    <option value="' . $key . '" '.$selected.'>';

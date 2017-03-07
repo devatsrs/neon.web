@@ -2649,7 +2649,7 @@ a:focus,a:hover{text-decoration:none !important}
     fill:#fff !important;
 }
 /*email template options list*/
-.unclick{background:#ccc !important; color:#fff !important;}
+.select2-result-with-children>.select2-result-label:first-child,.unclick{background:#ccc !important; color:#fff !important;}
 .unclick:hover{background:#ccc !important; color:#fff !important;}
 .unclick a{cursor:not-allowed; }
 .dropdown-menu>li.unclick>a:hover{background:#ccc !important; color:#fff !important;}
