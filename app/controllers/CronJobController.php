@@ -185,8 +185,6 @@ class CronJobController extends \BaseController {
     }
     public function history_ajax_datagrid($id,$type) {
         $data = Input::all();
-        $CompanyID = User::get_companyID();
-        $data = Input::all();
         $data['iDisplayStart'] +=1;
         $companyID = User::get_companyID();
         $data['StartDate'] = !empty($data['StartTime'])?$data['StartDate'].' '.$data['StartTime']:$data['StartDate'];
