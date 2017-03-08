@@ -141,4 +141,16 @@ private $validlicense;
         $response 				= 		NeonAPI::request('ticketgroups/get_group_agents/'.$id,array(),true,true,false);
 		return json_response_api($response,true);		
 	}
+	
+	function validatesmtp(){
+		$data = Input::all();
+		$response 				= 		NeonAPI::request('ticketgroups/validatesmtp',$data,true,false,false); 
+		return json_response_api($response,true);		
+	}
+	
+	function send_activation_single($id){
+		$postdata 				= 		Input::all(); Log::info(print_r($postdata,true));
+        $response 				= 		NeonAPI::request('ticketgroups/send_activation_single/'.$id,$postdata,true,true,false);
+		return json_response_api($response,true);		
+	}
 }

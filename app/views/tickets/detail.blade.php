@@ -21,7 +21,7 @@
  <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a>
  @endif
   @if( User::checkCategoryPermission('Tickets','Delete'))
-  <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}" class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="fa fa-trash"></i> </a>
+  <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}" class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="entypo-trash"></i> </a>
  @endif 
   </div>
   <div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-backward"></i> </a> @endif
@@ -43,7 +43,7 @@
       <!-- links --> 
     </div>   
      <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?> 
-     <div class="mail-text @if(count($attachments)<1 || strlen($ticketdata->AttachmentPaths)<1) last_data  @endif "> {{$ticketdata->Description}} </div>
+     <div class="mail-text"> {{$ticketdata->Description}} </div>
     @if(count($attachments)>0 && strlen($ticketdata->AttachmentPaths)>0)
     <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
@@ -78,17 +78,30 @@
 		if($TicketConversationData->Timeline_type == TicketsTable::TIMELINEEMAIL){
 		 ?>  
     <div class="mail-reply-seperator"></div>
-    <div class="mail-info first_data">
-      <div class="mail-sender">  <span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span> @if(!empty($TicketConversationData->EmailCc))<br>cc {{$TicketConversationData->EmailCc}} @endif @if(!empty($TicketConversationData->EmailBcc))<br>bcc {{$TicketConversationData->EmailBcc}} @endif    </div>
-      <div class="mail-date"> 
-      @if( User::checkCategoryPermission('Tickets','Edit'))
+    
+    <div class="panel first_data panel-primary margin-top" data-collapsed="0"> 
+            
+            <!-- panel head -->
+            <div class="panel-heading">
+              <div class="panel-title"><span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span> @if(!empty($TicketConversationData->EmailCc))<br>cc {{$TicketConversationData->EmailCc}} @endif @if(!empty($TicketConversationData->EmailBcc))<br>bcc {{$TicketConversationData->EmailBcc}} @endif
+              
+      
+      
+       
+               </div>
+              <div class="panel-options">
+              <span> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}}</span>
+                @if( User::checkCategoryPermission('Tickets','Edit'))
       <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a>
       @endif
-       {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
-    </div>
-    <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
-    <div @if($key==(count($TicketConversation)-1)) id="last_item" @endif  class="mail-text  @if(count($attachments)<1 || strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->EmailMessage}} </div>       
-     @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
+               <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+            </div>
+            
+            <!-- panel body -->
+            <div class="panel-body">
+            {{$TicketConversationData->EmailMessage}}
+              <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
+             @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
     <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
       <ul>
@@ -114,14 +127,26 @@
       </ul>
     </div>
     @endif
+            
+            </div>
+          </div>
+    
+    
     <?php }else if($TicketConversationData->Timeline_type == TicketsTable::TIMELINENOTE){
 	?>
     <div class="mail-reply-seperator"></div>
-	<div class="mail-info first_data">
-      <div class="mail-sender">  <span>Note</span> by ({{$TicketConversationData->CreatedBy}})   </div>
-      <div class="mail-date">  {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
-    </div>
-      <div @if($key==(count($TicketConversation)-1)) id="last_item" @endif class="mail-text last_data"> {{$TicketConversationData->Note}} </div>   
+    
+     <div class="panel panel-primary margin-top" data-collapsed="0"> 
+            
+            <!-- panel head -->
+            <div class="panel-heading">
+              <div class="panel-title"><strong>Note</strong> by ({{$TicketConversationData->CreatedBy}})  </div>
+              <div class="panel-options"> <span>{{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}}</span> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+            </div>
+            
+            <!-- panel body -->
+            <div class="panel-body">{{$TicketConversationData->Note}}</div>
+          </div>
 	<?php	} ?>
     <?php } } } ?>
   </div>
@@ -143,9 +168,9 @@
             <!-- panel body -->
             <div class="Requester_Info panel-body">
             @if(!empty($ticketdata->RequesterName))
-            <p><a class="blue_link" href="@if($RequesterAccount) {{URL::to('/')}}/accounts/{{$RequesterAccount}}/show @elseif(!empty($RequesterContact)) {{URL::to('/')}}/contacts/{{$RequesterContact->ContactID}}/show @else # @endif">{{$ticketdata->RequesterName}}</a><br>({{$ticketdata->Requester}}). </p>
+            <p><a target="_blank" class="blue_link" href="@if($RequesterAccount) {{URL::to('/')}}/accounts/{{$RequesterAccount}}/show @elseif(!empty($RequesterContact)) {{URL::to('/')}}/contacts/{{$RequesterContact->ContactID}}/show @else # @endif">{{$ticketdata->RequesterName}}</a><br>({{$ticketdata->Requester}}). </p>
             @else
-            <p><a href="@if($RequesterAccount) {{URL::to('/')}}/accounts/{{$RequesterAccount}}/show @elseif(!empty($RequesterContact)) {{URL::to('/')}}/contacts/{{$RequesterContact->ContactID}}/show @else # @endif">{{$ticketdata->Requester}}</a></p>
+            <p><a target="_blank" href="@if($RequesterAccount) {{URL::to('/')}}/accounts/{{$RequesterAccount}}/show @elseif(!empty($RequesterContact)) {{URL::to('/')}}/contacts/{{$RequesterContact->ContactID}}/show @else # @endif">{{$ticketdata->Requester}}</a></p>
             @endif
 			@if($RequesterContact && !$RequesterAccount)   
       		@if(User::checkCategoryPermission('Contacts','Edit'))    
@@ -569,10 +594,11 @@ $(document).ready(function(e) {
 							dataType: 'json',
 							async :false,
 							data:{s:1,ticket_number:ticket_number},
-							success: function(response){	
+							success: function(response){	  
 									if(response.status =='success'){									
 									toastr.success(response.message, "Success", toastr_opts);
-									$('#TicketStatus').val(response.close_id).trigger('change');
+									//$('#TicketStatus').val(response.close_id).trigger('change');
+									location.reload();
 								}else{
 									toastr.error(response.message, "Error", toastr_opts);
 								}								

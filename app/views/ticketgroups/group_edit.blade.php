@@ -57,14 +57,15 @@
             <label for="GroupName" class="col-sm-3 control-label">Imap Server</label>
             <div class="col-sm-9">
               <input type="text" name='GroupEmailServer' class="form-control" id="imapserver" placeholder="Imap Server" value="{{$ticketdata->GroupEmailServer}}">
-            </div>
+            </div>            
           </div>
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">Password</label>
-            <div class="col-sm-9">
+            <div class="col-sm-6">
               <input type="password" name='GroupEmailPassword' class="form-control" id="Imappassword" placeholder="Password" value="{{$ticketdata->GroupEmailPassword}}">
-            </div>
+            </div><div class="col-sm-3"><button data-loading-text="Loading..." title="Validate Mail Settings"  type="button" class="ValidateSmtp btn btn-primary">Test</button></div>
           </div>
+          
           <div class="form-group">
             <label for="GroupName" class="col-sm-3 control-label">Reply From Address</label>
             <div class="col-sm-9">            
@@ -175,6 +176,54 @@
 							return html;
 						}
 				});
+				
+		$('.ValidateSmtp').click(function(e) {
+			 console.log('form submitted');
+			e.preventDefault();
+			e.stopImmediatePropagation();
+				var GroupEmailServer 		=  $("#form-ticketgroup-edit [name='GroupEmailServer']").val();				
+				var GroupEmailPassword 		=  $("#form-ticketgroup-edit [name='GroupEmailPassword']").val();
+				var GroupEmailAddress 		=  $("#form-ticketgroup-edit [name='GroupEmailAddress']").val();
+				
+				if(GroupEmailAddress==''){
+					alert("Please add Support Email");
+					return false;
+				}
+				if(GroupEmailServer==''){
+					alert("Please add Imap Server");
+					return false;
+				}
+				if(GroupEmailPassword==''){
+					alert("Please add Password");
+					return false;
+				}
+				
+				 $('.ValidateSmtp').attr('disabled', 'disabled');	 
+				 $('.ValidateSmtp').button('loading');
+			
+				var ValidateUrl 			=  "<?php echo URL::to('/ticketgroups/validatesmtp'); ?>";
+
+				 $.ajax({
+					url: ValidateUrl,
+					type: 'POST',
+					dataType: 'json',
+					data:{GroupEmailServer:GroupEmailServer,GroupEmailPassword:GroupEmailPassword,GroupEmailAddress:GroupEmailAddress},
+					success: function(Response) {
+				    $('.ValidateSmtp').button('reset');
+					$('.ValidateSmtp').removeAttr('disabled');
+						 if (Response.status == 'failed') {
+	                           toastr.error(Response.message, "Error", toastr_opts);
+							   return false;
+                          }else{
+							ShowToastr("success",Response.message); 	
+						  }
+																	  
+						}
+				});	
+        
+            	
+        });
+				
 
     });
 </script> 
