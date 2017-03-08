@@ -320,15 +320,23 @@ $(document).ready(function(){
 		$('.tax_rows_estimate').remove();
 		
 		if(grand_total_item > 0){
+            var txt = 'One off Sub Total';
+            if(grand_total_subscription == 0){
+                txt = 'Sub Total';
+            }
             //$('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"><th colspan="2">One off charge</th></tr>');
-            $('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"> <td>One off Sub Total</td> <td><input class="form-control SubTotal text-right" readonly="readonly" name="SubTotalOnOffCharge" value="'+grand_total_item.toFixed(decimal_places)+'" type="text"></td> </tr>');
+            $('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"> <td>'+txt+'</td> <td><input class="form-control SubTotal text-right" readonly="readonly" name="SubTotalOnOffCharge" value="'+grand_total_item.toFixed(decimal_places)+'" type="text"></td> </tr>');
             /*if(total_tax_item) {
                 $('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"> <td>Total Tax</td> <td><input class="form-control TotalTax text-right" readonly="readonly" name="TotalTax" value="' + total_tax_item.toFixed(decimal_places) + '" type="text"></td> </tr>');
             }*/
         }
         if(grand_total_subscription > 0){
+            var txt = 'Recurring Sub Total';
+            if(grand_total_item == 0){
+                txt = 'Sub Total';
+            }
             //$('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"><th colspan="2">Recurring Charges</th></tr>');
-            $('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"> <td>Recurring Sub Total</td> <td><input class="form-control SubTotal text-right" readonly="readonly" name="SubTotalSubscription" value="'+grand_total_subscription.toFixed(decimal_places)+'" type="text"></td> </tr>');
+            $('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"> <td>'+txt+'</td> <td><input class="form-control SubTotal text-right" readonly="readonly" name="SubTotalSubscription" value="'+grand_total_subscription.toFixed(decimal_places)+'" type="text"></td> </tr>');
             /*Tax_type_subscription.forEach(function(value, index){
                 if(value != null){
                     $('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"><td>'+Tax_type_title_subscription[index]+'</td><td><input class="form-control text-right" readonly="readonly" name="Tax['+index+']" value="'+value.toFixed(decimal_places)+'" type="text">  </td> </tr>');

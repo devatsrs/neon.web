@@ -68,24 +68,24 @@
             var t = $(obj).val();
             t = parseFloat(t);
             monthly = t / 3;
-            //Yearly  = monthly * 12;
+            Yearly  = monthly * 12;
         } else if(name=='MonthlyFee'){
             var monthly = $(obj).val();
             monthly = parseFloat(monthly);
-            //Yearly  = monthly * 12;
-            //quarterly = monthly * 3;
+            Yearly  = monthly * 12;
+            quarterly = monthly * 3;
         }
 
         var weekly =  parseFloat(monthly / 30 * 7);
         var daily = parseFloat(monthly / 30);
 
-        if(Yearly != '') {
+        if(Yearly != '' && $('#add-new-billing_subscription-form [name="AnnuallyFee"]').val()=='') {
             $('#add-new-billing_subscription-form [name="AnnuallyFee"]').val(Yearly.toFixed(decimal_places));
         }
-        if(quarterly != '') {
+        if(quarterly != '' && ($('#add-new-billing_subscription-form [name="QuarterlyFee"]').val() == '' || name == 'AnnuallyFee' )) {
             $('#add-new-billing_subscription-form [name="QuarterlyFee"]').val(quarterly.toFixed(decimal_places));
         }
-        if(monthly != '' && name != 'MonthlyFee') {
+        if(monthly != '' && ($('#add-new-billing_subscription-form [name="MonthlyFee"]').val()=='' || name != 'MonthlyFee')) {
             $('#add-new-billing_subscription-form [name="MonthlyFee"]').val(monthly.toFixed(decimal_places));
         }
 
