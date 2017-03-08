@@ -13,7 +13,7 @@
       <div class="col-md-2">&nbsp;</div>
       <div class="col-md-2"><h4><strong>For Customers</strong></h4></div>
       <div class="col-md-2">&nbsp;</div>
-      <div class="col-md-2"><h4><strong>SLA timer</strong></h4></div>
+      <div class="col-md-2"><h4><strong>SLA Timer</strong></h4></div>
     </div>
   </div>
 </div>
