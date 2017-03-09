@@ -61,7 +61,7 @@ class TaxRate extends \Eloquent {
 
     public static function getTaxRateDropdownIDListForInvoice($TaxRateID=0){
         if($TaxRateID==0){
-            self::$cache['taxrate_dropdown2_cache'] = TaxRate::where(array('CompanyID'=>User::get_companyID(),"TaxType"=>TaxRate::TAX_ALL))->get(['TaxRateID','Title','Amount','FlatStatus'])->toArray();
+            self::$cache['taxrate_dropdown2_cache'] = TaxRate::where(array('CompanyID'=>User::get_companyID()))->get(['TaxRateID','Title','Amount','FlatStatus'])->toArray();
         }else{
             self::$cache['taxrate_dropdown2_cache'] = TaxRate::where(array('CompanyID'=>User::get_companyID(),'TaxRateID'=>$TaxRateID))->get(['TaxRateID','Title','Amount','FlatStatus'])->toArray();
         }
