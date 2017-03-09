@@ -384,11 +384,11 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
     public static function checkCategoryPermission($resourcecontroller,$action)
-    {
+    {	
         if(user::is_admin()){
             return true;
         }elseif(Session::has('user_category_permission')) {
-            $user_category_permission = Session::get('user_category_permission');
+            $user_category_permission = Session::get('user_category_permission'); 
             if(!empty($resourcecontroller)) {
                 $resourcecontrollerAll = $resourcecontroller . '.All';
                 if(in_array($resourcecontrollerAll, $user_category_permission)) {

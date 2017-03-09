@@ -14,6 +14,27 @@ UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourc
 
 UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='BillingDashboardInvoiceExpenseWidgets.View' limit 1) WHERE  `ResourceName`='BillingDashboard.invoice_expense_total_widget';
 
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.Add', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.Edit', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.Delete','1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.View', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.All', '1');
+
+
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.Add' limit 1) WHERE  `ResourceName`='RecurringInvoice.create';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.Add' limit 1) WHERE  `ResourceName`='RecurringInvoice.store';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.Edit' limit 1) WHERE  `ResourceName`='RecurringInvoice.edit';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.Edit' limit 1) WHERE  `ResourceName`='RecurringInvoice.update';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.getAccountInfo';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.getBillingClassInfo';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.index';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.recurringinvoicelog';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.Edit' limit 1) WHERE  `ResourceName`='RecurringInvoice.startstop';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.ajax_datagrid';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.ajax_recurringinvoicelog_datagrid';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.calculate_total';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.Delete' limit 1) WHERE  `ResourceName`='RecurringInvoice.delete';
+
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FreshdeskDomain';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='FreshdeskEmail';
 DELETE FROM `tblCompanyConfiguration` WHERE  `Key`='Freshdeskkey';
