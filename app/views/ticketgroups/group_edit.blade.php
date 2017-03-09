@@ -49,14 +49,14 @@
                 <input name='GroupEmailAddress' id="GroupEmailAddress" type="email" class="form-control" placeholder="Email" value="{{$ticketdata->GroupEmailAddress}}">             </div>
                 @if($ticketdata->GroupEmailStatus==0 && !empty($ticketdata->GroupEmailAddress))
                 <br>                
-                  <div class="email-activation"><span>{{$ticketdata->GroupEmailAddress}}</span>&nbsp;<span> Unverified  </span> - <button email_id="{{$ticketdata->GroupID}}" type="button" class="btn btn-default btn-xs Send_activation">Send activation</button></div><br>
+                  <div class="email-activation"><span>{{$ticketdata->GroupEmailAddress}}</span>&nbsp;<span> Unverified  </span> - <button email_id="{{$ticketdata->GroupID}}" type="button" class="btn btn-default btn-xs Send_activation">Send Activation Email</button></div><br>
                   @endif
             </div>
           </div> 
            <div class="form-group">
-            <label for="GroupName" class="col-sm-3 control-label">Imap Server</label>
+            <label for="GroupName" class="col-sm-3 control-label">IMAP Server</label>
             <div class="col-sm-9">
-              <input type="text" name='GroupEmailServer' class="form-control" id="imapserver" placeholder="Imap Server" value="{{$ticketdata->GroupEmailServer}}">
+              <input type="text" name='GroupEmailServer' class="form-control" id="imapserver" placeholder="IMAP Server" value="{{$ticketdata->GroupEmailServer}}">
             </div>            
           </div>
           <div class="form-group">
@@ -152,6 +152,7 @@
 				   if(response.status =='success'){					   
 						ShowToastr("success",response.message); 														
 						//window.location.href= baseurl+'/ticketgroups';
+						location.reload();
 					}else{
 						toastr.error(response.message, "Error", toastr_opts);
 					}                   
