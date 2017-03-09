@@ -14,11 +14,11 @@ UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourc
 
 UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='BillingDashboardInvoiceExpenseWidgets.View' limit 1) WHERE  `ResourceName`='BillingDashboard.invoice_expense_total_widget';
 
-INSERT INTO `NeonRMDev`.`tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.Add', '1');
-INSERT INTO `NeonRMDev`.`tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.Edit', '1');
-INSERT INTO `NeonRMDev`.`tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.Delete','1');
-INSERT INTO `NeonRMDev`.`tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.View', '1');
-INSERT INTO `NeonRMDev`.`tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.All', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.Add', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.Edit', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.Delete','1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.View', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringInvoice.All', '1');
 
 
 UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringInvoice.Add' limit 1) WHERE  `ResourceName`='RecurringInvoice.create';
