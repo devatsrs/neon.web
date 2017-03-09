@@ -1179,7 +1179,7 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
     $mail->Timeout		=    25;
   /*if($mail->smtpConnect()){
 		$mail->smtpClose();*/
-	$mail->addAddress($ToEmail);
+	$mail->addAddress($ToEmail); 
    if ($mail->send()) {
 	   return "Valid mail settings.";
 	}else{ 

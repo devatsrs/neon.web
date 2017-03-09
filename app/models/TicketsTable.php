@@ -212,10 +212,12 @@ class TicketsTable extends \Eloquent
 	}
 	
 	static function GetTicketAccessPermission(){
-		if(User::is_admin())
-		{
+		if(User::is_admin()){
 			return TicketsTable::TICKETGLOBALACCESS;
 		}		
+		if(User::checkCategoryPermission('Tickets','All')){
+			return TicketsTable::TICKETGLOBALACCESS;
+		}
 		if(User::checkCategoryPermission('Tickets','View.GlobalAccess')){
 			return TicketsTable::TICKETGLOBALACCESS;
 		}else if(User::checkCategoryPermission('Tickets','View.GroupAccess')){

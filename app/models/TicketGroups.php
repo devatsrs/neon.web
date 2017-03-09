@@ -34,6 +34,16 @@ class TicketGroups extends \Eloquent {
 	   return $row;
 	}
 	
+	 static function getTicketGroupsFromData($data){
+		$row = array();
+		foreach($data as $ticketData){
+			$row[$ticketData->GroupID] = $ticketData->GroupName;
+		}
+	 
+	   $row = array("0"=> "Select")+$row;
+	   return $row;
+	}
+	
 	 static function getTicketGroups_dropdown(){
 		//TicketfieldsValues::WHERE
 	    $compantID 	  = 	User::get_companyID();

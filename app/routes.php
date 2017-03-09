@@ -492,6 +492,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/ticketgroups/{id}/delete', 'TicketsGroupController@delete');
 	Route::any('/ticketgroups/{id}/send_activation', 'TicketsGroupController@send_activation_single');
 	Route::any('/ticketgroups/{id}/getgroupagents', 'TicketsGroupController@get_group_agents');
+	Route::any('/ticketgroups/validatesmtp', 'TicketsGroupController@validatesmtp');
 	
 	Route::any('/ticketsfields', "TicketsFieldsController@index");
 	Route::any('/ticketsfields/iframe', "TicketsFieldsController@iframe");
