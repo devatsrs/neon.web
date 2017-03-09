@@ -804,22 +804,22 @@ Route::group(array('before' => 'auth'), function () {
 
     /////////////////
     //Recurring Item Invoices
-    Route::any('/recurringinvoices', 'RecurringInvoiceController@index');
-    Route::any('/recurringinvoices/create', 'RecurringInvoiceController@create');
-    Route::any('/recurringinvoices/store', 'RecurringInvoiceController@store');
-    Route::any('/recurringinvoices/{id}/edit', 'RecurringInvoiceController@edit');
-    Route::any('/recurringinvoices/delete', 'RecurringInvoiceController@delete');
-    Route::any('/recurringinvoices/{id}/update', 'RecurringInvoiceController@update');
-    Route::any('/recurringinvoices/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_datagrid');
-    Route::any('/recurringinvoices/calculate_total', 'RecurringInvoiceController@calculate_total');
-    Route::any('/recurringinvoices/get_account_info', 'RecurringInvoiceController@getAccountInfo');
-    Route::any('/recurringinvoices/get_billingclassinfo_info', 'RecurringInvoiceController@getBillingClassInfo');
-    Route::any('/recurringinvoices/{id}/log', 'RecurringInvoiceController@recurringinvoicelog');
-    Route::any('/recurringinvoices/{id}/log/{type}', 'RecurringInvoiceController@recurringinvoicelog');
-    Route::any('/recurringinvoices/{id}/log/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_recurringinvoicelog_datagrid');
-    Route::any('/recurringinvoices/startstop/{start_stop}', 'RecurringInvoiceController@startstop');
-    Route::any('/recurringinvoices/sendinvoice', 'RecurringInvoiceController@sendInvoice');
-    Route::any('/recurringinvoices/generate', 'RecurringInvoiceController@generate');
+    Route::any('/recurringprofiles', 'RecurringInvoiceController@index');
+    Route::any('/recurringprofiles/create', 'RecurringInvoiceController@create');
+    Route::any('/recurringprofiles/store', 'RecurringInvoiceController@store');
+    Route::any('/recurringprofiles/{id}/edit', 'RecurringInvoiceController@edit');
+    Route::any('/recurringprofiles/delete', 'RecurringInvoiceController@delete');
+    Route::any('/recurringprofiles/{id}/update', 'RecurringInvoiceController@update');
+    Route::any('/recurringprofiles/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_datagrid');
+    Route::any('/recurringprofiles/calculate_total', 'RecurringInvoiceController@calculate_total');
+    Route::any('/recurringprofiles/get_account_info', 'RecurringInvoiceController@getAccountInfo');
+    Route::any('/recurringprofiles/get_billingclassinfo_info', 'RecurringInvoiceController@getBillingClassInfo');
+    Route::any('/recurringprofiles/{id}/log', 'RecurringInvoiceController@recurringinvoicelog');
+    Route::any('/recurringprofiles/{id}/log/{type}', 'RecurringInvoiceController@recurringinvoicelog');
+    Route::any('/recurringprofiles/{id}/log/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_recurringinvoicelog_datagrid');
+    Route::any('/recurringprofiles/startstop/{start_stop}', 'RecurringInvoiceController@startstop');
+    Route::any('/recurringprofiles/sendinvoice', 'RecurringInvoiceController@sendInvoice');
+    Route::any('/recurringprofiles/generate', 'RecurringInvoiceController@generate');
     ///////////////////////////
 
 	//Invoice

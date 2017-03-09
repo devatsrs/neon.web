@@ -1,5 +1,11 @@
 USE `Ratemanagement3`;
 
+UPDATE `tblResourceCategories` SET `ResourceCategoryName` = 'RecurringProfile.Add' WHERE `ResourceCategoryName`= 'RecurringInvoice.Add';
+UPDATE `tblResourceCategories` SET `ResourceCategoryName` = 'RecurringProfile.Edit' WHERE `ResourceCategoryName`= 'RecurringInvoice.Edit';
+UPDATE `tblResourceCategories` SET `ResourceCategoryName` = 'RecurringProfile.Delete' WHERE `ResourceCategoryName`= 'RecurringInvoice.Delete';
+UPDATE `tblResourceCategories` SET `ResourceCategoryName` = 'RecurringProfile.View' WHERE `ResourceCategoryName`= 'RecurringInvoice.View';
+UPDATE `tblResourceCategories` SET `ResourceCategoryName` = 'RecurringProfile.All' WHERE `ResourceCategoryName`= 'RecurringInvoice.All';
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCronJobHistory`(
 	IN `p_CronJobID` INT,
 	IN `p_StartDate` DATETIME,

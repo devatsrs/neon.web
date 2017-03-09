@@ -6,8 +6,11 @@
     <li>
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
+    <li>
+        <a href="{{URL::to('invoice')}}">Invoice</a>
+    </li>
     <li class="active">
-        <a href="{{URL::to('recurringinvoices')}}">Recurring Invoice</a>
+        <a href="{{URL::to('recurringprofiles')}}">Recurring Profile</a>
     </li>
     <li>
         <a><span>{{toandfro_dropdown($RecurringInvoice->RecurringInvoiceID,'recurringInvoice')}}</span></a>
@@ -16,7 +19,7 @@
         <strong>Edit</strong>
     </li>
 </ol>
-<h3>Edit Recurring Invoice</h3>
+<h3>Edit Recurring Profile</h3>
 
 @include('includes.errors')
 @include('includes.success')
@@ -34,7 +37,7 @@
         Save
         <i class="entypo-floppy"></i>
     </button>
-    <a href="{{URL::to('/recurringinvoices')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+    <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-danger btn-sm btn-icon icon-left">
                 <i class="entypo-cancel"></i>
                 Close
         </a>
@@ -333,7 +336,7 @@
     add_row_html += '{{Form::hidden('RecurringInvoiceDetail[ProductType][]',Product::ITEM,array("class"=>"ProductType"))}}</td></tr>';
 </script>
 @include('recurringinvoices.script_recurringinvoice_add_edit')
-@include('includes.ajax_submit_script', array('formID'=>'recurringinvoice-from' , 'url' => 'recurringinvoices/'.$id.'/update' ))
+@include('includes.ajax_submit_script', array('formID'=>'recurringinvoice-from' , 'url' => 'recurringprofiles/'.$id.'/update' ))
 <script>
     $(document).ready(function(){
         $("#recurringinvoice-from [name='RecurringInvoice[Time]']").change();

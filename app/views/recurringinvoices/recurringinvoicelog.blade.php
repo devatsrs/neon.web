@@ -2,12 +2,13 @@
 
 <ol class="breadcrumb bc-3">
     <li><a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a></li>
-    <li><a href="{{URL::to('/recurringinvoices')}}">Recurring Invoice</a></li>
+    <li><a href="{{URL::to('invoice')}}">Invoice</a></li>
+    <li><a href="{{URL::to('/recurringprofiles')}}">Recurring Invoice</a></li>
     <li class="active"><strong>Recurring Invoice Log</strong></li>
 </ol>
 <h3>View Recurring Invoice Log</h3>
 <div class="float-right" >
-    <a href="{{URL::to('/recurringinvoices')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
+    <a href="{{URL::to('/recurringprofiles')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
         <i class="entypo-floppy"></i>
         Back
     </a>
@@ -46,7 +47,7 @@
                 "bProcessing": true,
                 "bServerSide": true,
                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "sAjaxSource": baseurl + "/recurringinvoices/{{$id}}/log/ajax_datagrid/type",
+                "sAjaxSource": baseurl + "/recurringprofiles/{{$id}}/log/ajax_datagrid/type",
                 "fnServerParams": function(aoData) {
                     aoData.push({"name":"LogType","value":"{{$type}}"});
                     data_table_extra_params.length = 0;
@@ -73,13 +74,13 @@
                                 {
                                     "sExtends": "download",
                                     "sButtonText": "EXCEL",
-                                    "sUrl": baseurl + "/recurringinvoices/{{$id}}/log/ajax_datagrid/xlsx",
+                                    "sUrl": baseurl + "/recurringprofiles/{{$id}}/log/ajax_datagrid/xlsx",
                                     sButtonClass: "save-collection btn-sm"
                                 },
                                 {
                                     "sExtends": "download",
                                     "sButtonText": "CSV",
-                                    "sUrl": baseurl + "/recurringinvoices/{{$id}}/log/ajax_datagrid/csv",
+                                    "sUrl": baseurl + "/recurringprofiles/{{$id}}/log/ajax_datagrid/csv",
                                     sButtonClass: "save-collection btn-sm"
                                 }
                             ]
