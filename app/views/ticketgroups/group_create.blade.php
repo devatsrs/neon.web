@@ -48,9 +48,9 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="GroupName" class="col-sm-3 control-label">Imap Server</label>
+            <label for="GroupName" class="col-sm-3 control-label">IMAP Server</label>
             <div class="col-sm-9">
-              <input type="text" name='GroupEmailServer' class="form-control" id="imapserver" placeholder="Imap Server" value="{{Input::old('GroupEmailServer')}}">
+              <input type="text" name='GroupEmailServer' class="form-control" id="imapserver" placeholder="IMAP Server" value="{{Input::old('GroupEmailServer')}}">
             </div>
           </div>
           <div class="form-group">
