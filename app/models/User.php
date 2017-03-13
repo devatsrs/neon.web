@@ -161,11 +161,11 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
     public static function get_companyID(){
-       $customer=Session::get('customer');
-        if($customer==1){
-            return Customer::get_companyID();
+        if(Auth::guest()){
+            return $CompanyID = SiteIntegration::GetComapnyIdByKey();
+        }else {
+            return $CompanyID = Session::get('customer')==1?Customer::get_companyID():Auth::user()->CompanyID;
         }
-        return Auth::user()->CompanyID;
     }
 
     public static function get_userID(){
