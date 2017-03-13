@@ -4,7 +4,8 @@
   <li><a href="{{ URL::to('/customer/tickets') }}">Tickets</a></li>
   <li class="active"> <strong>Detail</strong> </li>
 </ol>
-<div class="pull-left"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> 
+<div class="pull-left"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a>
+<!-- <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> -->
 <?php if($show_edit==1){ ?>
 <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('/customer/tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="entypo-pencil"></i> </a> 
 <a data-toggle="tooltip"  data-placement="top" data-original-title="Add Note"  class="btn btn-primary add_note tooltip-primary btn-xs"><i class="fa fa-sticky-note"></i> </a> 
@@ -68,7 +69,7 @@
     <div class="mail-reply-seperator"></div>
     <div class="mail-info first_data">
       <div class="mail-sender">  <span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span> @if(!empty($TicketConversationData->EmailCc))<br>cc {{$TicketConversationData->EmailCc}} @endif @if(!empty($TicketConversationData->EmailBcc))<br>bcc {{$TicketConversationData->EmailBcc}} @endif    </div>
-      <div class="mail-date"> <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
+      <div class="mail-date"> <!-- <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a>--> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
     </div>
     <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
     <div class="mail-text @if(count($attachments)<1 || strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->EmailMessage}} </div>       
@@ -235,7 +236,7 @@ var CloseStatus			=		'{{$CloseStatus}}';
 $(document).ready(function(e) {	
 	
 	$( document ).on("click",'.email_action' ,function(e) {			
-		var url 		    = 	  baseurl + '/tickets/ticket_action';
+		var url 		    = 	  baseurl + '/customer/tickets/ticket_action';
 		var action_type     =     $(this).attr('action_type');
 		var ticket_number   =     $(this).attr('ticket_number');
 		var ticket_type		=	  $(this).attr('data-type');
@@ -308,34 +309,6 @@ $(document).ready(function(e) {
 						}
 				});		
 	});
-	
-	////
-	$( document ).on("submit",'#add-note-form' ,function(e) {			
-		e.preventDefault();
-		var formData = new FormData($('#add-note-form')[0]);
-		var url 		    = 	  baseurl + '/tickets/add_note';
-	 $.ajax({
-			url: url,
-			type: 'POST',
-			dataType: 'json',
-			async :false,
-			cache: false,
-			contentType: false,
-			processData: false,
-			data:formData,
-			success: function(response){
-						$("#add-note-model").find('#note-edit').button('reset');
-						if(response.status =='success'){									
-							toastr.success(response.message, "Success", toastr_opts);
-							location.reload();
-                        }else{
-                            toastr.error(response.message, "Error", toastr_opts);
-                        }
-				},
-		});
-	});
-	
-	////
 
 	//
 	
@@ -428,7 +401,7 @@ $(document).ready(function(e) {
 		e.preventDefault();
 	
 		var formData = new FormData(this);
-		 var url = 	baseurl + '/tickets/upload_file';
+		 var url = 	baseurl + '/customer/tickets/upload_file';
 		$.ajax({
 			url: url,  //Server script to process data
 			type: 'POST',
@@ -455,7 +428,7 @@ $(document).ready(function(e) {
 });	
 
 			$(document).on("click",".del_attachment",function(ee){
-                 var url  =  baseurl + '/tickets/delete_attachment_file';
+                 var url  =  baseurl + '/customer/tickets/delete_attachment_file';
                 var fileName   =  $(this).attr('del_file_name');
                 var attachmentsinfo = $('#info4').val();
                 if(!attachmentsinfo){
@@ -491,7 +464,7 @@ $(document).ready(function(e) {
 					var confirm_close = confirm("Are you sure you want to close this ticket?");
 					if(confirm_close)
 					{
-						var url 		    = 	  baseurl + '/tickets/'+ticket_number+'/close_ticket';
+						var url 		    = 	  baseurl + '/customer/tickets/'+ticket_number+'/close_ticket';
 						$.ajax({
 							url: url,
 							type: 'POST',
@@ -522,7 +495,7 @@ $(document).ready(function(e) {
 					var confirm_close = confirm("Are you sure to delete this ticket?");
 					if(confirm_close)
 					{
-						var url 		    = 	  baseurl + '/tickets/'+ticket_number+'/delete';
+						var url 		    = 	  baseurl + '/customer/tickets/'+ticket_number+'/delete';
 						$.ajax({
 							url: url,
 							type: 'POST',
@@ -532,7 +505,7 @@ $(document).ready(function(e) {
 							success: function(response){	
 									if(response.status =='success'){									
 									toastr.success(response.message, "Success", toastr_opts);
-									window.location = baseurl+'/tickets';
+									window.location = baseurl+'/customer/tickets';
 								}else{
 									toastr.error(response.message, "Error", toastr_opts);
 								}								

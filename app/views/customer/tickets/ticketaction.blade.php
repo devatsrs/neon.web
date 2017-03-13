@@ -5,22 +5,39 @@
 <div class="modal-body">
   <div class="row">
     <div class="col-md-12 margin-top">
-      <div class="form-group">
-        <label for="EmailActionTo">* To:</label>
-        <input type="text"  class="form-control" name="email-to" id="EmailActionTo" value="<?php 
-	if($action_type!='forward')
-	{
+    <?php if($action_type!='forward'){ ?>
+    <div class="form-group">
+        <label for="EmailActionTo">* From:</label>    
+        <input type="text"  class="form-control" name="email-from" id="email-from" readonly value="<?php 	
 		if(isset($AccountEmail))
 		{  
 			echo $AccountEmail;  
-		}  
-		  
-	} ?>" />
+		} 		  
+	?>" />
+      </div>
+      <div class="form-group">   
+        <label for="email-from">* To:</label>
+          <input type="text"  class="form-control" name="email-to" id="EmailActionTo"  readonly value="<?php echo $GroupEmail	?>" />
         <div class="field-options"> 
         <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replycc').parent().removeClass('hidden'); $('#replycc').focus();">CC</a> 
         <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replybcc').parent().removeClass('hidden'); $('#replybcc').focus();">BCC</a>
          </div>
       </div>
+    <?php }else{ ?>  
+    <div class="form-group">
+        <label for="email-from">* From:</label>
+        {{ Form::select('email-from', $FromEmails, '', array("class"=>"form-control select2","id"=>"email-from")) }} 
+      </div>
+      <div class="form-group">
+        <label for="EmailActionTo">* To:</label>
+        <input type="text"  class="form-control" name="email-to" id="EmailActionTo" value="" />
+        <div class="field-options"> 
+        <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replycc').parent().removeClass('hidden'); $('#replycc').focus();">CC</a> 
+        <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replybcc').parent().removeClass('hidden'); $('#replybcc').focus();">BCC</a>
+         </div>
+      </div>
+    <?php } ?>
+      
       <div class="form-group hidden">
         <label for="cc">CC</label>
         <input type="text" name="cc"  class="form-control tags"  id="replycc" />
@@ -35,12 +52,12 @@
       </div>
       <div class="form-group">
         <label for="EmailActionbody">* Message:</label>
-        <textarea name="Message" id="EmailActionbody" class="form-control autogrow editor-email message"   style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"> @if($action_type!='forward')<br><br><br> On <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.date('H:i A, ',strtotime($response_data->created_at)); echo $response_data->Requester; ?> wrote: <br>
+        <textarea name="Message" id="EmailActionbody" class="form-control autogrow editor-email message"   style="height: 175px; overflow: hidden; word-wrap: break-word; resize: none;"> @if($action_type!='forward')<br><br><br> On <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.date('H:i A, ',strtotime($response_data['created_at'])); echo $response_data['Requester']; ?> wrote: <br>
   @else <br><br><br> ---------- Forwarded message ----------<br>
 From: <?php $AccountEmail; ?><br>
-Subject: <?php $response_data->Subject; ?>....<br>
-Date: <?php echo date('M d, Y,',strtotime($response_data->created_at)).' at '.date('H:i A, ',strtotime($response_data->created_at)); ?><br>
-@endif{{$response_data->Description}}</textarea>
+Subject: <?php $response_data['Subject']; ?>....<br>
+Date: <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.date('H:i A, ',strtotime($response_data['created_at'])); ?><br>
+@endif{{$response_data['Description']}}</textarea>
       </div>
       <p class="comment-box-options-activity"> <a id="addReplyTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
       <div class="form-group email_attachment">

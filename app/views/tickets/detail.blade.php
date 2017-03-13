@@ -38,7 +38,7 @@
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
-      @if(!empty($ticketemaildata->Cc))cc {{$ticketemaildata->Cc}}<br>@endif @if(!empty($ticketemaildata->Bcc))bcc{{$ticketemaildata->Bcc}}<br>@endif 
+      @if(!empty($ticketemaildata->Cc))cc: {{$ticketemaildata->Cc}}<br>@endif @if(!empty($ticketemaildata->Bcc))bcc: {{$ticketemaildata->Bcc}}<br>@endif 
        {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
       <!-- links --> 
     </div>   
@@ -83,7 +83,7 @@
             
             <!-- panel head -->
             <div class="panel-heading">
-              <div class="panel-title"><span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span> @if(!empty($TicketConversationData->EmailCc))<br>cc {{$TicketConversationData->EmailCc}} @endif @if(!empty($TicketConversationData->EmailBcc))<br>bcc {{$TicketConversationData->EmailBcc}} @endif
+              <div class="panel-title"><span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span> @if(!empty($TicketConversationData->EmailCc))<br>cc:  {{$TicketConversationData->EmailCc}} @endif @if(!empty($TicketConversationData->EmailBcc))<br>bcc: {{$TicketConversationData->EmailBcc}} @endif
               
       
       
@@ -220,7 +220,6 @@
             </div>
           </div>
         </div>
-        @if( User::checkCategoryPermission('Tickets','Edit'))
         <div class="col-md-12">
           <div class="panel panel-primary margin-top" data-collapsed="0"> 
             
@@ -234,7 +233,7 @@
             <div class="panel-body">@include('tickets.ticket_detail_dynamic_fields')</div>
           </div>
         </div>
-        @endif
+       
       </div>
     </div>
     <!-- menu --> 
@@ -285,7 +284,7 @@
 .mail-env .mail-body{float:left; width:71% !important;   }
 .mail-env .mail-sidebar{width:29%; background:#fff none repeat scroll 0 0;}
 .mail-env .mail-body .mail-info{background:#fff none repeat scroll 0 0;}
-.mail-reply-seperator{background:#f1f1f1 none repeat scroll 0 0; width:100%; height:20px;}
+.mail-reply-seperator{background:#f1f1f1 none repeat scroll 0 0; width:100%; /*height:20px;*/}
 .mail-env{background:none !important;}
 .mail-menu {background:#f1f1f1;}
 .mail-menu .row{margin-right:0px !important; margin-left:0px !important;}
@@ -617,7 +616,7 @@ $(document).ready(function(e) {
 				e.preventDefault();
                 var ticket_number   =     parseInt($(this).attr('ticket_number'));
 				if(ticket_number){
-					var confirm_close = confirm("Are you sure to delete this ticket?");
+					var confirm_close = confirm("Are you sure you want to delete this ticket?");
 					if(confirm_close)
 					{
 						var url 		    = 	  baseurl + '/tickets/'+ticket_number+'/delete';
