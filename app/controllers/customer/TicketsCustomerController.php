@@ -402,8 +402,7 @@ private $validlicense;
 	
 	}
 	
-	function TicketAction(){
-		
+	function TicketAction(){		
 		$data 		   		= 	  Input::all();
 		$action_type   		=     $data['action_type'];
 		$ticket_number  	=     $data['ticket_number'];
@@ -411,18 +410,19 @@ private $validlicense;
 		$response  		    =  	  NeonAPI::request('tickets/ticketcction',$data,true,true);
 		
 		if(!empty($response) && $response['status'] == 'success' )
-		{ 
+		{ 	
 			$ResponseData		 =	  $response['data'];
 			$response_data       =    $ResponseData['response_data']; 
-			$AccountEmail 		 = 	  $ResponseData['AccountEmail'];	
+			$AccountEmail 		 = 	  Session::get("CustomerEmail");
 			$parent_id			 =	  $ResponseData['parent_id'];
+			$GroupEmail			 = 	  $ResponseData['GroupEmail'];
 			
 			if($action_type=='forward'){ //attach current email attachments
 				$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths']);
 			}
 			
 			
-			return View::make('customer.tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id'));  
+			return View::make('customer.tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','GroupEmail'));  
 		}else{
             return view_response_api($response);
         }	
@@ -440,7 +440,7 @@ private $validlicense;
 	function ActionSubmit($id){
 		
 		$this->IsValidLicense();
-		$postdata    =  Input::all();		
+		$postdata    =  Input::all();	
 		
 		 $attachmentsinfo        =	$postdata['attachmentsinfo']; 
         if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
@@ -473,7 +473,7 @@ private $validlicense;
 						$postdata['file']		=	json_encode($FilesArray);
 					}
 		 
-		$response 			= 		NeonAPI::request('tickets/actionsubmit/'.$id,$postdata,true,false,false);
+		$response 			= 		NeonAPI::request('customer/tickets/actionsubmit/'.$id,$postdata,true,false,false); Log::info(print_r($response,true));	
 		return json_response_api($response);     		   
 	}
 	

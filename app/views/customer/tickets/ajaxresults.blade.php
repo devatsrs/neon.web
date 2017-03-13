@@ -42,7 +42,7 @@
             <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/customer/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
             <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span>
               <?php if($result_data->CustomerResponse==$result_data->RequesterEmail){echo "<div class='label label-info'>CUSTOMER RESPONDED</div>";}else{echo '<div class="label label-warning">RESPONSE DUE</div>';} ?><br>
-             <a href="#" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
+             <a class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
               <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
             <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
               <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>              
