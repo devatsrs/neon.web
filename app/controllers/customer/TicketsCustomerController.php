@@ -25,7 +25,7 @@ private $validlicense;
 			$this->IsValidLicense();
 			$CompanyID 		 			= 	 User::get_companyID(); 
 			$data 			 			= 	 array();	
-			$status			 			=    TicketsTable::getTicketStatus();
+			$status			 			=    TicketsTable::getCustomerTicketStatus();
 			$Priority		 			=	 TicketPriority::getTicketPriority();
 			//$Groups			 			=	 TicketGroups::getTicketGroups(); 
 			$Agents			 			= 	 User::getUserIDListAll(0);
