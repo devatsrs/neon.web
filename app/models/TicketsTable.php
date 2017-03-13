@@ -56,6 +56,14 @@ class TicketsTable extends \Eloquent
 			return $row;
 	}
 	
+	static function getCustomerTicketStatus(){
+		//TicketfieldsValues::WHERE
+		 $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
+            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->lists('FieldValueCustomer','ValuesID');
+			$row = array("0"=> "Select")+$row;
+			return $row;
+	}
+	
 	static function getTicketType(){
 		//TicketfieldsValues::WHERE
 		 $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
