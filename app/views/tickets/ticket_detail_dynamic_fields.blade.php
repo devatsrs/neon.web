@@ -1,4 +1,6 @@
-<?php if(count($ticketsfields)>0){ ?>
+<?php
+$readonly = ''; $disable = ''; if(!User::checkCategoryPermission('Tickets','Edit')){  $readonly = 'readonly'; $disable = 'disabled'; } 
+ if(count($ticketsfields)>0){ ?>
 <form role="form" id="form-tickets-edit" method="post"  class="form-horizontal form-groups-bordered validate" novalidate>
   <?php  $required = array();
 			   foreach($ticketsfields as $TicketfieldsData)
@@ -14,7 +16,7 @@
   <div class="form-group">
     <label for="GroupName" class="col-md-4 control-label">{{$TicketfieldsData->AgentLabel}}</label>
     <div class="col-sm-8">
-      <input type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
+      <input {{$readonly}} type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
     </div>
   </div>
   <?php
@@ -42,7 +44,7 @@
   <div class="form-group">
     <label for="GroupDescription" class="col-md-4 control-label">{{$TicketfieldsData->AgentLabel}}</label>
     <div class="col-sm-8">
-      <input class="checkbox rowcheckbox formfldcheckbox" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}" name='Ticket[{{$TicketfieldsData->FieldType}}]' @if($ticketSavedData[$TicketfieldsData->
+      <input {{$readonly}} class="checkbox rowcheckbox formfldcheckbox" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}" name='Ticket[{{$TicketfieldsData->FieldType}}]' @if($ticketSavedData[$TicketfieldsData->
       FieldType]==1) checked @endif id='{{$id}}' type="checkbox"> </div>
   </div>
   <?php  }		  
@@ -55,7 +57,7 @@
   <div class="form-group">
     <label for="GroupName" class="col-md-4 control-label">{{$TicketfieldsData->AgentLabel}}</label>
     <div class="col-sm-8">
-      <input type="number" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
+      <input {{$readonly}} type="number" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
     </div>
   </div>
   <?php
@@ -69,7 +71,7 @@
   <div class="form-group">
     <label for="GroupName" class="col-md-4 control-label">{{$TicketfieldsData->AgentLabel}}</label>
     <div class="col-sm-8">
-      <select name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld select2" id="{{$id}}" >
+      <select {{$disable}} name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld select2" id="{{$id}}" >
         <option value="0">Select</option>
         <?php
 	          
@@ -125,7 +127,7 @@
   <div class="form-group">
     <label for="GroupName" class="col-md-4 control-label">{{$TicketfieldsData->AgentLabel}}</label>
     <div class="col-sm-8">
-      <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld datepicker" data-date-format="yyyy-mm-dd" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
+      <input {{$readonly}} type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld datepicker" data-date-format="yyyy-mm-dd" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
     </div>
   </div>
   <?php }					 
@@ -138,18 +140,20 @@
   <div class="form-group">
     <label for="GroupName" class="col-md-4 control-label">{{$TicketfieldsData->AgentLabel}}</label>
     <div class="col-sm-8">
-      <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
+      <input {{$readonly}} type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]'  class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->AgentLabel}}" value="{{$ticketSavedData[$TicketfieldsData->FieldType]}}">
     </div>
   </div>
   <?php				  }
 				 }
 		  }
 	?>
+     <?php if(User::checkCategoryPermission('Tickets','Edit')){ ?>
   <div class="form-group">
     <div class="col-md-5 pull-right">
       <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left" id="update_ticket" data-loading-text="Loading..."> Update <i class="entypo-mail"></i> </button>
     </div>
   </div>
+  <?php } ?> 
   <input type="hidden" name="Page" value="DetailPage">
 </form>
 <script type="text/javascript">

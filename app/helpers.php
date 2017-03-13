@@ -167,7 +167,7 @@ function contacts_dropbox($id=0,$data=array()){
 }
 function ticketgroup_dropbox($id=0,$data=array()){
     $all_ticketsgroups = TicketGroups::getTicketGroups_dropdown($data);
-    return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+    return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 function sendMail($view,$data,$ViewType=1){
     

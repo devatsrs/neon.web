@@ -242,7 +242,7 @@ private $validlicense;
             foreach($files_array as $key=> $array_file_data){
                 $file_name  = basename($array_file_data['filepath']); 
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TICKET_ATTACHMENT']);
-                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0777, true);
@@ -282,7 +282,7 @@ private $validlicense;
             foreach($files_array as $key=> $array_file_data){
                 $file_name  = basename($array_file_data['filepath']); 
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TICKET_ATTACHMENT']);
-                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0777, true);
@@ -453,7 +453,7 @@ private $validlicense;
 						{
 							$file_name  		= 	basename($array_file_data['filepath']); 
 							$amazonPath 		= 	AmazonS3::generate_upload_path(AmazonS3::$dir['TICKET_ATTACHMENT']);
-							$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;
+							$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 			
 							if (!file_exists($destinationPath))
 							{

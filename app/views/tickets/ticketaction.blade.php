@@ -21,17 +21,21 @@
 		  
 	} ?>" />
         <div class="field-options"> 
+        @if(empty($cc))
         <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replycc').parent().removeClass('hidden'); $('#replycc').focus();">CC</a> 
+        @endif
+        @if(empty($bcc))
         <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replybcc').parent().removeClass('hidden'); $('#replybcc').focus();">BCC</a>
+        @endif
          </div>
       </div>
-      <div class="form-group hidden">
+      <div class="form-group @if(empty($cc)) hidden @endif">
         <label for="cc">CC</label>
-        <input type="text" name="cc"  class="form-control tags"  id="replycc" />
+        <input type="text" name="cc"  class="form-control tags"  value="{{$cc}}" id="replycc" />
       </div>
-      <div class="form-group hidden">
+      <div class="form-group @if(empty($bcc)) hidden @endif">
         <label for="bcc">BCC</label>
-        <input type="text" name="bcc"  class="form-control tags"  id="replybcc" />
+        <input type="text" name="bcc"  class="form-control tags" value="{{$bcc}}"  id="replybcc" />
       </div>      
       <div class="form-group">
         <label for="EmailActionSubject">* Subject:</label>
