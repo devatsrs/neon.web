@@ -101,7 +101,7 @@
                 </div>
                 <div id="activity-timeline" class="panel-body">
                     <ul>
-                        
+
                     </ul>
                 </div>
             </div>
@@ -113,26 +113,26 @@
         var per_scroll 		= 	{{$iDisplayLength}};
         var per_scroll_inc  = 	per_scroll;
         jQuery(document).ready(function ($) {
-            SummaryWidgets();
+            SummaryWidgets(1);
             last_msg_funtion();
             $(window).scroll(function(){
                 if ($(window).scrollTop() == $(document).height() - $(window).height()){
 
                     setTimeout(function() {
-                        last_msg_funtion();
+                        last_msg_funtion(0);
                     }, 1000);
                 }
             });
 
-            function last_msg_funtion()
+            function last_msg_funtion(first)
             {
                 if(scroll_more==0){
                     return false;
                 }
-                var count = 0;
-                var getClass =  $("#activity-timeline ul li");
-                getClass.each(function () {count++;});
-
+                var count = 1;
+                if(first==0) {
+                    count = $("#activity-timeline ul li").length;
+                }
                 var url = baseurl + '/ticket_dashboard/timelinewidgets';
 
                 $('div#last_msg_loader').html('<img src="'+baseurl+'/assets/images/bigLoader.gif">');
