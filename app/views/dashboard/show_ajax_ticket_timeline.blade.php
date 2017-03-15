@@ -9,7 +9,7 @@
                  <a href="{{URL::to('/tickets/'.$row->TicketID.'/detail#message').$row->AccountEmailLogID}}">email response</a>
                  <span>to the ticket</span>
              @endif
-             <a href="{{URL::to('/tickets/'.$row->TicketID.'/detail')}}" class="notelink">Number Porting for Clyde Solicitors - 0203 784 6615 (#60228)</a>
+             <a href="{{URL::to('/tickets/'.$row->TicketID.'/detail')}}" class="notelink">{{$row->Subject}}</a>
              <br>
              <span class="time">{{\Carbon\Carbon::createFromTimeStamp(strtotime($row->created_at))->diffForHumans()}}</span>
          </div>

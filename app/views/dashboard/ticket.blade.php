@@ -101,18 +101,7 @@
                 </div>
                 <div id="activity-timeline" class="panel-body">
                     <ul>
-                        <li>
-                            <div class="thumb">S</div>
-                            <div class="description">
-                                <a href="#" class="username">Support</a>
-                                <span>sent an</span>
-                                <a href="#">email response</a>
-                                <span>to the ticket</span>
-                                <a href="#" class="notelink">Number Porting for Clyde Solicitors - 0203 784 6615 (#60228)</a>
-                                <br>
-                                <span class="time">14 minutes ago</span>
-                            </div>
-                        </li>
+                        
                     </ul>
                 </div>
             </div>
