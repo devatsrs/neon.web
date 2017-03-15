@@ -1,5 +1,5 @@
 CREATE TABLE `tmp_UsageSummary` (
-  `UsageSummaryID` int(11) NOT NULL AUTO_INCREMENT,
+  `UsageSummaryID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `DateID` bigint(20) NOT NULL,
   `TimeID` int(11) NOT NULL,
   `CompanyID` int(11) NOT NULL,
@@ -15,6 +15,7 @@ CREATE TABLE `tmp_UsageSummary` (
   `NoOfFailCalls` int(11) DEFAULT '0',
   `FinalStatus` int(11) DEFAULT '0',
   `CountryID` int(11) DEFAULT NULL,
+  `ServiceID` int(11) DEFAULT NULL,
   PRIMARY KEY (`UsageSummaryID`),
   KEY `tblUsageSummary_dim_date` (`DateID`),
   KEY `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`),
