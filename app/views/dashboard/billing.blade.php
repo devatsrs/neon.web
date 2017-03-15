@@ -670,8 +670,6 @@
         function reload_invoice_expense() {
             invoiceExpense();
             invoiceExpenseTotal();
-            pin_report();
-            missingAccounts();
         }
 
 
@@ -727,6 +725,9 @@
         });
         $(function () {
             reload_invoice_expense();
+            pin_report();
+            missingAccounts();
+
             $("#filter-pin").hide();
             $('#billing_filter').submit(function (e) {
                 e.preventDefault();
