@@ -210,6 +210,12 @@ class DashboardController extends BaseController {
 		
 		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus',"CrmAllowedReports"));	
 	}
+
+    public function TicketDashboard(){
+        $iDisplayLength = 10;
+        return View::make('dashboard.ticket',compact('iDisplayLength'));
+
+    }
 	
 	public function GetUsersTasks(){
        $data = Input::all();

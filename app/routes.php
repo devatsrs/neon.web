@@ -121,6 +121,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('/rmdashboard', "DashboardController@rmdashboard");
 	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
+    Route::any('/ticketdashboard', "DashboardController@TicketDashboard");
 	Route::post('/dashboard/GetUsersTasks', "DashboardController@GetUsersTasks");	
 	Route::post('/dashboard/getpiplelinedata', "DashboardController@GetPipleLineData");		
 	Route::post('/dashboard/getSalesdata', "DashboardController@getSalesdata");		
@@ -529,6 +530,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('tickets/compose_email', 'TicketsController@ComposeEmail');	
 	Route::post('tickets/SendMail', 'TicketsController@SendMail');
 	Route::post('tickets/add_note', 'TicketsController@add_note');
+
+    Route::get('ticket_dashboard/summarywidgets', 'TicketDashboard@ticketSummaryWidget');
+    Route::get('ticket_dashboard/timelinewidgets/{limit}', 'TicketDashboard@ticketTimeLineWidget');
 	
 	
 	Route::any('/contacts/get_note', 'ContactsController@get_note');
