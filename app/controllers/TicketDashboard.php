@@ -12,7 +12,7 @@ class TicketDashboard extends \BaseController {
         $data 					   = 	Input::all();
         $data['iDisplayStart'] 	   =	$start;
         $data['iDisplayLength']    =    10;
-        $data['AccessPermission'] = TicketsTable::GetTicketAccessPermission();
+        $data['AccessPermission']  = TicketsTable::GetTicketAccessPermission();
         $response 				= 	NeonAPI::request('tickets/get_ticket_dashboard_timeline_widget',$data);
 
         if($response->status=='success') {
@@ -25,6 +25,6 @@ class TicketDashboard extends \BaseController {
             return json_response_api($response,false,true);
         }
 
-        return View::make('accounts.show_ajax', compact('response'));
+        return View::make('dashboard.show_ajax_ticket_timeline', compact('response'));
     }
 }
