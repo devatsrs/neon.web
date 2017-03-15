@@ -258,6 +258,7 @@
             }, "html" );*/
             invoiceExpense();
             invoiceExpenseTotal();
+            pin_report();
         }
 
         function invoiceExpense(){
@@ -499,7 +500,6 @@
 
         $(function() {
             reload_invoice_expense();
-            pin_report();
 
             $('#billing_filter').submit(function(e){
                 e.preventDefault();
