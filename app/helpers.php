@@ -167,7 +167,7 @@ function contacts_dropbox($id=0,$data=array()){
 }
 function ticketgroup_dropbox($id=0,$data=array()){
     $all_ticketsgroups = TicketGroups::getTicketGroups_dropdown($data);
-    return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+    return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 function sendMail($view,$data,$ViewType=1){
     
@@ -1174,7 +1174,7 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
     $mail->SMTPAuth 	= 	true;
     $mail->Username 	= 	$SMTPUsername;
     $mail->Password 	= 	$SMTPPassword;
-    $mail->SMTPSecure	= 	$IsSSL==1?'SSL':'TLS';
+    $mail->SMTPSecure	= 	$IsSSL==1?'ssl':'tls';
     $mail->Port 		= 	$Port;
     $mail->From 		= 	$address;
     $mail->FromName 	= 	'Test Smtp server';
@@ -1183,7 +1183,7 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
     $mail->Timeout		=    25;
   /*if($mail->smtpConnect()){
 		$mail->smtpClose();*/
-	$mail->addAddress($ToEmail);
+	$mail->addAddress($ToEmail); 
    if ($mail->send()) {
 	   return "Valid mail settings.";
 	}else{ 

@@ -586,7 +586,7 @@ class AccountsController extends \BaseController {
      */
 	function get_note(){
 		$response				=	array();
-		$data 					= 	Input::all(); Log::info(print_r($data,true));
+		$data 					= 	Input::all(); 
 		$response_note    		=   NeonAPI::request('account/get_note',$data,false,true);
 		if($response_note['status']=='failed'){
 			return json_response_api($response_note,false,true);

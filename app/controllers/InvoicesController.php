@@ -1113,7 +1113,7 @@ class InvoicesController extends \BaseController {
             $isRecurringInvoice = 0;
             $recurringInvoiceID = 0;
             $data = Input::all();
-			$postdata = Input::all(); Log::info(print_r($data,true));
+			$postdata = Input::all(); 
             if(isset($data['RecurringInvoice'])){
                 $isRecurringInvoice=1;
                 $recurringInvoiceID = $data['RecurringInvoiceID'];
@@ -1131,7 +1131,7 @@ class InvoicesController extends \BaseController {
                 $CustomerEmail = $Company->Email;
             }
             $data['EmailTo'] = explode(",",$CustomerEmail);
-            $data['InvoiceURL'] = "URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview'";
+            $data['InvoiceURL'] = URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview'); 
             $data['AccountName'] = Account::find($Invoice->AccountID)->AccountName;
             $data['CompanyName'] = $CompanyName;
             $rules = array(
@@ -1237,7 +1237,7 @@ class InvoicesController extends \BaseController {
             //$StaffStatus = sendMail('emails.invoices.send',$data);
             $StaffStatus = $this->sendInvoiceMail($body,$data,0);
             if($StaffStatus['status']==0){
-                $status['message'] .= ', Enable to send email to staff : ' . $StaffStatus['message'];
+               $status['message'] .= ', Enable to send email to staff : ' . $StaffStatus['message'];
             }
             return Response::json(array("status" => $status['status'], "message" => "".$status['message']));
         }else{
@@ -1252,7 +1252,7 @@ class InvoicesController extends \BaseController {
 			$data['EmailFrom'] = $data['email_from'];
 		}
 	    if(is_array($data['EmailTo']))
-		{
+		{ 
             $status 			= 	sendMail($view,$data,$type);
         }
 		else
@@ -1262,7 +1262,7 @@ class InvoicesController extends \BaseController {
 				$data['EmailTo'] 	= 	trim($data['EmailTo']);
 				$status 			= 	sendMail($view,$data,0);
             }
-        }
+        } 
         return $status;
     }
     public function bulk_send_invoice_mail(){

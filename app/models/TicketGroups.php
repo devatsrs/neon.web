@@ -24,7 +24,22 @@ class TicketGroups extends \Eloquent {
    
    static function getTicketGroups(){
 		//TicketfieldsValues::WHERE
-	   $row =  TicketGroups::orderBy('GroupID', 'asc')->lists('GroupName','GroupID'); 
+	   if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETGROUPACCESS){
+		 $row = TicketGroups::join("tblTicketGroupAgents","tblTicketGroupAgents.GroupID", "=","tblTicketGroups.GroupID")
+          ->where(["tblTicketGroupAgents.UserID"=> User::get_userID()])->select(array('tblTicketGroups.GroupID','GroupName'))->lists('GroupName', 'GroupID');
+	   }else{
+	   		$row =  TicketGroups::orderBy('GroupID', 'asc')->lists('GroupName','GroupID'); 
+	   }
+	   $row = array("0"=> "Select")+$row;
+	   return $row;
+	}
+	
+	 static function getTicketGroupsFromData($data){
+		$row = array();
+		foreach($data as $ticketData){
+			$row[$ticketData->GroupID] = $ticketData->GroupName;
+		}
+	 
 	   $row = array("0"=> "Select")+$row;
 	   return $row;
 	}
@@ -70,6 +85,8 @@ class TicketGroups extends \Eloquent {
 				$FromEmails[$EmailTrackingData->EmailTrackingEmail] = $EmailTrackingData->EmailTrackingEmail;			
 			}
 		}
+		
+		asort($FromEmails);
 		return $FromEmails;
 	}
 }

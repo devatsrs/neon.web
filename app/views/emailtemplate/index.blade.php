@@ -1,93 +1,70 @@
 @extends('layout.main')
 
 @section('content')
-
 <ol class="breadcrumb bc-3">
-    <li>
-        <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
-    </li>
-    <li class="active">
-        <strong>Email Template</strong>
-    </li>
+  <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
+  <li class="active"> <strong>Email Template</strong> </li>
 </ol>
 <h3>Templates</h3>
-
 @include('includes.errors')
 @include('includes.success')
-
 <div class="row">
-    <div class="col-md-12">
-        <form id="template_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
-            <div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Filter
-                    </div>
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group">
-                     <label class="col-sm-1 control-label">Search</label>
-                      <div class="col-sm-2">
-                      <input class="form-control" name="search"  type="text" >
-                      </div>
-                        <label class="col-sm-2 control-label">Template Privacy</label>
-                        <div class="col-sm-2">
-                            {{Form::select('template_privacy',$privacy,'',array("class"=>"select2 small"))}}
-                        </div>
-                        <!--<label class="col-sm-2 control-label">Template Type</label>
+  <div class="col-md-12">
+    <form id="template_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
+      <div class="panel panel-primary" data-collapsed="0">
+        <div class="panel-heading">
+          <div class="panel-title"> Filter </div>
+          <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label class="col-sm-1 control-label">Search</label>
+            <div class="col-sm-2">
+              <input class="form-control" name="search"  type="text" >
+            </div>
+            <label class="col-sm-1 control-label">Privacy</label>
+            <div class="col-sm-2"> {{Form::select('template_privacy',$privacy,'',array("class"=>"select2 small"))}} </div>
+            <!--<label class="col-sm-2 control-label">Template Type</label>
                         <div class="col-sm-2">
                             {{Form::select('template_type',$type,'',array("class"=>"select2 small"))}}
                         </div>-->
-                         <label class="col-sm-2 control-label">Status</label>
-                         <div class="col-sm-2">
-                            <p class="make-switch switch-small">
-                                   <input type="checkbox" checked=""  name="template_status" value="1">
-                                   </p>
-                        </div>
-                        
-                         
-                    </div>
-                    <p style="text-align: right;">
-                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
-                            <i class="entypo-search"></i>
-                            Search
-                        </button>
-                    </p>
-                </div>
+            <label class="col-sm-2 control-label">System Templates</label>
+            <div class="col-sm-1">
+              <p class="make-switch switch-small">
+                <input type="checkbox"  name="system_templates" value="1">
+              </p>
             </div>
-        </form>
-    </div>
+            <label class="col-sm-1 control-label">Status</label>
+            <div class="col-sm-1">
+              <p class="make-switch switch-small">
+                <input type="checkbox" checked=""  name="template_status" value="1">
+              </p>
+            </div>
+          </div>
+          <p style="text-align: right;">
+            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
+          </p>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
-
-<p style="text-align: right;">
-@if(User::checkCategoryPermission('EmailTemplate','Add'))
-    <a href="#" data-action="showAddModal" data-type="email_template" data-modal="add-new-modal-template" class="btn btn-primary ">
-        <i class="entypo-plus"></i>
-        Add New
-    </a>
-@endif    
-</p>
+<p style="text-align: right;"> @if(User::checkCategoryPermission('EmailTemplate','Add')) <a href="#" data-action="showAddModal" data-type="email_template" data-modal="add-new-modal-template" class="btn btn-primary "> <i class="entypo-plus"></i> Add New </a> @endif </p>
 <table class="table table-bordered datatable" id="table-4">
-    <thead>
+  <thead>
     <tr>
-        <th width="20%">Template Name</th>
-        <th width="20%">Subject</th>
-        <!--<th width="10%">Type</th>-->
-        <th width="15%">Created By</th>
-        <th width="15%">Last Updated</th>
-        <th width="10%">Status</th>
-        <th width="10%">Action</th>
+      <th width="20%">Template Name</th>
+      <th width="20%">Subject</th>
+      <!--<th width="10%">Type</th>-->
+      <th width="15%">Created By</th>
+      <th width="15%">Last Updated</th>
+      <th width="10%">Status</th>
+      <th width="10%">Action</th>
     </tr>
-    </thead>
-    <tbody>
-
-
-    </tbody>
+  </thead>
+  <tbody>
+  </tbody>
 </table>
-
 <script type="text/javascript">
 var $searchFilter = {};
 var update_new_url;
@@ -103,6 +80,8 @@ var popup_type	=	0;
         $searchFilter.template_privacy 		= 	$("#template_filter [name='template_privacy']").val();
         $searchFilter.template_type 		= 	$("#template_filter [name='template_type']").val();
 		$searchFilter.template_status 		= 	$("#template_filter [name='template_status']").prop("checked");
+		$searchFilter.system_templates 		= 	$("#template_filter [name='system_templates']").prop("checked");
+		
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -111,9 +90,9 @@ var popup_type	=	0;
             "sAjaxSource": baseurl + "/email_template/ajax_datagrid",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt});
+                aoData.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt});
+                data_table_extra_params.push({"name":"template_privacy","value":$searchFilter.template_privacy},{"name":"type","value":$searchFilter.template_type},{"name":"Status","value":$searchFilter.template_status},{"name":"search","value":$searchFilter.searchTxt},{"name":"system_templates","value":$searchFilter.system_templates});
             },
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -214,6 +193,7 @@ var popup_type	=	0;
             $searchFilter.template_privacy 	= 	$("#template_filter [name='template_privacy']").val();
             $searchFilter.template_type 	= 	$("#template_filter [name='template_type']").val();
 			$searchFilter.template_status 	= 	$("#template_filter [name='template_status']").prop("checked");
+			$searchFilter.system_templates 	= 	$("#template_filter [name='system_templates']").prop("checked");
             data_table.fnFilter('', 0);
             return false;
         });
@@ -347,4 +327,4 @@ var popup_type	=	0;
 }
 </style>
 @include('emailtemplate.emailtemplatemodal')
-@stop
+@stop 
