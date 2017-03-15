@@ -24,7 +24,6 @@ class TicketDashboard extends \BaseController {
         }else{
             return json_response_api($response,false,true);
         }
-
         return View::make('dashboard.show_ajax_ticket_timeline', compact('response'));
     }
 }
