@@ -63,18 +63,6 @@
      </ul>
 </li>
 	<!-- Message Notifications -->
-@if(User::checkCategoryPermission('emailmessages','All'))    
-<li class="notifications msgs dropdown">
-        
-        <!-- Ajax Content here : Messages -->
-		<a data-close-others="true" data-hover="dropdown" data-toggle="dropdown" class="dropdown-toggle msgs" href="#"><i class="entypo-mail"></i></a>
-		<ul class="dropdown-menu">
-        	 <li class="top">
-          	   <p>Loading...</p>
-         	</li>
-       </ul>				
-</li>
- @endif	
 </ul>
 </div>
 <!-- Raw Links -->

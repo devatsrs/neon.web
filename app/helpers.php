@@ -1167,9 +1167,10 @@ function get_round_decimal_places($AccountID = 0) {
 }
 
 
-function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){
+function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){ 
     $mail 				= 	new PHPMailer;
     $mail->isSMTP();
+	//$mail->SMTPDebug = 2;                  
     $mail->Host 		= 	$SMTPServer;
     $mail->SMTPAuth 	= 	true;
     $mail->Username 	= 	$SMTPUsername;
