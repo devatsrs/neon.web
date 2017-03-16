@@ -250,7 +250,7 @@
                 <div class="col-md-1"></div>
                 <div class="col-md-5">
                     <table class="table table-bordered">
-                    <tfoot>
+                        <tfoot>
                             <tr>
                                     <td >Sub Total</td>
                                     <td>{{Form::text('SubTotal',number_format($RecurringInvoice->SubTotal,$RoundChargesAmount),array("class"=>"form-control SubTotal text-right","readonly"=>"readonly"))}}</td>
@@ -267,41 +267,62 @@
                                     <td >Invoice Total </td>
                                     <td>{{Form::text('GrandTotal',number_format($RecurringInvoice->GrandTotal,$RoundChargesAmount),array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
-                            <?php if(count($RecurringInvoiceAllTax)>0){
-				  foreach($RecurringInvoiceAllTax as $key => $RecurringInvoiceAllTaxData){
-				   ?>
-              <tr class="  @if($key==0) recurringinvoice_tax_row @else all_tax_row @endif">
-                @if($key==0)                
-                <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs recurringinvoice_tax_add ">+</button>   &nbsp; Tax </td>
-                @else
-                <td>
-                 <button title="Delete Tax" type="button" class="btn btn-danger btn-xs recurringinvoice_tax_remove ">X</button>
-                 </td>
-                @endif  
-                <td><div class="col-md-8"> {{Form::SelectExt(
-                    [
-                    "name"=>"RecurringInvoiceTaxes[field][]",
-                    "data"=>$taxes,
-                    "selected"=>$RecurringInvoiceAllTaxData->TaxRateID,
-                    "value_key"=>"TaxRateID",
-                    "title_key"=>"Title",
-                    "data-title1"=>"data-amount",
-                    "data-value1"=>"Amount",
-                    "data-title2"=>"data-flatstatus",
-                    "data-value2"=>"FlatStatus",
-                    "class" =>"select2 small Taxentity RecurringInvoiceTaxesFld  RecurringInvoiceTaxesFldFirst",
-                    ]
-                    )}}</div>
-                  <div class="col-md-4"> {{Form::text('RecurringInvoiceTaxes[value][]',$RecurringInvoiceAllTaxData->TaxAmount,array("class"=>"form-control RecurringInvoiceTaxesValue","readonly"=>"readonly"))}} </div></td>
-              </tr>
-              <?php } } ?>
-              <tr class="gross_total_recurringinvoice">
-                <td >Grand Total </td>
-                <td>{{Form::text('GrandTotalRecurringInvoice','',array("class"=>"form-control GrandTotalRecurringInvoice text-right","readonly"=>"readonly"))}}</td>
-              </tr>
-
-
-               		</tfoot>
+                            @if(count($RecurringInvoiceAllTax)>0)
+				                @foreach($RecurringInvoiceAllTax as $key => $RecurringInvoiceAllTaxData)
+                                  <tr class="  @if($key==0) recurringinvoice_tax_row @else all_tax_row @endif">
+                                    @if($key==0)
+                                    <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs recurringinvoice_tax_add ">+</button>   &nbsp; Tax </td>
+                                    @else
+                                    <td>
+                                     <button title="Delete Tax" type="button" class="btn btn-danger btn-xs recurringinvoice_tax_remove ">X</button>
+                                     </td>
+                                    @endif
+                                    <td><div class="col-md-8"> {{Form::SelectExt(
+                                        [
+                                        "name"=>"RecurringInvoiceTaxes[field][]",
+                                        "data"=>$taxes,
+                                        "selected"=>$RecurringInvoiceAllTaxData->TaxRateID,
+                                        "value_key"=>"TaxRateID",
+                                        "title_key"=>"Title",
+                                        "data-title1"=>"data-amount",
+                                        "data-value1"=>"Amount",
+                                        "data-title2"=>"data-flatstatus",
+                                        "data-value2"=>"FlatStatus",
+                                        "class" =>"select2 small Taxentity RecurringInvoiceTaxesFld  RecurringInvoiceTaxesFldFirst",
+                                        ]
+                                        )}}</div>
+                                      <div class="col-md-4"> {{Form::text('RecurringInvoiceTaxes[value][]',$RecurringInvoiceAllTaxData->TaxAmount,array("class"=>"form-control RecurringInvoiceTaxesValue","readonly"=>"readonly"))}} </div></td>
+                                  </tr>
+                                @endforeach
+                            @else
+                                <tr class="recurringinvoice_tax_row">
+                                    <td>
+                                        <button title="Add new Tax" type="button" class="btn btn-primary btn-xs recurringinvoice_tax_add ">+</button>&nbsp; Tax
+                                    </td>
+                                    <td>
+                                        <div class="col-md-8"> {{Form::SelectExt(
+                                    [
+                                    "name"=>"RecurringInvoiceTaxes[field][]",
+                                    "data"=>$taxes,
+                                    "selected"=>'',
+                                    "value_key"=>"TaxRateID",
+                                    "title_key"=>"Title",
+                                    "data-title1"=>"data-amount",
+                                    "data-value1"=>"Amount",
+                                    "data-title2"=>"data-flatstatus",
+                                    "data-value2"=>"FlatStatus",
+                                    "class" =>"select2 small Taxentity RecurringInvoiceTaxesFld  RecurringInvoiceTaxesFldFirst",
+                                    ]
+                                    )}}</div>
+                                        <div class="col-md-4"> {{Form::text('RecurringInvoiceTaxes[value][]','',array("class"=>"form-control RecurringInvoiceTaxesValue","readonly"=>"readonly"))}} </div>
+                                    </td>
+                                </tr>
+                            @endif
+                          <tr class="gross_total_recurringinvoice">
+                            <td >Grand Total </td>
+                            <td>{{Form::text('GrandTotalRecurringInvoice','',array("class"=>"form-control GrandTotalRecurringInvoice text-right","readonly"=>"readonly"))}}</td>
+                          </tr>
+               		    </tfoot>
                     </table>
                 </div>
 

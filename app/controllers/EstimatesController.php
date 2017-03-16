@@ -171,7 +171,7 @@ class EstimatesController extends \BaseController {
             $EstimateData["EstimateNumber"] = 	$LastEstimateNumber = ($isAutoEstimateNumber)?InvoiceTemplate::getAccountNextEstimateNumber($data["AccountID"]):$data["EstimateNumber"];
             $EstimateData["IssueDate"] 		= 	$data["IssueDate"];
             $EstimateData["PONumber"] 		= 	$data["PONumber"];
-            $EstimateData["SubTotal"] 		= 	str_replace(",","",$data["SubTotalOnOffCharge"])+str_replace(",","",$data["SubTotalSubscription"]);
+            $EstimateData["SubTotal"] 		= 	str_replace(",","",isset($data["SubTotalOnOffCharge"])?$data["SubTotalOnOffCharge"]:0)+str_replace(",","",isset($data["SubTotalSubscription"])?$data["SubTotalSubscription"]:0);
             //$EstimateData["TotalDiscount"] 	= 	str_replace(",","",$data["TotalDiscount"]);
 			$EstimateData["TotalDiscount"] 	= 	0;
             $EstimateData["TotalTax"] 		= 	str_replace(",","",$data["TotalTax"]);
@@ -349,7 +349,7 @@ class EstimatesController extends \BaseController {
             $EstimateData["EstimateNumber"] = 	$data["EstimateNumber"];
             $EstimateData["IssueDate"] 		= 	$data["IssueDate"];
             $EstimateData["PONumber"] 		= 	$data["PONumber"];
-            $EstimateData["SubTotal"] 		= 	str_replace(",","",$data["SubTotalOnOffCharge"])+str_replace(",","",$data["SubTotalSubscription"]);
+            $EstimateData["SubTotal"] 		= 	str_replace(",","",isset($data["SubTotalOnOffCharge"])?$data["SubTotalOnOffCharge"]:0)+str_replace(",","",isset($data["SubTotalSubscription"])?$data["SubTotalSubscription"]:0);
             //$EstimateData["TotalDiscount"] 	= 	str_replace(",","",$data["TotalDiscount"]);
 			$EstimateData["TotalDiscount"] 	= 	0;
             $EstimateData["TotalTax"] 		= 	str_replace(",","",$data["TotalTax"]);
