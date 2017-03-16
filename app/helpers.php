@@ -1682,7 +1682,7 @@ function header_array_html($main_header,$data,$response){
                 }
             }
             foreach ($header_html[$key] as $row_val) {
-                $color = '#000';
+                $color = '#FFF';
                 if ($key == 0) {
                     if(isset($chartColor[$index_col + 1])) {
                         $color = $chartColor[$index_col + 1];
