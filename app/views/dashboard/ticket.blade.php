@@ -159,7 +159,6 @@
                             }
                             ShowToastr("error",response_json.message);
                         } else {
-                            per_scroll 		= 	per_scroll_inc+per_scroll;
                             $("#activity-timeline ul").append(response);
                         }
                         $('div#last_msg_loader').empty();
