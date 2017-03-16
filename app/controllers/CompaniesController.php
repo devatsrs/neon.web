@@ -42,7 +42,7 @@ class CompaniesController extends \BaseController {
 	 */
 	public function update()
 	{
-        $data = Input::all();
+        $data = Input::all(); 
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
@@ -72,7 +72,7 @@ class CompaniesController extends \BaseController {
         //unset($data['PincodeWidget']);
         LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
         unset($data['LastPrefixNo']);
-
+		
         if(!empty($data['CurrencyId'])){
             //add default currency value in exchange rate
             $CurrencyCon = array();
@@ -94,6 +94,9 @@ class CompaniesController extends \BaseController {
         if($company->TimeZone != $data["Timezone"] ){
             CronJob::updateAllCronJobNextRunTime($companyID);
         }
+		
+		$data['IsSSL'] = isset($data['IsSSL'])?1:0;
+		
         if ($company->update($data)) {
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
         } else {
@@ -109,6 +112,11 @@ class CompaniesController extends \BaseController {
         if(empty($data['SMTPPassword'])){
             $data['SMTPPassword'] = $company->SMTPPassword;
         }
+		if($data['IsSSL']=='true'){
+			$ssl = 1;
+		}else{
+			$ssl = 0;
+		}
 		
 		 $rules = array(
             'SMTPServer' => 'required',
@@ -126,7 +134,7 @@ class CompaniesController extends \BaseController {
             return json_validator_response($validator);
         }
 		
-		$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$data['IsSSL']==1?1:0,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
+		$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$ssl,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
 		
 		$ResponseArray= array("response"=>$checkValidation,"status"=>"success");
 		return json_encode($ResponseArray);

@@ -51,7 +51,7 @@
     
        <!--tickets start -->    
     @if(Tickets::CheckTicketLicense())
-    <li class="{{check_uri('tickets')}}"><a href="#"><i class="fa fa-ticket"></i><span>Tickets Management</span></a>
+    <li class="{{check_uri('tickets')}}"><a href="#"><i class="fa fa-ticket"></i><span>Ticket Management</span></a>
       <ul>
           @if(User::checkCategoryPermission('TicketDashboard','View'))
               <li> <a href="{{URL::to('/ticketdashboard')}}">  <span>Ticket Dashboard</span> </a> </li>
@@ -167,7 +167,10 @@
         @endif
         @if(User::checkCategoryPermission('CDR','View'))
         <li> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
-        @endif 
+        @endif
+        @if(User::checkCategoryPermission('Service','View'))
+            <li> <a href="{{URL::to('/services')}}">  <span>Services</span> </a> </li>
+         @endif
         <!--<li>
 <a href="{{URL::to('/cdr_recal')}}">
   <i class="entypo-pencil"></i>

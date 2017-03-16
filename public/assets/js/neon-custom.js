@@ -2574,7 +2574,7 @@ try{
 }
 
 
-reloadMsgDrodown = function(reset){
+reloadMsgDrodown = function(reset){ return false;
 	 if(customer[0].customer!=1){
         $.get( baseurl + "/loadDashboardMsgsDropDown?reset="+reset, function( data ) {
 

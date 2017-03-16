@@ -9,14 +9,25 @@ class AccountBilling extends \Eloquent {
 
     public $timestamps = false; // no created_at and updated_at
 
-    public static function insertUpdateBilling($AccountID,$data=array()){
-        if(AccountBilling::where('AccountID',$AccountID)->count() == 0) {
+    public static function insertUpdateBilling($AccountID,$data=array(),$ServiceID){
+        if(empty($ServiceID)){
+            $ServiceID=0;
+        }
+        if(AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count() == 0) {
 
-            $AccountBilling['BillingClassID'] = $data['BillingClassID'];
-            $AccountBilling['BillingType'] = $data['BillingType'];
+            if (!empty($data['BillingClassID'])) {
+                $AccountBilling['BillingClassID'] = $data['BillingClassID'];
+            }
+            if (!empty($data['BillingType'])) {
+                $AccountBilling['BillingType'] = $data['BillingType'];
+            }
             $AccountBilling['BillingCycleType'] = $data['BillingCycleType'];
-            $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
-            $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
+            if (!empty($data['BillingTimezone'])) {
+                $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
+            }
+            if (!empty($data['SendInvoiceSetting'])) {
+                $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
+            }
 
             if (!empty($data['BillingStartDate'])) {
                 $AccountBilling['BillingStartDate'] = $data['BillingStartDate'];
@@ -40,25 +51,39 @@ class AccountBilling extends \Eloquent {
                 $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
             }
             $AccountBilling['AccountID'] = $AccountID;
+            $AccountBilling['ServiceID'] = $ServiceID;
             AccountBilling::create($AccountBilling);
         }else{
-            AccountNextBilling::insertUpdateBilling($AccountID,$data);
-            $AccountBilling['BillingClassID'] = $data['BillingClassID'];
-            $AccountBilling['BillingType'] = $data['BillingType'];
-            $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
-            $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
-            AccountBilling::where('AccountID', $AccountID)->update($AccountBilling);
+            AccountNextBilling::insertUpdateBilling($AccountID,$data,$ServiceID);
+            if (!empty($data['BillingClassID'])) {
+                $AccountBilling['BillingClassID'] = $data['BillingClassID'];
+            }
+
+            if (!empty($data['BillingType'])) {
+                $AccountBilling['BillingType'] = $data['BillingType'];
+            }
+
+            if (!empty($data['BillingTimezone'])) {
+                $AccountBilling['BillingTimezone'] = $data['BillingTimezone'];
+            }
+            if (!empty($data['SendInvoiceSetting'])) {
+                $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
+            }
+            if(!empty($AccountBilling)){
+                AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->update($AccountBilling);
+            }
 
         }
 
     }
-    public static function getBilling($AccountID){
-        return AccountBilling::where('AccountID',$AccountID)->first();
+    public static function getBilling($AccountID,$ServiceID=0){
+        return AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->first();
     }
     public static function getBillingKey($AccountBilling,$key){
         return !empty($AccountBilling)?$AccountBilling->$key:'';
     }
 
+    //not using
     public static function getBillingDay($AccountID){
         $days = 0;
         $AccountBilling =  AccountBilling::getBilling($AccountID);
@@ -83,7 +108,10 @@ class AccountBilling extends \Eloquent {
     }
 	
 	
-    public static function storeNextInvoicePeriod($AccountID,$BillingCycleType,$BillingCycleValue,$LastInvoiceDate,$NextInvoiceDate){
+    public static function storeNextInvoicePeriod($AccountID,$BillingCycleType,$BillingCycleValue,$LastInvoiceDate,$NextInvoiceDate,$ServiceID){
+        if(empty($ServiceID)){
+            $ServiceID=0;
+        }
         $StartDate = $LastInvoiceDate;
         $EndDate = $NextInvoiceDate;
         $NextBilling =array();
@@ -91,22 +119,26 @@ class AccountBilling extends \Eloquent {
             $NextBilling[]  = array(
                 'StartDate' => $StartDate,
                 'EndDate' =>$EndDate,
-                'AccountID' => $AccountID
+                'AccountID' => $AccountID,
+                'ServiceID' => $ServiceID
             );
             $StartDate = $EndDate;
             $EndDate = next_billing_date($BillingCycleType, $BillingCycleValue, strtotime($StartDate));
         }
-        DB::table('tblAccountBillingPeriod')->where(array('AccountID'=>$AccountID))->delete();
+        DB::table('tblAccountBillingPeriod')->where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->delete();
         DB::table('tblAccountBillingPeriod')->insert($NextBilling);
     }
-    public static function getCurrentPeriod($AccountID,$date){
-        return DB::table('tblAccountBillingPeriod')->where(array('AccountID'=>$AccountID))->where('StartDate','<=',$date)->where('EndDate','>',$date)->first();
+    public static function getCurrentPeriod($AccountID,$date,$ServiceID){
+        if(empty($ServiceID)){
+            $ServiceID = 0;
+        }
+        return DB::table('tblAccountBillingPeriod')->where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->where('StartDate','<=',$date)->where('EndDate','>',$date)->first();
     }
 
-    public static function storeFirstTimeInvoicePeriod($AccountID){
-        if(DB::table('tblAccountBillingPeriod')->where(array('AccountID'=>$AccountID))->where('StartDate','>=',date('Y-m-d'))->count() == 0){
-            $AccountBilling =  AccountBilling::getBilling($AccountID);
-            AccountBilling::storeNextInvoicePeriod($AccountID,$AccountBilling->BillingCycleType,$AccountBilling->BillingCycleValue,$AccountBilling->LastInvoiceDate,$AccountBilling->NextInvoiceDate);
+    public static function storeFirstTimeInvoicePeriod($AccountID,$ServiceID){
+        if(DB::table('tblAccountBillingPeriod')->where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->where('StartDate','>=',date('Y-m-d'))->count() == 0){
+            $AccountBilling =  AccountBilling::getBilling($AccountID,$ServiceID);
+            AccountBilling::storeNextInvoicePeriod($AccountID,$AccountBilling->BillingCycleType,$AccountBilling->BillingCycleValue,$AccountBilling->LastInvoiceDate,$AccountBilling->NextInvoiceDate,$ServiceID);
         }
     }
 

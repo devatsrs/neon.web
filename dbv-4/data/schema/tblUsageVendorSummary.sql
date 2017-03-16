@@ -1,6 +1,6 @@
 CREATE TABLE `tblUsageVendorSummary` (
-  `UsageVendorSummaryID` bigint(20) NOT NULL AUTO_INCREMENT,
-  `SummaryVendorHeaderID` bigint(20) NOT NULL,
+  `UsageVendorSummaryID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `SummaryVendorHeaderID` bigint(20) unsigned NOT NULL,
   `TotalCharges` double DEFAULT NULL,
   `TotalSales` double DEFAULT NULL,
   `TotalBilledDuration` int(11) DEFAULT NULL,

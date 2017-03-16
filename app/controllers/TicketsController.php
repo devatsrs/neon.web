@@ -243,7 +243,7 @@ private $validlicense;
             foreach($files_array as $key=> $array_file_data){
                 $file_name  = basename($array_file_data['filepath']); 
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TICKET_ATTACHMENT']);
-                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0777, true);
@@ -282,7 +282,7 @@ private $validlicense;
             foreach($files_array as $key=> $array_file_data){
                 $file_name  = basename($array_file_data['filepath']); 
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TICKET_ATTACHMENT']);
-                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0777, true);
@@ -401,6 +401,7 @@ private $validlicense;
 					 $NextTicket 				 =  TicketsTable::GetNextPageID($id); 
 					 $PrevTicket 				 =	TicketsTable::GetPrevPageID($id);
 					 $ticketemaildata			 =	AccountEmailLog::find($ticketdata->AccountEmailLogID); 
+					 TicketsTable::where(["TicketID"=>$id])->update(["Read"=>1]);
 					
 					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','RequesterContact','lead_owners', 'account_owners','RequesterAccount','ticketemaildata'));  		  
 			}else{
@@ -425,13 +426,14 @@ private $validlicense;
 			$response_data       =    $ResponseData['response_data']; 
 			$AccountEmail 		 = 	  $ResponseData['AccountEmail'];	
 			$parent_id			 =	  $ResponseData['parent_id'];
-			
+			$cc					 =	  $ResponseData['Cc'];
+			$bcc				 =	  $ResponseData['Bcc'];
 			if($action_type=='forward'){ //attach current email attachments
 				$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths']);
 			}
 			
 			$FromEmails	 				 =  TicketGroups::GetGroupsFrom();			
-			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails'));  
+			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc'));  
 		}else{
             return view_response_api($response);
         }		
@@ -460,7 +462,7 @@ private $validlicense;
 				{
 					$file_name  		= 	basename($array_file_data['filepath']); 
 					$amazonPath 		= 	AmazonS3::generate_upload_path(AmazonS3::$dir['TICKET_ATTACHMENT']);
-					$destinationPath 	= 	getenv("UPLOAD_PATH") . '/' . $amazonPath;
+					$destinationPath 	= 	CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 	
 					if (!file_exists($destinationPath))
 					{
@@ -575,7 +577,7 @@ private $validlicense;
             foreach($files_array as $key=> $array_file_data){
                 $file_name  = basename($array_file_data['filepath']); 
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['TICKET_ATTACHMENT']);
-                $destinationPath = getenv("UPLOAD_PATH") . '/' . $amazonPath;
+                $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0777, true);

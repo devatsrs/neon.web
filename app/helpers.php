@@ -153,21 +153,21 @@ function toandfro_dropdown($id,$type){
 
 function rategenerators_dropbox($id=0,$data=array()){
     $all_rategenerators = RateGenerator::getRateGenerators();
-    return Form::select('rategenerators', $all_rategenerators, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+    return Form::select('rategenerators', $all_rategenerators, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
 function rate_tables_dropbox($id=0,$data=array()){
     $all_getRateTables = RateTable::getRateTables();
-    return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+    return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
 function contacts_dropbox($id=0,$data=array()){
     $all_contacts = Contact::getContacts($data);
-    return Form::select('contacts', $all_contacts, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+    return Form::select('contacts', $all_contacts, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 function ticketgroup_dropbox($id=0,$data=array()){
     $all_ticketsgroups = TicketGroups::getTicketGroups_dropdown($data);
-    return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_customers_jump" ,"class"=>"selectboxit1 form-control1"));
+    return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 function sendMail($view,$data,$ViewType=1){
     
@@ -354,6 +354,10 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
         $data = [Product::ITEM=>Product::getProductDropdownList() ,Product::SUBSCRIPTION=> BillingSubscription::getSubscriptionsList()];
         $extraClass = 'product_dropdown';
         $isComposit = 1;
+    }elseif($type=='service'){
+        $name = 'ServiceID';
+        $modal = 'add-new-modal-service';
+        $data = Service::getDropdownIDList();
     }
     if(!empty($nameID)){
         $name= $nameID;
@@ -1205,9 +1209,10 @@ function get_round_decimal_places($AccountID = 0) {
 }
 
 
-function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){
+function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){ 
     $mail 				= 	new PHPMailer;
     $mail->isSMTP();
+	//$mail->SMTPDebug = 2;                  
     $mail->Host 		= 	$SMTPServer;
     $mail->SMTPAuth 	= 	true;
     $mail->Username 	= 	$SMTPUsername;

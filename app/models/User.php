@@ -41,6 +41,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
                 if (Hash::check($data["password"], $customer->password)) {
                     Auth::login($customer);
                     Session::set("customer", 1);
+					Session::set("CustomerEmail", $data["email"]);
                     return true;
                 }
             }

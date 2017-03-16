@@ -14,6 +14,21 @@ BEGIN
 	DECLARE v_TrunkID_ INT;
 	DECLARE v_NewAccountIDCount_ INT;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+	
+	/* check service enable at gateway*/
+	DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
+	CREATE TEMPORARY TABLE tmp_Service_  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		ServiceID INT
+	);
+	SET @stm = CONCAT('
+	INSERT INTO tmp_Service_ (ServiceID)
+	SELECT DISTINCT ServiceID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND ServiceID > 0;
+	');
+	
+	PREPARE stm FROM @stm;
+	EXECUTE stm;
+	DEALLOCATE PREPARE stm;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_tblTempRateLog_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblTempRateLog_(
@@ -49,7 +64,7 @@ BEGIN
 	DEALLOCATE PREPARE stmt;
 
 	/* active new account */
-	CALL  prc_getActiveGatewayAccount(p_CompanyID,p_CompanyGatewayID,'0','1',p_NameFormat);
+	CALL  prc_getActiveGatewayAccount(p_CompanyID,p_CompanyGatewayID,p_NameFormat);
 
 	/* update cdr account */
 	SET @stm = CONCAT('
