@@ -110,8 +110,6 @@
     @endif
     <script type="text/javascript">
         var scroll_more 	  =  		1;
-        var per_scroll 		= 	{{$iDisplayLength}};
-        var per_scroll_inc  = 	per_scroll;
         jQuery(document).ready(function ($) {
             SummaryWidgets(1);
             last_msg_funtion();
@@ -129,18 +127,20 @@
                 if(scroll_more==0){
                     return false;
                 }
-                var count = 1;
+                var count = 0;
                 if(first==0) {
                     count = $("#activity-timeline ul li").length;
                 }
+                console.log(count);
                 var url = baseurl + '/ticket_dashboard/timelinewidgets';
 
                 $('div#last_msg_loader').html('<img src="'+baseurl+'/assets/images/bigLoader.gif">');
 
                 /////////////
+                console.log(url+'/'+count);
 
                 $.ajax({
-                    url: url+'/'+per_scroll+"?scrol="+count,
+                    url: url+'/'+count,
                     type: 'GET',
                     dataType: 'html',
                     async :false,
