@@ -2641,3 +2641,190 @@ a:focus,a:hover{text-decoration:none !important}
 .wysihtml5-toolbar > .dropdown > .dropdown-menu > li.unclick > a{color:#fff !important;}
 .TicketsScroll{z-index:999 !important; }
 /**/
+
+.vertical-border {
+
+    margin-top: -15px;
+    padding-top: 15px;
+    margin-bottom: -15px;
+    padding-bottom: 15px;
+}
+.vertical-border-5 {
+    margin-top: -5px;
+    padding-top: 5px;
+    margin-bottom: -5px;
+    padding-bottom: 5px;
+}
+.border_right{
+    border-right: 1px solid #ebebeb;
+}
+.border_left{
+    border-left: 1px solid #ebebeb;
+}
+.border_bottom{
+    border-bottom: 1px solid #ebebeb;
+}
+.border_top{
+    border-top: 1px solid #ebebeb;
+}
+
+.page-container.right-sidebar .new_filter {
+    left: 0;
+    right: auto;
+}
+
+.page-container.right-sidebar .new_filter .chat-conversation {
+    left: 280px;
+    right: auto;
+    -webkit-border-radius: 0 3px 3px 0;
+    -webkit-background-clip: padding-box;
+    -moz-border-radius: 0 3px 3px 0;
+    -moz-background-clip: padding;
+    border-radius: 0 3px 3px 0;
+    background-clip: padding-box;
+}
+
+.filter-visible .new_filter {
+    display: table-cell;
+    vertical-align: top;
+}
+.horizontal-menu .new_filter {
+    top: 61px;
+    border-top: 1px solid #454a54;
+}
+
+.new_filter {
+    position: relative;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    background: #303641;
+    z-index: 5;
+    display: none;
+}
+.new_filter.fixed {
+    min-height: 0 !important;
+}
+.new_filter .filter-inner {
+    overflow: auto;
+    height: 100%;
+}
+.new_filter .filter-header {
+    font-size: 16px;
+    color: #7f8186;
+    padding: 30px 35px;
+    line-height: 1;
+    margin: 0;
+    border-bottom: 1px solid #343a45;
+    position: relative;
+}
+.new_filter .filter-header .badge {
+    position: relative;
+    top: -1px;
+    margin-left: 5px;
+    -webkit-transform: scale(1);
+    -moz-transform: scale(1);
+    -ms-transform: scale(1);
+    -o-transform: scale(1);
+    transform: scale(1);
+    zoom: 1;
+    -webkit-opacity: 1;
+    -moz-opacity: 1;
+    opacity: 1;
+    filter: alpha(opacity=100);
+    -moz-transition: all 300ms ease-in-out;
+    -o-transition: all 300ms ease-in-out;
+    -webkit-transition: all 300ms ease-in-out;
+    transition: all 300ms ease-in-out;
+}
+.new_filter .filter-header .badge.is-hidden {
+    zoom: 1;
+    -webkit-opacity: 0;
+    -moz-opacity: 0;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    -webkit-transform: scale(0);
+    -moz-transform: scale(0);
+    -ms-transform: scale(0);
+    -o-transform: scale(0);
+    transform: scale(0);
+    -webkit-transform: scale(0, );
+    -ms-transform: scale(0, );
+    transform: scale(0, );
+}
+.new_filter .filter-header .filter-close {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    font-size: 15px;
+    top: 50%;
+    right: 25px;
+    margin-top: -7px;
+    color: #bec0c2;
+    zoom: 1;
+    -webkit-opacity: 0.5;
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    filter: alpha(opacity=50);
+}
+
+.transall .new_filter .filter-header .filter-close:hover {
+    zoom: 1;
+    -webkit-opacity: 1;
+    -moz-opacity: 1;
+    opacity: 1;
+    filter: alpha(opacity=100);
+}
+.new_filter .filter-group {
+    margin-top: 30px;
+}
+
+ /* Relatively-Small screen */
+@media (max-width: 767px) {
+    .filter-visible .new_filter,
+    .filter-visible .new_filter.fixed {
+        display: none;
+    }
+    .filter-visible.toggle-click .new_filter,
+    .filter-visible.toggle-click .new_filter.fixed {
+        display: block;
+    }
+    .new_filter,
+    .new_filter.fixed {
+        position: fixed;
+        width: auto;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: 10px;
+        -webkit-border-radius: 3px;
+        -webkit-background-clip: padding-box;
+        -moz-border-radius: 3px;
+        -moz-background-clip: padding;
+        border-radius: 3px;
+        background-clip: padding-box;
+    }
+
+}
+.boxed-layout .new_filter {
+    position: absolute;
+}
+@media screen and (max-width: 992px) {
+    .boxed-layout .page-container {
+        position: absolute;
+        width: 100%;
+        overflow-x: visible;
+    }
+    .boxed-layout .new_filter {
+        position: fixed;
+    }
+}
+.table_report_overflow{
+    max-width: 74%;
+    overflow-x: auto;
+    max-height: 700px;
+    min-height: 200px;
+    overflow-y: auto;
+}

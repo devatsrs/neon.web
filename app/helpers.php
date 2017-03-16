@@ -1591,3 +1591,186 @@ function getQuickBookAccountant(){
     $data =  AccountEmailLog::insertGetId($logData);
     return $data;
 }
+function generateGroupConcat($data,$columns){
+    $query_row = '';
+    if(count($columns)) {
+        foreach ($columns as $key => $single_columns) {
+            $column_name = $query_condition = '';
+
+            foreach ($single_columns as $col_name => $col_val) {
+                $query_condition .= " $col_name = '" . $col_val . "'";
+                $query_condition .= " AND ";
+                $column_name .= $col_val . "###";
+            }
+            $query_condition = rtrim($query_condition, ' AND ');
+            foreach ($data['sum'] as $col_sum) {
+                $query_row .= "SUM(IF( " . $query_condition . ", " . $col_sum . ", 0)) AS '" . $column_name . $col_sum . "'";
+                $query_row .= ",";
+            }
+        }
+    }else{
+        foreach ($data['sum'] as $col_sum) {
+            $query_row .= "SUM(" . $col_sum . ") AS '" . $col_sum . "'";
+            $query_row .= ",";
+        }
+    }
+    $query_row = rtrim($query_row,',');
+    return $query_row;
+}
+
+function generateReportTable($data,$response)
+{
+    $row_count = count($data['row']);
+
+    $table = '<table class="table table-bordered">';
+
+    $header_array = array_slice(array_keys($response['data'][0]),$row_count,count(array_keys($response['data'][0])));
+
+    $table .=  header_array_html($header_array,$data,$response);
+
+    $table .=  row_array_html($data,$response);
+
+    return $table;
+}
+
+
+function header_array_html($main_header,$data,$response){
+    $index_col = 0;
+    $row_count = count($data['row']);
+    $table_header = $table_header_colgroup = '';
+    $chartColor = array('#C5CAE9','#BBDEFB','#B3E5FC','#B2EBF2','#C8E6C9','#DCEDC8','#F0F4C3','#FFCCBC','#D7CCC8','#F5F5F5','#CFD8DC','#050FFF','#0000FF');
+    if($row_count) {
+        $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
+    }
+    $header_html = array();
+    foreach ($main_header as $headers) {
+        $headerrow = explode('###',$headers);
+        $key_comb = '';
+        if(count($headerrow)>1) {
+            foreach ($headerrow as $key => $header) {
+                $key_comb .= $header.'!';
+                if (empty(${'count_' . $key_comb})) {
+                    ${'count_' . $key_comb} = 0;
+                }
+                if (isset($data['column'][$key])) {
+                    $col_name = $data['column'][$key];
+                    $header_name = '';
+                    if (isset($response['column']['names'][$col_name][$header])) {
+                        $header_name = $response['column']['names'][$col_name][$header];
+                    }
+                    ${'count_' . $key_comb}++;
+                    if (!isset($header_html[$key][$key_comb])) {
+                        $header_html[$key][$key_comb]['name'] = $header_name;
+                    }
+                    $header_html[$key][$key_comb]['colspan'] = ${'count_' . $key_comb};
+                }
+            }
+        }
+    }
+    //print_r($header_html);exit;
+    if(count($data['column'])) {
+        foreach ($data['column'] as $key => $col_name) {
+            $table_header .= '<tr>';
+            if ($key == 0) {
+                foreach ($data['row'] as $rowkey => $blankrow_name) {
+                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '"></td>';
+                }
+            }
+            foreach ($header_html[$key] as $row_val) {
+                if ($key == 0) {
+                    $table_header_colgroup .= '<colgroup span="' . $row_val['colspan'] . '" style="background-color:' . $chartColor[$index_col + 1] . '"></colgroup>';
+                }
+                $table_header .= '<th colspan="' . $row_val['colspan'] . '" scope="colgroup">' . $row_val['name'] . '</th>';
+                $index_col++;
+            }
+            $table_header .= '</tr>';
+        }
+    }
+
+
+    /** header columns */
+    $i_count = 0;
+    $table_header .= '<tr>';
+    if(count($data['column']) == 0) {
+        foreach ($data['row'] as $rowkey => $blankrow_name) {
+            $table_header .= '<th scope="col"></th>';
+        }
+    }
+    foreach ($response['data'] as $row) {
+        foreach ($row as $col_name => $col_val) {
+            $rowarray = explode('###', $col_name);
+            if($row_count <= $i_count) {
+                $table_header .= '<th scope="col">' . end($rowarray) . '</th>';
+            }
+            $i_count++;
+        }
+        break;
+    }
+    $table_header .= '</tr>';
+
+
+    return $table_header_colgroup.$table_header;
+
+}
+function row_array_html($data,$response){
+    /** display row and it's data */
+    $table_data = '';
+    $row_count = count($data['row']);
+    $header_html = array();
+    foreach ($response['data'] as $tablerow) {
+        $key_comb = '';
+        $key_index= 0;
+        foreach ($tablerow as $col_name => $col_val) {
+            $rowarray = explode('###', $col_name);
+            if (count($rowarray) < 2) {
+                $key_comb .= $col_val.'#';
+                if (empty(${'count_' . $key_comb})) {
+                    ${'count_' . $key_comb} = 0;
+                }
+                $header_name = Report::getName($col_name,$col_val);
+                if (!isset($header_html[$key_index][$key_comb])) {
+                    $header_html[$key_index][$key_comb]['name'] = $header_name;
+                }
+                ${'count_' . $key_comb}++;
+                $header_html[$key_index][$key_comb]['rowspan'] = ${'count_' . $key_comb};
+                $key_index++;
+            }
+
+        }
+    }
+    //print_r($header_html);exit;
+
+
+    foreach ($response['data'] as $row) {
+        $table_data .= '<tr>';
+        $key_comb = '';
+        $key_index= 0;
+        $table_row = $table_col_row = '';
+        foreach ($row as $col_name => $col_val) {
+            if ($row_count <= $key_index) {
+                $table_row .= '<td>' . $col_val . '</td>';
+            } else {
+                $key_comb .= $col_val.'#';
+                if (empty(${'count_new_' . $key_comb})) {
+                    ${'count_new_' . $key_comb} = $header_html[$key_index][$key_comb]['rowspan'];
+                }
+                if (${'count_new_' . $key_comb} == $header_html[$key_index][$key_comb]['rowspan']) {
+                    $table_col_row .= '<td rowspan="' . $header_html[$key_index][$key_comb]['rowspan'] . '">' . $header_html[$key_index][$key_comb]['name'] . '</td>';
+                }
+                ${'count_new_' . $key_comb}--;
+            }
+            $key_index++;
+        }
+        $table_row = $table_col_row . $table_row;
+        $table_data .= $table_row;
+        $table_data .= '</tr>';
+    }
+    $table_data .= '</table>';
+
+    return $table_data;
+
+}
+
+
+
+

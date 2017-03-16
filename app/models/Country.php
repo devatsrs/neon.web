@@ -102,6 +102,9 @@ class Country extends \Eloquent {
     public static function getCountryPrefix($CountryID){
         return Country::where(array('CountryID'=>$CountryID))->pluck('Prefix');
     }
+    public static function getName($CountryID){
+        return Country::where(array('CountryID'=>$CountryID))->pluck('Country');
+    }
 
 
 

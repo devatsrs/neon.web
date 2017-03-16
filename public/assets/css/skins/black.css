@@ -539,3 +539,25 @@ body .horizontal-menu header.navbar .navbar-inner > ul > li#search .search-input
 body .horizontal-menu header.navbar > ul > li#search .search-input:-ms-input-placeholder {
   color: #eeeeee;
 }
+
+
+body .new_filter {
+  background: #222222;
+}
+body .new_filter .filter-header {
+  color: #FFF;
+  border-bottom: 1px solid #00acd6;
+}
+
+body .new_filter .filter-group > label {
+  color: #ffffff;
+}
+
+body .new_filter .filter-group label.switch-small{
+  background-color: #ffffff;
+}
+
+body .conversation-body,
+body .new_filter .entypo-cancel{
+  color: #eeeeee;
+}

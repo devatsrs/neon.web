@@ -45,6 +45,7 @@
                 @include('includes.footer')
 
             </div>
+            @yield('filter')
 
         </div>
 

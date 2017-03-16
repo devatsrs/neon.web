@@ -1,0 +1,119 @@
+<?php
+class Report extends \Eloquent {
+    protected $guarded = array("ReportID");
+    protected $table = "tblReport";
+    protected $primaryKey = "ReportID";
+    protected $connection = 'neon_report';
+    protected $fillable = array(
+        'CompanyID','Name','Settings','created_at'
+    );
+
+    public static $rules = array(
+        'Name'=>'required',
+    );
+
+    public static $cube = array(
+        'summary'=>'Summary',
+    );
+
+
+    public static  function generateDynamicTable($CompanyID,$cube,$data=array()){
+        $response = '';
+        switch ($cube) {
+            case 'summary':
+                $response = self::generateSummaryQuery($CompanyID,$data);
+                break;
+            case 'payment':
+                break;
+            case 'invoice':
+                break;
+
+        }
+        return $response;
+    }
+
+    public static function generateSummaryQuery($CompanyID,$data){
+        $columns = array();
+        if(count($data['column'])) {
+            $query_distinct = DB::connection('neon_report')
+                ->table('tblHeader')
+                ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
+                ->where(['CompanyID' => $CompanyID])
+                ->distinct();
+            foreach ($data['column'] as $column) {
+                $query_distinct->orderby($column);
+            }
+            $columns = $query_distinct->get($data['column']);
+            $columns = json_decode(json_encode($columns), true);
+
+            $response['column'] = self::generateColumnNames($columns);
+        }
+        $select_columns = generateGroupConcat($data, $columns);
+
+
+        $final_query = DB::connection('neon_report')
+            ->table('tblHeader')
+            ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
+            ->where(['CompanyID' => $CompanyID]);
+        foreach ($data['row'] as $column) {
+            $final_query->groupby($column);
+        }
+        if(!empty($select_columns)){
+            $data['row'][] = DB::Raw($select_columns);
+        }
+        //print_r($data['row']);exit;
+        $response['data'] = $final_query->get($data['row']);
+        $response['data'] = json_decode(json_encode($response['data']),true);
+
+        return $response;
+    }
+
+    public static function generateColumnNames($columns){
+        $header_array = array();
+        foreach ($columns as $key => $single_columns){
+            foreach ($single_columns as $col_name => $col_val) {
+                if(!isset($header_array['names'][$col_name][$col_val])) {
+                    $header_array['names'][$col_name][$col_val] = self::getName($col_name, $col_val); //$col_name.$col_val
+                }
+            }
+        }
+        return $header_array;
+    }
+
+    public static function getName($PKColumnName,$ID){
+        $name = 'Other';
+        switch ($PKColumnName) {
+            case 'CompanyGatewayID':
+                $name = CompanyGateway::getCompanyGatewayName($ID);
+                break;
+            case 'AccountID':
+                $name = Account::getCompanyNameByID($ID);
+                break;
+            case 'DateID':
+                $name = 'CompanyGateway';
+                break;
+            case 'Trunk':
+                $name = $ID;
+                break;
+            case 'CountryID':
+                $name = Country::getName($ID);
+                break;
+
+        }
+        return $name;
+    }
+
+    public static function generateRowNames($columns){
+        $header_array = array();
+        foreach ($columns as $key => $single_columns){
+            foreach ($single_columns as $col_name => $col_val) {
+                if(!isset($header_array['names'][$col_name][$col_val])) {
+                    $header_array['names'][$col_name][$col_val] = self::getName($col_name, $col_val); //$col_name.$col_val
+                }
+            }
+        }
+        return $header_array;
+    }
+
+
+}

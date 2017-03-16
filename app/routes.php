@@ -1130,6 +1130,16 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/clitable/delete/{id}','AccountsController@clitable_delete');
 	Route::any('/clitable/update','AccountsController@clitable_update');
 
+    // report
+    Route::any('/report','ReportController@index');
+    Route::any('/report/ajax_datagrid/{type}','ReportController@ajax_datagrid');
+    Route::any('/report/create','ReportController@create');
+    Route::any('/report/edit','ReportController@edit');
+    Route::any('/report/store','ReportController@report_store');
+    Route::any('/report/update/{id}','ReportController@report_update');
+    Route::any('/report/delete/{id}','ReportController@report_delete');
+    Route::any('/report/getdatagrid','ReportController@getdatagrid');
+
 });
 
 Route::group(array('before' => 'global_admin'), function () {
