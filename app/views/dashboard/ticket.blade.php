@@ -137,7 +137,6 @@
                 $('div#last_msg_loader').html('<img src="'+baseurl+'/assets/images/bigLoader.gif">');
 
                 /////////////
-                console.log(url+'/'+count);
 
                 $.ajax({
                     url: url+'/'+count,
@@ -149,13 +148,12 @@
                         if (isJson(response)) {
                             var response_json  =  JSON.parse(response);
                             if(response_json.scroll=='end') {
+                                scroll_more= 0;
                                 if($(".timeline-end").length > 0) {
-                                    scroll_more= 0;
                                     return false;
                                 }
-                                var html_end  ='<li class="timeline-end"></li>';
+                                var html_end = '<li class="timeline-end" style="text-align: center;"><i class="entypo-infinity" style="font-size: 25px;color: cadetblue;"></i> </li>';
                                 $("#activity-timeline ul").append(html_end);
-                                scroll_more= 0;
                                 $('div#last_msg_loader').empty();
                                 return true;
                             }
