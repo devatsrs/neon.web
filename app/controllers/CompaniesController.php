@@ -103,13 +103,18 @@ class CompaniesController extends \BaseController {
     }
 	
 	function ValidateSmtp(){
-		$data 				= 		Input::all();
-        $companyID 			= 		User::get_companyID();
+		$data 				= 		Input::all();		
+        $companyID 			= 		User::get_companyID(); Log::info(print_r($data,true));
         $company 			=		Company::find($companyID);
         if(empty($data['SMTPPassword'])){
             $data['SMTPPassword'] = $company->SMTPPassword;
         }
 		
+		if($data['IsSSL']  == 'false'){ 
+			$ssl	=	0;  
+		}else{ 
+			$ssl	=	1; 
+		}
 		 $rules = array(
             'SMTPServer' => 'required',
             'Port' => 'required|numeric',
@@ -126,7 +131,7 @@ class CompaniesController extends \BaseController {
             return json_validator_response($validator);
         }
 		
-		$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$data['IsSSL']==1?1:0,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
+		$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$ssl,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
 		
 		$ResponseArray= array("response"=>$checkValidation,"status"=>"success");
 		return json_encode($ResponseArray);
