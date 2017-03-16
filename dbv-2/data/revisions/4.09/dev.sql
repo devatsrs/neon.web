@@ -1,3 +1,5 @@
+Use `RMBilling3`;
+
 DROP PROCEDURE IF EXISTS `prc_getSOA`;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getSOA`(

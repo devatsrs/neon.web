@@ -1,6 +1,7 @@
+USE `Ratemanagement3`;
 DROP PROCEDURE IF EXISTS `prc_GetLCRwithPrefix`;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetLCRwithPrefix`(IN `p_companyid` INT, IN `p_trunkID` INT, IN `p_codedeckID` INT, IN `p_CurrencyID` INT, IN `p_code` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_SortOrder` VARCHAR(50), IN `p_Preference` INT, IN `p_isExport` INT)
+CREATE  PROCEDURE `prc_GetLCRwithPrefix`(IN `p_companyid` INT, IN `p_trunkID` INT, IN `p_codedeckID` INT, IN `p_CurrencyID` INT, IN `p_code` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_SortOrder` VARCHAR(50), IN `p_Preference` INT, IN `p_isExport` INT)
 BEGIN
 
 DECLARE v_OffSet_ int;
@@ -645,7 +646,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_GetLCR`;
 DELIMITER ;;
-CREATE DEFINER = 'root'@'localhost' PROCEDURE prc_GetLCR(
+CREATE PROCEDURE prc_GetLCR(
 	IN `p_companyid` INT,
 	IN `p_trunkID` INT,
 	IN `p_codedeckID` INT,
@@ -1268,7 +1269,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_InsertDiscontinuedVendorRate`;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_InsertDiscontinuedVendorRate`(
+CREATE  PROCEDURE `prc_InsertDiscontinuedVendorRate`(
 	IN `p_AccountId` INT,
 	IN `p_TrunkId` INT
 )

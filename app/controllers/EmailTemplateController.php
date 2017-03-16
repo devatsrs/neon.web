@@ -32,6 +32,9 @@ class EmailTemplateController extends \BaseController {
 		}else{ 
 			$template->Where('Status',0);
 		}
+		if(isset($data['system_templates']) && $data['system_templates']!='false'){
+			$template->Where('StaticType',1);
+		}
         /*if(trim($data['TemplateName']) != '') {
             $template->where('TemplateName', 'like','%'.trim($data['TemplateName']).'%');
         }*/

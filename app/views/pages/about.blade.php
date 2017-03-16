@@ -13,14 +13,45 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.08</h1>
+    <h1>NEON - 4.09</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.08</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.09</strong></div>
 </p>
 </div>
+
+<h2>
+    <span class="label label-success">4.09</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>02-03-2017</h4>
+                    01. Added Recurring option under Billing.<br>
+                    02. Moved Sage Export button under action on invoice page.<br>
+                    03. Added option to delete missing gateway accounts.<br>
+                    04. Added Unbilled Amount widget in customer panel.<br>
+                    05. Added option to select Current, Future or specific date rates when generating rate table from Rate Generator.<br>
+                    06. Revised Code Deck filter on LCR page.<br>
+                    07. Added balance brought forward in Statement Of Account.<br>
+                    08. Added option to re-rate CDRs based on Origination no.<br>
+                    09. Added Yearly option in billing cycle.<br>
+                    10. Added option to schedule cron jobs in seconds.<br>
+                    11. Improved Email Templates. (User can select From email when sending emails)<br>
+                    12. Fixed issue with Stripe errors.<br>
+                    13. Removed Unique Prefix check against Customer trunk.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.08</span> &nbsp; Version Highlights

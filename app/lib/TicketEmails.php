@@ -99,28 +99,15 @@ class TicketEmails{
 		
 			$slug					=		"AgentNewTicketCreated";
 			
-			if(!isset($this->TicketData->Agent)){
-				$this->SetError("No Agent Found");			
-				return;
-			}
-			else
+			if(!$this->CheckBasicRequirments())
 			{
-				$agent =  User::find($this->TicketData->Agent);
-				if(!$agent)
-				{
-					$this->SetError("Invalid Agent");	
-					return;
-				}
-				$this->Agent = $agent;				
+				return $this->Error;
 			}
-			
 			
 			$this->EmailTemplate  	=		EmailTemplate::where(["SystemType"=>$slug])->first();									
 		 	$replace_array			= 		$this->ReplaceArray($this->TicketData);
 		    $finalBody 				= 		$this->template_var_replace($this->EmailTemplate->TemplateBody,$replace_array);
 			$finalSubject			= 		$this->template_var_replace($this->EmailTemplate->Subject,$replace_array);					
-			
-					
 	}
 	
 	protected function SetError($error){
@@ -128,6 +115,62 @@ class TicketEmails{
 	}
 	public function GetError(){
 		return $this->Error;
+	}
+	
+	protected function CheckBasicRequirments(){
+				
+		if(!isset($this->TicketData->Agent)){
+			$this->SetError("No Agent Found");				
+		}
+		else
+		{
+			$agent =  User::find($this->TicketData->Agent);
+			if(!$agent)
+			{
+				$this->SetError("Invalid Agent");					
+			}
+			$this->Agent = $agent;				
+		}
+		
+		if(!isset($this->EmailFrom) || empty($this->EmailFrom))
+		{
+			if(!isset($this->TicketData->Group))
+			{
+				$this->SetError("No group Found");		
+				
+			}
+			else
+			{
+				$group =  TicketGroups::find($this->TicketData->Group);
+				if(!$group)
+				{
+					$this->SetError("Invalid Group");						
+				}
+				$this->Group = $group;
+			}
+		}
+		else
+		{
+			$group  = 	TicketGroups::where(["GroupEmailAddress"=>$this->EmailFrom])->first();
+			if(!$group)
+			{
+				$this->SetError("Invalid Group");				
+			}
+			$this->Group = $group;
+		}
+		
+		$this->EmailTemplate  		=		EmailTemplate::where(["SystemType"=>$this->slug])->first();									
+		if(!$this->EmailTemplate){
+			$this->SetError("No email template found.");				
+		}
+		if(!$this->EmailTemplate->Status){
+			$this->SetError("Email template status disabled");				
+		}
+		
+		if($this->GetError()){
+			return false;
+		}		
+		return true;
 	}
 }
 ?>

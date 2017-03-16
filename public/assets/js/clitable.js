@@ -22,6 +22,10 @@ jQuery(document).ready(function ($) {
                         "value": AccountID
                     },
                     {
+                        "name": "ServiceID",
+                        "value": ServiceID
+                    },
+                    {
                         "name": "CLIName",
                         "value": $searchcli.CLIName
                     }
@@ -31,6 +35,10 @@ jQuery(document).ready(function ($) {
                 data_table_extra_params.push({
                         "name": "AccountID",
                         "value": AccountID
+                    },
+                    {
+                        "name": "ServiceID",
+                        "value": ServiceID
                     },
                     {
                         "name": "CLIName",
@@ -121,7 +129,7 @@ jQuery(document).ready(function ($) {
             var delete_url = $(this).attr("href");
             var AuthRule = $('#clitable-form').find('input[name=AuthRule]').val();
             var AccountID = $('#clitable-form').find('input[name=AccountID]').val();
-            delete_cli(delete_url,"AuthRule="+AuthRule+'&AccountID='+AccountID)
+            delete_cli(delete_url,"AuthRule="+AuthRule+'&AccountID='+AccountID+'&ServiceID='+ServiceID)
         }
         return false;
     });
@@ -150,7 +158,7 @@ jQuery(document).ready(function ($) {
         var AuthRule = $('#clitable-form').find('input[name=AuthRule]').val();
         var AccountID = $('#clitable-form').find('input[name=AccountID]').val();
         if (CLIRateTableIDs.length) {
-            delete_cli(clitable_delete_url.replace("{id}", 0),'CLIRateTableIDs=' + CLIRateTableIDs.join(",") + '&criteria=' + criteria+'&AuthRule='+AuthRule+'&AccountID='+AccountID)
+            delete_cli(clitable_delete_url.replace("{id}", 0),'CLIRateTableIDs=' + CLIRateTableIDs.join(",") + '&criteria=' + criteria+'&AuthRule='+AuthRule+'&AccountID='+AccountID+'&ServiceID=' + ServiceID)
         }
     });
     $("#changeSelectedCLI").click(function (ev) {
@@ -190,7 +198,7 @@ jQuery(document).ready(function ($) {
             }
         });
         var CLIRateTableID = $('#clitable-form').find('input[name=CLIRateTableID]').val();
-        delete_cli(clitable_delete_url.replace("{id}", CLIRateTableID),'CLIRateTableIDs=' + CLIRateTableIDs.join(",") + '&criteria=' + criteria+'&dates=' + dates)
+        delete_cli(clitable_delete_url.replace("{id}", CLIRateTableID),'CLIRateTableIDs=' + CLIRateTableIDs.join(",") + '&criteria=' + criteria+'&dates=' + dates+'&ServiceID=' + ServiceID)
 
     });
 });

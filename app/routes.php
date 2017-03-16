@@ -492,6 +492,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/ticketgroups/{id}/delete', 'TicketsGroupController@delete');
 	Route::any('/ticketgroups/{id}/send_activation', 'TicketsGroupController@send_activation_single');
 	Route::any('/ticketgroups/{id}/getgroupagents', 'TicketsGroupController@get_group_agents');
+	Route::any('/ticketgroups/validatesmtp', 'TicketsGroupController@validatesmtp');
 	
 	Route::any('/ticketsfields', "TicketsFieldsController@index");
 	Route::any('/ticketsfields/iframe', "TicketsFieldsController@iframe");
@@ -503,7 +504,9 @@ Route::group(array('before' => 'auth'), function () {
 	
 	
 	
-	
+	Route::any('/tickets',"TicketsController@TicketGroupAccess");
+	Route::any('/tickets',"TicketsController@TicketRestrictedAccess");
+	Route::any('/tickets',"TicketsController@TicketsGlobalAccess");
 	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
 	Route::any('/tickets/ajax_datagrid/{type}', "TicketsController@ajax_datagrid");
 	Route::any('/tickets/ajex_result','TicketsController@ajex_result'); 
@@ -1130,7 +1133,23 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/clitable/delete/{id}','AccountsController@clitable_delete');
 	Route::any('/clitable/update','AccountsController@clitable_update');
 
-    // report
+	// services
+	Route::any('services', 'ServicesController@index');
+	Route::any('services/ajax_datagrid', 'ServicesController@ajax_datagrid');
+	Route::any('services/store', 'ServicesController@store');
+	Route::any('services/update/{id}', 'ServicesController@update');
+	Route::any('services/delete/{id}', 'ServicesController@delete');
+	Route::any('services/exports/{type}', 'ServicesController@exports');
+
+	//accountservice
+	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
+	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
+	Route::any('accountservices/{id}/ajax_datagrid', 'AccountServiceController@ajax_datagrid');
+	Route::any('accountservices/{id}/update/{serviceid}', 'AccountServiceController@update');
+	Route::any('accountservices/{id}/changestatus/{status}', 'AccountServiceController@changestatus');
+	Route::any('accountservices/{id}/{serviceid}/delete', 'AccountServiceController@delete');
+	
+	// report
     Route::any('/report','ReportController@index');
     Route::any('/report/ajax_datagrid/{type}','ReportController@ajax_datagrid');
     Route::any('/report/create','ReportController@create');

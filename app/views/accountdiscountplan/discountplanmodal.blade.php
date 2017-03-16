@@ -41,10 +41,11 @@
     });
     function getreport(Type){
         var update_new_url 	= 	baseurl + '/account/used_discount_plan/'+'{{$account->AccountID}}';
+        var ServiceID = '{{$ServiceID}}';
         $.ajax({
             url: update_new_url,  //Server script to process data
             type: 'POST',
-            data:'Type='+Type,
+            data:'Type='+Type+'&ServiceID='+ServiceID,
             dataType: 'html',
             success: function (response) {
                 $('#minutes_report').button('reset');

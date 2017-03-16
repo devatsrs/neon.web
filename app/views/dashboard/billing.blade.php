@@ -268,7 +268,7 @@
                         <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
                         <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a>
                         <a data-rel="close" href="#"><i class="entypo-cancel"></i></a>
-                        <a data-rel="empty" href="#"><i class="entypo-trash"></i></a>
+                        <a data-rel="empty" href="#" title="Delete Missing Gateway Accounts"><i class="entypo-trash"></i></a>
                     </div>
                 </div>
                 <div class="panel-body" style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
@@ -807,7 +807,7 @@
         }
 
             function invoiceExpense() {
-                @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboard','View'))
+                @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpense','View'))
                 var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
                 data = $('#billing_filter').serialize() + '&ListType=' + $('#invoiceExpensefilter-form [name="ListType"]').val();
                 var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
@@ -993,10 +993,10 @@
         }
 
         function deleteMissingAccounts() {
-            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboard','View'))
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
             var gateWayID = $("#company_gateway").val();
             if(gateWayID) {
-                if(confirm('Are you sure you want to clear missing account against this gateway?')) {
+                if(confirm('Are you sure you want to delete missing gateway accounts?')) {
                     var table = $('#missingAccounts');
                     loadingUnload(table, 1);
                     var url = baseurl + '/dashboard/delete_missing_accounts/' + gateWayID;
@@ -1016,7 +1016,7 @@
         }
 
         function missingAccounts() {
-            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboard','View'))
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMissingGatewayWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardMissingGatewayWidget','View'))
             var table = $('#missingAccounts');
             loadingUnload(table, 1);
             var url = baseurl + '/dashboard/ajax_get_missing_accounts?CompanyGatewayID=' + $("#company_gateway").val();
