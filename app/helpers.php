@@ -1682,8 +1682,12 @@ function header_array_html($main_header,$data,$response){
                 }
             }
             foreach ($header_html[$key] as $row_val) {
+                $color = '#000';
                 if ($key == 0) {
-                    $table_header_colgroup .= '<colgroup span="' . $row_val['colspan'] . '" style="background-color:' . $chartColor[$index_col + 1] . '"></colgroup>';
+                    if(isset($chartColor[$index_col + 1])) {
+                        $color = $chartColor[$index_col + 1];
+                    }
+                    $table_header_colgroup .= '<colgroup span="' . $row_val['colspan'] . '" style="background-color:' . $color. '"></colgroup>';
                 }
                 $table_header .= '<th colspan="' . $row_val['colspan'] . '" scope="colgroup">' . $row_val['name'] . '</th>';
                 $index_col++;
