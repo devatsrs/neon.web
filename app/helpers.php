@@ -1163,11 +1163,10 @@ function get_round_decimal_places($AccountID = 0) {
 }
 
 
-function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){
-	Log::info("ssl".$IsSSL);
+function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){ 
     $mail 				= 	new PHPMailer;
     $mail->isSMTP();
-	$mail->SMTPDebug 	= 	1; 
+	//$mail->SMTPDebug = 2;                  
     $mail->Host 		= 	$SMTPServer;
     $mail->SMTPAuth 	= 	true;
     $mail->Username 	= 	$SMTPUsername;
@@ -1178,14 +1177,13 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
     $mail->FromName 	= 	'Test Smtp server';
     $mail->Body 		= 	"Testing Smtp mail Settings";
     $mail->Subject 		= 	"Test Smtp Email";
-	//$mail->SMTPAutoTLS 	=	false;
     $mail->Timeout		=    25;
   /*if($mail->smtpConnect()){
 		$mail->smtpClose();*/
 	$mail->addAddress($ToEmail); 
    if ($mail->send()) {
 	   return "Valid mail settings.";
-	}else{ Log::info(print_r($mail,true));
+	}else{ 
 		return "Invalid mail settings.";
 	}
  }
