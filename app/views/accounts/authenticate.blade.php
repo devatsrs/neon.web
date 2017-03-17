@@ -294,7 +294,8 @@
         var type = 0;
         var isCustomerOrVendor=0;
         var ipclis = '';
-        var accountID = {{$account->AccountID}};
+        var accountID = '{{$account->AccountID}}';
+        var ServiceID = '{{$ServiceID}}';
         attachchangeevent('vendoriptable');
         attachchangeevent('customeriptable');
         attachchangeevent('vendorclitable');
@@ -334,7 +335,7 @@
                 }
                 post_data +='&'+$('#vendor_detail').serialize();
             }
-            post_data += '&AccountID='+'{{$account->AccountID}}';
+            post_data += '&AccountID='+'{{$account->AccountID}}'+'&ServiceID='+ServiceID;
             var post_url = '{{URL::to('accounts/authenticate_store')}}';
             submit_ajaxbtn(post_url,post_data,'',$(this),1);
         });
@@ -429,7 +430,7 @@
             $.ajax({
                 url: url,
                 type:'POST',
-                data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor,type:type},
+                data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor,type:type,ServiceID:ServiceID},
                 datatype:'json',
                 success: function(response) {
                     if (response.status == 'success') {
@@ -517,7 +518,7 @@
                     $.ajax({
                         url: url,
                         type:'POST',
-                        data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor},
+                        data:{ipclis:ipclis,isCustomerOrVendor:isCustomerOrVendor,ServiceID:ServiceID},
                         datatype:'json',
                         success: function(response) {
                             if (response.status == 'success') {
