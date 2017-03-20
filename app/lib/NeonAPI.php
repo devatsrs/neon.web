@@ -38,19 +38,23 @@ class NeonAPI{
         $call_method = 'l/'.$id;
 
        self::$api_url = CompanyConfiguration::get('NEON_API_URL').'/';
-       $curl->post(self::$api_url.$call_method, array(
+       $request = array(
            'LoggedUserID' => $id,
            "LicenceKey" =>  getenv('LICENCE_KEY'),
            'CompanyName'=>getenv('COMPANY_NAME'),
-		   'LoginType' => $type
-       )); Log::info("api_url:".self::$api_url);
+           'LoginType' => $type
+       );
+       $curl->post(self::$api_url.$call_method, $request );
+       Log::info("api_url:".self::$api_url);
 
-        $response = json_decode($curl->response); Log::info(print_r($response,true));
+        $response = json_decode($curl->response);
+       Log::info(print_r($response,true));
         if(isset($response->token)){
             self::setToken($response->token); 
             return true;
         }else{
             Log::info("-----Not Loggedin on API-----");
+            Log::info($request);
             Log::info(print_r($response,true));
         }
         return false;
