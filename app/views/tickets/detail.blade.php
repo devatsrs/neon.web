@@ -7,48 +7,35 @@
 </ol>
 @include('includes.errors')
 @include('includes.success')
-
-<div class="pull-left"> 
-@if( User::checkCategoryPermission('Tickets','Edit'))
-<a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a> 
-<a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> 
- <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="entypo-pencil"></i> </a>
- @endif
-  @if( User::checkCategoryPermission('Tickets','Edit'))
-  <a data-toggle="tooltip"  data-placement="top" data-original-title="Add Note"  class="btn btn-primary add_note tooltip-primary btn-xs"><i class="fa fa-sticky-note"></i> </a> 
-  @endif
-  @if( User::checkCategoryPermission('Tickets','Edit'))
- <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a>
- @endif
-  @if( User::checkCategoryPermission('Tickets','Delete'))
-  <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}" class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="entypo-trash"></i> </a>
- @endif 
-  </div>
-  <div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-backward"></i> </a> @endif
+<div class="pull-left"> @if( User::checkCategoryPermission('Tickets','Edit')) <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="entypo-pencil"></i> </a> @endif
+  @if( User::checkCategoryPermission('Tickets','Edit')) <a data-toggle="tooltip"  data-placement="top" data-original-title="Add Note"  class="btn btn-primary add_note tooltip-primary btn-xs"><i class="fa fa-sticky-note"></i> </a> @endif
+  @if( User::checkCategoryPermission('Tickets','Edit')) <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a> @endif
+  @if( User::checkCategoryPermission('Tickets','Delete')) <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}" class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="entypo-trash"></i> </a> @endif </div>
+<div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-backward"></i> </a> @endif
   @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-forward"></i> </a> @endif</div>
- <div class="clear clearfix"></div>
+<div class="clear clearfix"></div>
 <div class="mail-env margin-top"> 
   
-  <!-- compose new email button -->  
+  <!-- compose new email button --> 
   
   <!-- Mail Body -->
   <div class="mail-body">
-  
     <div class="mail-header"> 
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
-      <div class="mail-date">
-      @if(!empty($ticketemaildata->Cc))cc: {{$ticketemaildata->Cc}}<br>@endif @if(!empty($ticketemaildata->Bcc))bcc: {{$ticketemaildata->Bcc}}<br>@endif 
-       {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
+      <div class="mail-date"> @if(!empty($ticketemaildata->Cc))cc: {{$ticketemaildata->Cc}}<br>
+        @endif @if(!empty($ticketemaildata->Bcc))bcc: {{$ticketemaildata->Bcc}}<br>
+        @endif 
+        {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
       <!-- links --> 
-    </div>   
-     <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?> 
-     <div class="mail-text"> {{$ticketdata->Description}} </div>
+    </div>
+    <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?>
+    <div class="mail-text"> {{$ticketdata->Description}} </div>
     @if(count($attachments)>0 && strlen($ticketdata->AttachmentPaths)>0)
     <div class="mail-attachments last_data">
       <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
       <ul>
-      @if(is_array($attachments)) 
+        @if(is_array($attachments)) 
         @foreach($attachments as $key_acttachment => $attachments_data)
         <?php 
    		//$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
@@ -76,37 +63,27 @@
 		if(is_array($TicketConversation)){
 		foreach($TicketConversation as $key => $TicketConversationData){ 
 		if($TicketConversationData->Timeline_type == TicketsTable::TIMELINEEMAIL){
-		 ?>  
+		 ?>
     <div class="mail-reply-seperator"></div>
-    
     <div class="panel first_data panel-primary margin-top" data-collapsed="0"> 
-            
-            <!-- panel head -->
-            <div class="panel-heading">
-              <div class="panel-title"><span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span> @if(!empty($TicketConversationData->EmailCc))<br>cc:  {{$TicketConversationData->EmailCc}} @endif @if(!empty($TicketConversationData->EmailBcc))<br>bcc: {{$TicketConversationData->EmailBcc}} @endif
-              
       
+      <!-- panel head -->
+      <div class="panel-heading">
+        <div class="panel-title"><span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}}) From ({{$TicketConversationData->Emailfrom}}) by {{$TicketConversationData->CreatedBy}} @endif</span> @if(!empty($TicketConversationData->EmailCc))<br>
+          cc:  {{$TicketConversationData->EmailCc}} @endif @if(!empty($TicketConversationData->EmailBcc))<br>
+          bcc: {{$TicketConversationData->EmailBcc}} @endif </div>
+        <div class="panel-options"> <span> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}}</span> @if( User::checkCategoryPermission('Tickets','Edit')) <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> @endif <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+      </div>
       
-       
-               </div>
-              <div class="panel-options">
-              <span> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}}</span>
-                @if( User::checkCategoryPermission('Tickets','Edit'))
-      <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a>
-      @endif
-               <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
-            </div>
-            
-            <!-- panel body -->
-            <div class="panel-body">
-            {{$TicketConversationData->EmailMessage}}
-              <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
-             @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
-    <div class="mail-attachments last_data">
-      <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
-      <ul>
-        @foreach($attachments as $key_acttachment => $attachments_data)
-        <?php 
+      <!-- panel body -->
+      <div class="panel-body"> {{$TicketConversationData->EmailMessage}}
+        <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
+        @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
+        <div class="mail-attachments last_data">
+          <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
+          <ul>
+            @foreach($attachments as $key_acttachment => $attachments_data)
+            <?php 
    		//$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
 		$Filename		=	$attachments_data['filepath'];
 		
@@ -120,34 +97,29 @@
 		}
 		$Attachmenturl = URL::to('emails/'.$TicketConversationData->AccountEmailLogID.'/getattachment/'.$key_acttachment);
    	    ?>
-        <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
-          <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
-        </li>
-        @endforeach
-      </ul>
+            <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
+              <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
+            </li>
+            @endforeach
+          </ul>
+        </div>
+        @endif </div>
     </div>
-    @endif
-            
-            </div>
-          </div>
-    
-    
     <?php }else if($TicketConversationData->Timeline_type == TicketsTable::TIMELINENOTE){
 	?>
     <div class="mail-reply-seperator"></div>
-    
-     <div class="panel panel-primary margin-top" data-collapsed="0"> 
-            
-            <!-- panel head -->
-            <div class="panel-heading">
-              <div class="panel-title"><strong>Note</strong> by ({{$TicketConversationData->CreatedBy}})  </div>
-              <div class="panel-options"> <span>{{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}}</span> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
-            </div>
-            
-            <!-- panel body -->
-            <div class="panel-body">{{$TicketConversationData->Note}}</div>
-          </div>
-	<?php	} ?>
+    <div class="panel panel-primary margin-top" data-collapsed="0"> 
+      
+      <!-- panel head -->
+      <div class="panel-heading">
+        <div class="panel-title"><strong>Note</strong> by ({{$TicketConversationData->CreatedBy}}) </div>
+        <div class="panel-options"> <span>{{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}}</span> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+      </div>
+      
+      <!-- panel body -->
+      <div class="panel-body">{{$TicketConversationData->Note}}</div>
+    </div>
+    <?php	} ?>
     <?php } } } ?>
   </div>
   
@@ -166,58 +138,58 @@
             </div>
             
             <!-- panel body -->
-            <div class="Requester_Info panel-body">
-            @if(!empty($ticketdata->RequesterName))
-            <p><a target="_blank" class="blue_link" href="@if($RequesterAccount) {{URL::to('/')}}/accounts/{{$RequesterAccount}}/show @elseif(!empty($RequesterContact)) {{URL::to('/')}}/contacts/{{$RequesterContact->ContactID}}/show @else # @endif">{{$ticketdata->RequesterName}}</a><br>({{$ticketdata->Requester}}). </p>
-            @else
-            <p><a target="_blank" href="@if($RequesterAccount) {{URL::to('/')}}/accounts/{{$RequesterAccount}}/show @elseif(!empty($RequesterContact)) {{URL::to('/')}}/contacts/{{$RequesterContact->ContactID}}/show @else # @endif">{{$ticketdata->Requester}}</a></p>
-            @endif
-			@if($RequesterContact && !$RequesterAccount)   
-      		@if(User::checkCategoryPermission('Contacts','Edit'))    
-<form role="form" id="form-tickets-owner_edit" method="post"  class="form-horizontal form-groups-bordered validate" novalidate>
-           <div class="form-group">
-                        <label for="field-1" class="col-sm-3 control-label">Contact Owner</label>
-
-                        <div class="col-sm-9">
-                            <?php
-                                $selected_owner = $RequesterContact->Owner;
+            <div class="Requester_Info panel-body"> @if(!empty($Requester))
+              <p><a target="_blank" class="blue_link" href="@if($ticketdata->AccountID>0) {{URL::to('/')}}/accounts/{{$ticketdata->AccountID}}/show @elseif($ticketdata->ContactID>0) {{URL::to('/')}}/contacts/{{$ticketdata->ContactID}}/show @else # @endif">{{$Requester['Title']}}</a><br>
+                ({{$ticketdata->Requester}}). </p>
+              @else
+              <p><a target="_blank" href="@if($ticketdata->AccountID>0) {{URL::to('/')}}/accounts/{{$ticketdata->AccountID}}/show @elseif(!empty($ticketdata->ContactID)) {{URL::to('/')}}/contacts/{{$ticketdata->ContactID}}/show @else # @endif">{{$ticketdata->Requester}}</a></p>
+              @endif
+              @if($ticketdata->ContactID>0 && $ticketdata->AccountID==0 && $ticketdata->UserID==0)   
+              @if(User::checkCategoryPermission('Contacts','Edit'))
+              <form role="form" id="form-tickets-owner_edit" method="post"  class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                  <label for="field-1" class="col-sm-3 control-label">Contact Owner</label>
+                  <div class="col-sm-9">
+                    <?php
+                                $selected_owner = $Requester['Contact'];
                             ?>
-                             <select name="Owner" class="select2" data-allow-clear="true" data-placeholder="Account Owner...">
-                                <option></option>
-                                <optgroup label="Leads">
+                    <select name="Owner" class="select2" data-allow-clear="true" data-placeholder="Account Owner...">
+                      <option></option>
+                      <optgroup label="Leads">
                                     @if( count($lead_owners))
                                     @foreach($lead_owners as $lead_owner)
                                     @if(!empty($lead_owner->AccountName) && $lead_owner->Status == 1)
-                                    <option value="{{$lead_owner->AccountID}}" @if($selected_owner == $lead_owner->AccountID) {{"selected"}} @endif >
-                                    {{$lead_owner->AccountName}}
-                                    </option>
+                                    
+                      <option value="{{$lead_owner->AccountID}}" @if($selected_owner == $lead_owner->AccountID) {{"selected"}} @endif >
+                      {{$lead_owner->AccountName}} </option>
+                      
                                     @endif
                                     @endforeach
                                     @endif
                                 </optgroup>
-                                <optgroup label="Accounts">
+                      <optgroup label="Accounts">
                                     @if( count($account_owners))
                                     @foreach($account_owners as $account_owner)
                                     @if(!empty($account_owner->AccountName) && $account_owner->Status == 1)
-                                    <option value="{{$account_owner->AccountID}}" @if($selected_owner == $account_owner->AccountID) {{"selected"}} @endif >
-                                    {{$account_owner->AccountName}}
-                                    </option>
+                                    
+                      <option value="{{$account_owner->AccountID}}" @if($selected_owner == $account_owner->AccountID) {{"selected"}} @endif >
+                      {{$account_owner->AccountName}} </option>
+                      
                                     @endif
                                     @endforeach
                                     @endif
                                 </optgroup>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-    <div class="col-md-5 pull-right">
-      <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left" id="update_ticket_owner" data-loading-text="Loading..."> Update <i class="entypo-mail"></i> </button>
-    </div>
-  </div>
-  </form>
-            @endif
-            @endif
-            </div>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="col-md-5 pull-right">
+                    <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left" id="update_ticket_owner" data-loading-text="Loading..."> Update <i class="entypo-mail"></i> </button>
+                  </div>
+                </div>
+              </form>
+              @endif
+              @endif </div>
           </div>
         </div>
         <div class="col-md-12">
@@ -233,7 +205,6 @@
             <div class="panel-body">@include('tickets.ticket_detail_dynamic_fields')</div>
           </div>
         </div>
-       
       </div>
     </div>
     <!-- menu --> 
@@ -642,14 +613,14 @@ $(document).ready(function(e) {
 				}
             });
 			
-		@if($RequesterContact)	
+		@if($ticketdata->ContactID>0)	
 	$('#form-tickets-owner_edit').submit(function(e) {
 		e.preventDefault();
 		e.stopImmediatePropagation();	  
 		$("#form-tickets-owner_edit").find('#update_ticket_owner').addClass('disabled');
 		$("#form-tickets-owner_edit").find('#update_ticket_owner').button('loading');					
 		var formData = new FormData($(this)[0]);
-		var ajax_url = baseurl+'/contacts/{{$RequesterContact->ContactID}}/updatecontactowner';
+		var ajax_url = baseurl+'/contacts/{{$ticketdata->ContactID}}/updatecontactowner';
 		 $.ajax({
 				url: ajax_url,
 				type: 'POST',

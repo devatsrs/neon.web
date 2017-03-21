@@ -67,12 +67,14 @@ private $validlicense;
 			$data['currentpage'] 		= 	 0;
 		
 			TicketsTable::SetTicketSession($result);
+			$ClosedTicketStatus   = TicketsTable::getClosedTicketStatus(true);
+			$ResolvedTicketStatus = TicketsTable::getResolvedTicketStatus(true);
 		
 			if($TicketPermission!=TicketsTable::TICKETGLOBALACCESS)	{
 				$Groups	= TicketGroups::getTicketGroupsFromData($array->GroupsData);				
 			}
 			//echo "<pre>";			print_r($Groups); exit;
-        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination'));  
+        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus"));  
 	  }	
 	  
 	  public function ajex_result() {
@@ -120,9 +122,45 @@ private $validlicense;
 				return '';
 			}
 		}
+		 $ClosedTicketStatus   = TicketsTable::getClosedTicketStatus(true);
+		 $ResolvedTicketStatus = TicketsTable::getResolvedTicketStatus(true);
 		 TicketsTable::SetTicketSession($result);
-       return   View::make('tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns','pagination'));     
+       return   View::make('tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns','pagination','ClosedTicketStatus','ResolvedTicketStatus'));     
 	   
+	}
+	
+	function ajex_result_export(){
+	    $data 						= 	Input::all(); 	
+		$data['Search'] 			= 	 $data['Search'];
+		$data['status'] 			= 	 isset($data['status'])?$data['status']:'';		
+		$data['priority']	 		= 	 isset($data['priority'])?$data['priority']:'';
+		$data['group'] 				= 	 isset($data['group'])?$data['group']:'';		
+		$data['agent']				= 	 isset($data['agent'])?$data['agent']:'';
+		$data['iSortCol_0']			= 	 $data['sort_fld'];
+		$data['sSortDir_0']			= 	 $data['sort_type'];
+		$data['Export'] 			= 	 $data['Export'];		
+		$data['iDisplayStart']		=	 0;
+		$data['iDisplayLength']		=	 100;	
+		$companyID					= 	 User::get_companyID();
+		$array						=  	 $this->GetResult($data); 
+		$resultpage  				=  	 $array->resultpage;			
+		$result 					= 	 $array->ResultCurrentPage;		
+		$type						=	 $data['export_type'];
+		
+		if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = $result;
+            $excel_data = json_decode(json_encode($excel_data),true);
+
+            if($type=='csv'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.csv';  Log::info("file_path:".$file_path);
+                $NeonExcel = new NeonExcelIO($file_path);
+              return  $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+              return  $NeonExcel->download_excel($excel_data);
+            }            
+        }		
 	}
 	  
 	  
@@ -176,7 +214,7 @@ private $validlicense;
 		    $response_extensions		=	json_encode($response_api_extensions['allowed_extensions']); 
 			$max_file_size				=	get_max_file_size();	
 			
-			$AllEmails 					= 	implode(",",(Messages::GetAllSystemEmailsWithName(0))); 
+			$AllEmails 					= 	implode(",",(Messages::GetAllSystemEmailsWithName(0,true))); 
 			$default_status				=	TicketsTable::getDefaultStatus();
 			
 		   $agentsAll = DB::table('tblTicketGroupAgents')
@@ -389,12 +427,10 @@ private $validlicense;
 					$ticketSavedData			 = 	json_decode(json_encode($ResponseData->ticketSavedData),true);
 					$CompanyID 		 			 = 	User::get_companyID(); 
 					$agentsAll 					 =	$ResponseData->agentsAll;		
-					$RequesterContact			 =	Contact::checkContactByEmail($ticketdata->Requester);
-					$RequesterAccount			 =	Account::checkAccountByEmail($ticketdata->Requester);
+					
+					$Requester					=	TicketsTable::SetRequester($ticketdata);
 					//echo "<pre>";
 					//print_r($RequesterAccount);
-					//print_r($RequesterContact);
-					//exit;
 					$lead_owners 				 =  Lead::getLeadOwnersByRole();
 		            $account_owners 			 =  Account::getAccountsOwnersByRole();
 					
@@ -403,7 +439,7 @@ private $validlicense;
 					 $ticketemaildata			 =	AccountEmailLog::find($ticketdata->AccountEmailLogID); 
 					 TicketsTable::where(["TicketID"=>$id])->update(["Read"=>1]);
 					
-					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','RequesterContact','lead_owners', 'account_owners','RequesterAccount','ticketemaildata'));  		  
+					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester'));  		  
 			}else{
           	  return view_response_api($response_details);
          	}			 
