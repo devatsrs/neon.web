@@ -2570,16 +2570,16 @@ checkFailingCronJob = function(){
         $.get( baseurl + "/cronjobs/check_failing", function( response ) {
             if(typeof response.message != 'undefined' ) {
                 if (response.message == '') {
-                    $(".notifications.cron_jobs.dropdown #failing_placeholder").removeClass("hidden");
+                    $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").addClass("hidden");
                 } else {
-                    $(".notifications.cron_jobs.dropdown #failing_placeholder").addClass("hidden");
+                    $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").removeClass("hidden");
                 }
             }
         });
     }
 };
 try{
-    setTimeout(function(){ reloadJobsDrodown(0); reloadMsgDrodown(0); checkFailingCronJob() }, 2000);
+    setTimeout(function(){ reloadJobsDrodown(0); reloadMsgDrodown(0); }, 2000);
     bindResetCounter();
 	bindResetCounterEmailMsgs();
 }catch(er){
@@ -3150,4 +3150,11 @@ function select_all_top(selectallbutton,table,selectall) {
             });
         }
     });
+}
+try{
+    setInterval(function() {
+        checkFailingCronJob();
+    }, 1000 * 10); // where X is your every X minutes
+}catch(er){
+    console.log(er.message);
 }
