@@ -18,7 +18,7 @@
   </div>
 </div>
 <?php } ?>
-<ul class="sortable-list field_choices_ui board-column-list list-unstyled ui-sortable margin-top" data-name="closedwon">
+<ul class="sortable-list sortable-list-choices   field_choices_ui board-column-list list-unstyled ui-sortable margin-top" data-name="closedwon">
   @foreach($values as $key => $valuesData) 
   @if(!empty($valuesData))
   <?php 

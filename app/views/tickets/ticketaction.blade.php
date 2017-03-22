@@ -7,7 +7,7 @@
     <div class="col-md-12 margin-top">
     <div class="form-group">
         <label for="email-from">* From:</label>
-        {{ Form::select('email-from', $FromEmails, '', array("class"=>"form-control select2","id"=>"email-from")) }} 
+        {{ Form::select('email-from', $FromEmails, $GroupEmail, array("class"=>"form-control select2","id"=>"email-from")) }} 
       </div>
       <div class="form-group">
         <label for="EmailActionTo">* To:</label>
@@ -23,20 +23,13 @@
         <div class="field-options"> 
         @if(empty($cc))
         <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replycc').parent().removeClass('hidden'); $('#replycc').focus();">CC</a> 
-        @endif
-        @if(empty($bcc))
-        <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replybcc').parent().removeClass('hidden'); $('#replybcc').focus();">BCC</a>
-        @endif
+        @endif      
          </div>
       </div>
       <div class="form-group @if(empty($cc)) hidden @endif">
         <label for="cc">CC</label>
         <input type="text" name="cc"  class="form-control tags"  value="{{$cc}}" id="replycc" />
-      </div>
-      <div class="form-group @if(empty($bcc)) hidden @endif">
-        <label for="bcc">BCC</label>
-        <input type="text" name="bcc"  class="form-control tags" value="{{$bcc}}"  id="replybcc" />
-      </div>      
+      </div>            
       <div class="form-group">
         <label for="EmailActionSubject">* Subject:</label>
         <input type="text"  class="form-control" name="Subject" id="EmailActionSubject" value="@if($action_type!='forward') RE: @else FW:  @endif {{$response_data['Subject']}}" />

@@ -221,8 +221,8 @@ private $validlicense;
             ->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()          
             ->select('tblUser.UserID', 'tblUser.FirstName', 'tblUser.LastName')
             ->get();
-						
-			return View::make('tickets.create', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails','default_status'));  
+			$AllEmailsccbcc  =   json_encode(Messages::GetAllSystemEmails());				
+			return View::make('tickets.create', compact('data','AllUsers','Agents','Ticketfields','CompanyID','agentsAll','htmlgroupID','htmlagentID','random_token','response_extensions','max_file_size','AllEmails','default_status',"AllEmailsccbcc"));  
 	  }	
 	  
 	public function edit($id)
@@ -385,7 +385,7 @@ private $validlicense;
 	function Detail($id){
 		$this->IsValidLicense();
 		$response =  NeonAPI::request('tickets/getticket/'.$id,array());
-		
+			
 		if(!empty($response) && $response->status == 'success' )
 		{
 			   $ticketdata		=	 $response->data;
@@ -437,9 +437,11 @@ private $validlicense;
 					 $NextTicket 				 =  TicketsTable::GetNextPageID($id); 
 					 $PrevTicket 				 =	TicketsTable::GetPrevPageID($id);
 					 $ticketemaildata			 =	AccountEmailLog::find($ticketdata->AccountEmailLogID); 
+					 $ClosedTicketStatus   		 =  TicketsTable::getClosedTicketStatus();						 
 					 TicketsTable::where(["TicketID"=>$id])->update(["Read"=>1]);
+					 
 					
-					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester'));  		  
+					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester','ClosedTicketStatus'));  		  
 			}else{
           	  return view_response_api($response_details);
          	}			 
@@ -455,7 +457,7 @@ private $validlicense;
 		$ticket_number  	=     $data['ticket_number'];
 		$ticket_type		=	  $data['ticket_type'];		
 		$response  		    =  	  NeonAPI::request('tickets/ticketcction',$data,true,true);
-		
+
 		if(!empty($response) && $response['status'] == 'success' )
 		{ 
 			$ResponseData		 =	  $response['data'];
@@ -463,13 +465,14 @@ private $validlicense;
 			$AccountEmail 		 = 	  $ResponseData['AccountEmail'];	
 			$parent_id			 =	  $ResponseData['parent_id'];
 			$cc					 =	  $ResponseData['Cc'];
-			$bcc				 =	  $ResponseData['Bcc'];
+			//$bcc				 =	  $ResponseData['Bcc'];
+			$GroupEmail			 =	  $ResponseData['GroupEmail'];	
 			if($action_type=='forward'){ //attach current email attachments
 				$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths']);
 			}
 			
 			$FromEmails	 				 =  TicketGroups::GetGroupsFrom();			
-			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc'));  
+			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail'));  
 		}else{
             return view_response_api($response);
         }		

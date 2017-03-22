@@ -190,7 +190,7 @@
 			
 			function empty_popup_default()
 			{
-				$('#edit-modal-ticketfield .choices_item').html('');
+				$('#edit-modal-ticketfield #choices_item').html('');
 				$('#edit-modal-ticketfield #deleted_choices').val('');
 				$('#edit-modal-ticketfield #modalfieldchoicesdata').val('');			
 			}
@@ -207,7 +207,7 @@
                     type: 'POST',
                     dataType: 'html',
                     success: function (response) { 
-						$('.choices_item').html(response);
+						$('#choices_item').html(response);
 						initSortableChoices(type);
                     },
                     // Form data
@@ -314,12 +314,12 @@
 			
 			function initSortableChoices(type){
                 // Code using $ as usual goes here.
-                $('.choices_item .sortable-list').sortable({
-                    connectWith: '.sortable-list',
+                $('#choices_item .sortable-list').sortable({
+                    connectWith: '.sortable-list-choices',
                     placeholder: 'placeholder',
                     start: function() {
                         //setting current draggable item
-                        currentDrageable = $('.choices_item ul.sortable-list li.dragging');
+                        currentDrageable = $('#choices_item ul.sortable-list li.dragging');
                     },
                     stop: function(ev,ui) {
 						saveOrderchoices(type);
@@ -671,7 +671,7 @@
 				var choices_array   = 	new Array();
 				 var choices_data	=   JSON.stringify( $('#edit-ticketfields-form').serializeArray() );
 				
-				var choices_order   = 	$('.choices_item ul.sortable-list li').each(function(index, element) {
+				var choices_order   = 	$('#choices_item ul.sortable-list li').each(function(index, element) {
 					var attributeArray  =  {};
 					
 					$(element).find('input').each(function(index, element) {
@@ -752,7 +752,7 @@
 	margin-left: -2px;
 }
 #deals-dashboard li:hover {cursor:all-scroll; }
-.choices_item .count-cards{min-height:50px;}
+#choices_item .count-cards{min-height:50px;}
 #deals-dashboard .count-cards{min-height:70px;}
 .choices_field_li:hover {cursor:all-scroll; }
 .choices_field_li{margin-bottom:0px !important; }
