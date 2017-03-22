@@ -16,6 +16,14 @@ class Report extends \Eloquent {
         'summary'=>'Summary',
     );
 
+    public static $dimension = array(
+        'summary'=>array('year','quarter_of_year','month','week_of_year','date','AccountID','CompanyGatewayID','Trunk','CountryID','AreaPrefix'),
+    );
+
+    public static $measures = array(
+        'summary'=>array('TotalCharges','TotalBilledDuration','NoOfCalls','NoOfFailCalls'),
+    );
+
 
     public static  function generateDynamicTable($CompanyID,$cube,$data=array()){
         $response = '';
@@ -34,11 +42,16 @@ class Report extends \Eloquent {
 
     public static function generateSummaryQuery($CompanyID,$data){
         $columns = array();
+        $offset = 0;
+        $limit = 1000;
         if(count($data['column'])) {
             $query_distinct = DB::connection('neon_report')
                 ->table('tblHeader')
                 ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
+                ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
                 ->where(['CompanyID' => $CompanyID])
+                ->offset($offset)
+                ->limit($limit)
                 ->distinct();
             foreach ($data['column'] as $column) {
                 $query_distinct->orderby($column);
@@ -54,6 +67,7 @@ class Report extends \Eloquent {
         $final_query = DB::connection('neon_report')
             ->table('tblHeader')
             ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
+            ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
             ->where(['CompanyID' => $CompanyID]);
         foreach ($data['row'] as $column) {
             $final_query->groupby($column);
@@ -62,8 +76,13 @@ class Report extends \Eloquent {
             $data['row'][] = DB::Raw($select_columns);
         }
         //print_r($data['row']);exit;
-        $response['data'] = $final_query->get($data['row']);
-        $response['data'] = json_decode(json_encode($response['data']),true);
+        if(!empty($data['row'])) {
+            $response['data'] = $final_query->get($data['row']);
+            $response['data'] = json_decode(json_encode($response['data']),true);
+        }else{
+            $response['data'] = array();
+        }
+
 
         return $response;
     }
@@ -81,19 +100,13 @@ class Report extends \Eloquent {
     }
 
     public static function getName($PKColumnName,$ID){
-        $name = 'Other';
+        $name = $ID;
         switch ($PKColumnName) {
             case 'CompanyGatewayID':
                 $name = CompanyGateway::getCompanyGatewayName($ID);
                 break;
             case 'AccountID':
                 $name = Account::getCompanyNameByID($ID);
-                break;
-            case 'DateID':
-                $name = 'CompanyGateway';
-                break;
-            case 'Trunk':
-                $name = $ID;
                 break;
             case 'CountryID':
                 $name = Country::getName($ID);

@@ -69,7 +69,7 @@
                                                                 Year
                                                             </div>
                                                         </li>
-                                                        <li class="dd-item select2-search-choice dimension" data-val="quarter">
+                                                        <li class="dd-item select2-search-choice dimension" data-val="quarter_of_year">
                                                             <div class="dd-handle">
                                                                 Quarter
                                                             </div>
@@ -79,12 +79,12 @@
                                                                 Month
                                                             </div>
                                                         </li>
-                                                        <li class="dd-item select2-search-choice dimension" data-val="week">
+                                                        <li class="dd-item select2-search-choice dimension" data-val="week_of_year">
                                                             <div class="dd-handle">
                                                                 Week
                                                             </div>
                                                         </li>
-                                                        <li class="dd-item select2-search-choice dimension" data-val="day">
+                                                        <li class="dd-item select2-search-choice dimension" data-val="date">
                                                             <div class="dd-handle">
                                                                 Day
                                                             </div>
@@ -116,16 +116,7 @@
                                                         Prefix
                                                     </div>
                                                 </li>
-                                                <li class="dd-item select2-search-choice dimension" data-val="vendor">
-                                                    <div class="dd-handle">
-                                                        Vendor
-                                                    </div>
-                                                </li>
-                                                <li class="dd-item select2-search-choice dimension" data-val="currency">
-                                                    <div class="dd-handle">
-                                                        Currency
-                                                    </div>
-                                                </li>
+
                                             </ul>
 
                                         </div>
@@ -215,7 +206,8 @@
                 drop: function( event, ui ) {
 
                     deleteImage( ui.draggable,$Columns );
-                    update_columns(ui.draggable,'add');
+                    update_rows(ui.draggable,'remove',0);
+                    update_columns(ui.draggable,'add',1);
 
                 }
             });
@@ -223,7 +215,7 @@
             // Let the Measures be droppable, accepting the Dimension items
             $Row.droppable({
                 accept: function(d) {
-                    if(d.hasClass("dimension")|| d.hasClass("measures")){
+                    if(d.hasClass("dimension")){
                         return true;
                     }
                 },
@@ -232,7 +224,8 @@
                 },
                 drop: function( event, ui ) {
                     deleteImage( ui.draggable,$Row );
-                    update_rows(ui.draggable,'add');
+                    update_columns(ui.draggable,'remove',0);
+                    update_rows(ui.draggable,'add',1);
 
                 }
             });
@@ -245,8 +238,8 @@
                 },
                 drop: function( event, ui ) {
                     recycleImage( ui.draggable,$Dimension);
-                    update_rows(ui.draggable,'remove');
-                    update_columns(ui.draggable,'remove');
+                    update_rows(ui.draggable,'remove',1);
+                    update_columns(ui.draggable,'remove',1);
 
                 }
             });
@@ -259,8 +252,8 @@
                 },
                 drop: function( event, ui ) {
                     recycleImage( ui.draggable, $Measures);
-                    update_rows(ui.draggable,'remove');
-                    update_columns(ui.draggable,'remove');
+                    update_rows(ui.draggable,'remove',1);
+                    update_columns(ui.draggable,'remove',1);
 
                 }
             });
@@ -325,45 +318,45 @@
                 }
             }
 
-            function update_rows($item,action) {
+            function update_rows($item,action,trigger) {
                 var rows = [];
                 var previous_val = $("#hidden_row").val();
                 if($("#hidden_row").val() != '') {
                     rows = $("#hidden_row").val().split(',');
                 }
-                if(action == 'remove') {
+                //if(action == 'remove') {
                     var index = rows.indexOf($item.attr('data-val'));
                     if (index > -1) {
                         rows.splice(index, 1);
                     }
-                }
+                //}
                 if(action == 'add') {
                     rows[rows.length] = $item.attr('data-val');
                 }
                 $("#hidden_row").val(rows.join(","));
-                if($("#hidden_row").val() != previous_val){
+                if($("#hidden_row").val() != previous_val && trigger == 1){
                     $("#hidden_row").trigger('change');
                 }
 
             }
-            function update_columns($item,action) {
+            function update_columns($item,action,trigger) {
                 var columns = [];
                 var previous_val = $("#hidden_columns").val();
                 if($("#hidden_columns").val() != '') {
                     columns = $("#hidden_columns").val().split(',');
                 }
-                if(action == 'remove') {
+                //if(action == 'remove') {
                     var index = columns.indexOf($item.attr('data-val'));
                     if (index > -1) {
                         columns.splice(index, 1);
                     }
-                }
+                //}
                 if(action == 'add') {
                     columns[columns.length] = $item.attr('data-val');
                 }
                 $("#hidden_columns").val(columns.join(","));
 
-                if($("#hidden_columns").val() != previous_val){
+                if($("#hidden_columns").val() != previous_val && trigger == 1){
                     $("#hidden_columns").trigger('change');
                 }
 

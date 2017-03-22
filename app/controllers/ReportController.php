@@ -45,7 +45,25 @@ class ReportController extends \BaseController {
         $data['column'] = array_filter(explode(",",$data['column']));
         //$data['sum'] = array_filter(explode(",",$data['Cube']));
         $data['row'] = array_filter(explode(",",$data['row']));
-        $data['sum'] = array('NoOfCalls');
+        $data['sum'] = array();
+
+        $measures = Report::$measures[$cube];
+        foreach ($measures as $measure){
+            if(in_array($measure,$data['column'])){
+                $data['sum'][] = $measure;
+            }
+            if(in_array($measure,$data['row'])){
+                $data['sum'][] = $measure;
+            }
+            if (($key = array_search($measure, $data['column'])) !== false) {
+                unset($data['column'][$key]);
+            }
+            if (($key = array_search($measure, $data['row'])) !== false) {
+                unset($data['row'][$key]);
+            }
+        }
+        $data['column'] = array_values($data['column']);
+        $data['row'] = array_values($data['row']);
 
         $CompanyID = User::get_companyID();
         $response = Report::generateDynamicTable($CompanyID,$cube,$data);
