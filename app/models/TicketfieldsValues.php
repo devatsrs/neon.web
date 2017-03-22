@@ -31,7 +31,7 @@ class TicketfieldsValues extends \Eloquent {
             self::$cache['ticketfieldsvalues_cache'] = TicketfieldsValues::select(['FieldValueAgent','ValuesID'])->lists('FieldValueAgent','ValuesID');
 
             //cache the database results so we won't need to fetch them again for 10 minutes at least
-            Cache::forever('ticketfieldsvalues_cache', array('ticketfieldsvalues_cache' => self::$cache['country_dropdown2_cache']));
+            Cache::forever('ticketfieldsvalues_cache', array('ticketfieldsvalues_cache' => self::$cache['ticketfieldsvalues_cache']));
         }
         return self::$cache['country_dropdown2_cache'];
     }
