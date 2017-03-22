@@ -9,7 +9,7 @@ class ResourceCategories extends \Eloquent {
     protected  $primaryKey = "ResourceCategoryID";
 
     public static function getResourceCategories(){
-        $result = ResourceCategories::select('ResourceCategoryID','ResourceCategoryName')->orderBy('ResourceCategoryName')->get();
+        $result = ResourceCategories::select('ResourceCategoryID','ResourceCategoryName','CategoryGroupID')->orderBy('ResourceCategoryName')->get();
         return $result;
     }
 
