@@ -333,6 +333,11 @@ class CronJob extends \Eloquent {
         }
     }
 
+    /**
+     *  check if cron job is failing or not.
+     * @param $companyID
+     * @return bool
+     */
     public static function is_cronjob_failing($companyID){
         $Status = 1;
         $Type = 0; // All Cron Jobs Types

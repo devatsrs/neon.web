@@ -658,6 +658,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/activecronjob', 'CronJobController@activecronjob');
     Route::any('/cronjobs/activecronjob_ajax_datagrid', 'CronJobController@activecronjob_ajax_datagrid');
     Route::any('/cronjobs/activeprocessdelete/', 'CronJobController@activeprocessdelete');
+    Route::any('/cronjobs/check_failing', 'CronJobController@check_failing');
 
 
 	Route::any('/cronjob_monitor', 'CronJobController@cronjob_monitor');
