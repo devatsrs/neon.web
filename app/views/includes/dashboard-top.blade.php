@@ -62,7 +62,17 @@
          </li>
      </ul>
 </li>
-	<!-- Message Notifications -->
+    <!-- Cron job Notifications -->
+    @if( User::checkCategoryPermission('CronJob','View'))
+
+        <li class="notifications cron_jobs dropdown">
+            <a title="Cron Jobs" href="{{Url::to('cronjob_monitor')}}"><i class="glyphicon glyphicon-time"></i>&nbsp;&nbsp;
+                @if( CronJob::is_cronjob_failing(User::get_companyID()))
+                <span title="" data-placement="right" class="badge badge-danger" data-toggle="tooltip" data-original-title="Cron Job is failing...">!</span>
+                @endif
+            </a>
+        </li>
+    @endif
 </ul>
 </div>
 <!-- Raw Links -->
