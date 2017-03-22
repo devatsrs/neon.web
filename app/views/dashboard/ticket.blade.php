@@ -197,7 +197,7 @@
                         option['class']     = 'tile-purple';
                         widgets += buildbox(option);
 
-                        option["amount"] = response.Unassigned;
+                        option["amount"] = response.UnAssigned;
                         option["end"] = response.UnAssigned;
                         option["type"] = 'Unassigned';
                         option['sign'] = 'help';
