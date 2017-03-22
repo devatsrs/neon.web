@@ -26,6 +26,7 @@ class TicketDashboardController extends \BaseController {
         }
 
         $fieldValues = TicketfieldsValues::getFieldValueIDLIst();
-        return View::make('dashboard.show_ajax_ticket_timeline', compact('response','fieldValues'));
+        $fieldPriority = TicketPriority::getPriorityIDLIst();
+        return View::make('dashboard.show_ajax_ticket_timeline', compact('response','fieldValues','fieldPriority'));
     }
 }
