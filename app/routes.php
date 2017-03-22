@@ -534,8 +534,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('tickets/SendMail', 'TicketsController@SendMail');
 	Route::post('tickets/add_note', 'TicketsController@add_note');
 
-    Route::get('ticket_dashboard/summarywidgets', 'TicketDashboard@ticketSummaryWidget');
-    Route::get('ticket_dashboard/timelinewidgets/{limit}', 'TicketDashboard@ticketTimeLineWidget');
+    Route::get('ticket_dashboard/summarywidgets', 'TicketDashboardController@ticketSummaryWidget');
+    Route::get('ticket_dashboard/timelinewidgets/{limit}', 'TicketDashboardController@ticketTimeLineWidget');
 	
 	
 	Route::any('/contacts/get_note', 'ContactsController@get_note');

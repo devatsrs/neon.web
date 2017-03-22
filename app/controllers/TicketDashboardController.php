@@ -1,6 +1,6 @@
 <?php
 
-class TicketDashboard extends \BaseController {
+class TicketDashboardController extends \BaseController {
 
     public function ticketSummaryWidget(){
         $data['AccessPermission'] = TicketsTable::GetTicketAccessPermission();
