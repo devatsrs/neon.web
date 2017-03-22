@@ -473,7 +473,7 @@ private $validlicense;
 						$postdata['file']		=	json_encode($FilesArray);
 					}
 		 
-		$response 			= 		NeonAPI::request('customer/tickets/actionsubmit/'.$id,$postdata,true,false,false); Log::info(print_r($response,true));	
+		$response 			= 		NeonAPI::request('customer/tickets/actionsubmit/'.$id,$postdata,true,false,false); 
 		return json_response_api($response);     		   
 	}
 	

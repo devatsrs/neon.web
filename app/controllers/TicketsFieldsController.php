@@ -41,6 +41,8 @@ private $validlicense;
 	 	$data = Input::all();
 		////////////////////////////////////////////////////////////////////////////////////////////////
 		//echo "<pre>"; print_r(json_decode($data['jsonData'])); echo "</pre>";exit;
+		Log::info("iframe submit");	
+		Log::info(print_r($data,true));	
 		$ticket_type = 0; $else_type = 0;
 		foreach(json_decode($data['jsonData']) as $jsonData)
 		{	 
@@ -231,7 +233,8 @@ private $validlicense;
 	
 	function Save_Single_Field(){
 		$postdata    =  Input::all();
-			
+		Log::info("save single field");	
+		Log::info(print_r($postdata,true));	
 		 try
 		 {		//Log::info(print_r($postdata,true)); 			 	Log::info(print_r(json_decode($postdata['choices']),true)); 		 			exit;
 				DB::beginTransaction();
@@ -251,10 +254,10 @@ private $validlicense;
 				$data['CustomerEdit']       			   = 		isset($postdata['editable_in_portal'])?$postdata['editable_in_portal']:0;
 				$data['CustomerReqSubmit']       		   = 		isset($postdata['required_in_portal'])?$postdata['required_in_portal']:0;
 				$data['FieldOrder']       		   		   = 		$postdata['position'];	
-				$data['FieldStaticType']				   =		Ticketfields::FIELD_TYPE_DYNAMIC;	
+				//
 							
 				if(!isset($postdata['id']) && empty($postdata['id']))
-				{	
+				{		$data['FieldStaticType']				   =		Ticketfields::FIELD_TYPE_DYNAMIC;	
 						$data['created_at']       		   		   = 		date("Y-m-d H:i:s");
 						$data['created_by']       		   		   = 		User::get_user_full_name();			
 						$TicketFieldsID 						   = 		Ticketfields::insertGetId($data);	

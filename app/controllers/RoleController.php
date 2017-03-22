@@ -19,13 +19,15 @@ class RoleController extends \BaseController {
 
     public function index() {
 
-        $id=0;
-        $companyID = User::get_companyID();
-        $users = User::getUserIDList(0);
-        $roles = Role::getRoles(0);
-        $resources = ResourceCategories::getResourceCategories();
+        $id					=	 0;
+        $companyID 			=	 User::get_companyID();
+        $users 				= 	 User::getUserIDList(0);
+        $roles 				=	 Role::getRoles(0);
+        $resources 			= 	 ResourceCategories::getResourceCategories();
+		$ResourcesGroups 	= 	 ResourceCategoriesGroups::GetResourcesGroup(); 
+		$AllGroup			=	 ResourceCategoriesGroups::GetAllGroup();
         Resources::insertResources();
-        return View::make('roles.index', compact('id','gateway','resource','users','roles','resources'));
+        return View::make('roles.index', compact('id','gateway','resource','users','roles','resources','ResourcesGroups','AllGroup'));
     }
 
     /**
