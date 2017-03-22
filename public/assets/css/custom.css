@@ -114,15 +114,15 @@ body {
 .tile-stats.tile-funchsia p {
     color: #ffffff;
 }
-.ticket .tile-stats{
+/*.ticket .tile-stats{
     padding: 10px 5px 5px 15px;
 }
 /*.ticket .tile-stats .icon{
     right: 15px;
-}*/
+}
 .ticket .tile-stats .icon i {
     font-size: 75px;
-}
+}*/
 #activity-timeline ul{
     padding-left:0px;
 }

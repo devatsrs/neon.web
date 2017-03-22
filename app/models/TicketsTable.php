@@ -24,7 +24,27 @@ class TicketsTable extends \Eloquent
 	static  $SortcolumnsCustomer		=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","updated_at"=>"Last Modified");
 	static  $Sortcolumns				=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","group"=>"Group","updated_at"=>"Last Modified");
 
-	
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function($page)
+        {
+            // do stuff
+        });
+
+        static::updating(function($page)
+        {
+            \Illuminate\Support\Facades\Log::info(print_r($page,true));
+           \Illuminate\Support\Facades\Log::info('before saving');
+        });
+
+        static::updated(function($page)
+        {
+            \Illuminate\Support\Facades\Log::info('after saving');
+        });
+    }
+
 	static function GetAgentSubmitRules(){
 		 $rules 	 =  array();
 		 $messages	 =  array();

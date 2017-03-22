@@ -7,7 +7,7 @@
                 <div id="ticket-widgets" class="panel-body">
 
                     <div class="col-sm-2 col-xs-4">
-                        <div class="tile-stats tile-white">
+                        <div class="tile-stats tile-aqua">
                             <div class="icon"><i class="entypo-users"></i></div>
                             <a target="_blank" class="undefined"
                                                                   data-startdate="" data-enddate=""
@@ -46,7 +46,7 @@
                     endif-->
 
                     <div class="col-sm-2 col-xs-4">
-                        <div class="tile-stats tile-white">
+                        <div class="tile-stats tile-cyan">
                             <div class="icon"><i class="entypo-ticket"></i></div>
                             <a target="_blank" class="undefined" data-startdate=""
                                                             data-enddate="" data-currency=""
@@ -58,7 +58,7 @@
                     </div>
 
                     <div class="col-sm-2 col-xs-4">
-                        <div class="tile-stats tile-white">
+                        <div class="tile-stats tile-purple">
                             <div class="icon"><i class="entypo-clock"></i></div>
                             <a target="_blank" class="undefined" data-startdate=""
                                                              data-enddate="" data-currency=""
@@ -70,7 +70,7 @@
                     </div>
 
                     <div class="col-sm-2 col-xs-4">
-                        <div class="tile-stats tile-white">
+                        <div class="tile-stats tile-funchsia">
                             <div class="icon"><i class="entypo-help"></i></div>
                             <a target="_blank" class="undefined" data-startdate=""
                                                                data-enddate="" data-currency=""
@@ -178,26 +178,30 @@
                         response = response.data.pop();
                         option["amount"] = response.UnResolved;
                         option["end"] = response.UnResolved;
-                        option["type"] = 'Un Resolved';
+                        option["type"] = 'Unresolved';
                         option['sign'] = 'users';
+                        option['class']     = 'tile-aqua';
                         widgets += buildbox(option);
 
                         option["amount"] = response.Open;
                         option["end"] = response.Open;
                         option["type"] = 'Open';
                         option['sign'] = 'ticket';
+                        option['class']     = 'tile-cyan';
                         widgets += buildbox(option);
 
                         option["amount"] = response.OnHold;
                         option["end"] = response.OnHold;
                         option["type"] = 'On Hold';
                         option['sign'] = 'clock';
+                        option['class']     = 'tile-purple';
                         widgets += buildbox(option);
 
                         option["amount"] = response.Unassigned;
                         option["end"] = response.UnAssigned;
-                        option["type"] = 'Un Assigned';
+                        option["type"] = 'Unassigned';
                         option['sign'] = 'help';
+                        option['class']     = 'tile-funchsia';
                         widgets += buildbox(option);
 
                         $('#ticket-widgets').html(widgets);
@@ -212,7 +216,7 @@
 
             function buildbox(option) {
                 html = '<div class="col-sm-2 col-xs-4">';
-                html += ' <div class="tile-stats tile-white">';
+                html += ' <div class="tile-stats '+option['class']+'">';
                 html += '<div class="icon"><i class="entypo-' + option['sign'] + '"></i></div>';
                 html += '  <a href="' + option['url'] + '">';
                 html += '   <div class="num" data-start="0" data-end="' + option['end'] + '" data-duration="1500" data-delay="1200">' + option['amount'] + '</div>';
