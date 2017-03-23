@@ -40,13 +40,18 @@ class TicketsTable extends \Eloquent
 	}
 
 	
-	static function getClosedTicketStatus(){
-		//TicketfieldsValues::WHERE
+	static function getClosedTicketStatus($text = false){
 		 $ValuesID =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
-            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->where(['tblTicketfieldsValues.FieldValueAgent'=>TicketfieldsValues::$Status_Closed])->pluck('ValuesID');			
+            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->where(['tblTicketfieldsValues.FieldValueAgent'=>TicketfieldsValues::$Status_Closed])->pluck($text?Session::get('customer')?"FieldValueCustomer":"FieldValueAgent":'ValuesID');			
 			return $ValuesID;
 	}
 	
+		
+	static function getResolvedTicketStatus($text =false){
+		 $ValuesID =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
+            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->where(['tblTicketfieldsValues.FieldValueAgent'=>TicketfieldsValues::$Status_Resolved])->pluck($text?Session::get('customer')?"FieldValueCustomer":"FieldValueAgent":'ValuesID');			
+			return $ValuesID;
+	}
 	
 	static function getTicketStatus(){
 		//TicketfieldsValues::WHERE
@@ -87,10 +92,10 @@ class TicketsTable extends \Eloquent
 	}
 	
 	
-	static function getDefaultStatus(){			
+	static function getDefaultStatus($text = false){			
 		//TicketfieldsValues::WHERE
 		 $ValuesID =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
-            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->where(['tblTicketfieldsValues.FieldValueAgent'=>Ticketfields::TICKET_SYSTEM_STATUS_DEFAULT,'tblTicketfieldsValues.FieldType'=>Ticketfields::FIELD_TYPE_STATIC])->pluck('ValuesID');			
+            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->where(['tblTicketfieldsValues.FieldValueAgent'=>Ticketfields::TICKET_SYSTEM_STATUS_DEFAULT,'tblTicketfieldsValues.FieldType'=>Ticketfields::FIELD_TYPE_STATIC])->pluck($text?Session::get('customer')?"FieldValueCustomer":"FieldValueAgent":'ValuesID');			
 			return $ValuesID;
 	
 	}
@@ -233,5 +238,22 @@ class TicketsTable extends \Eloquent
 		}else{
 			return TicketsTable::TICKETRESTRICTEDACCESS;
 		}
+	}
+	
+	static function SetRequester($TicketData){
+		$Requester = array();
+		if($TicketData->AccountID){
+				$data = 	DB::table('tblAccount')->where(['AccountID'=>$TicketData->AccountID])->get(array("AccountName"));				
+				$Requester = array("Title"=>$data[0]->AccountName,"Contact"=>0);
+		}
+		if($TicketData->ContactID){
+				$data = 	DB::table('tblContact')->where(['ContactID'=>$TicketData->ContactID])->get(array("FirstName","LastName","Owner"));
+				$Requester = array("Title"=>$data[0]->FirstName.'&nbsp;'.$data[0]->LastName,"Contact"=>0);
+		}
+		if($TicketData->UserID){
+				$data = 	DB::table('tblUser')->where(['UserID'=>$TicketData->UserID])->get(array("FirstName","LastName"));
+				$Requester = array("Title"=>$data[0]->FirstName.'&nbsp;'.$data[0]->LastName,"Contact"=>0);
+		}		
+		return $Requester;
 	}
 }

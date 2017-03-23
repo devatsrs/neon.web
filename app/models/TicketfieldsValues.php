@@ -10,5 +10,5 @@ class TicketfieldsValues extends \Eloquent {
 	protected $fillable = [];
 	
 	static $Status_Closed = 'Closed';
-	
+	static $Status_Resolved = 'Resolved';
 }
