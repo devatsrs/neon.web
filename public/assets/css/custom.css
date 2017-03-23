@@ -2643,5 +2643,5 @@ a:focus,a:hover{text-decoration:none !important}
 /**/
 /*Cron job notification*/
 .notifications.dropdown.cron_jobs{
-    padding-top: 12px;
+    padding-top: 2px;
 }
