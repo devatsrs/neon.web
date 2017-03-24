@@ -27,6 +27,9 @@
              @if($row->TimelineType == 3)
                  @if($row->TicketFieldID == Ticketfields::default_priority)
                      <span>to {{$fieldPriority[$row->TicketFieldValueToID]}}</span>
+                 @elseif($row->TicketFieldID == Ticketfields::default_agent)
+                     <span>to</span>
+                     <a href="{{URL::to('/users/edit/'.$row->TicketFieldValueToID)}}" target="_blank" class="notelink">{{$agents[$row->TicketFieldValueToID]}}</a>
                  @else
                      <span>to {{$fieldValues[$row->TicketFieldValueToID]}}</span>
                  @endif
