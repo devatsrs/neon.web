@@ -9,7 +9,7 @@
 @include('includes.success')
 <div class="pull-left"> @if( User::checkCategoryPermission('Tickets','Edit')) <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="entypo-pencil"></i> </a> @endif
   @if( User::checkCategoryPermission('Tickets','Edit')) <a data-toggle="tooltip"  data-placement="top" data-original-title="Add Note"  class="btn btn-primary add_note tooltip-primary btn-xs"><i class="fa fa-sticky-note"></i> </a> @endif
-  @if( User::checkCategoryPermission('Tickets','Edit')) <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a> @endif
+  @if( User::checkCategoryPermission('Tickets','Edit')) @if($ClosedTicketStatus!=$ticketdata->Status) <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a> @endif @endif
   @if( User::checkCategoryPermission('Tickets','Delete')) <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}" class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="entypo-trash"></i> </a> @endif </div>
 <div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-backward"></i> </a> @endif
   @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-forward"></i> </a> @endif</div>
@@ -23,9 +23,8 @@
     <div class="mail-header"> 
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
-      <div class="mail-date"> @if(!empty($ticketemaildata->Cc))cc: {{$ticketemaildata->Cc}}<br>
-        @endif @if(!empty($ticketemaildata->Bcc))bcc: {{$ticketemaildata->Bcc}}<br>
-        @endif 
+      <div class="mail-date"> @if(!empty($ticketdata->RequesterCC))cc: {{$ticketdata->RequesterCC}}<br>
+        @endif
         {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
       <!-- links --> 
     </div>
@@ -68,10 +67,15 @@
     <div class="panel first_data panel-primary margin-top" data-collapsed="0"> 
       
       <!-- panel head -->
-      <div class="panel-heading">
-        <div class="panel-title"><span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}}) From ({{$TicketConversationData->Emailfrom}}) by {{$TicketConversationData->CreatedBy}} @endif</span> @if(!empty($TicketConversationData->EmailCc))<br>
-          cc:  {{$TicketConversationData->EmailCc}} @endif @if(!empty($TicketConversationData->EmailBcc))<br>
-          bcc: {{$TicketConversationData->EmailBcc}} @endif </div>
+      <div class="panel-heading panel-heading-convesation">        
+          <div class="panel-title" ><span><?php 
+		  if($TicketConversationData->EmailCall==Messages::Received){
+		   ?>From <?php if(!empty($TicketConversationData->EmailfromName)){ echo $TicketConversationData->EmailfromName." (".$TicketConversationData->Emailfrom.")"; ?> <?php }else{ ?> <?php echo $TicketConversationData->Emailfrom; } ?>
+		 <?php }elseif($TicketConversationData->EmailCall==Messages::Sent){ echo $TicketConversationData->CreatedBy; ?> (<?php echo $TicketConversationData->Emailfrom; ?>) replied<br>to (<?php echo $TicketConversationData->EmailTo; ?>) <?php } ?></span>
+          
+          <?php if(!empty($TicketConversationData->EmailCc)){ ?><br>cc:  <?php echo $TicketConversationData->EmailCc; ?> <?php } ?>
+		  <?php if(!empty($TicketConversationData->EmailBcc)){ ?><br>bcc: <?php echo $TicketConversationData->EmailBcc; ?> <?php } ?> </div>
+          
         <div class="panel-options"> <span> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}}</span> @if( User::checkCategoryPermission('Tickets','Edit')) <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a> @endif <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
       </div>
       
@@ -276,7 +280,7 @@
 .mail-env .mail-body .mail-header .mail-title{float:none !important;}
 .mail-env .mail-body .mail-header .mail-date{padding:0px; text-align:inherit;}
 .Requester_Info{padding:10px !important;}
-.panel-primary > .panel-heading{min-height:56px !important;}
+.panel-primary > .panel-heading-convesation{min-height:73px !important;}
 </style>
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 

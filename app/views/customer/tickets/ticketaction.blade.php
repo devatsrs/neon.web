@@ -19,9 +19,8 @@
         <label for="email-from">* To:</label>
           <input type="text"  class="form-control" name="email-to" id="EmailActionTo"  readonly value="<?php echo $GroupEmail	?>" />
         <div class="field-options"> 
-        <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replycc').parent().removeClass('hidden'); $('#replycc').focus();">CC</a> 
-        <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replybcc').parent().removeClass('hidden'); $('#replybcc').focus();">BCC</a>
-         </div>
+        <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replycc').parent().removeClass('hidden'); $('#replycc').focus();">CC</a>         <!--<a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replybcc').parent().removeClass('hidden'); $('#replybcc').focus();">BCC</a>--> 
+        </div>
       </div>
     <?php }else{ ?>  
     <div class="form-group">
@@ -33,7 +32,7 @@
         <input type="text"  class="form-control" name="email-to" id="EmailActionTo" value="" />
         <div class="field-options"> 
         <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replycc').parent().removeClass('hidden'); $('#replycc').focus();">CC</a> 
-        <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replybcc').parent().removeClass('hidden'); $('#replybcc').focus();">BCC</a>
+        <!--<a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replybcc').parent().removeClass('hidden'); $('#replybcc').focus();">BCC</a>-->
          </div>
       </div>
     <?php } ?>
