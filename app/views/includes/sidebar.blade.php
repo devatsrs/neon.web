@@ -54,7 +54,7 @@
     <li class="{{check_uri('tickets')}}"><a href="#"><i class="fa fa-ticket"></i><span>Ticket Management</span></a>
       <ul>
           @if(User::checkCategoryPermission('TicketDashboard','View'))
-              <li> <a href="{{URL::to('/ticketdashboard')}}">  <span>Ticket Dashboard</span> </a> </li>
+              <li> <a href="{{URL::to('/ticketdashboard')}}">  <span>Dashboard</span> </a> </li>
           @endif
         @if(User::checkCategoryPermission('Tickets','View'))
         <li> <a href="{{URL::to('/tickets')}}">  <span>Tickets</span> </a> </li>
