@@ -41,6 +41,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
                 if (Hash::check($data["password"], $customer->password)) {
                     Auth::login($customer);
                     Session::set("customer", 1);
+					Session::set("CustomerEmail", $data["email"]);
                     return true;
                 }
             }
@@ -161,11 +162,11 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
     public static function get_companyID(){
-       $customer=Session::get('customer');
-        if($customer==1){
-            return Customer::get_companyID();
+        if(Auth::guest()){
+            return $CompanyID = SiteIntegration::GetComapnyIdByKey();
+        }else {
+            return $CompanyID = Session::get('customer')==1?Customer::get_companyID():Auth::user()->CompanyID;
         }
-        return Auth::user()->CompanyID;
     }
 
     public static function get_userID(){
@@ -384,11 +385,11 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
     public static function checkCategoryPermission($resourcecontroller,$action)
-    {
+    {	
         if(user::is_admin()){
             return true;
         }elseif(Session::has('user_category_permission')) {
-            $user_category_permission = Session::get('user_category_permission');
+            $user_category_permission = Session::get('user_category_permission'); 
             if(!empty($resourcecontroller)) {
                 $resourcecontrollerAll = $resourcecontroller . '.All';
                 if(in_array($resourcecontrollerAll, $user_category_permission)) {

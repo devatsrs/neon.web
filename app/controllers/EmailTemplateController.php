@@ -32,6 +32,9 @@ class EmailTemplateController extends \BaseController {
 		}else{ 
 			$template->Where('Status',0);
 		}
+		if(isset($data['system_templates']) && $data['system_templates']!='false'){
+			$template->Where('StaticType',1);
+		}
         /*if(trim($data['TemplateName']) != '') {
             $template->where('TemplateName', 'like','%'.trim($data['TemplateName']).'%');
         }*/
@@ -81,7 +84,7 @@ class EmailTemplateController extends \BaseController {
 		{
 			$data['userID'] = NULL;
 		}
-		$data['Status'] = isset($data['Status'])?$data['Status']:0;
+		$data['Status'] = isset($data['Status'])?1:0;
         unset($data['Email_template_privacy']);
 		unset($data['email_from']);		
         if ($obj = EmailTemplate::create($data)) {
@@ -129,7 +132,7 @@ class EmailTemplateController extends \BaseController {
      * @return Response
      */
     public function update($id) {
-        $data = Input::all();  
+        $data = Input::all();   
         $crmteplate = EmailTemplate::findOrfail($id);
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
@@ -164,7 +167,7 @@ class EmailTemplateController extends \BaseController {
     	 $data['EmailFrom'] =  isset($data['email_from'])?$data['email_from']:"";
 		 unset($data['email_from']);
 		 unset($data['Email_template_privacy']); 
-		$data['Status'] = isset($data['Status'])?$data['Status']:0;
+		$data['Status'] = isset($data['Status'])?1:0;
         if ($crmteplate->update($data)) {
             return Response::json(array("status" => "success", "message" => "Template Successfully Updated"));
         } else {

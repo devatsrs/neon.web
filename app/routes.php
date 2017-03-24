@@ -473,6 +473,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/emailmessages/ajax_datagrid', array('as' => 'jobs_dg', 'uses' => 'MessagesController@ajax_datagrid'));
 	Route::any('/emailmessages/{id}/show', array('as' => 'jobs_view', 'uses' => 'MessagesController@show'));
 	Route::any('/emailmessages/ajex_result','MessagesController@ajex_result'); 
+	Route::any('/emailmessages/ajex_result_export','MessagesController@ajex_result_export'); 
+	
 	Route::any('/emailmessages/{id}/detail', array('as' => 'jobs_view', 'uses' => 'MessagesController@detail'));
 	Route::any('/emailmessages/sent','MessagesController@SentBox');	
 	Route::any('/emailmessages/draft','MessagesController@Draft');
@@ -492,6 +494,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/ticketgroups/{id}/delete', 'TicketsGroupController@delete');
 	Route::any('/ticketgroups/{id}/send_activation', 'TicketsGroupController@send_activation_single');
 	Route::any('/ticketgroups/{id}/getgroupagents', 'TicketsGroupController@get_group_agents');
+	Route::any('/ticketgroups/validatesmtp', 'TicketsGroupController@validatesmtp');
 	
 	Route::any('/ticketsfields', "TicketsFieldsController@index");
 	Route::any('/ticketsfields/iframe', "TicketsFieldsController@iframe");
@@ -503,10 +506,13 @@ Route::group(array('before' => 'auth'), function () {
 	
 	
 	
-	
+	Route::any('/tickets',"TicketsController@TicketGroupAccess");
+	Route::any('/tickets',"TicketsController@TicketRestrictedAccess");
+	Route::any('/tickets',"TicketsController@TicketsGlobalAccess");
 	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
 	Route::any('/tickets/ajax_datagrid/{type}', "TicketsController@ajax_datagrid");
 	Route::any('/tickets/ajex_result','TicketsController@ajex_result'); 
+	Route::any('/tickets/ajex_result_export','TicketsController@ajex_result_export'); 
 	Route::any('/tickets/add', "TicketsController@add");
 	Route::post('/tickets/upload_file', 'TicketsController@uploadFile');
 	Route::any('/tickets/delete_attachment_file', 'TicketsController@deleteUploadFile');
@@ -655,6 +661,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/activecronjob', 'CronJobController@activecronjob');
     Route::any('/cronjobs/activecronjob_ajax_datagrid', 'CronJobController@activecronjob_ajax_datagrid');
     Route::any('/cronjobs/activeprocessdelete/', 'CronJobController@activeprocessdelete');
+    Route::any('/cronjobs/check_failing', 'CronJobController@check_failing');
 
 
 	Route::any('/cronjob_monitor', 'CronJobController@cronjob_monitor');
@@ -1130,6 +1137,21 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/clitable/delete/{id}','AccountsController@clitable_delete');
 	Route::any('/clitable/update','AccountsController@clitable_update');
 
+	// services
+	Route::any('services', 'ServicesController@index');
+	Route::any('services/ajax_datagrid', 'ServicesController@ajax_datagrid');
+	Route::any('services/store', 'ServicesController@store');
+	Route::any('services/update/{id}', 'ServicesController@update');
+	Route::any('services/delete/{id}', 'ServicesController@delete');
+	Route::any('services/exports/{type}', 'ServicesController@exports');
+
+	//accountservice
+	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
+	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
+	Route::any('accountservices/{id}/ajax_datagrid', 'AccountServiceController@ajax_datagrid');
+	Route::any('accountservices/{id}/update/{serviceid}', 'AccountServiceController@update');
+	Route::any('accountservices/{id}/changestatus/{status}', 'AccountServiceController@changestatus');
+	Route::any('accountservices/{id}/{serviceid}/delete', 'AccountServiceController@delete');
 });
 
 Route::group(array('before' => 'global_admin'), function () {

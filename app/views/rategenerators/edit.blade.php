@@ -265,8 +265,12 @@
                         e.preventDefault();
                         $('#update-rate-generator-form').trigger("reset");
                         $('#modal-update-rate').modal('show', {backdrop: 'static'});
+                        $('.radio-replace').removeClass('checked');
+                        $('#defaultradiorate').addClass('checked');
                         $('#RateTableIDid').hide();
                         $('#RateTableNameid').show();
+                        $('#RateTableReplaceRate').hide();
+                        $('#RateTableEffectiveRate').show();
                         $('#modal-update-rate h4').html('Generate Rate Table');
                         update_rate_table_url = $(this).attr("href");
 
@@ -303,7 +307,13 @@
             * Submit and Generate Joblog
             * */
             update_rate_table_url = $(this).attr("href");
+
+            $('.radio-replace').removeClass('checked');
+            $('#defaultradiorate').addClass('checked');
+
             $('#RateTableIDid').show();
+            $('#RateTableReplaceRate').show();
+            $('#RateTableEffectiveRate').show();
             $('#RateTableNameid').hide();
             $('#modal-update-rate h4').html('Update Rate Table');
         });

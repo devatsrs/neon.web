@@ -354,4 +354,19 @@ class CronJobController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Fail to change status of Cron Tab." ));
         }
     }
+
+    /** check if cron job is failing or not to show in top notification bar
+     * @return bool
+     */
+    public function check_failing(){
+
+        $CompanyID = User::get_companyID();
+        $is_cronjob_failing = CronJob::is_cronjob_failing($CompanyID);
+        if($is_cronjob_failing){
+            return Response::json(array("status" => "success", "message" => "Cron Job is Failing." ));
+        }else {
+            return Response::json(array("status" => "success", "message" => "" ));
+        }
+
+    }
 }

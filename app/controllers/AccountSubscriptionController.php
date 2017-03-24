@@ -15,6 +15,11 @@ class AccountSubscriptionController extends \BaseController {
         if(!empty($data['SubscriptionInvoiceDescription'])){
             $subscriptions->where('tblAccountSubscription.InvoiceDescription','Like','%'.trim($data['SubscriptionInvoiceDescription']).'%');
         }
+        if(!empty($data['ServiceID'])){
+            $subscriptions->where('tblAccountSubscription.ServiceID','=',$data['ServiceID']);
+        }else{
+            $subscriptions->where('tblAccountSubscription.ServiceID','=',0);
+        }
         if(!empty($data['SubscriptionActive']) && $data['SubscriptionActive'] == 'true'){
             $subscriptions->where(function($query){
                 $query->where('tblAccountSubscription.EndDate','>=',date('Y-m-d'));

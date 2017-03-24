@@ -1,4 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateDefaultPrefix`(IN `p_processId` INT, IN `p_tbltempusagedetail_name` VARCHAR(200))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateDefaultPrefix`(
+	IN `p_processId` INT,
+	IN `p_tbltempusagedetail_name` VARCHAR(200)
+)
 BEGIN
 	DECLARE v_pointer_ INT;	
 	DECLARE v_partition_limit_ INT;
@@ -16,8 +19,7 @@ BEGIN
 		INDEX IX_TempUsageDetailID2(`TempUsageDetailID`)
 	);
 	
-
-	/* find prefix from default codes and accounts doen't have active trunks */
+    /* find prefix from default codes and accounts doen't have active trunks */
 	
 	SET v_pointer_ = 0;
 	SET v_partition_limit_ = 1000;

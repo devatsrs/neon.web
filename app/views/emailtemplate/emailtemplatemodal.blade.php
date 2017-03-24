@@ -40,6 +40,7 @@
 
         $('#add-new-modal-template').on('shown.bs.modal', function(event){
 			var modal = $(this);  
+			if(typeof popup_type  == "undefined" ) {popup_type = 0;}
 			if(popup_type == {{EmailTemplate::ACCOUNT_TEMPLATE}}){   
 				 modal.find('.message').wysihtml5({ 
 				   "font-styles": true,				
