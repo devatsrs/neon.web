@@ -9,11 +9,11 @@
                      <span>Submitted a new ticket</span>
                  @else
                     <span>has sent a </span>
-                     <a href="{{URL::to('/tickets/'.$row->TicketID.'/detail#message').$row->RecordID}}">Reply</a>
+                     <a href="{{URL::to('/tickets/'.$row->TicketID.'/detail#message').$row->RecordID}}" target="_blank" class="notelink">Reply</a>
                      <span>to the ticket</span>
                  @endif
              @elseif($row->TimelineType == 2)
-                 <a href="{{URL::to('/tickets/'.$row->TicketID.'/detail#note').$row->RecordID}}">add note</a>
+                 <a href="{{URL::to('/tickets/'.$row->TicketID.'/detail#note').$row->RecordID}}" target="_blank" class="notelink">add note</a>
                  <span>to the ticket</span>
              @else
                 @if($row->TicketFieldID == Ticketfields::default_agent)
