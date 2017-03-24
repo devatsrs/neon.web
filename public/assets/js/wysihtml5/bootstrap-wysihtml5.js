@@ -282,7 +282,10 @@
 				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AgentName}}'>" + locale.TicketsSingle.AgentName + "</a></li>"+
 				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{AgentEmail}}'>" + locale.TicketsSingle.AgentEmail+ "</a></li>"+
 				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TicketUrl}}'>" + locale.TicketsSingle.TicketUrl+ "</a></li>"+
-				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TicketCustomerUrl}}'>" + locale.TicketsSingle.TicketCustomerUrl+ "</a></li>"+	"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.TicketsSingle.Comment+ "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{TicketCustomerUrl}}'>" + locale.TicketsSingle.TicketCustomerUrl+ "</a></li>"+	
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Comment}}'>" + locale.TicketsSingle.Comment+ "</a></li>"+
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Notebody}}'>" + locale.TicketsSingle.Notebody+ "</a></li>"+				
+				"<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{NoteUser}}'>" + locale.TicketsSingle.NoteUser+ "</a></li>"+				
                	"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
 				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyName}}'>" + locale.Company.CompanyName + "</a></li>" +
 				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{CompanyVAT}}'>" + locale.Company.Vat + "</a></li>" +	
@@ -1474,7 +1477,9 @@
 				AgentEmail:"AgentEmail",
 				Comment:"Comment",
 				TicketCustomerUrl:"TicketCustomerUrl",
-				TicketUrl:"TicketUrl"			
+				TicketUrl:"TicketUrl",
+				Notebody:"Notebody",
+				NoteUser:"NoteUser"
 				},
 			Company:{
 				CompanyName:"CompanyName",

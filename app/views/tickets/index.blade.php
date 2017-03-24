@@ -5,17 +5,19 @@
   <li class="active"> <strong>Tickets</strong> </li>
 </ol>
 <h3>Tickets</h3>
- @if( User::checkCategoryPermission('Tickets','Add'))
+@if( User::checkCategoryPermission('Tickets','Add'))
 <p class="text-right">
 <div class="btn-group pull-right">
-<button href="#" class="btn  btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Add New&nbsp;&nbsp;<span class="caret"></span></button>
- <ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px;" role="menu">
+  <button href="#" class="btn  btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Add New&nbsp;&nbsp;<span class="caret"></span></button>
+  <ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px;" role="menu">
     <li><a href="{{URL::to('/tickets/add')}}">Ticket</a></li>
     <li><a href="{{URL::to('/tickets/compose_email')}}">Email</a></li>
   </ul>
-  </div>
-   </p>@endif
-  <div class="clear clearfix"><br></div>
+</div>
+</p>
+@endif
+<div class="clear clearfix"><br>
+</div>
 <div class="row">
   <div class="col-md-12">
     <form role="form" id="tickets_filter" method="post" action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
@@ -41,11 +43,11 @@
             <div class="col-sm-2"> {{Form::select('agent[]', $Agents, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
           </div>
           @else
-              @if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)	
-              <input type="hidden" name="agent" value="{{user::get_userID()}}" >
-              @else
-              <input type="hidden" name="agent" value="" >
-              @endif
+          @if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)
+          <input type="hidden" name="agent" value="{{user::get_userID()}}" >
+          @else
+          <input type="hidden" name="agent" value="" >
+          @endif
           @endif
           <p style="text-align: right;">
             <button type="submit" class="btn btn-primary btn_form_submit btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
@@ -78,8 +80,15 @@
                     <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
                     <?php } ?>
                   </div>
-                </div>                 
-                <div class="pull-right btn-group">                
+                </div>
+                <div class="pull-left btn-group">
+                <button type="button" data-toggle="dropdown" class="btn  dropdown-toggle  btn-green">Export <span class="caret"></span></button>
+                <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">    
+                    <li><a class="export_btn export_type" action_type="csv" href="#"> CSV</a> </li>
+                    <li><a class="export_btn export_type" action_type="xlsx"  href="#">  EXCEL</a> </li>
+                  </ul>
+                </div>
+                <div class="pull-right sorted btn-group">                
                   <button type="button" class="btn btn-green dropdown-toggle" data-toggle="dropdown"> Sorted by {{$Sortcolumns[$data['iSortCol_0']]}} <span class="caret"></span> </button>
                   <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">
                     <?php foreach($Sortcolumns as $key => $SortcolumnsData){ ?>
@@ -102,10 +111,10 @@
 		 foreach($result as $result_data){ 
 			 ?>
           <tr><!-- new email class: unread -->
-            <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
-            <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span>
-         <?php if($result_data->Read==0){echo '<div class="label label-primary">New</div>';}else{if($result_data->CustomerResponse==$result_data->RequesterEmail){echo "<div class='label label-info'>CUSTOMER RESPONDED</div>";}else{echo '<div class="label label-warning">RESPONSE DUE</div>';}} //if(empty($result_data->Agent)){echo '<div class="label label-danger">unassigned</div>';} ?><br>
-             <a target="_blank" href="@if(!empty($result_data->ACCOUNTID)) {{URL::to('/')}}/accounts/{{$result_data->ACCOUNTID}}/show @elseif(!empty($result_data->ContactID)) contacts/{{$result_data->ContactID}}/show @else # @endif" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
+            <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a> <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span>
+              <?php if($result_data->Read==0){ if($ClosedTicketStatus!=$result_data->TicketStatus && $ResolvedTicketStatus!=$result_data->TicketStatus) {echo '<div class="label label-primary">New</div>'; } }else{if($result_data->CustomerResponse==$result_data->RequesterEmail){echo "<div class='label label-info'>CUSTOMER RESPONDED</div>";}else{ if($ClosedTicketStatus!=$result_data->TicketStatus && $ResolvedTicketStatus!=$result_data->TicketStatus) { echo '<div class="label label-warning">RESPONSE DUE</div>';} }} //if(empty($result_data->Agent)){echo '<div class="label label-danger">unassigned</div>';} ?>
+              <br>
+              <a target="_blank" href="@if(!empty($result_data->ACCOUNTID)) {{URL::to('/')}}/accounts/{{$result_data->ACCOUNTID}}/show @elseif(!empty($result_data->ContactID)) contacts/{{$result_data->ContactID}}/show @else # @endif" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
               <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
             <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
               <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>
@@ -142,6 +151,7 @@
 </div>
 <!-- mailbox end -->
 <style>
+.sorted{margin-left:5px;}
 .margin-right-10{margin-right:10px;}
 .margin-left-mail{margin-right:15px;width:21%; }.mailaction{margin-right:10px;}.btn-blue{color:#fff !important;}
 .mail-body{width:100% !important; float:none !important;}
@@ -174,9 +184,11 @@ $(document).ready(function(e) {
 	var total			=	<?php echo $totalResults; ?>;
 	var clicktype		=	'';
 	var ajax_url 		= 	baseurl+'/tickets/ajex_result';
+	var ajax_url_export	= 	baseurl+'/tickets/ajex_result_export';
 	var SearchStr		=	'';
 	var sort_fld  		=   "{{$data['iSortCol_0']}}";
 	var sort_type 		=   "{{$data['sSortDir_0']}}";
+	var export_data		=   0;
 	
 	$(document).on('click','.move_mail',function(){
 		var clicktype = $(this).attr('movetype');	
@@ -273,6 +285,34 @@ $(document).ready(function(e) {
 		return false;		
 		
 	});
+	
+	$(document).on('click','.export_btn',function(e){
+		e.stopImmediatePropagation();
+		e.preventDefault();		
+			
+		var $search 		= 	{};
+        $search.Search 		= 	$("#tickets_filter").find('[name="search"]').val();
+		$search.status		= 	$("#tickets_filter").find('[name="status[]"]').val();
+		$search.priority 	= 	$("#tickets_filter").find('[name="priority[]"]').val();		
+		$search.group 		= 	$("#tickets_filter").find('[name="group[]"]').val();
+		$search.agent 		= 	$("#tickets_filter").find('[name="agent[]"]').val();
+		var export_type		=	$(this).attr('action_type');
+		
+		ajax_url_export = ajax_url_export+"?Search="+$search.Search+"&status="+$search.status+"&priority="+$search.priority+"&group="+$search.group+"&agent="+$search.agent+"&sort_fld="+sort_fld+"&sort_type="+sort_type+"&export_type="+export_type+"&Export=1";
+		window.location = ajax_url_export;
+		 /*$.ajax({
+					url: ajax_url_export,
+					type: 'POST',
+					dataType: 'html',
+					async :false,
+					data:{formData:$search,currentpage:currentpage,per_page:per_page,total:total,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type,Export:1},
+					success: function(response) {
+						
+					}	
+			});	*/
+	});
+	
+	
 	
 	$(document).on('click','.dropdown-green li a',function(e){
 		e.preventDefault();	

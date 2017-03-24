@@ -1092,10 +1092,13 @@ class InvoicesController extends \BaseController {
             $CompanyName = Company::getName();
             if (!empty($Currency)) {
                // $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
-			    $templateData	 = 	EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
-				
-				$Subject	 = 	$templateData->Subject;
-				$Message 	 = 	$templateData->TemplateBody;		 
+			    $templateData	 	 = 	 EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
+				$data['InvoiceURL']	 =   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email=#email');
+			//	$Subject	 		 = 	 $templateData->Subject;
+			//	$Message 	 		 = 	 $templateData->TemplateBody;		
+				$Message	 		 =	 EmailsTemplates::SendinvoiceSingle($id,'body',$data);
+				$Subject	 		 =	 EmailsTemplates::SendinvoiceSingle($id,"subject",$data);
+				 
 				if(!empty($Subject) && !empty($Message)){
 					$from	 = $templateData->EmailFrom;	
 					return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName','from'));
@@ -1112,7 +1115,7 @@ class InvoicesController extends \BaseController {
             $CreatedBy = User::get_user_full_name();
             $isRecurringInvoice = 0;
             $recurringInvoiceID = 0;
-            $data = Input::all();
+            $data = Input::all(); 
 			$postdata = Input::all(); 
             if(isset($data['RecurringInvoice'])){
                 $isRecurringInvoice=1;
@@ -1159,8 +1162,8 @@ class InvoicesController extends \BaseController {
 					
 						$data['EmailTo'] 		= 	$singleemail;
 						$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
-						$body					=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data,$postdata);
-						$data['Subject']		=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject",$data,$postdata);
+						$body					=	EmailsTemplates::ReplaceEmail($singleemail,$postdata['Message']);
+						$data['Subject']		=	$postdata['Subject'];
 						
 						if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 						{
@@ -1224,8 +1227,8 @@ class InvoicesController extends \BaseController {
             //$data['Subject'] .= ' ('.$Account->AccountName.')';//Added by Abubakar
             $data['EmailTo'] 		= 	$sendTo;
             $data['InvoiceURL']		= 	URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview');
-			$body					=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data,$postdata);
-			$data['Subject']		=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject",$data,$postdata);
+			$body					=	$postdata['Message'];
+			$data['Subject']		=	$postdata['Subject'];
 			
 			if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 			{

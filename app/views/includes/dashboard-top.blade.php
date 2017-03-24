@@ -62,19 +62,14 @@
          </li>
      </ul>
 </li>
-	<!-- Message Notifications -->
-@if(User::checkCategoryPermission('emailmessages','All'))    
-<li class="notifications msgs dropdown">
-        
-        <!-- Ajax Content here : Messages -->
-		<a data-close-others="true" data-hover="dropdown" data-toggle="dropdown" class="dropdown-toggle msgs" href="#"><i class="entypo-mail"></i></a>
-		<ul class="dropdown-menu">
-        	 <li class="top">
-          	   <p>Loading...</p>
-         	</li>
-       </ul>				
-</li>
- @endif	
+    <!-- Cron job Notifications -->
+    @if( User::checkCategoryPermission('CronJob','View'))
+        <li class="notifications cron_jobs dropdown">
+            <a title="Cron Jobs" href="{{Url::to('cronjob_monitor')}}"><i class="glyphicon glyphicon-time"></i>&nbsp;&nbsp;
+                <span id="failing_placeholder"  title="" data-placement="right" class="hidden badge badge-danger" data-toggle="tooltip" data-original-title="Cron Job is failing...">!</span>
+            </a>
+        </li>
+    @endif
 </ul>
 </div>
 <!-- Raw Links -->

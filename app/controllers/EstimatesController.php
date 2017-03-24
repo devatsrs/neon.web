@@ -887,8 +887,12 @@ class EstimatesController extends \BaseController {
 			{
                
 				$templateData	 = 	EmailTemplate::where(["SystemType"=>Estimate::EMAILTEMPLATE])->first();				
-				$Subject	 	 = 	$templateData->Subject;
-				$Message 		 = 	$templateData->TemplateBody;		 
+				//$Subject	 	 = 	$templateData->Subject;
+				//$Message 		 = 	$templateData->TemplateBody;		 		
+				$data['EstimateURL']	=   URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview?email=#email');
+				$Message				=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,'body',$data);
+				$Subject				=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,"subject",$data);
+				
 				
 				if(!empty($Subject) && !empty($Message)){
 					$from	 = $templateData->EmailFrom;	
@@ -958,8 +962,10 @@ class EstimatesController extends \BaseController {
 				{
                     $data['EmailTo'] 		= 	$singleemail;
                     $data['EstimateURL']	= 	URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview?email='.$singleemail);
-					$body					=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,'body',$data,$postdata);
-					$data['Subject']		=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,"subject",$data,$postdata);
+					$body					=	EmailsTemplates::ReplaceEmail($singleemail,$postdata['Message']);
+					$data['Subject']		=	$postdata['Subject'];
+					//$body					=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,'body',$data,$postdata);
+					//$data['Subject']		=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,"subject",$data,$postdata);
 					
 					if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 					{

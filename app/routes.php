@@ -473,6 +473,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/emailmessages/ajax_datagrid', array('as' => 'jobs_dg', 'uses' => 'MessagesController@ajax_datagrid'));
 	Route::any('/emailmessages/{id}/show', array('as' => 'jobs_view', 'uses' => 'MessagesController@show'));
 	Route::any('/emailmessages/ajex_result','MessagesController@ajex_result'); 
+	Route::any('/emailmessages/ajex_result_export','MessagesController@ajex_result_export'); 
+	
 	Route::any('/emailmessages/{id}/detail', array('as' => 'jobs_view', 'uses' => 'MessagesController@detail'));
 	Route::any('/emailmessages/sent','MessagesController@SentBox');	
 	Route::any('/emailmessages/draft','MessagesController@Draft');
@@ -510,6 +512,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
 	Route::any('/tickets/ajax_datagrid/{type}', "TicketsController@ajax_datagrid");
 	Route::any('/tickets/ajex_result','TicketsController@ajex_result'); 
+	Route::any('/tickets/ajex_result_export','TicketsController@ajex_result_export'); 
 	Route::any('/tickets/add', "TicketsController@add");
 	Route::post('/tickets/upload_file', 'TicketsController@uploadFile');
 	Route::any('/tickets/delete_attachment_file', 'TicketsController@deleteUploadFile');
@@ -658,6 +661,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/activecronjob', 'CronJobController@activecronjob');
     Route::any('/cronjobs/activecronjob_ajax_datagrid', 'CronJobController@activecronjob_ajax_datagrid');
     Route::any('/cronjobs/activeprocessdelete/', 'CronJobController@activeprocessdelete');
+    Route::any('/cronjobs/check_failing', 'CronJobController@check_failing');
 
 
 	Route::any('/cronjob_monitor', 'CronJobController@cronjob_monitor');
