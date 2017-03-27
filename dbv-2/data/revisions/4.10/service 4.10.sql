@@ -1230,6 +1230,22 @@ BEGIN
 	IF p_RateFormat = 2
 	THEN
 
+		/* update trunk with use in billing*/
+		SET @stm = CONCAT('
+		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN Ratemanagement3.tblCustomerTrunk ct 
+			ON ct.AccountID = ud.AccountID AND ct.Status =1 
+			AND ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
+		INNER JOIN Ratemanagement3.tblTrunk t 
+			ON t.TrunkID = ct.TrunkID  
+			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
+		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.is_inbound = 0 AND ud.TrunkID IS NULL;
+		');
+
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
 		/* update trunk without use in billing*/
 		SET @stm = CONCAT('
 		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
@@ -1245,22 +1261,6 @@ BEGIN
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
 		DEALLOCATE PREPARE stmt;
-
-		/* update trunk with use in billing*/
-		SET @stm = CONCAT('
-		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN Ratemanagement3.tblCustomerTrunk ct 
-			ON ct.AccountID = ud.AccountID AND ct.Status =1 
-			AND ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
-		INNER JOIN Ratemanagement3.tblTrunk t 
-			ON t.TrunkID = ct.TrunkID  
-			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
-		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.is_inbound = 0 AND ud.TrunkID IS NULL;
-		');
-
-		PREPARE stm FROM @stm;
-		EXECUTE stm;
-		DEALLOCATE PREPARE stm;
 
 	END IF;
 	
