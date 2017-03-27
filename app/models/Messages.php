@@ -93,11 +93,11 @@ class Messages extends \Eloquent {
 		
 		 if($lead==0)
 		 {
-			$AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
+			$AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1,"Status"=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
 		 }
 		 else
 		 {
-			$AccountSearch   =  DB::table('tblAccount')->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
+			$AccountSearch   =  DB::table('tblAccount')->where(["Status"=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
 		 }
 		 
 		 $ContactSearch 	 =  DB::table('tblContact')->get(array("Email"));	
@@ -176,7 +176,7 @@ class Messages extends \Eloquent {
 				}
 		}
 		
-		$UserSearch 	 =  DB::table('tblUser')->get(array("EmailAddress"));		
+		$UserSearch 	 =  DB::table('tblUser')->where(["Status"=>1])->get(array("EmailAddress"));		
 		
 		if(count($UserSearch)>0 || count($UserSearch)>0)													
 		{
@@ -205,17 +205,17 @@ class Messages extends \Eloquent {
 		 if($lead==0)
 		 {
 			 if($accountname){
-			 $AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail","AccountName"));
+			 $AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1,"Status"=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail","AccountName"));
 			 }else{
-			$AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail","FirstName","LastName"));
+			$AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1,"Status"=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail","FirstName","LastName"));
 			 }
 		 }
 		 else
 		 {
 			  if($accountname){
-			    $AccountSearch   =  DB::table('tblAccount')->whereRaw('Email !=""')->get(array("Email","AccountName"));
+			    $AccountSearch   =  DB::table('tblAccount')->where(["Status"=>1])->whereRaw('Email !=""')->get(array("Email","AccountName"));
 			  }else{
-				$AccountSearch   =  DB::table('tblAccount')->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
+				$AccountSearch   =  DB::table('tblAccount')->where(["Status"=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
 			  }
 		 }
 		 
@@ -296,7 +296,7 @@ class Messages extends \Eloquent {
 				}
 		}
 		
-		$UserSearch 	 =  DB::table('tblUser')->get(array("EmailAddress","FirstName","LastName"));		
+		$UserSearch 	 =  DB::table('tblUser')->where(["Status"=>1])->get(array("EmailAddress","FirstName","LastName"));		
 		
 		if(count($UserSearch)>0 || count($UserSearch)>0)													
 		{	 

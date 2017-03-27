@@ -243,7 +243,7 @@ private $validlicense;
 			$CompanyID 		   			= 	 User::get_companyID();	
 			$htmlgroupID 	   			= 	 $ResponseData->htmlgroupID;
 			$htmlagentID       			= 	 $ResponseData->htmlagentID;
-			$AllEmails 					= 	 $ResponseData->AllEmails; 			
+			$AllEmails 					= 	 implode(",",(Messages::GetAllSystemEmailsWithName(0,true))); 
 		    $agentsAll 					=	 $ResponseData->agentsAll;			
 		    $ticketSavedData			= 	 json_decode(json_encode($ResponseData->ticketSavedData),true);
 			$random_token	  			=	 get_random_number();
@@ -459,8 +459,9 @@ private $validlicense;
 		$response  		    =  	  NeonAPI::request('tickets/ticketcction',$data,true,true);
 
 		if(!empty($response) && $response['status'] == 'success' )
-		{ 
+		{  
 			$ResponseData		 =	  $response['data'];
+			$conversation		 =    $ResponseData['conversation'];  
 			$response_data       =    $ResponseData['response_data']; 
 			$AccountEmail 		 = 	  $ResponseData['AccountEmail'];	
 			$parent_id			 =	  $ResponseData['parent_id'];
@@ -472,7 +473,7 @@ private $validlicense;
 			}
 			
 			$FromEmails	 				 =  TicketGroups::GetGroupsFrom();			
-			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail'));  
+			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail','conversation'));  
 		}else{
             return view_response_api($response);
         }		
