@@ -3152,9 +3152,11 @@ function select_all_top(selectallbutton,table,selectall) {
     });
 }
 try{
-    setInterval(function() {
-        checkFailingCronJob();
-    }, 1000 * 10); // where X is your every X minutes
+    if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 && $(".notifications.cron_jobs.dropdown").has("#failing_placeholder").length > 0 ) {
+        setInterval(function () {
+            checkFailingCronJob();
+        }, 1000 * 10); // where X is your every X minutes
+    }
 }catch(er){
     console.log(er.message);
 }
