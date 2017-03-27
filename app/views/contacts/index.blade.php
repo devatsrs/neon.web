@@ -122,6 +122,7 @@
     });
     $('body').on('click', 'a[title="Delete"]', function (e) {
                 e.preventDefault();
+        response = confirm('Are you sure?');
                 if (response) {
 
                     $.ajax({
