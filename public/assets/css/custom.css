@@ -2701,3 +2701,7 @@ a:focus,a:hover{text-decoration:none !important}
 .wysihtml5-toolbar > .dropdown > .dropdown-menu > li.unclick > a{color:#fff !important;}
 .TicketsScroll{z-index:999 !important; }
 /**/
+/*Cron job notification*/
+.notifications.dropdown.cron_jobs{
+    padding-top: 2px;
+}
