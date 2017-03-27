@@ -2565,6 +2565,19 @@ reloadJobsDrodown = function(reset){
     }
 	
 };
+checkFailingCronJob = function(){
+    if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 ){
+        $.get( baseurl + "/cronjobs/check_failing", function( response ) {
+            if(typeof response.message != 'undefined' ) {
+                if (response.message == '') {
+                    $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").addClass("hidden");
+                } else {
+                    $(".notifications.cron_jobs.dropdown").find("#failing_placeholder").removeClass("hidden");
+                }
+            }
+        });
+    }
+};
 try{
     setTimeout(function(){ reloadJobsDrodown(0); reloadMsgDrodown(0); }, 2000);
     bindResetCounter();
@@ -3137,4 +3150,13 @@ function select_all_top(selectallbutton,table,selectall) {
             });
         }
     });
+}
+try{
+    if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 && $(".notifications.cron_jobs.dropdown").has("#failing_placeholder").length > 0 ) {
+        setInterval(function () {
+            checkFailingCronJob();
+        }, 1000 * 10); // where X is your every X minutes
+    }
+}catch(er){
+    console.log(er.message);
 }

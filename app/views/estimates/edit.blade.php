@@ -124,7 +124,7 @@
                                             "class" =>"select2 small Taxentity TaxRateID",
                                             ]
                                     )}}</td>
-                                    
+
                                     <td>{{Form::SelectExt(
                                         [
                                         "name"=>"EstimateDetail[TaxRateID2][]",
@@ -139,7 +139,7 @@
                                         "class" =>"select2 small Taxentity TaxRateID2",
                                         ]
                                 )}}</td>
-                                
+
                                     <td class="hidden">{{Form::text('EstimateDetail[TaxAmount][]',number_format($ProductRow->TaxAmount,$RoundChargesAmount),array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>
                                     <td>{{Form::text('EstimateDetail[LineTotal][]',number_format($ProductRow->LineTotal,$RoundChargesAmount),array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}
                                     {{Form::hidden('EstimateDetail[EstimateDetailID][]',$ProductRow->EstimateDetailID,array("class"=>"EstimateDetailID"))}}
@@ -197,34 +197,61 @@
                                     <td >Estimate Total </td>
                                     <td>{{Form::text('GrandTotal',number_format($Estimate->GrandTotal,$RoundChargesAmount),array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
-                            <?php if(count($EstimateAllTax)>0){
-				  foreach($EstimateAllTax as $key => $EstimateAllTaxData){
-				   ?>
-              <tr class="  @if($key==0) estimate_tax_row @else all_tax_row @endif">
-                @if($key==0)                
-                <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs estimate_tax_add ">+</button>   &nbsp; Tax </td>
-                @else
-                <td>
-                 <button title="Delete Tax" type="button" class="btn btn-danger btn-xs estimate_tax_remove ">X</button>
-                 </td>
-                @endif  
-                <td><div class="col-md-8"> {{Form::SelectExt(
-                    [
-                    "name"=>"EstimateTaxes[field][]",
-                    "data"=>$taxes,
-                    "selected"=>$EstimateAllTaxData->TaxRateID,
-                    "value_key"=>"TaxRateID",
-                    "title_key"=>"Title",
-                    "data-title1"=>"data-amount",
-                    "data-value1"=>"Amount",
-                    "data-title2"=>"data-flatstatus",
-                    "data-value2"=>"FlatStatus",
-                    "class" =>"select2 small Taxentity EstimateTaxesFld  EstimateTaxesFldFirst",
-                    ]
-                    )}}</div>
-                  <div class="col-md-4"> {{Form::text('EstimateTaxes[value][]',$EstimateAllTaxData->TaxAmount,array("class"=>"form-control EstimateTaxesValue","readonly"=>"readonly"))}} </div></td>
-              </tr>
-              <?php } } ?>
+                            @if(count($EstimateAllTax)>0)
+                                @foreach($EstimateAllTax as $key => $EstimateAllTaxData)
+
+                                    <tr class="  @if($key==0) estimate_tax_row @else all_tax_row @endif">
+                                        @if($key==0)
+                                            <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs estimate_tax_add ">+</button>   &nbsp; Tax </td>
+                                        @else
+                                            <td>
+                                                <button title="Delete Tax" type="button" class="btn btn-danger btn-xs estimate_tax_remove ">X</button>
+                                            </td>
+                                        @endif
+                                        <td>
+                                            <div class="col-md-8"> {{Form::SelectExt(
+                                                                    [
+                                                                    "name"=>"EstimateTaxes[field][]",
+                                                                    "data"=>$taxes,
+                                                                    "selected"=>$EstimateAllTaxData->TaxRateID,
+                                                                    "value_key"=>"TaxRateID",
+                                                                    "title_key"=>"Title",
+                                                                    "data-title1"=>"data-amount",
+                                                                    "data-value1"=>"Amount",
+                                                                    "data-title2"=>"data-flatstatus",
+                                                                    "data-value2"=>"FlatStatus",
+                                                                    "class" =>"select2 small Taxentity EstimateTaxesFld  EstimateTaxesFldFirst",
+                                                                    ]
+                                                                    )}}
+                                            </div>
+                                            <div class="col-md-4"> {{Form::text('EstimateTaxes[value][]',$EstimateAllTaxData->TaxAmount,array("class"=>"form-control EstimateTaxesValue","readonly"=>"readonly"))}} </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr class="estimate_tax_row">
+                                    <td>
+                                        <button title="Add new Tax" type="button" class="btn btn-primary btn-xs estimate_tax_add ">+</button>
+                                        &nbsp; Tax </td>
+                                    <td>
+                                        <div class="col-md-8"> {{Form::SelectExt(
+                                                                [
+                                                                "name"=>"EstimateTaxes[field][]",
+                                                                "data"=>$taxes,
+                                                                "selected"=>'',
+                                                                "value_key"=>"TaxRateID",
+                                                                "title_key"=>"Title",
+                                                                "data-title1"=>"data-amount",
+                                                                "data-value1"=>"Amount",
+                                                                "data-title2"=>"data-flatstatus",
+                                                                "data-value2"=>"FlatStatus",
+                                                                "class" =>"select2 small Taxentity EstimateTaxesFld  EstimateTaxesFldFirst",
+                                                                ]
+                                                                )}}
+                                        </div>
+                                        <div class="col-md-4"> {{Form::text('EstimateTaxes[value][]','',array("class"=>"form-control EstimateTaxesValue","readonly"=>"readonly"))}} </div></td>
+                                </tr>
+                            @endif
               <tr class="gross_total_estimate">
                 <td >Grand Total </td>
                 <td>{{Form::text('GrandTotalEstimate','',array("class"=>"form-control GrandTotalEstimate text-right","readonly"=>"readonly"))}}</td>
@@ -245,13 +272,13 @@
     <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
     <input type="hidden" name="CurrencyCode" value="{{$CurrencyCode}}">
     <input type="hidden" name="InvoiceTemplateID" value="{{$EstimateTemplateID}}">
-    <input type="hidden" name="TotalTax" value="" > 
+    <input type="hidden" name="TotalTax" value="" >
 </div>
 </form>
 <div id="rowContainer"></div>
 <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
+<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
+<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 <script type="text/javascript">
 var estimate_id = '{{$Estimate->EstimateID}}';
 var decimal_places = '{{$RoundChargesAmount}}';

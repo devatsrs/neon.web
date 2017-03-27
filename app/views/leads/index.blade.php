@@ -451,6 +451,7 @@
                     var SelectedIDs = getselectedIDs();
                     if (SelectedIDs.length == 0) {
                         $(".save").button('reset');
+                        $(".savetest").button('reset');
                         $('#modal-BulkMail').modal('hide');
                         toastr.error('Please select at least one lead or select all found leads.', "Error", toastr_opts);
                         return false;
@@ -462,6 +463,7 @@
 
                 if ($("#BulkMail-form").find("input[name='SelectedIDs']").val() != "" && confirm("Are you sure to send mail to selected leads") != true) {
                     $(".btn").button('reset');
+                    $(".savetest").button('reset');
                     $('#modal-BulkMail').modal('hide');
                     return false;
                 }
@@ -476,12 +478,14 @@
                     if(response.status =='success'){
                         toastr.success(response.message, "Success", toastr_opts);
                         $(".save").button('reset');
+                        $(".savetest").button('reset');
                         $('#modal-BulkMail').modal('hide');
                         data_table.fnFilter('', 0);
                         reloadJobsDrodown(0);
                     }else{
                         toastr.error(response.message, "Error", toastr_opts);
                         $(".save").button('reset');
+                        $(".savetest").button('reset');
                     }
                     $('.file-input-name').text('');
                     $('#attachment').val('');
@@ -633,20 +637,20 @@
             $('#TestMail-form').find('[name="EmailAddress"]').val('');
             $('#modal-TestMail').modal({show: true});
         });
-        $("#bull-email-account").click(function(e){
+        $("#mail-send").click(function(e){
             $("#BulkMail-form").find('[name="test"]').val(0);
         });
-        $('.alert').click(function(e){
+        $('.lead').click(function(e){
             e.preventDefault();
             var email = $('#TestMail-form').find('[name="EmailAddress"]').val();
             var accontID = $('#TestMail-form').find('[name="accountID"]').val();
             if(email==''){
                 toastr.error('Email field should not empty.', "Error", toastr_opts);
-                $(".alert").button('reset');
+                $(".lead").button('reset');
                 return false;
             }else if(accontID==''){
                 toastr.error('Please select sample account from dropdown', "Error", toastr_opts);
-                $(".alert").button('reset');
+                $(".lead").button('reset');
                 return false;
             }
             $('#BulkMail-form').find('[name="testEmail"]').val(email);
