@@ -132,9 +132,6 @@
         @if(User::checkCategoryPermission('Invoice','View'))
         <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
         @endif
-        @if(User::checkCategoryPermission('RecurringInvoices','View'))
-            <li> <a href="{{URL::to('/recurringinvoices')}}">  <span>Recurring</span> </a> </li>
-        @endif
       @if(User::checkCategoryPermission('Payments','View'))
         <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
       @endif
