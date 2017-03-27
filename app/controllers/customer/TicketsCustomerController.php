@@ -140,6 +140,41 @@ private $validlicense;
 			return $response->message;
 		}
 	}
+	
+	function ajex_result_export(){
+		
+	    $data 						= 	 Input::all(); 	
+		$data['Search'] 			= 	 $data['Search'];
+		$data['status'] 			= 	 isset($data['status'])?$data['status']:'';		
+		$data['priority']	 		= 	 isset($data['priority'])?$data['priority']:'';
+		$data['group'] 				= 	 isset($data['group'])?$data['group']:'';		
+		$data['agent']				= 	 isset($data['agent'])?$data['agent']:'';
+		$data['iSortCol_0']			= 	 $data['sort_fld'];
+		$data['sSortDir_0']			= 	 $data['sort_type'];
+		$data['Export'] 			= 	 $data['Export'];		
+		$data['iDisplayStart']		=	 0;
+		$data['iDisplayLength']		=	 100;	
+		$companyID					= 	 User::get_companyID();
+		$array						=  	 $this->GetResult($data); 
+		$resultpage  				=  	 $array->resultpage;			
+		$result 					= 	 $array->ResultCurrentPage;		
+		$type						=	 $data['export_type'];
+		
+		if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = $result;
+            $excel_data = json_decode(json_encode($excel_data),true);
+
+            if($type=='csv'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.csv';  Log::info("file_path:".$file_path);
+                $NeonExcel = new NeonExcelIO($file_path);
+              return  $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+              return  $NeonExcel->download_excel($excel_data);
+            }            
+        }		
+	}
 	  
 	function add()
 	{	

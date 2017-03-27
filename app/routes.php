@@ -70,6 +70,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/customer/tickets/{id}/detail','TicketsCustomerController@Detail');
 	Route::any('/customer/tickets/add','TicketsCustomerController@add');
 	Route::any('/customer/tickets/ajex_result','TicketsCustomerController@ajex_result'); 
+	Route::any('/customer/tickets/ajex_result_export','TicketsCustomerController@ajex_result_export'); 
 	Route::post('/customer/tickets/{id}/close_ticket', 'TicketsCustomerController@CloseTicket');
 	Route::any('/customer/tickets/{id}/edit', 'TicketsCustomerController@edit');
 	Route::any('/customer/tickets/{id}/update', "TicketsCustomerController@Update");
