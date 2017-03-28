@@ -3,7 +3,12 @@
      <li>
          <div class="thumb">{{ucfirst($row->UserName[0])}}</div>
          <div class="description">
-             <a href="{{URL::to('accounts/'.$row->UserID.'/show')}}" target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
+             @if($row->TimelineType == 3 && $row->TicketFieldID == 0 && $row->CustomerID != 0)
+                 <?php $url = URL::to('accounts/'.$row->UserID.'/show'); ?>
+             @else
+                 <?php $url = URL::to('users/edit/'.$row->UserID); ?>
+             @endif
+                 <a href="{{$url)}}" target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
              @if($row->TimelineType == 1)
                  @if($row->TicketSubmit == 1)
                      <span>Submitted a new ticket</span>
@@ -19,6 +24,8 @@
              @else
                 @if($row->TicketFieldID == Ticketfields::default_agent)
                     <span>assigned the ticket</span>
+                 @elseif($row->TicketFieldID == 0)
+                     <span>create the ticket</span>
                  @else
                      <span>updated ticket {{Ticketfields::$defaultTicketFields[$row->TicketFieldID]}} of</span>
                 @endif
@@ -29,7 +36,9 @@
                      <span>to {{$fieldPriority[$row->TicketFieldValueToID]}}</span>
                  @elseif($row->TicketFieldID == Ticketfields::default_agent)
                      <span>to</span>
-                     <a href="{{URL::to('/users/edit/'.$row->TicketFieldValueToID)}}" target="_blank" class="notelink">{{$agents[$row->TicketFieldValueToID]}}</a>
+                     <a href="{{URL::to('users/edit/'.$row->TicketFieldValueToID)}}" target="_blank" class="notelink">{{$agents[$row->TicketFieldValueToID]}}</a>
+                 @elseif($row->TicketFieldID == 0)
+
                  @else
                      <span>to {{$fieldValues[$row->TicketFieldValueToID]}}</span>
                  @endif

@@ -73,11 +73,13 @@ class TicketsTable extends \Eloquent
 			return $ValuesID;
 	}
 	
-	static function getTicketStatus(){
+	static function getTicketStatus($select=1){
 		//TicketfieldsValues::WHERE
 		 $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
             ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->lists('FieldValueAgent','ValuesID');
-			$row = array("0"=> "Select")+$row;
+        if($select==1) {
+            $row = array("0" => "Select") + $row;
+        }
 			return $row;
 	}
 	

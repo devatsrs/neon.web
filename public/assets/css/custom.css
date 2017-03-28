@@ -196,6 +196,11 @@ body {
     font-size:15px;
     margin-top:5px;
 }
+
+.ticket .tile-stats p{
+    font-size:15px;
+}
+
 .tile-orange{
     background:#E6AF32 none repeat scroll 0 0 !important;
 }

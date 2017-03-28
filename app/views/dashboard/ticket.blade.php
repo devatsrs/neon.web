@@ -58,7 +58,7 @@
                     </div>
 
                     <div class="col-sm-2 col-xs-4">
-                        <div class="tile-stats tile-purple">
+                        <div class="tile-stats tile-orange">
                             <div class="icon"><i class="entypo-clock"></i></div>
                             <a target="_blank" class="undefined" data-startdate=""
                                                              data-enddate="" data-currency=""
@@ -70,7 +70,7 @@
                     </div>
 
                     <div class="col-sm-2 col-xs-4">
-                        <div class="tile-stats tile-funchsia">
+                        <div class="tile-stats tile-red">
                             <div class="icon"><i class="entypo-help"></i></div>
                             <a target="_blank" class="undefined" data-startdate=""
                                                                data-enddate="" data-currency=""
@@ -181,6 +181,7 @@
                         option["type"] = 'Unresolved';
                         option['sign'] = 'users';
                         option['class']     = 'tile-aqua';
+                        option['url']   = '{{URL::to('tickets?status='.implode(',',array_keys($unresovled)))}}';
                         widgets += buildbox(option);
 
                         option["amount"] = response.Open;
@@ -188,20 +189,23 @@
                         option["type"] = 'Open';
                         option['sign'] = 'ticket';
                         option['class']     = 'tile-cyan';
+                        option['url']   = '{{URL::to('tickets?status='.array_search('Open', $status))}}';
                         widgets += buildbox(option);
 
                         option["amount"] = response.OnHold;
                         option["end"] = response.OnHold;
                         option["type"] = 'On Hold';
                         option['sign'] = 'clock';
-                        option['class']     = 'tile-purple';
+                        option['class']     = 'tile-orange';
+                        option['url']   = '{{URL::to('tickets?status='.array_search('Pending', $status))}}';
                         widgets += buildbox(option);
 
                         option["amount"] = response.UnAssigned;
                         option["end"] = response.UnAssigned;
                         option["type"] = 'Unassigned';
                         option['sign'] = 'help';
-                        option['class']     = 'tile-funchsia';
+                        option['class']     = 'tile-red';
+                        option['url']   = '{{URL::to('tickets')}}';
                         widgets += buildbox(option);
 
                         $('#ticket-widgets').html(widgets);
@@ -218,7 +222,7 @@
                 html = '<div class="col-sm-2 col-xs-4">';
                 html += ' <div class="tile-stats '+option['class']+'">';
                 html += '<div class="icon"><i class="entypo-' + option['sign'] + '"></i></div>';
-                html += '  <a href="' + option['url'] + '">';
+                html += '  <a href="' + option['url'] + '" target="_blank">';
                 html += '   <div class="num" data-start="0" data-end="' + option['end'] + '" data-duration="1500" data-delay="1200">' + option['amount'] + '</div>';
                 html += '    <p>' + option['type'] + '</p>';
                 html += '  </a>';
