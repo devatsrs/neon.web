@@ -1,7 +1,10 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateRateSheet`(
+USE `Ratemanagement3`;
+
+DROP PROCEDURE IF EXISTS `prc_WSGenerateRateSheet`;
+DELIMITER |
+CREATE PROCEDURE `prc_WSGenerateRateSheet`(
 	IN `p_CustomerID` INT,
 	IN `p_Trunk` VARCHAR(100)
-
 )
 BEGIN
     DECLARE v_trunkDescription_ VARCHAR(50);
@@ -434,4 +437,5 @@ BEGIN
         END IF; 
         
         SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END
+END|
+DELIMITER ;
