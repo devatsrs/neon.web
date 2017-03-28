@@ -3,12 +3,7 @@
      <li>
          <div class="thumb">{{ucfirst($row->UserName[0])}}</div>
          <div class="description">
-             @if($row->TimelineType == 3 && $row->TicketFieldID == 0 && $row->CustomerID != 0)
-                 <?php $url = URL::to('accounts/'.$row->UserID.'/show'); ?>
-             @else
-                 <?php $url = URL::to('users/edit/'.$row->UserID); ?>
-             @endif
-                 <a href="{{$url)}}" target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
+             <a href="{{($row->TimelineType == 3 && $row->TicketFieldID == 0 && $row->CustomerID != 0)?(URL::to('accounts/'.$row->UserID.'/show')):URL::to('users/edit/'.$row->UserID)}}" target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
              @if($row->TimelineType == 1)
                  @if($row->TicketSubmit == 1)
                      <span>Submitted a new ticket</span>
