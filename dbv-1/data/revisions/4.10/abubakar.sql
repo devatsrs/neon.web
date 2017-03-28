@@ -1,5 +1,8 @@
 USE `Ratemanagement3`;
 
+ALTER TABLE `tblNote`
+	ADD COLUMN `UserID` INT(11) NOT NULL AFTER `AccountID`;
+
 UPDATE `tblResourceCategories` SET `ResourceCategoryName` = 'RecurringProfile.Add' WHERE `ResourceCategoryName`= 'RecurringInvoice.Add';
 UPDATE `tblResourceCategories` SET `ResourceCategoryName` = 'RecurringProfile.Edit' WHERE `ResourceCategoryName`= 'RecurringInvoice.Edit';
 UPDATE `tblResourceCategories` SET `ResourceCategoryName` = 'RecurringProfile.Delete' WHERE `ResourceCategoryName`= 'RecurringInvoice.Delete';
