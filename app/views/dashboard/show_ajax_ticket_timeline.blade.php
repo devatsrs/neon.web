@@ -8,8 +8,7 @@
                  @if($row->TicketSubmit == 1)
                      <span>Submitted a new ticket</span>
                  @else
-                    <span>has sent a </span>
-                     <a href="{{URL::to('/tickets/'.$row->TicketID.'/detail#message').$row->RecordID}}" target="_blank" class="notelink">Reply</a>
+                     <a href="{{URL::to('/tickets/'.$row->TicketID.'/detail#message').$row->RecordID}}" target="_blank" class="notelink">Replied</a>
                      <span>to the ticket</span>
                  @endif
              @elseif($row->TimelineType == 2)
@@ -20,7 +19,7 @@
                 @if($row->TicketFieldID == Ticketfields::default_agent)
                     <span>assigned the ticket</span>
                  @elseif($row->TicketFieldID == 0)
-                     <span>create the ticket</span>
+                     <span>created the ticket</span>
                  @else
                      <span>updated ticket {{Ticketfields::$defaultTicketFields[$row->TicketFieldID]}} of</span>
                 @endif
