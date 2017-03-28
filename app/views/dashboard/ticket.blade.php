@@ -114,7 +114,7 @@
             SummaryWidgets(1);
             last_msg_funtion();
             $(window).scroll(function(){
-                if ($(window).scrollTop() == $(document).height() - $(window).height()){
+                if ($(window).scrollTop() >= ($('#activity-timeline li:last-child').offset().top - 300 )){
 
                     setTimeout(function() {
                         last_msg_funtion(0);
