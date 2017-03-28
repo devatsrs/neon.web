@@ -316,8 +316,11 @@ Form::macro('selectItem', function($name, $data , $selected , $extraparams )
     return $output;
 });
 
-Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,$nameID='') {
+Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,$nameID='',$initialize=1) {
     $small = $compact==1?"small":'';
+    $select2 = $initialize==1?"select2":'select22';//for manual initialize set 0.
+    $isComposit = 0;
+    $extraClass = '';
     $name = '';
     $modal = '';
     $data = [];
@@ -345,6 +348,12 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
         $name = 'ProductID';
         $modal = 'add-edit-modal-product';
         $data = Product::getProductDropdownList();
+    }elseif($type=='item_and_Subscription'){
+        $name = 'ProductItemID';
+        $modal = 'add-edit-modal-product-subscription';
+        $data = [Product::ITEM=>Product::getProductDropdownList() ,Product::SUBSCRIPTION=> BillingSubscription::getSubscriptionsList()];
+        $extraClass = 'product_dropdown';
+        $isComposit = 1;
     }elseif($type=='service'){
         $name = 'ServiceID';
         $modal = 'add-new-modal-service';
@@ -353,12 +362,45 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
     if(!empty($nameID)){
         $name= $nameID;
     }
-    $arr = ['class' => 'select2 select2add '.$small , 'data-modal' => $modal, 'data-active'=>0,'data-type'=>$type];
+    //select2add    :for Add button
+    //data-modal    :for target open modal
+    //data-active   :For current active drop-down
+    //data-type     :For drop-down recognition while adding new item
+    //small         :For compact drop-down
+    //extraClass    :Any extra class add to drop-down
+    //data-composite :For drop-down recognition while adding new item
+    $arr = ['class' => $select2.' select2add '.$small.' '.$extraClass , 'data-modal' => $modal, 'data-active'=>0,'data-type'=>$type];
     if($disable==1){
         $arr['disabled'] = 'disabled';
     }
-    return Form::select($name,$data , $selection, $arr);
+    if($isComposit==1){
+        $arr['data-composite'] = 1;
+       return compositDropdown($name, $data, $selection, $arr);
+    }
+    return Form::select($name, $data, $selection, $arr);
 });
+
+function compositDropdown($name,$data,$selection,$arr)
+{
+    $attr = '';
+    foreach($arr as $index=>$att){
+        $attr .= $index.'="'.$att.'" ';
+    }
+    $select = '<select name="'.$name.'" '.$attr.'>';
+    foreach($data as $index=>$cate){
+        $select .= ' <optgroup class="optgroup_'.Product::$TypetoProducts[$index].'" label="'.ucfirst(Product::$TypetoProducts[$index]).'">';
+        foreach($cate as $key=>$val) {
+            $selected = (!empty($selection) && $key==$selection['ID'] && $index==$selection['Type'])?'selected':'';
+            $select .= '    <option value="' . $key . '" '.$selected.'>';
+            $select .= $val;
+            $select .= '    </option>';
+        }
+        $select .= ' </optgroup>';
+    }
+    $select .= '</select>';
+    return $select;
+}
+
 
 function is_amazon($CompanyID = 0){
 	
@@ -1011,12 +1053,12 @@ function get_random_number(){
 // sideabar submenu open when click on
 function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
-    $path_array 	  =    explode("Controller",$Path); 
+    $path_array 	  =    explode("Controller",$Path);
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup","DialString");
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
-	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup");
+	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
 	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");

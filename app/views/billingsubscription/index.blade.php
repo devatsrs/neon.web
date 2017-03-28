@@ -70,11 +70,13 @@
 <table class="table table-bordered datatable" id="table-4">
 <thead>
 <tr>
-    <th width="30%">Name</th>
-    <th width="15%">Monthly Fee</th>
-    <th width="15%">Weekly Fee</th>
-    <th width="15%">Daily Fee</th>
-    <th width="15%">Advance Subscription</th>
+    <th width="25%">Name</th>
+    <th width="10%">Annually Fee</th>
+    <th width="10%">Quarterly Fee</th>
+    <th width="10%">Monthly Fee</th>
+    <th width="10%">Weekly Fee</th>
+    <th width="10%">Daily Fee</th>
+    <th width="10%">Advance Subscription</th>
     <th width="15%">Action</th>
 </tr>
 </thead>
@@ -93,7 +95,7 @@ jQuery(document).ready(function ($) {
     public_vars.$body = $("body");
     //show_loading_bar(40);
 
-    var list_fields  = ["Name","MonthlyFeeWithSymbol","WeeklyFeeWithSymbol","DailyFeeWithSymbol","Advance","SubscriptionID" , "ActivationFee","CurrencyID","InvoiceLineDescription","Description", "MonthlyFee", "WeeklyFee", "DailyFee"];
+    var list_fields  = ["Name","AnnuallyFeeWithSymbol","QuarterlyFeeWithSymbol","MonthlyFeeWithSymbol","WeeklyFeeWithSymbol","DailyFeeWithSymbol","Advance","SubscriptionID" , "ActivationFee","CurrencyID","InvoiceLineDescription","Description","AnnuallyFee", "QuarterlyFee", "MonthlyFee", "WeeklyFee", "DailyFee"];
     $searchFilter.FilterName = $("#billing_subscription_filter [name='FilterName']").val();
     $searchFilter.FilterCurrencyID = $("#billing_subscription_filter select[name='FilterCurrencyID']").val();
     $searchFilter.FilterAdvance = $("#billing_subscription_filter select[name='FilterAdvance']").val();
@@ -116,6 +118,8 @@ jQuery(document).ready(function ($) {
         "aoColumns":
         [
             {  "bSortable": true },  //0  [Name]', '', '', '
+            {  "bSortable": true }, //1   [AnnuallyFee]
+            {  "bSortable": true }, //1   [QuarterlyFee]
             {  "bSortable": true }, //1   [MonthlyFee]
             {  "bSortable": true }, //2   [WeeklyFee]
             {  "bSortable": true }, //3   [DailyFee]
@@ -197,103 +201,55 @@ jQuery(document).ready(function ($) {
         replaceCheckboxes();
     });
 
-$("#billing_subscription_filter").submit(function(e){
-        e.preventDefault();
-        $searchFilter.FilterName = $("#billing_subscription_filter [name='FilterName']").val();
-        $searchFilter.FilterCurrencyID = $("#billing_subscription_filter select[name='FilterCurrencyID']").val();
-       // $searchFilter.FilterAdvance = $("#billing_subscription_filter [name='FilterAdvance']").prop("checked");
-        $searchFilter.FilterAdvance = $("#billing_subscription_filter select[name='FilterAdvance']").val();
-        data_table.fnFilter('', 0);
-        return false;
-});
-
-$('#add-new-billing_subscription').click(function(ev){
-    ev.preventDefault();
-    $('#add-new-billing_subscription-form').trigger("reset");
-    $("#add-new-billing_subscription-form [name='SubscriptionID']").val('');
-    $('#add-new-modal-billing_subscription h4').html('Add New Subscription');
-    $('#add-new-modal-billing_subscription').modal('show');
-    $("#add-new-modal-billing_subscription [name=CurrencyID]").prop("disabled",false);
-    $("#add-new-billing_subscription-form select[name=CurrencyID]").val('').trigger("change");
-
-});
-$('table tbody').on('click','.edit-billing_subscription',function(e){
-    e.preventDefault();
-    e.stopPropagation();
-
-    $('#add-new-billing_subscription-form').trigger("reset");
-    $('#add-new-modal-billing_subscription').modal('show');
-
-    var $this = $(this);
-    $.each(list_fields, function( index, field_name ) {
-        $("#add-new-billing_subscription-form [name='"+field_name+"']").val($this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val());
-        if(field_name =='CurrencyID'){
-            $("#add-new-billing_subscription-form [name='"+field_name+"']").val($this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val()).trigger("change");
-        }else if(field_name == 'Advance'){
-            if($this.prev("div.hiddenRowData").find("input[name='Advance']").val() == 1 ){
-                $('#add-new-billing_subscription-form [name="Advance"]').prop('checked',true)
-            }else{
-                $('#add-new-billing_subscription-form [name="Advance"]').prop('checked',false)
-            }
-        }
+    $("#billing_subscription_filter").submit(function(e){
+            e.preventDefault();
+            $searchFilter.FilterName = $("#billing_subscription_filter [name='FilterName']").val();
+            $searchFilter.FilterCurrencyID = $("#billing_subscription_filter select[name='FilterCurrencyID']").val();
+           // $searchFilter.FilterAdvance = $("#billing_subscription_filter [name='FilterAdvance']").prop("checked");
+            $searchFilter.FilterAdvance = $("#billing_subscription_filter select[name='FilterAdvance']").val();
+            data_table.fnFilter('', 0);
+            return false;
     });
-    if($("#add-new-modal-billing_subscription select[name=CurrencyID]").val() > 0 ){
-        //$("#add-new-modal-billing_subscription select[name=CurrencyID]").prop("disabled",true);
-    }
 
-    $('#add-new-modal-billing_subscription h4').html('Edit Subscription');
+    $('#add-new-billing_subscription').click(function(ev){
+        ev.preventDefault();
+        $('#add-new-billing_subscription-form').trigger("reset");
+        $("#add-new-billing_subscription-form [name='SubscriptionID']").val('');
+        $('#add-new-modal-billing_subscription h4').html('Add New Subscription');
+        $('#add-new-modal-billing_subscription').modal('show');
+        $("#add-new-modal-billing_subscription [name=CurrencyID]").prop("disabled",false);
+        $("#add-new-billing_subscription-form select[name=CurrencyID]").val('').trigger("change");
 
-});
+    });
+    $('table tbody').on('click','.edit-billing_subscription',function(e){
+        e.preventDefault();
+        e.stopPropagation();
 
-$('#add-new-billing_subscription-form').submit(function(e){
-    e.preventDefault();
-    var SubscriptionID = $("#add-new-billing_subscription-form [name='SubscriptionID']").val()
-    if( typeof SubscriptionID != 'undefined' && SubscriptionID != ''){
-        update_new_url = baseurl + '/billing_subscription/update/'+SubscriptionID;
-    }else{
-        update_new_url = baseurl + '/billing_subscription/create';
-    }
-    var formData =  $(this).serialize();//  new FormData($('#add-new-billing_subscription-form')[0]);
-    submit_ajax(update_new_url,formData);
-    return false;
-});
-$("#add-new-modal-billing_subscription [name=MonthlyFee]").change(function(){
-        var monthly = $(this).val();
-        weekly =  parseFloat(monthly / 30 * 7);
-        daily = parseFloat(monthly / 30);
+        $('#add-new-billing_subscription-form').trigger("reset");
+        $('#add-new-modal-billing_subscription').modal('show');
 
-        decimal_places = 2;
-
-        $("#add-new-modal-billing_subscription [name=WeeklyFee]").val(weekly.toFixed(decimal_places));
-        $("#add-new-modal-billing_subscription [name=DailyFee]").val(daily.toFixed(decimal_places));
-});
-});
-
-function ajax_update(fullurl,data){
-//alert(data)
- $.ajax({
-    url:fullurl, //Server script to process data
-    type: 'POST',
-    dataType: 'json',
-    success: function(response) {
-        $("#billing_subscription-update").button('reset');
-        if (response.status == 'success') {
-            $('#add-new-modal-billing_subscription').modal('hide');
-            toastr.success(response.message, "Success", toastr_opts);
-            if( typeof data_table !=  'undefined'){
-                data_table.fnFilter('', 0);
+        var $this = $(this);
+        $.each(list_fields, function( index, field_name ) {
+            var val = $this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val();
+            $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val?val:'');
+            if(field_name =='CurrencyID'){
+                $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val).trigger("change");
+            }else if(field_name == 'Advance'){
+                if(val == 1 ){
+                    $('#add-new-billing_subscription-form [name="Advance"]').prop('checked',true)
+                }else{
+                    $('#add-new-billing_subscription-form [name="Advance"]').prop('checked',false)
+                }
             }
-        } else {
-            toastr.error(response.message, "Error", toastr_opts);
+        });
+        if($("#add-new-modal-billing_subscription select[name=CurrencyID]").val() > 0 ){
+            //$("#add-new-modal-billing_subscription select[name=CurrencyID]").prop("disabled",true);
         }
-    },
-    data: data,
-    //Options to tell jQuery not to process data or worry about content-type.
-    cache: false,
-    contentType: false,
-    processData: false
+
+        $('#add-new-modal-billing_subscription h4').html('Edit Subscription');
+
+    });
 });
-}
 
 </script>
 <style>
@@ -305,87 +261,19 @@ right: 30px !important;
 }
 </style>
 @include('currencies.currencymodal')
+
+
 @stop
 @section('footer_ext')
 @parent
 <div class="modal fade custom-width" id="add-new-modal-billing_subscription">
 <div class="modal-dialog modal-lg">
     <div class="modal-content">
-        <form id="add-new-billing_subscription-form" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Add New Subscription</h4>
-            </div>
-            <div class="modal-body">
-
-                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Name</label>
-                        <div class="col-sm-4">
-                                <input type="text" name="Name" class="form-control" id="field-5" placeholder="">
-                        </div>
-
-                        <label for="field-1" class="col-sm-2 control-label">Description</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Invoice Line Description</label>
-                        <div class="col-sm-4">
-                                  <input type="text" name="InvoiceLineDescription" class="form-control" id="field-1" placeholder="" value="" />
-                         </div>
-                        <label for="field-1" class="col-sm-2 control-label">Monthly Fee</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="MonthlyFee" class="form-control"   maxlength="10" id="field-1" placeholder="" value="" />
-                         </div>
-
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Weekly Fee</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="WeeklyFee" class="form-control"   maxlength="10" id="field-1" placeholder="" value="" />
-                         </div>
-
-                         <label for="field-1" class="col-sm-2 control-label">Daily Fee</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="DailyFee" class="form-control" maxlength="10" id="field-1" placeholder="" value="" />
-                         </div>
-
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Currency</label>
-                        <div class="col-sm-4">
-                            {{Form::SelectControl('currency')}}
-                            <!--{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control select2 small"))}}-->
-                        </div>
-
-                        <label for="field-1" class="col-sm-2 control-label">Activation Fee</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="ActivationFee" class="form-control" maxlength="10" placeholder="" value=""  />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Advance Subscription</label>
-                        <div class="col-sm-4">
-                        <p class="make-switch switch-small">
-                            <input id="Advance" name="Advance" type="checkbox" value="1" >
-                        </p>
-                        </div>
-                    </div>
-
-              </div>
-            <div class="modal-footer">
-                <input type="hidden" name="SubscriptionID" value="" />
-                <button type="submit" id="billing_subscription-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                    <i class="entypo-floppy"></i>
-                    Save
-                </button>
-                <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                    <i class="entypo-cancel"></i>
-                    Close
-                </button>
-            </div>
-        </form>
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Add New Subscription</h4>
+        </div>
+        @include('billingsubscription.subscriptionform')
     </div>
 </div>
 </div>
