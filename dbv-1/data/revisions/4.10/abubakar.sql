@@ -6,6 +6,12 @@ UPDATE `tblResourceCategories` SET `ResourceCategoryName` = 'RecurringProfile.De
 UPDATE `tblResourceCategories` SET `ResourceCategoryName` = 'RecurringProfile.View' WHERE `ResourceCategoryName`= 'RecurringInvoice.View';
 UPDATE `tblResourceCategories` SET `ResourceCategoryName` = 'RecurringProfile.All' WHERE `ResourceCategoryName`= 'RecurringInvoice.All';
 
+INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('TicketDashboardSummaryWidgets.View', '1');
+INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('TicketDashboardTimeLineWidgets.View', '1');
+
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='TicketDashboardSummaryWidgets.View' limit 1) WHERE  `ResourceName`='TicketDashboard.ticketSummaryWidget';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='TicketDashboardTimeLineWidgets.View' limit 1) WHERE  `ResourceName`='TicketDashboard.ticketTimeLineWidget';
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCronJobHistory`(
 	IN `p_CronJobID` INT,
 	IN `p_StartDate` DATETIME,
