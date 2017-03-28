@@ -15,7 +15,6 @@ BEGIN
 	END;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
-	CALL fnGetCountry();
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
  
@@ -47,13 +46,7 @@ BEGIN
 	SET tmp_UsageSummary.CountryID =code.CountryID
 	WHERE tmp_UsageSummary.CompanyID = p_CompanyID AND code.CountryID > 0;
 
-	UPDATE tmp_UsageSummary
-	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_UsageSummary 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
-	ON tmp_UsageSummary.AreaPrefix = TBL.AreaPrefix
-	SET tmp_UsageSummary.CountryID =TBL.CountryID 
-	WHERE tmp_UsageSummary.CompanyID = p_CompanyID AND tmp_UsageSummary.CountryID IS NULL;
 	DELETE FROM tmp_SummaryHeader WHERE CompanyID = p_CompanyID;
- 	
 	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryHeaderID,
@@ -90,7 +83,6 @@ BEGIN
 	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
 	
 	DELETE FROM tmp_SummaryHeader WHERE CompanyID = p_CompanyID;
- 	
 	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryHeaderID,
