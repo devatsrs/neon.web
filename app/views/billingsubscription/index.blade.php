@@ -231,7 +231,7 @@ jQuery(document).ready(function ($) {
         var $this = $(this);
         $.each(list_fields, function( index, field_name ) {
             var val = $this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val();
-            $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val?val:'');
+            $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val!='null'?val:'');
             if(field_name =='CurrencyID'){
                 $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val).trigger("change");
             }else if(field_name == 'Advance'){
