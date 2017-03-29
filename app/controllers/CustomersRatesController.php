@@ -291,10 +291,10 @@ class CustomersRatesController extends \BaseController {
                 if (isset($data['test']) && $data['test'] == 1) {
                     $test = 1;
                 }
-                /*if ($test == 0) {
+                //if ($test == 0) {
                     $data['customer'][] = $id;
                     $data['SelectedIDs'] = implode(',', $data['customer']);
-                }*/
+                //}
                 unset($data['customer']);
                 unset($data['account_owners']);
                 unset($data['Type']);
