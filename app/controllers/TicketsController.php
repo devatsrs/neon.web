@@ -78,7 +78,7 @@ private $validlicense;
 	  }	
 	  
 	  public function ajex_result() {
-		
+	
 	    $data 						= 	Input::all(); 
 		$data['currentpages']		=	$data['currentpage'];
 		if($data['clicktype']=='next'){
@@ -113,14 +113,15 @@ private $validlicense;
 		$iDisplayLength 			= 	 $data['iDisplayLength'];
 		$Sortcolumns				=	 TicketsTable::$Sortcolumns;
 		$pagination					=	 TicketsTable::$pagination;
+		
 		if(count($result)<1)
 		{
-			if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
+			//if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
 				
-				return json_encode(array("result"=>"No Result found for ".$data['SearchStr']));
-			}else{			
+				return json_encode(array("result"=>"No Result "));
+			//}else{			
 				return '';
-			}
+			//}
 		}
 		 $ClosedTicketStatus   = TicketsTable::getClosedTicketStatus(true);
 		 $ResolvedTicketStatus = TicketsTable::getResolvedTicketStatus(true);

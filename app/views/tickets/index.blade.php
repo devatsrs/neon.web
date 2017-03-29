@@ -225,12 +225,13 @@ $(document).ready(function(e) {
 					async :false,
 					data:{formData:$search,currentpage:currentpage,per_page:per_page,total:total,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type},
 					success: function(response) {
+						
 						if(response.length>0)
 						{
 							if(isJson(response))
 							{
-								jsonstr =  JSON.parse(response);
-								$('#table-4 tbody').html('<tr><td align="center" colspan="5">'+jsonstr.result+'</td></tr>');
+								jsonstr =  JSON.parse(response); 
+								$('#table-4 tbody').html('<tr><td class="col-name  borderside bordersideLow " align="center" colspan="2">'+jsonstr.result+'</td></tr>');
 								
 								if(clicktype=='next')
 								 {
@@ -260,7 +261,9 @@ $(document).ready(function(e) {
 								$('.mail-select-options .select2').css("visibility","visible");
 						}
 						else
-						{ 					
+						{ 	
+												
+												
 							if(clicktype=='next')
 							 {
 								$('.next').addClass('disabled');
