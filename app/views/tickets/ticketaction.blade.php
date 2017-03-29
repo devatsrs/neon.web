@@ -11,7 +11,7 @@
       </div>
       <div class="form-group">
         <label for="EmailActionTo">* To:</label>
-        <input type="text"  class="form-control" name="email-to" id="EmailActionTo" value="<?php 
+        <input type="text"  class="form-control emailaddresses" name="email-to" id="EmailActionTo" value="<?php 
 	if($action_type!='forward')
 	{
 		if(isset($AccountEmail))
@@ -23,12 +23,17 @@
         <div class="field-options"> 
         @if(empty($cc))
         <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replycc').parent().removeClass('hidden'); $('#replycc').focus();">CC</a> 
+        <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replybcc').parent().removeClass('hidden'); $('#replybcc').focus();">BCC</a> 
         @endif      
          </div>
       </div>
       <div class="form-group @if(empty($cc)) hidden @endif">
         <label for="cc">CC</label>
-        <input type="text" name="cc"  class="form-control tags"  value="{{$cc}}" id="replycc" />
+        <input type="text" name="cc"  class="form-control emailaddresses tags"  value="{{$cc}}" id="replycc" />
+      </div>   
+      <div class="form-group @if(empty($bcc)) hidden @endif">
+        <label for="cc">BCC</label>
+        <input type="text" name="bcc"  class="form-control emailaddresses tags"  value="{{$bcc}}" id="replybcc" />
       </div>            
       <div class="form-group">
         <label for="EmailActionSubject">* Subject:</label>
@@ -69,4 +74,6 @@ Date: <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.
 	 emailFileListReply.push(img_array_final[i].filename);	
  }
 	@endif
+	
+	
 </script>

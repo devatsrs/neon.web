@@ -280,7 +280,8 @@
 .mail-env .mail-body .mail-header .mail-title{float:none !important;}
 .mail-env .mail-body .mail-header .mail-date{padding:0px; text-align:inherit;}
 .Requester_Info{padding:10px !important;}
-.panel-primary > .panel-heading-convesation{min-height:73px !important;}
+.panel-primary > .panel-heading-convesation{min-height:80px !important;}
+.panel-primary > .panel-heading-convesation .panel-title{font-size:12px !important; }
 </style>
 <link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
 <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
@@ -321,6 +322,10 @@ $(document).ready(function(e) {
 					$('#EmailAction-model').modal('show');
 				 	//mod.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
         			//mod.find('.message').show();
+					   
+				mod.find('.emailaddresses').select2({
+        	    tags:{{$AllEmailsTo}}
+       	 		});
 				mod.find("select").select2({
                     minimumResultsForSearch: -1
                 });
@@ -342,12 +347,14 @@ $(document).ready(function(e) {
 				});
 				 }, 500);
 				
-		    
-			},
-		});
+		   
+			
+			
+			
+		},
 	});
 	
-	
+	});
 	$( document ).on("click",'.add_note' ,function(e) {		 
 		var mod = $('#add-note-model');
 		mod.modal("show");	
@@ -647,6 +654,8 @@ $(document).ready(function(e) {
 				return false;
             });
 			@endif
+			
+			 
 });
 setTimeout(setagentval(),6000);
 	function setagentval(){
