@@ -214,7 +214,9 @@ private $validlicense;
 		    $response_extensions		=	json_encode($response_api_extensions['allowed_extensions']); 
 			$max_file_size				=	get_max_file_size();	
 			
-			$AllEmails 					= 	implode(",",(Messages::GetAllSystemEmailsWithName(0,true))); 
+			//$AllEmails 					= 	implode(",",(Messages::GetAllSystemEmailsWithName(0,true))); 
+			$AllEmails 					= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
+			
 			$default_status				=	TicketsTable::getDefaultStatus();
 			
 		   $agentsAll = DB::table('tblTicketGroupAgents')
@@ -576,7 +578,8 @@ private $validlicense;
 		if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); }		
 		$response_extensions		=		json_encode($response_api_extensions['allowed_extensions']);
 		$max_file_size				=		get_max_file_size();
-		$AllEmails 					= 		json_encode(Messages::GetAllSystemEmails()); 	
+		//$AllEmails 				= 		json_encode(Messages::GetAllSystemEmails()); 	
+		$AllEmails 					= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
 		$AllEmailsTo 				= 		Messages::GetAllSystemEmails(0,true); 	
 		$CompanyID 		 			= 		User::get_companyID(); 
 		//echo "<pre>"; print_r($AllEmailsTo); exit;
