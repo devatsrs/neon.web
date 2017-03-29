@@ -245,7 +245,8 @@ private $validlicense;
 			$CompanyID 		   			= 	 User::get_companyID();	
 			$htmlgroupID 	   			= 	 $ResponseData->htmlgroupID;
 			$htmlagentID       			= 	 $ResponseData->htmlagentID;
-			$AllEmails 					= 	 implode(",",(Messages::GetAllSystemEmailsWithName(0,true))); 
+			//$AllEmails 					= 	 implode(",",(Messages::GetAllSystemEmailsWithName(0,true))); 
+			$AllEmails 					= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
 		    $agentsAll 					=	 $ResponseData->agentsAll;			
 		    $ticketSavedData			= 	 json_decode(json_encode($ResponseData->ticketSavedData),true);
 			$random_token	  			=	 get_random_number();
@@ -441,9 +442,9 @@ private $validlicense;
 					 $ticketemaildata			 =	AccountEmailLog::find($ticketdata->AccountEmailLogID); 
 					 $ClosedTicketStatus   		 =  TicketsTable::getClosedTicketStatus();						 
 					 TicketsTable::where(["TicketID"=>$id])->update(["Read"=>1]);
-					 
+					 $AllEmailsTo		= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
 					
-					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester','ClosedTicketStatus'));  		  
+					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester','ClosedTicketStatus','AllEmailsTo'));  		  
 			}else{
           	  return view_response_api($response_details);
          	}			 
@@ -468,14 +469,16 @@ private $validlicense;
 			$AccountEmail 		 = 	  $ResponseData['AccountEmail'];	
 			$parent_id			 =	  $ResponseData['parent_id'];
 			$cc					 =	  $ResponseData['Cc'];
-			//$bcc				 =	  $ResponseData['Bcc'];
+			$bcc				 =	  $ResponseData['Bcc'];
 			$GroupEmail			 =	  $ResponseData['GroupEmail'];	
 			if($action_type=='forward'){ //attach current email attachments
 				$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths']);
 			}
 			
-			$FromEmails	 				 =  TicketGroups::GetGroupsFrom();			
-			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail','conversation'));  
+			$FromEmails	 				=  TicketGroups::GetGroupsFrom();			
+			$AllEmailsTo 				= 	json_encode(Messages::GetAllSystemEmails(0,true)); 	
+	//		$AllEmails 					= 	json_encode(Messages::GetAllSystemEmails(0,true)); 
+			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail','conversation','AllEmailsTo'));  
 		}else{
             return view_response_api($response);
         }		
