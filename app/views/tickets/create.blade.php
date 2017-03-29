@@ -38,7 +38,7 @@
 				$required[] =  array("id"=>$id,"title"=>$TicketfieldsData->FieldName);
 			?>
             <div class="col-sm-6">
-            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control typeahead formfld" spellcheck="false" dir="auto"  data-local="{{$AllEmails}}"   placeholder="{{$TicketfieldsData->AgentLabel}}" />           
+            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control requestersearch typeahead formfld" spellcheck="false" dir="auto"     placeholder="{{$TicketfieldsData->AgentLabel}}" />           
             <span><a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#reqcc').removeClass('hidden'); $('#cc').focus();">CC</a> </span>
             </div>
             <div class="col-sm-3 dropdown" style="padding:0;">
@@ -231,8 +231,23 @@ var required_flds	  =          '{{json_encode($required)}}';
 
     jQuery(document).ready(function($) {
 		 $('.useremails').select2({
-            tags:{{$AllEmailsccbcc}}
+            tags:{{$AllEmails}}
         });
+		
+		
+		
+			$('.requestersearch').select2({
+    tags: true,
+	 tags:{{$AllEmails}},
+    tokenSeparators: [','],
+  // max emails is 1
+    maximumSelectionSize:1,
+
+    // override message for max tags
+    formatSelectionTooBig: function (limit) {
+        return "Maximum "+limit+" email is allowed";
+    }
+});
 		
 		
 		function validate_form()
