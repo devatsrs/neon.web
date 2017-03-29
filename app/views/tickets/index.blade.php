@@ -31,7 +31,7 @@
             <label for="field-1" class="col-sm-1 control-label small_label">Search</label>
             <div class="col-sm-2"> {{ Form::text('search', '', array("class"=>"form-control")) }} </div>
             <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-            <div class="col-sm-2"> {{Form::select('status[]', $status, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+            <div class="col-sm-2"> {{Form::select('status[]', $status, (Input::get('status')?explode(',',Input::get('status')):'') ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
             <label for="field-1" class="col-sm-1 control-label small_label">Priority</label>
             <div class="col-sm-2"> {{Form::select('priority[]', $Priority, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
             <label for="field-1" class="col-sm-1 control-label small_label">Group</label>
