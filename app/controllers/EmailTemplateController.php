@@ -121,6 +121,8 @@ class EmailTemplateController extends \BaseController {
 		if($template->userID==User::get_userID()){
             $instance['Privacy'] = 1;
         } 
+		$instance['TicketTemplate'] = $template->TicketTemplate;
+		
         return $instance;
     }
 

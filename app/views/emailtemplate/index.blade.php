@@ -286,6 +286,9 @@ var popup_type	=	0;
 				}else{ 
 					$('.status_switch').bootstrapSwitch('setState', false);
 				}
+				if(data['TicketTemplate']){
+					$("#add-new-template-form .email_from").addClass('hidden');
+				}
                 $('#add-new-modal-template h4').html('Edit template');
 				template_type_val = $('#add-new-modal-template').find('.template_type').val();				
               //  $('#add-new-modal-template').modal('show');
