@@ -104,9 +104,15 @@ $readonly = ''; $disable = ''; if(!User::checkCategoryPermission('Tickets','Edit
 				}					
 				else
 				{
-			 	 
-					$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
-					foreach($FieldValues as $FieldValuesData){
+			 	 	$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
+					
+					foreach($FieldValues as $FieldValuesData){						
+							if($TicketfieldsData->FieldType == 'default_status')
+							{
+								if($FieldValuesData->FieldValueAgent==TicketfieldsValues::$Status_UnResolved){	
+									continue;
+								}
+							}
 					?>
         <option @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->ValuesID) selected  @endif  value="{{$FieldValuesData->ValuesID}}">{{$FieldValuesData->FieldValueAgent}}</option>
         <?php
