@@ -21,14 +21,13 @@ class PHPMAILERIntegtration{
 			Config::set('mail.from.name',$config->CompanyName);
 		}
 		Config::set('mail.from.name',$config->CompanyName);
-		Config::set('mail.encryption',($config->IsSSL==1?'SSL':'TLS'));
+		Config::set('mail.encryption',($config->IsSSL==1?'ssl':'tls'));
 		Config::set('mail.username',$config->SMTPUsername);
 		Config::set('mail.password',$config->SMTPPassword);
 		extract(Config::get('mail'));
 	
 		$mail = new \PHPMailer;
 		//$mail->SMTPDebug = 0;                               // Enable verbose debug output
-		$mail->SMTPDebug = 1;
 		$mail->isSMTP();                                      // Set mailer to use SMTP
 		$mail->Host = $host;  // Specify main and backup SMTP servers
 		$mail->SMTPAuth = true;                               // Enable SMTP authentication
