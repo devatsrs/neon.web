@@ -181,7 +181,7 @@
                         option["type"] = 'Unresolved';
                         option['sign'] = 'users';
                         option['class']     = 'tile-aqua';
-                        option['url']   = '{{URL::to('tickets?status='.implode(',',array_keys($unresovled)))}}';
+                        option['url']   = '{{URL::to('tickets?status='.array_search('All UnResolved', $status))}}';
                         widgets += buildbox(option);
 
                         option["amount"] = response.Open;
@@ -205,7 +205,7 @@
                         option["type"] = 'Unassigned';
                         option['sign'] = 'help';
                         option['class']     = 'tile-red';
-                        option['url']   = '{{URL::to('tickets')}}';
+                        option['url']   = '{{URL::to('tickets?agent=1')}}';
                         widgets += buildbox(option);
 
                         $('#ticket-widgets').html(widgets);
