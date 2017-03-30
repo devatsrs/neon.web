@@ -64,7 +64,7 @@
 		if($TicketConversationData->Timeline_type == TicketsTable::TIMELINEEMAIL){
 		 ?>
     <div class="mail-reply-seperator"></div>
-    <div class="panel first_data panel-primary margin-top" data-collapsed="0"> 
+    <div id="message{{$TicketConversationData->AccountEmailLogID}}" class="panel first_data panel-primary margin-top" data-collapsed="0">
       
       <!-- panel head -->
       <div class="panel-heading panel-heading-convesation">        
@@ -112,7 +112,7 @@
     <?php }else if($TicketConversationData->Timeline_type == TicketsTable::TIMELINENOTE){
 	?>
     <div class="mail-reply-seperator"></div>
-    <div class="panel panel-primary margin-top" data-collapsed="0"> 
+    <div id="note{{$TicketConversationData->NoteID}}" class="panel panel-primary margin-top" data-collapsed="0">
       
       <!-- panel head -->
       <div class="panel-heading">

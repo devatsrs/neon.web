@@ -1,4 +1,4 @@
-<table id="table-4" class="table mail-table">
+<table id="table-4" class="table mail-table datatable">
   <!-- mail table header -->
   <thead>
           <tr>

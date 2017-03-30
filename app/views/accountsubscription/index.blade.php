@@ -71,6 +71,8 @@
                     <th width="5%">DailyFee</th>
                     <th width="5%">WeeklyFee</th>
                     <th width="10%">MonthlyFee</th>
+                    <th width="10%">QuarterlyFee</th>
+                    <th width="10%">AnnuallyFee</th>
                     <th width="20%">Action</th>
                 </tr>
                 </thead>
@@ -92,19 +94,49 @@
             var postdata;
 
             jQuery(document).ready(function ($) {
-				
-				$("#subscription-form [name=MonthlyFee]").change(function(){
-        var monthly = $(this).val();
-        weekly =  parseFloat(monthly / 30 * 7);
-        daily = parseFloat(monthly / 30);
 
-        decimal_places = parseInt('{{$decimal_places}}');
+                $(document).on('change','#subscription-form [name="AnnuallyFee"],#subscription-form [name="QuarterlyFee"],#subscription-form [name="MonthlyFee"]',function(e){
+                    e.stopPropagation();
+                    var name = $(this).attr('name');
+                    var Yearly = '';
+                    var quarterly = '';
+                    var monthly = '';
+                    var decimal_places = 2;
+                    if(name=='AnnuallyFee'){
+                        var t = $(this).val();
+                        t = parseFloat(t);
+                        monthly = t/12;
+                        quarterly = monthly * 3;
+                    }else if(name=='QuarterlyFee'){
+                        var t = $(this).val();
+                        t = parseFloat(t);
+                        monthly = t / 3;
+                        Yearly  = monthly * 12;
+                    } else if(name=='MonthlyFee'){
+                        var monthly = $(this).val();
+                        monthly = parseFloat(monthly);
+                        Yearly  = monthly * 12;
+                        quarterly = monthly * 3;
+                    }
 
-        $("#subscription-form [name=WeeklyFee]").val(weekly.toFixed(decimal_places));
-        $("#subscription-form [name=DailyFee]").val(daily.toFixed(decimal_places));
-});
-				
-                var list_fields  = ["SequenceNo", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
+                    var weekly =  parseFloat(monthly / 30 * 7);
+                    var daily = parseFloat(monthly / 30);
+
+                    if(Yearly != '') {
+                        $('#subscription-form [name="AnnuallyFee"]').val(Yearly.toFixed(decimal_places));
+                    }
+                    if(quarterly != '') {
+                        $('#subscription-form [name="QuarterlyFee"]').val(quarterly.toFixed(decimal_places));
+                    }
+                    if(monthly != '' && name != 'MonthlyFee') {
+                        $('#subscription-form [name="MonthlyFee"]').val(monthly.toFixed(decimal_places));
+                    }
+
+                    $('#subscription-form [name="WeeklyFee"]').val(weekly.toFixed(decimal_places));
+                    $('#subscription-form [name="DailyFee"]').val(daily.toFixed(decimal_places));
+                });
+
+            var list_fields  = ["SequenceNo", "Name", "InvoiceDescription", "Qty", "StartDate", "EndDate" ,"tblBillingSubscription.ActivationFee","tblBillingSubscription.DailyFee","tblBillingSubscription.WeeklyFee","tblBillingSubscription.MonthlyFee", "tblBillingSubscription.QuarterlyFee", "tblBillingSubscription.AnnuallyFee", "AccountSubscriptionID", "SubscriptionID","ExemptTax","AnnuallyFee","QuarterlyFee","MonthlyFee","WeeklyFee","DailyFee","ActivationFee"];
             public_vars.$body = $("body");
             var $search = {};
             var subscription_add_url = baseurl + "/accounts/{{$account->AccountID}}/subscription/store";
@@ -152,7 +184,9 @@
                         {  "bSortable": true },  // 7 DailyFee
                         {  "bSortable": true },  // 8 WeeklyFee
                         {  "bSortable": true },  // 9 MonthlyFee
-                                {                        // 10 Action
+                        {  "bSortable": true },  // 10 QuarterlyFee
+                        {  "bSortable": true },  // 11 AnnuallyFee
+                        {                        // 12 Action
                            "bSortable": false,
                             mRender: function ( id, type, full ) {
                                  action = '<div class = "hiddenRowData" >';
@@ -262,13 +296,14 @@
 						success: function(response) {
 								if(response){
 									$("#subscription-form [name='InvoiceDescription']").val(response.InvoiceLineDescription);
+                                    $("#subscription-form [name='AnnuallyFee']").val(response.AnnuallyFee);
+                                    $("#subscription-form [name='QuarterlyFee']").val(response.QuarterlyFee);
 									$("#subscription-form [name='MonthlyFee']").val(response.MonthlyFee);
 									$("#subscription-form [name='WeeklyFee']").val(response.WeeklyFee);
 									$("#subscription-form [name='DailyFee']").val(response.DailyFee);
-									$("#subscription-form [name='DailyFee']").val(response.DailyFee);
 									$("#subscription-form [name='ActivationFee']").val(response.ActivationFee);
 								}
-							},
+							}
 					});	
 					   
                     /*   getTableFieldValue("billing_subscription",id,"InvoiceLineDescription",function(description){
@@ -333,6 +368,22 @@
                         </div>
                     </div>
                     <!-- -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="AnnuallyFee" class="control-label">Annually Fee</label>
+                                <input type="text" name="AnnuallyFee" class="form-control"   maxlength="10" id="AnnuallyFee" placeholder="" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="QuarterlyFee" class="control-label">Quarterly Fee</label>
+                                <input type="text" name="QuarterlyFee" class="form-control"   maxlength="10" id="QuarterlyFee" placeholder="" value="" />
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">

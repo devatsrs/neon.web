@@ -100,7 +100,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
             <tbody>
             @foreach($EstimateDetail as $ProductRow)
          	  <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); } ?>
-            @if($ProductRow->ProductType == Product::ITEM)
+            <!--if($ProductRow->ProductType == Product::ITEM)-->
             <tr>
                 <td class="text-center">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
                 <td class="text-left">{{$ProductRow->Description}}</td>
@@ -113,7 +113,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                 {{--<td class="text-center">{{TaxRate::getTaxRate($ProductRow->TaxRateID)}}</td>--}}
                 {{--<td class="hidden" class="text-center">{{number_format($ProductRow->TaxAmount,$RoundChargesAmount)}}</td>--}}
             </tr>
-            @endif
+            <!--endif-->
             @endforeach
         </tbody>
     </table>
