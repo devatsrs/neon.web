@@ -40,7 +40,7 @@
           @if(User::is_admin())
           <div class="form-group">
             <label for="field-1" class="col-sm-1 control-label small_label">Agent</label>
-            <div class="col-sm-2"> {{Form::select('agent[]', $Agents, "(Input::get('agent')?0:''" ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+            <div class="col-sm-2"> {{Form::select('agent[]', $Agents, (Input::get('agent')?0:'') ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
           </div>
           @else
           @if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)
