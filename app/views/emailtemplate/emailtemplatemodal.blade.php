@@ -41,8 +41,11 @@
         $('#add-new-modal-template').on('shown.bs.modal', function(event){
 			var modal = $(this);  
 			if(typeof popup_type  == "undefined" ) {popup_type = 0;}
-			if(popup_type == {{EmailTemplate::ACCOUNT_TEMPLATE}}){   
-				 modal.find('.message').wysihtml5({ 
+			if(popup_type == {{EmailTemplate::ACCOUNT_TEMPLATE}}){
+
+				show_summernote($(".message"),'');
+
+				/*modal.find('.message').wysihtml5({
 				   "font-styles": true,				
 				   "leadoptions":true,	
 				   "invoiceoptions":false,	
@@ -58,28 +61,34 @@
 				parser: function(html) {
 		        	return html;
     			}
-				});
-			}else if(popup_type == {{EmailTemplate::INVOICE_TEMPLATE}}){   
-				 modal.find('.message').wysihtml5({
-				   "font-styles": true,				
-				  	"leadoptions":false,	
-				    "invoiceoptions":true,	
-				    "estimateoptions":false,
-					"TicketsSingle":false,					
-				    "Tickets":false,
-					"Crm":false,			
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-				});
-			} else if(popup_type == {{EmailTemplate::RATESHEET_TEMPLATE}}){  
-				 modal.find('.message').wysihtml5({
+				});*/
+			}else if(popup_type == {{EmailTemplate::INVOICE_TEMPLATE}}){
+
+				show_summernote($(".message"),'');
+
+				/*modal.find('.message').wysihtml5({
+                  "font-styles": true,
+                     "leadoptions":false,
+                   "invoiceoptions":true,
+                   "estimateoptions":false,
+                   "TicketsSingle":false,
+                   "Tickets":false,
+                   "Crm":false,
+                   "emphasis": true,
+                   "lists": true,
+                   "html": true,
+                   "link": true,
+                   "image": true,
+                   "color": false,
+               parser: function(html) {
+                   return html;
+               }
+               });*/
+			} else if(popup_type == {{EmailTemplate::RATESHEET_TEMPLATE}}){
+
+				show_summernote($(".message"),'');
+
+				/*modal.find('.message').wysihtml5({
 				   "font-styles": true,				
 				   "leadoptions":false,	
 				   "ratesheetoptions":true,
@@ -96,9 +105,13 @@
 				parser: function(html) {
 		        	return html;
     			}
-				});
-			} else if(popup_type == {{EmailTemplate::TICKET_TEMPLATE}}){   
-				 modal.find('.message').wysihtml5({
+				});*/
+
+			} else if(popup_type == {{EmailTemplate::TICKET_TEMPLATE}}){
+
+				show_summernote($(".message"),'');
+
+				/*modal.find('.message').wysihtml5({
 				   "TicketsSingle":true,
 				   "leadoptions":false,	
 				   "TicketsSingle":true,
@@ -113,9 +126,13 @@
 				parser: function(html) {
 		        	return html;
     			}
-				});
-			}  else if(popup_type == {{EmailTemplate::ESTIMATE_TEMPLATE}}){   
-				 modal.find('.message').wysihtml5({
+				});*/
+			}  else if(popup_type == {{EmailTemplate::ESTIMATE_TEMPLATE}}){
+
+				show_summernote($(".message"),'');
+
+
+				/*modal.find('.message').wysihtml5({
 				   "font-styles": true,				
 				    "leadoptions":false,	
 				   "invoiceoptions":false,	
@@ -131,9 +148,13 @@
 				parser: function(html) {
 		        	return html;
     			}
-				});
-			} else if(popup_type == {{EmailTemplate::CONTACT_TEMPLATE}}){   
-				 modal.find('.message').wysihtml5({
+				});*/
+
+			} else if(popup_type == {{EmailTemplate::CONTACT_TEMPLATE}}){
+
+				show_summernote($(".message"),'');
+
+				/*modal.find('.message').wysihtml5({
 				   "font-styles": true,				
 				   "leadoptions":true,	
 				   "invoiceoptions":false,	
@@ -149,9 +170,12 @@
 				parser: function(html) {
 		        	return html;
     			}
-				});
-			} else if(popup_type == {{EmailTemplate::CRONJOB_TEMPLATE}}){   	
-			 modal.find('.message').wysihtml5({
+				});*/
+			} else if(popup_type == {{EmailTemplate::CRONJOB_TEMPLATE}}){
+
+				show_summernote($(".message"),'');
+
+				/*modal.find('.message').wysihtml5({
 				   "font-styles": true,				
 				   "Cronjobs":true,
 				   "leadoptions":false,	
@@ -168,11 +192,14 @@
 				parser: function(html) {
 		        	return html;
     			}
-				});
+				});*/
 				
 			}
-			else if(popup_type == {{EmailTemplate::TASK_TEMPLATE}}){   	
-			 modal.find('.message').wysihtml5({
+			else if(popup_type == {{EmailTemplate::TASK_TEMPLATE}}){
+
+				show_summernote($(".message"),'');
+
+				/*modal.find('.message').wysihtml5({
 				   "font-styles": true,				
 				   "Cronjobs":false,
 				   "tasks":true,
@@ -190,10 +217,13 @@
 				parser: function(html) {
 		        	return html;
     			}
-				});
+				});*/
 			}
-			else if(popup_type == {{EmailTemplate::OPPORTUNITY_TEMPLATE}}){   	
-			 modal.find('.message').wysihtml5({
+			else if(popup_type == {{EmailTemplate::OPPORTUNITY_TEMPLATE}}){
+
+				show_summernote($(".message"),'');
+
+				/*modal.find('.message').wysihtml5({
 				   "font-styles": true,				
 				   "Cronjobs":false,
 				   "opportunities":true,
@@ -211,10 +241,13 @@
 				parser: function(html) {
 		        	return html;
     			}
-				});
+				});*/
 			}
-			else{  
-            modal.find('.message').wysihtml5({
+			else{
+
+				show_summernote($(".message"),'');
+
+				/*modal.find('.message').wysihtml5({
                "font-styles": true,
 				"leadoptions":true,	
 				"invoiceoptions":false,	
@@ -230,13 +263,14 @@
 				parser: function(html) {
 		        	return html;
     			}
-            });
+            });*/
+
 			}
         });
 
         $('#add-new-modal-template').on('hidden.bs.modal', function(event){
             var modal = $(this);
-            modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+            //modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
             modal.find('.message').show();
 			popup_type = 0;
 		$("#add-new-template-form #email_from").val('').trigger('change');
@@ -249,9 +283,13 @@
 			 var modal_change = $('#add-new-modal-template');
 			if(template_type_val_change){
 				if(template_type_val_change == {{EmailTemplate::TICKET_TEMPLATE}})
-				{		console.log("Ticket");				
+				{		console.log("Ticket");
+
+
+					show_summernote($(".message"),'');
+/*
 					modal_change.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-					modal_change.find('.message').show();			
+					modal_change.find('.message').show();
 					modal_change.find('.message').wysihtml5({
 					"font-styles": true,
 						"leadoptions":false,
@@ -263,12 +301,16 @@
 						"link": true,
 						"image": true,
 						"color": false,
-				});	
+				});	*/
+
+
 				$(".TicketsScroll").perfectScrollbar();		 
 				}else{ console.log("others");				
 					if(template_type_val == {{EmailTemplate::TICKET_TEMPLATE}})
-					{ console.log("others added");				
-							modal_change.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+					{
+
+						console.log("others added");
+							/*modal_change.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
 							modal_change.find('.message').show();			
 							modal_change.find('.message').wysihtml5({
 								"font-styles": true,
@@ -281,8 +323,10 @@
 								"link": true,
 								"image": true,
 								"color": false,
-							});
-					
+							});*/
+						show_summernote($(".message"),'');
+
+
 					}
 				}
 				

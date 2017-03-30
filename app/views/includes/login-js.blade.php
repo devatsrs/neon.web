@@ -71,8 +71,12 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
 		"assets/js/perfectScroll/js/perfect-scrollbar.jquery.min.js",
 		"assets/js/odometer/odometer.js",
 		"assets/js/daterangepicker/moment.min.js",
-		"assets/js/daterangepicker/daterangepicker.js"
-    ];
+		"assets/js/daterangepicker/daterangepicker.js",
+
+		//New editor
+		"assets/js/summernote/summernote.js"
+
+	];
 }
 ?>
 <script>

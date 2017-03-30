@@ -256,6 +256,8 @@ var popup_type	=	0;
                 $("#add-new-template-form [name='TemplateName']").val(data['TemplateName']);
                 $("#add-new-template-form [name='Subject']").val(data['Subject']);
                 $("#add-new-template-form [name='TemplateBody']").val(data['TemplateBody']);
+                $("#add-new-template-form [name='TemplateBody']").summernote('code',data['TemplateBody']);
+
                 //$("#add-new-template-form [name='Type']").val(data['Type']).trigger("change");
 				$("#add-new-template-form [name='Type']").val(data['Type']);  popup_type = data['Type']; 
 				if(data['Privacy']== '' || data['Privacy']=== null){data['Privacy']=0;} 
