@@ -1,0 +1,49 @@
+From 15338612b27f660e9f897206c573689ec99810bd Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Thu, 16 Mar 2017 15:45:43 +0500
+Subject: [PATCH] #NEON-795
+
+---
+ app/views/includes/dashboard-top.blade.php | 12 ------------
+ public/assets/js/neon-custom.js            |  2 +-
+ 2 files changed, 1 insertion(+), 13 deletions(-)
+
+diff --git a/app/views/includes/dashboard-top.blade.php b/app/views/includes/dashboard-top.blade.php
+index 9c2d2f2..7d237ff 100644
+--- a/app/views/includes/dashboard-top.blade.php
++++ b/app/views/includes/dashboard-top.blade.php
+@@ -63,18 +63,6 @@
+      </ul>
+ </li>
+ 	<!-- Message Notifications -->
+-@if(User::checkCategoryPermission('emailmessages','All'))    
+-<li class="notifications msgs dropdown">
+-        
+-        <!-- Ajax Content here : Messages -->
+-		<a data-close-others="true" data-hover="dropdown" data-toggle="dropdown" class="dropdown-toggle msgs" href="#"><i class="entypo-mail"></i></a>
+-		<ul class="dropdown-menu">
+-        	 <li class="top">
+-          	   <p>Loading...</p>
+-         	</li>
+-       </ul>				
+-</li>
+- @endif	
+ </ul>
+ </div>
+ <!-- Raw Links -->
+diff --git a/public/assets/js/neon-custom.js b/public/assets/js/neon-custom.js
+index e466cd6..12384db 100644
+--- a/public/assets/js/neon-custom.js
++++ b/public/assets/js/neon-custom.js
+@@ -2574,7 +2574,7 @@ try{
+ }
+ 
+ 
+-reloadMsgDrodown = function(reset){
++reloadMsgDrodown = function(reset){ return false;
+ 	 if(customer[0].customer!=1){
+         $.get( baseurl + "/loadDashboardMsgsDropDown?reset="+reset, function( data ) {
+ 
+-- 
+1.9.5.msysgit.0
+

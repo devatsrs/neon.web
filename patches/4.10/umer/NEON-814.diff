@@ -1,0 +1,26 @@
+From e3f30aae349ddfb9cf794f4dca745ff4b0f2d398 Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Mon, 27 Mar 2017 23:25:53 +0500
+Subject: [PATCH] ticket section updated
+
+---
+ app/views/trunk/list.blade.php                     |  2 +-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+
+diff --git a/app/views/trunk/list.blade.php b/app/views/trunk/list.blade.php
+index 941d3d8..f997bc7 100644
+--- a/app/views/trunk/list.blade.php
++++ b/app/views/trunk/list.blade.php
+@@ -121,6 +121,6 @@
+             replaceCheckboxes();
+         });
+     });
+-
+ </script>
++@include('trunk.trunkmodal')
+ @stop
+\ No newline at end of file
+
+1.9.5.msysgit.0
+
