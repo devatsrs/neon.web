@@ -28,7 +28,6 @@ class PHPMAILERIntegtration{
 	
 		$mail = new \PHPMailer;
 		//$mail->SMTPDebug = 0;                               // Enable verbose debug output
-		$mail->SMTPDebug = 1;
 		$mail->isSMTP();                                      // Set mailer to use SMTP
 		$mail->Host = $host;  // Specify main and backup SMTP servers
 		$mail->SMTPAuth = true;                               // Enable SMTP authentication
