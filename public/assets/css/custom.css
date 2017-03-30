@@ -100,6 +100,66 @@ body {
     text-align: right;
 }
 
+.tile-stats.tile-funchsia {
+    background: #915c83;
+}
+.tile-stats.tile-funchsia:hover {
+    background: #7b4e6f;
+}
+.tile-stats.tile-funchsia .icon {
+    color: rgba(0, 0, 0, 0.1);
+}
+.tile-stats.tile-funchsia .num,
+.tile-stats.tile-funchsia h3,
+.tile-stats.tile-funchsia p {
+    color: #ffffff;
+}
+/*.ticket .tile-stats{
+    padding: 10px 5px 5px 15px;
+}
+/*.ticket .tile-stats .icon{
+    right: 15px;
+}
+.ticket .tile-stats .icon i {
+    font-size: 75px;
+}*/
+#activity-timeline ul{
+    padding-left:0px;
+}
+#activity-timeline ul li{
+    padding: 7px 0px;
+    list-style: none;
+    border-bottom: 0 solid #ebebeb;
+    max-width: 100%;
+    display: block;
+    border-bottom: 1px solid #efefef;
+}
+
+#activity-timeline .thumb{
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+    font-size: 14px;
+    text-align: center;
+    background-color:rgba(72, 162, 127, 0.8);
+    display: inline-block;
+    position: relative;
+    bottom: 5px;
+}
+#activity-timeline .description{
+    display: inline-block;
+}
+
+#activity-timeline .username,#activity-timeline .notelink{
+    color: #4D769F;
+    font-weight: 700;
+}
+#activity-timeline .time {
+    font-size: 11px;
+    color: #888888;
+    display: block;
+    padding: 0 0 5px 0;
+}
 /*Abubakar */
 .newredio.js{
     width:100% !important;
@@ -136,6 +196,11 @@ body {
     font-size:15px;
     margin-top:5px;
 }
+
+.ticket .tile-stats p{
+    font-size:15px;
+}
+
 .tile-orange{
     background:#E6AF32 none repeat scroll 0 0 !important;
 }
@@ -2634,7 +2699,7 @@ a:focus,a:hover{text-decoration:none !important}
     fill:#fff !important;
 }
 /*email template options list*/
-.unclick{background:#ccc !important; color:#fff !important;}
+.select2-result-with-children>.select2-result-label:first-child,.unclick{background:#ccc !important; color:#fff !important;}
 .unclick:hover{background:#ccc !important; color:#fff !important;}
 .unclick a{cursor:not-allowed; }
 .dropdown-menu>li.unclick>a:hover{background:#ccc !important; color:#fff !important;}

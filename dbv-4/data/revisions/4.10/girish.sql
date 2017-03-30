@@ -1,316 +1,38 @@
 USE `StagingReport`;
 
-ALTER TABLE `tblSummaryHeader`
-   ADD COLUMN `ServiceID` int(11) NULL DEFAULT '0';
-
-ALTER TABLE `tblSummaryVendorHeader`
-   ADD COLUMN `ServiceID` int(11) NULL DEFAULT '0';
-
-ALTER TABLE `tmp_SummaryHeader`
-  ADD COLUMN `ServiceID` int(11) NULL;
-
-ALTER TABLE `tmp_SummaryHeaderLive`
-  ADD COLUMN `ServiceID` int(11) NULL;
-
-ALTER TABLE `tmp_SummaryVendorHeader`
-  ADD COLUMN `ServiceID` int(11) NULL;
-
-ALTER TABLE `tmp_SummaryVendorHeaderLive`
-  ADD COLUMN `ServiceID` int(11) NULL;
-
-ALTER TABLE `tmp_UsageSummary`
-  ADD COLUMN `ServiceID` int(11) NULL;
-
-ALTER TABLE `tmp_UsageSummaryLive`
-  ADD COLUMN `ServiceID` int(11) NULL;
-
-ALTER TABLE `tmp_VendorUsageSummary`
-  ADD COLUMN `ServiceID` int(11) NULL;
-
-ALTER TABLE `tmp_VendorUsageSummaryLive`
-  ADD COLUMN `ServiceID` int(11) NULL;
-
-ALTER TABLE `tmp_tblUsageDetailsReport`
-  MODIFY COLUMN `UsageDetailID` bigint(20) unsigned NULL
-  , ADD COLUMN `ServiceID` int(11) NULL;
-
-ALTER TABLE `tmp_tblUsageDetailsReportLive`
-  MODIFY COLUMN `UsageDetailID` bigint(20) unsigned NULL
-  , ADD COLUMN `ServiceID` int(11) NULL;
-
-ALTER TABLE `tmp_tblVendorUsageDetailsReport`
-  MODIFY COLUMN `VendorCDRID` bigint(20) unsigned NULL
-  , ADD COLUMN `ServiceID` int(11) NULL;
-
-ALTER TABLE `tmp_tblVendorUsageDetailsReportLive`
-  MODIFY COLUMN `VendorCDRID` bigint(20) unsigned NULL
-  , ADD COLUMN `ServiceID` int(11) NULL;
-
-DROP PROCEDURE IF EXISTS `fnGetUsageForSummary`;
+DROP FUNCTION `fngetLastInvoiceDate`;
 
 DELIMITER |
-CREATE PROCEDURE `fnGetUsageForSummary`(
-	IN `p_CompanyID` INT,
-	IN `p_StartDate` DATE,
-	IN `p_EndDate` DATE
-)
+CREATE FUNCTION `fngetLastInvoiceDate`(
+	`p_AccountID` INT
+) RETURNS date
 BEGIN
-
-	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-
-	DELETE FROM tmp_tblUsageDetailsReport WHERE CompanyID = p_CompanyID;
-
-	INSERT INTO tmp_tblUsageDetailsReport (UsageDetailID,AccountID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,cost,connect_time,connect_date,call_status)
-	SELECT
-		ud.UsageDetailID,
-		uh.AccountID,
-		uh.CompanyID,
-		uh.CompanyGatewayID,
-		uh.ServiceID,
-		uh.GatewayAccountID,
-		trunk,
-		area_prefix,
-		duration,
-		billed_duration,
-		cost,
-		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
-		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
-		1 as call_status
-	FROM RMCDR3.tblUsageDetails  ud
-	INNER JOIN RMCDR3.tblUsageHeader uh
-		ON uh.UsageHeaderID = ud.UsageHeaderID
-	WHERE
-		uh.CompanyID = p_CompanyID
-	AND uh.AccountID is not null
-	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
-
-	INSERT INTO tmp_tblUsageDetailsReport (UsageDetailID,AccountID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,cost,connect_time,connect_date,call_status)
-	SELECT
-		ud.UsageDetailFailedCallID,
-		uh.AccountID,
-		uh.CompanyID,
-		uh.CompanyGatewayID,
-		uh.ServiceID,
-		uh.GatewayAccountID,
-		trunk,
-		area_prefix,
-		duration,
-		billed_duration,
-		cost,
-		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
-		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
-		2 as call_status
-	FROM RMCDR3.tblUsageDetailFailedCall  ud
-	INNER JOIN RMCDR3.tblUsageHeader uh
-		ON uh.UsageHeaderID = ud.UsageHeaderID
-	WHERE
-		uh.CompanyID = p_CompanyID
-	AND uh.AccountID is not null
-	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
-
-END|
-DELIMITER ;
-
-DROP PROCEDURE IF EXISTS `fnGetUsageForSummaryLive`;
-
-DELIMITER |
-CREATE PROCEDURE `fnGetUsageForSummaryLive`(
-	IN `p_CompanyID` INT,
-	IN `p_StartDate` DATE,
-	IN `p_EndDate` DATE
-)
-BEGIN
-
-	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
-	DELETE FROM tmp_tblUsageDetailsReportLive WHERE CompanyID = p_CompanyID;
+	DECLARE v_LastInvoiceDate_ DATE;
 	
-	INSERT INTO tmp_tblUsageDetailsReportLive (UsageDetailID,AccountID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,cost,connect_time,connect_date,call_status)
-	SELECT
-		ud.UsageDetailID,
-		uh.AccountID,
-		uh.CompanyID,
-		uh.CompanyGatewayID,
-		uh.ServiceID,
-		uh.GatewayAccountID,
-		trunk,
-		area_prefix,
-		duration,
-		billed_duration,
-		cost,
-		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
-		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
-		1 AS call_status
-	FROM RMCDR3.tblUsageDetails  ud
-	INNER JOIN RMCDR3.tblUsageHeader uh
-		ON uh.UsageHeaderID = ud.UsageHeaderID
-	WHERE
-		uh.CompanyID = p_CompanyID
-	AND uh.AccountID IS NOT NULL
-	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
-
-	INSERT INTO tmp_tblUsageDetailsReportLive (UsageDetailID,AccountID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,cost,connect_time,connect_date,call_status)
-	SELECT
-		ud.UsageDetailFailedCallID,
-		uh.AccountID,
-		uh.CompanyID,
-		uh.CompanyGatewayID,
-		uh.ServiceID,
-		uh.GatewayAccountID,
-		trunk,
-		area_prefix,
-		duration,
-		billed_duration,
-		cost,
-		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
-		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
-		2 AS call_status
-	FROM RMCDR3.tblUsageDetailFailedCall  ud
-	INNER JOIN RMCDR3.tblUsageHeader uh
-		ON uh.UsageHeaderID = ud.UsageHeaderID
-	WHERE
-		uh.CompanyID = p_CompanyID
-	AND uh.AccountID IS NOT NULL
-	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
-
-END|
-DELIMITER ;
-
-DROP PROCEDURE IF EXISTS `fnGetVendorUsageForSummary`;
-
-DELIMITER |
-CREATE PROCEDURE `fnGetVendorUsageForSummary`(
-	IN `p_CompanyID` INT,
-	IN `p_StartDate` DATE,
-	IN `p_EndDate` DATE
-)
-BEGIN
-
-	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-
-	DELETE FROM tmp_tblVendorUsageDetailsReport WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_tblVendorUsageDetailsReport (VendorCDRID,AccountID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,buying_cost,selling_cost,connect_time,connect_date,call_status)
-	SELECT
-		ud.VendorCDRID,
-		uh.AccountID,
-		uh.CompanyID,
-		uh.CompanyGatewayID,
-		uh.ServiceID,
-		uh.GatewayAccountID,
-		trunk,
-		area_prefix,
-		duration,
-		billed_duration,
-		buying_cost,
-		selling_cost,
-		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
-		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
-		1 AS call_status
-	FROM RMCDR3.tblVendorCDR  ud
-	INNER JOIN RMCDR3.tblVendorCDRHeader uh
-		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
-	WHERE
-		uh.CompanyID = p_CompanyID
-	AND uh.AccountID IS NOT NULL
-	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
-
-	INSERT INTO tmp_tblVendorUsageDetailsReport (VendorCDRID,AccountID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,buying_cost,selling_cost,connect_time,connect_date,call_status)
-	SELECT
-		ud.VendorCDRFailedID,
-		uh.AccountID,
-		uh.CompanyID,
-		uh.CompanyGatewayID,
-		uh.ServiceID,
-		uh.GatewayAccountID,
-		trunk,
-		area_prefix,
-		duration,
-		billed_duration,
-		buying_cost,
-		selling_cost,
-		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
-		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
-		2 AS call_status
-	FROM RMCDR3.tblVendorCDRFailed  ud
-	INNER JOIN RMCDR3.tblVendorCDRHeader uh
-		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
-	WHERE
-		uh.CompanyID = p_CompanyID
-	AND uh.AccountID IS NOT NULL
-	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
-
-END|
-DELIMITER ;
-
-DROP PROCEDURE IF EXISTS `fnGetVendorUsageForSummaryLive`;
-
-DELIMITER |
-CREATE PROCEDURE `fnGetVendorUsageForSummaryLive`(
-	IN `p_CompanyID` INT,
-	IN `p_StartDate` DATE,
-	IN `p_EndDate` DATE
-)
-BEGIN
-
-	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-
-	DELETE FROM tmp_tblVendorUsageDetailsReportLive WHERE CompanyID = p_CompanyID;
+	SELECT 
+		CASE WHEN tblAccountBilling.LastInvoiceDate IS NOT NULL AND tblAccountBilling.LastInvoiceDate <> '' 
+		THEN 
+			DATE_FORMAT(tblAccountBilling.LastInvoiceDate,'%Y-%m-%d')
+		ELSE 
+			CASE WHEN tblAccountBilling.BillingStartDate IS NOT NULL AND tblAccountBilling.BillingStartDate <> ''
+			THEN
+				DATE_FORMAT(tblAccountBilling.BillingStartDate,'%Y-%m-%d')
+			ELSE DATE_FORMAT(tblAccount.created_at,'%Y-%m-%d')
+			END 
+		END
+		INTO v_LastInvoiceDate_ 
+	FROM Ratemanagement3.tblAccount
+	LEFT JOIN Ratemanagement3.tblAccountBilling 
+		ON tblAccountBilling.AccountID = tblAccount.AccountID
+	WHERE tblAccount.AccountID = p_AccountID;
 	
-	INSERT INTO tmp_tblVendorUsageDetailsReportLive (VendorCDRID,AccountID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,buying_cost,selling_cost,connect_time,connect_date,call_status)
-	SELECT
-		ud.VendorCDRID,
-		uh.AccountID,
-		uh.CompanyID,
-		uh.CompanyGatewayID,
-		uh.ServiceID,
-		uh.GatewayAccountID,
-		trunk,
-		area_prefix,
-		duration,
-		billed_duration,
-		buying_cost,
-		selling_cost,
-		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
-		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
-		1 AS call_status
-	FROM RMCDR3.tblVendorCDR  ud
-	INNER JOIN RMCDR3.tblVendorCDRHeader uh
-		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
-	WHERE
-		uh.CompanyID = p_CompanyID
-	AND uh.AccountID IS NOT NULL
-	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
-
-	INSERT INTO tmp_tblVendorUsageDetailsReportLive (VendorCDRID,AccountID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,buying_cost,selling_cost,connect_time,connect_date,call_status)
-	SELECT
-		ud.VendorCDRFailedID,
-		uh.AccountID,
-		uh.CompanyID,
-		uh.CompanyGatewayID,
-		uh.ServiceID,
-		uh.GatewayAccountID,
-		trunk,
-		area_prefix,
-		duration,
-		billed_duration,
-		buying_cost,
-		selling_cost,
-		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
-		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
-		2 AS call_status
-	FROM RMCDR3.tblVendorCDRFailed  ud
-	INNER JOIN RMCDR3.tblVendorCDRHeader uh
-		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
-	WHERE
-		uh.CompanyID = p_CompanyID
-	AND uh.AccountID IS NOT NULL
-	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
-
+	RETURN v_LastInvoiceDate_;
+	
 END|
 DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_generateSummary`;
-
 DELIMITER |
 CREATE PROCEDURE `prc_generateSummary`(
 	IN `p_CompanyID` INT,
@@ -320,7 +42,7 @@ CREATE PROCEDURE `prc_generateSummary`(
 BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
-		
+		-- ERROR
 		GET DIAGNOSTICS CONDITION 1
 		@p2 = MESSAGE_TEXT;
 	
@@ -329,19 +51,17 @@ BEGIN
 	END;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
-	CALL fnGetCountry();
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
  
- 	
+ 	/* insert into success summary*/
  	DELETE FROM tmp_UsageSummary WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_UsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	INSERT INTO tmp_UsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT 
 		d.DateID,
 		t.TimeID,
 		ud.CompanyID,
 		ud.CompanyGatewayID,
-		ud.ServiceID,
 		ANY_VALUE(ud.GatewayAccountID),
 		ud.AccountID,
 		ud.trunk,
@@ -354,21 +74,16 @@ BEGIN
 	FROM tmp_tblUsageDetailsReport ud  
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
-	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.ServiceID,ud.CompanyID;
+	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 
 	UPDATE tmp_UsageSummary 
 	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
 	SET tmp_UsageSummary.CountryID =code.CountryID
 	WHERE tmp_UsageSummary.CompanyID = p_CompanyID AND code.CountryID > 0;
 
-	UPDATE tmp_UsageSummary
-	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_UsageSummary 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
-	ON tmp_UsageSummary.AreaPrefix = TBL.AreaPrefix
-	SET tmp_UsageSummary.CountryID =TBL.CountryID 
-	WHERE tmp_UsageSummary.CompanyID = p_CompanyID AND tmp_UsageSummary.CountryID IS NULL;
-
 	DELETE FROM tmp_SummaryHeader WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
+ 	
+	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryHeaderID,
 		sh.DateID,
@@ -376,7 +91,6 @@ BEGIN
 		sh.AccountID,
 		sh.GatewayAccountID,
 		sh.CompanyGatewayID,
-		sh.ServiceID,
 		sh.Trunk,
 		sh.AreaPrefix,
 		sh.CountryID,
@@ -388,8 +102,8 @@ BEGIN
 	
 	START TRANSACTION;
 	
-	INSERT INTO tblSummaryHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
-	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
+	INSERT INTO tblSummaryHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
 	FROM tmp_UsageSummary us
 	LEFT JOIN tmp_SummaryHeader sh	 
 	ON 
@@ -399,12 +113,12 @@ BEGIN
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID
 	WHERE sh.SummaryHeaderID IS NULL
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
 	
 	DELETE FROM tmp_SummaryHeader WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
+ 	
+	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryHeaderID,
 		sh.DateID,
@@ -412,7 +126,6 @@ BEGIN
 		sh.AccountID,
 		sh.GatewayAccountID,
 		sh.CompanyGatewayID,
-		sh.ServiceID,
 		sh.Trunk,
 		sh.AreaPrefix,
 		sh.CountryID,
@@ -443,8 +156,7 @@ BEGIN
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
 	
 	INSERT INTO tblUsageSummaryDetail (SummaryHeaderID,TimeID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT sh.SummaryHeaderID,TimeID,us.TotalCharges,us.TotalBilledDuration,us.TotalDuration,us.NoOfCalls,us.NoOfFailCalls
@@ -456,16 +168,15 @@ BEGIN
 	AND us.AccountID = sh.AccountID
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
-	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID;
+	AND us.AreaPrefix = sh.AreaPrefix;
 
 	COMMIT;
 	
 END|
 DELIMITER ;
 
+-- Dumping structure for procedure ReleaseReport.prc_generateSummaryLive
 DROP PROCEDURE IF EXISTS `prc_generateSummaryLive`;
-
 DELIMITER |
 CREATE PROCEDURE `prc_generateSummaryLive`(
 	IN `p_CompanyID` INT,
@@ -476,7 +187,7 @@ BEGIN
 
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
-		
+		-- ERROR
 		GET DIAGNOSTICS CONDITION 1
 		@p2 = MESSAGE_TEXT;
 	
@@ -486,19 +197,17 @@ BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	CALL fnGetCountry();
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetUsageForSummaryLive(p_CompanyID, p_StartDate, p_EndDate);
 	 
- 	
+ 	/* insert into success summary*/
  	DELETE FROM tmp_UsageSummaryLive WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_UsageSummaryLive(DateID,TimeID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	INSERT INTO tmp_UsageSummaryLive(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT 
 		d.DateID,
 		t.TimeID,
 		ud.CompanyID,
 		ud.CompanyGatewayID,
-		ud.ServiceID,
 		ANY_VALUE(ud.GatewayAccountID),
 		ud.AccountID,
 		ud.trunk,
@@ -511,21 +220,16 @@ BEGIN
 	FROM tmp_tblUsageDetailsReportLive ud  
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
-	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.ServiceID,ud.CompanyID;
+	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 
 	UPDATE tmp_UsageSummaryLive 
 	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
 	SET tmp_UsageSummaryLive.CountryID =code.CountryID
 	WHERE tmp_UsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
 
-	UPDATE tmp_UsageSummaryLive
-	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_UsageSummaryLive 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
-	ON tmp_UsageSummaryLive.AreaPrefix = TBL.AreaPrefix
-	SET tmp_UsageSummaryLive.CountryID =TBL.CountryID 
-	WHERE tmp_UsageSummaryLive.CompanyID = p_CompanyID AND tmp_UsageSummaryLive.CountryID IS NULL ;
-
 	DELETE FROM tmp_SummaryHeaderLive WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_SummaryHeaderLive (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
+
+	INSERT INTO tmp_SummaryHeaderLive (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryHeaderID,
 		sh.DateID,
@@ -533,7 +237,6 @@ BEGIN
 		sh.AccountID,
 		sh.GatewayAccountID,
 		sh.CompanyGatewayID,
-		sh.ServiceID,
 		sh.Trunk,
 		sh.AreaPrefix,
 		sh.CountryID,
@@ -545,8 +248,8 @@ BEGIN
 
 	START TRANSACTION;
 
-	INSERT INTO tblSummaryHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
-	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
+	INSERT INTO tblSummaryHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
 	FROM tmp_UsageSummaryLive us
 	LEFT JOIN tmp_SummaryHeaderLive sh	 
 	ON 
@@ -556,12 +259,12 @@ BEGIN
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID
 	WHERE sh.SummaryHeaderID IS NULL
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
 
 	DELETE FROM tmp_SummaryHeaderLive WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_SummaryHeaderLive (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
+
+	INSERT INTO tmp_SummaryHeaderLive (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryHeaderID,
 		sh.DateID,
@@ -569,7 +272,6 @@ BEGIN
 		sh.AccountID,
 		sh.GatewayAccountID,
 		sh.CompanyGatewayID,
-		sh.ServiceID,
 		sh.Trunk,
 		sh.AreaPrefix,
 		sh.CountryID,
@@ -600,8 +302,7 @@ BEGIN
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix; 
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix; 
 	
 	INSERT INTO tblUsageSummaryDetailLive (SummaryHeaderID,TimeID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT sh.SummaryHeaderID,TimeID,us.TotalCharges,us.TotalBilledDuration,us.TotalDuration,us.NoOfCalls,us.NoOfFailCalls
@@ -613,16 +314,15 @@ BEGIN
 	AND us.AccountID = sh.AccountID
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
-	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID;	
+	AND us.AreaPrefix = sh.AreaPrefix;	
 
 	COMMIT;
 	
 END|
 DELIMITER ;
 
+-- Dumping structure for procedure ReleaseReport.prc_generateVendorSummary
 DROP PROCEDURE IF EXISTS `prc_generateVendorSummary`;
-
 DELIMITER |
 CREATE PROCEDURE `prc_generateVendorSummary`(
 	IN `p_CompanyID` INT,
@@ -642,19 +342,17 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	CALL fnGetCountry();
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
 
  	/* insert into success summary*/
  	DELETE FROM tmp_VendorUsageSummary WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_VendorUsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	INSERT INTO tmp_VendorUsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT 
 		d.DateID,
 		t.TimeID,
 		ud.CompanyID,
 		ud.CompanyGatewayID,
-		ud.ServiceID,
 		ANY_VALUE(ud.GatewayAccountID),
 		ud.AccountID,
 		ud.trunk,
@@ -668,22 +366,16 @@ BEGIN
 	FROM tmp_tblVendorUsageDetailsReport ud  
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
-	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.ServiceID,ud.CompanyID;
+	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 
 	UPDATE tmp_VendorUsageSummary 
 	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
 	SET tmp_VendorUsageSummary.CountryID =code.CountryID
 	WHERE tmp_VendorUsageSummary.CompanyID = p_CompanyID AND code.CountryID > 0;
 
-	UPDATE tmp_VendorUsageSummary
-	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_VendorUsageSummary 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
-	ON tmp_VendorUsageSummary.AreaPrefix = TBL.AreaPrefix
-	SET tmp_VendorUsageSummary.CountryID =TBL.CountryID 
-	WHERE tmp_VendorUsageSummary.CompanyID = p_CompanyID AND tmp_VendorUsageSummary.CountryID IS NULL ;
-
 	DELETE FROM tmp_SummaryVendorHeader WHERE CompanyID = p_CompanyID;
 
-	INSERT INTO tmp_SummaryVendorHeader (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
+	INSERT INTO tmp_SummaryVendorHeader (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryVendorHeaderID,
 		sh.DateID,
@@ -691,7 +383,6 @@ BEGIN
 		sh.AccountID,
 		sh.GatewayAccountID,
 		sh.CompanyGatewayID,
-		sh.ServiceID,
 		sh.Trunk,
 		sh.AreaPrefix,
 		sh.CountryID,
@@ -703,8 +394,8 @@ BEGIN
 
 	START TRANSACTION;
 
-	INSERT INTO tblSummaryVendorHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
-	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
+	INSERT INTO tblSummaryVendorHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
 	FROM tmp_VendorUsageSummary us
 	LEFT JOIN tmp_SummaryVendorHeader sh	 
 	ON 
@@ -714,13 +405,12 @@ BEGIN
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID
 	WHERE sh.SummaryVendorHeaderID IS NULL
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
 
 	DELETE FROM tmp_SummaryVendorHeader WHERE CompanyID = p_CompanyID;
 
-	INSERT INTO tmp_SummaryVendorHeader (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
+	INSERT INTO tmp_SummaryVendorHeader (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryVendorHeaderID,
 		sh.DateID,
@@ -728,7 +418,6 @@ BEGIN
 		sh.AccountID,
 		sh.GatewayAccountID,
 		sh.CompanyGatewayID,
-		sh.ServiceID,
 		sh.Trunk,
 		sh.AreaPrefix,
 		sh.CountryID,
@@ -759,8 +448,7 @@ BEGIN
 	AND sh.CompanyGatewayID = us.CompanyGatewayID
 	AND sh.Trunk = us.Trunk
 	AND sh.AreaPrefix = us.AreaPrefix
-	AND sh.ServiceID = us.ServiceID
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
 
 	INSERT INTO tblUsageVendorSummaryDetail (SummaryVendorHeaderID,TimeID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT sh.SummaryVendorHeaderID,TimeID,us.TotalCharges,us.TotalSales,us.TotalBilledDuration,us.TotalDuration,us.NoOfCalls,us.NoOfFailCalls
@@ -772,16 +460,15 @@ BEGIN
 	AND sh.AccountID = us.AccountID
 	AND sh.CompanyGatewayID = us.CompanyGatewayID
 	AND sh.Trunk = us.Trunk
-	AND sh.AreaPrefix = us.AreaPrefix
-	AND sh.ServiceID = us.ServiceID;
+	AND sh.AreaPrefix = us.AreaPrefix;
 	
 	COMMIT;
 
 END|
 DELIMITER ;
 
+-- Dumping structure for procedure ReleaseReport.prc_generateVendorSummaryLive
 DROP PROCEDURE IF EXISTS `prc_generateVendorSummaryLive`;
-
 DELIMITER |
 CREATE PROCEDURE `prc_generateVendorSummaryLive`(
 	IN `p_CompanyID` INT,
@@ -802,19 +489,17 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	CALL fnGetCountry();
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetVendorUsageForSummaryLive(p_CompanyID, p_StartDate, p_EndDate);
 
  	/* insert into success summary*/
  	DELETE FROM tmp_VendorUsageSummaryLive WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_VendorUsageSummaryLive(DateID,TimeID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	INSERT INTO tmp_VendorUsageSummaryLive(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT 
 		d.DateID,
 		t.TimeID,
 		ud.CompanyID,
 		ud.CompanyGatewayID,
-		ud.ServiceID,
 		ANY_VALUE(ud.GatewayAccountID),
 		ud.AccountID,
 		ud.trunk,
@@ -828,22 +513,16 @@ BEGIN
 	FROM tmp_tblVendorUsageDetailsReportLive ud  
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
-	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.ServiceID,ud.CompanyID;
+	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 
 	UPDATE tmp_VendorUsageSummaryLive 
 	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
 	SET tmp_VendorUsageSummaryLive.CountryID =code.CountryID
 	WHERE tmp_VendorUsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
 
-	UPDATE tmp_VendorUsageSummaryLive
-	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_VendorUsageSummaryLive 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
-	ON tmp_VendorUsageSummaryLive.AreaPrefix = TBL.AreaPrefix
-	SET tmp_VendorUsageSummaryLive.CountryID =TBL.CountryID 
-	WHERE tmp_VendorUsageSummaryLive.CompanyID = p_CompanyID AND tmp_VendorUsageSummaryLive.CountryID IS NULL ;
-
 	DELETE FROM tmp_SummaryVendorHeaderLive WHERE CompanyID = p_CompanyID;
 
-	INSERT INTO tmp_SummaryVendorHeaderLive (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
+	INSERT INTO tmp_SummaryVendorHeaderLive (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryVendorHeaderID,
 		sh.DateID,
@@ -851,7 +530,6 @@ BEGIN
 		sh.AccountID,
 		sh.GatewayAccountID,
 		sh.CompanyGatewayID,
-		sh.ServiceID,
 		sh.Trunk,
 		sh.AreaPrefix,
 		sh.CountryID,
@@ -863,8 +541,8 @@ BEGIN
 
 	START TRANSACTION;
 
-	INSERT INTO tblSummaryVendorHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
-	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
+	INSERT INTO tblSummaryVendorHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
 	FROM tmp_VendorUsageSummaryLive us
 	LEFT JOIN tmp_SummaryVendorHeaderLive sh	 
 	ON 
@@ -874,13 +552,12 @@ BEGIN
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID
 	WHERE sh.SummaryVendorHeaderID IS NULL
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
 
 	DELETE FROM tmp_SummaryVendorHeaderLive WHERE CompanyID = p_CompanyID;
 
-	INSERT INTO tmp_SummaryVendorHeaderLive (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
+	INSERT INTO tmp_SummaryVendorHeaderLive (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryVendorHeaderID,
 		sh.DateID,
@@ -888,7 +565,6 @@ BEGIN
 		sh.AccountID,
 		sh.GatewayAccountID,
 		sh.CompanyGatewayID,
-		sh.ServiceID,
 		sh.Trunk,
 		sh.AreaPrefix,
 		sh.CountryID,
@@ -919,8 +595,7 @@ BEGIN
 	AND sh.CompanyGatewayID = us.CompanyGatewayID
 	AND sh.Trunk = us.Trunk
 	AND sh.AreaPrefix = us.AreaPrefix
-	AND sh.ServiceID = us.ServiceID
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
 
 	INSERT INTO tblUsageVendorSummaryDetailLive (SummaryVendorHeaderID,TimeID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT sh.SummaryVendorHeaderID,TimeID,us.TotalCharges,us.TotalSales,us.TotalBilledDuration,us.TotalDuration,us.NoOfCalls,us.NoOfFailCalls
@@ -932,8 +607,7 @@ BEGIN
 	AND sh.AccountID = us.AccountID
 	AND sh.CompanyGatewayID = us.CompanyGatewayID
 	AND sh.Trunk = us.Trunk
-	AND sh.AreaPrefix = us.AreaPrefix
-	AND sh.ServiceID = us.ServiceID;
+	AND sh.AreaPrefix = us.AreaPrefix;
 
 	COMMIT;
 	

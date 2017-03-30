@@ -1,4 +1,4 @@
-<table id="table-4" class="table mail-table">
+<table id="table-4" class="table mail-table datatable">
   <!-- mail table header -->
   <thead>
           <tr>
@@ -16,7 +16,14 @@
                     <?php } ?>
                   </div>
                 </div>
-                <div class="pull-right btn-group">
+                <div class="pull-left btn-group">
+                <button type="button" data-toggle="dropdown" class="btn  dropdown-toggle  btn-green">Export <span class="caret"></span></button>
+                <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">    
+                    <li><a class="export_btn export_type" action_type="csv" href="#"> CSV</a> </li>
+                    <li><a class="export_btn export_type" action_type="xlsx"  href="#">  EXCEL</a> </li>
+                  </ul>
+                </div>
+                <div class="pull-right sorted btn-group">
                   <button type="button" class="btn btn-green dropdown-toggle" data-toggle="dropdown"> Sorted by {{$Sortcolumns[$data['iSortCol_0']]}} <span class="caret"></span> </button>
                   <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">
                     <?php foreach($Sortcolumns as $key => $SortcolumnsData){ ?>

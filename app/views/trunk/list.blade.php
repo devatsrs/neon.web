@@ -121,6 +121,6 @@
             replaceCheckboxes();
         });
     });
-
 </script>
+@include('trunk.trunkmodal')
 @stop

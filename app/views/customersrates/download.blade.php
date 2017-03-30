@@ -262,6 +262,7 @@ jQuery(document).ready(function ($) {
         e.preventDefault();
         $("#BulkMail-form [name='email_template']").val('').trigger("change");
         $("#BulkMail-form [name='template_option']").val('').trigger("change");
+        $("#BulkMail-form [name='test']").val(0);
         //$("#BulkMail-form [name='Type']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('')
         $("#BulkMail-form")[0].reset();
         $("#modal-BulkMail").modal({

@@ -29,17 +29,14 @@
         <div class="form-group">
           <label for="to">To:</label>
           <input type="text" class="form-control useremailssingle" id="email-to" name="email-to" value="" tabindex="1" />
-          <span><a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </span>
+          <span><a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a>  </span>
         </div>
         
         <div class="form-group hidden">
           <label for="cc">CC:</label>
           <input type="text" class="form-control useremails" id="cc" name="cc" value="" tabindex="2" />
         </div>
-        <div class="form-group hidden">
-          <label for="bcc">BCC:</label>
-          <input type="text" class="form-control useremails" id="bcc" name="bcc" value="" tabindex="2" />
-        </div>
+        
         <div class="form-group">
           <label for="bcc">Email Templates:</label>
           {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"mail-compose"))}}

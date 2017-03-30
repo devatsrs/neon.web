@@ -8,8 +8,11 @@
 <h3>Invoice</h3>
 @include('includes.errors')
     @include('includes.success')
-<p style="text-align: right;"> @if(User::checkCategoryPermission('Invoice','Add')) <a href="javascript:;" id="invoice-in" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Invoice Received </a> <a href="{{URL::to("invoice/create")}}" id="add-new-invoice" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Invoice </a> @endif
-  @if(User::checkCategoryPermission('Invoice','Generate')) <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary "> <i class="entypo-plus"></i> Generate New Invoice </a> @endif 
+<p style="text-align: right;">
+
+    @if(User::checkCategoryPermission('RecurringProfile','View')) <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary "> <i class="entypo-plus"></i> Recurring Profile </a> @endif
+    @if(User::checkCategoryPermission('Invoice','Add')) <a href="javascript:;" id="invoice-in" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Invoice Received </a> <a href="{{URL::to("invoice/create")}}" id="add-new-invoice" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Invoice </a> @endif
+    @if(User::checkCategoryPermission('Invoice','Generate')) <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary "> <i class="entypo-plus"></i> Generate New Invoice </a> @endif
   <!-- <a href="javascript:;" id="bulk-invoice" class="btn upload btn-primary ">
         <i class="entypo-upload"></i>
         Bulk Invoice Generate.

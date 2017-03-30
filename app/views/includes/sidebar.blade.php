@@ -53,7 +53,10 @@
     @if(Tickets::CheckTicketLicense())
     <li class="{{check_uri('tickets')}}"><a href="#"><i class="fa fa-ticket"></i><span>Ticket Management</span></a>
       <ul>
-       @if(User::checkCategoryPermission('Tickets','View'))
+          @if(User::checkCategoryPermission('TicketDashboard','View'))
+              <li> <a href="{{URL::to('/ticketdashboard')}}">  <span>Dashboard</span> </a> </li>
+          @endif
+        @if(User::checkCategoryPermission('Tickets','View'))
         <li> <a href="{{URL::to('/tickets')}}">  <span>Tickets</span> </a> </li>
         @endif
          @if(User::checkCategoryPermission('TicketsFields','Edit'))
@@ -131,9 +134,6 @@
         @endif
         @if(User::checkCategoryPermission('Invoice','View'))
         <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
-        @endif
-        @if(User::checkCategoryPermission('RecurringInvoices','View'))
-            <li> <a href="{{URL::to('/recurringinvoices')}}">  <span>Recurring</span> </a> </li>
         @endif
       @if(User::checkCategoryPermission('Payments','View'))
         <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>

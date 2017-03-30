@@ -9,7 +9,7 @@ $(document).ready(function(){
     }
 
     function sendRecurringInvoice(recurringinvoice_id,post_data,callback){
-        var _url = baseurl + '/recurringinvoices/'+recurringinvoice_id+'/send';
+        var _url = baseurl + '/recurringprofiles/'+recurringinvoice_id+'/send';
         $.post( _url, post_data, callback, "json");
     }
 
@@ -23,7 +23,7 @@ $(document).ready(function(){
             try {
                 $row.find(".Qty").val(1);
                 post_data = {"product_id": productID, "account_id": AccountID, "BillingClassID":BillingClassID, "qty": 1};
-                var _url = baseurl + '/recurringinvoices/calculate_total';
+                var _url = baseurl + '/recurringprofiles/calculate_total';
                 $.post(_url, post_data, function (response) {
                     if (response.status == 'success') {
                         $row.find(".descriptions").val(response.product_description);
@@ -274,7 +274,7 @@ $(document).ready(function(){
 
     $(".send-recurringinvoice.btn").click( function (e) {
         $('#send-modal-recurringinvoice').find(".modal-body").html("Loading Content...");
-        var ajaxurl = baseurl + "/recurringinvoices/sendinvoice";
+        var ajaxurl = baseurl + "/recurringprofiles/sendinvoice";
         var formData = new FormData($('#send-recurringinvoice-form')[0]);
         showAjaxScript(ajaxurl,formData,function(response){
             if (response.status == 'success') {
@@ -292,7 +292,7 @@ $(document).ready(function(){
     });
 
     $("select[name=AccountID]").change( function (e) {
-        url = baseurl + "/recurringinvoices/get_account_info";
+        url = baseurl + "/recurringprofiles/get_account_info";
         $this = $(this);
         data = {account_id:$this.val()}
         if($this.val() > 0){
@@ -315,7 +315,7 @@ $(document).ready(function(){
     });
 
     $("select[name=BillingClassID]").change( function (e) {
-        url = baseurl + "/recurringinvoices/get_billingclassinfo_info";
+        url = baseurl + "/recurringprofiles/get_billingclassinfo_info";
         $this = $(this);
         data = {BillingClassID:$this.val()}
         if($this.val() > 0){

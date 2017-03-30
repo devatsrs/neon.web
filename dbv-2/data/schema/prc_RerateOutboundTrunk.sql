@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_RerateOutboundTrunk`(
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_RerateOutboundTrunk`(
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
 	IN `p_RateCDR` INT,
@@ -24,7 +24,7 @@ BEGIN
 	);
 	SET @stm = CONCAT('
 	INSERT INTO tmp_AccountTrunkCdrUpload_(AccountID,TrunkID)
-	SELECT DISTINCT AccountID,TrunkID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL AND ud.is_inbound = 0;
+	SELECT DISTINCT AccountID,TrunkID FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL AND ud.is_inbound = 0;
 	');
 
 	SET v_CDRUpload_ = (SELECT COUNT(*) FROM tmp_AccountTrunkCdrUpload_);
@@ -33,10 +33,10 @@ BEGIN
 	THEN
 		/* update UseInBilling when cdr upload*/
 		SET @stm = CONCAT('
-		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tblCustomerTrunk ct 
+		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN Ratemanagement3.tblCustomerTrunk ct 
 			ON ct.AccountID = ud.AccountID AND ct.TrunkID = ud.TrunkID AND ct.Status =1
-		INNER JOIN NeonRMDev.tblTrunk t 
+		INNER JOIN Ratemanagement3.tblTrunk t 
 			ON t.TrunkID = ct.TrunkID  
 			SET ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
 		WHERE  ud.ProcessID = "' , p_processId , '";
@@ -51,13 +51,29 @@ BEGIN
 	IF p_RateFormat = 2
 	THEN
 
+		/* update trunk with use in billing*/
+		SET @stm = CONCAT('
+		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN Ratemanagement3.tblCustomerTrunk ct 
+			ON ct.AccountID = ud.AccountID AND ct.Status =1 
+			AND ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
+		INNER JOIN Ratemanagement3.tblTrunk t 
+			ON t.TrunkID = ct.TrunkID  
+			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
+		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.is_inbound = 0 AND ud.TrunkID IS NULL;
+		');
+
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
 		/* update trunk without use in billing*/
 		SET @stm = CONCAT('
-		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tblCustomerTrunk ct 
+		UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN Ratemanagement3.tblCustomerTrunk ct 
 			ON ct.AccountID = ud.AccountID AND ct.Status =1 
 			AND ct.UseInBilling = 0 
-		INNER JOIN NeonRMDev.tblTrunk t 
+		INNER JOIN Ratemanagement3.tblTrunk t 
 			ON t.TrunkID = ct.TrunkID  
 			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling
 		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.is_inbound = 0 AND ud.TrunkID IS NULL;
@@ -67,29 +83,13 @@ BEGIN
 		EXECUTE stmt;
 		DEALLOCATE PREPARE stmt;
 
-		/* update trunk with use in billing*/
-		SET @stm = CONCAT('
-		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tblCustomerTrunk ct 
-			ON ct.AccountID = ud.AccountID AND ct.Status =1 
-			AND ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
-		INNER JOIN NeonRMDev.tblTrunk t 
-			ON t.TrunkID = ct.TrunkID  
-			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
-		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.is_inbound = 0 AND ud.TrunkID IS NULL;
-		');
-
-		PREPARE stm FROM @stm;
-		EXECUTE stm;
-		DEALLOCATE PREPARE stm;
-
 	END IF;
 	
 	/* if rerate on */
 	IF p_RateCDR = 1
 	THEN
 
-		SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( AccountID IS NULL OR TrunkID IS NULL ) ') ;
+		SET @stm = CONCAT('UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( AccountID IS NULL OR TrunkID IS NULL ) ') ;
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
@@ -106,7 +106,7 @@ BEGIN
 	);
 	SET @stm = CONCAT('
 	INSERT INTO tmp_AccountTrunk_(AccountID,TrunkID)
-	SELECT DISTINCT AccountID,TrunkID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL AND ud.is_inbound = 0;
+	SELECT DISTINCT AccountID,TrunkID FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL AND ud.is_inbound = 0;
 	');
 
 	PREPARE stm FROM @stm;
@@ -123,7 +123,7 @@ BEGIN
 		SET v_AccountID_ = (SELECT AccountID FROM tmp_AccountTrunk_ t WHERE t.RowID = v_pointer_);
 
 		/* get outbound rate process*/
-		CALL NeonRMDev.prc_getCustomerCodeRate(v_AccountID_,v_TrunkID_,p_RateCDR,p_RateMethod,p_SpecifyRate,0);
+		CALL Ratemanagement3.prc_getCustomerCodeRate(v_AccountID_,v_TrunkID_,p_RateCDR,p_RateMethod,p_SpecifyRate,0);
 
 		/* update prefix outbound process*/
 		/* if rate format is prefix base not charge code*/

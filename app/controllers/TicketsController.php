@@ -78,7 +78,7 @@ private $validlicense;
 	  }	
 	  
 	  public function ajex_result() {
-		
+	
 	    $data 						= 	Input::all(); 
 		$data['currentpages']		=	$data['currentpage'];
 		if($data['clicktype']=='next'){
@@ -113,14 +113,15 @@ private $validlicense;
 		$iDisplayLength 			= 	 $data['iDisplayLength'];
 		$Sortcolumns				=	 TicketsTable::$Sortcolumns;
 		$pagination					=	 TicketsTable::$pagination;
+		
 		if(count($result)<1)
 		{
-			if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
+			//if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
 				
-				return json_encode(array("result"=>"No Result found for ".$data['SearchStr']));
-			}else{			
+				return json_encode(array("result"=>"No Result "));
+			//}else{			
 				return '';
-			}
+			//}
 		}
 		 $ClosedTicketStatus   = TicketsTable::getClosedTicketStatus(true);
 		 $ResolvedTicketStatus = TicketsTable::getResolvedTicketStatus(true);
@@ -214,7 +215,9 @@ private $validlicense;
 		    $response_extensions		=	json_encode($response_api_extensions['allowed_extensions']); 
 			$max_file_size				=	get_max_file_size();	
 			
-			$AllEmails 					= 	implode(",",(Messages::GetAllSystemEmailsWithName(0,true))); 
+			//$AllEmails 					= 	implode(",",(Messages::GetAllSystemEmailsWithName(0,true))); 
+			$AllEmails 					= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
+			
 			$default_status				=	TicketsTable::getDefaultStatus();
 			
 		   $agentsAll = DB::table('tblTicketGroupAgents')
@@ -243,7 +246,8 @@ private $validlicense;
 			$CompanyID 		   			= 	 User::get_companyID();	
 			$htmlgroupID 	   			= 	 $ResponseData->htmlgroupID;
 			$htmlagentID       			= 	 $ResponseData->htmlagentID;
-			$AllEmails 					= 	 $ResponseData->AllEmails; 			
+			//$AllEmails 					= 	 implode(",",(Messages::GetAllSystemEmailsWithName(0,true))); 
+			$AllEmails 					= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
 		    $agentsAll 					=	 $ResponseData->agentsAll;			
 		    $ticketSavedData			= 	 json_decode(json_encode($ResponseData->ticketSavedData),true);
 			$random_token	  			=	 get_random_number();
@@ -439,9 +443,9 @@ private $validlicense;
 					 $ticketemaildata			 =	AccountEmailLog::find($ticketdata->AccountEmailLogID); 
 					 $ClosedTicketStatus   		 =  TicketsTable::getClosedTicketStatus();						 
 					 TicketsTable::where(["TicketID"=>$id])->update(["Read"=>1]);
-					 
+					 $AllEmailsTo		= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
 					
-					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester','ClosedTicketStatus'));  		  
+					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester','ClosedTicketStatus','AllEmailsTo'));  		  
 			}else{
           	  return view_response_api($response_details);
          	}			 
@@ -459,20 +463,23 @@ private $validlicense;
 		$response  		    =  	  NeonAPI::request('tickets/ticketcction',$data,true,true);
 
 		if(!empty($response) && $response['status'] == 'success' )
-		{ 
+		{  
 			$ResponseData		 =	  $response['data'];
+			$conversation		 =    $ResponseData['conversation'];  
 			$response_data       =    $ResponseData['response_data']; 
 			$AccountEmail 		 = 	  $ResponseData['AccountEmail'];	
 			$parent_id			 =	  $ResponseData['parent_id'];
 			$cc					 =	  $ResponseData['Cc'];
-			//$bcc				 =	  $ResponseData['Bcc'];
+			$bcc				 =	  $ResponseData['Bcc'];
 			$GroupEmail			 =	  $ResponseData['GroupEmail'];	
 			if($action_type=='forward'){ //attach current email attachments
 				$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths']);
 			}
 			
-			$FromEmails	 				 =  TicketGroups::GetGroupsFrom();			
-			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail'));  
+			$FromEmails	 				=  TicketGroups::GetGroupsFrom();			
+			$AllEmailsTo 				= 	json_encode(Messages::GetAllSystemEmails(0,true)); 	
+	//		$AllEmails 					= 	json_encode(Messages::GetAllSystemEmails(0,true)); 
+			return View::make('tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','cc','bcc','GroupEmail','conversation','AllEmailsTo'));  
 		}else{
             return view_response_api($response);
         }		
@@ -575,7 +582,8 @@ private $validlicense;
 		if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); }		
 		$response_extensions		=		json_encode($response_api_extensions['allowed_extensions']);
 		$max_file_size				=		get_max_file_size();
-		$AllEmails 					= 		json_encode(Messages::GetAllSystemEmails()); 	
+		//$AllEmails 				= 		json_encode(Messages::GetAllSystemEmails()); 	
+		$AllEmails 					= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
 		$AllEmailsTo 				= 		Messages::GetAllSystemEmails(0,true); 	
 		$CompanyID 		 			= 		User::get_companyID(); 
 		//echo "<pre>"; print_r($AllEmailsTo); exit;

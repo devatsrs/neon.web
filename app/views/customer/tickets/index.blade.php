@@ -71,7 +71,14 @@
                     <?php } ?>
                   </div>
                 </div>
-                <div class="pull-right btn-group">
+                <div class="pull-left btn-group">
+                <button type="button" data-toggle="dropdown" class="btn  dropdown-toggle  btn-green">Export <span class="caret"></span></button>
+                <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">    
+                    <li><a class="export_btn export_type" action_type="csv" href="#"> CSV</a> </li>
+                    <li><a class="export_btn export_type" action_type="xlsx"  href="#">  EXCEL</a> </li>
+                  </ul>
+                </div>
+                <div class="pull-right sorted btn-group">
                   <button type="button" class="btn btn-green dropdown-toggle" data-toggle="dropdown"> Sorted by {{$Sortcolumns[$data['iSortCol_0']]}} <span class="caret"></span> </button>
                   <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">
                     <?php foreach($Sortcolumns as $key => $SortcolumnsData){ ?>
@@ -133,6 +140,7 @@
 </div>
 <!-- mailbox end -->
 <style>
+.sorted{margin-left:5px;}
 .margin-left-mail{margin-right:15px;width:21%; }.mailaction{margin-right:10px;}.btn-blue{color:#fff !important;}
 .mail-body{width:100% !important; float:none !important;}
 .blue_link{font-size:13px; font-weight:bold;}
@@ -164,6 +172,7 @@ $(document).ready(function(e) {
 	var total			=	<?php echo $totalResults; ?>;
 	var clicktype		=	'';
 	var ajax_url 		= 	baseurl+'/customer/tickets/ajex_result';
+	var ajax_url_export	= 	baseurl+'/customer/tickets/ajex_result_export';
 	var SearchStr		=	'';
 	var sort_fld  		=   "{{$data['iSortCol_0']}}";
 	var sort_type 		=   "{{$data['sSortDir_0']}}";
@@ -262,6 +271,30 @@ $(document).ready(function(e) {
 		ShowResult(clicktype);
 		return false;		
 		
+	});
+	
+		$(document).on('click','.export_btn',function(e){
+		e.stopImmediatePropagation();
+		e.preventDefault();		
+			
+		var $search 		= 	{};
+        $search.Search 		= 	$("#tickets_filter").find('[name="search"]').val();
+		$search.status		= 	$("#tickets_filter").find('[name="status[]"]').val();
+		$search.priority 	= 	$("#tickets_filter").find('[name="priority[]"]').val();		
+		var export_type		=	$(this).attr('action_type');
+		
+		ajax_url_export = ajax_url_export+"?Search="+$search.Search+"&status="+$search.status+"&priority="+$search.priority+"&sort_fld="+sort_fld+"&sort_type="+sort_type+"&export_type="+export_type+"&Export=1";
+		window.location = ajax_url_export;
+		 /*$.ajax({
+					url: ajax_url_export,
+					type: 'POST',
+					dataType: 'html',
+					async :false,
+					data:{formData:$search,currentpage:currentpage,per_page:per_page,total:total,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type,Export:1},
+					success: function(response) {
+						
+					}	
+			});	*/
 	});
 	
 	$(document).on('click','.dropdown-green li a',function(e){
