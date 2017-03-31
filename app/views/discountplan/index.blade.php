@@ -191,9 +191,9 @@
                 e.preventDefault();
                 var DiscountPlanID = $(this).find('[name="DiscountPlanID"]').val();
                 if( typeof DiscountPlanID != 'undefined' && DiscountPlanID != ''){
-                    var _url = add_url;
-                }else{
                     var _url = edit_url;
+                }else{
+                    var _url = add_url;
                 }
 
                 submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
