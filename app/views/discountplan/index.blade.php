@@ -163,6 +163,7 @@
             });
             $('table tbody').on('click', '.edit-button', function (ev) {
                 ev.preventDefault();
+                edit_url  = $(this).attr("href");
                 $('#modal-form').trigger("reset");
                 $('#modal-list h4').html('Edit Discount Plan');
                 var cur_obj = $(this).prev("div.hiddenRowData");
