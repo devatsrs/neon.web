@@ -3191,6 +3191,7 @@ show_summernote = function (element,option){
         ],
         height: 200,
         tabsize: 2,
+        dialogsInBody: true,
     });
 
 };

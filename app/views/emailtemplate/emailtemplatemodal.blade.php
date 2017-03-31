@@ -1,11 +1,8 @@
 <?php $emailfrom  = array(); if(isset($email_from)){$emailfrom = $email_from;}else{$emailfrom = TicketGroups::GetGroupsFrom();} ?>
-<link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 <script>
     $(document).ready(function ($) {
-		
-        $('#add-new-template-form').submit(function(e){
+
+		$('#add-new-template-form').submit(function(e){
             e.preventDefault();
             var templateID = $("#add-new-template-form [name='TemplateID']").val();
             if( typeof templateID != 'undefined' && templateID != ''){
