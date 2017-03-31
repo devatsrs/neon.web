@@ -72,6 +72,7 @@
             var view_url = baseurl + "/discount_plan/show/{id}";
             var delete_url = baseurl + "/discount_plan/delete/{id}";
             var datagrid_url = baseurl + "/discount_plan/ajax_datagrid";
+            var action_edit_url = '';
 
             $("#filter_submit").click(function(e) {
                 e.preventDefault();
@@ -163,7 +164,7 @@
             });
             $('table tbody').on('click', '.edit-button', function (ev) {
                 ev.preventDefault();
-                edit_url  = $(this).attr("href");
+                action_edit_url  = $(this).attr("href");
                 $('#modal-form').trigger("reset");
                 $('#modal-list h4').html('Edit Discount Plan');
                 var cur_obj = $(this).prev("div.hiddenRowData");
@@ -192,7 +193,7 @@
                 e.preventDefault();
                 var DiscountPlanID = $(this).find('[name="DiscountPlanID"]').val();
                 if( typeof DiscountPlanID != 'undefined' && DiscountPlanID != ''){
-                    var _url = edit_url;
+                    var _url = action_edit_url;
                 }else{
                     var _url = add_url;
                 }
