@@ -1,0 +1,214 @@
+From 2b0ee28bb5af837fadac11639d8c1daeb70f97c3 Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Thu, 16 Mar 2017 15:44:59 +0500
+Subject: [PATCH] #NEON-796
+
+---
+ app/controllers/CompaniesController.php | 21 ++++++++++++---------
+ app/helpers.php                         |  8 +++-----
+ 2 files changed, 15 insertions(+), 14 deletions(-)
+
+diff --git a/app/controllers/CompaniesController.php b/app/controllers/CompaniesController.php
+index 858ffbf..7543d72 100644
+--- a/app/controllers/CompaniesController.php
++++ b/app/controllers/CompaniesController.php
+@@ -42,7 +42,7 @@ class CompaniesController extends \BaseController {
+ 	 */
+ 	public function update()
+ 	{
+-        $data = Input::all();
++        $data = Input::all(); 
+         $companyID = User::get_companyID();
+         $company = Company::find($companyID);
+         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
+@@ -72,7 +72,7 @@ class CompaniesController extends \BaseController {
+         //unset($data['PincodeWidget']);
+         LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
+         unset($data['LastPrefixNo']);
+-
++		
+         if(!empty($data['CurrencyId'])){
+             //add default currency value in exchange rate
+             $CurrencyCon = array();
+@@ -94,6 +94,9 @@ class CompaniesController extends \BaseController {
+         if($company->TimeZone != $data["Timezone"] ){
+             CronJob::updateAllCronJobNextRunTime($companyID);
+         }
++		
++		$data['IsSSL'] = isset($data['IsSSL'])?1:0;
++		
+         if ($company->update($data)) {
+             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
+         } else {
+@@ -103,18 +106,18 @@ class CompaniesController extends \BaseController {
+     }
+ 	
+ 	function ValidateSmtp(){
+-		$data 				= 		Input::all();		
+-        $companyID 			= 		User::get_companyID(); Log::info(print_r($data,true));
++		$data 				= 		Input::all();
++        $companyID 			= 		User::get_companyID();
+         $company 			=		Company::find($companyID);
+         if(empty($data['SMTPPassword'])){
+             $data['SMTPPassword'] = $company->SMTPPassword;
+         }
+-		
+-		if($data['IsSSL']  == 'false'){ 
+-			$ssl	=	0;  
+-		}else{ 
+-			$ssl	=	1; 
++		if($data['IsSSL']=='true'){
++			$ssl = 1;
++		}else{
++			$ssl = 0;
+ 		}
++		
+ 		 $rules = array(
+             'SMTPServer' => 'required',
+             'Port' => 'required|numeric',
+diff --git a/app/helpers.php b/app/helpers.php
+index ab87140..ff5c094 100644
+--- a/app/helpers.php
++++ b/app/helpers.php
+@@ -1163,11 +1163,10 @@ function get_round_decimal_places($AccountID = 0) {
+ }
+ 
+ 
+-function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){
+-	Log::info("ssl".$IsSSL);
++function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){ 
+     $mail 				= 	new PHPMailer;
+     $mail->isSMTP();
+-	$mail->SMTPDebug 	= 	1; 
++	//$mail->SMTPDebug = 2;                  
+     $mail->Host 		= 	$SMTPServer;
+     $mail->SMTPAuth 	= 	true;
+     $mail->Username 	= 	$SMTPUsername;
+@@ -1178,14 +1177,13 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
+     $mail->FromName 	= 	'Test Smtp server';
+     $mail->Body 		= 	"Testing Smtp mail Settings";
+     $mail->Subject 		= 	"Test Smtp Email";
+-	//$mail->SMTPAutoTLS 	=	false;
+     $mail->Timeout		=    25;
+   /*if($mail->smtpConnect()){
+ 		$mail->smtpClose();*/
+ 	$mail->addAddress($ToEmail); 
+    if ($mail->send()) {
+ 	   return "Valid mail settings.";
+-	}else{ Log::info(print_r($mail,true));
++	}else{ 
+ 		return "Invalid mail settings.";
+ 	}
+  }
+-- 
+1.9.5.msysgit.0
+
+From f13e553a4006e1a215508ca231c1bd9debae5305 Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Thu, 16 Mar 2017 13:56:26 +0500
+Subject: [PATCH] php mailer issue
+
+---
+ app/controllers/CompaniesController.php | 11 ++++++++---
+ app/helpers.php                         |  5 ++++-
+ app/lib/PHPMAILERIntegtration.php       |  6 +++---
+ 3 files changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/app/controllers/CompaniesController.php b/app/controllers/CompaniesController.php
+index b2120cc..858ffbf 100644
+--- a/app/controllers/CompaniesController.php
++++ b/app/controllers/CompaniesController.php
+@@ -103,13 +103,18 @@ class CompaniesController extends \BaseController {
+     }
+ 	
+ 	function ValidateSmtp(){
+-		$data 				= 		Input::all();
+-        $companyID 			= 		User::get_companyID();
++		$data 				= 		Input::all();		
++        $companyID 			= 		User::get_companyID(); Log::info(print_r($data,true));
+         $company 			=		Company::find($companyID);
+         if(empty($data['SMTPPassword'])){
+             $data['SMTPPassword'] = $company->SMTPPassword;
+         }
+ 		
++		if($data['IsSSL']  == 'false'){ 
++			$ssl	=	0;  
++		}else{ 
++			$ssl	=	1; 
++		}
+ 		 $rules = array(
+             'SMTPServer' => 'required',
+             'Port' => 'required|numeric',
+@@ -126,7 +131,7 @@ class CompaniesController extends \BaseController {
+             return json_validator_response($validator);
+         }
+ 		
+-		$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$data['IsSSL']==1?1:0,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
++		$checkValidation 	= 		ValidateSmtp($data['SMTPServer'],$data['Port'],$data['EmailFrom'],$ssl,$data['SMTPUsername'],$data['SMTPPassword'],$data['EmailFrom'],$data['SampleEmail']);
+ 		
+ 		$ResponseArray= array("response"=>$checkValidation,"status"=>"success");
+ 		return json_encode($ResponseArray);
+diff --git a/app/helpers.php b/app/helpers.php
+index 0095dc4..ab87140 100644
+--- a/app/helpers.php
++++ b/app/helpers.php
+@@ -1164,8 +1164,10 @@ function get_round_decimal_places($AccountID = 0) {
+ 
+ 
+ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPassword,$address,$ToEmail){
++	Log::info("ssl".$IsSSL);
+     $mail 				= 	new PHPMailer;
+     $mail->isSMTP();
++	$mail->SMTPDebug 	= 	1; 
+     $mail->Host 		= 	$SMTPServer;
+     $mail->SMTPAuth 	= 	true;
+     $mail->Username 	= 	$SMTPUsername;
+@@ -1176,13 +1178,14 @@ function ValidateSmtp($SMTPServer,$Port,$EmailFrom,$IsSSL,$SMTPUsername,$SMTPPas
+     $mail->FromName 	= 	'Test Smtp server';
+     $mail->Body 		= 	"Testing Smtp mail Settings";
+     $mail->Subject 		= 	"Test Smtp Email";
++	//$mail->SMTPAutoTLS 	=	false;
+     $mail->Timeout		=    25;
+   /*if($mail->smtpConnect()){
+ 		$mail->smtpClose();*/
+ 	$mail->addAddress($ToEmail); 
+    if ($mail->send()) {
+ 	   return "Valid mail settings.";
+-	}else{ 
++	}else{ Log::info(print_r($mail,true));
+ 		return "Invalid mail settings.";
+ 	}
+  }
+diff --git a/app/lib/PHPMAILERIntegtration.php b/app/lib/PHPMAILERIntegtration.php
+index 9dc5dda..939fcff 100644
+--- a/app/lib/PHPMAILERIntegtration.php
++++ b/app/lib/PHPMAILERIntegtration.php
+@@ -21,14 +21,14 @@ class PHPMAILERIntegtration{
+ 			Config::set('mail.from.name',$config->CompanyName);
+ 		}
+ 		Config::set('mail.from.name',$config->CompanyName);
+-		Config::set('mail.encryption',($config->IsSSL==1?'ssl':'tls'));
++		Config::set('mail.encryption',($config->IsSSL==1?'SSL':'TLS'));
+ 		Config::set('mail.username',$config->SMTPUsername);
+ 		Config::set('mail.password',$config->SMTPPassword);
+ 		extract(Config::get('mail'));
+ 	
+ 		$mail = new \PHPMailer;
+ 		//$mail->SMTPDebug = 0;                               // Enable verbose debug output
+-		//$mail->SMTPDebug = 1;
++		$mail->SMTPDebug = 1;
+ 		$mail->isSMTP();                                      // Set mailer to use SMTP
+ 		$mail->Host = $host;  // Specify main and backup SMTP servers
+ 		$mail->SMTPAuth = true;                               // Enable SMTP authentication
+@@ -111,7 +111,7 @@ class PHPMAILERIntegtration{
+ 					$status['message'] = 'Email has been sent';
+ 					$status['body'] = $body;
+ 					$status['message_id']	=	$mail->getLastMessageID(); 
+-		} 
++		} Log::info(print_r($mail,true));
+ 		return $status;
+ 	}
+ 	
+-- 
+1.9.5.msysgit.0
+
