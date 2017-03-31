@@ -451,7 +451,7 @@
                     var SelectedIDs = getselectedIDs();
                     if (SelectedIDs.length == 0) {
                         $(".save").button('reset');
-                        $(".savetest").button('reset');
+						$(".savetest").button('reset');
                         $('#modal-BulkMail').modal('hide');
                         toastr.error('Please select at least one lead or select all found leads.', "Error", toastr_opts);
                         return false;
@@ -463,7 +463,7 @@
 
                 if ($("#BulkMail-form").find("input[name='SelectedIDs']").val() != "" && confirm("Are you sure to send mail to selected leads") != true) {
                     $(".btn").button('reset');
-                    $(".savetest").button('reset');
+					$(".savetest").button('reset');
                     $('#modal-BulkMail').modal('hide');
                     return false;
                 }
@@ -478,14 +478,14 @@
                     if(response.status =='success'){
                         toastr.success(response.message, "Success", toastr_opts);
                         $(".save").button('reset');
-                        $(".savetest").button('reset');
+						$(".savetest").button('reset');
                         $('#modal-BulkMail').modal('hide');
                         data_table.fnFilter('', 0);
                         reloadJobsDrodown(0);
                     }else{
                         toastr.error(response.message, "Error", toastr_opts);
                         $(".save").button('reset');
-                        $(".savetest").button('reset');
+						$(".savetest").button('reset');
                     }
                     $('.file-input-name').text('');
                     $('#attachment').val('');

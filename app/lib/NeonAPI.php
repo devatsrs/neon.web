@@ -32,25 +32,25 @@ class NeonAPI{
 	{
 		NeonAPI::request('logout',[]);		 
 	}
-	
-   public static function login_by_id($id,$type = 'user'){
+
+    public static function login_by_id($id,$type = 'user'){
         $curl = new Curl\Curl();
         $call_method = 'l/'.$id;
 
-       self::$api_url = CompanyConfiguration::get('NEON_API_URL').'/';
-       $request = array(
-           'LoggedUserID' => $id,
-           "LicenceKey" =>  getenv('LICENCE_KEY'),
-           'CompanyName'=>getenv('COMPANY_NAME'),
-           'LoginType' => $type
-       );
-       $curl->post(self::$api_url.$call_method, $request );
-       Log::info("api_url:".self::$api_url);
+        self::$api_url = CompanyConfiguration::get('NEON_API_URL').'/';
+        $request = array(
+            'LoggedUserID' => $id,
+            "LicenceKey" =>  getenv('LICENCE_KEY'),
+            'CompanyName'=>getenv('COMPANY_NAME'),
+            'LoginType' => $type
+        );
+        $curl->post(self::$api_url.$call_method, $request );
+        Log::info("api_url:".self::$api_url);
 
         $response = json_decode($curl->response);
-       Log::info(print_r($response,true));
+        Log::info(print_r($response,true));
         if(isset($response->token)){
-            self::setToken($response->token); 
+            self::setToken($response->token);
             return true;
         }else{
             Log::info("-----Not Loggedin on API-----");
