@@ -50,56 +50,6 @@
                             {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2")) }}
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
-                        <div class="col-sm-4">
-                            <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="
-                            <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
-
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">Settings</label>
-
-                        <div class="col-sm-10">
-                            <div class="checkbox ">
-                                <label>
-                                    <input type="hidden" name="RateCDR" value="0" >
-                                    <input type="checkbox" id="RateCDR" name="RateCDR" value="1" > Rate CDR</label>
-
-                            </div>
-                            <div class="checkbox ">
-                                <input type="hidden" name="CheckFile" value="0" >
-                                <label><input type="checkbox" id="rd-1" name="CheckFile" checked value="1"> Verify this file</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="RateCDR_type" class="form-group hidden">
-                        <label class="col-sm-2 control-label" for="field-1">Type</label>
-                        <div class="col-sm-3">
-                            <div class="radio radio-replace color-primary pull-left">
-                                <input class="icheck-11 timeline_filter" type="radio" id="minimal-radio-1" name="rerate_type" value="trunk">
-                                <label for="minimal-radio-1">Trunk</label>
-                                &nbsp;&nbsp;</div>
-                            <div class="radio radio-replace color-green pull-left">
-                                <input class="icheck-11 timeline_filter" type="radio" id="minimal-radio-2" name="rerate_type" value="service">
-                                <label for="minimal-radio-2">Service</label>
-                                &nbsp;&nbsp;</div>
-                            <div class="radio radio-replace color-blue pull-left">
-                                <input class="icheck-11 timeline_filter" type="radio" id="minimal-radio-3" name="rerate_type" value="ratetable">
-                                <label for="minimal-radio-3">Rate Table</label>
-                                &nbsp;&nbsp;</div>
-                        </div>
-                    </div>
-                    <div id="service_dropdown" class="form-group hidden">
-                        <label class="col-sm-2 control-label" for="field-1">Service</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('ServiceID',$Services,'', array("class"=>"select2")) }}
-                        </div>
-                    </div>
                     <div id="trunk_dropdown" class="form-group hidden">
                         <label class="col-sm-2 control-label" for="field-1">Trunk</label>
                         <div class="col-sm-3">
@@ -112,20 +62,30 @@
                             {{ Form::select('RateFormat',Company::$rerate_format,'', array("class"=>"select2")) }}
                         </div>
                     </div>
-                    <div id="inbound_dropdown" class="form-group hidden">
-                        <label class="col-sm-2 control-label" for="field-1">Inbound Rate Table</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('InboundRateTableID',$ratetables,'', array("class"=>"select2")) }}
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
+                        <div class="col-sm-4">
+                            <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="
+                            <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
+
                         </div>
                     </div>
-                    <div id="outbound_dropdown" class="form-group hidden">
-                        <label class="col-sm-2 control-label" for="field-1">Outbound Rate Table</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('OutboundRateTableID',$ratetables,'', array("class"=>"select2")) }}
+                     <div class="form-group">
+                        <label class="col-sm-2 control-label">Settings</label>
+
+                        <div class="col-sm-10">
+                            <div class="checkbox ">
+                                <label>
+                                <input type="hidden" name="RateCDR" value="0" >
+                                <input type="checkbox" id="RateCDR" name="RateCDR" value="1" > Rate CDR</label>
+
+                            </div>
+                            <div class="checkbox ">
+                                <input type="hidden" name="CheckFile" value="0" >
+                                <label><input type="checkbox" id="rd-1" name="CheckFile" checked value="1"> Verify this file</label>
+                            </div>
                         </div>
                     </div>
-
-
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Note</label>
                         <div class="col-sm-8">
@@ -533,94 +493,16 @@ var click_btn;
 
         $('#RateCDR').change(function(){
             if($('#RateCDR').is(":checked")){
-                $("#RateCDR_type").removeClass("hidden");
-
-
-            }else{
-                $("#RateCDR_type").addClass("hidden");
-
-                if(!$("#trunk_dropdown").hasClass( "hidden" )){
-                    $("#trunk_dropdown").addClass("hidden");
-                }
-                if(!$("#rate_dropdown").hasClass( "hidden" )){
-                    $("#rate_dropdown").addClass("hidden");
-                }
-
-                if(!$("#service_dropdown").hasClass( "hidden" )){
-                    $("#service_dropdown").addClass("hidden");
-                }
-                if(!$("#inbound_dropdown").hasClass( "hidden" )){
-                    $("#inbound_dropdown").addClass("hidden");
-                }
-                if(!$("#outbound_dropdown").hasClass( "hidden" )){
-                    $("#outbound_dropdown").addClass("hidden");
-                }
-                $('select[name=TrunkID]').select2("val","");
-                $('select[name=RateFormat]').select2("val","");
-                $('select[name=RateFormat]').trigger('change');
-                $('select[name=ServiceID]').select2("val","");
-                $('select[name=InboundRateTableID]').select2("val","");
-                $('select[name=OutboundRateTableID]').select2("val","");
-            }
-
-
-        });
-        $('input[name=rerate_type]').click(function(){
-            var type = $('input[name=rerate_type]:checked').val();
-            if(type=='trunk'){
                 $("#trunk_dropdown").removeClass("hidden");
                 $("#rate_dropdown").removeClass("hidden");
-
-                if(!$("#service_dropdown").hasClass( "hidden" )){
-                    $("#service_dropdown").addClass("hidden");
-                }
-                if(!$("#inbound_dropdown").hasClass( "hidden" )){
-                    $("#inbound_dropdown").addClass("hidden");
-                }
-                if(!$("#outbound_dropdown").hasClass( "hidden" )){
-                    $("#outbound_dropdown").addClass("hidden");
-                }
-
+            }else{
+                $("#trunk_dropdown").addClass("hidden");
+                $("#rate_dropdown").addClass("hidden");
             }
-            if(type=='service'){
-                $("#service_dropdown").removeClass("hidden");
-
-                if(!$("#trunk_dropdown").hasClass( "hidden" )){
-                    $("#trunk_dropdown").addClass("hidden");
-                }
-                if(!$("#rate_dropdown").hasClass( "hidden" )){
-                    $("#rate_dropdown").addClass("hidden");
-                }
-                if(!$("#inbound_dropdown").hasClass( "hidden" )){
-                    $("#inbound_dropdown").addClass("hidden");
-                }
-                if(!$("#outbound_dropdown").hasClass( "hidden" )){
-                    $("#outbound_dropdown").addClass("hidden");
-                }
-            }
-            if(type=='ratetable'){
-                $("#inbound_dropdown").removeClass("hidden");
-                $("#outbound_dropdown").removeClass("hidden");
-
-                if(!$("#trunk_dropdown").hasClass( "hidden" )){
-                    $("#trunk_dropdown").addClass("hidden");
-                }
-                if(!$("#rate_dropdown").hasClass( "hidden" )){
-                    $("#rate_dropdown").addClass("hidden");
-                }
-                if(!$("#service_dropdown").hasClass( "hidden" )){
-                    $("#service_dropdown").addClass("hidden");
-                }
-            }
-
             $('select[name=TrunkID]').select2("val","");
             $('select[name=RateFormat]').select2("val","");
             $('select[name=RateFormat]').trigger('change');
-            $('select[name=ServiceID]').select2("val","");
-            $('select[name=InboundRateTableID]').select2("val","");
-            $('select[name=OutboundRateTableID]').select2("val","");
         });
-
         $('#RateCDR').trigger('change');
     });
     function createGrid(data){
@@ -686,9 +568,6 @@ var click_btn;
 }
 .dataTables_wrapper .export-data{
     right: 30px !important;
-}
-.radio label{
-    min-height:16px !important;
 }
 </style>
 @stop
@@ -766,4 +645,5 @@ var click_btn;
         </div>
     </div>
 </div>
+
 @stop

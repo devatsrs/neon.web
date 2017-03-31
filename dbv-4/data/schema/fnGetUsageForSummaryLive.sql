@@ -8,14 +8,13 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	DELETE FROM tmp_tblUsageDetailsReportLive WHERE CompanyID = p_CompanyID;
-
-	INSERT INTO tmp_tblUsageDetailsReportLive (UsageDetailID,AccountID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,cost,connect_time,connect_date,call_status)
+	
+	INSERT INTO tmp_tblUsageDetailsReportLive (UsageDetailID,AccountID,CompanyID,CompanyGatewayID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,cost,connect_time,connect_date,call_status) 
 	SELECT
 		ud.UsageDetailID,
 		uh.AccountID,
 		uh.CompanyID,
 		uh.CompanyGatewayID,
-		uh.ServiceID,
 		uh.GatewayAccountID,
 		trunk,
 		area_prefix,
@@ -33,13 +32,12 @@ BEGIN
 	AND uh.AccountID IS NOT NULL
 	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
 
-	INSERT INTO tmp_tblUsageDetailsReportLive (UsageDetailID,AccountID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,cost,connect_time,connect_date,call_status)
+	INSERT INTO tmp_tblUsageDetailsReportLive (UsageDetailID,AccountID,CompanyID,CompanyGatewayID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,cost,connect_time,connect_date,call_status)  
 	SELECT
 		ud.UsageDetailFailedCallID,
 		uh.AccountID,
 		uh.CompanyID,
 		uh.CompanyGatewayID,
-		uh.ServiceID,
 		uh.GatewayAccountID,
 		trunk,
 		area_prefix,
