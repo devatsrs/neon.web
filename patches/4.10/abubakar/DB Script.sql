@@ -1,3 +1,7 @@
+USE `Ratemanagement3`;
+
+DROP PROCEDURE IF EXISTS `prc_GetCronJobHistory`;
+DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCronJobHistory`(
 	IN `p_CronJobID` INT,
 	IN `p_StartDate` DATETIME,
@@ -92,4 +96,5 @@ BEGIN
             ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID;
     END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END
+END//
+DELIMITER ;
