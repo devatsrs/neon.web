@@ -1,5 +1,27 @@
 USE `Ratemanagement3`;
 
+INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.Add', '1');
+INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.Edit', '1');
+INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.Delete', '1');
+INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.View', '1');
+INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.All', '1');
+
+
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.Add' limit 1) WHERE  `ResourceName`='RecurringInvoice.create';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.Add' limit 1) WHERE  `ResourceName`='RecurringInvoice.store';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.Edit' limit 1) WHERE  `ResourceName`='RecurringInvoice.edit';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.update' limit 1) WHERE  `ResourceName`='RecurringInvoice.update';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.Delete' limit 1) WHERE  `ResourceName`='RecurringInvoice.delete';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.index';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.recurringinvoicelog';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.startstop';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.getAccountInfo';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.getBillingClassInfo';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.generate';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.ajax_datagrid';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.ajax_recurringinvoicelog_datagrid';
+UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.View' limit 1) WHERE  `ResourceName`='RecurringInvoice.calculate_total';
+
 DROP PROCEDURE IF EXISTS `prc_GetCronJobHistory`;
 DELIMITER //
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCronJobHistory`(
