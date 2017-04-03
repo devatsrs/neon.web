@@ -1,8 +1,6 @@
 CREATE DEFINER=`root`@`localhost` FUNCTION `fngetLastVendorInvoiceDate`(
 	`p_AccountID` INT
-
-
-) RETURNS datetime
+) RETURNS DATETIME
 BEGIN
 	
 	DECLARE v_LastInvoiceDate_ DATETIME;
@@ -17,7 +15,9 @@ BEGIN
 				DATE_FORMAT(BillingStartDate,'%Y-%m-%d')
 			ELSE DATE_FORMAT(tblAccount.created_at,'%Y-%m-%d')
 			END 
-		END INTO v_LastInvoiceDate_
+		END 
+	INTO
+		v_LastInvoiceDate_ 
  	FROM NeonRMDev.tblAccount
 	LEFT JOIN NeonRMDev.tblAccountBilling 
 		ON tblAccountBilling.AccountID = tblAccount.AccountID

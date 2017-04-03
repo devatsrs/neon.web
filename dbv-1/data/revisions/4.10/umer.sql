@@ -4,6 +4,22 @@ update tblEmailTemplate set EmailFrom = (select EmailFrom from tblCompany limit 
 -- ##############################################################
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'WEB_PATH', '/var/www/html/rm.umer');
 -- ##############################################################
+
+/*
+UPDATE `tblEmailTemplate` SET `TicketTemplate`='1' WHERE  SystemType = 'CCNoteaddedtoticket';
+UPDATE `tblEmailTemplate` SET `TicketTemplate`='1' WHERE  SystemType = 'AgentEscalationRule';
+UPDATE `tblEmailTemplate` SET `TicketTemplate`='1' WHERE  SystemType = 'AgentTicketReopened';
+UPDATE `tblEmailTemplate` SET `TicketTemplate`='1' WHERE  SystemType = 'AgentAssignedGroup';
+UPDATE `tblEmailTemplate` SET `TicketTemplate`='1' WHERE  SystemType = 'CCNewTicketCreated';
+UPDATE `tblEmailTemplate` SET `TicketTemplate`='1' WHERE  SystemType = 'RequesterNewTicketCreated';
+UPDATE `tblEmailTemplate` SET `TicketTemplate`='1' WHERE  SystemType = 'AgentClosestheTicket';
+UPDATE `tblEmailTemplate` SET `TicketTemplate`='1' WHERE  SystemType = 'AgentSolvestheTicket';
+UPDATE `tblEmailTemplate` SET `TicketTemplate`='1' WHERE  SystemType = 'Noteaddedtoticket';
+UPDATE `tblEmailTemplate` SET `TicketTemplate`='1' WHERE  SystemType = 'RequesterRepliestoTicket';
+UPDATE `tblEmailTemplate` SET `TicketTemplate`='1' WHERE  SystemType = 'TicketAssignedtoAgent';
+UPDATE `tblEmailTemplate` SET `TicketTemplate`='1' WHERE  SystemType = 'AgentNewTicketCreated';
+*/
+-- ##############################################################
 /*ALTER TABLE `AccountEmailLog`	ADD COLUMN `TicketID` INT(11) NOT NULL DEFAULT '0' AFTER `EmailCall`;*/
 -- ##############################################################
 /*ALTER TABLE `tblTickets`

@@ -1142,21 +1142,6 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/clitable/delete/{id}','AccountsController@clitable_delete');
 	Route::any('/clitable/update','AccountsController@clitable_update');
 
-	// services
-	Route::any('services', 'ServicesController@index');
-	Route::any('services/ajax_datagrid', 'ServicesController@ajax_datagrid');
-	Route::any('services/store', 'ServicesController@store');
-	Route::any('services/update/{id}', 'ServicesController@update');
-	Route::any('services/delete/{id}', 'ServicesController@delete');
-	Route::any('services/exports/{type}', 'ServicesController@exports');
-
-	//accountservice
-	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
-	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
-	Route::any('accountservices/{id}/ajax_datagrid', 'AccountServiceController@ajax_datagrid');
-	Route::any('accountservices/{id}/update/{serviceid}', 'AccountServiceController@update');
-	Route::any('accountservices/{id}/changestatus/{status}', 'AccountServiceController@changestatus');
-	Route::any('accountservices/{id}/{serviceid}/delete', 'AccountServiceController@delete');
 });
 
 Route::group(array('before' => 'global_admin'), function () {
