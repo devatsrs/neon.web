@@ -5,7 +5,7 @@ ALTER TABLE `tblBillingSubscription`
 	ADD COLUMN `QuarterlyFee` DECIMAL(18,2) NULL DEFAULT NULL AFTER `AnnuallyFee`;
 
 ALTER TABLE `tblAccountSubscription`
-	ADD COLUMN `AnnuallyFee` DECIMAL(18,2) NULL DEFAULT NULL AFTER `Discount`,
+	ADD COLUMN `AnnuallyFee` DECIMAL(18,2) NULL DEFAULT NULL AFTER `ActivationFee`,
 	ADD COLUMN `QuarterlyFee` DECIMAL(18,2) NULL DEFAULT NULL AFTER `AnnuallyFee`;
 
 DROP PROCEDURE IF EXISTS `prc_getBillingSubscription`;
