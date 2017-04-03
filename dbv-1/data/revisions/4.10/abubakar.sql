@@ -3,11 +3,11 @@ USE `Ratemanagement3`;
 ALTER TABLE `tblNote`
 	ADD COLUMN `UserID` INT(11) NOT NULL AFTER `AccountID`;
 
-INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.Add', '1');
-INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.Edit', '1');
-INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.Delete', '1');
-INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.View', '1');
-INSERT INTO `tblresourcecategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.All', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.Add', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.Edit', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.Delete', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.View', '1');
+INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.All', '1');
 
 
 UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='RecurringProfile.Add' limit 1) WHERE  `ResourceName`='RecurringInvoice.create';
