@@ -155,7 +155,7 @@ $(document).ready(function(e) {
 							if(isJson(response))
 							{
 								jsonstr =  JSON.parse(response);
-                                $('.index').html('<table id="table-4" class="table mail-table"><tr><td class="col-name  borderside bordersideLow " align="center" colspan="2">'+jsonstr.result+'</td></tr><table>');
+                                $('.inbox').html('<table id="table-4" class="table mail-table"><tr><td class="col-name" align="center" colspan="2">'+jsonstr.result+'</td></tr><table>');
 								
 								if(clicktype=='next')
 								 {
