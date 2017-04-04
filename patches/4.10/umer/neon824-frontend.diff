@@ -1,0 +1,50 @@
+From 4a0819b9a1566eb4017296952590d7a058e976c8 Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Tue, 4 Apr 2017 20:32:05 +0500
+Subject: [PATCH] neon 824
+
+---
+ app/controllers/HomeController.php | 14 ++++++++++++++
+ app/routes.php                     |  3 +++
+ 2 files changed, 17 insertions(+)
+
+diff --git a/app/controllers/HomeController.php b/app/controllers/HomeController.php
+index 44576f0..13b3fae 100644
+--- a/app/controllers/HomeController.php
++++ b/app/controllers/HomeController.php
+@@ -330,4 +330,18 @@ class HomeController extends BaseController {
+     public function process_redirect(){
+         return Redirect::to($this->dashboard_url);
+     }
++	
++	function DownloadFile(){
++		 $data = Input::all();
++		 if(isset($data['file'])){
++		  	$FilePath =  CompanyConfiguration::get('UPLOAD_PATH').base64_decode($data['file']); 
++			if(file_exists($FilePath)){ 
++				download_file($FilePath);
++			}else{ 
++				header('Location: '.$FilePath);
++			}
++			exit;
++		  }
++		 exit;
++	}
+ }
+diff --git a/app/routes.php b/app/routes.php
+index 0bde4aa..0f207a3 100644
+--- a/app/routes.php
++++ b/app/routes.php
+@@ -1218,6 +1218,9 @@ Route::group(array('before' => 'guest'), function () {
+ 	Route::any('/estimate/{id}/create_comment', 'EstimatesController@create_comment');
+ 
+ 	Route::any('/estimate/download_estimate/{id}', 'EstimatesController@download_estimate');
++	
++	Route::any('/download_file', 'HomeController@DownloadFile');
++	
+ 
+ });
+ 
+-- 
+1.9.5.msysgit.0
+

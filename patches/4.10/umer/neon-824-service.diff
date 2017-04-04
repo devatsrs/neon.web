@@ -1,0 +1,186 @@
+From bf756708e982c93681343c68148c3ae728daf5b8 Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Tue, 4 Apr 2017 21:02:53 +0500
+Subject: [PATCH] neon 824
+
+---
+ app/lib/Helper.php | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/app/lib/Helper.php b/app/lib/Helper.php
+index 9ebd648..3baa09c 100644
+--- a/app/lib/Helper.php
++++ b/app/lib/Helper.php
+@@ -335,20 +335,19 @@ class Helper{
+ 		$replace_array['CompanyCity'] 		= $CompanyData->City;
+ 		$replace_array['CompanyPostCode'] 	= $CompanyData->PostCode;
+ 		$replace_array['CompanyCountry'] 	= $CompanyData->Country;
+-		$replace_array['Logo'] 				= combile_url_path(\App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL'),'/assets/images/logo@2x.png'); 		
++		$replace_array['Logo'] 				= combile_url_path(\App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL'),'assets/images/logo@2x.png'); 		
+ 		
+         $domain_data  =     parse_url(\App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL'));
+-		$TEMP_PATH 	  =     \App\Lib\CompanyConfiguration::get($Account->CompanyId,'TEMP_PATH').'/';
+ 		$Host		  = 	$domain_data['host'];
+         $result       =    \Illuminate\Support\Facades\DB::table('tblCompanyThemes')->where(["DomainUrl" => $Host,'ThemeStatus'=>\App\Lib\Themes::ACTIVE])->first();
+ 
+         if(!empty($result)){
+-            if(!empty($result->Logo)){             
++            if(!empty($result->Logo)){           
+ 				 $path = AmazonS3::unSignedUrl($result->Logo,$Account->CompanyId);  
+                         if(strpos($path, "https://") !== false){
+ 							$replace_array['Logo'] = $path;
+                         }else{
+-                            $file = $TEMP_PATH.$path;                    
++                            $file = $result->Logo;           
+                             $replace_array['Logo'] = MakeWebUrl($Account->CompanyId,$file); 
+                         }
+ 				
+-- 
+1.9.5.msysgit.0
+
+From 029a861ff2bfe0517ef3de5e455e4465ca2a98aa Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Tue, 4 Apr 2017 20:33:21 +0500
+Subject: [PATCH] neon 824
+
+---
+ app/helpers.php    |  4 ++++
+ app/lib/Helper.php | 16 ++++++++++++----
+ 2 files changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/app/helpers.php b/app/helpers.php
+index 7c54d17..4fb2135 100644
+--- a/app/helpers.php
++++ b/app/helpers.php
+@@ -590,3 +590,7 @@ function validator_response($validator){
+     }
+ 
+ }
++
++function MakeWebUrl($CompanyID,$path){
++	return \App\Lib\CompanyConfiguration::get($CompanyID,'WEB_URL')."/download_file?file=".base64_encode($path);
++}
+diff --git a/app/lib/Helper.php b/app/lib/Helper.php
+index 3b0a8dc..9ebd648 100644
+--- a/app/lib/Helper.php
++++ b/app/lib/Helper.php
+@@ -335,18 +335,26 @@ class Helper{
+ 		$replace_array['CompanyCity'] 		= $CompanyData->City;
+ 		$replace_array['CompanyPostCode'] 	= $CompanyData->PostCode;
+ 		$replace_array['CompanyCountry'] 	= $CompanyData->Country;
+-		$replace_array['Logo'] 				= \App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL').'/assets/images/logo@2x.png'; 
++		$replace_array['Logo'] 				= combile_url_path(\App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL'),'/assets/images/logo@2x.png'); 		
+ 		
+         $domain_data  =     parse_url(\App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL'));
++		$TEMP_PATH 	  =     \App\Lib\CompanyConfiguration::get($Account->CompanyId,'TEMP_PATH').'/';
+ 		$Host		  = 	$domain_data['host'];
+         $result       =    \Illuminate\Support\Facades\DB::table('tblCompanyThemes')->where(["DomainUrl" => $Host,'ThemeStatus'=>\App\Lib\Themes::ACTIVE])->first();
+ 
+         if(!empty($result)){
+-            if(!empty($result->Logo)){
+-                $replace_array['Logo']       = (!empty($result->Logo))?$result->Logo:"";
++            if(!empty($result->Logo)){             
++				 $path = AmazonS3::unSignedUrl($result->Logo,$Account->CompanyId);  
++                        if(strpos($path, "https://") !== false){
++							$replace_array['Logo'] = $path;
++                        }else{
++                            $file = $TEMP_PATH.$path;                    
++                            $replace_array['Logo'] = MakeWebUrl($Account->CompanyId,$file); 
++                        }
++				
+             }
+         }
+-	    $replace_array['Logo'] = "<img src='".$replace_array['Logo']."' />";
++	    $replace_array['Logo'] = '<img src="'.$replace_array['Logo'].'" />';
+ 	   
+        $replace_array['OutstandingExcludeUnbilledAmount'] = AccountBalance::getOutstandingAmount($Account->CompanyId,$Account->AccountID);
+        $Signature = '';
+-- 
+1.9.5.msysgit.0
+
+From 9fac73461d2167d17863e60f4afdb25fcecea446 Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Tue, 4 Apr 2017 18:52:04 +0500
+Subject: [PATCH] neon 824
+
+---
+ app/lib/Helper.php | 14 ++++++++++++--
+ app/lib/Themes.php | 40 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 52 insertions(+), 2 deletions(-)
+ create mode 100644 app/lib/Themes.php
+
+diff --git a/app/lib/Helper.php b/app/lib/Helper.php
+index 077329f..3b0a8dc 100644
+--- a/app/lib/Helper.php
++++ b/app/lib/Helper.php
+@@ -335,8 +335,18 @@ class Helper{
+ 		$replace_array['CompanyCity'] 		= $CompanyData->City;
+ 		$replace_array['CompanyPostCode'] 	= $CompanyData->PostCode;
+ 		$replace_array['CompanyCountry'] 	= $CompanyData->Country;
+-	    $replace_array['Logo'] 				= \App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL').'/assets/images/logo@2x.png'; 
+-	    
++		$replace_array['Logo'] 				= \App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL').'/assets/images/logo@2x.png'; 
++		
++        $domain_data  =     parse_url(\App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL'));
++		$Host		  = 	$domain_data['host'];
++        $result       =    \Illuminate\Support\Facades\DB::table('tblCompanyThemes')->where(["DomainUrl" => $Host,'ThemeStatus'=>\App\Lib\Themes::ACTIVE])->first();
++
++        if(!empty($result)){
++            if(!empty($result->Logo)){
++                $replace_array['Logo']       = (!empty($result->Logo))?$result->Logo:"";
++            }
++        }
++	    $replace_array['Logo'] = "<img src='".$replace_array['Logo']."' />";
+ 	   
+        $replace_array['OutstandingExcludeUnbilledAmount'] = AccountBalance::getOutstandingAmount($Account->CompanyId,$Account->AccountID);
+        $Signature = '';
+diff --git a/app/lib/Themes.php b/app/lib/Themes.php
+new file mode 100644
+index 0000000..cbf6e7a
+--- /dev/null
++++ b/app/lib/Themes.php
+@@ -0,0 +1,40 @@
++<?php
++namespace App\Lib;
++
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Log;
++use Illuminate\Support\Facades\View;
++use Illuminate\Support\Str;
++use Webpatser\Uuid\Uuid;
++
++class Themes extends \Eloquent {
++	
++    protected $connection 	= 	'sqlsrv';
++    protected $fillable 	= 	[];
++    protected $guarded 		= 	array('ThemeID');
++    protected $table 		= 	'tblCompanyThemes';
++    protected $primaryKey 	= 	"ThemeID";
++    const INACTIVE 			= 	'inactive';
++    const ACTIVE 			= 	'active';
++	
++
++
++   public static function get_theme_status()
++	{
++       $Company 		= 	Company::find(User::get_companyID());		
++       $themeStatus 	= 	explode(',','');
++       $themearray 		= 	array(
++	   										''=>'Select Theme Status',
++											self::ACTIVE=>'Active',
++	   										self::INACTIVE=>'Inactive'																					
++								);
++	   
++        foreach($themeStatus as $status)
++		{
++            $themearray[$status] = $status;
++        }
++		
++        return $themearray;
++    }
++
++}
+\ No newline at end of file
+-- 
+1.9.5.msysgit.0
+
