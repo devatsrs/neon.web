@@ -13,7 +13,7 @@ class GatewayAccount extends \Eloquent {
         }
         return $row;
     }
-    /* not in use */
+
     public static function getActiveAccountIDList($CompanyID,$GatewayIDs=array()){
         $accountdata = array();
         $userID = User::get_userID();

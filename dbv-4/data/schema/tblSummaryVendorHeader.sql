@@ -1,5 +1,5 @@
 CREATE TABLE `tblSummaryVendorHeader` (
-  `SummaryVendorHeaderID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `SummaryVendorHeaderID` bigint(20) NOT NULL AUTO_INCREMENT,
   `DateID` bigint(20) NOT NULL,
   `CompanyID` int(11) DEFAULT NULL,
   `AccountID` int(11) DEFAULT NULL,
@@ -9,7 +9,6 @@ CREATE TABLE `tblSummaryVendorHeader` (
   `AreaPrefix` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `CountryID` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `ServiceID` int(11) DEFAULT '0',
   PRIMARY KEY (`SummaryVendorHeaderID`),
   KEY `FK_tblSummaryVendorHeader_dim_date` (`DateID`),
   KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`,`GatewayAccountID`,`CompanyGatewayID`,`Trunk`,`AreaPrefix`),

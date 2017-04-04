@@ -13,8 +13,12 @@
         </div>
     </div>
     <div class="panel-body">
+         <div class="text-right">
+              <a  id="add-oneofcharge" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
+              <div class="clear clearfix"><br></div>
+        </div>
         <div id="oneofcharge_filter" method="get" action="#" >
-                                <div class="panel panel-primary panel-collapse" data-collapsed="1">
+                                <div class="panel panel-primary" data-collapsed="0">
                                     <div class="panel-heading">
                                         <div class="panel-title">
                                             Filter
@@ -23,7 +27,7 @@
                                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                                         </div>
                                     </div>
-                                    <div class="panel-body" style="display: none;">
+                                    <div class="panel-body">
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-1 control-label">Item</label>
                                             <div class="col-sm-2">
@@ -37,23 +41,15 @@
                                             <div class="col-sm-2">
                                                 <input type="text" name="OneOfCharge_Date" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value=""   />
                                             </div>
-                                            <div class="col-sm-3">
-                                                <p style="text-align: right;">
-                                                    <button class="btn btn-primary btn-sm btn-icon icon-left" id="oneofcharge_submit">
-                                                        <i class="entypo-search"></i>
-                                                        Search
-                                                    </button>
-                                                </p>
-                                            </div>
-
                                         </div>
-
+                                        <p style="text-align: right;">
+                                            <button class="btn btn-primary btn-sm btn-icon icon-left" id="oneofcharge_submit">
+                                                <i class="entypo-search"></i>
+                                                Search
+                                            </button>
+                                        </p>
                                     </div>
                                 </div>
-        </div>
-        <div class="text-right">
-            <a  id="add-oneofcharge" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
-            <div class="clear clearfix"><br></div>
         </div>
         <div class="dataTables_wrapper">
             <table id="table-oneofcharge" class="table table-bordered table-hover responsive">
@@ -87,8 +83,7 @@
     $("#oneofcharge_filter").find('[name="OneOfCharge_Description"]').val('');
     $("#oneofcharge_filter [name=OneOfCharge_Date]").val('');
     var data_table_char;
-    var account_id='{{$account->AccountID}}';
-    var ServiceID='{{$ServiceID}}';
+    var account_id={{$account->AccountID}};
     var update_new_url;
     var postdata;
     var $search = {};
@@ -113,24 +108,22 @@
             "sAjaxSource": oneofcharge_datagrid_url,
             "fnServerParams": function (aoData) {
                         aoData.push({"name": "account_id", "value": account_id},
-                                {"name": "ServiceID", "value": ServiceID},
                                 {"name": "OneOfCharge_ProductID", "value": $search.OneOfCharge_ProductID},
                                 {"name": "OneOfCharge_Description", "value": $search.OneOfCharge_Description},
                                 {"name": "OneOfCharge_Date", "value": $search.OneOfCharge_Date});
 
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push({"name": "account_id", "value": account_id},
-                                {"name": "ServiceID", "value": ServiceID},
                                 {"name": "OneOfCharge_ProductID", "value": $search.OneOfCharge_ProductID},
                                 {"name": "OneOfCharge_Description", "value": $search.OneOfCharge_Description},
                                 {"name": "OneOfCharge_Date", "value": $search.OneOfCharge_Date});
 
                     },
-            "bPaginate": true,
-            "iDisplayLength": 10,
+            "bPaginate": false,
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "aaSorting": [[0, 'asc']],
-            "sDom": "<'row'<'col-xs-6 col-left 'l><'col-xs-6 col-right'f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "sDom": "<'row'r>",
             "aoColumns": [
                 {"bSortable": true},  // 0 Name
                 {"bSortable": true},  // 1 Description
@@ -231,7 +224,7 @@
                if(result){
                    var delete_url  = $(this).attr("href");
                    submit_ajax_datatable( delete_url,"",0,data_table_char);
-                   //data_table_char.fnFilter('', 0);
+                   data_table_char.fnFilter('', 0);
                }
                return false;
         });
@@ -271,7 +264,7 @@
 		   
            $('#oneofcharge-form [name="TaxAmount"]').val(tax_final.toFixed(parseInt(decimal_places)));
            submit_ajax_datatable(_url,$(this).serialize(),0,data_table_char);
-           //data_table_char.fnFilter('', 0);
+           data_table_char.fnFilter('', 0);
        });
 	   
 	   $("#oneofcharge-form [name='TaxRateID']").change(function(e) {
@@ -339,7 +332,6 @@
 
                             <input type="hidden" name="AccountOneOffChargeID" />
                             <input type="hidden" name="TaxAmount" />
-                            <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
                         </div>
                     </div>
                     </div>

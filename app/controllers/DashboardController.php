@@ -214,10 +214,11 @@ class DashboardController extends BaseController {
     public function TicketDashboard(){
         $iDisplayLength = 10;
         $status			 			=    TicketsTable::getTicketStatus(0);
+        $statusOnHold = TicketsTable::getTicketStatusOnHold();
         $unresovled = $status;
         $key = array_search('Resolved', $status);
         unset($unresovled[$key]);
-        return View::make('dashboard.ticket',compact('iDisplayLength','status','unresovled'));
+        return View::make('dashboard.ticket',compact('iDisplayLength','status','unresovled','statusOnHold'));
 
     }
 	

@@ -40,7 +40,7 @@
           @if(User::is_admin())
           <div class="form-group">
             <label for="field-1" class="col-sm-1 control-label small_label">Agent</label>
-            <div class="col-sm-2"> {{Form::select('agent[]', $Agents, "(Input::get('agent')?0:''" ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+            <div class="col-sm-2"> {{Form::select('agent[]', $Agents, (Input::get('agent')?0:'') ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
           </div>
           @else
           @if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)
@@ -63,88 +63,7 @@
   <div class="mail-body"> 
     <!-- mail table -->
     <div class="inbox">
-      <table id="table-4" class="table mail-table">
-        <!-- mail table header -->
-        <thead>
-          <tr>
-            <th colspan="2"> <?php if(count($result)>0){ ?>
-              <div class="mail-select-options" style=""> <span class="pull-left paginationTicket"> {{Form::select('page',$pagination,$per_page,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-right per_page">records per page</span> </div>
-              <div class="pull-right">
-                <div class="hidden mail-pagination"> <strong>
-                  <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
-                  -
-                  <?php  echo $current+count($result); ?>
-                  </strong> <span>of {{$totalResults}}</span>
-                  <div class="btn-group">
-                    <?php if(count($result)>=$iDisplayLength){ ?>
-                    <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
-                    <?php } ?>
-                  </div>
-                </div>
-                <div class="pull-left btn-group">
-                <button type="button" data-toggle="dropdown" class="btn  dropdown-toggle  btn-green">Export <span class="caret"></span></button>
-                <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">    
-                    <li><a class="export_btn export_type" action_type="csv" href="#"> CSV</a> </li>
-                    <li><a class="export_btn export_type" action_type="xlsx"  href="#">  EXCEL</a> </li>
-                  </ul>
-                </div>
-                <div class="pull-right sorted btn-group">                
-                  <button type="button" class="btn btn-green dropdown-toggle" data-toggle="dropdown"> Sorted by {{$Sortcolumns[$data['iSortCol_0']]}} <span class="caret"></span> </button>
-                  <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">
-                    <?php foreach($Sortcolumns as $key => $SortcolumnsData){ ?>
-                    <li><a class="sort_fld @if($key==$data['iSortCol_0']) checked @endif" action_type="sort_field" action_value="{{$key}}"   href="#"> <i class="entypo-check" @if($key!=$data['iSortCol_0']) style="visibility:hidden;" @endif ></i> {{@$SortcolumnsData}}</a></li>
-                    <?php } ?>
-                    <li class="divider"></li>
-                    <li><a class="sort_type @if($data['sSortDir_0']=='asc') checked @endif" action_type="sort_type" action_value="asc" href="#"> <i class="entypo-check" @if($data['sSortDir_0']!='asc') style="visibility:hidden;" @endif  ></i> Ascending</a> </li>
-                    <li><a class="sort_type @if($data['sSortDir_0']=='desc') checked @endif" action_type="sort_type" action_value="desc" href="#"> <i class="entypo-check" @if($data['sSortDir_0']!='desc') style="visibility:hidden;" @endif  ></i> Descending</a> </li>
-                  </ul>
-                </div>
-              </div>
-              <?php } ?>
-            </th>
-          </tr>
-        </thead>
-        <!-- email list -->
-        <tbody>
-          <?php
-		  if(count($result)>0){
-		 foreach($result as $result_data){ 
-			 ?>
-          <tr><!-- new email class: unread -->
-            <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a> <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span>
-              <?php if($result_data->Read==0){ if($ClosedTicketStatus!=$result_data->TicketStatus && $ResolvedTicketStatus!=$result_data->TicketStatus) {echo '<div class="label label-primary">New</div>'; } }else{if($result_data->CustomerResponse==$result_data->RequesterEmail){echo "<div class='label label-info'>CUSTOMER RESPONDED</div>";}else{ if($ClosedTicketStatus!=$result_data->TicketStatus && $ResolvedTicketStatus!=$result_data->TicketStatus) { echo '<div class="label label-warning">RESPONSE DUE</div>';} }} //if(empty($result_data->Agent)){echo '<div class="label label-danger">unassigned</div>';} ?>
-              <br>
-              <a target="_blank" href="@if(!empty($result_data->ACCOUNTID)) {{URL::to('/')}}/accounts/{{$result_data->ACCOUNTID}}/show @elseif(!empty($result_data->ContactID)) contacts/{{$result_data->ContactID}}/show @else # @endif" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
-              <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
-            <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
-              <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>
-              <div>Agent:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->Agent; ?></span></div>
-              <div>Group:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->GroupName; ?></span></div></td>
-          </tr>
-          <?php } }else{ ?>
-          <tr>
-            <td align="center" colspan="2">No Result Found.</td>
-          </tr>
-          <?php } ?>
-        </tbody>
-        <!-- mail table footer -->
-        <tfoot>
-          <tr>
-            <th colspan="2"> <?php if(count($result)>0){ ?>
-              <div class="mail-pagination" ><?php echo $current+1; ?> to
-                <?php  echo $current+count($result); ?>
-                <span>of {{$totalResults}}</span> entries
-                <div class="btn-group">
-                  <?php if(count($result)>=$iDisplayLength){ ?>
-                  <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
-                  <?php } ?>
-                </div>
-              </div>
-              <?php } ?>
-            </th>
-          </tr>
-        </tfoot>
-      </table>
+        <div id="table-4_processing" class="dataTables_processing">Processing...</div>
     </div>
   </div>
   <!-- Mail Body end --> 
@@ -160,7 +79,7 @@
 .col-time{text-align:left !important; font-size:12px;}
 .col-time span{color:black;}
 .dropdown_sort li  a{color:white !important;}
-@if(count($result)>0)	 
+@if(count($result)>0)
 #table-4{display: block; padding-bottom:50px;}
 @endif
 .borderside{border-left-style: solid; border-left-width: 8px;}
@@ -177,7 +96,7 @@
 	
 $(document).ready(function(e) {	
 	
-	var currentpage 	= 	0;
+	var currentpage 	= 	-1;
 	var next_enable 	= 	1;
 	var back_enable 	= 	1;
 	var per_page 		= 	<?php echo $iDisplayLength; ?>;
@@ -189,7 +108,12 @@ $(document).ready(function(e) {
 	var sort_fld  		=   "{{$data['iSortCol_0']}}";
 	var sort_type 		=   "{{$data['sSortDir_0']}}";
 	var export_data		=   0;
-	
+    //ShowResult('next');
+
+    $(window).on('load',function(){
+        $('#tickets_filter').submit();
+    });
+
 	$(document).on('click','.move_mail',function(){
 		var clicktype = $(this).attr('movetype');	
         ShowResult(clicktype);
@@ -230,8 +154,8 @@ $(document).ready(function(e) {
 						{
 							if(isJson(response))
 							{
-								jsonstr =  JSON.parse(response); 
-								$('#table-4 tbody').html('<tr><td class="col-name  borderside bordersideLow " align="center" colspan="2">'+jsonstr.result+'</td></tr>');
+								jsonstr =  JSON.parse(response);
+                                $('.index').html('<table id="table-4" class="table mail-table"><tr><td class="col-name  borderside bordersideLow " align="center" colspan="2">'+jsonstr.result+'</td></tr><table>');
 								
 								if(clicktype=='next')
 								 {
@@ -332,6 +256,30 @@ $(document).ready(function(e) {
 			clicktype   	= 'next';			
 			ShowResult(clicktype);
 		}	 
+    });
+
+    $(document).on('click', '#table-4 tbody tr', function() {
+        $(this).toggleClass('selected');
+        if($(this).is('tr')) {
+            if ($(this).hasClass('selected')) {
+                $(this).find('.rowcheckbox').prop("checked", true);
+            } else {
+                $(this).find('.rowcheckbox').prop("checked", false);
+            }
+        }
+    });
+
+    $(document).on('click', '#selectall',function(ev) {
+        var is_checked = $(this).is(':checked');
+        $('#table-4 tbody tr').each(function(i, el) {
+            if (is_checked) {
+                $(this).find('.rowcheckbox').prop("checked", true);
+                $(this).addClass('selected');
+            } else {
+                $(this).find('.rowcheckbox').prop("checked", false);
+                $(this).removeClass('selected');
+            }
+        });
     });
 
 });

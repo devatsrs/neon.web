@@ -100,27 +100,24 @@ class RateTablesController extends \BaseController {
             'RateTableName' => 'required|unique:tblRateTable,RateTableName,NULL,CompanyID,CompanyID,'.$data['CompanyID'],
             //'RateGeneratorId'=>'required',
             'CodedeckId'=>'required',
-            //'TrunkID'=>'required',
-            'CurrencyID'=>'required',
+            'TrunkID'=>'required',
+            'CurrencyID'=>'required'
 
         );
         $message = ['CurrencyID.required'=>'Currency field is required',
-                    //'TrunkID.required'=>'Trunk field is required',
-                    'CodedeckId.required'=>'Codedeck field is required',
+                    'TrunkID.required'=>'Trunk field is required',
+                    'CodedeckId.required'=>'Codedeck field is required'
                     //'RateGeneratorId.required'=>'RateGenerator'
                     ];
-
         $validator = Validator::make($data, $rules, $message);
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
-
         if (RateTable::insert($data)) {
             return Response::json(array("status" => "success", "message" => "RateTable Successfully Created"));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating RateTable."));
         }
-
     }
 
     /**
