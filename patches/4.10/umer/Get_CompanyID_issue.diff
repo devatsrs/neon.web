@@ -1,0 +1,32 @@
+From f45e9428049d6b4e1dcbec5721f08dc8ba81083b Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Mon, 13 Mar 2017 17:23:44 +0500
+Subject: [PATCH] Ticket system updated
+
+---
+ app/models/User.php                                    |  8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/app/models/User.php b/app/models/User.php
+index 561976b..e17f946 100644
+--- a/app/models/User.php
++++ b/app/models/User.php
+@@ -161,11 +161,11 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
+     }
+ 
+     public static function get_companyID(){
+-       $customer=Session::get('customer');
+-        if($customer==1){
+-            return Customer::get_companyID();
++        if(Auth::guest()){
++            return $CompanyID = SiteIntegration::GetComapnyIdByKey();
++        }else {
++            return $CompanyID = Session::get('customer')==1?Customer::get_companyID():Auth::user()->CompanyID;
+         }
+-        return Auth::user()->CompanyID;
+     }
+ 
+     public static function get_userID(){
+-- 
+1.9.5.msysgit.0
+
