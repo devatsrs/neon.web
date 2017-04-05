@@ -21,63 +21,50 @@ private $validlicense;
 	 }
 	
 	 public function index(){	
-	 		$this->IsValidLicense();
-			$this->TicketGroupAccess();
-			$this->TicketGroupAccess();
-			$this->TicketRestrictedAccess();
-			$TicketPermission			=	TicketsTable::GetTicketAccessPermission();
-			$CompanyID 		 			= 	 User::get_companyID(); 
-			$data 			 			= 	 array();	
-			$status			 			=    TicketsTable::getTicketStatus();
-			$Priority		 			=	 TicketPriority::getTicketPriority();
-			$Groups			 			=	 TicketGroups::getTicketGroups(); 
-			$Agents			 			= 	 User::getUserIDListAll(0);
-			$Agents			 			= 	 array("0"=> "Select")+$Agents;
-			$Type			 			=    TicketsTable::getTicketType();
-			/////////
-			$Sortcolumns				=	 TicketsTable::$Sortcolumns;	
-			$pagination					=	 TicketsTable::$pagination;
-			
-			$data['iDisplayStart']  	= 	 0;
-			
-			$cache_sorting 				= 	 Session::get("TicketsSorting");
-			
-			if(count($cache_sorting)>0){
-				$per_page  					= 	 $cache_sorting['per_page'];
-				$data['iDisplayLength'] 	= 	 $cache_sorting['per_page'];
- 				$data['iSortCol_0']			=	 $cache_sorting['sort_fld'];
-				$data['sSortDir_0']			=	 $cache_sorting['sort_type'];
-				
-		 	 }else{
-				$per_page					= 	 CompanyConfiguration::get('PAGE_SIZE'); 
-				$data['iDisplayLength'] 	= 	 CompanyConfiguration::get('PAGE_SIZE');
-				$data['iSortCol_0']			=	 TicketsTable::$defaultSortField;
-				$data['sSortDir_0']			=	 TicketsTable::$defaultSortType;
-				 
-			  }
-			  
-			$data['AccessPermission'] 	=	 TicketsTable::GetTicketAccessPermission(); 
-			$companyID 					= 	 User::get_companyID();
-			/*$array						= 	 $this->GetResult($data);
-			$resultpage  				= 	 $array->resultpage;		 
-			$result 					= 	 $array->ResultCurrentPage;
-			$totalResults 				= 	 $array->totalcount; 
-			$iTotalDisplayRecords 		= 	 $array->iTotalDisplayRecords;
-			$iDisplayLength 			= 	 $data['iDisplayLength'];
-			$data['currentpage'] 		= 	 0;
-		
-			TicketsTable::SetTicketSession($result);
-			$ClosedTicketStatus   = TicketsTable::getClosedTicketStatus(true);
-			$ResolvedTicketStatus = TicketsTable::getResolvedTicketStatus(true);
-		
-			if($TicketPermission!=TicketsTable::TICKETGLOBALACCESS)	{
-				$Groups	= TicketGroups::getTicketGroupsFromData($array->GroupsData);				
-			}
-			//echo "<pre>";			print_r($Groups); exit;*/
+        $this->IsValidLicense();
+        $this->TicketGroupAccess();
+        $this->TicketGroupAccess();
+        $this->TicketRestrictedAccess();
+        $TicketPermission			=	TicketsTable::GetTicketAccessPermission();
+        $CompanyID 		 			= 	 User::get_companyID();
+        $data 			 			= 	 array();
+        $status			 			=    TicketsTable::getTicketStatus();
+        $Priority		 			=	 TicketPriority::getTicketPriority();
+        $Groups			 			=	 TicketGroups::getTicketGroups();
+        $Agents			 			= 	 User::getUserIDListAll(0);
+        $Agents			 			= 	 array("0"=> "Select")+$Agents;
+        $Type			 			=    TicketsTable::getTicketType();
+        /////////
+        $Sortcolumns				=	 TicketsTable::$Sortcolumns;
+        $pagination					=	 TicketsTable::$pagination;
 
-         $iDisplayLength 			= 	 $data['iDisplayLength'];
-         $totalResults 				= 	 0;
-         $result = [];
+        $data['iDisplayStart']  	= 	 0;
+
+        $cache_sorting 				= 	 Session::get("TicketsSorting");
+
+        if(count($cache_sorting)>0){
+            $per_page  					= 	 $cache_sorting['per_page'];
+            $data['iDisplayLength'] 	= 	 $cache_sorting['per_page'];
+            $data['iSortCol_0']			=	 $cache_sorting['sort_fld'];
+            $data['sSortDir_0']			=	 $cache_sorting['sort_type'];
+
+         }else{
+            $per_page					= 	 CompanyConfiguration::get('PAGE_SIZE');
+            $data['iDisplayLength'] 	= 	 CompanyConfiguration::get('PAGE_SIZE');
+            $data['iSortCol_0']			=	 TicketsTable::$defaultSortField;
+            $data['sSortDir_0']			=	 TicketsTable::$defaultSortType;
+
+          }
+
+        $data['AccessPermission'] 	=	 TicketsTable::GetTicketAccessPermission();
+        $companyID 					= 	 User::get_companyID();
+        $array						= 	 $this->GetResult($data);
+        if($TicketPermission!=TicketsTable::TICKETGLOBALACCESS)	{
+            $Groups	= TicketGroups::getTicketGroupsFromData($array->GroupsData);
+        }
+
+        $iDisplayLength 			= 	 $data['iDisplayLength'];
+        $totalResults 				= 	 0;
         return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus"));  
 	  }	
 	  
@@ -673,4 +660,16 @@ private $validlicense;
 		}
 		return $group;
 	}
+
+    function BulkAction(){
+        $data = Input::all();
+        $response  		    =  	  NeonAPI::request('tickets/bulkactions',$data,true,true);
+        return json_response_api($response);
+    }
+
+    function BulkDelete(){
+        $data = Input::all();
+        $response  		    =  	  NeonAPI::request('tickets/bulkdelete',$data,true,true);
+        return json_response_api($response);
+    }
 }
