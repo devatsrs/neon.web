@@ -78,16 +78,22 @@
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-1" class="col-sm-3 control-label">Active</label>
+                                    <label for="field-1" class="col-sm-12 control-label">Active</label>                                    
+
+                                </div>
+                                <div class="form-group">                                    
                                     <div class="make-switch switch-small">
                                         <input type="checkbox" name="Status"  @if(Input::old('Status') =='' )checked="" @else  @if( ( Input::old('Status') !='' ) && Input::old('Status') == 1 ) checked=""  @endif @endif value="1">
                                     </div>
+
                                 </div>
                             </div>
-                        </div>
+                        </div>                        
+                        
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" name="TrunkID" />
