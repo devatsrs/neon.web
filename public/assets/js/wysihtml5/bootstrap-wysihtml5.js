@@ -17,9 +17,7 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address1}}'>" + locale.leadoptions.Address1 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.leadoptions.Address2 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.leadoptions.Address3 + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.leadoptions.City + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.leadoptions.State + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.leadoptions.PostCode + "</a></li>" +
+                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.leadoptions.City + "</a></li>" +                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.leadoptions.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.leadoptions.Country + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.leadoptions.Currency+ "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.leadoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
@@ -56,7 +54,6 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.invoiceoptions.Address2 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.invoiceoptions.Address3 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.invoiceoptions.City + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.invoiceoptions.State + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.invoiceoptions.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.invoiceoptions.Country + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.invoiceoptions.Currency + "</a></li>" +
@@ -98,7 +95,6 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.leadoptions.Address2 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.leadoptions.Address3 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.leadoptions.City + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.leadoptions.State + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.leadoptions.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.leadoptions.Country + "</a></li>" +
 				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Tasks Fields</b></a></li>" +            
@@ -133,7 +129,6 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.leadoptions.Address2 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.leadoptions.Address3 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.leadoptions.City + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.leadoptions.State + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.leadoptions.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.leadoptions.Country + "</a></li>" +
 				"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Opportunity Fields</b></a></li>" +            
@@ -186,7 +181,6 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.estimateoptions.Address2 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.estimateoptions.Address3 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.estimateoptions.City + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.estimateoptions.State + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.estimateoptions.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.estimateoptions.Country + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.estimateoptions.Currency + "</a></li>" +
@@ -242,7 +236,6 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.Crm.Address2 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.Crm.Address3 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.Crm.City + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.Crm.State + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.Crm.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.Crm.Country + "</a></li>" +  
                	"<li class='unclick'><a data-wysihtml5-command='' data-wysihtml5-command-value=''><b>Company Fields</b></a></li>" +			
@@ -345,7 +338,6 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address2}}'>" + locale.Tickets.Address2 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Address3}}'>" + locale.Tickets.Address3 + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{City}}'>" + locale.Tickets.City + "</a></li>" +
-                "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{State}}'>" + locale.Tickets.State + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{PostCode}}'>" + locale.Tickets.PostCode + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Country}}'>" + locale.Tickets.Country + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{Currency}}'>" + locale.Tickets.Currency+ "</a></li>" +
