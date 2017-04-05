@@ -123,4 +123,5 @@
     });
 
 </script>
+@include('trunk.trunkmodal')
 @stop
