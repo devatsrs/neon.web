@@ -6,19 +6,22 @@
         <li>
             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
-        <li class="active">
-            <a href="{{URL::to('recurringinvoices')}}">Recurring Invoice</a>
+        <li>
+            <a href="{{URL::to('invoice')}}">Invoice</a>
+        </li>
+        <li>
+            <a href="{{URL::to('recurringprofiles')}}">Recurring Profile</a>
         </li>
         <li class="active">
-            <strong>Create Recurring Invoice</strong>
+            <strong>Create Recurring Profile</strong>
         </li>
     </ol>
-    <h3>Create Recurring Invoice</h3>
+    <h3>Create Recurring Profile</h3>
 
     @include('includes.errors')
     @include('includes.success')
 
-    <form class="form-horizontal form-groups-bordered" action="{{URL::to('/recurringinvoices/store')}}" method="post"
+    <form class="form-horizontal form-groups-bordered" action="{{URL::to('/recurringprofiles/store')}}" method="post"
           id="recurringinvoice-from" role="form">
 
         <p class="text-right">
@@ -27,7 +30,7 @@
                 <i class="entypo-floppy"></i>
                 Save
             </button>
-            <a href="{{URL::to('/recurringinvoices')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+            <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-danger btn-sm btn-icon icon-left">
                 <i class="entypo-cancel"></i>
                 Close
             </a>
@@ -103,7 +106,7 @@
                         <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
                             <label for="field-1" class="col-md-2 control-label no-padding-left no-padding-right">Anniversary Date*</label>
                             <div class="col-md-4">
-                                {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                                {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"", "data-start-view"=>"2"))}}
                             </div>
                         </div>
                         </div>
@@ -306,7 +309,7 @@
         }
     </script>
     @include('recurringinvoices.script_recurringinvoice_add_edit')
-    @include('includes.ajax_submit_script', array('formID'=>'recurringinvoice-from' , 'url' => 'recurringinvoices/store','update_url'=>'recurringinvoices/{id}/update' ))
+    @include('includes.ajax_submit_script', array('formID'=>'recurringinvoice-from' , 'url' => 'recurringprofiles/store','update_url'=>'recurringprofiles/{id}/update' ))
 @stop
 @section('footer_ext')
     @parent

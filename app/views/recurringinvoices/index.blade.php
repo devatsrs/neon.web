@@ -2,23 +2,18 @@
 
 @section('content')
 <ol class="breadcrumb bc-3">
-  <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
-  <li class="active"> <strong>Recurring Invoices</strong> </li>
+    <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
+    <li><a href="{{URL::to('invoice')}}">Invoice</a></li>
+    <li class="active"> <strong>Recurring Profiles</strong> </li>
 </ol>
-<h3>Recurring Invoices</h3>
+<h3>Recurring Profiles</h3>
 @include('includes.errors')
 @include('includes.success')
-<p style="text-align: right;"> @if(User::checkCategoryPermission('RecurringInvoice','Add')) <a href="{{URL::to("recurringinvoices/create")}}" id="add-new-recurringinvoices" class="btn btn-primary "> <i class="entypo-plus"></i> Add New </a> @endif
+<p style="text-align: right;"> @if(User::checkCategoryPermission('RecurringProfile','Add')) <a href="{{URL::to("recurringprofiles/create")}}" id="add-new-recurringinvoices" class="btn btn-primary "> <i class="entypo-plus"></i> Add New </a> @endif
   <!-- <a href="javascript:;" id="bulk-recurringinvoices" class="btn upload btn-primary ">
         <i class="entypo-upload"></i>
         Bulk recurringinvoices Generate.
     </a>-->
-    @if(User::checkCategoryPermission('RecurringInvoice','Generate'))
-        <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary ">
-            <i class="entypo-plus"></i>
-            Generate New Invoice
-        </a>
-    @endif
 </p>
 <div class="row">
   <div class="col-md-12">
@@ -45,14 +40,14 @@
 </div>
 <div class="row">
   <div  class="col-md-12">
-    <div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('RecurringInvoice','Edit,Send,Generate,Email'))
+    <div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('RecurringProfile','Edit,Delete'))
       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
       <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-          @if(User::checkCategoryPermission('RecurringInvoice','Edit'))
+          @if(User::checkCategoryPermission('RecurringProfile','Edit'))
               <li> <a data-action="changestatus_bulk" title="Active" data-startstop="1" href="javascript:void(0);" ><i class="entypo-check"></i>Active</a> </li>
               <li> <a data-action="changestatus_bulk" title="In Active" data-startstop="0" href="javascript:void(0);" ><i class="glyphicon glyphicon-ban-circle"></i> In Active</a> </li>
           @endif
-          @if(User::checkCategoryPermission('RecurringInvoice','Delete'))
+          @if(User::checkCategoryPermission('RecurringProfile','Delete'))
               <li> <a data-action="delete_bulk" href="javascript:;" ><i class="entypo-trash"></i> Delete </a> </li>
           @endif
           <!--if(User::checkCategoryPermission('RecurringInvoice','Send'))
@@ -132,8 +127,8 @@ var postdata;
         var billingCyleType = {{json_encode(SortBillingType())}};
 		var base_url_recurringinvoices 		= 	"{{ URL::to('recurringinvoices')}}";
         var recurringinvoicesstatus 			=	{{$recurringinvoices_status_json}};
-        var recurringinvoices_Status_Url 	= 	"{{ URL::to('recurringinvoices/recurringinvoices_change_Status')}}";
-		var delete_url_bulk 		= 	"{{ URL::to('recurringinvoices/recurringinvoices_delete_bulk')}}";
+        var recurringinvoices_Status_Url 	= 	"{{ URL::to('recurringprofiles/recurringinvoices_change_Status')}}";
+		var delete_url_bulk 		= 	"{{ URL::to('recurringprofiles/recurringinvoices_delete_bulk')}}";
         var list_fields  			= 	['AccountName','RecurringInvoiceNumber','IssueDate','GrandTotal','Status','RecurringInvoiceID','Description','Attachment','AccountID','BillingEmail'];
 		
         $searchFilter.AccountID 			= 	$("#recurringinvoices_filter select[name='AccountID']").val();
@@ -144,7 +139,7 @@ var postdata;
             "bDestroy": true,
             "bProcessing":true,
             "bServerSide":true,
-            "sAjaxSource": baseurl + "/recurringinvoices/ajax_datagrid/type",
+            "sAjaxSource": baseurl + "/recurringprofiles/ajax_datagrid/type",
             "iDisplayLength": '{{CompanyConfiguration::get('PAGE_SIZE')}}',
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -185,7 +180,7 @@ var postdata;
                             var d = new Date(full[10]);
                             anniversary = d.getDate();
                         }
-                        var invoice_log = (baseurl + "/recurringinvoices/{id}/log/{{RecurringInvoiceLog::SENT}}").replace("{id}", full[0]);
+                        var invoice_log = (baseurl + "/recurringprofiles/{id}/log/{{RecurringInvoiceLog::SENT}}").replace("{id}", full[0]);
                         var str = '<div><strong>Frequency:</strong><span>'+billingCyleType[full[9]]+((full[10])?'('+anniversary+')':'');+'</span></div>';
                         str += '<div><strong>Occurrence:</strong><span>'+full[7]+'</span></div>';
                         str += '<div><strong>Sent:</strong><span><a href="' + invoice_log + '" target="_blank">'+(full[8]?full[8]:0)+'</a></span></div>';
@@ -197,9 +192,9 @@ var postdata;
                     mRender: function ( id, type, full ) {
                         var action = '';
                         id = full[0];
-                        var edit_url = (baseurl + "/recurringinvoices/{id}/edit").replace("{id}", id);
-                        var invoice_log = (baseurl + "/recurringinvoices/{id}/log").replace("{id}", id);
-                        //var delete_ = (baseurl + "/recurringinvoices/{id}/delete").replace("{id}", id);
+                        var edit_url = (baseurl + "/recurringprofiles/{id}/edit").replace("{id}", id);
+                        var invoice_log = (baseurl + "/recurringprofiles/{id}/log").replace("{id}", id);
+                        //var delete_ = (baseurl + "/recurringprofiles/{id}/delete").replace("{id}", id);
 
 
 
@@ -208,15 +203,15 @@ var postdata;
                         action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
 
-                        if ('{{User::checkCategoryPermission('RecurringInvoices','Edit')}}') {
+                        if ('{{User::checkCategoryPermission('RecurringProfile','Edit')}}') {
                             action += '<li><a class="icon-left"  href="' + edit_url + '"><i class="entypo-pencil"></i>Edit </a></li>';
                         }
 
-                        if ('{{User::checkCategoryPermission('RecurringInvoices','Delete')}}') {
+                        if ('{{User::checkCategoryPermission('RecurringProfile','Delete')}}') {
                             action += '<li><a href="#" data-action="delete_row" class="icon-left"><i class="entypo-trash"></i>Delete </a></li>';
                         }
 
-                        /*if('{{User::checkCategoryPermission('RecurringInvoice','Send')}}') {
+                        /*if('{{User::checkCategoryPermission('RecurringProfile','Send')}}') {
                             action += '<li><a href="#" data-action="sendinvoice_row" class="icon-left"><i class="entypo-mail"></i>Send </a></li>';
                         }*/
 
@@ -240,13 +235,13 @@ var postdata;
                     {
                         "sExtends": "download",
                         "sButtonText": "EXCEL",
-                        "sUrl": baseurl + "/recurringinvoices/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                        "sUrl": baseurl + "/recurringprofiles/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                         sButtonClass: "save-collection btn-sm"
                     },
                     {
                         "sExtends": "download",
                         "sButtonText": "CSV",
-                        "sUrl": baseurl + "/recurringinvoices/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                        "sUrl": baseurl + "/recurringprofiles/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                         sButtonClass: "save-collection btn-sm"
                     }
                 ]
@@ -351,14 +346,14 @@ var postdata;
             }
 
             if(self.attr('data-action').indexOf('changestatus')!=-1) { //For start and Stop the recurring invoice
-                url = (baseurl + '/recurringinvoices/startstop/{status}').replace("{status}", self.attr('data-startstop'));
+                url = (baseurl + '/recurringprofiles/startstop/{status}').replace("{status}", self.attr('data-startstop'));
             }else if(self.attr('data-action').indexOf('delete')!=-1) { //For deleting recurring invoice template
-                url = baseurl+'/recurringinvoices/delete';
+                url = baseurl+'/recurringprofiles/delete';
             }else if(self.attr('data-action').indexOf('sendinvoice')!=-1) { //For send invoice using recurring invoice template
                 if(self.attr('data-action').indexOf('_row')!=-1){ //Checking for one selectedID to show sendmail modal
                     row = 1;
                 }
-                url = baseurl+'/recurringinvoices/sendinvoice';
+                url = baseurl+'/recurringprofiles/sendinvoice';
             }
 
             var criteria			  =  '';
@@ -406,7 +401,7 @@ var postdata;
 
         $('#generate-new-invoice').click(function (e) {
             e.preventDefault();
-            update_new_url = "{{URL::to("recurringinvoices/generate")}}";
+            update_new_url = "{{URL::to("recurringprofiles/generate")}}";
             submit_ajax(update_new_url, $('#send-invoice-form').serialize(), 1)
         });
 

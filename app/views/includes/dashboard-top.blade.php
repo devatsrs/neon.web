@@ -70,6 +70,7 @@
             </a>
         </li>
     @endif
+	<!-- Message Notifications -->
 </ul>
 </div>
 <!-- Raw Links -->

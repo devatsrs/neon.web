@@ -52,7 +52,7 @@
             "sPaginationType": "bootstrap",
             "oTableTools": {},
             "aaSorting"   : [[4, 'desc']],
-            "aoColumns": 
+            "aoColumns":
              [
                 { "bSortable": true }, //0 Fill name
                 { "bSortable": true }, //1 Owner
@@ -65,7 +65,7 @@
                         edit_ = "{{ URL::to('contacts/{id}/edit')}}";
                         show_ = "{{ URL::to('contacts/{id}/show')}}";
                         delete_ = "{{ URL::to('contacts/{id}/delete')}}";
- 
+
                         edit_ = edit_.replace( '{id}', id );
                         show_ = show_.replace( '{id}', id );
                         delete_  = delete_ .replace( '{id}', id );
@@ -120,14 +120,8 @@
             replaceCheckboxes();
         });
     });
-    $('body').on('click', '.btn.delete', function (e) {
+    $('body').on('click', 'a[title="Delete"]', function (e) {
                 e.preventDefault();
-
-                response = confirm('Are you sure?');
-                if( typeof $(this).attr("data-redirect")=='undefined'){
-                    $(this).attr("data-redirect",'{{ URL::previous() }}')
-                }
-                redirect = $(this).attr("data-redirect");
                 if (response) {
 
                     $.ajax({

@@ -69,7 +69,7 @@
                 </tr>
               </thead>
               <tbody>
-              
+
               @if(count($InvoiceDetail)>0)
               @foreach($InvoiceDetail as $ProductRow)
               <tr>
@@ -115,7 +115,7 @@
               @endforeach
               @endif
                 </tbody>
-              
+
             </table>
           </div>
         </div>
@@ -163,34 +163,59 @@
                                     <td >Invoice Total </td>
                                     <td>{{Form::text('GrandTotal',number_format($Invoice->GrandTotal,$RoundChargesAmount),array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
-              <?php if(count($InvoiceAllTax)>0){
-				  foreach($InvoiceAllTax as $key => $InvoiceAllTaxData){
-				   ?>
-              <tr class="  @if($key==0) invoice_tax_row @else all_tax_row @endif">
-                @if($key==0)                
-                <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs invoice_tax_add ">+</button>   &nbsp; Tax </td>
-                @else
-                <td>
-                 <button title="Delete Tax" type="button" class="btn btn-danger btn-xs invoice_tax_remove ">X</button>
-                 </td>
-                @endif  
-                <td><div class="col-md-8"> {{Form::SelectExt(
-                    [
-                    "name"=>"InvoiceTaxes[field][]",
-                    "data"=>$taxes,
-                    "selected"=>$InvoiceAllTaxData->TaxRateID,
-                    "value_key"=>"TaxRateID",
-                    "title_key"=>"Title",
-                    "data-title1"=>"data-amount",
-                    "data-value1"=>"Amount",
-                    "data-title2"=>"data-flatstatus",
-                    "data-value2"=>"FlatStatus",
-                    "class" =>"select2 small Taxentity InvoiceTaxesFld  InvoiceTaxesFldFirst",
-                    ]
-                    )}}</div>
-                  <div class="col-md-4"> {{Form::text('InvoiceTaxes[value][]',$InvoiceAllTaxData->TaxAmount,array("class"=>"form-control InvoiceTaxesValue","readonly"=>"readonly"))}} </div></td>
-              </tr>
-              <?php } } ?>
+                            @if(count($InvoiceAllTax)>0)
+                                @foreach($InvoiceAllTax as $key => $InvoiceAllTaxData)
+                                    <tr class="  @if($key==0) invoice_tax_row @else all_tax_row @endif">
+                                        @if($key==0)
+                                            <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs invoice_tax_add ">+</button>   &nbsp; Tax </td>
+                                        @else
+                                            <td>
+                                                <button title="Delete Tax" type="button" class="btn btn-danger btn-xs invoice_tax_remove ">X</button>
+                                            </td>
+                                        @endif
+                                        <td><div class="col-md-8"> {{Form::SelectExt(
+                                                                        [
+                                                                        "name"=>"InvoiceTaxes[field][]",
+                                                                        "data"=>$taxes,
+                                                                        "selected"=>$InvoiceAllTaxData->TaxRateID,
+                                                                        "value_key"=>"TaxRateID",
+                                                                        "title_key"=>"Title",
+                                                                        "data-title1"=>"data-amount",
+                                                                        "data-value1"=>"Amount",
+                                                                        "data-title2"=>"data-flatstatus",
+                                                                        "data-value2"=>"FlatStatus",
+                                                                        "class" =>"select2 small Taxentity InvoiceTaxesFld  InvoiceTaxesFldFirst",
+                                                                        ]
+                                                                        )}}
+                                            </div>
+                                            <div class="col-md-4"> {{Form::text('InvoiceTaxes[value][]',$InvoiceAllTaxData->TaxAmount,array("class"=>"form-control InvoiceTaxesValue","readonly"=>"readonly"))}} </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr class="invoice_tax_row">
+                                    <td>
+                                        <button title="Add new Tax" type="button" class="btn btn-primary btn-xs invoice_tax_add ">+</button>
+                                        &nbsp; Tax </td>
+                                    <td>
+                                        <div class="col-md-8"> {{Form::SelectExt(
+                                                                [
+                                                                "name"=>"InvoiceTaxes[field][]",
+                                                                "data"=>$taxes,
+                                                                "selected"=>'',
+                                                                "value_key"=>"TaxRateID",
+                                                                "title_key"=>"Title",
+                                                                "data-title1"=>"data-amount",
+                                                                "data-value1"=>"Amount",
+                                                                "data-title2"=>"data-flatstatus",
+                                                                "data-value2"=>"FlatStatus",
+                                                                "class" =>"select2 small Taxentity InvoiceTaxesFld  InvoiceTaxesFldFirst",
+                                                                ]
+                                                                )}}
+                                        </div>
+                                        <div class="col-md-4"> {{Form::text('InvoiceTaxes[value][]','',array("class"=>"form-control InvoiceTaxesValue","readonly"=>"readonly"))}} </div></td>
+                                </tr>
+                            @endif
               <tr class="gross_total_invoice">
                 <td >Grand Total </td>
                 <td>{{Form::text('GrandTotalInvoice','',array("class"=>"form-control GrandTotalInvoice text-right","readonly"=>"readonly"))}}</td>
@@ -205,7 +230,7 @@
     <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
     <input type="hidden" name="CurrencyCode" value="{{$CurrencyCode}}">
     <input type="hidden" name="InvoiceTemplateID" value="{{$InvoiceTemplateID}}">
-    <input  type="hidden" name="TotalTax" value="" > 
+    <input  type="hidden" name="TotalTax" value="" >
 </div>
 </form>
 <div id="rowContainer"></div>
@@ -231,8 +256,8 @@
     </tbody>
 </table>
 <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
+<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
+<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 <script type="text/javascript">
 var invoice_id = '{{$Invoice->InvoiceID}}';
 var decimal_places = '{{$RoundChargesAmount}}';

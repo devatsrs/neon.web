@@ -118,7 +118,9 @@ class EmailsTemplates{
 			$AccoutData 							=	Account::find($EstimateData->AccountID);
 			$EmailTemplate 							= 	EmailTemplate::where(["SystemType"=>$slug])->first();
 				
-
+			$InvoiceTemplateID 		= 	AccountBilling::getInvoiceTemplateID($EstimateData->AccountID);
+			$EstimateNumber			=   Estimate::getFullEstimateNumber($EstimateData,$InvoiceTemplateID);
+			
 			if($type=="subject"){
 				if(isset($postdata['Subject']) && !empty($postdata['Subject'])){
 					$EmailMessage							=	 $postdata['Subject'];
@@ -141,7 +143,7 @@ class EmailsTemplates{
 				$replace_array['EstimateLink'] 		= 	 URL::to('/estimate/'.$EstimateID.'/estimate_preview');
 			}
 			
-			$replace_array['EstimateNumber']		=	 isset($data['EstimateNumber'])?$data['EstimateNumber']:$EstimateData->EstimateNumber;		
+			$replace_array['EstimateNumber']		=	 isset($data['EstimateNumber'])?$data['EstimateNumber']:$EstimateNumber;		
 			$RoundChargesAmount 					= 	 get_round_decimal_places($EstimateData->AccountID);
 			$replace_array['EstimateGrandTotal']	=	 number_format($EstimateData->GrandTotal,$RoundChargesAmount);
 			$replace_array['Comment']				=	 isset($data['Comment'])?$data['Comment']:EmailsTemplates::GetEstimateComments($EstimateID);
@@ -310,6 +312,10 @@ class EmailsTemplates{
                    $str .= $EstimateComment->created_at.'<br><br>'; 
 		  }
 		 return $str; 
+	}
+	
+	static function ReplaceEmail($Email,$body){
+		return $EmailMessage = str_replace('#email',$Email,$body);					
 	}
 }
 ?>
