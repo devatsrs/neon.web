@@ -105,15 +105,21 @@ $inlineTaxes		=	[];
             <tbody>
             @foreach($EstimateDetail as $ProductRow)
          	  <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); }
-              if ($ProductRow->TaxRateID!= 0 && array_key_exists($ProductRow->TaxRateID, $inlineTaxes)) {
-                  if($ProductRow->TaxRateID!=0){
-                      $tax = $taxes[$ProductRow->TaxRateID];
-                      $inlineTaxes[$ProductRow->TaxRateID] = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
+              if ($ProductRow->TaxRateID!= 0) {
+                  $tax = $taxes[$ProductRow->TaxRateID];
+                  $amount = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
+                  if(array_key_exists($ProductRow->TaxRateID, $inlineTaxes)){
+                      $inlineTaxes[$ProductRow->TaxRateID] += $amount;
+                  }else{
+                      $inlineTaxes[$ProductRow->TaxRateID] = $amount;
                   }
               }elseif($ProductRow->TaxRateID2 != 0 && array_key_exists($ProductRow->TaxRateID2, $inlineTaxes)){
+                  $tax = $taxes[$ProductRow->TaxRateID2];
+                  $amount = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
                   if($ProductRow->TaxRateID2!=0){
-                      $tax = $taxes[$ProductRow->TaxRateID2];
-                      $inlineTaxes[$ProductRow->TaxRateID2] = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
+                      $inlineTaxes[$ProductRow->TaxRateID] += $amount;
+                  }else{
+                      $inlineTaxes[$ProductRow->TaxRateID] = $amount;
                   }
               }
               if($ProductRow->ProductType == Product::ITEM){
