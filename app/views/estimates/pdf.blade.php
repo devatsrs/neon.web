@@ -169,7 +169,7 @@ $inlineTaxes		=	[];
                                                         @if(count($inlineTaxes) > 0)
                                                             @foreach($inlineTaxes as $index=>$value)
                                                                 <tr>
-                                                                    <td class="text-right"><strong>{{$taxes[$ProductRow->TaxRateID]['Title']}}</strong></td>
+                                                                    <td class="text-right"><strong>{{$taxes[$index]['Title']}}</strong></td>
                                                                     <td class="text-right">{{$CurrencySymbol}}{{number_format($value,$RoundChargesAmount)}}</td>
                                                                 </tr>
                                                             @endforeach
