@@ -317,9 +317,9 @@ $(document).ready(function(e) {
         e.preventDefault();
         var self = $(this);
         var modal = $('#modal-bulk-actions');
-        modal.find('[name="isSendEmail"]').val(0);
+        modal.find('[name="isSendEmail"]').val(1);
         if(e.shiftKey){
-            modal.find('[name="isSendEmail"]').val(1);
+            modal.find('[name="isSendEmail"]').val(0);
         }
         $("#bulk-submit").button('reset');
         resetForm($('#BulkAction-form'),'ticket_bulk_option');
