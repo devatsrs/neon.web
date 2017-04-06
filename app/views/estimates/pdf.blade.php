@@ -86,7 +86,7 @@ $inlineTaxes		=	[];
             </tr>
         </table>
      <br />
-    <h5>Items</h5>
+
     <table border="1"  width="100%" cellpadding="0" cellspacing="0" class="invoice col-md-12 table table-bordered">
             <thead>
             <tr>
