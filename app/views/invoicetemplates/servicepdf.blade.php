@@ -34,7 +34,7 @@
 			<div id="details" class="clearfix">
 				<div id="client">
 					<div class="to">INVOICE TO:</div>
-					<p>{{nl2br($InvoiceTemplate->InvoiceTo)}}</p>
+					<div>{{nl2br($InvoiceTemplate->InvoiceTo)}}</div>
 					<!--<h2 class="name">Bhavin Prajapati</h2>
 					<div class="address">Rajkot</div>
 					<div class="address">Rajkot - 360003</div>
@@ -116,8 +116,6 @@
 		<!-- adevrtisement and terms section start-->
 		<div id="thanksadevertise">
 			<div class="invoice-left">
-				</br>
-				</br>
 				@yield('terms')
 			</div>
 		</div>

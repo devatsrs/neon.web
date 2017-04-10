@@ -6,7 +6,7 @@
 		bottom: 0;
 		/*border-top: 1px solid #aaaaaa;  */
 		color: #555555;
-		font-size: 14px;
+		font-size: 10px;
 }
 #pdf_footer table {
 	width:100%;

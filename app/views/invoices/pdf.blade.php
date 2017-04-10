@@ -37,7 +37,8 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
 		</div>
 		<div id="company">
 			<h2 class="name">INVOICE FROM</h2><br>
-			<p>{{nl2br($InvoiceTemplate->Header)}}</p>
+			<div>{{$Account->AccountName}}</div>
+            <div>{{nl2br($Invoice->Address)}}</div>
 		</div>
 	</header>
 	<!-- logo and invoice from section end-->
@@ -46,7 +47,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
 			<div id="details" class="clearfix">
 				<div id="client">
 					<div class="to">INVOICE TO:</div>
-					<p>{{nl2br($InvoiceTemplate->InvoiceTo)}}</p>
+					<div>{{nl2br($InvoiceTemplate->InvoiceTo)}}</div>
 				</div>
 				<div id="invoice">
 					<h1>Invoice No: {{$Invoice->FullInvoiceNumber}}</h1>
@@ -87,7 +88,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
 				</tbody>
 				<tfoot>
 				<tr>
-					<td colspan="3"></td>
+					<td colspan="2"></td>
 					<td colspan="2">SUB TOTAL</td>
 					<td class="subtotal">{{$CurrencySymbol}}{{number_format($Invoice->SubTotal,$RoundChargesAmount)}}</td>
 				</tr>
@@ -95,7 +96,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
 				@if(count($InvoiceAllTaxRates))
 					@foreach($InvoiceAllTaxRates as $InvoiceTaxRate)
 						<tr>
-							<td colspan="3"></td>
+							<td colspan="2"></td>
 							<td colspan="2">{{$InvoiceTaxRate->Title}}</td>
 							<td class="subtotal">{{$CurrencySymbol}}{{number_format($InvoiceTaxRate->TaxAmount,$RoundChargesAmount)}}</td>
 						</tr>
@@ -103,7 +104,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                 @endif
 				
 				<tr>
-					<td colspan="3"></td>
+					<td colspan="2"></td>
 					<td colspan="2">GRAND TOTAL</td>
 					<td class="subtotal">{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,$RoundChargesAmount)}}</td>
 				</tr>
@@ -116,8 +117,6 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
 		<!-- adevrtisement and terms section start-->
 		<div id="thanksadevertise">
 			<div class="invoice-left">
-				<br>
-				<br>
 				<p><a class="form-control" style="height: auto">{{nl2br($Invoice->Terms)}}</a></p>
 			</div>
 		</div>

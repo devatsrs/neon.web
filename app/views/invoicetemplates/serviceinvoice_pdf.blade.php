@@ -15,22 +15,6 @@
 <div class="inovicebody" style="max-height: 100%;overflow-x: hidden;overflow-y: auto;">
     <header class="clearfix">
         @yield('logo')
-        <!--
-		<div id="logo">
-			<img src="{{$logo}}" alt="Company Logo" title="Company Logo" style="max-width: 250px">        
-		</div>
-		<div style="float:right;display:none;">
-			<p> {{ Form::select('InvoiceFromInfo', Invoice::$invoice_company_info, (!empty(Input::get('InvoiceFromInfo'))?explode(',',Input::get('InvoiceFromInfo')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Company Info")) }} </p>
-		</div>
-		<div id="company">
-			<h2 class="name">INVOICE FROM</h2><br>
-			<div>Wavetel Limited</div>
-			<div>88-90 Goodmayes Road,Goodmayes</div>
-			<div>Essex</div>
-			<div>IG3 9UU</div>
-			<div>VAT: 161 0708 39</div>
-			<div><a href="mailto:company@example.com">company@example.com</a></div>
-		</div>-->
 	</header>
 	<main>
 		<div id="details" class="clearfix">
@@ -39,12 +23,7 @@
 			</div>
 			<div id="client">
 				<div class="to">INVOICE TO:</div>
-                <p>{{nl2br($InvoiceTemplate->InvoiceTo)}}</p>
-				<!--<h2 class="name">Bhavin Prajapati</h2>
-				<div class="address">Rajkot</div>
-				<div class="address">Rajkot - 360003</div>
-				<div class="address">Gujarat, India</div>
-				<div class="email"><a href="mailto:john@example.com">john@example.com</a></div>-->
+                <div>{{nl2br($InvoiceTemplate->InvoiceTo)}}</div>
 			</div>
 			<div id="invoice">
 				<h1>Invoice No: {{$InvoiceTemplate->InvoiceNumberPrefix.$InvoiceTemplate->InvoiceStartNumber}}</h1>
@@ -116,8 +95,6 @@
 	</main>
 	<div id="thanksadevertise">
 		<div class="invoice-left">
-			</br>
-			</br>
 			@yield('terms')
 		</div>
 	</div>

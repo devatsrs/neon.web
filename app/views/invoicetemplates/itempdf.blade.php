@@ -30,7 +30,7 @@
 			<div id="details" class="clearfix">
 				<div id="client">
 					<div class="to">INVOICE TO:</div>
-					<p>{{nl2br($InvoiceTemplate->InvoiceTo)}}</p>
+					<div>{{nl2br($InvoiceTemplate->InvoiceTo)}}</div>
 					<!--<h2 class="name">Bhavin Prajapati</h2>
 					<div class="address">Rajkot</div>
 					<div class="address">Rajkot - 360003</div>
@@ -60,7 +60,6 @@
 					<th class="desc">Quantity</th>
 					<th class="desc">Price</th>
 					<th class="desc">Line Total</th>
-					<th class="desc">Tax Amount</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -70,7 +69,6 @@
 					<td class="desc">2</td>
 					<td class="desc">25</td>
 					<td class="desc">50</td>
-					<td class="desc">10</td>
 				</tr>
 				<tr>
 					<td class="desc">Item 1</td>
@@ -78,29 +76,28 @@
 					<td class="desc">2</td>
 					<td class="desc">25</td>
 					<td class="desc">50</td>
-					<td class="desc">10</td>
 				</tr>
 				</tbody>
 				<tfoot>
 				<tr>
-					<td colspan="3"></td>
+					<td colspan="2"></td>
 					<td colspan="2">SUB TOTAL</td>
 					<td class="subtotal">$5,200.00</td>
 				</tr>
 				<tr>
-					<td colspan="3"></td>
+					<td colspan="2"></td>
 					<td colspan="2">TAX 25%</td>
 					<td class="subtotal">$1,300.00</td>
 				</tr>
 				@if($InvoiceTemplate->ShowPrevBal)
 					<tr>
-						<td colspan="3"></td>
+						<td colspan="2"></td>
 						<td colspan="2">BROUGHT FORWARD</td>
 						<td class="subtotal">$0.00</td>
 					</tr>
 				@endif
 				<tr>
-					<td colspan="3"></td>
+					<td colspan="2"></td>
 					<td colspan="2">GRAND TOTAL</td>
 					<td class="subtotal">$6,500.00</td>
 				</tr>
@@ -111,8 +108,6 @@
 		<!-- adevrtisement and terms section start-->
 		<div id="thanksadevertise">
 			<div class="invoice-left">
-				<br>
-				<br>
 				@yield('terms')
 			</div>
 		</div>

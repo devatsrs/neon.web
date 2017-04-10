@@ -21,7 +21,7 @@ a {
   margin: 0 auto; 
   color: #555555 !important;
   background: #FFFFFF;
-  font-size: 14px;
+  font-size: 12px;
   font-family: SourceSansPro;
 }
 
@@ -47,7 +47,7 @@ header {
 
 
 #details {
-  margin-bottom: 50px;
+  margin-bottom: 20px;
 }
 
 #client {
@@ -230,8 +230,8 @@ footer {
 }
 
 #thanksadevertise{
-	margin: 20px 0 0 0;
-	font-size: 1.2em;
+	margin: 15px 0 0 0;
+	font-size: 12px;;
 }
 
 .page_break{ padding: 10px 0; page-break-after: always;}
@@ -264,9 +264,10 @@ footer {
 }
 
 .invoice-footer{
-  border-top: 1px solid #aaaaaa;
+  /*border-top: 1px solid #aaaaaa;
+  text-align: center;
+  */
   bottom: 0;
   color: #777777;
-  font-size: 12px;
-  text-align: center;
+  font-size: 10px;
 }

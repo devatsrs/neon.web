@@ -51,18 +51,7 @@
             <textarea class="invoice-to" style="min-width: 400px;" rows="7">@if(!empty($InvoiceTemplate->InvoiceTo)){{$InvoiceTemplate->InvoiceTo}} @else {AccountName} @endif</textarea>
 
         </div>
-        <!--
-        <div style="float:left;">
-            <p> {{ Form::select('InvoiceToInfo', Invoice::$invoice_account_info, (!empty(Input::get('InvoiceToInfo'))?explode(',',Input::get('InvoiceFromInfo')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Account Info")) }} </p>
-        </div>
-        <div id="client" style="display:none;">
-            <div class="to">INVOICE TO:</div>
-            <h2 class="name">Bhavin Prajapati</h2>
-            <div class="address">Rajkot</div>
-            <div class="address">Rajkot - 360003</div>
-            <div class="address">Gujarat, India</div>
-            <div class="email"><a href="mailto:john@example.com">john@example.com</a></div>
-        </div>-->
+
         <div id="invoice">
             <h1>Invoice No: {{$InvoiceTemplate->InvoiceNumberPrefix.$InvoiceTemplate->InvoiceStartNumber}}</h1>
             <div class="date">Invoice Date: {{date('d-m-Y')}}</div>
@@ -84,7 +73,6 @@
             <th class="desc">Quantity</th>
             <th class="desc">Price</th>
             <th class="desc">Line Total</th>
-            <th class="desc">Tax Amount</th>
         </tr>
         </thead>
         <tbody>
@@ -94,7 +82,6 @@
             <td class="desc">2</td>
             <td class="desc">25</td>
             <td class="desc">50</td>
-            <td class="desc">10</td>
         </tr>
         <tr>
             <td class="desc">Item 1</td>
@@ -102,29 +89,28 @@
             <td class="desc">2</td>
             <td class="desc">25</td>
             <td class="desc">50</td>
-            <td class="desc">10</td>
         </tr>
         </tbody>
         <tfoot>
         <tr>
-            <td colspan="3"></td>
+            <td colspan="2"></td>
             <td colspan="2">SUB TOTAL</td>
             <td class="subtotal">$5,200.00</td>
         </tr>
         <tr>
-            <td colspan="3"></td>
+            <td colspan="2"></td>
             <td colspan="2">TAX 25%</td>
             <td class="subtotal">$1,300.00</td>
         </tr>
         @if($InvoiceTemplate->ShowPrevBal)
             <tr>
-                <td colspan="3"></td>
+                <td colspan="2"></td>
                 <td colspan="2">BROUGHT FORWARD</td>
                 <td class="subtotal">$0.00</td>
             </tr>
         @endif
         <tr>
-            <td colspan="3"></td>
+            <td colspan="2"></td>
             <td colspan="2">GRAND TOTAL</td>
             <td class="subtotal">$6,500.00</td>
         </tr>
@@ -132,21 +118,10 @@
     </table>
 
 <div class="form-Group" id="txt-adv">
-        <br />
-        <br />
+        <br>
+        <br>
         <textarea class="form-control message" rows="18" id="field-3" name="TemplateBody">{{$InvoiceTemplate->Terms}}</textarea>
 </div>
-
-<!--
-</div>
-<div id="thanksadevertise">
-    <div class="invoice-left">
-        </br>
-        </br>
-        @yield('terms')
-    </div>
-
-</div>-->
 
     <br/>
     <br/>    
@@ -154,16 +129,12 @@
     </header>
 
     <div class="form-Group" id="txt-footer">
-        </br>
+        <br>
         <h2>Footer</h2>
 
         <textarea class="form-control invoiceFooterTerm" rows="8" id="field-3" name="FooterTerm">{{$InvoiceTemplate->FooterTerm}}</textarea>
     </div>
-    <!--<div class="row">
-        <div class="col-sm-12 invoice-footer">
-            @yield('footerterms')
-        </div>
-    </div>-->
+
 </div>
 	<style>
 	    .invoice-editable:focus {

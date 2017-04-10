@@ -51,18 +51,7 @@
             <textarea class="invoice-to" style="min-width: 400px;" rows="7">@if(!empty($InvoiceTemplate->InvoiceTo)){{$InvoiceTemplate->InvoiceTo}} @else {AccountName} @endif</textarea>
 
         </div>
-        <!--
-        <div style="float:left;">
-            <p> {{ Form::select('InvoiceToInfo', Invoice::$invoice_account_info, (!empty(Input::get('InvoiceToInfo'))?explode(',',Input::get('InvoiceFromInfo')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Account Info")) }} </p>
-        </div>
-        <div id="client" style="display:none;">
-            <div class="to">INVOICE TO:</div>
-            <h2 class="name">Bhavin Prajapati</h2>
-            <div class="address">Rajkot</div>
-            <div class="address">Rajkot - 360003</div>
-            <div class="address">Gujarat, India</div>
-            <div class="email"><a href="mailto:john@example.com">john@example.com</a></div>
-        </div>-->
+
         <div id="invoice">
             <h1>Invoice No: {{$InvoiceTemplate->InvoiceNumberPrefix.$InvoiceTemplate->InvoiceStartNumber}}</h1>
             <div class="date">Invoice Date: {{date('d-m-Y')}}</div>
@@ -137,16 +126,6 @@
         <textarea class="form-control message" rows="18" id="field-3" name="TemplateBody">{{$InvoiceTemplate->Terms}}</textarea>
 </div>
 
-<!--
-</div>
-<div id="thanksadevertise">
-    <div class="invoice-left">
-        </br>
-        </br>
-        @yield('terms')
-    </div>
-
-</div>-->
 
     <br/>
     <br/>
