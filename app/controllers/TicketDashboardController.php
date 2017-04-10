@@ -27,7 +27,7 @@ class TicketDashboardController extends \BaseController {
 
         $fieldValues = TicketfieldsValues::getFieldValueIDLIst();
         $fieldPriority = TicketPriority::getPriorityIDLIst();
-        $agents = User::select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->lists('FullName', 'UserID');
+        $agents = User::select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->where(['CompanyID'=>User::get_companyID()])->lists('FullName', 'UserID');
         return View::make('dashboard.show_ajax_ticket_timeline', compact('response','fieldValues','fieldPriority','agents'));
     }
 }
