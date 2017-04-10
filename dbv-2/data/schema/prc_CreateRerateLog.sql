@@ -31,16 +31,36 @@ BEGIN
 
 	IF p_RateCDR = 1
 	THEN
-		SET @stm = CONCAT('
-		INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
-		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Trunk: ",ud.trunk," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
-		FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
-		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 AND ud.billed_second <> 0 and ud.area_prefix = "Other"');
+	
+		IF ( SELECT COUNT(*) FROM tmp_Service_ ) > 0
+		THEN
+		
+			SET @stm = CONCAT('
+			INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
+			SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Service: ",IFNULL(s.ServiceName,"")," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
+			FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
+			INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
+			INNER JOIN NeonRMDev.tblService s on  s.ServiceID = ud.ServiceID
+			WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 AND ud.billed_second <> 0 and ud.area_prefix = "Other"');
+	
+			PREPARE stmt FROM @stm;
+			EXECUTE stmt;
+			DEALLOCATE PREPARE stmt;
+		
+		ELSE
 
-		PREPARE stmt FROM @stm;
-		EXECUTE stmt;
-		DEALLOCATE PREPARE stmt;
+			SET @stm = CONCAT('
+			INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
+			SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Trunk: ",ud.trunk," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
+			FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
+			INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
+			WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 AND ud.billed_second <> 0 and ud.area_prefix = "Other"');
+	
+			PREPARE stmt FROM @stm;
+			EXECUTE stmt;
+			DEALLOCATE PREPARE stmt;
+		
+		END IF;
 
 		SET @stm = CONCAT('
 		INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)

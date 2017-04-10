@@ -2,7 +2,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updatePrefix`(
 	IN `p_AccountID` INT,
 	IN `p_TrunkID` INT,
 	IN `p_processId` INT,
-	IN `p_tbltempusagedetail_name` VARCHAR(200)
+	IN `p_tbltempusagedetail_name` VARCHAR(200),
+	IN `p_ServiceID` INT
 )
 BEGIN
 
@@ -80,6 +81,7 @@ BEGIN
 		ON ud.ProcessID = ' , p_processId , '
 			AND ud.is_inbound = 0 
 			AND ud.AccountID = ' , p_AccountID , '
+			AND ud.ServiceID = ' , p_ServiceID , '
 			AND ud.area_prefix = "Other"
 			AND ( extension <> cld or extension IS NULL)
 			AND cld REGEXP "^[0-9]+$"
