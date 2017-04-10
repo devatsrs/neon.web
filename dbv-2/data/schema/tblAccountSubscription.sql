@@ -17,5 +17,6 @@ CREATE TABLE `tblAccountSubscription` (
   `ModifiedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
+  `ServiceID` int(11) DEFAULT '0',
   PRIMARY KEY (`AccountSubscriptionID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
