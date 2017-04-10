@@ -65,12 +65,12 @@
                     <th width="5%">Subscription</th>
                     <th width="20%">Invoice Description</th>
                     <th width="5%">Qty</th>
-                    <th width="10%">StartDate</th>
-                    <th width="10%">EndDate</th>
-                    <th width="5%">ActivationFee</th>
-                    <th width="5%">DailyFee</th>
-                    <th width="5%">WeeklyFee</th>
-                    <th width="10%">MonthlyFee</th>
+                    <th width="10%">Start Date</th>
+                    <th width="10%">End Date</th>
+                    <th width="5%">Activation Fee</th>
+                    <th width="5%">Daily Fee</th>
+                    <th width="5%">Weekly Fee</th>
+                    <th width="10%">Monthly Fee</th>
                     <th width="20%">Action</th>
                 </tr>
                 </thead>

@@ -10,8 +10,12 @@
 
         <a href="{{URL::to('accounts')}}">Account</a>
     </li>
+    <li><a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}">Edit Account({{$account->AccountName}})</a></li>
+    <li>
+        <a><span>{{accountservice_dropbox($account->AccountID,$ServiceID)}}</span></a>
+    </li>
     <li class="active">
-        <strong>{{$ServiceName}}</strong>
+        <strong>Account Service</strong>
     </li>
 </ol>
 <h3>Account Service</h3>
@@ -39,7 +43,50 @@
     <div class="col-md-12">
         <form id="service-edit-form" method="post" class="form-horizontal form-groups-bordered">
 
+            @include('accountsubscription.index')
+            @include('accountoneoffcharge.index')
+            @include('accounts.cli_tables')
+
+                    <!-- Account Option start -->
+
             <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Additional Options
+                    </div>
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+
+             <!-- Service Title For Invoice -->
+            <div class="panel panel-primary service-title-section-hide" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Service Title For Invoice
+                    </div>
+
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="field-1" class="col-md-2 control-label">Service Title</label>
+                        <div class="col-md-4">
+                            <input type="text" name="ServiceTitle" value="{{$ServiceTitle}}" class="form-control" id="field-5" placeholder="">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- Service Title For Invoice -->
+
+                    <!-- Account Tarrif start -->
+            <div class="panel panel-primary tarrif-section-hide" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
                         Tariff
@@ -65,6 +112,8 @@
                     </div>
                 </div>
              </div>
+
+             <!-- Account Tarrif end -->
 
         <?php
         $billing_disable = $hiden_class= '';
@@ -106,6 +155,10 @@
                         $BillingStartDate = date('Y-m-d',strtotime($account->created_at));
                     }*/
                     ?>
+                    <label for="field-1" class="col-md-2 control-label">Billing Class</label>
+                    <div class="col-md-4">
+                        {{Form::select('BillingClassID', $BillingClass, (  isset($AccountBilling->BillingClassID)?$AccountBilling->BillingClassID:'' ) ,array("class"=>"select2 small form-control1"));}}
+                    </div>
                     <label for="field-1" class="col-md-2 control-label">Billing Start Date</label>
                     <div class="col-md-4">
                         @if($hiden_class == '')
@@ -226,9 +279,10 @@
             </div>
         </div>
         @include('accountdiscountplan.index')
-        @include('accountsubscription.index')
-        @include('accountoneoffcharge.index')
-        @include('accounts.cli_tables')
+
+         </div>
+            </div>
+            <!-- account options end -->
         </form>
     </div>
 </div>
@@ -243,6 +297,25 @@
 
         if(AccountBilling == false){
             $(".billing-section-hide").find('.panel-body').hide();
+        }
+
+        var InTariffID = '{{$InboundTariffID}}';
+        var OutTariffID = '{{$OutboundTariffID}}';
+        var OutDiscountPlanID = '{{$DiscountPlanID}}';
+        var InDiscountPlanID = '{{$InboundDiscountPlanID}}';
+
+        var ServiceTitle = '{{$ServiceTitle}}'
+
+        if(InTariffID =='' && OutTariffID ==''){
+            $(".tarrif-section-hide").find('.panel-body').hide();
+        }
+
+        if(OutDiscountPlanID =='' && InDiscountPlanID ==''){
+            $(".discount-section-hide").find('.panel-body').hide();
+        }
+
+        if(ServiceTitle ==''){
+            $(".service-title-section-hide").find('.panel-body').hide();
         }
 
 
@@ -348,6 +421,16 @@
 
         $('select[name="BillingCycleType"]').trigger( "change" );
 
+        /*Account service breadcum*/
+        $('#drp_accountservice_jump').on('change',function(){
+            var val = $(this).val();
+            if(val!="") {
+                var accountid = '{{$account->AccountID}}';
+                var url ='/accountservices/'+ accountid + '/edit/'+val;
+                window.location.href = baseurl + url;
+            }
+        });
+
 
     });
 function ajax_form_success(response){
@@ -356,6 +439,19 @@ function ajax_form_success(response){
     }
  }
 </script>
+    <style>
+        #drp_accountservice_jump{
+            border: 0px solid #fff;
+            background-color: rgba(255,255,255,0);
+            padding: 0px;
+        }
+        #drp_accountservice_jump option{
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            border: 0px;
+        }
+
+    </style>
 @stop
 @section('footer_ext')
 @parent

@@ -4,6 +4,8 @@ class AccountServiceController extends \BaseController {
 
     // view account edit page
 	public function edit($id,$ServiceID){
+        //Account::getAccountIDList(); exit;
+        //AccountService::getAccountServiceIDList($id); exit;
         $account = Account::find($id);
         $CompanyID = User::get_companyID();
 		$AccountID = $id;
@@ -36,7 +38,10 @@ class AccountServiceController extends \BaseController {
         $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
 
-		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID'));
+        $ServiceTitle = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceTitle');
+
+
+		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle'));
 	}
 
     // add account services
@@ -108,9 +113,10 @@ class AccountServiceController extends \BaseController {
             $data['Billing'] = isset($data['Billing']) ? 1 : 0;
             $CompanyID = User::get_companyID();
 
-            if(!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue'])){
+            if(!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue']) || !empty($data['BillingClassID'])){
                 AccountService::$rules['BillingCycleType'] = 'required';
                 AccountService::$rules['BillingStartDate'] = 'required';
+                AccountService::$rules['BillingClassID'] = 'required';
                 if(isset($data['BillingCycleValue'])){
                     AccountService::$rules['BillingCycleValue'] = 'required';
                 }
@@ -132,7 +138,7 @@ class AccountServiceController extends \BaseController {
                 $data['LastInvoiceDate'] = $data['BillingStartDate'];
             }
 
-            if(!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue'])){
+            if(!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue'])  || !empty($data['BillingClassID'])){
                 AccountBilling::insertUpdateBilling($AccountID, $data,$ServiceID);
                 AccountBilling::storeFirstTimeInvoicePeriod($AccountID,$ServiceID);
                 $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),$ServiceID);
@@ -197,6 +203,11 @@ class AccountServiceController extends \BaseController {
                     AccountTariff::where(array('CompanyID' => $CompanyID, 'AccountID' => $AccountID, 'ServiceID' => $ServiceID, 'Type' => AccountTariff::OUTBOUND))->delete();
                 }
             }
+
+            $accdata=array();
+            $accdata['ServiceTitle'] = empty($data['ServiceTitle']) ? '':$data['ServiceTitle'];
+            AccountService::where(['AccountID'=>$AccountID,'ServiceID'=>$ServiceID])->update($accdata);
+
             return Response::json(array("status" => "success", "message" => "Account Service Successfully updated."));
         }
         return Response::json(array("status" => "failed", "message" => "Problem Creating Account Service."));

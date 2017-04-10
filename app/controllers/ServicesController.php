@@ -14,9 +14,11 @@ class ServicesController extends BaseController {
 
        $companyID = User::get_companyID();
        if(isset($_GET['sSearch_0']) && $_GET['sSearch_0'] == ''){
-           $services = Service::select(["Status","ServiceName","ServiceType","ServiceID"])->where(["CompanyID" => $companyID,"Status"=>1]); // by Default Status 1
+           $services = Service::leftJoin('tblCompanyGateway','tblService.CompanyGatewayID','=','tblCompanyGateway.CompanyGatewayID')
+                        ->select(["tblService.Status","tblService.ServiceName","tblService.ServiceType","tblCompanyGateway.Title","tblService.ServiceID","tblService.CompanyGatewayID"])->where(["tblService.CompanyID" => $companyID,"tblService.Status"=>1]); // by Default Status 1
        }else{
-           $services = Service::select(["Status","ServiceName","ServiceType","ServiceID"])->where(["CompanyID" => $companyID]);
+           $services = Service::leftJoin('tblCompanyGateway','tblService.CompanyGatewayID','=','tblCompanyGateway.CompanyGatewayID')
+               ->select(["tblService.Status","tblService.ServiceName","tblService.ServiceType","tblCompanyGateway.Title","tblService.ServiceID","tblService.CompanyGatewayID"])->where(["tblService.CompanyID" => $companyID]); // by Default Status 1
        }
 
        
@@ -79,11 +81,21 @@ class ServicesController extends BaseController {
     }
 
     public function delete($id){
-        if(Service::where(["ServiceID" => $id])->delete()){
-            return Response::json(array("status" => "success", "message" => "Service Successfully Deleted"));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Deleting Service."));
+        if(Service::checkForeignKeyById($id)){
+            try{
+                $result = Service::where(array('ServiceID'=>$id))->delete();
+                if ($result) {
+                    return Response::json(array("status" => "success", "message" => "Service Successfully Deleted"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Service."));
+                }
+            }catch (Exception $ex){
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Service is in Use, You cant delete this Service."));
         }
+
     }
 
     public function exports($type){

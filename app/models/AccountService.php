@@ -36,4 +36,45 @@ class AccountService extends \Eloquent {
 
 
     }
+    public static function  getAccountServiceIDList($AccountID){
+        $row = array();
+        $select = ["tblService.ServiceName","tblAccountService.ServiceID"];
+        $services = DB::table('tblAccountService')
+            ->join('tblService', function ($join) {
+                $join->on('tblAccountService.ServiceID', '=', 'tblService.ServiceID')
+                    ->where('tblAccountService.AccountID', '=', 5018)
+                    ->where('tblAccountService.Status', '=', 1)
+                    ->where('tblService.Status', '=', 1);
+            })
+            ->select($select)
+            ->get();
+
+        //echo count($services);
+        foreach ($services as $ser){
+            $row[$ser->ServiceID] = $ser->ServiceName;
+        }
+
+
+        if(count($services) > 0){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+       // echo "<pre>";
+        //print_r($row);
+        //echo "</pre>";
+        //exit;
+
+        /*
+        $select = ["tblService.ServiceName","tblAccountService.ServiceID"];
+        $services = AccountService::leftjoin('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')
+            ->where(array("tblAccountService.AccountID"=>$AccountID,"tblAccountService.Status"=>1,"tblService.Status"=>1));
+        $services->select($select)->get();
+        //print_r($services);
+        exit;
+        if(!empty($services)){
+            $services = array(""=> "Select")+$services;
+        }
+
+        return $services;*/
+    }
 }

@@ -18,6 +18,11 @@
     <li>
         <a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}"></i>Edit Account({{$account->AccountName}})</a>
     </li>
+    @if($ServiceID!='0')
+    <li>
+        <a href="{{URL::to('accountservices/'.$account->AccountID.'/edit/'.$ServiceID)}}"></i>Edit Service({{Service::getServiceNameByID($ServiceID)}})</a>
+    </li>
+    @endif
     <li class="active">
 
         <strong>Authentication Rule</strong>
@@ -32,10 +37,18 @@
     </button>
     @endif
 
-    <a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}" class="btn btn-danger btn-sm btn-icon icon-left">
-        <i class="entypo-cancel"></i>
-        Close
-    </a>
+    @if($ServiceID=='0')
+        <a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+            <i class="entypo-cancel"></i>
+            Close
+        </a>
+    @else
+        <a href="{{URL::to('accountservices/'.$account->AccountID.'/edit/'.$ServiceID)}}" class="btn btn-danger btn-sm btn-icon icon-left">
+            <i class="entypo-cancel"></i>
+            Close
+        </a>
+    @endif
+
 </p>
 <?php $AccountNameFormat = array(''=>'Select Authentication Rule')+GatewayConfig::$AccountNameFormat;?>
 @if($account->IsCustomer == 1 )
@@ -102,16 +115,22 @@
                             <table id="customeriptable" class="table table-bordered datatable dataTable customeriptable ">
                                 <thead>
                                 <tr>
-                                    <th><input type="checkbox" name="checkbox[]" class="selectall" /></th><th>IP</th><th>Action</th>
+                                    <th><input type="checkbox" name="checkbox[]" class="selectall" /></th>
+									<th>IP</th>
+									<th>Service</th>
+									<th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @if(count($AccountIPList))
-                                    @foreach($AccountIPList as $index=>$row2)
+                                @if(count($allcustomerip))
+                                    @foreach($allcustomerip as $key=>$cip)
                                         <tr>
-                                            <td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="{{$index}}" class="rowcheckbox" ></div></td>
+                                            <td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="{{$key}}" class="rowcheckbox" ></div></td>
                                             <td>
-                                                {{$row2}}
+                                                {{$cip['CustomerIP']}}
+                                            </td>
+                                            <td>
+                                                {{$cip['ServiceName']}}
                                             </td>
                                             <td>
                                                 <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs customer-delete-ip"> <i class="entypo-trash"></i> </button>
@@ -204,17 +223,24 @@
                             <table id="vendoriptable" class="table  table-bordered datatable dataTable vendoriptable ">
                                 <thead>
                                 <tr>
-                                    <th><input type="checkbox" name="checkbox[]" class="selectall" /></th><th>IP</th><th>Action</th>
+                                    <th><input type="checkbox" name="checkbox[]" class="selectall" /></th>
+                                    <th>IP</th>
+                                    <th>Service</th>
+                                    <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @if(count($AccountIPList))
-                                    @foreach($AccountIPList as $index=>$row2)
+                                @if(count($allvendorip))
+                                    @foreach($allvendorip as $key=>$vip)
                                         <tr>
-                                            <td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="{{$index}}" class="rowcheckbox" ></div></td>
+                                            <td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="{{$key}}" class="rowcheckbox" ></div></td>
                                             <td>
-                                                {{$row2}}
+                                                {{$vip['VendorIP']}}
                                             </td>
+                                            <td>
+                                                {{$vip['ServiceName']}}
+                                            </td>
+
                                             <td>
                                                 <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs vendor-delete-ip"> <i class="entypo-trash"></i> </button>
                                             </td>
@@ -580,16 +606,41 @@
             if(response.object) {
                 if(acountipclitable == 'customeriptable' || acountipclitable == 'customerclitable'){
                     $('#customer_detail [name="CustomerAuthValue"]').val(response.object.CustomerAuthValue);
-                    authValue = response.object.CustomerAuthValue.split(',');
+                    //authValue = response.object.CustomerAuthValue.split(',');
                 }else if(acountipclitable == 'vendoriptable' || acountipclitable == 'vendorclitable'){
                     $('#vendor_detail [name="VendorAuthValue"]').val(response.object.VendorAuthValue);
-                    authValue = response.object.VendorAuthValue.split(',');
+                    //authValue = response.object.VendorAuthValue.split(',');
                 }
-                $.each(authValue, function (index, item) {
+				if(acountipclitable == 'customeriptable' || acountipclitable == 'vendoriptable'){
+					authValue = response.ipobject;								
+					$.each(authValue , function( index, obj ) {
+                        accoutipclihtml +='<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td>';
+						$.each(obj, function( key, value ) {
+                            if(value==null){
+                                accoutipclihtml += '<td></td>';
+                            }else{
+                               accoutipclihtml += '<td>' + value + '</td>';
+                            }
+
+							
+						});
+                        accoutipclihtml += '<td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-trash"></i> </button></td></tr>';
+					});
+
+					/*
+                    $.each(authValue, function (index, item) {
+                        if(item){
+                            accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item[index].IP + '</td><td>' + item[index].ServiceName + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-trash"></i> </button></td></tr>';
+                        }
+                    }); */
+				}else{
+					$.each(authValue, function (index, item) {
 					if(item){
-                    accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-trash"></i> </button></td></tr>';
+                    accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td>' + item + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-trash"></i> </button></td></tr>';
 					}
-                });
+                });	
+				}
+                
                 $('.' + acountipclitable).children('tbody').html(accoutipclihtml);
                 $('.' + acountipclitable).DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
                     $(".dataTables_wrapper select").select2({
