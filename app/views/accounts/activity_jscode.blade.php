@@ -1,6 +1,5 @@
-<?php //echo $message; exit; ?>
 <script type="text/javascript">
- 
+var editor_options 	  =  		{"Crm":true};
 var GUID			  =			'{{$data['GUID']}}';
 var show_popup		  = 	 	0;
 var rowData 		  = 	 	[];
@@ -79,29 +78,12 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 				$('#EmailAction-model .modal-content').html(response);				
 					var mod =  $(document).find('.EmailAction_box');
 					$('#EmailAction-model').modal('show');
-				 	//mod.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-        			//mod.find('.message').show();
 				mod.find("select").select2({
                     minimumResultsForSearch: -1
                 });
 				mod.find('.select2-container').css('visibility','visible');
-				setTimeout(function(){ 				
-				mod.find('.message').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":true,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});			
-				 }, 500);
-				
+				show_summernote(mod.find(".message"),editor_options);
+
 		    
 			},
 		});
@@ -329,28 +311,9 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 				});	
 				
 				      $('#edit-note-model').on('shown.bs.modal', function(event){
-						  var modal = $(this);
-                        modal.find('.wysihtml5-toolbar').remove();
-						modal.find('.wysihtml5-sandbox').remove();
-                        modal.find('.editor-note').show();
-						  
+						var modal = $(this);
                         var modal = $('#edit-note-model');
-						
-							
-						modal.find('.editor-note').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":true,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-							parser: function(html) {
-								return html;
-							}
-					});
+						show_summernote(modal.find(".editor-note"),editor_options);
                     });
 
                    	
@@ -359,10 +322,7 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 	
 			 $('#edit-note-model').on('hidden.bs.modal', function(event){				 	
                         var modal = $(this);
-                        modal.find('.wysihtml5-toolbar').remove();
-						modal.find('.wysihtml5-sandbox').remove();
-                        modal.find('.editor-note').show();
-              });			
+              });
 
 			$("#form_timeline_filter [name=timeline_filter]").click(function(e){
         	var show_timeline_data = $(this).attr('show_data'); console.log(show_timeline_data);
@@ -411,37 +371,16 @@ toastr.error(status, "Error", toastr_opts);
 		        function editor_reset(data,parent_box){
 				//var doc = $('.mail-compose');
 				var doc = $(document).find('.'+parent_box);
-		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-        		doc.find('.message').show();
+				show_summernote(doc.find(".message"),editor_options);
 						
-	       if(!Array.isArray(data)){				
-                var EmailTemplate = data['EmailTemplate'];
-                doc.find('[name="Subject"]').val(EmailTemplate.Subject);
-                doc.find('.message').val(EmailTemplate.TemplateBody);
-            }else{
-                doc.find('[name="Subject"]').val('');
-                doc.find('.message').val('');
-            }
-			
-			///
-			
-				doc.find('.message').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":true,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});
-		
-			///
-           
+				   if(!Array.isArray(data)){
+						var EmailTemplate = data['EmailTemplate'];
+						doc.find('[name="Subject"]').val(EmailTemplate.Subject);
+						doc.find('.message').val(EmailTemplate.TemplateBody);
+					}else{
+						doc.find('[name="Subject"]').val('');
+						doc.find('.message').val('');
+					}
         }
 		
     // When Lead is converted to account.
@@ -549,52 +488,21 @@ setTimeout(function() {
 			if(divName=='box-2')
 			{				
 				var doc = $('.mail-compose');
-				
-				doc.find('.message').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":true,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-							parser: function(html) {
-								return html;
-							}
-					});
-		
-	
+				show_summernote(doc.find(".message"),editor_options);
+
 			}else{
 				 var doc = $('.mail-compose');
-		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
         		doc.find('.message').show();
 			}
 			
 			if(divName=='box-1')
 			{	
 				var doc = $('#box-1');
-				
-				doc.find('#note-content').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":true,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-							parser: function(html) {
-								return html;
-							}
-					});
+				show_summernote(doc.find("#note-content"),editor_options);
 			}
 			else
 			{
 				var doc = $('#box-1');
-		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
         		doc.find('#note-content').show();
 			
 			}
@@ -910,8 +818,7 @@ $('#emai_attachments_form').submit(function(e) {
 				}
 				else
 				{
-					$('#box-1 .wysihtml5-sandbox').contents().find('body').html('');
-					ShowToastr("success","Note Successfully Created");  
+					ShowToastr("success","Note Successfully Created");
 					document.getElementById('notes-from').reset();
 					var empty_ul = 0;
 					if($("#timeline-ul").length == 0) {
@@ -1123,7 +1030,6 @@ $('#emai_attachments_form').submit(function(e) {
 					 ShowToastr("success","Email Sent Successfully"); 
 					 document.getElementById('email-from').reset();	
 					 $('.email_template').change();		
-					$('#box-2 .wysihtml5-sandbox').contents().find('body').html('');
 					var empty_ul = 0;
 					if($("#timeline-ul").length == 0) {
 						var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';

@@ -74,7 +74,8 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
 		"assets/js/daterangepicker/daterangepicker.js",
 
 		//New editor
-		"assets/js/summernote/summernote.js"
+		"assets/js/summernote/summernote.min.js",
+		"assets/js/summernote/plugin/neonplaceholder/neonplaceholder.js",
 
 	];
 }

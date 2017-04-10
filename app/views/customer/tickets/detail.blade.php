@@ -221,10 +221,8 @@
 .mail-env .mail-body .mail-header .mail-date{padding:0px; text-align:inherit;}
 .Requester_Info{padding:10px !important;}
 </style>
-<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script>
+var editor_options 	 	=  		{};
 var agent 				= 		parseInt('{{$ticketdata->Agent}}');
 var file_count 		  	=  		0;
 var emailFileList     	=		[];
@@ -258,29 +256,11 @@ $(document).ready(function(e) {
 				$('#EmailAction-model .modal-content').html(response);				
 					var mod =  $(document).find('.EmailAction_box');
 					$('#EmailAction-model').modal('show');
-				 	//mod.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-        			//mod.find('.message').show();
 				mod.find("select").select2({
                     minimumResultsForSearch: -1
                 });
 				mod.find('.select2-container').css('visibility','visible');
-				setTimeout(function(){ 
-				mod.find('.message').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});
-				 }, 500);
-				
+				show_summernote(mod.find('.message'),editor_options);
 		    
 			},
 		});
@@ -289,25 +269,10 @@ $(document).ready(function(e) {
 	
 	$( document ).on("click",'.add_note' ,function(e) {			
 		var mod = $('#add-note-model');
-		 	mod.find('.wysihtml5-toolbar').remove();
-			mod.find('.wysihtml5-sandbox').remove();
 			mod.find('#Description_edit_note').show();
 		
 		mod.modal("show");
-		mod.find('#Description_edit_note').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});		
+		show_summernote(mod.find('#Description_edit_note'),editor_options);
 	});
 
 	//

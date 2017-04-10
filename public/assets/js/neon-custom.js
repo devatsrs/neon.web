@@ -3159,7 +3159,6 @@ function select_all_top(selectallbutton,table,selectall) {
         }
     });
 }
-
 try{
     if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 && $(".notifications.cron_jobs.dropdown").has("#failing_placeholder").length > 0 ) {
         setInterval(function () {
@@ -3170,14 +3169,21 @@ try{
     console.log(er.message);
 }
 
-show_summernote = function (element,option){
+show_summernote = function (element,options){
+
+    if(!!document.createRange) {
+        document.getSelection().removeAllRanges();
+    }
 
     element.addClass("hidden");
     element.summernote('destroy');
-    element.summernote({
-        toolbar: [
+
+     element.summernote({
+         onInit: function() {
+             console.log('Summernote is launched');
+         },
+         toolbar: [
             ['neon_placeholders', ['neon_placeholders']], // here, for example
-            ['print', ['print']], // here, for example
             ['style', ['style']],
             ['font', ['bold', 'italic', 'underline', 'clear']],
             ['fontname', ['fontname']],
@@ -3192,6 +3198,8 @@ show_summernote = function (element,option){
         height: 200,
         tabsize: 2,
         dialogsInBody: true,
+        defaultOptions : options
     });
 
 };
+
