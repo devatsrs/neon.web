@@ -36,9 +36,8 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
 			@endif
 		</div>
 		<div id="company">
-			<h2 class="name">INVOICE FROM</h2><br>
-			<div>{{$Account->AccountName}}</div>
-            <div>{{nl2br($Invoice->Address)}}</div>
+			<h2 class="name">INVOICE FROM</h2>
+			<div>{{ nl2br($InvoiceTemplate->Header)}}</div>
 		</div>
 	</header>
 	<!-- logo and invoice from section end-->
@@ -47,7 +46,8 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
 			<div id="details" class="clearfix">
 				<div id="client">
 					<div class="to">INVOICE TO:</div>
-					<div>{{nl2br($InvoiceTemplate->InvoiceTo)}}</div>
+					<div>{{$Account->AccountName}}</div>
+					<div>{{nl2br($Invoice->Address)}}</div>
 				</div>
 				<div id="invoice">
 					<h1>Invoice No: {{$Invoice->FullInvoiceNumber}}</h1>
