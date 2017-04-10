@@ -320,6 +320,7 @@ $(document).ready(function(e) {
 
     $('.dropdown-menu li a').click(function(e){
         e.preventDefault();
+        resetForm($('#BulkAction-form'),'ticket_bulk_option');
         var self = $(this);
         var modal = $('#modal-bulk-actions');
         modal.find('[name="isSendEmail"]').val(1);
@@ -327,7 +328,6 @@ $(document).ready(function(e) {
             modal.find('[name="isSendEmail"]').val(0);
         }
         $("#bulk-submit").button('reset');
-        resetForm($('#BulkAction-form'),'ticket_bulk_option');
         modal.find('.col-md-12').addClass('col-md-4').removeClass('col-md-12');
         modal.find('.col-md-4').each(function(){
             $(this).addClass('hidden');
@@ -468,7 +468,7 @@ $(document).ready(function(e) {
                         </div>
                     </div>
                     <input type="hidden" name="selectedIDs" />
-                    <input type="hidden" name="isSendEmail" />
+                    <input type="hidden" name="isSendEmail" value="1" />
                     <div class="modal-footer">
                         <button  type="submit" id="bulk-submit" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
