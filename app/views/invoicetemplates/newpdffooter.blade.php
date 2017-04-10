@@ -14,10 +14,11 @@
 </style>
 	<!-- footer section start -->
 	<div id="pdf_footer">
-		{{nl2br($Invoice->FooterTerm)}}
+		{{nl2br($InvoiceTemplate->FooterTerm)}}
 		
 	</div>
 	<!-- footer section start -->
 </div> <!-- invoicebody(class) section end -->
 
-@stop
+
+ @stop

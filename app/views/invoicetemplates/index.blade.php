@@ -31,8 +31,8 @@
     <tr>
         <th width="25%">Name</th>
         <th width="25%">Modified Date</th>
-        <th width="25%">Modified By</th>
-        <th width="25%">Action</th>
+        <th width="15%">Modified By</th>
+        <th width="35%">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -86,11 +86,14 @@ var postdata;
                          <?php if(User::checkCategoryPermission('InvoiceTemplates','Edit') ){ ?>
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-invoice_template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                          <?php } ?>
-                         action += ' <a  href="'+ view_url +'?Type=2" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Item  View </a>';
-                         action += ' <a  href="'+ view_url +'?Type=1" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Periodic View </a>';
                          <?php if(User::checkCategoryPermission('InvoiceTemplates','Delete') ){ ?>
                             action += ' <a data-id="'+ id +'" title="Delete" class="delete-invoice_template btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                          <?php } ?>
+                        action += ' <a  href="'+ view_url +'?Type=2" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Item  View </a>';
+                        action += ' <a  href="'+ view_url +'?Type=1" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Periodic View </a>';
+                        if(full[7]=='single_with_detail'){
+                            action += ' <a  href="'+ view_url +'?Type=3" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Usage Column</a>';
+                        }
                         return action;
                       }
                   },
