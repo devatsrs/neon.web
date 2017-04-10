@@ -20,13 +20,12 @@ BEGIN
  
  	/* insert into success summary*/
  	DELETE FROM tmp_UsageSummary WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_UsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	INSERT INTO tmp_UsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT 
 		d.DateID,
 		t.TimeID,
 		ud.CompanyID,
 		ud.CompanyGatewayID,
-		ud.ServiceID,
 		ANY_VALUE(ud.GatewayAccountID),
 		ud.AccountID,
 		ud.trunk,
@@ -39,7 +38,7 @@ BEGIN
 	FROM tmp_tblUsageDetailsReport ud  
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
-	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.ServiceID,ud.CompanyID;
+	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
 
 	UPDATE tmp_UsageSummary 
 	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
@@ -47,7 +46,8 @@ BEGIN
 	WHERE tmp_UsageSummary.CompanyID = p_CompanyID AND code.CountryID > 0;
 
 	DELETE FROM tmp_SummaryHeader WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
+ 	
+	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryHeaderID,
 		sh.DateID,
@@ -55,7 +55,6 @@ BEGIN
 		sh.AccountID,
 		sh.GatewayAccountID,
 		sh.CompanyGatewayID,
-		sh.ServiceID,
 		sh.Trunk,
 		sh.AreaPrefix,
 		sh.CountryID,
@@ -67,8 +66,8 @@ BEGIN
 	
 	START TRANSACTION;
 	
-	INSERT INTO tblSummaryHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
-	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
+	INSERT INTO tblSummaryHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
 	FROM tmp_UsageSummary us
 	LEFT JOIN tmp_SummaryHeader sh	 
 	ON 
@@ -78,12 +77,12 @@ BEGIN
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID
 	WHERE sh.SummaryHeaderID IS NULL
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
 	
 	DELETE FROM tmp_SummaryHeader WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
+ 	
+	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryHeaderID,
 		sh.DateID,
@@ -91,7 +90,6 @@ BEGIN
 		sh.AccountID,
 		sh.GatewayAccountID,
 		sh.CompanyGatewayID,
-		sh.ServiceID,
 		sh.Trunk,
 		sh.AreaPrefix,
 		sh.CountryID,
@@ -122,8 +120,7 @@ BEGIN
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
 	
 	INSERT INTO tblUsageSummaryDetail (SummaryHeaderID,TimeID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT sh.SummaryHeaderID,TimeID,us.TotalCharges,us.TotalBilledDuration,us.TotalDuration,us.NoOfCalls,us.NoOfFailCalls
@@ -135,8 +132,7 @@ BEGIN
 	AND us.AccountID = sh.AccountID
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
-	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID;
+	AND us.AreaPrefix = sh.AreaPrefix;
 
 	COMMIT;
 	

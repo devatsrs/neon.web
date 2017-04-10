@@ -1,0 +1,579 @@
+From bf756708e982c93681343c68148c3ae728daf5b8 Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Tue, 4 Apr 2017 21:02:53 +0500
+Subject: [PATCH] neon 824
+
+---
+ app/lib/Helper.php | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/app/lib/Helper.php b/app/lib/Helper.php
+index 9ebd648..3baa09c 100644
+--- a/app/lib/Helper.php
++++ b/app/lib/Helper.php
+@@ -335,20 +335,19 @@ class Helper{
+ 		$replace_array['CompanyCity'] 		= $CompanyData->City;
+ 		$replace_array['CompanyPostCode'] 	= $CompanyData->PostCode;
+ 		$replace_array['CompanyCountry'] 	= $CompanyData->Country;
+-		$replace_array['Logo'] 				= combile_url_path(\App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL'),'/assets/images/logo@2x.png'); 		
++		$replace_array['Logo'] 				= combile_url_path(\App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL'),'assets/images/logo@2x.png'); 		
+ 		
+         $domain_data  =     parse_url(\App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL'));
+-		$TEMP_PATH 	  =     \App\Lib\CompanyConfiguration::get($Account->CompanyId,'TEMP_PATH').'/';
+ 		$Host		  = 	$domain_data['host'];
+         $result       =    \Illuminate\Support\Facades\DB::table('tblCompanyThemes')->where(["DomainUrl" => $Host,'ThemeStatus'=>\App\Lib\Themes::ACTIVE])->first();
+ 
+         if(!empty($result)){
+-            if(!empty($result->Logo)){             
++            if(!empty($result->Logo)){           
+ 				 $path = AmazonS3::unSignedUrl($result->Logo,$Account->CompanyId);  
+                         if(strpos($path, "https://") !== false){
+ 							$replace_array['Logo'] = $path;
+                         }else{
+-                            $file = $TEMP_PATH.$path;                    
++                            $file = $result->Logo;           
+                             $replace_array['Logo'] = MakeWebUrl($Account->CompanyId,$file); 
+                         }
+ 				
+-- 
+1.9.5.msysgit.0
+
+From 029a861ff2bfe0517ef3de5e455e4465ca2a98aa Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Tue, 4 Apr 2017 20:33:21 +0500
+Subject: [PATCH] neon 824
+
+---
+ app/helpers.php    |  4 ++++
+ app/lib/Helper.php | 16 ++++++++++++----
+ 2 files changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/app/helpers.php b/app/helpers.php
+index 7c54d17..4fb2135 100644
+--- a/app/helpers.php
++++ b/app/helpers.php
+@@ -590,3 +590,7 @@ function validator_response($validator){
+     }
+ 
+ }
++
++function MakeWebUrl($CompanyID,$path){
++	return \App\Lib\CompanyConfiguration::get($CompanyID,'WEB_URL')."/download_file?file=".base64_encode($path);
++}
+diff --git a/app/lib/Helper.php b/app/lib/Helper.php
+index 3b0a8dc..9ebd648 100644
+--- a/app/lib/Helper.php
++++ b/app/lib/Helper.php
+@@ -335,18 +335,26 @@ class Helper{
+ 		$replace_array['CompanyCity'] 		= $CompanyData->City;
+ 		$replace_array['CompanyPostCode'] 	= $CompanyData->PostCode;
+ 		$replace_array['CompanyCountry'] 	= $CompanyData->Country;
+-		$replace_array['Logo'] 				= \App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL').'/assets/images/logo@2x.png'; 
++		$replace_array['Logo'] 				= combile_url_path(\App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL'),'/assets/images/logo@2x.png'); 		
+ 		
+         $domain_data  =     parse_url(\App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL'));
++		$TEMP_PATH 	  =     \App\Lib\CompanyConfiguration::get($Account->CompanyId,'TEMP_PATH').'/';
+ 		$Host		  = 	$domain_data['host'];
+         $result       =    \Illuminate\Support\Facades\DB::table('tblCompanyThemes')->where(["DomainUrl" => $Host,'ThemeStatus'=>\App\Lib\Themes::ACTIVE])->first();
+ 
+         if(!empty($result)){
+-            if(!empty($result->Logo)){
+-                $replace_array['Logo']       = (!empty($result->Logo))?$result->Logo:"";
++            if(!empty($result->Logo)){             
++				 $path = AmazonS3::unSignedUrl($result->Logo,$Account->CompanyId);  
++                        if(strpos($path, "https://") !== false){
++							$replace_array['Logo'] = $path;
++                        }else{
++                            $file = $TEMP_PATH.$path;                    
++                            $replace_array['Logo'] = MakeWebUrl($Account->CompanyId,$file); 
++                        }
++				
+             }
+         }
+-	    $replace_array['Logo'] = "<img src='".$replace_array['Logo']."' />";
++	    $replace_array['Logo'] = '<img src="'.$replace_array['Logo'].'" />';
+ 	   
+        $replace_array['OutstandingExcludeUnbilledAmount'] = AccountBalance::getOutstandingAmount($Account->CompanyId,$Account->AccountID);
+        $Signature = '';
+-- 
+1.9.5.msysgit.0
+
+From 9fac73461d2167d17863e60f4afdb25fcecea446 Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Tue, 4 Apr 2017 18:52:04 +0500
+Subject: [PATCH] neon 824
+
+---
+ app/lib/Helper.php | 14 ++++++++++++--
+ app/lib/Themes.php | 40 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 52 insertions(+), 2 deletions(-)
+ create mode 100644 app/lib/Themes.php
+
+diff --git a/app/lib/Helper.php b/app/lib/Helper.php
+index 077329f..3b0a8dc 100644
+--- a/app/lib/Helper.php
++++ b/app/lib/Helper.php
+@@ -335,8 +335,18 @@ class Helper{
+ 		$replace_array['CompanyCity'] 		= $CompanyData->City;
+ 		$replace_array['CompanyPostCode'] 	= $CompanyData->PostCode;
+ 		$replace_array['CompanyCountry'] 	= $CompanyData->Country;
+-	    $replace_array['Logo'] 				= \App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL').'/assets/images/logo@2x.png'; 
+-	    
++		$replace_array['Logo'] 				= \App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL').'/assets/images/logo@2x.png'; 
++		
++        $domain_data  =     parse_url(\App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL'));
++		$Host		  = 	$domain_data['host'];
++        $result       =    \Illuminate\Support\Facades\DB::table('tblCompanyThemes')->where(["DomainUrl" => $Host,'ThemeStatus'=>\App\Lib\Themes::ACTIVE])->first();
++
++        if(!empty($result)){
++            if(!empty($result->Logo)){
++                $replace_array['Logo']       = (!empty($result->Logo))?$result->Logo:"";
++            }
++        }
++	    $replace_array['Logo'] = "<img src='".$replace_array['Logo']."' />";
+ 	   
+        $replace_array['OutstandingExcludeUnbilledAmount'] = AccountBalance::getOutstandingAmount($Account->CompanyId,$Account->AccountID);
+        $Signature = '';
+diff --git a/app/lib/Themes.php b/app/lib/Themes.php
+new file mode 100644
+index 0000000..cbf6e7a
+--- /dev/null
++++ b/app/lib/Themes.php
+@@ -0,0 +1,40 @@
++<?php
++namespace App\Lib;
++
++use Illuminate\Support\Facades\DB;
++use Illuminate\Support\Facades\Log;
++use Illuminate\Support\Facades\View;
++use Illuminate\Support\Str;
++use Webpatser\Uuid\Uuid;
++
++class Themes extends \Eloquent {
++	
++    protected $connection 	= 	'sqlsrv';
++    protected $fillable 	= 	[];
++    protected $guarded 		= 	array('ThemeID');
++    protected $table 		= 	'tblCompanyThemes';
++    protected $primaryKey 	= 	"ThemeID";
++    const INACTIVE 			= 	'inactive';
++    const ACTIVE 			= 	'active';
++	
++
++
++   public static function get_theme_status()
++	{
++       $Company 		= 	Company::find(User::get_companyID());		
++       $themeStatus 	= 	explode(',','');
++       $themearray 		= 	array(
++	   										''=>'Select Theme Status',
++											self::ACTIVE=>'Active',
++	   										self::INACTIVE=>'Inactive'																					
++								);
++	   
++        foreach($themeStatus as $status)
++		{
++            $themearray[$status] = $status;
++        }
++		
++        return $themearray;
++    }
++
++}
+\ No newline at end of file
+-- 
+1.9.5.msysgit.0
+
+From 36cb8913f2123dd20af7b4c04ecd77cf7fe4709d Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Mon, 27 Mar 2017 23:29:45 +0500
+Subject: [PATCH] ticket section updated
+
+---
+ app/helpers.php          |   7 +++
+ app/lib/EmailMessage.php | 145 +++++++++++++++++++++++++++++++++++++++++++++++
+ app/lib/Helper.php       |  10 ++++
+ app/lib/Imap.php         | 103 +++++++++++++++++++++++++++++----
+ 4 files changed, 255 insertions(+), 10 deletions(-)
+ create mode 100644 app/lib/EmailMessage.php
+
+diff --git a/app/helpers.php b/app/helpers.php
+index ad5c912..7c54d17 100644
+--- a/app/helpers.php
++++ b/app/helpers.php
+@@ -263,6 +263,13 @@ function template_var_replace($EmailMessage,$replace_array){
+         '{{CompanyName}}',
+ 		"{{CompanyVAT}}",
+ 		"{{CompanyAddress}}",
++		"{{CompanyAddress1}}",
++		"{{CompanyAddress2}}",
++		"{{CompanyAddress3}}",
++		"{{CompanyCity}}",
++		"{{CompanyPostCode}}",
++		"{{CompanyCountry}}",
++		"{{Logo}}",
+     ];
+ 
+     foreach($extra as $item){
+diff --git a/app/lib/EmailMessage.php b/app/lib/EmailMessage.php
+new file mode 100644
+index 0000000..149ca93
+--- /dev/null
++++ b/app/lib/EmailMessage.php
+@@ -0,0 +1,145 @@
++<?php
++namespace App\Lib;
++use Illuminate\Support\Facades\Config;
++use Illuminate\Support\Facades\DB;
++use App\Lib\User;
++use App\Lib\Lead;
++use Illuminate\Support\Facades\Log;
++use App\Lib\AccountEmailLog;
++use App\Lib\TicketsTable;
++use App\Lib\Contact;
++use Validator;
++
++class EmailMessage {
++
++	protected $connection;
++	protected $messageNumber;
++	
++	public $bodyHTML = '';
++	public $bodyPlain = '';
++	public $attachments;
++	
++	public $getAttachments = true;
++	
++	public function __construct($connection, $messageNumber) {
++	
++		$this->connection = $connection;
++		$this->messageNumber = $messageNumber;
++		
++	}
++
++	public function fetch() {
++		
++		$structure = @imap_fetchstructure($this->connection, $this->messageNumber);
++		if(!$structure) {
++			return false;
++		}
++		else {
++			$this->recurse($structure->parts);
++			return true;
++		}
++		
++	}
++	
++	public function recurse($messageParts, $prefix = '', $index = 1, $fullPrefix = true) {
++
++		foreach($messageParts as $part) {
++			
++			$partNumber = $prefix . $index;
++			
++			if($part->type == 0) {
++				if($part->subtype == 'PLAIN') {
++					$this->bodyPlain .= $this->getPart($partNumber, $part->encoding);
++				}
++				else {
++					$this->bodyHTML .= $this->getPart($partNumber, $part->encoding);
++				}
++			}
++			elseif($part->type == 2) {
++				$msg = new EmailMessage($this->connection, $this->messageNumber);
++				$msg->getAttachments = $this->getAttachments;
++				$msg->recurse($part->parts, $partNumber.'.', 0, false);
++				$this->attachments[] = array(
++					'type' => $part->type,
++					'subtype' => $part->subtype,
++					'filename' => '',
++					'data' => $msg,
++					'inline' => false,
++				);
++			}
++			elseif(isset($part->parts)) {
++				if($fullPrefix) {
++					$this->recurse($part->parts, $prefix.$index.'.');
++				}
++				else {
++					$this->recurse($part->parts, $prefix);
++				}
++			}
++			elseif($part->type > 2) {
++				if(isset($part->id)) {
++					$id = str_replace(array('<', '>'), '', $part->id);
++					$this->attachments[$id] = array(
++						'type' => $part->type,
++						'subtype' => $part->subtype,
++						'filename' => $this->getFilenameFromPart($part),
++						'data' => $this->getAttachments ? $this->getPart($partNumber, $part->encoding) : '',
++						'inline' => true,
++					);
++				}
++				else {
++					$this->attachments[] = array(
++						'type' => $part->type,
++						'subtype' => $part->subtype,
++						'filename' => $this->getFilenameFromPart($part),
++						'data' => $this->getAttachments ? $this->getPart($partNumber, $part->encoding) : '',
++						'inline' => false,
++					);
++				}
++			}
++			
++			$index++;
++			
++		}
++		
++	}
++	
++	function getPart($partNumber, $encoding) {
++
++		$data = imap_fetchbody($this->connection, $this->messageNumber, $partNumber);
++		switch($encoding) {
++			case 0: return $data; // 7BIT
++			case 1: return $data; // 8BIT
++			case 2: return $data; // BINARY
++			case 3: return base64_decode($data); // BASE64
++			case 4: return quoted_printable_decode($data); // QUOTED_PRINTABLE
++			case 5: return $data; // OTHER
++		}
++
++
++	}
++	
++	function getFilenameFromPart($part) {
++
++		$filename = '';
++
++		if($part->ifdparameters) {
++			foreach($part->dparameters as $object) {
++				if(strtolower($object->attribute) == 'filename') {
++					$filename = $object->value;
++				}
++			}
++		}
++
++		if(!$filename && $part->ifparameters) {
++			foreach($part->parameters as $object) {
++				if(strtolower($object->attribute) == 'name') {
++					$filename = $object->value;
++				}
++			}
++		}
++
++		return $filename;
++
++	}
++}
++?>
+\ No newline at end of file
+diff --git a/app/lib/Helper.php b/app/lib/Helper.php
+index 8a2fa4a..077329f 100644
+--- a/app/lib/Helper.php
++++ b/app/lib/Helper.php
+@@ -328,6 +328,16 @@ class Helper{
+ 	   $replace_array['CompanyVAT'] = Company::getCompanyField($Account->CompanyId,"VAT");
+ 	   $replace_array['CompanyAddress'] = Company::getCompanyFullAddress($Account->CompanyId);
+ 	   
++	    $CompanyData						= Company::find($Account->CompanyId);	   
++	    $replace_array['CompanyAddress1'] 	= $CompanyData->Address1;
++		$replace_array['CompanyAddress2'] 	= $CompanyData->Address2;
++		$replace_array['CompanyAddress3'] 	= $CompanyData->Address3;
++		$replace_array['CompanyCity'] 		= $CompanyData->City;
++		$replace_array['CompanyPostCode'] 	= $CompanyData->PostCode;
++		$replace_array['CompanyCountry'] 	= $CompanyData->Country;
++	    $replace_array['Logo'] 				= \App\Lib\CompanyConfiguration::get($Account->CompanyId,'WEB_URL').'/assets/images/logo@2x.png'; 
++	    
++	   
+        $replace_array['OutstandingExcludeUnbilledAmount'] = AccountBalance::getOutstandingAmount($Account->CompanyId,$Account->AccountID);
+        $Signature = '';
+        if(!empty($JobLoggedUser)){
+diff --git a/app/lib/Imap.php b/app/lib/Imap.php
+index d9e809e..1ba627d 100644
+--- a/app/lib/Imap.php
++++ b/app/lib/Imap.php
+@@ -9,6 +9,7 @@ use App\Lib\AccountEmailLog;
+ use App\Lib\TicketsTable;
+ use App\Lib\Contact;
+ use Validator;
++use App\Lib\EmailMessage;
+ 
+ class Imap{
+ 
+@@ -54,7 +55,8 @@ protected $server;
+ 				$references   	=  		isset($overview[0]->references)?$overview[0]->references:'';
+ 				$in_reply_to  	= 		isset($overview[0]->in_reply_to)?$overview[0]->in_reply_to:$message_id;				
+ 				$msg_parent   	=		AccountEmailLog::where("MessageID",$in_reply_to)->first();
+-
++					
++			
+ 				if(!empty($msg_parent)){ // if email is reply of an email
+ 					if($msg_parent->EmailParent==0){
+ 						$parent = $msg_parent->AccountEmailLogID;                        
+@@ -388,11 +390,11 @@ protected $server;
+ 	
+ 	function getBody($imap,$uid) {
+ 	$uid  =  imap_uid ($imap,$uid); //getting mail uid
+-    $body = $this->get_part($imap, $uid, "TEXT/HTML");
++    $body = $this->get_part($imap, $uid, "TEXT/HTML"); 
+     // if HTML body is empty, try getting text body
+     if ($body == "") {
+         $body = $this->get_part($imap, $uid, "TEXT/PLAIN");
+-    }
++    } Log::info("body:".$body);
+         return $body;
+     }
+ 
+@@ -447,7 +449,7 @@ protected $server;
+ 	}
+ 	
+ 	
+-	function ReadTicketEmails($CompanyID,$server,$email,$password,$GroupID){ DB::enableQueryLog();
++	function ReadTicketEmails($CompanyID,$server,$email,$password,$GroupID){ 
+ 		$AllEmails  =   Messages::GetAllSystemEmails();
+ 		$email 		= 	$email;
+ 		$password 	= 	$password;		
+@@ -481,7 +483,7 @@ protected $server;
+ 					
+ 				Log::info("in_reply_to:".$in_reply_to);	
+ 				
+-
++			
+ 				$msg_parent   				=		  AccountEmailLog::where(["MessageID"=>$in_reply_to])->first();				
+ 				
+ 				
+@@ -528,6 +530,8 @@ protected $server;
+ 					$parentTicket		  =		 0;
+                 }
+ 				
++				
++				
+ 				if(!$parentTicket){
+ 						$reply_array = explode("__",$in_reply_to);
+ 						if(count($reply_array) == 3){
+@@ -548,10 +552,12 @@ protected $server;
+ 					$AttachmentPaths  = 	serialize([]);										
+ 				}
+ 				
+-			 	$message = 	$this->getBody($inbox,$email_number);
++				$message =  $this->DownloadInlineImages($inbox, $email_number,$CompanyID);
++			 	//$message = 	$this->getBody($inbox,$email_number);
+ 				if(!empty($message)){
+ 					$message =  $this->GetMessageBody($message);
+-				}
++				}				
++				Log::info("message:".$message);
+ 			
+                 $from   	= 	$this->GetEmailtxt($overview[0]->from);
+ 				$to 		= 	$this->GetEmailtxt($overview[0]->to);
+@@ -560,11 +566,12 @@ protected $server;
+ 				$bcc		=	isset($headerdata->bccaddress)?$headerdata->bccaddress:'';
+ 				Log::info("from name from function:".$FromName);
+ 				Log::info("from name:".$overview[0]->from);
+-				Log::info("headerdata:".print_r($headerdata,true));
++								
+ 				$cc 		=	$this->GetCC($cc);
+ 				$update_id  =	''; $insert_id  =	'';
+ 
+ 				Log::info("parent:".$parent);
++				Log::info("parentTicket:".$parentTicket);
+ 				if(!$parentTicket){
+ 				$logData = [
+ 						'Requester'=> $from,
+@@ -666,7 +673,7 @@ protected $server;
+ 					}
+ 				}
+ 				
+-				Log::info(print_r(DB::getQueryLog(),true));
++				
+ 				//$status = imap_setflag_full($inbox, $email_number, "\\Seen \\Flagged", ST_UID); //email staus seen
+ 				imap_setflag_full($inbox,imap_uid($inbox,$email_number),"\\SEEN",ST_UID); 
+ 			}
+@@ -678,6 +685,82 @@ protected $server;
+ 		/* close the connection */
+ 		imap_close($inbox);
+ 		Log::info("reading emails completed");
+-	}		     
++	}
++	
++	
++	function DownloadInlineImages($con,$msg,$CompanyID){
++		$UPLOADPATH = CompanyConfiguration::get($CompanyID,'UPLOAD_PATH');
++		// download email message #1 and fetch it
++		$emailMessage = new EmailMessage($con, $msg);
++		$emailMessage->fetch();
++		
++		// match inline images in html content
++		preg_match_all('/src="cid:(.*)"/Uims', $emailMessage->bodyHTML, $matches);
++		
++		// if there are any matches, loop through them and save to filesystem, change the src property
++		// of the image to an actual URL it can be viewed at
++		if(count($matches)) {
++			
++			// search and replace arrays will be used in str_replace function below
++			$search = array();
++			$replace = array();
++			
++			foreach($matches[1] as $match) { 
++				// work out some unique filename for it and save to filesystem etc
++				$str = explode("@",$match); 
++				$uniqueFilename = $str[0];
++				// change /path/to/images to actual path
++				
++				///
++				
++				$filename 		=  $uniqueFilename;				
++				$file_name 		=  \Webpatser\Uuid\Uuid::generate()."_".basename($filename);
++				$amazonPath 	= 	AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT'],'',$CompanyID);
++				
++				if(!is_dir($UPLOADPATH.'/'.$amazonPath)){
++					 mkdir($UPLOADPATH.'/'.$amazonPath, 0777, true);
++				}
++				
++				$filepath   =  $UPLOADPATH.'/'.$amazonPath . $msg . "-" . $file_name; 
++				$filepath2  =  $amazonPath . $msg . "-" . $file_name;  
++				$fp = fopen($filepath, "w+");
++				fwrite($fp, $emailMessage->attachments[$match]['data']); 
++				fclose($fp);
++				
++				$typeImage = pathinfo($filepath, PATHINFO_EXTENSION);
++				$dataImage = file_get_contents($filepath);
++				$base64 = 'data:image/' . $typeImage . ';base64,' . base64_encode($dataImage);		
++				//@unlink($filepath);
++				///				
++				
++				if(is_amazon($CompanyID)){
++					if (!AmazonS3::upload($filepath, $amazonPath,$CompanyID)) {
++						throw new \Exception('Error in Amazon upload');	
++					}					
++				}
++				
++				
++				
++				 $path = AmazonS3::unSignedUrl($filepath2,$CompanyID);
++                if (!is_numeric(strpos($path, "https://"))) {
++                    //$path = str_replace('/', '\\', $path);
++					$path2 = CompanyConfiguration::get($CompanyID,'WEB_PATH')."/public";
++                    if (copy($filepath, $path2.'./uploads/' . basename($filepath))) {
++                        $path = CompanyConfiguration::get($CompanyID,'WEB_URL') . '/uploads/' . basename($path);
++                    }
++                }
++				
++				$search[] = "src=\"cid:$match\"";
++				// change www.example.com etc to actual URL
++				$replace[] = "src=\"$path\"";
++			}
++			
++			// now do the replacements
++			$emailMessage->bodyHTML = str_replace($search, $replace, $emailMessage->bodyHTML);
++			
++		}
++		return $emailMessage->bodyHTML;
++	}
++	
+ }
+ ?>
+\ No newline at end of file
+-- 
+1.9.5.msysgit.0
+

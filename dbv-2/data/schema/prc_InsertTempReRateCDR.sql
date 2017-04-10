@@ -20,7 +20,7 @@ BEGIN
 
 	SELECT fnGetBillingTime(p_CompanyGatewayID,p_AccountID) INTO v_BillingTime_;
 
-	
+	-- Call fnUsageDetail(p_CompanyID,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,p_CDRType,p_CLI,p_CLD,p_zerovaluecost);
 
 	set @stm1 = CONCAT('
 
@@ -99,7 +99,7 @@ BEGIN
 	AND billed_duration > 0;
 	');
 
-	
+	-- SELECT @stm1;
 	PREPARE stmt1 FROM @stm1;
 	EXECUTE stmt1;
 	DEALLOCATE PREPARE stmt1;

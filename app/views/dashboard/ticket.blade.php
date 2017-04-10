@@ -197,7 +197,7 @@
                         option["type"] = 'On Hold';
                         option['sign'] = 'clock';
                         option['class']     = 'tile-orange';
-                        option['url']   = '{{URL::to('tickets?status='.array_search('Pending', $status))}}';
+                        option['url']   = '{{URL::to('tickets?status='.array_search('Pending', $status).(!empty($statusOnHold)?','.implode(',',array_keys($statusOnHold)):''))}}';
                         widgets += buildbox(option);
 
                         option["amount"] = response.UnAssigned;

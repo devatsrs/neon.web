@@ -17,9 +17,7 @@ class CDRController extends BaseController {
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_CDR);
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunks = $trunks+array(0=>'Find From CustomerPrefix');
-        $Services = Service::getDropdownIDList(User::get_companyID());
-        $ratetables = RateTable::getRateTableList();
-        return View::make('cdrupload.upload',compact('dashboardData','account','gateway','UploadTemplate','trunks','Services','ratetables'));
+        return View::make('cdrupload.upload',compact('dashboardData','account','gateway','UploadTemplate','trunks'));
     }
     public function upload(){
             $data = Input::all();
@@ -436,23 +434,8 @@ class CDRController extends BaseController {
                 'CompanyGatewayID' => 'required',
             );
             if($data['RateCDR']){
-                if(!empty($data['rerate_type'])){
-                    if($data['rerate_type']=='service'){
-                        $rules['ServiceID'] = 'required';
-                    }
-                    if($data['rerate_type']=='ratetable'){
-                        $rules['InboundRateTableID'] = 'required';
-                        $rules['OutboundRateTableID'] = 'required';
-                    }
-                    if($data['rerate_type']=='trunk'){
-                        $rules['TrunkID'] = 'required';
-                        $rules['RateFormat'] = 'required';
-                    }
-
-                }else{
-                    $rules['TrunkID'] = 'required';
-                    $rules['RateFormat'] = 'required';
-                }
+                $rules['TrunkID'] = 'required';
+                $rules['RateFormat'] = 'required';
             }
             $validator = Validator::make($data, $rules);
             if ($validator->fails()) {

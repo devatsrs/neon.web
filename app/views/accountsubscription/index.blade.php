@@ -13,9 +13,12 @@
         </div>
     </div>
     <div class="panel-body">
-
+         <div class="text-right">
+              <a  id="add-subscription" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
+              <div class="clear clearfix"><br></div>
+        </div>
          <div id="subscription_filter" method="get" action="#" >
-                                <div class="panel panel-primary panel-collapse" data-collapsed="1">
+                                <div class="panel panel-primary" data-collapsed="0">
                                     <div class="panel-heading">
                                         <div class="panel-title">
                                             Filter
@@ -24,7 +27,7 @@
                                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
                                         </div>
                                     </div>
-                                    <div class="panel-body" style="display: none;">
+                                    <div class="panel-body">
                                         <div class="form-group">
                                             <label for="field-1" class="col-sm-1 control-label">Name</label>
                                             <div class="col-sm-2">
@@ -40,21 +43,15 @@
                                                     <input id="SubscriptionActive" name="SubscriptionActive" type="checkbox" value="1" checked="checked" >
                                                 </p>
                                             </div>
-											<div class="col-sm-6">
-												<p style="text-align: right">
-												<button class="btn btn-primary btn-sm btn-icon icon-left" id="subscription_submit">
-													<i class="entypo-search"></i>
-													Search
-												</button>
-												</p>
-											</div>
                                         </div>
+                                        <p style="text-align: right;">
+                                            <button class="btn btn-primary btn-sm btn-icon icon-left" id="subscription_submit">
+                                                <i class="entypo-search"></i>
+                                                Search
+                                            </button>
+                                        </p>
                                     </div>
                                 </div>
-        </div>
-        <div class="text-right">
-            <a  id="add-subscription" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
-            <div class="clear clearfix"><br></div>
         </div>
 
         <div class="dataTables_wrapper">
@@ -88,8 +85,7 @@
             $("#subscription_filter").find('[name="SubscriptionName"]').val('');
             $("#subscription_filter").find('[name="SubscriptionInvoiceDescription"]').val('');
             var data_table_subscription;
-            var account_id='{{$account->AccountID}}';
-            var ServiceID='{{$ServiceID}}';
+            var account_id={{$account->AccountID}};            
             var update_new_url;
             var postdata;
 
@@ -156,22 +152,20 @@
                             "sAjaxSource": subscription_datagrid_url,
                             "fnServerParams": function (aoData) {
                                 aoData.push({"name": "account_id", "value": account_id},
-                                        {"name": "ServiceID", "value": ServiceID},
                                         {"name": "SubscriptionName", "value": $search.SubscriptionName},
                                         {"name": "SubscriptionInvoiceDescription", "value": $search.SubscriptionInvoiceDescription},
                                         {"name": "SubscriptionActive", "value": $search.SubscriptionActive});
 
                                 data_table_extra_params.length = 0;
                                 data_table_extra_params.push({"name": "account_id", "value": account_id},
-                                        {"name": "ServiceID", "value": ServiceID},
                                         {"name": "SubscriptionName", "value": $search.SubscriptionName},
                                         {"name": "SubscriptionInvoiceDescription", "value": $search.SubscriptionInvoiceDescription},
                                         {"name": "SubscriptionActive", "value": $search.SubscriptionActive});
 
                             },
-                            "iDisplayLength": 10,
+                            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                             "sPaginationType": "bootstrap",
-                            "sDom": "<'row'<'col-xs-6 col-left 'l><'col-xs-6 col-right'f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                            "sDom": "<'row'r>",
                             "aaSorting": [[0, 'asc']],
                             "aoColumns": [
                                 {  "bSortable": true },  // 0 Sequence NO
@@ -266,7 +260,7 @@
                        if(result){
                            var delete_url  = $(this).attr("href");
                            submit_ajax_datatable( delete_url,"",0,data_table_subscription);
-                            //data_table_subscription.fnFilter('', 0);
+                            data_table_subscription.fnFilter('', 0);
                            //console.log('delete');
                           // $('#subscription_submit').trigger('click');
                        }
@@ -278,7 +272,7 @@
                    e.preventDefault();
                    var _url  = $(this).attr("action");
                    submit_ajax_datatable(_url,$(this).serialize(),0,data_table_subscription);
-                   //data_table_subscription.fnFilter('', 0);
+                   data_table_subscription.fnFilter('', 0);
                    //console.log('edit');
                   // $('#subscription_submit').trigger('click');
                });
@@ -447,7 +441,6 @@
                     </div>
                 </div>
                 <input type="hidden" name="AccountSubscriptionID">
-                <input type="hidden" name="ServiceID" value="{{$ServiceID}}">
                 <div class="modal-footer">
                      <button type="submit" class="btn btn-primary print btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>

@@ -265,7 +265,11 @@ var popup_type	=	0;
 				if(data['StaticType']){
 					$("#add-new-template-form #email_from").val(data['email_from']).trigger('change');
 					$("#add-new-template-form .email_from").removeClass('hidden');	
-					$("#add-new-template-form #TemplateName").attr('readonly','readonly');	 
+					$("#add-new-template-form #TemplateName").attr('readonly','readonly');	
+					
+					if(data['TicketTemplate']){
+						$("#add-new-template-form .email_from").addClass('hidden');
+					} 
 				}else{
 					//$("#add-new-template-form .email_from").hide();			
 					$("#add-new-template-form .email_from").addClass('hidden');	 
@@ -288,6 +292,7 @@ var popup_type	=	0;
 				}else{ 
 					$('.status_switch').bootstrapSwitch('setState', false);
 				}
+				
                 $('#add-new-modal-template h4').html('Edit template');
 				template_type_val = $('#add-new-modal-template').find('.template_type').val();				
               //  $('#add-new-modal-template').modal('show');

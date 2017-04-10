@@ -284,7 +284,7 @@ $(document).ready(function(e) {
 			doc.find('#Message').wysihtml5({
 				"Tickets":false,
 				"font-styles": true,
-				"leadoptions":true,
+				"leadoptions":false,
 				"Crm":false,
 				"emphasis": true,
 				"lists": true,
@@ -404,7 +404,7 @@ $(document).ready(function(e) {
     });		
 	$('.wysihtml5box').wysihtml5({
 						"font-styles": true,
-						"leadoptions":true,
+						"leadoptions":false,
 						"Tickets":false,
 						"Crm":false,
 						"emphasis": true,

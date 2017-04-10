@@ -58,7 +58,7 @@ private $validlicense;
 			  
 			$data['AccessPermission'] 	=	 TicketsTable::GetTicketAccessPermission(); 
 			$companyID 					= 	 User::get_companyID();
-			$array						= 	 $this->GetResult($data); 
+			/*$array						= 	 $this->GetResult($data);
 			$resultpage  				= 	 $array->resultpage;		 
 			$result 					= 	 $array->ResultCurrentPage;
 			$totalResults 				= 	 $array->totalcount; 
@@ -73,7 +73,11 @@ private $validlicense;
 			if($TicketPermission!=TicketsTable::TICKETGLOBALACCESS)	{
 				$Groups	= TicketGroups::getTicketGroupsFromData($array->GroupsData);				
 			}
-			//echo "<pre>";			print_r($Groups); exit;
+			//echo "<pre>";			print_r($Groups); exit;*/
+
+         $iDisplayLength 			= 	 $data['iDisplayLength'];
+         $totalResults 				= 	 0;
+         $result = [];
         return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus"));  
 	  }	
 	  
@@ -119,9 +123,9 @@ private $validlicense;
 			//if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
 				
 				return json_encode(array("result"=>"No Result "));
-			//}else{			
+			/*}else{			
 				return '';
-			//}
+			}*/
 		}
 		 $ClosedTicketStatus   = TicketsTable::getClosedTicketStatus(true);
 		 $ResolvedTicketStatus = TicketsTable::getResolvedTicketStatus(true);

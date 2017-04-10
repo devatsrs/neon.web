@@ -37,7 +37,7 @@
                         </div>
                         <label class="col-sm-1 control-label" for="field-1">Trunk</label>
                         <div class="col-sm-3">
-                            {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
+                            {{ Form::select('TrunkID', $trunks, $trunk_keys, array("class"=>"select2","data-type"=>"trunk")) }}
                         </div>
                     </div>
                     <p style="text-align: right;">
@@ -271,7 +271,7 @@
                             </div>
                         </div>
                          </div>
-                    <div class="row">
+                       <div class="row">
                        <div class="col-md-6">
                            <div class="form-group ">
                                <label for="field-5" class="control-label">Currency</label>

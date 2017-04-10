@@ -19,87 +19,60 @@ BEGIN
 		INDEX IX_TempUsageDetailID2(`TempUsageDetailID`)
 	);
 
-	IF p_TrunkID > 0
-	THEN
-		/* find prefix without use in billing */
-		SET @stm = CONCAT('
-		INSERT INTO tmp_TempUsageDetail_
-		SELECT
-			TempUsageDetailID,
-			c.code AS prefix
-		FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
-		INNER JOIN NeonRMDev.tmp_codes_ c 
-		ON ud.ProcessID = ' , p_processId , '
-			AND ud.is_inbound = 0 
-			AND ud.AccountID = ' , p_AccountID , '
-			AND ud.TrunkID = ' , p_TrunkID , '
-			AND ud.UseInBilling = 0
-			AND ud.area_prefix = "Other"
-			AND ( extension <> cld or extension IS NULL)
-			AND cld REGEXP "^[0-9]+$"
-			AND cld like  CONCAT(c.Code,"%");
-		');
+	/* find prefix without use in billing */
+	SET @stm = CONCAT('
+	INSERT INTO tmp_TempUsageDetail_
+	SELECT
+		TempUsageDetailID,
+		c.code AS prefix
+	FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
+	INNER JOIN NeonRMDev.tmp_codes_ c 
+	ON ud.ProcessID = ' , p_processId , '
+		AND ud.is_inbound = 0 
+		AND ud.AccountID = ' , p_AccountID , '
+		AND ud.TrunkID = ' , p_TrunkID , '
+		AND ud.UseInBilling = 0
+		AND ud.area_prefix = "Other"
+		AND ( extension <> cld or extension IS NULL)
+		AND cld REGEXP "^[0-9]+$"
+		AND cld like  CONCAT(c.Code,"%");
+	');
 
-		PREPARE stmt FROM @stm;
-		EXECUTE stmt;
-		DEALLOCATE PREPARE stmt;
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
 
-		/* find prefix with use in billing */
-		SET @stm = CONCAT('
-		INSERT INTO tmp_TempUsageDetail_
-		SELECT
-			TempUsageDetailID,
-			c.code AS prefix
-		FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
-		INNER JOIN NeonRMDev.tmp_codes_ c 
-		ON ud.ProcessID = ' , p_processId , '
-			AND ud.is_inbound = 0
-			AND ud.AccountID = ' , p_AccountID , '
-			AND ud.TrunkID = ' , p_TrunkID , '
-			AND ud.UseInBilling = 1 
-			AND ud.area_prefix = "Other"
-			AND ( extension <> cld or extension IS NULL)
-			AND cld REGEXP "^[0-9]+$"
-			AND cld like  CONCAT(ud.TrunkPrefix,c.Code,"%");
-		');
-
-		PREPARE stmt FROM @stm;
-		EXECUTE stmt;
-		DEALLOCATE PREPARE stmt;
-
-	ELSE
-
-		/* find prefix */
-		SET @stm = CONCAT('
-		INSERT INTO tmp_TempUsageDetail_
-		SELECT
-			TempUsageDetailID,
-			c.code AS prefix
-		FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
-		INNER JOIN NeonRMDev.tmp_codes_ c 
-		ON ud.ProcessID = ' , p_processId , '
-			AND ud.is_inbound = 0 
-			AND ud.AccountID = ' , p_AccountID , '
-			AND ud.area_prefix = "Other"
-			AND ( extension <> cld or extension IS NULL)
-			AND cld REGEXP "^[0-9]+$"
-			AND cld like  CONCAT(c.Code,"%");
-		');
-
-		PREPARE stmt FROM @stm;
-		EXECUTE stmt;
-		DEALLOCATE PREPARE stmt;
-
-	END IF;
+	/* find prefix with use in billing */
+	SET @stm = CONCAT('
+	INSERT INTO tmp_TempUsageDetail_
+	SELECT
+		TempUsageDetailID,
+		c.code AS prefix
+	FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
+	INNER JOIN NeonRMDev.tmp_codes_ c 
+	ON ud.ProcessID = ' , p_processId , '
+		AND ud.is_inbound = 0
+		AND ud.AccountID = ' , p_AccountID , '
+		AND ud.TrunkID = ' , p_TrunkID , '
+		AND ud.UseInBilling = 1 
+		AND ud.area_prefix = "Other"
+		AND ( extension <> cld or extension IS NULL)
+		AND cld REGEXP "^[0-9]+$"
+		AND cld like  CONCAT(ud.TrunkPrefix,c.Code,"%");
+	');
 
 	PREPARE stm FROM @stm;
 	EXECUTE stm;
 	DEALLOCATE PREPARE stm;
 
-	INSERT INTO tmp_TempUsageDetail2_
+	SET @stm = CONCAT('INSERT INTO tmp_TempUsageDetail2_
 	SELECT tbl.TempUsageDetailID,MAX(tbl.prefix)  
 	FROM tmp_TempUsageDetail_ tbl
-	GROUP BY tbl.TempUsageDetailID;
+	GROUP BY tbl.TempUsageDetailID;');
+
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
 
 	SET @stm = CONCAT('UPDATE NeonCDRDev.' , p_tbltempusagedetail_name , ' tbl2
 	INNER JOIN tmp_TempUsageDetail2_ tbl
