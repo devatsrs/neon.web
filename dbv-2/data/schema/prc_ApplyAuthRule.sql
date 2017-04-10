@@ -24,6 +24,7 @@ BEGIN
 			SELECT DISTINCT
 				GatewayAccountID,
 				a.AccountID,
+				ga.ServiceID,
 				a.AccountName
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
@@ -44,6 +45,7 @@ BEGIN
 			SELECT DISTINCT
 				GatewayAccountID,
 				a.AccountID,
+				ga.ServiceID,
 				a.AccountName
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
@@ -64,6 +66,7 @@ BEGIN
 			SELECT DISTINCT
 				GatewayAccountID,
 				a.AccountID,
+				ga.ServiceID,
 				a.AccountName
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
@@ -84,6 +87,7 @@ BEGIN
 			SELECT DISTINCT
 				GatewayAccountID,
 				a.AccountID,
+				aa.ServiceID,
 				a.AccountName
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN NeonRMDev.tblAccountAuthenticate aa
@@ -107,6 +111,7 @@ BEGIN
 			SELECT DISTINCT
 				GatewayAccountID,
 				a.AccountID,
+				aa.ServiceID,
 				a.AccountName
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
@@ -130,6 +135,7 @@ BEGIN
 			SELECT DISTINCT
 				GatewayAccountID,
 				a.AccountID,
+				aa.ServiceID,
 				a.AccountName
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
@@ -155,6 +161,7 @@ BEGIN
 			SELECT DISTINCT
 				GatewayAccountID,
 				a.AccountID,
+				aa.ServiceID,
 				a.AccountName
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga

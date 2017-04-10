@@ -347,9 +347,7 @@ class CDRController extends BaseController {
         if(!empty($data['selection']['Account'])){
             $data['Account'] = $data['selection']['Account'];
         }
-        if(!empty($data['selection']['Authentication'])){
-            $data['Authentication'] = $data['selection']['Authentication'];
-        }
+
         if(!empty($data['selection']['connect_datetime'])){
             $data['connect_datetime'] = $data['selection']['connect_datetime'];
         }
@@ -363,6 +361,11 @@ class CDRController extends BaseController {
 
         if ($validator->fails()) {
             return json_validator_response($validator);
+        }
+        if($data['RateCDR']) {
+            if ($data['Authentication'] != 'IP' && $data['Authentication'] != 'CLI' && $data['TrunkID'] != '' && !empty($data['ServiceID']) && !empty($data['OutboundRateTableID']) && !empty($data['OutboundRateTableID']) ) {
+                return Response::json(array("status" => "failed", "message" => "Either Service or Trunk or Rate Table is Required."));
+            }
         }
         $file_name = basename($data['TemplateFile']);
 
@@ -434,8 +437,12 @@ class CDRController extends BaseController {
             $data = Input::all();
             $rules = array(
                 'CompanyGatewayID' => 'required',
+                'Authentication' => 'required',
             );
             if($data['RateCDR']){
+                $rules['RateFormat'] = 'required';
+            }
+            /*if($data['RateCDR']){
                 if(!empty($data['rerate_type'])){
                     if($data['rerate_type']=='service'){
                         $rules['ServiceID'] = 'required';
@@ -453,7 +460,7 @@ class CDRController extends BaseController {
                     $rules['TrunkID'] = 'required';
                     $rules['RateFormat'] = 'required';
                 }
-            }
+            }*/
             $validator = Validator::make($data, $rules);
             if ($validator->fails()) {
                 return json_validator_response($validator);

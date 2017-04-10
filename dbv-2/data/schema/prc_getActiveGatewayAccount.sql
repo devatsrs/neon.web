@@ -17,6 +17,7 @@ BEGIN
 	CREATE TEMPORARY TABLE tmp_ActiveAccount (
 		GatewayAccountID varchar(100),
 		AccountID INT,
+		ServiceID INT,
 		AccountName varchar(100)
 	);
 
@@ -25,21 +26,28 @@ BEGIN
 		RowNo INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		AuthRule VARCHAR(50)
 	);
-	
-	SELECT ServiceID INTO v_ServiceID_ FROM tmp_Service_ LIMIT 1;
-	
-	SET v_ServiceID_ = IFNULL(v_ServiceID_,0); 
-	
-	/* service level authentication rule */ 
-	IF v_ServiceID_ > 0
-	THEN
-		
-		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-		SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = v_ServiceID_
-		UNION
-		SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = v_ServiceID_;
 
-		CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,v_ServiceID_,'service');
+	SET v_pointer_ = 1;
+	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Service_);
+	/* service level authentication rule */ 
+	IF v_rowCount_ > 0
+	THEN
+
+		WHILE v_pointer_ <= v_rowCount_
+		DO		
+			
+			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Service_ t WHERE t.RowID = v_pointer_);
+			
+			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+			SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = v_ServiceID_
+			UNION
+			SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = v_ServiceID_;
+	
+			CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,v_ServiceID_,'service');
+
+			SET v_pointer_ = v_pointer_ + 1;
+	
+		END WHILE;
 
 	END IF;
 	
@@ -98,13 +106,11 @@ BEGIN
 
 	CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0,'gateway');
 
-	
-
 	UPDATE tblGatewayAccount
 	INNER JOIN tmp_ActiveAccount a
 		ON a.GatewayAccountID = tblGatewayAccount.GatewayAccountID
 		AND tblGatewayAccount.CompanyGatewayID = p_CompanyGatewayID
-		AND tblGatewayAccount.ServiceID = v_ServiceID_
+		AND tblGatewayAccount.ServiceID = a.ServiceID
 	SET tblGatewayAccount.AccountID = a.AccountID
 	WHERE tblGatewayAccount.AccountID is null;
 

@@ -14,6 +14,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcesssCDR`(
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+	
+	
+	CALL prc_ProcessCDRService(p_CompanyID,p_processId,p_tbltempusagedetail_name);
 
 	/* check service enable at gateway*/
 	DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
