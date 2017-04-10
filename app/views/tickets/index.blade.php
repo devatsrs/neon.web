@@ -95,25 +95,30 @@
 </div>
 <!-- mailbox end -->
 <style>
-.sorted{margin-left:5px;}
-.margin-right-10{margin-right:10px;}
-.margin-left-mail{margin-right:15px;width:21%; }.mailaction{margin-right:10px;}.btn-blue{color:#fff !important;}
-.mail-body{width:100% !important; float:none !important;}
-.blue_link{font-size:13px; font-weight:bold;}
-.ticket_number{font-size:16px;}
-.col-time{text-align:left !important; font-size:12px;}
-.col-time span{color:black;}
-.dropdown_sort li  a{color:white !important;}
-#table-4{display: block !important; padding-bottom:50px !important;}
-.borderside{border-left-style: solid !important; border-left-width: 4px !important;}
-.bordersideLow{border-left-color:#00A651 !important;}
-.bordersideMedium{border-left-color:#008ff9 !important;}
-.bordersideHigh{border-left-color:#ffb613 !important;}
-.bordersideUrgent{border-left-color:#CC2424 !important;}
-.responsedue{color:#CC2424 !important;}
-.customerresponded{color:#008ff9 !important;}
-.per_page{margin-left:10px !important; margin-top:5px !important; }
-.paginationTicket{width:85px !important;}
+    .sorted{margin-left:5px;}
+    .margin-right-10{margin-right:10px;}
+    .margin-left-mail{margin-right:15px;width:21%; }.mailaction{margin-right:10px;}.btn-blue{color:#fff !important;}
+    .mail-body{width:100% !important; float:none !important;}
+    .blue_link{font-size:13px; font-weight:bold;}
+    .ticket_number{font-size:16px;}
+    .col-time{text-align:left !important; font-size:12px;}
+    .col-time span{color:black;}
+    .dropdown_sort li  a{color:white !important;}
+    #table-4{display: block !important; padding-bottom:50px !important;}
+    .borderside{border-left-style: solid !important; border-left-width: 4px !important;}
+    .bordersideLow{border-left-color:#00A651 !important;}
+    .bordersideMedium{border-left-color:#008ff9 !important;}
+    .bordersideHigh{border-left-color:#ffb613 !important;}
+    .bordersideUrgent{border-left-color:#CC2424 !important;}
+    .responsedue{color:#CC2424 !important;}
+    .customerresponded{color:#008ff9 !important;}
+    .per_page{margin-left:10px !important; margin-top:5px !important; }
+    .paginationTicket{width:85px !important;}
+    #modal-bulk-actions .control-label>span{
+        position: relative;
+        bottom: 2px;
+        left:   5px;
+    }
 </style>
 <script type="text/javascript">
 	
@@ -326,12 +331,14 @@ $(document).ready(function(e) {
         modal.find('.col-md-12').addClass('col-md-4').removeClass('col-md-12');
         modal.find('.col-md-4').each(function(){
             $(this).addClass('hidden');
+            $(this).find('[type="checkbox"]').addClass('hidden');
         });
         modal.find('.modal-dialog').removeClass('modal-sm');
         if($(this).prop('id')=='bulk-action'){
             modal.find('.modal-title').text('Bulk Actions');
             modal.find('.col-md-4').each(function(){
                 $(this).removeClass('hidden');
+                $(this).find('[type="checkbox"]').removeClass('hidden');
             })
         }else if($(this).prop('id')=='bulk-assign'){
             modal.find('.modal-title').text('Bulk Assign');
@@ -388,6 +395,28 @@ $(document).ready(function(e) {
         }
     });
 
+    $('#modal-bulk-actions .select2').change(function(e){
+        var self = $(this);
+        var label = self.siblings('.control-label');
+        if(self.val() > 0){
+            label.find('[type="checkbox"]').prop('checked',true);
+            label.find('span').css('font-weight',700);
+        }else{
+            label.find('[type="checkbox"]').prop('checked',false);
+            label.find('span').css('font-weight',400);
+        }
+    });
+
+    $('#modal-bulk-actions [type="checkbox"]').change(function(){
+        var self = $(this);
+        if(self.prop('checked')){
+            self.siblings('span').css('font-weight',700);
+        }else{
+            self.siblings('span').css('font-weight',400);
+            self.parents('.control-label').siblings('.select2').val(0).trigger('change');
+        }
+    });
+
 });
 </script> 
 @stop
@@ -406,19 +435,19 @@ $(document).ready(function(e) {
                         <div class="row">
                             <div id="type" class="col-md-4">
                                 <div class="form-group">
-                                    <label for="field-1" class="control-label">Type</label>
+                                    <label for="field-1" class="control-label"><input type="checkbox" name="TypeCheck"> <span>Type</span></label>
                                     {{Form::select('Type',$Type,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                             <div id="status" class="col-md-4">
                                 <div class="form-group">
-                                    <label for="field-3" class="control-label">Status</label>
+                                    <label for="field-3" class="control-label"><input type="checkbox"  name="StatusCheck"><span>Status</span></label>
                                     {{Form::select('Status',$status,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                             <div id="priority" class="col-md-4">
                                 <div class="form-group">
-                                    <label for="field-3" class="control-label">Priority</label>
+                                    <label for="field-3" class="control-label"><input type="checkbox"  name="PriorityCheck"><span>Priority</span></label>
                                     {{Form::select('Priority',$Priority,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
@@ -426,13 +455,13 @@ $(document).ready(function(e) {
                         <div class="row">
                             <div id="group" class="col-md-4">
                                 <div class="form-group">
-                                    <label for="field-1" class="control-label">Group</label>
+                                    <label for="field-1" class="control-label"><input type="checkbox"  name="GroupCheck"><span>Group</span></label>
                                     {{Form::select('Group',$Groups,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                             <div id="agent" class="col-md-4">
                                 <div class="form-group">
-                                    <label for="field-3" class="control-label">Agent</label>
+                                    <label for="field-3" class="control-label"><input type="checkbox"  name="AgentCheck"><span>Agent</span></label>
                                     {{Form::select('Agent',$Agents,'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
