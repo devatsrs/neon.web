@@ -517,14 +517,7 @@ var neon_summernote_dropdown_tpl = {
             };
 
             if(typeof context.options.defaultOptions == 'undefined'){
-                console.log("context.options.defaultOptions");
-                console.log(typeof context.options.defaultOptions);
-
-                return false;
-            } else {
-                console.log("context.options.defaultOptions");
-                console.log(context.options.defaultOptions);
-
+                 return false;
             }
 
             self.initialize = function () {
@@ -532,11 +525,6 @@ var neon_summernote_dropdown_tpl = {
                 if(typeof context.options.defaultOptions == 'undefined'){
                     return false;
                 }
-                console.log("defaultOptionsCache");
-                console.log(defaultOptionsCache);
-                console.log("context.options.defaultOptions");
-                console.log(context.options.defaultOptions);
-
                 defaultOptionsCache = $.extend(true, defaultOptionsCache, context.options.defaultOptions);
             },
 
@@ -552,8 +540,10 @@ var neon_summernote_dropdown_tpl = {
                         }
                     }
                 }
-                console.log("list");
-                console.log(list);
+
+                if (list == '') {
+                    return false;
+                }
 
                 var $neonDropdown = ui.buttonGroup([
 
