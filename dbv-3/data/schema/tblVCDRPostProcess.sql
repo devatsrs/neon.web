@@ -1,5 +1,5 @@
 CREATE TABLE `tblVCDRPostProcess` (
-  `VCDRPostProcessID` int(11) NOT NULL AUTO_INCREMENT,
+  `VCDRPostProcessID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) DEFAULT NULL,
   `CompanyGatewayID` int(11) DEFAULT NULL,
   `GatewayAccountID` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
