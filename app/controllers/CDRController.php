@@ -363,7 +363,7 @@ class CDRController extends BaseController {
             return json_validator_response($validator);
         }
         if($data['RateCDR']) {
-            if ($data['Authentication'] != 'IP' && $data['Authentication'] != 'CLI' && $data['TrunkID'] != '' && !empty($data['ServiceID']) && !empty($data['OutboundRateTableID']) && !empty($data['OutboundRateTableID']) ) {
+            if ($data['Authentication'] != 'IP' && $data['Authentication'] != 'CLI' && $data['TrunkID'] == '' && empty($data['ServiceID']) && empty($data['OutboundRateTableID']) && empty($data['OutboundRateTableID']) ) {
                 return Response::json(array("status" => "failed", "message" => "Either Service or Trunk or Rate Table is Required."));
             }
         }
