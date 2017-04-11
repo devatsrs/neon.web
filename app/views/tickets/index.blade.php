@@ -67,7 +67,7 @@
                 <ul class="dropdown-menu dropdown-menu-left" role="menu"
                     style="background-color: #000; border-color: #000; margin-top:0px;">
                     <li> <a id="bulk-assign" href="javascript:;"> Assign </a> </li>
-                    <li> <a id="bulk-close" href="javascript:;"> Close </a> </li>
+                    <li> <a id="bulk-close" href="javascript:;" title="Shift+Close to skip notification mail" data-placement="top" data-toggle="tooltip"> Close </a> </li>
                     <li> <a id="bulk-delete" href="javascript:;"> Delete </a> </li>
                     <li> <a id="bulk-action" href="javascript:;"> Bulk Actions </a> </li>
                 </ul>
@@ -127,8 +127,8 @@ $(document).ready(function(e) {
 	var currentpage 	= 	-1;
 	var next_enable 	= 	1;
 	var back_enable 	= 	1;
-	var per_page 		= 	<?php echo $iDisplayLength; ?>;
-	var total			=	<?php echo $totalResults; ?>;
+	var per_page 		= 	{{$iDisplayLength}}
+	var total			=	{{$totalResults}}
 	var clicktype		=	'';
 	var ajax_url 		= 	baseurl+'/tickets/ajex_result';
 	var ajax_url_export	= 	baseurl+'/tickets/ajex_result_export';
