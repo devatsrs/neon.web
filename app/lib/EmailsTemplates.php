@@ -243,6 +243,66 @@ class EmailsTemplates{
 			} 
 			return $EmailMessage; 	
 	}
+    //Generic function for notifications
+    static function SendNotification($type="body",$data=array()){
+        $extraSpecific                          = [];
+        $replace_array							=	$data;
+        $InvoiceData   							=  	isset($data['Invoice'])?$data['Invoice']:'';
+        $EmailTemplate                          =   isset($data['EmailTemplate'])?$data['EmailTemplate']:'';
+
+        if($type=="subject"){
+            if(isset($data['Subject']) && !empty($data['Subject'])){
+                $EmailMessage							=	 $data['Subject'];
+            }elseif(!empty($EmailTemplate)){
+                $EmailMessage							=	 $EmailTemplate->Subject;
+            }else{
+                return '';
+            }
+        }else{
+            if(isset($data['Message']) && !empty($data['Message'])){
+                $EmailMessage							=	 $data['Message'];
+            }elseif(!empty($EmailTemplate)){
+                $EmailMessage							=	 $EmailTemplate->TemplateBody;
+            }else{
+                return '';
+            }
+        }
+
+        if(!empty($InvoiceData)) {
+            $replace_array['InvoiceLink'] = URL::to('/invoice/' . $InvoiceData->InvoiceID . '/invoice_preview');
+            $replace_array['InvoiceNumber'] = $InvoiceData->FullInvoiceNumber;
+
+            $extraSpecific = [
+                '{{InvoiceLink}}',
+                '{{InvoiceNumber}}'
+            ];
+        }
+
+        $EmailMessage = EmailsTemplates::var_replace($replace_array,$extraSpecific,$EmailMessage);
+        return $EmailMessage;
+    }
+    //Generic function for replace variables
+    static function var_replace($data,$extraSpecific,$EmailMessage){
+        $replace_array = $data;
+        if(isset($data['CompanyID'])){
+            $replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$data['CompanyID']);
+        }
+        if(isset($data['AccountID'])){
+            $replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$data['AccountID']);
+        }
+
+        $extraDefault	=	EmailsTemplates::$fields;
+
+        $extra = array_merge($extraDefault,$extraSpecific);
+
+        foreach($extra as $item){
+            $item_name = str_replace(array('{','}'),array('',''),$item);
+            if(array_key_exists($item_name,$replace_array)) {
+                $EmailMessage = str_replace($item,$replace_array[$item_name],$EmailMessage);
+            }
+        }
+        return $EmailMessage;
+    }
 	
 	
 	static function GetEmailTemplateFrom($slug){
