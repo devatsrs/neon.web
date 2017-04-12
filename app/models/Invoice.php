@@ -33,7 +33,8 @@ class Invoice extends \Eloquent {
                                             '{Country}'=>'Country',
                                             '{VatNumber}'=>'Vat Number',
                                             '{NominalCode}'=>'Nominal Code',
-                                            '{Email}'=>'Email');
+                                            '{Email}'=>'Email',
+                                            '{Phone}'=>'Phone');
 
     public static function getInvoiceEmailTemplate($data){
 
