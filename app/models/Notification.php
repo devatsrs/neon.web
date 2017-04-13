@@ -16,8 +16,6 @@ class Notification extends \Eloquent {
     const BlockAccount=7;
     const InvoicePaidByCustomer=8;
 
-    const InvoicePaidNotificationTemplate = 'InvoicePaidNotification';
-
     public static $type = [ Notification::InvoiceCopy=>'Invoice Copy',
         Notification::ReRate=>'CDR Rate Log',
         Notification::WeeklyPaymentTransactionLog=>'Weekly Payment Transaction Log',

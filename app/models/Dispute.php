@@ -162,7 +162,6 @@ class Dispute extends \Eloquent {
 				@unlink($FilePath);
 			}
 			if(Dispute::find($data["DisputeID"])->update($disputeData) ) {
-
 				return Response::json(array("status" => "success", "message" => "Dispute updated successfully."));
 
 			} else {
@@ -171,9 +170,9 @@ class Dispute extends \Eloquent {
 
 			}
 
-		}else if ( Dispute::insert($disputeData) ) {
-
-			return Response::json(array("status" => "success", "message" => "Dispute inserted successfully."));
+		}else if (1==1 ){//Dispute::insert($disputeData) ) {
+            $status = Dispute::sendDisputeEmailCustomer($disputeData);
+			return Response::json(array("status" => "success", "message" => "Dispute inserted successfully. and ".$status['message']));
 
 		} else {
 
@@ -181,4 +180,29 @@ class Dispute extends \Eloquent {
 		}
 
 	}
+
+    public static function sendDisputeEmailCustomer($data){
+        $status                 =   ['status'=>0,'message'=>'Email not sent to customer'];
+        $CompanyID              =   $data['CompanyID'];
+        $data['InvoiceType']    =   $data['InvoiceType']==1?'Received':'Sent';
+        $data['InvoiceNumber']  =   $data['InvoiceNo'];
+        $data['CompanyName'] 	= 	Company::getName($CompanyID);
+        $data['EmailTemplate'] 	= 	EmailTemplate::where(["SystemType"=>EmailTemplate::DisputeEmailCustomerTemplate])->first();
+        $body					=	EmailsTemplates::render('body',$data);
+        $data['Subject']		=	EmailsTemplates::render("subject",$data);
+        $EmailTemplate = $data['EmailTemplate'];
+        $data['EmailFrom']		=	$EmailTemplate->EmailFrom;
+        $Account = Account::find($data["AccountID"]);
+        $emailArray 			= 	explode(',',$Account->BillingEmail);
+        foreach($emailArray as $singleemail) {
+            $singleemail = trim($singleemail);
+            if (filter_var($singleemail, FILTER_VALIDATE_EMAIL)) {
+                if($EmailTemplate->Status){
+                    $data['EmailTo'] 		= 	$singleemail;
+                    $status 				= 	sendMail($body,$data,0);
+                }
+            }
+        }
+        return $status;
+    }
 }

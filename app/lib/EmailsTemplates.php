@@ -35,7 +35,8 @@ class EmailsTemplates{
 				"{{User}}",
 				"{{Logo}}",
                 "{{InvoiceLink}}",
-                "{{InvoiceNumber}}"
+                "{{InvoiceNumber}}",
+                "{{DisputeAmount}}"
 				);
 	
 	

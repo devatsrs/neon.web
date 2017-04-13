@@ -72,7 +72,7 @@ class AccountPaymentProfile extends \Eloquent
         $data = [];
         $data['CompanyName'] 		= 	Company::getName($CompanyID);
         $data['ComapnyID']          =   $CompanyID;
-        $data['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>Notification::InvoicePaidNotificationTemplate])->first();
+        $data['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
         $Invoices = explode(',', $Invoiceids);
         $fullnumber = '';
         if(count($Invoices)>0){
