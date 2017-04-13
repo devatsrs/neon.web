@@ -40,7 +40,7 @@
                                                     <input id="SubscriptionActive" name="SubscriptionActive" type="checkbox" value="1" checked="checked" >
                                                 </p>
                                             </div>
-											<div class="col-sm-6">
+											<div class="col-sm-3">
 												<p style="text-align: right">
 												<button class="btn btn-primary btn-sm btn-icon icon-left" id="subscription_submit">
 													<i class="entypo-search"></i>
