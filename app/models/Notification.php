@@ -35,8 +35,8 @@ class Notification extends \Eloquent {
 
     public static function sendEmailNotification($type,$data){
         if($type==Notification::InvoicePaidByCustomer) {
-            $body					=	EmailsTemplates::SendNotification('body',$data);
-            $data['Subject']		=	EmailsTemplates::SendNotification("subject",$data);
+            $body					=	EmailsTemplates::render('body',$data);
+            $data['Subject']		=	EmailsTemplates::render("subject",$data);
         }
         $EmailTemplate = $data['EmailTemplate'];
         $data['EmailFrom']		=	$EmailTemplate->EmailFrom;

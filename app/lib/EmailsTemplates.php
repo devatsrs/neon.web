@@ -6,7 +6,7 @@ class EmailsTemplates{
 	protected $Error;
 	protected $CompanyName;
 	protected $AccountID;
-	
+	//@Todo:Place all replaceable variables to one array and remove unnecessary code and functions.
 	static $fields = array(
 				"{{AccountName}}",
 				'{{FirstName}}',
@@ -34,6 +34,8 @@ class EmailsTemplates{
 				"{{CompanyCountry}}",
 				"{{User}}",
 				"{{Logo}}",
+                "{{InvoiceLink}}",
+                "{{InvoiceNumber}}"
 				);
 	
 	
@@ -107,7 +109,7 @@ class EmailsTemplates{
 				return array("error"=>$ex->getMessage(),"status"=>"failed","data"=>"","from"=>$EmailTemplate->EmailFrom);	
 			}*/
 	}
-	
+	//@TODO:Change function to use centralize function var_replace for replace variables in mail
 	static function SendEstimateSingle($slug,$EstimateID,$type="body",$data = array(),$postdata = array()){
 		 
 			$message								=	"";
@@ -243,8 +245,8 @@ class EmailsTemplates{
 			} 
 			return $EmailMessage; 	
 	}
-    //Generic function for notifications
-    static function SendNotification($type="body",$data=array()){
+    //Generic function for render the email template
+    static function render($type="body",$data=array()){
         $extraSpecific                          = [];
         $replace_array							=	$data;
         $InvoiceData   							=  	isset($data['Invoice'])?$data['Invoice']:'';
@@ -271,18 +273,13 @@ class EmailsTemplates{
         if(!empty($InvoiceData)) {
             $replace_array['InvoiceLink'] = URL::to('/invoice/' . $InvoiceData->InvoiceID . '/invoice_preview');
             $replace_array['InvoiceNumber'] = $InvoiceData->FullInvoiceNumber;
-
-            $extraSpecific = [
-                '{{InvoiceLink}}',
-                '{{InvoiceNumber}}'
-            ];
         }
 
-        $EmailMessage = EmailsTemplates::var_replace($replace_array,$extraSpecific,$EmailMessage);
+        $EmailMessage = EmailsTemplates::var_replace($replace_array,$EmailMessage);
         return $EmailMessage;
     }
     //Generic function for replace variables
-    static function var_replace($data,$extraSpecific,$EmailMessage){
+    static function var_replace($data,$EmailMessage){
         $replace_array = $data;
         if(isset($data['CompanyID'])){
             $replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$data['CompanyID']);
@@ -291,11 +288,9 @@ class EmailsTemplates{
             $replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$data['AccountID']);
         }
 
-        $extraDefault	=	EmailsTemplates::$fields;
+        $fields	=	EmailsTemplates::$fields;
 
-        $extra = array_merge($extraDefault,$extraSpecific);
-
-        foreach($extra as $item){
+        foreach($fields as $item){
             $item_name = str_replace(array('{','}'),array('',''),$item);
             if(array_key_exists($item_name,$replace_array)) {
                 $EmailMessage = str_replace($item,$replace_array[$item_name],$EmailMessage);
