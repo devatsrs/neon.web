@@ -397,7 +397,7 @@ class DashboardController extends BaseController {
 
     public function delete_gateway_missing_account($id){
         try {
-            $result = DB::Connection('sqlsrv2')->statement('delete from tblGatewayAccount where CompanyGatewayID=' . intval($id));
+            $result = DB::Connection('sqlsrv2')->statement('delete from tblGatewayAccount where AccountID IS NULL AND CompanyGatewayID=' . intval($id) );
             if($result){
                 return Response::json(array("status" => "success", "message" => "Missing Gateway Accounts deleted successfully."));
             }

@@ -407,7 +407,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                 "fnFooterCallback": function ( row, data, start, end, display ) {
                     if (end > 0) {
                         $(row).html('');
-                        for (var i = 0; i < 8; i++) {
+                        for (var i = 0; i < $('#table-4 thead th').length; i++) {
                             var a = document.createElement('td');
                             $(a).html('');
                             $(row).append(a);
