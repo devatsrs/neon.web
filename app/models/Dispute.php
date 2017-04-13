@@ -170,7 +170,7 @@ class Dispute extends \Eloquent {
 
 			}
 
-		}else if (1==1 ){//Dispute::insert($disputeData) ) {
+		}else if(Dispute::insert($disputeData) ) {
             $status = Dispute::sendDisputeEmailCustomer($disputeData);
 			return Response::json(array("status" => "success", "message" => "Dispute inserted successfully. and ".$status['message']));
 

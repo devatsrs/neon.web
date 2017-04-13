@@ -46,7 +46,7 @@ class EmailsTemplates{
 		 }		 		 
 		 $this->CompanyName = Company::getName();
 	}
-	
+	//@TODO:Use render function instead making each separate function.
 	static function SendinvoiceSingle($InvoiceID,$type="body",$data=array(),$postdata = array()){ 
 	
 				$companyID								=	User::get_companyID();
@@ -110,7 +110,7 @@ class EmailsTemplates{
 				return array("error"=>$ex->getMessage(),"status"=>"failed","data"=>"","from"=>$EmailTemplate->EmailFrom);	
 			}*/
 	}
-	//@TODO:Change function to use centralize function var_replace for replace variables in mail
+
 	static function SendEstimateSingle($slug,$EstimateID,$type="body",$data = array(),$postdata = array()){
 		 
 			$message								=	"";
