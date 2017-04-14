@@ -8,6 +8,8 @@ class Gateway extends \Eloquent {
 
     protected  $primaryKey = "GatewayID";
 
+    const GATEWAY_FTP = 'FTP';
+
     public  static  function getGatewayListID(){
         $row = Gateway::where(array('Status'=>1))->lists('Title', 'GatewayID');
         if(!empty($row)){

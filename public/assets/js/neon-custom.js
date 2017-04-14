@@ -3160,6 +3160,11 @@ function select_all_top(selectallbutton,table,selectall) {
         }
     });
 }
+function openInNewTab(url) {
+    var redirectWindow = window.open(url, '_blank');
+    redirectWindow.location;
+}
+
 try{
     if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 && $(".notifications.cron_jobs.dropdown").has("#failing_placeholder").length > 0 ) {
         setInterval(function () {
