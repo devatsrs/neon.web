@@ -2,7 +2,7 @@
 
 class TicketBusinessHolidays extends \Eloquent {
 
-    protected $table 		= 	"TblTicketBusinessHolidays";
+    protected $table 		= 	"tblTicketBusinessHolidays";
     protected $primaryKey 	= 	"HolidayID";
 	protected $guarded 		=	 array("HolidayID");	
 }

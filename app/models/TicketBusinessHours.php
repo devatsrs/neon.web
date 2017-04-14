@@ -2,7 +2,7 @@
 
 class TicketBusinessHours extends \Eloquent {
 
-    protected $table 		= 	"TblTicketBusinessHours";
+    protected $table 		= 	"tblTicketBusinessHours";
     protected $primaryKey 	= 	"ID";
 	protected $guarded 		=	 array("ID");
 
