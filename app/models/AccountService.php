@@ -40,9 +40,9 @@ class AccountService extends \Eloquent {
         $row = array();
         $select = ["tblService.ServiceName","tblAccountService.ServiceID"];
         $services = DB::table('tblAccountService')
-            ->join('tblService', function ($join) {
+            ->join('tblService', function ($join) use($AccountID) {
                 $join->on('tblAccountService.ServiceID', '=', 'tblService.ServiceID')
-                    ->where('tblAccountService.AccountID', '=', 5018)
+                    ->where('tblAccountService.AccountID', '=', $AccountID)
                     ->where('tblAccountService.Status', '=', 1)
                     ->where('tblService.Status', '=', 1);
             })
