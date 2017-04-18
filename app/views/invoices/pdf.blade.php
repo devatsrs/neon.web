@@ -46,7 +46,6 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
 			<div id="details" class="clearfix">
 				<div id="client">
 					<div class="to">INVOICE TO:</div>
-					<div>{{$Account->AccountName}}</div>
 					<div>{{nl2br($Invoice->Address)}}</div>
 				</div>
 				<div id="invoice">

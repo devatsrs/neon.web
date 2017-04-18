@@ -475,7 +475,7 @@ $(document).ready(function(){
                     $("[name=Terms]").val('');
                     $("[name=FooterTerm]").val('');
                 } else {
-                    $("#Account_Address").html(response.Address);
+                    $("#Account_Address").html(response.InvoiceToAddress);
                     $("input[name=CurrencyCode]").val(response.Currency);
                     $("input[name=CurrencyID]").val(response.CurrencyId);
                     $("input[name=InvoiceTemplateID]").val(response.InvoiceTemplateID);
