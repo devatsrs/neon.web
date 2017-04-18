@@ -163,8 +163,8 @@
             <div class="col-sm-12">Set escalation rule when a ticket is not responded to on time</div>
           </div>
           <div class="custom_hours form-group"> 
-            <?php $RespondedValue  = explode(",",$RespondedVoilation['RespondedValue']); ?>
-            <div class="col-sm-2">{{Form::select("violated[NotResponded][EscalateTime]", $EscalateTime,$RespondedVoilation['RespondedTime'],array("class"=>"form-control   small select2",1))}}</div>
+            <?php $RespondedValue  = explode(",",$RespondedVoilation['Value']);  ?>
+            <div class="col-sm-2">{{Form::select("violated[NotResponded][EscalateTime]", $EscalateTime,$RespondedVoilation['Time'],array("class"=>"form-control   small select2",1))}}</div>
             <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResponded][Agents][]", $agentsAll, $RespondedValue ,array("class"=>"select2","multiple"=>"multiple","id"=>"Groups"))}} </div>
           </div>
           <div class="custom_hours form-group">
@@ -176,9 +176,9 @@
             <div class="col-sm-1"><span class="badge badge-default">1</span></div>
             <div class="col-sm-1"><input  type="checkbox" @if(count($ResolveVoilation)>0) checked @endif class="icheck violatedCheck" option="1" name="violated[NotResolved][1][Enabled]" value="1"></div>
             
-            <div class="col-sm-2">{{Form::select("violated[NotResolved][1][EscalateTime]",$EscalateTime,isset($ResolveVoilation[0])?$ResolveVoilation[0]->ResolvedTime:1,array("class"=>"form-control   violated1 small select2",isset($ResolveVoilation[0])?"":"disabled"  ))}}</div>
+            <div class="col-sm-2">{{Form::select("violated[NotResolved][1][EscalateTime]",$EscalateTime,isset($ResolveVoilation[0])?$ResolveVoilation[0]->Time:1,array("class"=>"form-control   violated1 small select2",isset($ResolveVoilation[0])?"":"disabled"  ))}}</div>
            
-            <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResolved][1][Agents][]", $agentsAll, isset($ResolveVoilation[0])?explode(",",$ResolveVoilation[0]->ResolvedValue):0 ,array("class"=>"select2 violated1","multiple"=>"multiple","id"=>"Groups", isset($ResolveVoilation[0])?"":"disabled"))}} </div>
+            <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResolved][1][Agents][]", $agentsAll, isset($ResolveVoilation[0])?explode(",",$ResolveVoilation[0]->Value):0 ,array("class"=>"select2 violated1","multiple"=>"multiple","id"=>"Groups", isset($ResolveVoilation[0])?"":"disabled"))}} </div>
           </div>
           <!--first end -->
           <!--second start -->
@@ -187,9 +187,9 @@
             <div class="col-sm-1"><span class="badge badge-default">2</span></div>
             <div class="col-sm-1"><input  type="checkbox" @if(count($ResolveVoilation)>1) checked @endif class="icheck violatedCheck" option="2" name="violated[NotResolved][2][Enabled]" value="1"></div>
             
-               <div class="col-sm-2">{{Form::select("violated[NotResolved][2][EscalateTime]",$EscalateTime,isset($ResolveVoilation[1])?$ResolveVoilation[1]->ResolvedTime:1,array("class"=>"form-control   violated2 small select2",isset($ResolveVoilation[1])?"":"disabled"  ))}}</div>
+               <div class="col-sm-2">{{Form::select("violated[NotResolved][2][EscalateTime]",$EscalateTime,isset($ResolveVoilation[1])?$ResolveVoilation[1]->Time:1,array("class"=>"form-control   violated2 small select2",isset($ResolveVoilation[1])?"":"disabled"  ))}}</div>
                
-            <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResolved][2][Agents][]", $agentsAll, isset($ResolveVoilation[1])?explode(",",$ResolveVoilation[1]->ResolvedValue):0 ,array("class"=>"select2 violated2","multiple"=>"multiple","id"=>"Groups", isset($ResolveVoilation[1])?"":"disabled"))}} </div>           
+            <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResolved][2][Agents][]", $agentsAll, isset($ResolveVoilation[1])?explode(",",$ResolveVoilation[1]->Value):0 ,array("class"=>"select2 violated2","multiple"=>"multiple","id"=>"Groups", isset($ResolveVoilation[1])?"":"disabled"))}} </div>           
             
           </div>
           <!--second end -->
@@ -198,9 +198,9 @@
             <div class="col-sm-1"><span class="badge badge-default">3</span></div>
             <div class="col-sm-1"><input  type="checkbox" @if(count($ResolveVoilation)>2) checked @endif class="icheck violatedCheck" option="3" name="violated[NotResolved][3][Enabled]" value="1"></div>
             
-              <div class="col-sm-2">{{Form::select("violated[NotResolved][3][EscalateTime]",$EscalateTime,isset($ResolveVoilation[2])?$ResolveVoilation[2]->ResolvedTime:1,array("class"=>"form-control   violated3 small select2",isset($ResolveVoilation[2])?"":"disabled"  ))}}</div>
+              <div class="col-sm-2">{{Form::select("violated[NotResolved][3][EscalateTime]",$EscalateTime,isset($ResolveVoilation[2])?$ResolveVoilation[2]->Time:1,array("class"=>"form-control   violated3 small select2",isset($ResolveVoilation[2])?"":"disabled"  ))}}</div>
               
-            <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResolved][3][Agents][]", $agentsAll, isset($ResolveVoilation[2])?explode(",",$ResolveVoilation[2]->ResolvedValue):0 ,array("class"=>"select2 violated3","multiple"=>"multiple","id"=>"Groups", isset($ResolveVoilation[2])?"":"disabled"))}} </div> 
+            <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResolved][3][Agents][]", $agentsAll, isset($ResolveVoilation[2])?explode(",",$ResolveVoilation[2]->Value):0 ,array("class"=>"select2 violated3","multiple"=>"multiple","id"=>"Groups", isset($ResolveVoilation[2])?"":"disabled"))}} </div> 
             
           </div>
           <!--third end-->
@@ -210,9 +210,9 @@
             <div class="col-sm-1"><span class="badge badge-default">4</span></div>
             <div class="col-sm-1"><input  type="checkbox" @if(count($ResolveVoilation)>3) checked @endif  class="icheck violatedCheck" option="4" name="violated[NotResolved][4][Enabled]" value="1"></div>
              
-               <div class="col-sm-2">{{Form::select("violated[NotResolved][4][EscalateTime]",$EscalateTime,isset($ResolveVoilation[3])?$ResolveVoilation[3]->ResolvedTime:1,array("class"=>"form-control   violated4 small select2",isset($ResolveVoilation[3])?"":"disabled"  ))}}</div>
+               <div class="col-sm-2">{{Form::select("violated[NotResolved][4][EscalateTime]",$EscalateTime,isset($ResolveVoilation[3])?$ResolveVoilation[3]->Time:1,array("class"=>"form-control   violated4 small select2",isset($ResolveVoilation[3])?"":"disabled"  ))}}</div>
                
-            <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResolved][4][Agents][]", $agentsAll, isset($ResolveVoilation[3])?explode(",",$ResolveVoilation[3]->ResolvedValue):0 ,array("class"=>"select2 violated4","multiple"=>"multiple","id"=>"Groups", isset($ResolveVoilation[3])?"":"disabled"))}} </div> 
+            <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResolved][4][Agents][]", $agentsAll, isset($ResolveVoilation[3])?explode(",",$ResolveVoilation[3]->Value):0 ,array("class"=>"select2 violated4","multiple"=>"multiple","id"=>"Groups", isset($ResolveVoilation[3])?"":"disabled"))}} </div> 
             
           </div>
           <!--fourth end -->

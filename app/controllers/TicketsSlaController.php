@@ -92,11 +92,10 @@ class TicketsSlaController extends \BaseController {
 		
 		$slaApplyCompany			=	explode(",",$slaApply->CompanyFilter);
 		$slaApplyType				=	explode(",",$slaApply->TypeFilter);
-		$RespondedVoilation			=	TicketSlaPolicyViolation::where(['TicketSlaID'=>$id,"VoilationType"=>TicketSlaPolicyViolation::$RespondedVoilationType])->select(['RespondedTime','RespondedValue'])->first();
+		$RespondedVoilation			=	TicketSlaPolicyViolation::where(['TicketSlaID'=>$id,"VoilationType"=>TicketSlaPolicyViolation::$RespondedVoilationType])->select(['Time','Value'])->first();
 		
-		$ResolveVoilation			=	TicketSlaPolicyViolation::where(['TicketSlaID'=>$id,"VoilationType"=>TicketSlaPolicyViolation::$ResolvedVoilationType])->select(['ResolvedTime','ResolvedValue'])->get();
-		
-		//echo "<pre>";	print_r($ResolveVoilation); exit;
+		$ResolveVoilation			=	TicketSlaPolicyViolation::where(['TicketSlaID'=>$id,"VoilationType"=>TicketSlaPolicyViolation::$ResolvedVoilationType])->select(['Time','Value'])->get();
+		//echo "<pre>";	print_r($RespondedValue); exit;
 		return View::make('ticketssla.edit', compact('priorities','Groups','TicketTypes','AccountList','EscalateTime','agentsAll','Sla','targetsData','slaApplyGroup','slaApplyCompany','slaApplyType','RespondedVoilation','ResolveVoilation'));
 	
 	}
