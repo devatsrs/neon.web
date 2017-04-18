@@ -641,16 +641,24 @@ class InvoicesController extends \BaseController {
             $InvoiceTemplateID  = 	AccountBilling::getInvoiceTemplateID($Account->AccountID);
             $CurrencyId = $Account->CurrencyId;
             $Address = Account::getFullAddress($Account);
-            $Terms = $FooterTerm = '';
+
+            $Terms = $FooterTerm = $InvoiceToAddress ='';
 			
 			 $AccountTaxRate = AccountBilling::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
 			//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 		
             if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
                 $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+                /* for item invoice generate - invoice to address as invoice template */
+
+                $message = $InvoiceTemplate->InvoiceTo;
+                $replace_array = Invoice::create_accountdetails($Account);
+                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
+                $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
+
                 $Terms = $InvoiceTemplate->Terms;
                 $FooterTerm = $InvoiceTemplate->FooterTerm;
-                $return = ['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate'];
+                $return = ['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate','InvoiceToAddress'];
             }else{
                 return Response::json(array("status" => "failed", "message" => "You can not create Invoice for this Account. as It has no Invoice Template assigned" ));
             }
