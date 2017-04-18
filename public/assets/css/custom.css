@@ -2469,7 +2469,7 @@ background-repeat:no-repeat;
 .dropdown-menu{
     font-size:12px;
 }
-.dropdown-menu > li > a{
+.dropdown-menu li a {
     /*color:#7d8086;*/
     color:#fff;
     padding: 4px 8px;
@@ -2571,7 +2571,7 @@ background:white none repeat scroll 0 0;
 .label.label-info  {
     padding: 0.2em 0.6em 0.3em !important;
 }
-.popover-content,.popover-title {
+.popover-content :not(".note-hint-popover .popover-content"),.popover-title {
    color: #fff;
 }
 .small_fld{
@@ -2709,4 +2709,12 @@ a:focus,a:hover{text-decoration:none !important}
 /*Cron job notification*/
 .notifications.dropdown.cron_jobs{
     padding-top: 2px;
+}
+.class_neon_placeholders{
+    height: 200px;
+    overflow-y: auto;
+    overflow-x: visible;
+}
+.note-editor li a {
+    color: #000 !important;
 }

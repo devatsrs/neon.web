@@ -256,9 +256,6 @@
         @endforeach
         </tbody>
     </table>
-    <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
-    <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
-    <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
     <script type="text/javascript">
         var invoice_id = '{{$Invoice->InvoiceID}}';
         var decimal_places = '{{$RoundChargesAmount}}';

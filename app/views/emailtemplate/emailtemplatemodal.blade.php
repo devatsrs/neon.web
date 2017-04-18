@@ -1,11 +1,8 @@
 <?php $emailfrom  = array(); if(isset($email_from)){$emailfrom = $email_from;}else{$emailfrom = TicketGroups::GetGroupsFrom();} ?>
-<link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 <script>
     $(document).ready(function ($) {
-		
-        $('#add-new-template-form').submit(function(e){
+
+		$('#add-new-template-form').submit(function(e){
             e.preventDefault();
             var templateID = $("#add-new-template-form [name='TemplateID']").val();
             if( typeof templateID != 'undefined' && templateID != ''){
@@ -41,202 +38,54 @@
         $('#add-new-modal-template').on('shown.bs.modal', function(event){
 			var modal = $(this);  
 			if(typeof popup_type  == "undefined" ) {popup_type = 0;}
-			if(popup_type == {{EmailTemplate::ACCOUNT_TEMPLATE}}){   
-				 modal.find('.message').wysihtml5({ 
-				   "font-styles": true,				
-				   "leadoptions":true,	
-				   "invoiceoptions":false,	
-				    "estimateoptions":false,					
-				    "Tickets":false,
-					"Crm":false,						
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-				});
-			}else if(popup_type == {{EmailTemplate::INVOICE_TEMPLATE}}){   
-				 modal.find('.message').wysihtml5({
-				   "font-styles": true,				
-				  	"leadoptions":false,	
-				    "invoiceoptions":true,	
-				    "estimateoptions":false,
-					"TicketsSingle":false,					
-				    "Tickets":false,
-					"Crm":false,			
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-				});
-			} else if(popup_type == {{EmailTemplate::RATESHEET_TEMPLATE}}){  
-				 modal.find('.message').wysihtml5({
-				   "font-styles": true,				
-				   "leadoptions":false,	
-				   "ratesheetoptions":true,
-				   "invoiceoptions":false,	
-				    "estimateoptions":false,					
-					"Crm":false,
-				    "Tickets":false,			
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-				});
-			} else if(popup_type == {{EmailTemplate::TICKET_TEMPLATE}}){   
-				 modal.find('.message').wysihtml5({
-				   "TicketsSingle":true,
-				   "leadoptions":false,	
-				   "TicketsSingle":true,
-				   "Crm":false,
-				   "font-styles": true,								 
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-				});
-			}  else if(popup_type == {{EmailTemplate::ESTIMATE_TEMPLATE}}){   
-				 modal.find('.message').wysihtml5({
-				   "font-styles": true,				
-				    "leadoptions":false,	
-				   "invoiceoptions":false,	
-				    "estimateoptions":true,					
-				    "Tickets":false,						
-					"Crm":false,
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-				});
-			} else if(popup_type == {{EmailTemplate::CONTACT_TEMPLATE}}){   
-				 modal.find('.message').wysihtml5({
-				   "font-styles": true,				
-				   "leadoptions":true,	
-				   "invoiceoptions":false,	
-				    "estimateoptions":false,					
-				    "Tickets":false,						
-					"Crm":false,
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-				});
-			} else if(popup_type == {{EmailTemplate::CRONJOB_TEMPLATE}}){   	
-			 modal.find('.message').wysihtml5({
-				   "font-styles": true,				
-				   "Cronjobs":true,
-				   "leadoptions":false,	
-				   "invoiceoptions":false,	
-				    "estimateoptions":false,					
-				    "Tickets":false,						
-					"Crm":false,
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-				});
-				
+			if(popup_type == {{EmailTemplate::ACCOUNT_TEMPLATE}}){
+
+				show_summernote(modal.find('.message'),{"leadoptions":true});
+
+			}else if(popup_type == {{EmailTemplate::INVOICE_TEMPLATE}}){
+
+				show_summernote(modal.find('.message'),{"invoiceoptions":true});
+
+			} else if(popup_type == {{EmailTemplate::RATESHEET_TEMPLATE}}){
+
+				show_summernote(modal.find('.message'),{"ratesheetoptions":true});
+
+			} else if(popup_type == {{EmailTemplate::TICKET_TEMPLATE}}){
+
+				show_summernote(modal.find('.message'),{"TicketsSingle":true});
+
+			}  else if(popup_type == {{EmailTemplate::ESTIMATE_TEMPLATE}}){
+
+				show_summernote(modal.find('.message'),{"estimateoptions":true});
+
+			} else if(popup_type == {{EmailTemplate::CONTACT_TEMPLATE}}){
+
+				show_summernote(modal.find('.message'),{"leadoptions":true});
+
+			} else if(popup_type == {{EmailTemplate::CRONJOB_TEMPLATE}}){
+
+				show_summernote(modal.find('.message'),{"Cronjobs":true});
+
 			}
-			else if(popup_type == {{EmailTemplate::TASK_TEMPLATE}}){   	
-			 modal.find('.message').wysihtml5({
-				   "font-styles": true,				
-				   "Cronjobs":false,
-				   "tasks":true,
-				   "leadoptions":false,	
-				   "invoiceoptions":false,	
-				    "estimateoptions":false,					
-				    "Tickets":false,						
-					"Crm":false,
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-				});
+			else if(popup_type == {{EmailTemplate::TASK_TEMPLATE}}){
+
+				show_summernote(modal.find('.message'),{"tasks":true});
+
 			}
-			else if(popup_type == {{EmailTemplate::OPPORTUNITY_TEMPLATE}}){   	
-			 modal.find('.message').wysihtml5({
-				   "font-styles": true,				
-				   "Cronjobs":false,
-				   "opportunities":true,
-				   "leadoptions":false,	
-				   "invoiceoptions":false,	
-				    "estimateoptions":false,					
-				    "Tickets":false,						
-					"Crm":false,
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-				});
+			else if(popup_type == {{EmailTemplate::OPPORTUNITY_TEMPLATE}}){
+
+				show_summernote(modal.find('.message'),{"opportunities":true});
+
 			}
-			else{  
-            modal.find('.message').wysihtml5({
-               "font-styles": true,
-				"leadoptions":true,	
-				"invoiceoptions":false,	
-				"estimateoptions":false,	
-				"Crm":false,				
-				"Tickets":false,			
-				"emphasis": true,
-				"lists": true,
-				"html": true,
-				"link": true,
-				"image": true,
-				"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-            });
+			else{
+
+				show_summernote(modal.find('.message'),{"leadoptions":true});
+
 			}
         });
 
         $('#add-new-modal-template').on('hidden.bs.modal', function(event){
             var modal = $(this);
-            modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
             modal.find('.message').show();
 			popup_type = 0;
 		$("#add-new-template-form #email_from").val('').trigger('change');
@@ -249,40 +98,19 @@
 			 var modal_change = $('#add-new-modal-template');
 			if(template_type_val_change){
 				if(template_type_val_change == {{EmailTemplate::TICKET_TEMPLATE}})
-				{		console.log("Ticket");				
-					modal_change.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-					modal_change.find('.message').show();			
-					modal_change.find('.message').wysihtml5({
-					"font-styles": true,
-						"leadoptions":false,
-						"Tickets":true,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-				});	
+				{		console.log("Ticket");
+
+					show_summernote(modal_change.find('.message'),{"Tickets":true});
+
 				$(".TicketsScroll").perfectScrollbar();		 
 				}else{ console.log("others");				
 					if(template_type_val == {{EmailTemplate::TICKET_TEMPLATE}})
-					{ console.log("others added");				
-							modal_change.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-							modal_change.find('.message').show();			
-							modal_change.find('.message').wysihtml5({
-								"font-styles": true,
-								"leadoptions":false,
-								"Tickets":true,
-								"Crm":false,
-								"emphasis": true,
-								"lists": true,
-								"html": true,
-								"link": true,
-								"image": true,
-								"color": false,
-							});
-					
+					{
+
+						console.log("others added");
+						show_summernote(modal_change.find('.message'),{"Tickets":true});
+
+
 					}
 				}
 				

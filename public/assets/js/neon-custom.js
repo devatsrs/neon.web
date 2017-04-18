@@ -3168,3 +3168,38 @@ try{
 }catch(er){
     console.log(er.message);
 }
+
+show_summernote = function (element,options){
+
+    if(!!document.createRange) {
+        document.getSelection().removeAllRanges();
+    }
+
+    element.addClass("hidden");
+    element.summernote('destroy');
+
+     element.summernote({
+         onInit: function() {
+             console.log('Summernote is launched');
+         },
+         toolbar: [
+            ['neon_placeholders', ['neon_placeholders']], // here, for example
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['height', ['height']],
+            ['table', ['table']],
+            ['insert', ['media', 'link', 'hr', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview']],
+            ['help', ['help']]
+        ],
+        height: 200,
+        tabsize: 2,
+        dialogsInBody: true,
+        defaultOptions : options
+    });
+
+};
+
