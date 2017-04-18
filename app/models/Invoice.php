@@ -208,4 +208,10 @@ class Invoice extends \Eloquent {
     }
 
 
+    // for sample invoice template pdf
+    public static function getInvoiceTo($Invoiceto){
+        $Invoiceto = str_replace('{','',$Invoiceto);
+        $Invoiceto = str_replace('}','',$Invoiceto);
+        return $Invoiceto;
+    }
 }

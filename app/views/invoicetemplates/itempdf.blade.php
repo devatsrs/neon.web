@@ -30,7 +30,7 @@
 			<div id="details" class="clearfix">
 				<div id="client">
 					<div class="to">INVOICE TO:</div>
-					<div>{{nl2br($InvoiceTemplate->InvoiceTo)}}</div>
+					<div>{{nl2br(Invoice::getInvoiceTo($InvoiceTemplate->InvoiceTo))}}</div>
 					<!--<h2 class="name">Bhavin Prajapati</h2>
 					<div class="address">Rajkot</div>
 					<div class="address">Rajkot - 360003</div>
