@@ -37,13 +37,19 @@ BEGIN
 		DO		
 			
 			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Service_ t WHERE t.RowID = v_pointer_);
+			TRUNCATE TABLE tmp_AuthenticateRules_;
+			IF p_NameFormat != ''
+			THEN
+				INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+				SELECT p_NameFormat;
+			END IF;
 			
 			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
 			SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = v_ServiceID_
 			UNION
 			SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = v_ServiceID_;
 	
-			CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,v_ServiceID_,'service');
+			CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,v_ServiceID_);
 
 			SET v_pointer_ = v_pointer_ + 1;
 	
@@ -56,12 +62,17 @@ BEGIN
 	THEN
 		
 		TRUNCATE TABLE tmp_AuthenticateRules_;
+		IF p_NameFormat != ''
+		THEN
+			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+			SELECT p_NameFormat;
+		END IF;
 		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
 		SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = 0
 		UNION
 		SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = 0;
 		
-		CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0,'account');
+		CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0);
 
 	END IF;
 	
@@ -103,8 +114,8 @@ BEGIN
 		SELECT p_NameFormat;
 
 	END IF;
-
-	CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0,'gateway');
+	
+	CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0);
 
 	UPDATE tblGatewayAccount
 	INNER JOIN tmp_ActiveAccount a
@@ -112,7 +123,7 @@ BEGIN
 		AND tblGatewayAccount.CompanyGatewayID = p_CompanyGatewayID
 		AND tblGatewayAccount.ServiceID = a.ServiceID
 	SET tblGatewayAccount.AccountID = a.AccountID
-	WHERE tblGatewayAccount.AccountID is null;
+	WHERE tblGatewayAccount.AccountID IS NULL;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 

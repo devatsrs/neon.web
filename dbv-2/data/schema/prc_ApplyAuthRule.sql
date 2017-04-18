@@ -1,8 +1,7 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ApplyAuthRule`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
-	IN `p_ServiceID` INT,
-	IN `p_Level` VARCHAR(50)
+	IN `p_ServiceID` INT
 )
 BEGIN
 	DECLARE p_NameFormat VARCHAR(10);
@@ -28,13 +27,20 @@ BEGIN
 				a.AccountName
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
-				ON concat(a.AccountName , '-' , a.Number) = ga.AccountName
-				AND a.Status = 1
+				ON ga.CompanyID = a.CompanyId
+				AND CONCAT(a.AccountName , '-' , a.Number) = ga.AccountName
+			LEFT JOIN NeonRMDev.tblAccountAuthenticate aa 
+				ON a.AccountID = aa.AccountID 
+				AND aa.ServiceID = ga.ServiceID
 			WHERE GatewayAccountID IS NOT NULL
 			AND ga.AccountID IS NULL
 			AND a.CompanyId = p_CompanyID
+			AND a.Status = 1
 			AND ga.CompanyGatewayID = p_CompanyGatewayID
-			AND ga.ServiceID = p_ServiceID;
+			AND ga.ServiceID = p_ServiceID
+			AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NAMENUB' OR aa.VendorAuthRule ='NAMENUB' )) OR
+              aa.AccountID IS NULL
+          );
 	
 		END IF;
 	
@@ -49,13 +55,20 @@ BEGIN
 				a.AccountName
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
-				ON concat(a.Number, '-' , a.AccountName) = ga.AccountName
-				AND a.Status = 1
+				ON ga.CompanyID = a.CompanyId
+				AND CONCAT(a.Number, '-' , a.AccountName) = ga.AccountName
+			LEFT JOIN NeonRMDev.tblAccountAuthenticate aa 
+				ON a.AccountID = aa.AccountID 
+				AND aa.ServiceID = ga.ServiceID
 			WHERE GatewayAccountID IS NOT NULL
 			AND ga.AccountID IS NULL
 			AND a.CompanyId = p_CompanyID
+			AND a.Status = 1
 			AND ga.CompanyGatewayID = p_CompanyGatewayID
-			AND ga.ServiceID = p_ServiceID;
+			AND ga.ServiceID = p_ServiceID
+			AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NUBNAME' OR aa.VendorAuthRule ='NUBNAME' )) OR
+              aa.AccountID IS NULL
+          );
 	
 		END IF;
 	
@@ -70,13 +83,20 @@ BEGIN
 				a.AccountName
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
-				ON a.Number = ga.AccountName
-				AND a.Status = 1
+				ON ga.CompanyID = a.CompanyId
+				AND a.Number = ga.AccountName
+			LEFT JOIN NeonRMDev.tblAccountAuthenticate aa 
+				ON a.AccountID = aa.AccountID 
+				AND aa.ServiceID = ga.ServiceID	
 			WHERE GatewayAccountID IS NOT NULL
 			AND ga.AccountID IS NULL
 			AND a.CompanyId = p_CompanyID
+			AND a.Status = 1
 			AND ga.CompanyGatewayID = p_CompanyGatewayID
-			AND ga.ServiceID = p_ServiceID;
+			AND ga.ServiceID = p_ServiceID
+			AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NUB' OR aa.VendorAuthRule ='NUB' )) OR
+              aa.AccountID IS NULL
+          );
 	
 		END IF;
 	
@@ -135,22 +155,24 @@ BEGIN
 			SELECT DISTINCT
 				GatewayAccountID,
 				a.AccountID,
-				aa.ServiceID,
+				ga.ServiceID,
 				a.AccountName
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
 				ON ga.CompanyID = a.CompanyId 
-				AND ( p_Level = 'service' OR p_Level = 'account' OR  (p_Level = 'gateway' AND a.AccountName = ga.AccountName ))
-			INNER JOIN NeonRMDev.tblAccountAuthenticate aa
-				ON ( p_Level = 'gateway' OR (a.AccountID = aa.AccountID 
-				AND ga.ServiceID = p_ServiceID AND aa.ServiceID = ga.ServiceID 
-				AND ( aa.CustomerAuthRule = 'NAME' OR aa.VendorAuthRule ='NAME' )
-				AND a.AccountName = ga.AccountName))
+				AND a.AccountName = ga.AccountName
+			LEFT JOIN NeonRMDev.tblAccountAuthenticate aa
+				ON a.AccountID = aa.AccountID 
+				AND aa.ServiceID = ga.ServiceID 
 			WHERE a.CompanyId = p_CompanyID
 			AND a.`Status` = 1			
+			AND ga.ServiceID = p_ServiceID 
 			AND GatewayAccountID IS NOT NULL
 			AND ga.AccountID IS NULL
-			AND ga.CompanyGatewayID = p_CompanyGatewayID;
+			AND ga.CompanyGatewayID = p_CompanyGatewayID
+			AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NAME' OR aa.VendorAuthRule ='NAME' )) OR
+              aa.AccountID IS NULL
+          );
 	
 		END IF;
 		
@@ -164,19 +186,18 @@ BEGIN
 				aa.ServiceID,
 				a.AccountName
 			FROM NeonRMDev.tblAccount  a
-			INNER JOIN tblGatewayAccount ga
-				ON ga.CompanyID = a.CompanyId 
-				AND ( p_Level = 'service' OR p_Level = 'account' OR  (p_Level = 'gateway' AND a.AccountName = ga.AccountName ))
 			INNER JOIN NeonRMDev.tblAccountAuthenticate aa
-				ON a.AccountID = aa.AccountID 
-				AND ga.ServiceID = p_ServiceID AND aa.ServiceID = ga.ServiceID 
-				AND (aa.CustomerAuthRule = 'Other' OR aa.VendorAuthRule ='Other')
-				AND (aa.VendorAuthValue = ga.AccountName OR aa.CustomerAuthValue = ga.AccountName  )
+				ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'Other' OR aa.VendorAuthRule ='Other')
+			INNER JOIN tblGatewayAccount ga
+				ON ga.CompanyID = a.CompanyId
+				AND ga.ServiceID = aa.ServiceID 
+				AND ( aa.VendorAuthValue = ga.AccountName OR aa.CustomerAuthValue = ga.AccountName )
 			WHERE a.CompanyId = p_CompanyID
 			AND a.`Status` = 1			
 			AND GatewayAccountID IS NOT NULL
 			AND ga.AccountID IS NULL
-			AND ga.CompanyGatewayID = p_CompanyGatewayID;
+			AND ga.CompanyGatewayID = p_CompanyGatewayID
+			AND ga.ServiceID = p_ServiceID;
 	
 		END IF;
 

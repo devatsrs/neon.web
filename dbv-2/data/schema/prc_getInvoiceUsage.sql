@@ -47,7 +47,7 @@ BEGIN
 			COUNT(UsageDetailID) AS NoOfCalls,
 			CONCAT( FLOOR(SUM(duration ) / 60), ':' , SUM(duration ) % 60) AS Duration,
 			CONCAT( FLOOR(SUM(billed_duration ) / 60),':' , SUM(billed_duration ) % 60) AS BillDuration,
-			SUM(cost) AS TotalCharges,
+			SUM(cost) AS ChargedAmount,
 			SUM(duration ) as DurationInSec,
 			SUM(billed_duration ) as BillDurationInSec,
 			ud.ServiceID
@@ -57,14 +57,14 @@ BEGIN
 	ELSE
 
 		SELECT
-			trunk,
-			area_prefix,
-			CONCAT("'",cli) AS cli,
-			CONCAT("'",cld) AS cld,
-			connect_time,
-			disconnect_time,
-			billed_duration,
-			cost,
+			trunk AS Trunk,
+			area_prefix AS Prefix,
+			CONCAT("'",cli) AS CLI,
+			CONCAT("'",cld) AS CLD,
+			connect_time AS ConnectTime,
+			disconnect_time AS DisconnectTime,
+			billed_duration AS BilledDuration,
+			cost AS ChargedAmount,
 			ServiceID
 		FROM tmp_tblUsageDetails_ ud
 		WHERE ((p_ShowZeroCall =0 AND ud.cost >0 ) OR (p_ShowZeroCall =1 AND ud.cost >= 0))
