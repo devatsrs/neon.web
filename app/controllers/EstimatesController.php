@@ -622,7 +622,15 @@ class EstimatesController extends \BaseController {
                 $InvoiceTemplate	= 	InvoiceTemplate::find($InvoiceTemplateID);
                 $Terms 				= 	$InvoiceTemplate->Terms;
                 $FooterTerm 		= 	$InvoiceTemplate->FooterTerm;
-                $return 			=	['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate'];
+
+                /* for item invoice generate - invoice to address as invoice template */
+
+                $message = $InvoiceTemplate->InvoiceTo;
+                $replace_array = Invoice::create_accountdetails($Account);
+                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
+                $EstimateToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
+
+                $return 			=	['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate','EstimateToAddress'];
             }
 			else
 			{

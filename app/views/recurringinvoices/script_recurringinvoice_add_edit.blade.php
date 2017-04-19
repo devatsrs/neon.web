@@ -317,7 +317,9 @@ $(document).ready(function(){
     $("select[name=BillingClassID]").change( function (e) {
         url = baseurl + "/recurringinvoices/get_billingclassinfo_info";
         $this = $(this);
-        data = {BillingClassID:$this.val()}
+        var AccountID = $('select[name=AccountID]').val();
+        var BillingClassID = $this.val();
+        data = 'BillingClassID='+BillingClassID+'&AccountID='+AccountID;
         if($this.val() > 0){
             ajax_json(url,data,function(response){
                 if ( typeof response.status != undefined &&  response.status == 'failed') {
@@ -325,6 +327,9 @@ $(document).ready(function(){
                     $("[name=Terms]").val('');
                     $("[name=FooterTerm]").val('');
                 } else {
+                    if(response.InvoiceToAddress!=''){
+                        $("#Account_Address").html(response.InvoiceToAddress);
+                    }
                     $("[name=Terms]").val(response.Terms);
                     $("[name=FooterTerm]").val(response.FooterTerm);
                     add_recurringinvoice_tax(response.TaxRate);
