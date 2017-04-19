@@ -535,7 +535,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/tickets/{id}/update', "TicketsController@Update");
 	Route::any('/tickets/{id}/updatedetailpage', "TicketsController@UpdateDetailPage");
 	Route::any('/tickets/{id}/delete', "TicketsController@delete");
-	Route::any('/tickets/{id}/detail', "TicketsController@Detail");
+	Route::any('/tickets/{id}/detail', "TicketsController@Detail");	
+	Route::any('/tickets/{id}/updateTicketDueTime', "TicketsController@UpdateTicketDueTime");	
 	Route::post('tickets/ticket_action', 'TicketsController@TicketAction');
 	Route::post('tickets/{id}/updateticketattributes', 'TicketsController@UpdateTicketAttributes');
 	Route::post('tickets/{id}/actionsubmit', 'TicketsController@ActionSubmit');
