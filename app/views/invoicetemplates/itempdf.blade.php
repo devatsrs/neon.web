@@ -59,7 +59,7 @@
 					<th class="desc">Description</th>
 					<th class="desc">Quantity</th>
 					<th class="desc">Price</th>
-					<th class="desc">Line Total</th>
+					<th class="total">Line Total</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -68,14 +68,14 @@
 					<td class="desc">Item Description</td>
 					<td class="desc">2</td>
 					<td class="desc">25</td>
-					<td class="desc">50</td>
+					<td class="total">50</td>
 				</tr>
 				<tr>
 					<td class="desc">Item 1</td>
 					<td class="desc">Item Description</td>
 					<td class="desc">2</td>
 					<td class="desc">25</td>
-					<td class="desc">50</td>
+					<td class="total">50</td>
 				</tr>
 				</tbody>
 				<tfoot>

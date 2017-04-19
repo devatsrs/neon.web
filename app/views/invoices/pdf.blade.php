@@ -67,7 +67,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
 					<th class="desc">Description</th>
 					<th class="desc">Quantity</th>
 					<th class="desc">Price</th>
-					<th class="desc">Line Total</th>
+					<th class="total">Line Total</th>
 				</tr>
 				</thead>
 				
@@ -80,7 +80,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
 								<td class="desc">{{$ProductRow->Description}}</td>
 								<td class="desc">{{$ProductRow->Qty}}</td>
 								<td class="desc">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
-								<td class="desc">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
+								<td class="total">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
 							</tr>	
 						@endif					
 				@endforeach				
