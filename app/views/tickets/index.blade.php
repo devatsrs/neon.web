@@ -79,9 +79,7 @@
 .col-time{text-align:left !important; font-size:12px;}
 .col-time span{color:black;}
 .dropdown_sort li  a{color:white !important;}
-@if(count($result)>0)
 #table-4{display: block; padding-bottom:50px;}
-@endif
 .borderside{border-left-style: solid; border-left-width: 8px;}
 .bordersideLow{border-left-color:#00A651;}
 .bordersideMedium{border-left-color:#008ff9;}
@@ -100,7 +98,6 @@ $(document).ready(function(e) {
 	var next_enable 	= 	1;
 	var back_enable 	= 	1;
 	var per_page 		= 	<?php echo $iDisplayLength; ?>;
-	var total			=	<?php echo $totalResults; ?>;
 	var clicktype		=	'';
 	var ajax_url 		= 	baseurl+'/tickets/ajex_result';
 	var ajax_url_export	= 	baseurl+'/tickets/ajex_result_export';
@@ -147,7 +144,7 @@ $(document).ready(function(e) {
 					type: 'POST',
 					dataType: 'html',
 					async :false,
-					data:{formData:$search,currentpage:currentpage,per_page:per_page,total:total,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type},
+					data:{formData:$search,currentpage:currentpage,per_page:per_page,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type},
 					success: function(response) {
 						
 						if(response.length>0)
@@ -232,7 +229,7 @@ $(document).ready(function(e) {
 					type: 'POST',
 					dataType: 'html',
 					async :false,
-					data:{formData:$search,currentpage:currentpage,per_page:per_page,total:total,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type,Export:1},
+					data:{formData:$search,currentpage:currentpage,per_page:per_page,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type,Export:1},
 					success: function(response) {
 						
 					}	
