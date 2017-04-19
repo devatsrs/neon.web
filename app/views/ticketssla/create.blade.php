@@ -1,7 +1,7 @@
 @extends('layout.main')
 @section('content')
 <style>
-.day_time_data .col-sm-4{padding-right:0px !important; width:25%; }
+.day_time_data .col-sm-4{padding-right:0px !important; width:25%; } .NotrespondOnTimeDiv{display:none;} .NotresolveOnTimeDiv{display:none;}
 </style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -35,12 +35,20 @@
             <div class="col-sm-9">
               <textarea id="Description" name="Description" class="form-control" placeholder="Description">{{Input::old('Description')}}</textarea>
             </div>
+          </div>          
+          <div class="form-group">
+            <label class="col-sm-3 control-label">Status</label>
+            <div class="col-sm-9">
+              <p class="make-switch switch-small">
+                    <input id="Status" name="Status" type="checkbox" checked value="1">
+                  </p>
+            </div>
           </div>
         </div>
       </div>
       <div class="panel panel-primary sla_targets" data-collapsed="0">
         <div class="panel-heading">
-          <div class="panel-title">SLA Targets</div>
+          <div class="panel-title">SLA Targets <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="A service level agreement (SLA) policy lets you set standards of performance for your support team. You can set SLA policies for the time within which agents should respond to, and resolve tickets based on ticket priorities. You can choose whether you want each SLA rule to be calculated over calendar hours or your business hours." data-original-title="SLA Policy" class="label label-info popover-primary">?</span></div>
           <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
         </div>
         <div class="panel-body">
@@ -51,7 +59,7 @@
                 <div class="col-sm-3"><b>Respond within</b></div>
                 <div class="col-sm-3"><b>Resolve within </b></div>
                 <div class="col-sm-3"><b>Operational Hrs</b></div>
-                <div class="col-sm-3"><b>Escalation email</b></div>
+                <div class="col-sm-3"><b>Escalation Email</b></div>
               </div>
             </div>
             <div class="custom_hours form-group">
@@ -155,40 +163,48 @@
       </div>
       <div class="panel panel-primary" data-collapsed="0">
         <div class="panel-heading">
-          <div class="panel-title">What happens when this SLA is violated?</div>
+          <div class="panel-title">What happens when this SLA is violated? <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="You can also set up escalation rules that notify agents or managers when SLAs have been violated. You can set up multiple levels of escalation for resolution SLA. The violation emails can be configured in Admin > Email Templates" data-original-title="SLA violation notifications" class="label label-info popover-primary">?</span></div>
           <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
         </div>
         <div class="panel-body">
           <div class="custom_hours form-group">
-            <div class="col-sm-12">Set escalation rule when a ticket is not responded to on time</div>
+            <div class="col-sm-12">Set escalation rule when a ticket is not responded on time <span>&nbsp;
+            <p class="make-switch switch-small">
+                    <input id="NotrespondOnTime" name="NotrespondOnTime" type="checkbox" value="1">
+                  </p>
+            </span></div>
           </div>
-          <div class="custom_hours form-group">
+          <div class="custom_hours  NotrespondOnTimeDiv form-group">
             
             <div class="col-sm-2">{{Form::select("violated[NotResponded][EscalateTime]", $EscalateTime,1,array("class"=>"form-control   small select2",1))}}</div>
             <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResponded][Agents][]", $agentsAll, 0 ,array("class"=>"select2","multiple"=>"multiple","id"=>"Groups"))}} </div>
           </div>
           <div class="custom_hours form-group">
-            <div class="col-sm-12">Set escalation hierarchy when a ticket is not resolved on time</div>
+            <div class="col-sm-12">Set escalation hierarchy when a ticket is not resolved on time <span>&nbsp;
+            <p class="make-switch switch-small">
+                    <input id="NotresolveOnTime" name="NotresolveOnTime" type="checkbox" value="1">
+                  </p>
+            </span></div>
           </div>
-          <div class="custom_hours form-group">
+          <div class="custom_hours NotresolveOnTimeDiv form-group">
             <div class="col-sm-1"><span class="badge badge-default">1</span></div>
-            <div class="col-sm-1"><input  type="checkbox" checked class="icheck violatedCheck" option="1" name="violated[NotResolved][1][Enabled]" value="1"></div>
-            <div class="col-sm-2">{{Form::select("violated[NotResolved][1][EscalateTime]",$EscalateTime,1,array("class"=>"form-control   violated1 small select2"))}}</div>
-            <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResolved][1][Agents][]", $agentsAll, 0 ,array("class"=>"select2 violated1","multiple"=>"multiple","id"=>"Groups"))}} </div>
+            <div class="col-sm-1"><input  type="checkbox"  class="icheck violatedCheck" option="1" name="violated[NotResolved][1][Enabled]" value="1"></div>
+            <div class="col-sm-2">{{Form::select("violated[NotResolved][1][EscalateTime]",$EscalateTime,1,array("class"=>"form-control   violated1 small select2","disabled"))}}</div>
+            <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResolved][1][Agents][]", $agentsAll, 0 ,array("class"=>"select2 violated1","multiple"=>"multiple","id"=>"Groups","disabled"))}} </div>
           </div>
-          <div class="custom_hours form-group">
+          <div class="custom_hours NotresolveOnTimeDiv form-group">
             <div class="col-sm-1"><span class="badge badge-default">2</span></div>
             <div class="col-sm-1"><input  type="checkbox" class="icheck violatedCheck" option="2" name="violated[NotResolved][2][Enabled]" value="1"></div>
             <div class="col-sm-2">{{Form::select("violated[NotResolved][2][EscalateTime]",$EscalateTime,1,array("class"=>"form-control violated2  small select2","disabled"))}}</div>
             <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResolved][2][Agents][]", $agentsAll, 0 ,array("class"=>"select2 violated2","multiple"=>"multiple","id"=>"Groups","disabled"))}} </div>
           </div>
-          <div class="custom_hours form-group">
+          <div class="custom_hours NotresolveOnTimeDiv form-group">
             <div class="col-sm-1"><span class="badge badge-default">3</span></div>
             <div class="col-sm-1"><input  type="checkbox" class="icheck violatedCheck" option="3" name="violated[NotResolved][3][Enabled]" value="1"></div>
             <div class="col-sm-2">{{Form::select("violated[NotResolved][3][EscalateTime]",$EscalateTime,1,array("class"=>"form-control violated3   small select2","disabled"))}}</div>
             <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResolved][3][Agents][]", $agentsAll, 0 ,array("class"=>"violated3 select2","multiple"=>"multiple","id"=>"Groups","disabled"))}}</div>
           </div>
-          <div class="custom_hours form-group">
+          <div class="custom_hours NotresolveOnTimeDiv form-group">
             <div class="col-sm-1"><span class="badge badge-default">4</span></div>
             <div class="col-sm-1"><input  type="checkbox" class="icheck violatedCheck" option="4" name="violated[NotResolved][4][Enabled]" value="1"></div>
             <div class="col-sm-2">{{Form::select("violated[NotResolved][4][EscalateTime]",$EscalateTime,1,array("class"=>"form-control violated4   small select2","disabled"))}}</div>
@@ -213,6 +229,14 @@
 					$('.violated'+selected_option).prop('disabled',false);
 			  }
 		});
+		
+		$('#NotrespondOnTime').change(function(e) {
+            $('.NotrespondOnTimeDiv').toggle();
+        });
+		
+		$('#NotresolveOnTime').change(function(e) {
+            $('.NotresolveOnTimeDiv').toggle();
+        });
 		
 		jQuery('.violatedCheck').on('ifUnchecked', function(event){			 		
 			   var selected_option = 	$(this).attr('option');

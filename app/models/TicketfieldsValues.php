@@ -12,6 +12,7 @@ class TicketfieldsValues extends \Eloquent {
 	static $Status_Closed = 'Closed';
 	static $Status_Resolved = 'Resolved';
 	static $Status_UnResolved = 'All UnResolved';
+	static $Status_Open = 'Open';
 
     public static $enable_cache = false;
 

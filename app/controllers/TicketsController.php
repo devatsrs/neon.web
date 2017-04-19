@@ -55,7 +55,7 @@ private $validlicense;
 				$data['sSortDir_0']			=	 TicketsTable::$defaultSortType;
 				 
 			  }
-			  
+		    $OpenTicketStatus[] 		= 	 TicketsTable::GetOpenTicketStatus(false); 
 			$data['AccessPermission'] 	=	 TicketsTable::GetTicketAccessPermission(); 
 			$companyID 					= 	 User::get_companyID();
 			/*$array						= 	 $this->GetResult($data);
@@ -78,7 +78,7 @@ private $validlicense;
          $iDisplayLength 			= 	 $data['iDisplayLength'];
          $totalResults 				= 	 0;
          $result = [];
-        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus"));  
+        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus","OpenTicketStatus"));  
 	  }	
 	  
 	  public function ajex_result() {
@@ -157,7 +157,7 @@ private $validlicense;
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.csv';  Log::info("file_path:".$file_path);
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.csv';  
                 $NeonExcel = new NeonExcelIO($file_path);
               return  $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){

@@ -2,6 +2,7 @@
 @section('content')
 <style>
 .day_time_data .col-sm-4{padding-right:0px !important; width:25%; }
+.NotrespondOnTimeDiv{display:none;} .NotresolveOnTimeDiv{display:none;}
 </style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -36,6 +37,18 @@
               <textarea id="Description" name="Description" class="form-control" placeholder="Description">{{$Sla->Description}}</textarea>
             </div>
           </div>
+          @if(!$Sla->IsDefault)
+          <div class="form-group">
+            <label class="col-sm-3 control-label">Status</label>
+            <div class="col-sm-9">
+              <p class="make-switch switch-small">
+                    <input id="Status" name="Status"  @if($Sla->Status) checked @endif type="checkbox"  value="1">
+                  </p>
+            </div>
+          </div>
+          @else
+          <input id="Status" name="Status" type="hidden"  value="1">
+         @endif 
         </div>
       </div>
       <div class="panel panel-primary sla_targets" data-collapsed="0">
@@ -51,7 +64,7 @@
                 <div class="col-sm-3"><b>Respond within</b></div>
                 <div class="col-sm-3"><b>Resolve within </b></div>
                 <div class="col-sm-3"><b>Operational Hrs</b></div>
-                <div class="col-sm-3"><b>Escalation email</b></div>
+                <div class="col-sm-3"><b>Escalation Email</b></div>
               </div>
             </div>
             <div class="custom_hours form-group">
@@ -160,19 +173,27 @@
         </div>
         <div class="panel-body">
           <div class="custom_hours form-group">
-            <div class="col-sm-12">Set escalation rule when a ticket is not responded to on time</div>
+            <div class="col-sm-12">Set escalation rule when a ticket is not responded on time <span>&nbsp;
+            <p class="make-switch switch-small">
+                    <input id="NotrespondOnTime" @if(count($RespondedVoilation)>0) checked @endif name="NotrespondOnTime" type="checkbox" value="1">
+                  </p>
+            </span></div>
           </div>
-          <div class="custom_hours form-group"> 
+          <div @if(count($RespondedVoilation)>0) style="display:block;" @endif class="custom_hours NotrespondOnTimeDiv form-group"> 
             <?php $RespondedValue  = explode(",",$RespondedVoilation['Value']);  ?>
             <div class="col-sm-2">{{Form::select("violated[NotResponded][EscalateTime]", $EscalateTime,$RespondedVoilation['Time'],array("class"=>"form-control   small select2",1))}}</div>
             <div class="day_time_data col-sm-8"> {{Form::select("violated[NotResponded][Agents][]", $agentsAll, $RespondedValue ,array("class"=>"select2","multiple"=>"multiple","id"=>"Groups"))}} </div>
           </div>
           <div class="custom_hours form-group">
-            <div class="col-sm-12">Set escalation hierarchy when a ticket is not resolved on time</div>
+            <div class="col-sm-12">Set escalation hierarchy when a ticket is not resolved on time <span>&nbsp;
+            <p class="make-switch switch-small">
+                    <input id="NotresolveOnTime" @if(count($ResolveVoilation)>0) checked @endif  name="NotresolveOnTime" type="checkbox" value="1">
+                  </p>
+            </span></div>
           </div>
           <!--first start -->
           
-          <div class="custom_hours form-group">
+          <div @if(count($ResolveVoilation)>0) style="display:block;" @endif class="custom_hours NotresolveOnTimeDiv form-group">
             <div class="col-sm-1"><span class="badge badge-default">1</span></div>
             <div class="col-sm-1"><input  type="checkbox" @if(count($ResolveVoilation)>0) checked @endif class="icheck violatedCheck" option="1" name="violated[NotResolved][1][Enabled]" value="1"></div>
             
@@ -183,7 +204,7 @@
           <!--first end -->
           <!--second start -->
           
-          <div class="custom_hours form-group">
+          <div @if(count($ResolveVoilation)>0) style="display:block;" @endif class="custom_hours NotresolveOnTimeDiv form-group">
             <div class="col-sm-1"><span class="badge badge-default">2</span></div>
             <div class="col-sm-1"><input  type="checkbox" @if(count($ResolveVoilation)>1) checked @endif class="icheck violatedCheck" option="2" name="violated[NotResolved][2][Enabled]" value="1"></div>
             
@@ -194,7 +215,7 @@
           </div>
           <!--second end -->
           <!--third start -->
-          <div class="custom_hours form-group">
+          <div @if(count($ResolveVoilation)>0) style="display:block;" @endif class="custom_hours NotresolveOnTimeDiv form-group">
             <div class="col-sm-1"><span class="badge badge-default">3</span></div>
             <div class="col-sm-1"><input  type="checkbox" @if(count($ResolveVoilation)>2) checked @endif class="icheck violatedCheck" option="3" name="violated[NotResolved][3][Enabled]" value="1"></div>
             
@@ -206,7 +227,7 @@
           <!--third end-->
           <!--fourth start -->
           
-          <div class="custom_hours form-group">
+          <div @if(count($ResolveVoilation)>0) style="display:block;" @endif class="custom_hours NotresolveOnTimeDiv form-group">
             <div class="col-sm-1"><span class="badge badge-default">4</span></div>
             <div class="col-sm-1"><input  type="checkbox" @if(count($ResolveVoilation)>3) checked @endif  class="icheck violatedCheck" option="4" name="violated[NotResolved][4][Enabled]" value="1"></div>
              
@@ -230,6 +251,14 @@
 	 $(".save.btn").click(function (ev) {
             $("#form-sla-add").submit();
             $(this).button('Loading');
+        });
+		
+		$('#NotrespondOnTime').change(function(e) {
+            $('.NotrespondOnTimeDiv').toggle();
+        });
+		
+		$('#NotresolveOnTime').change(function(e) {
+            $('.NotresolveOnTimeDiv').toggle();
         });
 		
 	jQuery('.violatedCheck').on('ifChecked', function(event){	 

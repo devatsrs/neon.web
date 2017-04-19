@@ -73,6 +73,12 @@ class TicketsTable extends \Eloquent
 			return $ValuesID;
 	}
 	
+	static function GetOpenTicketStatus($text =false){
+		 $ValuesID =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
+            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->where(['tblTicketfieldsValues.FieldValueAgent'=>TicketfieldsValues::$Status_Open])->pluck($text?Session::get('customer')?"FieldValueCustomer":"FieldValueAgent":'ValuesID');			
+			return $ValuesID;
+	}
+	
 	static function getTicketStatus($select=1){
 		//TicketfieldsValues::WHERE
 		 $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')

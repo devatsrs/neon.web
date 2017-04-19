@@ -3,9 +3,9 @@
 @section('content')
     <ol class="breadcrumb bc-3">
         <li> <a href="{{ URL::to('/dashboard') }}"><i class="entypo-home"></i>Home</a> </li>
-        <li class="active"> <strong>Ticket SLA Policies</strong> </li>
+        <li class="active"> <strong>SLA Policies</strong> </li>
     </ol>
-    <h3>Ticket SLA Policies</h3>
+    <h3>SLA Policies</h3>
     @if( User::checkCategoryPermission('TicketsSla','Add'))<p class="text-right"> <a href="{{ URL::to('/tickets/sla_policies/add') }}" class="btn btn-primary"> <i class="entypo-plus"></i> Add New </a></p> @endif
 
     <table class="table table-bordered datatable" id="table-4">
@@ -61,7 +61,7 @@
                                     @endif
                                             @if(User::checkCategoryPermission('TicketsSla','Delete'))
 											 if(full[3] == 0){
-                                            action += '<a grouptickets="'+id+'" data-id="'+full[2]+'" id="group-'+full[2]+'" class="delete-ticket_group btn-sm btn delete btn-danger "><i class="entypo-trash"></i></a>';
+                                            action += '&nbsp; <a grouptickets="'+id+'" data-id="'+full[2]+'" id="group-'+full[2]+'" class="delete-ticket_group btn-sm btn delete btn-danger "><i class="entypo-trash"></i></a>';
 											 }
                                     @endif
 
