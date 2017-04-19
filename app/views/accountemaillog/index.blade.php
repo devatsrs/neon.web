@@ -175,26 +175,11 @@
 
                     $('#modal-SendEmail').on('shown.bs.modal', function(event){
                         var modal = $('#modal-SendEmail');
-						modal.find('.message').wysihtml5({
-							"font-styles": true,
-						"leadoptions":false,
-						"Tickets":true,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-							parser: function(html) {
-								return html;
-							}
-						});
+                        show_summernote(modal.find('.message'),{"Tickets":true,});
                     });
 
                     $('#modal-SendEmail').on('hidden.bs.modal', function(event){
                         var modal = $('#modal-SendEmail');
-                        modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
                         modal.find('.message').show();
                     });
 
@@ -208,9 +193,6 @@
     </div>
 
 </div>
-<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
-<script src="{{ URL::asset('assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js') }}"></script>
-<script src="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.js') }}"></script>
 @section('footer_ext')
     @parent
 
