@@ -232,9 +232,7 @@ private $validlicense;
 	}
 	
 	function Save_Single_Field(){
-		$postdata    =  Input::all();
-		Log::info("save single field");	
-		Log::info(print_r($postdata,true));	
+		$postdata    =  Input::all();		
 		 try
 		 {		//Log::info(print_r($postdata,true)); 			 	Log::info(print_r(json_decode($postdata['choices']),true)); 		 			exit;
 				DB::beginTransaction();

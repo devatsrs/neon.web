@@ -55,7 +55,7 @@ private $validlicense;
 				$data['sSortDir_0']			=	 TicketsTable::$defaultSortType;
 				 
 			  }
-			  
+		    $OpenTicketStatus[] 		= 	 TicketsTable::GetOpenTicketStatus(false); 
 			$data['AccessPermission'] 	=	 TicketsTable::GetTicketAccessPermission(); 
 			$companyID 					= 	 User::get_companyID();
 			/*$array						= 	 $this->GetResult($data);
@@ -78,7 +78,7 @@ private $validlicense;
          $iDisplayLength 			= 	 $data['iDisplayLength'];
          $totalResults 				= 	 0;
          $result = [];
-        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus"));  
+        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus","OpenTicketStatus"));  
 	  }	
 	  
 	  public function ajex_result() {
@@ -157,7 +157,7 @@ private $validlicense;
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.csv';  Log::info("file_path:".$file_path);
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.csv';  
                 $NeonExcel = new NeonExcelIO($file_path);
               return  $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
@@ -397,7 +397,7 @@ private $validlicense;
 		if(!empty($response) && $response->status == 'success' )
 		{
 			   $ticketdata		=	 $response->data;
-			   
+			  
 			   if(!User::is_admin())
 			   {
 				  if($ticketdata->Agent!=user::get_userID())
@@ -447,9 +447,10 @@ private $validlicense;
 					 $ticketemaildata			 =	AccountEmailLog::find($ticketdata->AccountEmailLogID); 
 					 $ClosedTicketStatus   		 =  TicketsTable::getClosedTicketStatus();						 
 					 TicketsTable::where(["TicketID"=>$id])->update(["Read"=>1]);
-					 $AllEmailsTo		= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
+					 $AllEmailsTo				= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
+					 $TicketStatus				=	TicketsTable::getTicketStatusByID($ticketdata->Status);
 					
-					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester','ClosedTicketStatus','AllEmailsTo'));  		  
+					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester','ClosedTicketStatus','AllEmailsTo','TicketStatus'));  		  
 			}else{
           	  return view_response_api($response_details);
          	}			 
@@ -672,5 +673,11 @@ private $validlicense;
 			}
 		}
 		return $group;
+	}
+	
+	function UpdateTicketDueTime($id){
+		$postdata 			= 		Input::all();  
+		$response 			= 		NeonAPI::request('tickets/updateticketduetime/'.$id,$postdata,true,false,false);
+		return json_response_api($response);   
 	}
 }

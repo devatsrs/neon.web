@@ -504,7 +504,19 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/ticketsfields/ajax_ticketsfields', "TicketsFieldsController@ajax_ticketsfields");
 	Route::any('/ticketsfields/ajax_ticketsfields_choices', "TicketsFieldsController@Ajax_Ticketsfields_Choices");
 	Route::any('/ticketsfields/save_single_field', "TicketsFieldsController@Save_Single_Field");
-	Route::any('//ticketsfields/update_fields_sorting', "TicketsFieldsController@Update_Fields_Sorting");
+	Route::any('/ticketsfields/update_fields_sorting', "TicketsFieldsController@Update_Fields_Sorting");
+
+	Route::any('/tickets/sla_policies', "TicketsSlaController@index");
+	Route::any('/tickets/sla_policies/{id}/edit', "TicketsSlaController@index");
+	Route::any('/tickets/sla_policies/ajax_datagrid', "TicketsSlaController@ajax_datagrid");
+	Route::any('tickets/sla_policies/exports/{type}', 'TicketsSlaController@ajax_datagrid');
+	Route::any('/tickets/sla_policies/add', "TicketsSlaController@add");
+	Route::any('/tickets/sla_policies/store', "TicketsSlaController@store");
+	Route::any('/tickets/sla_policies/{id}/delete', 'TicketsSlaController@delete');
+	Route::any('/tickets/sla_policies/{id}/edit', 'TicketsSlaController@edit');
+	Route::any('/tickets/sla_policies/{id}/update', "TicketsSlaController@update");
+	Route::resource('sla_policies', 'TicketsSlaController');
+	Route::controller('sla_policies', 'TicketsSlaController');
 	
 	
 	
@@ -523,7 +535,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/tickets/{id}/update', "TicketsController@Update");
 	Route::any('/tickets/{id}/updatedetailpage', "TicketsController@UpdateDetailPage");
 	Route::any('/tickets/{id}/delete', "TicketsController@delete");
-	Route::any('/tickets/{id}/detail', "TicketsController@Detail");
+	Route::any('/tickets/{id}/detail', "TicketsController@Detail");	
+	Route::any('/tickets/{id}/updateTicketDueTime', "TicketsController@UpdateTicketDueTime");	
 	Route::post('tickets/ticket_action', 'TicketsController@TicketAction');
 	Route::post('tickets/{id}/updateticketattributes', 'TicketsController@UpdateTicketAttributes');
 	Route::post('tickets/{id}/actionsubmit', 'TicketsController@ActionSubmit');
@@ -534,7 +547,17 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('tickets/compose_email', 'TicketsController@ComposeEmail');	
 	Route::post('tickets/SendMail', 'TicketsController@SendMail');
 	Route::post('tickets/add_note', 'TicketsController@add_note');
-
+	
+	Route::any('businesshours', 'TicketsBusinessHoursController@index');
+	Route::any('businesshours/ajax_datagrid', 'TicketsBusinessHoursController@ajax_datagrid');
+	Route::any('businesshours/exports/{type}', 'TicketsBusinessHoursController@ajax_datagrid');
+	Route::any('businesshours/create', "TicketsBusinessHoursController@create");
+	Route::any('businesshours/store','TicketsBusinessHoursController@store');
+	Route::any('businesshours/{id}/delete', 'TicketsBusinessHoursController@delete');
+	Route::any('businesshours/{id}/edit', 'TicketsBusinessHoursController@edit');
+	Route::any('businesshours/{id}/update', "TicketsBusinessHoursController@update");
+	
+	
     Route::get('ticket_dashboard/summarywidgets', 'TicketDashboardController@ticketSummaryWidget');
     Route::get('ticket_dashboard/timelinewidgets/{limit}', 'TicketDashboardController@ticketTimeLineWidget');
 	
