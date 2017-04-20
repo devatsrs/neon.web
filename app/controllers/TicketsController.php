@@ -112,11 +112,13 @@ private $validlicense;
 		$data['iDisplayLength'] 	= 	 $data['per_page'];
 		$companyID					= 	 User::get_companyID();
 		$array						=  	 $this->GetResult($data);
-		
+
 		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
-			return	Redirect::to('/logout'); 	
+			return json_response_api($array);  
 		}		
-		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ Redirect::to('/login');}	
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
+			return json_response_api($array);  
+		}	
 		
 		$resultpage  				=  	 $array->resultpage;			
 		$result 					= 	 $array->ResultCurrentPage;
@@ -158,9 +160,12 @@ private $validlicense;
 		$array						=  	 $this->GetResult($data); 
 		
 		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
-			return	Redirect::to('/logout'); 	
+			return json_response_api($array);  
 		}		
-		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ Redirect::to('/login');}	
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
+			return json_response_api($array);  
+		}	
+
 		
 		$resultpage  				=  	 $array->resultpage;			
 		$result 					= 	 $array->ResultCurrentPage;		
