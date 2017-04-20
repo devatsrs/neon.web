@@ -36,11 +36,19 @@
              <!-- Second half of text show in 1 line -->
              @if($row->TimelineType == 3)
                  @if($row->TicketFieldID == Ticketfields::default_priority)
-                     <span>to {{$fieldPriority[$row->TicketFieldValueToID]}}</span>
+                    @if($row->TicketFieldValueToID > 0)
+                       <span>to {{$fieldPriority[$row->TicketFieldValueToID]}}</span>
+                    @else
+                      <span>none</span>
+                    @endif
                      <!-- assigned the ticket to agent name -->
                  @elseif($row->TicketFieldID == Ticketfields::default_agent)
                      <span>to</span>
-                     <a href="{{URL::to('users/edit/'.$row->TicketFieldValueToID)}}" target="_blank" class="notelink">{{$agents[$row->TicketFieldValueToID]}}</a>
+                     @if($row->TicketFieldValueToID > 0)
+                        <a href="{{URL::to('users/edit/'.$row->TicketFieldValueToID)}}" target="_blank" class="notelink">{{$agents[$row->TicketFieldValueToID]}}</a>
+                     @else
+                         <span>none</span>
+                     @endif
                  @elseif($row->TicketFieldID == 0)
                      @if($row->TicketSubmit == 0 && $row->CustomerType != 0)
                          <span>on the behalf of</span>
@@ -52,7 +60,11 @@
                          @endif
                      @endif
                  @else
-                     <span>to {{in_array($row->TicketFieldValueToID,$fieldValues)? $fieldValues[$row->TicketFieldValueToID]:''}}</span>
+                     @if($row->TicketFieldValueToID > 0)
+                        <span>to {{in_array($row->TicketFieldValueToID,$fieldValues)? $fieldValues[$row->TicketFieldValueToID]:''}}</span>
+                     @else
+                         <span>none</span>
+                     @endif
                  @endif
              @endif
              <br>
