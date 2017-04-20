@@ -17,6 +17,7 @@
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li> <a href="{{URL::to('businesshours')}}">Business Hours</a> </li>
+  <li><a><span>{{businesshours_dropbox($BusinessHoursData->ID)}}</span></a></li>
   <li class="active"> <strong>Edit Business Hours</strong> </li>
 </ol>
 <h3>Edit Business Hours</h3>
@@ -181,7 +182,7 @@
       <!-- -->
       <div class="panel panel-primary" data-collapsed="0">
         <div class="panel-heading">
-          <div class="panel-title">Yearly Holiday Information <span>(Holidays will be ignored when calculating SLA for a ticket)</span></div>
+          <div class="panel-title">Yearly Holiday Information <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Holidays will be ignored when calculating SLA for a ticket" data-original-title="Yearly Holiday Information" class="label label-info popover-primary">?</span> </div>
           <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
         </div>
         <div class="panel-body">

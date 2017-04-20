@@ -156,6 +156,16 @@ function rategenerators_dropbox($id=0,$data=array()){
     return Form::select('rategenerators', $all_rategenerators, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
+function businesshours_dropbox($id=0,$data=array()){
+    $all_Businesshours = TicketBusinessHours::getBusinesshours();
+    return Form::select('businesshours', $all_Businesshours, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+function slapolicies_dropbox($id=0,$data=array()){
+    $all_slapolicies = TicketSla::getSlapolicies();
+    return Form::select('slapolicies', $all_slapolicies, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
 function rate_tables_dropbox($id=0,$data=array()){
     $all_getRateTables = RateTable::getRateTables();
     return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
@@ -1058,7 +1068,7 @@ function check_uri($parent_link=''){
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
-	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard");
+	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
 	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
