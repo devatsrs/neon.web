@@ -42,7 +42,7 @@
                      <span>to</span>
                      <a href="{{URL::to('users/edit/'.$row->TicketFieldValueToID)}}" target="_blank" class="notelink">{{$agents[$row->TicketFieldValueToID]}}</a>
                  @elseif($row->TicketFieldID == 0)
-                     @if($row->TicketSubmit == 1 && $row->CustomerType != 0)
+                     @if($row->TicketSubmit == 0 && $row->CustomerType != 0)
                          <span>on the behalf of</span>
                          <!-- CustomerType = 1 ?'Account':'Contact'-->
                          @if($row->CustomerType == 1)
