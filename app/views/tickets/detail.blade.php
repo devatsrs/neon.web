@@ -148,11 +148,11 @@
                      <p><a class="blue_link" href="#">{{$TicketStatus}}</a><br>
                          @if($ClosedTicketStatus!=$ticketdata->Status)
                              @if($ticketdata->DueDate != '')
-                             {{get_ticket_due_date_human_readable($ticketdata,[ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
+                                 {{get_ticket_due_date_human_readable($ticketdata,[ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
                                  <br>on {{date('D, d M',strtotime($ticketdata->DueDate))}} at {{date('H:i A',strtotime($ticketdata->DueDate))}} <a class="blue_link clickable change_duetime"  ticket="{{$ticketdata->TicketID}}">Change</a>
                              @endif
                          @endif
-                     ></p>
+                     </p>
            		 </div>
             </div>          
             <div class="change_due_time form-group">
