@@ -61,7 +61,7 @@
                      @endif
                  @else
                      @if($row->TicketFieldValueToID > 0)
-                        <span>to {{in_array($row->TicketFieldValueToID,$fieldValues)? $fieldValues[$row->TicketFieldValueToID]:''}}</span>
+                        <span>to {{array_key_exists($row->TicketFieldValueToID,$fieldValues)? $fieldValues[$row->TicketFieldValueToID]:''}}</span>
                      @else
                          <span>none</span>
                      @endif
