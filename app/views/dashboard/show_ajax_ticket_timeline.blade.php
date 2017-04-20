@@ -59,6 +59,8 @@
                              <a href="{{URL::to('contacts/'.$row->CustomerID.'/show')}}" target="_blank" class="notelink">{{$contacts[$row->CustomerID]}}</a>
                          @endif
                      @endif
+                 @elseif($row->TicketFieldID == Ticketfields::default_description)
+
                  @else
                      @if($row->TicketFieldValueToID > 0)
                         <span>to {{array_key_exists($row->TicketFieldValueToID,$fieldValues)? $fieldValues[$row->TicketFieldValueToID]:''}}</span>
