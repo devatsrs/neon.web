@@ -1702,7 +1702,8 @@ function get_ticket_response_due_label($result_data,$options = array()) {
                         return '<div class="label label-warning">'.ucfirst($TicketStatusOnHold[$result_data->TicketStatus]).'</div>';
                     }
                 } else if(!empty($result_data->DueDate)) {
-                    return '<div class="label label-danger">RESPONSE OVERDUE</div>';
+
+                     return '<div class="label label-danger">RESPONSE OVERDUE</div>';
                 }
             }
         }
