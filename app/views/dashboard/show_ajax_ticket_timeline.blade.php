@@ -25,7 +25,16 @@
                 @endif
              @endif
              <a href="{{URL::to('/tickets/'.$row->TicketID.'/detail')}}" target="_blank" class="notelink">{{$row->Subject}}</a>
-             @if($row->TimelineType == 3)
+             @if($row->TimelineType == 1)
+                 @if($row->TicketSubmit == 1 && $row->CustomerType != 0)
+                     <span>on the behalf of</span>
+                     @if($row->CustomerType == 1)
+                        <a href="{{URL::to('accounts/'.$row->CustomerID.'/show')}}" target="_blank" class="notelink">{{$accounts[$row->CustomerID]}}</a>
+                     @elseif($row->CustomerType == 2)
+                         <a href="{{URL::to('contacts/'.$row->CustomerID.'/show')}}" target="_blank" class="notelink">{{$contacts[$row->CustomerID]}}</a>
+                     @endif
+                 @endif
+             @elseif($row->TimelineType == 3)
                  @if($row->TicketFieldID == Ticketfields::default_priority)
                      <span>to {{$fieldPriority[$row->TicketFieldValueToID]}}</span>
                  @elseif($row->TicketFieldID == Ticketfields::default_agent)

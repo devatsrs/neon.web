@@ -10,8 +10,9 @@ class TicketDashboardController extends \BaseController {
 
     public function ticketTimeLineWidget($start){
         $data 					   = 	Input::all();
+        $companyID                 =    User::get_companyID();
         $data['iDisplayStart'] 	   =	$start;
-        $data['iDisplayLength']    =    10;
+        $data['iDisplayLength']    =    20;
         $data['AccessPermission']  = TicketsTable::GetTicketAccessPermission();
         $response 				= 	NeonAPI::request('tickets/get_ticket_dashboard_timeline_widget',$data);
 
@@ -27,7 +28,9 @@ class TicketDashboardController extends \BaseController {
 
         $fieldValues = TicketfieldsValues::getFieldValueIDLIst();
         $fieldPriority = TicketPriority::getPriorityIDLIst();
-        $agents = User::select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->where(['CompanyID'=>User::get_companyID()])->lists('FullName', 'UserID');
-        return View::make('dashboard.show_ajax_ticket_timeline', compact('response','fieldValues','fieldPriority','agents'));
+        $agents = User::select(array(DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as FullName"), 'UserID'))->where(['CompanyID'=>$companyID])->lists('FullName', 'UserID');
+        $accounts = Account::where(['CompanyID'=>$companyID])->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        $contacts = Contact::getContacts();
+        return View::make('dashboard.show_ajax_ticket_timeline', compact('response','fieldValues','fieldPriority','agents','accounts','contacts'));
     }
 }
