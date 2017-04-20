@@ -34,18 +34,7 @@
              <!-- Ticket Name with link -->
              <a href="{{URL::to('/tickets/'.$row->TicketID.'/detail')}}" target="_blank" class="notelink">{{$row->Subject}}</a>
              <!-- Second half of text show in 1 line -->
-             @if($row->TimelineType == 1)
-                 <!--Ticket Submit by Email on the behalf of customer with link either account, contact -->
-                 @if($row->TicketSubmit == 1 && $row->CustomerType != 0)
-                     <span>on the behalf of</span>
-                     <!-- CustomerType = 1 ?'Account':'Contact'-->
-                     @if($row->CustomerType == 1)
-                        <a href="{{URL::to('accounts/'.$row->CustomerID.'/show')}}" target="_blank" class="notelink">{{$accounts[$row->CustomerID]}}</a>
-                     @elseif($row->CustomerType == 2)
-                         <a href="{{URL::to('contacts/'.$row->CustomerID.'/show')}}" target="_blank" class="notelink">{{$contacts[$row->CustomerID]}}</a>
-                     @endif
-                 @endif
-             @elseif($row->TimelineType == 3)
+             @if($row->TimelineType == 3)
                  @if($row->TicketFieldID == Ticketfields::default_priority)
                      <span>to {{$fieldPriority[$row->TicketFieldValueToID]}}</span>
                      <!-- assigned the ticket to agent name -->
@@ -53,7 +42,15 @@
                      <span>to</span>
                      <a href="{{URL::to('users/edit/'.$row->TicketFieldValueToID)}}" target="_blank" class="notelink">{{$agents[$row->TicketFieldValueToID]}}</a>
                  @elseif($row->TicketFieldID == 0)
-
+                     @if($row->TicketSubmit == 1 && $row->CustomerType != 0)
+                         <span>on the behalf of</span>
+                         <!-- CustomerType = 1 ?'Account':'Contact'-->
+                         @if($row->CustomerType == 1)
+                             <a href="{{URL::to('accounts/'.$row->CustomerID.'/show')}}" target="_blank" class="notelink">{{$accounts[$row->CustomerID]}}</a>
+                         @elseif($row->CustomerType == 2)
+                             <a href="{{URL::to('contacts/'.$row->CustomerID.'/show')}}" target="_blank" class="notelink">{{$contacts[$row->CustomerID]}}</a>
+                         @endif
+                     @endif
                  @else
                      <span>to {{$fieldValues[$row->TicketFieldValueToID]}}</span>
                  @endif
