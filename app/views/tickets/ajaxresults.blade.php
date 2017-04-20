@@ -48,9 +48,14 @@
           <tr><!-- new email class: unread -->
             <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
             <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span>
-              <?php if($result_data->Read==0){ if($ClosedTicketStatus!=$result_data->TicketStatus && $ResolvedTicketStatus!=$result_data->TicketStatus) {echo '<div class="label label-primary">New</div>'; }}else{if($result_data->CustomerResponse==$result_data->RequesterEmail){echo "<div class='label label-info'>CUSTOMER RESPONDED</div>";}else{ if($ClosedTicketStatus!=$result_data->TicketStatus && $ResolvedTicketStatus!=$result_data->TicketStatus) { echo '<div class="label label-warning">RESPONSE DUE</div>';} }} //if(empty($result_data->Agent)){echo '<div class="label label-danger">unassigned</div>';} ?><br>
+                {{get_ticket_response_due_label($result_data,[ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
+              <br>
              <a target="_blank" href="@if(!empty($result_data->ACCOUNTID)) {{URL::to('/')}}/accounts/{{$result_data->ACCOUNTID}}/show @elseif(!empty($result_data->ContactID)) contacts/{{$result_data->ContactID}}/show @else # @endif" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
-              <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?>, Overdue by 41 minutes</span> </td>
+              <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?>
+                  @if($result_data->DueDate != '')
+                  , {{get_ticket_due_date_human_readable($result_data, [ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
+                  @endif
+              </span> </td>
             <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
               <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>
               <div>Agent:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->Agent; ?></span></div>

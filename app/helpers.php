@@ -1638,3 +1638,39 @@ function getQuickBookAccountant(){
     $data =  AccountEmailLog::insertGetId($logData);
     return $data;
 }
+function get_ticket_due_date_human_readable($result_data , $options = array()) {
+
+    if(\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture()) {
+        $due_text = "Due in ";
+    }
+    else if (isset($options["skip"]) && !in_array($result_data->TicketStatus,$options["skip"]) ) {
+
+        $due_text = "  ";
+
+    } else {
+
+        $due_text = "Overdue by ";
+    }
+
+    $due_text .= \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->diffForHumans(null, true);
+
+    return $due_text;
+}
+function get_ticket_response_due_label($result_data,$options = array()) {
+
+    if($result_data->Read==0) {
+        if( isset($options["skip"]) && !in_array($result_data->TicketStatus,$options["skip"]) ) {
+            echo '<div class="label label-primary">New</div>';
+        }
+    }else{
+        if($result_data->CustomerResponse==$result_data->RequesterEmail){
+            echo "<div class='label label-info'>CUSTOMER RESPONDED</div>";
+        }else{
+            if (\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture() && isset($options["skip"]) && !in_array($result_data->TicketStatus,$options["skip"]) ) {
+                echo '<div class="label label-warning">RESPONSE DUE</div>';
+            }else {
+                echo '<div class="label label-danger">RESPONSE OVERDUE</div>';
+            }
+        }
+    }
+}
