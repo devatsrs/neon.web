@@ -64,7 +64,7 @@
             @if( User::checkCategoryPermission('Tickets','Edit'))
                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
                         aria-expanded="false">Action <span class="caret"></span></button>
-                <ul class="dropdown-menu dropdown-menu-left" role="menu"
+                <ul class="action dropdown-menu dropdown-menu-left" role="menu"
                     style="background-color: #000; border-color: #000; margin-top:0px;">
                     <li> <a id="bulk-assign" href="javascript:;"> Assign </a> </li>
                     <li> <a id="bulk-close" href="javascript:;" title="Shift+Close to skip notification mail" data-placement="top" data-toggle="tooltip"> Close </a> </li>
@@ -318,7 +318,7 @@ $(document).ready(function(e) {
         return SelectedIDs;
     }
 
-    $('.dropdown-menu li a').click(function(e){
+    $('.action li a').click(function(e){
         e.preventDefault();
         resetForm($('#BulkAction-form'),'ticket_bulk_option');
         var self = $(this);
