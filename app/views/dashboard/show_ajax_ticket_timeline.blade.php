@@ -49,6 +49,13 @@
                      @else
                          <span>none</span>
                      @endif
+                 @elseif($row->TicketFieldID == Ticketfields::default_group)
+                      <span>to</span>
+                     @if($row->TicketFieldValueToID > 0)
+                         <span>to {{$groups[$row->TicketFieldValueToID]}}</span>
+                     @else
+                         <span>none</span>
+                     @endif
                  @elseif($row->TicketFieldID == 0)
                      @if($row->TicketSubmit == 0 && $row->CustomerType != 0)
                          <span>on the behalf of</span>
