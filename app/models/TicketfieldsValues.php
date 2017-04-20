@@ -13,7 +13,7 @@ class TicketfieldsValues extends \Eloquent {
 	static $Status_Resolved = 'Resolved';
 	static $Status_UnResolved = 'All UnResolved';
 
-    public static $enable_cache = false;
+    public static $enable_cache = true;
 
     public static $cache = array(
         "ticketfieldsvalues_cache"    // all records in obj
