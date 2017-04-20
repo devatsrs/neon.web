@@ -78,7 +78,9 @@ private $validlicense;
          $iDisplayLength 			= 	 $data['iDisplayLength'];
          $totalResults 				= 	 0;
          $result = [];
-        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus","OpenTicketStatus"));  
+        //return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus","OpenTicketStatus"));  
+		
+       return View::make('tickets.index', compact('status','OpenTicketStatus','Priority','Groups','Agents','iDisplayLength','data'));  
 	  }	
 	  
 	  public function ajex_result() {
@@ -110,6 +112,12 @@ private $validlicense;
 		$data['iDisplayLength'] 	= 	 $data['per_page'];
 		$companyID					= 	 User::get_companyID();
 		$array						=  	 $this->GetResult($data);
+		
+		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
+			return	Redirect::to('/logout'); 	
+		}		
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ Redirect::to('/login');}	
+		
 		$resultpage  				=  	 $array->resultpage;			
 		$result 					= 	 $array->ResultCurrentPage;
 		$totalResults 				=    $array->totalcount; 
@@ -148,6 +156,12 @@ private $validlicense;
 		$data['iDisplayLength']		=	 100;	
 		$companyID					= 	 User::get_companyID();
 		$array						=  	 $this->GetResult($data); 
+		
+		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
+			return	Redirect::to('/logout'); 	
+		}		
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ Redirect::to('/login');}	
+		
 		$resultpage  				=  	 $array->resultpage;			
 		$result 					= 	 $array->ResultCurrentPage;		
 		$type						=	 $data['export_type'];
@@ -187,9 +201,8 @@ private $validlicense;
 		{
 			return $response->data;
 		}else{
-			return $response->message;
-		}
-		
+			return $response;
+		}		
 	}
 
 		function add()
@@ -667,7 +680,6 @@ private $validlicense;
 		if(is_array($data)){
 			foreach($data as $TicketData){
 				if(!in_array($TicketData->GroupName,$group)){
-					$GroupData   =  TicketGroups::where(["GroupName"=>$TicketData->GroupName])->pluck("GroupID");
 					$group[]	 =  $TicketData->GroupName;
 				}
 			}
