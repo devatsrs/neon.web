@@ -52,7 +52,7 @@
                          @endif
                      @endif
                  @else
-                     <span>to {{$fieldValues[$row->TicketFieldValueToID]}}</span>
+                     <span>to {{in_array($row->TicketFieldValueToID,$fieldValues)? $fieldValues[$row->TicketFieldValueToID]:''}}</span>
                  @endif
              @endif
              <br>
