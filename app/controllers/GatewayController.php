@@ -248,6 +248,7 @@ class GatewayController extends \BaseController {
         $response = array();
         if(!empty($CompanyGateway)){
             $getGatewayName = Gateway::getGatewayName($CompanyGateway->GatewayID);
+            $getGatewayName = in_array($getGatewayName,Gateway::$ftp_array)?'FTP':$getGatewayName;
             $response =  GatewayAPI::GatewayMethod($getGatewayName,$CompanyGateway->CompanyGatewayID,'testConnection');
         }
         if(isset($response['result']) && $response['result'] =='OK'){

@@ -1,7 +1,7 @@
 USE `Ratemanagement3`;
 
 ALTER TABLE `tblNote`
-	CHANGE COLUMN `UserID` `UserID` INT(11) NOT NULL DEFAULT '0' AFTER `AccountID`;
+	Add COLUMN `UserID` `UserID` INT(11) NOT NULL DEFAULT '0' AFTER `AccountID`;
 
 INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.Add', '1');
 INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('RecurringProfile.Edit', '1');
