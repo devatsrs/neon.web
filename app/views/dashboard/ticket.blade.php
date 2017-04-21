@@ -18,9 +18,8 @@
                                 <p> Unresolved</p></a></div>
                     </div>
 
-                    <!--if((count($TicketDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$TicketDashboardWidgets))
                     <div class="col-sm-2 col-xs-4">
-                        <div class="tile-stats tile-white">
+                        <div class="tile-stats tile-pink">
                             <div class="icon"><i class="entypo-calendar"></i></div>
                             <a target="_blank" class="undefined" data-startdate=""
                                                               data-enddate="" data-currency=""
@@ -30,10 +29,9 @@
                                 </div>
                                 <p>Overdue</p></a></div>
                     </div>
-                    endif
-                    if((count($TicketDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$TicketDashboardWidgets))
+
                     <div class="col-sm-2 col-xs-4">
-                        <div class="tile-stats tile-white">
+                        <div class="tile-stats tile-blue">
                             <div class="icon"><i class="entypo-hourglass"></i></div>
                             <a target="_blank" class="undefined" data-startdate=""
                                                               data-enddate="" data-currency=""
@@ -43,7 +41,6 @@
                                 </div>
                                 <p>Due Today</p></a></div>
                     </div>
-                    endif-->
 
                     <div class="col-sm-2 col-xs-4">
                         <div class="tile-stats tile-cyan">
@@ -182,6 +179,22 @@
                         option['sign'] = 'users';
                         option['class']     = 'tile-aqua';
                         option['url']   = '{{URL::to('tickets?status='.array_search('All UnResolved', $status))}}';
+                        widgets += buildbox(option);
+
+                        option["amount"] = response.OverDue;
+                        option["end"] = response.OverDue;
+                        option["type"] = 'OverDue';
+                        option['sign'] = 'calendar';
+                        option['class']     = 'tile-pink';
+                        option['url']   = '{{URL::to('tickets?status='.array_search('Open', $status))}}';
+                        widgets += buildbox(option);
+
+                        option["amount"] = response.DueToday;
+                        option["end"] = response.DueToday;
+                        option["type"] = 'DueToday';
+                        option['sign'] = 'hourglass';
+                        option['class']     = 'tile-blue';
+                        option['url']   = '{{URL::to('tickets?status='.array_search('Open', $status))}}';
                         widgets += buildbox(option);
 
                         option["amount"] = response.Open;
