@@ -43,6 +43,31 @@
     <div class="col-md-12">
         <form id="service-edit-form" method="post" class="form-horizontal form-groups-bordered">
 
+            <div class="panel panel-primary " data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Invoice Description
+                    </div>
+
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="field-1" class="col-md-2 control-label">Service Title
+                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This description will appear on the invoice" data-original-title="Service Title">?</span></label>
+                        </label>
+                        <div class="col-md-4">
+                            <input type="text" name="ServiceTitle" value="{{$ServiceTitle}}" class="form-control" id="field-5" placeholder="">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- Service Title For Invoice -->
+
             @include('accountsubscription.index')
             @include('accountoneoffcharge.index')
             @include('accounts.cli_tables')
@@ -60,30 +85,6 @@
                 </div>
 
                 <div class="panel-body">
-
-             <!-- Service Title For Invoice -->
-            <div class="panel panel-primary service-title-section-hide" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Service Title For Invoice
-                    </div>
-
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label for="field-1" class="col-md-2 control-label">Service Title</label>
-                        <div class="col-md-4">
-                            <input type="text" name="ServiceTitle" value="{{$ServiceTitle}}" class="form-control" id="field-5" placeholder="">
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            <!-- Service Title For Invoice -->
 
                     <!-- Account Tarrif start -->
             <div class="panel panel-primary tarrif-section-hide" data-collapsed="0">
@@ -304,8 +305,6 @@
         var OutDiscountPlanID = '{{$DiscountPlanID}}';
         var InDiscountPlanID = '{{$InboundDiscountPlanID}}';
 
-        var ServiceTitle = '{{$ServiceTitle}}'
-
         if(InTariffID =='' && OutTariffID ==''){
             $(".tarrif-section-hide").find('.panel-body').hide();
         }
@@ -313,11 +312,6 @@
         if(OutDiscountPlanID =='' && InDiscountPlanID ==''){
             $(".discount-section-hide").find('.panel-body').hide();
         }
-
-        if(ServiceTitle ==''){
-            $(".service-title-section-hide").find('.panel-body').hide();
-        }
-
 
         $("#save_service").click(function (ev) {
             ev.preventDefault();

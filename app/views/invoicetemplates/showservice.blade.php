@@ -311,7 +311,7 @@
             var Name = $('#InvoiceTemplateName').text();
             var Terms = $('.message').val();
             var FooterTerm = $('.invoiceFooterTerm').val();
-            var ServiceSplit =$('#ServiceSplit').val();
+            var ServiceSplit =$("#ServiceSplit").prop("checked");
 
            $('.invoice-editable').editable('submit', {
                url: '<?php echo URL::to('/invoice_template/'.$InvoiceTemplate->InvoiceTemplateID .'/update'); ?>',

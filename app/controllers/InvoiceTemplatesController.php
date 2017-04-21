@@ -47,11 +47,11 @@ class InvoiceTemplatesController extends \BaseController {
         }elseif($type==3){
 
             /* Default Value */
-            $test_detail='[{"Title":"Prefix","ValuesID":"1","UsageName":"Prefix","Status":true,"FieldOrder":1},{"Title":"Cli","ValuesID":"2","UsageName":"CLI","Status":true,"FieldOrder":2},{"Title":"Cld","ValuesID":"3","UsageName":"CLD","Status":true,"FieldOrder":3},{"Title":"Connect Time","ValuesID":"4","UsageName":"ConnectTime","Status":true,"FieldOrder":4},{"Title":"DisconnectTime","ValuesID":"4","UsageName":"Disconnect Time","Status":true,"FieldOrder":5},{"Title":"Billed_Duration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"Charged_Amount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":7}]';
+            $test_detail='[{"Title":"Prefix","ValuesID":"1","UsageName":"Prefix","Status":true,"FieldOrder":1},{"Title":"CLI","ValuesID":"2","UsageName":"CLI","Status":true,"FieldOrder":2},{"Title":"CLD","ValuesID":"3","UsageName":"CLD","Status":true,"FieldOrder":3},{"Title":"ConnectTime","ValuesID":"4","UsageName":"Connect Time","Status":true,"FieldOrder":4},{"Title":"DisconnectTime","ValuesID":"4","UsageName":"Disconnect Time","Status":true,"FieldOrder":5},{"Title":"BillDuration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":7}]';
 
             $detail_values  =  json_decode($test_detail,true);
 
-            $test_summary='[{"Title":"Trunk","ValuesID":"1","UsageName":"Trunk","Status":true,"FieldOrder":1},{"Title":"Prefix","ValuesID":"2","UsageName":"Prefix","Status":true,"FieldOrder":2},{"Title":"Country","ValuesID":"3","UsageName":"Country","Status":true,"FieldOrder":3},{"Title":"Description","ValuesID":"4","UsageName":"Description","Status":true,"FieldOrder":4},{"Title":"NoOfCalls","ValuesID":"5","UsageName":"No of calls","Status":true,"FieldOrder":5},{"Title":"Duration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"BillDuration","ValuesID":"7","UsageName":"Billed Duration","Status":true,"FieldOrder":7},{"Title":"AvgRatePerMin","ValuesID":"8","UsageName":"Avg Rate/Min","Status":true,"FieldOrder":8}]';
+            $test_summary='[{"Title":"Trunk","ValuesID":"1","UsageName":"Trunk","Status":true,"FieldOrder":1},{"Title":"Prefix","ValuesID":"2","UsageName":"Prefix","Status":true,"FieldOrder":2},{"Title":"Country","ValuesID":"3","UsageName":"Country","Status":true,"FieldOrder":3},{"Title":"Description","ValuesID":"4","UsageName":"Description","Status":true,"FieldOrder":4},{"Title":"NoOfCalls","ValuesID":"5","UsageName":"No of calls","Status":true,"FieldOrder":5},{"Title":"Duration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"BillDuration","ValuesID":"7","UsageName":"Billed Duration","Status":true,"FieldOrder":7},{"Title":"AvgRatePerMin","ValuesID":"8","UsageName":"Avg Rate/Min","Status":true,"FieldOrder":8},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":9}]';
             $summary_values  =  json_decode($test_summary,true);
 
             /* Default Value */
@@ -87,7 +87,7 @@ class InvoiceTemplatesController extends \BaseController {
             $data['CompanyID'] = $companyID;
             $data['ModifiedBy'] = User::get_user_full_name();
             if(!empty($data['ServicePage'])&& $data['ServicePage']==1){
-                $data['ServiceSplit'] = isset($data['ServiceSplit']) ? 1 : 0;
+                $data['ServiceSplit'] = $data['ServiceSplit']== 'true'?1:0;
             }else{
                 $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
                 $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
@@ -273,6 +273,8 @@ class InvoiceTemplatesController extends \BaseController {
             return View::make('invoicetemplates.serviceinvoice_pdf', compact('InvoiceTemplate','logo'));
         }elseif($type==2){
             return View::make('invoicetemplates.iteminvoice_pdf', compact('InvoiceTemplate','logo'));
+        }elseif($type==3){
+            return View::make('invoicetemplates.usageinvoice_pdf', compact('InvoiceTemplate','logo'));
         }
 
 
@@ -329,6 +331,10 @@ class InvoiceTemplatesController extends \BaseController {
             }
             if($type==2){
                 $body = View::make('invoicetemplates.itempdf', compact('InvoiceTemplate', 'logo','print_type'))->render();
+                $body = htmlspecialchars_decode($body);
+            }
+            if($type==3){
+                $body = View::make('invoicetemplates.usagepdf', compact('InvoiceTemplate', 'logo','print_type'))->render();
                 $body = htmlspecialchars_decode($body);
             }
 

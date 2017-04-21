@@ -217,7 +217,7 @@
                          'Name':Name,
                          'Terms':Terms,
                          'FooterTerm':FooterTerm,
-                         'ServicePage':1,
+                         'ServicePage':0,
                          'ServiceSplit':ServiceSplit
                         }
                },
