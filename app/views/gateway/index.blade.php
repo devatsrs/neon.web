@@ -75,6 +75,7 @@ var postdata;
 
         //show_loading_bar(40);
 		 $searchFilter.Gateway = $("#gateway_form [name='Gateway']").val();
+        var ftpGatewayID = {{$ftpGatewayID}};
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -199,6 +200,7 @@ var postdata;
 
     $('#add-new-config').click(function(ev){
         ev.preventDefault();
+        $('#CDRMapping').addClass('hidden');
         $('#add-new-config-form').trigger("reset");
         $("#add-new-config-form [name='CompanyGatewayID']").val('');
         //$("#GatewayID").select2().select2('val','');
@@ -216,6 +218,7 @@ var postdata;
     $('table tbody').on('click','.edit-config',function(ev){
         ev.preventDefault();
         ev.stopPropagation();
+        $('#CDRMapping').addClass('hidden');
         $('#add-new-config-form').trigger("reset");
         var prevrow = $(this).prev("div.hiddenRowData");
         $("#add-new-config-form [name='CompanyGatewayID']").val(prevrow.find("input[name='CompanyGatewayID']").val())
@@ -231,6 +234,10 @@ var postdata;
         GatewayID = prevrow.find("input[name='GatewayID']").val()>0?prevrow.find("input[name='GatewayID']").val():'other';
         $("#GatewayID").select2().select2('val',GatewayID);
         $("#GatewayID").trigger('change');
+
+        if(GatewayID == ftpGatewayID){
+            $('#CDRMapping').removeClass('hidden');
+        }
 
         $('#add-new-modal-config h4').html('Edit Gateway');
         $('#add-new-modal-config').modal('show');
@@ -437,22 +444,16 @@ var postdata;
             }
         });
 
+        $('#cdrtemplatelink').click(function(e){
+            e.preventDefault();
+            var GatewayID = $('#add-new-config-form [name="CompanyGatewayID"]').val();
+            var url = "{{URL::to('cdr_template')}}"+"?gateway="+GatewayID;
+            openInNewTab(url);
+        });
+
         function initializeSelect2(){
-            $("#ajax_config_html .select2").each(function(i, el)
-            {
-                var $this = $(el),
-                        opts = {
-                            allowClear: attrDefault($this, 'allowClear', false)
-                        };
-                if($this.hasClass('small')){
-                    opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
-                    opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search')
-                }
-                $this.select2(opts);
-                if($this.hasClass('small')){
-                    $this.select2('container').find('.select2-search').addClass ('hidden') ;
-                }
-                //$this.select2("open");
+            $("#ajax_config_html .select2").each(function(i, el) {
+                buildselect2(el);
             }).promise().done(function(){
                 $('.select2').css('visibility','visible');
             });
@@ -553,6 +554,14 @@ var postdata;
                         <input type="hidden"  name="Status" value="0">
                     </div>
                 </div>
+                    <div id="CDRMapping" class="row hidden">
+                        <label for="field-5" class="control-label col-md-3">CDR Mapping</label>
+                        <div class="clear col-md-3">
+                            <a id="cdrtemplatelink" href="#" target="_blank" class="btn btn-primary btn-sm btn-icon icon-left">
+                                <i class="entypo-link"></i>CDR Mapping
+                            </a>
+                        </div>
+                    </div>
                 <div class="modal-footer">
                     <button type="submit" id="config-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>

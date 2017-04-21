@@ -1127,7 +1127,7 @@ function check_uri($parent_link=''){
             return 'opened';
         }
 		
-		 if(in_array($controller,$array_tickets) && $parent_link =='tickets')
+		 if(in_array($controller,$array_tickets) && $parent_link =='tickets' && $path_array[1]!='@monitor_dashboard')
         {
             return 'opened';
         }

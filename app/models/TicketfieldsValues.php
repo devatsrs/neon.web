@@ -14,14 +14,16 @@ class TicketfieldsValues extends \Eloquent {
 	static $Status_UnResolved = 'All UnResolved';
 	static $Status_Open = 'Open';
 
-    public static $enable_cache = false;
+    public static $enable_cache = true;
 
     public static $cache = array(
         "ticketfieldsvalues_cache"    // all records in obj
     );
 
     public static function getFieldValueIDLIst(){
-
+        $LicenceKey = getenv('LICENCE_KEY');
+        $CompanyName = getenv('COMPANY_NAME');
+        $ticketfieldsvalues_cache = 'ticketfieldsvalues_cache' . $LicenceKey.$CompanyName;
         if (self::$enable_cache && Cache::has('ticketfieldsvalues_cache')) {
             //check if the cache has already the ```user_defaults``` item
             $admin_defaults = Cache::get('ticketfieldsvalues_cache');
@@ -34,6 +36,10 @@ class TicketfieldsValues extends \Eloquent {
 
             //cache the database results so we won't need to fetch them again for 10 minutes at least
             Cache::forever('ticketfieldsvalues_cache', array('ticketfieldsvalues_cache' => self::$cache['ticketfieldsvalues_cache']));
+            $CACHE_EXPIRE = CompanyConfiguration::get('CACHE_EXPIRE');
+            $time = empty($CACHE_EXPIRE)?60:$CACHE_EXPIRE;
+            $minutes = \Carbon\Carbon::now()->addMinutes($time);
+            Cache::add($ticketfieldsvalues_cache, array('ticketfieldsvalues_cache' => self::$cache['ticketfieldsvalues_cache']), $minutes);
         }
         return self::$cache['ticketfieldsvalues_cache'];
     }

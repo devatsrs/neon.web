@@ -41,6 +41,7 @@ class Estimate extends \Eloquent {
             $EstimateDetail 	= 	EstimateDetail::where(["EstimateID" => $EstimateID])->get();
             $EstimateTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>0])->orderby('EstimateTaxRateID')->get();
 			//$EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>1])->orderby('EstimateTaxRateID')->get();
+            $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice();
 			$EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')
                     ->select('TaxRateID', 'Title', DB::Raw('sum(TaxAmount) as TaxAmount'))
                     ->where("EstimateID", $EstimateID)
@@ -73,7 +74,7 @@ class Estimate extends \Eloquent {
             $file_name 						= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.pdf';
             $htmlfile_name 					= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.html';
 			$print_type = 'Estimate';
-            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','EstimateTaxRates','EstimateAllTaxRates'))->render();
+            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','EstimateTaxRates','EstimateAllTaxRates','taxes'))->render();
             $body 	= 	htmlspecialchars_decode($body); 
             $footer = 	View::make('estimates.pdffooter', compact('Estimate','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);
