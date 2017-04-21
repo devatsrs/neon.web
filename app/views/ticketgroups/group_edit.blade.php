@@ -90,14 +90,12 @@
     </div>
   </div>
 </div>
-<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css')}}">
 <style>
 .email-activation span:first-child{text-decoration:line-through;}
 .email-activation span:nth-child(2){color:red;}
 </style>
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script type="text/javascript">
+    var editor_options 	 	=  		{};
     jQuery(document).ready(function($) {
     // Replace Checboxes
         $(".save.btn").click(function(ev) {
@@ -162,22 +160,8 @@
 				}
 				});	
 		return false;		
-    });	
-		$('.wysihtml5box').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});
-				
+    });
+		show_summernote($('.wysihtml5box'),editor_options);
 		$('.ValidateSmtp').click(function(e) {
 			 console.log('form submitted');
 			e.preventDefault();

@@ -98,19 +98,16 @@
 						var task_type_del 		=    $('#add-modal-task #Task_type').val();
 						if(task_type_del=={{Task::Note}})
 						{
-							$('#box-1 .wysihtml5-sandbox').contents().find('body').html('');
-							ShowToastr("success","Note Successfully Created");  
+							ShowToastr("success","Note Successfully Created");
 							document.getElementById('notes-from').reset();
 						}
 						if(task_type_del=={{Task::Mail}})
 						{
 							 document.getElementById('email-from').reset();	
 							 $('.email_template').change();		
-							 $('#box-2 .wysihtml5-sandbox').contents().find('body').html('');
 						}
 						
-						$('#box-1 .wysihtml5-sandbox').contents().find('body').html('');
-						ShowToastr("success","Task Successfully Created");              
+						ShowToastr("success","Task Successfully Created");
 						var empty_ul = 0;
 						if($("#timeline-ul").length == 0) {
 							var html_ul = ' <ul class="cbp_tmtimeline" id="timeline-ul"> <li></li></ul>';

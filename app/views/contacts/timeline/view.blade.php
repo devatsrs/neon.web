@@ -340,10 +340,6 @@
 @include('includes.submit_note_script',array("controller"=>"contacts")) 
 @include("contacts.timeline.activity_jscode",array("response_extensions"=>$response_extensions,"AccountID"=>$contacts->ContactID,"per_scroll"=>$per_scroll,"token"=>$random_token))
 @include('contacts.timeline.view_edit_models')
-<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/select2/select2.js"></script> 
 <script>
   jQuery(document).ready(function ($) {
     $("body").popover({

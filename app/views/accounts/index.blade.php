@@ -203,6 +203,7 @@
         view = 2;
     }
     var readonly = ['Company','Phone','Email','ContactName'];
+    var editor_options 	  =  		{"leadoptions":true};
     jQuery(document).ready(function ($) {
 		
 		function check_status(){
@@ -877,26 +878,11 @@
 
         $('#modal-BulkMail').on('shown.bs.modal', function(event){
             var modal = $(this);
-			modal.find('.message').wysihtml5({
-					"font-styles": true,
-                "emphasis": true,
-                "leadoptions":true,
-                "Crm":false,
-                "lists": true,
-                "html": true,
-                "link": true,
-                "image": true,
-                "color": false,
-					parser: function(html) {
-						return html;
-					}
-				});
+            show_summernote(modal.find(".message"),editor_options);
         });
 
         $('#modal-BulkMail').on('hidden.bs.modal', function(event){
             var modal = $(this);
-            modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-            modal.find('.message').show();
         });
 
         $(document).on('click','#bulk-Ratesheet,.sendemail',function(){
@@ -1085,8 +1071,7 @@
         }
         function editor_reset(data){
             var modal = $("#modal-BulkMail");
-            modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-            modal.find('.message').show();
+            show_summernote(modal.find(".message"),editor_options);
             if(!Array.isArray(data)){
                 var EmailTemplate = data['EmailTemplate'];
                 modal.find('[name="subject"]').val(EmailTemplate.Subject);
@@ -1095,20 +1080,6 @@
                 modal.find('[name="subject"]').val('');
                 modal.find('.message').val('');
             }
-            modal.find('.message').wysihtml5({
-					"font-styles": true,
-                "emphasis": true,
-                "leadoptions":true,
-                "Crm":false,
-                "lists": true,
-                "html": true,
-                "link": true,
-                "image": true,
-                "color": false,
-					parser: function(html) {
-						return html;
-					}
-				});
         }
     });
 
@@ -1166,9 +1137,6 @@
 
 	.li_active{display:none;}
 </style>
-<link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
-<script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
-<script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 @include('opportunityboards.opportunitymodal')
 @include('accounts.unbilledreportmodal')
 @include('accounts.bulk_email')
