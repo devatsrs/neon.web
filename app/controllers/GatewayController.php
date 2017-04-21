@@ -37,8 +37,9 @@ class GatewayController extends \BaseController {
     {
         $gateway 			= 	Gateway::getGatewayListID();
         $timezones 			= 	TimeZone::getTimeZoneDropdownList();
+        $ftpGatewayID       =   Gateway::getGatewayID(Gateway::GATEWAY_FTP);
        // $gateway['other'] 	= 	'other';
-        return View::make('gateway.index', compact('gateway','timezones','id'));
+        return View::make('gateway.index', compact('gateway','timezones','ftpGatewayID','id'));
     }
 
     /**
@@ -247,6 +248,7 @@ class GatewayController extends \BaseController {
         $response = array();
         if(!empty($CompanyGateway)){
             $getGatewayName = Gateway::getGatewayName($CompanyGateway->GatewayID);
+            $getGatewayName = in_array($getGatewayName,Gateway::$ftp_array)?'FTP':$getGatewayName;
             $response =  GatewayAPI::GatewayMethod($getGatewayName,$CompanyGateway->CompanyGatewayID,'testConnection');
         }
         if(isset($response['result']) && $response['result'] =='OK'){

@@ -61,6 +61,31 @@
     </form>
   </div>
 </div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="input-group-btn pull-right" style="width:70px;">
+            @if( User::checkCategoryPermission('Tickets','Edit'))
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+                        aria-expanded="false">Action <span class="caret"></span></button>
+                <ul class="action dropdown-menu dropdown-menu-left" role="menu"
+                    style="background-color: #000; border-color: #000; margin-top:0px;">
+                    <li> <a id="bulk-assign" href="javascript:;"> Assign </a> </li>
+                    <li> <a id="bulk-close" href="javascript:;" title="Shift+Close to skip notification mail" data-placement="top" data-toggle="tooltip"> Close </a> </li>
+                    <li> <a id="bulk-delete" href="javascript:;"> Delete </a> </li>
+                    <li> <a id="bulk-action" href="javascript:;"> Bulk Actions </a> </li>
+                </ul>
+            @endif
+            <form id="clear-bulk-rate-form">
+                <input type="hidden" name="CustomerRateIDs" value="">
+            </form>
+        </div>
+        <!-- /btn-group -->
+        <div class="clear"><br>
+        </div>
+    </div>
+</div>
+
 <!-- mailbox start -->
 <div class="mail-env"> 
   <!-- Mail Body start -->
@@ -93,6 +118,11 @@
 .customerresponded{color:#008ff9;}
 .per_page{margin-left:10px; margin-top:5px; }
 .paginationTicket{width:85px;}
+#modal-bulk-actions .control-label>span{
+        position: relative;
+        bottom: 2px;
+        left:   5px;
+}
 </style>
 <script type="text/javascript">
 	
@@ -101,7 +131,7 @@ $(document).ready(function(e) {
 	var currentpage 	= 	-1;
 	var next_enable 	= 	1;
 	var back_enable 	= 	1;
-	var per_page 		= 	<?php echo $iDisplayLength; ?>;
+	var per_page 		= 	{{$iDisplayLength}}
 	var clicktype		=	'';
 	var ajax_url 		= 	baseurl+'/tickets/ajex_result';
 	var ajax_url_export	= 	baseurl+'/tickets/ajex_result_export';
@@ -283,6 +313,171 @@ $(document).ready(function(e) {
         });
     });
 
+    function getselectedIDs(){
+        var SelectedIDs = [];
+        $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+            SelectedIDs[i++] = $(this).val();
+        });
+        return SelectedIDs;
+    }
+
+    $('.action li a').click(function(e){
+        e.preventDefault();
+        resetForm($('#BulkAction-form'),'ticket_bulk_option');
+        var self = $(this);
+        var modal = $('#modal-bulk-actions');
+        modal.find('[name="isSendEmail"]').val(1);
+        if(e.shiftKey){
+            modal.find('[name="isSendEmail"]').val(0);
+        }
+        $("#bulk-submit").button('reset');
+        modal.find('.col-md-12').addClass('col-md-4').removeClass('col-md-12');
+        modal.find('.col-md-4').each(function(){
+            $(this).addClass('hidden');
+            $(this).find('[type="checkbox"]').addClass('hidden');
+        });
+        modal.find('.modal-dialog').removeClass('modal-sm');
+        if($(this).prop('id')=='bulk-action'){
+            modal.find('.modal-title').text('Bulk Actions');
+            modal.find('.col-md-4').each(function(){
+                $(this).removeClass('hidden');
+                $(this).find('[type="checkbox"]').removeClass('hidden');
+            })
+        }else if($(this).prop('id')=='bulk-assign'){
+            modal.find('.modal-title').text('Bulk Assign');
+            modal.find('#agent').removeClass('hidden col-md-4').addClass('col-md-12');
+            modal.find('.modal-dialog').addClass('modal-sm');
+        }else if($(this).prop('id')=='bulk-close'){
+            modal.find('.modal-title').text('Bulk Close');
+            modal.find('#status').removeClass('hidden col-md-4').addClass('col-md-12');
+            modal.find('[name="Status"]').val('{{array_search(TicketfieldsValues::$Status_Closed,$status)}}').trigger('change');
+            modal.find('.modal-dialog').addClass('modal-sm');
+        }else if($(this).prop('id')=='bulk-delete'){
+            var SelectedIDs = getselectedIDs();
+            if (SelectedIDs.length == 0) {
+                toastr.error('Please select at least one Ticket.', "Error", toastr_opts);
+                return false;
+            }else {
+                if(confirm("Are you sure you want to delete selected tickets")) {
+                    var url = baseurl + '/tickets/bulkdelete';
+                    $.post(url, {"SelectedIDs": SelectedIDs.join(",")}, function (response) {
+                        if (response.status == 'success') {
+                            $('#tickets_filter').submit();
+                            toastr.success(response.message, "Success", toastr_opts);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    });
+                }
+            }
+            return true;
+        }
+        $('#modal-bulk-actions').modal('show');
+    });
+
+    $('#BulkAction-form').submit(function(e){
+        e.preventDefault();
+        var SelectedIDs = getselectedIDs();
+        if (SelectedIDs.length == 0) {
+            $('#modal-bulk-actions').modal('hide');
+            toastr.error('Please select at least one Ticket.', "Error", toastr_opts);
+            return false;
+        }else {
+            var selectedIDs = $(this).find('[name="selectedIDs"]').val(SelectedIDs.join(","));
+            var url = baseurl + '/tickets/bulkactions';
+            showAjaxScript(url, new FormData(($('#BulkAction-form')[0])), function (response) {
+                $("#bulk-submit").button('reset');
+                if (response.status == 'success') {
+                    $('#tickets_filter').submit();
+                    $('#modal-bulk-actions').modal('hide');
+                    toastr.success(response.message, "Success", toastr_opts);
+                } else {
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            });
+        }
+    });
+
+    $('#modal-bulk-actions .select2').change(function(e){
+        var self = $(this);
+        var label = self.siblings('.control-label');
+        if(self.val() > 0){
+            label.find('[type="checkbox"]').prop('checked',true);
+            label.find('span').css('font-weight',700);
+        }else{
+            label.find('[type="checkbox"]').prop('checked',false);
+            label.find('span').css('font-weight',400);
+        }
+    });
+
+    $('#modal-bulk-actions [type="checkbox"]').change(function(){
+        var self = $(this);
+        if(self.prop('checked')){
+            self.siblings('span').css('font-weight',700);
+        }else{
+            self.siblings('span').css('font-weight',400);
+            self.parents('.control-label').siblings('.select2').val(0).trigger('change');
+        }
+    });
+
 });
 </script> 
-@stop 
+@stop
+
+@section('footer_ext')
+    @parent
+    <div class="modal fade" id="modal-bulk-actions">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="BulkAction-form" method="post" action="" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Bulk Actions</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div id="type" class="col-md-4">
+                                <div class="form-group">
+                                    <label for="field-1" class="control-label"><input type="checkbox" name="TypeCheck"> <span>Type</span></label>
+                                    {{Form::select('Type',$Type,'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
+                            <div id="status" class="col-md-4">
+                                <div class="form-group">
+                                    <label for="field-3" class="control-label"><input type="checkbox"  name="StatusCheck"><span>Status</span></label>
+                                    {{Form::select('Status',$status,'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
+                            <div id="priority" class="col-md-4">
+                                <div class="form-group">
+                                    <label for="field-3" class="control-label"><input type="checkbox"  name="PriorityCheck"><span>Priority</span></label>
+                                    {{Form::select('Priority',$Priority,'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div id="group" class="col-md-4">
+                                <div class="form-group">
+                                    <label for="field-1" class="control-label"><input type="checkbox"  name="GroupCheck"><span>Group</span></label>
+                                    {{Form::select('Group',$Groups,'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
+                            <div id="agent" class="col-md-4">
+                                <div class="form-group">
+                                    <label for="field-3" class="control-label"><input type="checkbox"  name="AgentCheck"><span>Agent</span></label>
+                                    {{Form::select('Agent',$Agents,'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="selectedIDs" />
+                    <input type="hidden" name="isSendEmail" value="1" />
+                    <div class="modal-footer">
+                        <button  type="submit" id="bulk-submit" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@stop

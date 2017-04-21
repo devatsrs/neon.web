@@ -2735,6 +2735,7 @@ function setDefaultValue(type,field){
     defaultValue.billing_class = {PaymentDueInDays:1,RoundChargesAmount:2};
     defaultValue.currency = {Code:{readonly:false}};
     defaultValue.item_and_Subscription = {CurrencyID:{disabled:true}};
+    defaultValue.ticket_bulk_option = {Type:0,Status:0,Priority:0,Group:0,Agent:0};
     if(defaultValue.hasOwnProperty(type)){
         var sub = defaultValue[type];
         if(sub.hasOwnProperty(field.attr('name'))){
@@ -3159,6 +3160,11 @@ function select_all_top(selectallbutton,table,selectall) {
         }
     });
 }
+function openInNewTab(url) {
+    var redirectWindow = window.open(url, '_blank');
+    redirectWindow.location;
+}
+
 try{
     if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 && $(".notifications.cron_jobs.dropdown").has("#failing_placeholder").length > 0 ) {
         setInterval(function () {
