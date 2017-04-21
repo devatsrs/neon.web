@@ -1,12 +1,5 @@
 USE `Ratemanagement3`;
 
-ALTER TABLE `tblNote`
-	ADD COLUMN `UserID` INT(11) NOT NULL AFTER `AccountID`;
-
-ALTER TABLE `tblTicketDashboardTimeline`
-	ADD COLUMN `CustomerType` INT(11) NULL DEFAULT '0' COMMENT '0 for user,1 for Account,2 for Contact' AFTER `CustomerID`;
-
-
 INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('TicketDashboardSummaryWidgets.View', '1');
 INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('TicketDashboardTimeLineWidgets.View', '1');
 
