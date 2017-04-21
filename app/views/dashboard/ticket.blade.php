@@ -21,7 +21,7 @@
                     <div class="col-sm-2 col-xs-4">
                         <div class="tile-stats tile-pink">
                             <div class="icon"><i class="entypo-calendar"></i></div>
-                            <a target="_blank" class="undefined" data-startdate=""
+                            <a target="_top" class="undefined" data-startdate=""
                                                               data-enddate="" data-currency=""
                                                               href="javascript:void(0)">
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
@@ -33,7 +33,7 @@
                     <div class="col-sm-2 col-xs-4">
                         <div class="tile-stats tile-blue">
                             <div class="icon"><i class="entypo-hourglass"></i></div>
-                            <a target="_blank" class="undefined" data-startdate=""
+                            <a target="_top" class="undefined" data-startdate=""
                                                               data-enddate="" data-currency=""
                                                               href="javascript:void(0)">
                                 <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
@@ -172,49 +172,50 @@
                     if(response.status == 'success') {
                         var option = [];
                         var widgets = '';
-                        response = response.data.pop();
-                        option["amount"] = response.UnResolved;
-                        option["end"] = response.UnResolved;
+                        data1 = response.data[0];
+                        data2 = response.data[1];
+                        option["amount"] = data1.UnResolved;
+                        option["end"] = data1.UnResolved;
                         option["type"] = 'Unresolved';
                         option['sign'] = 'users';
                         option['class']     = 'tile-aqua';
                         option['url']   = '{{URL::to('tickets?status='.array_search('All UnResolved', $status))}}';
                         widgets += buildbox(option);
 
-                        option["amount"] = response.OverDue;
-                        option["end"] = response.OverDue;
+                        option["amount"] = data2.OverDue;
+                        option["end"] = data2.OverDue;
                         option["type"] = 'OverDue';
                         option['sign'] = 'calendar';
                         option['class']     = 'tile-pink';
-                        option['url']   = '{{URL::to('tickets?status='.array_search('Open', $status))}}';
+                        option['url']   = '#';
                         widgets += buildbox(option);
 
-                        option["amount"] = response.DueToday;
-                        option["end"] = response.DueToday;
+                        option["amount"] = data2.DueToday;
+                        option["end"] = data2.DueToday;
                         option["type"] = 'DueToday';
                         option['sign'] = 'hourglass';
                         option['class']     = 'tile-blue';
-                        option['url']   = '{{URL::to('tickets?status='.array_search('Open', $status))}}';
+                        option['url']   = '#';
                         widgets += buildbox(option);
 
-                        option["amount"] = response.Open;
-                        option["end"] = response.Open;
+                        option["amount"] = data1.Open;
+                        option["end"] = data1.Open;
                         option["type"] = 'Open';
                         option['sign'] = 'ticket';
                         option['class']     = 'tile-cyan';
                         option['url']   = '{{URL::to('tickets?status='.array_search('Open', $status))}}';
                         widgets += buildbox(option);
 
-                        option["amount"] = response.OnHold;
-                        option["end"] = response.OnHold;
+                        option["amount"] = data1.OnHold;
+                        option["end"] = data1.OnHold;
                         option["type"] = 'On Hold';
                         option['sign'] = 'clock';
                         option['class']     = 'tile-orange';
                         option['url']   = '{{URL::to('tickets?status='.array_search('Pending', $status).(!empty($statusOnHold)?','.implode(',',array_keys($statusOnHold)):''))}}';
                         widgets += buildbox(option);
 
-                        option["amount"] = response.UnAssigned;
-                        option["end"] = response.UnAssigned;
+                        option["amount"] = data1.UnAssigned;
+                        option["end"] = data1.UnAssigned;
                         option["type"] = 'Unassigned';
                         option['sign'] = 'help';
                         option['class']     = 'tile-red';
@@ -235,7 +236,8 @@
                 html = '<div class="col-sm-2 col-xs-4">';
                 html += ' <div class="tile-stats '+option['class']+'">';
                 html += '<div class="icon"><i class="entypo-' + option['sign'] + '"></i></div>';
-                html += '  <a href="' + option['url'] + '" target="_blank">';
+                target=option['url']=='#'?'_top':'_blank';
+                html += '  <a href="' + option['url'] + '" target="'+target+'">';
                 html += '   <div class="num" data-start="0" data-end="' + option['end'] + '" data-duration="1500" data-delay="1200">' + option['amount'] + '</div>';
                 html += '    <p>' + option['type'] + '</p>';
                 html += '  </a>';
