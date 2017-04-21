@@ -35,8 +35,8 @@ class Ticketfields extends \Eloquent {
     const   default_status          =   4;
     const   default_priority        =   5;
     const   default_group           =   6;
-    const   default_description     =   7;
-    const   default_agent           =   8;
+    const   default_description     =   8;
+    const   default_agent           =   7;
 
     static  $defaultTicketFields = [
         Ticketfields::default_requester=>'Search a requester',

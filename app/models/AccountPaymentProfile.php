@@ -69,6 +69,10 @@ class AccountPaymentProfile extends \Eloquent
 
     public static function paynow($CompanyID, $AccountID, $Invoiceids, $CreatedBy, $AccountPaymentProfileID)
     {
+        $data = [];
+        $data['CompanyName'] 		= 	Company::getName($CompanyID);
+        $data['ComapnyID']          =   $CompanyID;
+        $data['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
         $Invoices = explode(',', $Invoiceids);
         $fullnumber = '';
         if(count($Invoices)>0){
@@ -142,6 +146,10 @@ class AccountPaymentProfile extends \Eloquent
                             $transactiondata['ModifyBy'] = $CreatedBy;
                             TransactionLog::insert($transactiondata);
                             $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
+                            $data['Invoice'] = $Invoice;
+                            $data['InvoiceID'] = $Invoice->InvoiceID;
+                            $data['AccountID'] = $Invoice->AccountID;
+                            Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$data);
                         }
                     }
                     return json_encode(array("status" => "success", "message" => "All Invoice Paid Successfully"));
