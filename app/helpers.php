@@ -1678,28 +1678,28 @@ function get_ticket_due_date_human_readable($result_data , $options = array()) {
 function get_ticket_response_due_label($result_data,$options = array()) {
 
     if($result_data->Read==0) {
-        if( isset($options["skip"]) && !in_array($result_data->TicketStatus,$options["skip"]) ) {
+        if( isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
             return '<div class="label label-primary">New</div>';
         }
     }else{
         if($result_data->CustomerResponse==$result_data->RequesterEmail){
             return "<div class='label label-info'>CUSTOMER RESPONDED</div>";
         }else{
-            if (\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture() && isset($options["skip"]) && !in_array($result_data->TicketStatus,$options["skip"]) ) {
+            if (\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture() && isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
                 return '<div class="label label-warning">RESPONSE DUE</div>';
             }else {
 
-                if (isset($options["skip"]) && in_array($result_data->TicketStatus,$options["skip"]) ) {  //closed or resolved
+                if (isset($options["skip"]) && in_array($result_data->Status,$options["skip"]) ) {  //closed or resolved
 
                     $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
-                    if(in_array($result_data->TicketStatus,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->TicketStatus])){
-                        return '<div class="label label-danger">'.ucfirst($TicketStatusOnHold[$result_data->TicketStatus]).'</div>';
+                    if(in_array($result_data->Status,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->Status])){
+                        return '<div class="label label-danger">'.ucfirst($TicketStatusOnHold[$result_data->Status]).'</div>';
                     }
-                } else if (in_array($result_data->TicketStatus,TicketsTable::getTicketStatusOnHold())) {  // SLATimer=off
+                } else if (in_array($result_data->Status,TicketsTable::getTicketStatusOnHold())) {  // SLATimer=off
 
                     $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
-                    if(in_array($result_data->TicketStatus,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->TicketStatus])) {
-                        return '<div class="label label-warning">'.ucfirst($TicketStatusOnHold[$result_data->TicketStatus]).'</div>';
+                    if(in_array($result_data->Status,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->Status])) {
+                        return '<div class="label label-warning">'.ucfirst($TicketStatusOnHold[$result_data->Status]).'</div>';
                     }
                 } else if(!empty($result_data->DueDate)) {
 
