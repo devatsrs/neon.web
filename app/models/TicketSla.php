@@ -40,5 +40,12 @@ class TicketSla extends \Eloquent {
 		'2 Week'=>"After 2 Weeks",
 		'1 Month'=>"After 1 Month",		
 	);
+	
+	public static function getSlapolicies(){
+        $compantID 		= 	User::get_companyID();
+        $where 			= 	['CompanyID'=>$compantID];      
+        $Slapolicies 	= 	TicketSla::select(['TicketSlaID','Name'])->where($where)->orderBy('Name', 'asc')->lists('Name','TicketSlaID');        
+        return $Slapolicies;
+    }
 }
 

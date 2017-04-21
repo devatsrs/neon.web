@@ -39,6 +39,12 @@
             </div>
           </div>
           <div class="form-group">
+            <label for="GroupDescription" class="col-sm-3 control-label">Business Hours</label>
+            <div class="col-sm-9">
+             {{Form::select('GroupBusinessHours', $businessHours,$ticketdata->GroupBusinessHours,array("class"=>"select2","id"=>"GroupBusinessHours"))}}  
+            </div>
+          </div>          
+          <div class="form-group">
             <label for="GroupAgent" class="col-sm-3 control-label">Agents</label>
             <div class="col-sm-9"> {{Form::select('GroupAgent[]', $Agents, $Groupagents ,array("class"=>"select2","multiple"=>"multiple","id"=>"GroupAgent"))}} </div>
           </div>

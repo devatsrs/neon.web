@@ -185,7 +185,7 @@
       <!-- -->
       <div class="panel panel-primary" data-collapsed="0">
         <div class="panel-heading">
-          <div class="panel-title">Yearly Holiday Information <span>(Holidays will be ignored when calculating SLA for a ticket)</span></div>
+          <div class="panel-title">Yearly Holiday Information <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Holidays will be ignored when calculating SLA for a ticket" data-original-title="Yearly Holiday Information" class="label label-info popover-primary">?</span> </div>
           <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
         </div>
         <div class="panel-body">
