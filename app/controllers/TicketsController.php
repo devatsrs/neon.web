@@ -21,7 +21,8 @@ private $validlicense;
 	 }
 	
 	 public function index(){	
-        $this->IsValidLicense();
+
+	 $this->IsValidLicense();
         $this->TicketGroupAccess();
         $this->TicketGroupAccess();
         $this->TicketRestrictedAccess();
@@ -66,7 +67,8 @@ private $validlicense;
         $iDisplayLength 			= 	 $data['iDisplayLength'];
         $totalResults 				= 	 0;
         return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus"));  
-	  }	
+
+	}	
 	  
 	  public function ajex_result() {
 	
@@ -97,6 +99,12 @@ private $validlicense;
 		$data['iDisplayLength'] 	= 	 $data['per_page'];
 		$companyID					= 	 User::get_companyID();
 		$array						=  	 $this->GetResult($data);
+		
+		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
+			return	Redirect::to('/logout'); 	
+		}		
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ Redirect::to('/login');}	
+		
 		$resultpage  				=  	 $array->resultpage;			
 		$result 					= 	 $array->ResultCurrentPage;
 		$totalResults 				=    $array->totalcount; 
@@ -135,6 +143,12 @@ private $validlicense;
 		$data['iDisplayLength']		=	 100;	
 		$companyID					= 	 User::get_companyID();
 		$array						=  	 $this->GetResult($data); 
+		
+		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
+			return	Redirect::to('/logout'); 	
+		}		
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ Redirect::to('/login');}	
+		
 		$resultpage  				=  	 $array->resultpage;			
 		$result 					= 	 $array->ResultCurrentPage;		
 		$type						=	 $data['export_type'];
@@ -144,7 +158,7 @@ private $validlicense;
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.csv';  Log::info("file_path:".$file_path);
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.csv';  
                 $NeonExcel = new NeonExcelIO($file_path);
               return  $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
@@ -174,9 +188,8 @@ private $validlicense;
 		{
 			return $response->data;
 		}else{
-			return $response->message;
-		}
-		
+			return $response;
+		}		
 	}
 
 		function add()
@@ -384,7 +397,7 @@ private $validlicense;
 		if(!empty($response) && $response->status == 'success' )
 		{
 			   $ticketdata		=	 $response->data;
-			   
+			  
 			   if(!User::is_admin())
 			   {
 				  if($ticketdata->Agent!=user::get_userID())
@@ -433,10 +446,12 @@ private $validlicense;
 					 $PrevTicket 				 =	TicketsTable::GetPrevPageID($id);
 					 $ticketemaildata			 =	AccountEmailLog::find($ticketdata->AccountEmailLogID); 
 					 $ClosedTicketStatus   		 =  TicketsTable::getClosedTicketStatus();						 
+					 $ResolvedTicketStatus   		 =  TicketsTable::getResolvedTicketStatus();
 					 TicketsTable::where(["TicketID"=>$id])->update(["Read"=>1]);
-					 $AllEmailsTo		= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
+					 $AllEmailsTo				= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
+					 $TicketStatus				=	TicketsTable::getTicketStatusByID($ticketdata->Status);
 					
-					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester','ClosedTicketStatus','AllEmailsTo'));  		  
+					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester','ClosedTicketStatus','ResolvedTicketStatus','AllEmailsTo','TicketStatus'));
 			}else{
           	  return view_response_api($response_details);
          	}			 
@@ -653,12 +668,17 @@ private $validlicense;
 		if(is_array($data)){
 			foreach($data as $TicketData){
 				if(!in_array($TicketData->GroupName,$group)){
-					$GroupData   =  TicketGroups::where(["GroupName"=>$TicketData->GroupName])->pluck("GroupID");
 					$group[]	 =  $TicketData->GroupName;
 				}
 			}
 		}
 		return $group;
+	}
+	
+	function UpdateTicketDueTime($id){
+		$postdata 			= 		Input::all();  
+		$response 			= 		NeonAPI::request('tickets/updateticketduetime/'.$id,$postdata,true,false,false);
+		return json_response_api($response);   
 	}
 
     function BulkAction(){
