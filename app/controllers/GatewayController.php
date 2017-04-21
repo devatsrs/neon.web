@@ -239,7 +239,8 @@ class GatewayController extends \BaseController {
                 $gatewayconfigval = json_decode($CompanyGateway->Settings);
             }
             $GatewayName = Gateway::getGatewayName($data['GatewayID']);
-            return View::make('gateway.ajax_config_html', compact('gatewayconfig','gatewayconfigval','GatewayName'));
+            $Services = Service::getDropdownIDList(User::get_companyID());
+            return View::make('gateway.ajax_config_html', compact('gatewayconfig','gatewayconfigval','GatewayName','Services'));
         }
         return '';
     }
