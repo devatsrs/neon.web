@@ -157,7 +157,7 @@ function rategenerators_dropbox($id=0,$data=array()){
 }
 
 function businesshours_dropbox($id=0,$data=array()){
-    $all_Businesshours = TicketBusinessHours::getBusinesshours();
+    $all_Businesshours = TicketBusinessHours::getBusinesshours(0);
     return Form::select('businesshours', $all_Businesshours, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 

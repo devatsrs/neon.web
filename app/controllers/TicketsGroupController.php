@@ -30,10 +30,11 @@ private $validlicense;
 		$this->IsValidLicense();		
 		$Agents			= 	User::getUserIDListAll(0);
 		$AllUsers		= 	User::getUserIDListAll(0); 
+		$businessHours	=	TicketBusinessHours::getBusinesshours(1); 
 		$AllUsers[0] 	= 	'None';	
 		ksort($AllUsers);			
 		$data 			= 	array();		
-        return View::make('ticketgroups.group_create', compact('data','AllUsers','Agents'));  
+        return View::make('ticketgroups.group_create', compact('data','AllUsers','Agents','businessHours'));  
 	  }	
 	  
 	  function Edit($id){	   
@@ -41,7 +42,7 @@ private $validlicense;
 		$response =  NeonAPI::request('ticketgroups/get/'.$id,array());
 		
 		if(!empty($response) && $response->status == 'success' ){
-			$ticketdata		=	$response->data;		 
+			$ticketdata		=	$response->data;
 			$Groupagents	=	array();
 			
 			$Groupagentsdb	=	NeonAPI::request('ticketgroups/get_group_agents_ids/'.$id,array()); 
@@ -49,10 +50,11 @@ private $validlicense;
 			 		
 			$Agents			= 	User::getUserIDListAll(0);
 			$AllUsers		= 	User::getUserIDListAll(0); 
+			$businessHours	=	TicketBusinessHours::getBusinesshours(1); 
 			$AllUsers[0] 	= 	'None';	
 			ksort($AllUsers);			
 			$data 			= 	array(); 
-			return View::make('ticketgroups.group_edit', compact('data','AllUsers','Agents','ticketdata','Groupagents'));  
+			return View::make('ticketgroups.group_edit', compact('data','AllUsers','Agents','ticketdata','Groupagents','businessHours'));  
 		}else{
             return view_response_api($response);
         }
