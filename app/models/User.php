@@ -36,7 +36,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             Config::set('auth.table', 'tblAccount');
             $auth = Auth::createEloquentDriver();
             Auth::setProvider($auth->getProvider());
-            $customer = Customer::where('BillingEmail','like','%'.$data["email"].'%')->first();
+            //$customer = Customer::where('BillingEmail','like','%'.$data["email"].'%')->first();
+			$customer = Customer::whereRaw("FIND_IN_SET('".$data['email']."',BillingEmail) !=0")->first(); 
             if($customer) {
                 if (Hash::check($data["password"], $customer->password)) {
                     Auth::login($customer);
