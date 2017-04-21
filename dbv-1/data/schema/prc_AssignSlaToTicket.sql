@@ -5,6 +5,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_AssignSlaToTicket`(
 
 ,
 	IN `p_TicketID` INT
+
+
+
+
+
+
 )
 BEGIN
 
@@ -25,6 +31,8 @@ DECLARE v_AccountID int;
 DECLARE v_SlaPolicyID int; 
 
 DECLARE v_TicketSlaID int; 
+
+DECLARE v_DueDate datetime;
 
 SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -51,7 +59,8 @@ IF ((select count(*) from tblTicketSla where CompanyID=p_CompanyID) = 1 ) THEN
 				(pol.GroupFilter is null  OR (pol.GroupFilter is not null and FIND_IN_SET(v_Group,pol.GroupFilter) > 0) )
 				OR
 				(pol.TypeFilter is null OR (pol.TypeFilter is not null and FIND_IN_SET(v_Type,pol.TypeFilter) > 0) )
-			);
+			)
+		limit 1	;
 
 	
 
@@ -59,7 +68,7 @@ ELSE -- if there is many slas
 
 
 		DROP TEMPORARY TABLE IF EXISTS `tmp_tblTicketSla`; 
-		CREATE TEMPORARY TABLE `AccountIPCLITable1` (
+		CREATE TEMPORARY TABLE `tmp_tblTicketSla` (
 			`TicketSlaID` INT NOT NULL,
 			numMatches  INT NOT NULL
 		);
@@ -111,7 +120,7 @@ ELSE -- if there is many slas
 						(pol.GroupFilter is null  OR (pol.GroupFilter is not null and FIND_IN_SET(v_Group,pol.GroupFilter) > 0) )
 						OR
 						(pol.TypeFilter is null OR (pol.TypeFilter is not null and FIND_IN_SET(v_Type,pol.TypeFilter) > 0) )
-					);
+					) limit 1;
 						
 	  END IF;
 	
@@ -119,11 +128,50 @@ ELSE -- if there is many slas
 				
 END IF; 
 
+	-- select v_TicketSlaID;
+	
+	
 	-- update v_TicketSlaID;
 
-	UPDATE tblTickets 
+	/*UPDATE tblTickets 
 	SET  TicketSlaID = v_TicketSlaID
 	WHERE TicketID = p_TicketID;
+	*/
+	
+	IF ( v_TicketSlaID > 0 ) THEN
+	
+
+			-- update v_TicketSlaID;
+			SELECT 
+				(
+						CASE WHEN (tat.ResolveType = 'Minute') THEN
+							DATE_ADD(t.created_at, INTERVAL tat.ResolveValue Minute)  
+						WHEN ResolveType = 'Hour' THEN
+							DATE_ADD(t.created_at, INTERVAL tat.ResolveValue Hour) 			
+						WHEN (tat.ResolveType = 'Day') THEN
+							DATE_ADD(t.created_at, INTERVAL tat.ResolveValue Day)  
+						WHEN tat.ResolveType = 'Month' THEN
+							DATE_ADD(t.created_at, INTERVAL tat.ResolveValue Month)  
+						END 	
+			)  as DueDate into v_DueDate
+            FROM 
+				tblTickets t
+            INNER join tblTicketSlaTarget tat on tat.TicketSlaID  = v_TicketSlaID AND tat.PriorityID = t.Priority
+ 			 
+			WHERE
+			t.TicketID = p_TicketID ;
+ 			
+            
+			UPDATE tblTickets  
+ 			SET   TicketSlaID = v_TicketSlaID,
+					 DueDate =  v_DueDate
+			WHERE
+			 TicketID = p_TicketID ;
+ 			
+			 
+	
+	END IF;
+
 	
 	
 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 

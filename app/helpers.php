@@ -156,6 +156,16 @@ function rategenerators_dropbox($id=0,$data=array()){
     return Form::select('rategenerators', $all_rategenerators, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
+function businesshours_dropbox($id=0,$data=array()){
+    $all_Businesshours = TicketBusinessHours::getBusinesshours(0);
+    return Form::select('businesshours', $all_Businesshours, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+function slapolicies_dropbox($id=0,$data=array()){
+    $all_slapolicies = TicketSla::getSlapolicies();
+    return Form::select('slapolicies', $all_slapolicies, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
 function rate_tables_dropbox($id=0,$data=array()){
     $all_getRateTables = RateTable::getRateTables();
     return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
@@ -1058,7 +1068,7 @@ function check_uri($parent_link=''){
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
-	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard");
+	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
 	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
@@ -1637,4 +1647,75 @@ function getQuickBookAccountant(){
 	Log::info(print_r($logData,true));
     $data =  AccountEmailLog::insertGetId($logData);
     return $data;
+}
+function get_ticket_due_date_human_readable($result_data , $options = array()) {
+
+    $due_text = "";
+    if(\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture()) {
+        $due_text = "Due in ";
+    }
+    else if (isset($options["skip"]) && in_array($result_data->Status,$options["skip"]) ) {  //closed or resolved
+
+        $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold(); // to get Closed / Resolved text from function
+        if(in_array($result_data->Status,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->Status])){
+
+            $due_text =  ucfirst($TicketStatusOnHold[$result_data->Status]) . ' on ';  // closed on
+
+            return $due_text .  \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->updated_at))->diffForHumans(null, true);
+        }
+
+    } else if (in_array($result_data->Status,TicketsTable::getTicketStatusOnHold())) {  // SLATimer=off
+
+        $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
+        if(in_array($result_data->Status,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->Status])){
+
+            $due_text = "Due in ";  // customer waiting
+
+            return $due_text .  \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->add('now')->diffForHumans(null, true);;
+        }
+
+
+    } else {
+
+        $due_text = "Overdue by ";
+
+    }
+
+    $due_text .= \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->diffForHumans(null, true);
+
+    return $due_text;
+}
+function get_ticket_response_due_label($result_data,$options = array()) {
+
+    if($result_data->Read==0) {
+        if( isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
+            return '<div class="label label-primary">New</div>';
+        }
+    }else{
+        if($result_data->CustomerResponse==$result_data->RequesterEmail){
+            return "<div class='label label-info'>CUSTOMER RESPONDED</div>";
+        }else{
+            if (\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture() && isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
+                return '<div class="label label-warning">RESPONSE DUE</div>';
+            }else {
+
+                if (isset($options["skip"]) && in_array($result_data->Status,$options["skip"]) ) {  //closed or resolved
+
+                    $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
+                    if(in_array($result_data->Status,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->Status])){
+                        return '<div class="label label-danger">'.ucfirst($TicketStatusOnHold[$result_data->Status]).'</div>';
+                    }
+                } else if (in_array($result_data->Status,TicketsTable::getTicketStatusOnHold())) {  // SLATimer=off
+
+                    $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
+                    if(in_array($result_data->Status,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->Status])) {
+                        return '<div class="label label-warning">'.ucfirst($TicketStatusOnHold[$result_data->Status]).'</div>';
+                    }
+                } else if(!empty($result_data->DueDate)) {
+
+                     return '<div class="label label-danger">RESPONSE OVERDUE</div>';
+                }
+            }
+        }
+    }
 }

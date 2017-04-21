@@ -65,6 +65,12 @@
         @if(User::checkCategoryPermission('TicketsGroups','View'))
         <li> <a href="{{URL::to('/ticketgroups')}}">  <span>Groups</span></a> </li>
         @endif
+         @if(User::checkCategoryPermission('TicketsSla','View'))
+        <li> <a href="{{URL::to('/tickets/sla_policies')}}">  <span>SLA Policies</span></a> </li>
+        @endif
+        @if(User::checkCategoryPermission('BusinessHours','View'))
+        <li> <a href="{{URL::to('/businesshours')}}">  <span>Business Hours</span></a> </li>
+        @endif
       </ul>
     </li>
     @endif

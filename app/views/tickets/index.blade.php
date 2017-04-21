@@ -31,7 +31,7 @@
             <label for="field-1" class="col-sm-1 control-label small_label">Search</label>
             <div class="col-sm-2"> {{ Form::text('search', '', array("class"=>"form-control")) }} </div>
             <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-            <div class="col-sm-2"> {{Form::select('status[]', $status, (Input::get('status')?explode(',',Input::get('status')):'') ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+            <div class="col-sm-2"> {{Form::select('status[]', $status, (Input::get('status')?explode(',',Input::get('status')):$OpenTicketStatus) ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
             <label for="field-1" class="col-sm-1 control-label small_label">Priority</label>
             <div class="col-sm-2"> {{Form::select('priority[]', $Priority, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
             <label for="field-1" class="col-sm-1 control-label small_label">Group</label>
@@ -41,14 +41,18 @@
           <div class="form-group">
             <label for="field-1" class="col-sm-1 control-label small_label">Agent</label>
             <div class="col-sm-2"> {{Form::select('agent[]', $Agents, (Input::get('agent')?0:'') ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-          </div>
+		  </div>
           @else
-          @if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)
-          <input type="hidden" name="agent" value="{{user::get_userID()}}" >
-          @else
-          <input type="hidden" name="agent" value="" >
-          @endif
-          @endif
+			<div class="form-group">
+				<label for="field-1" class="col-sm-1 control-label small_label">Overdue by</label>
+				<div class="col-sm-2"> {{Form::select('overdue[]', $overdue, (Input::get('overdue')?explode(',',Input::get('overdue')):'') ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+			</div>
+          	@if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)
+          		<input type="hidden" name="agent" value="{{user::get_userID()}}" >
+          	@else
+          		<input type="hidden" name="agent" value="" >
+          	@endif
+       		@endif
           <p style="text-align: right;">
             <button type="submit" class="btn btn-primary btn_form_submit btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
           </p>
@@ -95,30 +99,30 @@
 </div>
 <!-- mailbox end -->
 <style>
-    .sorted{margin-left:5px;}
-    .margin-right-10{margin-right:10px;}
-    .margin-left-mail{margin-right:15px;width:21%; }.mailaction{margin-right:10px;}.btn-blue{color:#fff !important;}
-    .mail-body{width:100% !important; float:none !important;}
-    .blue_link{font-size:13px; font-weight:bold;}
-    .ticket_number{font-size:16px;}
-    .col-time{text-align:left !important; font-size:12px;}
-    .col-time span{color:black;}
-    .dropdown_sort li  a{color:white !important;}
-    #table-4{display: block !important; padding-bottom:50px !important;}
-    .borderside{border-left-style: solid !important; border-left-width: 4px !important;}
-    .bordersideLow{border-left-color:#00A651 !important;}
-    .bordersideMedium{border-left-color:#008ff9 !important;}
-    .bordersideHigh{border-left-color:#ffb613 !important;}
-    .bordersideUrgent{border-left-color:#CC2424 !important;}
-    .responsedue{color:#CC2424 !important;}
-    .customerresponded{color:#008ff9 !important;}
-    .per_page{margin-left:10px !important; margin-top:5px !important; }
-    .paginationTicket{width:85px !important;}
-    #modal-bulk-actions .control-label>span{
+.sorted{margin-left:5px;}
+.margin-right-10{margin-right:10px;}
+.margin-left-mail{margin-right:15px;width:21%; }.mailaction{margin-right:10px;}.btn-blue{color:#fff !important;}
+.mail-body{width:100% !important; float:none !important;}
+.blue_link{font-size:13px; font-weight:bold;}
+.ticket_number{font-size:16px;}
+.col-time{text-align:left !important; font-size:12px;}
+.col-time span{color:black;}
+.dropdown_sort li  a{color:white !important;}
+#table-4{display: block; padding-bottom:50px;}
+.borderside{border-left-style: solid; border-left-width: 8px;}
+.bordersideLow{border-left-color:#00A651;}
+.bordersideMedium{border-left-color:#008ff9;}
+.bordersideHigh{border-left-color:#ffb613;}
+.bordersideUrgent{border-left-color:#CC2424;}
+.responsedue{color:#CC2424;}
+.customerresponded{color:#008ff9;}
+.per_page{margin-left:10px; margin-top:5px; }
+.paginationTicket{width:85px;}
+#modal-bulk-actions .control-label>span{
         position: relative;
         bottom: 2px;
         left:   5px;
-    }
+}
 </style>
 <script type="text/javascript">
 	
@@ -128,7 +132,6 @@ $(document).ready(function(e) {
 	var next_enable 	= 	1;
 	var back_enable 	= 	1;
 	var per_page 		= 	{{$iDisplayLength}}
-	var total			=	{{$totalResults}}
 	var clicktype		=	'';
 	var ajax_url 		= 	baseurl+'/tickets/ajex_result';
 	var ajax_url_export	= 	baseurl+'/tickets/ajex_result_export';
@@ -175,7 +178,7 @@ $(document).ready(function(e) {
 					type: 'POST',
 					dataType: 'html',
 					async :false,
-					data:{formData:$search,currentpage:currentpage,per_page:per_page,total:total,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type},
+					data:{formData:$search,currentpage:currentpage,per_page:per_page,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type},
 					success: function(response) {
 						
 						if(response.length>0)
@@ -260,7 +263,7 @@ $(document).ready(function(e) {
 					type: 'POST',
 					dataType: 'html',
 					async :false,
-					data:{formData:$search,currentpage:currentpage,per_page:per_page,total:total,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type,Export:1},
+					data:{formData:$search,currentpage:currentpage,per_page:per_page,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type,Export:1},
 					success: function(response) {
 						
 					}	
