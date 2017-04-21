@@ -59,7 +59,7 @@ ELSE -- if there is many slas
 
 
 		DROP TEMPORARY TABLE IF EXISTS `tmp_tblTicketSla`; 
-		CREATE TEMPORARY TABLE `AccountIPCLITable1` (
+		CREATE TEMPORARY TABLE `tmp_tblTicketSla` (
 			`TicketSlaID` INT NOT NULL,
 			numMatches  INT NOT NULL
 		);
@@ -119,11 +119,43 @@ ELSE -- if there is many slas
 				
 END IF; 
 
+	select v_TicketSlaID;
+	
+	
 	-- update v_TicketSlaID;
 
-	UPDATE tblTickets 
+	/*UPDATE tblTickets 
 	SET  TicketSlaID = v_TicketSlaID
 	WHERE TicketID = p_TicketID;
+	*/
+	
+	IF ( v_TicketSlaID > 0 ) THEN
+	
+
+			-- update v_TicketSlaID;
+			
+			UPDATE tblTickets t
+			INNER join tblTicketSlaTarget tat on t.TicketSlaID  = tat.TicketSlaID AND tat.PritiryID = t.Priority
+			SET  t.TicketSlaID = v_TicketSlaID,
+			t.DueDate = (
+						CASE WHEN (tat.ResolveType = 'Minute') THEN
+							DATE_ADD(t.created_at, INTERVAL tat.ResolveValue Minute)  
+						WHEN ResolveType = 'Hour' THEN
+							DATE_ADD(t.created_at, INTERVAL tat.ResolveValue Hour) 			
+						WHEN (tat.ResolveType = 'Day') THEN
+							DATE_ADD(t.created_at, INTERVAL tat.ResolveValue Day)  
+						WHEN tat.ResolveType = 'Month' THEN
+							DATE_ADD(t.created_at, INTERVAL tat.ResolveValue Month)  
+						END 	
+			) 
+			WHERE
+			t.TicketID = p_TicketID
+			and t.TicketSlaID = v_TicketSlaID ;
+ 			
+			 
+	
+	END IF;
+
 	
 	
 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 

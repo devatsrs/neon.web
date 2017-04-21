@@ -21,6 +21,7 @@ private $validlicense;
 	 }
 	
 	 public function index(){	
+	 
         $this->IsValidLicense();
         $this->TicketGroupAccess();
         $this->TicketGroupAccess();
@@ -66,7 +67,8 @@ private $validlicense;
         $iDisplayLength 			= 	 $data['iDisplayLength'];
         $totalResults 				= 	 0;
         return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus"));  
-	  }	
+
+	}	
 	  
 	  public function ajex_result() {
 	
@@ -449,11 +451,12 @@ private $validlicense;
 					 $PrevTicket 				 =	TicketsTable::GetPrevPageID($id);
 					 $ticketemaildata			 =	AccountEmailLog::find($ticketdata->AccountEmailLogID); 
 					 $ClosedTicketStatus   		 =  TicketsTable::getClosedTicketStatus();						 
+					 $ResolvedTicketStatus   		 =  TicketsTable::getResolvedTicketStatus();
 					 TicketsTable::where(["TicketID"=>$id])->update(["Read"=>1]);
 					 $AllEmailsTo				= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
 					 $TicketStatus				=	TicketsTable::getTicketStatusByID($ticketdata->Status);
 					
-					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester','ClosedTicketStatus','AllEmailsTo','TicketStatus'));  		  
+					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester','ClosedTicketStatus','ResolvedTicketStatus','AllEmailsTo','TicketStatus'));
 			}else{
           	  return view_response_api($response_details);
          	}			 
@@ -676,14 +679,12 @@ private $validlicense;
 		}
 		return $group;
 	}
-<<<<<<< HEAD
 	
 	function UpdateTicketDueTime($id){
 		$postdata 			= 		Input::all();  
 		$response 			= 		NeonAPI::request('tickets/updateticketduetime/'.$id,$postdata,true,false,false);
 		return json_response_api($response);   
 	}
-=======
 
     function BulkAction(){
         $data = Input::all();
@@ -696,5 +697,4 @@ private $validlicense;
         $response  		    =  	  NeonAPI::request('tickets/bulkdelete',$data,true,true);
         return json_response_api($response);
     }
->>>>>>> 3aa72f863623eb3e4f08dfd92e5654d4459ffcd3
 }

@@ -25,7 +25,7 @@
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date"> @if(!empty($ticketdata->RequesterCC))cc: {{$ticketdata->RequesterCC}}<br>
         @endif
-        {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
+            {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
       <!-- links --> 
     </div>
     <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?>
@@ -144,16 +144,23 @@
             <div class="panel-body">
             <form id="UpdateTicketDueTime" class="form-horizontal form-groups-bordered validate" role="form">
             <div class="form-group">
-           		 <div class="col-md-12">      
-           			 <p><a class="blue_link" href="#">{{$TicketStatus}}</a><br>Due in a day<br>on Thu, 20 Apr at 3:22 PM <a class="blue_link clickable change_duetime"  ticket="{{$ticketdata->TicketID}}">Change</a></p>
+           		 <div class="col-md-12">
+                     <p><a class="blue_link" href="#">{{$TicketStatus}}</a><br>
+                         @if($ClosedTicketStatus!=$ticketdata->Status)
+                             @if($ticketdata->DueDate != '')
+                                 {{get_ticket_due_date_human_readable($ticketdata,[ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
+                                 <br>on {{date('D, d M',strtotime($ticketdata->DueDate))}} at {{date('H:i A',strtotime($ticketdata->DueDate))}} <a class="blue_link clickable change_duetime"  ticket="{{$ticketdata->TicketID}}">Change</a>
+                             @endif
+                         @endif
+                     </p>
            		 </div>
             </div>          
             <div class="change_due_time form-group">
                   <div class="col-md-6">      
-                  <input autocomplete="off" type="text" name="TicketDueDate" id="TicketDueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="" data-startdate="{{date('Y-m-d',strtotime(" today"))}}" />             
-                  </div><div class="col-md-6">      
-                  <input type="text" name="TicketDueTime" id="TicketDueTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">                
-                  </div>                  
+                  <input autocomplete="off" type="text" name="TicketDueDate" id="TicketDueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d',strtotime($ticketdata->DueDate))}}" data-startdate="{{date('Y-m-d',strtotime(" today"))}}" />
+                  </div><div class="col-md-6">
+                    <input type="text" name="DueTime" id="DueTime" data-minute-step="5" data-show-meridian="false" data-default-time="{{date('H:i:s',strtotime($ticketdata->DueDate))}}" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
+                </div>
                 </div>  
             <div class="change_due_time form-group"> 
                   <div class="col-md-12">                    
