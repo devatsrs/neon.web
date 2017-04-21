@@ -66,7 +66,8 @@ private $validlicense;
 
         $iDisplayLength 			= 	 $data['iDisplayLength'];
         $totalResults 				= 	 0;
-        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus"));  
+		$OpenTicketStatus 			=	 TicketsTable::GetOpenTicketStatus();
+        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus",'OpenTicketStatus'));  
 
 	}	
 	  
