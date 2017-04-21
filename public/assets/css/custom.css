@@ -2718,3 +2718,6 @@ a:focus,a:hover{text-decoration:none !important}
 .note-editor li a {
     color: #000 !important;
 }
+.popover .popover-content,.popover .popover-title{
+	color:#FFFFFF;
+}
