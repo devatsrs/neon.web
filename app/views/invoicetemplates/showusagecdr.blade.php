@@ -41,7 +41,7 @@
 	<div id="choices_item" class="choices_item margin-top">
 	
 	<!-- Detail CDR start -->
-			<h3>Detail CDR</h3>
+			<h3>Detail Usage</h3>
 	
 			<div class="row">
 			  <div class="col-md-12">
@@ -51,7 +51,7 @@
 				  <div class="col-md-2">&nbsp;</div>
 				  <div class="col-md-2"><h4><strong>Customize Name</strong></h4></div>
 				  <div class="col-md-2">&nbsp;</div>
-				  <div class="col-md-2"><h4><strong>Active/DeActive</strong></h4></div>
+				  <div class="col-md-2"><h4><strong></strong></h4></div>
 				</div>
 			  </div>
 			</div>
@@ -87,7 +87,7 @@
 
 		<!--Summary	CDR Start -->
 		
-		<h3>Summary CDR</h3>
+		<h3>Summary Usage</h3>
 		
 		<div class="row">
 		  <div class="col-md-12">
@@ -97,7 +97,7 @@
 			  <div class="col-md-2">&nbsp;</div>
 			  <div class="col-md-2"><h4><strong>Customize Name</strong></h4></div>
 			  <div class="col-md-2">&nbsp;</div>
-			  <div class="col-md-2"><h4><strong>Active/DeActive</strong></h4></div>
+			  <div class="col-md-2"><h4><strong></strong></h4></div>
 			</div>
 		  </div>
 		</div>
@@ -271,6 +271,45 @@
 				$('#detailchoicesdata').val(JSON.stringify(choices_array1));
             }
 
+			$('#invoice_template-print').click(function() {
+				document.getElementById("invoice_iframe").contentDocument.location.reload(true);
+				$('#print-modal-invoice_template').modal('show');
+			});
+
     });
 	</script>
+@stop
+@section('footer_ext')
+@parent
+<div class="modal fade custom-width" id="print-modal-invoice_template">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<form id="add-new-invoice_template-form" method="post" class="form-horizontal form-groups-bordered" enctype="multipart/form-data">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title">                     <a href="{{URL::to('invoice_template/'.$InvoiceTemplate->InvoiceTemplateID.'/pdf_download?Type='.Input::get('Type'))}}" type="button" class="btn btn-primary print btn-sm btn-icon icon-left" >
+							<i class="entypo-print"></i>
+							Print
+						</a>
+					</h4>
+				</div>
+				<div class="modal-body">
+
+					<iframe  id="invoice_iframe"   frameborder="0" scrolling="no" style="position: relative; height: 1050px; width: 100%;overflow-y: auto; overflow-x: hidden;" width="100%" height="100%" src="{{ URL::to('/invoice_template/'.$InvoiceTemplate->InvoiceTemplateID .'/print?Type='.Input::get('Type')); }}"></iframe>
+
+				</div>
+				<div class="modal-footer">
+					<a href="{{URL::to('invoice_template/'.$InvoiceTemplate->InvoiceTemplateID.'/pdf_download?Type='.Input::get('Type'))}}" type="button" class="btn btn-primary print btn-sm btn-icon icon-left" >
+						<i class="entypo-print"></i>
+						Print
+					</a>
+					<button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+						<i class="entypo-cancel"></i>
+						Close
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 @stop
