@@ -470,7 +470,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::controller('jobs', 'JobsController');
 	
 	//email msgs
-	Route::any('loadDashboardMsgsDropDown', 'MessagesController@loadDashboardMsgsDropDown');
+	/*Route::any('loadDashboardMsgsDropDown', 'MessagesController@loadDashboardMsgsDropDown');
 	Route::any('/emailmessages', 'MessagesController@index');
 	Route::any('/emailmessages/ajax_datagrid', array('as' => 'jobs_dg', 'uses' => 'MessagesController@ajax_datagrid'));
 	Route::any('/emailmessages/{id}/show', array('as' => 'jobs_view', 'uses' => 'MessagesController@show'));
@@ -483,7 +483,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/emailmessages/compose','MessagesController@Compose');
 	Route::any('/emailmessages/SendMail','MessagesController@SendMail');
 	Route::any('emailmessages/{id}/compose','MessagesController@Compose');
-	Route::any('/emailmessages/ajax_action','MessagesController@Ajax_Action');
+	Route::any('/emailmessages/ajax_action','MessagesController@Ajax_Action');*/
 	
 	//Tickets	
 	Route::any('/ticketgroups', array('as' => 'ticketgroups', 'uses' => 'TicketsGroupController@index'));
