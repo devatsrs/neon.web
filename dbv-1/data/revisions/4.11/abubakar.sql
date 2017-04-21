@@ -362,15 +362,18 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CheckDueTickets`(
 	IN `p_currentDateTime` DATETIME,
 	IN `P_Group` VARCHAR(50),
 	IN `P_Agent` VARCHAR(50)
+
 )
 BEGIN
-	DECLARE P_Status varchar(100);
+	DECLARE V_Status varchar(100);
+	DECLARE V_OverDue int(11);
+	DECLARE V_DueToday int(11);
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	SET  sql_mode='';
 
 	SELECT
-		 group_concat(TFV.ValuesID separator ',') INTO P_Status FROM tblTicketfieldsValues TFV
+		 group_concat(TFV.ValuesID separator ',') INTO V_Status FROM tblTicketfieldsValues TFV
 	LEFT JOIN tblTicketfields TF
 		ON TF.TicketFieldsID = TFV.FieldsID
 	WHERE
@@ -408,7 +411,7 @@ BEGIN
 		WHERE
 			T.CompanyID = p_CompanyID
 			AND TST.PriorityID = T.Priority
-			AND (P_Status = '' OR find_in_set(T.`Status`,P_Status))
+			AND (V_Status = '' OR find_in_set(T.`Status`,V_Status))
 			AND (T.RespondSlaPolicyVoilationEmailStatus = 0 OR T.ResolveSlaPolicyVoilationEmailStatus = 0)
 			AND T.TicketSlaID>0
 			AND (P_Group = '' OR FIND_IN_SET(T.`Group`,P_Group))
@@ -422,13 +425,15 @@ BEGIN
 			END;
 
 			/*SELECT * FROM tmp_tickets_sla_voilation_ where IsResolvedVoilation >0;*/
-			select count(*) as TotalOverDue from tmp_tickets_sla_voilation_ where IsResolvedVoilation >0;
-			select count(*) as TotalDueToday from tmp_tickets_sla_voilation_ where IsResolvedVoilation >0 and DATE(p_currentDateTime) = DATE(ResolveTime);
+			select count(*) as OverDue INTO V_OverDue from tmp_tickets_sla_voilation_ where IsResolvedVoilation >0;
+			select count(*) as DueToday INTO V_DueToday from tmp_tickets_sla_voilation_ where IsResolvedVoilation >0 and DATE(p_currentDateTime) = DATE(ResolveTime);
 
+			SELECT V_OverDue as OverDue,V_DueToday as DueToday;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
 DELIMITER ;
+
 
 
 
