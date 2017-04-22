@@ -773,6 +773,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice_template/{id}/print', 'InvoiceTemplatesController@print_preview');
 	Route::any('/invoice_template/{id}/pdf_download', 'InvoiceTemplatesController@pdf_download');
     Route::any('/invoice_template/{id}/get_logo', 'InvoiceTemplatesController@get_logo');
+    Route::any('/invoice_template/save_single_field', 'InvoiceTemplatesController@save_single_field');
 
 	//CDR Upload
 	Route::any('/cdr_upload', 'CDRController@index');

@@ -61,13 +61,13 @@ BEGIN
             /* if rate format is prefix base not charge code*/
 			IF p_RateFormat = 2
 			THEN
-				CALL prc_updatePrefix(v_AccountID_,0, p_processId, p_tbltempusagedetail_name);
+				CALL prc_updatePrefix(v_AccountID_,0, p_processId, p_tbltempusagedetail_name,v_ServiceID_);
 			END IF;
 			
             /* outbound rerate process*/
 			IF p_RateCDR = 1
 			THEN
-				CALL prc_updateOutboundRate(v_AccountID_,0, p_processId, p_tbltempusagedetail_name);
+				CALL prc_updateOutboundRate(v_AccountID_,0, p_processId, p_tbltempusagedetail_name,v_ServiceID_);
 			END IF;
 			
 			SET v_pointer_ = v_pointer_ + 1;

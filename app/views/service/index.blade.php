@@ -32,6 +32,7 @@
         <th>Status</th>
         <th>Name</th>
         <th>Type</th>
+        <th>Gateway</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -49,14 +50,15 @@
             "bServerSide":true,
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/services/ajax_datagrid",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "aaSorting"   : [[5, 'desc']],    
             "aoColumns": 
              [
-                { "bVisible": false, "bSortable": true  },
-                { "bSortable": true },
-                { "bSortable": true },
+                { "bVisible": false, "bSortable": true  }, //Status
+                { "bSortable": true }, //Name
+                { "bSortable": true }, //Type
+                { "bSortable": true }, //Gateway
                 {
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
@@ -64,12 +66,13 @@
                         action = '<div class = "hiddenRowData" >';
                         action += '<input type = "hidden"  name = "ServiceName" value = "' + (full[1] != null ? full[1] : '') + '" / >';
                         action += '<input type = "hidden"  name = "ServiceType" value = "' + (full[2] != null ? full[2] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "CompanyGatewayID" value = "' + (full[5] != null ? full[5] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Status" value = "' + (full[0] != null ? full[0] : 0) + '" / ></div>';
                         <?php if(User::checkCategoryPermission('Service','Edit')){ ?>
-                                action += ' <a data-name = "'+full[1]+'" data-id="'+ full[3] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                action += ' <a data-name = "'+full[1]+'" data-id="'+ full[4] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('Service','Delete')){ ?>
-                                action += ' <a data-id="'+ full[3] +'" title="Delete" class="delete-service btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                                action += ' <a data-id="'+ full[4] +'" title="Delete" class="delete-service btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         <?php } ?>
                         return action;
                       }
@@ -162,6 +165,7 @@
 
             ServiceName = $(this).prev("div.hiddenRowData").find("input[name='ServiceName']").val();
             ServiceType = $(this).prev("div.hiddenRowData").find("input[name='ServiceType']").val();
+            CompanyGatewayID = $(this).prev("div.hiddenRowData").find("input[name='CompanyGatewayID']").val();
             Status = $(this).prev("div.hiddenRowData").find("input[name='Status']").val();
             if(Status == 1 ){
                 $('#add-new-service-form [name="Status"]').prop('checked',true);
@@ -171,6 +175,7 @@
 
             $("#add-new-service-form [name='ServiceName']").val(ServiceName);
             $("#add-new-service-form [name='ServiceType']").select2().select2('val',ServiceType);
+            $("#add-new-service-form [name='CompanyGatewayID']").select2().select2('val',CompanyGatewayID);
             $("#add-new-service-form [name='ServiceID']").val($(this).attr('data-id'));
             $('#add-new-modal-service h4').html('Edit Service');
             $('#add-new-modal-service').modal('show');

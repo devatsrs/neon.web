@@ -50,7 +50,13 @@
                             {{ Form::select('CompanyGatewayID',$gateway,'', array("class"=>"select2")) }}
                         </div>
                     </div>
-
+                    <div class="form-group">
+                        <?php $NameFormat = array(''=>'Select Authentication Rule')+GatewayConfig::$NameFormat;?>
+                        <label for=" field-1" class="col-sm-2 control-label">Authentication Rule</label>
+                        <div class="col-sm-4">
+                            {{Form::select('Authentication',$NameFormat ,'',array("class"=>"select2 small"))}}
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
                         <div class="col-sm-4">
@@ -74,10 +80,14 @@
                                 <input type="hidden" name="CheckFile" value="0" >
                                 <label><input type="checkbox" id="rd-1" name="CheckFile" checked value="1"> Verify this file</label>
                             </div>
+                            <div class="checkbox " id="IgnoreNotRated">
+                                <input type="hidden" name="IgnoreZeroRatedCall" value="0" >
+                                <label><input type="checkbox" id="rd-1" name="IgnoreZeroRatedCall" value="1"> Ignore zero rated calls</label>
+                            </div>
                         </div>
                     </div>
 
-                    <div id="RateCDR_type" class="form-group hidden">
+                    <!--<div id="RateCDR_type" class="form-group hidden">
                         <label class="col-sm-2 control-label" for="field-1">Type</label>
                         <div class="col-sm-3">
                             <div class="radio radio-replace color-primary pull-left">
@@ -93,37 +103,14 @@
                                 <label for="minimal-radio-3">Rate Table</label>
                                 &nbsp;&nbsp;</div>
                         </div>
-                    </div>
-                    <div id="service_dropdown" class="form-group hidden">
-                        <label class="col-sm-2 control-label" for="field-1">Service</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('ServiceID',$Services,'', array("class"=>"select2")) }}
-                        </div>
-                    </div>
-                    <div id="trunk_dropdown" class="form-group hidden">
-                        <label class="col-sm-2 control-label" for="field-1">Trunk</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2")) }}
-                        </div>
-                    </div>
+                    </div>-->
                     <div id="rate_dropdown" class="form-group hidden">
                         <label class="col-sm-2 control-label" for="field-1">Rerate Format</label>
                         <div class="col-sm-3">
                             {{ Form::select('RateFormat',Company::$rerate_format,'', array("class"=>"select2")) }}
                         </div>
                     </div>
-                    <div id="inbound_dropdown" class="form-group hidden">
-                        <label class="col-sm-2 control-label" for="field-1">Inbound Rate Table</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('InboundRateTableID',$ratetables,'', array("class"=>"select2")) }}
-                        </div>
-                    </div>
-                    <div id="outbound_dropdown" class="form-group hidden">
-                        <label class="col-sm-2 control-label" for="field-1">Outbound Rate Table</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('OutboundRateTableID',$ratetables,'', array("class"=>"select2")) }}
-                        </div>
-                    </div>
+
 
 
                     <div class="form-group">
@@ -150,7 +137,7 @@
 </div>
 <div class="row hidden" id="add-template">
     <div class="col-md-12">
-        <form id="add-template-form" method="post">
+        <form id="add-template-form" method="post" class="form-horizontal">
                 <div class="panel panel-primary" data-collapsed="0">
                     <div class="panel-heading">
                         <div class="panel-title">
@@ -164,8 +151,6 @@
                                 <input type="text" class="form-control" name="TemplateName" value="" />
                             </div>
                         </div>
-                        <br />
-                        <br />
                     </div>
                     <div class="panel-heading">
                         <div class="panel-title">
@@ -185,8 +170,6 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <br />
-                            <br />
                             <label class="col-sm-2 control-label">Escape:</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" name="option[Escape]" value="" />
@@ -197,7 +180,6 @@
                             </div>
                         </div>
                         <p style="text-align: right;">
-                            <br />
                             <br />
                             <button id="check_upload" class="check btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                                 <i class="entypo-floppy"></i>
@@ -230,8 +212,6 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <br />
-                            <br />
                             <label for="field-1" class="col-sm-2 control-label">Billed Duration</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[billed_duration]', array(),'',array("class"=>"select2 small"))}}
@@ -243,8 +223,6 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <br />
-                            <br />
                             <label for=" field-1" class="col-sm-2 control-label">CLI</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[cli]', array(),'',array("class"=>"select2 small"))}}
@@ -255,8 +233,6 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <br />
-                            <br />
                             <label for=" field-1" class="col-sm-2 control-label">CLI Translation Rule<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Syntax: /<match what>/<replace with>/" data-original-title="CLI Translation Rule">?</span></label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" name="selection[CLITranslationRule]" value="" />
@@ -267,8 +243,6 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <br />
-                            <br />
                             <label for="field-1" class="col-sm-2 control-label">Account*</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[Account]', array(),'',array("class"=>"select2 small"))}}
@@ -280,8 +254,6 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <br />
-                            <br />
                             <label for=" field-1" class="col-sm-2 control-label">Date Format</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[DateFormat]',Company::$date_format ,'',array("class"=>"select2 small"))}}
@@ -292,9 +264,32 @@
                             </div>
 
                         </div>
+
+
                         <div class="form-group">
-                            <br />
-                            <br />
+                            <label class="col-sm-2 control-label" for="field-1">Service</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('ServiceID',$Services,'', array("class"=>"select2")) }}
+                            </div>
+
+                            <label class="col-sm-2 control-label" for="field-1">Trunk</label>
+                            <div class="col-sm-4">
+                                {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2")) }}
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" for="field-1">Inbound Rate Table<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If selected then rate will be ignored from service and account level." data-original-title="Inbound Rate Table">?</span></label>
+                            <div class="col-sm-4">
+                                {{ Form::select('InboundRateTableID',$ratetables,'', array("class"=>"select2")) }}
+                            </div>
+                            <label class="col-sm-2 control-label" for="field-1">Outbound Rate Table<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If selected then rate will be ignored from service and account level." data-original-title="Outbound Rate Table">?</span></label>
+                            <div class="col-sm-4">
+                                {{ Form::select('OutboundRateTableID',$ratetables,'', array("class"=>"select2")) }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label for=" field-1" class="col-sm-2 control-label">Extension</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[extension]',array() ,'',array("class"=>"select2 small"))}}
@@ -304,15 +299,7 @@
                                 {{Form::select('selection[ChargeCode]',array(),'',array("class"=>"select2 small"))}}
                             </div>
                         </div>
-                        <div class="form-group">
-                            <br />
-                            <br />
-                            <?php $NameFormat = array(''=>'Select Authentication Rule')+GatewayConfig::$NameFormat;?>
-                            <label for=" field-1" class="col-sm-2 control-label">Authentication Rule</label>
-                            <div class="col-sm-4">
-                                {{Form::select('selection[Authentication]',$NameFormat ,'',array("class"=>"select2 small"))}}
-                            </div>
-                        </div>
+
                     </div>
                 </div>
                 <div class="panel panel-primary" data-collapsed="0">
@@ -533,34 +520,20 @@ var click_btn;
 
         $('#RateCDR').change(function(){
             if($('#RateCDR').is(":checked")){
+                $("#IgnoreNotRated").removeClass("hidden");
                 $("#RateCDR_type").removeClass("hidden");
-
-
+                $("#rate_dropdown").removeClass("hidden");
             }else{
+                $("#IgnoreNotRated").addClass("hidden");
                 $("#RateCDR_type").addClass("hidden");
+                $("#rate_dropdown").addClass("hidden");
 
-                if(!$("#trunk_dropdown").hasClass( "hidden" )){
-                    $("#trunk_dropdown").addClass("hidden");
-                }
-                if(!$("#rate_dropdown").hasClass( "hidden" )){
-                    $("#rate_dropdown").addClass("hidden");
-                }
-
-                if(!$("#service_dropdown").hasClass( "hidden" )){
-                    $("#service_dropdown").addClass("hidden");
-                }
-                if(!$("#inbound_dropdown").hasClass( "hidden" )){
-                    $("#inbound_dropdown").addClass("hidden");
-                }
-                if(!$("#outbound_dropdown").hasClass( "hidden" )){
-                    $("#outbound_dropdown").addClass("hidden");
-                }
-                $('select[name=TrunkID]').select2("val","");
+                //$('select[name=TrunkID]').select2("val","");
                 $('select[name=RateFormat]').select2("val","");
                 $('select[name=RateFormat]').trigger('change');
-                $('select[name=ServiceID]').select2("val","");
-                $('select[name=InboundRateTableID]').select2("val","");
-                $('select[name=OutboundRateTableID]').select2("val","");
+                //$('select[name=ServiceID]').select2("val","");
+                //$('select[name=InboundRateTableID]').select2("val","");
+                //$('select[name=OutboundRateTableID]').select2("val","");
             }
 
 
@@ -641,7 +614,7 @@ var click_btn;
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]'){
+            if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]' && el.name != 'InboundRateTableID' && el.name != 'OutboundRateTableID' && el.name != 'ServiceID' && el.name != 'TrunkID'){
                 var self = $('#add-template-form [name="'+el.name+'"]');
                 rebuildSelect2(self,data.columns,'Skip loading');
             }

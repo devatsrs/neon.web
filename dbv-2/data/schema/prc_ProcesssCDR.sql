@@ -14,6 +14,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcesssCDR`(
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+	
+	/* update service against cli or ip */
+	CALL prc_ProcessCDRService(p_CompanyID,p_processId,p_tbltempusagedetail_name);
 
 	/* check service enable at gateway*/
 	DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
@@ -30,10 +33,9 @@ BEGIN
 	EXECUTE stm;
 	DEALLOCATE PREPARE stm;
 
+	/* update account and add new accounts and apply authentication rule*/
 	CALL prc_ProcessCDRAccount(p_CompanyID,p_CompanyGatewayID,p_processId,p_tbltempusagedetail_name,p_NameFormat);
 
-	
-	
 	IF ( ( SELECT COUNT(*) FROM tmp_Service_ ) > 0 OR p_OutboundTableID > 0)
 	THEN
 

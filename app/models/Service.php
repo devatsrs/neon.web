@@ -17,7 +17,7 @@ class Service extends \Eloquent
         'Status' =>     'between:0,1',
     );
 
-    public static $ServiceType = array(""=>"Select", "voice"=>"Voice", "data"=>"Data", "sms"=>"SMS");
+    public static $ServiceType = array(""=>"Select", "voice"=>"Voice");
 
     public static function getDropdownIDList($CompanyID=0){
         if($CompanyID==0){
@@ -35,6 +35,16 @@ class Service extends \Eloquent
 
     public static function getServiceNameByID($ServiceID){
         return Service::where('ServiceID',$ServiceID)->pluck('ServiceName');
+    }
+
+    public static function  checkForeignKeyById($ServiceID){
+        $AccountService = AccountService::where(array('ServiceID'=>$ServiceID))->count();
+        if(!empty($AccountService)){
+            return false;
+        }
+        return true;
+
+
     }
 
 }

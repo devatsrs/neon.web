@@ -7,9 +7,8 @@ BEGIN
 	 SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
     
     SELECT AccountID
-    FROM tblAccountAuthenticate 
-    WHERE CompanyID = p_CompanyID AND  
-	 ( FIND_IN_SET(p_CustomerCLI,CustomerAuthValue)!= 0 OR FIND_IN_SET(p_CustomerCLI,VendorAuthValue)!= 0 );  
+    FROM tblCLIRateTable 
+    WHERE CompanyID = p_CompanyID AND  CLI = p_CustomerCLI;
     
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 

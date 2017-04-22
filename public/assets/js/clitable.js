@@ -60,6 +60,13 @@ jQuery(document).ready(function ($) {
                 },
                 {"bSortable": true},  // 0 Sequence NO
                 {"bSortable": true},  // 1  Name
+                {
+                    "bSortable": false, //service
+                    mRender: function (id, type, full) {
+                        return id;
+                    }
+
+                },  // 1  Name
                 {                        // 10 Action
                     "bSortable": false,
                     mRender: function (id, type, full) {
