@@ -269,23 +269,23 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label" for="field-1">Service</label>
                             <div class="col-sm-4">
-                                {{ Form::select('ServiceID',$Services,'', array("class"=>"select2")) }}
+                                {{ Form::select('selection[ServiceID]',$Services,'', array("class"=>"select2")) }}
                             </div>
 
                             <label class="col-sm-2 control-label" for="field-1">Trunk</label>
                             <div class="col-sm-4">
-                                {{ Form::select('TrunkID',$trunks,'', array("class"=>"select2")) }}
+                                {{ Form::select('selection[TrunkID]',$trunks,'', array("class"=>"select2")) }}
                             </div>
 
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label" for="field-1">Inbound Rate Table<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If selected then rate will be ignored from service and account level." data-original-title="Inbound Rate Table">?</span></label>
                             <div class="col-sm-4">
-                                {{ Form::select('InboundRateTableID',$ratetables,'', array("class"=>"select2")) }}
+                                {{ Form::select('selection[InboundRateTableID]',$ratetables,'', array("class"=>"select2")) }}
                             </div>
                             <label class="col-sm-2 control-label" for="field-1">Outbound Rate Table<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If selected then rate will be ignored from service and account level." data-original-title="Outbound Rate Table">?</span></label>
                             <div class="col-sm-4">
-                                {{ Form::select('OutboundRateTableID',$ratetables,'', array("class"=>"select2")) }}
+                                {{ Form::select('selection[OutboundRateTableID]',$ratetables,'', array("class"=>"select2")) }}
                             </div>
                         </div>
 
@@ -614,7 +614,7 @@ var click_btn;
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]' && el.name != 'InboundRateTableID' && el.name != 'OutboundRateTableID' && el.name != 'ServiceID' && el.name != 'TrunkID'){
+            if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]' && el.name != 'selection[InboundRateTableID]' && el.name != 'selection[OutboundRateTableID]' && el.name != 'selection[ServiceID]' && el.name != 'selection[TrunkID]'){
                 var self = $('#add-template-form [name="'+el.name+'"]');
                 rebuildSelect2(self,data.columns,'Skip loading');
             }
