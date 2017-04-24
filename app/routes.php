@@ -773,6 +773,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice_template/{id}/print', 'InvoiceTemplatesController@print_preview');
 	Route::any('/invoice_template/{id}/pdf_download', 'InvoiceTemplatesController@pdf_download');
     Route::any('/invoice_template/{id}/get_logo', 'InvoiceTemplatesController@get_logo');
+    Route::any('/invoice_template/save_single_field', 'InvoiceTemplatesController@save_single_field');
 
 	//CDR Upload
 	Route::any('/cdr_upload', 'CDRController@index');
@@ -1175,6 +1176,21 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/clitable/delete/{id}','AccountsController@clitable_delete');
 	Route::any('/clitable/update','AccountsController@clitable_update');
 
+	// services
+	Route::any('services', 'ServicesController@index');
+	Route::any('services/ajax_datagrid', 'ServicesController@ajax_datagrid');
+	Route::any('services/store', 'ServicesController@store');
+	Route::any('services/update/{id}', 'ServicesController@update');
+	Route::any('services/delete/{id}', 'ServicesController@delete');
+	Route::any('services/exports/{type}', 'ServicesController@exports');
+
+	//accountservice
+	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
+	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
+	Route::any('accountservices/{id}/ajax_datagrid', 'AccountServiceController@ajax_datagrid');
+	Route::any('accountservices/{id}/update/{serviceid}', 'AccountServiceController@update');
+	Route::any('accountservices/{id}/changestatus/{status}', 'AccountServiceController@changestatus');
+	Route::any('accountservices/{id}/{serviceid}/delete', 'AccountServiceController@delete');
 });
 
 Route::group(array('before' => 'global_admin'), function () {

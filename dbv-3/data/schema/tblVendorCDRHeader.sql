@@ -7,6 +7,7 @@ CREATE TABLE `tblVendorCDRHeader` (
   `StartDate` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
+  `ServiceID` int(11) DEFAULT '0',
   PRIMARY KEY (`VendorCDRHeaderID`),
   KEY `Index_C_CG_A_GA` (`CompanyID`,`CompanyGatewayID`,`GatewayAccountID`,`AccountID`),
   KEY `Index_A_S_CG` (`AccountID`,`StartDate`,`CompanyGatewayID`)

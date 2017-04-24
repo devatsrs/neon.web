@@ -1,5 +1,5 @@
 CREATE TABLE `tblVendorCDRFailed` (
-  `VendorCDRFailedID` int(11) NOT NULL AUTO_INCREMENT,
+  `VendorCDRFailedID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `VendorCDRHeaderID` int(11) NOT NULL,
   `connect_time` datetime DEFAULT NULL,
   `disconnect_time` datetime DEFAULT NULL,

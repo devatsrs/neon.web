@@ -145,6 +145,7 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function store() {
+            $ServiceID = 0;
             $data = Input::all();
             $companyID = User::get_companyID();
             $data['CompanyID'] = $companyID;
@@ -190,8 +191,8 @@ class AccountsController extends \BaseController {
 
             if ($account = Account::create($data)) {
                 if($data['Billing'] == 1) {
-                    AccountBilling::insertUpdateBilling($account->AccountID, $data);
-                    AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID);
+                    AccountBilling::insertUpdateBilling($account->AccountID, $data,$ServiceID);
+                    AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID,$ServiceID);
                 }
 
                 if (trim(Input::get('Number')) == '') {
@@ -217,7 +218,7 @@ class AccountsController extends \BaseController {
     public function show_old($id) {
 
             $account = Account::find($id);
-        $AccountBilling = AccountBilling::getBilling($id);
+            $AccountBilling = AccountBilling::getBilling($id,0);
             $companyID = User::get_companyID();
             $account_owner = User::find($account->Owner);
             $notes = Note::where(["CompanyID" => $companyID, "AccountID" => $id])->orderBy('NoteID', 'desc')->get();
@@ -379,6 +380,7 @@ class AccountsController extends \BaseController {
 	}
 	 
     public function edit($id) {
+        $ServiceID = 0;
         $account = Account::find($id);
         $companyID = User::get_companyID();
         $account_owners = User::getOwnerUsersbyRole();
@@ -407,14 +409,15 @@ class AccountsController extends \BaseController {
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
         $DiscountPlan = DiscountPlan::getDropdownIDList($companyID,(int)$account->CurrencyId);
-        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND))->pluck('DiscountPlanID');
-        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND))->pluck('DiscountPlanID');
-        $AccountBilling =  AccountBilling::getBilling($id);
-        $AccountNextBilling =  AccountNextBilling::getBilling($id);
+        $DiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::OUTBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
+        $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
+        $AccountBilling =  AccountBilling::getBilling($id,$ServiceID);
+        $AccountNextBilling =  AccountNextBilling::getBilling($id,$ServiceID);
 		$decimal_places = get_round_decimal_places($id);
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
+        $services = Service::getAllServices($companyID);
 
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table'));
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID'));
     }
 
     /**
@@ -425,13 +428,14 @@ class AccountsController extends \BaseController {
      * @return Response
      */
     public function update($id) {
+        $ServiceID = 0;
         $data = Input::all();
         $account = Account::find($id);
         if(isset($data['tags'])){
             Tags::insertNewTags(['tags'=>$data['tags'],'TagType'=>Tags::Account_tag]);
         }
-        $DiscountPlanID = $data['DiscountPlanID'];
-        $InboundDiscountPlanID = $data['InboundDiscountPlanID'];
+        //$DiscountPlanID = $data['DiscountPlanID'];
+        //$InboundDiscountPlanID = $data['InboundDiscountPlanID'];
         $message = $password = "";
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
@@ -451,8 +455,8 @@ class AccountsController extends \BaseController {
             'phoneNumber'=>$account['Mobile']);
         unset($data['table-4_length']);
         unset($data['cardID']);
-        unset($data['DiscountPlanID']);
-        unset($data['InboundDiscountPlanID']);
+        //unset($data['DiscountPlanID']);
+        //unset($data['InboundDiscountPlanID']);
         unset($data['DataTables_Table_0_length']);
 
         if(isset($data['TaxRateId'])) {
@@ -503,16 +507,17 @@ class AccountsController extends \BaseController {
         }
         if ($account->update($data)) {
             if($data['Billing'] == 1) {
-                AccountBilling::insertUpdateBilling($id, $data);
-                AccountBilling::storeFirstTimeInvoicePeriod($id);
-                $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'));
+                AccountBilling::insertUpdateBilling($id, $data,$ServiceID);
+                AccountBilling::storeFirstTimeInvoicePeriod($id,$ServiceID);
+                /*
+                $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'),$ServiceID);
                 if(!empty($AccountPeriod)) {
                     $billdays = getdaysdiff($AccountPeriod->EndDate, $AccountPeriod->StartDate);
                     $getdaysdiff = getdaysdiff($AccountPeriod->EndDate, date('Y-m-d'));
                     $DayDiff = $getdaysdiff > 0 ? intval($getdaysdiff) : 0;
-                    AccountDiscountPlan::addUpdateDiscountPlan($id, $DiscountPlanID, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff);
-                    AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlanID, AccountDiscountPlan::INBOUND, $billdays, $DayDiff);
-                }
+                    AccountDiscountPlan::addUpdateDiscountPlan($id, $DiscountPlanID, AccountDiscountPlan::OUTBOUND, $billdays, $DayDiff,$ServiceID);
+                    AccountDiscountPlan::addUpdateDiscountPlan($id, $InboundDiscountPlanID, AccountDiscountPlan::INBOUND, $billdays, $DayDiff,$ServiceID);
+                } */
             }
 
             if(trim(Input::get('Number')) == ''){
@@ -1146,7 +1151,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function unbilledreport($id){
         $data = Input::all();
         $companyID = User::get_companyID();
-        $AccountBilling = AccountBilling::getBilling($id);
+        // @TODO: ServiceID need to fix for show
+        $AccountBilling = AccountBilling::getBilling($id,0);
         $account = Account::find($id);
         $today = date('Y-m-d 23:59:59');
         if(empty($AccountBilling->LastInvoiceDate)){
@@ -1213,12 +1219,20 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $rate_tables = CLIRateTable::
         leftJoin('tblRateTable','tblRateTable.RateTableId','=','tblCLIRateTable.RateTableID')
-            ->select(['CLIRateTableID','CLI','tblRateTable.RateTableName','CLIRateTableID'])
+        ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
+            ->select(['CLIRateTableID','CLI','tblRateTable.RateTableName','CLIRateTableID','tblService.ServiceName'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountID",$id);
         if(!empty($data['CLIName'])){
             $rate_tables->WhereRaw('CLI like "%'.$data['CLIName'].'%"');
         }
+        if(!empty($data['ServiceID'])){
+            $rate_tables->where('tblCLIRateTable.ServiceID','=',$data['ServiceID']);
+        }
+        /*
+        else{
+            $rate_tables->where('tblCLIRateTable.ServiceID','=',0);
+        }*/
         return Datatables::of($rate_tables)->make();
     }
     public function clitable_store(){
@@ -1236,9 +1250,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $clis = array_filter(preg_split("/\\r\\n|\\r|\\n/", $data['CLI']),function($var){return trim($var)!='';});
 
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
+
         foreach($clis as $cli){
 
-            if(CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$cli))->count()){
+            if(CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$cli))->count()){
                 $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$cli))->pluck('AccountID');
                 $message .= $cli.' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
             }else{
@@ -1246,9 +1261,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $rate_tables['RateTableID'] = $data['RateTableID'];
                 $rate_tables['AccountID'] = $data['AccountID'];
                 $rate_tables['CompanyID'] = $CompanyID;
+                if(!empty($data['ServiceID'])) {
+                    $rate_tables['ServiceID'] = $data['ServiceID'];
+                }
                 CLIRateTable::insert($rate_tables);
             }
         }
+
         if(!empty($message)){
             $message = 'following CLI skipped.<br>'.$message;
             return Response::json(array("status" => "error", "message" => $message));
@@ -1267,34 +1286,47 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $Date = $data['dates'];
             $Confirm = 1;
         }
+        if(!empty($data['ServiceID'])){
+            $ServiceID = $data['ServiceID'];
+        }else{
+            $ServiceID = 0;
+        }
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
         if ($CLIRateTableID > 0) {
             $CLIs = CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->pluck('CLI');
         } else if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
-            $CLIRateTables = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')->select(DB::raw('group_concat(CLI) as CLIs'))->get();
+            $CLIRateTables = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')
+                //->where(array('ServiceID' => $ServiceID))
+                ->where(array('AccountID' => $data['AccountID']))
+                ->select(DB::raw('group_concat(CLI) as CLIs'))->get();
             if(!empty($CLIRateTables)){
                 $CLIs = $CLIRateTables[0]->CLIs;
             }
         } else if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
+            //$CLIRateTables = CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->where(array('ServiceID' => $ServiceID))->select(DB::raw('group_concat(CLI) as CLIs'))->get();
             $CLIRateTables = CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->select(DB::raw('group_concat(CLI) as CLIs'))->get();
             if(!empty($CLIRateTables)){
                 $CLIs = $CLIRateTables[0]->CLIs;
             }
         }
-        $query = "call prc_unsetCDRUsageAccount ('" . $CompanyID . "','" . $CLIs . "','".$Date."',".$Confirm.")";
+        $query = "call prc_unsetCDRUsageAccount ('" . $CompanyID . "','" . $CLIs . "','".$Date."',".$Confirm.",".$ServiceID.")";
         $recordFound = DB::Connection('sqlsrvcdr')->select($query);
         if($recordFound[0]->Status>0){
             return Response::json(array("status" => "check","check"=>1));
         }
         if ($CLIRateTableID > 0) {
+            //CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->where(array('ServiceID' => $ServiceID))->delete();
             CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->delete();
         } else if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
-            CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')->delete();
+            CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')
+                //->where(array('ServiceID' => $ServiceID))
+                ->where(array('AccountID' => $data['AccountID']))->delete();
         } else if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
+            //CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->where(array('ServiceID' => $ServiceID))->delete();
             CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->delete();
         }
 
@@ -1304,13 +1336,23 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     public function clitable_update(){
         $data = Input::all();
         $CompanyID = User::get_companyID();
+        if(!empty($data['ServiceID'])){
+            $ServiceID = $data['ServiceID'];
+        }else{
+            $ServiceID = 0;
+        }
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
         if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
-            CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')->update(array('RateTableID' => $data['RateTableID']));
+            $query = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"');
+                //$query->where(array('ServiceID' => $ServiceID));
+                $query->where(array('AccountID' => $data['AccountID']));
+                $query->update(array('RateTableID' => $data['RateTableID']));
         } else if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
-            CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->update(array('RateTableID' => $data['RateTableID']));
+            $query = CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs);
+           // $query->where(array('ServiceID' => $ServiceID));
+            $query->update(array('RateTableID' => $data['RateTableID']));
         }
         return Response::json(array("status" => "success", "message" => "CLI Updated Successfully"));
     }

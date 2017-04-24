@@ -18,4 +18,5 @@ CREATE TABLE `tblInvoiceDetail` (
   `ProductType` int(11) DEFAULT NULL,
   `TotalMinutes` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`InvoiceDetailID`)
+  `ServiceID` int(11) DEFAULT '0',
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

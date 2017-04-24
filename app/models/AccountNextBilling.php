@@ -9,9 +9,11 @@ class AccountNextBilling extends \Eloquent {
 
     public $timestamps = false; // no created_at and updated_at
 
-    public static function insertUpdateBilling($AccountID,$data=array()){
-
-        $AccountBilling =  AccountBilling::getBilling($AccountID);
+    public static function insertUpdateBilling($AccountID,$data=array(),$ServiceID){
+        if(empty($ServiceID)){
+            $ServiceID=0;
+        }
+        $AccountBilling =  AccountBilling::getBilling($AccountID,$ServiceID);
         if($AccountBilling->BillingCycleType != $data['BillingCycleType'] || (!empty($data['BillingCycleValue']) && $AccountBilling->BillingCycleValue != $data['BillingCycleValue']) ) {
             $AccountNextBilling['BillingCycleType'] = $data['BillingCycleType'];
             if (!empty($data['BillingCycleValue'])) {
@@ -24,20 +26,21 @@ class AccountNextBilling extends \Eloquent {
             if (!empty($BillingStartDate)) {
                 $AccountNextBilling['NextInvoiceDate'] = next_billing_date($AccountNextBilling['BillingCycleType'], $AccountNextBilling['BillingCycleValue'], $BillingStartDate);
             }
-            if (AccountNextBilling::where('AccountID', $AccountID)->count()) {
-                AccountNextBilling::where('AccountID', $AccountID)->update($AccountNextBilling);
+            if (AccountNextBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count()) {
+                AccountNextBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->update($AccountNextBilling);
             } else {
                 $AccountNextBilling['AccountID'] = $AccountID;
+                $AccountNextBilling['ServiceID'] = $ServiceID;
                 AccountNextBilling::create($AccountNextBilling);
             }
-            AccountBilling::storeNextInvoicePeriod($AccountID,$AccountNextBilling['BillingCycleType'],$AccountNextBilling['BillingCycleValue'],$AccountNextBilling['LastInvoiceDate'],$AccountNextBilling['NextInvoiceDate']);
+            AccountBilling::storeNextInvoicePeriod($AccountID,$AccountNextBilling['BillingCycleType'],$AccountNextBilling['BillingCycleValue'],$AccountNextBilling['LastInvoiceDate'],$AccountNextBilling['NextInvoiceDate'],$ServiceID);
         }else{
-            AccountNextBilling::where('AccountID', $AccountID)->delete();
+            AccountNextBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->delete();
         }
 
     }
-    public static function getBilling($AccountID){
-        return AccountNextBilling::where('AccountID',$AccountID)->first();
+    public static function getBilling($AccountID,$ServiceID=0){
+        return AccountNextBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->first();
     }
 
 

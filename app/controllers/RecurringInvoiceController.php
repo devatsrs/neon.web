@@ -673,13 +673,25 @@ class RecurringInvoiceController extends \BaseController {
     public function getBillingClassInfo()
     {
         $data = Input::all();
+
         $invoiceTemplateID = BillingClass::getInvoiceTemplateID($data['BillingClassID']);
+        $InvoiceToAddress = '';
         if (!empty($invoiceTemplateID) && $invoiceTemplateID > 0 ) {
             $InvoiceTemplate = InvoiceTemplate::find($invoiceTemplateID);
             $Terms = $InvoiceTemplate->Terms;
             $FooterTerm = $InvoiceTemplate->FooterTerm;
             $TaxRate = BillingClass::getTaxRateType($data['BillingClassID'],TaxRate::TAX_ALL);
-            $return = ['Terms','FooterTerm','TaxRate'];
+
+
+            if(!empty($data['AccountID'])){
+                $Account = Account::find($data['AccountID']);
+                $message = $InvoiceTemplate->InvoiceTo;
+                $replace_array = Invoice::create_accountdetails($Account);
+                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
+                $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
+            }
+            $return = ['Terms','FooterTerm','TaxRate','InvoiceToAddress'];
+
             return Response::json(compact($return));
         }else{
             return Response::json(array("status" => "failed", "message" => "You cannot create invoice as no Invoice Template assigned to this billing Class." ));

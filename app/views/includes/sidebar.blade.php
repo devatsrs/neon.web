@@ -173,7 +173,10 @@
         @endif
         @if(User::checkCategoryPermission('CDR','View'))
         <li> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
-        @endif 
+        @endif
+        @if(User::checkCategoryPermission('Service','View'))
+            <li> <a href="{{URL::to('/services')}}">  <span>Services</span> </a> </li>
+         @endif
         <!--<li>
 <a href="{{URL::to('/cdr_recal')}}">
   <i class="entypo-pencil"></i>

@@ -484,7 +484,7 @@ $(document).ready(function(){
                     $("[name=Terms]").val('');
                     $("[name=FooterTerm]").val('');
                 } else {
-                    $("#Account_Address").html(response.Address);
+                    $("#Account_Address").html(response.EstimateToAddress);
                     $("input[name=CurrencyCode]").val(response.Currency);
                     $("input[name=CurrencyID]").val(response.CurrencyId);
                     $('#add-new-billing_subscription-form [data-type="currency"]').val(response.CurrencyId).trigger('change');

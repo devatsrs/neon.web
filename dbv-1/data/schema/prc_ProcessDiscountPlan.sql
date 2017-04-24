@@ -1,9 +1,13 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_ProcessDiscountPlan`(IN `p_processId` INT, IN `p_tbltempusagedetail_name` VARCHAR(200))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcessDiscountPlan`(
+	IN `p_processId` INT,
+	IN `p_tbltempusagedetail_name` VARCHAR(200)
+)
 BEGIN
 	
 	DECLARE v_rowCount_ INT;
 	DECLARE v_pointer_ INT;	
 	DECLARE v_AccountID_ INT;
+	DECLARE v_ServiceID_ INT;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
@@ -11,13 +15,16 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_Accounts_;
 	CREATE TEMPORARY TABLE tmp_Accounts_  (
 		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-		AccountID INT
+		AccountID INT,
+		ServiceID INT
 	);
 	SET @stm = CONCAT('
-	INSERT INTO tmp_Accounts_(AccountID)
-	SELECT DISTINCT ud.AccountID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud 
+	INSERT INTO tmp_Accounts_(AccountID,ServiceID)
+	SELECT DISTINCT ud.AccountID,ud.ServiceID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud 
 	INNER JOIN tblAccountDiscountPlan adp
-		ON ud.AccountID = adp.AccountID AND Type = 1
+		ON ud.AccountID = adp.AccountID 
+		AND ud.ServiceID = adp.ServiceID
+		AND Type = 1
 	WHERE ProcessID="' , p_processId , '" AND ud.is_inbound = 0;
 	');
 	
@@ -32,9 +39,10 @@ BEGIN
 	DO
 
 		SET v_AccountID_ = (SELECT AccountID FROM tmp_Accounts_ t WHERE t.RowID = v_pointer_);
+		SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Accounts_ t WHERE t.RowID = v_pointer_);
 		
 		/* apply discount plan*/
-		CALL prc_applyAccountDiscountPlan(v_AccountID_,p_tbltempusagedetail_name,p_processId,0);
+		CALL prc_applyAccountDiscountPlan(v_AccountID_,p_tbltempusagedetail_name,p_processId,0,v_ServiceID_);
 		
 		SET v_pointer_ = v_pointer_ + 1;
 	END WHILE;
@@ -43,13 +51,16 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS tmp_Accounts_;
 	CREATE TEMPORARY TABLE tmp_Accounts_  (
 		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-		AccountID INT
+		AccountID INT,
+		ServiceID INT
 	);
 	SET @stm = CONCAT('
-	INSERT INTO tmp_Accounts_(AccountID)
-	SELECT DISTINCT ud.AccountID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud 
+	INSERT INTO tmp_Accounts_(AccountID,ServiceID)
+	SELECT DISTINCT ud.AccountID,ud.ServiceID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud 
 	INNER JOIN tblAccountDiscountPlan adp
-		ON ud.AccountID = adp.AccountID AND Type = 2
+		ON ud.AccountID = adp.AccountID 
+		AND ud.ServiceID = adp.ServiceID
+		AND Type = 2
 	WHERE ProcessID="' , p_processId , '" AND ud.is_inbound = 1;
 	');
 	
@@ -64,9 +75,10 @@ BEGIN
 	DO
 
 		SET v_AccountID_ = (SELECT AccountID FROM tmp_Accounts_ t WHERE t.RowID = v_pointer_);
+		SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Accounts_ t WHERE t.RowID = v_pointer_);
 		
 		/* apply discount plan*/
-		CALL prc_applyAccountDiscountPlan(v_AccountID_,p_tbltempusagedetail_name,p_processId,1);
+		CALL prc_applyAccountDiscountPlan(v_AccountID_,p_tbltempusagedetail_name,p_processId,1,v_ServiceID_);
 		
 		SET v_pointer_ = v_pointer_ + 1;
 	END WHILE;
