@@ -123,6 +123,7 @@
         bottom: 2px;
         left:   5px;
 }
+.full-width-error{text-align:center;}
 </style>
 <script type="text/javascript">
 	
@@ -185,8 +186,10 @@ $(document).ready(function(e) {
 						{
 							if(isJson(response))
 							{
-								jsonstr =  JSON.parse(response);
-                                $('.inbox').html('<table id="table-4" class="table mail-table"><tr><td class="col-name" align="center" colspan="2">'+jsonstr.result+'</td></tr><table>');
+								jsonstr =  JSON.parse(response); 
+                                //$('.inbox').html('<table id="table-4" class="table table-bordered datatable dataTable"><tr><td class="col-name full-width-error"  align="center" colspan="2">'+jsonstr.result+'</td></tr></table>');
+								
+								$('.inbox').html('<h3 class="full-width-error">'+jsonstr.result+'</h3>');
 								
 								if(clicktype=='next')
 								 {
