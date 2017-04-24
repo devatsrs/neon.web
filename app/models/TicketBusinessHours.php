@@ -48,7 +48,7 @@ class TicketBusinessHours extends \Eloquent {
         $where 			= 	['CompanyID'=>$compantID];      
         $Businesshours  = 	TicketBusinessHours::select(['ID','Name'])->where($where)->orderBy('Name', 'asc')->lists('Name','ID');       
 		if(!empty($Businesshours) & $select==1){
-            $Businesshours = array(""=> "Select")+$Businesshours;
+            $Businesshours = array("0"=> "Select")+$Businesshours;
         }
         return $Businesshours;
     }
