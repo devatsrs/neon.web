@@ -1,4 +1,18 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CustomerPanel_getInvoice`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_InvoiceNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_InvoiceType` INT, IN `p_IsOverdue` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT, IN `p_zerovalueinvoice` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CustomerPanel_getInvoice`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_InvoiceNumber` VARCHAR(50),
+	IN `p_IssueDateStart` DATETIME,
+	IN `p_IssueDateEnd` DATETIME,
+	IN `p_InvoiceType` INT,
+	IN `p_IsOverdue` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT,
+	IN `p_zerovalueinvoice` INT
+)
 BEGIN
 	DECLARE v_OffSet_ int;
 	DECLARE v_Round_ int;
@@ -36,16 +50,16 @@ BEGIN
 		NominalAnalysisNominalAccountNumber varchar(100)
 	);
 	
-		insert into tmp_Invoices_
+		INSERT INTO tmp_Invoices_
 		SELECT inv.InvoiceType ,
 			ac.AccountName,
 			FullInvoiceNumber as InvoiceNumber,
 			inv.IssueDate,
 			IF(invd.StartDate IS NULL ,'',CONCAT('From ',date(invd.StartDate) ,'<br> To ',date(invd.EndDate))) as InvoicePeriod,
 			IFNULL(cr.Symbol,'') as CurrencySymbol,
-			inv.GrandTotal as GrandTotal,		
-			(select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) as TotalPayment,
-			(inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ) as `PendingAmount`,
+			inv.GrandTotal as GrandTotal,
+			(SELECT IFNULL(sum(p.Amount),0) FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) as TotalPayment,
+			(inv.GrandTotal -  (SELECT IFNULL(sum(p.Amount),0) FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ) as `PendingAmount`,
 			inv.InvoiceStatus,
 			inv.InvoiceID,
 			inv.Description,
@@ -54,11 +68,11 @@ BEGIN
 			inv.ItemInvoice,
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
-			(SELECT IFNULL(b.PaymentDueInDays,0) FROM NeonRMDev.tblAccountBilling ab INNER JOIN NeonRMDev.tblBillingClass b ON b.BillingClassID =ab.BillingClassID WHERE ab.AccountID = ac.AccountID) as PaymentDueInDays,
-			(select PaymentDate from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID order by PaymentID desc limit 1) AS PaymentDate,
+			(SELECT IFNULL(b.PaymentDueInDays,0) FROM NeonRMDev.tblAccountBilling ab INNER JOIN NeonRMDev.tblBillingClass b ON b.BillingClassID =ab.BillingClassID WHERE ab.AccountID = ac.AccountID AND ab.ServiceID = inv.ServiceID LIMIT 1) as PaymentDueInDays,
+			(SELECT PaymentDate FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID ORDER BY PaymentID DESC LIMIT 1) AS PaymentDate,
 			inv.SubTotal,
 			inv.TotalTax,
-			ac.NominalAnalysisNominalAccountNumber		
+			ac.NominalAnalysisNominalAccountNumber
 			FROM tblInvoice inv
 			INNER JOIN NeonRMDev.tblAccount ac on ac.AccountID = inv.AccountID
 			LEFT JOIN tblInvoiceDetail invd on invd.InvoiceID = inv.InvoiceID AND invd.ProductType = 2
