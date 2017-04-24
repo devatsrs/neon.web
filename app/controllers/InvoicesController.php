@@ -608,6 +608,63 @@ class InvoicesController extends \BaseController {
                             $error = "No Product Found.";
                         }
 
+                    }elseif(Product::$ProductTypes[$data['product_type']] == Product::SUBSCRIPTION) {
+                        $companyID = User::get_companyID();
+                        $data['CompanyID'] = $companyID;
+
+                        $Subscription = BillingSubscription::find($data['product_id']);
+                        if (!empty($Subscription)) {
+                            if($AccountBilling->BillingCycleType=='daily'){
+                                $ProductAmount = number_format($Subscription->DailyFee, $decimal_places,".","");
+                            }elseif($AccountBilling->BillingCycleType=='weekly'){
+                                $ProductAmount = number_format($Subscription->WeeklyFee, $decimal_places,".","");
+                            }elseif($AccountBilling->BillingCycleType=='monthly'){
+                                $ProductAmount = number_format($Subscription->MonthlyFee, $decimal_places,".","");
+                            }elseif($AccountBilling->BillingCycleType=='quarterly'){
+                                $ProductAmount = number_format($Subscription->QuarterlyFee, $decimal_places,".","");
+                            }elseif($AccountBilling->BillingCycleType=='yearly'){
+                                $ProductAmount = number_format($Subscription->AnnuallyFee, $decimal_places,".","");
+                            }else{
+                                $ProductAmount = number_format($Subscription->MonthlyFee, $decimal_places,".","");
+                            }
+
+                            $ProductDescription = $Subscription->InvoiceLineDescription;
+
+                            $TaxRates = array();
+                            $TaxRates = TaxRate::where(array('CompanyID' => User::get_companyID(), "TaxType" => TaxRate::TAX_ALL))->select(['TaxRateID', 'Title', 'Amount'])->first();
+                            if(!empty($TaxRates)){
+                                $TaxRates->toArray();
+                            }
+                            //$AccountTaxRate = explode(",", $AccountBilling->TaxRateId);
+                            $AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
+
+                            $TaxRateAmount = $TaxRateId = 0;
+                            if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
+
+                                $TaxRateId = $TaxRates['TaxRateID'];
+                                $TaxRateAmount = 0;
+                                if (isset($TaxRates['Amount'])) {
+                                    $TaxRateAmount = $TaxRates['Amount'];
+                                }
+
+                            }
+
+                            $TotalTax = number_format((($ProductAmount * $data['qty'] * $TaxRateAmount) / 100), $decimal_places,".","");
+                            $SubTotal = number_format($ProductAmount * $data['qty'], $decimal_places,".",""); //number_format(($ProductAmount + $TotalTax) , 2);
+
+                            $response = [
+                                "status" => "success",
+                                "product_description" => $ProductDescription,
+                                "product_amount" => $ProductAmount,
+                                //"product_tax_rate_id" => $TaxRateId,
+                                //"product_total_tax_rate" => $TotalTax,
+                                "product_total_tax_rate" => 0,
+                                "sub_total" => $SubTotal,
+                                "decimal_places" => $decimal_places,
+                            ];
+                        } else {
+                            $error = "No Subscription Found.";
+                        }
                     } else {
 
                         $error = "No Invoice Template Assigned to Account";

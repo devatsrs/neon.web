@@ -36,24 +36,7 @@
 {{Form::hidden('EstimateID',$Estimate->EstimateID)}}
 <script>
 jQuery(document).ready(function ($) {
-	 $("#send-modal-estimate").find(".select22").select2(); 
-	   $('#InvoiceMessage').wysihtml5({
-				   "font-styles": true,				
-				  	"leadoptions":false,	
-				    "invoiceoptions":false,	
-				    "estimateoptions":false,
-					"TicketsSingle":false,					
-				    "Tickets":false,
-					"Crm":false,			
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-		});	 
+	$("#send-modal-estimate").find(".select22").select2();
+    show_summernote($("#InvoiceMessage"),{});
 });
 </script>

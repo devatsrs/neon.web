@@ -1,0 +1,25 @@
+From d0e08695f952024560047abfa4fcb913cb86c7a3 Mon Sep 17 00:00:00 2001
+From: Abubakar <abubakar@code-desk.com>
+Date: Wed, 29 Mar 2017 16:10:26 +0500
+Subject: [PATCH] Update billing subscription
+
+---
+ app/views/billingsubscription/index.blade.php | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/app/views/billingsubscription/index.blade.php b/app/views/billingsubscription/index.blade.php
+index 09c27a6..527a8d1 100644
+--- a/app/views/billingsubscription/index.blade.php
++++ b/app/views/billingsubscription/index.blade.php
+@@ -231,7 +231,7 @@ jQuery(document).ready(function ($) {
+         var $this = $(this);
+         $.each(list_fields, function( index, field_name ) {
+             var val = $this.prev("div.hiddenRowData").find("input[name='"+field_name+"']").val();
+-            $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val?val:'');
++            $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val!='null'?val:'');
+             if(field_name =='CurrencyID'){
+                 $("#add-new-billing_subscription-form [name='"+field_name+"']").val(val).trigger("change");
+             }else if(field_name == 'Advance'){
+-- 
+1.9.5.msysgit.0
+

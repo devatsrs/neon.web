@@ -151,11 +151,8 @@
 
     </div>
 </div>
-<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
-<script src="{{ URL::asset('assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js') }}"></script>
-<script src="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.js') }}"></script>
-
 <script type="text/javascript">
+    var editor_options 	 	=  		{"Crm":true};
     jQuery(document).ready(function($) {
         $('#admin').change(function(){
             if($(this).prop('checked')){
@@ -186,20 +183,7 @@
             $(this).button('loading');
             $('#form-user-add').submit();
         });
-
-        $('[name="EmailFooter"]').wysihtml5({
-            "leadoptions":false,
-            "font-styles": false,
-            "emphasis": false,
-            "lists": false,
-            "html": true,
-            "link": false,
-            "image": false,
-            "color": false,
-            parser: function (html) {
-                return html;
-            }
-        });
+        show_summernote($('[name="EmailFooter"]'),editor_options);
     });
 
 </script>

@@ -31,7 +31,7 @@
             <label for="field-1" class="col-sm-1 control-label small_label">Search</label>
             <div class="col-sm-2"> {{ Form::text('search', '', array("class"=>"form-control")) }} </div>
             <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-            <div class="col-sm-2"> {{Form::select('status[]', $status, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+            <div class="col-sm-2"> {{Form::select('status[]', $status, (Input::get('status')?explode(',',Input::get('status')):$OpenTicketStatus) ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
             <label for="field-1" class="col-sm-1 control-label small_label">Priority</label>
             <div class="col-sm-2"> {{Form::select('priority[]', $Priority, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
             <label for="field-1" class="col-sm-1 control-label small_label">Group</label>
@@ -40,15 +40,19 @@
           @if(User::is_admin())
           <div class="form-group">
             <label for="field-1" class="col-sm-1 control-label small_label">Agent</label>
-            <div class="col-sm-2"> {{Form::select('agent[]', $Agents, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-          </div>
+            <div class="col-sm-2"> {{Form::select('agent[]', $Agents, (Input::get('agent')?0:'') ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+		  </div>
           @else
-          @if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)
-          <input type="hidden" name="agent" value="{{user::get_userID()}}" >
-          @else
-          <input type="hidden" name="agent" value="" >
-          @endif
-          @endif
+			<div class="form-group">
+				<label for="field-1" class="col-sm-1 control-label small_label">Overdue by</label>
+				<div class="col-sm-2"> {{Form::select('overdue[]', $overdue, (Input::get('overdue')?explode(',',Input::get('overdue')):'') ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+			</div>
+          	@if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)
+          		<input type="hidden" name="agent" value="{{user::get_userID()}}" >
+          	@else
+          		<input type="hidden" name="agent" value="" >
+          	@endif
+       		@endif
           <p style="text-align: right;">
             <button type="submit" class="btn btn-primary btn_form_submit btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
           </p>
@@ -57,94 +61,38 @@
     </form>
   </div>
 </div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="input-group-btn pull-right" style="width:70px;">
+            @if( User::checkCategoryPermission('Tickets','Edit'))
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+                        aria-expanded="false">Action <span class="caret"></span></button>
+                <ul class="action dropdown-menu dropdown-menu-left" role="menu"
+                    style="background-color: #000; border-color: #000; margin-top:0px;">
+                    <li> <a id="bulk-assign" href="javascript:;"> Assign </a> </li>
+                    <li> <a id="bulk-close" href="javascript:;" title="Shift+Close to skip notification mail" data-placement="top" data-toggle="tooltip"> Close </a> </li>
+                    <li> <a id="bulk-delete" href="javascript:;"> Delete </a> </li>
+                    <li> <a id="bulk-action" href="javascript:;"> Bulk Actions </a> </li>
+                </ul>
+            @endif
+            <form id="clear-bulk-rate-form">
+                <input type="hidden" name="CustomerRateIDs" value="">
+            </form>
+        </div>
+        <!-- /btn-group -->
+        <div class="clear"><br>
+        </div>
+    </div>
+</div>
+
 <!-- mailbox start -->
 <div class="mail-env"> 
   <!-- Mail Body start -->
   <div class="mail-body"> 
     <!-- mail table -->
     <div class="inbox">
-      <table id="table-4" class="table mail-table">
-        <!-- mail table header -->
-        <thead>
-          <tr>
-            <th colspan="2"> <?php if(count($result)>0){ ?>
-              <div class="mail-select-options" style=""> <span class="pull-left paginationTicket"> {{Form::select('page',$pagination,$per_page,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-right per_page">records per page</span> </div>
-              <div class="pull-right">
-                <div class="hidden mail-pagination"> <strong>
-                  <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
-                  -
-                  <?php  echo $current+count($result); ?>
-                  </strong> <span>of {{$totalResults}}</span>
-                  <div class="btn-group">
-                    <?php if(count($result)>=$iDisplayLength){ ?>
-                    <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
-                    <?php } ?>
-                  </div>
-                </div>
-                <div class="pull-left btn-group">
-                <button type="button" data-toggle="dropdown" class="btn  dropdown-toggle  btn-green">Export <span class="caret"></span></button>
-                <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">    
-                    <li><a class="export_btn export_type" action_type="csv" href="#"> CSV</a> </li>
-                    <li><a class="export_btn export_type" action_type="xlsx"  href="#">  EXCEL</a> </li>
-                  </ul>
-                </div>
-                <div class="pull-right sorted btn-group">                
-                  <button type="button" class="btn btn-green dropdown-toggle" data-toggle="dropdown"> Sorted by {{$Sortcolumns[$data['iSortCol_0']]}} <span class="caret"></span> </button>
-                  <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">
-                    <?php foreach($Sortcolumns as $key => $SortcolumnsData){ ?>
-                    <li><a class="sort_fld @if($key==$data['iSortCol_0']) checked @endif" action_type="sort_field" action_value="{{$key}}"   href="#"> <i class="entypo-check" @if($key!=$data['iSortCol_0']) style="visibility:hidden;" @endif ></i> {{@$SortcolumnsData}}</a></li>
-                    <?php } ?>
-                    <li class="divider"></li>
-                    <li><a class="sort_type @if($data['sSortDir_0']=='asc') checked @endif" action_type="sort_type" action_value="asc" href="#"> <i class="entypo-check" @if($data['sSortDir_0']!='asc') style="visibility:hidden;" @endif  ></i> Ascending</a> </li>
-                    <li><a class="sort_type @if($data['sSortDir_0']=='desc') checked @endif" action_type="sort_type" action_value="desc" href="#"> <i class="entypo-check" @if($data['sSortDir_0']!='desc') style="visibility:hidden;" @endif  ></i> Descending</a> </li>
-                  </ul>
-                </div>
-              </div>
-              <?php } ?>
-            </th>
-          </tr>
-        </thead>
-        <!-- email list -->
-        <tbody>
-          <?php
-		  if(count($result)>0){
-		 foreach($result as $result_data){ 
-			 ?>
-          <tr><!-- new email class: unread -->
-            <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a> <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span>
-              <?php if($result_data->Read==0){ if($ClosedTicketStatus!=$result_data->TicketStatus && $ResolvedTicketStatus!=$result_data->TicketStatus) {echo '<div class="label label-primary">New</div>'; } }else{if($result_data->CustomerResponse==$result_data->RequesterEmail){echo "<div class='label label-info'>CUSTOMER RESPONDED</div>";}else{ if($ClosedTicketStatus!=$result_data->TicketStatus && $ResolvedTicketStatus!=$result_data->TicketStatus) { echo '<div class="label label-warning">RESPONSE DUE</div>';} }} //if(empty($result_data->Agent)){echo '<div class="label label-danger">unassigned</div>';} ?>
-              <br>
-              <a target="_blank" href="@if(!empty($result_data->ACCOUNTID)) {{URL::to('/')}}/accounts/{{$result_data->ACCOUNTID}}/show @elseif(!empty($result_data->ContactID)) contacts/{{$result_data->ContactID}}/show @else # @endif" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
-              <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
-            <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
-              <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>
-              <div>Agent:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->Agent; ?></span></div>
-              <div>Group:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->GroupName; ?></span></div></td>
-          </tr>
-          <?php } }else{ ?>
-          <tr>
-            <td align="center" colspan="2">No Result Found.</td>
-          </tr>
-          <?php } ?>
-        </tbody>
-        <!-- mail table footer -->
-        <tfoot>
-          <tr>
-            <th colspan="2"> <?php if(count($result)>0){ ?>
-              <div class="mail-pagination" ><?php echo $current+1; ?> to
-                <?php  echo $current+count($result); ?>
-                <span>of {{$totalResults}}</span> entries
-                <div class="btn-group">
-                  <?php if(count($result)>=$iDisplayLength){ ?>
-                  <a  movetype="next" class="move_mail next btn btn-sm btn-white"><i class="entypo-right-open"></i></a>
-                  <?php } ?>
-                </div>
-              </div>
-              <?php } ?>
-            </th>
-          </tr>
-        </tfoot>
-      </table>
+        <div id="table-4_processing" class="dataTables_processing">Processing...</div>
     </div>
   </div>
   <!-- Mail Body end --> 
@@ -160,9 +108,7 @@
 .col-time{text-align:left !important; font-size:12px;}
 .col-time span{color:black;}
 .dropdown_sort li  a{color:white !important;}
-@if(count($result)>0)	 
 #table-4{display: block; padding-bottom:50px;}
-@endif
 .borderside{border-left-style: solid; border-left-width: 8px;}
 .bordersideLow{border-left-color:#00A651;}
 .bordersideMedium{border-left-color:#008ff9;}
@@ -172,16 +118,20 @@
 .customerresponded{color:#008ff9;}
 .per_page{margin-left:10px; margin-top:5px; }
 .paginationTicket{width:85px;}
+#modal-bulk-actions .control-label>span{
+        position: relative;
+        bottom: 2px;
+        left:   5px;
+}
 </style>
 <script type="text/javascript">
 	
 $(document).ready(function(e) {	
 	
-	var currentpage 	= 	0;
+	var currentpage 	= 	-1;
 	var next_enable 	= 	1;
 	var back_enable 	= 	1;
-	var per_page 		= 	<?php echo $iDisplayLength; ?>;
-	var total			=	<?php echo $totalResults; ?>;
+	var per_page 		= 	{{$iDisplayLength}}
 	var clicktype		=	'';
 	var ajax_url 		= 	baseurl+'/tickets/ajex_result';
 	var ajax_url_export	= 	baseurl+'/tickets/ajex_result_export';
@@ -189,7 +139,12 @@ $(document).ready(function(e) {
 	var sort_fld  		=   "{{$data['iSortCol_0']}}";
 	var sort_type 		=   "{{$data['sSortDir_0']}}";
 	var export_data		=   0;
-	
+    //ShowResult('next');
+
+    $(window).on('load',function(){
+        $('#tickets_filter').submit();
+    });
+
 	$(document).on('click','.move_mail',function(){
 		var clicktype = $(this).attr('movetype');	
         ShowResult(clicktype);
@@ -223,14 +178,15 @@ $(document).ready(function(e) {
 					type: 'POST',
 					dataType: 'html',
 					async :false,
-					data:{formData:$search,currentpage:currentpage,per_page:per_page,total:total,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type},
+					data:{formData:$search,currentpage:currentpage,per_page:per_page,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type},
 					success: function(response) {
+						
 						if(response.length>0)
 						{
 							if(isJson(response))
 							{
 								jsonstr =  JSON.parse(response);
-								$('#table-4 tbody').html('<tr><td align="center" colspan="5">'+jsonstr.result+'</td></tr>');
+                                $('.inbox').html('<table id="table-4" class="table mail-table"><tr><td class="col-name" align="center" colspan="2">'+jsonstr.result+'</td></tr><table>');
 								
 								if(clicktype=='next')
 								 {
@@ -260,7 +216,9 @@ $(document).ready(function(e) {
 								$('.mail-select-options .select2').css("visibility","visible");
 						}
 						else
-						{ 					
+						{ 	
+												
+												
 							if(clicktype=='next')
 							 {
 								$('.next').addClass('disabled');
@@ -305,7 +263,7 @@ $(document).ready(function(e) {
 					type: 'POST',
 					dataType: 'html',
 					async :false,
-					data:{formData:$search,currentpage:currentpage,per_page:per_page,total:total,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type,Export:1},
+					data:{formData:$search,currentpage:currentpage,per_page:per_page,clicktype:clicktype,sort_fld:sort_fld,sort_type:sort_type,Export:1},
 					success: function(response) {
 						
 					}	
@@ -331,6 +289,195 @@ $(document).ready(function(e) {
 		}	 
     });
 
+    $(document).on('click', '#table-4 tbody tr', function() {
+        $(this).toggleClass('selected');
+        if($(this).is('tr')) {
+            if ($(this).hasClass('selected')) {
+                $(this).find('.rowcheckbox').prop("checked", true);
+            } else {
+                $(this).find('.rowcheckbox').prop("checked", false);
+            }
+        }
+    });
+
+    $(document).on('click', '#selectall',function(ev) {
+        var is_checked = $(this).is(':checked');
+        $('#table-4 tbody tr').each(function(i, el) {
+            if (is_checked) {
+                $(this).find('.rowcheckbox').prop("checked", true);
+                $(this).addClass('selected');
+            } else {
+                $(this).find('.rowcheckbox').prop("checked", false);
+                $(this).removeClass('selected');
+            }
+        });
+    });
+
+    function getselectedIDs(){
+        var SelectedIDs = [];
+        $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+            SelectedIDs[i++] = $(this).val();
+        });
+        return SelectedIDs;
+    }
+
+    $('.action li a').click(function(e){
+        e.preventDefault();
+        resetForm($('#BulkAction-form'),'ticket_bulk_option');
+        var self = $(this);
+        var modal = $('#modal-bulk-actions');
+        modal.find('[name="isSendEmail"]').val(1);
+        if(e.shiftKey){
+            modal.find('[name="isSendEmail"]').val(0);
+        }
+        $("#bulk-submit").button('reset');
+        modal.find('.col-md-12').addClass('col-md-4').removeClass('col-md-12');
+        modal.find('.col-md-4').each(function(){
+            $(this).addClass('hidden');
+            $(this).find('[type="checkbox"]').addClass('hidden');
+        });
+        modal.find('.modal-dialog').removeClass('modal-sm');
+        if($(this).prop('id')=='bulk-action'){
+            modal.find('.modal-title').text('Bulk Actions');
+            modal.find('.col-md-4').each(function(){
+                $(this).removeClass('hidden');
+                $(this).find('[type="checkbox"]').removeClass('hidden');
+            })
+        }else if($(this).prop('id')=='bulk-assign'){
+            modal.find('.modal-title').text('Bulk Assign');
+            modal.find('#agent').removeClass('hidden col-md-4').addClass('col-md-12');
+            modal.find('.modal-dialog').addClass('modal-sm');
+        }else if($(this).prop('id')=='bulk-close'){
+            modal.find('.modal-title').text('Bulk Close');
+            modal.find('#status').removeClass('hidden col-md-4').addClass('col-md-12');
+            modal.find('[name="Status"]').val('{{array_search(TicketfieldsValues::$Status_Closed,$status)}}').trigger('change');
+            modal.find('.modal-dialog').addClass('modal-sm');
+        }else if($(this).prop('id')=='bulk-delete'){
+            var SelectedIDs = getselectedIDs();
+            if (SelectedIDs.length == 0) {
+                toastr.error('Please select at least one Ticket.', "Error", toastr_opts);
+                return false;
+            }else {
+                if(confirm("Are you sure you want to delete selected tickets")) {
+                    var url = baseurl + '/tickets/bulkdelete';
+                    $.post(url, {"SelectedIDs": SelectedIDs.join(",")}, function (response) {
+                        if (response.status == 'success') {
+                            $('#tickets_filter').submit();
+                            toastr.success(response.message, "Success", toastr_opts);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    });
+                }
+            }
+            return true;
+        }
+        $('#modal-bulk-actions').modal('show');
+    });
+
+    $('#BulkAction-form').submit(function(e){
+        e.preventDefault();
+        var SelectedIDs = getselectedIDs();
+        if (SelectedIDs.length == 0) {
+            $('#modal-bulk-actions').modal('hide');
+            toastr.error('Please select at least one Ticket.', "Error", toastr_opts);
+            return false;
+        }else {
+            var selectedIDs = $(this).find('[name="selectedIDs"]').val(SelectedIDs.join(","));
+            var url = baseurl + '/tickets/bulkactions';
+            showAjaxScript(url, new FormData(($('#BulkAction-form')[0])), function (response) {
+                $("#bulk-submit").button('reset');
+                if (response.status == 'success') {
+                    $('#tickets_filter').submit();
+                    $('#modal-bulk-actions').modal('hide');
+                    toastr.success(response.message, "Success", toastr_opts);
+                } else {
+                    toastr.error(response.message, "Error", toastr_opts);
+                }
+            });
+        }
+    });
+
+    $('#modal-bulk-actions .select2').change(function(e){
+        var self = $(this);
+        var label = self.siblings('.control-label');
+        if(self.val() > 0){
+            label.find('[type="checkbox"]').prop('checked',true);
+            label.find('span').css('font-weight',700);
+        }else{
+            label.find('[type="checkbox"]').prop('checked',false);
+            label.find('span').css('font-weight',400);
+        }
+    });
+
+    $('#modal-bulk-actions [type="checkbox"]').change(function(){
+        var self = $(this);
+        if(self.prop('checked')){
+            self.siblings('span').css('font-weight',700);
+        }else{
+            self.siblings('span').css('font-weight',400);
+            self.parents('.control-label').siblings('.select2').val(0).trigger('change');
+        }
+    });
+
 });
 </script> 
-@stop 
+@stop
+
+@section('footer_ext')
+    @parent
+    <div class="modal fade" id="modal-bulk-actions">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="BulkAction-form" method="post" action="" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Bulk Actions</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div id="type" class="col-md-4">
+                                <div class="form-group">
+                                    <label for="field-1" class="control-label"><input type="checkbox" name="TypeCheck"> <span>Type</span></label>
+                                    {{Form::select('Type',$Type,'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
+                            <div id="status" class="col-md-4">
+                                <div class="form-group">
+                                    <label for="field-3" class="control-label"><input type="checkbox"  name="StatusCheck"><span>Status</span></label>
+                                    {{Form::select('Status',$status,'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
+                            <div id="priority" class="col-md-4">
+                                <div class="form-group">
+                                    <label for="field-3" class="control-label"><input type="checkbox"  name="PriorityCheck"><span>Priority</span></label>
+                                    {{Form::select('Priority',$Priority,'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div id="group" class="col-md-4">
+                                <div class="form-group">
+                                    <label for="field-1" class="control-label"><input type="checkbox"  name="GroupCheck"><span>Group</span></label>
+                                    {{Form::select('Group',$Groups,'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
+                            <div id="agent" class="col-md-4">
+                                <div class="form-group">
+                                    <label for="field-3" class="control-label"><input type="checkbox"  name="AgentCheck"><span>Agent</span></label>
+                                    {{Form::select('Agent',$Agents,'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="selectedIDs" />
+                    <input type="hidden" name="isSendEmail" value="1" />
+                    <div class="modal-footer">
+                        <button  type="submit" id="bulk-submit" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@stop

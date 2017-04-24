@@ -25,7 +25,7 @@
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date"> @if(!empty($ticketdata->RequesterCC))cc: {{$ticketdata->RequesterCC}}<br>
         @endif
-        {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
+            {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
       <!-- links --> 
     </div>
     <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?>
@@ -64,7 +64,7 @@
 		if($TicketConversationData->Timeline_type == TicketsTable::TIMELINEEMAIL){
 		 ?>
     <div class="mail-reply-seperator"></div>
-    <div class="panel first_data panel-primary margin-top" data-collapsed="0"> 
+    <div id="message{{$TicketConversationData->AccountEmailLogID}}" class="panel first_data panel-primary margin-top" data-collapsed="0">
       
       <!-- panel head -->
       <div class="panel-heading panel-heading-convesation">        
@@ -112,7 +112,7 @@
     <?php }else if($TicketConversationData->Timeline_type == TicketsTable::TIMELINENOTE){
 	?>
     <div class="mail-reply-seperator"></div>
-    <div class="panel panel-primary margin-top" data-collapsed="0"> 
+    <div id="note{{$TicketConversationData->NoteID}}" class="panel panel-primary margin-top" data-collapsed="0">
       
       <!-- panel head -->
       <div class="panel-heading">
@@ -133,6 +133,45 @@
     <div class="mail-menu">
       <div class="row">
         <div class="col-md-12">
+        <div class="panel panel-primary" data-collapsed="0"> 
+            
+            <!-- panel head -->
+            <div class="panel-heading">
+              <div class="panel-title"><strong>Ticket Info</strong></div>
+              <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+            </div>            
+            <!-- panel body -->
+            <div class="panel-body">
+            <form id="UpdateTicketDueTime" class="form-horizontal form-groups-bordered validate" role="form">
+            <div class="form-group">
+           		 <div class="col-md-12">
+                     <p><a class="blue_link" href="#">{{$TicketStatus}}</a><br>
+                         @if($ClosedTicketStatus!=$ticketdata->Status)
+                             @if($ticketdata->DueDate != '')
+                                 {{get_ticket_due_date_human_readable($ticketdata,[ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
+                                 <br>on {{date('D, d M',strtotime($ticketdata->DueDate))}} at {{date('H:i A',strtotime($ticketdata->DueDate))}} <a class="blue_link clickable change_duetime"  ticket="{{$ticketdata->TicketID}}">Change</a>
+                             @endif
+                         @endif
+                     </p>
+           		 </div>
+            </div>          
+            <div class="change_due_time form-group">
+                  <div class="col-md-6">      
+                  <input autocomplete="off" type="text" name="TicketDueDate" id="TicketDueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d',strtotime($ticketdata->DueDate))}}" data-startdate="{{date('Y-m-d',strtotime(" today"))}}" />
+                  </div><div class="col-md-6">
+                    <input type="text" name="DueTime" id="DueTime" data-minute-step="5" data-show-meridian="false" data-default-time="{{date('H:i:s',strtotime($ticketdata->DueDate))}}" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
+                </div>
+                </div>  
+            <div class="change_due_time form-group"> 
+                  <div class="col-md-12">                    
+                  <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-mail"></i>Update</button>
+                  </div>
+                </div> 
+                 <input type="hidden" id="TicketID" name="TicketID" value="{{$ticketdata->TicketID}}">                             
+            </form>
+            </div>
+          </div>      
+        
           <div class="panel panel-primary" data-collapsed="0"> 
             
             <!-- panel head -->
@@ -280,12 +319,12 @@
 .mail-env .mail-body .mail-header .mail-title{float:none !important;}
 .mail-env .mail-body .mail-header .mail-date{padding:0px; text-align:inherit;}
 .Requester_Info{padding:10px !important;}
-.panel-primary > .panel-heading-convesation{min-height:73px !important;}
+.panel-primary > .panel-heading-convesation{min-height:80px !important;}
+.panel-primary > .panel-heading-convesation .panel-title{font-size:12px !important; }
+.change_due_time{display:none;}
 </style>
-<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script>
+var editor_options 	 	=  		{};
 var agent 				= 		parseInt('{{$ticketdata->Agent}}');
 var file_count 		  	=  		0;
 var emailFileList     	=		[];
@@ -319,62 +358,30 @@ $(document).ready(function(e) {
 				$('#EmailAction-model .modal-content').html(response);				
 					var mod =  $(document).find('.EmailAction_box');
 					$('#EmailAction-model').modal('show');
-				 	//mod.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-        			//mod.find('.message').show();
+
+				mod.find('.emailaddresses').select2({
+        	    tags:{{$AllEmailsTo}}
+       	 		});
 				mod.find("select").select2({
                     minimumResultsForSearch: -1
                 });
 				mod.find('.select2-container').css('visibility','visible');
-				setTimeout(function(){ 
-				mod.find('.message').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});
-				 }, 500);
-				
-		    
-			},
-		});
+                show_summernote(mod.find('.message'),editor_options);
+			
+		},
 	});
 	
-	
+	});
 	$( document ).on("click",'.add_note' ,function(e) {		 
 		var mod = $('#add-note-model');
 		mod.modal("show");	
 	
 	 $('#add-note-model').on('shown.bs.modal', function(event){
 						  var modal = $(this);
-                        modal.find('.wysihtml5-toolbar').remove();
-						modal.find('.wysihtml5-sandbox').remove();
                         modal.find('.editor-note').show();
 						  
                         var modal = $('#add-note-model');
-						
-							
-						modal.find('.editor-note').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-							parser: function(html) {
-								return html;
-							}
-					});
+                        show_summernote(modal.find('.editor-note'),editor_options);
                     });
 	 });
 	////
@@ -441,6 +448,34 @@ $(document).ready(function(e) {
 		///////////////////////////////
 		 
 	 });
+	 
+	 
+	 $('#UpdateTicketDueTime').submit(function(e) {        
+		//////////////////////////          	
+			var email_url 	= 	"<?php echo URL::to('/tickets/'.$ticketdata->TicketID.'/updateTicketDueTime/');?>";
+          	e.stopImmediatePropagation();
+            e.preventDefault();			
+			var formData = new FormData($(this)[0]);
+
+			 $.ajax({
+                url: email_url,
+                type: 'POST',
+                dataType: 'json',
+				data:formData,
+				async :false,
+				cache: false,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+						if(response.status =='success'){									
+							toastr.success(response.message, "Success", toastr_opts);							
+                        }else{
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+				},
+			});	
+		///////////////////////////////	 
+    });
 	 
 	
 	 
@@ -647,6 +682,11 @@ $(document).ready(function(e) {
 				return false;
             });
 			@endif
+			
+			$('.change_duetime').click(function(e) {
+                $('.change_due_time').toggle();
+            });
+			 
 });
 setTimeout(setagentval(),6000);
 	function setagentval(){

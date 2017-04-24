@@ -38,7 +38,7 @@
 				$required[] =  array("id"=>$id,"title"=>$TicketfieldsData->FieldName);
 			?>
             <div class="col-sm-6">
-            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control typeahead formfld" spellcheck="false" dir="auto"  data-local="{{$AllEmails}}"   placeholder="{{$TicketfieldsData->AgentLabel}}" />           
+            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control requestersearch typeahead formfld" spellcheck="false" dir="auto"     placeholder="{{$TicketfieldsData->AgentLabel}}" />           
             <span><a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#reqcc').removeClass('hidden'); $('#cc').focus();">CC</a> </span>
             </div>
             <div class="col-sm-3 dropdown" style="padding:0;">
@@ -218,10 +218,8 @@
   <input id="info1" type="hidden" name="attachmentsinfo" />
   <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
 </form>
-<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css')}}">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script type="text/javascript">
+var editor_options 	 	=  		{};
 var file_count 		  =  		0;
 var allow_extensions  = 		{{$response_extensions}};
 var emailFileList	  =  		new Array();
@@ -231,8 +229,23 @@ var required_flds	  =          '{{json_encode($required)}}';
 
     jQuery(document).ready(function($) {
 		 $('.useremails').select2({
-            tags:{{$AllEmailsccbcc}}
+            tags:{{$AllEmails}}
         });
+		
+		
+		
+			$('.requestersearch').select2({
+    tags: true,
+	 tags:{{$AllEmails}},
+    tokenSeparators: [','],
+  // max emails is 1
+    maximumSelectionSize:1,
+
+    // override message for max tags
+    formatSelectionTooBig: function (limit) {
+        return "Maximum "+limit+" email is allowed";
+    }
+});
 		
 		
 		function validate_form()
@@ -327,23 +340,9 @@ var required_flds	  =          '{{json_encode($required)}}';
 				}
 				});	
 		return false;		
-    });	
-		
-		$('.wysihtml5box').wysihtml5({
-						"font-styles": true,
-						"leadoptions":true,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});
-				
+    });
+	show_summernote($('.wysihtml5box'),editor_options);
+
 				
 				$('.unknownemailaction').click(function(e) {
 				var unknown_action_type 	= 	$(this).attr('unknown_action_type');			

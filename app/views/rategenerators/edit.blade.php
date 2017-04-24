@@ -11,7 +11,7 @@
         <a href="{{URL::to('/rategenerators')}}">Rate Generator</a>
     </li>
 		<li>
-        <a><span>{{rategenerators_dropbox($rategenerators->RateGeneratorId)}}</span></a>
+        <a><span>{{businesshours_dropbox($rategenerators->RateGeneratorId)}}</span></a>
     </li>
    <!-- <li class="active">
         <strong>{{!empty($rategenerator)?$rategenerator->RateGeneratorName:''}}</strong>
@@ -118,7 +118,7 @@
 
                                 <!--{ Form::select('CurrencyID', $currencylist,  $rategenerators->CurrencyID, array_merge( array("class"=>"select2"),$array_op)) }}-->
                             {{Form::SelectControl('currency',0,$rategenerators->CurrencyID,($rategenerators->CurrencyID==''?0:1))}}
-                            @if(isset($array_op['disabled']) && $array_op['disabled'] == 'disabled')
+                            @if($rategenerators->CurrencyID !='')
                                 <input type="hidden" name="CurrencyID" readonly  value="{{$rategenerators->CurrencyID}}">
                             @endif
                         </div>

@@ -1,0 +1,61 @@
+From 4d5c2afd9225c6b8199cdc3af534a20195dd9c6f Mon Sep 17 00:00:00 2001
+From: Abubakar <abubakar@code-desk.com>
+Date: Tue, 4 Apr 2017 19:03:10 +0500
+Subject: [PATCH] Update routes
+
+---
+ app/routes.php | 38 +++++++++++++++++++-------------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
+
+diff --git a/app/routes.php b/app/routes.php
+index 0bde4aa..a0f48a7 100644
+--- a/app/routes.php
++++ b/app/routes.php
+@@ -812,25 +812,25 @@ Route::group(array('before' => 'auth'), function () {
+ 	Route::any('/estimate/ajax_estimatelog_datagrid/{id}/{type}', 'EstimatesController@ajax_estimatelog_datagrid');
+ 	///////////////////////////
+ 
+-    /////////////////
+-    //Recurring Item Invoices
+-    Route::any('/recurringprofiles', 'RecurringInvoiceController@index');
+-    Route::any('/recurringprofiles/create', 'RecurringInvoiceController@create');
+-    Route::any('/recurringprofiles/store', 'RecurringInvoiceController@store');
+-    Route::any('/recurringprofiles/{id}/edit', 'RecurringInvoiceController@edit');
+-    Route::any('/recurringprofiles/delete', 'RecurringInvoiceController@delete');
+-    Route::any('/recurringprofiles/{id}/update', 'RecurringInvoiceController@update');
+-    Route::any('/recurringprofiles/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_datagrid');
+-    Route::any('/recurringprofiles/calculate_total', 'RecurringInvoiceController@calculate_total');
+-    Route::any('/recurringprofiles/get_account_info', 'RecurringInvoiceController@getAccountInfo');
+-    Route::any('/recurringprofiles/get_billingclassinfo_info', 'RecurringInvoiceController@getBillingClassInfo');
+-    Route::any('/recurringprofiles/{id}/log', 'RecurringInvoiceController@recurringinvoicelog');
+-    Route::any('/recurringprofiles/{id}/log/{type}', 'RecurringInvoiceController@recurringinvoicelog');
+-    Route::any('/recurringprofiles/{id}/log/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_recurringinvoicelog_datagrid');
+-    Route::any('/recurringprofiles/startstop/{start_stop}', 'RecurringInvoiceController@startstop');
+-    Route::any('/recurringprofiles/sendinvoice', 'RecurringInvoiceController@sendInvoice');
+-    Route::any('/recurringprofiles/generate', 'RecurringInvoiceController@generate');
+-    ///////////////////////////
++        /////////////////
++        //Recurring Item Invoices
++        Route::any('/recurringprofiles', 'RecurringInvoiceController@index');
++        Route::any('/recurringprofiles/create', 'RecurringInvoiceController@create');
++        Route::any('/recurringprofiles/store', 'RecurringInvoiceController@store');
++        Route::any('/recurringprofiles/{id}/edit', 'RecurringInvoiceController@edit');
++        Route::any('/recurringprofiles/delete', 'RecurringInvoiceController@delete');
++        Route::any('/recurringprofiles/{id}/update', 'RecurringInvoiceController@update');
++        Route::any('/recurringprofiles/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_datagrid');
++        Route::any('/recurringprofiles/calculate_total', 'RecurringInvoiceController@calculate_total');
++        Route::any('/recurringprofiles/get_account_info', 'RecurringInvoiceController@getAccountInfo');
++        Route::any('/recurringprofiles/get_billingclassinfo_info', 'RecurringInvoiceController@getBillingClassInfo');
++        Route::any('/recurringprofiles/{id}/log', 'RecurringInvoiceController@recurringinvoicelog');
++        Route::any('/recurringprofiles/{id}/log/{type}', 'RecurringInvoiceController@recurringinvoicelog');
++        Route::any('/recurringprofiles/{id}/log/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_recurringinvoicelog_datagrid');
++        Route::any('/recurringprofiles/startstop/{start_stop}', 'RecurringInvoiceController@startstop');
++        Route::any('/recurringprofiles/sendinvoice', 'RecurringInvoiceController@sendInvoice');
++        Route::any('/recurringprofiles/generate', 'RecurringInvoiceController@generate');
++        ///////////////////////////
+ 
+ 	//Invoice
+ 	Route::any('/invoice', 'InvoicesController@index');
+-- 
+1.9.5.msysgit.0
+

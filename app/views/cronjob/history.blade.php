@@ -105,7 +105,13 @@
                         {"name":"EndTime","value":$searchFilter.EndTime},
                         {"name":"Status","value":$searchFilter.Status});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"Export","value":1});
+                data_table_extra_params.push({"name":"Search","value":$searchFilter.Search},
+                        {"name":"StartDate","value":$searchFilter.StartDate},
+                        {"name":"StartTime","value":$searchFilter.StartTime},
+                        {"name":"EndDate","value":$searchFilter.EndDate},
+                        {"name":"EndTime","value":$searchFilter.EndTime},
+                        {"name":"Status","value":$searchFilter.Status},
+                        {"name":"Export","value":1});
             },
             "aaSorting": [[3, 'desc']],
             "aoColumns":

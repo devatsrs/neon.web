@@ -250,20 +250,25 @@ var popup_type	=	0;
         templateID = $(this).prev("div.hiddenRowData").find("input[name='templateID']").val();
         var url = baseurl + '/email_template/'+templateID+'/edit';
         $.get(url, function(data, status){
-            if(Status="success"){ 
+            if(Status="success"){
+                popup_type = data['Type'];
                 $('#add-new-template-form').trigger("reset");
                 $("#add-new-template-form [name='TemplateID']").val(data['TemplateID']);
                 $("#add-new-template-form [name='TemplateName']").val(data['TemplateName']);
                 $("#add-new-template-form [name='Subject']").val(data['Subject']);
                 $("#add-new-template-form [name='TemplateBody']").val(data['TemplateBody']);
                 //$("#add-new-template-form [name='Type']").val(data['Type']).trigger("change");
-				$("#add-new-template-form [name='Type']").val(data['Type']);  popup_type = data['Type']; 
-				if(data['Privacy']== '' || data['Privacy']=== null){data['Privacy']=0;} 
+				$("#add-new-template-form [name='Type']").val(data['Type']);
+				if(data['Privacy']== '' || data['Privacy']=== null){data['Privacy']=0;}
                 $("#add-new-template-form [name='Email_template_privacy']").val(data['Privacy']).trigger("change");
 				if(data['StaticType']){
 					$("#add-new-template-form #email_from").val(data['email_from']).trigger('change');
 					$("#add-new-template-form .email_from").removeClass('hidden');	
-					$("#add-new-template-form #TemplateName").attr('readonly','readonly');	 
+					$("#add-new-template-form #TemplateName").attr('readonly','readonly');	
+					
+					if(data['TicketTemplate']){
+						$("#add-new-template-form .email_from").addClass('hidden');
+					} 
 				}else{
 					//$("#add-new-template-form .email_from").hide();			
 					$("#add-new-template-form .email_from").addClass('hidden');	 
@@ -286,20 +291,23 @@ var popup_type	=	0;
 				}else{ 
 					$('.status_switch').bootstrapSwitch('setState', false);
 				}
+				
                 $('#add-new-modal-template h4').html('Edit template');
 				template_type_val = $('#add-new-modal-template').find('.template_type').val();				
               //  $('#add-new-modal-template').modal('show');
+
+                $("#add-new-template-form [name='templateID']").val($(this).attr('data-id'));
+                $('#add-new-modal-template h4').html('Edit template');
+                $('#add-new-modal-template').modal('show');
+                replaceCheckboxes();
+
             }else{
                 toastr.error(status, "Error", toastr_opts);
             }
         });
 
 
-        $("#add-new-template-form [name='templateID']").val($(this).attr('data-id'));
-        $('#add-new-modal-template h4').html('Edit template');
-        setTimeout(function(){ $('#add-new-modal-template').modal('show'); },1000);
-		replaceCheckboxes();
-    });		
+    });
 	$('.unclick').click(function(e) {
 		e.preventDefault();
 		console.log('unclick');
@@ -319,9 +327,7 @@ var popup_type	=	0;
 .unclick:hover{background:#ccc !important; color:#fff !important;}
 .unclick a{cursor:not-allowed; }
 .dropdown-menu>li.unclick>a:hover{background:#ccc !important; color:#fff !important;}
-.wysihtml5-toolbar > .dropdown > .dropdown-menu > li.unclick > a{color:#fff !important;}
 .TicketsScroll{z-index:999 !important; }
-.wysihtml5-sandbox{z-index:0 !important; clear:both !important; position:relative !important; float:left !important;}
 .TicketsScroll div .ps-scrollbar-y{
 	  clear:both !important; display:block !important;
 }

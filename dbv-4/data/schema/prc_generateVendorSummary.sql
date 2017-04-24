@@ -16,7 +16,6 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	CALL fnGetCountry();
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
 
@@ -48,12 +47,6 @@ BEGIN
 	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
 	SET tmp_VendorUsageSummary.CountryID =code.CountryID
 	WHERE tmp_VendorUsageSummary.CompanyID = p_CompanyID AND code.CountryID > 0;
-
-	UPDATE tmp_VendorUsageSummary
-	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_VendorUsageSummary 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
-	ON tmp_VendorUsageSummary.AreaPrefix = TBL.AreaPrefix
-	SET tmp_VendorUsageSummary.CountryID =TBL.CountryID 
-	WHERE tmp_VendorUsageSummary.CompanyID = p_CompanyID AND tmp_VendorUsageSummary.CountryID IS NULL ;
 
 	DELETE FROM tmp_SummaryVendorHeader WHERE CompanyID = p_CompanyID;
 

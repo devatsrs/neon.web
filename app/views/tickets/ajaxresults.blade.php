@@ -1,9 +1,10 @@
-<table id="table-4" class="table mail-table">
+<table id="table-4" class="table table-bordered datatable dataTable">
   <!-- mail table header -->
   <thead>
           <tr>
+            <th width="1%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
             <th colspan="2"> <?php if(count($result)>0){ ?>                  
-            <div class="mail-select-options"><span class="pull-left paginationTicket">{{Form::select('page',$pagination,$iDisplayLength,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-right per_page">records per page</span> </div>        
+            <div class="mail-select-options"><span class="pull-left paginationTicket">{{Form::select('page',$pagination,$iDisplayLength,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-left per_page">records per page</span> </div>
               <div class="pull-right">
                 <div class="hidden mail-pagination"> <strong>
                   <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
@@ -16,7 +17,14 @@
                     <?php } ?>
                   </div>
                 </div>
-                <div class="pull-right btn-group">
+                <div class="pull-left btn-group">
+                <button type="button" data-toggle="dropdown" class="btn  dropdown-toggle  btn-green">Export <span class="caret"></span></button>
+                <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">    
+                    <li><a class="export_btn export_type" action_type="csv" href="#"> CSV</a> </li>
+                    <li><a class="export_btn export_type" action_type="xlsx"  href="#">  EXCEL</a> </li>
+                  </ul>
+                </div>
+                <div class="pull-right sorted btn-group">
                   <button type="button" class="btn btn-green dropdown-toggle" data-toggle="dropdown"> Sorted by {{$Sortcolumns[$data['iSortCol_0']]}} <span class="caret"></span> </button>
                   <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">
                     <?php foreach($Sortcolumns as $key => $SortcolumnsData){ ?>
@@ -39,11 +47,17 @@
 		 foreach($result as $result_data){ 
 			 ?>
           <tr><!-- new email class: unread -->
-            <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
+              <td class="@if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><div class="checkbox "><input type="checkbox" name="checkbox[]" value="{{$result_data->TicketID}}" class="rowcheckbox" ></div></td>
+            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
             <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span>
-              <?php if($result_data->Read==0){ if($ClosedTicketStatus!=$result_data->TicketStatus && $ResolvedTicketStatus!=$result_data->TicketStatus) {echo '<div class="label label-primary">New</div>'; }}else{if($result_data->CustomerResponse==$result_data->RequesterEmail){echo "<div class='label label-info'>CUSTOMER RESPONDED</div>";}else{ if($ClosedTicketStatus!=$result_data->TicketStatus && $ResolvedTicketStatus!=$result_data->TicketStatus) { echo '<div class="label label-warning">RESPONSE DUE</div>';} }} //if(empty($result_data->Agent)){echo '<div class="label label-danger">unassigned</div>';} ?><br>
+                {{get_ticket_response_due_label($result_data,[ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
+              <br>
              <a target="_blank" href="@if(!empty($result_data->ACCOUNTID)) {{URL::to('/')}}/accounts/{{$result_data->ACCOUNTID}}/show @elseif(!empty($result_data->ContactID)) contacts/{{$result_data->ContactID}}/show @else # @endif" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
-              <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
+              <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?>
+                  @if($result_data->DueDate != '')
+                  , {{get_ticket_due_date_human_readable($result_data, [ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
+                  @endif
+              </span> </td>
             <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
               <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>
               <div>Agent:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->Agent; ?></span></div>

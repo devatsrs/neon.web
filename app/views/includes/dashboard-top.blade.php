@@ -41,11 +41,7 @@
                  </a>
              </li>
 -->
-		@if(User::checkCategoryPermission('emailmessages','All'))
-        <li> <a href="{{Url::to('/emailmessages')}}"> <i class="entypo-mail"></i> <span>Mailbox</span> </a></li>
-      	@endif
-
-           <li><a href="{{URL::to('/jobs')}}"><i class="entypo-clipboard"></i>Jobs</a></li>
+		   <li><a href="{{URL::to('/jobs')}}"><i class="entypo-clipboard"></i>Jobs</a></li>
         </ul>
     </li>
 

@@ -8,8 +8,11 @@
 <h3>Invoice</h3>
 @include('includes.errors')
     @include('includes.success')
-<p style="text-align: right;"> @if(User::checkCategoryPermission('Invoice','Add')) <a href="javascript:;" id="invoice-in" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Invoice Received </a> <a href="{{URL::to("invoice/create")}}" id="add-new-invoice" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Invoice </a> @endif
-  @if(User::checkCategoryPermission('Invoice','Generate')) <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary "> <i class="entypo-plus"></i> Generate New Invoice </a> @endif 
+<p style="text-align: right;">
+
+    @if(User::checkCategoryPermission('RecurringProfile','View')) <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary"> <i class="entypo-plus"></i> Recurring Profile </a> @endif
+    @if(User::checkCategoryPermission('Invoice','Add')) <a href="javascript:;" id="invoice-in" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Invoice Received </a> <a href="{{URL::to("invoice/create")}}" id="add-new-invoice" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Invoice </a> @endif
+    @if(User::checkCategoryPermission('Invoice','Generate')) <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary "> <i class="entypo-plus"></i> Generate New Invoice </a> @endif
   <!-- <a href="javascript:;" id="bulk-invoice" class="btn upload btn-primary ">
         <i class="entypo-upload"></i>
         Bulk Invoice Generate.
@@ -136,6 +139,7 @@
         var checked = '';
         var update_new_url;
         var postdata;
+	    var editor_options 	  =  		{};
         jQuery(document).ready(function ($) {
             public_vars.$body = $("body");
             //show_loading_bar(40);
@@ -1036,27 +1040,15 @@
 			});
             $('#modal-BulkMail').on('shown.bs.modal', function (event) {
                 var modal = $(this);
-                modal.find('.message').wysihtml5({
-                    "font-styles": true,
-                    "emphasis": true,
-                    "leadoptions":false,
-                    "invoiceoptions":true,
-                    "Crm":false,
-                    "lists": true,
-                    "html": true,
-                    "link": true,
-                    "image": true,
-                    "color": false,
-                    parser: function (html) {
-                        return html;
-                    }
-                });
+
+                show_summernote(modal.find(".message"),editor_options);
+
             });
 
             $('#modal-BulkMail').on('hidden.bs.modal', function (event) {
                 var modal = $(this);
-                modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-                modal.find('.message').show();
+
+
             });
             $("#BulkMail-form [name=email_template]").change(function (e) {
                 var templateID = $(this).val();
@@ -1065,26 +1057,14 @@
                     $.get(url, function (data, status) {
                         if (Status = "success") {
                             var modal = $("#modal-BulkMail");
-                            modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
+
                             modal.find('.message').show();
+
+							show_summernote(modal.find(".message"),editor_options);
                             var EmailTemplate = data['EmailTemplate'];
                             modal.find('[name="subject"]').val(EmailTemplate.Subject);
                             modal.find('.message').val(EmailTemplate.TemplateBody);
-                            modal.find('.message').wysihtml5({
-                                "font-styles": true,
-								"emphasis": true,
-								"leadoptions":false,
-								"invoiceoptions":true,
-								"Crm":false,
-								"lists": true,
-								"html": true,
-								"link": true,
-								"image": true,
-								"color": false,
-                                parser: function (html) {
-                                    return html;
-                                }
-                            });
+
                         } else {
                             toastr.error(status, "Error", toastr_opts);
                         }
@@ -1281,9 +1261,6 @@
             padding: 15px 10px;
         }
     </style>
-<link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
-<script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 @include('accounts.bulk_email')
 @stop
 @section('footer_ext')

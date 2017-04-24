@@ -29,17 +29,14 @@
         <div class="form-group">
           <label for="to">To:</label>
           <input type="text" class="form-control useremailssingle" id="email-to" name="email-to" value="" tabindex="1" />
-          <span><a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a> <a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#bcc').parent().removeClass('hidden'); $('#bcc').focus();">BCC</a> </span>
+          <span><a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#cc').parent().removeClass('hidden'); $('#cc').focus();">CC</a>  </span>
         </div>
         
         <div class="form-group hidden">
           <label for="cc">CC:</label>
           <input type="text" class="form-control useremails" id="cc" name="cc" value="" tabindex="2" />
         </div>
-        <div class="form-group hidden">
-          <label for="bcc">BCC:</label>
-          <input type="text" class="form-control useremails" id="bcc" name="bcc" value="" tabindex="2" />
-        </div>
+        
         <div class="form-group">
           <label for="bcc">Email Templates:</label>
           {{Form::select('email_template',$emailTemplates,'',array("class"=>"select2 email_template","parent_box"=>"mail-compose"))}}
@@ -244,10 +241,8 @@
   box-shadow:  0 2px 1px rgba(203, 208, 217, 0.08);
 }
 </style>
-<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script>
+var editor_options 	 	=  		{};
 
 $(document).ready(function(e) {
 	 $('.useremails').select2({
@@ -272,7 +267,6 @@ $(document).ready(function(e) {
 		  function editor_reset(data){
 				//var doc = $('.mail-compose');
 				var doc = $(document).find('#MailBoxCompose');
-		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
         		doc.find('#Message').show();
 						
 	       if(!Array.isArray(data)){				
@@ -283,23 +277,8 @@ $(document).ready(function(e) {
                 doc.find('[name="Subject"]').val('');
                 doc.find('#Message').val('');
             }
-			
-			doc.find('#Message').wysihtml5({
-				"Tickets":false,
-				"font-styles": true,
-				"leadoptions":true,
-				"Crm":false,
-				"emphasis": true,
-				"lists": true,
-				"html": true,
-				"link": true,
-				"image": true,
-				"color": false,
-				parser: function(html) {
-					return html;
-				}
-			});
-           
+              show_summernote(doc.find('#Message'),editor_options);
+
         }
 		
 		/*$('.useremailssingle').select2({           
@@ -404,23 +383,9 @@ $(document).ready(function(e) {
 				}
 				});	
 		return false;		
-    });		
-	$('.wysihtml5box').wysihtml5({
-						"font-styles": true,
-						"leadoptions":true,
-						"Tickets":false,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});
-				
+    });
+    show_summernote($('.wysihtml5box'),editor_options);
+
 				$('#addTtachment').click(function(){
 			 file_count++;                
 				$('#filecontrole1').click();

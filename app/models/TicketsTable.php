@@ -24,7 +24,27 @@ class TicketsTable extends \Eloquent
 	static  $SortcolumnsCustomer		=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","updated_at"=>"Last Modified");
 	static  $Sortcolumns				=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","group"=>"Group","updated_at"=>"Last Modified");
 
-	
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function($page)
+        {
+            // do stuff
+        });
+
+        static::updating(function($page)
+        {
+            \Illuminate\Support\Facades\Log::info(print_r($page,true));
+           \Illuminate\Support\Facades\Log::info('before saving');
+        });
+
+        static::updated(function($page)
+        {
+            \Illuminate\Support\Facades\Log::info('after saving');
+        });
+    }
+
 	static function GetAgentSubmitRules(){
 		 $rules 	 =  array();
 		 $messages	 =  array();
@@ -53,13 +73,28 @@ class TicketsTable extends \Eloquent
 			return $ValuesID;
 	}
 	
-	static function getTicketStatus(){
+	static function GetOpenTicketStatus($text =false){
+		 $ValuesID =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
+            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->where(['tblTicketfieldsValues.FieldValueAgent'=>TicketfieldsValues::$Status_Open])->pluck($text?Session::get('customer')?"FieldValueCustomer":"FieldValueAgent":'ValuesID');			
+			return $ValuesID;
+	}
+	
+	static function getTicketStatus($select=1){
 		//TicketfieldsValues::WHERE
 		 $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
             ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->lists('FieldValueAgent','ValuesID');
-			$row = array("0"=> "Select")+$row;
+        if($select==1) {
+            $row = array("0" => "Select") + $row;
+        }
 			return $row;
 	}
+
+    static function getTicketStatusOnHold(){
+        $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
+            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD,'tblTicketfieldsValues.FieldSlaTime'=>0])
+            ->where('tblTicketfieldsValues.FieldType','!=',0)->lists('FieldValueAgent','ValuesID');
+        return $row;
+    }
 	
 	static function getCustomerTicketStatus(){
 		//TicketfieldsValues::WHERE
@@ -69,12 +104,14 @@ class TicketsTable extends \Eloquent
 			return $row;
 	}
 	
-	static function getTicketType(){
+	static function getTicketType($select=1){
 		//TicketfieldsValues::WHERE
 		 $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
             ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_TYPE_FLD])->lists('FieldValueAgent','ValuesID');
+		if($select==1) {
 			$row = array("0"=> "Select")+$row;
-			return $row;
+		}
+		return $row;
 	}
 	
 	static function getTicketTypeByID($id,$fld='FieldValueAgent'){

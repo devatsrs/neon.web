@@ -1,4 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateRateSheet`(IN `p_CustomerID` INT, IN `p_Trunk` VARCHAR(100)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateRateSheet`(
+	IN `p_CustomerID` INT,
+	IN `p_Trunk` VARCHAR(100)
+
 )
 BEGIN
     DECLARE v_trunkDescription_ VARCHAR(50);
@@ -101,7 +104,7 @@ BEGIN
          JOIN tblCustomerRate
            ON tblAccount.AccountID = tblCustomerRate.CustomerID
       WHERE  tblAccount.AccountID = p_CustomerID
-          AND tblCustomerRate.Rate > 0
+          -- AND tblCustomerRate.Rate > 0
          AND tblCustomerRate.TrunkID = p_Trunk
          ORDER BY tblCustomerRate.CustomerID,tblCustomerRate.TrunkID,tblCustomerRate.RateID,tblCustomerRate.EffectiveDate DESC;
 	
@@ -132,7 +135,7 @@ BEGIN
       LEFT JOIN tmp_CustomerRates_ trc1
             ON trc1.RateID = tblRateTableRate.RateID
       WHERE  tblAccount.AccountID = p_CustomerID
-         AND tblRateTableRate.Rate > 0
+         -- AND tblRateTableRate.Rate > 0
          AND tblCustomerTrunk.TrunkID = p_Trunk
          AND (( tblRateTableRate.EffectiveDate <= Now()
              AND ( ( trc1.RateID IS NULL )
@@ -412,7 +415,7 @@ BEGIN
                  rsr.`change`,
                  rsr.EffectiveDate AS `effective date`
             FROM   tmp_RateSheetRate_ rsr
-            WHERE rsr.Rate > 0
+            -- WHERE rsr.Rate > 0
             ORDER BY rsr.Destination,rsr.Codes desc;
       ELSE
             SELECT rsr.RateID AS rateid ,
@@ -426,7 +429,7 @@ BEGIN
                            rsr.`change`,
                            rsr.EffectiveDate AS `effective date`
             FROM   tmp_RateSheetRate_ rsr
-            WHERE rsr.Rate > 0
+            -- WHERE rsr.Rate > 0
           	ORDER BY rsr.Destination,rsr.Codes DESC;
         END IF; 
         

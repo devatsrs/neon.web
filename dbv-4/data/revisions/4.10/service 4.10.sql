@@ -47,7 +47,6 @@ ALTER TABLE `tmp_tblVendorUsageDetailsReportLive`
   , ADD COLUMN `ServiceID` int(11) NULL;
 
   
-  
 DROP FUNCTION IF EXISTS `fnGetRoundingPoint`;
 DELIMITER |
 CREATE FUNCTION `fnGetRoundingPoint`(
@@ -98,6 +97,7 @@ BEGIN
 	
 END|
 DELIMITER ;
+
 
 DROP PROCEDURE IF EXISTS `fnGetUsageForSummary`;
 

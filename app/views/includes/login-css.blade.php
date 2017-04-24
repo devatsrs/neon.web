@@ -40,7 +40,10 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
 		"assets/js/perfectScroll/css/perfect-scrollbar.css",
 		"assets/js/odometer/themes/odometer-theme-default.css",	
 		"assets/js/daterangepicker/daterangepicker.css",
-        "assets/css/custom.css",		
+        "assets/css/custom.css",
+
+        // New editor
+        "assets/js/summernote/summernote.css",
     ];
 }
 $css[]  = 'assets/css/skins/black.css';

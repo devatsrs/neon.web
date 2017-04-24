@@ -244,11 +244,8 @@
   box-shadow:  0 2px 1px rgba(203, 208, 217, 0.08);
 }
 </style>
-<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script>
-
+var editor_options 	  =  		{};
 $(document).ready(function(e) {
 	 $('.useremails').select2({
             tags:{{$AllEmails}}
@@ -338,22 +335,9 @@ $(document).ready(function(e) {
 				}
 				});	
 		return false;		
-    });		
-	$('.wysihtml5box').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});
-				
+    });
+    show_summernote($(".wysihtml5box"),editor_options);
+
 				$('#addTtachment').click(function(){
 			 file_count++;                
 				$('#filecontrole1').click();

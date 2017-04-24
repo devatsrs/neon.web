@@ -253,18 +253,18 @@ class RecurringInvoiceController extends \BaseController {
                 if (!empty($RecurringInvoiceDetailData) && RecurringInvoiceDetail::insert($RecurringInvoiceDetailData))
 				{
                     DB::connection('sqlsrv2')->commit();
-                    return Response::json(array("status" => "success", "message" => "RecurringInvoice Successfully Created",'LastID'=>$RecurringInvoice->RecurringInvoiceID,'redirect' => URL::to('/recurringinvoices/'.$RecurringInvoice->RecurringInvoiceID.'/edit')));
+                    return Response::json(array("status" => "success", "message" => "Recurring Profile Successfully Created",'LastID'=>$RecurringInvoice->RecurringInvoiceID,'redirect' => URL::to('/recurringprofiles/'.$RecurringInvoice->RecurringInvoiceID.'/edit')));
                 }
 				else
 				{
                     DB::connection('sqlsrv2')->rollback();
-                    return Response::json(array("status" => "failed", "message" => "Problem Creating RecurringInvoice."));
+                    return Response::json(array("status" => "failed", "message" => "Problem Creating Recurring Profile."));
                 }
             }
 			catch (Exception $e)
 			{
                 DB::connection('sqlsrv2')->rollback();
-                return Response::json(array("status" => "failed", "message" => "Problem Creating RecurringInvoice. \n" . $e->getMessage()));
+                return Response::json(array("status" => "failed", "message" => "Problem Creating Recurring Profile. \n" . $e->getMessage()));
             }
         }
     }
@@ -430,19 +430,19 @@ class RecurringInvoiceController extends \BaseController {
                         }
                         if (RecurringInvoiceDetail::insert($RecurringInvoiceDetailData)) {
                             DB::connection('sqlsrv2')->commit();
-                            return Response::json(array("status" => "success", "message" => "RecurringInvoice Successfully Updated", 'LastID' => $RecurringInvoice->RecurringInvoiceID));
+                            return Response::json(array("status" => "success", "message" => "Recurring Profile Successfully Updated", 'LastID' => $RecurringInvoice->RecurringInvoiceID));
                         }
                     }
 					else
 					{
-                        return Response::json(array("status" => "success", "message" => "RecurringInvoice Successfully Updated, There is no product in RecurringInvoice", 'LastID' => $RecurringInvoice->RecurringInvoiceID));
+                        return Response::json(array("status" => "success", "message" => "Recurring Profile Successfully Updated, There is no product in Recurring Profile", 'LastID' => $RecurringInvoice->RecurringInvoiceID));
                     }
                 }
             }
 			catch (Exception $e)
 			{
 				DB::connection('sqlsrv2')->rollback();
-                return Response::json(array("status" => "failed", "message" => "Problem Updating RecurringInvoice. \n " . $e->getMessage()));
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Recurring Profile. \n " . $e->getMessage()));
             }
         }
     }

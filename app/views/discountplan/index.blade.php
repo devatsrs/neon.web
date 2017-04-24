@@ -72,6 +72,7 @@
             var view_url = baseurl + "/discount_plan/show/{id}";
             var delete_url = baseurl + "/discount_plan/delete/{id}";
             var datagrid_url = baseurl + "/discount_plan/ajax_datagrid";
+            var action_edit_url = '';
 
             $("#filter_submit").click(function(e) {
                 e.preventDefault();
@@ -157,12 +158,13 @@
                 $('#modal-list h4').html('Add Discount Plan');
                 $("#modal-form [name=DiscountPlanID]").val("");
                 $("#modal-form [name=DestinationGroupSetID]").select2().select2('val',"");
-                $("#modal-form [name=CurrencyID]").select2().select2('val',"");
+                $("#modal-form [name=CurrencyID]").val('').trigger('change');
                 $('#modal-list .tobe-hide').removeClass('hidden');
                 $('#modal-list').modal('show');
             });
             $('table tbody').on('click', '.edit-button', function (ev) {
                 ev.preventDefault();
+                action_edit_url  = $(this).attr("href");
                 $('#modal-form').trigger("reset");
                 $('#modal-list h4').html('Edit Discount Plan');
                 var cur_obj = $(this).prev("div.hiddenRowData");
@@ -191,15 +193,15 @@
                 e.preventDefault();
                 var DiscountPlanID = $(this).find('[name="DiscountPlanID"]').val();
                 if( typeof DiscountPlanID != 'undefined' && DiscountPlanID != ''){
-                    var _url = add_url;
+                    var _url = action_edit_url;
                 }else{
-                    var _url = edit_url;
+                    var _url = add_url;
                 }
 
                 submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
             });
 
-
+            //buildselect2($('#modal-list .select22'));
 
         });
     </script>
@@ -219,34 +221,34 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Discount Plan Name*</label>
-                                <input type="text" name="Name" class="form-control" value="" />
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Discount Plan Name*</label>
+                                    <input type="text" name="Name" class="form-control" value="" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Description</label>
-                                <input type="text" name="Description" class="form-control" value="" />
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Description</label>
+                                    <input type="text" name="Description" class="form-control" value="" />
+                                </div>
                             </div>
-                        </div>
                         </div>
                         <div class="row tobe-hide">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Destination Group Set*</label>
-                                {{Form::select('DestinationGroupSetID', $DestinationGroupSets, '' ,array("id"=>"DestinationGroupSetID","class"=>"form-control select2"))}}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Destination Group Set*</label>
+                                    {{Form::select('DestinationGroupSetID', $DestinationGroupSets, '' ,array("id"=>"DestinationGroupSetID","class"=>"form-control select2"))}}
 
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="field-5" class="control-label">Currency*</label>
-                                {{Form::SelectControl('currency',1)}}
-                                <!--{Form::select('CurrencyID', $currencies, '' ,array("class"=>"form-control select2"))}}-->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Currency*</label>
+                                    {{Form::SelectControl('currency',1)}}
+                                    <!--{Form::select('CurrencyID', $currencies, '' ,array("class"=>"","data-modal"=>"add-new-modal-currency","data-active"=>"0","data-type"=>"currency"))}}-->
+                                </div>
                             </div>
-                        </div>
                         </div>
                     </div>
                     <input type="hidden" name="DiscountPlanID">
