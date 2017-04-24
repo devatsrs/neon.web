@@ -5,8 +5,10 @@
     <div id="company">
         <h2 class="name">INVOICE FROM</h2><br>
         @if(isset($editable))
-            <p><a href="#" id="InvoiceTemplateHeader" title="Invoice Header Content" data-inputclass="editable-textarea" class="invoice-editable form-control autogrow " style="height: auto" data-name="Header" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="Header">{{($InvoiceTemplate->Header)}}</a></p>
-            <h3><a href="#" style="display: none;" id="InvoiceTemplateName" data-placeholder="Press Ctrl + Enter to save" class="invoice-editable form-control" data-name="Name" data-type="text" title="Template Name">{{$InvoiceTemplate->Name}}</a></h3>
+            <div style="float:right;">
+                <p><a href="#" id="InvoiceTemplateHeader" title="Invoice Header Content" data-inputclass="editable-textarea" class="invoice-editable form-control autogrow " style="height: auto" data-name="Header" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="Header">{{($InvoiceTemplate->Header)}}</a></p>
+                <h3><a href="#" style="display: none;" id="InvoiceTemplateName" data-placeholder="Press Ctrl + Enter to save" class="invoice-editable form-control" data-name="Name" data-type="text" title="Template Name">{{$InvoiceTemplate->Name}}</a></h3>
+            </div>
         @else
             <div>{{nl2br($InvoiceTemplate->Header)}}</div>
         @endif
