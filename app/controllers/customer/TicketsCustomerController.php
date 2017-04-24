@@ -451,13 +451,13 @@ private $validlicense;
 			$AccountEmail 		 = 	  Session::get("CustomerEmail");
 			$parent_id			 =	  $ResponseData['parent_id'];
 			$GroupEmail			 = 	  $ResponseData['GroupEmail'];
-			
+			$conversation		 =    $ResponseData['conversation'];  
 			if($action_type=='forward'){ //attach current email attachments
 				$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths']);
 			}
 			
 			
-			return View::make('customer.tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','GroupEmail'));  
+			return View::make('customer.tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','GroupEmail','conversation'));  
 		}else{
             return view_response_api($response);
         }	
