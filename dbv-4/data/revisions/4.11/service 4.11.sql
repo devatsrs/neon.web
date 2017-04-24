@@ -47,30 +47,13 @@ ALTER TABLE `tmp_tblVendorUsageDetailsReportLive`
   , ADD COLUMN `ServiceID` int(11) NULL;
 
   
-DROP FUNCTION IF EXISTS `fnGetRoundingPoint`;
-DELIMITER |
-CREATE FUNCTION `fnGetRoundingPoint`(
-	`p_CompanyID` INT
-) RETURNS int(11)
-BEGIN
-
-DECLARE v_Round_ int;
-
-SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID AND cs.Value <> '';
-
-SET v_Round_ = IFNULL(v_Round_,2);
-
-RETURN v_Round_;
-END|
-DELIMITER ;
-
-
   
-DROP FUNCTION `fngetLastInvoiceDate`;
+DROP FUNCTION IF EXISTS `fngetLastInvoiceDate`;
 
 DELIMITER |
 CREATE FUNCTION `fngetLastInvoiceDate`(
 	`p_AccountID` INT
+
 ) RETURNS date
 BEGIN
 	
@@ -90,14 +73,68 @@ BEGIN
 		INTO v_LastInvoiceDate_ 
 	FROM Ratemanagement3.tblAccount
 	LEFT JOIN Ratemanagement3.tblAccountBilling 
-		ON tblAccountBilling.AccountID = tblAccount.AccountID
-	WHERE tblAccount.AccountID = p_AccountID;
+		ON tblAccountBilling.AccountID = tblAccount.AccountID AND tblAccountBilling.ServiceID = 0
+	WHERE tblAccount.AccountID = p_AccountID
+	LIMIT 1;
 	
 	RETURN v_LastInvoiceDate_;
 	
 END|
 DELIMITER ;
 
+DROP FUNCTION IF EXISTS `fngetLastVendorInvoiceDate`;
+
+DELIMITER |
+CREATE FUNCTION `fngetLastVendorInvoiceDate`(
+	`p_AccountID` INT
+) RETURNS datetime
+BEGIN
+	
+	DECLARE v_LastInvoiceDate_ DATETIME;
+	
+	SELECT
+		CASE WHEN EndDate IS NOT NULL AND EndDate <> '' AND EndDate <> '0000-00-00 00:00:00'
+		THEN 
+			EndDate
+		ELSE 
+			CASE WHEN BillingStartDate IS NOT NULL AND BillingStartDate <> ''
+			THEN
+				DATE_FORMAT(BillingStartDate,'%Y-%m-%d')
+			ELSE DATE_FORMAT(tblAccount.created_at,'%Y-%m-%d')
+			END 
+		END  INTO v_LastInvoiceDate_
+ 	FROM Ratemanagement3.tblAccount
+	LEFT JOIN Ratemanagement3.tblAccountBilling 
+		ON tblAccountBilling.AccountID = tblAccount.AccountID AND tblAccountBilling.ServiceID = 0
+	LEFT JOIN RMBilling3.tblInvoice 
+		ON tblAccount.AccountID = tblInvoice.AccountID AND InvoiceType =2
+	LEFT JOIN RMBilling3.tblInvoiceDetail
+		ON tblInvoice.InvoiceID =  tblInvoiceDetail.InvoiceID
+	WHERE tblAccount.AccountID = p_AccountID 
+	ORDER BY IssueDate DESC 
+	LIMIT 1;
+
+	RETURN v_LastInvoiceDate_;
+
+END|
+DELIMITER ;
+
+DROP FUNCTION IF EXISTS `fnGetRoundingPoint`;
+DELIMITER |
+CREATE FUNCTION `fnGetRoundingPoint`(
+	`p_CompanyID` INT
+) RETURNS int(11)
+BEGIN
+
+DECLARE v_Round_ int;
+
+SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID AND cs.Value <> '';
+
+SET v_Round_ = IFNULL(v_Round_,2);
+
+RETURN v_Round_;
+END|
+DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `fnGetUsageForSummary`;
 
@@ -382,7 +419,6 @@ BEGIN
 	END;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
-	CALL fnGetCountry();
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
  
@@ -413,12 +449,6 @@ BEGIN
 	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
 	SET tmp_UsageSummary.CountryID =code.CountryID
 	WHERE tmp_UsageSummary.CompanyID = p_CompanyID AND code.CountryID > 0;
-
-	UPDATE tmp_UsageSummary
-	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_UsageSummary 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
-	ON tmp_UsageSummary.AreaPrefix = TBL.AreaPrefix
-	SET tmp_UsageSummary.CountryID =TBL.CountryID 
-	WHERE tmp_UsageSummary.CompanyID = p_CompanyID AND tmp_UsageSummary.CountryID IS NULL;
 
 	DELETE FROM tmp_SummaryHeader WHERE CompanyID = p_CompanyID;
 	INSERT INTO tmp_SummaryHeader (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
@@ -539,7 +569,6 @@ BEGIN
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	CALL fnGetCountry();
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetUsageForSummaryLive(p_CompanyID, p_StartDate, p_EndDate);
 	 
@@ -570,12 +599,6 @@ BEGIN
 	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
 	SET tmp_UsageSummaryLive.CountryID =code.CountryID
 	WHERE tmp_UsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
-
-	UPDATE tmp_UsageSummaryLive
-	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_UsageSummaryLive 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
-	ON tmp_UsageSummaryLive.AreaPrefix = TBL.AreaPrefix
-	SET tmp_UsageSummaryLive.CountryID =TBL.CountryID 
-	WHERE tmp_UsageSummaryLive.CompanyID = p_CompanyID AND tmp_UsageSummaryLive.CountryID IS NULL ;
 
 	DELETE FROM tmp_SummaryHeaderLive WHERE CompanyID = p_CompanyID;
 	INSERT INTO tmp_SummaryHeaderLive (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
@@ -695,7 +718,6 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	CALL fnGetCountry();
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
 
@@ -727,12 +749,6 @@ BEGIN
 	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
 	SET tmp_VendorUsageSummary.CountryID =code.CountryID
 	WHERE tmp_VendorUsageSummary.CompanyID = p_CompanyID AND code.CountryID > 0;
-
-	UPDATE tmp_VendorUsageSummary
-	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_VendorUsageSummary 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
-	ON tmp_VendorUsageSummary.AreaPrefix = TBL.AreaPrefix
-	SET tmp_VendorUsageSummary.CountryID =TBL.CountryID 
-	WHERE tmp_VendorUsageSummary.CompanyID = p_CompanyID AND tmp_VendorUsageSummary.CountryID IS NULL ;
 
 	DELETE FROM tmp_SummaryVendorHeader WHERE CompanyID = p_CompanyID;
 
@@ -855,7 +871,6 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	CALL fnGetCountry();
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetVendorUsageForSummaryLive(p_CompanyID, p_StartDate, p_EndDate);
 
@@ -887,12 +902,6 @@ BEGIN
 	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
 	SET tmp_VendorUsageSummaryLive.CountryID =code.CountryID
 	WHERE tmp_VendorUsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
-
-	UPDATE tmp_VendorUsageSummaryLive
-	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_VendorUsageSummaryLive 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
-	ON tmp_VendorUsageSummaryLive.AreaPrefix = TBL.AreaPrefix
-	SET tmp_VendorUsageSummaryLive.CountryID =TBL.CountryID 
-	WHERE tmp_VendorUsageSummaryLive.CompanyID = p_CompanyID AND tmp_VendorUsageSummaryLive.CountryID IS NULL ;
 
 	DELETE FROM tmp_SummaryVendorHeaderLive WHERE CompanyID = p_CompanyID;
 

@@ -1,4 +1,8 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_LowBalanceReminder`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_BillingClassID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_LowBalanceReminder`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_BillingClassID` INT
+)
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -7,6 +11,7 @@ BEGIN
 	
 	
 	SELECT
+		DISTINCT
 		IF ( (CASE WHEN ab.BalanceThreshold LIKE '%p' THEN REPLACE(ab.BalanceThreshold, 'p', '')/ 100 * ab.PermanentCredit ELSE ab.BalanceThreshold END) < ab.BalanceAmount ,1,0) as BalanceWarning,
 		a.AccountID
 	FROM tblAccountBalance ab 
