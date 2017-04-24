@@ -15,7 +15,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetAccounts`(
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
-	IN `p_isExport` INT 
+	IN `p_isExport` INT
 )
 BEGIN
 	DECLARE v_OffSet_ int;
@@ -48,7 +48,7 @@ BEGIN
 			tblAccount.City,
 			tblAccount.Country,
 			tblAccount.PostCode,
-			tblAccount.Picture,			
+			tblAccount.Picture,
 			IF ( (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount AND abc.BalanceThreshold <> 0 ,1,0) as BalanceWarning,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.UnbilledAmount,0),v_Round_)) as CUA,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.VendorUnbilledAmount,0),v_Round_)) as VUA,
@@ -65,6 +65,8 @@ BEGIN
 			ON tblContact.Owner=tblAccount.AccountID
 		LEFT JOIN tblAccountAuthenticate
 			ON tblAccountAuthenticate.AccountID = tblAccount.AccountID
+		LEFT JOIN tblCLIRateTable
+			ON tblCLIRateTable.AccountID = tblAccount.AccountID
 		WHERE   tblAccount.CompanyID = p_CompanyID
 			AND tblAccount.AccountType = 1
 			AND tblAccount.Status = p_activeStatus
@@ -74,7 +76,7 @@ BEGIN
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
 			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
 			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
-			AND ((p_IPCLI = '' OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
+			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
 			AND ((p_tags = '' OR tblAccount.tags LIKE Concat(p_tags,'%')))
 			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) LIKE CONCAT('%',p_ContactName,'%')))
 			AND (p_low_balance = 0 OR ( p_low_balance = 1 AND abc.BalanceThreshold <> 0 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) )
@@ -85,7 +87,7 @@ BEGIN
 			END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN tblAccount.AccountName
-			END DESC,                
+			END DESC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NumberDESC') THEN tblAccount.Number
 			END DESC,
@@ -131,7 +133,7 @@ BEGIN
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 
 		SELECT
-			COUNT(tblAccount.AccountID) AS totalcount
+			COUNT(DISTINCT tblAccount.AccountID) AS totalcount
 		FROM tblAccount
 		LEFT JOIN tblAccountBalance abc
 			ON abc.AccountID = tblAccount.AccountID
@@ -141,6 +143,8 @@ BEGIN
 			ON tblContact.Owner=tblAccount.AccountID
 		LEFT JOIN tblAccountAuthenticate
 			ON tblAccountAuthenticate.AccountID = tblAccount.AccountID
+		LEFT JOIN tblCLIRateTable
+			ON tblCLIRateTable.AccountID = tblAccount.AccountID
 		WHERE   tblAccount.CompanyID = p_CompanyID
 			AND tblAccount.AccountType = 1
 			AND tblAccount.Status = p_activeStatus
@@ -150,7 +154,7 @@ BEGIN
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
 			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
 			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
-			AND ((p_IPCLI = '' OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
+			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
 			AND ((p_tags = '' OR tblAccount.tags LIKE Concat(p_tags,'%')))
 			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) LIKE CONCAT('%',p_ContactName,'%')))
 			AND (p_low_balance = 0 OR ( p_low_balance = 1 AND abc.BalanceThreshold <> 0 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) );
@@ -176,6 +180,8 @@ BEGIN
 			ON tblContact.Owner=tblAccount.AccountID
 		LEFT JOIN tblAccountAuthenticate
 			ON tblAccountAuthenticate.AccountID = tblAccount.AccountID
+		LEFT JOIN tblCLIRateTable
+			ON tblCLIRateTable.AccountID = tblAccount.AccountID
 		WHERE   tblAccount.CompanyID = p_CompanyID
 			AND tblAccount.AccountType = 1
 			AND tblAccount.Status = p_activeStatus
@@ -185,7 +191,7 @@ BEGIN
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
 			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
 			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
-			AND ((p_IPCLI = '' OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
+			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
 			AND ((p_tags = '' OR tblAccount.tags LIKE Concat(p_tags,'%')))
 			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) LIKE CONCAT('%',p_ContactName,'%')))
 			AND (p_low_balance = 0 OR ( p_low_balance = 1 AND abc.BalanceThreshold <> 0 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) )

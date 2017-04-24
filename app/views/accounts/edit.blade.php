@@ -47,7 +47,7 @@
     @endif
     @if($account->IsCustomer==1 || $account->IsVendor==1)
     <a href="{{URL::to('accounts/authenticate/'.$account->AccountID)}}" class="btn btn-primary btn-sm btn-icon icon-left">
-        <i class="entypo-cancel"></i>
+        <i class="entypo-lock"></i>
         Authentication Rule
     </a>
     @endif
@@ -550,10 +550,7 @@
 
             </div>
         </div>
-        @include('accounts.cli_tables')
-        @include('accountdiscountplan.index')
-        @include('accountsubscription.index')
-        @include('accountoneoffcharge.index')
+        @include('accountservices.index')
         <div class="panel panel-primary" data-collapsed="0">
 
             <div class="panel-heading">
@@ -663,6 +660,7 @@
         $("#save_account").click(function (ev) {
             ev.preventDefault();
             //Subscription , Additional charge filter fields should not in account save.
+            $('#service_filter').find('input').attr("disabled","disabled");
             $('#subscription_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('input').attr("disabled", "disabled");
             $('#oneofcharge_filter').find('select').attr("disabled", "disabled");
@@ -672,6 +670,7 @@
             ajax_json(url,data,function(response){
 
               //Subscription , Additional charge filter fields to enable again.
+              $('#service_filter').find('input').attr("disabled","disabled");
               $('#subscription_filter').find('input').removeAttr("disabled");
               $('#oneofcharge_filter').find('input').removeAttr("disabled");
               $('#oneofcharge_filter').find('select').removeAttr("disabled");
@@ -752,6 +751,10 @@
                 $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',0);
                 $(".billing-section-hide").nextAll('.panel').find('.panel-body').show();
                 $('.billing-section .select2-container').css('visibility','visible');
+                $("#subscription_filter").find('.panel-body').hide();
+                $("#oneofcharge_filter").find('.panel-body').hide();
+                $("#clitable_filter").find('.panel-body').hide();
+                $("#service_filter").find('.panel-body').hide();
             }else{
                 $(".billing-section").hide();
                 $(".billing-section-hide").nextAll('.panel').attr('data-collapsed',1);
@@ -877,7 +880,6 @@
 @stop
 @section('footer_ext')
 @parent
-@include('accountdiscountplan.discountplanmodal')
 <div class="modal fade" id="upload-modal-account" >
     <div class="modal-dialog">
         <div class="modal-content">

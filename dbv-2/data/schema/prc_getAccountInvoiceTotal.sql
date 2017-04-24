@@ -1,7 +1,8 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getAccountInvoiceTotal`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAccountInvoiceTotal`(
 	IN `p_AccountID` INT,
 	IN `p_CompanyID` INT,
 	IN `p_GatewayID` INT,
+	IN `p_ServiceID` INT,
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_checkDuplicate` INT,
@@ -14,7 +15,7 @@ BEGIN
 
 	SELECT fnGetBillingTime(p_GatewayID,p_AccountID) INTO v_BillingTime_;
 	
-	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,'','','',0); 
+	CALL fnServiceUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_ServiceID,p_StartDate,p_EndDate,v_BillingTime_);
 	
 	IF p_checkDuplicate = 1 THEN
 	

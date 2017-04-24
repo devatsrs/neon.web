@@ -1,6 +1,7 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getInvoiceUsage`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoiceUsage`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
+	IN `p_ServiceID` INT,
 	IN `p_GatewayID` INT,
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
@@ -14,51 +15,59 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SELECT fnGetBillingTime(p_GatewayID,p_AccountID) INTO v_BillingTime_;
+	
+	CALL fnServiceUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_ServiceID,p_StartDate,p_EndDate,v_BillingTime_); 
 
-	CALL fnUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_StartDate,p_EndDate,0,1,v_BillingTime_,'','','',0); 
+	SELECT 
+		b.CDRType  INTO v_CDRType_ 
+	FROM NeonRMDev.tblAccountBilling ab 
+	INNER JOIN  NeonRMDev.tblBillingClass b  
+		ON b.BillingClassID = ab.BillingClassID 
+	WHERE ab.AccountID = p_AccountID 
+		AND ab.ServiceID = p_ServiceID
+	LIMIT 1;
 
-	SELECT b.CDRType  INTO v_CDRType_ FROM Ratemanagement3.tblAccountBilling ab INNER JOIN  Ratemanagement3.tblBillingClass b  ON b.BillingClassID = ab.BillingClassID WHERE ab.AccountID = p_AccountID;
-
-	IF( v_CDRType_ = 2) -- Summery
+	IF( v_CDRType_ = 2) 
 	THEN
 
 		SELECT
 			area_prefix AS AreaPrefix,
 			Trunk,
 			(SELECT 
-				Country
-			FROM Ratemanagement3.tblRate r
-			INNER JOIN Ratemanagement3.tblCountry c
-				ON c.CountryID = r.CountryID
-			WHERE  r.Code = ud.area_prefix LIMIT 1)
+			Country
+			FROM NeonRMDev.tblRate r
+			INNER JOIN NeonRMDev.tblCountry c
+			ON c.CountryID = r.CountryID
+			WHERE  r.Code = ud.area_prefix limit 1)
 			AS Country,
 			(SELECT Description
-			FROM Ratemanagement3.tblRate r
-			WHERE  r.Code = ud.area_prefix LIMIT 1 )
+			FROM NeonRMDev.tblRate r
+			WHERE  r.Code = ud.area_prefix limit 1 )
 			AS Description,
 			COUNT(UsageDetailID) AS NoOfCalls,
 			CONCAT( FLOOR(SUM(duration ) / 60), ':' , SUM(duration ) % 60) AS Duration,
 			CONCAT( FLOOR(SUM(billed_duration ) / 60),':' , SUM(billed_duration ) % 60) AS BillDuration,
-			SUM(cost) AS TotalCharges,
-			SUM(duration ) AS DurationInSec,
-			SUM(billed_duration ) AS BillDurationInSec
+			SUM(cost) AS ChargedAmount,
+			SUM(duration ) as DurationInSec,
+			SUM(billed_duration ) as BillDurationInSec,
+			ud.ServiceID
 		FROM tmp_tblUsageDetails_ ud
-		GROUP BY ud.area_prefix,ud.Trunk,ud.AccountID;
+		GROUP BY ud.area_prefix,ud.Trunk,ud.AccountID,ud.ServiceID;
 
 	ELSE
 
 		SELECT
-			trunk,
-			area_prefix,
-			CONCAT("'",cli) AS cli,
-			CONCAT("'",cld) AS cld,
-			connect_time,
-			disconnect_time,
-			billed_duration,
-			cost
+			trunk AS Trunk,
+			area_prefix AS Prefix,
+			CONCAT("'",cli) AS CLI,
+			CONCAT("'",cld) AS CLD,
+			connect_time AS ConnectTime,
+			disconnect_time AS DisconnectTime,
+			billed_duration AS BilledDuration,
+			cost AS ChargedAmount,
+			ServiceID
 		FROM tmp_tblUsageDetails_ ud
-		WHERE
-			((p_ShowZeroCall =0 AND ud.cost >0 ) OR (p_ShowZeroCall =1 AND ud.cost >= 0))
+		WHERE ((p_ShowZeroCall =0 AND ud.cost >0 ) OR (p_ShowZeroCall =1 AND ud.cost >= 0))
 		ORDER BY connect_time ASC;
 
 	END IF;

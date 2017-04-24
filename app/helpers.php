@@ -179,6 +179,11 @@ function ticketgroup_dropbox($id=0,$data=array()){
     $all_ticketsgroups = TicketGroups::getTicketGroups_dropdown($data);
     return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
+
+function accountservice_dropbox($AccountID,$ServiceID){
+    $all_accsevices = accountservice::getAccountServiceIDList($AccountID);
+    return Form::select('accountservice', $all_accsevices, $ServiceID ,array("id"=>"drp_accountservice_jump" ,"class"=>"selectboxit1 form-control1"));
+}
 function sendMail($view,$data,$ViewType=1){
     
 	if(empty($data['companyID']))
