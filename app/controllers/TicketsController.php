@@ -496,7 +496,7 @@ private $validlicense;
             return view_response_api($response);
         }		
 	}
-	
+	// not in used
 	function UpdateTicketAttributes($id)
 	{
 		$this->IsValidLicense();
