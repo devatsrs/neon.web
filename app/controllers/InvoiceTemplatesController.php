@@ -297,14 +297,7 @@ class InvoiceTemplatesController extends \BaseController {
         if($id>0 && $type>0) {
             set_time_limit(600); // 10 min time limit.
             $InvoiceTemplate = InvoiceTemplate::find($id);
-            $as3url =  URL::to('/').'/assets/images/250x100.png';
-            $path = getenv('UPLOAD_PATH');
-            $logo_path = $path . '/logo/' . User::get_companyID();
-            @mkdir($logo_path, 0777, true);
-            RemoteSSH::run("chmod -R 777 " . $logo_path);
-            $logo = $logo_path  . '/'  . basename($as3url);
-            @file_put_contents($logo, file_get_contents($as3url));
-            /*
+
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
                 $as3url =  URL::to('/').'/assets/images/250x100.png';
             } else {
@@ -319,7 +312,7 @@ class InvoiceTemplatesController extends \BaseController {
                 @file_put_contents($logo, file_get_contents($as3url));
             }else{
                 $logo ='';
-            }*/
+            }
 
 
 			$print_type = 'Invoice Template';
@@ -344,8 +337,7 @@ class InvoiceTemplatesController extends \BaseController {
             $header = View::make('invoicetemplates.newpdfheader', compact('InvoiceTemplate','print_type'))->render();
             $header = htmlspecialchars_decode($header);
 
-            //$destination_dir = CompanyConfiguration::get('TEMP_PATH') . '/' . AmazonS3::generate_path( AmazonS3::$dir['INVOICE_UPLOAD'], $InvoiceTemplate->CompanyID);
-            $destination_dir = getenv('UPLOAD_PATH') . '/' . AmazonS3::generate_path( AmazonS3::$dir['INVOICE_UPLOAD'], $InvoiceTemplate->CompanyID);
+            $destination_dir = CompanyConfiguration::get('TEMP_PATH') . '/' . AmazonS3::generate_path( AmazonS3::$dir['INVOICE_UPLOAD'], $InvoiceTemplate->CompanyID);
             Log::info('invoicetemplate '.$destination_dir);
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
