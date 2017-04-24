@@ -34,8 +34,9 @@ CREATE TABLE IF NOT EXISTS `tblAccountService` (
   `ServiceID` int(3) NOT NULL DEFAULT '0',
   `CompanyID` int(3) NOT NULL DEFAULT '0',
   `Status` int(3) NOT NULL DEFAULT '1',
-  `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NULL DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  `created_at` datetime NULL DEFAULT 'CURRENT_TIMESTAMP',
+  `updated_at` datetime NULL DEFAULT 'CURRENT_TIMESTAMP' on update CURRENT_TIMESTAMP,
+  `ServiceTitle` varchar(50) NULL,
   PRIMARY KEY (`AccountServiceID`)
 ) ENGINE=InnoDB;
 
@@ -62,6 +63,7 @@ CREATE TABLE IF NOT EXISTS `tblService` (
   `Status` tinyint(1) NULL,
   `created_at` datetime NULL,
   `updated_at` datetime NULL,
+  `CompanyGatewayID` int(11) NULL,
   PRIMARY KEY (`ServiceID`)
 ) ENGINE=InnoDB;
 
@@ -80,6 +82,43 @@ SELECT cs.Value INTO v_Round_ from tblCompanySetting cs where cs.`Key` = 'RoundC
 SET v_Round_ = IFNULL(v_Round_,2);
 
 RETURN v_Round_;
+END|
+DELIMITER ;
+
+DROP PROCEDURE `prc_AccountPaymentReminder`;
+
+DELIMITER |
+CREATE PROCEDURE `prc_AccountPaymentReminder`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_BillingClassID` INT
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	CALL RMBilling3.prc_updateSOAOffSet(p_CompanyID,p_AccountID);
+	
+	
+	SELECT
+		DISTINCT
+		a.AccountID,
+		ab.SOAOffset
+	FROM tblAccountBalance ab 
+	INNER JOIN tblAccount a 
+		ON a.AccountID = ab.AccountID
+	INNER JOIN tblAccountBilling abg 
+		ON abg.AccountID  = a.AccountID
+	INNER JOIN tblBillingClass b
+		ON b.BillingClassID = abg.BillingClassID
+	WHERE a.CompanyId = p_CompanyID
+	AND (p_AccountID = 0 OR  a.AccountID = p_AccountID)
+	AND (p_BillingClassID = 0 OR  b.BillingClassID = p_BillingClassID)
+	AND ab.SOAOffset > 0
+	AND a.`Status` = 1;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
 END|
 DELIMITER ;
 
@@ -130,7 +169,7 @@ BEGIN
 	FROM tblAccountAuthenticate accauth
 	INNER JOIN tblAccount acc ON acc.AccountID = accauth.AccountID
 	AND accauth.CompanyID = p_CompanyID
-	AND accauth.ServiceID = p_ServiceID
+	-- AND accauth.ServiceID = p_ServiceID
 	AND ((CustomerAuthRule = p_IPCLICheck) OR (VendorAuthRule = p_IPCLICheck))
 	WHERE (SELECT fnFIND_IN_SET(CONCAT(IFNULL(accauth.CustomerAuthValue,''),',',IFNULL(accauth.VendorAuthValue,'')),p_IPCLIString)) > 0;
 	
@@ -442,6 +481,25 @@ BEGIN
 END|
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `prc_checkCustomerCli`;
+
+DELIMITER |
+CREATE PROCEDURE `prc_checkCustomerCli`(
+	IN `p_CompanyID` INT,
+	IN `p_CustomerCLI` varchar(50)
+)
+BEGIN
+     
+	 SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+    
+    SELECT AccountID
+    FROM tblCLIRateTable 
+    WHERE CompanyID = p_CompanyID AND  CLI = p_CustomerCLI;
+    
+    SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
 DROP PROCEDURE IF EXISTS `prc_getAccountDiscountPlan`;
 
 DELIMITER |
@@ -480,7 +538,239 @@ BEGIN
 END|
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `prc_GetAccounts`;
+
+DELIMITER |
+CREATE PROCEDURE `prc_GetAccounts`(
+	IN `p_CompanyID` int,
+	IN `p_userID` int ,
+	IN `p_IsVendor` int ,
+	IN `p_isCustomer` int ,
+	IN `p_activeStatus` int,
+	IN `p_VerificationStatus` int,
+	IN `p_AccountNo` VARCHAR(100),
+	IN `p_ContactName` VARCHAR(50),
+	IN `p_AccountName` VARCHAR(50),
+	IN `p_tags` VARCHAR(50),
+	IN `p_IPCLI` VARCHAR(50),
+	IN `p_low_balance` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+	DECLARE v_OffSet_ int;
+	DECLARE v_Round_ int;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+
+	IF p_isExport = 0
+	THEN
+
+		SELECT
+			tblAccount.AccountID,
+			tblAccount.Number, 
+			tblAccount.AccountName,
+			CONCAT(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername,
+			tblAccount.Phone, 
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.SOAOffset,0),v_Round_)) as OutStandingAmount,
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.UnbilledAmount,0),v_Round_) - ROUND(COALESCE(abc.VendorUnbilledAmount,0),v_Round_)) as UnbilledAmount,
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.PermanentCredit,0),v_Round_)) as PermanentCredit,
+			tblAccount.Email, 
+			tblAccount.IsCustomer, 
+			tblAccount.IsVendor,
+			tblAccount.VerificationStatus,
+			tblAccount.Address1,
+			tblAccount.Address2,
+			tblAccount.Address3,
+			tblAccount.City,
+			tblAccount.Country,
+			tblAccount.PostCode,
+			tblAccount.Picture,			
+			IF ( (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount AND abc.BalanceThreshold <> 0 ,1,0) as BalanceWarning,
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.UnbilledAmount,0),v_Round_)) as CUA,
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.VendorUnbilledAmount,0),v_Round_)) as VUA,
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.BalanceAmount,0),v_Round_)) as AE,
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,IF(ROUND(COALESCE(abc.PermanentCredit,0),v_Round_) - ROUND(COALESCE(abc.BalanceAmount,0),v_Round_)<0,0,ROUND(COALESCE(abc.PermanentCredit,0),v_Round_) - ROUND(COALESCE(abc.BalanceAmount,0),v_Round_))) as ACL,
+			abc.BalanceThreshold,
+			tblAccount.Blocked
+		FROM tblAccount
+		LEFT JOIN tblAccountBalance abc
+			ON abc.AccountID = tblAccount.AccountID
+		LEFT JOIN tblUser
+			ON tblAccount.Owner = tblUser.UserID
+		LEFT JOIN tblContact
+			ON tblContact.Owner=tblAccount.AccountID
+		LEFT JOIN tblAccountAuthenticate
+			ON tblAccountAuthenticate.AccountID = tblAccount.AccountID
+		LEFT JOIN tblCLIRateTable
+			ON tblCLIRateTable.AccountID = tblAccount.AccountID
+		WHERE   tblAccount.CompanyID = p_CompanyID
+			AND tblAccount.AccountType = 1
+			AND tblAccount.Status = p_activeStatus
+			AND tblAccount.VerificationStatus = p_VerificationStatus
+			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
+			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
+			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
+			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
+			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
+			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
+			AND ((p_tags = '' OR tblAccount.tags LIKE Concat(p_tags,'%')))
+			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) LIKE CONCAT('%',p_ContactName,'%')))
+			AND (p_low_balance = 0 OR ( p_low_balance = 1 AND abc.BalanceThreshold <> 0 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) )
+		GROUP BY tblAccount.AccountID
+		ORDER BY
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN tblAccount.AccountName
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN tblAccount.AccountName
+			END DESC,                
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NumberDESC') THEN tblAccount.Number
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NumberASC') THEN tblAccount.Number
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OwnernameDESC') THEN tblUser.FirstName
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OwnernameASC') THEN tblUser.FirstName
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PhoneDESC') THEN tblAccount.Phone
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PhoneASC') THEN tblAccount.Phone
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutStandingAmountDESC') THEN abc.SOAOffset
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'OutStandingAmountASC') THEN abc.SOAOffset
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PermanentCreditDESC') THEN abc.PermanentCredit
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PermanentCreditASC') THEN abc.PermanentCredit
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'UnbilledAmountDESC') THEN (ROUND(COALESCE(abc.UnbilledAmount,0),v_Round_) - ROUND(COALESCE(abc.VendorUnbilledAmount,0),v_Round_))
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'UnbilledAmountASC') THEN (ROUND(COALESCE(abc.UnbilledAmount,0),v_Round_) - ROUND(COALESCE(abc.VendorUnbilledAmount,0),v_Round_))
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EmailDESC') THEN tblAccount.Email
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EmailASC') THEN tblAccount.Email
+			END ASC
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(DISTINCT tblAccount.AccountID) AS totalcount
+		FROM tblAccount
+		LEFT JOIN tblAccountBalance abc
+			ON abc.AccountID = tblAccount.AccountID
+		LEFT JOIN tblUser
+			ON tblAccount.Owner = tblUser.UserID
+		LEFT JOIN tblContact
+			ON tblContact.Owner=tblAccount.AccountID
+		LEFT JOIN tblAccountAuthenticate
+			ON tblAccountAuthenticate.AccountID = tblAccount.AccountID
+		LEFT JOIN tblCLIRateTable
+			ON tblCLIRateTable.AccountID = tblAccount.AccountID
+		WHERE   tblAccount.CompanyID = p_CompanyID
+			AND tblAccount.AccountType = 1
+			AND tblAccount.Status = p_activeStatus
+			AND tblAccount.VerificationStatus = p_VerificationStatus
+			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
+			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
+			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
+			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
+			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
+			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
+			AND ((p_tags = '' OR tblAccount.tags LIKE Concat(p_tags,'%')))
+			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) LIKE CONCAT('%',p_ContactName,'%')))
+			AND (p_low_balance = 0 OR ( p_low_balance = 1 AND abc.BalanceThreshold <> 0 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) );
+
+	END IF;
+	IF p_isExport = 1
+	THEN
+		SELECT
+			tblAccount.Number as NO,
+			tblAccount.AccountName,
+			CONCAT(tblAccount.FirstName,' ',tblAccount.LastName) as Name,
+			tblAccount.Phone, 
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.SOAOffset,0),v_Round_)) as 'OutStanding',
+			tblAccount.Email,
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.UnbilledAmount,0),v_Round_)  - ROUND(COALESCE(abc.VendorUnbilledAmount,0),v_Round_)) as 'Unbilled Amount',
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.PermanentCredit,0),v_Round_)) as 'Credit Limit'
+		FROM tblAccount
+		LEFT JOIN tblAccountBalance abc
+			ON abc.AccountID = tblAccount.AccountID
+		LEFT JOIN tblUser
+			ON tblAccount.Owner = tblUser.UserID
+		LEFT JOIN tblContact
+			ON tblContact.Owner=tblAccount.AccountID
+		LEFT JOIN tblAccountAuthenticate
+			ON tblAccountAuthenticate.AccountID = tblAccount.AccountID
+		LEFT JOIN tblCLIRateTable
+			ON tblCLIRateTable.AccountID = tblAccount.AccountID
+		WHERE   tblAccount.CompanyID = p_CompanyID
+			AND tblAccount.AccountType = 1
+			AND tblAccount.Status = p_activeStatus
+			AND tblAccount.VerificationStatus = p_VerificationStatus
+			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
+			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
+			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
+			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
+			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
+			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
+			AND ((p_tags = '' OR tblAccount.tags LIKE Concat(p_tags,'%')))
+			AND ((p_ContactName = '' OR (CONCAT(IFNULL(tblContact.FirstName,'') ,' ', IFNULL(tblContact.LastName,''))) LIKE CONCAT('%',p_ContactName,'%')))
+			AND (p_low_balance = 0 OR ( p_low_balance = 1 AND abc.BalanceThreshold <> 0 AND (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount) )
+		GROUP BY tblAccount.AccountID;
+	END IF;
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getAccountService`;
+
+DELIMITER |
+CREATE PROCEDURE `prc_getAccountService`(
+	IN `p_AccountID` INT,
+	IN `p_ServiceID` INT
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SELECT
+		tblAccountService.*
+	FROM tblAccountService
+	LEFT JOIN tblAccountBilling 
+		ON tblAccountBilling.AccountID = tblAccountService.AccountID AND tblAccountBilling.ServiceID =  tblAccountService.ServiceID
+	WHERE tblAccountService.AccountID = p_AccountID
+	AND Status = 1
+	AND ( (p_ServiceID = 0 AND tblAccountBilling.ServiceID IS NULL) OR  tblAccountBilling.ServiceID = p_ServiceID);
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+	
+END|
+DELIMITER ;
+
 DROP PROCEDURE IF EXISTS `prc_getBillingAccounts`;
+
 DELIMITER |
 CREATE PROCEDURE `prc_getBillingAccounts`(
 	IN `p_CompanyID` INT,
@@ -507,10 +797,7 @@ BEGIN
 	AND tblAccount.Status = 1 
 	AND AccountType = 1 
 	AND Billing = 1
-	-- AND tblAccountBilling.NextInvoiceDate <>  ''
-	--  AND tblAccountBilling.NextInvoiceDate <> '0000-00-00' 
 	AND tblAccountBilling.NextInvoiceDate <= p_Today
---	AND tblAccountBilling.AccountID >= 5020 
 	AND tblAccountBilling.BillingCycleType IS NOT NULL 
 	AND FIND_IN_SET(tblAccount.AccountID,p_skip_accounts) = 0	
 	ORDER BY tblAccount.AccountID ASC;
@@ -530,7 +817,6 @@ CREATE PROCEDURE `prc_getCustomerCodeRate`(
 	IN `p_RateMethod` VARCHAR(50),
 	IN `p_SpecifyRate` DECIMAL(18,6),
 	IN `p_RateTableID` INT
-
 )
 BEGIN
 	DECLARE v_codedeckid_ INT;
@@ -770,6 +1056,44 @@ BEGIN
 		END IF;
 
 	END IF;
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_LowBalanceReminder`;
+
+DELIMITER |
+CREATE PROCEDURE `prc_LowBalanceReminder`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_BillingClassID` INT
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	CALL RMBilling3.prc_updateSOAOffSet(p_CompanyID,p_AccountID);
+	
+	
+	SELECT
+		DISTINCT
+		IF ( (CASE WHEN ab.BalanceThreshold LIKE '%p' THEN REPLACE(ab.BalanceThreshold, 'p', '')/ 100 * ab.PermanentCredit ELSE ab.BalanceThreshold END) < ab.BalanceAmount AND ab.BalanceThreshold <> 0 ,1,0) as BalanceWarning,
+		a.AccountID
+	FROM tblAccountBalance ab 
+	INNER JOIN tblAccount a 
+		ON a.AccountID = ab.AccountID
+	INNER JOIN tblAccountBilling abg 
+		ON abg.AccountID  = a.AccountID
+	INNER JOIN tblBillingClass b
+		ON b.BillingClassID = abg.BillingClassID
+	WHERE a.CompanyId = p_CompanyID
+	AND (p_AccountID = 0 OR  a.AccountID = p_AccountID)
+	AND (p_BillingClassID = 0 OR  b.BillingClassID = p_BillingClassID)
+	AND ab.PermanentCredit IS NOT NULL
+	AND ab.BalanceThreshold IS NOT NULL
+	AND a.`Status` = 1;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
 END|
 DELIMITER ;
 

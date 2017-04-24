@@ -1,4 +1,8 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_AccountPaymentReminder`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_BillingClassID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_AccountPaymentReminder`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_BillingClassID` INT
+)
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -7,6 +11,7 @@ BEGIN
 	
 	
 	SELECT
+		DISTINCT
 		a.AccountID,
 		ab.SOAOffset
 	FROM tblAccountBalance ab 

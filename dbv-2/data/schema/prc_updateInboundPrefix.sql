@@ -2,7 +2,8 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_updateInboundPrefix`(
 	IN `p_AccountID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
-	IN `p_CLD` VARCHAR(500)
+	IN `p_CLD` VARCHAR(500),
+	IN `p_ServiceID` INT
 )
 BEGIN
 
@@ -51,6 +52,7 @@ BEGIN
 		ON ud.ProcessID = ' , p_processId , '
 			AND ud.is_inbound = 1 
 			AND ud.AccountID = ' , p_AccountID , '
+			AND ud.ServiceID = ' , p_ServiceID , '
 			AND ud.area_prefix = "Other"
 			AND cld like  CONCAT(c.Code,"%");
 		');

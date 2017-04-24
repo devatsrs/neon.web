@@ -21,9 +21,9 @@ BEGIN
 
 	SET @stm2 = CONCAT('
 	INSERT INTO   tblUsageHeader (CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,StartDate,created_at,ServiceID)
-	SELECT DISTINCT d.CompanyID,d.CompanyGatewayID,d.GatewayAccountID,d.AccountID,DATE_FORMAT(connect_time,"%Y-%m-%d"),NOW(),d.ServiceID  
+	SELECT DISTINCT d.CompanyID,d.CompanyGatewayID,d.GatewayAccountID,d.AccountID,DATE_FORMAT(connect_time,"%Y-%m-%d"),NOW(),d.ServiceID
 	FROM `' , p_tbltempusagedetail_name , '` d
-	LEFT JOIN tblUsageHeader h 
+	LEFT JOIN tblUsageHeader h
 	ON h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
@@ -39,22 +39,24 @@ BEGIN
 	SET @stm3 = CONCAT('
 	INSERT INTO tblUsageDetailFailedCall (UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition)
 	SELECT UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition
-	FROM  `' , p_tbltempusagedetail_name , '` d inner join tblUsageHeader h	 on h.CompanyID = d.CompanyID
+	FROM  `' , p_tbltempusagedetail_name , '` d
+	INNER JOIN tblUsageHeader h
+	ON h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
+		AND h.ServiceID = d.ServiceID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
 	WHERE   processid = "' , p_processId , '"
-		and billed_duration = 0 and cost = 0 AND ( disposition <> "ANSWERED" or disposition IS NULL);
+		AND billed_duration = 0 AND cost = 0 AND ( disposition <> "ANSWERED" OR disposition IS NULL);
 
 	');
 
 	PREPARE stmt3 FROM @stm3;
 	EXECUTE stmt3;
 	DEALLOCATE PREPARE stmt3;
-    
-    
+
 	SET @stm4 = CONCAT('    
-	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '"  and billed_duration = 0 and cost = 0 AND ( disposition <> "ANSWERED" or disposition IS NULL);
+	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '"  AND billed_duration = 0 AND cost = 0 AND ( disposition <> "ANSWERED" OR disposition IS NULL);
 	');
 
 	PREPARE stmt4 FROM @stm4;
@@ -64,10 +66,13 @@ BEGIN
 	SET @stm5 = CONCAT(' 
 	INSERT INTO tblUsageDetails (UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition)
 	SELECT UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition
-	FROM  `' , p_tbltempusagedetail_name , '` d inner join tblUsageHeader h	 on h.CompanyID = d.CompanyID
-	AND h.CompanyGatewayID = d.CompanyGatewayID
-	AND h.GatewayAccountID = d.GatewayAccountID
-	AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
+	FROM  `' , p_tbltempusagedetail_name , '` d
+	INNER JOIN tblUsageHeader h
+	ON h.CompanyID = d.CompanyID
+		AND h.CompanyGatewayID = d.CompanyGatewayID
+		AND h.GatewayAccountID = d.GatewayAccountID
+		AND h.ServiceID = d.ServiceID
+		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
 	WHERE   processid = "' , p_processId , '" ;
 	');
 
@@ -75,17 +80,16 @@ BEGIN
 	EXECUTE stmt5;
 	DEALLOCATE PREPARE stmt5;
 
- 	SET @stm6 = CONCAT(' 
+	SET @stm6 = CONCAT(' 
 	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '" ;
 	');
 
 	PREPARE stmt6 FROM @stm6;
 	EXECUTE stmt6;
 	DEALLOCATE PREPARE stmt6;
-    
 
-	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
 END|
 DELIMITER ;
 
@@ -110,7 +114,7 @@ BEGIN
 		AND h.ServiceID = d.ServiceID
 		AND h.GatewayAccountID = d.GatewayAccountID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
-	WHERE h.GatewayAccountID is null and processid = "' , p_processId , '";
+	WHERE h.GatewayAccountID IS NULL AND processid = "' , p_processId , '";
 	');
 
 	PREPARE stmt2 FROM @stm2;
@@ -120,11 +124,14 @@ BEGIN
 	SET @stm6 = CONCAT('
 	INSERT INTO tblVendorCDRFailed (VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
 	SELECT VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
-	FROM `' , p_tbltempusagedetail_name , '` d inner join tblVendorCDRHeader h	 on h.CompanyID = d.CompanyID
-	AND h.CompanyGatewayID = d.CompanyGatewayID
-	AND h.GatewayAccountID = d.GatewayAccountID
-	AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
-	WHERE processid = "' , p_processId , '" AND  billed_duration = 0 and buying_cost = 0 ;
+	FROM `' , p_tbltempusagedetail_name , '` d 
+	INNER JOIN tblVendorCDRHeader h	 
+	ON h.CompanyID = d.CompanyID
+		AND h.CompanyGatewayID = d.CompanyGatewayID
+		AND h.GatewayAccountID = d.GatewayAccountID
+		AND h.ServiceID = d.ServiceID
+		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
+	WHERE processid = "' , p_processId , '" AND  billed_duration = 0 AND buying_cost = 0 ;
 	');
 
 	PREPARE stmt6 FROM @stm6;
@@ -142,9 +149,12 @@ BEGIN
 	SET @stm4 = CONCAT('
 	INSERT INTO tblVendorCDR (VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
 	SELECT VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
-	FROM `' , p_tbltempusagedetail_name , '` d inner join tblVendorCDRHeader h	 on h.CompanyID = d.CompanyID
+	FROM `' , p_tbltempusagedetail_name , '` d 
+	INNER JOIN tblVendorCDRHeader h	 
+	ON h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
+		AND h.ServiceID = d.ServiceID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
 	WHERE processid = "' , p_processId , '" ;
 	');
@@ -162,7 +172,7 @@ BEGIN
 	DEALLOCATE PREPARE stmt5;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-	
+
 END|
 DELIMITER ;
 

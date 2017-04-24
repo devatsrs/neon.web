@@ -34,6 +34,7 @@ header {
 #logo {
   float: left;
   margin-top: 8px;
+  width:48%;
 }
 
 #logo img {
@@ -43,6 +44,7 @@ header {
 #company {
   float: right;
   text-align: right;
+  width:48%;
 }
 
 

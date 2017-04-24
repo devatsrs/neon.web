@@ -104,10 +104,10 @@ BEGIN
 			END IF;
 
 			/* update prefix inbound process*/
-			CALL prc_updateInboundPrefix(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_);
+			CALL prc_updateInboundPrefix(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_);
 
 			/* inbound rerate process*/
-			CALL prc_updateInboundRate(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_);
+			CALL prc_updateInboundRate(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_);
 
 			SET v_pointer_ = v_pointer_ + 1;
 

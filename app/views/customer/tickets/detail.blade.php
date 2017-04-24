@@ -484,12 +484,5 @@ $(document).ready(function(e) {
             });		
 		
 });
-setTimeout(setagentval(),6000);
-	function setagentval(){
-		$('.ticketgroup').trigger('change');
-		console.log(agent);
-		$('#ticketagent').val(agent);
-		
-	}
-</script> 
+</script>
 @stop 
