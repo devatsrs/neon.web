@@ -1288,7 +1288,7 @@ BEGIN
 		END IF;
 	END IF;
 	
-	IF p_Type=2 || p_Type=3 -- 2. Total Invoices 3. Total OutStanding
+	IF p_Type=2 OR p_Type=3 -- 2. Total Invoices 3. Total OutStanding
 	THEN
 
 		DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_;
@@ -1397,29 +1397,29 @@ BEGIN
 				END ASC
 				LIMIT p_RowspPage OFFSET v_OffSet_;
 
-				SELECT COUNT(*) AS totalcount,
-						ROUND(COALESCE(SUM(GrandTotal),0),v_Round_) as totalsum, 
-						ROUND(COALESCE(SUM(TotalPayment),0),v_Round_) totalpaymentsum,
-						ROUND(COALESCE(SUM(PendingAmount),0),v_Round_) totalpendingsum,
-						v_CurrencyCode_ as currencySymbol
-				FROM tmp_Invoices_;
+			SELECT COUNT(*) AS totalcount,
+					ROUND(COALESCE(SUM(GrandTotal),0),v_Round_) as totalsum, 
+					ROUND(COALESCE(SUM(TotalPayment),0),v_Round_) totalpaymentsum,
+					ROUND(COALESCE(SUM(PendingAmount),0),v_Round_) totalpendingsum,
+					v_CurrencyCode_ as currencySymbol
+			FROM tmp_Invoices_;
 				
 
-			END IF;
-			IF p_Export=1
-			THEN
-				SELECT 
-					AccountName ,
-					InvoiceNumber,
-					IssueDate,
-					REPLACE(InvoicePeriod, '<br>', '') as InvoicePeriod,
-					CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal,
-					CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `Paid/OS`,
-					InvoiceStatus,
-					InvoiceType,
-					ItemInvoice
-			FROM tmp_Invoices_;
-			END IF;
+		END IF;
+		IF p_Export=1
+		THEN
+			SELECT 
+				AccountName ,
+				InvoiceNumber,
+				IssueDate,
+				REPLACE(InvoicePeriod, '<br>', '') as InvoicePeriod,
+				CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal,
+				CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `Paid/OS`,
+				InvoiceStatus,
+				InvoiceType,
+				ItemInvoice
+		FROM tmp_Invoices_;
+		END IF;
 	END IF;
 		
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
