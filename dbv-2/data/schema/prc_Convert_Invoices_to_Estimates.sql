@@ -129,7 +129,7 @@ insert into tblInvoiceLog (InvoiceID,Note,InvoiceLogStatus,created_at)
 select inv.InvoiceID,concat(note_text, CONCAT(LTRIM(RTRIM(IFNULL(it.EstimateNumberPrefix,''))), LTRIM(RTRIM(ti.EstimateNumber)))) as Note,1 as InvoiceLogStatus,NOW() as created_at  from tblInvoice inv
 INNER JOIN tblEstimate ti ON  inv.EstimateID =  ti.EstimateID
 INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
-INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
+INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID AND ab.ServiceID = 0
 INNER JOIN NeonRMDev.tblBillingClass b ON ab.BillingClassID = b.BillingClassID
 LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
 where
@@ -156,7 +156,7 @@ where
 	UPDATE tblInvoice 
 	INNER JOIN tblEstimate ON  tblInvoice.EstimateID =  tblEstimate.EstimateID
 	INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblInvoice.AccountID
-	INNER JOIN NeonRMDev.tblAccountBilling ON tblAccount.AccountID = tblAccountBilling.AccountID
+	INNER JOIN NeonRMDev.tblAccountBilling ON tblAccount.AccountID = tblAccountBilling.AccountID AND tblAccountBilling.ServiceID = 0
 	INNER JOIN NeonRMDev.tblBillingClass ON tblAccountBilling.BillingClassID = tblBillingClass.BillingClassID
 	INNER JOIN tblInvoiceTemplate ON tblBillingClass.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
 	SET FullInvoiceNumber = IF(InvoiceType=1,CONCAT(ltrim(rtrim(IFNULL(tblInvoiceTemplate.InvoiceNumberPrefix,''))), ltrim(rtrim(tblInvoice.InvoiceNumber))),ltrim(rtrim(tblInvoice.InvoiceNumber)))

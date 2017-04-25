@@ -65,8 +65,12 @@ if ( Request::is('/') || Request::is('login') || Request::is('customer/login') |
         "assets/bootstrap3-editable/js/bootstrap-editable.js",
         "assets/js/fileinput.js",
         "assets/js/icheck/icheck.min.js",
-            "assets/js/daterangepicker/moment.min.js",
-            "assets/js/daterangepicker/daterangepicker.js"
+        "assets/js/daterangepicker/moment.min.js",
+        "assets/js/daterangepicker/daterangepicker.js",
+
+		//New editor
+		"assets/js/summernote/summernote.min.js",
+		"assets/js/summernote/plugin/neonplaceholder/neonplaceholder.js",
 
     ];
 }

@@ -23,6 +23,8 @@ class TicketsTable extends \Eloquent
 	static  $pagination 				= 	array("10"=>"10","25"=>"25","50"=>"50","100"=>"100");
 	static  $SortcolumnsCustomer		=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","updated_at"=>"Last Modified");
 	static  $Sortcolumns				=	array("created_at"=>"Date Created","subject"=>"Subject","status"=>"Status","group"=>"Group","updated_at"=>"Last Modified");
+	
+	static  $DueFilter					=	array("Overdue"=>"Overdue","Today"=>"Today","Tomorrow"=>"Tomorrow","Next_8_hours"=>"Next 8 hours");
 
     public static function boot()
     {

@@ -56,7 +56,7 @@
 From: <?php $AccountEmail; ?><br>
 Subject: <?php $response_data['Subject']; ?>....<br>
 Date: <?php echo date('M d, Y,',strtotime($response_data['created_at'])).' at '.date('H:i A, ',strtotime($response_data['created_at'])); ?><br>
-@endif{{$response_data['Description']}}</textarea>
+@endif{{$conversation}}</textarea>
       </div>
       <p class="comment-box-options-activity"> <a id="addReplyTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
       <div class="form-group email_attachment">

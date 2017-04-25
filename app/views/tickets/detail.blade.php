@@ -157,7 +157,7 @@
             </div>          
             <div class="change_due_time form-group">
                   <div class="col-md-6">      
-                  <input autocomplete="off" type="text" name="TicketDueDate" id="TicketDueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d',strtotime($ticketdata->DueDate))}}" data-startdate="{{date('Y-m-d',strtotime(" today"))}}" />
+                  <input autocomplete="off" type="text" name="DueDate" id="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d',strtotime($ticketdata->DueDate))}}" data-startdate="{{date('Y-m-d',strtotime(" today"))}}" />
                   </div><div class="col-md-6">
                     <input type="text" name="DueTime" id="DueTime" data-minute-step="5" data-show-meridian="false" data-default-time="{{date('H:i:s',strtotime($ticketdata->DueDate))}}" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
                 </div>
