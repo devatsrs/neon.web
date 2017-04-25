@@ -95,6 +95,7 @@ private $validlicense;
 		$data['priority']	 		= 	 isset($data['formData']['priority'])?$data['formData']['priority']:'';
 		$data['group'] 				= 	 isset($data['formData']['group'])?$data['formData']['group']:'';		
 		$data['agent']				= 	 isset($data['formData']['agent'])?$data['formData']['agent']:'';
+		$data['DueBy']				= 	 isset($data['formData']['DueBy'])?$data['formData']['DueBy']:'';		
 		$data['iSortCol_0']			= 	 $data['sort_fld'];
 		$data['sSortDir_0']			= 	 $data['sort_type'];
 		$data['iDisplayLength'] 	= 	 $data['per_page'];
