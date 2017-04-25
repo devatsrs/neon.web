@@ -1692,7 +1692,7 @@ function get_ticket_response_due_label($result_data,$options = array()) {
             return '<div class="label label-primary">New</div>';
         }
     }else{
-        if($result_data->CustomerResponse==$result_data->RequesterEmail){
+        if(date("Y-m-d H:i:s",strtotime($result_data->CustomerResponse))>date("Y-m-d H:i:s",strtotime($result_data->AgentResponse))){
             return "<div class='label label-info'>CUSTOMER RESPONDED</div>";
         }else{
             if (\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture() && isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
