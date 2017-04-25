@@ -31,20 +31,16 @@ ALTER TABLE `tmp_VendorUsageSummaryLive`
   ADD COLUMN `ServiceID` int(11) NULL;
 
 ALTER TABLE `tmp_tblUsageDetailsReport`
-  MODIFY COLUMN `UsageDetailID` bigint(20) unsigned NULL
-  , ADD COLUMN `ServiceID` int(11) NULL;
+  ADD COLUMN `ServiceID` int(11) NULL;
 
 ALTER TABLE `tmp_tblUsageDetailsReportLive`
-  MODIFY COLUMN `UsageDetailID` bigint(20) unsigned NULL
-  , ADD COLUMN `ServiceID` int(11) NULL;
+  ADD COLUMN `ServiceID` int(11) NULL;
 
 ALTER TABLE `tmp_tblVendorUsageDetailsReport`
-  MODIFY COLUMN `VendorCDRID` bigint(20) unsigned NULL
-  , ADD COLUMN `ServiceID` int(11) NULL;
+  ADD COLUMN `ServiceID` int(11) NULL;
 
 ALTER TABLE `tmp_tblVendorUsageDetailsReportLive`
-  MODIFY COLUMN `VendorCDRID` bigint(20) unsigned NULL
-  , ADD COLUMN `ServiceID` int(11) NULL;
+  ADD COLUMN `ServiceID` int(11) NULL;
 
   
   
