@@ -1481,12 +1481,7 @@ function next_billing_date($BillingCycleType,$BillingCycleValue,$BillingStartDat
                 }
                 break;
             case 'yearly':
-                $CurrentDate = date("Y-m-d",  $BillingStartDate); // Current date
-                if($CurrentDate<=date("Y-m-d")) {
-                    $NextInvoiceDate = date("Y-m-d", strtotime("+1 year", $BillingStartDate));
-                }else{
-                    $NextInvoiceDate = date("Y-m-d",$CurrentDate);
-                }
+                $NextInvoiceDate = date("Y-m-d", strtotime("+1 year", $BillingStartDate));
                 break;
         }
         $Timezone = Company::getCompanyTimeZone(0);
