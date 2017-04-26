@@ -49,7 +49,7 @@
           		<input type="hidden" name="agent" value="" >
           	@endif
        		@endif		  
-				<label for="field-1" class="col-sm-1 control-label small_label">Overdue by</label>
+				<label for="field-1" class="col-sm-1 control-label small_label">Due by</label>
 				<div class="col-sm-2"> {{Form::select('overdue[]', TicketsTable::$DueFilter, $overdueVal ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
 			</div>
           <p style="text-align: right;">
