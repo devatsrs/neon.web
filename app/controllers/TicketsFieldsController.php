@@ -311,7 +311,9 @@ private $validlicense;
 						if(isset($postdata['deleted_choices']) && !empty($postdata['deleted_choices'])){
 								$deleted_choices = explode(",",$postdata['deleted_choices']);
 								foreach($deleted_choices as $deleted_choices_data){									
-									TicketfieldsValues::find($deleted_choices_data)->delete();		
+									TicketfieldsValues::find($deleted_choices_data)->delete();	
+									TicketLog::where(['TicketFieldValueFromID'=>$deleted_choices_data])->delete();
+									TicketLog::where(['TicketFieldValueToID'=>$deleted_choices_data])->delete();	
 								}
 						}					
 					}
@@ -348,6 +350,8 @@ private $validlicense;
 								$deleted_choices = explode(",",$postdata['deleted_choices']);
 								foreach($deleted_choices as $deleted_choices_data){									
 									TicketfieldsValues::find($deleted_choices_data)->delete();		
+									TicketLog::where(['TicketFieldValueFromID'=>$deleted_choices_data])->delete();
+									TicketLog::where(['TicketFieldValueToID'=>$deleted_choices_data])->delete();
 								}
 						}					
 					}
