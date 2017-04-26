@@ -25,6 +25,11 @@
 
 <?php
 $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
+$total_tax_item = 0;
+$total_tax_subscription = 0;
+$grand_total_item = 0;
+$grand_total_subscription = 0;
+$inlineTaxes        =   [];
 ?>
 
 <div class="inovicebody">
@@ -55,9 +60,9 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
             </div>
             
             <!-- content of front page section start -->            
-            <div id="Service">
+            <!--<div id="Service">
                 <h1>Item</h1>
-            </div>
+            </div>-->
             <div class="clearfix"></div>
             <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
                 <thead>
@@ -85,9 +90,23 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                 @endforeach             
                 </tbody>
                 <tfoot>
+                @if($grand_total_item > 0)
+                    <tr>
+                        <td colspan="2"></td>
+                        <td colspan="2">ADDTIONAL SUB TOTAL</td>
+                        <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_item,$RoundChargesAmount)}}</td>
+                    </tr>
+                @endif
+                @if($grand_total_subscription > 0)
+                    <tr>
+                        <td colspan="2"></td>
+                        <td colspan="2">RECURRING SUB TOTAL</td>
+                        <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_item,$RoundChargesAmount)}}</td>
+                    </tr>
+                @endif
                 <tr>
                     <td colspan="2"></td>
-                    <td colspan="2">SUB TOTAL</td>
+                    <td colspan="2">ESTIMATE TOTAL</td>
                     <td class="subtotal">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$RoundChargesAmount)}}</td>
                 </tr>
                 
