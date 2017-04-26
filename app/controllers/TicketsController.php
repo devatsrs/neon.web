@@ -26,6 +26,7 @@ private $validlicense;
         $this->TicketGroupAccess();
         $this->TicketGroupAccess();
         $this->TicketRestrictedAccess();
+		$postdata					= 	Input::all(); 
         $TicketPermission			=	TicketsTable::GetTicketAccessPermission();
         $CompanyID 		 			= 	 User::get_companyID();
         $data 			 			= 	 array();
@@ -67,7 +68,21 @@ private $validlicense;
         $iDisplayLength 			= 	 $data['iDisplayLength'];
         $totalResults 				= 	 0;
 		$OpenTicketStatus 			=	 TicketsTable::GetOpenTicketStatus();
-        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus",'OpenTicketStatus'));  
+		
+		$overdue					=	 isset($postdata['overdue'])?$postdata['overdue']:0; 
+		$duetoday					=	 isset($postdata['duetoday'])?$postdata['duetoday']:0;
+		$overdueVal					=	 '';
+		if($overdue ==1)
+		{
+			$overdueVal = TicketsTable::$DueFilter['Overdue'];
+		}
+		
+		if($duetoday ==1)
+		{
+			$overdueVal = TicketsTable::$DueFilter['Today'];
+		}
+		//echo $overdueVal;exit;
+        return View::make('tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page",'pagination',"ClosedTicketStatus","ResolvedTicketStatus",'OpenTicketStatus','overdueVal'));  
 
 	}	
 	  

@@ -1693,11 +1693,13 @@ function get_ticket_response_due_label($result_data,$options = array()) {
         }
     }else{
         if(date("Y-m-d H:i:s",strtotime($result_data->CustomerResponse))>date("Y-m-d H:i:s",strtotime($result_data->AgentResponse))){
-            return "<div class='label label-info'>CUSTOMER RESPONDED</div>";
+            return "<div class='label label-info'>CUSTOMER REPLIED</div>";
+		}else if(date("Y-m-d H:i:s",strtotime($result_data->CustomerResponse))<date("Y-m-d H:i:s",strtotime($result_data->AgentResponse))){	
+		    return "<div class='label label-info'>AGENT REPLIED</div>";
         }else{
-            if (\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture() && isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
-                return '<div class="label label-warning">RESPONSE DUE</div>';
-            }else {
+   /*         if (\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture() && isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
+                return '<div class="label label-info">AGENT1 REPLIED</div>';
+            }else {*/
 
                 if (isset($options["skip"]) && in_array($result_data->Status,$options["skip"]) ) {  //closed or resolved
 
@@ -1715,7 +1717,7 @@ function get_ticket_response_due_label($result_data,$options = array()) {
 
                      return '<div class="label label-danger">RESPONSE OVERDUE</div>';
                 }
-            }
+            /*}*/
         }
     }
 }

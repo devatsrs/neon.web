@@ -50,7 +50,7 @@
           	@endif
        		@endif		  
 				<label for="field-1" class="col-sm-1 control-label small_label">Overdue by</label>
-				<div class="col-sm-2"> {{Form::select('overdue[]', TicketsTable::$DueFilter, (Input::get('overdue')?explode(',',Input::get('overdue')):'') ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+				<div class="col-sm-2"> {{Form::select('overdue[]', TicketsTable::$DueFilter, $overdueVal ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
 			</div>
           <p style="text-align: right;">
             <button type="submit" class="btn btn-primary btn_form_submit btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
