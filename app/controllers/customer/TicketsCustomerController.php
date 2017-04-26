@@ -188,7 +188,7 @@ private $validlicense;
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.csv';  Log::info("file_path:".$file_path);
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.csv';  
                 $NeonExcel = new NeonExcelIO($file_path);
               return  $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){

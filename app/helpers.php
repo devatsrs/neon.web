@@ -1612,11 +1612,11 @@ function getQuickBookAccountant(){
     else
     {
         $body = $data['Message'];
-    } Log::info(print_r($status,true));
+    } 
 	if(!isset($status['message_id']))
 	{
 		$status['message_id'] = '';
-	} Log::info($status['message_id']);
+	} 
 	if(!isset($data['EmailCall']))
 	{
 		$data['EmailCall'] = Messages::Sent;
@@ -1644,7 +1644,6 @@ function getQuickBookAccountant(){
 		"EmailParent"=>isset($data['EmailParent'])?$data['EmailParent']:$EmailParent,
 		"EmailCall"=>$data['EmailCall'],
     ];
-	Log::info(print_r($logData,true));
     $data =  AccountEmailLog::insertGetId($logData);
     return $data;
 }

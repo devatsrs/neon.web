@@ -41,8 +41,6 @@ private $validlicense;
 	 	$data = Input::all();
 		////////////////////////////////////////////////////////////////////////////////////////////////
 		//echo "<pre>"; print_r(json_decode($data['jsonData'])); echo "</pre>";exit;
-		Log::info("iframe submit");	
-		Log::info(print_r($data,true));	
 		$ticket_type = 0; $else_type = 0;
 		foreach(json_decode($data['jsonData']) as $jsonData)
 		{	 
@@ -82,7 +80,6 @@ private $validlicense;
 			
 			if(isset($jsonData->action) && $jsonData->action=='edit')
 			{	
-				//if(!isset($jsonData->required)){Log::info("isset data"); Log::info(print_r($jsonData,true));}
 				//$data['TicketFieldsID']       			   = 		$jsonData->id;
 				$data['CustomerLabel']       			   = 		$jsonData->label_in_portal;
 				$data['FieldDesc']       			  	   = 		$jsonData->description;
@@ -214,7 +211,6 @@ private $validlicense;
         }
 		
 		$Ticketfields		=   Ticketfields::OptimizeDbFields($TicketfieldsData);
-		//Log::info("Ticketfields");		//Log::info(print_r($Ticketfields,true));
 		
         return View::make('ticketsfields.board', compact('Ticketfields','message'))->render();
 	}
@@ -234,7 +230,7 @@ private $validlicense;
 	function Save_Single_Field(){
 		$postdata    =  Input::all();		
 		 try
-		 {		//Log::info(print_r($postdata,true)); 			 	Log::info(print_r(json_decode($postdata['choices']),true)); 		 			exit;
+		 {		
 				DB::beginTransaction();
 				$data['CustomerLabel']       			   = 		$postdata['label_in_portal'];
 				$data['FieldHtmlType']        			   = 	 	Ticketfields::$TypeSave[$postdata['type']];				
