@@ -77,8 +77,25 @@ $inlineTaxes        =   [];
                 
                 <tbody>
                 @foreach($EstimateDetail as $ProductRow)
-                    <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); } ?>
-                        @if($ProductRow->ProductType == Product::ITEM)
+                    <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); }
+                    if ($ProductRow->TaxRateID!= 0 && array_key_exists($ProductRow->TaxRateID, $inlineTaxes)) {
+                        if($ProductRow->TaxRateID!=0){
+                            $tax = $taxes[$ProductRow->TaxRateID];
+                            $inlineTaxes[$ProductRow->TaxRateID] = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
+                        }
+                    }elseif($ProductRow->TaxRateID2 != 0 && array_key_exists($ProductRow->TaxRateID2, $inlineTaxes)){
+                        if($ProductRow->TaxRateID2!=0){
+                            $tax = $taxes[$ProductRow->TaxRateID2];
+                            $inlineTaxes[$ProductRow->TaxRateID2] = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
+                        }
+                    }
+                    if($ProductRow->ProductType == Product::ITEM){
+                        $grand_total_item += number_format($ProductRow->LineTotal,$RoundChargesAmount);
+                    }elseif($ProductRow->ProductType == Product::SUBSCRIPTION){
+                        $grand_total_subscription += number_format($ProductRow->LineTotal,$RoundChargesAmount);
+                    }
+                    ?>
+                        <!--@if($ProductRow->ProductType == Product::ITEM)-->
                             <tr>
                                 <td class="desc">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
                                 <td class="desc">{{$ProductRow->Description}}</td>
@@ -86,7 +103,7 @@ $inlineTaxes        =   [];
                                 <td class="desc">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
                                 <td class="total">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
                             </tr>   
-                        @endif                  
+                        <!-- @endif -->
                 @endforeach             
                 </tbody>
                 <tfoot>
