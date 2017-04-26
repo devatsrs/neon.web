@@ -3209,3 +3209,35 @@ show_summernote = function (element,options){
 
 };
 
+/**
+ * this function is use in invoice template page
+ * */
+show_summerinvoicetemplate = function (element,options){
+
+    if(!!document.createRange) {
+        document.getSelection().removeAllRanges();
+    }
+
+    element.addClass("hidden");
+    element.summernote('destroy');
+
+    element.summernote({
+        onInit: function() {
+            console.log('Summernote is launched');
+        },
+        toolbar: [
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['height', ['height']],
+            ['table', ['table']],
+            ['insert', ['media', 'link', 'hr', 'picture']],
+            ['view', ['fullscreen', 'codeview']],
+            ['help', ['help']]
+        ],
+        height: 200,
+        tabsize: 2,
+        dialogsInBody: true,
+        defaultOptions : options
+    });
+
+};
