@@ -190,7 +190,7 @@
               <div class="form-Group" >                  
                   <div class=" @if($SystemTickets) col-md-10 pull-left @else col-md-12 @endif" style="padding-left:0px; @if(!$SystemTickets) padding-right:0px; @endif" >
                   <label >From</label>
-                  {{Form::select('email-from',$FromEmails,'',array("class"=>"select2"))}}
+                  {{Form::select('email-from',$FromEmails,User::get_user_email(),array("class"=>"select2"))}}
                   </div>
                   @if($SystemTickets)
                   <div class="col-md-2 pull-right">

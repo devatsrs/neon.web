@@ -3,7 +3,7 @@
   <thead>
           <tr>
             <th width="1%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
-            <th colspan="2"> <?php if(count($result)>0){ ?>                  
+            <th colspan="3"> <?php if(count($result)>0){ ?>                  
             <div class="mail-select-options"><span class="pull-left paginationTicket">{{Form::select('page',$pagination,$iDisplayLength,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-left per_page">records per page</span> </div>
               <div class="pull-right">
                 <div class="hidden mail-pagination"> <strong>
@@ -65,14 +65,14 @@
           </tr>
           <?php } }else{ ?>
     <tr>
-      <td align="center" colspan="2">No Result Found.</td>
+      <td align="center" colspan="3">No Result Found.</td>
     </tr>
     <?php } ?>
   </tbody>
   <!-- mail table footer -->
   <tfoot>
     <tr>
-      <th colspan="2"> 
+      <th colspan="3"> 
           <?php if(count($result)>0){ ?>
           <div class="mail-pagination">
           <strong> <?php echo $current+1; ?>-

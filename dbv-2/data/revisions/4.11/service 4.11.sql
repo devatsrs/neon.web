@@ -2569,6 +2569,19 @@ BEGIN
 	PREPARE stm FROM @stm;
 	EXECUTE stm;
 	DEALLOCATE PREPARE stm;
+	
+	SET @stm = CONCAT('
+	INSERT INTO tmp_Service_ (ServiceID)
+	SELECT DISTINCT tblService.ServiceID 
+	FROM Ratemanagement3.tblService 
+	LEFT JOIN  RMCDR3.`' , p_tbltempusagedetail_name , '` ud 
+	ON tblService.ServiceID = ud.ServiceID AND ProcessID="' , p_processId , '"
+	WHERE tblService.ServiceID > 0 AND tblService.CompanyID = "' , p_CompanyID , '" AND tblService.CompanyGatewayID > 0 AND ud.ServiceID IS NULL
+	');
+	
+	PREPARE stm FROM @stm;
+	EXECUTE stm;
+	DEALLOCATE PREPARE stm;
 
 	/* update account and add new accounts and apply authentication rule*/
 	CALL prc_ProcessCDRAccount(p_CompanyID,p_CompanyGatewayID,p_processId,p_tbltempusagedetail_name,p_NameFormat);
