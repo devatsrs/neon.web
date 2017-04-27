@@ -156,6 +156,7 @@ private $validlicense;
 		$data['priority']	 		= 	 isset($data['priority'])?$data['priority']:'';
 		$data['group'] 				= 	 isset($data['group'])?$data['group']:'';		
 		$data['agent']				= 	 isset($data['agent'])?$data['agent']:'';
+		$data['DueBy']				= 	 isset($data['formData']['DueBy'])?$data['formData']['DueBy']:'';
 		$data['iSortCol_0']			= 	 $data['sort_fld'];
 		$data['sSortDir_0']			= 	 $data['sort_type'];
 		$data['Export'] 			= 	 $data['Export'];		
