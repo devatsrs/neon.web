@@ -424,6 +424,49 @@ $(document).ready(function(e) {
             self.parents('.control-label').siblings('.select2').val(0).trigger('change');
         }
     });
+	
+	
+	$(document).on('change','#BulkGroupChange',function(e){
+		   var changeGroupID =  	$(this).val(); 
+		   
+		  	if(changeGroupID==0){
+		   		 $('#BulkAgentChange option').remove();
+				 $('#BulkAgentChange').append($("<option></option>").attr("value", 0).text('Select'));
+				 $("#BulkAgentChange").trigger('change');
+				 return false;
+			}
+		   if(changeGroupID)
+		   {
+		   	 changeGroupID = parseInt(changeGroupID);
+			 var ajax_url  = baseurl+'/ticketgroups/'+changeGroupID+'/getgroupagents';
+			 $.ajax({
+					url: ajax_url,
+					type: 'POST',
+					dataType: 'json',
+					async :false,
+					cache: false,
+					contentType: false,
+					processData: false,
+					data:{s:1},
+					success: function(response) { console.log(response);
+					   if(response.status =='success')
+					   {			
+						   var $el = this;		   
+						   $('#BulkAgentChange option').remove();
+						   $.each(response.data, function(key,value) {							  
+							  $('#BulkAgentChange').append($("<option></option>").attr("value", value).text(key));
+							  $("#BulkAgentChange").val($("#BulkAgentChange option:first").val());
+							  $("#BulkAgentChange").trigger('change');
+							});					
+						}else{
+							toastr.error(response.message, "Error", toastr_opts);
+						}                   
+					}
+					});	
+		return false;		
+		   }
+		   
+	  });
 
 });
 </script> 
@@ -464,13 +507,13 @@ $(document).ready(function(e) {
                             <div id="group" class="col-md-4">
                                 <div class="form-group">
                                     <label for="field-1" class="control-label"><input type="checkbox"  name="GroupCheck"><span>Group</span></label>
-                                    {{Form::select('Group',$Groups,'',array("class"=>"select2 small"))}}
+                                    {{Form::select('Group',$Groups,'',array("class"=>"select2 small","id"=>"BulkGroupChange"))}}
                                 </div>
                             </div>
                             <div id="agent" class="col-md-4">
                                 <div class="form-group">
                                     <label for="field-3" class="control-label"><input type="checkbox"  name="AgentCheck"><span>Agent</span></label>
-                                    {{Form::select('Agent',$Agents,'',array("class"=>"select2 small"))}}
+                                    {{Form::select('Agent',array("0"=>"Select"),'',array("class"=>"select2 small","id"=>"BulkAgentChange"))}}
                                 </div>
                             </div>
                         </div>

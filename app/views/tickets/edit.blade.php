@@ -468,6 +468,7 @@ $(document).on("click",".del_attachment",function(ee){
 				  	$( this ).val(0);
 				  }
             });
+			$('#{{$htmlgroupID}}').change();
     });
 </script> 
 <style>

@@ -278,7 +278,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 			}
       });
 	  
-	  $(document).on('change','#{{$htmlgroupID}}',function(e){
+	  $(document).on('change','#{{$htmlgroupID}}',function(e){ alert("here");
 		   var changeGroupID =  	$(this).val(); 
 		   
 		  	if(changeGroupID==0){
@@ -317,6 +317,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 		   }
 		   
 	  });
+	  
 	  $(document).on('submit','#form-tickets-add',function(e){		 
 		 $('.btn').attr('disabled', 'disabled');	 
 		 $('.btn').button('loading');
@@ -483,6 +484,8 @@ $(document).on("click",".del_attachment",function(ee){
 				  	$( this ).val(0);
 				  }
             });
+			
+			$('#{{$htmlgroupID}}').change();
     });
 </script> 
 <style>
