@@ -86,19 +86,20 @@ $inlineTaxes        =   [];
                             }else{
                                 $inlineTaxes[$ProductRow->TaxRateID] = $amount;
                             }
-                        }elseif($ProductRow->TaxRateID2 != 0 && array_key_exists($ProductRow->TaxRateID2, $inlineTaxes)){
+                        }
+                        if($ProductRow->TaxRateID2 != 0){
                             $tax = $taxes[$ProductRow->TaxRateID2];
                             $amount = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
-                            if($ProductRow->TaxRateID2!=0){
-                                $inlineTaxes[$ProductRow->TaxRateID] += $amount;
+                            if(array_key_exists($ProductRow->TaxRateID2, $inlineTaxes)){
+                                $inlineTaxes[$ProductRow->TaxRateID2] += $amount;
                             }else{
-                                $inlineTaxes[$ProductRow->TaxRateID] = $amount;
+                                $inlineTaxes[$ProductRow->TaxRateID2] = $amount;
                             }
                         }
                         if($ProductRow->ProductType == Product::ITEM){
-                            $grand_total_item += number_format($ProductRow->LineTotal,$RoundChargesAmount);
+                            $grand_total_item += $ProductRow->LineTotal;
                         }elseif($ProductRow->ProductType == Product::SUBSCRIPTION){
-                            $grand_total_subscription += number_format($ProductRow->LineTotal,$RoundChargesAmount);
+                            $grand_total_subscription += $ProductRow->LineTotal;
                         }
                     ?>
                         {{--@if($ProductRow->ProductType == Product::ITEM)--}}
@@ -110,7 +111,7 @@ $inlineTaxes        =   [];
                                 <td class="total">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
                             </tr>   
                         {{-- @endif --}}
-                @endforeach             
+                @endforeach
                 </tbody>
                 <tfoot>
                 @if($grand_total_item > 0)
