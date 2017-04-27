@@ -203,7 +203,7 @@
 					$HolidayID 		= TicketBusinessHours::$HolidaysMonths[$HolidaysDataLoop->HolidayMonth].'_'.$HolidaysDataLoop->HolidayDay;
 					$HolidayMonth	= TicketBusinessHours::$HolidaysMonths[$HolidaysDataLoop->HolidayMonth];
 				 ?>
-          <div class="{{$HolidayID}} form-group"><div class="col-sm-1"> <a id="{{$HolidayID}}"  title="Delete" class="btn btn-danger holidayentry clickable btn-default btn-sm"><i class="entypo-trash"></i></a></div><div class="col-sm-2">{{$HolidayMonth}} {{$HolidaysDataLoop->HolidayDay}}</div><div class="col-sm-4">{{$HolidaysDataLoop->HolidayName}}</div> <input name="holidays[{{$HolidayID}}]" value="{{$HolidaysDataLoop->HolidayName}}" type="hidden"> </div>
+          <div class="{{$HolidayID}} form-group"><div class="col-sm-1"> <a id="{{$HolidayID}}"  title="Delete" class="btn btn-danger holidayentry clickable btn-default btn-xs btn-sm"><i class="entypo-trash"></i></a></div><div class="col-sm-2">{{$HolidayMonth}} {{$HolidaysDataLoop->HolidayDay}}</div><div class="col-sm-4">{{$HolidaysDataLoop->HolidayName}}</div> <input name="holidays[{{$HolidayID}}]" value="{{$HolidaysDataLoop->HolidayName}}" type="hidden"> </div>
           <?php } } ?>
           
           </div>          
@@ -362,7 +362,7 @@ var calculate_time_error = new Array();
 			
 		 //	var HolidaysData = '<div class="'+HolidaysID+' form-group"><div class="col-sm-1"><a class="holidayentry clickable" id="'+HolidaysID+'"> X </a></div><div class="col-sm-2">'+HolidaysMonthsTitle+' '+HolidaysDays+'</div><div class="col-sm-4">'+HolidaysName+'</div> <input type="hidden" name="holidays['+HolidaysID+']" value="'+HolidaysName+'" /> </div>';	
 			
-			var HolidaysData = '<div class="'+HolidaysID+' form-group"><div class="col-sm-1"> <a id="'+HolidaysID+'"  title="Delete" class="btn btn-danger holidayentry clickable btn-default btn-sm"><i class="entypo-trash"></i></a> </div><div class="col-sm-2">'+HolidaysMonthsTitle+' '+HolidaysDays+'</div><div class="col-sm-4">'+HolidaysName+'</div> <input type="hidden" name="holidays['+HolidaysID+']" value="'+HolidaysName+'" /> </div>';	
+			var HolidaysData = '<div class="'+HolidaysID+' form-group"><div class="col-sm-1"> <a id="'+HolidaysID+'"  title="Delete" class="btn btn-danger holidayentry btn-xs clickable btn-default btn-sm"><i class="entypo-trash"></i></a> </div><div class="col-sm-2">'+HolidaysMonthsTitle+' '+HolidaysDays+'</div><div class="col-sm-4">'+HolidaysName+'</div> <input type="hidden" name="holidays['+HolidaysID+']" value="'+HolidaysName+'" /> </div>';	
 			
 			//////
 			$('.holidaysShow').append(HolidaysData);
