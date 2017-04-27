@@ -17,7 +17,9 @@ class CDRController extends BaseController {
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_CDR);
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunks = $trunks+array(0=>'Find From CustomerPrefix');
+        $trunks = array('Trunk'=>$trunks);
         $Services = Service::getDropdownIDList(User::get_companyID());
+        $Services = array('Service'=>$Services);
         $ratetables = RateTable::getRateTableList();
         return View::make('cdrupload.upload',compact('dashboardData','account','gateway','UploadTemplate','trunks','Services','ratetables'));
     }

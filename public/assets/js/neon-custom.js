@@ -3241,3 +3241,24 @@ show_summerinvoicetemplate = function (element,options){
     });
 
 };
+
+function rebuildSelectComposite(el,data,label){
+    //el.empty();
+    el.find('optgroup').not('optgroup:first').remove();
+    alert('sdfsdf');
+    options = [];
+    $.each(data,function(key,value){
+        if(typeof value == 'object'){
+            key = value.id;
+            value = value.text;
+        }
+        options.push(new Option(value, key, false, false));
+    });
+    options.sort();
+    options.reverse();
+
+
+    $('<optGroup/>').attr('label', label).appendTo(el);
+    el.find('optGroup').last().append(options);
+    el.trigger('change');
+}

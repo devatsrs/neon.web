@@ -617,6 +617,10 @@ var click_btn;
             if(el.name !='selection[DateFormat]' && el.name != 'selection[Authentication]' && el.name != 'selection[InboundRateTableID]' && el.name != 'selection[OutboundRateTableID]' && el.name != 'selection[ServiceID]' && el.name != 'selection[TrunkID]'){
                 var self = $('#add-template-form [name="'+el.name+'"]');
                 rebuildSelect2(self,data.columns,'Skip loading');
+            }else if( el.name == 'selection[ServiceID]' || el.name == 'selection[TrunkID]'){
+                var self = $('#add-template-form [name="'+el.name+'"]');
+                var label = 'Map From File';
+                rebuildSelectComposite(self,data.columns,label);
             }
         });
         if(data.FileUploadTemplate){
