@@ -124,7 +124,7 @@ $inlineTaxes        =   [];
                     <tr>
                         <td colspan="2"></td>
                         <td colspan="2">RECURRING SUB TOTAL</td>
-                        <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_item,$RoundChargesAmount)}}</td>
+                        <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_subscription,$RoundChargesAmount)}}</td>
                     </tr>
                 @endif
                 @if(count($inlineTaxes) > 0)
