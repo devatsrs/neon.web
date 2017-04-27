@@ -78,24 +78,30 @@ $inlineTaxes        =   [];
                 <tbody>
                 @foreach($EstimateDetail as $ProductRow)
                     <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); }
-                    if ($ProductRow->TaxRateID!= 0 && array_key_exists($ProductRow->TaxRateID, $inlineTaxes)) {
-                        if($ProductRow->TaxRateID!=0){
+                        if ($ProductRow->TaxRateID!= 0) {
                             $tax = $taxes[$ProductRow->TaxRateID];
-                            $inlineTaxes[$ProductRow->TaxRateID] = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
-                        }
-                    }elseif($ProductRow->TaxRateID2 != 0 && array_key_exists($ProductRow->TaxRateID2, $inlineTaxes)){
-                        if($ProductRow->TaxRateID2!=0){
+                            $amount = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
+                            if(array_key_exists($ProductRow->TaxRateID, $inlineTaxes)){
+                                $inlineTaxes[$ProductRow->TaxRateID] += $amount;
+                            }else{
+                                $inlineTaxes[$ProductRow->TaxRateID] = $amount;
+                            }
+                        }elseif($ProductRow->TaxRateID2 != 0 && array_key_exists($ProductRow->TaxRateID2, $inlineTaxes)){
                             $tax = $taxes[$ProductRow->TaxRateID2];
-                            $inlineTaxes[$ProductRow->TaxRateID2] = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
+                            $amount = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
+                            if($ProductRow->TaxRateID2!=0){
+                                $inlineTaxes[$ProductRow->TaxRateID] += $amount;
+                            }else{
+                                $inlineTaxes[$ProductRow->TaxRateID] = $amount;
+                            }
                         }
-                    }
-                    if($ProductRow->ProductType == Product::ITEM){
-                        $grand_total_item += number_format($ProductRow->LineTotal,$RoundChargesAmount);
-                    }elseif($ProductRow->ProductType == Product::SUBSCRIPTION){
-                        $grand_total_subscription += number_format($ProductRow->LineTotal,$RoundChargesAmount);
-                    }
+                        if($ProductRow->ProductType == Product::ITEM){
+                            $grand_total_item += number_format($ProductRow->LineTotal,$RoundChargesAmount);
+                        }elseif($ProductRow->ProductType == Product::SUBSCRIPTION){
+                            $grand_total_subscription += number_format($ProductRow->LineTotal,$RoundChargesAmount);
+                        }
                     ?>
-                        <!--@if($ProductRow->ProductType == Product::ITEM)-->
+                        {{--@if($ProductRow->ProductType == Product::ITEM)--}}
                             <tr>
                                 <td class="desc">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
                                 <td class="desc">{{$ProductRow->Description}}</td>
@@ -103,14 +109,14 @@ $inlineTaxes        =   [];
                                 <td class="desc">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
                                 <td class="total">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
                             </tr>   
-                        <!-- @endif -->
+                        {{-- @endif --}}
                 @endforeach             
                 </tbody>
                 <tfoot>
                 @if($grand_total_item > 0)
                     <tr>
                         <td colspan="2"></td>
-                        <td colspan="2">ADDTIONAL SUB TOTAL</td>
+                        <td colspan="2">ONE OFF SUB TOTAL</td>
                         <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_item,$RoundChargesAmount)}}</td>
                     </tr>
                 @endif
@@ -120,6 +126,15 @@ $inlineTaxes        =   [];
                         <td colspan="2">RECURRING SUB TOTAL</td>
                         <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_item,$RoundChargesAmount)}}</td>
                     </tr>
+                @endif
+                @if(count($inlineTaxes) > 0)
+                    @foreach($inlineTaxes as $index=>$value)
+                        <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2">{{$taxes[$index]['Title']}}</td>
+                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($value,$RoundChargesAmount)}}</td>
+                        </tr>
+                    @endforeach
                 @endif
                 <tr>
                     <td colspan="2"></td>
