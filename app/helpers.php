@@ -1647,6 +1647,44 @@ function getQuickBookAccountant(){
     $data =  AccountEmailLog::insertGetId($logData);
     return $data;
 }
+function get_ticket_status_date_array($result_data) {
+
+    $sla_timer = true;
+
+    if (in_array($result_data->Status,TicketsTable::getTicketStatusOnHold())) {  // SLATimer=off
+        $sla_timer = false;
+    }
+    $due = $overdue = false ;
+    if ($sla_timer) {
+
+        $the_date = $result_data->DueDate;
+
+        if(\Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->isFuture()) {
+            $due = true ;
+        }else {
+            $overdue = true;
+        }
+
+
+    } else {
+
+        $the_date = TicketLog::where(['TicketID'=>$result_data->TicketID,"TicketFieldValueToID"=>$result_data->Status])->orderby("TicketLogID","DESC")->pluck("created_at");
+
+
+    }
+
+
+    $response = [ "the_date" => $the_date,
+        "hunam_readable" =>  \Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->diffForHumans(null, true),
+        "sla_timer" => $sla_timer,
+        "due" => $due,
+        "overdue" => $overdue,
+    ];
+
+    return $response;
+
+}
+// not in use
 function get_ticket_due_date_human_readable($result_data , $options = array()) {
 
     $due_text = "";
