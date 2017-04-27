@@ -47,11 +47,7 @@ class CDRController extends BaseController {
                 if(!AmazonS3::upload($upload_path.'/'.$file_name,$amazonPath)){
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
-                if($data["AccountID"] >0 ){
-                    if(AccountBilling::getCDRType($data["AccountID"]) == ''){
-                        return Response::json(array("status" => "failed", "message" => "Setup CDR Format in Account edit"));
-                    }
-                }
+
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
                 $jobType = JobType::where(["Code" => 'CDR'])->get(["JobTypeID", "Title"]);
                 $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
