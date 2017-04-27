@@ -50,7 +50,7 @@
     @endif  
     
        <!--tickets start -->    
-    @if(Tickets::CheckTicketLicense())
+    @if(Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','View'))
     <li class="{{check_uri('tickets')}}"><a href="#"><i class="fa fa-ticket"></i><span>Ticket Management</span></a>
       <ul>
           @if(User::checkCategoryPermission('TicketDashboard','View'))

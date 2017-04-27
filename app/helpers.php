@@ -1612,11 +1612,11 @@ function getQuickBookAccountant(){
     else
     {
         $body = $data['Message'];
-    } Log::info(print_r($status,true));
+    } 
 	if(!isset($status['message_id']))
 	{
 		$status['message_id'] = '';
-	} Log::info($status['message_id']);
+	} 
 	if(!isset($data['EmailCall']))
 	{
 		$data['EmailCall'] = Messages::Sent;
@@ -1644,7 +1644,6 @@ function getQuickBookAccountant(){
 		"EmailParent"=>isset($data['EmailParent'])?$data['EmailParent']:$EmailParent,
 		"EmailCall"=>$data['EmailCall'],
     ];
-	Log::info(print_r($logData,true));
     $data =  AccountEmailLog::insertGetId($logData);
     return $data;
 }
@@ -1692,12 +1691,14 @@ function get_ticket_response_due_label($result_data,$options = array()) {
             return '<div class="label label-primary">New</div>';
         }
     }else{
-        if($result_data->CustomerResponse==$result_data->RequesterEmail){
-            return "<div class='label label-info'>CUSTOMER RESPONDED</div>";
+        if(date("Y-m-d H:i:s",strtotime($result_data->CustomerResponse))>date("Y-m-d H:i:s",strtotime($result_data->AgentResponse))){
+            return "<div class='label label-info'>CUSTOMER REPLIED</div>";
+		}else if(date("Y-m-d H:i:s",strtotime($result_data->CustomerResponse))<date("Y-m-d H:i:s",strtotime($result_data->AgentResponse))){	
+		    return "<div class='label label-info'>AGENT REPLIED</div>";
         }else{
-            if (\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture() && isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
-                return '<div class="label label-warning">RESPONSE DUE</div>';
-            }else {
+   /*         if (\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture() && isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
+                return '<div class="label label-info">AGENT1 REPLIED</div>';
+            }else {*/
 
                 if (isset($options["skip"]) && in_array($result_data->Status,$options["skip"]) ) {  //closed or resolved
 
@@ -1715,7 +1716,7 @@ function get_ticket_response_due_label($result_data,$options = array()) {
 
                      return '<div class="label label-danger">RESPONSE OVERDUE</div>';
                 }
-            }
+            /*}*/
         }
     }
 }

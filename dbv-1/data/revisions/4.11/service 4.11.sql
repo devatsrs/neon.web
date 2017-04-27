@@ -21,6 +21,9 @@ ALTER TABLE `tblAccountBillingPeriod`
 ALTER TABLE `tblAccountDiscountPlan`
   ADD COLUMN `ServiceID` int(11) NULL DEFAULT '0';
 
+ALTER TABLE `tblAccountDiscountPlanHistory`
+  ADD COLUMN `ServiceID` int(11) NULL DEFAULT '0';
+
 ALTER TABLE `tblAccountDiscountPlan` ADD UNIQUE KEY `AccountID`(`Type`,`AccountID`,`ServiceID`);
 
 ALTER TABLE `tblAccountNextBilling`
@@ -1219,8 +1222,8 @@ BEGIN
 		SELECT StartDate,EndDate INTO v_StartDate,v_EndDate FROM tblAccountBillingPeriod WHERE AccountID = p_AccountID AND ServiceID = 0 AND StartDate <= DATE(p_Today) AND EndDate > DATE(p_Today);
 	END IF;
 	
-	INSERT INTO tblAccountDiscountPlanHistory(AccountID,AccountDiscountPlanID,DiscountPlanID,Type,CreatedBy,Applied,Changed,StartDate,EndDate)
-	SELECT AccountID,AccountDiscountPlanID,DiscountPlanID,Type,CreatedBy,created_at,p_Today,StartDate,EndDate FROM tblAccountDiscountPlan WHERE AccountID = p_AccountID AND ServiceID = p_ServiceID AND Type = p_Type;
+	INSERT INTO tblAccountDiscountPlanHistory(AccountID,AccountDiscountPlanID,DiscountPlanID,Type,CreatedBy,Applied,Changed,StartDate,EndDate,ServiceID)
+	SELECT AccountID,AccountDiscountPlanID,DiscountPlanID,Type,CreatedBy,created_at,p_Today,StartDate,EndDate,ServiceID FROM tblAccountDiscountPlan WHERE AccountID = p_AccountID AND ServiceID = p_ServiceID AND Type = p_Type;
 	
 	INSERT INTO tblAccountDiscountSchemeHistory (AccountDiscountSchemeID,AccountDiscountPlanID,DiscountID,Threshold,Discount,Unlimited,SecondsUsed)
 	SELECT ads.AccountDiscountSchemeID,ads.AccountDiscountPlanID,ads.DiscountID,ads.Threshold,ads.Discount,ads.Unlimited,ads.SecondsUsed 

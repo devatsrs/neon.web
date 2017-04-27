@@ -71,7 +71,7 @@
               <div class="col-sm-1">&nbsp;</div>
               <div class="col-sm-2">
                 <label for="field-1" class="control-label">
-                  <input checked type="checkbox" class="custom_hours_day icheck custom_hours_monday" day="Monday" name="custom_hours_day[1]" value="1">
+                  <input checked type="checkbox" class="custom_hours_day icheck custom_hours_monday" day="Monday" name="custom_hours_day[2]" value="1">
                   <span>Monday</span></label>
               </div>
               <div class="day_time_data col-sm-9">
@@ -87,7 +87,7 @@
               <div class="col-sm-1">&nbsp;</div>
               <div class="col-sm-2">
                 <label for="field-1" class="control-label">
-                  <input checked type="checkbox" class="custom_hours_day icheck custom_hours_tuesday" day="Tuesday" name="custom_hours_day[2]" value="1">
+                  <input checked type="checkbox" class="custom_hours_day icheck custom_hours_tuesday" day="Tuesday" name="custom_hours_day[3]" value="1">
                   <span>Tuesday</span></label>
               </div>
               <div class="day_time_data col-sm-9">
@@ -103,7 +103,7 @@
               <div class="col-sm-1">&nbsp;</div>
               <div class="col-sm-2">
                 <label for="field-1" class="control-label">
-                  <input checked type="checkbox" class="custom_hours_day icheck custom_hours_wednesday" day="Wednesday" name="custom_hours_day[3]" value="1">
+                  <input checked type="checkbox" class="custom_hours_day icheck custom_hours_wednesday" day="Wednesday" name="custom_hours_day[4]" value="1">
                   <span>Wednesday</span></label>
               </div>
               <div class="day_time_data col-sm-9">
@@ -119,7 +119,7 @@
               <div class="col-sm-1">&nbsp;</div>
               <div class="col-sm-2">
                 <label for="field-1" class="control-label">
-                  <input checked type="checkbox" class="custom_hours_day icheck custom_hours_thursday" day="Thursday" name="custom_hours_day[4]" value="1">
+                  <input checked type="checkbox" class="custom_hours_day icheck custom_hours_thursday" day="Thursday" name="custom_hours_day[5]" value="1">
                   <span>Thursday</span></label>
               </div>
               <div class="day_time_data col-sm-9">
@@ -135,7 +135,7 @@
               <div class="col-sm-1">&nbsp;</div>
               <div class="col-sm-2">
                 <label for="field-1" class="control-label">
-                  <input checked type="checkbox" class="custom_hours_day icheck custom_hours_friday" day="Friday" name="custom_hours_day[5]" value="1">
+                  <input checked type="checkbox" class="custom_hours_day icheck custom_hours_friday" day="Friday" name="custom_hours_day[6]" value="1">
                   <span>Friday</span></label>
               </div>
               <div class="day_time_data col-sm-9">
@@ -151,7 +151,7 @@
               <div class="col-sm-1">&nbsp;</div>
               <div class="col-sm-2">
                 <label for="field-1" class="control-label">
-                  <input  type="checkbox" class="custom_hours_day icheck custom_hours_saturday" day="Saturday" name="custom_hours_day[6]" value="1">
+                  <input  type="checkbox" class="custom_hours_day icheck custom_hours_saturday" day="Saturday" name="custom_hours_day[7]" value="1">
                   <span>Saturday</span></label>
               </div>
               <div class="day_time_data col-sm-9">
@@ -167,7 +167,7 @@
               <div class="col-sm-1">&nbsp;</div>
               <div class="col-sm-2">
                 <label for="field-1" class="control-label">
-                  <input type="checkbox" class="custom_hours_day icheck custom_hours_sunday" day="Sunday" name="custom_hours_day[7]" value="1">
+                  <input type="checkbox" class="custom_hours_day icheck custom_hours_sunday" day="Sunday" name="custom_hours_day[1]" value="1">
                   <span>Sunday</span></label>
               </div>
               <div class="day_time_data col-sm-9">

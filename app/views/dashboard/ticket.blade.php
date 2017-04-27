@@ -187,7 +187,7 @@
                         option["type"] = 'OverDue';
                         option['sign'] = 'calendar';
                         option['class']     = 'tile-pink';
-                        option['url']   = '#';
+                        option['url']   = '{{URL::to('tickets?overdue=1')}}';
                         widgets += buildbox(option);
 
                         option["amount"] = data2.DueToday;
@@ -195,7 +195,7 @@
                         option["type"] = 'DueToday';
                         option['sign'] = 'hourglass';
                         option['class']     = 'tile-blue';
-                        option['url']   = '#';
+                        option['url']   = '{{URL::to('tickets?duetoday=1')}}';
                         widgets += buildbox(option);
 
                         option["amount"] = data1.Open;

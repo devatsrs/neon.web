@@ -3186,7 +3186,7 @@ show_summernote = function (element,options){
 
      element.summernote({
          onInit: function() {
-             console.log('Summernote is launched');
+             //console.log('Summernote is launched');
          },
          toolbar: [
             ['neon_placeholders', ['neon_placeholders']], // here, for example

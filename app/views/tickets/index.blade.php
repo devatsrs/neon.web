@@ -37,22 +37,21 @@
             <label for="field-1" class="col-sm-1 control-label small_label">Group</label>
             <div class="col-sm-2"> {{Form::select('group[]', $Groups, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
           </div>
-          @if(User::is_admin())
+         
           <div class="form-group">
+           @if(User::is_admin())
             <label for="field-1" class="col-sm-1 control-label small_label">Agent</label>
             <div class="col-sm-2"> {{Form::select('agent[]', $Agents, (Input::get('agent')?0:'') ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-		  </div>
-          @else
-			<div class="form-group">
-				<label for="field-1" class="col-sm-1 control-label small_label">Overdue by</label>
-				<div class="col-sm-2"> {{Form::select('overdue[]', $overdue, (Input::get('overdue')?explode(',',Input::get('overdue')):'') ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-			</div>
+            @else			
           	@if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)
           		<input type="hidden" name="agent" value="{{user::get_userID()}}" >
           	@else
           		<input type="hidden" name="agent" value="" >
           	@endif
-       		@endif
+       		@endif		  
+				<label for="field-1" class="col-sm-1 control-label small_label">Due by</label>
+				<div class="col-sm-2"> {{Form::select('overdue[]', TicketsTable::$DueFilter, $overdueVal ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+			</div>
           <p style="text-align: right;">
             <button type="submit" class="btn btn-primary btn_form_submit btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
           </p>
@@ -123,6 +122,7 @@
         bottom: 2px;
         left:   5px;
 }
+.full-width-error{text-align:center;}
 </style>
 <script type="text/javascript">
 	
@@ -171,6 +171,7 @@ $(document).ready(function(e) {
 		$search.priority 	= 	$("#tickets_filter").find('[name="priority[]"]').val();		
 		$search.group 		= 	$("#tickets_filter").find('[name="group[]"]').val();
 		$search.agent 		= 	$("#tickets_filter").find('[name="agent[]"]').val();
+		$search.DueBy 		= 	$("#tickets_filter").find('[name="overdue[]"]').val();
 		
 
 		 $.ajax({
@@ -185,8 +186,10 @@ $(document).ready(function(e) {
 						{
 							if(isJson(response))
 							{
-								jsonstr =  JSON.parse(response);
-                                $('.inbox').html('<table id="table-4" class="table mail-table"><tr><td class="col-name" align="center" colspan="2">'+jsonstr.result+'</td></tr><table>');
+								jsonstr =  JSON.parse(response); 
+                                //$('.inbox').html('<table id="table-4" class="table table-bordered datatable dataTable"><tr><td class="col-name full-width-error"  align="center" colspan="2">'+jsonstr.result+'</td></tr></table>');
+								
+								$('.inbox').html('<h3 class="full-width-error">'+jsonstr.result+'</h3>');
 								
 								if(clicktype=='next')
 								 {
@@ -254,9 +257,10 @@ $(document).ready(function(e) {
 		$search.priority 	= 	$("#tickets_filter").find('[name="priority[]"]').val();		
 		$search.group 		= 	$("#tickets_filter").find('[name="group[]"]').val();
 		$search.agent 		= 	$("#tickets_filter").find('[name="agent[]"]').val();
+		$search.DueBy 		= 	$("#tickets_filter").find('[name="overdue[]"]').val();
 		var export_type		=	$(this).attr('action_type');
 		
-		ajax_url_export = ajax_url_export+"?Search="+$search.Search+"&status="+$search.status+"&priority="+$search.priority+"&group="+$search.group+"&agent="+$search.agent+"&sort_fld="+sort_fld+"&sort_type="+sort_type+"&export_type="+export_type+"&Export=1";
+		ajax_url_export = ajax_url_export+"?Search="+$search.Search+"&status="+$search.status+"&priority="+$search.priority+"&group="+$search.group+"&agent="+$search.agent+"&DueBy="+$search.DueBy+"&sort_fld="+sort_fld+"&sort_type="+sort_type+"&export_type="+export_type+"&Export=1";
 		window.location = ajax_url_export;
 		 /*$.ajax({
 					url: ajax_url_export,
