@@ -121,7 +121,7 @@ private $validlicense;
 		$Sortcolumns				=	 TicketsTable::$SortcolumnsCustomer;
 		$pagination					=	 TicketsTable::$pagination;
 		//echo "<pre>";		print_r($resultpage);			exit;
-		if(count($result)<1)
+		/*if(count($result)<1)
 		{
 			if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
 				
@@ -129,7 +129,17 @@ private $validlicense;
 			}else{			
 				return '';
 			}
-		} 
+		} */
+		
+		if(count($result)<1)
+		{
+			//if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
+				
+				return json_encode(array("result"=>"No Result "));
+			/*}else{			
+				return '';
+			}*/
+		}
 		TicketsTable::SetTicketSession($result);
        return   View::make('customer.tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns','pagination'));     
 	   

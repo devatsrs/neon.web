@@ -138,7 +138,6 @@ $(document).ready(function(e) {
 	var SearchStr		=	'';
 	var sort_fld  		=   "{{$data['iSortCol_0']}}";
 	var sort_type 		=   "{{$data['sSortDir_0']}}";
-	var export_data		=   0;
     //ShowResult('next');
 
     $(window).on('load',function(){
@@ -352,10 +351,12 @@ $(document).ready(function(e) {
             modal.find('#agent').removeClass('hidden col-md-4').addClass('col-md-12');
             modal.find('.modal-dialog').addClass('modal-sm');
         }else if($(this).prop('id')=='bulk-close'){
-            modal.find('.modal-title').text('Bulk Close');
-            modal.find('#status').removeClass('hidden col-md-4').addClass('col-md-12');
+            //modal.find('.modal-title').text('Bulk Close');
+            //modal.find('#status').removeClass('hidden col-md-4').addClass('col-md-12');
             modal.find('[name="Status"]').val('{{array_search(TicketfieldsValues::$Status_Closed,$status)}}').trigger('change');
-            modal.find('.modal-dialog').addClass('modal-sm');
+            //modal.find('.modal-dialog').addClass('modal-sm');
+			$('#BulkAction-form').submit();
+			return false;
         }else if($(this).prop('id')=='bulk-delete'){
             var SelectedIDs = getselectedIDs();
             if (SelectedIDs.length == 0) {

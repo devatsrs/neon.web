@@ -57,11 +57,12 @@
                   @if($result_data->DueDate != '')
                   , {{get_ticket_due_date_human_readable($result_data, [ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
                   @endif
+                  {{SowCustomerAgentRepliedDate($result_data)}}
               </span> </td>
-            <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
+            <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
               <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>
               <div>Agent:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->Agent; ?></span></div>
-              <div>Group:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->GroupName; ?></span></div></td>
+              <div>Group:<span>&nbsp;&nbsp;&nbsp;<?php echo $result_data->GroupName; ?></span></div></td>
           </tr>
           <?php } }else{ ?>
     <tr>

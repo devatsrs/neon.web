@@ -248,7 +248,8 @@ var required_flds	  =          '{{json_encode($required)}}';
 					data:formData,
 					success: function(response) { 
 					   if(response.status =='success'){					   
-							ShowToastr("success",response.message); 		
+							ShowToastr("success",response.message); 	
+							location.reload();	
 						}else{
 							toastr.error(response.message, "Error", toastr_opts);
 						} 
