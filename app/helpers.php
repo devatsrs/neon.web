@@ -1651,7 +1651,7 @@ function get_ticket_status_date_array($result_data) {
 
     $sla_timer = true;
 
-    if (in_array($result_data->Status,TicketsTable::getTicketStatusOnHold())) {  // SLATimer=off
+    if (in_array($result_data->Status, array_keys( TicketsTable::getTicketStatusOnHold() ) )) {  // SLATimer=off
         $sla_timer = false;
     }
     $due = $overdue = false ;
@@ -1667,10 +1667,7 @@ function get_ticket_status_date_array($result_data) {
 
 
     } else {
-
         $the_date = TicketLog::where(['TicketID'=>$result_data->TicketID,"TicketFieldValueToID"=>$result_data->Status])->orderby("TicketLogID","DESC")->pluck("created_at");
-
-
     }
 
 

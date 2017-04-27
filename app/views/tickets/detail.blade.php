@@ -143,14 +143,13 @@
             <!-- panel body -->
             <div class="panel-body">
             <form id="UpdateTicketDueTime" class="form-horizontal form-groups-bordered validate" role="form">
-            <div class="form-group">
                 <div class="form-group">
                     <div class="col-md-12">
                         <p><span class="blue_link" >{{$TicketStatus}}</span><br>
                             <?php
                             $ticket_status_data = get_ticket_status_date_array($ticketdata);
                             ?>
-                            @if(isset($ticket_status_data["sla_timer"]) && $ticket_status_data["sla_timer"] === false )
+                            @if(isset($ticket_status_data["sla_timer"]) && !$ticket_status_data["sla_timer"])
                                 {{----SLAOFF--
                                 Waiting on Customer
                                 Since 7 days ago
@@ -170,8 +169,7 @@
                         </p>
                     </div>
                 </div>
-            </div>          
-            <div class="change_due_time form-group">
+                <div class="change_due_time form-group">
                   <div class="col-md-6">      
                   <input autocomplete="off" type="text" name="DueDate" id="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d',strtotime($ticketdata->DueDate))}}" data-startdate="{{date('Y-m-d',strtotime(" today"))}}" />
                   </div><div class="col-md-6">
