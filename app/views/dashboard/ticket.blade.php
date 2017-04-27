@@ -184,7 +184,7 @@
 
                         option["amount"] = data2.OverDue;
                         option["end"] = data2.OverDue;
-                        option["type"] = 'Over due';
+                        option["type"] = 'Overdue';
                         option['sign'] = 'calendar';
                         option['class']     = 'tile-pink';
                         option['url']   = '{{URL::to('tickets?overdue=1')}}';
