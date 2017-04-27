@@ -1746,7 +1746,7 @@ function get_ticket_response_due_label($result_data,$options = array()) {
                     if(in_array($result_data->Status,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->Status])) {
                         return '<div class="label label-warning">'.ucfirst($TicketStatusOnHold[$result_data->Status]).'</div>';
                     }
-                } else if(!empty($result_data->DueDate) && !in_array($result_data->Status,$TicketStatusOnHold)) {
+                } else if(!empty($result_data->DueDate) && !in_array($result_data->Status,$TicketStatusOnHold) && \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isPast()) {
 
                      return '<div class="label label-danger">RESPONSE OVERDUE</div>';
                 }
