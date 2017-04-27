@@ -3245,7 +3245,6 @@ show_summerinvoicetemplate = function (element,options){
 function rebuildSelectComposite(el,data,label){
     //el.empty();
     el.find('optgroup').not('optgroup:first').remove();
-    alert('sdfsdf');
     options = [];
     $.each(data,function(key,value){
         if(typeof value == 'object'){
