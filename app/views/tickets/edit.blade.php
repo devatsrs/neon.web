@@ -268,6 +268,10 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 	  
 	  $(document).on('change','#{{$htmlgroupID}}',function(e){
 		   var changeGroupID =  	$(this).val();
+		   if(changeGroupID==0){
+		   		 $('#{{$htmlagentID}} option').remove();
+				 return false;
+			}
 		   if(changeGroupID)
 		   {
 		   	 changeGroupID = parseInt(changeGroupID);
@@ -281,11 +285,10 @@ var img_array		   =    '{{$ticketSavedData['AttachmentPaths']['attachmentsinfo']
 					contentType: false,
 					processData: false,
 					data:{s:1},
-					success: function(response) {
+					success: function(response) { console.log(response);
 					   if(response.status =='success')
 					   {			
 						   var $el = this;		   
-						   console.log(response.data);
 						   //$('#{{$htmlagentID}} option:gt(0)').remove();
 						   $('#{{$htmlagentID}} option').remove();
 						   $.each(response.data, function(key,value) {							  

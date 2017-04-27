@@ -468,7 +468,8 @@ $(document).ready(function(e) {
                 processData: false,
                 success: function(response) {
 						if(response.status =='success'){									
-							toastr.success(response.message, "Success", toastr_opts);							
+							toastr.success(response.message, "Success", toastr_opts);		
+							location.reload();					
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }

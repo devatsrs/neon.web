@@ -1718,5 +1718,35 @@ function get_ticket_response_due_label($result_data,$options = array()) {
                 }
             /*}*/
         }
-    }
+    }	
 }
+
+	function SowCustomerAgentRepliedDate($result_data)
+	{
+		if(!empty($result_data->AgentRepliedDate) && !empty($result_data->CustomerRepliedDate))
+		{
+			if($result_data->AgentRepliedDate>$result_data->CustomerRepliedDate)
+			{
+				return ", Agent responded:".\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->AgentRepliedDate))->diffForHumans();
+			}
+			
+			if($result_data->AgentRepliedDate<$result_data->CustomerRepliedDate)
+			{
+				return ", Customer responded:".\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->CustomerRepliedDate))->diffForHumans();
+			}	
+		}
+		elseif(empty($result_data->AgentRepliedDate) || empty($result_data->CustomerRepliedDate))		
+		{
+			if(empty($result_data->CustomerRepliedDate) && !empty($result_data->AgentRepliedDate))
+			{
+				return ", Agent responded:".\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->AgentRepliedDate))->diffForHumans();
+			}
+			
+			if(empty($result_data->AgentRepliedDate) && !empty($result_data->CustomerRepliedDate))
+			{
+				return ", Customer responded:".\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->CustomerRepliedDate))->diffForHumans();
+			}	
+			
+		}
+		
+	}
