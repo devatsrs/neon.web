@@ -54,8 +54,16 @@
               <br>
              <a target="_blank" href="@if(!empty($result_data->ACCOUNTID)) {{URL::to('/')}}/accounts/{{$result_data->ACCOUNTID}}/show @elseif(!empty($result_data->ContactID)) contacts/{{$result_data->ContactID}}/show @else # @endif" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
               <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?>
-                  @if($result_data->DueDate != '')
-                  , {{get_ticket_due_date_human_readable($result_data, [ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
+                  <?php
+                  $ticket_status_data = get_ticket_status_date_array($result_data);
+                  ?>
+                  @if(isset($ticket_status_data["sla_timer"]) && $ticket_status_data["sla_timer"])
+                      , @if(isset($ticket_status_data["due"]) && $ticket_status_data["due"])
+                          Due in
+                      @else
+                          Overdue by
+                      @endif
+                      {{$ticket_status_data["hunam_readable"]}}
                   @endif
                   {{SowCustomerAgentRepliedDate($result_data)}}
               </span> </td>

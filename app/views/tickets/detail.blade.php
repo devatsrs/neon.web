@@ -143,19 +143,33 @@
             <!-- panel body -->
             <div class="panel-body">
             <form id="UpdateTicketDueTime" class="form-horizontal form-groups-bordered validate" role="form">
-            <div class="form-group">
-           		 <div class="col-md-12">
-                     <p><a class="blue_link" href="#">{{$TicketStatus}}</a><br>
-                         @if($ClosedTicketStatus!=$ticketdata->Status)
-                             @if($ticketdata->DueDate != '')
-                                 {{get_ticket_due_date_human_readable($ticketdata,[ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
-                                 <br>on {{date('D, d M',strtotime($ticketdata->DueDate))}} at {{date('H:i A',strtotime($ticketdata->DueDate))}} <a class="blue_link clickable change_duetime"  ticket="{{$ticketdata->TicketID}}">Change</a>
-                             @endif
-                         @endif
-                     </p>
-           		 </div>
-            </div>          
-            <div class="change_due_time form-group">
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <p><span class="blue_link" >{{$TicketStatus}}</span><br>
+                            <?php
+                            $ticket_status_data = get_ticket_status_date_array($ticketdata);
+                            ?>
+                            @if(isset($ticket_status_data["sla_timer"]) && !$ticket_status_data["sla_timer"])
+                                {{----SLAOFF--
+                                Waiting on Customer
+                                Since 7 days ago
+                                from Thu, 20 Apr at 4:49 PM--}}
+                                Since {{$ticket_status_data["hunam_readable"]}}
+                                <br>From {{date('D, d M',strtotime($ticket_status_data["the_date"]))}} at {{date('H:i A',strtotime($ticket_status_data["the_date"]))}}
+                            @else
+                                @if(isset($ticket_status_data["due"]) && $ticket_status_data["due"])
+                                    Due in
+                                @else
+                                    Overdue by
+                                @endif
+                                {{$ticket_status_data["hunam_readable"]}}
+                                <br>on {{date('D, d M',strtotime($ticket_status_data["the_date"]))}} at {{date('H:i A',strtotime($ticket_status_data["the_date"]))}}
+                                <span class="blue_link clickable change_duetime"  ticket="{{$ticketdata->TicketID}}">Change</span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                <div class="change_due_time form-group">
                   <div class="col-md-6">      
                   <input autocomplete="off" type="text" name="DueDate" id="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d',strtotime($ticketdata->DueDate))}}" data-startdate="{{date('Y-m-d',strtotime(" today"))}}" />
                   </div><div class="col-md-6">

@@ -75,7 +75,6 @@ private $validlicense;
 		if($overdue ==1)
 		{
 			$overdueVal = TicketsTable::$DueFilter['Overdue'];
-			$OpenTicketStatus = '';
 		}
 		
 		if($duetoday ==1)
