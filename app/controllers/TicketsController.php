@@ -150,21 +150,42 @@ private $validlicense;
 	}
 	
 	function ajex_result_export(){
-	    $data 						= 	Input::all(); 	
-		$data['Search'] 			= 	 $data['Search'];
-		$data['status'] 			= 	 isset($data['status'])?$data['status']:'';		
-		$data['priority']	 		= 	 isset($data['priority'])?$data['priority']:'';
-		$data['group'] 				= 	 isset($data['group'])?$data['group']:'';		
-		$data['agent']				= 	 isset($data['agent'])?$data['agent']:'';
-		$data['DueBy']				= 	 isset($data['formData']['DueBy'])?$data['formData']['DueBy']:'';
-		$data['iSortCol_0']			= 	 $data['sort_fld'];
-		$data['sSortDir_0']			= 	 $data['sort_type'];
-		$data['Export'] 			= 	 $data['Export'];		
+	    $postdata 					= 	Input::all(); 	
+		$data['Search'] 			= 	 $postdata['Search'];
+	
+		if(isset($postdata['status']) && $postdata['status']!='null')
+		{
+			$data['status'] 			= 	 $postdata['status'];		
+		}
+		
+		if(isset($postdata['priority']) && $postdata['priority']!='null')
+		{
+			$data['priority'] 			= 	 $postdata['priority'];		
+		}
+		
+		if(isset($postdata['group']) && $postdata['group']!='null')
+		{
+			$data['group'] 			= 	 $postdata['group'];		
+		}
+		
+		if(isset($postdata['agent']) && $postdata['agent']!='null')
+		{
+			$data['agent'] 			= 	 $postdata['agent'];		
+		}
+		
+		if(isset($postdata['DueBy']) && $postdata['DueBy']!='null')
+		{
+			$data['DueBy'] 			= 	 $postdata['DueBy'];		
+		}
+		
+		$data['iSortCol_0']			= 	 $postdata['sort_fld'];
+		$data['sSortDir_0']			= 	 $postdata['sort_type'];
+		$data['Export'] 			= 	 $postdata['Export'];		
 		$data['iDisplayStart']		=	 0;
 		$data['iDisplayLength']		=	 100;	
 		$companyID					= 	 User::get_companyID();
 		$array						=  	 $this->GetResult($data); 
-		
+
 		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
 			return json_response_api($array);  
 		}		
@@ -175,7 +196,7 @@ private $validlicense;
 		
 		$resultpage  				=  	 $array->resultpage;			
 		$result 					= 	 $array->ResultCurrentPage;		
-		$type						=	 $data['export_type'];
+		$type						=	 $postdata['export_type'];
 		
 		if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = $result;
