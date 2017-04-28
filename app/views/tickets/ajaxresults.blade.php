@@ -50,7 +50,7 @@
               <td class="@if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><div class="checkbox "><input type="checkbox" name="checkbox[]" value="{{$result_data->TicketID}}" class="rowcheckbox" ></div></td>
             <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
             <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span>
-                {{get_ticket_response_due_label($result_data,[ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
+                {{get_ticket_response_due_label($result_data,[ "skip"=>[$ClosedTicketStatus,$ResolvedTicketStatus]])}}
               <br>
              <a target="_blank" href="@if(!empty($result_data->ACCOUNTID)) {{URL::to('/')}}/accounts/{{$result_data->ACCOUNTID}}/show @elseif(!empty($result_data->ContactID)) contacts/{{$result_data->ContactID}}/show @else # @endif" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
               <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?>
