@@ -25,9 +25,6 @@ class BillingClass extends \Eloquent
     public static function getPaymentDueInDays($BillingClassID){
         return BillingClass::where('BillingClassID',$BillingClassID)->pluck('PaymentDueInDays');
     }
-    public static function getCDRType($BillingClassID){
-        return BillingClass::where('BillingClassID',$BillingClassID)->pluck('CDRType');
-    }
     public static function getRoundChargesAmount($BillingClassID){
         $RoundChargesAmount = '';
         if(!empty($BillingClassID)){

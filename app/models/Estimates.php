@@ -45,6 +45,7 @@ class Estimate extends \Eloquent {
 			$EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')
                     ->select('TaxRateID', 'Title', DB::Raw('sum(TaxAmount) as TaxAmount'))
                     ->where("EstimateID", $EstimateID)
+                    ->where("EstimateTaxType", 1)
                     ->orderBy("EstimateTaxRateID", "asc")
                     ->groupBy("TaxRateID")                   
                     ->get();

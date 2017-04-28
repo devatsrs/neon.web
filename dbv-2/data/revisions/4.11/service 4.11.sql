@@ -18,7 +18,9 @@ ALTER TABLE `tblInvoiceDetail`
 ALTER TABLE `tblInvoiceTemplate`
   ADD COLUMN `InvoiceTo` longtext NULL
   , ADD COLUMN `ServiceSplit` int(11) NULL DEFAULT '0'
-  , ADD COLUMN `UsageColumn` longtext NULL;  
+  , ADD COLUMN `UsageColumn` longtext NULL
+  , ADD COLUMN `GroupByService` INT NULL DEFAULT '0'
+  , ADD COLUMN `CDRType` INT(11) NULL DEFAULT '0';    
   
 DROP TABLE `tblUsageDaily`;
 
@@ -2164,11 +2166,13 @@ BEGIN
 	CALL fnServiceUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_ServiceID,p_StartDate,p_EndDate,v_BillingTime_);
 
 	SELECT 
-		b.CDRType  INTO v_CDRType_ 
-	FROM Ratemanagement3.tblAccountBilling ab 
-	INNER JOIN  Ratemanagement3.tblBillingClass b  
-		ON b.BillingClassID = ab.BillingClassID 
-	WHERE ab.AccountID = p_AccountID 
+		it.CDRType  INTO v_CDRType_
+	FROM Ratemanagement3.tblAccountBilling ab
+	INNER JOIN  Ratemanagement3.tblBillingClass b
+		ON b.BillingClassID = ab.BillingClassID
+	INNER JOIN tblInvoiceTemplate it
+		ON it.InvoiceTemplateID = b.InvoiceTemplateID
+	WHERE ab.AccountID = p_AccountID
 		AND ab.ServiceID = p_ServiceID
 	LIMIT 1;
 
