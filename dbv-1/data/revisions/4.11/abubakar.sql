@@ -1,5 +1,8 @@
 USE `Ratemanagement3`;
 
+ALTER TABLE `tblFileUploadTemplate`
+	ADD COLUMN `CompanyGatewayID` INT(11) NOT NULL AFTER `CompanyID`;
+
 INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('TicketDashboardSummaryWidgets.View', '1');
 INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`) VALUES ('TicketDashboardTimeLineWidgets.View', '1');
 

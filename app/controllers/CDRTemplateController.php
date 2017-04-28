@@ -44,10 +44,12 @@ class CDRTemplateController extends BaseController {
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,'.$data['FileUploadTemplateID'].',FileUploadTemplateID',
                 'TemplateFile' => 'required',
+                'CompanyGatewayID' => 'required'
                 );
         }else{
             $rules = array('TemplateName' => 'required|unique:tblFileUploadTemplate,Title,NULL,FileUploadTemplateID',
                 'TemplateFile' => 'required',
+                'CompanyGatewayID' => 'required'
                 );
         }
         $rules['Account'] = 'required';
@@ -99,6 +101,7 @@ class CDRTemplateController extends BaseController {
         $option["selection"] = $data['selection'];//['connect_time'=>$data['connect_time'],'disconnect_time'=>$data['disconnect_time'],'billed_duration'=>$data['billed_duration'],'duration'=>$data['duration'],'cld'=>$data['cld'],'cli'=>$data['cli'],'Account'=>$data['Account'],'cost'=>$data['cost']];
         $save['Options'] = json_encode($option);
         $save['Type'] = FileUploadTemplate::TEMPLATE_CDR;
+        $save['CompanyGatewayID'] = $data['CompanyGatewayID'];
         if(isset($data['FileUploadTemplateID']) && $data['FileUploadTemplateID']>0) {
             $template = FileUploadTemplate::find($data['FileUploadTemplateID']);
             $template->update($save);

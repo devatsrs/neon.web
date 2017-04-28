@@ -56,9 +56,9 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
       </div>
       
       <!-- content of front page section start -->      
-      <div id="Service">
+      <!--<div id="Service">
         <h1>Item</h1>
-      </div>
+      </div>-->
       <div class="clearfix"></div>
       <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
         <thead>
@@ -74,7 +74,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
         <tbody>
         @foreach($InvoiceDetail as $ProductRow)
           <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); } ?>
-            @if($ProductRow->ProductType == Product::ITEM)
+            {{---@if($ProductRow->ProductType == Product::ITEM)--}}
               <tr>
                 <td class="desc">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
                 <td class="desc">{{$ProductRow->Description}}</td>
@@ -82,7 +82,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                 <td class="desc">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
                 <td class="total">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
               </tr> 
-            @endif          
+            {{--@endif--}}
         @endforeach       
         </tbody>
         <tfoot>

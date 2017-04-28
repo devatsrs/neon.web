@@ -171,8 +171,10 @@ class Dispute extends \Eloquent {
 			}
 
 		}else if(Dispute::insert($disputeData) ) {
-            $status = Dispute::sendDisputeEmailCustomer($disputeData);
-			return Response::json(array("status" => "success", "message" => "Dispute inserted successfully. and ".$status['message']));
+            if(isset($data['sendEmail'])){
+                $status = Dispute::sendDisputeEmailCustomer($disputeData);
+            }
+			return Response::json(array("status" => "success", "message" => "Dispute inserted successfully.".(isset($status['message'])?' and '.$status['message']:'')));
 
 		} else {
 
@@ -185,9 +187,11 @@ class Dispute extends \Eloquent {
         $status                 =   ['status'=>0,'message'=>'Email not sent to customer'];
         $CompanyID              =   $data['CompanyID'];
         $data['InvoiceType']    =   $data['InvoiceType']==1?'Received':'Sent';
-        $data['InvoiceNumber']  =   $data['InvoiceNo'];
+        if(isset($data['InvoiceNo'])) {
+            $data['InvoiceNumber'] = $data['InvoiceNo'];
+        }
         $data['CompanyName'] 	= 	Company::getName($CompanyID);
-        $data['EmailTemplate'] 	= 	EmailTemplate::where(["SystemType"=>EmailTemplate::DisputeEmailCustomerTemplate])->first();
+        $data['EmailTemplate'] 	= 	EmailTemplate::where(["SystemType"=>EmailTemplate::DisputeEmailCustomerTemplate,'Status'=>1,'CompanyID'=>$CompanyID])->first();
         $body					=	EmailsTemplates::render('body',$data);
         $data['Subject']		=	EmailsTemplates::render("subject",$data);
         $EmailTemplate = $data['EmailTemplate'];
