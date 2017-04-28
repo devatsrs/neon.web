@@ -1612,11 +1612,11 @@ function getQuickBookAccountant(){
     else
     {
         $body = $data['Message'];
-    } Log::info(print_r($status,true));
+    } 
 	if(!isset($status['message_id']))
 	{
 		$status['message_id'] = '';
-	} Log::info($status['message_id']);
+	} 
 	if(!isset($data['EmailCall']))
 	{
 		$data['EmailCall'] = Messages::Sent;
@@ -1644,10 +1644,46 @@ function getQuickBookAccountant(){
 		"EmailParent"=>isset($data['EmailParent'])?$data['EmailParent']:$EmailParent,
 		"EmailCall"=>$data['EmailCall'],
     ];
-	Log::info(print_r($logData,true));
     $data =  AccountEmailLog::insertGetId($logData);
     return $data;
 }
+function get_ticket_status_date_array($result_data) {
+
+    $sla_timer = true;
+    $status				=	TicketsTable::getTicketStatusByID($result_data->Status);
+
+    if (in_array($result_data->Status, array_keys( TicketsTable::getTicketStatusOnHold() ) )) {  // SLATimer=off
+        $sla_timer = false;
+    }
+    $due = $overdue = false ;
+    if ($sla_timer) {
+
+        $the_date = $result_data->DueDate;
+
+        if(\Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->isFuture()) {
+            $due = true ;
+        }else {
+            $overdue = true;
+        }
+
+
+    } else {
+        $the_date = TicketLog::where(['TicketID'=>$result_data->TicketID,"TicketFieldValueToID"=>$result_data->Status])->orderby("TicketLogID","DESC")->pluck("created_at");
+    }
+
+
+    $response = [ "the_date" => $the_date,
+        "hunam_readable" =>  \Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->diffForHumans(null, true),
+        "sla_timer" => $sla_timer,
+        "due" => $due,
+        "overdue" => $overdue,
+        "status" => $status,
+    ];
+
+    return $response;
+
+}
+// not in use
 function get_ticket_due_date_human_readable($result_data , $options = array()) {
 
     $due_text = "";
@@ -1687,35 +1723,69 @@ function get_ticket_due_date_human_readable($result_data , $options = array()) {
 }
 function get_ticket_response_due_label($result_data,$options = array()) {
 
+    $output = "";
     if($result_data->Read==0) {
         if( isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
             return '<div class="label label-primary">New</div>';
         }
     }else{
+
         if(date("Y-m-d H:i:s",strtotime($result_data->CustomerResponse))>date("Y-m-d H:i:s",strtotime($result_data->AgentResponse))){
-            return "<div class='label label-info'>CUSTOMER RESPONDED</div>";
+            $output = "<div class='label label-info'>CUSTOMER REPLIED</div>";
+        }else if(date("Y-m-d H:i:s",strtotime($result_data->CustomerResponse))<date("Y-m-d H:i:s",strtotime($result_data->AgentResponse))){
+            $output = "<div class='label label-info'>AGENT REPLIED</div>";
         }else{
-            if (\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture() && isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
-                return '<div class="label label-warning">RESPONSE DUE</div>';
-            }else {
+            $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
+            $overdue = "";
 
-                if (isset($options["skip"]) && in_array($result_data->Status,$options["skip"]) ) {  //closed or resolved
+            if (isset($options["skip"]) && in_array($result_data->Status,$options["skip"]) ) {  //closed or resolved
 
-                    $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
-                    if(in_array($result_data->Status,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->Status])){
-                        return '<div class="label label-danger">'.ucfirst($TicketStatusOnHold[$result_data->Status]).'</div>';
-                    }
-                } else if (in_array($result_data->Status,TicketsTable::getTicketStatusOnHold())) {  // SLATimer=off
+                if(in_array($result_data->Status,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->Status])){
+                    $output = '<div class="label label-danger">'.ucfirst($TicketStatusOnHold[$result_data->Status]).'</div>';
+                }
+            } else if (in_array($result_data->Status,TicketsTable::getTicketStatusOnHold())) {  // SLATimer=off
 
-                    $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
-                    if(in_array($result_data->Status,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->Status])) {
-                        return '<div class="label label-warning">'.ucfirst($TicketStatusOnHold[$result_data->Status]).'</div>';
-                    }
-                } else if(!empty($result_data->DueDate)) {
-
-                     return '<div class="label label-danger">RESPONSE OVERDUE</div>';
+                if(in_array($result_data->Status,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->Status])) {
+                    $output = '<div class="label label-warning">'.ucfirst($TicketStatusOnHold[$result_data->Status]).'</div>';
                 }
             }
+            if(!empty($result_data->DueDate) && !in_array($result_data->Status,$TicketStatusOnHold) && \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isPast()) {
+
+                $overdue = ' <div class="label label-danger">RESPONSE OVERDUE</div>';
+            }
         }
+
+        return $output . $overdue;
+
     }
 }
+
+	function SowCustomerAgentRepliedDate($result_data)
+	{
+		if(!empty($result_data->AgentRepliedDate) && !empty($result_data->CustomerRepliedDate))
+		{
+			if($result_data->AgentRepliedDate>$result_data->CustomerRepliedDate)
+			{
+				return ", Agent responded: ".\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->AgentRepliedDate))->diffForHumans();
+			}
+			
+			if($result_data->AgentRepliedDate<$result_data->CustomerRepliedDate)
+			{
+				return ", Customer responded: ".\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->CustomerRepliedDate))->diffForHumans();
+			}	
+		}
+		elseif(empty($result_data->AgentRepliedDate) || empty($result_data->CustomerRepliedDate))		
+		{
+			if(empty($result_data->CustomerRepliedDate) && !empty($result_data->AgentRepliedDate))
+			{
+				return ", Agent responded: ".\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->AgentRepliedDate))->diffForHumans();
+			}
+			
+			if(empty($result_data->AgentRepliedDate) && !empty($result_data->CustomerRepliedDate))
+			{
+				return ", Customer responded: ".\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->CustomerRepliedDate))->diffForHumans();
+			}	
+			
+		}
+		
+	}

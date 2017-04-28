@@ -158,9 +158,9 @@
         .invoice-footer .editable-container .form-control ,.invoice-footer .editable-input{width: 100%;}
 
 	</style>
-    <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
+    <!--<link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
     <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
-    <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
+    <script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>-->
 	<script type="text/javascript">
 	$(document).ready(function() {
         //toggle `popup` / `inline` mode
@@ -251,7 +251,8 @@
         });
         $( window ).on( "load", function() {
             var modal = $('#txt-adv');
-            modal.find('.message').wysihtml5({
+            show_summerinvoicetemplate(modal.find(".message"));
+            /*modal.find('.message').wysihtml5({
                 "font-styles": false,
                 "emphasis": true,
                 "leadoptions": false,
@@ -264,10 +265,11 @@
                 parser: function (html) {
                     return html;
                 }
-            });
+            });*/
 
             var modal1 = $('#txt-footer');
-            modal1.find('.invoiceFooterTerm').wysihtml5({
+            show_summerinvoicetemplate(modal1.find(".invoiceFooterTerm"));
+            /*modal1.find('.invoiceFooterTerm').wysihtml5({
                 "font-styles": false,
                 "emphasis": true,
                 "leadoptions": false,
@@ -280,7 +282,7 @@
                 parser: function (html) {
                     return html;
                 }
-            });
+            });*/
         });
 
     });
