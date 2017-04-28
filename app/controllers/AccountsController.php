@@ -1269,7 +1269,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
         if(!empty($message)){
-            $message = 'following CLI skipped.<br>'.$message;
+            $message = 'Following CLI already exits.<br>'.$message;
             return Response::json(array("status" => "error", "message" => $message));
         }else{
             return Response::json(array("status" => "success", "message" => "CLI Successfully Added"));
