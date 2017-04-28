@@ -57,7 +57,7 @@
                 <div class="panel-body">
                     <div class="form-group">
                         <label for="field-1" class="col-md-2 control-label">Service Title
-                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This description will appear on the invoice" data-original-title="Service Title">?</span></label>
+                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This Service Title will appear on the invoice" data-original-title="Service Title">?</span></label>
                         </label>
                         <div class="col-md-4">
                             <input type="text" name="ServiceTitle" value="{{$ServiceTitle}}" class="form-control" id="field-5" placeholder="">

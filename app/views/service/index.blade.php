@@ -19,13 +19,40 @@
     </a>
 @endif
 </p>
-<div class="form-group">
-    <label class="control-label">Status</label>
-        <p class="make-switch switch-small mar-left-5 mar-top-5" >
-            <input id="ServiceStatus" type="checkbox" checked>
-            <input id="ServiceRefresh" type="hidden" value="1">
-        </p>
+<div class="row">
+    <div class="col-md-12">
+        <form id="service_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title"> Filter </div>
+                    <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-1 control-label">Name</label>
+                        <div class="col-sm-2"> {{ Form::text('ServiceName', '', array("class"=>"form-control")) }} </div>
+
+                        <label for="field-1" class="col-sm-1 control-label">Gateway</label>
+                        <div class="col-sm-2">{{ Form::select('CompanyGatewayID',CompanyGateway::getCompanyGatewayIdList(),'', array("class"=>"select2 small")) }}</div>
+
+                        <label for="field-1" class="col-sm-1 control-label">Status</label>
+                        <div class="col-sm-2">
+                            <p class="make-switch switch-small">
+                                <input id="ServiceStatus" name="ServiceStatus" type="checkbox" checked>
+                                <input id="ServiceRefresh" type="hidden" value="1">
+                            </p>
+                        </div>
+                    </div>
+                    <p style="text-align: right;">
+                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
+
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
@@ -43,7 +70,13 @@
 </table>
 
 <script type="text/javascript">
+    var $searchFilter = {};
     jQuery(document).ready(function ($) {
+
+        $searchFilter.ServiceName = $("#service_filter [name='ServiceName']").val();
+        $searchFilter.CompanyGatewayID = $("#service_filter [name='CompanyGatewayID']").val();
+        $searchFilter.ServiceStatus = $("#service_filter [name='ServiceStatus']").prop("checked");
+
         data_table = $("#table-4").dataTable({
 
             "bProcessing":true,
@@ -52,7 +85,12 @@
             "sAjaxSource": baseurl + "/services/ajax_datagrid",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
-            "aaSorting"   : [[5, 'desc']],    
+            "aaSorting"   : [[5, 'desc']],
+            "fnServerParams": function(aoData) {
+                aoData.push({"name":"ServiceName","value":$searchFilter.ServiceName},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"ServiceStatus","value":$searchFilter.ServiceStatus});
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push({"name":"ServiceName","value":$searchFilter.ServiceName},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"ServiceStatus","value":$searchFilter.ServiceStatus},{ "name": "Export", "value": 1});
+            },
             "aoColumns": 
              [
                 { "bVisible": false, "bSortable": true  }, //Status
@@ -129,12 +167,24 @@
                 });
             }
         });
+        /*
         $('#ServiceStatus').change(function() {
              if ($(this).is(":checked")) {
                 data_table.fnFilter(1,0);  // 1st value 2nd column index
             } else {
                 data_table.fnFilter(0,0);
             } 
+        });*/
+
+        $("#service_filter").submit(function(e) {
+            e.preventDefault();
+
+            $searchFilter.ServiceName = $("#service_filter [name='ServiceName']").val();
+            $searchFilter.CompanyGatewayID = $("#service_filter [name='CompanyGatewayID']").val();
+            $searchFilter.ServiceStatus = $("#service_filter [name='ServiceStatus']").prop("checked");
+
+            data_table.fnFilter('', 0);
+            return false;
         });
 
         $(".dataTables_wrapper select").select2({
