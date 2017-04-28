@@ -62,12 +62,12 @@
     </div>
     @endif
     <?php if(count($TicketConversation)>0){
-		if(is_array($TicketConversation)){
+		if(is_array($TicketConversation)){ $loop = 0;
 		foreach($TicketConversation as $key => $TicketConversationData){ 
 		if($TicketConversationData->Timeline_type == TicketsTable::TIMELINEEMAIL){
 		 ?>
     <div class="mail-reply-seperator"></div>
-    <div id="message{{$TicketConversationData->AccountEmailLogID}}" class="panel first_data panel-primary margin-top" data-collapsed="0">
+    <div id="message{{$TicketConversationData->AccountEmailLogID}}" class="panel loop{{$loop}} @if($loop>4) panel-collapse @endif  first_data panel-primary margin-top" data-collapsed="0">
       
       <!-- panel head -->
       <div class="panel-heading panel-heading-convesation">        
@@ -83,7 +83,7 @@
       </div>
       
       <!-- panel body -->
-      <div class="panel-body"> {{$TicketConversationData->EmailMessage}}
+      <div @if($loop>4) style="display:none;" @endif class="panel-body"> {{$TicketConversationData->EmailMessage}}
         <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
         @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
         <div class="mail-attachments last_data">
@@ -113,7 +113,7 @@
         @endif </div>
     </div>
     <?php } ?>
-    <?php } } } ?>
+    <?php  $loop++; } } } ?>
   </div>
   
   <!-- Sidebar -->

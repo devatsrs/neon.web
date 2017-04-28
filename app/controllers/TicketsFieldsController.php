@@ -228,7 +228,7 @@ private $validlicense;
 	}
 	
 	function Save_Single_Field(){
-		$postdata    =  Input::all();	 DB::enableQueryLog();	
+		$postdata    =  Input::all();	
 		 try
 		 {		
 				DB::beginTransaction();
@@ -357,7 +357,7 @@ private $validlicense;
 					}
 					
 											
-				} $queries = DB::getQueryLog(); Log::info(print_r($queries,true));
+				} 
 				 DB::commit();
 				   return Response::json(["status" => "success", "message" => "Successfully updated."]);
 			 } catch (Exception $ex) {
