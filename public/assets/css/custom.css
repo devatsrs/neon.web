@@ -2568,7 +2568,7 @@ background:white none repeat scroll 0 0;
     color: #574802;
 }
 .label  {
-    padding: .6em .6em .3em;
+    padding: .6em .6em .4em;
 }
 .popover-content :not(".note-hint-popover .popover-content"),.popover-title {
    color: #fff;
