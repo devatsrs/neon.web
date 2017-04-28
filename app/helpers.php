@@ -1683,20 +1683,16 @@ function get_ticket_status_date_array($result_data) {
     return $response;
 
 }
-function get_ticket_response_due_label($result_data,$options = array()) {
+function get_ticket_response_due_label($result_data) {
 
     $output = $overdue = "";
+    $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
+
     if($result_data->Read==0) {
+        return '<div class="label label-primary">NEW</div>';
 
-        if( isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
-            return '<div class="label label-primary">NEW</div>';
-        }
-
-    } else if (isset($options["skip"]) && in_array($result_data->Status,$options["skip"]) ) {  //closed or resolved
-        $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
-        if(in_array($result_data->Status,$options["skip"]) && isset($TicketStatusOnHold[$result_data->Status])){
-            $output = '<div class="label label-danger">'.strtoupper($TicketStatusOnHold[$result_data->Status]).'</div>';
-        }
+    } else if (TicketfieldsValues::isClosed($result_data->Status) || TicketfieldsValues::isResolved($result_data->Status)) {  //closed or resolved
+            return '<div class="label label-danger">'.strtoupper($TicketStatusOnHold[$result_data->Status]).'</div>';
     }else {
 
         $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
@@ -1707,7 +1703,7 @@ function get_ticket_response_due_label($result_data,$options = array()) {
         }else if( $result_data->CustomerResponse < $result_data->AgentResponse ){
             $output = "<div class='label label-info'>AGENT REPLIED</div>";
 
-        } else if (in_array($result_data->Status,array_keys($TicketStatusOnHold) )) {  // SLATimer=off
+        } else if (in_array($result_data->Status,array_keys($TicketStatusOnHold))) {  // SLATimer=off
 
                 $output = '<div class="label label-warning">'.strtoupper($TicketStatusOnHold[$result_data->Status]).'</div>';
         }else  if( \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isPast() ) {
