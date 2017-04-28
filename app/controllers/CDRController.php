@@ -17,7 +17,9 @@ class CDRController extends BaseController {
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_CDR);
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunks = $trunks+array(0=>'Find From CustomerPrefix');
+        $trunks = array('Trunk'=>$trunks);
         $Services = Service::getDropdownIDList(User::get_companyID());
+        $Services = array('Service'=>$Services);
         $ratetables = RateTable::getRateTableList();
         return View::make('cdrupload.upload',compact('dashboardData','account','gateway','UploadTemplate','trunks','Services','ratetables'));
     }
@@ -45,11 +47,7 @@ class CDRController extends BaseController {
                 if(!AmazonS3::upload($upload_path.'/'.$file_name,$amazonPath)){
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
-                if($data["AccountID"] >0 ){
-                    if(AccountBilling::getCDRType($data["AccountID"]) == ''){
-                        return Response::json(array("status" => "failed", "message" => "Setup CDR Format in Account edit"));
-                    }
-                }
+
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
                 $jobType = JobType::where(["Code" => 'CDR'])->get(["JobTypeID", "Title"]);
                 $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);

@@ -25,6 +25,11 @@
 
 <?php
 $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
+$total_tax_item = 0;
+$total_tax_subscription = 0;
+$grand_total_item = 0;
+$grand_total_subscription = 0;
+$inlineTaxes        =   [];
 ?>
 
 <div class="inovicebody">
@@ -55,9 +60,9 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
             </div>
             
             <!-- content of front page section start -->            
-            <div id="Service">
+            <!--<div id="Service">
                 <h1>Item</h1>
-            </div>
+            </div>-->
             <div class="clearfix"></div>
             <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
                 <thead>
@@ -72,8 +77,32 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                 
                 <tbody>
                 @foreach($EstimateDetail as $ProductRow)
-                    <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); } ?>
-                        @if($ProductRow->ProductType == Product::ITEM)
+                    <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); }
+                        if ($ProductRow->TaxRateID!= 0) {
+                            $tax = $taxes[$ProductRow->TaxRateID];
+                            $amount = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
+                            if(array_key_exists($ProductRow->TaxRateID, $inlineTaxes)){
+                                $inlineTaxes[$ProductRow->TaxRateID] += $amount;
+                            }else{
+                                $inlineTaxes[$ProductRow->TaxRateID] = $amount;
+                            }
+                        }
+                        if($ProductRow->TaxRateID2 != 0){
+                            $tax = $taxes[$ProductRow->TaxRateID2];
+                            $amount = $tax['FlatStatus']==1?$tax['Amount']:(($ProductRow->LineTotal * $ProductRow->Qty * $tax['Amount'])/100 );
+                            if(array_key_exists($ProductRow->TaxRateID2, $inlineTaxes)){
+                                $inlineTaxes[$ProductRow->TaxRateID2] += $amount;
+                            }else{
+                                $inlineTaxes[$ProductRow->TaxRateID2] = $amount;
+                            }
+                        }
+                        if($ProductRow->ProductType == Product::ITEM){
+                            $grand_total_item += $ProductRow->LineTotal;
+                        }elseif($ProductRow->ProductType == Product::SUBSCRIPTION){
+                            $grand_total_subscription += $ProductRow->LineTotal;
+                        }
+                    ?>
+                        {{--@if($ProductRow->ProductType == Product::ITEM)--}}
                             <tr>
                                 <td class="desc">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
                                 <td class="desc">{{$ProductRow->Description}}</td>
@@ -81,13 +110,36 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
                                 <td class="desc">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
                                 <td class="total">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
                             </tr>   
-                        @endif                  
-                @endforeach             
+                        {{-- @endif --}}
+                @endforeach
                 </tbody>
                 <tfoot>
+                @if($grand_total_item > 0)
+                    <tr>
+                        <td colspan="2"></td>
+                        <td colspan="2">ONE OFF SUB TOTAL</td>
+                        <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_item,$RoundChargesAmount)}}</td>
+                    </tr>
+                @endif
+                @if($grand_total_subscription > 0)
+                    <tr>
+                        <td colspan="2"></td>
+                        <td colspan="2">RECURRING SUB TOTAL</td>
+                        <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_subscription,$RoundChargesAmount)}}</td>
+                    </tr>
+                @endif
+                @if(count($inlineTaxes) > 0)
+                    @foreach($inlineTaxes as $index=>$value)
+                        <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2">{{$taxes[$index]['Title']}}</td>
+                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($value,$RoundChargesAmount)}}</td>
+                        </tr>
+                    @endforeach
+                @endif
                 <tr>
                     <td colspan="2"></td>
-                    <td colspan="2">SUB TOTAL</td>
+                    <td colspan="2">ESTIMATE TOTAL</td>
                     <td class="subtotal">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$RoundChargesAmount)}}</td>
                 </tr>
                 
