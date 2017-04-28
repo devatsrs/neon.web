@@ -18,7 +18,9 @@ ALTER TABLE `tblInvoiceDetail`
 ALTER TABLE `tblInvoiceTemplate`
   ADD COLUMN `InvoiceTo` longtext NULL
   , ADD COLUMN `ServiceSplit` int(11) NULL DEFAULT '0'
-  , ADD COLUMN `UsageColumn` longtext NULL;  
+  , ADD COLUMN `UsageColumn` longtext NULL
+  , ADD COLUMN `GroupByService` INT NULL DEFAULT '0'
+  , ADD COLUMN `CDRType` INT(11) NULL DEFAULT '0';    
   
 DROP TABLE `tblUsageDaily`;
 
