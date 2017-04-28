@@ -351,11 +351,15 @@ $(document).ready(function(e) {
             modal.find('#agent').removeClass('hidden col-md-4').addClass('col-md-12');
             modal.find('.modal-dialog').addClass('modal-sm');
         }else if($(this).prop('id')=='bulk-close'){
+			
             //modal.find('.modal-title').text('Bulk Close');
             //modal.find('#status').removeClass('hidden col-md-4').addClass('col-md-12');
+			if(confirm("Are you sure you want to close selected tickets?"))
+			{
             modal.find('[name="Status"]').val('{{array_search(TicketfieldsValues::$Status_Closed,$status)}}').trigger('change');
             //modal.find('.modal-dialog').addClass('modal-sm');
 			$('#BulkAction-form').submit();
+			 }
 			return false;
         }else if($(this).prop('id')=='bulk-delete'){
             var SelectedIDs = getselectedIDs();
@@ -363,7 +367,7 @@ $(document).ready(function(e) {
                 toastr.error('Please select at least one Ticket.', "Error", toastr_opts);
                 return false;
             }else {
-                if(confirm("Are you sure you want to delete selected tickets")) {
+                if(confirm("Are you sure you want to delete selected tickets?")) {
                     var url = baseurl + '/tickets/bulkdelete';
                     $.post(url, {"SelectedIDs": SelectedIDs.join(",")}, function (response) {
                         if (response.status == 'success') {
