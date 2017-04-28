@@ -7,7 +7,7 @@ class InvoiceTemplatesController extends \BaseController {
         $CompanyID = User::get_companyID();
         $invoiceCompanies = InvoiceTemplate::where("CompanyID", $CompanyID);
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix')->get();
+            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService')->get();
             $invoiceCompanies = json_decode(json_encode($invoiceCompanies),true);
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice Template.csv';
@@ -19,7 +19,7 @@ class InvoiceTemplatesController extends \BaseController {
                 $NeonExcel->download_excel($invoiceCompanies);
             }
         }
-        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix');
+        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService');
         return Datatables::of($invoiceCompanies)->make();
     }
 
@@ -88,14 +88,20 @@ class InvoiceTemplatesController extends \BaseController {
             $data['ModifiedBy'] = User::get_user_full_name();
             if(!empty($data['ServicePage'])&& $data['ServicePage']==1){
                 $data['ServiceSplit'] = $data['ServiceSplit']== 'true'?1:0;
-            }else{
+            }
+            if(!empty($data['EditPage']) && $data['EditPage']==1){
                 $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
                 $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
                 $data['ShowBillingPeriod'] = isset($data['ShowBillingPeriod']) ? 1 : 0;
+                $data['GroupByService'] = isset($data['GroupByService']) ? 1 : 0;
             }
+            unset($data['EditPage']);
             unset($data['ServicePage']);
             if(!isset($data['DateFormat'])){
                 $data['DateFormat'] = $InvoiceTemplates->DateFormat;
+            }
+            if(!isset($data['CDRType'])){
+                $data['CDRType'] = $InvoiceTemplates->CDRType;
             }
             $rules = array(
                 'CompanyID' => 'required',
@@ -107,6 +113,7 @@ class InvoiceTemplatesController extends \BaseController {
                 'Name' => 'required|unique:tblInvoiceTemplate,Name,'.$id.',InvoiceTemplateID,CompanyID,'.$data['CompanyID'],
                 'InvoiceStartNumber' => 'required',
                 'DateFormat'=> 'required',
+                'CDRType'=> 'required',
             );
 
             if(!isset($data['InvoiceStartNumber'])){
@@ -173,11 +180,13 @@ class InvoiceTemplatesController extends \BaseController {
         $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
         $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
         $data['ShowBillingPeriod'] = isset($data['ShowBillingPeriod']) ? 1 : 0;
+        $data['GroupByService'] = isset($data['GroupByService']) ? 1 : 0;
         unset($data['InvoiceTemplateID']);
         $rules = array(
             'CompanyID' => 'required',
             'Name' => 'required|unique:tblInvoiceTemplate,Name,NULL,InvoiceTemplateID,CompanyID,'.$data['CompanyID'],
             'InvoiceStartNumber' => 'required',
+            'CDRType'=> 'required',
             'DateFormat'=> 'required',
         );
         $verifier = App::make('validation.presence');
@@ -253,7 +262,7 @@ class InvoiceTemplatesController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
                 }
             }else{
-                return Response::json(array("status" => "failed", "message" => "Invoice Template is in Use, You cant delete this Invoice Template."));
+                return Response::json(array("status" => "failed", "message" => "Invoice Template is in Use, You can not delete this Invoice Template."));
             }
         }
     }

@@ -29,10 +29,10 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="25%">Name</th>
+        <th width="35%">Name</th>
         <th width="25%">Modified Date</th>
         <th width="15%">Modified By</th>
-        <th width="35%">Action</th>
+        <th width="25%">Action</th>
     </tr>
     </thead>
     <tbody>
@@ -50,7 +50,7 @@ var postdata;
         public_vars.$body = $("body");
         //show_loading_bar(40);
 
-        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix'];
+        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService'];
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -84,16 +84,15 @@ var postdata;
                          }
                          action += '</div>';
                          <?php if(User::checkCategoryPermission('InvoiceTemplates','Edit') ){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-invoice_template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip" class="edit-invoice_template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
                          <?php } ?>
                          <?php if(User::checkCategoryPermission('InvoiceTemplates','Delete') ){ ?>
-                            action += ' <a data-id="'+ id +'" title="Delete" class="delete-invoice_template btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                            action += ' <a data-id="'+ id +'"  data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" class="delete-invoice_template btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                          <?php } ?>
-                        action += '<a  href="'+ view_url +'?Type=2" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Item  View </a>';
-                        action += '<a  href="'+ view_url +'?Type=1" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-eye"></i>Periodic View </a>';
-                        if(full[7]=='single_with_detail'){
-                            action += ' <a  href="'+ view_url +'?Type=3" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-doc-text"></i>Usage Column</a>';
-                        }
+                        action += '<a  href="'+ view_url +'?Type=2" data-name = "'+full[0]+'" data-id="'+ id +'" data-original-title="Item View" title="" data-placement="top" data-toggle="tooltip" class="view-invoice_template btn btn-default btn-sm"><i class="entypo-list"></i>&nbsp;</a>';
+                        action += '<a  href="'+ view_url +'?Type=1" data-name = "'+full[0]+'" data-id="'+ id +'" data-original-title="Periodic View" title="" data-placement="top" data-toggle="tooltip" class="view-invoice_template btn btn-default btn-sm"><i class="entypo-calendar"></i>&nbsp;</a>';
+                        action += ' <a  href="'+ view_url +'?Type=3" data-name = "'+full[0]+'" data-id="'+ id +'" data-original-title="Usage Column" title="" data-placement="top" data-toggle="tooltip" class="view-invoice_template btn btn-default btn-sm"><i class="entypo-doc-text"></i>&nbsp;</a>';
+
                         return action;
                       }
                   },
@@ -187,6 +186,7 @@ var postdata;
 		$("#add-new-invoice_template-form [name='EstimateNumberPrefix']").val($(this).prev("div.hiddenRowData").find("input[name='EstimateNumberPrefix']").val());
         $("#add-new-invoice_template-form [name='InvoicePages']").val($(this).prev("div.hiddenRowData").find("input[name='InvoicePages']").val()).trigger("change");
         $("#add-new-invoice_template-form [name='DateFormat']").val($(this).prev("div.hiddenRowData").find("input[name='DateFormat']").val()).trigger("change");
+        $("#add-new-invoice_template-form [name='CDRType']").val($(this).prev("div.hiddenRowData").find("input[name='CDRType']").val()).trigger("change");
         $("#add-new-invoice_template-form [name='LastInvoiceNumber']").val($(this).prev("div.hiddenRowData").find("input[name='LastInvoiceNumber']").val());
 		
 		$("#add-new-invoice_template-form [name='LastEstimateNumber']").val($(this).prev("div.hiddenRowData").find("input[name='LastEstimateNumber']").val());
@@ -205,6 +205,11 @@ var postdata;
             $('[name="ShowBillingPeriod"]').prop('checked',true)
         }else{
             $('[name="ShowBillingPeriod"]').prop('checked',false)
+        }
+        if($(this).prev("div.hiddenRowData").find("input[name='GroupByService']").val() == 1 ){
+            $('[name="GroupByService"]').prop('checked',true)
+        }else{
+            $('[name="GroupByService"]').prop('checked',false)
         }
 
         var InvoiceTemplateID = $(this).prev("div.hiddenRowData").find("input[name='InvoiceTemplateID']").val();
@@ -341,6 +346,18 @@ function ajax_update(fullurl,data){
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-2 control-label">CDR Format</label>
+                            <div class="col-sm-4">
+                                {{Form::select('CDRType',Account::$cdr_type,'',array("class"=>"select2 small"))}}
+                            </div>
+                            <label class="col-sm-2 control-label">Group By Service</label>
+                            <div class="col-sm-4">
+                                <p class="make-switch switch-small">
+                                    <input type="checkbox" checked=""  name="GroupByService" value="0">
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Logo</label>
                             <div class="col-sm-10">
                                 <div class="col-sm-6">
@@ -381,6 +398,7 @@ function ajax_update(fullurl,data){
                   </div>
                 <div class="modal-footer">
                     <input type="hidden" name="InvoiceTemplateID" value="" />
+                    <input type="hidden" name="EditPage" value="1" />
                     <button type="submit" id="invoice_template-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save

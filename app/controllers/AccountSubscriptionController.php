@@ -150,7 +150,7 @@ class AccountSubscriptionController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
                 }
             }else{
-                return Response::json(array("status" => "failed", "message" => "Subscription is in Use, You cant delete this Subscription."));
+                return Response::json(array("status" => "failed", "message" => "Subscription is in Use, You can not delete this Subscription."));
             }
         }
 	}

@@ -48,10 +48,12 @@
                 </div>
             </div>
         </div>
+        @if(User::checkCategoryPermission('AccountService','Add'))
         <div class="text-right">
             <a  id="add-services" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
             <div class="clear clearfix"><br></div>
         </div>
+        @endif
         <div class="dataTables_wrapper">
             <table id="table-service" class="table table-bordered datatable">
                 <thead>
@@ -120,13 +122,17 @@
                                 var Active_Card = baseurl + "/accountservices/{id}/changestatus/active";
                                 var DeActive_Card = baseurl + "/accountservices/{id}/changestatus/deactive";
                                  action = '';
+                                <?php if(User::checkCategoryPermission('AccountService','Edit')) { ?>
                                  if (full[1]=="1") {
                                     action += ' <button href="' + DeActive_Card.replace("{id}",full[2]) + '" title=""  class="btn activeservice btn-danger btn-sm tooltip-primary" data-original-title="Deactivate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-minus-circled"></i></button>';
                                  } else {
                                     action += ' <button href="' + Active_Card.replace("{id}",full[2]) + '" title="" class="btn deactiveservice btn-success btn-sm tooltip-primary" data-original-title="Activate" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-check"></i></button>';
                                  }
                                  action += ' <a href="' + service_edit_url.replace("{id}",full[2]) +'" class="edit-service btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
-                                 action += ' <a href="' + service_delete_url.replace("{id}",full[2]) +'" class="delete-service btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
+                                <?php } ?>
+                                <?php if(User::checkCategoryPermission('AccountService','Edit')) { ?>
+                                    action += ' <a href="' + service_delete_url.replace("{id}",full[2]) +'" class="delete-service btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
+                                <?php } ?>
                                  return action;
                             }
                           }
@@ -187,7 +193,7 @@
 
                     var self = $(this);
                     var text = (self.hasClass("activeservice")?'Active':'Disable');
-                    result = confirm('Are you sure you want to change status');
+                    result = confirm('Are you sure you want to change status?');
                     if(result){
                         $(this).button('loading');
                         var delete_url  = $(this).attr("href");
