@@ -1650,6 +1650,7 @@ function getQuickBookAccountant(){
 function get_ticket_status_date_array($result_data) {
 
     $sla_timer = true;
+    $status				=	TicketsTable::getTicketStatusByID($result_data->Status);
 
     if (in_array($result_data->Status, array_keys( TicketsTable::getTicketStatusOnHold() ) )) {  // SLATimer=off
         $sla_timer = false;
@@ -1676,6 +1677,7 @@ function get_ticket_status_date_array($result_data) {
         "sla_timer" => $sla_timer,
         "due" => $due,
         "overdue" => $overdue,
+        "status" => $status,
     ];
 
     return $response;
@@ -1728,7 +1730,7 @@ function get_ticket_response_due_label($result_data,$options = array()) {
     }else{
         if(date("Y-m-d H:i:s",strtotime($result_data->CustomerResponse))>date("Y-m-d H:i:s",strtotime($result_data->AgentResponse))){
             return "<div class='label label-info'>CUSTOMER REPLIED</div>";
-		}else if(date("Y-m-d H:i:s",strtotime($result_data->CustomerResponse))<date("Y-m-d H:i:s",strtotime($result_data->AgentResponse))){	
+		}else if(date("Y-m-d H:i:s",strtotime($result_data->CustomerResponse))<date("Y-m-d H:i:s",strtotime($result_data->AgentResponse))){
 		    return "<div class='label label-info'>AGENT REPLIED</div>";
         }else{
    /*         if (\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isFuture() && isset($options["skip"]) && !in_array($result_data->Status,$options["skip"]) ) {
@@ -1746,7 +1748,7 @@ function get_ticket_response_due_label($result_data,$options = array()) {
                     if(in_array($result_data->Status,$TicketStatusOnHold) && isset($TicketStatusOnHold[$result_data->Status])) {
                         return '<div class="label label-warning">'.ucfirst($TicketStatusOnHold[$result_data->Status]).'</div>';
                     }
-                } else if(!empty($result_data->DueDate) && !in_array($result_data->Status,$TicketStatusOnHold) && \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isPast()) {
+                } else if(!empty($result_data->DueDate) && !in_array($result_data->Status,$TicketStatusOnHold)) {
 
                      return '<div class="label label-danger">RESPONSE OVERDUE</div>';
                 }
