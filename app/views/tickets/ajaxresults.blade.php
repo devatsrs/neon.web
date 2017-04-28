@@ -65,7 +65,7 @@
                       @endif
                       {{$ticket_status_data["hunam_readable"]}}
                   @else
-                      {{$ticket_status_data["status"]}} Since {{$ticket_status_data["hunam_readable"]}}
+                      , {{$ticket_status_data["status"]}} Since {{$ticket_status_data["hunam_readable"]}}
                   @endif
                   {{SowCustomerAgentRepliedDate($result_data)}}
               </span> </td>
