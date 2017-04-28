@@ -1686,13 +1686,15 @@ function get_ticket_status_date_array($result_data) {
 function get_ticket_response_due_label($result_data) {
 
     $output = $overdue = "";
-    $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
 
     if($result_data->Read==0) {
         return '<div class="label label-primary">NEW</div>';
 
-    } else if (TicketfieldsValues::isClosed($result_data->Status) || TicketfieldsValues::isResolved($result_data->Status)) {  //closed or resolved
-            return '<div class="label label-danger">'.strtoupper($TicketStatusOnHold[$result_data->Status]).'</div>';
+    } else if (TicketfieldsValues::isClosed($result_data->Status)) {
+        return '<div class="label label-danger">'.strtoupper(TicketfieldsValues::$Status_Closed).'</div>';
+
+    } else if (TicketfieldsValues::isResolved($result_data->Status)) {  //closed or resolved
+        return '<div class="label label-danger">'.strtoupper(TicketfieldsValues::$Status_Resolved).'</div>';
     }else {
 
         $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
