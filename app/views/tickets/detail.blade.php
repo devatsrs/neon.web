@@ -59,12 +59,12 @@
     </div>
     @endif
     <?php if(count($TicketConversation)>0){
-		if(is_array($TicketConversation)){
+		if(is_array($TicketConversation)){ $loop = 0;
 		foreach($TicketConversation as $key => $TicketConversationData){ 
 		if($TicketConversationData->Timeline_type == TicketsTable::TIMELINEEMAIL){
 		 ?>
     <div class="mail-reply-seperator"></div>
-    <div id="message{{$TicketConversationData->AccountEmailLogID}}" class="panel first_data panel-primary margin-top" data-collapsed="0">
+    <div id="message{{$TicketConversationData->AccountEmailLogID}}" class="panel loop{{$loop}} @if($loop>4) panel-collapse @endif  first_data panel-primary margin-top" data-collapsed="0">
       
       <!-- panel head -->
       <div class="panel-heading panel-heading-convesation">        
@@ -80,7 +80,7 @@
       </div>
       
       <!-- panel body -->
-      <div class="panel-body"> {{$TicketConversationData->EmailMessage}}
+      <div @if($loop>4) style="display:none;" @endif  class="panel-body"> {{$TicketConversationData->EmailMessage}}
         <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
         @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
         <div class="mail-attachments last_data">
@@ -112,7 +112,7 @@
     <?php }else if($TicketConversationData->Timeline_type == TicketsTable::TIMELINENOTE){
 	?>
     <div class="mail-reply-seperator"></div>
-    <div id="note{{$TicketConversationData->NoteID}}" class="panel panel-primary margin-top" data-collapsed="0">
+    <div id="note{{$TicketConversationData->NoteID}}" class="panel loop{{$loop}} @if($loop>4) panel-collapse @endif panel-primary margin-top" data-collapsed="0">
       
       <!-- panel head -->
       <div class="panel-heading">
@@ -121,10 +121,10 @@
       </div>
       
       <!-- panel body -->
-      <div class="panel-body">{{$TicketConversationData->Note}}</div>
+      <div @if($loop>4) style="display:none;" @endif  class="panel-body">{{$TicketConversationData->Note}}</div>
     </div>
     <?php	} ?>
-    <?php } } } ?>
+    <?php $loop++; } } } ?>
   </div>
   
   <!-- Sidebar -->
@@ -143,19 +143,33 @@
             <!-- panel body -->
             <div class="panel-body">
             <form id="UpdateTicketDueTime" class="form-horizontal form-groups-bordered validate" role="form">
-            <div class="form-group">
-           		 <div class="col-md-12">
-                     <p><a class="blue_link" href="#">{{$TicketStatus}}</a><br>
-                         @if($ClosedTicketStatus!=$ticketdata->Status)
-                             @if($ticketdata->DueDate != '')
-                                 {{get_ticket_due_date_human_readable($ticketdata,[ "skip"=>[$ResolvedTicketStatus,$ResolvedTicketStatus]])}}
-                                 <br>on {{date('D, d M',strtotime($ticketdata->DueDate))}} at {{date('H:i A',strtotime($ticketdata->DueDate))}} <a class="blue_link clickable change_duetime"  ticket="{{$ticketdata->TicketID}}">Change</a>
-                             @endif
-                         @endif
-                     </p>
-           		 </div>
-            </div>          
-            <div class="change_due_time form-group">
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <p><span class="blue_link" >{{$TicketStatus}}</span><br>
+                            <?php
+                            $ticket_status_data = get_ticket_status_date_array($ticketdata);
+                            ?>
+                            @if(isset($ticket_status_data["sla_timer"]) && !$ticket_status_data["sla_timer"])
+                                {{----SLAOFF--
+                                Waiting on Customer
+                                Since 7 days ago
+                                from Thu, 20 Apr at 4:49 PM--}}
+                                Since {{$ticket_status_data["hunam_readable"]}}
+                                <br>From {{date('D, d M',strtotime($ticket_status_data["the_date"]))}} at {{date('H:i A',strtotime($ticket_status_data["the_date"]))}}
+                            @else
+                                @if(isset($ticket_status_data["due"]) && $ticket_status_data["due"])
+                                    Due in
+                                @else
+                                    Overdue by
+                                @endif
+                                {{$ticket_status_data["hunam_readable"]}}
+                                <br>on {{date('D, d M',strtotime($ticket_status_data["the_date"]))}} at {{date('H:i A',strtotime($ticket_status_data["the_date"]))}}
+                                <span class="blue_link clickable change_duetime"  ticket="{{$ticketdata->TicketID}}">Change</span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                <div class="change_due_time form-group">
                   <div class="col-md-6">      
                   <input autocomplete="off" type="text" name="DueDate" id="DueDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d',strtotime($ticketdata->DueDate))}}" data-startdate="{{date('Y-m-d',strtotime(" today"))}}" />
                   </div><div class="col-md-6">
@@ -468,7 +482,8 @@ $(document).ready(function(e) {
                 processData: false,
                 success: function(response) {
 						if(response.status =='success'){									
-							toastr.success(response.message, "Success", toastr_opts);							
+							toastr.success(response.message, "Success", toastr_opts);		
+							location.reload();					
                         }else{
                             toastr.error(response.message, "Error", toastr_opts);
                         }

@@ -140,8 +140,8 @@ private $validlicense;
 	function get_group_agents($id){
 		
 		$postdata 				= 		Input::all();
-        $response 				= 		NeonAPI::request('ticketgroups/get_group_agents/'.$id,array(),true,true,false);
-		return json_response_api($response,true);		
+        $response 				= 		NeonAPI::request('ticketgroups/get_group_agents/'.$id,array(),true,true,false); 
+		return json_response_api($response);		
 	}
 	
 	function validatesmtp(){

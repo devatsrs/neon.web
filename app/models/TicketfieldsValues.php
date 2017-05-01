@@ -43,4 +43,19 @@ class TicketfieldsValues extends \Eloquent {
         }
         return self::$cache['ticketfieldsvalues_cache'];
     }
+
+    public static function isClosed($statusID){
+        $statues = self::getFieldValueIDLIst();
+        if(isset($statues[$statusID]) && $statues[$statusID] == self::$Status_Closed ) {
+            return true;
+        }
+        return false;
+    }
+    public static function isResolved($statusID){
+        $statues = self::getFieldValueIDLIst();
+        if(isset($statues[$statusID]) && $statues[$statusID] == self::$Status_Resolved) {
+            return true;
+        }
+        return false;
+    }
 }

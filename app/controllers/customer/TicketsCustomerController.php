@@ -121,7 +121,7 @@ private $validlicense;
 		$Sortcolumns				=	 TicketsTable::$SortcolumnsCustomer;
 		$pagination					=	 TicketsTable::$pagination;
 		//echo "<pre>";		print_r($resultpage);			exit;
-		if(count($result)<1)
+		/*if(count($result)<1)
 		{
 			if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
 				
@@ -129,7 +129,17 @@ private $validlicense;
 			}else{			
 				return '';
 			}
-		} 
+		} */
+		
+		if(count($result)<1)
+		{
+			//if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
+				
+				return json_encode(array("result"=>"No Result "));
+			/*}else{			
+				return '';
+			}*/
+		}
 		TicketsTable::SetTicketSession($result);
        return   View::make('customer.tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns','pagination'));     
 	   
@@ -158,15 +168,36 @@ private $validlicense;
 	
 	function ajex_result_export(){
 		
-	    $data 						= 	 Input::all(); 	
-		$data['Search'] 			= 	 $data['Search'];
-		$data['status'] 			= 	 isset($data['status'])?$data['status']:'';		
+	    $postdata 					= 	 Input::all(); 	
+		$data['Search'] 			= 	 $postdata['Search'];
+	/*	$data['status'] 			= 	 isset($data['status'])?$data['status']:'';		
 		$data['priority']	 		= 	 isset($data['priority'])?$data['priority']:'';
 		$data['group'] 				= 	 isset($data['group'])?$data['group']:'';		
-		$data['agent']				= 	 isset($data['agent'])?$data['agent']:'';
-		$data['iSortCol_0']			= 	 $data['sort_fld'];
-		$data['sSortDir_0']			= 	 $data['sort_type'];
-		$data['Export'] 			= 	 $data['Export'];		
+		$data['agent']				= 	 isset($data['agent'])?$data['agent']:'';*/
+		
+		if(isset($postdata['status']) && $postdata['status']!='null')
+		{
+			$data['status'] 			= 	 $postdata['status'];		
+		}
+		
+		if(isset($postdata['priority']) && $postdata['priority']!='null')
+		{
+			$data['priority'] 			= 	 $postdata['priority'];		
+		}
+		
+		if(isset($postdata['group']) && $postdata['group']!='null')
+		{
+			$data['group'] 			= 	 $postdata['group'];		
+		}
+		
+		if(isset($postdata['agent']) && $postdata['agent']!='null')
+		{
+			$data['agent'] 			= 	 $postdata['agent'];		
+		}		
+		
+		$data['iSortCol_0']			= 	 $postdata['sort_fld'];
+		$data['sSortDir_0']			= 	 $postdata['sort_type'];
+		$data['Export'] 			= 	 $postdata['Export'];		
 		$data['iDisplayStart']		=	 0;
 		$data['iDisplayLength']		=	 100;	
 		$companyID					= 	 User::get_companyID();
@@ -181,8 +212,8 @@ private $validlicense;
 		
 		$resultpage  				=  	 $array->resultpage;			
 		$result 					= 	 $array->ResultCurrentPage;		
-		$type						=	 $data['export_type'];
-		
+		$type						=	 $postdata['export_type'];
+
 		if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = $result;
             $excel_data = json_decode(json_encode($excel_data),true);

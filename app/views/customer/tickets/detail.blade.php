@@ -62,23 +62,35 @@
     </div>
     @endif
     <?php if(count($TicketConversation)>0){
-		if(is_array($TicketConversation)){
-		foreach($TicketConversation as $TicketConversationData){ 
+		if(is_array($TicketConversation)){ $loop = 0;
+		foreach($TicketConversation as $key => $TicketConversationData){ 
 		if($TicketConversationData->Timeline_type == TicketsTable::TIMELINEEMAIL){
-		 ?>  
+		 ?>
     <div class="mail-reply-seperator"></div>
-    <div class="mail-info first_data">
-      <div class="mail-sender">  <span>@if($TicketConversationData->EmailCall==Messages::Received)From (@if(!empty($TicketConversationData->EmailfromName)){{$TicketConversationData->EmailfromName}} @else {{$TicketConversationData->Emailfrom}}@endif) @elseif($TicketConversationData->EmailCall==Messages::Sent)To ({{$TicketConversationData->EmailTo}})  @endif</span> @if(!empty($TicketConversationData->EmailCc))<br>cc {{$TicketConversationData->EmailCc}} @endif @if(!empty($TicketConversationData->EmailBcc))<br>bcc {{$TicketConversationData->EmailBcc}} @endif    </div>
-      <div class="mail-date"> <!-- <a action_type="forward"  data-toggle="tooltip" data-type="child" data-placement="top"  ticket_number="{{$TicketConversationData->AccountEmailLogID}}" data-original-title="Forward" class="btn btn-xs btn-info email_action tooltip-primary"><i class="entypo-forward"></i> </a>--> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
-    </div>
-    <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
-    <div class="mail-text @if(count($attachments)<1 || strlen($TicketConversationData->AttachmentPaths)<1) last_data  @endif "> {{$TicketConversationData->EmailMessage}} </div>       
-     @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
-    <div class="mail-attachments last_data">
-      <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
-      <ul>
-        @foreach($attachments as $key_acttachment => $attachments_data)
-        <?php 
+    <div id="message{{$TicketConversationData->AccountEmailLogID}}" class="panel loop{{$loop}} @if($loop>4) panel-collapse @endif  first_data panel-primary margin-top" data-collapsed="0">
+      
+      <!-- panel head -->
+      <div class="panel-heading panel-heading-convesation">        
+          <div class="panel-title" ><span><?php 
+		  if($TicketConversationData->EmailCall==Messages::Received){
+		   ?>From <?php if(!empty($TicketConversationData->EmailfromName)){ echo $TicketConversationData->EmailfromName." (".$TicketConversationData->Emailfrom.")"; ?> <?php }else{ ?> <?php echo $TicketConversationData->Emailfrom; } ?>
+		 <?php }elseif($TicketConversationData->EmailCall==Messages::Sent){ echo $TicketConversationData->CreatedBy; ?> (<?php echo $TicketConversationData->Emailfrom; ?>) replied<br>to (<?php echo $TicketConversationData->EmailTo; ?>) <?php } ?></span>
+          
+          <?php if(!empty($TicketConversationData->EmailCc)){ ?><br>cc:  <?php echo $TicketConversationData->EmailCc; ?> <?php } ?>
+		  <?php if(!empty($TicketConversationData->EmailBcc)){ ?><br>bcc: <?php echo $TicketConversationData->EmailBcc; ?> <?php } ?> </div>
+          
+        <div class="panel-options"> <span> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}}</span> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+      </div>
+      
+      <!-- panel body -->
+      <div @if($loop>4) style="display:none;" @endif class="panel-body"> {{$TicketConversationData->EmailMessage}}
+        <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
+        @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
+        <div class="mail-attachments last_data">
+          <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
+          <ul>
+            @foreach($attachments as $key_acttachment => $attachments_data)
+            <?php 
    		//$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
 		$Filename		=	$attachments_data['filepath'];
 		
@@ -90,25 +102,18 @@
 		{
 			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
 		}
-		$Attachmenturl = URL::to('/customer/emails/'.$TicketConversationData->AccountEmailLogID.'/getattachment/'.$key_acttachment);
+		$Attachmenturl = URL::to('emails/'.$TicketConversationData->AccountEmailLogID.'/getattachment/'.$key_acttachment);
    	    ?>
-        <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
-          <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
-        </li>
-        @endforeach
-      </ul>
+            <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
+              <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
+            </li>
+            @endforeach
+          </ul>
+        </div>
+        @endif </div>
     </div>
-    @endif
-    <?php }else if($TicketConversationData->Timeline_type == TicketsTable::TIMELINENOTE){
-	?>
-    <div class="mail-reply-seperator"></div>
-	<div class="mail-info first_data">
-      <div class="mail-sender">  <span>Note</span>   </div>
-      <div class="mail-date">  {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}} </div>
-    </div>
-      <div class="mail-text last_data"> {{$TicketConversationData->Note}} </div>   
-	<?php	} ?>
-    <?php } } } ?>
+    <?php } ?>
+    <?php  $loop++; } } } ?>
   </div>
   
   <!-- Sidebar -->
@@ -220,6 +225,8 @@
 .mail-env .mail-body .mail-header .mail-title{float:none !important;}
 .mail-env .mail-body .mail-header .mail-date{padding:0px; text-align:inherit;}
 .Requester_Info{padding:10px !important;}
+.panel-primary > .panel-heading-convesation{min-height:80px !important;}
+.panel-primary > .panel-heading-convesation .panel-title{font-size:12px !important; }
 </style>
 <script>
 var editor_options 	 	=  		{};

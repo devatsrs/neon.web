@@ -138,7 +138,6 @@ $(document).ready(function(e) {
 	var SearchStr		=	'';
 	var sort_fld  		=   "{{$data['iSortCol_0']}}";
 	var sort_type 		=   "{{$data['sSortDir_0']}}";
-	var export_data		=   0;
     //ShowResult('next');
 
     $(window).on('load',function(){
@@ -352,17 +351,23 @@ $(document).ready(function(e) {
             modal.find('#agent').removeClass('hidden col-md-4').addClass('col-md-12');
             modal.find('.modal-dialog').addClass('modal-sm');
         }else if($(this).prop('id')=='bulk-close'){
-            modal.find('.modal-title').text('Bulk Close');
-            modal.find('#status').removeClass('hidden col-md-4').addClass('col-md-12');
+			
+            //modal.find('.modal-title').text('Bulk Close');
+            //modal.find('#status').removeClass('hidden col-md-4').addClass('col-md-12');
+			if(confirm("Are you sure you want to close selected tickets?"))
+			{
             modal.find('[name="Status"]').val('{{array_search(TicketfieldsValues::$Status_Closed,$status)}}').trigger('change');
-            modal.find('.modal-dialog').addClass('modal-sm');
+            //modal.find('.modal-dialog').addClass('modal-sm');
+			$('#BulkAction-form').submit();
+			 }
+			return false;
         }else if($(this).prop('id')=='bulk-delete'){
             var SelectedIDs = getselectedIDs();
             if (SelectedIDs.length == 0) {
                 toastr.error('Please select at least one Ticket.', "Error", toastr_opts);
                 return false;
             }else {
-                if(confirm("Are you sure you want to delete selected tickets")) {
+                if(confirm("Are you sure you want to delete selected tickets?")) {
                     var url = baseurl + '/tickets/bulkdelete';
                     $.post(url, {"SelectedIDs": SelectedIDs.join(",")}, function (response) {
                         if (response.status == 'success') {
@@ -423,6 +428,49 @@ $(document).ready(function(e) {
             self.parents('.control-label').siblings('.select2').val(0).trigger('change');
         }
     });
+	
+	
+	$(document).on('change','#BulkGroupChange',function(e){
+		   var changeGroupID =  	$(this).val(); 
+		   
+		  	if(changeGroupID==0){
+		   		 $('#BulkAgentChange option').remove();
+				 $('#BulkAgentChange').append($("<option></option>").attr("value", 0).text('Select'));
+				 $("#BulkAgentChange").trigger('change');
+				 return false;
+			}
+		   if(changeGroupID)
+		   {
+		   	 changeGroupID = parseInt(changeGroupID);
+			 var ajax_url  = baseurl+'/ticketgroups/'+changeGroupID+'/getgroupagents';
+			 $.ajax({
+					url: ajax_url,
+					type: 'POST',
+					dataType: 'json',
+					async :false,
+					cache: false,
+					contentType: false,
+					processData: false,
+					data:{s:1},
+					success: function(response) { console.log(response);
+					   if(response.status =='success')
+					   {			
+						   var $el = this;		   
+						   $('#BulkAgentChange option').remove();
+						   $.each(response.data, function(key,value) {							  
+							  $('#BulkAgentChange').append($("<option></option>").attr("value", value).text(key));
+							  $("#BulkAgentChange").val($("#BulkAgentChange option:first").val());
+							  $("#BulkAgentChange").trigger('change');
+							});					
+						}else{
+							toastr.error(response.message, "Error", toastr_opts);
+						}                   
+					}
+					});	
+		return false;		
+		   }
+		   
+	  });
 
 });
 </script> 
@@ -463,13 +511,13 @@ $(document).ready(function(e) {
                             <div id="group" class="col-md-4">
                                 <div class="form-group">
                                     <label for="field-1" class="control-label"><input type="checkbox"  name="GroupCheck"><span>Group</span></label>
-                                    {{Form::select('Group',$Groups,'',array("class"=>"select2 small"))}}
+                                    {{Form::select('Group',$Groups,'',array("class"=>"select2 small","id"=>"BulkGroupChange"))}}
                                 </div>
                             </div>
                             <div id="agent" class="col-md-4">
                                 <div class="form-group">
                                     <label for="field-3" class="control-label"><input type="checkbox"  name="AgentCheck"><span>Agent</span></label>
-                                    {{Form::select('Agent',$Agents,'',array("class"=>"select2 small"))}}
+                                    {{Form::select('Agent',array("0"=>"Select"),'',array("class"=>"select2 small","id"=>"BulkAgentChange"))}}
                                 </div>
                             </div>
                         </div>

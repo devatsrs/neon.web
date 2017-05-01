@@ -18,7 +18,9 @@ ALTER TABLE `tblInvoiceDetail`
 ALTER TABLE `tblInvoiceTemplate`
   ADD COLUMN `InvoiceTo` longtext NULL
   , ADD COLUMN `ServiceSplit` int(11) NULL DEFAULT '0'
-  , ADD COLUMN `UsageColumn` longtext NULL;  
+  , ADD COLUMN `UsageColumn` longtext NULL
+  , ADD COLUMN `GroupByService` INT NULL DEFAULT '0'
+  , ADD COLUMN `CDRType` INT(11) NULL DEFAULT '0';    
   
 DROP TABLE `tblUsageDaily`;
 
@@ -35,25 +37,39 @@ CREATE FUNCTION `FnGetInvoiceNumber`(
     DETERMINISTIC
     COMMENT 'Return Next Invoice Number'
 BEGIN
-DECLARE v_LastInv VARCHAR(50);
-DECLARE v_FoundVal INT(11);
-DECLARE v_InvoiceTemplateID INT(11);
+	DECLARE v_LastInv VARCHAR(50);
+	DECLARE v_FoundVal INT(11);
+	DECLARE v_InvoiceTemplateID INT(11);
 
-SET v_InvoiceTemplateID = CASE WHEN p_BillingClassID=0 THEN (SELECT b.InvoiceTemplateID FROM Ratemanagement3.tblAccountBilling ab INNER JOIN Ratemanagement3.tblBillingClass b ON b.BillingClassID = ab.BillingClassID WHERE AccountID = p_account_id AND ServiceID = 0 ) ELSE (SELECT b.InvoiceTemplateID FROM  Ratemanagement3.tblBillingClass b WHERE b.BillingClassID = p_BillingClassID) END;
+	SET v_InvoiceTemplateID =
+	CASE WHEN p_BillingClassID=0
+	THEN (
+		SELECT 
+			b.InvoiceTemplateID 
+		FROM Ratemanagement3.tblAccountBilling ab
+		INNER JOIN Ratemanagement3.tblBillingClass b
+			ON b.BillingClassID = ab.BillingClassID
+		WHERE AccountID = p_AccountID AND ServiceID = 0
+	)
+	ELSE (
+		SELECT b.InvoiceTemplateID
+		FROM  Ratemanagement3.tblBillingClass b
+		WHERE b.BillingClassID = p_BillingClassID
+	) END;
 
-SELECT LastInvoiceNumber INTO v_LastInv FROM tblInvoiceTemplate WHERE InvoiceTemplateID =v_InvoiceTemplateID;
+	SELECT IF(LastInvoiceNumber=0,InvoiceStartNumber,LastInvoiceNumber) INTO v_LastInv FROM tblInvoiceTemplate WHERE InvoiceTemplateID =v_InvoiceTemplateID;
 
--- select count(*) as total_res from tblInvoice where FnGetIntegerString(InvoiceNumber) = '64123';
+	-- select count(*) as total_res from tblInvoice where FnGetIntegerString(InvoiceNumber) = '64123';
 
-set v_FoundVal = (select count(*) as total_res from tblInvoice where InvoiceNumber=v_LastInv);
-IF v_FoundVal>=1 then
-WHILE v_FoundVal>0 DO
-	set v_LastInv = v_LastInv+1;
-	set v_FoundVal = (select count(*) as total_res from tblInvoice where InvoiceNumber=v_LastInv);
-END WHILE;
-END IF;
+	SET v_FoundVal = (SELECT COUNT(*) AS total_res FROM tblInvoice WHERE CompanyID = p_CompanyID AND InvoiceNumber=v_LastInv);
+	IF v_FoundVal>=1 THEN
+	WHILE v_FoundVal>0 DO
+		SET v_LastInv = v_LastInv+1;
+		SET v_FoundVal = (SELECT COUNT(*) AS total_res FROM tblInvoice WHERE CompanyID = p_CompanyID AND InvoiceNumber=v_LastInv);
+	END WHILE;
+	END IF;
 
-return v_LastInv;
+RETURN v_LastInv;
 END|
 DELIMITER ;
 
@@ -67,7 +83,7 @@ BEGIN
 
 DECLARE v_Round_ int;
 
-SELECT cs.Value INTO v_Round_ from Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID AND cs.Value <> '';
+SELECT cs.Value INTO v_Round_ FROM Ratemanagement3.tblCompanySetting cs where cs.`Key` = 'RoundChargesAmount' AND cs.CompanyID = p_CompanyID AND cs.Value <> '';
 
 SET v_Round_ = IFNULL(v_Round_,2);
 
@@ -470,7 +486,7 @@ INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `I
  	select te.CompanyID,
 	 		 te.AccountID,
 			 te.Address,
-			 FNGetInvoiceNumber(te.AccountID,0) as InvoiceNumber,
+			 FNGetInvoiceNumber(p_CompanyID,te.AccountID,0) as InvoiceNumber,
 			 DATE(NOW()) as IssueDate,
 			 te.CurrencyID,
 			 te.PONumber,
@@ -510,7 +526,7 @@ INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `I
 			AND (p_EstimateStatus = '' OR ( p_EstimateStatus != '' AND te.EstimateStatus = p_EstimateStatus)) );
 			
 
- select 	InvoiceID from tblInvoice inv
+ select 	InvoiceID FROM tblInvoice inv
 INNER JOIN tblEstimate ti ON  inv.EstimateID =  ti.EstimateID
 where (p_convert_all=0 and ti.EstimateID = p_EstimateID)
 		OR
@@ -575,7 +591,7 @@ where
 		);
 		
 insert into tblInvoiceLog (InvoiceID,Note,InvoiceLogStatus,created_at)
-select inv.InvoiceID,concat(note_text, CONCAT(LTRIM(RTRIM(IFNULL(it.EstimateNumberPrefix,''))), LTRIM(RTRIM(ti.EstimateNumber)))) as Note,1 as InvoiceLogStatus,NOW() as created_at  from tblInvoice inv
+select inv.InvoiceID,concat(note_text, CONCAT(LTRIM(RTRIM(IFNULL(it.EstimateNumberPrefix,''))), LTRIM(RTRIM(ti.EstimateNumber)))) as Note,1 as InvoiceLogStatus,NOW() as created_at  FROM tblInvoice inv
 INNER JOIN tblEstimate ti ON  inv.EstimateID =  ti.EstimateID
 INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
 INNER JOIN Ratemanagement3.tblAccountBilling ab ON ab.AccountID = ac.AccountID AND ab.ServiceID = 0
@@ -615,6 +631,244 @@ where
 END|
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `prc_CreateInvoiceFromRecurringInvoice`;
+DELIMITER |
+CREATE PROCEDURE `prc_CreateInvoiceFromRecurringInvoice`(
+	IN `p_CompanyID` INT,
+	IN `p_InvoiceIDs` VARCHAR(200),
+	IN `p_ModifiedBy` VARCHAR(50),
+	IN `p_LogStatus` INT,
+	IN `p_ProsessID` VARCHAR(50),
+	IN `p_CurrentDate` DATETIME
+)
+    COMMENT 'test'
+BEGIN
+	DECLARE v_Note VARCHAR(100);
+	DECLARE v_Check int;
+	DECLARE v_SkippedWIthDate VARCHAR(200);
+	DECLARE v_SkippedWIthOccurence VARCHAR(200);	
+	DECLARE v_Message VARCHAR(200);
+	DECLARE v_InvoiceID int;
+    
+   SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SET v_Note = CONCAT('Recurring Invoice Generated by ',p_ModifiedBy,' ');
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_Invoices_(
+		CompanyID int,
+		Title varchar(50),
+		AccountID int,
+		Address varchar(500),
+		InvoiceNumber varchar(30),
+		IssueDate datetime,
+		CurrencyID int,
+		PONumber varchar(30),
+		InvoiceType int,
+		SubTotal decimal(18,6),
+		TotalDiscount decimal(18,6),
+		TaxRateID int,
+		TotalTax decimal(18,6),
+		RecurringInvoiceTotal decimal(18,6),
+		GrandTotal decimal(18,6),
+		Description varchar(100),
+		Attachment varchar(200),
+		Note  longtext,
+		Terms longtext,
+		InvoiceStatus varchar(50),
+		PDF varchar(500),
+		UsagePath varchar(500),
+		PreviousBalance decimal(18,6),
+		TotalDue decimal(18,6),
+		Payment decimal(18,6),
+		CreatedBy varchar(50),
+		ModifiedBy varchar(50),
+		created_at datetime,
+		updated_at datetime,
+		ItemInvoice tinyint(3),
+		FooterTerm longtext,
+		RecurringInvoiceID int,
+		ProsessID varchar(50),
+		NextInvoiceDate datetime,
+		Occurrence int,
+		BillingClassID int
+	);
+	
+	INSERT INTO tmp_Invoices_ /*insert invoices in temp table on the bases of filter*/
+ 	SELECT rinv.CompanyID,
+ 				rinv.Title,
+	 		 rinv.AccountID,
+			 rinv.Address,
+			 null as InvoiceNumber,
+			 DATE(p_CurrentDate) as IssueDate,
+			 rinv.CurrencyID,
+			 '' as PONumber,
+			 1 as InvoiceType,
+			 rinv.SubTotal,
+			 rinv.TotalDiscount,
+			 rinv.TaxRateID,
+			 rinv.TotalTax,
+			 rinv.RecurringInvoiceTotal,
+			 rinv.GrandTotal,
+			 rinv.Description,
+			 rinv.Attachment,
+			 rinv.Note,
+			 rinv.Terms,
+			 'awaiting' as InvoiceStatus,
+			 rinv.PDF,
+			 '' as UsagePath, 
+			 0 as PreviousBalance,
+			 0 as TotalDue,
+			 0 as Payment,
+			 rinv.CreatedBy,
+			 '' as ModifiedBy,
+			p_CurrentDate as created_at,
+			p_CurrentDate as updated_at,
+			1 as ItemInvoice,
+			rinv.FooterTerm,
+			rinv.RecurringInvoiceID,
+			p_ProsessID,
+			rinv.NextInvoiceDate,
+			rinv.Occurrence,
+			rinv.BillingClassID
+		FROM tblRecurringInvoice rinv		
+		WHERE rinv.CompanyID = p_CompanyID
+		AND rinv.RecurringInvoiceID=p_InvoiceIDs;
+			 
+		/*Fill error message for recurring invoices with date check*/
+     SELECT GROUP_CONCAT(CONCAT(temp.Title,': Skipped with INVOICE DATE ',DATE(temp.NextInvoiceDate)) separator '\n\r') INTO v_SkippedWIthDate
+	  FROM tmp_Invoices_ temp
+	  WHERE (DATE(temp.NextInvoiceDate) > DATE(p_CurrentDate));
+	  
+	  /*Fill error message for recurring invoices with occurrence check*/
+	  SELECT GROUP_CONCAT(CONCAT(temp.Title,': Skipped with exceding limit Occurrence ',(SELECT COUNT(InvoiceID) FROM tblInvoice WHERE InvoiceStatus!='cancel' AND RecurringInvoiceID=temp.RecurringInvoiceID)) separator '\n\r') INTO v_SkippedWIthOccurence
+	  FROM tmp_Invoices_ temp
+	  	WHERE (temp.Occurrence > 0 
+		  	AND (SELECT COUNT(InvoiceID) FROM tblInvoice WHERE InvoiceStatus!='cancel' AND RecurringInvoiceID=temp.RecurringInvoiceID) >= temp.Occurrence);
+     
+     /*return message either fill or empty*/
+     SELECT CASE 
+	  				WHEN ((v_SkippedWIthDate IS NOT NULL) OR (v_SkippedWIthOccurence IS NOT NULL)) 
+					THEN CONCAT(IFNULL(v_SkippedWIthDate,''),'\n\r',IFNULL(v_SkippedWIthOccurence,'')) ELSE '' 
+				END as message INTO v_Message;
+
+	IF(v_Message="") THEN
+        /*insert new invoices and its related detail, texes and updating logs.*/
+
+		INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `IssueDate`, `CurrencyID`, `PONumber`, `InvoiceType`, `SubTotal`, `TotalDiscount`, `TaxRateID`, `TotalTax`, `InvoiceTotal`, `GrandTotal`, `Description`, `Attachment`, `Note`, `Terms`, `InvoiceStatus`, `PDF`, `UsagePath`, `PreviousBalance`, `TotalDue`, `Payment`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `ItemInvoice`, `FooterTerm`,RecurringInvoiceID,ProcessID)
+	 	SELECT 
+		 rinv.CompanyID,
+		 rinv.AccountID,
+		 rinv.Address,
+		 FNGetInvoiceNumber(p_CompanyID,rinv.AccountID,rinv.BillingClassID) as InvoiceNumber,
+		 DATE(p_CurrentDate) as IssueDate,
+		 rinv.CurrencyID,
+		 '' as PONumber,
+		 1 as InvoiceType,
+		 rinv.SubTotal,
+		 rinv.TotalDiscount,
+		 rinv.TaxRateID,
+		 rinv.TotalTax,
+		 rinv.RecurringInvoiceTotal,
+		 rinv.GrandTotal,
+		 rinv.Description,
+		 rinv.Attachment,
+		 rinv.Note,
+		 rinv.Terms,
+		 'awaiting' as InvoiceStatus,
+		 rinv.PDF,
+		 '' as UsagePath, 
+		 0 as PreviousBalance,
+		 0 as TotalDue,
+		 0 as Payment,
+		 rinv.CreatedBy,
+		 '' as ModifiedBy,
+		p_CurrentDate as created_at,
+		p_CurrentDate as updated_at,
+		1 as ItemInvoice,
+		rinv.FooterTerm,
+		rinv.RecurringInvoiceID,
+		p_ProsessID
+		FROM tmp_Invoices_ rinv;
+		
+		SET v_InvoiceID = LAST_INSERT_ID();
+
+		INSERT INTO tblInvoiceDetail ( `InvoiceID`, `ProductID`, `Description`, `StartDate`, `EndDate`, `Price`, `Qty`, `Discount`, `TaxRateID`,`TaxRateID2`, `TaxAmount`, `LineTotal`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `ProductType`)
+			select 
+				inv.InvoiceID,
+				rinvd.ProductID,
+				rinvd.Description,
+				null as StartDate,
+				null as EndDate,
+				rinvd.Price,
+				rinvd.Qty,
+				rinvd.Discount,
+				rinvd.TaxRateID,
+				rinvd.TaxRateID2,
+				rinvd.TaxAmount,
+				rinvd.LineTotal,
+				rinvd.CreatedBy,
+				rinvd.ModifiedBy,	
+				rinvd.created_at,	
+				p_CurrentDate as updated_at,
+				rinvd.ProductType	
+				FROM tblRecurringInvoiceDetail rinvd
+				INNER JOIN tblInvoice inv ON  inv.RecurringInvoiceID = rinvd.RecurringInvoiceID
+				INNER JOIN tblRecurringInvoice rinv ON  rinv.RecurringInvoiceID = rinvd.RecurringInvoiceID
+				WHERE rinv.CompanyID = p_CompanyID
+				AND inv.InvoiceID = v_InvoiceID;
+				
+		INSERT INTO tblInvoiceTaxRate ( `InvoiceID`, `TaxRateID`, `TaxAmount`,`InvoiceTaxType`,`Title`, `CreatedBy`,`ModifiedBy`)
+		SELECT 
+			inv.InvoiceID,
+			rinvt.TaxRateID,
+			rinvt.TaxAmount,
+			rinvt.RecurringInvoiceTaxType,
+			rinvt.Title,
+			rinvt.CreatedBy,
+			rinvt.ModifiedBy
+		FROM tblRecurringInvoiceTaxRate rinvt
+		INNER JOIN tblInvoice inv ON  inv.RecurringInvoiceID = rinvt.RecurringInvoiceID
+		INNER JOIN tblRecurringInvoice rinv ON  rinv.RecurringInvoiceID = rinvt.RecurringInvoiceID
+		WHERE rinv.CompanyID = p_CompanyID
+		AND inv.InvoiceID = v_InvoiceID;
+			
+		INSERT INTO tblInvoiceLog (InvoiceID,Note,InvoiceLogStatus,created_at)
+		SELECT inv.InvoiceID,CONCAT(v_Note, CONCAT(LTRIM(RTRIM(IFNULL(tblInvoiceTemplate.InvoiceNumberPrefix,''))), LTRIM(RTRIM(inv.InvoiceNumber)))) as Note,1 as InvoiceLogStatus,p_CurrentDate as created_at  
+		FROM tblInvoice inv
+		INNER JOIN tblRecurringInvoice rinv ON  inv.RecurringInvoiceID =  rinv.RecurringInvoiceID
+		INNER JOIN Ratemanagement3.tblBillingClass b ON rinv.BillingClassID = b.BillingClassID
+		INNER JOIN tblInvoiceTemplate ON b.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID		
+		WHERE rinv.CompanyID = p_CompanyID
+		AND inv.InvoiceID = v_InvoiceID;
+			
+			/*add log for recurring invoice*/
+		INSERT INTO tblRecurringInvoiceLog (RecurringInvoiceID,Note,RecurringInvoiceLogStatus,created_at)
+		SELECT inv.RecurringInvoiceID,CONCAT(v_Note, CONCAT(LTRIM(RTRIM(IFNULL(tblInvoiceTemplate.InvoiceNumberPrefix,''))), LTRIM(RTRIM(inv.InvoiceNumber)))) as Note,p_LogStatus as InvoiceLogStatus,p_CurrentDate as created_at  
+		FROM tblInvoice inv
+		INNER JOIN tblRecurringInvoice rinv ON  inv.RecurringInvoiceID =  rinv.RecurringInvoiceID
+		INNER JOIN Ratemanagement3.tblBillingClass b ON rinv.BillingClassID = b.BillingClassID
+		INNER JOIN tblInvoiceTemplate ON b.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
+		WHERE rinv.CompanyID = p_CompanyID
+		AND inv.InvoiceID = v_InvoiceID;
+		
+		
+		/*update full invoice number related to curring processID*/
+		UPDATE tblInvoice inv 
+		INNER JOIN tblRecurringInvoice rinv ON  inv.RecurringInvoiceID =  rinv.RecurringInvoiceID
+		INNER JOIN Ratemanagement3.tblBillingClass b ON rinv.BillingClassID = b.BillingClassID
+		INNER JOIN tblInvoiceTemplate ON b.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
+		SET FullInvoiceNumber = IF(inv.InvoiceType=1,CONCAT(ltrim(rtrim(IFNULL(tblInvoiceTemplate.InvoiceNumberPrefix,''))), ltrim(rtrim(inv.InvoiceNumber))),ltrim(rtrim(inv.InvoiceNumber)))
+		WHERE inv.CompanyID = p_CompanyID 
+		AND inv.InvoiceID = v_InvoiceID;
+	
+	END IF;
+	
+	SELECT v_Message as Message, IFNULL(v_InvoiceID,0) as InvoiceID;
+			
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END|
+DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_CreateRerateLog`;
 
@@ -1178,7 +1432,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
-	SELECT cr.Symbol INTO v_CurrencyCode_ from Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	SELECT cr.Symbol INTO v_CurrencyCode_ FROM Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 	
 	IF p_Type = 1  -- Payment Recived
@@ -1717,7 +1971,7 @@ BEGIN
 	        
  	 SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
  	 SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
-	 SELECT cr.Symbol INTO v_CurrencyCode_ from Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	 SELECT cr.Symbol INTO v_CurrencyCode_ FROM Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
     IF p_isExport = 0
     THEN
         SELECT 
@@ -1868,7 +2122,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	SELECT cr.Symbol INTO v_CurrencyCode_ from Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	SELECT cr.Symbol INTO v_CurrencyCode_ FROM Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_;
@@ -2100,7 +2354,7 @@ BEGIN
 				AND (p_IsOverdue = 0 
 					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(b.PaymentDueInDays,0)
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
-							AND((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) )>0)
+							AND((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) FROM tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) )>0)
 						)
 				);
 		END IF; 

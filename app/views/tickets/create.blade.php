@@ -278,8 +278,13 @@ var required_flds	  =          '{{json_encode($required)}}';
 			}
       });
 	  
-	  $(document).on('change','#{{$htmlgroupID}}',function(e){
-		   var changeGroupID =  	$(this).val();
+	  $(document).on('change','#{{$htmlgroupID}}',function(e){ alert("here");
+		   var changeGroupID =  	$(this).val(); 
+		   
+		  	if(changeGroupID==0){
+		   		 $('#{{$htmlagentID}} option').remove();
+				 return false;
+			}
 		   if(changeGroupID)
 		   {
 		   	 changeGroupID = parseInt(changeGroupID);
@@ -293,24 +298,26 @@ var required_flds	  =          '{{json_encode($required)}}';
 					contentType: false,
 					processData: false,
 					data:{s:1},
-					success: function(response) {	  			
+					success: function(response) { console.log(response);
+					   if(response.status =='success')
+					   {			
 						   var $el = this;		   
-						   console.log(response); 
-						  // $('#{{$htmlagentID}} option:gt(0)').remove();
-						  $('#{{$htmlagentID}} option').remove(); 
-						  var count_agents  = 0;
-						   $.each(response, function(key,value) {							  
+						   console.log(response.data);
+						   //$('#{{$htmlagentID}} option:gt(0)').remove();
+						   $('#{{$htmlagentID}} option').remove();
+						   $.each(response.data, function(key,value) {							  
 							  $('#{{$htmlagentID}}').append($("<option></option>").attr("value", value).text(key));
-							  count_agents++;
 							});					
-							if(count_agents==2){$('#{{$htmlagentID}} option').eq(1).attr("selected","selected"); }
-							$('#{{$htmlagentID}}').trigger('change');
+						}else{
+							toastr.error(response.message, "Error", toastr_opts);
+						}                   
 					}
 					});	
 		return false;		
 		   }
 		   
 	  });
+	  
 	  $(document).on('submit','#form-tickets-add',function(e){		 
 		 $('.btn').attr('disabled', 'disabled');	 
 		 $('.btn').button('loading');
@@ -477,6 +484,8 @@ $(document).on("click",".del_attachment",function(ee){
 				  	$( this ).val(0);
 				  }
             });
+			
+			$('#{{$htmlgroupID}}').change();
     });
 </script> 
 <style>
