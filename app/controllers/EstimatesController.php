@@ -1147,8 +1147,7 @@ class EstimatesController extends \BaseController {
 						$pdf_path = 	Invoice::generate_pdf($inv_id);
 						Invoice::where(["InvoiceID" =>$inv_id])->update(["PDF" => $pdf_path]);
                         $BillingClassID = AccountBilling::getBillingClassID($Estimate_data->AccountID);
-                        $billingClass = BillingClass::where('BillingClassID',$BillingClassID)->first();
-                        $InvoiceTemplateID = $billingClass->InvoiceTemplateID;
+                        $InvoiceTemplateID = BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
                         $Invoice = Invoice::find($inv_id);
                         $InvoiceNumber = $Invoice->InvoiceNumber;
                         InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $InvoiceNumber));
@@ -1206,8 +1205,7 @@ class EstimatesController extends \BaseController {
 					$pdf_path = Invoice::generate_pdf($inv_id);
 				  	Invoice::where(["InvoiceID" =>$inv_id])->update(["PDF" => $pdf_path]);
                     $BillingClassID = AccountBilling::getBillingClassID($data['AccountID']);
-                    $billingClass = BillingClass::where('BillingClassID',$BillingClassID)->first();
-                    $InvoiceTemplateID = $billingClass->InvoiceTemplateID;
+                    $InvoiceTemplateID = BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
                     $Invoice = Invoice::find($inv_id);
                     $InvoiceNumber = $Invoice->InvoiceNumber;
                     InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $InvoiceNumber));
@@ -1227,8 +1225,7 @@ class EstimatesController extends \BaseController {
 						$pdf_path = Invoice::generate_pdf($inv_id);
 						Invoice::where(["InvoiceID" =>$inv_id])->update(["PDF" => $pdf_path]);
                         $BillingClassID = AccountBilling::getBillingClassID($data['AccountID']);
-                        $billingClass = BillingClass::where('BillingClassID',$BillingClassID)->first();
-                        $InvoiceTemplateID = $billingClass->InvoiceTemplateID;
+                        $InvoiceTemplateID = BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
                         $Invoice = Invoice::find($inv_id);
                         $InvoiceNumber = $Invoice->InvoiceNumber;
                         InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $InvoiceNumber));
