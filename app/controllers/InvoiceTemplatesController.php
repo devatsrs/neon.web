@@ -182,6 +182,7 @@ class InvoiceTemplatesController extends \BaseController {
         $data['ShowBillingPeriod'] = isset($data['ShowBillingPeriod']) ? 1 : 0;
         $data['GroupByService'] = isset($data['GroupByService']) ? 1 : 0;
         unset($data['InvoiceTemplateID']);
+        unset($data['EditPage']);
         $rules = array(
             'CompanyID' => 'required',
             'Name' => 'required|unique:tblInvoiceTemplate,Name,NULL,InvoiceTemplateID,CompanyID,'.$data['CompanyID'],
