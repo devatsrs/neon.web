@@ -540,6 +540,11 @@ class RecurringInvoiceController extends \BaseController {
                         return Response::json(array("status" => "failed", "message" => 'Failed to generate Invoice PDF File'));
                     } else {
                         Invoice::where(['InvoiceID'=>$invoiceID])->update(["PDF" => $pdf_path]);
+                        $billingClass = BillingClass::where('BillingClassID',$recurringInvoice->BillingClassID)->first();
+                        $InvoiceTemplateID = $billingClass->InvoiceTemplateID;
+                        $Invoice = Invoice::find($invoiceID);
+                        $InvoiceNumber = $Invoice->InvoiceNumber;
+                        InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $InvoiceNumber));
                     }
                 }
                 return Response::json(array("status" => "success", "message" => '', 'invoiceID' => $invoiceID));
