@@ -542,8 +542,7 @@ class RecurringInvoiceController extends \BaseController {
                         Invoice::where(['InvoiceID'=>$invoiceID])->update(["PDF" => $pdf_path]);
                         $InvoiceTemplateID = BillingClass::where('BillingClassID',$recurringInvoice->BillingClassID)->pluck('InvoiceTemplateID');
                         $Invoice = Invoice::find($invoiceID);
-                        $InvoiceNumber = $Invoice->InvoiceNumber;
-                        InvoiceTemplate::find($InvoiceTemplateID)->update(array("LastInvoiceNumber" => $InvoiceNumber));
+                        InvoiceTemplate::where(array('InvoiceTemplateID',$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
                     }
                 }
                 return Response::json(array("status" => "success", "message" => '', 'invoiceID' => $invoiceID));
