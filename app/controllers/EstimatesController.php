@@ -1149,7 +1149,7 @@ class EstimatesController extends \BaseController {
                         $Invoice = Invoice::find($inv_id);
                         $BillingClassID = AccountBilling::getBillingClassID($Invoice->AccountID);
                         $InvoiceTemplateID = BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
-                        InvoiceTemplate::where(array('InvoiceTemplateID',$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
+                        InvoiceTemplate::where(array('InvoiceTemplateID'=>$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
 		}
 			
 		return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated"));			
@@ -1207,7 +1207,7 @@ class EstimatesController extends \BaseController {
                     $Invoice = Invoice::find($inv_id);
                     $BillingClassID = AccountBilling::getBillingClassID($Invoice->AccountID);
                     $InvoiceTemplateID = BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
-                    InvoiceTemplate::where(array('InvoiceTemplateID',$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
+                    InvoiceTemplate::where(array('InvoiceTemplateID'=>$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
 				}				
 			}
 			else
@@ -1226,7 +1226,7 @@ class EstimatesController extends \BaseController {
                         $Invoice = Invoice::find($inv_id);
                         $BillingClassID = AccountBilling::getBillingClassID($Invoice->AccountID);
                         $InvoiceTemplateID = BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
-                        InvoiceTemplate::where(array('InvoiceTemplateID',$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
+                        InvoiceTemplate::where(array('InvoiceTemplateID'=>$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
 					}
 				}
 				
