@@ -130,7 +130,7 @@
                                  }
                                  action += ' <a href="' + service_edit_url.replace("{id}",full[2]) +'" class="edit-service btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></a>';
                                 <?php } ?>
-                                <?php if(User::checkCategoryPermission('AccountService','Edit')) { ?>
+                                <?php if(User::checkCategoryPermission('AccountService','Delete')) { ?>
                                     action += ' <a href="' + service_delete_url.replace("{id}",full[2]) +'" class="delete-service btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
                                 <?php } ?>
                                  return action;

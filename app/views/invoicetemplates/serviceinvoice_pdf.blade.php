@@ -56,24 +56,22 @@
                 <td class="desc">$1,000.00</td>
 				<td class="total">$3,200.00</td>
 			</tr>
+            @if($InvoiceTemplate->GroupByService==1)
 			<tr>
-                @if($InvoiceTemplate->GroupByService==1)
 				<td class="desc">Service - 2</td>
-                @endif
                 <td class="desc">$1,200.00</td>
                 <td class="desc">$1,000.00</td>
                 <td class="desc">$1,000.00</td>
 				<td class="total">$3,200.00</td>
 			</tr>
 			<tr>
-                @if($InvoiceTemplate->GroupByService==1)
 				<td class="desc">Other Service</td>
-                @endif
                 <td class="desc">$400.00</td>
                 <td class="desc">$400.00</td>
                 <td class="desc">$400.00</td>
 				<td class="total">$1,200.00</td>
 			</tr>
+            @endif
 			</tbody>
 			<tfoot>
 			<tr>
