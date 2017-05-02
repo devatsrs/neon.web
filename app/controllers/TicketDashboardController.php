@@ -3,7 +3,7 @@
 class TicketDashboardController extends \BaseController {
 	
 	public function __construct(){
-		parent::IsValidLicense();
+		parent::validateTicketLicence();
   	}
 
     public function ticketSummaryWidget(){
