@@ -1,6 +1,10 @@
 <?php
 
 class TicketDashboardController extends \BaseController {
+	
+	public function __construct(){
+		parent::IsValidLicense();
+  	}
 
     public function ticketSummaryWidget(){
         $data['AccessPermission'] = TicketsTable::GetTicketAccessPermission();

@@ -3,6 +3,7 @@
 class TicketsSlaController extends \BaseController {
 
 	public function __construct(){
+		parent::IsValidLicense();
   	}
 
 	 public function ajax_datagrid($type='') { 

@@ -17,6 +17,8 @@ class BaseController extends Controller {
                 Config::set('app.timezone',$Timezone);
             }
         }
+		
+		
 
         $route = Route::currentRouteAction();
         if(!Auth::guest() && Session::get("customer") != 1){
@@ -73,4 +75,12 @@ class BaseController extends Controller {
         return  array('get_users_dropdown','process_redirect','doforgot_password','doreset_password','doRegistration','loadDashboardJobsDropDown','loadDashboardMsgsDropDown','cview','cdownloadUsageFile','display_invoice','download_invoice','invoice_payment','pay_invoice','invoice_thanks','search_customer_grid','edit_profile','update_profile','dologout','/Wysihtml5/getfiles','/Wysihtml5/file_upload','home','activate_support_email');
 
     }
+	
+	 public function IsValidLicense(){		
+	 	$license =   Tickets::CheckTicketLicense(); 
+		if(!$license){
+			Redirect::to('/')->send();
+		}
+		return $license;
+	 }
 }
