@@ -34,7 +34,6 @@
         "Barryvdh\\DomPDF\\ServiceProvider",
         "Intervention\\Image\\ImageServiceProvider",
         "Jenssegers\\Agent\\AgentServiceProvider",
-        "PragmaRX\\Tracker\\Vendor\\Laravel\\ServiceProvider",
         "Cartalyst\\Stripe\\Laravel\\StripeServiceProvider"
     ],
     "eager": [
@@ -52,7 +51,6 @@
         "Nathanmac\\GUID\\GUIDServiceProvider",
         "Intervention\\Image\\ImageServiceProvider",
         "Jenssegers\\Agent\\AgentServiceProvider",
-        "PragmaRX\\Tracker\\Vendor\\Laravel\\ServiceProvider",
         "Cartalyst\\Stripe\\Laravel\\StripeServiceProvider"
     ],
     "deferred": {

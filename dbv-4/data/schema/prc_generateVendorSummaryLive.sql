@@ -17,7 +17,6 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	CALL fnGetCountry();
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetVendorUsageForSummaryLive(p_CompanyID, p_StartDate, p_EndDate);
 
@@ -50,12 +49,6 @@ BEGIN
 	SET tmp_VendorUsageSummaryLive.CountryID =code.CountryID
 	WHERE tmp_VendorUsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
 
-	UPDATE tmp_VendorUsageSummaryLive
-	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_VendorUsageSummaryLive 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
-	ON tmp_VendorUsageSummaryLive.AreaPrefix = TBL.AreaPrefix
-	SET tmp_VendorUsageSummaryLive.CountryID =TBL.CountryID 
-	WHERE tmp_VendorUsageSummaryLive.CompanyID = p_CompanyID AND tmp_VendorUsageSummaryLive.CountryID IS NULL ;
-
 	DELETE FROM tmp_SummaryVendorHeaderLive WHERE CompanyID = p_CompanyID;
 
 	INSERT INTO tmp_SummaryVendorHeaderLive (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
@@ -87,9 +80,9 @@ BEGIN
 	AND us.CompanyID = sh.CompanyID
 	AND us.AccountID = sh.AccountID
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
-	AND us.ServiceID = sh.ServiceID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
+	AND us.ServiceID = sh.ServiceID
 	WHERE sh.SummaryVendorHeaderID IS NULL
 	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
 

@@ -38,7 +38,8 @@
 				$required[] =  array("id"=>$id,"title"=>$TicketfieldsData->FieldName);
 			?>
             <div class="col-sm-6">
-            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control typeahead formfld" spellcheck="false" dir="auto"  data-local="{{$AllEmails}}"   placeholder="{{$TicketfieldsData->AgentLabel}}" />           
+            <input type="text" name='Ticket[{{$TicketfieldsData->FieldType}}]' required id="{{$id}}" class="form-control requestersearch typeahead formfld" spellcheck="false" dir="auto"     placeholder="{{$TicketfieldsData->AgentLabel}}" />           
+            <span><a href="javascript:;" class="emailoptiontxt" onclick="$(this).hide(); $('#reqcc').removeClass('hidden'); $('#cc').focus();">CC</a> </span>
             </div>
             <div class="col-sm-3 dropdown" style="padding:0;">
               <button title="Add new requester" type="button" class="btn btn-primary btn-xs  dropdown-toggle" data-toggle="dropdown">+</button>
@@ -55,6 +56,15 @@
             </div>
             <?php } ?>
           </div>
+          <?php if($TicketfieldsData->FieldType == 'default_requester')
+			 {  ?>
+                <div id="reqcc" class="form-group hidden">
+          <label for="cc" class="col-sm-3 control-label" for="cc">CC</label>
+          <div class="col-sm-9">
+          <input type="text" class="form-control useremails" id="cc" name="Ticket[cc]" value="" tabindex="2" />
+          </div>
+        </div>        
+        <?php } ?>
           <?php
 				 }
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXTAREA)
@@ -208,10 +218,8 @@
   <input id="info1" type="hidden" name="attachmentsinfo" />
   <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
 </form>
-<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css')}}">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script type="text/javascript">
+var editor_options 	 	=  		{};
 var file_count 		  =  		0;
 var allow_extensions  = 		{{$response_extensions}};
 var emailFileList	  =  		new Array();
@@ -220,6 +228,25 @@ var max_file_size	  =	        '{{str_replace("M","",$max_file_size)}}';
 var required_flds	  =          '{{json_encode($required)}}';
 
     jQuery(document).ready(function($) {
+		 $('.useremails').select2({
+            tags:{{$AllEmails}}
+        });
+		
+		
+		
+			$('.requestersearch').select2({
+    tags: true,
+	 tags:{{$AllEmails}},
+    tokenSeparators: [','],
+  // max emails is 1
+    maximumSelectionSize:1,
+
+    // override message for max tags
+    formatSelectionTooBig: function (limit) {
+        return "Maximum "+limit+" email is allowed";
+    }
+});
+		
 		
 		function validate_form()
 		{
@@ -251,8 +278,13 @@ var required_flds	  =          '{{json_encode($required)}}';
 			}
       });
 	  
-	  $(document).on('change','#{{$htmlgroupID}}',function(e){
-		   var changeGroupID =  	$(this).val();
+	  $(document).on('change','#{{$htmlgroupID}}',function(e){ alert("here");
+		   var changeGroupID =  	$(this).val(); 
+		   
+		  	if(changeGroupID==0){
+		   		 $('#{{$htmlagentID}} option').remove();
+				 return false;
+			}
 		   if(changeGroupID)
 		   {
 		   	 changeGroupID = parseInt(changeGroupID);
@@ -266,24 +298,26 @@ var required_flds	  =          '{{json_encode($required)}}';
 					contentType: false,
 					processData: false,
 					data:{s:1},
-					success: function(response) {	  			
+					success: function(response) { console.log(response);
+					   if(response.status =='success')
+					   {			
 						   var $el = this;		   
-						   console.log(response); 
-						  // $('#{{$htmlagentID}} option:gt(0)').remove();
-						  $('#{{$htmlagentID}} option').remove(); 
-						  var count_agents  = 0;
-						   $.each(response, function(key,value) {							  
+						   console.log(response.data);
+						   //$('#{{$htmlagentID}} option:gt(0)').remove();
+						   $('#{{$htmlagentID}} option').remove();
+						   $.each(response.data, function(key,value) {							  
 							  $('#{{$htmlagentID}}').append($("<option></option>").attr("value", value).text(key));
-							  count_agents++;
 							});					
-							if(count_agents==2){$('#{{$htmlagentID}} option').eq(1).attr("selected","selected"); }
-							$('#{{$htmlagentID}}').trigger('change');
+						}else{
+							toastr.error(response.message, "Error", toastr_opts);
+						}                   
 					}
 					});	
 		return false;		
 		   }
 		   
 	  });
+	  
 	  $(document).on('submit','#form-tickets-add',function(e){		 
 		 $('.btn').attr('disabled', 'disabled');	 
 		 $('.btn').button('loading');
@@ -313,23 +347,9 @@ var required_flds	  =          '{{json_encode($required)}}';
 				}
 				});	
 		return false;		
-    });	
-		
-		$('.wysihtml5box').wysihtml5({
-						"font-styles": true,
-						"leadoptions":true,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});
-				
+    });
+	show_summernote($('.wysihtml5box'),editor_options);
+
 				
 				$('.unknownemailaction').click(function(e) {
 				var unknown_action_type 	= 	$(this).attr('unknown_action_type');			
@@ -464,6 +484,8 @@ $(document).on("click",".del_attachment",function(ee){
 				  	$( this ).val(0);
 				  }
             });
+			
+			$('#{{$htmlgroupID}}').change();
     });
 </script> 
 <style>

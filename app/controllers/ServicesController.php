@@ -12,12 +12,36 @@ class ServicesController extends BaseController {
 
     public function ajax_datagrid(){
 
+       $data = Input::all();
+
+       $companyID = User::get_companyID();
+       $data['ServiceStatus'] = $data['ServiceStatus']== 'true'?1:0;
+
+       $services = Service::leftJoin('tblCompanyGateway','tblService.CompanyGatewayID','=','tblCompanyGateway.CompanyGatewayID')
+            ->select(["tblService.Status","tblService.ServiceName","tblService.ServiceType","tblCompanyGateway.Title","tblService.ServiceID","tblService.CompanyGatewayID"])
+            ->where(["tblService.CompanyID" => $companyID]);
+        if($data['ServiceStatus']==1){
+            $services->where(["tblService.Status" => 1]);
+        }else{
+            $services->where(["tblService.Status" => 0]);
+        }
+
+       if(!empty($data['ServiceName'])){
+           $services->where('tblService.ServiceName','like','%'.$data['ServiceName'].'%');
+        }
+       if(!empty($data['CompanyGatewayID'])){
+           $services->where(["tblService.CompanyGatewayID" => $data['CompanyGatewayID']]);
+        }
+
+       /*
        $companyID = User::get_companyID();
        if(isset($_GET['sSearch_0']) && $_GET['sSearch_0'] == ''){
-           $services = Service::select(["Status","ServiceName","ServiceType","ServiceID"])->where(["CompanyID" => $companyID,"Status"=>1]); // by Default Status 1
+           $services = Service::leftJoin('tblCompanyGateway','tblService.CompanyGatewayID','=','tblCompanyGateway.CompanyGatewayID')
+                        ->select(["tblService.Status","tblService.ServiceName","tblService.ServiceType","tblCompanyGateway.Title","tblService.ServiceID","tblService.CompanyGatewayID"])->where(["tblService.CompanyID" => $companyID,"tblService.Status"=>1]); // by Default Status 1
        }else{
-           $services = Service::select(["Status","ServiceName","ServiceType","ServiceID"])->where(["CompanyID" => $companyID]);
-       }
+           $services = Service::leftJoin('tblCompanyGateway','tblService.CompanyGatewayID','=','tblCompanyGateway.CompanyGatewayID')
+               ->select(["tblService.Status","tblService.ServiceName","tblService.ServiceType","tblCompanyGateway.Title","tblService.ServiceID","tblService.CompanyGatewayID"])->where(["tblService.CompanyID" => $companyID]); // by Default Status 1
+       }*/
 
        
        return Datatables::of($services)->make();
@@ -79,17 +103,28 @@ class ServicesController extends BaseController {
     }
 
     public function delete($id){
-        if(Service::where(["ServiceID" => $id])->delete()){
-            return Response::json(array("status" => "success", "message" => "Service Successfully Deleted"));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Deleting Service."));
+        if(Service::checkForeignKeyById($id)){
+            try{
+                $result = Service::where(array('ServiceID'=>$id))->delete();
+                if ($result) {
+                    return Response::json(array("status" => "success", "message" => "Service Successfully Deleted"));
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Problem Deleting Service."));
+                }
+            }catch (Exception $ex){
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Service is in Use, You can not delete this Service."));
         }
+
     }
 
     public function exports($type){
             $companyID = User::get_companyID();
             $data = Input::all();
-            if (isset($data['sSearch_0']) && ($data['sSearch_0'] == '' || $data['sSearch_0'] == '1')) {
+            $data['ServiceStatus']=$data['ServiceStatus']=='true'?1:0;
+            if (isset($data['ServiceStatus']) && $data['ServiceStatus'] == '1') {
                 $services = Service::where(["CompanyID" => $companyID, "Status" => 1])->orderBy("ServiceID", "desc")->get(["ServiceID","ServiceName", "ServiceTYpe"]);
             } else {
                 $services = Service::where(["CompanyID" => $companyID, "Status" => 0])->orderBy("ServiceID", "desc")->get(["ServiceID","ServiceName", "ServiceTYpe"]);

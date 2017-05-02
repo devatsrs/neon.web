@@ -17,7 +17,9 @@ class CDRController extends BaseController {
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_CDR);
         $trunks = Trunk::getTrunkDropdownIDList();
         $trunks = $trunks+array(0=>'Find From CustomerPrefix');
+        $trunks = array('Trunk'=>$trunks);
         $Services = Service::getDropdownIDList(User::get_companyID());
+        $Services = array('Service'=>$Services);
         $ratetables = RateTable::getRateTableList();
         return View::make('cdrupload.upload',compact('dashboardData','account','gateway','UploadTemplate','trunks','Services','ratetables'));
     }
@@ -45,11 +47,7 @@ class CDRController extends BaseController {
                 if(!AmazonS3::upload($upload_path.'/'.$file_name,$amazonPath)){
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
-                if($data["AccountID"] >0 ){
-                    if(AccountBilling::getCDRType($data["AccountID"]) == ''){
-                        return Response::json(array("status" => "failed", "message" => "Setup CDR Format in Account edit"));
-                    }
-                }
+
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
                 $jobType = JobType::where(["Code" => 'CDR'])->get(["JobTypeID", "Title"]);
                 $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
@@ -347,9 +345,7 @@ class CDRController extends BaseController {
         if(!empty($data['selection']['Account'])){
             $data['Account'] = $data['selection']['Account'];
         }
-        if(!empty($data['selection']['Authentication'])){
-            $data['Authentication'] = $data['selection']['Authentication'];
-        }
+
         if(!empty($data['selection']['connect_datetime'])){
             $data['connect_datetime'] = $data['selection']['connect_datetime'];
         }
@@ -363,6 +359,11 @@ class CDRController extends BaseController {
 
         if ($validator->fails()) {
             return json_validator_response($validator);
+        }
+        if($data['RateCDR']) {
+            if ($data['Authentication'] != 'IP' && $data['Authentication'] != 'CLI' && $data['TrunkID'] == '' && empty($data['ServiceID']) && empty($data['OutboundRateTableID']) && empty($data['OutboundRateTableID']) ) {
+                return Response::json(array("status" => "failed", "message" => "Either Service or Trunk or Rate Table is Required."));
+            }
         }
         $file_name = basename($data['TemplateFile']);
 
@@ -434,8 +435,12 @@ class CDRController extends BaseController {
             $data = Input::all();
             $rules = array(
                 'CompanyGatewayID' => 'required',
+                'Authentication' => 'required',
             );
             if($data['RateCDR']){
+                $rules['RateFormat'] = 'required';
+            }
+            /*if($data['RateCDR']){
                 if(!empty($data['rerate_type'])){
                     if($data['rerate_type']=='service'){
                         $rules['ServiceID'] = 'required';
@@ -453,7 +458,7 @@ class CDRController extends BaseController {
                     $rules['TrunkID'] = 'required';
                     $rules['RateFormat'] = 'required';
                 }
-            }
+            }*/
             $validator = Validator::make($data, $rules);
             if ($validator->fails()) {
                 return json_validator_response($validator);

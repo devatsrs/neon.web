@@ -121,6 +121,8 @@ class EmailTemplateController extends \BaseController {
 		if($template->userID==User::get_userID()){
             $instance['Privacy'] = 1;
         } 
+		$instance['TicketTemplate'] = $template->TicketTemplate;
+		
         return $instance;
     }
 
@@ -137,7 +139,7 @@ class EmailTemplateController extends \BaseController {
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         $data['ModifiedBy'] = User::get_user_full_name();
-       if($crmteplate->StaticType ==1){
+       if($crmteplate->StaticType ==1 && $crmteplate->TicketTemplate ==0) {
 		$rules = [
             "TemplateName" => "required|unique:tblEmailTemplate,TemplateName,$id,TemplateID,CompanyID,".$companyID,
             "Subject" => "required",

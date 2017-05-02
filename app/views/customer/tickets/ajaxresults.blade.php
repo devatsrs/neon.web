@@ -16,7 +16,14 @@
                     <?php } ?>
                   </div>
                 </div>
-                <div class="pull-right btn-group">
+                <div class="pull-left  btn-group">
+                <button type="button" data-toggle="dropdown" class="btn  dropdown-toggle  btn-green">Export <span class="caret"></span></button>
+                <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">    
+                    <li><a class="export_btn export_type" action_type="csv" href="#"> CSV</a> </li>
+                    <li><a class="export_btn export_type" action_type="xlsx"  href="#">  EXCEL</a> </li>
+                  </ul>
+                </div>
+                <div class="pull-right sorted btn-group">
                   <button type="button" class="btn btn-green dropdown-toggle" data-toggle="dropdown"> Sorted by {{$Sortcolumns[$data['iSortCol_0']]}} <span class="caret"></span> </button>
                   <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">
                     <?php foreach($Sortcolumns as $key => $SortcolumnsData){ ?>
@@ -40,8 +47,7 @@
 			 ?>
           <tr><!-- new email class: unread -->
             <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/customer/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
-            <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span>
-              <?php if($result_data->CustomerResponse==$result_data->RequesterEmail){echo "<div class='label label-info'>CUSTOMER RESPONDED</div>";}else{echo '<div class="label label-warning">RESPONSE DUE</div>';} ?><br>
+            <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span><br>
              <a class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
               <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
             <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>

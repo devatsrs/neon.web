@@ -75,7 +75,7 @@
                             <thead>
                                 <tr>
                                     <th  width="1%"><button type="button" id="add-row" class="btn btn-primary btn-xs ">+</button></th>
-                                    <th  width="14%">Item</th>
+                                    <th  width="14%">Item/Subscription</th>
                                     <th width="15%">Description</th>
                                     <th width="10%">Unit Price</th>
                                     <th width="10%">Quantity</th>
@@ -89,7 +89,7 @@
                             <tbody>
                                 <tr>
                                     <td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td>
-                                    <td>{{Form::select('EstimateDetail[ProductID][]',$products,'',array("class"=>"select2 select2add product_dropdown",'data-modal'=>'add-edit-modal-product','data-type'=>'item','data-active'=>0))}}</td>
+                                    <td>{{Form::SelectControl('item_and_Subscription',0,'',0,'EstimateDetail[ProductID][]')}}</td>
                                     <td>{{Form::textarea('EstimateDetail[Description][]','',array("class"=>"form-control autogrow descriptions invoice_estimate_textarea","rows"=>1))}}</td>
                                     <td class="text-center">{{Form::text('EstimateDetail[Price][]','',array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td>
                                     <td class="text-center">{{Form::text('EstimateDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>
@@ -165,9 +165,9 @@
                 </div>
                    <div class="col-md-1"></div>
                 <div class="col-md-5">
-                    <table class="table table-bordered">
+                    <table id="summary" class="table table-bordered">
                     <tfoot>
-                            <tr>
+                            <!--<tr>
                                     <td >Sub Total</td>
                                     <td>{{Form::text('SubTotal','',array("class"=>"form-control SubTotal text-right","readonly"=>"readonly"))}}</td>
                             </tr>
@@ -229,7 +229,7 @@
 var decimal_places = 2;
 var estimate_id = '';
 var estimate_tax_html = '<td><button title="Delete Tax" type="button" class="btn btn-danger btn-xs estimate_tax_remove ">X</button></td><td><div class="col-md-8">{{Form::SelectExt(["name"=>"EstimateTaxes[field][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select2 Taxentity small EstimateTaxesFld"])}}</div><div class="col-md-4">{{Form::text("EstimateTaxes[value][]","",array("class"=>"form-control EstimateTaxesValue","readonly"=>"readonly"))}}</div></td>';
-var add_row_html = '<tr class="itemrow hidden"><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{Form::select('EstimateDetail[ProductID][]',$products,'',array("class"=>"select22 select2add product_dropdown",'data-modal'=>'add-edit-modal-product','data-type'=>'item','data-active'=>0))}}</td><td>{{Form::textarea('EstimateDetail[Description][]','',array("class"=>"form-control invoice_estimate_textarea autogrow descriptions","rows"=>1))}}</td><td class="text-center">{{Form::text('EstimateDetail[Price][]',"0",array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('EstimateDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>'
+var add_row_html = '<tr class="itemrow hidden"><td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td><td>{{Form::SelectControl('item_and_Subscription',0,'',0,'EstimateDetail[ProductID][]',0)}}</td><td>{{Form::textarea('EstimateDetail[Description][]','',array("class"=>"form-control invoice_estimate_textarea autogrow descriptions","rows"=>1))}}</td><td class="text-center">{{Form::text('EstimateDetail[Price][]',"0",array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td><td class="text-center">{{Form::text('EstimateDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>'
     add_row_html += '<td class="text-center hidden">{{Form::text('EstimateDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>';
      add_row_html += '<td>{{Form::SelectExt(["name"=>"EstimateDetail[TaxRateID][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID"])}}</td>';
 	   add_row_html += '<td>{{Form::SelectExt(["name"=>"EstimateDetail[TaxRateID2][]","data"=>$taxes,"selected"=>'',"value_key"=>"TaxRateID","title_key"=>"Title","data-title1"=>"data-amount","data-value1"=>"Amount","data-title2"=>"data-flatstatus","data-value2"=>"FlatStatus","class" =>"select22 Taxentity small TaxRateID2"])}}</td>';
@@ -247,7 +247,7 @@ function ajax_form_success(response){
 }
 </script>
 @include('estimates.script_estimate_add_edit')
-@include('products.productmodal')
+@include('composetmodels.productsubscriptionmodal')
 @include('includes.ajax_submit_script', array('formID'=>'estimate-from' , 'url' => 'estimate/store','update_url'=>'estimate/{id}/update' ))
 @stop
 @section('footer_ext')

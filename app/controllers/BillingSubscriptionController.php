@@ -9,7 +9,7 @@ class BillingSubscriptionController extends \BaseController {
         //$FdilterAdvance = $data['FilterAdvance']== 'true'?1:0;
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
-        $columns = array("Name", "MonthlyFee", "WeeklyFee", "DailyFee",'Advance');
+        $columns = array("Name", "AnnuallyFee", "QuarterlyFee", "MonthlyFee", "WeeklyFee", "DailyFee", "Advance");
         $sort_column = $columns[$data['iSortCol_0']];
         if($data['FilterAdvance'] == ''){
             $data['FilterAdvance'] = 'null';
@@ -56,6 +56,8 @@ class BillingSubscriptionController extends \BaseController {
         $rules = array(
             'CompanyID' => 'required',
             'Name' => 'required|unique:tblBillingSubscription,Name,NULL,SubscriptionID,CompanyID,'.$data['CompanyID'],
+            'AnnuallyFee' => 'required|numeric',
+            'QuarterlyFee' => 'required|numeric',
             'MonthlyFee' => 'required|numeric',
             'WeeklyFee' => 'required|numeric',
             'DailyFee' => 'required|numeric',
@@ -75,7 +77,7 @@ class BillingSubscriptionController extends \BaseController {
         }
 
         if ($BillingSubscription = BillingSubscription::create($data)) {
-            return Response::json(array("status" => "success", "message" => "Subscription Successfully Created",'LastID'=>$BillingSubscription->SubscriptionID));
+            return Response::json(array("status" => "success", "message" => "Subscription Successfully Created",'LastID'=>$BillingSubscription->SubscriptionID, 'newcreated'=>$BillingSubscription));
         } else {
             return Response::json(array("status" => "failed", "message" => "Problem Creating Subscription."));
         }
@@ -94,6 +96,8 @@ class BillingSubscriptionController extends \BaseController {
             $rules = array(
                 'CompanyID' => 'required',
                 'Name' => 'required|unique:tblBillingSubscription,Name,'.$id.',SubscriptionID,CompanyID,'.$data['CompanyID'],
+                'AnnuallyFee' => 'required|numeric',
+                'QuarterlyFee' => 'required|numeric',
                 'MonthlyFee' => 'required|numeric',
                 'WeeklyFee' => 'required|numeric',
                 'DailyFee' => 'required|numeric',
@@ -138,7 +142,7 @@ class BillingSubscriptionController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
                 }
             }else{
-                return Response::json(array("status" => "failed", "message" => "Subscription is in Use, You cant delete this Subscription."));
+                return Response::json(array("status" => "failed", "message" => "Subscription is in Use, You can not delete this Subscription."));
             }
         }
     }

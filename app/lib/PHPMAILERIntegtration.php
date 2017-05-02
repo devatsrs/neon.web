@@ -21,14 +21,13 @@ class PHPMAILERIntegtration{
 			Config::set('mail.from.name',$config->CompanyName);
 		}
 		Config::set('mail.from.name',$config->CompanyName);
-		Config::set('mail.encryption',($config->IsSSL==1?'SSL':'TLS'));
+		Config::set('mail.encryption',($config->IsSSL==1?'ssl':'tls'));
 		Config::set('mail.username',$config->SMTPUsername);
 		Config::set('mail.password',$config->SMTPPassword);
 		extract(Config::get('mail'));
 	
 		$mail = new \PHPMailer;
 		//$mail->SMTPDebug = 0;                               // Enable verbose debug output
-		$mail->SMTPDebug = 1;
 		$mail->isSMTP();                                      // Set mailer to use SMTP
 		$mail->Host = $host;  // Specify main and backup SMTP servers
 		$mail->SMTPAuth = true;                               // Enable SMTP authentication
@@ -70,8 +69,8 @@ class PHPMAILERIntegtration{
 		if(getenv('APP_ENV') != 'Production'){
 			$data['Subject'] = 'Test Mail '.$data['Subject'];
 		}
-		
-		$mail->Body = $body;
+
+		$mail->Body = $mail->msgHTML($body);
 		$mail->Subject = $data['Subject'];
 		if(!is_array($data['EmailTo']) && strpos($data['EmailTo'],',') !== false){
 			$data['EmailTo']  = explode(',',$data['EmailTo']);
@@ -111,7 +110,7 @@ class PHPMAILERIntegtration{
 					$status['message'] = 'Email has been sent';
 					$status['body'] = $body;
 					$status['message_id']	=	$mail->getLastMessageID(); 
-		} Log::info(print_r($mail,true));
+		} 
 		return $status;
 	}
 	

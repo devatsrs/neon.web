@@ -1219,7 +1219,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $rate_tables = CLIRateTable::
         leftJoin('tblRateTable','tblRateTable.RateTableId','=','tblCLIRateTable.RateTableID')
-            ->select(['CLIRateTableID','CLI','tblRateTable.RateTableName','CLIRateTableID'])
+        ->leftJoin('tblService','tblService.ServiceID','=','tblCLIRateTable.ServiceID')
+            ->select(['CLIRateTableID','CLI','tblRateTable.RateTableName','CLIRateTableID','tblService.ServiceName'])
             ->where("tblCLIRateTable.CompanyID",$CompanyID)
             ->where("tblCLIRateTable.AccountID",$id);
         if(!empty($data['CLIName'])){
@@ -1227,9 +1228,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
         if(!empty($data['ServiceID'])){
             $rate_tables->where('tblCLIRateTable.ServiceID','=',$data['ServiceID']);
-        }else{
-            $rate_tables->where('tblCLIRateTable.ServiceID','=',0);
         }
+        /*
+        else{
+            $rate_tables->where('tblCLIRateTable.ServiceID','=',0);
+        }*/
         return Datatables::of($rate_tables)->make();
     }
     public function clitable_store(){
@@ -1248,40 +1251,25 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         AccountAuthenticate::add_cli_rule($CompanyID,$data);
 
-        if(!empty($data['ServiceID'])){
-            foreach($clis as $cli){
+        foreach($clis as $cli){
 
-                if(CLIRateTable::where(array('CompanyID'=>$CompanyID,'ServiceID'=>$data['ServiceID'], 'CLI'=>$cli))->count()){
-                    $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'ServiceID'=>$data['ServiceID'],'CLI'=>$cli))->pluck('AccountID');
-                    $message .= $cli.' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
-                }else{
-                    $rate_tables['CLI'] = $cli;
-                    $rate_tables['RateTableID'] = $data['RateTableID'];
-                    $rate_tables['AccountID'] = $data['AccountID'];
-                    $rate_tables['CompanyID'] = $CompanyID;
+            if(CLIRateTable::where(array('CompanyID'=>$CompanyID, 'CLI'=>$cli))->count()){
+                $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$cli))->pluck('AccountID');
+                $message .= $cli.' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
+            }else{
+                $rate_tables['CLI'] = $cli;
+                $rate_tables['RateTableID'] = $data['RateTableID'];
+                $rate_tables['AccountID'] = $data['AccountID'];
+                $rate_tables['CompanyID'] = $CompanyID;
+                if(!empty($data['ServiceID'])) {
                     $rate_tables['ServiceID'] = $data['ServiceID'];
-                    CLIRateTable::insert($rate_tables);
                 }
-            }
-
-        }else{
-            foreach($clis as $cli){
-
-                if(CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$cli,'ServiceID'=>'0'))->count()){
-                    $AccountID = CLIRateTable::where(array('CompanyID'=>$CompanyID,'CLI'=>$cli,'ServiceID'=>'0'))->pluck('AccountID');
-                    $message .= $cli.' already exist against '.Account::getCompanyNameByID($AccountID).'.<br>';
-                }else{
-                    $rate_tables['CLI'] = $cli;
-                    $rate_tables['RateTableID'] = $data['RateTableID'];
-                    $rate_tables['AccountID'] = $data['AccountID'];
-                    $rate_tables['CompanyID'] = $CompanyID;
-                    CLIRateTable::insert($rate_tables);
-                }
+                CLIRateTable::insert($rate_tables);
             }
         }
 
         if(!empty($message)){
-            $message = 'following CLI skipped.<br>'.$message;
+            $message = 'Following CLI already exits.<br>'.$message;
             return Response::json(array("status" => "error", "message" => $message));
         }else{
             return Response::json(array("status" => "success", "message" => "CLI Successfully Added"));
@@ -1309,7 +1297,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         } else if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
             $CLIRateTables = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')
-                ->where(array('ServiceID' => $ServiceID))
+                //->where(array('ServiceID' => $ServiceID))
                 ->where(array('AccountID' => $data['AccountID']))
                 ->select(DB::raw('group_concat(CLI) as CLIs'))->get();
             if(!empty($CLIRateTables)){
@@ -1317,7 +1305,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             }
         } else if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
-            $CLIRateTables = CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->where(array('ServiceID' => $ServiceID))->select(DB::raw('group_concat(CLI) as CLIs'))->get();
+            //$CLIRateTables = CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->where(array('ServiceID' => $ServiceID))->select(DB::raw('group_concat(CLI) as CLIs'))->get();
+            $CLIRateTables = CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->select(DB::raw('group_concat(CLI) as CLIs'))->get();
             if(!empty($CLIRateTables)){
                 $CLIs = $CLIRateTables[0]->CLIs;
             }
@@ -1328,15 +1317,17 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             return Response::json(array("status" => "check","check"=>1));
         }
         if ($CLIRateTableID > 0) {
-            CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->where(array('ServiceID' => $ServiceID))->delete();
+            //CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->where(array('ServiceID' => $ServiceID))->delete();
+            CLIRateTable::where(array('CLIRateTableID' => $CLIRateTableID))->delete();
         } else if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
             CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"')
-                ->where(array('ServiceID' => $ServiceID))
+                //->where(array('ServiceID' => $ServiceID))
                 ->where(array('AccountID' => $data['AccountID']))->delete();
         } else if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
-            CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->where(array('ServiceID' => $ServiceID))->delete();
+            //CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->where(array('ServiceID' => $ServiceID))->delete();
+            CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs)->delete();
         }
 
         return Response::json(array("status" => "success", "message" => "CLI Deleted Successfully"));
@@ -1354,13 +1345,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if (!empty($data['criteria'])) {
             $criteria = json_decode($data['criteria'], true);
             $query = CLIRateTable::WhereRaw('CLI like "%' . $criteria['CLIName'] . '%"');
-                $query->where(array('ServiceID' => $ServiceID));
+                //$query->where(array('ServiceID' => $ServiceID));
                 $query->where(array('AccountID' => $data['AccountID']));
                 $query->update(array('RateTableID' => $data['RateTableID']));
         } else if (!empty($data['CLIRateTableIDs'])) {
             $CLIRateTableIDs = explode(',', $data['CLIRateTableIDs']);
             $query = CLIRateTable::whereIn('CLIRateTableID', $CLIRateTableIDs);
-            $query->where(array('ServiceID' => $ServiceID));
+           // $query->where(array('ServiceID' => $ServiceID));
             $query->update(array('RateTableID' => $data['RateTableID']));
         }
         return Response::json(array("status" => "success", "message" => "CLI Updated Successfully"));

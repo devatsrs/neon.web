@@ -1,9 +1,10 @@
-<table id="table-4" class="table mail-table">
+<table id="table-4" class="table table-bordered datatable dataTable">
   <!-- mail table header -->
   <thead>
           <tr>
-            <th colspan="2"> <?php if(count($result)>0){ ?>                  
-            <div class="mail-select-options"><span class="pull-left paginationTicket">{{Form::select('page',$pagination,$iDisplayLength,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-right per_page">records per page</span> </div>        
+            <th width="1%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+            <th colspan="3"> <?php if(count($result)>0){ ?>                  
+            <div class="mail-select-options"><span class="pull-left paginationTicket">{{Form::select('page',$pagination,$iDisplayLength,array("class"=>"select2 small","id"=>"per_page"))}} </span><span class="pull-left per_page">records per page</span> </div>
               <div class="pull-right">
                 <div class="hidden mail-pagination"> <strong>
                   <?php   $current = ($data['currentpage']*$iDisplayLength); echo $current+1; ?>
@@ -16,7 +17,14 @@
                     <?php } ?>
                   </div>
                 </div>
-                <div class="pull-right btn-group">
+                <div class="pull-left btn-group">
+                <button type="button" data-toggle="dropdown" class="btn  dropdown-toggle  btn-green">Export <span class="caret"></span></button>
+                <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">    
+                    <li><a class="export_btn export_type" action_type="csv" href="#"> CSV</a> </li>
+                    <li><a class="export_btn export_type" action_type="xlsx"  href="#">  EXCEL</a> </li>
+                  </ul>
+                </div>
+                <div class="pull-right sorted btn-group">
                   <button type="button" class="btn btn-green dropdown-toggle" data-toggle="dropdown"> Sorted by {{$Sortcolumns[$data['iSortCol_0']]}} <span class="caret"></span> </button>
                   <ul class="dropdown-menu dropdown_sort dropdown-green" role="menu">
                     <?php foreach($Sortcolumns as $key => $SortcolumnsData){ ?>
@@ -39,26 +47,43 @@
 		 foreach($result as $result_data){ 
 			 ?>
           <tr><!-- new email class: unread -->
-            <td class="col-name @if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
+              <td class="@if(!empty($result_data->PriorityValue)) borderside borderside{{$result_data->PriorityValue}} @endif"><div class="checkbox "><input type="checkbox" name="checkbox[]" value="{{$result_data->TicketID}}" class="rowcheckbox" ></div></td>
+            <td class="col-name"><a target="_blank" href="{{URL::to('/')}}/tickets/{{$result_data->TicketID}}/detail" class="col-name"> <span class="blue_link"> <?php echo ShortName($result_data->Subject,100); ?></span> </a>
             <span class="ticket_number"> #<?php echo $result_data->TicketID; ?></span>
-              <?php if($result_data->Read==0){echo '<div class="label label-primary">New</div>';}else{if($result_data->CustomerResponse==$result_data->RequesterEmail){echo "<div class='label label-info'>CUSTOMER RESPONDED</div>";}else{echo '<div class="label label-warning">RESPONSE DUE</div>';}} //if(empty($result_data->Agent)){echo '<div class="label label-danger">unassigned</div>';} ?><br>
+                {{get_ticket_response_due_label($result_data)}}
+              <br>
              <a target="_blank" href="@if(!empty($result_data->ACCOUNTID)) {{URL::to('/')}}/accounts/{{$result_data->ACCOUNTID}}/show @elseif(!empty($result_data->ContactID)) contacts/{{$result_data->ContactID}}/show @else # @endif" class="col-name">Requester: <?php echo $result_data->Requester; ?></a><br>
-              <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?></span></td>
-            <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
+              <span> Created: <?php echo \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->created_at))->diffForHumans();  ?>
+                  <?php
+                  $ticket_status_data = get_ticket_status_date_array($result_data);
+                  ?>
+                  @if(isset($ticket_status_data["sla_timer"]) && $ticket_status_data["sla_timer"])
+                      , @if(isset($ticket_status_data["due"]) && $ticket_status_data["due"])
+                          Due in
+                      @else
+                          Overdue by
+                      @endif
+                      {{$ticket_status_data["hunam_readable"]}}
+                  @else
+                      , {{$ticket_status_data["status"]}} Since {{$ticket_status_data["hunam_readable"]}}
+                  @endif
+                  {{SowCustomerAgentRepliedDate($result_data)}}
+              </span> </td>
+            <td  align="left" class="col-time"><div>Status:<span>&nbsp;&nbsp;&nbsp;<?php echo $result_data->TicketStatus; ?></span></div>
               <div>Priority:<span>&nbsp;&nbsp;<?php echo $result_data->PriorityValue; ?></span></div>
               <div>Agent:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->Agent; ?></span></div>
-              <div>Group:<span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $result_data->GroupName; ?></span></div></td>
+              <div>Group:<span>&nbsp;&nbsp;&nbsp;<?php echo $result_data->GroupName; ?></span></div></td>
           </tr>
           <?php } }else{ ?>
     <tr>
-      <td align="center" colspan="2">No Result Found.</td>
+      <td align="center" colspan="3">No Result Found.</td>
     </tr>
     <?php } ?>
   </tbody>
   <!-- mail table footer -->
   <tfoot>
     <tr>
-      <th colspan="2"> 
+      <th colspan="3"> 
           <?php if(count($result)>0){ ?>
           <div class="mail-pagination">
           <strong> <?php echo $current+1; ?>-

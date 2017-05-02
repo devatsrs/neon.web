@@ -330,4 +330,18 @@ class HomeController extends BaseController {
     public function process_redirect(){
         return Redirect::to($this->dashboard_url);
     }
+	
+	function DownloadFile(){
+		 $data = Input::all();
+		 if(isset($data['file'])){
+		  	$FilePath =  CompanyConfiguration::get('UPLOAD_PATH').'/'.base64_decode($data['file']);  
+			if(file_exists($FilePath)){ 
+				download_file($FilePath);
+			}else{ 
+				header('Location: '.$FilePath);
+			}
+			exit;
+		  }
+		 exit;
+	}
 }

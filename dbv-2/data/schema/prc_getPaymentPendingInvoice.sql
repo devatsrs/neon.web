@@ -1,4 +1,8 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPaymentPendingInvoice`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_PaymentDueInDays` INT )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPaymentPendingInvoice`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_PaymentDueInDays` INT 
+)
 BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
@@ -9,7 +13,7 @@ BEGIN
 	INNER JOIN NeonRMDev.tblAccount a
 		ON i.AccountID = a.AccountID
 	INNER JOIN NeonRMDev.tblAccountBilling ab 
-		ON ab.AccountID = a.AccountID
+		ON ab.AccountID = a.AccountID AND ab.ServiceID = i.ServiceID
 	INNER JOIN NeonRMDev.tblBillingClass b
 		ON b.BillingClassID = ab.BillingClassID
 	LEFT JOIN tblPayment p

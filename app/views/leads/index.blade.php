@@ -137,6 +137,7 @@
 </table>
 
 <script type="text/javascript">
+    var editor_options 	 	=  		{"leadoptions":true};
     var $searchFilter = {};
     var checked = '';
     var view = 1;
@@ -451,6 +452,7 @@
                     var SelectedIDs = getselectedIDs();
                     if (SelectedIDs.length == 0) {
                         $(".save").button('reset');
+						$(".savetest").button('reset');
                         $('#modal-BulkMail').modal('hide');
                         toastr.error('Please select at least one lead or select all found leads.', "Error", toastr_opts);
                         return false;
@@ -462,6 +464,7 @@
 
                 if ($("#BulkMail-form").find("input[name='SelectedIDs']").val() != "" && confirm("Are you sure to send mail to selected leads") != true) {
                     $(".btn").button('reset');
+					$(".savetest").button('reset');
                     $('#modal-BulkMail').modal('hide');
                     return false;
                 }
@@ -476,12 +479,14 @@
                     if(response.status =='success'){
                         toastr.success(response.message, "Success", toastr_opts);
                         $(".save").button('reset');
+						$(".savetest").button('reset');
                         $('#modal-BulkMail').modal('hide');
                         data_table.fnFilter('', 0);
                         reloadJobsDrodown(0);
                     }else{
                         toastr.error(response.message, "Error", toastr_opts);
                         $(".save").button('reset');
+						$(".savetest").button('reset');
                     }
                     $('.file-input-name').text('');
                     $('#attachment').val('');
@@ -526,26 +531,11 @@
 
         $('#modal-BulkMail').on('shown.bs.modal', function(event){
             var modal = $(this);
-            modal.find('.message').wysihtml5({
-                "font-styles": true,
-                "emphasis": true,
-                "leadoptions":true,
-                "Crm":false,
-                "lists": true,
-                "html": true,
-                "link": true,
-                "image": true,
-                "color": false,
-                parser: function(html) {
-                    return html;
-                }
-            });
+            show_summernote(modal.find(".message"),editor_options);
         });
 
         $('#modal-BulkMail').on('hidden.bs.modal', function(event){
             var modal = $(this);
-            modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-            modal.find('.message').show();
         });
 
         $(document).on('click','.sendemail',function(){
@@ -633,20 +623,20 @@
             $('#TestMail-form').find('[name="EmailAddress"]').val('');
             $('#modal-TestMail').modal({show: true});
         });
-        $("#bull-email-account").click(function(e){
+        $("#mail-send").click(function(e){
             $("#BulkMail-form").find('[name="test"]').val(0);
         });
-        $('.alert').click(function(e){
+        $('.lead').click(function(e){
             e.preventDefault();
             var email = $('#TestMail-form').find('[name="EmailAddress"]').val();
             var accontID = $('#TestMail-form').find('[name="accountID"]').val();
             if(email==''){
                 toastr.error('Email field should not empty.', "Error", toastr_opts);
-                $(".alert").button('reset');
+                $(".lead").button('reset');
                 return false;
             }else if(accontID==''){
                 toastr.error('Please select sample account from dropdown', "Error", toastr_opts);
-                $(".alert").button('reset');
+                $(".lead").button('reset');
                 return false;
             }
             $('#BulkMail-form').find('[name="testEmail"]').val(email);
@@ -700,8 +690,7 @@
 
         function editor_reset(data){
             var modal = $("#modal-BulkMail");
-            modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-            modal.find('.message').show();
+            show_summernote(modal.find(".message"),editor_options);
             if(!Array.isArray(data)){
                 var EmailTemplate = data['EmailTemplate'];
                 modal.find('[name="subject"]').val(EmailTemplate.Subject);
@@ -710,20 +699,6 @@
                 modal.find('[name="subject"]').val('');
                 modal.find('.message').val('');
             }
-            modal.find('.message').wysihtml5({
-                "font-styles": true,
-                "emphasis": true,
-                "leadoptions":true,
-                "Crm":false,
-                "lists": true,
-                "html": true,
-                "link": true,
-                "image": true,
-                "color": false,
-                parser: function(html) {
-                    return html;
-                }
-            });
         }
 
         function getselectedIDs(){
@@ -780,9 +755,6 @@
         padding: 15px 10px;
     }
 </style>
-<link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
-<script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
-<script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
 @include('opportunityboards.opportunitymodal')
 @include('accounts.bulk_email')
 @stop

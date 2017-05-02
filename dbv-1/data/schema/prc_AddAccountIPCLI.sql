@@ -3,7 +3,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_AddAccountIPCLI`(
 	IN `p_AccountID` INT,
 	IN `p_CustomerVendorCheck` INT,
 	IN `p_IPCLIString` LONGTEXT,
-	IN `p_IPCLICheck` LONGTEXT
+	IN `p_IPCLICheck` LONGTEXT,
+	IN `p_ServiceID` INT
 )
 BEGIN
 
@@ -12,26 +13,25 @@ BEGIN
 	DECLARE v_IPCLI LONGTEXT;
 	DECLARE v_IPCLICheck VARCHAR(10);
 	DECLARE v_Check int;
-	
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	
+
 	DROP TEMPORARY TABLE IF EXISTS `AccountIPCLI`; /*Temp table for matching ipcli account*/
-		CREATE TEMPORARY TABLE `AccountIPCLI` (
-		  `AccountName` varchar(45) NOT NULL,
-		  `IPCLI` LONGTEXT NOT NULL
-		);
+	CREATE TEMPORARY TABLE `AccountIPCLI` (
+		`AccountName` varchar(45) NOT NULL,
+		`IPCLI` LONGTEXT NOT NULL
+	);
 
 	DROP TEMPORARY TABLE IF EXISTS `AccountIPCLITable1`; /*Temp table for ipcli from DB*/
-		CREATE TEMPORARY TABLE `AccountIPCLITable1` (
-		  `splitted_column` varchar(45) NOT NULL
-		);
-		
+	CREATE TEMPORARY TABLE `AccountIPCLITable1` (
+		`splitted_column` varchar(45) NOT NULL
+	);
+
 	DROP TEMPORARY TABLE IF EXISTS `AccountIPCLITable2`; /*Temp table for ipcli from passing variable*/
-		CREATE TEMPORARY TABLE `AccountIPCLITable2` (
-		  `splitted_column` varchar(45) NOT NULL
-		);
-	
-	/* Get and fill matching IPCLI */	
+	CREATE TEMPORARY TABLE `AccountIPCLITable2` (
+		`splitted_column` varchar(45) NOT NULL
+	);
+
 	INSERT INTO AccountIPCLI
 	SELECT acc.AccountName,
 	CONCAT(
@@ -40,15 +40,16 @@ BEGIN
 	FROM tblAccountAuthenticate accauth
 	INNER JOIN tblAccount acc ON acc.AccountID = accauth.AccountID
 	AND accauth.CompanyID = p_CompanyID
+	-- AND accauth.ServiceID = p_ServiceID
 	AND ((CustomerAuthRule = p_IPCLICheck) OR (VendorAuthRule = p_IPCLICheck))
 	WHERE (SELECT NeonRMDev.fnFIND_IN_SET(CONCAT(IFNULL(accauth.CustomerAuthValue,''),',',IFNULL(accauth.VendorAuthValue,'')),p_IPCLIString)) > 0;
-	
+
 	SELECT COUNT(AccountName) INTO v_COUNTER FROM AccountIPCLI;
-	
+
 	/* if found matching return result and process further for new IPCLI insertion in DB*/
 	IF v_COUNTER > 0 THEN
+
 		SELECT *  FROM AccountIPCLI;
-		
 		/*Fill Passing IPCLI to temp table1*/
 		SET i = 1;
 		REPEAT
@@ -57,24 +58,25 @@ BEGIN
 			SET i = i + 1;
 			UNTIL ROW_COUNT() = 0
 		END REPEAT;
-		
+
 		/*Matching exect matching ips and fill into temp table2*/
 		INSERT INTO AccountIPCLITable2
 		SELECT AccountIPCLITable1.splitted_column FROM AccountIPCLI,AccountIPCLITable1
 		WHERE FIND_IN_SET(AccountIPCLITable1.splitted_column,AccountIPCLI.IPCLI)>0
 		GROUP BY AccountIPCLITable1.splitted_column;
-		
+
 		/*Delete matching IPCLI from IPCLI to be insert in DB*/
 		DELETE t1 FROM AccountIPCLITable1 t1
 		INNER JOIN AccountIPCLITable2 t2 ON t1.splitted_column = t2.splitted_column
 		WHERE t1.splitted_column=t2.splitted_column;
-		
+
 		SELECT GROUP_CONCAT(t.splitted_column separator ',') INTO p_IPCLIString FROM AccountIPCLITable1 t;
-		
+
 		/*Clear temp tables*/
 		DELETE t1,t2 FROM AccountIPCLITable1 t1,AccountIPCLITable2 t2;
+
 	END IF;
-	
+
 	/*Put DB IPCLI into v_IPCLI of current account */
 	SELECT 
 	accauth.AccountAuthenticateID, 
@@ -82,18 +84,21 @@ BEGIN
 	(CASE WHEN p_CustomerVendorCheck = 1 THEN accauth.CustomerAuthRule ELSE accauth.VendorAuthRule END) as AuthRule INTO v_Check,v_IPCLI,v_IPCLICheck
 	FROM tblAccountAuthenticate accauth 
 	WHERE accauth.CompanyID =  p_CompanyID
+	AND accauth.ServiceID = p_ServiceID
 	AND accauth.AccountID = p_AccountID;
-			
+
 	IF v_Check > 0 && p_IPCLIString IS NOT NULL && p_IPCLIString!='' THEN
 		IF v_IPCLICheck != p_IPCLICheck THEN
-		/*IF New IPCLI setting discard existing IPCLI Setting*/
+			/*IF New IPCLI setting discard existing IPCLI Setting*/
 			IF p_CustomerVendorCheck = 1 THEN
 				UPDATE tblAccountAuthenticate accauth SET accauth.CustomerAuthValue = ''
 				WHERE accauth.CompanyID =  p_CompanyID
+				AND accauth.ServiceID = p_ServiceID
 				AND accauth.AccountID = p_AccountID;
 			ELSEIF p_CustomerVendorCheck = 2 THEN
 				UPDATE tblAccountAuthenticate accauth SET accauth.VendorAuthValue = ''
 				WHERE accauth.CompanyID =  p_CompanyID
+				AND accauth.ServiceID = p_ServiceID
 				AND accauth.AccountID = p_AccountID;
 			END IF;
 			SET v_IPCLI = p_IPCLIString;
@@ -106,7 +111,7 @@ BEGIN
 					SET i = i + 1;
 					UNTIL ROW_COUNT() = 0
 				END REPEAT;
-			/* Fill Second table with New IPCLI*/
+			/* Fill Second table with New IPCLI*/			
 				SET i = 1;
 				REPEAT
 					INSERT INTO AccountIPCLITable2
@@ -114,7 +119,6 @@ BEGIN
 					SET i = i + 1;
 					UNTIL ROW_COUNT() = 0
 				END REPEAT;
-				
 				/*Combine both IPCLI and concate unique result*/
 				SELECT GROUP_CONCAT(t.splitted_column separator ',') INTO v_IPCLI
 				FROM
@@ -126,28 +130,29 @@ BEGIN
 				ORDER BY splitted_column
 				) t;
 		END IF;
-			
 		/*Update result into DB against given account*/	
 		IF p_CustomerVendorCheck = 1 THEN
 			UPDATE tblAccountAuthenticate accauth SET accauth.CustomerAuthValue = v_IPCLI, accauth.CustomerAuthRule = p_IPCLICheck
 			WHERE accauth.CompanyID =  p_CompanyID
+			AND accauth.ServiceID = p_ServiceID
 			AND accauth.AccountID = p_AccountID;
 		ELSEIF p_CustomerVendorCheck = 2 THEN
 			UPDATE tblAccountAuthenticate accauth SET accauth.VendorAuthValue = v_IPCLI, accauth.VendorAuthRule = p_IPCLICheck
 			WHERE accauth.CompanyID =  p_CompanyID
+			AND accauth.ServiceID = p_ServiceID
 			AND accauth.AccountID = p_AccountID;
 		END IF;
 	ELSEIF v_Check IS NULL && p_IPCLIString IS NOT NULL && p_IPCLIString!='' THEN
 	/*Insert into DB if no result found in DB*/
 		IF p_CustomerVendorCheck = 1 THEN
-			INSERT INTO tblAccountAuthenticate(CompanyID,AccountID,CustomerAuthRule,CustomerAuthValue)
-			SELECT p_CompanyID,p_AccountID,p_IPCLICheck,p_IPCLIString;
+			INSERT INTO tblAccountAuthenticate(CompanyID,AccountID,CustomerAuthRule,CustomerAuthValue,ServiceID)
+			SELECT p_CompanyID,p_AccountID,p_IPCLICheck,p_IPCLIString,p_ServiceID;
 		ELSEIF p_CustomerVendorCheck = 2 THEN
-			INSERT INTO tblAccountAuthenticate(CompanyID,AccountID,VendorAuthRule,VendorAuthValue)
-			SELECT p_CompanyID,p_AccountID,p_IPCLICheck,p_IPCLIString;
+			INSERT INTO tblAccountAuthenticate(CompanyID,AccountID,VendorAuthRule,VendorAuthValue,ServiceID)
+			SELECT p_CompanyID,p_AccountID,p_IPCLICheck,p_IPCLIString,p_ServiceID;
 		END IF;
 	END IF;
-	
+
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ ;
-	
+
 END

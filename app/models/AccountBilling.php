@@ -149,10 +149,7 @@ class AccountBilling extends \Eloquent {
         $BillingClassID = self::getBillingClassID($AccountID);
         return BillingClass::getPaymentDueInDays($BillingClassID);
     }
-    public static function getCDRType($AccountID){
-        $BillingClassID = self::getBillingClassID($AccountID);
-        return BillingClass::getCDRType($BillingClassID);
-    }
+
     public static function getRoundChargesAmount($AccountID){
         $BillingClassID = self::getBillingClassID($AccountID);
         return BillingClass::getRoundChargesAmount($BillingClassID);

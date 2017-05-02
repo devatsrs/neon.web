@@ -15,6 +15,8 @@ BEGIN
 	DECLARE v_NewAccountIDCount_ INT;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 	
+	CALL prc_ProcessCDRService(p_CompanyID,p_processId,p_tbltempusagedetail_name);
+	
 	/* check service enable at gateway*/
 	DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
 	CREATE TEMPORARY TABLE tmp_Service_  (
@@ -114,21 +116,7 @@ BEGIN
 	IF p_RateFormat = 2
 	THEN
 
-		/* update trunk without use in billing*/
-		SET @stm = CONCAT('
-		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tblVendorTrunk ct 
-			ON ct.AccountID = ud.AccountID AND ct.Status =1 
-			AND ct.UseInBilling = 0 
-		INNER JOIN NeonRMDev.tblTrunk t 
-			ON t.TrunkID = ct.TrunkID  
-			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling
-		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.TrunkID IS NULL;
-		');
-
-		PREPARE stmt FROM @stm;
-		EXECUTE stmt;
-		DEALLOCATE PREPARE stmt;
+		
 
 		/* update trunk with use in billing*/
 		SET @stm = CONCAT('
@@ -145,6 +133,22 @@ BEGIN
 		PREPARE stm FROM @stm;
 		EXECUTE stm;
 		DEALLOCATE PREPARE stm;
+		
+		/* update trunk without use in billing*/
+		SET @stm = CONCAT('
+		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN NeonRMDev.tblVendorTrunk ct 
+			ON ct.AccountID = ud.AccountID AND ct.Status =1 
+			AND ct.UseInBilling = 0 
+		INNER JOIN NeonRMDev.tblTrunk t 
+			ON t.TrunkID = ct.TrunkID  
+			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling
+		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.TrunkID IS NULL;
+		');
+
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
 
 	END IF;
 

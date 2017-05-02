@@ -51,6 +51,22 @@ BEGIN
 	IF p_RateFormat = 2
 	THEN
 
+		/* update trunk with use in billing*/
+		SET @stm = CONCAT('
+		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN NeonRMDev.tblCustomerTrunk ct 
+			ON ct.AccountID = ud.AccountID AND ct.Status =1 
+			AND ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
+		INNER JOIN NeonRMDev.tblTrunk t 
+			ON t.TrunkID = ct.TrunkID  
+			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
+		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.is_inbound = 0 AND ud.TrunkID IS NULL;
+		');
+
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+
 		/* update trunk without use in billing*/
 		SET @stm = CONCAT('
 		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
@@ -66,22 +82,6 @@ BEGIN
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
 		DEALLOCATE PREPARE stmt;
-
-		/* update trunk with use in billing*/
-		SET @stm = CONCAT('
-		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tblCustomerTrunk ct 
-			ON ct.AccountID = ud.AccountID AND ct.Status =1 
-			AND ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
-		INNER JOIN NeonRMDev.tblTrunk t 
-			ON t.TrunkID = ct.TrunkID  
-			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
-		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.is_inbound = 0 AND ud.TrunkID IS NULL;
-		');
-
-		PREPARE stm FROM @stm;
-		EXECUTE stm;
-		DEALLOCATE PREPARE stm;
 
 	END IF;
 	
@@ -129,13 +129,13 @@ BEGIN
 		/* if rate format is prefix base not charge code*/
 		IF p_RateFormat = 2
 		THEN
-			CALL prc_updatePrefix(v_AccountID_,v_TrunkID_, p_processId, p_tbltempusagedetail_name);
+			CALL prc_updatePrefix(v_AccountID_,v_TrunkID_, p_processId, p_tbltempusagedetail_name,0);
 		END IF;
 
 		/* outbound rerate process*/
 		IF p_RateCDR = 1
 		THEN
-			CALL prc_updateOutboundRate(v_AccountID_,v_TrunkID_, p_processId, p_tbltempusagedetail_name);
+			CALL prc_updateOutboundRate(v_AccountID_,v_TrunkID_, p_processId, p_tbltempusagedetail_name,0);
 		END IF;
 
 		SET v_pointer_ = v_pointer_ + 1;

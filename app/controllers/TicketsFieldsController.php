@@ -80,7 +80,6 @@ private $validlicense;
 			
 			if(isset($jsonData->action) && $jsonData->action=='edit')
 			{	
-				//if(!isset($jsonData->required)){Log::info("isset data"); Log::info(print_r($jsonData,true));}
 				//$data['TicketFieldsID']       			   = 		$jsonData->id;
 				$data['CustomerLabel']       			   = 		$jsonData->label_in_portal;
 				$data['FieldDesc']       			  	   = 		$jsonData->description;
@@ -212,7 +211,6 @@ private $validlicense;
         }
 		
 		$Ticketfields		=   Ticketfields::OptimizeDbFields($TicketfieldsData);
-		//Log::info("Ticketfields");		//Log::info(print_r($Ticketfields,true));
 		
         return View::make('ticketsfields.board', compact('Ticketfields','message'))->render();
 	}
@@ -230,10 +228,9 @@ private $validlicense;
 	}
 	
 	function Save_Single_Field(){
-		$postdata    =  Input::all();
-			
+		$postdata    =  Input::all();	
 		 try
-		 {		//Log::info(print_r($postdata,true)); 			 	Log::info(print_r(json_decode($postdata['choices']),true)); 		 			exit;
+		 {		
 				DB::beginTransaction();
 				$data['CustomerLabel']       			   = 		$postdata['label_in_portal'];
 				$data['FieldHtmlType']        			   = 	 	Ticketfields::$TypeSave[$postdata['type']];				
@@ -251,10 +248,10 @@ private $validlicense;
 				$data['CustomerEdit']       			   = 		isset($postdata['editable_in_portal'])?$postdata['editable_in_portal']:0;
 				$data['CustomerReqSubmit']       		   = 		isset($postdata['required_in_portal'])?$postdata['required_in_portal']:0;
 				$data['FieldOrder']       		   		   = 		$postdata['position'];	
-				$data['FieldStaticType']				   =		Ticketfields::FIELD_TYPE_DYNAMIC;	
+				//
 							
 				if(!isset($postdata['id']) && empty($postdata['id']))
-				{	
+				{		$data['FieldStaticType']				   =		Ticketfields::FIELD_TYPE_DYNAMIC;	
 						$data['created_at']       		   		   = 		date("Y-m-d H:i:s");
 						$data['created_by']       		   		   = 		User::get_user_full_name();			
 						$TicketFieldsID 						   = 		Ticketfields::insertGetId($data);	
@@ -314,7 +311,12 @@ private $validlicense;
 						if(isset($postdata['deleted_choices']) && !empty($postdata['deleted_choices'])){
 								$deleted_choices = explode(",",$postdata['deleted_choices']);
 								foreach($deleted_choices as $deleted_choices_data){									
-									TicketfieldsValues::find($deleted_choices_data)->delete();		
+									TicketfieldsValues::find($deleted_choices_data)->delete();	 
+								
+								   TicketLog::where(['TicketFieldValueFromID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();
+								   TicketLog::where(['TicketFieldValueToID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();				   
+								   TicketDashboardTimeline::where(['TicketFieldValueFromID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();
+								   TicketDashboardTimeline::where(['TicketFieldValueToID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();							
 								}
 						}					
 					}
@@ -350,13 +352,18 @@ private $validlicense;
 						if(isset($postdata['deleted_choices']) && !empty($postdata['deleted_choices'])){
 								$deleted_choices = explode(",",$postdata['deleted_choices']);
 								foreach($deleted_choices as $deleted_choices_data){									
-									TicketfieldsValues::find($deleted_choices_data)->delete();		
+								   TicketfieldsValues::find($deleted_choices_data)->delete();	
+								   TicketLog::where(['TicketFieldValueFromID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();
+								   TicketLog::where(['TicketFieldValueToID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();				   
+								   TicketDashboardTimeline::where(['TicketFieldValueFromID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();
+								   TicketDashboardTimeline::where(['TicketFieldValueToID'=>$deleted_choices_data,"TicketFieldID"=>$postdata['id']])->delete();	
+
 								}
 						}					
 					}
 					
 											
-				}
+				} 
 				 DB::commit();
 				   return Response::json(["status" => "success", "message" => "Successfully updated."]);
 			 } catch (Exception $ex) {

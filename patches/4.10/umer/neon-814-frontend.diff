@@ -1,0 +1,41 @@
+From 5e6658049f70db9ec70083a092a39c1aad602d63 Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Tue, 4 Apr 2017 18:54:49 +0500
+Subject: [PATCH] neon 814
+
+---
+ app/views/trunk/trunkmodal.blade.php | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/app/views/trunk/trunkmodal.blade.php b/app/views/trunk/trunkmodal.blade.php
+index d8c7439..0ef2788 100644
+--- a/app/views/trunk/trunkmodal.blade.php
++++ b/app/views/trunk/trunkmodal.blade.php
+@@ -79,16 +79,22 @@
+                                 </div>
+                             </div>
+                         </div>
++                        
+                         <div class="row">
+                             <div class="col-md-12">
+                                 <div class="form-group">
+-                                    <label for="field-1" class="col-sm-3 control-label">Active</label>
++                                    <label for="field-1" class="col-sm-12 control-label">Active</label>                                    
++
++                                </div>
++                                <div class="form-group">                                    
+                                     <div class="make-switch switch-small">
+                                         <input type="checkbox" name="Status"  @if(Input::old('Status') =='' ) checked="" @else  @if( ( Input::old('Status') !='' ) && Input::old('Status') == 1 ) checked=""  @endif @endif value="1">
+                                     </div>
++
+                                 </div>
+                             </div>
+-                        </div>
++                        </div>                        
++                        
+                     </div>
+                     <div class="modal-footer">
+                         <input type="hidden" name="TrunkID" />
+-- 
+1.9.5.msysgit.0
+

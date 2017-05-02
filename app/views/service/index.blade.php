@@ -19,19 +19,47 @@
     </a>
 @endif
 </p>
-<div class="form-group">
-    <label class="control-label">Status</label>
-        <p class="make-switch switch-small mar-left-5 mar-top-5" >
-            <input id="ServiceStatus" type="checkbox" checked>
-            <input id="ServiceRefresh" type="hidden" value="1">
-        </p>
+<div class="row">
+    <div class="col-md-12">
+        <form id="service_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title"> Filter </div>
+                    <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-1 control-label">Name</label>
+                        <div class="col-sm-2"> {{ Form::text('ServiceName', '', array("class"=>"form-control")) }} </div>
+
+                        <label for="field-1" class="col-sm-1 control-label">Gateway</label>
+                        <div class="col-sm-2">{{ Form::select('CompanyGatewayID',CompanyGateway::getCompanyGatewayIdList(),'', array("class"=>"select2 small")) }}</div>
+
+                        <label for="field-1" class="col-sm-1 control-label">Status</label>
+                        <div class="col-sm-2">
+                            <p class="make-switch switch-small">
+                                <input id="ServiceStatus" name="ServiceStatus" type="checkbox" checked>
+                                <input id="ServiceRefresh" type="hidden" value="1">
+                            </p>
+                        </div>
+                    </div>
+                    <p style="text-align: right;">
+                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
+
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
         <th>Status</th>
         <th>Name</th>
         <th>Type</th>
+        <th>Gateway</th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -42,21 +70,33 @@
 </table>
 
 <script type="text/javascript">
+    var $searchFilter = {};
     jQuery(document).ready(function ($) {
+
+        $searchFilter.ServiceName = $("#service_filter [name='ServiceName']").val();
+        $searchFilter.CompanyGatewayID = $("#service_filter [name='CompanyGatewayID']").val();
+        $searchFilter.ServiceStatus = $("#service_filter [name='ServiceStatus']").prop("checked");
+
         data_table = $("#table-4").dataTable({
 
             "bProcessing":true,
             "bServerSide":true,
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "sAjaxSource": baseurl + "/services/ajax_datagrid",
-            "iDisplayLength": parseInt('{{Config::get('app.pageSize')}}'),
+            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
-            "aaSorting"   : [[5, 'desc']],    
+            "aaSorting"   : [[5, 'desc']],
+            "fnServerParams": function(aoData) {
+                aoData.push({"name":"ServiceName","value":$searchFilter.ServiceName},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"ServiceStatus","value":$searchFilter.ServiceStatus});
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push({"name":"ServiceName","value":$searchFilter.ServiceName},{"name":"CompanyGatewayID","value":$searchFilter.CompanyGatewayID},{"name":"ServiceStatus","value":$searchFilter.ServiceStatus},{ "name": "Export", "value": 1});
+            },
             "aoColumns": 
              [
-                { "bVisible": false, "bSortable": true  },
-                { "bSortable": true },
-                { "bSortable": true },
+                { "bVisible": false, "bSortable": true  }, //Status
+                { "bSortable": true }, //Name
+                { "bSortable": true }, //Type
+                { "bSortable": true }, //Gateway
                 {
                    "bSortable": true,
                     mRender: function ( id, type, full ) {
@@ -64,12 +104,13 @@
                         action = '<div class = "hiddenRowData" >';
                         action += '<input type = "hidden"  name = "ServiceName" value = "' + (full[1] != null ? full[1] : '') + '" / >';
                         action += '<input type = "hidden"  name = "ServiceType" value = "' + (full[2] != null ? full[2] : '') + '" / >';
+                        action += '<input type = "hidden"  name = "CompanyGatewayID" value = "' + (full[5] != null ? full[5] : '') + '" / >';
                         action += '<input type = "hidden"  name = "Status" value = "' + (full[0] != null ? full[0] : 0) + '" / ></div>';
                         <?php if(User::checkCategoryPermission('Service','Edit')){ ?>
-                                action += ' <a data-name = "'+full[1]+'" data-id="'+ full[3] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                action += ' <a data-name = "'+full[1]+'" data-id="'+ full[4] +'" title="Edit" class="edit-service btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                         <?php } ?>
                         <?php if(User::checkCategoryPermission('Service','Delete')){ ?>
-                                action += ' <a data-id="'+ full[3] +'" title="Delete" class="delete-service btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                                action += ' <a data-id="'+ full[4] +'" title="Delete" class="delete-service btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
                         <?php } ?>
                         return action;
                       }
@@ -126,12 +167,24 @@
                 });
             }
         });
+        /*
         $('#ServiceStatus').change(function() {
              if ($(this).is(":checked")) {
                 data_table.fnFilter(1,0);  // 1st value 2nd column index
             } else {
                 data_table.fnFilter(0,0);
             } 
+        });*/
+
+        $("#service_filter").submit(function(e) {
+            e.preventDefault();
+
+            $searchFilter.ServiceName = $("#service_filter [name='ServiceName']").val();
+            $searchFilter.CompanyGatewayID = $("#service_filter [name='CompanyGatewayID']").val();
+            $searchFilter.ServiceStatus = $("#service_filter [name='ServiceStatus']").prop("checked");
+
+            data_table.fnFilter('', 0);
+            return false;
         });
 
         $(".dataTables_wrapper select").select2({
@@ -162,6 +215,7 @@
 
             ServiceName = $(this).prev("div.hiddenRowData").find("input[name='ServiceName']").val();
             ServiceType = $(this).prev("div.hiddenRowData").find("input[name='ServiceType']").val();
+            CompanyGatewayID = $(this).prev("div.hiddenRowData").find("input[name='CompanyGatewayID']").val();
             Status = $(this).prev("div.hiddenRowData").find("input[name='Status']").val();
             if(Status == 1 ){
                 $('#add-new-service-form [name="Status"]').prop('checked',true);
@@ -171,6 +225,7 @@
 
             $("#add-new-service-form [name='ServiceName']").val(ServiceName);
             $("#add-new-service-form [name='ServiceType']").select2().select2('val',ServiceType);
+            $("#add-new-service-form [name='CompanyGatewayID']").select2().select2('val',CompanyGatewayID);
             $("#add-new-service-form [name='ServiceID']").val($(this).attr('data-id'));
             $('#add-new-modal-service h4').html('Edit Service');
             $('#add-new-modal-service').modal('show');

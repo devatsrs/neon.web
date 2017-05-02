@@ -3,26 +3,24 @@
 @section('content')
 <style type="text/css">
 	#pdf_footer {
-    bottom: 0;
-    border-top: 0.1pt solid #aaa;
-    left: 0;
-    right: 0;
-    color: #aaa;
-    font-size: 10px;
-    text-align: center;
+		bottom: 0;
+		/*border-top: 1px solid #aaaaaa;  */
+		color: #555555;
+		font-size: 10px;
+}
+#pdf_footer table {
+	width:100%;
 }
 </style>
-<div id="pdf_footer">
-    <table>
-        <tbody>
-            <tr>
-                <td>
-                    {{nl2br($Estimate->FooterTerm)}}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+	<!-- footer section start -->
+	<div id="pdf_footer">
+		{{nl2br($Estimate->FooterTerm)}}
+		
+	</div>
+	<!-- footer section start -->
+</div> <!-- invoicebody(class) section end -->
 
-
- @stop
+@stop
+ 
+ 
+ 

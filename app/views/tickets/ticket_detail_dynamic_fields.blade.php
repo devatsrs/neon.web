@@ -104,9 +104,15 @@ $readonly = ''; $disable = ''; if(!User::checkCategoryPermission('Tickets','Edit
 				}					
 				else
 				{
-			 	 
-					$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
-					foreach($FieldValues as $FieldValuesData){
+			 	 	$FieldValues = TicketfieldsValues::where(["FieldsID"=>$TicketfieldsData->TicketFieldsID])->orderBy('FieldOrder', 'asc')->get();
+					
+					foreach($FieldValues as $FieldValuesData){						
+							if($TicketfieldsData->FieldType == 'default_status')
+							{
+								if($FieldValuesData->FieldValueAgent==TicketfieldsValues::$Status_UnResolved){	
+									continue;
+								}
+							}
 					?>
         <option @if($ticketSavedData[$TicketfieldsData->FieldType]==$FieldValuesData->ValuesID) selected  @endif  value="{{$FieldValuesData->ValuesID}}">{{$FieldValuesData->FieldValueAgent}}</option>
         <?php
@@ -242,7 +248,8 @@ var required_flds	  =          '{{json_encode($required)}}';
 					data:formData,
 					success: function(response) { 
 					   if(response.status =='success'){					   
-							ShowToastr("success",response.message); 		
+							ShowToastr("success",response.message); 	
+							location.reload();	
 						}else{
 							toastr.error(response.message, "Error", toastr_opts);
 						} 

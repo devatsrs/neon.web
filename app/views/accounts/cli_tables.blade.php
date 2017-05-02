@@ -52,17 +52,20 @@
                         style="background-color: #000; border-color: #000; margin-top:0px;">
                         <li>
                             <a class="create" id="add-clitable" href="javascript:;">
+                                <i class="entypo-plus"></i>
                                 Add
                             </a>
                         </li>
                         <li>
                             <a class="generate_rate create" id="bulk-delete-cli" href="javascript:;"
                                style="width:100%">
+                                <i class="entypo-trash"></i>
                                 Delete
                             </a>
                         </li>
                         <li>
                             <a class="generate_rate create" id="changeSelectedCLI" href="javascript:;">
+                                <i class="entypo-pencil"></i>
                                 Change RateTable
                             </a>
                         </li>
@@ -76,7 +79,8 @@
             <tr>
                 <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
                 <th width="30%">CLI</th>
-                <th width="35%">Rate table</th>
+                <th width="35%">Rate Table</th>
+                <th width="20%">Service</th>
                 <th width="30%">Action</th>
             </tr>
             </thead>
@@ -115,7 +119,9 @@ var ServiceID='{{$ServiceID}}';
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">RateTable</label>
+                                    <label for="field-5" class="control-label">RateTable
+                                        <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select Rate Table to rate Inboud Calls based on origination no" data-original-title="Rate Table">?</span></label>
+                                    </label>
                                     {{ Form::select('RateTableID', $rate_table , '' , array("class"=>"select2")) }}
                                 </div>
                             </div>

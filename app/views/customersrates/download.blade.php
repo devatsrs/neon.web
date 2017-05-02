@@ -166,6 +166,7 @@
 }
 </style>
 <script type="text/javascript">
+var editor_options 	 	=  		{"leadoptions":true};
 jQuery(document).ready(function ($) {
 
     $('#fileformat').change(function(e){
@@ -262,6 +263,7 @@ jQuery(document).ready(function ($) {
         e.preventDefault();
         $("#BulkMail-form [name='email_template']").val('').trigger("change");
         $("#BulkMail-form [name='template_option']").val('').trigger("change");
+        $("#BulkMail-form [name='test']").val(0);
         //$("#BulkMail-form [name='Type']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('')
         $("#BulkMail-form")[0].reset();
         $("#modal-BulkMail").modal({
@@ -387,32 +389,18 @@ jQuery(document).ready(function ($) {
 
     $('#modal-BulkMail').on('shown.bs.modal', function(event){
         var modal = $(this);
-        modal.find('.message').wysihtml5({
-           "font-styles": true,
-            "emphasis": true,
-            "leadoptions":true,
-            "Crm":false,
-            "lists": true,
-            "html": true,
-            "link": true,
-            "image": true,
-            "color": false,
-            parser: function(html) {
-                return html;
-            }
-        });
+        show_summernote(modal.find('.message'),editor_options);
     });
 
     $('#modal-BulkMail').on('hidden.bs.modal', function(event){
         var modal = $(this);
-        modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
         modal.find('.message').show();
     });
 
     function editor_reset(data){
         var modal = $("#modal-BulkMail");
-        modal.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
         modal.find('.message').show();
+        show_summernote(modal.find('.message'),editor_options);
         if(!Array.isArray(data)){
             var EmailTemplate = data['EmailTemplate'];
             modal.find('[name="subject"]').val(EmailTemplate.Subject);
@@ -421,21 +409,7 @@ jQuery(document).ready(function ($) {
             modal.find('[name="subject"]').val('');
             modal.find('.message').val('');
         }
-        modal.find('.message').wysihtml5({
-            "font-styles": true,
-            "emphasis": true,
-            "leadoptions":true,
-            "Crm":false,
-            "lists": true,
-            "html": true,
-            "link": true,
-            "image": true,
-            "color": false,
-            parser: function(html) {
-                return html;
-            }
-        });
-    }
+     }
 
     $("#test").click(function(e){
         e.preventDefault();
@@ -548,9 +522,6 @@ var data_table_new = $("#"+tableID).dataTable({
 }
 
 </script>
-<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
-<script src="{{ URL::asset('assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js') }}"></script>
-<script src="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.js') }}"></script>
 @stop
 
 @section('footer_ext')

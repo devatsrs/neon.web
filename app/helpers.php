@@ -156,6 +156,16 @@ function rategenerators_dropbox($id=0,$data=array()){
     return Form::select('rategenerators', $all_rategenerators, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
+function businesshours_dropbox($id=0,$data=array()){
+    $all_Businesshours = TicketBusinessHours::getBusinesshours(0);
+    return Form::select('businesshours', $all_Businesshours, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+function slapolicies_dropbox($id=0,$data=array()){
+    $all_slapolicies = TicketSla::getSlapolicies();
+    return Form::select('slapolicies', $all_slapolicies, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
 function rate_tables_dropbox($id=0,$data=array()){
     $all_getRateTables = RateTable::getRateTables();
     return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
@@ -168,6 +178,11 @@ function contacts_dropbox($id=0,$data=array()){
 function ticketgroup_dropbox($id=0,$data=array()){
     $all_ticketsgroups = TicketGroups::getTicketGroups_dropdown($data);
     return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
+function accountservice_dropbox($AccountID,$ServiceID){
+    $all_accsevices = accountservice::getAccountServiceIDList($AccountID);
+    return Form::select('accountservice', $all_accsevices, $ServiceID ,array("id"=>"drp_accountservice_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 function sendMail($view,$data,$ViewType=1){
     
@@ -316,8 +331,11 @@ Form::macro('selectItem', function($name, $data , $selected , $extraparams )
     return $output;
 });
 
-Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,$nameID='') {
+Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,$nameID='',$initialize=1) {
     $small = $compact==1?"small":'';
+    $select2 = $initialize==1?"select2":'select22';//for manual initialize set 0.
+    $isComposit = 0;
+    $extraClass = '';
     $name = '';
     $modal = '';
     $data = [];
@@ -345,6 +363,12 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
         $name = 'ProductID';
         $modal = 'add-edit-modal-product';
         $data = Product::getProductDropdownList();
+    }elseif($type=='item_and_Subscription'){
+        $name = 'ProductItemID';
+        $modal = 'add-edit-modal-product-subscription';
+        $data = [Product::ITEM=>Product::getProductDropdownList() ,Product::SUBSCRIPTION=> BillingSubscription::getSubscriptionsList()];
+        $extraClass = 'product_dropdown';
+        $isComposit = 1;
     }elseif($type=='service'){
         $name = 'ServiceID';
         $modal = 'add-new-modal-service';
@@ -353,12 +377,45 @@ Form::macro('SelectControl', function($type,$compact=0,$selection='',$disable=0,
     if(!empty($nameID)){
         $name= $nameID;
     }
-    $arr = ['class' => 'select2 select2add '.$small , 'data-modal' => $modal, 'data-active'=>0,'data-type'=>$type];
+    //select2add    :for Add button
+    //data-modal    :for target open modal
+    //data-active   :For current active drop-down
+    //data-type     :For drop-down recognition while adding new item
+    //small         :For compact drop-down
+    //extraClass    :Any extra class add to drop-down
+    //data-composite :For drop-down recognition while adding new item
+    $arr = ['class' => $select2.' select2add '.$small.' '.$extraClass , 'data-modal' => $modal, 'data-active'=>0,'data-type'=>$type];
     if($disable==1){
         $arr['disabled'] = 'disabled';
     }
-    return Form::select($name,$data , $selection, $arr);
+    if($isComposit==1){
+        $arr['data-composite'] = 1;
+       return compositDropdown($name, $data, $selection, $arr);
+    }
+    return Form::select($name, $data, $selection, $arr);
 });
+
+function compositDropdown($name,$data,$selection,$arr)
+{
+    $attr = '';
+    foreach($arr as $index=>$att){
+        $attr .= $index.'="'.$att.'" ';
+    }
+    $select = '<select name="'.$name.'" '.$attr.'>';
+    foreach($data as $index=>$cate){
+        $select .= ' <optgroup class="optgroup_'.Product::$TypetoProducts[$index].'" label="'.ucfirst(Product::$TypetoProducts[$index]).'">';
+        foreach($cate as $key=>$val) {
+            $selected = (!empty($selection) && $key==$selection['ID'] && $index==$selection['Type'])?'selected':'';
+            $select .= '    <option value="' . $key . '" '.$selected.'>';
+            $select .= $val;
+            $select .= '    </option>';
+        }
+        $select .= ' </optgroup>';
+    }
+    $select .= '</select>';
+    return $select;
+}
+
 
 function is_amazon($CompanyID = 0){
 	
@@ -1011,12 +1068,12 @@ function get_random_number(){
 // sideabar submenu open when click on
 function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
-    $path_array 	  =    explode("Controller",$Path); 
+    $path_array 	  =    explode("Controller",$Path);
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup","DialString");
     $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
-	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup");
+	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
 	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
@@ -1075,7 +1132,7 @@ function check_uri($parent_link=''){
             return 'opened';
         }
 		
-		 if(in_array($controller,$array_tickets) && $parent_link =='tickets')
+		 if(in_array($controller,$array_tickets) && $parent_link =='tickets' && $path_array[1]!='@monitor_dashboard')
         {
             return 'opened';
         }
@@ -1424,12 +1481,7 @@ function next_billing_date($BillingCycleType,$BillingCycleValue,$BillingStartDat
                 }
                 break;
             case 'yearly':
-                $CurrentDate = date("Y-m-d",  $BillingStartDate); // Current date
-                if($CurrentDate<=date("Y-m-d")) {
-                    $NextInvoiceDate = date("Y-m-d", strtotime("+1 year", $BillingStartDate));
-                }else{
-                    $NextInvoiceDate = date("Y-m-d",$CurrentDate);
-                }
+                $NextInvoiceDate = date("Y-m-d", strtotime("+1 year", $BillingStartDate));
                 break;
         }
         $Timezone = Company::getCompanyTimeZone(0);
@@ -1560,11 +1612,11 @@ function getQuickBookAccountant(){
     else
     {
         $body = $data['Message'];
-    } Log::info(print_r($status,true));
+    } 
 	if(!isset($status['message_id']))
 	{
 		$status['message_id'] = '';
-	} Log::info($status['message_id']);
+	} 
 	if(!isset($data['EmailCall']))
 	{
 		$data['EmailCall'] = Messages::Sent;
@@ -1592,7 +1644,6 @@ function getQuickBookAccountant(){
 		"EmailParent"=>isset($data['EmailParent'])?$data['EmailParent']:$EmailParent,
 		"EmailCall"=>$data['EmailCall'],
     ];
-	Log::info(print_r($logData,true));
     $data =  AccountEmailLog::insertGetId($logData);
     return $data;
 }
@@ -2006,9 +2057,108 @@ function custom_implode($array){
     return implode('!!',$array).'!!';
 }
 
+function get_ticket_status_date_array($result_data) {
+
+    $sla_timer = true;
+    $status				=	TicketsTable::getTicketStatusByID($result_data->Status);
+
+    if (in_array($result_data->Status, array_keys( TicketsTable::getTicketStatusOnHold() ) )) {  // SLATimer=off
+        $sla_timer = false;
+    }
+    $due = $overdue = false ;
+    if ($sla_timer) {
+
+        $the_date = $result_data->DueDate;
+
+        if(\Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->isFuture()) {
+            $due = true ;
+        }else {
+            $overdue = true;
+        }
 
 
+    } else {
+        $the_date = TicketLog::where(['TicketID'=>$result_data->TicketID,"TicketFieldValueToID"=>$result_data->Status])->orderby("TicketLogID","DESC")->pluck("created_at");
+    }
 
 
+    $response = [ "the_date" => $the_date,
+        "hunam_readable" =>  \Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->diffForHumans(null, true),
+        "sla_timer" => $sla_timer,
+        "due" => $due,
+        "overdue" => $overdue,
+        "status" => $status,
+    ];
 
+    return $response;
+
+}
+function get_ticket_response_due_label($result_data) {
+
+    $output = $overdue = "";
+
+    if($result_data->Read==0) {
+        return '<div class="label label-primary">NEW</div>';
+
+    } else if (TicketfieldsValues::isClosed($result_data->Status)) {
+        return '<div class="label label-danger">'.strtoupper(TicketfieldsValues::$Status_Closed).'</div>';
+
+    } else if (TicketfieldsValues::isResolved($result_data->Status)) {  //closed or resolved
+        return '<div class="label label-danger">'.strtoupper(TicketfieldsValues::$Status_Resolved).'</div>';
+    }else {
+
+        $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
+
+        if (in_array($result_data->Status,array_keys($TicketStatusOnHold))) {  // SLATimer=off
+            $output = '<div class="label label-warning">'.strtoupper($TicketStatusOnHold[$result_data->Status]).'</div>';
+        }else {
+
+            if($result_data->CustomerResponse > $result_data->AgentResponse ){
+                $output = "<div class='label label-info'>CUSTOMER REPLIED</div>";
+
+            }else if( $result_data->CustomerResponse < $result_data->AgentResponse ){
+                $output = "<div class='label label-info'>AGENT REPLIED</div>";
+
+            }
+            if( \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isPast() ) {
+                $overdue = ' <div class="label label-danger">OVERDUE</div>';
+            }
+        }
+
+
+    }
+
+    return $output . $overdue;
+
+}
+
+function SowCustomerAgentRepliedDate($result_data)
+{
+    if(!empty($result_data->AgentRepliedDate) && !empty($result_data->CustomerRepliedDate))
+    {
+        if($result_data->AgentRepliedDate>$result_data->CustomerRepliedDate)
+        {
+            return ", Agent responded: ".\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->AgentRepliedDate))->diffForHumans();
+        }
+
+        if($result_data->AgentRepliedDate<$result_data->CustomerRepliedDate)
+        {
+            return ", Customer responded: ".\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->CustomerRepliedDate))->diffForHumans();
+        }
+    }
+    elseif(empty($result_data->AgentRepliedDate) || empty($result_data->CustomerRepliedDate))
+    {
+        if(empty($result_data->CustomerRepliedDate) && !empty($result_data->AgentRepliedDate))
+        {
+            return ", Agent responded: ".\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->AgentRepliedDate))->diffForHumans();
+        }
+
+        if(empty($result_data->AgentRepliedDate) && !empty($result_data->CustomerRepliedDate))
+        {
+            return ", Customer responded: ".\Carbon\Carbon::createFromTimeStamp(strtotime($result_data->CustomerRepliedDate))->diffForHumans();
+        }
+
+    }
+
+}
 

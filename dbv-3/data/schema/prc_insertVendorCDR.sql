@@ -31,6 +31,7 @@ BEGIN
 	ON h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
+		AND h.ServiceID = d.ServiceID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
 	WHERE processid = "' , p_processId , '" AND  billed_duration = 0 AND buying_cost = 0 ;
 	');
@@ -55,6 +56,7 @@ BEGIN
 	ON h.CompanyID = d.CompanyID
 		AND h.CompanyGatewayID = d.CompanyGatewayID
 		AND h.GatewayAccountID = d.GatewayAccountID
+		AND h.ServiceID = d.ServiceID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
 	WHERE processid = "' , p_processId , '" ;
 	');

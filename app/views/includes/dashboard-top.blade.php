@@ -41,11 +41,7 @@
                  </a>
              </li>
 -->
-		@if(User::checkCategoryPermission('emailmessages','All'))
-        <li> <a href="{{Url::to('/emailmessages')}}"> <i class="entypo-mail"></i> <span>Mailbox</span> </a></li>
-      	@endif
-
-           <li><a href="{{URL::to('/jobs')}}"><i class="entypo-clipboard"></i>Jobs</a></li>
+		   <li><a href="{{URL::to('/jobs')}}"><i class="entypo-clipboard"></i>Jobs</a></li>
         </ul>
     </li>
 
@@ -62,7 +58,14 @@
          </li>
      </ul>
 </li>
-	<!-- Message Notifications -->
+    <!-- Cron job Notifications -->
+    @if( User::checkCategoryPermission('CronJob','View'))
+        <li class="notifications cron_jobs dropdown">
+            <a title="Cron Jobs" href="{{Url::to('cronjob_monitor')}}"><i class="glyphicon glyphicon-time"></i>&nbsp;&nbsp;
+                <span id="failing_placeholder"  title="" data-placement="right" class="hidden badge badge-danger" data-toggle="tooltip" data-original-title="Cron Job is failing...">!</span>
+            </a>
+        </li>
+    @endif
 </ul>
 </div>
 <!-- Raw Links -->

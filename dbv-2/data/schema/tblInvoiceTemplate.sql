@@ -26,5 +26,10 @@ CREATE TABLE `tblInvoiceTemplate` (
   `Type` int(11) DEFAULT NULL,
   `FooterTerm` longtext COLLATE utf8_unicode_ci,
   `ShowBillingPeriod` int(11) DEFAULT '0',
+  `InvoiceTo` longtext COLLATE utf8_unicode_ci,
+  `ServiceSplit` int(11) DEFAULT '0',
+  `UsageColumn` longtext COLLATE utf8_unicode_ci,
+  `GroupByService` int(11) DEFAULT '0',
+  `CDRType` int(11) DEFAULT '0',
   PRIMARY KEY (`InvoiceTemplateID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

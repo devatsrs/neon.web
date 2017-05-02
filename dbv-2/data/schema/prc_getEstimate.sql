@@ -1,4 +1,17 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getEstimate`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `p_EstimateNumber` VARCHAR(50), IN `p_IssueDateStart` DATETIME, IN `p_IssueDateEnd` DATETIME, IN `p_EstimateStatus` VARCHAR(50), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_CurrencyID` INT, IN `p_isExport` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getEstimate`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_EstimateNumber` VARCHAR(50),
+	IN `p_IssueDateStart` DATETIME,
+	IN `p_IssueDateEnd` DATETIME,
+	IN `p_EstimateStatus` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_CurrencyID` INT,
+	IN `p_isExport` INT
+)
 BEGIN
     
     DECLARE v_OffSet_ INT;
@@ -27,7 +40,7 @@ BEGIN
 		  inv.converted
         FROM tblEstimate inv
         INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
-        INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
+        INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID AND ab.ServiceID = 0
         INNER JOIN NeonRMDev.tblBillingClass b ON ab.BillingClassID = b.BillingClassID
 		  LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
@@ -72,7 +85,7 @@ BEGIN
         FROM
         tblEstimate inv
         INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
-        INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
+        INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID AND ab.ServiceID = 0
         INNER JOIN NeonRMDev.tblBillingClass b ON ab.BillingClassID = b.BillingClassID
 		  LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
@@ -92,7 +105,7 @@ BEGIN
         inv.EstimateStatus
         FROM tblEstimate inv
         INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
-        INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
+        INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID AND ab.ServiceID = 0
         INNER JOIN NeonRMDev.tblBillingClass b ON ab.BillingClassID = b.BillingClassID
 		  LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID
@@ -114,7 +127,7 @@ BEGIN
         inv.EstimateID
         FROM tblEstimate inv
         INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
-        INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID
+        INNER JOIN NeonRMDev.tblAccountBilling ab ON ab.AccountID = ac.AccountID AND ab.ServiceID = 0
         INNER JOIN NeonRMDev.tblBillingClass b ON ab.BillingClassID = b.BillingClassID
 		  LEFT JOIN tblInvoiceTemplate it on b.InvoiceTemplateID = it.InvoiceTemplateID
         WHERE ac.CompanyID = p_CompanyID

@@ -71,6 +71,12 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
+                                    <label for="field-5" class="control-label">Gateway</label>
+									{{ Form::select('CompanyGatewayID',CompanyGateway::getCompanyGatewayIdList(),'', array("class"=>"select2")) }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
                                     <label for="field-5" class="control-label">Active</label>
                                     <div class="make-switch switch-small">
 										<input type="checkbox" name="Status" checked="" value="1">

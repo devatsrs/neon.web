@@ -1,0 +1,1197 @@
+From 1403fbd47055ebaee3607120aa7389588d6fe853 Mon Sep 17 00:00:00 2001
+From: Abubakar <abubakar@code-desk.com>
+Date: Mon, 27 Mar 2017 22:07:18 +0500
+Subject: [PATCH] Abubakar changes
+
+---
+ app/controllers/CustomersRatesController.php       |   4 +-
+ app/views/contacts/index.blade.php                 |  12 +-
+ app/views/cronjob/history.blade.php                | 320 +++++++++++----------
+ app/views/customersrates/download.blade.php        |   1 +
+ app/views/estimates/edit.blade.php                 |  93 +++---
+ app/views/includes/sidebar.blade.php               |   3 -
+ app/views/invoices/edit.blade.php                  |  91 +++---
+ app/views/rategenerators/edit.blade.php            |   2 +-
+ app/views/recurringinvoices/create.blade.php       |  19 +-
+ app/views/recurringinvoices/edit.blade.php         | 104 ++++---
+ app/views/recurringinvoices/index.blade.php        |  53 ++--
+ .../recurringinvoicelog.blade.php                  |  11 +-
+ .../script_recurringinvoice_add_edit.blade.php     |  10 +-
+ 13 files changed, 398 insertions(+), 325 deletions(-)
+
+diff --git a/app/controllers/CustomersRatesController.php b/app/controllers/CustomersRatesController.php
+index ccd8e02..ddd2e8b 100644
+--- a/app/controllers/CustomersRatesController.php
++++ b/app/controllers/CustomersRatesController.php
+@@ -291,10 +291,10 @@ class CustomersRatesController extends \BaseController {
+                 if (isset($data['test']) && $data['test'] == 1) {
+                     $test = 1;
+                 }
+-                if ($test == 0) {
++                /*if ($test == 0) {
+                     $data['customer'][] = $id;
+                     $data['SelectedIDs'] = implode(',', $data['customer']);
+-                }
++                }*/
+                 unset($data['customer']);
+                 unset($data['account_owners']);
+                 unset($data['Type']);
+diff --git a/app/views/contacts/index.blade.php b/app/views/contacts/index.blade.php
+index 864229e..7c43f35 100644
+--- a/app/views/contacts/index.blade.php
++++ b/app/views/contacts/index.blade.php
+@@ -52,7 +52,7 @@
+             "sPaginationType": "bootstrap",
+             "oTableTools": {},
+             "aaSorting"   : [[4, 'desc']],
+-            "aoColumns": 
++            "aoColumns":
+              [
+                 { "bSortable": true }, //0 Fill name
+                 { "bSortable": true }, //1 Owner
+@@ -65,7 +65,7 @@
+                         edit_ = "{{ URL::to('contacts/{id}/edit')}}";
+                         show_ = "{{ URL::to('contacts/{id}/show')}}";
+                         delete_ = "{{ URL::to('contacts/{id}/delete')}}";
+- 
++
+                         edit_ = edit_.replace( '{id}', id );
+                         show_ = show_.replace( '{id}', id );
+                         delete_  = delete_ .replace( '{id}', id );
+@@ -120,14 +120,8 @@
+             replaceCheckboxes();
+         });
+     });
+-    $('body').on('click', '.btn.delete', function (e) {
++    $('body').on('click', 'a[title="Delete"]', function (e) {
+                 e.preventDefault();
+-
+-                response = confirm('Are you sure?');
+-                if( typeof $(this).attr("data-redirect")=='undefined'){
+-                    $(this).attr("data-redirect",'{{ URL::previous() }}')
+-                }
+-                redirect = $(this).attr("data-redirect");
+                 if (response) {
+ 
+                     $.ajax({
+diff --git a/app/views/cronjob/history.blade.php b/app/views/cronjob/history.blade.php
+index 97b6178..57a677a 100644
+--- a/app/views/cronjob/history.blade.php
++++ b/app/views/cronjob/history.blade.php
+@@ -1,192 +1,198 @@
+ @extends('layout.main')
+ @section('content')
+-<ol class="breadcrumb bc-3">
+-    <li>
+-        <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
+-    </li>
+-    <li>
+-        <a href="{{URL::to('cronjob_monitor')}}">Cron Job</a>
+-    </li>
+-    <li class="active">
+-        <strong>{{$JobTitle}}</strong>
+-    </li>
+-</ol>
+-<h3>Cron Job History</h3>
++    <ol class="breadcrumb bc-3">
++        <li>
++            <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
++        </li>
++        <li>
++            <a href="{{URL::to('cronjob_monitor')}}">Cron Job</a>
++        </li>
++        <li class="active">
++            <strong>{{$JobTitle}}</strong>
++        </li>
++    </ol>
++    <h3>Cron Job History</h3>
+ 
+-<div class="row">
+-    <div class="col-md-12">
+-        <form id="history_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
+-            <div class="panel panel-primary" data-collapsed="0">
+-                <div class="panel-heading">
+-                    <div class="panel-title">
+-                        Filter
+-                    </div>
+-                    <div class="panel-options">
+-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+-                    </div>
+-                </div>
+-                <div class="panel-body">
+-                    <div class="form-group">
+-                        <label for="field-1" class="col-sm-1 control-label">Search</label>
+-                        <div class="col-sm-2">
+-                            <input class="form-control" name="Search"  type="text" >
++    <div class="row">
++        <div class="col-md-12">
++            <form id="history_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
++                <div class="panel panel-primary" data-collapsed="0">
++                    <div class="panel-heading">
++                        <div class="panel-title">
++                            Filter
+                         </div>
+-                        <label class="col-sm-1 control-label">Status</label>
+-                        <div class="col-sm-2">
+-                            {{ Form::select('Status', [""=>"Both",1=>"Success",2=>"Failed"], '', array("class"=>"form-control select2 small")) }}
++                        <div class="panel-options">
++                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                         </div>
+-
+                     </div>
+-                    <div class="form-group">
+-                        <label for="field-1" class="col-sm-1 control-label">Start Date</label>
+-                        <div class="col-sm-2">
+-                            {{ Form::text('StartDate', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+-                        </div>
+-                        <div class="col-sm-2  small-date-input">
+-                            <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
+-                        </div>
+-                        <label for="field-1" class="col-sm-1 control-label">End Date</label>
+-                        <div class="col-sm-2">
+-                            {{ Form::text('EndDate', !empty(Input::get('EndDate'))?Input::get('ToDate'):$data['EndDateDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
++                    <div class="panel-body">
++                        <div class="form-group">
++                            <label for="field-1" class="col-sm-1 control-label">Search</label>
++                            <div class="col-sm-2">
++                                <input class="form-control" name="Search"  type="text" >
++                            </div>
++                            <label class="col-sm-1 control-label">Status</label>
++                            <div class="col-sm-2">
++                                {{ Form::select('Status', [""=>"Both",1=>"Success",2=>"Failed"], '', array("class"=>"form-control select2 small")) }}
++                            </div>
++
+                         </div>
+-                        <div class="col-sm-2  small-date-input">
+-                            <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" placeholder="00:00:00" data-template="dropdown" class="form-control timepicker">
++                        <div class="form-group">
++                            <label for="field-1" class="col-sm-1 control-label">Start Date</label>
++                            <div class="col-sm-2">
++                                {{ Form::text('StartDate', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
++                            </div>
++                            <div class="col-sm-2  small-date-input">
++                                <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
++                            </div>
++                            <label for="field-1" class="col-sm-1 control-label">End Date</label>
++                            <div class="col-sm-2">
++                                {{ Form::text('EndDate', !empty(Input::get('EndDate'))?Input::get('ToDate'):$data['EndDateDefault'], array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
++                            </div>
++                            <div class="col-sm-2  small-date-input">
++                                <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" placeholder="00:00:00" data-template="dropdown" class="form-control timepicker">
++                            </div>
+                         </div>
++                        <p style="text-align: right;">
++                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
++                                <i class="entypo-search"></i>
++                                Search
++                            </button>
++                        </p>
+                     </div>
+-                    <p style="text-align: right;">
+-                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
+-                            <i class="entypo-search"></i>
+-                            Search
+-                        </button>
+-                    </p>
+                 </div>
+-            </div>
+-        </form>
++            </form>
++        </div>
+     </div>
+-</div>
+-<div class="clear"></div>
++    <div class="clear"></div>
+ 
+-<table class="table table-bordered datatable" id="table-4">
+-    <thead>
++    <table class="table table-bordered datatable" id="table-4">
++        <thead>
+         <tr>
+             <th style="display: none;">Title</th>
+             <th>Status</th>
+             <th>Message</th>
+             <th>Created Date</th>
+         </tr>
+-    </thead>
+-    <tbody>
+-
+-    </tbody>
+-</table>
+-<script type="text/javascript">
++        </thead>
++        <tbody>
+ 
+-    jQuery(document).ready(function($) {
+-        var $searchFilter = {};
+-        $searchFilter.Search = $("#history_filter [name='Search']").val();
+-        $searchFilter.StartDate = $("#history_filter [name='StartDate']").val();
+-        $searchFilter.StartTime = $("#history_filter [name='StartTime']").val();
+-        $searchFilter.EndDate = $("#history_filter [name='EndDate']").val();
+-        $searchFilter.EndTime = $("#history_filter [name='EndTime']").val();
+-        $searchFilter.Status = $("#history_filter [name='Status']").val();
+-        data_table = $("#table-4").dataTable({
+-            "bProcessing": true,
+-            "bServerSide": true,
+-            "sAjaxSource": baseurl + "/cronjobs/history_ajax_datagrid/{{$id}}/type",
+-            "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
+-            "sPaginationType": "bootstrap",
+-            "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+-            "fnServerParams": function(aoData) {
+-                aoData.push(
+-                        {"name":"Search","value":$searchFilter.Search},
+-                        {"name":"StartDate","value":$searchFilter.StartDate},
+-                        {"name":"StartTime","value":$searchFilter.StartTime},
+-                        {"name":"EndDate","value":$searchFilter.EndDate},
+-                        {"name":"EndTime","value":$searchFilter.EndTime},
+-                        {"name":"Status","value":$searchFilter.Status});
+-                data_table_extra_params.length = 0;
+-                data_table_extra_params.push({"name":"Export","value":1});
+-            },
+-            "aaSorting": [[3, 'desc']],
+-            "aoColumns":
+-                    [
+-                        {
+-                            "bVisible": false
+-
+-                        }, //0 tblJob.Title
+-                        {
+-                            mRender: function(status, type, full) {
+-                                               if (status == '{{CronJob::CRON_SUCCESS}}')
+-                                                   return '<i style="font-size:22px;color:green" class="entypo-check"></i>';
+-                                               else
+-                                                   return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
+-                                           }
+-                        }, //1 status
+-                        {}, //1 tblRateSheetHistory.created_at
+-                        {  // 2 tblJob.JobID
+-
+-                        },
+-                    ],
+-                    "oTableTools":
+-                    {
+-                        "aButtons": [
+-                            {
+-                                "sExtends": "download",
+-                                "sButtonText": "EXCEL",
+-                                "sUrl": baseurl + "/cronjobs/history_ajax_datagrid/{{$id}}/xlsx",
+-                                sButtonClass: "save-collection btn-sm"
+-                            },
+-                            {
+-                                "sExtends": "download",
+-                                "sButtonText": "CSV",
+-                                "sUrl": baseurl + "/cronjobs/history_ajax_datagrid/{{$id}}/csv",
+-                                sButtonClass: "save-collection btn-sm"
+-                            }
+-                        ]
+-                    }
+-        });
++        </tbody>
++    </table>
++    <script type="text/javascript">
+ 
+-        $(".dataTables_wrapper select").select2({
+-            minimumResultsForSearch: -1
+-        });
+-
+-        // Replace Checboxes
+-        $(".pagination a").click(function(ev) {
+-            replaceCheckboxes();
+-        });
+-
+-        $("#history_filter").submit(function(e) {
+-            e.preventDefault();
++        jQuery(document).ready(function($) {
++            var $searchFilter = {};
+             $searchFilter.Search = $("#history_filter [name='Search']").val();
+             $searchFilter.StartDate = $("#history_filter [name='StartDate']").val();
+             $searchFilter.StartTime = $("#history_filter [name='StartTime']").val();
+             $searchFilter.EndDate = $("#history_filter [name='EndDate']").val();
+             $searchFilter.EndTime = $("#history_filter [name='EndTime']").val();
+             $searchFilter.Status = $("#history_filter [name='Status']").val();
++            data_table = $("#table-4").dataTable({
++                "bProcessing": true,
++                "bServerSide": true,
++                "sAjaxSource": baseurl + "/cronjobs/history_ajax_datagrid/{{$id}}/type",
++                "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
++                "sPaginationType": "bootstrap",
++                "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
++                "fnServerParams": function(aoData) {
++                    aoData.push(
++                            {"name":"Search","value":$searchFilter.Search},
++                            {"name":"StartDate","value":$searchFilter.StartDate},
++                            {"name":"StartTime","value":$searchFilter.StartTime},
++                            {"name":"EndDate","value":$searchFilter.EndDate},
++                            {"name":"EndTime","value":$searchFilter.EndTime},
++                            {"name":"Status","value":$searchFilter.Status});
++                    data_table_extra_params.length = 0;
++                    data_table_extra_params.push({"name":"Search","value":$searchFilter.Search},
++                            {"name":"StartDate","value":$searchFilter.StartDate},
++                            {"name":"StartTime","value":$searchFilter.StartTime},
++                            {"name":"EndDate","value":$searchFilter.EndDate},
++                            {"name":"EndTime","value":$searchFilter.EndTime},
++                            {"name":"Status","value":$searchFilter.Status},
++                            {"name":"Export","value":1});
++                },
++                "aaSorting": [[3, 'desc']],
++                "aoColumns":
++                        [
++                            {
++                                "bVisible": false
+ 
+-            data_table.fnFilter('', 0);
+-            return false;
+-        });
++                            }, //0 tblJob.Title
++                            {
++                                mRender: function(status, type, full) {
++                                    if (status == '{{CronJob::CRON_SUCCESS}}')
++                                        return '<i style="font-size:22px;color:green" class="entypo-check"></i>';
++                                    else
++                                        return '<i style="font-size:28px;color:red" class="entypo-cancel"></i>';
++                                }
++                            }, //1 status
++                            {}, //1 tblRateSheetHistory.created_at
++                            {  // 2 tblJob.JobID
+ 
+-    });
++                            },
++                        ],
++                "oTableTools":
++                {
++                    "aButtons": [
++                        {
++                            "sExtends": "download",
++                            "sButtonText": "EXCEL",
++                            "sUrl": baseurl + "/cronjobs/history_ajax_datagrid/{{$id}}/xlsx",
++                            sButtonClass: "save-collection btn-sm"
++                        },
++                        {
++                            "sExtends": "download",
++                            "sButtonText": "CSV",
++                            "sUrl": baseurl + "/cronjobs/history_ajax_datagrid/{{$id}}/csv",
++                            sButtonClass: "save-collection btn-sm"
++                        }
++                    ]
++                }
++            });
+ 
+-</script>
+-@stop            
++            $(".dataTables_wrapper select").select2({
++                minimumResultsForSearch: -1
++            });
++
++            // Replace Checboxes
++            $(".pagination a").click(function(ev) {
++                replaceCheckboxes();
++            });
++
++            $("#history_filter").submit(function(e) {
++                e.preventDefault();
++                $searchFilter.Search = $("#history_filter [name='Search']").val();
++                $searchFilter.StartDate = $("#history_filter [name='StartDate']").val();
++                $searchFilter.StartTime = $("#history_filter [name='StartTime']").val();
++                $searchFilter.EndDate = $("#history_filter [name='EndDate']").val();
++                $searchFilter.EndTime = $("#history_filter [name='EndTime']").val();
++                $searchFilter.Status = $("#history_filter [name='Status']").val();
++
++                data_table.fnFilter('', 0);
++                return false;
++            });
++
++        });
++
++    </script>
++@stop
+ 
+ @section('footer_ext')
+-@parent
+-<!-- Job Modal  (Ajax Modal)-->
+-<div class="modal fade" id="modal-customer-rate-history">
+-    <div class="modal-dialog">
+-        <div class="modal-content">
+-            <div class="modal-header">
+-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+-                <h4 class="modal-title">Detail</h4>
+-            </div>
+-            <div class="modal-body">
+-                Content is loading...
++    @parent
++            <!-- Job Modal  (Ajax Modal)-->
++    <div class="modal fade" id="modal-customer-rate-history">
++        <div class="modal-dialog">
++            <div class="modal-content">
++                <div class="modal-header">
++                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
++                    <h4 class="modal-title">Detail</h4>
++                </div>
++                <div class="modal-body">
++                    Content is loading...
++                </div>
+             </div>
+         </div>
+     </div>
+-</div>
+ @stop
+\ No newline at end of file
+diff --git a/app/views/customersrates/download.blade.php b/app/views/customersrates/download.blade.php
+index 3ba2709..1a98c19 100644
+--- a/app/views/customersrates/download.blade.php
++++ b/app/views/customersrates/download.blade.php
+@@ -262,6 +262,7 @@ jQuery(document).ready(function ($) {
+         e.preventDefault();
+         $("#BulkMail-form [name='email_template']").val('').trigger("change");
+         $("#BulkMail-form [name='template_option']").val('').trigger("change");
++        $("#BulkMail-form [name='test']").val(0);
+         //$("#BulkMail-form [name='Type']").selectBoxIt().data("selectBox-selectBoxIt").selectOption('')
+         $("#BulkMail-form")[0].reset();
+         $("#modal-BulkMail").modal({
+diff --git a/app/views/estimates/edit.blade.php b/app/views/estimates/edit.blade.php
+index a4ad6a7..0b94f4e 100644
+--- a/app/views/estimates/edit.blade.php
++++ b/app/views/estimates/edit.blade.php
+@@ -124,7 +124,7 @@
+                                             "class" =>"select2 small Taxentity TaxRateID",
+                                             ]
+                                     )}}</td>
+-                                    
++
+                                     <td>{{Form::SelectExt(
+                                         [
+                                         "name"=>"EstimateDetail[TaxRateID2][]",
+@@ -139,7 +139,7 @@
+                                         "class" =>"select2 small Taxentity TaxRateID2",
+                                         ]
+                                 )}}</td>
+-                                
++
+                                     <td class="hidden">{{Form::text('EstimateDetail[TaxAmount][]',number_format($ProductRow->TaxAmount,$RoundChargesAmount),array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>
+                                     <td>{{Form::text('EstimateDetail[LineTotal][]',number_format($ProductRow->LineTotal,$RoundChargesAmount),array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}
+                                     {{Form::hidden('EstimateDetail[EstimateDetailID][]',$ProductRow->EstimateDetailID,array("class"=>"EstimateDetailID"))}}
+@@ -197,34 +197,61 @@
+                                     <td >Estimate Total </td>
+                                     <td>{{Form::text('GrandTotal',number_format($Estimate->GrandTotal,$RoundChargesAmount),array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
+                             </tr>
+-                            <?php if(count($EstimateAllTax)>0){
+-				  foreach($EstimateAllTax as $key => $EstimateAllTaxData){
+-				   ?>
+-              <tr class="  @if($key==0) estimate_tax_row @else all_tax_row @endif">
+-                @if($key==0)                
+-                <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs estimate_tax_add ">+</button>   &nbsp; Tax </td>
+-                @else
+-                <td>
+-                 <button title="Delete Tax" type="button" class="btn btn-danger btn-xs estimate_tax_remove ">X</button>
+-                 </td>
+-                @endif  
+-                <td><div class="col-md-8"> {{Form::SelectExt(
+-                    [
+-                    "name"=>"EstimateTaxes[field][]",
+-                    "data"=>$taxes,
+-                    "selected"=>$EstimateAllTaxData->TaxRateID,
+-                    "value_key"=>"TaxRateID",
+-                    "title_key"=>"Title",
+-                    "data-title1"=>"data-amount",
+-                    "data-value1"=>"Amount",
+-                    "data-title2"=>"data-flatstatus",
+-                    "data-value2"=>"FlatStatus",
+-                    "class" =>"select2 small Taxentity EstimateTaxesFld  EstimateTaxesFldFirst",
+-                    ]
+-                    )}}</div>
+-                  <div class="col-md-4"> {{Form::text('EstimateTaxes[value][]',$EstimateAllTaxData->TaxAmount,array("class"=>"form-control EstimateTaxesValue","readonly"=>"readonly"))}} </div></td>
+-              </tr>
+-              <?php } } ?>
++                            @if(count($EstimateAllTax)>0)
++                                @foreach($EstimateAllTax as $key => $EstimateAllTaxData)
++
++                                    <tr class="  @if($key==0) estimate_tax_row @else all_tax_row @endif">
++                                        @if($key==0)
++                                            <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs estimate_tax_add ">+</button>   &nbsp; Tax </td>
++                                        @else
++                                            <td>
++                                                <button title="Delete Tax" type="button" class="btn btn-danger btn-xs estimate_tax_remove ">X</button>
++                                            </td>
++                                        @endif
++                                        <td>
++                                            <div class="col-md-8"> {{Form::SelectExt(
++                                                                    [
++                                                                    "name"=>"EstimateTaxes[field][]",
++                                                                    "data"=>$taxes,
++                                                                    "selected"=>$EstimateAllTaxData->TaxRateID,
++                                                                    "value_key"=>"TaxRateID",
++                                                                    "title_key"=>"Title",
++                                                                    "data-title1"=>"data-amount",
++                                                                    "data-value1"=>"Amount",
++                                                                    "data-title2"=>"data-flatstatus",
++                                                                    "data-value2"=>"FlatStatus",
++                                                                    "class" =>"select2 small Taxentity EstimateTaxesFld  EstimateTaxesFldFirst",
++                                                                    ]
++                                                                    )}}
++                                            </div>
++                                            <div class="col-md-4"> {{Form::text('EstimateTaxes[value][]',$EstimateAllTaxData->TaxAmount,array("class"=>"form-control EstimateTaxesValue","readonly"=>"readonly"))}} </div>
++                                        </td>
++                                    </tr>
++                                @endforeach
++                            @else
++                                <tr class="estimate_tax_row">
++                                    <td>
++                                        <button title="Add new Tax" type="button" class="btn btn-primary btn-xs estimate_tax_add ">+</button>
++                                        &nbsp; Tax </td>
++                                    <td>
++                                        <div class="col-md-8"> {{Form::SelectExt(
++                                                                [
++                                                                "name"=>"EstimateTaxes[field][]",
++                                                                "data"=>$taxes,
++                                                                "selected"=>'',
++                                                                "value_key"=>"TaxRateID",
++                                                                "title_key"=>"Title",
++                                                                "data-title1"=>"data-amount",
++                                                                "data-value1"=>"Amount",
++                                                                "data-title2"=>"data-flatstatus",
++                                                                "data-value2"=>"FlatStatus",
++                                                                "class" =>"select2 small Taxentity EstimateTaxesFld  EstimateTaxesFldFirst",
++                                                                ]
++                                                                )}}
++                                        </div>
++                                        <div class="col-md-4"> {{Form::text('EstimateTaxes[value][]','',array("class"=>"form-control EstimateTaxesValue","readonly"=>"readonly"))}} </div></td>
++                                </tr>
++                            @endif
+               <tr class="gross_total_estimate">
+                 <td >Grand Total </td>
+                 <td>{{Form::text('GrandTotalEstimate','',array("class"=>"form-control GrandTotalEstimate text-right","readonly"=>"readonly"))}}</td>
+@@ -245,13 +272,13 @@
+     <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
+     <input type="hidden" name="CurrencyCode" value="{{$CurrencyCode}}">
+     <input type="hidden" name="InvoiceTemplateID" value="{{$EstimateTemplateID}}">
+-    <input type="hidden" name="TotalTax" value="" > 
++    <input type="hidden" name="TotalTax" value="" >
+ </div>
+ </form>
+ <div id="rowContainer"></div>
+ <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
+-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
+-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
++<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
++<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
+ <script type="text/javascript">
+ var estimate_id = '{{$Estimate->EstimateID}}';
+ var decimal_places = '{{$RoundChargesAmount}}';
+diff --git a/app/views/includes/sidebar.blade.php b/app/views/includes/sidebar.blade.php
+index 423fbf9..1fb6d37 100644
+--- a/app/views/includes/sidebar.blade.php
++++ b/app/views/includes/sidebar.blade.php
+@@ -132,9 +132,6 @@
+         @if(User::checkCategoryPermission('Invoice','View'))
+         <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
+         @endif
+-        @if(User::checkCategoryPermission('RecurringInvoices','View'))
+-            <li> <a href="{{URL::to('/recurringinvoices')}}">  <span>Recurring</span> </a> </li>
+-        @endif
+       @if(User::checkCategoryPermission('Payments','View'))
+         <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
+       @endif
+diff --git a/app/views/invoices/edit.blade.php b/app/views/invoices/edit.blade.php
+index 9e4f172..d382d0a 100644
+--- a/app/views/invoices/edit.blade.php
++++ b/app/views/invoices/edit.blade.php
+@@ -69,7 +69,7 @@
+                 </tr>
+               </thead>
+               <tbody>
+-              
++
+               @if(count($InvoiceDetail)>0)
+               @foreach($InvoiceDetail as $ProductRow)
+               <tr>
+@@ -115,7 +115,7 @@
+               @endforeach
+               @endif
+                 </tbody>
+-              
++
+             </table>
+           </div>
+         </div>
+@@ -163,34 +163,59 @@
+                                     <td >Invoice Total </td>
+                                     <td>{{Form::text('GrandTotal',number_format($Invoice->GrandTotal,$RoundChargesAmount),array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
+                             </tr>
+-              <?php if(count($InvoiceAllTax)>0){
+-				  foreach($InvoiceAllTax as $key => $InvoiceAllTaxData){
+-				   ?>
+-              <tr class="  @if($key==0) invoice_tax_row @else all_tax_row @endif">
+-                @if($key==0)                
+-                <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs invoice_tax_add ">+</button>   &nbsp; Tax </td>
+-                @else
+-                <td>
+-                 <button title="Delete Tax" type="button" class="btn btn-danger btn-xs invoice_tax_remove ">X</button>
+-                 </td>
+-                @endif  
+-                <td><div class="col-md-8"> {{Form::SelectExt(
+-                    [
+-                    "name"=>"InvoiceTaxes[field][]",
+-                    "data"=>$taxes,
+-                    "selected"=>$InvoiceAllTaxData->TaxRateID,
+-                    "value_key"=>"TaxRateID",
+-                    "title_key"=>"Title",
+-                    "data-title1"=>"data-amount",
+-                    "data-value1"=>"Amount",
+-                    "data-title2"=>"data-flatstatus",
+-                    "data-value2"=>"FlatStatus",
+-                    "class" =>"select2 small Taxentity InvoiceTaxesFld  InvoiceTaxesFldFirst",
+-                    ]
+-                    )}}</div>
+-                  <div class="col-md-4"> {{Form::text('InvoiceTaxes[value][]',$InvoiceAllTaxData->TaxAmount,array("class"=>"form-control InvoiceTaxesValue","readonly"=>"readonly"))}} </div></td>
+-              </tr>
+-              <?php } } ?>
++                            @if(count($InvoiceAllTax)>0)
++                                @foreach($InvoiceAllTax as $key => $InvoiceAllTaxData)
++                                    <tr class="  @if($key==0) invoice_tax_row @else all_tax_row @endif">
++                                        @if($key==0)
++                                            <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs invoice_tax_add ">+</button>   &nbsp; Tax </td>
++                                        @else
++                                            <td>
++                                                <button title="Delete Tax" type="button" class="btn btn-danger btn-xs invoice_tax_remove ">X</button>
++                                            </td>
++                                        @endif
++                                        <td><div class="col-md-8"> {{Form::SelectExt(
++                                                                        [
++                                                                        "name"=>"InvoiceTaxes[field][]",
++                                                                        "data"=>$taxes,
++                                                                        "selected"=>$InvoiceAllTaxData->TaxRateID,
++                                                                        "value_key"=>"TaxRateID",
++                                                                        "title_key"=>"Title",
++                                                                        "data-title1"=>"data-amount",
++                                                                        "data-value1"=>"Amount",
++                                                                        "data-title2"=>"data-flatstatus",
++                                                                        "data-value2"=>"FlatStatus",
++                                                                        "class" =>"select2 small Taxentity InvoiceTaxesFld  InvoiceTaxesFldFirst",
++                                                                        ]
++                                                                        )}}
++                                            </div>
++                                            <div class="col-md-4"> {{Form::text('InvoiceTaxes[value][]',$InvoiceAllTaxData->TaxAmount,array("class"=>"form-control InvoiceTaxesValue","readonly"=>"readonly"))}} </div>
++                                        </td>
++                                    </tr>
++                                @endforeach
++                            @else
++                                <tr class="invoice_tax_row">
++                                    <td>
++                                        <button title="Add new Tax" type="button" class="btn btn-primary btn-xs invoice_tax_add ">+</button>
++                                        &nbsp; Tax </td>
++                                    <td>
++                                        <div class="col-md-8"> {{Form::SelectExt(
++                                                                [
++                                                                "name"=>"InvoiceTaxes[field][]",
++                                                                "data"=>$taxes,
++                                                                "selected"=>'',
++                                                                "value_key"=>"TaxRateID",
++                                                                "title_key"=>"Title",
++                                                                "data-title1"=>"data-amount",
++                                                                "data-value1"=>"Amount",
++                                                                "data-title2"=>"data-flatstatus",
++                                                                "data-value2"=>"FlatStatus",
++                                                                "class" =>"select2 small Taxentity InvoiceTaxesFld  InvoiceTaxesFldFirst",
++                                                                ]
++                                                                )}}
++                                        </div>
++                                        <div class="col-md-4"> {{Form::text('InvoiceTaxes[value][]','',array("class"=>"form-control InvoiceTaxesValue","readonly"=>"readonly"))}} </div></td>
++                                </tr>
++                            @endif
+               <tr class="gross_total_invoice">
+                 <td >Grand Total </td>
+                 <td>{{Form::text('GrandTotalInvoice','',array("class"=>"form-control GrandTotalInvoice text-right","readonly"=>"readonly"))}}</td>
+@@ -205,7 +230,7 @@
+     <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
+     <input type="hidden" name="CurrencyCode" value="{{$CurrencyCode}}">
+     <input type="hidden" name="InvoiceTemplateID" value="{{$InvoiceTemplateID}}">
+-    <input  type="hidden" name="TotalTax" value="" > 
++    <input  type="hidden" name="TotalTax" value="" >
+ </div>
+ </form>
+ <div id="rowContainer"></div>
+@@ -231,8 +256,8 @@
+     </tbody>
+ </table>
+ <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.css">
+-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
+-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
++<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script>
++<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script>
+ <script type="text/javascript">
+ var invoice_id = '{{$Invoice->InvoiceID}}';
+ var decimal_places = '{{$RoundChargesAmount}}';
+diff --git a/app/views/rategenerators/edit.blade.php b/app/views/rategenerators/edit.blade.php
+index 59f0a8b..ef15351 100644
+--- a/app/views/rategenerators/edit.blade.php
++++ b/app/views/rategenerators/edit.blade.php
+@@ -118,7 +118,7 @@
+ 
+                                 <!--{ Form::select('CurrencyID', $currencylist,  $rategenerators->CurrencyID, array_merge( array("class"=>"select2"),$array_op)) }}-->
+                             {{Form::SelectControl('currency',0,$rategenerators->CurrencyID,($rategenerators->CurrencyID==''?0:1))}}
+-                            @if(isset($array_op['disabled']) && $array_op['disabled'] == 'disabled')
++                            @if($rategenerators->CurrencyID !='')
+                                 <input type="hidden" name="CurrencyID" readonly  value="{{$rategenerators->CurrencyID}}">
+                             @endif
+                         </div>
+diff --git a/app/views/recurringinvoices/create.blade.php b/app/views/recurringinvoices/create.blade.php
+index fd7dde3..416d8ce 100644
+--- a/app/views/recurringinvoices/create.blade.php
++++ b/app/views/recurringinvoices/create.blade.php
+@@ -6,19 +6,22 @@
+         <li>
+             <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
+         </li>
+-        <li class="active">
+-            <a href="{{URL::to('recurringinvoices')}}">Recurring Invoice</a>
++        <li>
++            <a href="{{URL::to('invoice')}}">Invoice</a>
++        </li>
++        <li>
++            <a href="{{URL::to('recurringprofiles')}}">Recurring Profile</a>
+         </li>
+         <li class="active">
+-            <strong>Create Recurring Invoice</strong>
++            <strong>Create Recurring Profile</strong>
+         </li>
+     </ol>
+-    <h3>Create Recurring Invoice</h3>
++    <h3>Create Recurring Profile</h3>
+ 
+     @include('includes.errors')
+     @include('includes.success')
+ 
+-    <form class="form-horizontal form-groups-bordered" action="{{URL::to('/recurringinvoices/store')}}" method="post"
++    <form class="form-horizontal form-groups-bordered" action="{{URL::to('/recurringprofiles/store')}}" method="post"
+           id="recurringinvoice-from" role="form">
+ 
+         <p class="text-right">
+@@ -27,7 +30,7 @@
+                 <i class="entypo-floppy"></i>
+                 Save
+             </button>
+-            <a href="{{URL::to('/recurringinvoices')}}" class="btn btn-danger btn-sm btn-icon icon-left">
++            <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+                 <i class="entypo-cancel"></i>
+                 Close
+             </a>
+@@ -103,7 +106,7 @@
+                         <div id="billing_cycle_monthly_anniversary" class="billing_options" style="display: none">
+                             <label for="field-1" class="col-md-2 control-label no-padding-left no-padding-right">Anniversary Date*</label>
+                             <div class="col-md-4">
+-                                {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
++                                {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"", "data-start-view"=>"2"))}}
+                             </div>
+                         </div>
+                         </div>
+@@ -306,7 +309,7 @@
+         }
+     </script>
+     @include('recurringinvoices.script_recurringinvoice_add_edit')
+-    @include('includes.ajax_submit_script', array('formID'=>'recurringinvoice-from' , 'url' => 'recurringinvoices/store','update_url'=>'recurringinvoices/{id}/update' ))
++    @include('includes.ajax_submit_script', array('formID'=>'recurringinvoice-from' , 'url' => 'recurringprofiles/store','update_url'=>'recurringprofiles/{id}/update' ))
+ @stop
+ @section('footer_ext')
+     @parent
+diff --git a/app/views/recurringinvoices/edit.blade.php b/app/views/recurringinvoices/edit.blade.php
+index 1b642ca..43ce35b 100644
+--- a/app/views/recurringinvoices/edit.blade.php
++++ b/app/views/recurringinvoices/edit.blade.php
+@@ -6,8 +6,11 @@
+     <li>
+         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
+     </li>
++    <li>
++        <a href="{{URL::to('invoice')}}">Invoice</a>
++    </li>
+     <li class="active">
+-        <a href="{{URL::to('recurringinvoices')}}">Recurring Invoice</a>
++        <a href="{{URL::to('recurringprofiles')}}">Recurring Profile</a>
+     </li>
+     <li>
+         <a><span>{{toandfro_dropdown($RecurringInvoice->RecurringInvoiceID,'recurringInvoice')}}</span></a>
+@@ -16,7 +19,7 @@
+         <strong>Edit</strong>
+     </li>
+ </ol>
+-<h3>Edit Recurring Invoice</h3>
++<h3>Edit Recurring Profile</h3>
+ 
+ @include('includes.errors')
+ @include('includes.success')
+@@ -34,7 +37,7 @@
+         Save
+         <i class="entypo-floppy"></i>
+     </button>
+-    <a href="{{URL::to('/recurringinvoices')}}" class="btn btn-danger btn-sm btn-icon icon-left">
++    <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+                 <i class="entypo-cancel"></i>
+                 Close
+         </a>
+@@ -247,7 +250,7 @@
+                 <div class="col-md-1"></div>
+                 <div class="col-md-5">
+                     <table class="table table-bordered">
+-                    <tfoot>
++                        <tfoot>
+                             <tr>
+                                     <td >Sub Total</td>
+                                     <td>{{Form::text('SubTotal',number_format($RecurringInvoice->SubTotal,$RoundChargesAmount),array("class"=>"form-control SubTotal text-right","readonly"=>"readonly"))}}</td>
+@@ -264,41 +267,62 @@
+                                     <td >Invoice Total </td>
+                                     <td>{{Form::text('GrandTotal',number_format($RecurringInvoice->GrandTotal,$RoundChargesAmount),array("class"=>"form-control GrandTotal text-right","readonly"=>"readonly"))}}</td>
+                             </tr>
+-                            <?php if(count($RecurringInvoiceAllTax)>0){
+-				  foreach($RecurringInvoiceAllTax as $key => $RecurringInvoiceAllTaxData){
+-				   ?>
+-              <tr class="  @if($key==0) recurringinvoice_tax_row @else all_tax_row @endif">
+-                @if($key==0)                
+-                <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs recurringinvoice_tax_add ">+</button>   &nbsp; Tax </td>
+-                @else
+-                <td>
+-                 <button title="Delete Tax" type="button" class="btn btn-danger btn-xs recurringinvoice_tax_remove ">X</button>
+-                 </td>
+-                @endif  
+-                <td><div class="col-md-8"> {{Form::SelectExt(
+-                    [
+-                    "name"=>"RecurringInvoiceTaxes[field][]",
+-                    "data"=>$taxes,
+-                    "selected"=>$RecurringInvoiceAllTaxData->TaxRateID,
+-                    "value_key"=>"TaxRateID",
+-                    "title_key"=>"Title",
+-                    "data-title1"=>"data-amount",
+-                    "data-value1"=>"Amount",
+-                    "data-title2"=>"data-flatstatus",
+-                    "data-value2"=>"FlatStatus",
+-                    "class" =>"select2 small Taxentity RecurringInvoiceTaxesFld  RecurringInvoiceTaxesFldFirst",
+-                    ]
+-                    )}}</div>
+-                  <div class="col-md-4"> {{Form::text('RecurringInvoiceTaxes[value][]',$RecurringInvoiceAllTaxData->TaxAmount,array("class"=>"form-control RecurringInvoiceTaxesValue","readonly"=>"readonly"))}} </div></td>
+-              </tr>
+-              <?php } } ?>
+-              <tr class="gross_total_recurringinvoice">
+-                <td >Grand Total </td>
+-                <td>{{Form::text('GrandTotalRecurringInvoice','',array("class"=>"form-control GrandTotalRecurringInvoice text-right","readonly"=>"readonly"))}}</td>
+-              </tr>
+-
+-
+-               		</tfoot>
++                            @if(count($RecurringInvoiceAllTax)>0)
++				                @foreach($RecurringInvoiceAllTax as $key => $RecurringInvoiceAllTaxData)
++                                  <tr class="  @if($key==0) recurringinvoice_tax_row @else all_tax_row @endif">
++                                    @if($key==0)
++                                    <td>  <button title="Add new Tax" type="button" class="btn btn-primary btn-xs recurringinvoice_tax_add ">+</button>   &nbsp; Tax </td>
++                                    @else
++                                    <td>
++                                     <button title="Delete Tax" type="button" class="btn btn-danger btn-xs recurringinvoice_tax_remove ">X</button>
++                                     </td>
++                                    @endif
++                                    <td><div class="col-md-8"> {{Form::SelectExt(
++                                        [
++                                        "name"=>"RecurringInvoiceTaxes[field][]",
++                                        "data"=>$taxes,
++                                        "selected"=>$RecurringInvoiceAllTaxData->TaxRateID,
++                                        "value_key"=>"TaxRateID",
++                                        "title_key"=>"Title",
++                                        "data-title1"=>"data-amount",
++                                        "data-value1"=>"Amount",
++                                        "data-title2"=>"data-flatstatus",
++                                        "data-value2"=>"FlatStatus",
++                                        "class" =>"select2 small Taxentity RecurringInvoiceTaxesFld  RecurringInvoiceTaxesFldFirst",
++                                        ]
++                                        )}}</div>
++                                      <div class="col-md-4"> {{Form::text('RecurringInvoiceTaxes[value][]',$RecurringInvoiceAllTaxData->TaxAmount,array("class"=>"form-control RecurringInvoiceTaxesValue","readonly"=>"readonly"))}} </div></td>
++                                  </tr>
++                                @endforeach
++                            @else
++                                <tr class="recurringinvoice_tax_row">
++                                    <td>
++                                        <button title="Add new Tax" type="button" class="btn btn-primary btn-xs recurringinvoice_tax_add ">+</button>&nbsp; Tax
++                                    </td>
++                                    <td>
++                                        <div class="col-md-8"> {{Form::SelectExt(
++                                    [
++                                    "name"=>"RecurringInvoiceTaxes[field][]",
++                                    "data"=>$taxes,
++                                    "selected"=>'',
++                                    "value_key"=>"TaxRateID",
++                                    "title_key"=>"Title",
++                                    "data-title1"=>"data-amount",
++                                    "data-value1"=>"Amount",
++                                    "data-title2"=>"data-flatstatus",
++                                    "data-value2"=>"FlatStatus",
++                                    "class" =>"select2 small Taxentity RecurringInvoiceTaxesFld  RecurringInvoiceTaxesFldFirst",
++                                    ]
++                                    )}}</div>
++                                        <div class="col-md-4"> {{Form::text('RecurringInvoiceTaxes[value][]','',array("class"=>"form-control RecurringInvoiceTaxesValue","readonly"=>"readonly"))}} </div>
++                                    </td>
++                                </tr>
++                            @endif
++                          <tr class="gross_total_recurringinvoice">
++                            <td >Grand Total </td>
++                            <td>{{Form::text('GrandTotalRecurringInvoice','',array("class"=>"form-control GrandTotalRecurringInvoice text-right","readonly"=>"readonly"))}}</td>
++                          </tr>
++               		    </tfoot>
+                     </table>
+                 </div>
+ 
+@@ -333,7 +357,7 @@
+     add_row_html += '{{Form::hidden('RecurringInvoiceDetail[ProductType][]',Product::ITEM,array("class"=>"ProductType"))}}</td></tr>';
+ </script>
+ @include('recurringinvoices.script_recurringinvoice_add_edit')
+-@include('includes.ajax_submit_script', array('formID'=>'recurringinvoice-from' , 'url' => 'recurringinvoices/'.$id.'/update' ))
++@include('includes.ajax_submit_script', array('formID'=>'recurringinvoice-from' , 'url' => 'recurringprofiles/'.$id.'/update' ))
+ <script>
+     $(document).ready(function(){
+         $("#recurringinvoice-from [name='RecurringInvoice[Time]']").change();
+diff --git a/app/views/recurringinvoices/index.blade.php b/app/views/recurringinvoices/index.blade.php
+index b70a270..05997bc 100644
+--- a/app/views/recurringinvoices/index.blade.php
++++ b/app/views/recurringinvoices/index.blade.php
+@@ -2,23 +2,18 @@
+ 
+ @section('content')
+ <ol class="breadcrumb bc-3">
+-  <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
+-  <li class="active"> <strong>Recurring Invoices</strong> </li>
++    <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
++    <li><a href="{{URL::to('invoice')}}">Invoice</a></li>
++    <li class="active"> <strong>Recurring Profiles</strong> </li>
+ </ol>
+-<h3>Recurring Invoices</h3>
++<h3>Recurring Profiles</h3>
+ @include('includes.errors')
+ @include('includes.success')
+-<p style="text-align: right;"> @if(User::checkCategoryPermission('RecurringInvoice','Add')) <a href="{{URL::to("recurringinvoices/create")}}" id="add-new-recurringinvoices" class="btn btn-primary "> <i class="entypo-plus"></i> Add New </a> @endif
++<p style="text-align: right;"> @if(User::checkCategoryPermission('RecurringProfile','Add')) <a href="{{URL::to("recurringprofiles/create")}}" id="add-new-recurringinvoices" class="btn btn-primary "> <i class="entypo-plus"></i> Add New </a> @endif
+   <!-- <a href="javascript:;" id="bulk-recurringinvoices" class="btn upload btn-primary ">
+         <i class="entypo-upload"></i>
+         Bulk recurringinvoices Generate.
+     </a>-->
+-    @if(User::checkCategoryPermission('RecurringInvoice','Generate'))
+-        <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary ">
+-            <i class="entypo-plus"></i>
+-            Generate New Invoice
+-        </a>
+-    @endif
+ </p>
+ <div class="row">
+   <div class="col-md-12">
+@@ -45,14 +40,14 @@
+ </div>
+ <div class="row">
+   <div  class="col-md-12">
+-    <div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('RecurringInvoice','Edit,Send,Generate,Email'))
++    <div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('RecurringProfile','Edit,Delete'))
+       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+       <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+-          @if(User::checkCategoryPermission('RecurringInvoice','Edit'))
++          @if(User::checkCategoryPermission('RecurringProfile','Edit'))
+               <li> <a data-action="changestatus_bulk" title="Active" data-startstop="1" href="javascript:void(0);" ><i class="entypo-check"></i>Active</a> </li>
+               <li> <a data-action="changestatus_bulk" title="In Active" data-startstop="0" href="javascript:void(0);" ><i class="glyphicon glyphicon-ban-circle"></i> In Active</a> </li>
+           @endif
+-          @if(User::checkCategoryPermission('RecurringInvoice','Delete'))
++          @if(User::checkCategoryPermission('RecurringProfile','Delete'))
+               <li> <a data-action="delete_bulk" href="javascript:;" ><i class="entypo-trash"></i> Delete </a> </li>
+           @endif
+           <!--if(User::checkCategoryPermission('RecurringInvoice','Send'))
+@@ -132,8 +127,8 @@ var postdata;
+         var billingCyleType = {{json_encode(SortBillingType())}};
+ 		var base_url_recurringinvoices 		= 	"{{ URL::to('recurringinvoices')}}";
+         var recurringinvoicesstatus 			=	{{$recurringinvoices_status_json}};
+-        var recurringinvoices_Status_Url 	= 	"{{ URL::to('recurringinvoices/recurringinvoices_change_Status')}}";
+-		var delete_url_bulk 		= 	"{{ URL::to('recurringinvoices/recurringinvoices_delete_bulk')}}";
++        var recurringinvoices_Status_Url 	= 	"{{ URL::to('recurringprofiles/recurringinvoices_change_Status')}}";
++		var delete_url_bulk 		= 	"{{ URL::to('recurringprofiles/recurringinvoices_delete_bulk')}}";
+         var list_fields  			= 	['AccountName','RecurringInvoiceNumber','IssueDate','GrandTotal','Status','RecurringInvoiceID','Description','Attachment','AccountID','BillingEmail'];
+ 		
+         $searchFilter.AccountID 			= 	$("#recurringinvoices_filter select[name='AccountID']").val();
+@@ -144,7 +139,7 @@ var postdata;
+             "bDestroy": true,
+             "bProcessing":true,
+             "bServerSide":true,
+-            "sAjaxSource": baseurl + "/recurringinvoices/ajax_datagrid/type",
++            "sAjaxSource": baseurl + "/recurringprofiles/ajax_datagrid/type",
+             "iDisplayLength": '{{CompanyConfiguration::get('PAGE_SIZE')}}',
+             "sPaginationType": "bootstrap",
+             "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+@@ -185,7 +180,7 @@ var postdata;
+                             var d = new Date(full[10]);
+                             anniversary = d.getDate();
+                         }
+-                        var invoice_log = (baseurl + "/recurringinvoices/{id}/log/{{RecurringInvoiceLog::SENT}}").replace("{id}", full[0]);
++                        var invoice_log = (baseurl + "/recurringprofiles/{id}/log/{{RecurringInvoiceLog::SENT}}").replace("{id}", full[0]);
+                         var str = '<div><strong>Frequency:</strong><span>'+billingCyleType[full[9]]+((full[10])?'('+anniversary+')':'');+'</span></div>';
+                         str += '<div><strong>Occurrence:</strong><span>'+full[7]+'</span></div>';
+                         str += '<div><strong>Sent:</strong><span><a href="' + invoice_log + '" target="_blank">'+(full[8]?full[8]:0)+'</a></span></div>';
+@@ -197,9 +192,9 @@ var postdata;
+                     mRender: function ( id, type, full ) {
+                         var action = '';
+                         id = full[0];
+-                        var edit_url = (baseurl + "/recurringinvoices/{id}/edit").replace("{id}", id);
+-                        var invoice_log = (baseurl + "/recurringinvoices/{id}/log").replace("{id}", id);
+-                        //var delete_ = (baseurl + "/recurringinvoices/{id}/delete").replace("{id}", id);
++                        var edit_url = (baseurl + "/recurringprofiles/{id}/edit").replace("{id}", id);
++                        var invoice_log = (baseurl + "/recurringprofiles/{id}/log").replace("{id}", id);
++                        //var delete_ = (baseurl + "/recurringprofiles/{id}/delete").replace("{id}", id);
+ 
+ 
+ 
+@@ -208,15 +203,15 @@ var postdata;
+                         action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
+ 
+ 
+-                        if ('{{User::checkCategoryPermission('RecurringInvoices','Edit')}}') {
++                        if ('{{User::checkCategoryPermission('RecurringProfile','Edit')}}') {
+                             action += '<li><a class="icon-left"  href="' + edit_url + '"><i class="entypo-pencil"></i>Edit </a></li>';
+                         }
+ 
+-                        if ('{{User::checkCategoryPermission('RecurringInvoices','Delete')}}') {
++                        if ('{{User::checkCategoryPermission('RecurringProfile','Delete')}}') {
+                             action += '<li><a href="#" data-action="delete_row" class="icon-left"><i class="entypo-trash"></i>Delete </a></li>';
+                         }
+ 
+-                        /*if('{{User::checkCategoryPermission('RecurringInvoice','Send')}}') {
++                        /*if('{{User::checkCategoryPermission('RecurringProfile','Send')}}') {
+                             action += '<li><a href="#" data-action="sendinvoice_row" class="icon-left"><i class="entypo-mail"></i>Send </a></li>';
+                         }*/
+ 
+@@ -240,13 +235,13 @@ var postdata;
+                     {
+                         "sExtends": "download",
+                         "sButtonText": "EXCEL",
+-                        "sUrl": baseurl + "/recurringinvoices/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
++                        "sUrl": baseurl + "/recurringprofiles/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
+                         sButtonClass: "save-collection btn-sm"
+                     },
+                     {
+                         "sExtends": "download",
+                         "sButtonText": "CSV",
+-                        "sUrl": baseurl + "/recurringinvoices/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
++                        "sUrl": baseurl + "/recurringprofiles/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                         sButtonClass: "save-collection btn-sm"
+                     }
+                 ]
+@@ -351,14 +346,14 @@ var postdata;
+             }
+ 
+             if(self.attr('data-action').indexOf('changestatus')!=-1) { //For start and Stop the recurring invoice
+-                url = (baseurl + '/recurringinvoices/startstop/{status}').replace("{status}", self.attr('data-startstop'));
++                url = (baseurl + '/recurringprofiles/startstop/{status}').replace("{status}", self.attr('data-startstop'));
+             }else if(self.attr('data-action').indexOf('delete')!=-1) { //For deleting recurring invoice template
+-                url = baseurl+'/recurringinvoices/delete';
++                url = baseurl+'/recurringprofiles/delete';
+             }else if(self.attr('data-action').indexOf('sendinvoice')!=-1) { //For send invoice using recurring invoice template
+                 if(self.attr('data-action').indexOf('_row')!=-1){ //Checking for one selectedID to show sendmail modal
+                     row = 1;
+                 }
+-                url = baseurl+'/recurringinvoices/sendinvoice';
++                url = baseurl+'/recurringprofiles/sendinvoice';
+             }
+ 
+             var criteria			  =  '';
+@@ -406,7 +401,7 @@ var postdata;
+ 
+         $('#generate-new-invoice').click(function (e) {
+             e.preventDefault();
+-            update_new_url = "{{URL::to("recurringinvoices/generate")}}";
++            update_new_url = "{{URL::to("recurringprofiles/generate")}}";
+             submit_ajax(update_new_url, $('#send-invoice-form').serialize(), 1)
+         });
+ 
+diff --git a/app/views/recurringinvoices/recurringinvoicelog.blade.php b/app/views/recurringinvoices/recurringinvoicelog.blade.php
+index 30804ca..139bda7 100644
+--- a/app/views/recurringinvoices/recurringinvoicelog.blade.php
++++ b/app/views/recurringinvoices/recurringinvoicelog.blade.php
+@@ -2,12 +2,13 @@
+ 
+ <ol class="breadcrumb bc-3">
+     <li><a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a></li>
+-    <li><a href="{{URL::to('/recurringinvoices')}}">Recurring Invoice</a></li>
++    <li><a href="{{URL::to('invoice')}}">Invoice</a></li>
++    <li><a href="{{URL::to('/recurringprofiles')}}">Recurring Invoice</a></li>
+     <li class="active"><strong>Recurring Invoice Log</strong></li>
+ </ol>
+ <h3>View Recurring Invoice Log</h3>
+ <div class="float-right" >
+-    <a href="{{URL::to('/recurringinvoices')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
++    <a href="{{URL::to('/recurringprofiles')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
+         <i class="entypo-floppy"></i>
+         Back
+     </a>
+@@ -46,7 +47,7 @@
+                 "bProcessing": true,
+                 "bServerSide": true,
+                 "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+-                "sAjaxSource": baseurl + "/recurringinvoices/{{$id}}/log/ajax_datagrid/type",
++                "sAjaxSource": baseurl + "/recurringprofiles/{{$id}}/log/ajax_datagrid/type",
+                 "fnServerParams": function(aoData) {
+                     aoData.push({"name":"LogType","value":"{{$type}}"});
+                     data_table_extra_params.length = 0;
+@@ -73,13 +74,13 @@
+                                 {
+                                     "sExtends": "download",
+                                     "sButtonText": "EXCEL",
+-                                    "sUrl": baseurl + "/recurringinvoices/{{$id}}/log/ajax_datagrid/xlsx",
++                                    "sUrl": baseurl + "/recurringprofiles/{{$id}}/log/ajax_datagrid/xlsx",
+                                     sButtonClass: "save-collection btn-sm"
+                                 },
+                                 {
+                                     "sExtends": "download",
+                                     "sButtonText": "CSV",
+-                                    "sUrl": baseurl + "/recurringinvoices/{{$id}}/log/ajax_datagrid/csv",
++                                    "sUrl": baseurl + "/recurringprofiles/{{$id}}/log/ajax_datagrid/csv",
+                                     sButtonClass: "save-collection btn-sm"
+                                 }
+                             ]
+diff --git a/app/views/recurringinvoices/script_recurringinvoice_add_edit.blade.php b/app/views/recurringinvoices/script_recurringinvoice_add_edit.blade.php
+index e491b07..a0a88a7 100644
+--- a/app/views/recurringinvoices/script_recurringinvoice_add_edit.blade.php
++++ b/app/views/recurringinvoices/script_recurringinvoice_add_edit.blade.php
+@@ -9,7 +9,7 @@ $(document).ready(function(){
+     }
+ 
+     function sendRecurringInvoice(recurringinvoice_id,post_data,callback){
+-        var _url = baseurl + '/recurringinvoices/'+recurringinvoice_id+'/send';
++        var _url = baseurl + '/recurringprofiles/'+recurringinvoice_id+'/send';
+         $.post( _url, post_data, callback, "json");
+     }
+ 
+@@ -23,7 +23,7 @@ $(document).ready(function(){
+             try {
+                 $row.find(".Qty").val(1);
+                 post_data = {"product_id": productID, "account_id": AccountID, "BillingClassID":BillingClassID, "qty": 1};
+-                var _url = baseurl + '/recurringinvoices/calculate_total';
++                var _url = baseurl + '/recurringprofiles/calculate_total';
+                 $.post(_url, post_data, function (response) {
+                     if (response.status == 'success') {
+                         $row.find(".descriptions").val(response.product_description);
+@@ -274,7 +274,7 @@ $(document).ready(function(){
+ 
+     $(".send-recurringinvoice.btn").click( function (e) {
+         $('#send-modal-recurringinvoice').find(".modal-body").html("Loading Content...");
+-        var ajaxurl = baseurl + "/recurringinvoices/sendinvoice";
++        var ajaxurl = baseurl + "/recurringprofiles/sendinvoice";
+         var formData = new FormData($('#send-recurringinvoice-form')[0]);
+         showAjaxScript(ajaxurl,formData,function(response){
+             if (response.status == 'success') {
+@@ -292,7 +292,7 @@ $(document).ready(function(){
+     });
+ 
+     $("select[name=AccountID]").change( function (e) {
+-        url = baseurl + "/recurringinvoices/get_account_info";
++        url = baseurl + "/recurringprofiles/get_account_info";
+         $this = $(this);
+         data = {account_id:$this.val()}
+         if($this.val() > 0){
+@@ -315,7 +315,7 @@ $(document).ready(function(){
+     });
+ 
+     $("select[name=BillingClassID]").change( function (e) {
+-        url = baseurl + "/recurringinvoices/get_billingclassinfo_info";
++        url = baseurl + "/recurringprofiles/get_billingclassinfo_info";
+         $this = $(this);
+         data = {BillingClassID:$this.val()}
+         if($this.val() > 0){
+-- 
+1.9.5.msysgit.0
+

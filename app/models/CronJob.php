@@ -332,4 +332,31 @@ class CronJob extends \Eloquent {
             }
         }
     }
+
+    /**
+     *  check if cron job is failing or not.
+     * @param $companyID
+     * @return bool
+     */
+    public static function is_cronjob_failing($companyID){
+        $Status = 1;
+        $Type = 0; // All Cron Jobs Types
+        $Active = -1; // All Cron Jobs which are running (Active)State
+        $sort_column = "JobTitle";
+        $sort_type = "ASC";
+        $iDisplayLength = 100;
+        $p_PageNumber = 1;
+        $p_CurrentDateTime = date('Y-m-d H:i:s');
+        //call prc_GetActiveCronJob (1,'',1,-1,0,'2017-03-22 10:05:31',1 ,50,'Active','desc',0)
+        $query = "call prc_GetActiveCronJob (".$companyID.",'',".$Status.",".$Active.",".$Type.",'". $p_CurrentDateTime ."',".$p_PageNumber." ,".$iDisplayLength.",'".$sort_column."','".$sort_type."',0)";
+        $result  =  \Illuminate\Support\Facades\DB::select($query);
+        $resultArray = json_decode(json_encode($result), true);
+        foreach($resultArray as $row){
+            if($row["CronJobStatus"]== CronJob::CRON_FAIL){
+                return true;
+            }
+        }
+        return false;
+
+    }
 }

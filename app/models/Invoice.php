@@ -22,6 +22,19 @@ class Invoice extends \Eloquent {
     //public static $invoice_status;
     public static $invoice_type = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Sent',self::INVOICE_IN=>'Invoice Received','All'=>'Both');
     public static $invoice_type_customer = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Received',self::INVOICE_IN=>'Invoice sent','All'=>'Both');
+    public static $invoice_company_info = array(''=>'Select Company Info' ,'companyname' => 'Company Name','companyaddress'=>'Company Address','companyvatno'=>'Company Vat Number','companyemail'=>'Company Email');
+    public static $invoice_account_info = array(''=>'Select Account Info' ,'{AccountName}' => 'Account Name',
+                                            '{AccountNumber}'=>'Account Number',
+                                            '{Address1}'=>'Address1',
+                                            '{Address2}'=>'Address2',
+                                            '{Address3}'=>'Address3',
+                                            '{City}'=>'City',
+                                            '{PostCode}'=>'PostCode',
+                                            '{Country}'=>'Country',
+                                            '{VatNumber}'=>'Vat Number',
+                                            '{NominalCode}'=>'Nominal Code',
+                                            '{Email}'=>'Email',
+                                            '{Phone}'=>'Phone');
 
     public static function getInvoiceEmailTemplate($data){
 
@@ -195,4 +208,72 @@ class Invoice extends \Eloquent {
     }
 
 
+    // for sample invoice template pdf
+    public static function getInvoiceTo($Invoiceto){
+        $Invoiceto = str_replace('{','',$Invoiceto);
+        $Invoiceto = str_replace('}','',$Invoiceto);
+        return $Invoiceto;
+    }
+
+    public static function create_accountdetails($AccountDetail){
+        $Account = Account::find($AccountDetail->AccountID);
+        $replace_array = array();
+        $replace_array['FirstName'] = $Account->FirstName;
+        $replace_array['LastName'] = $Account->LastName;
+        $replace_array['AccountName'] = $Account->AccountName;
+        $replace_array['AccountNumber'] = $Account->Number;
+        $replace_array['VatNumber'] = $Account->VatNumber;
+        $replace_array['NominalCode'] = $Account->NominalAnalysisNominalAccountNumber;
+        $replace_array['Email'] = $Account->Email;
+        $replace_array['Address1'] = $Account->Address1;
+        $replace_array['Address2'] = $Account->Address2;
+        $replace_array['Address3'] = $Account->Address3;
+        $replace_array['City'] = $Account->City;
+        $replace_array['State'] = $Account->State;
+        $replace_array['PostCode'] = $Account->PostCode;
+        $replace_array['Country'] = $Account->Country;
+        $replace_array['Phone'] = $Account->Phone;
+        $replace_array['Fax'] = $Account->Fax;
+        $replace_array['Website'] = $Account->Website;
+        $replace_array['Currency'] = Currency::getCurrencySymbol($Account->CurrencyId);
+        $replace_array['CompanyName'] = Company::getName($Account->CompanyId);
+        $replace_array['CompanyVAT'] = Company::getCompanyField($Account->CompanyId,"VAT");
+        $replace_array['CompanyAddress'] = Company::getCompanyFullAddress($Account->CompanyId);
+
+        return $replace_array;
+    }
+
+
+    public static function getInvoiceToByAccount($Message,$replace_array){
+        $extra = [
+            '{AccountName}',
+            '{AccountNumber}',
+            '{VatNumber}',
+            '{VatNumber}',
+            '{NominalCode}',
+            '{Phone}',
+            '{Fax}',
+            '{Website}',
+            '{Email}',
+            '{Address1}',
+            '{Address2}',
+            '{Address3}',
+            '{City}',
+            '{State}',
+            '{PostCode}',
+            '{Country}',
+            '{Currency}',
+            '{CompanyName}',
+            '{CompanyVAT}',
+            '{CompanyAddress}'
+        ];
+
+        foreach($extra as $item){
+            $item_name = str_replace(array('{','}'),array('',''),$item);
+            if(array_key_exists($item_name,$replace_array)) {
+                $Message = str_replace($item,$replace_array[$item_name],$Message);
+            }
+        }
+        return $Message;
+    }
 }

@@ -54,6 +54,13 @@ private $validlicense;
 			///////
 			$companyID 					= 	 User::get_companyID();
 			$array						= 	 $this->GetResult($data); 
+			if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
+				return	Redirect::to('/logout'); 
+			}		
+			if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
+				Redirect::to('/login');
+			}
+			
 			$resultpage  				= 	 $array->resultpage;		 
 			$result 					= 	 $array->ResultCurrentPage;
 			$totalResults 				= 	 $array->totalcount; 
@@ -98,6 +105,14 @@ private $validlicense;
 		$data['iDisplayLength'] 	= 	 $data['per_page'];
 		$companyID					= 	 User::get_companyID();
 		$array						= 	 $this->GetResult($data);
+		
+		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
+			return json_response_api($array);  
+		}		
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
+			return json_response_api($array);  
+		}
+		
 		$resultpage  				= 	 $array->resultpage;		 
 		$result 					= 	 $array->ResultCurrentPage;
 		$totalResults 				= 	 $array->totalcount; 
@@ -106,7 +121,7 @@ private $validlicense;
 		$Sortcolumns				=	 TicketsTable::$SortcolumnsCustomer;
 		$pagination					=	 TicketsTable::$pagination;
 		//echo "<pre>";		print_r($resultpage);			exit;
-		if(count($result)<1)
+		/*if(count($result)<1)
 		{
 			if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
 				
@@ -114,7 +129,17 @@ private $validlicense;
 			}else{			
 				return '';
 			}
-		} 
+		} */
+		
+		if(count($result)<1)
+		{
+			//if(isset($data['SearchStr']) && $data['SearchStr']!='' && $data['currentpage']==0){
+				
+				return json_encode(array("result"=>"No Result "));
+			/*}else{			
+				return '';
+			}*/
+		}
 		TicketsTable::SetTicketSession($result);
        return   View::make('customer.tickets.ajaxresults', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','boxtype','TotalDraft','TotalUnreads','Sortcolumns','pagination'));     
 	   
@@ -137,8 +162,72 @@ private $validlicense;
 		{ 
 			return $response->data;
 		}else{
-			return $response->message;
+			return $response;
 		}
+	}
+	
+	function ajex_result_export(){
+		
+	    $postdata 					= 	 Input::all(); 	
+		$data['Search'] 			= 	 $postdata['Search'];
+	/*	$data['status'] 			= 	 isset($data['status'])?$data['status']:'';		
+		$data['priority']	 		= 	 isset($data['priority'])?$data['priority']:'';
+		$data['group'] 				= 	 isset($data['group'])?$data['group']:'';		
+		$data['agent']				= 	 isset($data['agent'])?$data['agent']:'';*/
+		
+		if(isset($postdata['status']) && $postdata['status']!='null')
+		{
+			$data['status'] 			= 	 $postdata['status'];		
+		}
+		
+		if(isset($postdata['priority']) && $postdata['priority']!='null')
+		{
+			$data['priority'] 			= 	 $postdata['priority'];		
+		}
+		
+		if(isset($postdata['group']) && $postdata['group']!='null')
+		{
+			$data['group'] 			= 	 $postdata['group'];		
+		}
+		
+		if(isset($postdata['agent']) && $postdata['agent']!='null')
+		{
+			$data['agent'] 			= 	 $postdata['agent'];		
+		}		
+		
+		$data['iSortCol_0']			= 	 $postdata['sort_fld'];
+		$data['sSortDir_0']			= 	 $postdata['sort_type'];
+		$data['Export'] 			= 	 $postdata['Export'];		
+		$data['iDisplayStart']		=	 0;
+		$data['iDisplayLength']		=	 100;	
+		$companyID					= 	 User::get_companyID();
+		$array						=  	 $this->GetResult($data); 
+		
+		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
+			return json_response_api($array);  
+		}		
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
+			return json_response_api($array);  
+		}
+		
+		$resultpage  				=  	 $array->resultpage;			
+		$result 					= 	 $array->ResultCurrentPage;		
+		$type						=	 $postdata['export_type'];
+
+		if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = $result;
+            $excel_data = json_decode(json_encode($excel_data),true);
+
+            if($type=='csv'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.csv';  
+                $NeonExcel = new NeonExcelIO($file_path);
+              return  $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/tickets.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+              return  $NeonExcel->download_excel($excel_data);
+            }            
+        }		
 	}
 	  
 	function add()
@@ -416,13 +505,13 @@ private $validlicense;
 			$AccountEmail 		 = 	  Session::get("CustomerEmail");
 			$parent_id			 =	  $ResponseData['parent_id'];
 			$GroupEmail			 = 	  $ResponseData['GroupEmail'];
-			
+			$conversation		 =    $ResponseData['conversation'];  
 			if($action_type=='forward'){ //attach current email attachments
 				$data['uploadtext']  = 	 UploadFile::DownloadFileLocal($response_data['AttachmentPaths']);
 			}
 			
 			
-			return View::make('customer.tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','GroupEmail'));  
+			return View::make('customer.tickets.ticketaction', compact('data','response_data','action_type','uploadtext','AccountEmail','parent_id','FromEmails','GroupEmail','conversation'));  
 		}else{
             return view_response_api($response);
         }	
@@ -473,7 +562,7 @@ private $validlicense;
 						$postdata['file']		=	json_encode($FilesArray);
 					}
 		 
-		$response 			= 		NeonAPI::request('customer/tickets/actionsubmit/'.$id,$postdata,true,false,false); Log::info(print_r($response,true));	
+		$response 			= 		NeonAPI::request('customer/tickets/actionsubmit/'.$id,$postdata,true,false,false); 
 		return json_response_api($response);     		   
 	}
 	

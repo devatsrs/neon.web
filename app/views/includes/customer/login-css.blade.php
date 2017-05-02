@@ -34,6 +34,9 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         "assets/bootstrap3-editable/css/bootstrap-editable.css",
         "assets/js/icheck/skins/minimal/_all.css",
         "assets/js/daterangepicker/daterangepicker.css",
+        // New editor
+        "assets/js/summernote/summernote.css",
+
 		"assets/css/custom.css",
 
 
