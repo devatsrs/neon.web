@@ -30,12 +30,12 @@
 </ol>
 <h3>Authentication Rule</h3>
 <p style="text-align: right;">
-    @if(User::checkCategoryPermission('AuthenticationRule','Add'))
+
     <button type="button" id="save_account" data-loading-text = "Loading..." class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
         Save
     </button>
-    @endif
+
 
     @if($ServiceID=='0')
         <a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}" class="btn btn-danger btn-sm btn-icon icon-left">
