@@ -42,39 +42,46 @@ class Report extends \Eloquent {
 
     public static function generateSummaryQuery($CompanyID,$data){
         $columns = array();
-        $offset = 0;
-        $limit = 1000;
-        if(count($data['column'])) {
+        if(count($data['row'])) {
             $query_distinct = DB::connection('neon_report')
                 ->table('tblHeader')
                 ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
                 ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
                 ->where(['CompanyID' => $CompanyID])
-                ->offset($offset)
-                ->limit($limit)
+                //->where(['AccountID' => 30])
                 ->distinct();
-            foreach ($data['column'] as $column) {
+            foreach ($data['row'] as $column) {
                 $query_distinct->orderby($column);
             }
-            $columns = $query_distinct->get($data['column']);
+            $columns = $query_distinct->get($data['row']);
             $columns = json_decode(json_encode($columns), true);
 
-            $response['column'] = self::generateColumnNames($columns);
+            //$response['column'] = self::generateColumnNames($columns);
+            $response['distinct_row'] = $columns;
+            $response['distinct_row'] = array_map('custom_implode',$response['distinct_row']);
         }
-        $select_columns = generateGroupConcat($data, $columns);
 
 
         $final_query = DB::connection('neon_report')
             ->table('tblHeader')
             ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
             ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
-            ->where(['CompanyID' => $CompanyID]);
+            ->where(['CompanyID' => $CompanyID])
+            //->where(['AccountID' => 30])
+        ;
+        foreach ($data['column'] as $column) {
+            $final_query->groupby($column);
+        }
         foreach ($data['row'] as $column) {
             $final_query->groupby($column);
         }
-        if(!empty($select_columns)){
+
+        $data['row'] = array_merge($data['row'],$data['column']);
+        $data['row'][] = DB::Raw("SUM(NoOfCalls) as NoOfCalls");
+        $data['row'][] = DB::Raw("SUM(TotalCharges) AS TotalCharges");
+        /*if(!empty($select_columns)){
             $data['row'][] = DB::Raw($select_columns);
-        }
+        }*/
         //print_r($data['row']);exit;
         if(!empty($data['row'])) {
             $response['data'] = $final_query->get($data['row']);

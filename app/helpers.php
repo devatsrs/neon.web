@@ -1642,20 +1642,7 @@ function generateReportTable($data,$response)
     return $table;
 }
 
-function generateReportTable2($data,$response)
-{
-    $row_count = count($data['row']);
 
-    $table = '<table class="table table-bordered">';
-
-    $table_data =  table_array($data,$response);
-
-    $table .=  table_html($data,$response,$table_data);
-
-    $table .= '</table>';
-
-    return $table;
-}
 
 function header_array_html($main_header,$data,$response){
     $index_col = 0;
@@ -1799,71 +1786,111 @@ function row_array_html($data,$response){
 }
 function table_array($data,$response){
     $table_data = array();
-    $col_keys = array();
+    $col_seprator = '##';
+    $row_seprator = '!!';
 
-    foreach ($response['distinct_column'] as $row){
-        $key_col_comb = $key_row_comb = '';
-        foreach ($row as $col_name => $col_val) {
-            $key_col_comb .= $col_val . '##';
-            if (empty(${'count_colspan_' . $key_col_comb})) {
-                ${'count_colspan_' . $key_col_comb} = 0;
+    if(count($data['row'])) {
+
+        foreach ($response['distinct_row'] as $col_key => $data_key) {
+            $data_key_array = array_filter(explode($row_seprator,$data_key));
+            for ($i = 1; $i <= count($data['row']); $i++) {
+                $fincalcol_key = implode($row_seprator,array_slice($data_key_array,0,$i));
+                if (empty(${'new_count_rowspan_' . $fincalcol_key . $row_seprator})) {
+                    ${'new_count_rowspan_' . $fincalcol_key . $row_seprator} = 0;
+                }
+                ${'new_count_rowspan_' . $fincalcol_key . $row_seprator}++;
+                //echo ${'new_count_rowspan_' . $fincalcol_key.$row_seprator}.PHP_EOL;
+                //echo ' key ============'.$fincalcol_key.$row_seprator.'========'.PHP_EOL;
+                $table_data['row'][$i-1][$fincalcol_key . $row_seprator]['rowspan'] = ${'new_count_rowspan_' . $fincalcol_key . $row_seprator};
+                $table_data['data'][$fincalcol_key . $row_seprator] = array();
             }
-            $col_keys[$key_col_comb] = ${'count_colspan_' . $key_col_comb};
-            ${'count_colspan_' . $key_col_comb}++;
-
         }
+        ksort($table_data['row']);
+        //print_r($table_data);exit;
+
     }
+
     foreach ($response['data'] as $row){
         $key_col_comb = $key_row_comb = '';
         $key_col_index = $key_row_index = 0;
         foreach ($row as $col_name => $col_val) {
-            //echo $col_name.PHP_EOL;
+
             if(in_array($col_name,$data['column'])){
-                $key_col_comb .= $col_val.'##';
+                $key_col_comb .= $col_val.$col_seprator;
                 if (empty(${'count_colspan_' . $key_col_comb})) {
                     ${'count_colspan_' . $key_col_comb} = 0;
                 }
-                $table_data['columns'][$key_col_index][$key_col_comb]['name'] = $response['name'][$col_name][$col_val];
+                $table_data['columns'][$key_col_index][$key_col_comb]['name'] = $col_name.'@'.$col_val; //$response['name'][$col_name][$col_val]
                 ${'count_colspan_' . $key_col_comb}++;
                 $table_data['columns'][$key_col_index][$key_col_comb]['colspan'] = ${'count_colspan_' . $key_col_comb};
                 $key_col_index++;
             }
+
             if(in_array($col_name,$data['row'])){
-                $key_row_comb .= $col_val.'!!';
+                $key_row_comb .= $col_val.$row_seprator;
                 if (empty(${'count_rowspan_' . $key_row_comb})) {
                     ${'count_rowspan_' . $key_row_comb} = 0;
                 }
-                $table_data['row'][$key_row_index][$key_row_comb]['name'] = $response['name'][$col_name][$col_val];
+                $table_data['row'][$key_row_index][$key_row_comb]['name'] = $col_name.'@'.$col_val; //$response['name'][$col_name][$col_val]
                 ${'count_rowspan_' . $key_row_comb}++;
-                $table_data['row'][$key_row_index][$key_row_comb]['rowspan'] = ${'count_rowspan_' . $key_row_comb};
+                if(!isset($table_data['row'][$key_row_index][$key_row_comb]['rowspan'])) {
+                    $table_data['row'][$key_row_index][$key_row_comb]['rowspan'] = ${'count_rowspan_' . $key_row_comb};
+                }
                 $key_row_index++;
             }
 
             if(in_array($col_name,$data['sum'])){
-                $table_data['columns'][$key_col_index][$key_col_comb]['name'] = $col_name;
+                if(empty($table_data['columns'][$key_col_index][$key_col_comb]['name']) || !in_array($col_name,$table_data['columns'][$key_col_index][$key_col_comb]['name'])) {
+                    $table_data['columns'][$key_col_index][$key_col_comb]['name'][] = $col_name;
+                }
                 $table_data['columns'][$key_col_index][$key_col_comb]['colspan'] = 1;
-
             }
-            $table_data['data'][$key_row_comb][$key_col_comb] = $col_val;
-
+            $key_val_comb = $key_col_comb.$col_name;
+            $table_data['data'][$key_row_comb][$key_val_comb] = $col_val;
         }
     }
 
-    foreach ($table_data['data'] as $table_row){
-        if(!empty(array_keys($table_row))){
+    if(count($data['column'])) {
+        foreach ($table_data['columns'][count($table_data['columns']) - 1] as $col_key => $column) {
+            $fincalcol_key = $col_key;
+            for ($i = count($table_data['columns']) - 2; $i >= 0; $i--) {
+                $fincalcol_key = str_lreplace($col_seprator, '', $fincalcol_key);
+                if (empty(${'new_count_colspan_' . $fincalcol_key . $col_seprator})) {
+                    ${'new_count_colspan_' . $fincalcol_key . $col_seprator} = 0;
+                }
+                ${'new_count_colspan_' . $fincalcol_key . $col_seprator} = ${'new_count_colspan_' . $fincalcol_key . $col_seprator} + count($column['name']);
+                //echo ${'new_count_colspan_' . $fincalcol_key.$col_seprator}.PHP_EOL;
+                //echo ' key ============'.$fincalcol_key.$col_seprator.'========'.PHP_EOL;
+                $table_data['columns'][$i][$fincalcol_key . $col_seprator]['colspan'] = ${'new_count_colspan_' . $fincalcol_key . $col_seprator};
+            }
+        }
+        $columns_keys = array_keys($table_data['columns'][count($table_data['columns']) - 2]);
 
+        foreach ($table_data['data'] as $key => $table_row){
+            $table_new_row = array();
+            foreach ($columns_keys as $columns_key) {
+                foreach ($data['sum'] as $sum_col) {
+                    if (!isset($table_row[$columns_key.$sum_col])) {
+                        $table_new_row[$columns_key.$sum_col] = '';
+                    } else {
+                        $table_new_row[$columns_key.$sum_col] = $table_row[$columns_key.$sum_col];
+                    }
+                }
+            }
+            $table_data['data'][$key] = $table_new_row;
         }
     }
+
 
     //echo '<pre>';print_r($table_data);exit;
     return $table_data;
 }
-function table_html($data,$response,$table_data){
-    $index_col = 0;
+function table_html($data,$table_data){
+    $index_col = 1;
     $row_count = count($data['row']);
     $col_count = count($data['column']);
     $table_header = $table_header_colgroup = $table_row = '';
-    $chartColor = array('#C5CAE9','#BBDEFB','#B3E5FC','#B2EBF2','#C8E6C9','#DCEDC8','#F0F4C3','#FFCCBC','#D7CCC8','#F5F5F5','#CFD8DC','#050FFF','#0000FF');
+    $chartColor = array('#C5CAE9','#BBDEFB','#B3E5FC','#B2EBF2','#C8E6C9','#DCEDC8','#F0F4C3','#FFCCBC','#D7CCC8','#F5F5F5','#CFD8DC');
     if($row_count) {
         $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
     }
@@ -1879,12 +1906,16 @@ function table_html($data,$response,$table_data){
             foreach ($table_data['columns'][$key] as $row_val) {
                 $color = '#FFF';
                 if ($key == 0) {
-                    if(isset($chartColor[$index_col + 1])) {
-                        $color = $chartColor[$index_col + 1];
+                    if(!isset($chartColor[$index_col])) {
+                        $index_col = 1;
                     }
+                    if(isset($chartColor[$index_col])) {
+                        $color = $chartColor[$index_col];
+                    }
+                    
                     $table_header_colgroup .= '<colgroup span="' . $row_val['colspan'] . '" style="background-color:' . $color. '"></colgroup>';
                 }
-                $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . $row_val['name'] . '</th>'; //$row_val['colspan']
+                $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup">' . $row_val['name'] . '</th>';
                 $index_col++;
             }
 
@@ -1892,60 +1923,89 @@ function table_html($data,$response,$table_data){
         }
     }
     if(count($data['sum'])) {
-        foreach ($data['sum'] as $key => $col_name) {
-            $table_header .= '<tr>';
-            $key_count = $key+count($data['column']);
-            foreach ($table_data['columns'][$key_count] as $row_val) {
-                $color = '#FFF';
-                if ($key == 0) {
-                    if(isset($chartColor[$index_col + 1])) {
-                        $color = $chartColor[$index_col + 1];
-                    }
-                    $table_header_colgroup .= '<colgroup span="' . $row_val['colspan'] . '" style="background-color:' . $color. '"></colgroup>';
-                }
-                $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . $row_val['name'] . '</th>'; //$row_val['colspan']
-                $index_col++;
+        $table_header .= '<tr>';
+        if (count($data['column']) == 0) {
+            foreach ($data['row'] as $rowkey => $blankrow_name) {
+                $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '"></td>';
             }
-
-            $table_header .= '</tr>';
         }
+        $key_count = count($data['column']);
+        foreach ($table_data['columns'][$key_count] as $row_val) {
+            foreach ($row_val['name'] as $row_name) {
+                $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . $row_name . '</th>';
+            }
+        }
+        $table_header .= '</tr>';
     }
-
+    $table_header = $table_header_colgroup.$table_header;
+    $table_td = '';
+    //print_r($table_data);exit;
     foreach ($table_data['data'] as $datakey => $row) {
-        $table_row .= '<tr>';
-        $key_comb = '';
+        $explode_row_array = array_filter(explode('!!', $datakey));
+        $explode_row_count = count($explode_row_array);
+
+
         $key_index= 0;
         $table_single_row = $table_col_row = '';
         foreach ($row as $col_name => $col_val) {
             $explode_array = array_filter(explode('##', $col_name));
             $explode_count = count($explode_array);
-            if ($explode_count >= $col_count) {
-                $table_single_row .= '<td class="col">' . $col_val . '</td>';
-            } else {
-                if (isset($table_data['row'][$key_index][$datakey]['name'])) {
-                    $table_col_row .= '<td rowspan="' . 1 . '">' . $table_data['row'][$key_index][$datakey]['name'] . '</td>';
+
+
+            if ($row_count > 0 && $row_count >= $explode_row_count && $key_index == 0) {
+                $table_col_row .= '<td rowspan="' . $table_data['row'][$explode_row_count-1][$datakey]['rowspan'] . '">' . $table_data['row'][$explode_row_count-1][$datakey]['name'] . '</td>';
+            }
+            if ($explode_row_count == $row_count && $explode_count >= $col_count) {
+                if($key_index > 0 && $col_count == 0){
+                    $table_single_row .= '<td class="col">' . $col_val . '</td>';
+                }else if($col_count > 0){
+                    $table_single_row .= '<td class="col">' . $col_val . '</td>';
                 }
-            }
 
-            /*$key_comb .= $col_val . '#';
-            if (empty(${'count_new_' . $key_comb})) {
-                ${'count_new_' . $key_comb} = $table_data['row'][$key_index][$key_comb]['rowspan'];
             }
-            if (${'count_new_' . $key_comb} == $table_data['row'][$key_index][$key_comb]['rowspan']) {
-                $table_col_row .= '<td rowspan="' . $table_data['row'][$key_index][$key_comb]['rowspan'] . '">' . $table_data['row'][$key_index][$key_comb]['name'] . '</td>';
-            }
-            ${'count_new_' . $key_comb}--;*/
-
-
             $key_index++;
         }
         $table_single_row = $table_col_row . $table_single_row;
-        $table_row .= $table_single_row;
-        $table_row .= '</tr>';
+        $table_td .= $table_single_row;
+        if($explode_row_count == $row_count) {
+            $table_row .='<tr>'.$table_td. '</tr>';
+            $table_td = '';
+        }
 
     }
     return $table_header.$table_row;
 }
+function generateReportTable2($data,$response)
+{
+    $row_count = count($data['row']);
+
+    $table = '<table class="table table-bordered">';
+
+    $table_data =  table_array($data,$response);
+
+    $table .=  table_html($data,$table_data);
+
+        $table .= '</table>';
+
+    return $table;
+}
+
+function str_lreplace($search, $replace, $subject)
+{
+    $pos = strrpos($subject, $search);
+
+    if($pos !== false)
+    {
+        $subject = substr_replace($subject, $replace, $pos, strlen($subject));
+    }
+
+    return $subject;
+}
+
+function custom_implode($array){
+    return implode('!!',$array).'!!';
+}
+
 
 
 
