@@ -4,7 +4,7 @@ class TicketsFieldsController extends \BaseController {
 
 private $validlicense;	
 	public function __construct(){
-		parent::IsValidLicense();
+		parent::validateTicketLicence();
 	 } 
 	 
 	

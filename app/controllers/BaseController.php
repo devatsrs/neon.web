@@ -76,7 +76,7 @@ class BaseController extends Controller {
 
     }
 	
-	 public function IsValidLicense(){		
+	 public function validateTicketLicence(){		
 	 	$license =   Tickets::CheckTicketLicense(); 
 		if(!$license){
 			Redirect::to('/')->send();

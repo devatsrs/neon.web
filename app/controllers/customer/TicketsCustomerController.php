@@ -5,7 +5,7 @@ class TicketsCustomerController extends \BaseController {
 private $validlicense;	
 
 	public function __construct(){
-		parent::IsValidLicense();		 	 
+		parent::validateTicketLicence();		 	 
 	 } 	
 	
 	 public function index(){
