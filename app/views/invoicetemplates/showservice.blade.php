@@ -83,24 +83,22 @@
             <td class="desc">$1,000.00</td>
             <td class="total">$3,200.00</td>
         </tr>
+        @if($InvoiceTemplate->GroupByService==1)
         <tr>
-            @if($InvoiceTemplate->GroupByService==1)
             <td class="desc">Service - 2</td>
-            @endif
             <td class="desc">$1,200.00</td>
             <td class="desc">$1,000.00</td>
             <td class="desc">$1,000.00</td>
             <td class="total">$3,200.00</td>
         </tr>
         <tr>
-            @if($InvoiceTemplate->GroupByService==1)
             <td class="desc">Other Service</td>
-            @endif
             <td class="desc">$400.00</td>
             <td class="desc">$400.00</td>
             <td class="desc">$400.00</td>
             <td class="total">$1,200.00</td>
         </tr>
+        @endif
         </tbody>
         <tfoot>
         <tr>
@@ -167,16 +165,6 @@
     <header class="clearfix">
         <div id="Service" style="float:left;width:40%">
             <h1>Service 1</h1>
-        </div>
-        <div style="float:right;width:58%";>
-            <label class="col-sm-5" style="font-size: 1.5em;">Split Services on separate pages
-                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON each service will be displayed on separate page" data-original-title="Service Split">?</span></label>
-            </label>
-            <div class="col-sm-2">
-                <p class="make-switch switch-small">
-                    <input id="ServiceSplit" name="ServiceSplit" type="checkbox"  @if($InvoiceTemplate->ServiceSplit == 1 )checked="" @endif value="1" >
-                </p>
-            </div>
         </div>
     </header>
     @endif

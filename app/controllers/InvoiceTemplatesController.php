@@ -19,7 +19,7 @@ class InvoiceTemplatesController extends \BaseController {
                 $NeonExcel->download_excel($invoiceCompanies);
             }
         }
-        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService');
+        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService','ServiceSplit');
         return Datatables::of($invoiceCompanies)->make();
     }
 
@@ -86,14 +86,12 @@ class InvoiceTemplatesController extends \BaseController {
             $companyID = User::get_companyID();
             $data['CompanyID'] = $companyID;
             $data['ModifiedBy'] = User::get_user_full_name();
-            if(!empty($data['ServicePage'])&& $data['ServicePage']==1){
-                $data['ServiceSplit'] = $data['ServiceSplit']== 'true'?1:0;
-            }
             if(!empty($data['EditPage']) && $data['EditPage']==1){
                 $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
                 $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
                 $data['ShowBillingPeriod'] = isset($data['ShowBillingPeriod']) ? 1 : 0;
                 $data['GroupByService'] = isset($data['GroupByService']) ? 1 : 0;
+                $data['ServiceSplit'] = isset($data['ServiceSplit']) ? 1 : 0;
             }
             unset($data['EditPage']);
             unset($data['ServicePage']);
@@ -116,6 +114,14 @@ class InvoiceTemplatesController extends \BaseController {
                 'CDRType'=> 'required',
             );
 
+            $messages = array(
+                'CompanyID.required' =>'The companyid field is required',
+                'Name.required' =>'name field is required',
+                'InvoiceStartNumber.required' =>'invoice start number field is required',
+                'CDRType.required' =>'cdr format field is required',
+                'DateFormat.required' =>'date format field is required',
+            );
+
             if(!isset($data['InvoiceStartNumber'])){
                 //If saved from view.
                 unset($rules['InvoiceStartNumber']);
@@ -127,7 +133,7 @@ class InvoiceTemplatesController extends \BaseController {
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
 
-            $validator = Validator::make($data, $rules);
+            $validator = Validator::make($data, $rules,$messages);
             $validator->setPresenceVerifier($verifier);
 
             if ($validator->fails()) {
@@ -181,6 +187,7 @@ class InvoiceTemplatesController extends \BaseController {
         $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
         $data['ShowBillingPeriod'] = isset($data['ShowBillingPeriod']) ? 1 : 0;
         $data['GroupByService'] = isset($data['GroupByService']) ? 1 : 0;
+        $data['ServiceSplit'] = isset($data['ServiceSplit']) ? 1 : 0;
         unset($data['InvoiceTemplateID']);
         unset($data['EditPage']);
         $rules = array(
@@ -190,10 +197,19 @@ class InvoiceTemplatesController extends \BaseController {
             'CDRType'=> 'required',
             'DateFormat'=> 'required',
         );
+
+        $messages = array(
+            'CompanyID.required' =>'The companyid field is required',
+            'Name.required' =>'name field is required',
+            'InvoiceStartNumber.required' =>'invoice start number field is required',
+            'CDRType.required' =>'cdr format field is required',
+            'DateFormat.required' =>'date format field is required',
+        );
+
         $verifier = App::make('validation.presence');
         $verifier->setConnection('sqlsrv2');
 
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, $rules,$messages);
         $validator->setPresenceVerifier($verifier);
 
         if ($validator->fails()) {
