@@ -174,16 +174,17 @@
                                 <input type="checkbox" id="selectall" name="checkbox[]" />
                             </div>
                         </th>
-                        <th width="15%" >Account Name</th>
+                        <th width="10%" >Account Name</th>
                         <th width="10%" >Connect Time</th>
                         <th width="10%" >Disconnect Time</th>
-                        <th width="10%" >Billed Duration (sec)</th>
-                        <th width="10%" >Cost</th>
-                        <th width="10%" >Avg. Rate/Min</th>
+                        <th width="8%" >Billed Duration (sec)</th>
+                        <th width="8%" >Cost</th>
+                        <th width="8%" >Avg. Rate/Min</th>
                         <th width="10%" >CLI</th>
                         <th width="10%" >CLD</th>
-                        <th width="10%" >Prefix</th>
-                        <th width="10%" >Trunk</th>
+                        <th width="8%" >Prefix</th>
+                        <th width="8%" >Trunk</th>
+                        <th width="8%" >Service</th>
                     </tr>
                     </thead>
                     <tbody>
