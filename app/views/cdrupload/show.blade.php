@@ -169,22 +169,22 @@
                 <table class="table table-bordered datatable" id="table-4">
                     <thead>
                     <tr>
-                        <th width="5%" >
+                        <th width="3%" >
                             <div class="checkbox ">
                                 <input type="checkbox" id="selectall" name="checkbox[]" />
                             </div>
                         </th>
-                        <th width="10%" >Account Name</th>
+                        <th width="15%" >Account Name</th>
                         <th width="10%" >Connect Time</th>
                         <th width="10%" >Disconnect Time</th>
-                        <th width="8%" >Billed Duration (sec)</th>
-                        <th width="8%" >Cost</th>
-                        <th width="8%" >Avg. Rate/Min</th>
+                        <th width="6%" >Billed Duration (sec)</th>
+                        <th width="6%" >Cost</th>
+                        <th width="6%" >Avg. Rate/Min</th>
                         <th width="10%" >CLI</th>
                         <th width="10%" >CLD</th>
-                        <th width="8%" >Prefix</th>
+                        <th width="6%" >Prefix</th>
                         <th width="8%" >Trunk</th>
-                        <th width="8%" >Service</th>
+                        <th width="10%" >Service</th>
                     </tr>
                     </thead>
                     <tbody>
