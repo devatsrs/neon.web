@@ -334,6 +334,7 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },
+                    { "bSortable": false },
                     { "bSortable": false }
                 ],
                 "fnDrawCallback": function() {
