@@ -27,7 +27,7 @@ BEGIN
     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
     SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
-    SELECT cr.Symbol INTO v_CurrencyCode_ FROM Ratemanagement3.tblCurrency cr WHERE cr.CurrencyId =p_CurrencyID;
+    SELECT cr.Symbol INTO v_CurrencyCode_ FROM NeonRMDev.tblCurrency cr WHERE cr.CurrencyId =p_CurrencyID;
 
     SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
@@ -57,7 +57,7 @@ BEGIN
             tblPayment.RecallBy,
             CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(tblPayment.Amount,v_Round_)) AS AmountWithSymbol
         FROM tblPayment
-        LEFT JOIN Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+        LEFT JOIN NeonRMDev.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
         WHERE tblPayment.CompanyID = p_CompanyID
             AND(p_RecallOnOff = -1 OR tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
@@ -118,7 +118,7 @@ BEGIN
             COUNT(tblPayment.PaymentID) AS totalcount,
             CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(sum(Amount),v_Round_)) AS total_grand
         FROM tblPayment
-        LEFT JOIN Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+        LEFT JOIN NeonRMDev.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
         WHERE tblPayment.CompanyID = p_CompanyID
             AND(p_RecallOnOff = -1 OR tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
@@ -150,7 +150,7 @@ BEGIN
             tblPayment.PaymentMethod,
             Notes 
         FROM tblPayment
-        LEFT JOIN Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+        LEFT JOIN NeonRMDev.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
         WHERE tblPayment.CompanyID = p_CompanyID
             AND(p_RecallOnOff = -1 OR tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
@@ -182,7 +182,7 @@ BEGIN
             tblPayment.PaymentMethod,
             Notes 
         FROM tblPayment
-        LEFT JOIN Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+        LEFT JOIN NeonRMDev.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
         WHERE tblPayment.CompanyID = p_CompanyID
             AND(tblPayment.Recall = p_RecallOnOff)
             AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
