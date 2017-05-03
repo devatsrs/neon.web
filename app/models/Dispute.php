@@ -200,6 +200,7 @@ class Dispute extends \Eloquent {
 			if(!empty($EmailTemplate->EmailFrom)) {
 				$data['EmailFrom'] = $EmailTemplate->EmailFrom;
 				$Account = Account::find($data["AccountID"]);
+				$CustomerEmail = $Account->BillingEmail;
 				$emailArray = explode(',', $Account->BillingEmail);
 				foreach ($emailArray as $singleemail) {
 					$singleemail = trim($singleemail);
@@ -209,6 +210,16 @@ class Dispute extends \Eloquent {
 							$status = sendMail($body, $data, 0);
 						}
 					}
+				}
+				if(!empty($CustomerEmail) &&$status['status']==1){
+					$message_id 	=  isset($status['message_id'])?$status['message_id']:"";
+					$logData = ['AccountID'=>$data["AccountID"],
+						'EmailTo'=>$CustomerEmail,
+						'Subject'=>$data['Subject'],
+						'Message'=>$body,
+						"message_id"=>$message_id
+					];
+					email_log($logData);
 				}
 			}
 		}
