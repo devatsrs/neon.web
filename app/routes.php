@@ -203,6 +203,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/account/note/update', 'AccountsController@update_note');
 	Route::any('/accounts/delete_task_prent', 'AccountsController@Delete_task_parent');
 	Route::any('/accounts/update_bulk_account_status', 'AccountsController@UpdateBulkAccountStatus');
+	Route::any('/accounts/bulkactions', 'AccountsController@BulkAction');
 	
 	
 

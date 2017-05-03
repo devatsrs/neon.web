@@ -131,6 +131,14 @@
                         <span>Bulk Tags</span>
                     </a>
                 </li>
+                
+                <li>
+                    <a href="javascript:void(0)" id="bulk-Actions">
+                        <i class="entypo-tag"></i>
+                        <span>Bulk Actions</span>
+                    </a>
+                </li>
+                
                 @endif
                 @if(User::checkCategoryPermission('Account','Email'))
                 <li>
@@ -386,6 +394,8 @@
                                 credit_ = "{{ URL::to('account/get_credit/{id}')}}";
                                 customer_rate_ = "{{Url::to('/customers_rates/{id}')}}";
                                 vendor_blocking_ = "{{Url::to('/vendor_rates/{id}')}}";
+								
+								authenticate_ = "{{Url::to('/accounts/authenticate/{id}')}}";
 
                                 edit_ = edit_.replace( '{id}', full[0] );
                                 show_ = show_.replace( '{id}', full[0] );
@@ -393,6 +403,7 @@
                                 credit_ = credit_.replace( '{id}', full[0] );
                                 customer_rate_ = customer_rate_.replace( '{id}', full[0] );
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
+								authenticate_ = authenticate_.replace( '{id}', full[0] );
                                 action = '';
                                 <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
                                 action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
@@ -442,7 +453,11 @@
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
                                         action += '&nbsp;<a href="'+vendor_blocking_+'" title="Vendor" class="btn btn-info btn-xs"><i class="fa fa-slideshare"></i></a>';
                                     <?php } ?>
-                                }
+                                } 
+								
+								if(full[9]==1 || full[10]==1){
+                                 	action += '&nbsp;<a href="'+authenticate_+'" title="Authentication Rule" class="btn btn-info btn-xs"><i class="entypo-lock"></i></a>';
+                                } 
                                 action +='<input type="hidden" name="accountid" value="'+full[0]+'"/>';
                                 action +='<input type="hidden" name="address1" value="'+full[12]+'"/>';
                                 action +='<input type="hidden" name="address2" value="'+full[13]+'"/>';
@@ -511,7 +526,7 @@
                 if(childrens.eq(0).hasClass('dataTables_empty')){
                     return true;
                 }
-                var temp = childrens.eq(9).clone();
+                var temp = childrens.eq(9).clone(); 
                 $(temp).find('a').each(function () {
                    // $(this).find('i').remove();
                     $(this).removeClass('btn btn-icon icon-left');
@@ -963,6 +978,12 @@
             $('.save').button('reset');
             $('#modal-BulkTags').modal('show');
         });
+		
+		  $("#bulk-Actions").click(function() {
+            var el = $('#modal-bulk-actions'); 
+            $('.save').button('reset');
+            el.modal('show');
+        });
 
         $(document).on('click','.switcher',function(){
             var self = $(this);
@@ -1081,6 +1102,34 @@
                 modal.find('.message').val('');
             }
         }
+		
+		
+		$('#BulkAction-form').submit(function(e){
+			e.preventDefault();
+			var SelectedIDs = getselectedIDs();
+			if (SelectedIDs.length == 0) {
+				$('#modal-bulk-actions').modal('hide');
+				toastr.error('Please select at least one Account.', "Error", toastr_opts);
+				return false;
+			}else {
+				var selectedIDs = $(this).find('[name="BulkselectedIDs"]').val(SelectedIDs.join(","));
+				var url = baseurl + '/accounts/bulkactions';
+				showAjaxScript(url, new FormData(($('#BulkAction-form')[0])), function (response) {
+					$("#bulk-submit").button('reset');
+					if (response.status == 'success') {
+						data_table.fnFilter('', 0);
+						$('#modal-bulk-actions').modal('hide');
+						document.getElementById('BulkAction-form').reset();
+						$('#BulkOwnerChange').val('').trigger('change');
+						$('#BulkCurrencyChange').val('').trigger('change');
+						toastr.success(response.message, "Success", toastr_opts);
+					} else {
+						toastr.error(response.message, "Error", toastr_opts);
+					}
+				});
+			}
+   	    });
+		
     });
 
     function getselectedIDs(){
@@ -1177,4 +1226,62 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="modal-bulk-actions">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="BulkAction-form" method="post" action="" enctype="multipart/form-data">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Bulk Actions</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row"> @if(User::is_admin())
+            <div id="Owner" class="col-md-6">
+              <div class="form-group">
+                <label for="field-1" class="control-label">
+                  <input type="checkbox" name="OwnerCheck">
+                  <span>Owner</span></label>
+                {{Form::select('account_owners',$account_owners,'',array("class"=>"select2 small","id"=>"BulkOwnerChange"))}} </div>
+            </div>
+            @endif
+            <div id="Currency" class="col-md-6">
+              <div class="form-group">
+                <label for="field-1" class="control-label">
+                  <input type="checkbox"  name="CurrencyCheck">
+                  <span>Currency</span></label>
+                {{Form::select('Currency',$Currencies,'',array("class"=>"select2 small","id"=>"BulkCurrencyChange"))}} </div>
+            </div>
+          </div>
+          <div class="row">
+            <div id="Vendor" class="col-md-6">
+              <div class="form-group">
+                <label for="field-3" class="control-label">
+                  <input type="checkbox"  name="VendorCheck">
+                  <span>Vendor</span></label><br>
+                <p class="make-switch switch-small">
+                  <input id="BulkVendorChange" name="vendor_on_off" type="checkbox" value="1">
+                </p>
+              </div>
+            </div>
+            <div id="Customer" class="col-md-6">
+              <div class="form-group">
+                <label for="field-3" class="control-label">
+                  <input type="checkbox"  name="CustomerCheck">
+                  <span>Customer</span></label><br>
+                <p class="make-switch switch-small">
+                  <input id="BulkCustomerChange" name="Customer_on_off" type="checkbox" value="1">
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" name="BulkselectedIDs" />
+        <div class="modal-footer">
+          <button  type="submit" id="bulk-submit" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @stop
