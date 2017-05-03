@@ -192,21 +192,26 @@ class Dispute extends \Eloquent {
         }
         $data['CompanyName'] 	= 	Company::getName($CompanyID);
         $data['EmailTemplate'] 	= 	EmailTemplate::where(["SystemType"=>EmailTemplate::DisputeEmailCustomerTemplate,'Status'=>1,'CompanyID'=>$CompanyID])->first();
-        $body					=	EmailsTemplates::render('body',$data);
-        $data['Subject']		=	EmailsTemplates::render("subject",$data);
-        $EmailTemplate = $data['EmailTemplate'];
-        $data['EmailFrom']		=	$EmailTemplate->EmailFrom;
-        $Account = Account::find($data["AccountID"]);
-        $emailArray 			= 	explode(',',$Account->BillingEmail);
-        foreach($emailArray as $singleemail) {
-            $singleemail = trim($singleemail);
-            if (filter_var($singleemail, FILTER_VALIDATE_EMAIL)) {
-                if($EmailTemplate->Status){
-                    $data['EmailTo'] 		= 	$singleemail;
-                    $status 				= 	sendMail($body,$data,0);
-                }
-            }
-        }
+		// when no email template selected then no email send
+		if(!empty($data['EmailTemplate'])) {
+			$body = EmailsTemplates::render('body', $data);
+			$data['Subject'] = EmailsTemplates::render("subject", $data);
+			$EmailTemplate = $data['EmailTemplate'];
+			if(!empty($EmailTemplate->EmailFrom)) {
+				$data['EmailFrom'] = $EmailTemplate->EmailFrom;
+				$Account = Account::find($data["AccountID"]);
+				$emailArray = explode(',', $Account->BillingEmail);
+				foreach ($emailArray as $singleemail) {
+					$singleemail = trim($singleemail);
+					if (filter_var($singleemail, FILTER_VALIDATE_EMAIL)) {
+						if ($EmailTemplate->Status) {
+							$data['EmailTo'] = $singleemail;
+							$status = sendMail($body, $data, 0);
+						}
+					}
+				}
+			}
+		}
         return $status;
     }
 }
