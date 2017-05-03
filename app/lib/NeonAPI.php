@@ -110,8 +110,6 @@ class NeonAPI{
         }
 
         $curl->close();
-        \Illuminate\Support\Facades\Log::info(print_r($curl->response_headers));
-        \Illuminate\Support\Facades\Log::info(print_r($curl->response));
 
         self::parse_header($curl->response_headers);
         $response = self::makeResponse($curl,$is_array);
