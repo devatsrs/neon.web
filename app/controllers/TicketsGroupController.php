@@ -3,7 +3,7 @@
 class TicketsGroupController extends \BaseController {
 
 	public function __construct(){
-		parent::IsValidLicense();	  
+		parent::validateTicketLicence();	  
 	 } 	 
 	
 	

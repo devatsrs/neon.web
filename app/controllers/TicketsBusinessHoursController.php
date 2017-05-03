@@ -3,7 +3,7 @@
 class TicketsBusinessHoursController extends \BaseController {
 
 	public function __construct(){
-		parent::IsValidLicense();
+		parent::validateTicketLicence();
 	 } 	 
 	 
     public function ajax_datagrid($type='') { 
