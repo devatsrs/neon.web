@@ -23,13 +23,13 @@ $app = new Illuminate\Foundation\Application;
 | given environment, then we will automatically detect it for you.
 |
 */
-Dotenv::load(__DIR__ .'/../');
-$env = $app->detectEnvironment(
-    function()
-    {
-        return getenv('APP_ENV');
-    }
-);
+$dotenv = new Dotenv\Dotenv(dirname(__DIR__));
+$dotenv->overload();
+$env = $app->detectEnvironment(array(
+
+    'local' => array('homestead'),
+
+));
 
 /*
 |--------------------------------------------------------------------------
