@@ -372,8 +372,22 @@
                                             <label for="field-1" class="col-sm-2 control-label">Tags</label>
                                             <div class="col-sm-4">
                                                 {{Form::select('selection[tags]', array(),'',array("class"=>"select2 small"))}}
+                                            </div>                                        
+                                            <label for="field-1" class="col-sm-2 control-label">Account Owner</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[AccountOwner]', array(),'',array("class"=>"select2 small"))}}
                                             </div>
-                                        </div>
+                                        </div>                                        
+                                        <div class="form-group">
+                                            <label for="field-1" class="col-sm-2 control-label">Vendor</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Vendor]', array(),'',array("class"=>"select2 small"))}}
+                                            </div>                                       
+                                            <label for="field-1" class="col-sm-2 control-label">Customer</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[Customer]', array(),'',array("class"=>"select2 small"))}}
+                                            </div>
+                                        </div>                                        
                                     </div>
                                 </div>
                                 <div class="panel panel-primary" data-collapsed="0">
@@ -1281,6 +1295,9 @@
                             <th>Description(Opt.)</th>
                             <th>VatNumber(Opt.)</th>
                             <th>Tags(Opt.)</th>
+                            <th>Account Owner(Opt.)</th>
+                            <th>Vendor(Opt.)</th>                            
+                            <th>Customer(Opt.)</th>                            
                         </tr>
                         </thead>
                         <tbody>
@@ -1305,7 +1322,10 @@
                             <td>12546</td>
                             <td>test Description</td>
                             <td>789546</td>
-                            <td>test1,test2</td>
+                            <td>test1,test2</td>                            
+                            <td>Test Name</td>
+                            <td>Yes</td>
+                            <td>No</td>
                         </tr>
                         <tr>
                             <td>202</td>
@@ -1329,6 +1349,9 @@
                             <td>test Description</td>
                             <td>789546</td>
                             <td>test1,test2</td>
+                            <td>Test Name</td>
+                            <td>No</td>
+                            <td>No</td>
                         </tr>
                         <tr>
                             <td>203</td>
@@ -1352,6 +1375,9 @@
                             <td>test Description</td>
                             <td>789546</td>
                             <td>test1,test2</td>
+                            <td>Test Name</td>
+                            <td>Yes</td>
+                            <td>Yes</td>  
                         </tr>
                         </tbody>
                     </table>
