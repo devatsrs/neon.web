@@ -899,7 +899,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $status = "success";
                 $message = "";
             }else{
-                $message = "CLI Already exits";
+                $message = "CLI Already exists";
             }
         }else{
             $message = "CLI is blank, Please enter valid cli";
@@ -920,7 +920,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $status = "success";
                 $message = "";
             } else {
-                $message = "IP Already exits";
+                $message = "IP Already exists";
             }
         } else {
             $message = "IP is blank, Please enter valid IP";
@@ -1269,7 +1269,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
         if(!empty($message)){
-            $message = 'Following CLI already exits.<br>'.$message;
+            $message = 'Following CLI already exists.<br>'.$message;
             return Response::json(array("status" => "error", "message" => $message));
         }else{
             return Response::json(array("status" => "success", "message" => "CLI Successfully Added"));

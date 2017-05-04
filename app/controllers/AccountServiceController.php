@@ -56,7 +56,7 @@ class AccountServiceController extends \BaseController {
             foreach($services as $service){
                 if(AccountService::where(array('AccountID'=>$accountid,'CompanyID'=>$CompanyID,'ServiceID'=>$service))->count()){
                     $ServiceName = Service::getServiceNameByID($service);
-                    $message .= $ServiceName.' already exist against <br>';
+                    $message .= $ServiceName.' already exists <br>';
                 }else{
                     $servicedata['ServiceID'] = $service;
                     $servicedata['AccountID'] = $data['AccountID'];
@@ -65,7 +65,7 @@ class AccountServiceController extends \BaseController {
                 }
             }
             if(!empty($message)){
-                $message = 'Following Service already exits.<br>'.$message;
+                $message = 'Following service already exists.<br>'.$message;
                 return Response::json(array("status" => "success", "message" => $message));
             }else{
                 return Response::json(array("status" => "success", "message" => "Services Successfully Added"));
