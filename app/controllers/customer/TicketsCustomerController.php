@@ -5,24 +5,12 @@ class TicketsCustomerController extends \BaseController {
 private $validlicense;	
 
 	public function __construct(){
-		$this->validlicense = Tickets::CheckTicketLicense();
-		 if(!$this->validlicense)
-		 {
-			NeonAPI::logout();
-	        Session::flush();
-    	    Auth::logout();
-			Redirect::to('customer/login')->send();
-			//return Redirect::to('customer/login')->with('message', 'Your are now logged out!');
-		 }
-	 } 
-	 
-	 protected function IsValidLicense(){		 
-	 	//return $this->validlicense;		
-	 }
+		parent::validateTicketLicence();		 	 
+	 } 	
 	
 	 public function index(){
 		 
-			$this->IsValidLicense();
+			
 			$CompanyID 		 			= 	 User::get_companyID(); 
 			$data 			 			= 	 array();	
 			$status			 			=    TicketsTable::getCustomerTicketStatus();
@@ -232,7 +220,6 @@ private $validlicense;
 	  
 	function add()
 	{	
-			$this->IsValidLicense();				
 			
 			$response 		=   NeonAPI::request('ticketsfields/getfields',array("fields"=>"simple"),true,false,false);   
 			$data			=	array();	
@@ -269,7 +256,7 @@ private $validlicense;
 	  
 	public function edit($id)
 	{
-		$this->IsValidLicense();
+		
 		$accountemailaddresses	=	  Account::GetAccountAllEmails(User::get_userID(),true);
         $response  		    	=  	  NeonAPI::request('tickets/edit/'.$id,array(),true);
 	
@@ -314,7 +301,7 @@ private $validlicense;
 	  
 	  function Store(){
 		  
-	    $this->IsValidLicense();
+	    
 		$postdata 			= 	Input::all();  
 
 		if(!isset($postdata['Ticket'])){
@@ -354,7 +341,7 @@ private $validlicense;
 	  function Update($id)
 	  {	  
 		  	  
-	    $this->IsValidLicense();
+	    
 		$postdata 			= 	Input::all(); 		
 		
 		if(!isset($postdata['Ticket'])){
@@ -391,7 +378,7 @@ private $validlicense;
 	 }
 	 
 	  function UpdateDetailPage($id){
-	    $this->IsValidLicense();
+	    
 		$postdata 			= 	Input::all(); 		
 		
 		if(!isset($postdata['Ticket'])){
@@ -434,7 +421,7 @@ private $validlicense;
 	
 	function Detail($id){
 		
-		$this->IsValidLicense();
+		
 		$accountemailaddresses	=	 Account::GetAccountAllEmails(User::get_userID(),true);
 		
 		 $response 		=   NeonAPI::request('ticketsfields/GetDynamicFields',array(),true,false,false);   
@@ -519,7 +506,7 @@ private $validlicense;
 	
 	function UpdateTicketAttributes($id)
 	{
-		$this->IsValidLicense();
+		
 		$data 				= 		Input::all();  
 		$data['admin'] 		= 		User::is_admin();		
 		$response 			= 		NeonAPI::request('tickets/updateticketattributes/'.$id,$data,true,false,false);
@@ -528,7 +515,7 @@ private $validlicense;
 	
 	function ActionSubmit($id){
 		
-		$this->IsValidLicense();
+		
 		$postdata    =  Input::all();	
 		
 		 $attachmentsinfo        =	$postdata['attachmentsinfo']; 

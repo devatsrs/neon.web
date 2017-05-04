@@ -158,7 +158,8 @@ table th {
   background: #FFFFFF;
   border-bottom: none;
   font-size: 1.2em;
-  white-space: nowrap;   
+  white-space: nowrap;
+  padding: 6px;
 }
 
 #frontinvoice tfoot tr:first-child td {

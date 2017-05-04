@@ -2,23 +2,9 @@
 
 class TicketsBusinessHoursController extends \BaseController {
 
-private $validlicense;	
-
 	public function __construct(){
-		$this->validlicense = Tickets::CheckTicketLicense();
-		 if(!$this->validlicense)
-		 {
-			NeonAPI::logout();
-	        Session::flush();
-    	    Auth::logout();
-			Redirect::to('/login')->send();
-			//return Redirect::to('/login')->with('message', 'Your are now logged out!');
-		 }
-	 } 
-	 
-	 protected function IsValidLicense(){		
-	 	//return $this->validlicense;		
-	 }
+		parent::validateTicketLicence();
+	 } 	 
 	 
     public function ajax_datagrid($type='') { 
 		$data 		= 	Input::all();  

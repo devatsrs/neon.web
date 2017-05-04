@@ -150,6 +150,9 @@
           @if(User::checkCategoryPermission('AccountStatement','All'))
             <li> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>
           @endif
+          @if(User::checkCategoryPermission('Service','View'))
+            <li> <a href="{{URL::to('/services')}}">  <span>Services</span> </a> </li>
+          @endif
           @if(User::checkCategoryPermission('BillingSubscription','View'))
             <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
           @endif
@@ -174,9 +177,7 @@
         @if(User::checkCategoryPermission('CDR','View'))
         <li> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
         @endif
-        @if(User::checkCategoryPermission('Service','View'))
-            <li> <a href="{{URL::to('/services')}}">  <span>Services</span> </a> </li>
-         @endif
+
         <!--<li>
 <a href="{{URL::to('/cdr_recal')}}">
   <i class="entypo-pencil"></i>
