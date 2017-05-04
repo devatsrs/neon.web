@@ -29,7 +29,7 @@ BEGIN
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 	SELECT fnGetRoundingPoint(p_company_id) INTO v_Round_;
 
-	SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	SELECT cr.Symbol INTO v_CurrencyCode_ FROM NeonRMDev.tblCurrency cr WHERE cr.CurrencyId =p_CurrencyID;
 
 	SELECT fnGetBillingTime(p_CompanyGatewayID,p_AccountID) INTO v_BillingTime_;
 
@@ -49,30 +49,33 @@ BEGIN
 			uh.cld,
 			uh.area_prefix,
 			uh.trunk,
+			s.ServiceName,
 			uh.AccountID,
-			p_CompanyGatewayID as CompanyGatewayID,
-			p_start_date as StartDate,
-			p_end_date as EndDate,
-			uh.is_inbound as CDRType  from
-			tmp_tblUsageDetails_ uh
+			p_CompanyGatewayID AS CompanyGatewayID,
+			p_start_date AS StartDate,
+			p_end_date AS EndDate,
+			uh.is_inbound AS CDRType
+		FROM tmp_tblUsageDetails_ uh
 		INNER JOIN NeonRMDev.tblAccount a
 			ON uh.AccountID = a.AccountID
+		LEFT JOIN NeonRMDev.tblService s
+			ON uh.ServiceID = s.ServiceID
 		WHERE  (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
-		AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
-		AND (p_trunk = '' OR trunk = p_trunk )
+			AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
+			AND (p_trunk = '' OR trunk = p_trunk )
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 
 		SELECT
 			COUNT(*) AS totalcount,
-			fnFormateDuration(sum(billed_duration)) as total_duration,
-			sum(cost) as total_cost,
-			v_CurrencyCode_ as CurrencyCode
+			fnFormateDuration(sum(billed_duration)) AS total_duration,
+			sum(cost) AS total_cost,
+			v_CurrencyCode_ AS CurrencyCode
 		FROM  tmp_tblUsageDetails_ uh
 		INNER JOIN NeonRMDev.tblAccount a
 			ON uh.AccountID = a.AccountID
 		WHERE  (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
-		AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
-		AND (p_trunk = '' OR trunk = p_trunk );
+			AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
+			AND (p_trunk = '' OR trunk = p_trunk );
 
 	END IF;
 
@@ -80,23 +83,23 @@ BEGIN
 	THEN
 
 		SELECT
-			uh.AccountName as 'Account Name',
-			uh.connect_time as 'Connect Time',
-			uh.disconnect_time as 'Disconnect Time',
-			uh.billed_duration as 'Billed Duration (sec)' ,
+			uh.AccountName AS 'Account Name',
+			uh.connect_time AS 'Connect Time',
+			uh.disconnect_time AS 'Disconnect Time',
+			uh.billed_duration AS 'Billed Duration (sec)' ,
 			CONCAT(IFNULL(v_CurrencyCode_,''),TRIM(uh.cost)+0) AS 'Cost',
 			CONCAT(IFNULL(v_CurrencyCode_,''),TRIM(ROUND((uh.cost/uh.billed_duration)*60.0,6))+0) AS 'Avg. Rate/Min',
-			uh.cli as 'CLI',
-			uh.cld as 'CLD',
-			uh.area_prefix as 'Prefix',
-			uh.trunk as 'Trunk',
+			uh.cli AS 'CLI',
+			uh.cld AS 'CLD',
+			uh.area_prefix AS 'Prefix',
+			uh.trunk AS 'Trunk',
 			uh.is_inbound
 		FROM tmp_tblUsageDetails_ uh
 		INNER JOIN NeonRMDev.tblAccount a
 			ON uh.AccountID = a.AccountID
 		WHERE  (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
-		AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
-		AND (p_trunk = '' OR trunk = p_trunk );
+			AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
+			AND (p_trunk = '' OR trunk = p_trunk );
 	END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

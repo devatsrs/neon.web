@@ -32,7 +32,8 @@ BEGIN
 		connect_time datetime,
 		disconnect_time datetime,
 		is_inbound tinyint(1) default 0,
-		ID INT
+		ID INT,
+		ServiceID INT
 	);
 	INSERT INTO tmp_tblUsageDetails_
 	SELECT
@@ -56,7 +57,8 @@ BEGIN
 			connect_time,
 			disconnect_time,
 			ud.is_inbound,
-			ud.ID
+			ud.ID,
+			uh.ServiceID
 		FROM NeonCDRDev.tblUsageDetails  ud
 		INNER JOIN NeonCDRDev.tblUsageHeader uh
 			ON uh.UsageHeaderID = ud.UsageHeaderID

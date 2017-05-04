@@ -95,8 +95,7 @@ class AccountsController extends \BaseController {
      *
      * @return Response
      */
-    public function index() {
-
+    public function index() {		
         $trunks = CustomerTrunk::getTrunkDropdownIDListAll(); //$this->trunks;
         $accountTags = json_encode(Tags::getTagsArray(Tags::Account_tag));
         $account_owners = User::getOwnerUsersbyRole();
@@ -111,7 +110,8 @@ class AccountsController extends \BaseController {
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 		$bulk_type = 'accounts';
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type'));
+		$Currencies = Currency::getCurrencyDropdownIDList();
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies'));
 
     }
 
@@ -1357,5 +1357,49 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         return Response::json(array("status" => "success", "message" => "CLI Updated Successfully"));
     }
 	
-	
+	function BulkAction(){
+        $data = Input::all();  				
+        if(
+		   !isset($data['OwnerCheck']) &&
+		   !isset($data['CurrencyCheck']) &&
+           !isset($data['VendorCheck']) &&
+           !isset($data['CustomerCheck'])
+		  )
+		{
+			return Response::json(array("status" => "error", "message" => "Please select at least one option."));
+        }
+		elseif(!isset($data['BulkselectedIDs']) || empty($data['BulkselectedIDs']))
+		{
+			return Response::json(array("status" => "error", "message" => "Please select at least one Account."));
+        }
+		
+		
+        $update = [];
+        if(isset($data['account_owners']) && $data['account_owners'] != 0 && isset($data['OwnerCheck'])){
+            $update['Owner'] = $data['account_owners'];
+        }
+        if(isset($data['Currency']) && $data['Currency'] != 0 && isset($data['CurrencyCheck'])){
+            $update['CurrencyId'] = $data['Currency'];
+        }		
+        if(isset($data['VendorCheck'])){
+            $update['IsVendor'] = isset($data['vendor_on_off'])?1:0;
+        }		
+		if(isset($data['CustomerCheck'])){
+            $update['IsCustomer'] = isset($data['Customer_on_off'])?1:0;
+        }
+		
+        $selectedIDs = explode(',',$data['BulkselectedIDs']);		
+        try{
+            //Implement loop because boot is triggering for each updated record to log the changes.
+            foreach ($selectedIDs as $id) {
+				DB::beginTransaction();
+                Account::where(['AccountID'=>$id])->update($update);
+				DB::commit();				
+            }
+			 return Response::json(array("status" => "success", "message" => "Accounts Updated Successfully"));
+        }catch (Exception $e) {
+            DB::rollback();
+			return Response::json(array("status" => "error", "message" => $e->getMessage()));
+        }
+    }	
 }
