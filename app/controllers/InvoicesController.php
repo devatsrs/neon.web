@@ -1587,7 +1587,9 @@ class InvoicesController extends \BaseController {
                 $transactiondata['Reposnse'] = json_encode($response);
                 TransactionLog::insert($transactiondata);
                 $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-                Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$data);
+                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+                $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
+                Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
                 return Response::json(array("status" => "success", "message" => "Invoice paid successfully"));
             }else{
                 $transactiondata = array();
@@ -1916,6 +1918,8 @@ class InvoicesController extends \BaseController {
                 \Illuminate\Support\Facades\Log::info($transactiondata);
 
                 $paypal->log();
+                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+                $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
                 Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
                 return Response::json(array("status" => "success", "message" => "Invoice paid successfully"));
 
@@ -2091,6 +2095,8 @@ class InvoicesController extends \BaseController {
             TransactionLog::insert($transactiondata);
 
             $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
+            $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+            $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
             Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
             \Illuminate\Support\Facades\Log::info("Transaction done.");
             \Illuminate\Support\Facades\Log::info($transactiondata);
