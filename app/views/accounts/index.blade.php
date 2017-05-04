@@ -456,7 +456,7 @@
                                 } 
 								
 								if(full[9]==1 || full[10]==1){
-                                 	action += '&nbsp;<a href="'+authenticate_+'" title="Authentication Rule" class="btn btn-info btn-xs"><i class="entypo-lock"></i></a>';
+                                 	action += '&nbsp;<a href="'+authenticate_+'" title="Authentication Rule" class="btn btn-default btn-xs"><i class="entypo-lock"></i></a>';
                                 } 
                                 action +='<input type="hidden" name="accountid" value="'+full[0]+'"/>';
                                 action +='<input type="hidden" name="address1" value="'+full[12]+'"/>';

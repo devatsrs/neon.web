@@ -1391,9 +1391,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $selectedIDs = explode(',',$data['BulkselectedIDs']);		
         try{
             //Implement loop because boot is triggering for each updated record to log the changes.
-            foreach ($selectedIDs as $id) {
+            foreach ($selectedIDs as $id)
+			{
 				DB::beginTransaction();
-                Account::where(['AccountID'=>$id])->update($update);
+				
+				if(isset($update['CurrencyId']))
+				{ 
+					Account::whereRaw("(AccountID = '".$id."' AND (CurrencyId is null or CurrencyId ='0'))")->update($update);
+				}
+				else
+				{
+                	Account::where(['AccountID'=>$id])->update($update);
+				}
 				DB::commit();				
             }
 			 return Response::json(array("status" => "success", "message" => "Accounts Updated Successfully"));
