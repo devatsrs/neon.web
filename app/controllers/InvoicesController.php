@@ -1178,14 +1178,8 @@ class InvoicesController extends \BaseController {
         if($id){
             set_time_limit(600); // 10 min time limit.
             $CreatedBy = User::get_user_full_name();
-            $isRecurringInvoice = 0;
-            $recurringInvoiceID = 0;
-            $data = Input::all(); 
-			$postdata = Input::all(); 
-            if(isset($data['RecurringInvoice'])){
-                $isRecurringInvoice=1;
-                $recurringInvoiceID = $data['RecurringInvoiceID'];
-            }
+            $data = Input::all();
+			$postdata = Input::all();
             $Invoice = Invoice::find($id);
             $Company = Company::find($Invoice->CompanyID);
             $CompanyName = $Company->CompanyName;
@@ -1256,9 +1250,9 @@ class InvoicesController extends \BaseController {
                 $invoiceloddata['InvoiceLogStatus']= InVoiceLog::SENT;
                 InVoiceLog::insert($invoiceloddata);
 
-                if($isRecurringInvoice==1){
+                if($Invoice->RecurringInvoiceID > 0){
                     $RecurringInvoiceLogData = array();
-                    $RecurringInvoiceLogData['RecurringInvoiceID']= $recurringInvoiceID;
+                    $RecurringInvoiceLogData['RecurringInvoiceID']= $Invoice->RecurringInvoiceID;
                     $RecurringInvoiceLogData['Note']= 'Invoice Sent By '.$CreatedBy;
                     $RecurringInvoiceLogData['created_at']= date("Y-m-d H:i:s");
                     $RecurringInvoiceLogData['RecurringInvoiceLogStatus']= RecurringInvoiceLog::SENT;
