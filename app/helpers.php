@@ -184,6 +184,19 @@ function accountservice_dropbox($AccountID,$ServiceID){
     $all_accsevices = accountservice::getAccountServiceIDList($AccountID);
     return Form::select('accountservice', $all_accsevices, $ServiceID ,array("id"=>"drp_accountservice_jump" ,"class"=>"selectboxit1 form-control1"));
 }
+function basecodedeck_dropbox($id=0,$data=array()){
+    $all_basecodedecks = BaseCodeDeck::getCodedeckIDList();
+    return Form::select('basecodedeck', $all_basecodedecks, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+function discountplan_dropbox($id=0,$data=array()){
+    $all_discountplans = DiscountPlan::getDiscountPlanIDList($data);
+    return Form::select('discountplan', $all_discountplans, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+function invoicetemplate_dropbox($id=0,$data=array()){
+    $all_invoicetemplates = InvoiceTemplate::getInvoiceTemplateList();
+    return Form::select('invoicetemplate', $all_invoicetemplates, $id ,array("id"=>"drp_invoicetemplate_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
 function sendMail($view,$data,$ViewType=1){
     
 	if(empty($data['companyID']))

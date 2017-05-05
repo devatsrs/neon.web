@@ -8,6 +8,9 @@
     <li>
         <a href="{{URL::to('leads')}}">Leads</a>
     </li>
+    <li>
+        <a><span>{{customer_dropbox($lead->AccountID,["AccountType"=>0])}}</span></a>
+    </li>
     <li class="active">
         <strong>{{$text}}</strong>
     </li>
