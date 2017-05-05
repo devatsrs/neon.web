@@ -18,7 +18,7 @@ BEGIN
 	IF p_RateCDR = 1  
 	THEN
 	
-        /* temp accounts*/
+		/* temp accounts*/
 		DROP TEMPORARY TABLE IF EXISTS tmp_AccountService2_;
 		CREATE TEMPORARY TABLE tmp_AccountService2_  (
 			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -38,7 +38,7 @@ BEGIN
 		SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_AccountService2_);
 		IF p_OutboundTableID > 0
 		THEN
-            /* get outbound rate process*/
+			/* get outbound rate process*/
 			CALL NeonRMDev.prc_getCustomerCodeRate(v_AccountID_,0,p_RateCDR,p_RateMethod,p_SpecifyRate,p_OutboundTableID);
 		END IF;
 
@@ -52,19 +52,19 @@ BEGIN
 			IF p_OutboundTableID = 0
 			THEN
 				SET v_RateTableID_ = (SELECT RateTableID FROM NeonRMDev.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 1 LIMIT 1);
-                /* get outbound rate process*/
+				/* get outbound rate process*/
 				CALL NeonRMDev.prc_getCustomerCodeRate(v_AccountID_,0,p_RateCDR,p_RateMethod,p_SpecifyRate,v_RateTableID_);
 			END IF;
 			
 			
-            /* update prefix outbound process*/
-            /* if rate format is prefix base not charge code*/
+			/* update prefix outbound process*/
+			/* if rate format is prefix base not charge code*/
 			IF p_RateFormat = 2
 			THEN
 				CALL prc_updatePrefix(v_AccountID_,0, p_processId, p_tbltempusagedetail_name,v_ServiceID_);
 			END IF;
 			
-            /* outbound rerate process*/
+			/* outbound rerate process*/
 			IF p_RateCDR = 1
 			THEN
 				CALL prc_updateOutboundRate(v_AccountID_,0, p_processId, p_tbltempusagedetail_name,v_ServiceID_);

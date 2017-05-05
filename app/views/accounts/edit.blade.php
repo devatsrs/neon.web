@@ -550,7 +550,9 @@
 
             </div>
         </div>
-        @include('accountservices.index')
+        @if(User::checkCategoryPermission('AccountService','View'))
+            @include('accountservices.index')
+        @endif
         <div class="panel panel-primary" data-collapsed="0">
 
             <div class="panel-heading">

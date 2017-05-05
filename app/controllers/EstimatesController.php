@@ -1146,6 +1146,10 @@ class EstimatesController extends \BaseController {
 						$inv_id   = 	$results[0]->InvoiceID;
 						$pdf_path = 	Invoice::generate_pdf($inv_id);
 						Invoice::where(["InvoiceID" =>$inv_id])->update(["PDF" => $pdf_path]);
+                        $Invoice = Invoice::find($inv_id);
+                        $BillingClassID = AccountBilling::getBillingClassID($Invoice->AccountID);
+                        $InvoiceTemplateID = BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
+                        InvoiceTemplate::where(array('InvoiceTemplateID'=>$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
 		}
 			
 		return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated"));			
@@ -1199,6 +1203,11 @@ class EstimatesController extends \BaseController {
 					$inv_id   = $results_data->InvoiceID;
 					$pdf_path = Invoice::generate_pdf($inv_id);
 				  	Invoice::where(["InvoiceID" =>$inv_id])->update(["PDF" => $pdf_path]);
+
+                    $Invoice = Invoice::find($inv_id);
+                    $BillingClassID = AccountBilling::getBillingClassID($Invoice->AccountID);
+                    $InvoiceTemplateID = BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
+                    InvoiceTemplate::where(array('InvoiceTemplateID'=>$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
 				}				
 			}
 			else
@@ -1214,6 +1223,10 @@ class EstimatesController extends \BaseController {
 						$inv_id   = $results[0]->InvoiceID;
 						$pdf_path = Invoice::generate_pdf($inv_id);
 						Invoice::where(["InvoiceID" =>$inv_id])->update(["PDF" => $pdf_path]);
+                        $Invoice = Invoice::find($inv_id);
+                        $BillingClassID = AccountBilling::getBillingClassID($Invoice->AccountID);
+                        $InvoiceTemplateID = BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
+                        InvoiceTemplate::where(array('InvoiceTemplateID'=>$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
 					}
 				}
 				

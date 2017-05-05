@@ -10,7 +10,8 @@ BEGIN
 
 	SELECT COUNT(*) INTO v_ServiceAccountID_CLI_Count_ 
 	FROM NeonRMDev.tblAccountAuthenticate aa
-	WHERE (CustomerAuthRule = 'CLI' OR VendorAuthRule = 'CLI') AND ServiceID > 0;
+	INNER JOIN NeonRMDev.tblCLIRateTable crt ON crt.AccountID = aa.AccountID
+	WHERE aa.CompanyID = p_CompanyID AND (CustomerAuthRule = 'CLI' OR VendorAuthRule = 'CLI') AND crt.ServiceID > 0 ;
 
 	IF v_ServiceAccountID_CLI_Count_ > 0
 	THEN
@@ -34,7 +35,7 @@ BEGIN
 	
 	SELECT COUNT(*) INTO v_ServiceAccountID_IP_Count_ 
 	FROM NeonRMDev.tblAccountAuthenticate aa
-	WHERE (CustomerAuthRule = 'IP' OR VendorAuthRule = 'IP') AND ServiceID > 0;
+	WHERE aa.CompanyID = p_CompanyID AND (CustomerAuthRule = 'IP' OR VendorAuthRule = 'IP') AND ServiceID > 0;
 
 	IF v_ServiceAccountID_IP_Count_ > 0
 	THEN

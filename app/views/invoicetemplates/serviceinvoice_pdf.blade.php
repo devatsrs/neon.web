@@ -37,7 +37,9 @@
 		<table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
 			<thead>
 			<tr>
+                @if($InvoiceTemplate->GroupByService==1)
 				<th class="desc">DESCRIPTION</th>
+                @endif
 				<th class="desc">Usage</th>
 				<th class="desc">Recurring</th>
 				<th class="desc">Additional</th>
@@ -46,12 +48,15 @@
 			</thead>
 			<tbody>
 			<tr>
+                @if($InvoiceTemplate->GroupByService==1)
 				<td class="desc">Service - 1</td>
+                @endif
                 <td class="desc">$1,200.00</td>
                 <td class="desc">$1,000.00</td>
                 <td class="desc">$1,000.00</td>
 				<td class="total">$3,200.00</td>
 			</tr>
+            @if($InvoiceTemplate->GroupByService==1)
 			<tr>
 				<td class="desc">Service - 2</td>
                 <td class="desc">$1,200.00</td>
@@ -66,27 +71,44 @@
                 <td class="desc">$400.00</td>
 				<td class="total">$1,200.00</td>
 			</tr>
+            @endif
 			</tbody>
 			<tfoot>
 			<tr>
+                @if($InvoiceTemplate->GroupByService==1)
 				<td colspan="2"></td>
+                @else
+                <td></td>
+                @endif
 				<td colspan="2">SUB TOTAL</td>
 				<td class="subtotal">$5,200.00</td>
 			</tr>
 			<tr>
-				<td colspan="2"></td>
+                @if($InvoiceTemplate->GroupByService==1)
+                    <td colspan="2"></td>
+                @else
+                    <td></td>
+                @endif
 				<td colspan="2">TAX 25%</td>
 				<td class="subtotal">$1,300.00</td>
 			</tr>
             @if($InvoiceTemplate->ShowPrevBal)
                 <tr>
-                    <td colspan="2"></td>
+                    @if($InvoiceTemplate->GroupByService==1)
+                        <td colspan="2"></td>
+                    @else
+                        <td></td>
+                    @endif
                     <td colspan="2">BROUGHT FORWARD</td>
                     <td class="subtotal">$0.00</td>
                 </tr>
             @endif
 			<tr>
-				<td colspan="2"></td>
+                @if($InvoiceTemplate->GroupByService==1)
+                    <td colspan="2"></td>
+                @else
+                    <td></td>
+                @endif
 				<td colspan="2">GRAND TOTAL</td>
 				<td class="subtotal">$6,500.00</td>
 			</tr>
@@ -100,11 +122,13 @@
 	</div>
     <br/>
     <br/>
+    @if($InvoiceTemplate->GroupByService==1)
     <header class="clearfix">
         <div id="Service">
             <h1>Service 1</h1>
         </div>
     </header>
+    @endif
     <main>
         <div class="ChargesTitle clearfix">
             <div style="float:left;">Usage</div>

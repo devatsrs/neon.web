@@ -45,7 +45,7 @@ class AccountAuthenticate extends \Eloquent {
         }
 
         if(!empty($validation)){
-            $status['message'] .= '<br>following '.$type.' skipped.<br>'.$validation;
+            $status['message'] .= '<br>Following '.$type.' skipped.<br>'.$validation;
         }
 
         /*$rule = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID']])->first();

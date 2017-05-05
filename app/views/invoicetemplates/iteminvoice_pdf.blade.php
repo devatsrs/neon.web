@@ -31,9 +31,9 @@
 				@endif
 			</div>
 		</div>		
-		<div id="Service">
+		<!--<div id="Service">
 			<h1>Item</h1>
-		</div>
+		</div>-->
 		<div class="clearfix"></div>
 		<table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
 			<thead>

@@ -158,7 +158,8 @@ table th {
   background: #FFFFFF;
   border-bottom: none;
   font-size: 1.2em;
-  white-space: nowrap;   
+  white-space: nowrap;
+  padding: 6px 12px;
 }
 
 #frontinvoice tfoot tr:first-child td {
@@ -233,7 +234,8 @@ footer {
 
 #thanksadevertise{
 	margin: 15px 0 0 0;
-	font-size: 12px;;
+	font-size: 12px;
+    color:#000 !important
 }
 
 .page_break{ padding: 10px 0; page-break-after: always;}
