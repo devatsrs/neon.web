@@ -531,7 +531,7 @@ class CDRController extends BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor CDR.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor CDR.xlsx';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
