@@ -1626,8 +1626,8 @@ ALTER TABLE `tblTickets`
 ALTER TABLE `tblTickets`
 	ADD COLUMN `CustomerRepliedDate` DATETIME NULL DEFAULT NULL AFTER `AgentRepliedDate`;	
 -- ##############################
-INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES
-/*	('Tickets.All', 1, 4),
+/*INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES
+	('Tickets.All', 1, 4),
 	('Tickets.View', 1, 4),
 	('Tickets.Add', 1, 4),
 	('Tickets.Edit', 1, 4),
@@ -1637,7 +1637,7 @@ INSERT INTO `tblResourceCategories` (`ResourceCategoryName`, `CompanyID`, `Categ
 	('TicketsGroups.View', 1, 4),
 	('TicketsGroups.Add', 1, 4),
 	('TicketsGroups.Edit', 1, 4),
-	('TicketsGroups.Delete', 1, 4)*/
+	('TicketsGroups.Delete', 1, 4)
 	('Tickets.View.GlobalAccess', 1, 4),
 	('Tickets.View.GroupAccess', 1, 4),
 	('Tickets.View.RestrictedAccess', 1, 4),
@@ -1719,4 +1719,140 @@ UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourc
 UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='Tickets.Delete' limit 1) WHERE  `ResourceName`='Tickets.BulkDelete';
 UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='TicketDashboardSummaryWidgets.View' limit 1) WHERE  `ResourceName`='TicketDashboard.ticketSummaryWidget';
 UPDATE `tblResource` SET `CategoryID`=(select ResourceCategoryID FROM tblResourceCategories WHERE ResourceCategoryName='TicketDashboardTimeLineWidgets.View' limit 1) WHERE  `ResourceName`='TicketDashboard.ticketTimeLineWidget';
-
+*/
+-- ############################################
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1298, 'AccountService.All', 1, 3);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1297, 'AccountService.View', 1, 3);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1296, 'AccountService.Delete', 1, 3);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1295, 'AccountService.Edit', 1, 3);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1294, 'AccountService.Add', 1, 3);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1293, 'Service.Add', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1292, 'Service.Delete', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1291, 'Service.Edit', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1290, 'Service.View', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1289, 'Service.All', 1, 7);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1282, 'TicketDashboard.View', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1281, 'TicketsBusinessHours.All', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1280, 'TicketsBusinessHours.View', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1279, 'TicketsBusinessHours.Delete', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1278, 'TicketsBusinessHours.Edit', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1277, 'TicketsBusinessHours.Add', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1276, 'TicketsSla.All', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1275, 'TicketsSla.View', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1274, 'TicketsSla.Delete', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1273, 'TicketsSla.Edit', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1271, 'TicketsSla.Add', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1270, 'TicketDashboardTimeLineWidgets.View', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1269, 'TicketDashboardSummaryWidgets.View', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1268, 'RecurringProfile.All', 1, 0);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1267, 'RecurringProfile.View', 1, 0);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1266, 'RecurringProfile.Delete', 1, 0);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1265, 'RecurringProfile.Edit', 1, 0);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1264, 'RecurringProfile.Add', 1, 0);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1263, 'Tickets.View.RestrictedAccess', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1262, 'Tickets.View.GroupAccess', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1261, 'Tickets.View.GlobalAccess', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1260, 'TicketsGroups.Delete', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1259, 'TicketsGroups.Edit', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1258, 'TicketsGroups.Add', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1257, 'TicketsGroups.View', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1256, 'TicketsGroups.All', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1255, 'TicketsFields.Edit', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1254, 'Tickets.Delete', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1253, 'Tickets.Edit', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1252, 'Tickets.Add', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1251, 'Tickets.View', 1, 4);
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1250, 'Tickets.All', 1, 4);
+-- ############################################
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.index', 'TicketsController.index', 1, 1251);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.*', 'TicketsController.*', 1, 1250);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.ajax_datagrid_groups', 'TicketsController.ajax_datagrid_groups', 1, 1251);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsGroup.Activate_support_email', 'TicketsGroupController.Activate_support_email', 1, 1257);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.index', 'RecurringInvoiceController.index', 1, 1267);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.create', 'RecurringInvoiceController.create', 1, 1264);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.store', 'RecurringInvoiceController.store', 1, 1264);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.edit', 'RecurringInvoiceController.edit', 1, 1265);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.delete', 'RecurringInvoiceController.delete', 1, 1266);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.ajax_datagrid', 'RecurringInvoiceController.ajax_datagrid', 1, 1267);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.calculate_total', 'RecurringInvoiceController.calculate_total', 1, 1267);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.getAccountInfo', 'RecurringInvoiceController.getAccountInfo', 1, 1267);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.getBillingClassInfo', 'RecurringInvoiceController.getBillingClassInfo', 1, 1267);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.recurringinvoicelog', 'RecurringInvoiceController.recurringinvoicelog', 1, 1267);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.ajax_recurringinvoicelog_datagrid', 'RecurringInvoiceController.ajax_recurringinvoicelog_datagrid', 1, 1267);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.startstop', 'RecurringInvoiceController.startstop', 1, 1267);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('RecurringInvoice.generate', 'RecurringInvoiceController.generate', 1, 1267);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsGroup.index', 'TicketsGroupController.index', 1, 1257);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsGroup.*', 'TicketsGroupController.*', 1, 1256);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsGroup.add', 'TicketsGroupController.add', 1, 1258);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsGroup.Store', 'TicketsGroupController.Store', 1, 1258);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsGroup.ajax_datagrid', 'TicketsGroupController.ajax_datagrid', 1, 1257);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsGroup.Edit', 'TicketsGroupController.Edit', 1, 1259);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsGroup.Update', 'TicketsGroupController.Update', 1, 1259);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsGroup.delete', 'TicketsGroupController.delete', 1, 1260);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsGroup.send_activation_single', 'TicketsGroupController.send_activation_single', 1, 1257);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsGroup.get_group_agents', 'TicketsGroupController.get_group_agents', 1, 1251);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsFields.index', 'TicketsFieldsController.index', 1, 1255);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsFields.*', 'TicketsFieldsController.*', 1, 1255);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsFields.iframe', 'TicketsFieldsController.iframe', 1, 1255);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsFields.iframeSubmit', 'TicketsFieldsController.iframeSubmit', 1, 1255);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsFields.ajax_ticketsfields', 'TicketsFieldsController.ajax_ticketsfields', 1, 1255);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsFields.Ajax_Ticketsfields_Choices', 'TicketsFieldsController.Ajax_Ticketsfields_Choices', 1, 1255);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsFields.Save_Single_Field', 'TicketsFieldsController.Save_Single_Field', 1, 1255);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsFields.Update_Fields_Sorting', 'TicketsFieldsController.Update_Fields_Sorting', 1, 1255);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.ajex_result', 'TicketsController.ajex_result', 1, 1251);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.add', 'TicketsController.add', 1, 1252);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.uploadFile', 'TicketsController.uploadFile', 1, 1252);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.deleteUploadFile', 'TicketsController.deleteUploadFile', 1, 1253);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.Store', 'TicketsController.Store', 1, 1252);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.edit', 'TicketsController.edit', 1, 1253);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.Update', 'TicketsController.Update', 1, 1253);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.UpdateDetailPage', 'TicketsController.UpdateDetailPage', 1, 1253);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.delete', 'TicketsController.delete', 1, 1254);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.Detail', 'TicketsController.Detail', 1, 1251);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.TicketAction', 'TicketsController.TicketAction', 1, 1253);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.UpdateTicketAttributes', 'TicketsController.UpdateTicketAttributes', 1, 1253);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.ActionSubmit', 'TicketsController.ActionSubmit', 1, 1253);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.getConversationAttachment', 'TicketsController.getConversationAttachment', 1, 1251);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.GetTicketAttachment', 'TicketsController.GetTicketAttachment', 1, 1251);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.CloseTicket', 'TicketsController.CloseTicket', 1, 1253);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.ComposeEmail', 'TicketsController.ComposeEmail', 1, 1252);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.SendMail', 'TicketsController.SendMail', 1, 1252);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.add_note', 'TicketsController.add_note', 1, 1253);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsGroup.validatesmtp', 'TicketsGroupController.validatesmtp', 1, 1257);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Dashboard.TicketDashboard', 'DashboardController.TicketDashboard', 1, 1251);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsSla.index', 'TicketsSlaController.index', 1, 1275);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsSla.*', 'TicketsSlaController.*', 1, 1276);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsSla.edit', 'TicketsSlaController.edit', 1, 1273);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsSla.ajax_datagrid', 'TicketsSlaController.ajax_datagrid', 1, 1275);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsSla.add', 'TicketsSlaController.add', 1, 1271);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsSla.store', 'TicketsSlaController.store', 1, 1271);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsSla.delete', 'TicketsSlaController.delete', 1, 1274);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsSla.update', 'TicketsSlaController.update', 1, 1273);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.ajex_result_export', 'TicketsController.ajex_result_export', 1, 1251);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.UpdateTicketDueTime', 'TicketsController.UpdateTicketDueTime', 1, 1253);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsBusinessHours.index', 'TicketsBusinessHoursController.index', 1, 1280);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsBusinessHours.*', 'TicketsBusinessHoursController.*', 1, 1281);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsBusinessHours.ajax_datagrid', 'TicketsBusinessHoursController.ajax_datagrid', 1, 1280);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsBusinessHours.create', 'TicketsBusinessHoursController.create', 1, 1277);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsBusinessHours.store', 'TicketsBusinessHoursController.store', 1, 1277);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsBusinessHours.delete', 'TicketsBusinessHoursController.delete', 1, 1279);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsBusinessHours.edit', 'TicketsBusinessHoursController.edit', 1, 1278);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketsBusinessHours.update', 'TicketsBusinessHoursController.update', 1, 1278);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.BulkAction', 'TicketsController.BulkAction', 1, 1253);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Tickets.BulkDelete', 'TicketsController.BulkDelete', 1, 1254);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketDashboard.ticketSummaryWidget', 'TicketDashboardController.ticketSummaryWidget', 1, 1269);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('TicketDashboard.ticketTimeLineWidget', 'TicketDashboardController.ticketTimeLineWidget', 1, 1270);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Services.index', 'ServicesController.index', 1, 1290);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Services.*', 'ServicesController.*', 1, 1289);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Services.ajax_datagrid', 'ServicesController.ajax_datagrid', 1, 1290);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Services.store', 'ServicesController.store', 1, 1293);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Services.update', 'ServicesController.update', 1, 1291);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Services.delete', 'ServicesController.delete', 1, 1292);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('Services.exports', 'ServicesController.exports', 1, 1290);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('AccountService.addservices', 'AccountServiceController.addservices', 1, 1294);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('AccountService.edit', 'AccountServiceController.edit', 1, 1295);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('AccountService.ajax_datagrid', 'AccountServiceController.ajax_datagrid', 1, 1297);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('AccountService.update', 'AccountServiceController.update', 1, 1295);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('AccountService.changestatus', 'AccountServiceController.changestatus', 1, 1295);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('AccountService.delete', 'AccountServiceController.delete', 1, 1296);
+INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `CategoryID`) VALUES ('AccountService.*', 'AccountServiceController.*', 1, 1298);
