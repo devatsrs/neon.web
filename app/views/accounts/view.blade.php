@@ -98,10 +98,10 @@
                   <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
                   @if($leadOrAccountCheck=='account')
                   @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED)
-                     <a class="btn-warning btn-sm label padding-3" href="{{ URL::to('customers_rates/'.$account->AccountID)}}"><i class="entypo-user"></i></a>
+                     <a class="btn-warning btn btn-default btn-xs" href="{{ URL::to('customers_rates/'.$account->AccountID)}}"><i class="entypo-user"></i></a>
                   @endif
                   @if($account->IsVendor==1 && $account->VerificationStatus==Account::VERIFIED)
-           <a class="btn-info btn-sm label padding-3" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}"><i class="fa fa-slideshare"></i></a>   
+           <a class="btn-info btn btn-default btn-xs" href="{{ URL::to('vendor_rates/'.$account->AccountID)}}"><i class="fa fa-slideshare"></i></a>
                    @endif
                   @endif
                    </div>
