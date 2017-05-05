@@ -134,7 +134,7 @@ function rename_upload_file($destinationPath,$full_name){
     return $basename;
 }
 function customer_dropbox($id=0,$data=array()){
-    $all_customers = account::getAccountIDList($data);
+    $all_customers = Account::getAccountIDList($data);
     return Form::select('customers', $all_customers, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
