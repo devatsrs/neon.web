@@ -22,6 +22,7 @@ INSERT INTO `tblResourceCategoriesGroups` (`CategoriesGroupID`, `GroupName`) VAL
 	(12, 'Integration');
 	
 -- ###############################################################################################
+DROP PROCEDURE IF EXISTS `prc_GetAjaxResourceList`;
 DELIMITER //
 CREATE  PROCEDURE `prc_GetAjaxResourceList`(
 	IN `p_CompanyID` INT,

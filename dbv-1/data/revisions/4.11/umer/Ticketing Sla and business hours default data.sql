@@ -16,7 +16,7 @@ INSERT INTO `tblTicketBusinessHolidays` (`HolidayID`, `BusinessHoursID`, `Holida
 -- TicketSlaPolicyApplyTo #no data
 -- TicketSlaPolicyViolation
 
-INSERT INTO `tblTicketSla` (`TicketSlaID`, `CompanyID`, `\IsDefault`, `Name`, `Description`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES	(1, 1, 1, 'Neon SLA', 'Neon SLA', 1, '', '', '', '');
+INSERT INTO `tblTicketSla` (`TicketSlaID`, `CompanyID`, `\IsDefault`, `Name`, `Description`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES	(1, 1, 1, 'Neon SLA', 'Neon SLA', 1, '2017-05-08 10:44:16', NULL, '2017-05-08 10:44:16', NULL);
 	
 INSERT INTO `tblTicketSlaTarget` (`SlaTargetID`, `TicketSlaID`, `PriorityID`, `RespondValue`, `RespondType`, `ResolveValue`, `ResolveType`, `OperationalHrs`, `EscalationEmail`, `created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES
 (1, 1, 4, 15, 'Minute', 1, 'Hour', '1', 1, '2017-05-08 10:44:16', NULL, '2017-05-08 10:44:16', NULL),
