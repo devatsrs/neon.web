@@ -1,4 +1,6 @@
 USE Ratemanagement3;
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES	(1, 'TICKETING_SYSTEM', '1');
+
 DROP PROCEDURE IF EXISTS `prc_AssignSlaToTicket`;
 DELIMITER //
 CREATE PROCEDURE `prc_AssignSlaToTicket`(
