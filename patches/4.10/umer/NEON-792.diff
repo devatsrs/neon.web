@@ -1,0 +1,134 @@
+From 36d5c27737b93691cfacb2da99f6d303e4fe80b7 Mon Sep 17 00:00:00 2001
+From: umer <umer.zafar@code-desk.com>
+Date: Wed, 15 Mar 2017 13:08:29 +0500
+Subject: [PATCH] #NEON-792
+
+---
+ app/controllers/EstimatesController.php | 14 ++++++++++----
+ app/controllers/InvoicesController.php  | 21 ++++++++++++---------
+ app/lib/EmailsTemplates.php             | 10 ++++++++--
+ 3 files changed, 30 insertions(+), 15 deletions(-)
+
+diff --git a/app/controllers/EstimatesController.php b/app/controllers/EstimatesController.php
+index 667c855..8d37dd0 100644
+--- a/app/controllers/EstimatesController.php
++++ b/app/controllers/EstimatesController.php
+@@ -887,8 +887,12 @@ class EstimatesController extends \BaseController {
+ 			{
+                
+ 				$templateData	 = 	EmailTemplate::where(["SystemType"=>Estimate::EMAILTEMPLATE])->first();				
+-				$Subject	 	 = 	$templateData->Subject;
+-				$Message 		 = 	$templateData->TemplateBody;		 
++				//$Subject	 	 = 	$templateData->Subject;
++				//$Message 		 = 	$templateData->TemplateBody;		 		
++				$data['EstimateURL']	=   URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview?email=#email');
++				$Message				=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,'body',$data);
++				$Subject				=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,"subject",$data);
++				
+ 				
+ 				if(!empty($Subject) && !empty($Message)){
+ 					$from	 = $templateData->EmailFrom;	
+@@ -958,8 +962,10 @@ class EstimatesController extends \BaseController {
+ 				{
+                     $data['EmailTo'] 		= 	$singleemail;
+                     $data['EstimateURL']	= 	URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview?email='.$singleemail);
+-					$body					=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,'body',$data,$postdata);
+-					$data['Subject']		=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,"subject",$data,$postdata);
++					$body					=	EmailsTemplates::ReplaceEmail($singleemail,$postdata['Message']);
++					$data['Subject']		=	$postdata['Subject'];
++					//$body					=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,'body',$data,$postdata);
++					//$data['Subject']		=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,"subject",$data,$postdata);
+ 					
+ 					if(isset($postdata['email_from']) && !empty($postdata['email_from']))
+ 					{
+diff --git a/app/controllers/InvoicesController.php b/app/controllers/InvoicesController.php
+index feec184..5401b56 100644
+--- a/app/controllers/InvoicesController.php
++++ b/app/controllers/InvoicesController.php
+@@ -1092,10 +1092,13 @@ class InvoicesController extends \BaseController {
+             $CompanyName = Company::getName();
+             if (!empty($Currency)) {
+                // $Subject = "New Invoice " . $Invoice->FullInvoiceNumber . ' from ' . $CompanyName . ' ('.$Account->AccountName.')';
+-			    $templateData	 = 	EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
+-				
+-				$Subject	 = 	$templateData->Subject;
+-				$Message 	 = 	$templateData->TemplateBody;		 
++			    $templateData	 	 = 	 EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
++				$data['InvoiceURL']	 =   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email=#email');
++			//	$Subject	 		 = 	 $templateData->Subject;
++			//	$Message 	 		 = 	 $templateData->TemplateBody;		
++				$Message	 		 =	 EmailsTemplates::SendinvoiceSingle($id,'body',$data);
++				$Subject	 		 =	 EmailsTemplates::SendinvoiceSingle($id,"subject",$data);
++				 
+ 				if(!empty($Subject) && !empty($Message)){
+ 					$from	 = $templateData->EmailFrom;	
+ 					return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName','from'));
+@@ -1112,7 +1115,7 @@ class InvoicesController extends \BaseController {
+             $CreatedBy = User::get_user_full_name();
+             $isRecurringInvoice = 0;
+             $recurringInvoiceID = 0;
+-            $data = Input::all();
++            $data = Input::all(); 
+ 			$postdata = Input::all(); 
+             if(isset($data['RecurringInvoice'])){
+                 $isRecurringInvoice=1;
+@@ -1159,8 +1162,8 @@ class InvoicesController extends \BaseController {
+ 					
+ 						$data['EmailTo'] 		= 	$singleemail;
+ 						$data['InvoiceURL']		=   URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview?email='.$singleemail);
+-						$body					=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data,$postdata);
+-						$data['Subject']		=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject",$data,$postdata);
++						$body					=	EmailsTemplates::ReplaceEmail($singleemail,$postdata['Message']);
++						$data['Subject']		=	$postdata['Subject'];
+ 						
+ 						if(isset($postdata['email_from']) && !empty($postdata['email_from']))
+ 						{
+@@ -1224,8 +1227,8 @@ class InvoicesController extends \BaseController {
+             //$data['Subject'] .= ' ('.$Account->AccountName.')';//Added by Abubakar
+             $data['EmailTo'] 		= 	$sendTo;
+             $data['InvoiceURL']		= 	URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview');
+-			$body					=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,'body',$data,$postdata);
+-			$data['Subject']		=	EmailsTemplates::SendinvoiceSingle($Invoice->InvoiceID,"subject",$data,$postdata);
++			$body					=	$postdata['Message'];
++			$data['Subject']		=	$postdata['Subject'];
+ 			
+ 			if(isset($postdata['email_from']) && !empty($postdata['email_from']))
+ 			{
+diff --git a/app/lib/EmailsTemplates.php b/app/lib/EmailsTemplates.php
+index 087e708..c43fb39 100644
+--- a/app/lib/EmailsTemplates.php
++++ b/app/lib/EmailsTemplates.php
+@@ -118,7 +118,9 @@ class EmailsTemplates{
+ 			$AccoutData 							=	Account::find($EstimateData->AccountID);
+ 			$EmailTemplate 							= 	EmailTemplate::where(["SystemType"=>$slug])->first();
+ 				
+-
++			$InvoiceTemplateID 		= 	AccountBilling::getInvoiceTemplateID($EstimateData->AccountID);
++			$EstimateNumber			=   Estimate::getFullEstimateNumber($EstimateData,$InvoiceTemplateID);
++			
+ 			if($type=="subject"){
+ 				if(isset($postdata['Subject']) && !empty($postdata['Subject'])){
+ 					$EmailMessage							=	 $postdata['Subject'];
+@@ -141,7 +143,7 @@ class EmailsTemplates{
+ 				$replace_array['EstimateLink'] 		= 	 URL::to('/estimate/'.$EstimateID.'/estimate_preview');
+ 			}
+ 			
+-			$replace_array['EstimateNumber']		=	 isset($data['EstimateNumber'])?$data['EstimateNumber']:$EstimateData->EstimateNumber;		
++			$replace_array['EstimateNumber']		=	 isset($data['EstimateNumber'])?$data['EstimateNumber']:$EstimateNumber;		
+ 			$RoundChargesAmount 					= 	 get_round_decimal_places($EstimateData->AccountID);
+ 			$replace_array['EstimateGrandTotal']	=	 number_format($EstimateData->GrandTotal,$RoundChargesAmount);
+ 			$replace_array['Comment']				=	 isset($data['Comment'])?$data['Comment']:EmailsTemplates::GetEstimateComments($EstimateID);
+@@ -311,5 +313,9 @@ class EmailsTemplates{
+ 		  }
+ 		 return $str; 
+ 	}
++	
++	static function ReplaceEmail($Email,$body){
++		return $EmailMessage = str_replace('#email',$Email,$body);					
++	}
+ }
+ ?>
+\ No newline at end of file
+-- 
+1.9.5.msysgit.0
+

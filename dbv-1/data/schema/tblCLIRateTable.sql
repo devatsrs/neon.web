@@ -4,5 +4,6 @@ CREATE TABLE `tblCLIRateTable` (
   `AccountID` int(11) NOT NULL,
   `CLI` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `RateTableID` int(11) NOT NULL,
+  `ServiceID` int(11) DEFAULT '0',
   PRIMARY KEY (`CLIRateTableID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

@@ -10,7 +10,7 @@
 		"nesbot/Carbon": "*",
 		"nathanmac/laravel-guid": "dev-master",
 		"aws/aws-sdk-php": "2.*",
-		"vlucas/phpdotenv": "~1.1",
+		"vlucas/phpdotenv": "2.4.0",
 		"curl/curl": "1.*",
 		"phpmailer/phpmailer": "~5.2",
 		"barryvdh/laravel-dompdf": "0.4.*",

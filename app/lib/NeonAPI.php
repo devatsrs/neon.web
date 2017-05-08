@@ -45,9 +45,13 @@ class NeonAPI{
             'LoginType' => $type
         );
         $curl->post(self::$api_url.$call_method, $request );
-        Log::info("api_url:".self::$api_url);
+
+        Log::info("request");
+        Log::info($request);
+        Log::info("api_url:".self::$api_url.$call_method);
 
         $response = json_decode($curl->response);
+        Log::info("Response");
         Log::info(print_r($response,true));
         if(isset($response->token)){
             self::setToken($response->token);
@@ -56,6 +60,9 @@ class NeonAPI{
             Log::info("-----Not Loggedin on API-----");
             Log::info($request);
             Log::info(print_r($response,true));
+            Log::info("_ENV");
+            Log::info($_ENV);
+            Log::info("findEnvironmentVariable");
         }
         return false;
 
@@ -91,7 +98,7 @@ class NeonAPI{
 			$post_data['LoginType']= 'customer';	
 		}
 		
-		
+		\Illuminate\Support\Facades\Log::info(self::$api_url . $call_method);
         if($post === 'delete') {
             $curl->delete(self::$api_url . $call_method, $post_data);
         }else if($post === 'put') {
@@ -103,6 +110,7 @@ class NeonAPI{
         }
 
         $curl->close();
+
         self::parse_header($curl->response_headers);
         $response = self::makeResponse($curl,$is_array);
         return $response;

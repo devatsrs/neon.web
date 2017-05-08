@@ -114,11 +114,8 @@ border-color: #b51b1b;
     color: #ffffff;
 }
 </style>
-<link rel="stylesheet" href="{{ URL::asset('assets/js/wysihtml5/bootstrap-wysihtml5.css') }}">
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="<?php echo URL::to('/'); ?>/assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 <script>
-
+var editor_options 	 	=  		{};
 var account_id = '{{$Emaildata->AccountID}}';
 var file_count 		  =  		0;
 var emailFileList     =			[];
@@ -149,29 +146,11 @@ $(document).ready(function(e) {
 				$('#EmailAction-model .modal-content').html(response);				
 					var mod =  $(document).find('.EmailAction_box');
 					$('#EmailAction-model').modal('show');
-				 	//mod.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
-        			//mod.find('.message').show();
 				mod.find("select").select2({
                     minimumResultsForSearch: -1
                 });
 				mod.find('.select2-container').css('visibility','visible');
-				setTimeout(function(){ 
-				mod.find('.message').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-						parser: function(html) {
-							return html;
-						}
-				});
-				 }, 500);
-				
+				show_summernote(mod.find('.message'),editor_options);
 		    
 			},
 		});
@@ -325,7 +304,6 @@ function bytesToSize(filesize) {
 		     function editor_reset(data,parent_box){
 				//var doc = $('.mail-compose');
 				var doc = $(document).find('.'+parent_box);
-		  		doc.find('.wysihtml5-sandbox, .wysihtml5-toolbar').remove();
         		doc.find('.message').show();
 						
 	       if(!Array.isArray(data)){				
@@ -336,22 +314,9 @@ function bytesToSize(filesize) {
                 doc.find('[name="Subject"]').val('');
                 doc.find('.message').val('');
             }
-			
-			doc.find('.message').wysihtml5({
-						"font-styles": true,
-						"leadoptions":false,
-						"Crm":false,
-						"emphasis": true,
-						"lists": true,
-						"html": true,
-						"link": true,
-						"image": true,
-						"color": false,
-				parser: function(html) {
-					return html;
-				}
-			});
-           
+
+			show_summernote(mod.find('.message'),editor_options);
+
         }
 		
 		$(document).on("click",".reply_del_attachment",function(ee){

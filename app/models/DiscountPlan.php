@@ -34,4 +34,12 @@ class DiscountPlan extends \Eloquent
         return 0;
     }
 
+    public static function  getDiscountPlanIDList($data){
+        $company_id = User::get_companyID();
+        $row = DiscountPlan::where(['CompanyID'=>$company_id])->lists('Name','DiscountPlanID');
+        $row = array(""=> "Select") + $row;
+        return $row;
+
+    }
+
 }

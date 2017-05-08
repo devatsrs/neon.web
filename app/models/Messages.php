@@ -93,11 +93,11 @@ class Messages extends \Eloquent {
 		
 		 if($lead==0)
 		 {
-			$AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
+			$AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1,"Status"=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
 		 }
 		 else
 		 {
-			$AccountSearch   =  DB::table('tblAccount')->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
+			$AccountSearch   =  DB::table('tblAccount')->where(["Status"=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
 		 }
 		 
 		 $ContactSearch 	 =  DB::table('tblContact')->get(array("Email"));	
@@ -176,22 +176,47 @@ class Messages extends \Eloquent {
 				}
 		}
 		
+		$UserSearch 	 =  DB::table('tblUser')->where(["Status"=>1])->get(array("EmailAddress"));		
+		
+		if(count($UserSearch)>0 || count($UserSearch)>0)													
+		{
+				foreach($UserSearch as $UserSearch){
+					if($UserSearch->EmailAddress!=''  && !in_array($UserSearch->EmailAddress,$array))
+					{
+						if($indexEmail){
+							$array[$UserSearch->EmailAddress] =  $UserSearch->EmailAddress;	
+						}else{
+							$array[] =  $UserSearch->EmailAddress;
+						}	
+						
+					}
+				}
+		}				
+		
 		//return  array_filter(array_unique($array));
 		return $array;
     }
 	
 	/////
-	public static function GetAllSystemEmailsWithName($lead=1)
+	public static function GetAllSystemEmailsWithName($lead=1,$accountname = false)
 	{
 		 $array 		 =  [];
 		
 		 if($lead==0)
 		 {
-			$AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail","FirstName","LastName"));
+			 if($accountname){
+			 $AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1,"Status"=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail","AccountName"));
+			 }else{
+			$AccountSearch   =  DB::table('tblAccount')->where(['AccountType'=>1,"Status"=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail","FirstName","LastName"));
+			 }
 		 }
 		 else
 		 {
-			$AccountSearch   =  DB::table('tblAccount')->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
+			  if($accountname){
+			    $AccountSearch   =  DB::table('tblAccount')->where(["Status"=>1])->whereRaw('Email !=""')->get(array("Email","AccountName"));
+			  }else{
+				$AccountSearch   =  DB::table('tblAccount')->where(["Status"=>1])->whereRaw('Email !=""')->get(array("Email","BillingEmail"));
+			  }
 		 }
 		 
 		 $ContactSearch 	 =  DB::table('tblContact')->get(array("Email","FirstName","LastName"));	
@@ -213,7 +238,11 @@ class Messages extends \Eloquent {
 						{
 							foreach($email_addresses as $email_addresses_data)
 							{
-								$txt = $AccountData->FirstName.' '.$AccountData->LastName." <".$email_addresses_data.">";
+								if($accountname){
+									$txt = $AccountData->AccountName." <".$email_addresses_data.">";
+								}else{
+									$txt = $AccountData->FirstName.' '.$AccountData->LastName." <".$email_addresses_data.">";
+								}
 								if(!in_array($txt,$array))
 								{
 									$array[] =  $txt;	
@@ -238,7 +267,12 @@ class Messages extends \Eloquent {
 							foreach($email_addresses as $email_addresses_data)
 							{
 								//$txt = $AccountData->AccountName." <".$email_addresses_data.">";
-								$txt = $AccountData->FirstName.' '.$AccountData->LastName." <".$email_addresses_data.">";
+								if($accountname){
+									$txt = $AccountData->AccountName." <".$email_addresses_data.">";
+								}else{
+									$txt = $AccountData->FirstName.' '.$AccountData->LastName." <".$email_addresses_data.">";
+								}
+								
 								if(!in_array($txt,$array))
 								{
 									//$array[] =  $email_addresses_data;	
@@ -260,8 +294,24 @@ class Messages extends \Eloquent {
 						//$array[] =  $ContactData->Email;
 					}
 				}
-		}		
+		}
+		
+		$UserSearch 	 =  DB::table('tblUser')->where(["Status"=>1])->get(array("EmailAddress","FirstName","LastName"));		
+		
+		if(count($UserSearch)>0 || count($UserSearch)>0)													
+		{	 
+				foreach($UserSearch as $UserSearch){
+					$txt =  $UserSearch->FirstName.' '.$UserSearch->LastName." <".$UserSearch->EmailAddress.">";
+					if($UserSearch->EmailAddress!=''  && !in_array($txt,$array))
+					{
+						$array[] =  $txt;
+						
+					}
+				}					
+		}					
 		//return  array_filter(array_unique($array));
 		return $array;
     }
+	
+	///
 }

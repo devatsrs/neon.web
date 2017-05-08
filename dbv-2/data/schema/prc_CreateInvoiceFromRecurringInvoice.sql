@@ -126,7 +126,7 @@ BEGIN
 		 rinv.CompanyID,
 		 rinv.AccountID,
 		 rinv.Address,
-		 FNGetInvoiceNumber(rinv.AccountID,rinv.BillingClassID) as InvoiceNumber,
+		 FNGetInvoiceNumber(p_CompanyID,rinv.AccountID,rinv.BillingClassID) as InvoiceNumber,
 		 DATE(p_CurrentDate) as IssueDate,
 		 rinv.CurrencyID,
 		 '' as PONumber,

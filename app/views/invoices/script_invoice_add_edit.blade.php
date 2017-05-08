@@ -7,6 +7,9 @@ $(document).ready(function(){
     var USAGE = '{{Product::USAGE}}';
     var SUBSCRIPTION = '{{Product::SUBSCRIPTION}}';
     var ITEM = '{{Product::ITEM}}';
+    var txtUSAGE                    =   '{{ucFirst(Product::$TypetoProducts[Product::USAGE])}}';
+    var txtSUBSCRIPTION             =   '{{ucFirst(Product::$TypetoProducts[Product::SUBSCRIPTION])}}';
+    var txtITEM                     =   '{{ucFirst(Product::$TypetoProducts[Product::ITEM])}}';
     var product_types = [];
      product_types['usage']= USAGE;
      product_types['subscription']= SUBSCRIPTION;
@@ -53,12 +56,13 @@ $(document).ready(function(){
 
     $("#InvoiceTable").delegate( '.product_dropdown' ,'change',function (e) {
         var $this = $(this);
+        var optgroup = $(this).find(":selected").parents('optgroup');
         var $row = $this.parents("tr");
         //console.log($this.val());
         var productID = $this.val();
         var AccountID = $('select[name=AccountID]').val();
         var InvoiceDetailID = $row.find('.InvoiceDetailID').val();
-        var  selected_product_type = '';
+        var  selected_product_type = optgroup.prop('label')==txtSUBSCRIPTION?SUBSCRIPTION:'';
         //selected_product_type = ($(this.options[this.selectedIndex]).closest('optgroup').prop('label')).toLowerCase();
         //$row.find('.ProductType').val(product_types[selected_product_type]);
         if( productID != ''  && parseInt(AccountID) > 0 ) {
@@ -93,7 +97,7 @@ $(document).ready(function(){
                                 if(response.status =='success'){
                                     $('#add-new-modal-invoice-duration').modal('hide');
                                     $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
-									//$row.find("select.TaxRateID2").val(response.product_tax_rate_id).trigger("change");
+                                    //$row.find("select.TaxRateID2").val(response.product_tax_rate_id).trigger("change");
                                     $row.find(".descriptions").val(response.product_description);
                                     $row.find(".Price").val(response.product_amount);
                                     $row.find(".TaxAmount").val(response.product_total_tax_rate);
@@ -105,8 +109,8 @@ $(document).ready(function(){
                                     $row.find(".StartDate").val(start_date);
                                     $row.find(".EndDate").val(end_date);
                                     decimal_places = response.decimal_places;
-									 $('.Taxentity').trigger('change');
-									$("textarea.autogrow").autosize();
+                                    $('.Taxentity').trigger('change');
+                                    $("textarea.autogrow").autosize();
                                     calculate_total();
                                 }else{
                                     if(response.message !== undefined){
@@ -116,25 +120,26 @@ $(document).ready(function(){
                             });
                         },1000);
                     });
-					return false;
-                } else if(product_types[selected_product_type] == SUBSCRIPTION ) {
+                    return false;
+                } else if(selected_product_type == SUBSCRIPTION ) {
 
-                    getCalculateInvoiceBySubscription(selected_product_type,productID,AccountID,1,function(response){
+                    getCalculateInvoiceBySubscription('subscription',productID,AccountID,1,function(response){
                         //console.log(response);
                         if(response.status =='success'){
-                            $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
-							//$row.find("select.TaxRateID2").val(response.product_tax_rate_id).trigger("change");
+                            //$row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
+                            //$row.find("select.TaxRateID2").val(response.product_tax_rate_id).trigger("change");
                             $row.find(".descriptions").val(response.product_description);
                             $row.find(".Price").val(response.product_amount);
                             $row.find(".TaxAmount").val(response.product_total_tax_rate);
                             $row.find(".LineTotal").val(response.sub_total);
                             $row.find(".product_tax_title").text(response.sub_total);
                             decimal_places = response.decimal_places;
-                            $row.find(".StartDate").attr("disabled",true);
-                            $row.find(".EndDate").attr("disabled",true);
-                           	$('.Taxentity').trigger('change');
-							$("textarea.autogrow").autosize();
-							calculate_total();
+                            //$row.find(".StartDate").attr("disabled",true);
+                            //$row.find(".EndDate").attr("disabled",true);
+                            $row.find(".ProductType").val(selected_product_type);
+                            $('.Taxentity').trigger('change');
+                            $("textarea.autogrow").autosize();
+                            //calculate_total();
                         }else{
                             if(response.message !== undefined){
                                 toastr.error(response.message, "Error", toastr_opts);
@@ -147,8 +152,8 @@ $(document).ready(function(){
                     getCalculateInvoiceByProduct('item',productID,AccountID,1,function(response){
                         //console.log(response);
                         if(response.status =='success'){
-                          //  $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
-							//$row.find("select.TaxRateID2").val(response.product_tax_rate_id).trigger("change");
+                            //  $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
+                            //$row.find("select.TaxRateID2").val(response.product_tax_rate_id).trigger("change");
                             $row.find(".descriptions").val(response.product_description);
                             $row.find(".Price").val(response.product_amount);
                             $row.find(".TaxAmount").val(response.product_total_tax_rate);
@@ -157,8 +162,8 @@ $(document).ready(function(){
                             decimal_places = response.decimal_places;
                             $row.find(".StartDate").attr("disabled",true);
                             $row.find(".EndDate").attr("disabled",true);
-							$('.Taxentity').trigger('change');
-							$("textarea.autogrow").autosize();
+                            $('.Taxentity').trigger('change');
+                            $("textarea.autogrow").autosize();
                             calculate_total();
                         }else{
                             if(response.message !== undefined){
@@ -166,8 +171,8 @@ $(document).ready(function(){
                             }
                         }
                     });
-		            return false;
-                }						 
+                    return false;
+                }
             }catch (e){
                 console.log(e);
             }
@@ -383,7 +388,6 @@ $(document).ready(function(){
 
     function cal_line_total(obj){
 
-
         var price = parseFloat(obj.find(".Price").val().replace(/,/g,''));
         //decimal_places = get_decimal_places(price);
 
@@ -471,13 +475,23 @@ $(document).ready(function(){
                     $("#Account_Address").html('');
                     $("input[name=CurrencyCode]").val('');
                     $("input[name=CurrencyID]").val('');
+                    $('#add-new-billing_subscription-form [data-type="currency"]').val('').trigger('change');
+                    if($('#add-new-billing_subscription-form input[name=CurrencyID]').length > 0) {
+                        $('#add-new-billing_subscription-form input[name=CurrencyID]').val('');
+                    }
                     $("input[name=InvoiceTemplateID]").val('');
                     $("[name=Terms]").val('');
                     $("[name=FooterTerm]").val('');
                 } else {
-                    $("#Account_Address").html(response.Address);
+                    $("#Account_Address").html(response.InvoiceToAddress);
                     $("input[name=CurrencyCode]").val(response.Currency);
                     $("input[name=CurrencyID]").val(response.CurrencyId);
+                    $('#add-new-billing_subscription-form [data-type="currency"]').val(response.CurrencyId).trigger('change');
+                    if($('#add-new-billing_subscription-form input[name=CurrencyID]').length > 0) {
+                        $('#add-new-billing_subscription-form input[name=CurrencyID]').val(response.CurrencyId);
+                    }else{
+                        $('#add-new-billing_subscription-form select[data-type="currency"]').after($('<input type="hidden" name="CurrencyID" value="' + response.CurrencyId + '" />'));
+                    }
                     $("input[name=InvoiceTemplateID]").val(response.InvoiceTemplateID);
                     $("[name=Terms]").val(response.Terms);
                     $("[name=FooterTerm]").val(response.FooterTerm);

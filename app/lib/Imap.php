@@ -302,7 +302,7 @@ protected $server;
 		}
 		
 		if(count($ContactSearch)>0 || count($ContactSearch)>0)													
-		{		//Log::info(print_r($ContactSearch,true));
+		{		
 				$MatchType	  =   'Contact';
 				$MatchID	  =	 $ContactSearch[0]->ContactID;					
 				$AccountID	  =  $ContactSearch[0]->Owner;

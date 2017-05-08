@@ -36,11 +36,13 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             Config::set('auth.table', 'tblAccount');
             $auth = Auth::createEloquentDriver();
             Auth::setProvider($auth->getProvider());
-            $customer = Customer::where('BillingEmail','like','%'.$data["email"].'%')->first();
+            //$customer = Customer::where('BillingEmail','like','%'.$data["email"].'%')->first();
+			$customer = Customer::whereRaw("FIND_IN_SET('".$data['email']."',BillingEmail) !=0")->first(); 
             if($customer) {
                 if (Hash::check($data["password"], $customer->password)) {
                     Auth::login($customer);
                     Session::set("customer", 1);
+					Session::set("CustomerEmail", $data["email"]);
                     return true;
                 }
             }
@@ -384,11 +386,11 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
     public static function checkCategoryPermission($resourcecontroller,$action)
-    {
+    {	
         if(user::is_admin()){
             return true;
         }elseif(Session::has('user_category_permission')) {
-            $user_category_permission = Session::get('user_category_permission');
+            $user_category_permission = Session::get('user_category_permission'); 
             if(!empty($resourcecontroller)) {
                 $resourcecontrollerAll = $resourcecontroller . '.All';
                 if(in_array($resourcecontrollerAll, $user_category_permission)) {

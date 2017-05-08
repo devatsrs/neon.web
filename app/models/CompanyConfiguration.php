@@ -15,6 +15,8 @@ class CompanyConfiguration extends \Eloquent {
         $CompanyName = getenv('COMPANY_NAME');
         $CompanyConfiguration = 'CompanyConfiguration' . $LicenceKey.$CompanyName;
 
+        self::$cache['CompanyConfiguration'] = array();
+
         if (self::$enable_cache && Cache::has($CompanyConfiguration)) {
             $cache = Cache::get($CompanyConfiguration);
             self::$cache['CompanyConfiguration'] = $cache['CompanyConfiguration'];
@@ -22,12 +24,14 @@ class CompanyConfiguration extends \Eloquent {
             if($CompanyID==0){
                 $CompanyID = \User::get_companyID();
             }
-            self::$cache['CompanyConfiguration'] = CompanyConfiguration::where(['CompanyID'=>$CompanyID])->lists('Value','Key');
-            $CACHE_EXPIRE = self::$cache['CompanyConfiguration']['CACHE_EXPIRE'];
-            $time = empty($CACHE_EXPIRE)?60:$CACHE_EXPIRE;
-            $minutes = \Carbon\Carbon::now()->addMinutes($time);
-            //Cache::forever($CompanyConfiguration, array('CompanyConfiguration' => self::$cache['CompanyConfiguration']));
-            Cache::add($CompanyConfiguration, array('CompanyConfiguration' => self::$cache['CompanyConfiguration']), $minutes);
+            if($CompanyID > 0) {
+                self::$cache['CompanyConfiguration'] = CompanyConfiguration::where(['CompanyID' => $CompanyID])->lists('Value', 'Key');
+                $CACHE_EXPIRE = self::$cache['CompanyConfiguration']['CACHE_EXPIRE'];
+                $time = empty($CACHE_EXPIRE) ? 60 : $CACHE_EXPIRE;
+                $minutes = \Carbon\Carbon::now()->addMinutes($time);
+                //Cache::forever($CompanyConfiguration, array('CompanyConfiguration' => self::$cache['CompanyConfiguration']));
+                Cache::add($CompanyConfiguration, array('CompanyConfiguration' => self::$cache['CompanyConfiguration']), $minutes);
+            }
         }
         return self::$cache['CompanyConfiguration'];
     }

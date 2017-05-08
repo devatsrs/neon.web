@@ -2668,51 +2668,100 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
 
 //Start Block Added by Abubakar
 $('.modal').on('show.bs.modal', function (e) {
+    //Code for smart devices
     if (isxs()) {
      $('.modal').find('.pull-left,.pull-right').each(function(){
          $(this).removeClass('pull-left').removeClass('pull-right'); 		
 		 });
     }
 });
-
+//Code for add button
 $(document).on('click','[data-action="showAddModal"]' ,function(e) {
     e.preventDefault();
     var self = $(this);
     var modal = $('#'+self.attr('data-modal'));
-    var form = modal.find('form:eq(0)');
-    resetForm(form,self.attr('data-type'));
+    var forms = modal.find('form');
+    forms.each(function(index,form){
+        resetForm($(form),self.attr('data-type'));
+    });
     modal.modal('show');
     modal.find('h4').html("Add New"+getTitle(self.attr('data-type')));
 });
-
+//Code for dropdown add button
 $(document).on('select2-open','.select2add' ,function(e) {
     var self = $(e.target);
     var modal = $('#'+self.attr('data-modal'));
-    var form = modal.find('form:eq(0)');
+    var forms = modal.find('form');
     $('select[data-type="'+self.attr('data-type')+'"]').attr('data-active',0);
     $(self).attr('data-active',1);
     $('.select2-results .select2-add').parents('li').on('click', function(e) {
         e.stopPropagation();
         self.select2("close");
-        resetForm(form,self.attr('data-type'));
+        forms.each(function(index,form){
+            resetForm($(form),self.attr('data-type'));
+        });
+        if(self.attr('data-composite')!== undefined){
+            modal.removeClass('composite').addClass('composite');
+        }
         modal.modal('show');
         modal.find('h4').html("Add New"+getTitle(self.attr('data-type')));
     });
 });
 
 function resetForm(form,type){
-    form.trigger("reset");
+    //form.trigger("reset");
     $.each(form[0].elements, function(index,field) {
         field = $(field);
-        if(field.is("input")){
-            field.val(setDefaultValue(type,field));
-        }else if(field.is("select")){
-            field.val(setDefaultValue(type,field)).trigger('change');
-        }else if(field.is("img")){
-            field.prop("src",setDefaultValue(type,field));
+        setDefaultValue(type,field);
+        if(field.is("select")){
+            field.trigger('change');
+        }
+        if(field.attr('type') == 'hidden'){
+            field.prop('disabled',false);
         }
     });
     showHideControls(form);
+}
+
+//Set default value on the bases of set value in object.
+function setDefaultValue(type,field){
+    var property = 'value';
+    var value = '';
+    var defaultValue = {};
+    /*without specifying attribute, value will be set to "value" attribute
+    Otherwise value set to specified attribute */
+    defaultValue.emailtemplate = {Email_template_privacy:0};
+    defaultValue.invoice_template = {CompanyLogoUrl:{src:"http://placehold.it/250x100"}};
+    defaultValue.billing_class = {PaymentDueInDays:1,RoundChargesAmount:2};
+    defaultValue.currency = {Code:{readonly:false}};
+    defaultValue.item_and_Subscription = {CurrencyID:{disabled:true}};
+    defaultValue.ticket_bulk_option = {Type:0,Status:0,Priority:0,Group:0,Agent:0};
+    if(defaultValue.hasOwnProperty(type)){
+        var sub = defaultValue[type];
+        if(sub.hasOwnProperty(field.attr('name'))){
+            var prop = sub[field.attr('name')];
+            if(typeof(prop)=='object'){
+                property = Object.keys(prop)[0];
+                value = prop[Object.keys(prop)[0]];
+            }else{
+                value = prop;
+            }
+        }
+    }
+    field.prop(property,value);
+}
+
+function getTitle(string){
+    var title = '';
+    if(string.indexOf('_')!=-1){
+        var arr = string.split('_');
+        for(var i=0;i<arr.length;i++){
+            title+= ' '+(arr[i]=='and'?'/':arr[i].ucfirst());
+        }
+    }else{
+        title = ' '+string.ucfirst();
+    }
+    return title;
 }
 
 function showHideControls(form){
@@ -2735,46 +2784,6 @@ function showHideControls(form){
             form.find(toBeShow[i]).removeClass('hidden');
         }
     }
-}
-
-function setDefaultValue(type,field){
-    var value = '';
-    var defaultValue = {};
-    defaultValue.emailtemplate = {Email_template_privacy:"0"};
-    defaultValue.invoice_template = {CompanyLogoUrl:"http://placehold.it/250x100"};
-    defaultValue.billing_class = {PaymentDueInDays:"1",RoundChargesAmount:"2"};
-    if(defaultValue.hasOwnProperty(type)){
-        var sub = defaultValue[type];
-        if(sub.hasOwnProperty(field.attr('name'))){
-            value = sub[field.attr('name')];
-        }
-    }
-    removeAttr(type,field);
-    return value;
-}
-
-function removeAttr(type,field){
-    var removeAttr = {};
-    removeAttr.currency = {Code:"readonly"};
-    if(removeAttr.hasOwnProperty(type)){
-        var sub = removeAttr[type];
-        if(sub.hasOwnProperty(field.attr('name'))){
-            field.removeAttr(sub[field.attr('name')]);
-        }
-    }
-}
-
-function getTitle(string){
-    var title = '';
-    if(string.indexOf('_')!=-1){
-        var arr = string.split('_');
-        for(var i=0;i<arr.length;i++){
-            title+= ' '+arr[i].ucfirst();
-        }
-    }else{
-        title = ' '+string.ucfirst();
-    }
-    return title;
 }
 
 function rebuildSelect2(el,data,defualtText){
@@ -3151,6 +3160,11 @@ function select_all_top(selectallbutton,table,selectall) {
         }
     });
 }
+function openInNewTab(url) {
+    var redirectWindow = window.open(url, '_blank');
+    redirectWindow.location;
+}
+
 try{
     if(typeof customer[0].customer != 'undefined' &&  customer[0].customer != 1 && $(".notifications.cron_jobs.dropdown").has("#failing_placeholder").length > 0 ) {
         setInterval(function () {
@@ -3159,4 +3173,91 @@ try{
     }
 }catch(er){
     console.log(er.message);
+}
+
+show_summernote = function (element,options){
+
+    if(!!document.createRange) {
+        document.getSelection().removeAllRanges();
+    }
+
+    element.addClass("hidden");
+    element.summernote('destroy');
+
+     element.summernote({
+         onInit: function() {
+             //console.log('Summernote is launched');
+         },
+         toolbar: [
+            ['neon_placeholders', ['neon_placeholders']], // here, for example
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['height', ['height']],
+            ['table', ['table']],
+            ['insert', ['media', 'link', 'hr', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview']],
+            ['help', ['help']]
+        ],
+        height: 200,
+        tabsize: 2,
+        dialogsInBody: true,
+        defaultOptions : options
+    });
+
+};
+
+/**
+ * this function is use in invoice template page
+ * */
+show_summerinvoicetemplate = function (element,options){
+
+    if(!!document.createRange) {
+        document.getSelection().removeAllRanges();
+    }
+
+    element.addClass("hidden");
+    element.summernote('destroy');
+
+    element.summernote({
+        onInit: function() {
+            console.log('Summernote is launched');
+        },
+        toolbar: [
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['height', ['height']],
+            ['table', ['table']],
+            ['insert', ['media', 'link', 'hr', 'picture']],
+            ['view', ['fullscreen', 'codeview']],
+            ['help', ['help']]
+        ],
+        height: 200,
+        tabsize: 2,
+        dialogsInBody: true,
+        defaultOptions : options
+    });
+
+};
+
+function rebuildSelectComposite(el,data,label){
+    //el.empty();
+    el.find('optgroup').not('optgroup:first').remove();
+    options = [];
+    $.each(data,function(key,value){
+        if(typeof value == 'object'){
+            key = value.id;
+            value = value.text;
+        }
+        options.push(new Option(value, key, false, false));
+    });
+    options.sort();
+    options.reverse();
+
+
+    $('<optGroup/>').attr('label', label).appendTo(el);
+    el.find('optGroup').last().append(options);
+    el.trigger('change');
 }

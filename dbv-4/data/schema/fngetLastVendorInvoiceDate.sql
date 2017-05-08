@@ -1,12 +1,12 @@
 CREATE DEFINER=`root`@`localhost` FUNCTION `fngetLastVendorInvoiceDate`(
 	`p_AccountID` INT
-) RETURNS DATETIME
+) RETURNS datetime
 BEGIN
 	
 	DECLARE v_LastInvoiceDate_ DATETIME;
 	
 	SELECT
-		CASE WHEN EndDate IS NOT NULL AND EndDate <> '' 
+		CASE WHEN EndDate IS NOT NULL AND EndDate <> '' AND EndDate <> '0000-00-00 00:00:00'
 		THEN 
 			EndDate
 		ELSE 
@@ -15,12 +15,10 @@ BEGIN
 				DATE_FORMAT(BillingStartDate,'%Y-%m-%d')
 			ELSE DATE_FORMAT(tblAccount.created_at,'%Y-%m-%d')
 			END 
-		END 
-	INTO
-		v_LastInvoiceDate_ 
+		END INTO v_LastInvoiceDate_
  	FROM NeonRMDev.tblAccount
 	LEFT JOIN NeonRMDev.tblAccountBilling 
-		ON tblAccountBilling.AccountID = tblAccount.AccountID
+		ON tblAccountBilling.AccountID = tblAccount.AccountID AND tblAccountBilling.ServiceID = 0
 	LEFT JOIN NeonBillingDev.tblInvoice 
 		ON tblAccount.AccountID = tblInvoice.AccountID AND InvoiceType =2
 	LEFT JOIN NeonBillingDev.tblInvoiceDetail

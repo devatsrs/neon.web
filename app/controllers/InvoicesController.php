@@ -608,6 +608,63 @@ class InvoicesController extends \BaseController {
                             $error = "No Product Found.";
                         }
 
+                    }elseif(Product::$ProductTypes[$data['product_type']] == Product::SUBSCRIPTION) {
+                        $companyID = User::get_companyID();
+                        $data['CompanyID'] = $companyID;
+
+                        $Subscription = BillingSubscription::find($data['product_id']);
+                        if (!empty($Subscription)) {
+                            if($AccountBilling->BillingCycleType=='daily'){
+                                $ProductAmount = number_format($Subscription->DailyFee, $decimal_places,".","");
+                            }elseif($AccountBilling->BillingCycleType=='weekly'){
+                                $ProductAmount = number_format($Subscription->WeeklyFee, $decimal_places,".","");
+                            }elseif($AccountBilling->BillingCycleType=='monthly'){
+                                $ProductAmount = number_format($Subscription->MonthlyFee, $decimal_places,".","");
+                            }elseif($AccountBilling->BillingCycleType=='quarterly'){
+                                $ProductAmount = number_format($Subscription->QuarterlyFee, $decimal_places,".","");
+                            }elseif($AccountBilling->BillingCycleType=='yearly'){
+                                $ProductAmount = number_format($Subscription->AnnuallyFee, $decimal_places,".","");
+                            }else{
+                                $ProductAmount = number_format($Subscription->MonthlyFee, $decimal_places,".","");
+                            }
+
+                            $ProductDescription = $Subscription->InvoiceLineDescription;
+
+                            $TaxRates = array();
+                            $TaxRates = TaxRate::where(array('CompanyID' => User::get_companyID(), "TaxType" => TaxRate::TAX_ALL))->select(['TaxRateID', 'Title', 'Amount'])->first();
+                            if(!empty($TaxRates)){
+                                $TaxRates->toArray();
+                            }
+                            //$AccountTaxRate = explode(",", $AccountBilling->TaxRateId);
+                            $AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
+
+                            $TaxRateAmount = $TaxRateId = 0;
+                            if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
+
+                                $TaxRateId = $TaxRates['TaxRateID'];
+                                $TaxRateAmount = 0;
+                                if (isset($TaxRates['Amount'])) {
+                                    $TaxRateAmount = $TaxRates['Amount'];
+                                }
+
+                            }
+
+                            $TotalTax = number_format((($ProductAmount * $data['qty'] * $TaxRateAmount) / 100), $decimal_places,".","");
+                            $SubTotal = number_format($ProductAmount * $data['qty'], $decimal_places,".",""); //number_format(($ProductAmount + $TotalTax) , 2);
+
+                            $response = [
+                                "status" => "success",
+                                "product_description" => $ProductDescription,
+                                "product_amount" => $ProductAmount,
+                                //"product_tax_rate_id" => $TaxRateId,
+                                //"product_total_tax_rate" => $TotalTax,
+                                "product_total_tax_rate" => 0,
+                                "sub_total" => $SubTotal,
+                                "decimal_places" => $decimal_places,
+                            ];
+                        } else {
+                            $error = "No Subscription Found.";
+                        }
                     } else {
 
                         $error = "No Invoice Template Assigned to Account";
@@ -641,16 +698,24 @@ class InvoicesController extends \BaseController {
             $InvoiceTemplateID  = 	AccountBilling::getInvoiceTemplateID($Account->AccountID);
             $CurrencyId = $Account->CurrencyId;
             $Address = Account::getFullAddress($Account);
-            $Terms = $FooterTerm = '';
+
+            $Terms = $FooterTerm = $InvoiceToAddress ='';
 			
 			 $AccountTaxRate = AccountBilling::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
 			//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 		
             if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
                 $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+                /* for item invoice generate - invoice to address as invoice template */
+
+                $message = $InvoiceTemplate->InvoiceTo;
+                $replace_array = Invoice::create_accountdetails($Account);
+                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
+                $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
+
                 $Terms = $InvoiceTemplate->Terms;
                 $FooterTerm = $InvoiceTemplate->FooterTerm;
-                $return = ['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate'];
+                $return = ['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate','InvoiceToAddress'];
             }else{
                 return Response::json(array("status" => "failed", "message" => "You can not create Invoice for this Account. as It has no Invoice Template assigned" ));
             }
@@ -1113,14 +1178,8 @@ class InvoicesController extends \BaseController {
         if($id){
             set_time_limit(600); // 10 min time limit.
             $CreatedBy = User::get_user_full_name();
-            $isRecurringInvoice = 0;
-            $recurringInvoiceID = 0;
-            $data = Input::all(); 
-			$postdata = Input::all(); 
-            if(isset($data['RecurringInvoice'])){
-                $isRecurringInvoice=1;
-                $recurringInvoiceID = $data['RecurringInvoiceID'];
-            }
+            $data = Input::all();
+			$postdata = Input::all();
             $Invoice = Invoice::find($id);
             $Company = Company::find($Invoice->CompanyID);
             $CompanyName = $Company->CompanyName;
@@ -1134,7 +1193,7 @@ class InvoicesController extends \BaseController {
                 $CustomerEmail = $Company->Email;
             }
             $data['EmailTo'] = explode(",",$CustomerEmail);
-            $data['InvoiceURL'] = "URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview'";
+            $data['InvoiceURL'] = URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cview'); 
             $data['AccountName'] = Account::find($Invoice->AccountID)->AccountName;
             $data['CompanyName'] = $CompanyName;
             $rules = array(
@@ -1191,10 +1250,10 @@ class InvoicesController extends \BaseController {
                 $invoiceloddata['InvoiceLogStatus']= InVoiceLog::SENT;
                 InVoiceLog::insert($invoiceloddata);
 
-                if($isRecurringInvoice==1){
+                if($Invoice->RecurringInvoiceID > 0){
                     $RecurringInvoiceLogData = array();
-                    $RecurringInvoiceLogData['RecurringInvoiceID']= $recurringInvoiceID;
-                    $RecurringInvoiceLogData['Note']= 'Invoice Sent By '.$CreatedBy;
+                    $RecurringInvoiceLogData['RecurringInvoiceID']= $Invoice->RecurringInvoiceID;
+                    $RecurringInvoiceLogData['Note'] = 'Invoice ' . $Invoice->FullInvoiceNumber.' '.RecurringInvoiceLog::$log_status[RecurringInvoiceLog::SENT] .' By '.$CreatedBy;
                     $RecurringInvoiceLogData['created_at']= date("Y-m-d H:i:s");
                     $RecurringInvoiceLogData['RecurringInvoiceLogStatus']= RecurringInvoiceLog::SENT;
                     RecurringInvoiceLog::insert($RecurringInvoiceLogData);
@@ -1240,7 +1299,7 @@ class InvoicesController extends \BaseController {
             //$StaffStatus = sendMail('emails.invoices.send',$data);
             $StaffStatus = $this->sendInvoiceMail($body,$data,0);
             if($StaffStatus['status']==0){
-                $status['message'] .= ', Enable to send email to staff : ' . $StaffStatus['message'];
+               $status['message'] .= ', Enable to send email to staff : ' . $StaffStatus['message'];
             }
             return Response::json(array("status" => $status['status'], "message" => "".$status['message']));
         }else{
@@ -1255,7 +1314,7 @@ class InvoicesController extends \BaseController {
 			$data['EmailFrom'] = $data['email_from'];
 		}
 	    if(is_array($data['EmailTo']))
-		{
+		{ 
             $status 			= 	sendMail($view,$data,$type);
         }
 		else
@@ -1265,7 +1324,7 @@ class InvoicesController extends \BaseController {
 				$data['EmailTo'] 	= 	trim($data['EmailTo']);
 				$status 			= 	sendMail($view,$data,0);
             }
-        }
+        } 
         return $status;
     }
     public function bulk_send_invoice_mail(){
@@ -1522,6 +1581,10 @@ class InvoicesController extends \BaseController {
                 $transactiondata['Reposnse'] = json_encode($response);
                 TransactionLog::insert($transactiondata);
                 $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
+                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+                $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
+                $paymentdata['Invoice'] = $Invoice;
+                Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
                 return Response::json(array("status" => "success", "message" => "Invoice paid successfully"));
             }else{
                 $transactiondata = array();
@@ -1768,13 +1831,15 @@ class InvoicesController extends \BaseController {
         $EndDate = $data['EndDate'].' '.$data['EndTime'];
 
         $output = Dispute::reconcile($companyID,$accountID,$StartDate,$EndDate,$data["GrandTotal"],$data["TotalMinutes"]);
-
+        $message = '';
         if(isset($data["DisputeID"]) && $data["DisputeID"] > 0 ) {
-
+            $data['InvoiceType'] = Invoice::RECEIVED;
+            $status = Dispute::sendDisputeEmailCustomer($data);
+            $message = $status['message'];
             $output["DisputeID"]  = $data["DisputeID"];
         }
 
-        return Response::json( array_merge($output, array("status" => "success", "message" => ""  )));
+        return Response::json( array_merge($output, array("status" => "success", "message" => $message  )));
     }
 
     /** Paypal ipn url which will be triggered from paypal with payment status and response
@@ -1848,7 +1913,10 @@ class InvoicesController extends \BaseController {
                 \Illuminate\Support\Facades\Log::info($transactiondata);
 
                 $paypal->log();
-
+                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+                $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
+                $paymentdata['Invoice'] = $Invoice;
+                Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
                 return Response::json(array("status" => "success", "message" => "Invoice paid successfully"));
 
 
@@ -2023,7 +2091,10 @@ class InvoicesController extends \BaseController {
             TransactionLog::insert($transactiondata);
 
             $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-
+            $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+            $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
+            $paymentdata['Invoice'] = $Invoice;
+            Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
             \Illuminate\Support\Facades\Log::info("Transaction done.");
             \Illuminate\Support\Facades\Log::info($transactiondata);
 

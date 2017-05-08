@@ -7,13 +7,18 @@ class AccountSubscriptionController extends \BaseController {
     public function ajax_datagrid($id){
         $data = Input::all();        
         $id=$data['account_id'];
-        $select = ["tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax"];
+        $select = ["tblAccountSubscription.SequenceNo","tblBillingSubscription.Name", "InvoiceDescription", "Qty" ,"tblAccountSubscription.StartDate",DB::raw("IF(tblAccountSubscription.EndDate = '0000-00-00','',tblAccountSubscription.EndDate) as EndDate"),"tblAccountSubscription.ActivationFee","tblAccountSubscription.DailyFee","tblAccountSubscription.WeeklyFee","tblAccountSubscription.MonthlyFee","tblAccountSubscription.QuarterlyFee","tblAccountSubscription.AnnuallyFee","tblAccountSubscription.AccountSubscriptionID","tblAccountSubscription.SubscriptionID","tblAccountSubscription.ExemptTax"];
         $subscriptions = AccountSubscription::join('tblBillingSubscription', 'tblAccountSubscription.SubscriptionID', '=', 'tblBillingSubscription.SubscriptionID')->where("tblAccountSubscription.AccountID",$id);        
         if(!empty($data['SubscriptionName'])){
             $subscriptions->where('tblBillingSubscription.Name','Like','%'.trim($data['SubscriptionName']).'%');
         }
         if(!empty($data['SubscriptionInvoiceDescription'])){
             $subscriptions->where('tblAccountSubscription.InvoiceDescription','Like','%'.trim($data['SubscriptionInvoiceDescription']).'%');
+        }
+        if(!empty($data['ServiceID'])){
+            $subscriptions->where('tblAccountSubscription.ServiceID','=',$data['ServiceID']);
+        }else{
+            $subscriptions->where('tblAccountSubscription.ServiceID','=',0);
         }
         if(!empty($data['SubscriptionActive']) && $data['SubscriptionActive'] == 'true'){
             $subscriptions->where(function($query){
@@ -145,7 +150,7 @@ class AccountSubscriptionController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
                 }
             }else{
-                return Response::json(array("status" => "failed", "message" => "Subscription is in Use, You cant delete this Subscription."));
+                return Response::json(array("status" => "failed", "message" => "Subscription is in Use, You can not delete this Subscription."));
             }
         }
 	}

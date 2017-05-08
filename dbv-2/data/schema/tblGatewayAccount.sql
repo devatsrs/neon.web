@@ -9,6 +9,7 @@ CREATE TABLE `tblGatewayAccount` (
   `GatewayVendorID` int(11) DEFAULT NULL,
   `AccountID` int(11) DEFAULT NULL,
   `AccountIP` longtext COLLATE utf8_unicode_ci,
+  `ServiceID` int(11) DEFAULT '0',
   PRIMARY KEY (`GatewayAccountPKID`),
   KEY `IX_tblGatewayAccount_GatewayAccountID_AccountName_5F8A5` (`GatewayAccountID`,`AccountName`,`CompanyGatewayID`),
   KEY `IX_tblGatewayAccount_AccountID_63248` (`AccountID`,`GatewayAccountID`),

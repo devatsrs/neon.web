@@ -2,7 +2,8 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_updateInboundPrefix`(
 	IN `p_AccountID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
-	IN `p_CLI` VARCHAR(500)
+	IN `p_CLD` VARCHAR(500),
+	IN `p_ServiceID` INT
 )
 BEGIN
 
@@ -19,21 +20,44 @@ BEGIN
 		INDEX IX_TempUsageDetailID2(`TempUsageDetailID`)
 	);
 
-	/* find prefix */
-	SET @stm = CONCAT('
-	INSERT INTO tmp_TempUsageDetail_
-	SELECT
-		TempUsageDetailID,
-		c.code AS prefix
-	FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud 
-	INNER JOIN NeonRMDev.tmp_inboundcodes_ c 
-	ON ud.ProcessID = ' , p_processId , '
-		AND ud.is_inbound = 1 
-		AND ud.AccountID = ' , p_AccountID , '
-		AND ("' , p_CLI , '" = "" OR cli = "' , p_CLI , '")
-		AND ud.area_prefix = "Other"
-		AND cld like  CONCAT(c.Code,"%");
-	');
+	IF p_CLD != ''
+	THEN 
+
+		/* find prefix */
+		SET @stm = CONCAT('
+		INSERT INTO tmp_TempUsageDetail_
+		SELECT
+			TempUsageDetailID,
+			c.code AS prefix
+		FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud 
+		INNER JOIN NeonRMDev.tmp_inboundcodes_ c 
+		ON ud.ProcessID = ' , p_processId , '
+			AND ud.is_inbound = 1 
+			AND ud.AccountID = ' , p_AccountID , '
+			AND ("' , p_CLD , '" = "" OR cld = "' , p_CLD , '")
+			AND ud.area_prefix = "Other"
+			AND cli like  CONCAT(c.Code,"%");
+		');
+
+	ELSE
+
+		/* find prefix */
+		SET @stm = CONCAT('
+		INSERT INTO tmp_TempUsageDetail_
+		SELECT
+			TempUsageDetailID,
+			c.code AS prefix
+		FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud 
+		INNER JOIN NeonRMDev.tmp_inboundcodes_ c 
+		ON ud.ProcessID = ' , p_processId , '
+			AND ud.is_inbound = 1 
+			AND ud.AccountID = ' , p_AccountID , '
+			AND ud.ServiceID = ' , p_ServiceID , '
+			AND ud.area_prefix = "Other"
+			AND cld like  CONCAT(c.Code,"%");
+		');
+
+	END IF;
 
 	PREPARE stmt FROM @stm;
 	EXECUTE stmt;

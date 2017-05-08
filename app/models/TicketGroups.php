@@ -22,7 +22,7 @@ class TicketGroups extends \Eloquent {
    );
    
    
-   static function getTicketGroups(){
+   static function getTicketGroups($select=1){
 		//TicketfieldsValues::WHERE
 	   if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETGROUPACCESS){
 		 $row = TicketGroups::join("tblTicketGroupAgents","tblTicketGroupAgents.GroupID", "=","tblTicketGroups.GroupID")
@@ -30,6 +30,18 @@ class TicketGroups extends \Eloquent {
 	   }else{
 	   		$row =  TicketGroups::orderBy('GroupID', 'asc')->lists('GroupName','GroupID'); 
 	   }
+	   if($select){
+	  	 $row = array("0"=> "Select")+$row;
+	   }
+	   return $row;
+	}
+	
+	 static function getTicketGroupsFromData($data){
+		$row = array();
+		foreach($data as $ticketData){
+			$row[$ticketData->GroupID] = $ticketData->GroupName;
+		}
+	 
 	   $row = array("0"=> "Select")+$row;
 	   return $row;
 	}

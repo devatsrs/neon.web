@@ -1,0 +1,29 @@
+From 6388f645ee6197ca9424e1339f229034cd3ad84f Mon Sep 17 00:00:00 2001
+From: Abubakar <abubakar@code-desk.com>
+Date: Wed, 29 Mar 2017 14:41:38 +0500
+Subject: [PATCH] Update customer rate for test mail send
+
+---
+ app/controllers/CustomersRatesController.php | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/app/controllers/CustomersRatesController.php b/app/controllers/CustomersRatesController.php
+index ddd2e8b..0918e1b 100644
+--- a/app/controllers/CustomersRatesController.php
++++ b/app/controllers/CustomersRatesController.php
+@@ -291,10 +291,10 @@ class CustomersRatesController extends \BaseController {
+                 if (isset($data['test']) && $data['test'] == 1) {
+                     $test = 1;
+                 }
+-                /*if ($test == 0) {
++                //if ($test == 0) {
+                     $data['customer'][] = $id;
+                     $data['SelectedIDs'] = implode(',', $data['customer']);
+-                }*/
++                //}
+                 unset($data['customer']);
+                 unset($data['account_owners']);
+                 unset($data['Type']);
+-- 
+1.9.5.msysgit.0
+

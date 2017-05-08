@@ -16,18 +16,18 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	CALL fnGetCountry();
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate);
 
  	/* insert into success summary*/
  	DELETE FROM tmp_VendorUsageSummary WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_VendorUsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	INSERT INTO tmp_VendorUsageSummary(DateID,TimeID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT 
 		d.DateID,
 		t.TimeID,
 		ud.CompanyID,
 		ud.CompanyGatewayID,
+		ud.ServiceID,
 		ANY_VALUE(ud.GatewayAccountID),
 		ud.AccountID,
 		ud.trunk,
@@ -41,22 +41,16 @@ BEGIN
 	FROM tmp_tblVendorUsageDetailsReport ud  
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
-	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.CompanyID;
+	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.ServiceID,ud.CompanyID;
 
 	UPDATE tmp_VendorUsageSummary 
 	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
 	SET tmp_VendorUsageSummary.CountryID =code.CountryID
 	WHERE tmp_VendorUsageSummary.CompanyID = p_CompanyID AND code.CountryID > 0;
 
-	UPDATE tmp_VendorUsageSummary
-	INNER JOIN (SELECT DISTINCT AreaPrefix,tblCountry.CountryID FROM tmp_VendorUsageSummary 	INNER JOIN  temptblCountry AS tblCountry ON AreaPrefix LIKE CONCAT(Prefix , "%")) TBL
-	ON tmp_VendorUsageSummary.AreaPrefix = TBL.AreaPrefix
-	SET tmp_VendorUsageSummary.CountryID =TBL.CountryID 
-	WHERE tmp_VendorUsageSummary.CompanyID = p_CompanyID AND tmp_VendorUsageSummary.CountryID IS NULL ;
-
 	DELETE FROM tmp_SummaryVendorHeader WHERE CompanyID = p_CompanyID;
 
-	INSERT INTO tmp_SummaryVendorHeader (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	INSERT INTO tmp_SummaryVendorHeader (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryVendorHeaderID,
 		sh.DateID,
@@ -64,6 +58,7 @@ BEGIN
 		sh.AccountID,
 		sh.GatewayAccountID,
 		sh.CompanyGatewayID,
+		sh.ServiceID,
 		sh.Trunk,
 		sh.AreaPrefix,
 		sh.CountryID,
@@ -75,8 +70,8 @@ BEGIN
 
 	START TRANSACTION;
 
-	INSERT INTO tblSummaryVendorHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
-	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
+	INSERT INTO tblSummaryVendorHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
+	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
 	FROM tmp_VendorUsageSummary us
 	LEFT JOIN tmp_SummaryVendorHeader sh	 
 	ON 
@@ -86,12 +81,13 @@ BEGIN
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
+	AND us.ServiceID = sh.ServiceID
 	WHERE sh.SummaryVendorHeaderID IS NULL
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
 
 	DELETE FROM tmp_SummaryVendorHeader WHERE CompanyID = p_CompanyID;
 
-	INSERT INTO tmp_SummaryVendorHeader (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,Trunk,AreaPrefix,CountryID,created_at)
+	INSERT INTO tmp_SummaryVendorHeader (SummaryVendorHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
 	SELECT 
 		sh.SummaryVendorHeaderID,
 		sh.DateID,
@@ -99,6 +95,7 @@ BEGIN
 		sh.AccountID,
 		sh.GatewayAccountID,
 		sh.CompanyGatewayID,
+		sh.ServiceID,
 		sh.Trunk,
 		sh.AreaPrefix,
 		sh.CountryID,
@@ -129,7 +126,8 @@ BEGIN
 	AND sh.CompanyGatewayID = us.CompanyGatewayID
 	AND sh.Trunk = us.Trunk
 	AND sh.AreaPrefix = us.AreaPrefix
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.Trunk,us.AreaPrefix;
+	AND sh.ServiceID = us.ServiceID
+	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
 
 	INSERT INTO tblUsageVendorSummaryDetail (SummaryVendorHeaderID,TimeID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT sh.SummaryVendorHeaderID,TimeID,us.TotalCharges,us.TotalSales,us.TotalBilledDuration,us.TotalDuration,us.NoOfCalls,us.NoOfFailCalls
@@ -141,7 +139,8 @@ BEGIN
 	AND sh.AccountID = us.AccountID
 	AND sh.CompanyGatewayID = us.CompanyGatewayID
 	AND sh.Trunk = us.Trunk
-	AND sh.AreaPrefix = us.AreaPrefix;
+	AND sh.AreaPrefix = us.AreaPrefix
+	AND sh.ServiceID = us.ServiceID;
 	
 	COMMIT;
 

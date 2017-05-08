@@ -66,12 +66,6 @@ $privacy = EmailTemplate::$privacy;
                                     {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($BillingClass->SendInvoiceSetting)?$BillingClass->SendInvoiceSetting:'' ),array("class"=>"form-control select2"))}}
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="field-1" class="col-sm-2 control-label">Invoice Format*</label>
-                                <div class="col-sm-4">
-                                    {{Form::select('CDRType', Account::$cdr_type, ( isset($BillingClass->CDRType)?$BillingClass->CDRType:'' ),array('id'=>'billing_type',"class"=>"select2 small"))}}
-                                </div>
-                            </div>
                         </div>
                     </div>
             </div>

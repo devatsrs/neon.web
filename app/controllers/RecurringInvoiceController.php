@@ -253,18 +253,18 @@ class RecurringInvoiceController extends \BaseController {
                 if (!empty($RecurringInvoiceDetailData) && RecurringInvoiceDetail::insert($RecurringInvoiceDetailData))
 				{
                     DB::connection('sqlsrv2')->commit();
-                    return Response::json(array("status" => "success", "message" => "RecurringInvoice Successfully Created",'LastID'=>$RecurringInvoice->RecurringInvoiceID,'redirect' => URL::to('/recurringinvoices/'.$RecurringInvoice->RecurringInvoiceID.'/edit')));
+                    return Response::json(array("status" => "success", "message" => "Recurring Profile Successfully Created",'LastID'=>$RecurringInvoice->RecurringInvoiceID,'redirect' => URL::to('/recurringprofiles/'.$RecurringInvoice->RecurringInvoiceID.'/edit')));
                 }
 				else
 				{
                     DB::connection('sqlsrv2')->rollback();
-                    return Response::json(array("status" => "failed", "message" => "Problem Creating RecurringInvoice."));
+                    return Response::json(array("status" => "failed", "message" => "Problem Creating Recurring Profile."));
                 }
             }
 			catch (Exception $e)
 			{
                 DB::connection('sqlsrv2')->rollback();
-                return Response::json(array("status" => "failed", "message" => "Problem Creating RecurringInvoice. \n" . $e->getMessage()));
+                return Response::json(array("status" => "failed", "message" => "Problem Creating Recurring Profile. \n" . $e->getMessage()));
             }
         }
     }
@@ -430,19 +430,19 @@ class RecurringInvoiceController extends \BaseController {
                         }
                         if (RecurringInvoiceDetail::insert($RecurringInvoiceDetailData)) {
                             DB::connection('sqlsrv2')->commit();
-                            return Response::json(array("status" => "success", "message" => "RecurringInvoice Successfully Updated", 'LastID' => $RecurringInvoice->RecurringInvoiceID));
+                            return Response::json(array("status" => "success", "message" => "Recurring Profile Successfully Updated", 'LastID' => $RecurringInvoice->RecurringInvoiceID));
                         }
                     }
 					else
 					{
-                        return Response::json(array("status" => "success", "message" => "RecurringInvoice Successfully Updated, There is no product in RecurringInvoice", 'LastID' => $RecurringInvoice->RecurringInvoiceID));
+                        return Response::json(array("status" => "success", "message" => "Recurring Profile Successfully Updated, There is no product in Recurring Profile", 'LastID' => $RecurringInvoice->RecurringInvoiceID));
                     }
                 }
             }
 			catch (Exception $e)
 			{
 				DB::connection('sqlsrv2')->rollback();
-                return Response::json(array("status" => "failed", "message" => "Problem Updating RecurringInvoice. \n " . $e->getMessage()));
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Recurring Profile. \n " . $e->getMessage()));
             }
         }
     }
@@ -540,6 +540,9 @@ class RecurringInvoiceController extends \BaseController {
                         return Response::json(array("status" => "failed", "message" => 'Failed to generate Invoice PDF File'));
                     } else {
                         Invoice::where(['InvoiceID'=>$invoiceID])->update(["PDF" => $pdf_path]);
+                        $InvoiceTemplateID = BillingClass::where('BillingClassID',$recurringInvoice->BillingClassID)->pluck('InvoiceTemplateID');
+                        $Invoice = Invoice::find($invoiceID);
+                        InvoiceTemplate::where(array('InvoiceTemplateID'=>$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
                     }
                 }
                 return Response::json(array("status" => "success", "message" => '', 'invoiceID' => $invoiceID));
@@ -673,13 +676,25 @@ class RecurringInvoiceController extends \BaseController {
     public function getBillingClassInfo()
     {
         $data = Input::all();
+
         $invoiceTemplateID = BillingClass::getInvoiceTemplateID($data['BillingClassID']);
+        $InvoiceToAddress = '';
         if (!empty($invoiceTemplateID) && $invoiceTemplateID > 0 ) {
             $InvoiceTemplate = InvoiceTemplate::find($invoiceTemplateID);
             $Terms = $InvoiceTemplate->Terms;
             $FooterTerm = $InvoiceTemplate->FooterTerm;
             $TaxRate = BillingClass::getTaxRateType($data['BillingClassID'],TaxRate::TAX_ALL);
-            $return = ['Terms','FooterTerm','TaxRate'];
+
+
+            if(!empty($data['AccountID'])){
+                $Account = Account::find($data['AccountID']);
+                $message = $InvoiceTemplate->InvoiceTo;
+                $replace_array = Invoice::create_accountdetails($Account);
+                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
+                $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
+            }
+            $return = ['Terms','FooterTerm','TaxRate','InvoiceToAddress'];
+
             return Response::json(compact($return));
         }else{
             return Response::json(array("status" => "failed", "message" => "You cannot create invoice as no Invoice Template assigned to this billing Class." ));

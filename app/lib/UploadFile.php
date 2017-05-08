@@ -41,16 +41,19 @@ class UploadFile{
         $uploadedFile = [];
         $returnText	='';
      
-        $filesArray = unserialize($attachmentsinfo); 
+        $filesArray = unserialize($attachmentsinfo);  
        if(!is_array($filesArray)){return array();}
         foreach ($filesArray as $file){
-			$FileNewPath    =  CompanyConfiguration::get('TEMP_PATH').'/'.$file['filepath'];
-			$dirpath 		=  dirname($FileNewPath);
+			$ext = pathinfo($file['filepath'], PATHINFO_EXTENSION);
+			$FileNewPathTEmp = str_replace(".".$ext,"-new",$file['filepath']);
+			$FileNewPath    =  CompanyConfiguration::get('TEMP_PATH').'/'.$FileNewPathTEmp.".".$ext;
+			$dirpath 		=  dirname($FileNewPath);			
 			
 			if (!file_exists($dirpath)){
                     mkdir($dirpath, 0777, true);
-             }
-			$Attachmenturl  =  AmazonS3::unSignedUrl($file['filepath']); 
+             }			
+
+			$Attachmenturl  =  AmazonS3::unSignedUrl($file['filepath']);  
 			file_put_contents($FileNewPath,file_get_contents($Attachmenturl));
 			$filesArrayreturn[]	=	array("filename"=>$file['filename'],"filepath"=>$FileNewPath);
 		}

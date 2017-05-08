@@ -2,11 +2,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateOutboundRate`(
 	IN `p_AccountID` INT,
 	IN `p_TrunkID` INT,
 	IN `p_processId` INT,
-	IN `p_tbltempusagedetail_name` VARCHAR(200)
+	IN `p_tbltempusagedetail_name` VARCHAR(200),
+	IN `p_ServiceID` INT
 )
 BEGIN
-	
-	SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND TrunkID = "',p_TrunkID ,'" AND is_inbound = 0 ') ;
+
+	SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND ServiceID = "',p_ServiceID ,'" AND ("',p_TrunkID ,'" = 0 OR TrunkID = "',p_TrunkID ,'") AND is_inbound = 0 ') ;
 
 	PREPARE stmt FROM @stm;
 	EXECUTE stmt;
@@ -25,7 +26,7 @@ BEGIN
 				Rate+IFNULL(ConnectionFee,0)
 			ELSE
 				0
-			END		    
+			END
 		END
 	,is_rerated=1
 	,duration = billed_second
@@ -41,10 +42,10 @@ BEGIN
 				0
 			END
 		END 
-	
 	WHERE ProcessID = "',p_processId,'"
 	AND AccountID = "',p_AccountID ,'" 
-	AND TrunkID = "',p_TrunkID ,'" 
+	AND ServiceID = "',p_ServiceID ,'" 
+	AND ("',p_TrunkID ,'" = 0 OR TrunkID = "',p_TrunkID ,'")
 	AND is_inbound = 0') ;
 
 	PREPARE stmt FROM @stm;

@@ -32,6 +32,7 @@ CREATE TABLE `tblInvoice` (
   `FooterTerm` longtext COLLATE utf8_unicode_ci,
   `EstimateID` int(11) DEFAULT NULL,
   `FullInvoiceNumber` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ServiceID` int(11) DEFAULT '0',
   PRIMARY KEY (`InvoiceID`),
   KEY `IX_AccountID_Status_CompanyID` (`AccountID`,`InvoiceStatus`,`CompanyID`),
   KEY `IX_FullInvoiceNumber` (`FullInvoiceNumber`)

@@ -10,7 +10,8 @@
                 update_new_url = baseurl + '/trunks/store';
             }
 
-            showAjaxScript(update_new_url, new FormData(($('#form-trunk-add')[0])), function(response){
+           // showAjaxScript(update_new_url, new FormData(($('#form-trunk-add')[0])), function(response){
+		    showAjaxScript(update_new_url, new FormData(($('#form-trunk-add')[0])), function(response){
                 $(".btn").button('reset');
                 if (response.status == 'success') {
                     $('#add-new-modal-trunk').modal('hide');
@@ -87,7 +88,7 @@
                                 </div>
                                 <div class="form-group">                                    
                                     <div class="make-switch switch-small">
-                                        <input type="checkbox" name="Status"  @if(Input::old('Status') =='' )checked="" @else  @if( ( Input::old('Status') !='' ) && Input::old('Status') == 1 ) checked=""  @endif @endif value="1">
+                                        <input type="checkbox" name="Status"  @if(Input::old('Status') =='' ) checked="" @else  @if( ( Input::old('Status') !='' ) && Input::old('Status') == 1 ) checked=""  @endif @endif value="1">
                                     </div>
 
                                 </div>

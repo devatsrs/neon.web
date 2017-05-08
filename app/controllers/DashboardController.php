@@ -210,6 +210,17 @@ class DashboardController extends BaseController {
 		
 		 return View::make('dashboard.crm', compact('companyID','DefaultCurrencyID','Country','account','currency','UserID','isAdmin','users','StartDateDefault','DateEndDefault','account_owners','boards','TaskBoard','taskStatus','leadOrAccount','StartDateDefaultforcast','CloseStatus',"CrmAllowedReports"));	
 	}
+
+    public function TicketDashboard(){
+        $iDisplayLength = 10;
+        $status			 			=    TicketsTable::getTicketStatus(0);
+        $statusOnHold = TicketsTable::getTicketStatusOnHold();
+        $unresovled = $status;
+        $key = array_search('Resolved', $status);
+        unset($unresovled[$key]);
+        return View::make('dashboard.ticket',compact('iDisplayLength','status','unresovled','statusOnHold'));
+
+    }
 	
 	public function GetUsersTasks(){
        $data = Input::all();
@@ -397,7 +408,7 @@ class DashboardController extends BaseController {
 
     public function delete_gateway_missing_account($id){
         try {
-            $result = DB::Connection('sqlsrv2')->statement('delete from tblGatewayAccount where CompanyGatewayID=' . intval($id));
+            $result = DB::Connection('sqlsrv2')->statement('delete from tblGatewayAccount where AccountID IS NULL AND CompanyGatewayID=' . intval($id) );
             if($result){
                 return Response::json(array("status" => "success", "message" => "Missing Gateway Accounts deleted successfully."));
             }

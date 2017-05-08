@@ -29,9 +29,9 @@
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
-        <th width="25%">Name</th>
+        <th width="35%">Name</th>
         <th width="25%">Modified Date</th>
-        <th width="25%">Modified By</th>
+        <th width="15%">Modified By</th>
         <th width="25%">Action</th>
     </tr>
     </thead>
@@ -50,7 +50,7 @@ var postdata;
         public_vars.$body = $("body");
         //show_loading_bar(40);
 
-        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix'];
+        var list_fields  = ['Name','updated_at','ModifiedBy','InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService','ServiceSplit'];
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -83,14 +83,16 @@ var postdata;
                             action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'') + '" / >';
                          }
                          action += '</div>';
-                         <?php if(User::checkCategoryPermission('InvoiceTemplates','Edit') ){ ?>
-                            action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" title="Edit" class="edit-invoice_template btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
-                         <?php } ?>
-                         action += ' <a  href="'+ view_url +'?Type=2" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Item  View </a>';
-                         action += ' <a  href="'+ view_url +'?Type=1" data-name = "'+full[0]+'" data-id="'+ id +'" class="view-invoice_template btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Periodic View </a>';
-                         <?php if(User::checkCategoryPermission('InvoiceTemplates','Delete') ){ ?>
-                            action += ' <a data-id="'+ id +'" title="Delete" class="delete-invoice_template btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
-                         <?php } ?>
+                        action += '&nbsp;<a  href="'+ view_url +'?Type=2" data-name = "'+full[0]+'" data-id="'+ id +'" data-original-title="Item View" title="" data-placement="top" data-toggle="tooltip" class="view-invoice_template btn btn-default btn-sm tooltip-primary"><i class="entypo-list"></i></a>';
+                        action += '&nbsp;<a  href="'+ view_url +'?Type=1" data-name = "'+full[0]+'" data-id="'+ id +'" data-original-title="Periodic View" title="" data-placement="top" data-toggle="tooltip" class="view-invoice_template btn btn-default btn-sm tooltip-primary"><i class="entypo-calendar"></i></a>';
+                        action += '&nbsp;<a  href="'+ view_url +'?Type=3" data-name = "'+full[0]+'" data-id="'+ id +'" data-original-title="Usage Column" title="" data-placement="top" data-toggle="tooltip" class="view-invoice_template btn btn-default btn-sm tooltip-primary"><i class="entypo-doc-text"></i></a>';
+                        <?php if(User::checkCategoryPermission('InvoiceTemplates','Edit') ){ ?>
+                                action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-invoice_template btn btn-default btn-sm" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip" ><i class="fa fa-pencil"></i></a>';
+                        <?php } ?>
+                                <?php if(User::checkCategoryPermission('InvoiceTemplates','Delete') ){ ?>
+                                action += '&nbsp;<a data-id="'+ id +'" class="delete-invoice_template btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" ><i class="fa fa-trash"></i></a>';
+                        <?php } ?>
+
                         return action;
                       }
                   },
@@ -176,35 +178,49 @@ var postdata;
 
         $("#add-new-invoice_template-form .LastInvoiceNumber").removeClass('hidden');
 		$("#add-new-invoice_template-form .LastEstimateNumber").removeClass('hidden');
-        $("#add-new-invoice_template-form [name='CompanyID']").val($(this).prev("div.hiddenRowData").find("input[name='CompanyID']").val());
-        $("#add-new-invoice_template-form [name='Name']").val($(this).prev("div.hiddenRowData").find("input[name='Name']").val());
-        $("#add-new-invoice_template-form [name='InvoiceTemplateID']").val($(this).prev("div.hiddenRowData").find("input[name='InvoiceTemplateID']").val());
-        $("#add-new-invoice_template-form [name='InvoiceStartNumber']").val($(this).prev("div.hiddenRowData").find("input[name='InvoiceStartNumber']").val());
-        $("#add-new-invoice_template-form [name='InvoiceNumberPrefix']").val($(this).prev("div.hiddenRowData").find("input[name='InvoiceNumberPrefix']").val());
-		$("#add-new-invoice_template-form [name='EstimateNumberPrefix']").val($(this).prev("div.hiddenRowData").find("input[name='EstimateNumberPrefix']").val());
-        $("#add-new-invoice_template-form [name='InvoicePages']").val($(this).prev("div.hiddenRowData").find("input[name='InvoicePages']").val()).trigger("change");
-        $("#add-new-invoice_template-form [name='DateFormat']").val($(this).prev("div.hiddenRowData").find("input[name='DateFormat']").val()).trigger("change");
-        $("#add-new-invoice_template-form [name='LastInvoiceNumber']").val($(this).prev("div.hiddenRowData").find("input[name='LastInvoiceNumber']").val());
+
+        var cur_obj = $(this).parent().find("div.hiddenRowData");
+
+        $("#add-new-invoice_template-form [name='CompanyID']").val(cur_obj.find("input[name='CompanyID']").val());
+        $("#add-new-invoice_template-form [name='Name']").val(cur_obj.find("input[name='Name']").val());
+        $("#add-new-invoice_template-form [name='InvoiceTemplateID']").val(cur_obj.find("input[name='InvoiceTemplateID']").val());
+        $("#add-new-invoice_template-form [name='InvoiceStartNumber']").val(cur_obj.find("input[name='InvoiceStartNumber']").val());
+        $("#add-new-invoice_template-form [name='InvoiceNumberPrefix']").val(cur_obj.find("input[name='InvoiceNumberPrefix']").val());
+		$("#add-new-invoice_template-form [name='EstimateNumberPrefix']").val(cur_obj.find("input[name='EstimateNumberPrefix']").val());
+        $("#add-new-invoice_template-form [name='InvoicePages']").val(cur_obj.find("input[name='InvoicePages']").val()).trigger("change");
+        $("#add-new-invoice_template-form [name='DateFormat']").val(cur_obj.find("input[name='DateFormat']").val()).trigger("change");
+        $("#add-new-invoice_template-form [name='CDRType']").val(cur_obj.find("input[name='CDRType']").val()).trigger("change");
+        $("#add-new-invoice_template-form [name='LastInvoiceNumber']").val(cur_obj.find("input[name='LastInvoiceNumber']").val());
 		
-		$("#add-new-invoice_template-form [name='LastEstimateNumber']").val($(this).prev("div.hiddenRowData").find("input[name='LastEstimateNumber']").val());
+		$("#add-new-invoice_template-form [name='LastEstimateNumber']").val(cur_obj.find("input[name='LastEstimateNumber']").val());
 		
-        if($(this).prev("div.hiddenRowData").find("input[name='ShowZeroCall']").val() == 1 ){
+        if(cur_obj.find("input[name='ShowZeroCall']").val() == 1 ){
             $('[name="ShowZeroCall"]').prop('checked',true)
         }else{
             $('[name="ShowZeroCall"]').prop('checked',false)
         }
-        if($(this).prev("div.hiddenRowData").find("input[name='ShowPrevBal']").val() == 1 ){
+        if(cur_obj.find("input[name='ShowPrevBal']").val() == 1 ){
             $('[name="ShowPrevBal"]').prop('checked',true)
         }else{
             $('[name="ShowPrevBal"]').prop('checked',false)
         }
-        if($(this).prev("div.hiddenRowData").find("input[name='ShowBillingPeriod']").val() == 1 ){
+        if(cur_obj.find("input[name='ShowBillingPeriod']").val() == 1 ){
             $('[name="ShowBillingPeriod"]').prop('checked',true)
         }else{
             $('[name="ShowBillingPeriod"]').prop('checked',false)
         }
+        if(cur_obj.find("input[name='GroupByService']").val() == 1 ){
+            $('[name="GroupByService"]').prop('checked',true)
+        }else{
+            $('[name="GroupByService"]').prop('checked',false)
+        }
+        if(cur_obj.find("input[name='ServiceSplit']").val() == 1 ){
+            $('[name="ServiceSplit"]').prop('checked',true)
+        }else{
+            $('[name="ServiceSplit"]').prop('checked',false)
+        }
 
-        var InvoiceTemplateID = $(this).prev("div.hiddenRowData").find("input[name='InvoiceTemplateID']").val();
+        var InvoiceTemplateID = cur_obj.find("input[name='InvoiceTemplateID']").val();
 
         $("#add-new-invoice_template-form [name='CompanyLogoUrl']").attr('width',50);
         $("#add-new-invoice_template-form [name='CompanyLogoUrl']").prop("src",loading);
@@ -227,7 +243,7 @@ var postdata;
 
     $('#add-new-invoice_template-form').submit(function(e){
         e.preventDefault();
-        var InvoiceTemplateID = $("#add-new-invoice_template-form [name='InvoiceTemplateID']").val()
+        var InvoiceTemplateID = $("#add-new-invoice_template-form [name='InvoiceTemplateID']").val();
         if( typeof InvoiceTemplateID != 'undefined' && InvoiceTemplateID != ''){
             update_new_url = baseurl + '/invoice_template/'+InvoiceTemplateID+'/update';
         }else{
@@ -338,6 +354,28 @@ function ajax_update(fullurl,data){
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-2 control-label">CDR Format</label>
+                            <div class="col-sm-4">
+                                {{Form::select('CDRType',Account::$cdr_type,'',array("class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Group By Service</label>
+                            <div class="col-sm-4">
+                                <p class="make-switch switch-small">
+                                    <input type="checkbox" checked=""  name="GroupByService" value="0">
+                                </p>
+                            </div>
+                            <label class="col-sm-4 control-label">Split Services on separate pages
+                                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON each service will be displayed on separate page" data-original-title="Service Split">?</span>
+                            </label>
+                            <div class="col-sm-2">
+                                <p class="make-switch switch-small">
+                                    <input name="ServiceSplit" type="checkbox" value="0">
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="field-1" class="col-sm-2 control-label">Logo</label>
                             <div class="col-sm-10">
                                 <div class="col-sm-6">
@@ -378,6 +416,7 @@ function ajax_update(fullurl,data){
                   </div>
                 <div class="modal-footer">
                     <input type="hidden" name="InvoiceTemplateID" value="" />
+                    <input type="hidden" name="EditPage" value="1" />
                     <button type="submit" id="invoice_template-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save

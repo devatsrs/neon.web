@@ -3,20 +3,41 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerCodeRate`(
 	IN `p_trunkID` INT,
 	IN `p_RateCDR` INT,
 	IN `p_RateMethod` VARCHAR(50),
-	IN `p_SpecifyRate` DECIMAL(18,6)
+	IN `p_SpecifyRate` DECIMAL(18,6),
+	IN `p_RateTableID` INT
 )
 BEGIN
 	DECLARE v_codedeckid_ INT;
 	DECLARE v_ratetableid_ INT;
+	
+	IF p_RateTableID > 0
+	THEN
 
-	SELECT
-		CodeDeckId,
-		RateTableID
-		INTO v_codedeckid_, v_ratetableid_
-	FROM tblCustomerTrunk
-	WHERE tblCustomerTrunk.TrunkID = p_trunkID
-	AND tblCustomerTrunk.AccountID = p_AccountID
-	AND tblCustomerTrunk.Status = 1;
+		SELECT
+			CodeDeckId,
+			RateTableId
+		INTO  
+			v_codedeckid_, 
+			v_ratetableid_
+		FROM tblRateTable
+		WHERE RateTableId = p_RateTableID;
+	
+	ELSE
+
+		SELECT
+			CodeDeckId,
+			RateTableID
+		INTO  
+			v_codedeckid_, 
+			v_ratetableid_
+		FROM tblCustomerTrunk
+		WHERE tblCustomerTrunk.TrunkID = p_trunkID
+		AND tblCustomerTrunk.AccountID = p_AccountID
+		AND tblCustomerTrunk.Status = 1;
+	
+	END IF;
+
+	
 
 	IF p_RateCDR = 0
 	THEN 
@@ -135,8 +156,7 @@ BEGIN
 		AND RateTableID = v_ratetableid_
 		AND c.RateID IS NULL
 		AND tblRateTableRate.EffectiveDate <= NOW();
-		
-		
+
 		/* if Specify Rate is set when cdr rerate */
 		IF p_RateMethod = 'SpecifyRate'
 		THEN
