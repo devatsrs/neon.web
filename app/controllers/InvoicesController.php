@@ -1833,6 +1833,7 @@ class InvoicesController extends \BaseController {
         $output = Dispute::reconcile($companyID,$accountID,$StartDate,$EndDate,$data["GrandTotal"],$data["TotalMinutes"]);
         $message = '';
         if(isset($data["DisputeID"]) && $data["DisputeID"] > 0 ) {
+            $data['CompanyID'] = $companyID;
             $data['InvoiceType'] = Invoice::RECEIVED;
             $status = Dispute::sendDisputeEmailCustomer($data);
             $message = $status['message'];
