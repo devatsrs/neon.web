@@ -347,13 +347,16 @@ class EmailsTemplates{
 			$array['OutstandingExcludeUnbilledAmount'] = Account::getOutstandingAmount($companyID, $AccountID, get_round_decimal_places($AccountID));
 			$array['OutstandingIncludeUnbilledAmount'] = AccountBalance::getBalanceAmount($AccountID);
 			$array['BalanceThreshold'] 				   = AccountBalance::getBalanceThresholdAmount($AccountID);
+			if(Auth::guest()){
+				return $array;
+			}
 			$UserID = user::get_userID();
 			   if(!empty($UserID)){
 				   $UserData = user::find($UserID);
 				   $array['User'] 							   = User::get_user_full_name();
 				  if(isset($UserData->EmailFooter) && trim($UserData->EmailFooter) != '')
 					{
-						$array['Signature']= $UserData->EmailFooter;	
+						$array['Signature']= $UserData->EmailFooter;
 					}
 	        	}
 			return $array;
