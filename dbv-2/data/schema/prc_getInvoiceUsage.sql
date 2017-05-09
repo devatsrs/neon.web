@@ -16,7 +16,7 @@ BEGIN
 
 	SELECT fnGetBillingTime(p_GatewayID,p_AccountID) INTO v_BillingTime_;
 	
-	CALL fnServiceUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_ServiceID,p_StartDate,p_EndDate,v_BillingTime_); 
+	CALL fnServiceUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_ServiceID,p_StartDate,p_EndDate,v_BillingTime_);
 
 	SELECT 
 		it.CDRType  INTO v_CDRType_

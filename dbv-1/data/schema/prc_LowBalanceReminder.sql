@@ -12,7 +12,7 @@ BEGIN
 	
 	SELECT
 		DISTINCT
-		IF ( (CASE WHEN ab.BalanceThreshold LIKE '%p' THEN REPLACE(ab.BalanceThreshold, 'p', '')/ 100 * ab.PermanentCredit ELSE ab.BalanceThreshold END) < ab.BalanceAmount ,1,0) as BalanceWarning,
+		IF ( (CASE WHEN ab.BalanceThreshold LIKE '%p' THEN REPLACE(ab.BalanceThreshold, 'p', '')/ 100 * ab.PermanentCredit ELSE ab.BalanceThreshold END) < ab.BalanceAmount AND ab.BalanceThreshold <> 0 ,1,0) as BalanceWarning,
 		a.AccountID
 	FROM tblAccountBalance ab 
 	INNER JOIN tblAccount a 

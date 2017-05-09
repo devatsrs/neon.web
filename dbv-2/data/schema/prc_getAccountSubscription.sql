@@ -1,11 +1,11 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getAccountSubscription`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAccountSubscription`(
 	IN `p_AccountID` INT,
 	IN `p_ServiceID` INT
 )
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	
+
 	SELECT
 		tblAccountSubscription.*
 	FROM tblAccountSubscription
@@ -19,7 +19,7 @@ BEGIN
 	AND Status = 1
 	AND ( (p_ServiceID = 0 AND tblAccountBilling.ServiceID IS NULL) OR  tblAccountBilling.ServiceID = p_ServiceID)
 	ORDER BY SequenceNo ASC;
-	
+
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-	
+
 END

@@ -168,8 +168,7 @@ BEGIN
 	WHERE 
 	(p_billing_time =1 and connect_time >= p_StartDate AND connect_time <= p_EndDate)
 	OR 
-	(p_billing_time =2 and disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate)
-	AND billed_duration > 0;
+	(p_billing_time =2 and disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate);
 END|
 DELIMITER ;
 
@@ -1394,59 +1393,9 @@ BEGIN
 		AuthRule VARCHAR(50)
 	);
 
-	SET v_pointer_ = 1;
-	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Service_);
-	/* service level authentication rule */ 
-	IF v_rowCount_ > 0
-	THEN
-
-		WHILE v_pointer_ <= v_rowCount_
-		DO
-
-			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Service_ t WHERE t.RowID = v_pointer_);
-			TRUNCATE TABLE tmp_AuthenticateRules_;
-			IF p_NameFormat != ''
-			THEN
-				INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-				SELECT p_NameFormat;
-			END IF;
-
-			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-			SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = v_ServiceID_
-			UNION
-			SELECT DISTINCT VendorAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = v_ServiceID_;
-
-			CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,v_ServiceID_);
-
-			SET v_pointer_ = v_pointer_ + 1;
-
-		END WHILE;
-
-	END IF;
-
-	/* account level authentication rule */
-	IF (SELECT COUNT(*) FROM Ratemanagement3.tblAccountAuthenticate WHERE CompanyID = p_CompanyID AND ServiceID = 0) > 0
-	THEN
-
-		TRUNCATE TABLE tmp_AuthenticateRules_;
-		IF p_NameFormat != ''
-		THEN
-			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-			SELECT p_NameFormat;
-		END IF;
-		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-		SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = 0
-		UNION
-		SELECT DISTINCT VendorAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = 0;
-
-		CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0);
-
-	END IF;
-
 	/* gateway level authentication rule */
 	IF p_NameFormat = ''
 	THEN
-		TRUNCATE TABLE tmp_AuthenticateRules_;
 		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
 		SELECT
 			CASE WHEN Settings LIKE '%"NameFormat":"NAMENUB"%'
@@ -1476,9 +1425,45 @@ BEGIN
 
 	IF p_NameFormat != ''
 	THEN
-		TRUNCATE TABLE tmp_AuthenticateRules_;
 		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
 		SELECT p_NameFormat;
+
+	END IF;
+	SET v_pointer_ = 1;
+	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Service_);
+	/* service level authentication rule */ 
+	IF v_rowCount_ > 0
+	THEN
+
+		WHILE v_pointer_ <= v_rowCount_
+		DO
+
+			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Service_ t WHERE t.RowID = v_pointer_);
+
+			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+			SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND CustomerAuthRule IS NOT NULL AND ServiceID = v_ServiceID_
+			UNION
+			SELECT DISTINCT VendorAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND VendorAuthRule IS NOT NULL AND ServiceID = v_ServiceID_;
+
+			CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,v_ServiceID_);
+
+			SET v_pointer_ = v_pointer_ + 1;
+
+		END WHILE;
+
+	END IF;
+
+	/* account level authentication rule */
+	IF (SELECT COUNT(*) FROM Ratemanagement3.tblAccountAuthenticate WHERE CompanyID = p_CompanyID AND ServiceID = 0) > 0
+	THEN
+
+
+		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+		SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND CustomerAuthRule IS NOT NULL AND ServiceID = 0
+		UNION
+		SELECT DISTINCT VendorAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND VendorAuthRule IS NOT NULL AND ServiceID = 0;
+
+		CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0);
 
 	END IF;
 
@@ -1497,6 +1482,8 @@ BEGIN
 END|
 DELIMITER ;
 
+
+DROP PROCEDURE IF EXISTS `prc_GetCDR`;
 DELIMITER |
 CREATE PROCEDURE `prc_GetCDR`(
 	IN `p_company_id` INT,
@@ -2322,7 +2309,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	SELECT cr.Symbol INTO v_CurrencyCode_ FROM Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	SELECT cr.Symbol INTO v_CurrencyCode_ from Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_;
@@ -2380,7 +2367,7 @@ BEGIN
 			LEFT JOIN Ratemanagement3.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
 			WHERE ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
-			AND (p_InvoiceNumber = '' OR (inv.InvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
+			AND (p_InvoiceNumber = '' OR (inv.FullInvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
 			AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
 			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
 			AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND inv.InvoiceType = p_InvoiceType))
@@ -2543,7 +2530,7 @@ BEGIN
 			SET InvoiceStatus = 'paid' 
 			WHERE ac.CompanyID = p_CompanyID
 				AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
-				AND (p_InvoiceNumber = '' OR (inv.InvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
+				AND (p_InvoiceNumber = '' OR (inv.FullInvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
 				AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
 				AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
 				AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND inv.InvoiceType = p_InvoiceType))
@@ -2554,7 +2541,7 @@ BEGIN
 				AND (p_IsOverdue = 0 
 					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(b.PaymentDueInDays,0)
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
-							AND((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) FROM tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) )>0)
+							AND((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) )>0)
 						)
 				);
 		END IF; 

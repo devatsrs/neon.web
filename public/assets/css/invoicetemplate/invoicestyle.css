@@ -159,7 +159,7 @@ table th {
   border-bottom: none;
   font-size: 1.2em;
   white-space: nowrap;
-  padding: 6px;
+  padding: 6px 12px;
 }
 
 #frontinvoice tfoot tr:first-child td {
