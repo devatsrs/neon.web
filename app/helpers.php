@@ -57,7 +57,8 @@ function json_response_api($response,$datareturn=false,$isBrowser=true,$isDataEn
 
     if($isBrowser){
         if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)){
-
+            \Illuminate\Support\Facades\Log::info("helpers.php json_response_api");
+            \Illuminate\Support\Facades\Log::info(print_r($response,true));
             return  Response::json($parse_repose,401);
         }else {
             return Response::json($parse_repose);
@@ -831,6 +832,8 @@ function call_api($post = array())
     //NVPRequest for submitting to server
     $nvpreq = "json=" . json_encode($post);
 
+    \Illuminate\Support\Facades\Log::info("Licencing request... ");
+    \Illuminate\Support\Facades\Log::info($nvpreq);
     //$nvpreq = http_build_query($post);
 
     ////setting the nvpreq as POST FIELD to curl
@@ -943,16 +946,6 @@ function formatSmallDate($date,$dateformat='d-m-y') {
 function SortBillingType(){
     ksort(Company::$BillingCycleType);
     return Company::$BillingCycleType;
-}
-function parse_reponse($response){
-    $response = json_decode($response);
-    if($response->status_code == 200){
-        return $response;
-    }elseif($response->status_code == 401 && $response->message == 'Token has expired'){
-        Session::flush();
-        Auth::logout();
-        return Redirect::to('/login')->with('message', 'Your are now logged out!');
-    }
 }
 function getUploadedFileRealPath($files)
 {
@@ -1301,7 +1294,9 @@ function view_response_api($response){
         $isArray = true;
     }
     if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)) {
-        return Redirect::to('/logout');
+        //return Redirect::to('/logout');
+        \Illuminate\Support\Facades\Log::info("helpers.php view_response_api");
+        \Illuminate\Support\Facades\Log::info(print_r($response,true));
     }else if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
         $Code = $isArray?$response['Code']:$response->Code;
         $validator = $isArray?$response['message']:(array)$response->message;
@@ -1350,9 +1345,15 @@ function Get_Api_file_extentsions($ajax=false){
 		}else{
 			
 			if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
-					return Redirect::to('/logout'); 	
-			}		
-			if(isset($response->error) && $response->error=='token_expired'){ return Redirect::to('/login');}	
+                \Illuminate\Support\Facades\Log::info("helpers.php Get_Api_file_extentsions 401 ");
+                \Illuminate\Support\Facades\Log::info(print_r($response,true));
+                //return Redirect::to('/logout');
+			}
+			if(isset($response->error) && $response->error=='token_expired'){
+                \Illuminate\Support\Facades\Log::info("helpers.php Get_Api_file_extentsions token_expired");
+                \Illuminate\Support\Facades\Log::info(print_r($response,true));
+                //return Redirect::to('/login');
+            }
 		}
 	}else{		
 		$response_extensions 		 = 	json_response_api($response,true,true); 
