@@ -2651,7 +2651,7 @@ BEGIN
 			CONCAT("'",cld) AS CLD,
 			connect_time AS ConnectTime,
 			disconnect_time AS DisconnectTime,
-			billed_duration AS BilledDuration,
+			billed_duration AS BillDuration,
 			cost AS ChargedAmount,
 			ServiceID
 		FROM tmp_tblUsageDetails_ ud
