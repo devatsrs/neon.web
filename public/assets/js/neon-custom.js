@@ -2644,11 +2644,19 @@ $( document ).ajaxError(function( event, jqXHR, ajaxSettings, thrownError) {
             toastr.error('Not Found', "Error", toastr_opts);
             break;
         case 401:
-            //toastr.error('Unauthorized', "Error", toastr_opts);
+            console.log("event");
+            console.log(event);
+            console.log("jqXHR");
+            console.log(jqXHR);
+            console.log("ajaxSettings");
+            console.log(ajaxSettings);
+            console.log("thrownError");
+            console.log(thrownError);
+            /*//toastr.error('Unauthorized', "Error", toastr_opts);
             toastr.error('Session expired now redirecting to login page', "Error", toastr_opts);
             setTimeout(function() {
                 window.location.href = baseurl + '/logout';
-            }, 100);
+            }, 100);*/
             break;
         case 403:
             toastr.error('Forbidden', "Error", toastr_opts);
