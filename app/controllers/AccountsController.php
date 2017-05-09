@@ -260,9 +260,15 @@ class AccountsController extends \BaseController {
 				}
 			}else{ 	
 				if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
-					return	Redirect::to('/logout'); 	
+                    \Illuminate\Support\Facades\Log::info("Account 401 ");
+                    \Illuminate\Support\Facades\Log::info(print_r($response_timeline,true));
+					//return	Redirect::to('/logout');
 				}		
-				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
+				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){
+                    \Illuminate\Support\Facades\Log::info("Account token_expired ");
+                    \Illuminate\Support\Facades\Log::info(print_r($response_timeline,true));
+                    //Redirect::to('/login');
+                }
 				$message = json_response_api($response_timeline,false,false);
 			}
 			

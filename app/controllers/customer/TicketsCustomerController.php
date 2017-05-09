@@ -43,10 +43,14 @@ private $validlicense;
 			$companyID 					= 	 User::get_companyID();
 			$array						= 	 $this->GetResult($data); 
 			if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
-				return	Redirect::to('/logout'); 
+				\Illuminate\Support\Facades\Log::info("TicketCustomer 401");
+				\Illuminate\Support\Facades\Log::info(print_r($array,true));
+				//return	Redirect::to('/logout');
 			}		
-			if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
-				Redirect::to('/login');
+			if(isset($array->Code->error) && $array->Code->error=='token_expired'){
+				\Illuminate\Support\Facades\Log::info("TicketCustomer token_expired");
+				\Illuminate\Support\Facades\Log::info(print_r($array,true));
+				//Redirect::to('/login');
 			}
 			
 			$resultpage  				= 	 $array->resultpage;		 
@@ -95,10 +99,14 @@ private $validlicense;
 		$array						= 	 $this->GetResult($data);
 		
 		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
-			return json_response_api($array);  
+			\Illuminate\Support\Facades\Log::info("TicketCustomer 401");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
 		}		
-		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
-			return json_response_api($array);  
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){
+			\Illuminate\Support\Facades\Log::info("TicketCustomer token_expired");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
 		}
 		
 		$resultpage  				= 	 $array->resultpage;		 
@@ -189,15 +197,19 @@ private $validlicense;
 		$data['iDisplayStart']		=	 0;
 		$data['iDisplayLength']		=	 100;	
 		$companyID					= 	 User::get_companyID();
-		$array						=  	 $this->GetResult($data); 
-		
+		$array						=  	 $this->GetResult($data);
+
 		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
-			return json_response_api($array);  
-		}		
-		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
-			return json_response_api($array);  
+			\Illuminate\Support\Facades\Log::info("TicketCustomer 401");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
 		}
-		
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){
+			\Illuminate\Support\Facades\Log::info("TicketCustomer token_expired");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
+		}
+
 		$resultpage  				=  	 $array->resultpage;			
 		$result 					= 	 $array->ResultCurrentPage;		
 		$type						=	 $postdata['export_type'];
