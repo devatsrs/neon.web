@@ -116,7 +116,9 @@ var postdata;
                         action += '<input type = "hidden"  name = "TimeZone" value = "' +( full[5]!==null?full[5]:'') + '" / >';
                         action += '<input type = "hidden"  name = "BillingTimeZone" value = "' +( full[6]!==null?full[6]:'') + '" / >';
                          action += '</div>';
-
+						 if(full[3]==ftpGatewayID){
+						 action += '<a  CompanyGatewayID="'+full[4]+'"   title="CDR Mapping" class="cdrtemplatelinkGrid btn btn-default btn-sm"><i class="entypo-link"></i></a>';
+						 }
                          <?php if(User::checkCategoryPermission('Gateway','Edit') ){ ?>
                             action += ' <a data-name = "'+full[0]+'" data-id="'+ full[3]+'" title="Title" class="edit-config btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                          <?php } ?>
@@ -220,7 +222,7 @@ var postdata;
         ev.stopPropagation();
         $('#CDRMapping').addClass('hidden');
         $('#add-new-config-form').trigger("reset");
-        var prevrow = $(this).prev("div.hiddenRowData");
+        var prevrow = $(this).prev().prev("div.hiddenRowData");
         $("#add-new-config-form [name='CompanyGatewayID']").val(prevrow.find("input[name='CompanyGatewayID']").val())
         $("#add-new-config-form [name='Title']").val(prevrow.find("input[name='Title']").val())
         $("#add-new-config-form [name='IP']").val(prevrow.find("input[name='IP']").val())
@@ -230,7 +232,7 @@ var postdata;
             $('[name="Status_name"]').prop('checked',true)
         }else{
             $('[name="Status_name"]').prop('checked',false)
-        }
+        } 
         GatewayID = prevrow.find("input[name='GatewayID']").val()>0?prevrow.find("input[name='GatewayID']").val():'other';
         $("#GatewayID").select2().select2('val',GatewayID);
         $("#GatewayID").trigger('change');
@@ -447,9 +449,18 @@ var postdata;
         $('#cdrtemplatelink').click(function(e){
             e.preventDefault();
             var GatewayID = $('#add-new-config-form [name="CompanyGatewayID"]').val();
-            var url = "{{URL::to('cdr_template')}}"+"?gateway="+GatewayID;
+            var url = "{{URL::to('ftp_cdr_template')}}"+"?gateway="+GatewayID; 
             openInNewTab(url);
         });
+		
+		$(document).on('click','.cdrtemplatelinkGrid',function(e){
+            e.preventDefault();
+            var GatewayID = $(this).attr('CompanyGatewayID');
+            var url = "{{URL::to('ftp_cdr_template')}}"+"?gateway="+GatewayID; 
+            openInNewTab(url);
+        });
+		
+		
 
         function initializeSelect2(){
             $("#ajax_config_html .select2").each(function(i, el) {
