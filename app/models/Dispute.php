@@ -171,7 +171,7 @@ class Dispute extends \Eloquent {
 			}
 
 		}else if(Dispute::insert($disputeData) ) {
-            if(isset($data['sendEmail'])){
+            if(isset($data['sendEmail']) && $data['sendEmail']==1){
                 $status = Dispute::sendDisputeEmailCustomer($disputeData);
             }
 			return Response::json(array("status" => "success", "message" => "Dispute inserted successfully.".(isset($status['message'])?' and '.$status['message']:'')));
