@@ -69,7 +69,7 @@
 .col-time span{color:black;}
 .dropdown_sort li  a{color:white !important;}
 @if(count($result)>0)	 
-#table-4{display: block; padding-bottom:50px;}
+#table-4{padding-bottom:50px;}
 @endif
 .borderside{border-left-style: solid; border-left-width: 8px;}
 .bordersideLow{border-left-color:#00A651;}
