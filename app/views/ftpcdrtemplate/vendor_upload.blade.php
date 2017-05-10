@@ -186,8 +186,10 @@
                             <div class="col-sm-4">
                                 {{Form::select('selection[area_prefix]',array(),'',array("class"=>"select2 small"))}}
                             </div>
-                            <label for=" field-1" class="col-sm-2 control-label">Customer File Expression</label>
-                <div class="col-sm-4"> {{Form::select('selection[CustomerFileExpresion]',array() ,'',array("class"=>"select2 small"))}} </div>  
+                            <label for=" field-1" class="col-sm-2 control-label">Vendor File Name<span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please enter file name regular expression. if leave blank then it will read all files" data-original-title="Inbound/Outbound">?</span></label>
+                <div class="col-sm-4">
+                 <input type="text" class="form-control" name="selection[VendorFileExpresion]" value="" />
+                </div>  
                         </div>
                     </div>
                 </div>
