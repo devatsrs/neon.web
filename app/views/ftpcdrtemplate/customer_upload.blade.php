@@ -162,7 +162,7 @@
               </div>
               <div class="form-group"> <br />
                 <br />
-                <label for=" field-1" class="col-sm-2 control-label">Customer File Name <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please enter file name regular expression. if leave blank then it will read all files" data-original-title="Inbound/Outbound">?</span></label>
+                <label for=" field-1" class="col-sm-2 control-label">Customer File Name <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please enter file name regular expression. if leave blank then it will read all files" data-original-title="Customer File Name">?</span></label>
                 <div class="col-sm-4">
                 <input type="text" class="form-control" name="selection[CustomerFileExpresion]" value="" />
                  </div>               
