@@ -11,12 +11,12 @@
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
     <li class="active" >
         <a href="{{ URL::to('/ftp_cdr_template')}}?gateway={{Input::get('gateway')?Input::get('gateway'):''}}" >
-            <span class="hidden-xs">Customer FTP CDR Upload</span>
+            <span class="hidden-xs">Customer</span>
         </a>
     </li>
     <li>
         <a href="{{ URL::to('/ftp_cdr_vendor_template') }}?gateway={{Input::get('gateway')?Input::get('gateway'):''}}" >
-            <span class="hidden-xs">Vendor FTP CDR Upload</span>
+            <span class="hidden-xs">Vendor</span>
         </a>
     </li>
 </ul>
@@ -77,7 +77,7 @@
               <br />
             </div>
             <div class="panel-heading">
-              <div class="panel-title"> Call Rate Rules CSV Importer </div>
+              <div class="panel-title">CSV Importer </div>
             </div>
             <div class="panel-body">
               <div class="form-group">
@@ -113,14 +113,14 @@
             </div>
             <div class="panel-body" id="mapping">
               <div class="form-group">
-                <label for="field-1" class="col-sm-2 control-label">Connect DateTime</label>
+                <label for="field-1" class="col-sm-2 control-label">Connect DateTime*</label>
                 <div class="col-sm-4"> {{Form::select('selection[connect_datetime]', array(),'',array("class"=>"select2 small"))}} </div>
                 <label for="field-1" class="col-sm-2 control-label">Disconnect DateTime</label>
                 <div class="col-sm-4"> {{Form::select('selection[disconnect_time]', array(),'',array("class"=>"select2 small"))}} </div>
               </div>
               <div class="form-group"> <br />
                 <br />
-                <label for="field-1" class="col-sm-2 control-label">Billed Duration</label>
+                <label for="field-1" class="col-sm-2 control-label">Billed Duration*</label>
                 <div class="col-sm-4"> {{Form::select('selection[billed_duration]', array(),'',array("class"=>"select2 small"))}} </div>
                 <label for="field-1" class="col-sm-2 control-label">Duration</label>
                 <div class="col-sm-4"> {{Form::select('selection[duration]', array(),'',array("class"=>"select2 small"))}} </div>
@@ -129,7 +129,7 @@
                 <br />
                 <label for=" field-1" class="col-sm-2 control-label">CLI</label>
                 <div class="col-sm-4"> {{Form::select('selection[cli]', array(),'',array("class"=>"select2 small"))}} </div>
-                <label for="field-1" class="col-sm-2 control-label">CLD</label>
+                <label for="field-1" class="col-sm-2 control-label">CLD*</label>
                 <div class="col-sm-4"> {{Form::select('selection[cld]', array(),'',array("class"=>"select2 small"))}} </div>
               </div>
               <div class="form-group"> <br />
@@ -162,7 +162,7 @@
               </div>
               <div class="form-group"> <br />
                 <br />
-                <label for=" field-1" class="col-sm-2 control-label">Customer File Name <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please enter file name regular expression. if leave blank then it will read all files" data-original-title="Customer File Name">?</span></label>
+                <label for=" field-1" class="col-sm-2 control-label">File Name <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Please enter file name regular expression. if leave blank then it will read all files" data-original-title="File Name">?</span></label>
                 <div class="col-sm-4">
                 <input type="text" class="form-control" name="selection[CustomerFileExpresion]" value="" />
                  </div>               
