@@ -157,7 +157,7 @@
                         <div class="form-group">
                             <br />
                             <br />
-                            <label for="field-1" class="col-sm-2 control-label">Account</label>
+                            <label for="field-1" class="col-sm-2 control-label">Account*</label>
                             <div class="col-sm-4">
                                 {{Form::select('selection[Account]', array(),'',array("class"=>"select2 small"))}}
                             </div>
