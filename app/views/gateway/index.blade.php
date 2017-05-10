@@ -203,6 +203,8 @@ var postdata;
         $('#CDRMapping').addClass('hidden');
         $('#add-new-config-form').trigger("reset");
         $("#add-new-config-form [name='CompanyGatewayID']").val('');
+        $("#add-new-config-form [name='BillingTimeZone']").select2().select2('val','');
+        $("#add-new-config-form [name='TimeZone']").select2().select2('val','');
         //$("#GatewayID").select2().select2('val','');
         $("#GatewayID").trigger('change');
         $('#add-new-modal-config h4').html('Add New Gateway');
@@ -563,10 +565,11 @@ var postdata;
                         </div>
                     </div>
                 <div class="modal-footer">
+                    <input type="hidden" name="CompanyGatewayID" value="">
                     <button type="submit" id="config-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
-                        <input type="hidden" name="CompanyGatewayID" value="">
+
                     </button>
                     <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                         <i class="entypo-cancel"></i>

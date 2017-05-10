@@ -1,13 +1,20 @@
 <?php
 
 class CompanyGateway extends \Eloquent {
-	protected $fillable = [];
+
 
     protected $guarded = array('CompanyGatewayID');
 
     protected $table = 'tblCompanyGateway';
 
     protected  $primaryKey = "CompanyGatewayID";
+
+    /** add columns here to save in table  */
+    protected $fillable = array(
+        'CompanyID','GatewayID','Title','IP','Settings',
+        'Status', 'CreatedBy', 'created_at','ModifiedBy','updated_at',
+        'TimeZone', 'BillingTime', 'BillingTimeZone','UniqueID'
+    );
 
 
 
