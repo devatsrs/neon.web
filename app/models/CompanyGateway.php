@@ -199,6 +199,21 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createSummaryCronJobs(0);
 
                 log::info('--ManualCDR CRONJOB START--');
+            }elseif(isset($GatewayName) && $GatewayName == 'MOR'){
+                log::info($GatewayName);
+                log::info('--MOR CRONJOB START--');
+
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('moraccountusage');
+                $setting = CompanyConfiguration::get('MOR_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--MOR CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(0);
             }
         }else{
             log::info('--Other CRONJOB START--');
