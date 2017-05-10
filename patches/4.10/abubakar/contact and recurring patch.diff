@@ -1,0 +1,50 @@
+From fe6713da9085c34ecb790cee012b6e086750a846 Mon Sep 17 00:00:00 2001
+From: Abubakar <abubakar@code-desk.com>
+Date: Tue, 4 Apr 2017 17:32:59 +0500
+Subject: [PATCH] Update contact
+
+---
+ app/views/contacts/index.blade.php | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/app/views/contacts/index.blade.php b/app/views/contacts/index.blade.php
+index e77cbce..6094ec6 100644
+--- a/app/views/contacts/index.blade.php
++++ b/app/views/contacts/index.blade.php
+@@ -122,8 +122,7 @@
+     });
+     $('body').on('click', 'a[title="Delete"]', function (e) {
+                 e.preventDefault();
+-
+-                response = confirm('Are you sure?');
++                var response = confirm('Are you sure?');
+                 if (response) {
+                     $.ajax({
+                         url: $(this).attr("href"),
+-- 
+1.9.5.msysgit.0
+
+From 82ac159e35fa523512d9ff61d8fd8d2137826311 Mon Sep 17 00:00:00 2001
+From: Abubakar <abubakar@code-desk.com>
+Date: Tue, 4 Apr 2017 17:31:54 +0500
+Subject: [PATCH] Update invoice and ticket
+
+---
+ app/views/invoices/index.blade.php | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/app/views/invoices/index.blade.php b/app/views/invoices/index.blade.php
+index bd512b3..a409b68 100644
+--- a/app/views/invoices/index.blade.php
++++ b/app/views/invoices/index.blade.php
+@@ -10,7 +10,7 @@
+     @include('includes.success')
+ <p style="text-align: right;">
+ 
+-    @if(User::checkCategoryPermission('RecurringProfile','View')) <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary "> <i class="entypo-plus"></i> Recurring Profile </a> @endif
++    @if(User::checkCategoryPermission('RecurringProfile','View')) <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary"> <i class="entypo-plus"></i> Recurring Profile </a> @endif
+     @if(User::checkCategoryPermission('Invoice','Add')) <a href="javascript:;" id="invoice-in" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Invoice Received </a> <a href="{{URL::to("invoice/create")}}" id="add-new-invoice" class="btn btn-primary "> <i class="entypo-plus"></i> Add New Invoice </a> @endif
+     @if(User::checkCategoryPermission('Invoice','Generate')) <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary "> <i class="entypo-plus"></i> Generate New Invoice </a> @endif
+   <!-- <a href="javascript:;" id="bulk-invoice" class="btn upload btn-primary ">
+1.9.5.msysgit.0
+

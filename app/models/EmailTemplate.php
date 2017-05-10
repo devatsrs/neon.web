@@ -15,7 +15,10 @@ class EmailTemplate extends \Eloquent {
 	const CRONJOB_TEMPLATE 		=	7;
 	const TASK_TEMPLATE 		=	8;
 	const OPPORTUNITY_TEMPLATE	=	9;
-	
+
+    const InvoicePaidNotificationTemplate = 'InvoicePaidNotification';
+    const DisputeEmailCustomerTemplate      = 'DisputeEmailCustomer';
+
 	
 	const PRIVACY_ON = 1;
     const PRIVACY_OFF = 0;
@@ -47,6 +50,7 @@ class EmailTemplate extends \Eloquent {
         if(!isset($data['UserID'])){
             $EmailTemplate->whereNull('UserID');
         }
+		$EmailTemplate->where('StaticType',0);
         $row = $EmailTemplate->select(array('TemplateID', 'TemplateName'))->orderBy('TemplateName')->lists('TemplateName','TemplateID');
 
         if(!empty($row) && $select==1){

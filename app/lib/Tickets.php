@@ -11,11 +11,7 @@ class Tickets{
 	 
 	 
 	static function CheckTicketLicense(){
-		//return true;
-		return false;
+		return CompanyConfiguration::get('TICKETING_SYSTEM');		
 	}
-	
-	
-	
 }
 ?>

@@ -586,9 +586,6 @@ var postdata;
     padding: 15px 10px;
 }
 </style>
-<link rel="stylesheet" href="assets/js/wysihtml5/bootstrap-wysihtml5.css">
-<script src="assets/js/wysihtml5/wysihtml5-0.4.0pre.min.js"></script> 
-<script src="assets/js/wysihtml5/bootstrap-wysihtml5.js"></script> 
 @stop
 @section('footer_ext')
 @parent 

@@ -7,7 +7,7 @@ class InvoiceTemplatesController extends \BaseController {
         $CompanyID = User::get_companyID();
         $invoiceCompanies = InvoiceTemplate::where("CompanyID", $CompanyID);
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix')->get();
+            $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceStartNumber','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService')->get();
             $invoiceCompanies = json_decode(json_encode($invoiceCompanies),true);
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Invoice Template.csv';
@@ -19,7 +19,7 @@ class InvoiceTemplatesController extends \BaseController {
                 $NeonExcel->download_excel($invoiceCompanies);
             }
         }
-        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix');
+        $invoiceCompanies = $invoiceCompanies->select('Name','updated_at','ModifiedBy', 'InvoiceTemplateID','InvoiceStartNumber','CompanyLogoUrl','InvoiceNumberPrefix','InvoicePages','LastInvoiceNumber','ShowZeroCall','ShowPrevBal','DateFormat','Type','ShowBillingPeriod','EstimateStartNumber','LastEstimateNumber','EstimateNumberPrefix','CDRType','GroupByService','ServiceSplit');
         return Datatables::of($invoiceCompanies)->make();
     }
 
@@ -38,7 +38,41 @@ class InvoiceTemplatesController extends \BaseController {
             $logo = AmazonS3::unSignedImageUrl($InvoiceTemplate->CompanyLogoAS3Key);    
         }
 
-        return View::make('invoicetemplates.show', compact('InvoiceTemplate','logo'));
+        $data = Input::all();
+        $type = $data['Type'];
+        if($type==1){
+            return View::make('invoicetemplates.showservice', compact('InvoiceTemplate','logo'));
+        }elseif($type==2){
+            return View::make('invoicetemplates.showitem', compact('InvoiceTemplate','logo'));
+        }elseif($type==3){
+
+            /* Default Value */
+            $test_detail='[{"Title":"Prefix","ValuesID":"1","UsageName":"Prefix","Status":true,"FieldOrder":1},{"Title":"CLI","ValuesID":"2","UsageName":"CLI","Status":true,"FieldOrder":2},{"Title":"CLD","ValuesID":"3","UsageName":"CLD","Status":true,"FieldOrder":3},{"Title":"ConnectTime","ValuesID":"4","UsageName":"Connect Time","Status":true,"FieldOrder":4},{"Title":"DisconnectTime","ValuesID":"4","UsageName":"Disconnect Time","Status":true,"FieldOrder":5},{"Title":"BillDuration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":7}]';
+
+            $detail_values  =  json_decode($test_detail,true);
+
+            $test_summary='[{"Title":"Trunk","ValuesID":"1","UsageName":"Trunk","Status":true,"FieldOrder":1},{"Title":"Prefix","ValuesID":"2","UsageName":"Prefix","Status":true,"FieldOrder":2},{"Title":"Country","ValuesID":"3","UsageName":"Country","Status":true,"FieldOrder":3},{"Title":"Description","ValuesID":"4","UsageName":"Description","Status":true,"FieldOrder":4},{"Title":"NoOfCalls","ValuesID":"5","UsageName":"No of calls","Status":true,"FieldOrder":5},{"Title":"Duration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"BillDuration","ValuesID":"7","UsageName":"Billed Duration","Status":true,"FieldOrder":7},{"Title":"AvgRatePerMin","ValuesID":"8","UsageName":"Avg Rate/Min","Status":true,"FieldOrder":8},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":9}]';
+            $summary_values  =  json_decode($test_summary,true);
+
+            /* Default Value */
+            if(!empty($InvoiceTemplate->UsageColumn)){
+
+                $usageColumns = json_decode($InvoiceTemplate->UsageColumn,true);
+                if(!empty($usageColumns['Detail'])){
+
+                    $detail_values = $usageColumns['Detail'];
+                }
+
+                if(!empty($usageColumns['Summary'])){
+
+                    $summary_values = $usageColumns['Summary'];
+                }
+            }
+
+            return View::make('invoicetemplates.showusagecdr', compact('InvoiceTemplate','logo','detail_values','summary_values'));
+        }
+
+        //return View::make('invoicetemplates.show', compact('InvoiceTemplate','logo'));
 
     }
 
@@ -52,11 +86,20 @@ class InvoiceTemplatesController extends \BaseController {
             $companyID = User::get_companyID();
             $data['CompanyID'] = $companyID;
             $data['ModifiedBy'] = User::get_user_full_name();
-            $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
-            $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
-            $data['ShowBillingPeriod'] = isset($data['ShowBillingPeriod']) ? 1 : 0;
+            if(!empty($data['EditPage']) && $data['EditPage']==1){
+                $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
+                $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
+                $data['ShowBillingPeriod'] = isset($data['ShowBillingPeriod']) ? 1 : 0;
+                $data['GroupByService'] = isset($data['GroupByService']) ? 1 : 0;
+                $data['ServiceSplit'] = isset($data['ServiceSplit']) ? 1 : 0;
+            }
+            unset($data['EditPage']);
+            unset($data['ServicePage']);
             if(!isset($data['DateFormat'])){
                 $data['DateFormat'] = $InvoiceTemplates->DateFormat;
+            }
+            if(!isset($data['CDRType'])){
+                $data['CDRType'] = $InvoiceTemplates->CDRType;
             }
             $rules = array(
                 'CompanyID' => 'required',
@@ -68,6 +111,15 @@ class InvoiceTemplatesController extends \BaseController {
                 'Name' => 'required|unique:tblInvoiceTemplate,Name,'.$id.',InvoiceTemplateID,CompanyID,'.$data['CompanyID'],
                 'InvoiceStartNumber' => 'required',
                 'DateFormat'=> 'required',
+                'CDRType'=> 'required',
+            );
+
+            $messages = array(
+                'CompanyID.required' =>'The companyid field is required',
+                'Name.required' =>'name field is required',
+                'InvoiceStartNumber.required' =>'invoice start number field is required',
+                'CDRType.required' =>'cdr format field is required',
+                'DateFormat.required' =>'date format field is required',
             );
 
             if(!isset($data['InvoiceStartNumber'])){
@@ -81,7 +133,7 @@ class InvoiceTemplatesController extends \BaseController {
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
 
-            $validator = Validator::make($data, $rules);
+            $validator = Validator::make($data, $rules,$messages);
             $validator->setPresenceVerifier($verifier);
 
             if ($validator->fails()) {
@@ -134,17 +186,30 @@ class InvoiceTemplatesController extends \BaseController {
         $data['ShowZeroCall'] = isset($data['ShowZeroCall']) ? 1 : 0;
         $data['ShowPrevBal'] = isset($data['ShowPrevBal']) ? 1 : 0;
         $data['ShowBillingPeriod'] = isset($data['ShowBillingPeriod']) ? 1 : 0;
+        $data['GroupByService'] = isset($data['GroupByService']) ? 1 : 0;
+        $data['ServiceSplit'] = isset($data['ServiceSplit']) ? 1 : 0;
         unset($data['InvoiceTemplateID']);
+        unset($data['EditPage']);
         $rules = array(
             'CompanyID' => 'required',
             'Name' => 'required|unique:tblInvoiceTemplate,Name,NULL,InvoiceTemplateID,CompanyID,'.$data['CompanyID'],
             'InvoiceStartNumber' => 'required',
+            'CDRType'=> 'required',
             'DateFormat'=> 'required',
         );
+
+        $messages = array(
+            'CompanyID.required' =>'The companyid field is required',
+            'Name.required' =>'name field is required',
+            'InvoiceStartNumber.required' =>'invoice start number field is required',
+            'CDRType.required' =>'cdr format field is required',
+            'DateFormat.required' =>'date format field is required',
+        );
+
         $verifier = App::make('validation.presence');
         $verifier->setConnection('sqlsrv2');
 
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, $rules,$messages);
         $validator->setPresenceVerifier($verifier);
 
         if ($validator->fails()) {
@@ -214,7 +279,7 @@ class InvoiceTemplatesController extends \BaseController {
                     return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
                 }
             }else{
-                return Response::json(array("status" => "failed", "message" => "Invoice Template is in Use, You cant delete this Invoice Template."));
+                return Response::json(array("status" => "failed", "message" => "Invoice Template is in Use, You can not delete this Invoice Template."));
             }
         }
     }
@@ -228,7 +293,14 @@ class InvoiceTemplatesController extends \BaseController {
             $logo = AmazonS3::unSignedImageUrl($InvoiceTemplate->CompanyLogoAS3Key);    
         }
 
-        return View::make('invoicetemplates.invoice_pdf', compact('InvoiceTemplate','logo'));
+        $data = Input::all();
+        $type = $data['Type'];
+        if($type==1){
+            return View::make('invoicetemplates.serviceinvoice_pdf', compact('InvoiceTemplate','logo'));
+        }elseif($type==2){
+            return View::make('invoicetemplates.iteminvoice_pdf', compact('InvoiceTemplate','logo'));
+        }
+
 
         /*$pdf = PDF::loadView('invoicetemplates.invoice_pdf', compact('InvoiceTemplate'));
         return $pdf->download('rm_invoice_template.pdf');*/
@@ -236,7 +308,6 @@ class InvoiceTemplatesController extends \BaseController {
     }
 
     public function pdf_download($id) {
-
         \Debugbar::disable();
         $pdf_path = $this->generate_pdf($id);
         return Response::download($pdf_path);
@@ -244,9 +315,13 @@ class InvoiceTemplatesController extends \BaseController {
     }
 
     public function generate_pdf($id){
-        if($id>0) {
+        $data = Input::all();
+        $type = $data['Type'];
+
+        if($id>0 && $type>0) {
             set_time_limit(600); // 10 min time limit.
             $InvoiceTemplate = InvoiceTemplate::find($id);
+
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
                 $as3url =  URL::to('/').'/assets/images/250x100.png';
             } else {
@@ -267,16 +342,27 @@ class InvoiceTemplatesController extends \BaseController {
 			$print_type = 'Invoice Template';
             $file_name = 'Invoice--' . date('d-m-Y') . '.pdf';
             $htmlfile_name = 'Invoice--' . date('d-m-Y') . '.html';
-            $body = View::make('invoicetemplates.pdf', compact('InvoiceTemplate', 'logo','print_type'))->render();
-            $body = htmlspecialchars_decode($body);
+            if($type==1){
+                $body = View::make('invoicetemplates.servicepdf', compact('InvoiceTemplate', 'logo','print_type'))->render();
+                $body = htmlspecialchars_decode($body);
+            }
+            if($type==2){
+                $body = View::make('invoicetemplates.itempdf', compact('InvoiceTemplate', 'logo','print_type'))->render();
+                $body = htmlspecialchars_decode($body);
+            }
+            if($type==3){
+                $body = View::make('invoicetemplates.usagepdf', compact('InvoiceTemplate', 'logo','print_type'))->render();
+                $body = htmlspecialchars_decode($body);
+            }
 
-            $footer = View::make('invoicetemplates.pdffooter', compact('InvoiceTemplate','print_type'))->render();
+            $footer = View::make('invoicetemplates.newpdffooter', compact('InvoiceTemplate','print_type'))->render();
             $footer = htmlspecialchars_decode($footer);
 
-            $header = View::make('invoicetemplates.pdfheader', compact('InvoiceTemplate','print_type'))->render();
+            $header = View::make('invoicetemplates.newpdfheader', compact('InvoiceTemplate','print_type'))->render();
             $header = htmlspecialchars_decode($header);
 
             $destination_dir = CompanyConfiguration::get('TEMP_PATH') . '/' . AmazonS3::generate_path( AmazonS3::$dir['INVOICE_UPLOAD'], $InvoiceTemplate->CompanyID);
+            Log::info('invoicetemplate '.$destination_dir);
             if (!file_exists($destination_dir)) {
                 mkdir($destination_dir, 0777, true);
             }
@@ -306,6 +392,7 @@ class InvoiceTemplatesController extends \BaseController {
             }
 
             Log::info($output);
+
             @unlink($local_htmlfile);
             @unlink($footer_html);
             @unlink($header_html);
@@ -330,4 +417,30 @@ class InvoiceTemplatesController extends \BaseController {
 
     }
 
+    function Save_Single_Field()
+    {
+        $postdata = Input::all();
+        if (!empty($postdata['InvoiceTemplateID']) && $postdata['InvoiceTemplateID'] > 0) {
+            $AllData = array();
+            $UsageSummary = json_decode($postdata['summarychoices'], true);
+            $AllData['Summary'] = $UsageSummary;
+            $UsageDetail = json_decode($postdata['detailchoices'],true);
+            $AllData['Detail'] = $UsageDetail;
+            $usagedata = json_encode($AllData);
+
+            $InvoiceTemplateID = $postdata['InvoiceTemplateID'];
+
+            $InvoiceTemplates = InvoiceTemplate::find($InvoiceTemplateID);
+
+
+            if ($InvoiceTemplates->update(array('UsageColumn' => $usagedata))) {
+
+                return Response::json(array("status" => "success", "message" => "Invoice Template Usage Column Successfully Updated"));
+
+            }
+
+        }
+
+        return Response::json(array("status" => "failed", "message" => "Problem Updating Invoice Template."));
+    }
 }

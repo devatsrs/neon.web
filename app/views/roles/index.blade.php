@@ -7,7 +7,7 @@
             width:100%;
         }
         .tab-pane{
-            max-width:400px;
+         /*   max-width:400px;*/
         }
         .form-control{
             max-width:250px;
@@ -19,6 +19,7 @@
         .disabledTab{
             pointer-events: none;
         }
+
     </style>
 
     <ol class="breadcrumb bc-3">
@@ -31,27 +32,27 @@
     </ol>
 
     <h3>Roles</h3>
-    <br>
-    @if( User::is_admin() or User::is('BillingManager'))
-        <p style="text-align: right;">
-            <a href="#" id="add-new-role" class="btn btn-primary ">
-                <i class="entypo-plus"></i>
-                Add New
-            </a>
-            <!--<a href="#" id="add-new-permission" class="btn btn-primary ">
-                <i class="entypo-plus"></i>
-                Add New Permission
-            </a>-->
-        </p>
-    @endif
     <div class="tab-content">
         <form id="add-edit-role-form" method="post">
+        <br>
+    @if( User::is_admin() or User::is('BillingManager'))
+        <p style="text-align: right;">
+            <a href="#" id="add-new-role" class="btn btn-sm btn-icon icon-left btn-primary ">
+                <i class="entypo-plus"></i>
+                Add New
+            </a>            
+            <button type="submit" id="role-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                    <i class="entypo-floppy"></i>
+                    Save
+                </button>
+        </p>
+    @endif
             <div class="row">
                 <div class="col-md-6 leftsection">
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#lefttab1" data-toggle="tab">Users</a></li>
                         <li><a href="#lefttab2" id="leftgroup" data-toggle="tab">Roles</a></li>
-                        <li><a href="#lefttab3" id="leftaction" data-toggle="tab">Permissions</a></li>
+                        <!--<li><a href="#lefttab3" id="leftaction" data-toggle="tab">Permissions</a></li>-->
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="lefttab1">
@@ -119,40 +120,7 @@
                                         </table>
                                     </div>
                             </div>
-                        </div>
-                        <div class="tab-pane" id="lefttab3">
-                            <div class="form-group">
-                                <input type="text" name="vender" class="form-control" placeholder="Permission Search" value="">
-                                <div class="scroll">
-                                        <table class="clear table table-bordered datatable controle resource">
-                                            <thead>
-                                            <tr>
-                                                <th width="10%">
-                                                    <div class="checkbox">
-                                                        <input type="checkbox" name="checkbox[]" class="selectall">
-                                                    </div>
-                                                </th>
-                                                <th width="90%">Permissions</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @if(count($resources))
-                                                @foreach($resources as $index=>$resource)
-                                                    <tr search="{{strtolower($resource->ResourceCategoryName)}}">
-                                                        <td>
-                                                            <div class="checkbox">
-                                                                {{Form::checkbox("ResourceIds[]" , $resource->ResourceCategoryID ) }}
-                                                            </div>
-                                                        </td>
-                                                        <td>{{$resource->ResourceCategoryName}}</td>
-                                                    </tr>
-                                                @endforeach
-                                            @endif
-                                            </tbody>
-                                        </table>
-                                    </div>
-                            </div>
-                        </div>
+                        </div>                        
                     </div>
                 </div>
 
@@ -217,7 +185,7 @@
                                                     <tr search="{{strtolower($role)}}">
                                                         <td>
                                                             <div class="checkbox">
-                                                                {{Form::checkbox("RoleIds[]" , $index ) }}
+                                                                {{Form::checkbox("RoleIds[]" , $index ) }}                                                                
                                                             </div>
                                                         </td>
                                                         <td>{{$role}}</td>
@@ -229,11 +197,22 @@
                                     </div>
                             </div>
                         </div>
-                        <div class="tab-pane" id="righttab3">
+                        <div class="tab-pane full-width"  id="righttab3">
+                        <div class="row">
+                        	<div class="col-md-6">  
                             <div class="form-group">
-                                <input type="text" name="vender" class="form-control" placeholder="Permission search" value="">
-                                <div class="col-sm-10 scroll">
-                                        <table class="clear table table-bordered datatable controle resource">
+                            {{ Form::select('groupsearch', $ResourcesGroups, '', array("id"=>"groupsearch","class"=>"select2 pull-left form-control small")) }}
+                            </div>
+                            </div>
+                            <div class="col-md-6">
+                            <div class="form-group">
+                            <input type="text" name="vender" id="venderpermission" class="form-control pull-right" placeholder="Permission search" value="">
+                            </div>
+                            </div>
+                        </div>
+                            <div class="form-group">                             
+                                <div class="scroll">
+                                        <table class="clear permissionstable table table-bordered datatable controle resource">
                                             <thead>
                                             <tr>
                                                 <th width="10%">
@@ -247,7 +226,7 @@
                                             <tbody>
                                             @if(count($resources))
                                                 @foreach($resources as $index=>$resource)
-                                                    <tr search="{{strtolower($resource->ResourceCategoryName)}}">
+                                                    <tr class="group_search" groupid="{{$resource->CategoryGroupID}}" search="{{strtolower($resource->ResourceCategoryName)}}">
                                                         <td>
                                                             <div class="checkbox">
                                                                 {{Form::checkbox("ResourceIds[]" , $resource->ResourceCategoryID ) }}
@@ -263,18 +242,13 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <p style="text-align: right;">
-                <button type="submit" id="role-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                    <i class="entypo-floppy"></i>
-                    Save
-                </button>
-            </p>
+                </div>   
+            </div>            
         </form>
 
             <script type="text/javascript">
                 var userpermission;
+				  var groupsearch;
                 jQuery(document).ready(function ($) {
                     disable();
                     $('#add-new-role,#add-new-permission').on('click',function(e){
@@ -293,8 +267,7 @@
                         }
                         $('#add-modal-role-permission').modal('show');
                     });
-
-                    $('input[type="text"]').on('keyup',function(){
+				   $('input[type="text"]').on('keyup',function(){ if(this.id=='venderpermission'){return false;} 
                         var s = $(this).val();
                        var table =  $(this).parents('.tab-pane').find('table');
                         $(table).find('tbody tr:hidden').show();
@@ -303,6 +276,25 @@
                                 $(this).hide();
                             }
                         });
+                    });//key up.
+					
+                    $('#venderpermission').on('keyup',function(){ 
+                        var s = $(this).val();
+                       var table =  $(this).parents('.tab-pane').find('table');
+					    groupsearch = $('#righttab3').find('#groupsearch').val();
+					   if(groupsearch=={{$AllGroup}}){
+                        	$(table).find('tbody tr:hidden').show();
+							console.log("show all");
+						}else{
+							$(table).find('tbody [groupid="'+groupsearch+'"]:hidden').show();
+							console.log("show:"+groupsearch);
+						}
+						
+                        $(table).find('tbody tr:visible').each(function() {
+                            if(this.getAttribute("search").indexOf(s.toLowerCase()) != 0){
+                                $(this).hide();
+                            }
+                        });	 				
                     });//key up.
                     $(document).on('click','#add-edit-role-form .table tbody tr input[type="checkbox"]',function(e){
                         // How to check if checkbox was clicked before doing the alert below?
@@ -340,13 +332,13 @@
                                 var el = $(this);
                                 el.removeClass('active');
                             });
-                            if(text=='Users'){
+                            if(text=='Users'){ 
                                 $('.rightsection ul li a[href="#righttab2"]').parent().addClass('active');
                                 $('#righttab2').addClass('active');
                             }else if(text=='Roles'){
                                 $('.rightsection ul li a[href="#righttab1"]').parent().addClass('active');
                                 $('#righttab1').addClass('active');
-                            }else if(text=='Permissions'){
+                            }else if(text=='Permissions'){ 
                                 $('.rightsection ul li a[href="#righttab1"]').parent().addClass('active');
                                 $('#righttab1').addClass('active');
                             }
@@ -357,13 +349,14 @@
                                 if(tab=='Users'){
                                     resetcheckboxs('UserIds','.leftsection');
                                     resetcheckboxs('ResourceIds','.rightsection');
-                                }
+                                } 
+								$('.right_group_panel').removeClass('hidden');
                             }else{
                                 if(text=='Users'){
                                     resetcheckboxs('UserIds','.rightsection');
                                 }else if(text=='Roles'){
                                     resetcheckboxs('RoleIds','.rightsection');
-                                }
+                                } $('.right_group_panel').addClass('hidden');
                             }
                         }
                         disable();
@@ -519,8 +512,10 @@
                                             } else if (righttype == 'UserIds') {
                                                 name = val.UserName;
                                                 id = val.UserID;
-                                            }
-                                            newRow = '<tr '+selected+' search="' + name.toLowerCase() + '">';
+                                            } //groupid="''"
+											if(righttype=='ResourceIds'){var Groupstr = 'groupid="'+val.CategoryGroupID+'" ';}else{Groupstr = ''; }
+											
+                                            newRow = '<tr '+Groupstr+'   '+selected+' search="' + name.toLowerCase() + '">';
                                             newRow += '  <td>';
                                             newRow += '    <div class="checkbox ">';
                                             newRow += '      <input type="checkbox" value="' + id + '" name="' + righttype + '[]" ' + checked + '>';
@@ -529,6 +524,7 @@
                                             newRow += '  <td>' + name + '</td>';
                                             newRow += '  </tr>';
                                             $(table).find('tbody>tr:last').after(newRow);
+											if(righttype=='ResourceIds'){$('#groupsearch').trigger('change'); }
                                         });
                                     }
                                 }else{
@@ -734,7 +730,16 @@
                             getdata();
                         }
                     }
-
+					$('#groupsearch').change(function(e) {
+						var groupsearch = $(this).val();
+					   if(groupsearch=={{$AllGroup}}){
+							$('.permissionstable tbody tr').show(); 
+					   }else{
+					   		$('.permissionstable tbody tr').hide();  console.log(groupsearch);
+					   		$('.permissionstable tbody [groupid="'+groupsearch+'"]').show(); 
+					   }
+						$('#venderpermission').val('');
+                    });
                 });
             </script>
 

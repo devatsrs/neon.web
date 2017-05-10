@@ -28,6 +28,26 @@ class Ticketfields extends \Eloquent {
 	const  TICKET_SYSTEM_STATUS_FLD  = 	'default_status';
 	const  TICKET_SYSTEM_STATUS_DEFAULT  	 = 	'Open';
 	const  TICKET_SYSTEM_TYPE_FLD    =  'default_ticket_type';
+
+    const   default_requester       =   1;
+    const   default_subject         =   2;
+    const   default_ticket_type     =   3;
+    const   default_status          =   4;
+    const   default_priority        =   5;
+    const   default_group           =   6;
+    const   default_description     =   8;
+    const   default_agent           =   7;
+
+    static  $defaultTicketFields = [
+        Ticketfields::default_requester=>'Search a requester',
+        Ticketfields::default_subject=>'Subject',
+        Ticketfields::default_ticket_type=>'Type',
+        Ticketfields::default_status=>'Status',
+        Ticketfields::default_priority=>'Priority',
+        Ticketfields::default_group=>'Group',
+        Ticketfields::default_description=>'Description',
+        Ticketfields::default_agent=>'Agent'
+    ];
 	
 	
 	public static $field_html_type = array();

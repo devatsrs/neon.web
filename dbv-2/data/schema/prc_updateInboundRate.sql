@@ -1,12 +1,13 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_updateInboundRate`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateInboundRate`(
 	IN `p_AccountID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
-	IN `p_CLI` VARCHAR(500)
+	IN `p_CLD` VARCHAR(500),
+	IN `p_ServiceID` INT
 )
 BEGIN
-	
-	SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND ("' , p_CLI , '" = "" OR cli = "' , p_CLI , '") AND is_inbound = 1 ') ;
+
+	SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND ServiceID = "',p_ServiceID ,'" AND ("' , p_CLD , '" = "" OR cld = "' , p_CLD , '") AND is_inbound = 1 ') ;
 
 	PREPARE stmt FROM @stm;
 	EXECUTE stmt;
@@ -25,7 +26,7 @@ BEGIN
 				Rate+IFNULL(ConnectionFee,0)
 			ELSE
 				0
-			END		    
+			END
 		END
 	,is_rerated=1
 	,duration=billed_second
@@ -42,12 +43,13 @@ BEGIN
 			END
 		END 
 	WHERE ProcessID = "',p_processId,'"
-	AND AccountID = "',p_AccountID ,'" 
-	AND ("' , p_CLI , '" = "" OR cli = "' , p_CLI , '")
+	AND AccountID = "',p_AccountID ,'"
+	AND ServiceID = "',p_ServiceID ,'"
+	AND ("' , p_CLD , '" = "" OR cld = "' , p_CLD , '")
 	AND is_inbound = 1') ;
 	
 	PREPARE stmt FROM @stm;
-   EXECUTE stmt;
-   DEALLOCATE PREPARE stmt;
-	
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
 END

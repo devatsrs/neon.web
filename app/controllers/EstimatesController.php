@@ -140,7 +140,7 @@ class EstimatesController extends \BaseController {
             $CurrencyCode 				= 	 !empty($Currency)?$Currency->Code:'';
             $CompanyName 				= 	 Company::getName();
             $taxes 						= 	 TaxRate::getTaxRateDropdownIDListForInvoice();
-			$EstimateAllTax 			= 	 DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$id,"EstimateTaxType"=>1])->orderby('EstimateTaxRateID')->get();
+			$EstimateAllTax 			= 	 DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$id,"EstimateTaxType"=>1])->get();
 			
             return View::make('estimates.edit', compact( 'id', 'Estimate','EstimateDetail','EstimateTemplateID','EstimateNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','EstimateAllTax'));
         }
@@ -171,7 +171,7 @@ class EstimatesController extends \BaseController {
             $EstimateData["EstimateNumber"] = 	$LastEstimateNumber = ($isAutoEstimateNumber)?InvoiceTemplate::getAccountNextEstimateNumber($data["AccountID"]):$data["EstimateNumber"];
             $EstimateData["IssueDate"] 		= 	$data["IssueDate"];
             $EstimateData["PONumber"] 		= 	$data["PONumber"];
-            $EstimateData["SubTotal"] 		= 	str_replace(",","",$data["SubTotal"]);
+            $EstimateData["SubTotal"] 		= 	str_replace(",","",isset($data["SubTotalOnOffCharge"])?$data["SubTotalOnOffCharge"]:0)+str_replace(",","",isset($data["SubTotalSubscription"])?$data["SubTotalSubscription"]:0);
             //$EstimateData["TotalDiscount"] 	= 	str_replace(",","",$data["TotalDiscount"]);
 			$EstimateData["TotalDiscount"] 	= 	0;
             $EstimateData["TotalTax"] 		= 	str_replace(",","",$data["TotalTax"]);
@@ -349,7 +349,7 @@ class EstimatesController extends \BaseController {
             $EstimateData["EstimateNumber"] = 	$data["EstimateNumber"];
             $EstimateData["IssueDate"] 		= 	$data["IssueDate"];
             $EstimateData["PONumber"] 		= 	$data["PONumber"];
-            $EstimateData["SubTotal"] 		= 	str_replace(",","",$data["SubTotal"]);
+            $EstimateData["SubTotal"] 		= 	str_replace(",","",isset($data["SubTotalOnOffCharge"])?$data["SubTotalOnOffCharge"]:0)+str_replace(",","",isset($data["SubTotalSubscription"])?$data["SubTotalSubscription"]:0);
             //$EstimateData["TotalDiscount"] 	= 	str_replace(",","",$data["TotalDiscount"]);
 			$EstimateData["TotalDiscount"] 	= 	0;
             $EstimateData["TotalTax"] 		= 	str_replace(",","",$data["TotalTax"]);
@@ -393,7 +393,6 @@ class EstimatesController extends \BaseController {
 					{
                         $Extralognote = ' Total '.$Estimate->GrandTotal.' To '.$EstimateData['GrandTotal'];
                     }
-					
 					
                     $Estimate->update($EstimateData);
 					
@@ -480,7 +479,7 @@ class EstimatesController extends \BaseController {
 						if(!empty($EstimateAllTaxRates)) {
                             DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateAllTaxRates);
                         }
-						
+
                         if (EstimateDetail::insert($EstimateDetailData))
 						{
                             $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
@@ -579,6 +578,63 @@ class EstimatesController extends \BaseController {
                             $error = "No Product Found.";
                         }
 
+                    }elseif(Product::$ProductTypes[$data['product_type']] == Product::SUBSCRIPTION) {
+                        $companyID = User::get_companyID();
+                        $data['CompanyID'] = $companyID;
+
+                        $Subscription = BillingSubscription::find($data['product_id']);
+                        if (!empty($Subscription)) {
+                            if($AccountBilling->BillingCycleType=='daily'){
+                                $ProductAmount = number_format($Subscription->DailyFee, $decimal_places,".","");
+                            }elseif($AccountBilling->BillingCycleType=='weekly'){
+                                $ProductAmount = number_format($Subscription->WeeklyFee, $decimal_places,".","");
+                            }elseif($AccountBilling->BillingCycleType=='monthly'){
+                                $ProductAmount = number_format($Subscription->MonthlyFee, $decimal_places,".","");
+                            }elseif($AccountBilling->BillingCycleType=='quarterly'){
+                                $ProductAmount = number_format($Subscription->QuarterlyFee, $decimal_places,".","");
+                            }elseif($AccountBilling->BillingCycleType=='yearly'){
+                                $ProductAmount = number_format($Subscription->AnnuallyFee, $decimal_places,".","");
+                            }else{
+                                $ProductAmount = number_format($Subscription->MonthlyFee, $decimal_places,".","");
+                            }
+
+                            $ProductDescription = $Subscription->InvoiceLineDescription;
+
+                            $TaxRates = array();
+                            $TaxRates = TaxRate::where(array('CompanyID' => User::get_companyID(), "TaxType" => TaxRate::TAX_ALL))->select(['TaxRateID', 'Title', 'Amount'])->first();
+                            if(!empty($TaxRates)){
+                                $TaxRates->toArray();
+                            }
+                            //$AccountTaxRate = explode(",", $AccountBilling->TaxRateId);
+                            $AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
+
+                            $TaxRateAmount = $TaxRateId = 0;
+                            if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
+
+                                $TaxRateId = $TaxRates['TaxRateID'];
+                                $TaxRateAmount = 0;
+                                if (isset($TaxRates['Amount'])) {
+                                    $TaxRateAmount = $TaxRates['Amount'];
+                                }
+
+                            }
+
+                            $TotalTax = number_format((($ProductAmount * $data['qty'] * $TaxRateAmount) / 100), $decimal_places,".","");
+                            $SubTotal = number_format($ProductAmount * $data['qty'], $decimal_places,".",""); //number_format(($ProductAmount + $TotalTax) , 2);
+
+                            $response = [
+                                "status" => "success",
+                                "product_description" => $ProductDescription,
+                                "product_amount" => $ProductAmount,
+                                //"product_tax_rate_id" => $TaxRateId,
+                                //"product_total_tax_rate" => $TotalTax,
+                                "product_total_tax_rate" => 0,
+                                "sub_total" => $SubTotal,
+                                "decimal_places" => $decimal_places,
+                            ];
+                        } else {
+                            $error = "No Subscription Found.";
+                        }
                     } else {
 
                         $error = "No Invoice Template Assigned to Account";
@@ -622,7 +678,15 @@ class EstimatesController extends \BaseController {
                 $InvoiceTemplate	= 	InvoiceTemplate::find($InvoiceTemplateID);
                 $Terms 				= 	$InvoiceTemplate->Terms;
                 $FooterTerm 		= 	$InvoiceTemplate->FooterTerm;
-                $return 			=	['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate'];
+
+                /* for item invoice generate - invoice to address as invoice template */
+
+                $message = $InvoiceTemplate->InvoiceTo;
+                $replace_array = Invoice::create_accountdetails($Account);
+                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
+                $EstimateToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
+
+                $return 			=	['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate','EstimateToAddress'];
             }
 			else
 			{
@@ -887,8 +951,12 @@ class EstimatesController extends \BaseController {
 			{
                
 				$templateData	 = 	EmailTemplate::where(["SystemType"=>Estimate::EMAILTEMPLATE])->first();				
-				$Subject	 	 = 	$templateData->Subject;
-				$Message 		 = 	$templateData->TemplateBody;		 
+				//$Subject	 	 = 	$templateData->Subject;
+				//$Message 		 = 	$templateData->TemplateBody;		 		
+				$data['EstimateURL']	=   URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview?email=#email');
+				$Message				=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,'body',$data);
+				$Subject				=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,"subject",$data);
+				
 				
 				if(!empty($Subject) && !empty($Message)){
 					$from	 = $templateData->EmailFrom;	
@@ -907,7 +975,7 @@ class EstimatesController extends \BaseController {
 			
             $CreatedBy 					= 	User::get_user_full_name();
             $data 						= 	Input::all();
-			$postdata 					= 	Input::all(); Log::info(print_r($data,true));
+			$postdata 					= 	Input::all(); 
             $Estimate 					= 	Estimate::find($id);
             $Company 					= 	Company::find($Estimate->CompanyID);
             $CompanyName 				= 	$Company->CompanyName;
@@ -925,7 +993,7 @@ class EstimatesController extends \BaseController {
             }
 			
             $data['EmailTo'] 			= 	explode(",",$CustomerEmail);
-            $data['EstimateURL'] 		= 	"URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview'";
+            $data['EstimateURL'] 		= 	URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview');
             $data['AccountName'] 		= 	Account::find($Estimate->AccountID)->AccountName;
             $data['CompanyName'] 		= 	$CompanyName;
 			
@@ -958,8 +1026,10 @@ class EstimatesController extends \BaseController {
 				{
                     $data['EmailTo'] 		= 	$singleemail;
                     $data['EstimateURL']	= 	URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview?email='.$singleemail);
-					$body					=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,'body',$data,$postdata);
-					$data['Subject']		=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,"subject",$data,$postdata);
+					$body					=	EmailsTemplates::ReplaceEmail($singleemail,$postdata['Message']);
+					$data['Subject']		=	$postdata['Subject'];
+					//$body					=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,'body',$data,$postdata);
+					//$data['Subject']		=	EmailsTemplates::SendEstimateSingle(Estimate::EMAILTEMPLATE,$Estimate->EstimateID,"subject",$data,$postdata);
 					
 					if(isset($postdata['email_from']) && !empty($postdata['email_from']))
 					{
@@ -1076,6 +1146,10 @@ class EstimatesController extends \BaseController {
 						$inv_id   = 	$results[0]->InvoiceID;
 						$pdf_path = 	Invoice::generate_pdf($inv_id);
 						Invoice::where(["InvoiceID" =>$inv_id])->update(["PDF" => $pdf_path]);
+                        $Invoice = Invoice::find($inv_id);
+                        $BillingClassID = AccountBilling::getBillingClassID($Invoice->AccountID);
+                        $InvoiceTemplateID = BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
+                        InvoiceTemplate::where(array('InvoiceTemplateID'=>$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
 		}
 			
 		return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated"));			
@@ -1129,6 +1203,11 @@ class EstimatesController extends \BaseController {
 					$inv_id   = $results_data->InvoiceID;
 					$pdf_path = Invoice::generate_pdf($inv_id);
 				  	Invoice::where(["InvoiceID" =>$inv_id])->update(["PDF" => $pdf_path]);
+
+                    $Invoice = Invoice::find($inv_id);
+                    $BillingClassID = AccountBilling::getBillingClassID($Invoice->AccountID);
+                    $InvoiceTemplateID = BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
+                    InvoiceTemplate::where(array('InvoiceTemplateID'=>$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
 				}				
 			}
 			else
@@ -1144,6 +1223,10 @@ class EstimatesController extends \BaseController {
 						$inv_id   = $results[0]->InvoiceID;
 						$pdf_path = Invoice::generate_pdf($inv_id);
 						Invoice::where(["InvoiceID" =>$inv_id])->update(["PDF" => $pdf_path]);
+                        $Invoice = Invoice::find($inv_id);
+                        $BillingClassID = AccountBilling::getBillingClassID($Invoice->AccountID);
+                        $InvoiceTemplateID = BillingClass::where('BillingClassID',$BillingClassID)->pluck('InvoiceTemplateID');
+                        InvoiceTemplate::where(array('InvoiceTemplateID'=>$InvoiceTemplateID))->update(array("LastInvoiceNumber" => $Invoice->InvoiceNumber));
 					}
 				}
 				
@@ -1228,7 +1311,8 @@ class EstimatesController extends \BaseController {
     
     
     public function ajax_getEmailTemplate($id){
-        $filter =array('Type'=>EmailTemplate::ESTIMATE_TEMPLATE);
+      //  $filter =array('Type'=>EmailTemplate::ESTIMATE_TEMPLATE);
+		$filter =array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE);
         if($id == 1){
           $filter['UserID'] =   User::get_userID();
         }
@@ -1379,10 +1463,8 @@ class EstimatesController extends \BaseController {
             if($data['Type']==2) {
                 if (!empty($data['Email'])) {
                     $Email = $data['Email'];
-					$emaildata['User'] 			= 	$data['Email'];
                 }else{
                     $Email = 'Unknown';
-					$emaildata['User'] 			= 	$Email;
                 }
             }else{
                 $Email = User::get_user_full_name();
@@ -1424,7 +1506,7 @@ class EstimatesController extends \BaseController {
                 if(intval($emailtoCustomer) == 1 && isset($CustomerEmail) && $CustomerEmail != '')
                 {
                     $data['EmailTo'] 			= 	explode(",",$CustomerEmail);
-                    $data['EstimateURL'] 		= 	"URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview'";
+                    $data['EstimateURL'] 		= 	URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cview');
                     $data['AccountName'] 		= 	Account::find($Estimate->AccountID)->AccountName;
                     $data['Subject'] 			= 	'Comment added to Estimate '.$estimatenumber;
                     $data['Message'] 			= 	$Comment;

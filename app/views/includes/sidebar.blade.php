@@ -50,17 +50,26 @@
     @endif  
     
        <!--tickets start -->    
-    @if(Tickets::CheckTicketLicense())
-    <li class="{{check_uri('tickets')}}"><a href="#"><i class="fa fa-ticket"></i><span>Tickets Management</span></a>
+    @if(Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','View'))
+    <li class="{{check_uri('tickets')}}"><a href="#"><i class="fa fa-ticket"></i><span>Ticket Management</span></a>
       <ul>
-       @if(User::checkCategoryPermission('Tickets','All'))
+          @if(User::checkCategoryPermission('TicketDashboard','View'))
+              <li> <a href="{{URL::to('/ticketdashboard')}}">  <span>Dashboard</span> </a> </li>
+          @endif
+        @if(User::checkCategoryPermission('Tickets','View'))
         <li> <a href="{{URL::to('/tickets')}}">  <span>Tickets</span> </a> </li>
         @endif
-         @if(User::checkCategoryPermission('TicketsFields','All'))
-        <li> <a href="{{URL::to('/ticketsfields')}}">  <span>Tickets Fields</span> </a> </li>
+         @if(User::checkCategoryPermission('TicketsFields','Edit'))
+        <li> <a href="{{URL::to('/ticketsfields')}}">  <span>Tickets Fields</span></a></li>
         @endif
-        @if(User::checkCategoryPermission('TicketsGroups','All'))
-        <li> <a href="{{URL::to('/ticketgroups')}}">  <span>Groups</span> </a> </li>
+        @if(User::checkCategoryPermission('TicketsGroups','View'))
+        <li> <a href="{{URL::to('/ticketgroups')}}">  <span>Groups</span></a> </li>
+        @endif
+         @if(User::checkCategoryPermission('TicketsSla','View'))
+        <li> <a href="{{URL::to('/tickets/sla_policies')}}">  <span>SLA Policies</span></a> </li>
+        @endif
+        @if(User::checkCategoryPermission('BusinessHours','View'))
+        <li> <a href="{{URL::to('/businesshours')}}">  <span>Business Hours</span></a> </li>
         @endif
       </ul>
     </li>
@@ -120,7 +129,7 @@
     User::checkCategoryPermission('Payments','View') || User::checkCategoryPermission('AccountStatement','All') ||
     User::checkCategoryPermission('Products','View') || User::checkCategoryPermission('InvoiceTemplates','View') ||
     User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View')  ||
-    User::checkCategoryPermission('Disputes','View'))
+    User::checkCategoryPermission('Disputes','View') || User::checkCategoryPermission('Service','View'))
     <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="fa fa-credit-card" ></i> <span>Billing</span> </a>
       <ul>
         @if(User::checkCategoryPermission('BillingDashboard','All'))
@@ -132,9 +141,6 @@
         @if(User::checkCategoryPermission('Invoice','View'))
         <li> <a href="{{URL::to('/invoice')}}">  <span>Invoices</span> </a> </li>
         @endif
-        @if(User::checkCategoryPermission('RecurringInvoices','View'))
-            <li> <a href="{{URL::to('/recurringinvoices')}}">  <span>Recurring</span> </a> </li>
-        @endif
       @if(User::checkCategoryPermission('Payments','View'))
         <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
       @endif
@@ -143,6 +149,9 @@
         @endif
           @if(User::checkCategoryPermission('AccountStatement','All'))
             <li> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>
+          @endif
+          @if(User::checkCategoryPermission('Service','View'))
+            <li> <a href="{{URL::to('/services')}}">  <span>Services</span> </a> </li>
           @endif
           @if(User::checkCategoryPermission('BillingSubscription','View'))
             <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
@@ -167,7 +176,8 @@
         @endif
         @if(User::checkCategoryPermission('CDR','View'))
         <li> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
-        @endif 
+        @endif
+
         <!--<li>
 <a href="{{URL::to('/cdr_recal')}}">
   <i class="entypo-pencil"></i>

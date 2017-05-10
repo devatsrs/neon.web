@@ -28,7 +28,6 @@ class PHPMAILERIntegtration{
 	
 		$mail = new \PHPMailer;
 		//$mail->SMTPDebug = 0;                               // Enable verbose debug output
-		//$mail->SMTPDebug = 1;
 		$mail->isSMTP();                                      // Set mailer to use SMTP
 		$mail->Host = $host;  // Specify main and backup SMTP servers
 		$mail->SMTPAuth = true;                               // Enable SMTP authentication
@@ -70,8 +69,8 @@ class PHPMAILERIntegtration{
 		if(getenv('APP_ENV') != 'Production'){
 			$data['Subject'] = 'Test Mail '.$data['Subject'];
 		}
-		
-		$mail->Body = $body;
+
+		$mail->Body = $mail->msgHTML($body);
 		$mail->Subject = $data['Subject'];
 		if(!is_array($data['EmailTo']) && strpos($data['EmailTo'],',') !== false){
 			$data['EmailTo']  = explode(',',$data['EmailTo']);
@@ -111,7 +110,7 @@ class PHPMAILERIntegtration{
 					$status['message'] = 'Email has been sent';
 					$status['body'] = $body;
 					$status['message_id']	=	$mail->getLastMessageID(); 
-		} Log::info(print_r($mail,true));
+		} 
 		return $status;
 	}
 	
@@ -128,13 +127,13 @@ class PHPMAILERIntegtration{
 	
 			if(count($email_addresses)>0){
 				foreach($email_addresses as $email_address){
-					if($type='EmailTo'){
+					if($type=='EmailTo'){
 						$mail->addAddress(trim($email_address));
 					}
-					if($type='cc'){
+					if($type=='cc'){
 						$mail->AddCC(trim($email_address));
 					}
-					if($type='bcc'){
+					if($type=='bcc'){
 						$mail->AddBCC(trim($email_address));
 					}
 				}

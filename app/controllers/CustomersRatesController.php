@@ -120,6 +120,18 @@ class CustomersRatesController extends \BaseController {
         $post_data = Input::all();
         if (!empty($post_data)) {
 
+            //Check duplicate Prefix
+            $prefix_array  = array();
+            foreach ($post_data['CustomerTrunk'] as $trunk => $data) {
+                if(!empty($data['Prefix'])) {
+                    if (isset($data['Status']) && $data['Status'] == 1 && in_array($data['Prefix'], $prefix_array)) {
+                        return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " Found.");
+                    } else {
+                        $prefix_array[] = $data['Prefix'];
+                    }
+                }
+            }
+
             $companyID = User::get_companyID();
             foreach ($post_data['CustomerTrunk'] as $trunk => $data) {
 
@@ -139,10 +151,10 @@ class CustomersRatesController extends \BaseController {
                     //$data['Status'] = $data['Status'];
                     $data['CreatedBy'] = User::get_user_full_name();
                     $data['ModifiedBy'] = !empty($data['CustomerTrunkID']) ? User::get_user_full_name() : '';
-
+                    $TrunkName = Trunk::where(["TrunkID"=>$trunk])->pluck("Trunk");
                     if (!empty($data['CustomerTrunkID']) && trim($data['Prefix']) == '') {
                         // On Update Validate Prefix
-                        return Redirect::back()->with('error_message', "Please Add Prefix for " . $trunk . " Trunk");
+                        return Redirect::back()->with('error_message', "Please Add Prefix for " . $TrunkName . " Trunk");
                         //return Response::json(array("status" => "failed", "message" => "Please Add Prefix for " . $trunk . " Trunk"));
                     } else if (empty($data['CustomerTrunkID']) && $data['Prefix'] == '') {
                         $data['Prefix'] = $LastPrefixNo = LastPrefixNo::getLastPrefix();
@@ -156,11 +168,11 @@ class CustomersRatesController extends \BaseController {
                     }*/
 
                     //check if duplicate
-                    if (CustomerTrunk::isPrefixExists($data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
+                    /*if (CustomerTrunk::isPrefixExists($id,$data['Prefix'], !empty($data['CustomerTrunkID']) ? $data['CustomerTrunkID'] : '')) {
 
-                        return Redirect::back()->with('error_message', "duplicate Prefix " . $data['Prefix'] . " for " . $trunk . " Trunk");
+                        return Redirect::back()->with('error_message', "Duplicate Prefix " . $data['Prefix'] . " for " . $TrunkName . " Trunk");
                         //return  Response::json(array("status" => "failed", "message" => "duplicate Prefix ".$data['Prefix']." for " . $trunk ." Trunk" ));
-                    }
+                    }*/
 
                     $rules = array("CodeDeckId"=>"required","AccountID" => "required", "CompanyID" => "required", "TrunkID" => "required", "IncludePrefix" => "required", "Status" => "required",);
 
@@ -190,7 +202,7 @@ class CustomersRatesController extends \BaseController {
                                 LastPrefixNo::updateLastPrefixNo($LastPrefixNo);
                             }
                         } else {
-                            return Redirect::back()->with('error_message', "Problem Creating Customer Trunk for " . $trunk . " Trunk");
+                            return Redirect::back()->with('error_message', "Problem Creating Customer Trunk for " . $TrunkName . " Trunk");
                             ///return  Response::json(array("status" => "failed", "message" => "Problem Creating Customer Trunk for " . $trunk ." Trunk" )); // For Ajax
                         }
                     }
@@ -279,10 +291,10 @@ class CustomersRatesController extends \BaseController {
                 if (isset($data['test']) && $data['test'] == 1) {
                     $test = 1;
                 }
-                if ($test == 0) {
+                //if ($test == 0) {
                     $data['customer'][] = $id;
                     $data['SelectedIDs'] = implode(',', $data['customer']);
-                }
+                //}
                 unset($data['customer']);
                 unset($data['account_owners']);
                 unset($data['Type']);

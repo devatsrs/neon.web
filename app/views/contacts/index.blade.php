@@ -52,7 +52,7 @@
             "sPaginationType": "bootstrap",
             "oTableTools": {},
             "aaSorting"   : [[4, 'desc']],
-            "aoColumns": 
+            "aoColumns":
              [
                 { "bSortable": true }, //0 Fill name
                 { "bSortable": true }, //1 Owner
@@ -65,7 +65,7 @@
                         edit_ = "{{ URL::to('contacts/{id}/edit')}}";
                         show_ = "{{ URL::to('contacts/{id}/show')}}";
                         delete_ = "{{ URL::to('contacts/{id}/delete')}}";
- 
+
                         edit_ = edit_.replace( '{id}', id );
                         show_ = show_.replace( '{id}', id );
                         delete_  = delete_ .replace( '{id}', id );
@@ -75,7 +75,7 @@
                         <?php } ?>
                         action += ' <a href="'+show_+'" Title="View" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>';
                         <?php if(User::checkCategoryPermission('Contacts','Delete') ){ ?>
-                        action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('contacts')}}" title="Delete"  class="btn btn-danger btn-default btn-sm"><i class="entypo-trash"></i></a>';
+                        action += ' <a href="'+delete_+'" title="Delete"  class="btn btn-danger btn-default btn-sm"><i class="entypo-trash"></i></a>';
                         <?php } ?>
                         return action;
                       }
@@ -120,16 +120,10 @@
             replaceCheckboxes();
         });
     });
-    $('body').on('click', '.btn.delete', function (e) {
+    $('body').on('click', 'a[title="Delete"]', function (e) {
                 e.preventDefault();
-
-                response = confirm('Are you sure?');
-                if( typeof $(this).attr("data-redirect")=='undefined'){
-                    $(this).attr("data-redirect",'{{ URL::previous() }}')
-                }
-                redirect = $(this).attr("data-redirect");
+                var response = confirm('Are you sure?');
                 if (response) {
-
                     $.ajax({
                         url: $(this).attr("href"),
                         type: 'POST',

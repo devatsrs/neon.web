@@ -45,6 +45,11 @@ class AccountStatementCustomerController extends \BaseController {
         $result->nextRowset();
         $PaymentOutAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
 
+        $result->nextRowset();
+        $BroughtForwardOffset = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $BroughtForwardOffset = !empty($BroughtForwardOffset[0]["BroughtForwardOffset"]) ? number_format(doubleval($BroughtForwardOffset[0]["BroughtForwardOffset"]), $roundplaces) : 0;
+
         $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
 
         $InvoiceOutDisputeAmountTotal = ($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] > 0) ? $InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] : 0;
@@ -69,14 +74,11 @@ class AccountStatementCustomerController extends \BaseController {
         $InvoiceOutWithPaymentIn = $this->merge_single_invoice_payments($InvoiceOutWithPaymentIn,Invoice::INVOICE_OUT);
         $InvoiceInWithPaymentOut = $this->merge_single_invoice_payments($InvoiceInWithPaymentOut,Invoice::INVOICE_IN);
 
-
-
         $soa_result = array_map(function ($InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut) {
             return array_merge((array)$InvoiceOutWithPaymentIn, (array)$InvoiceInWithPaymentOut);
-        }, $InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut);
+        }, (array)$InvoiceOutWithPaymentIn, (array)$InvoiceInWithPaymentOut);
 
         $soa_result = $this->cleanup_duplicate_records($soa_result);
-
 
         $output = [
             'result' => $soa_result,
@@ -89,6 +91,7 @@ class AccountStatementCustomerController extends \BaseController {
             'CompanyBalance' => $CompanyBalance,
             'AccountBalance' => $AccountBalance,
             'OffsetBalance' => $OffsetBalance,
+            'BroughtForwardOffset' => $BroughtForwardOffset,
             'CurencySymbol' => $CurencySymbol,
             'roundplaces' => $roundplaces,
         ];
@@ -136,14 +139,9 @@ class AccountStatementCustomerController extends \BaseController {
         //4. Payment Sent
         // ----------------
 
-        $InvoiceOut = $result->fetchAll(PDO::FETCH_ASSOC);
+        $InvoiceOutWithPaymentIn = $result->fetchAll(PDO::FETCH_ASSOC);
         $result->nextRowset();
-        $PaymentIn = $result->fetchAll(PDO::FETCH_ASSOC);
-
-        $result->nextRowset();
-        $InvoiceIn = $result->fetchAll(PDO::FETCH_ASSOC);
-        $result->nextRowset();
-        $PaymentOut = $result->fetchAll(PDO::FETCH_ASSOC);
+        $InvoiceInWithPaymentOut = $result->fetchAll(PDO::FETCH_ASSOC);
 
         //Totals
         $result->nextRowset();
@@ -164,6 +162,11 @@ class AccountStatementCustomerController extends \BaseController {
         $result->nextRowset();
         $PaymentOutAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
 
+        $result->nextRowset();
+        $BroughtForwardOffset = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $BroughtForwardOffset = !empty($BroughtForwardOffset[0]["BroughtForwardOffset"]) ? number_format(doubleval($BroughtForwardOffset[0]["BroughtForwardOffset"]), $roundplaces) : 0;
+
         $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
 
         $InvoiceOutDisputeAmountTotal = ($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] > 0) ? $InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] : 0;
@@ -183,9 +186,15 @@ class AccountStatementCustomerController extends \BaseController {
         $OffsetBalance = number_format(($InvoiceOutAmountTotal - $PaymentInAmountTotal) - ($InvoiceInAmountTotal - $PaymentOutAmountTotal), $roundplaces);
 
 
-        $soa_result = array_map(function ($InvoiceOut, $PaymentIn, $InvoiceIn, $PaymentOut) {
-            return array_merge((array)$InvoiceOut, (array)$PaymentIn, (array)$InvoiceIn, (array)$PaymentOut);
-        }, $InvoiceOut, $PaymentIn, $InvoiceIn, $PaymentOut);
+        $InvoiceOutWithPaymentIn = $this->format_records($InvoiceOutWithPaymentIn,Invoice::INVOICE_OUT,$roundplaces); // format records to display without using any condition
+        $InvoiceInWithPaymentOut = $this->format_records($InvoiceInWithPaymentOut,Invoice::INVOICE_IN,$roundplaces); // format records to display without using any condition
+
+        $soa_result = array_map(function ($InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut) {
+            return array_merge((array)$InvoiceOutWithPaymentIn, (array)$InvoiceInWithPaymentOut);
+        }, $InvoiceOutWithPaymentIn, $InvoiceInWithPaymentOut);
+
+        $soa_result = $this->cleanup_duplicate_records($soa_result);
+
 
         $output = [
             'result' => $soa_result,
@@ -198,17 +207,13 @@ class AccountStatementCustomerController extends \BaseController {
             'CompanyBalance' => $CompanyBalance,
             'AccountBalance' => $AccountBalance,
             'OffsetBalance' => $OffsetBalance,
+            'BroughtForwardOffset' => $BroughtForwardOffset,
             'CurencySymbol' => $CurencySymbol,
             'roundplaces' => $roundplaces,
             'AccountName' => Account::getCompanyNameByID($data['AccountID']),
             'CompanyName' => Company::getName(),
         ];
 
-        /*$account_statement['inInvoices'] = $inInvoices;
-        $account_statement['outInvoices'] = $outInvoices;
-        $account_statement['firstCompany'] = Company::getName();
-        $account_statement['secondCompany'] = Account::getCompanyNameByID($data['AccountID']);
-        //$account_statement['roundplaces'] = $roundplaces;*/
         AccountStatementCustomerController::generateExcel($output, $type);
     }
 
@@ -362,20 +367,17 @@ class AccountStatementCustomerController extends \BaseController {
                             $rowData['PaymentOut_Amount'] = 0;
                         }
 
-                        $InvoiceOut_Amount = number_format($rowData['InvoiceOut_Amount'], $roundplaces,'.','');
-                        $InvoiceIn_Amount = number_format($rowData['InvoiceIn_Amount'], $roundplaces,'.','');
+                        $InvoiceOut_Amount = $rowData['InvoiceOut_Amount'];
 
-                        $InvoiceIn_DisputeAmount = number_format($rowData['InvoiceIn_DisputeAmount'], $roundplaces,'.','');
-                        $InvoiceIn_DisputeAmount = $InvoiceIn_DisputeAmount > 0 ? $InvoiceIn_DisputeAmount : '';
+                        $InvoiceIn_Amount = $rowData['InvoiceIn_Amount'];
 
-                        $InvoiceOut_DisputeAmount = number_format($rowData['InvoiceOut_DisputeAmount'], $roundplaces,'.','');
-                        $InvoiceOut_DisputeAmount = $InvoiceOut_DisputeAmount > 0 ? $InvoiceOut_DisputeAmount : '';
+                        $InvoiceIn_DisputeAmount = $rowData['InvoiceIn_DisputeAmount'];
 
-                        $PaymentIn_Amount = number_format($rowData['PaymentIn_Amount'], $roundplaces,'.','');
-                        $PaymentIn_Amount = $PaymentIn_Amount > 0 ? $PaymentIn_Amount : '';
+                        $InvoiceOut_DisputeAmount = $rowData['InvoiceOut_DisputeAmount'];
 
-                        $PaymentOut_Amount = number_format($rowData['PaymentOut_Amount'], $roundplaces,'.','');
-                        $PaymentOut_Amount = $PaymentOut_Amount > 0 ? $PaymentOut_Amount : '';
+                        $PaymentIn_Amount = $rowData['PaymentIn_Amount'];
+
+                        $PaymentOut_Amount = $rowData['PaymentOut_Amount'];
 
 
                         $columnIndex = 0;
@@ -465,13 +467,16 @@ class AccountStatementCustomerController extends \BaseController {
                 /**
                  * SOA OFFSET SUMMERY DATA START
                  */
-                $RowIndex = $RowIndex + 3; // give some space
-
-                $sheet->mergeCells($Alpha[2].$RowIndex. ':' . $Alpha[count($Alpha)-1] . $RowIndex);
-                AccountStatementCustomerController::insertExcelHeaderData($sheet, $Alpha[1].$RowIndex, 'BALANCE AFTER OFFSET:',14);
+                $sheet->mergeCells($Alpha[2].$RowIndex. ':' . $Alpha[7] . $RowIndex);
+                AccountStatementController::insertExcelHeaderData($sheet, $Alpha[1].$RowIndex, 'BALANCE AFTER OFFSET:',14);
 
                 $BalanceAfterOffsetFormula = '=('.$PaymentInBalanceIndexCell  . '-' . $PaymentOutBalanceIndexCell . ')';
-                AccountStatementCustomerController::insertExcelSummeryData($sheet, $Alpha[2].$RowIndex, $BalanceAfterOffsetFormula);
+                AccountStatementController::insertExcelSummeryData($sheet, $Alpha[2].$RowIndex, $BalanceAfterOffsetFormula);
+
+                // BALANCE BROUGHT FORWARD:
+                $sheet->mergeCells($Alpha[10].$RowIndex. ':' . $Alpha[count($Alpha)-1] . $RowIndex);
+                AccountStatementController::insertExcelHeaderData($sheet, $Alpha[9].$RowIndex, 'BALANCE BROUGHT FORWARD:',14);
+                AccountStatementController::insertExcelSummeryData($sheet, $Alpha[10].$RowIndex, $account_statement['BroughtForwardOffset']);
 
             });
         })->download('xls');

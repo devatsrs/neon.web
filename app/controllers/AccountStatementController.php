@@ -48,6 +48,11 @@ class AccountStatementController extends \BaseController
         $result->nextRowset();
         $PaymentOutAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
 
+        $result->nextRowset();
+        $BroughtForwardOffset = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $BroughtForwardOffset = !empty($BroughtForwardOffset[0]["BroughtForwardOffset"]) ? number_format(doubleval($BroughtForwardOffset[0]["BroughtForwardOffset"]), $roundplaces) : 0;
+
         $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
 
         $InvoiceOutDisputeAmountTotal = ($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] > 0) ? $InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] : 0;
@@ -89,6 +94,7 @@ class AccountStatementController extends \BaseController
             'CompanyBalance' => $CompanyBalance,
             'AccountBalance' => $AccountBalance,
             'OffsetBalance' => $OffsetBalance,
+            'BroughtForwardOffset' => $BroughtForwardOffset,
             'CurencySymbol' => $CurencySymbol,
             'roundplaces' => $roundplaces,
         ];
@@ -169,6 +175,11 @@ class AccountStatementController extends \BaseController
         $result->nextRowset();
         $PaymentOutAmountTotal = $result->fetchAll(PDO::FETCH_ASSOC);
 
+        $result->nextRowset();
+        $BroughtForwardOffset = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $BroughtForwardOffset = !empty($BroughtForwardOffset[0]["BroughtForwardOffset"]) ? number_format(doubleval($BroughtForwardOffset[0]["BroughtForwardOffset"]), $roundplaces) : 0;
+
         $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
 
         $InvoiceOutDisputeAmountTotal = ($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] > 0) ? $InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] : 0;
@@ -209,6 +220,7 @@ class AccountStatementController extends \BaseController
             'CompanyBalance' => $CompanyBalance,
             'AccountBalance' => $AccountBalance,
             'OffsetBalance' => $OffsetBalance,
+            'BroughtForwardOffset' => $BroughtForwardOffset,
             'CurencySymbol' => $CurencySymbol,
             'roundplaces' => $roundplaces,
             'AccountName' => Account::getCompanyNameByID($data['AccountID']),
@@ -474,11 +486,16 @@ class AccountStatementController extends \BaseController
                  */
                 $RowIndex = $RowIndex + 3; // give some space
 
-                $sheet->mergeCells($Alpha[2].$RowIndex. ':' . $Alpha[count($Alpha)-1] . $RowIndex);
+                $sheet->mergeCells($Alpha[2].$RowIndex. ':' . $Alpha[7] . $RowIndex);
                 AccountStatementController::insertExcelHeaderData($sheet, $Alpha[1].$RowIndex, 'BALANCE AFTER OFFSET:',14);
 
                 $BalanceAfterOffsetFormula = '=('.$PaymentInBalanceIndexCell  . '-' . $PaymentOutBalanceIndexCell . ')';
                 AccountStatementController::insertExcelSummeryData($sheet, $Alpha[2].$RowIndex, $BalanceAfterOffsetFormula);
+
+                // BALANCE BROUGHT FORWARD:
+                $sheet->mergeCells($Alpha[10].$RowIndex. ':' . $Alpha[count($Alpha)-1] . $RowIndex);
+                AccountStatementController::insertExcelHeaderData($sheet, $Alpha[9].$RowIndex, 'BALANCE BROUGHT FORWARD:',14);
+                AccountStatementController::insertExcelSummeryData($sheet, $Alpha[10].$RowIndex, $account_statement['BroughtForwardOffset']);
 
             });
         })->download('xls');

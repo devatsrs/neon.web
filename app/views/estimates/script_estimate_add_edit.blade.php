@@ -7,10 +7,14 @@ $(document).ready(function(){
     var USAGE 						= 	'{{Product::USAGE}}';
     var SUBSCRIPTION 				= 	'{{Product::SUBSCRIPTION}}';
     var ITEM 						= 	'{{Product::ITEM}}';
+    var txtUSAGE                    =   '{{ucFirst(Product::$TypetoProducts[Product::USAGE])}}';
+    var txtSUBSCRIPTION             =   '{{ucFirst(Product::$TypetoProducts[Product::SUBSCRIPTION])}}';
+    var txtITEM                     =   '{{ucFirst(Product::$TypetoProducts[Product::ITEM])}}';
     var product_types 				= 	[];
      product_types['usage']			= 	USAGE;
      product_types['subscription']	= 	SUBSCRIPTION;
      product_types['item']			= 	ITEM;
+
 
     function getTableFieldValue(controller_url, id,field ,callback)
 	{
@@ -54,11 +58,12 @@ $(document).ready(function(){
 
     $("#EstimateTable").delegate( '.product_dropdown' ,'change',function (e) {		
         var $this = $(this);
+        var optgroup = $(this).find(":selected").parents('optgroup');
         var $row = $this.parents("tr");
         var productID = $this.val();
         var AccountID = $('select[name=AccountID]').val();
         var EstimateDetailID = $row.find('.EstimateDetailID').val();
-        var  selected_product_type = '';
+        var  selected_product_type = optgroup.prop('label')==txtSUBSCRIPTION?SUBSCRIPTION:'';
         //selected_product_type = ($(this.options[this.selectedIndex]).closest('optgroup').prop('label')).toLowerCase();
         //$row.find('.ProductType').val(product_types[selected_product_type]);
         if( productID != ''  && parseInt(AccountID) > 0 ) {
@@ -116,9 +121,8 @@ $(document).ready(function(){
                         },1000);
                     });
 		          return false;
-                } else if(product_types[selected_product_type] == SUBSCRIPTION ) {
-
-                    getCalculateEstimateBySubscription(selected_product_type,productID,AccountID,1,function(response){
+                } else if(selected_product_type == SUBSCRIPTION ) {
+                    getCalculateEstimateBySubscription('subscription',productID,AccountID,1,function(response){
                         //console.log(response);
                         if(response.status =='success'){
                           //  $row.find("select.TaxRateID").val(response.product_tax_rate_id).trigger("change");
@@ -128,8 +132,10 @@ $(document).ready(function(){
                             $row.find(".TaxAmount").val(response.product_total_tax_rate);
                             $row.find(".LineTotal").val(response.sub_total);
                             decimal_places = response.decimal_places;
-                            $row.find(".StartDate").attr("disabled",true);
-                            $row.find(".EndDate").attr("disabled",true);
+                            //$row.find(".StartDate").attr("disabled",true);
+                            //$row.find(".EndDate").attr("disabled",true);
+                            $row.find(".ProductType").val(selected_product_type);
+
 							$('.Taxentity').trigger('change');
 							$("textarea.autogrow").autosize();
                             calculate_total();
@@ -235,82 +241,123 @@ $(document).ready(function(){
 
     function calculate_total(){
 
-        var grand_total = 0;
-        var total_tax = 0;
+        var grand_total_item = 0;
+        var grand_total_subscription = 0;
+        var total_tax_item = 0;
+        var total_tax_subscription = 0;
         var total_discount = 0.0;		
-		var Tax_type		=	new Array();
-		var Tax_type_title	=	new Array();
+		var Tax_type_item		=	new Array();
+		var Tax_type_title_item	=	new Array();
+        var Tax_type_subscription		=	new Array();
+        var Tax_type_title_subscription	=	new Array();
 
-        $('#EstimateTable tbody tr td .TaxAmount').each(function(i, el){
-            var $this = $(el);
-            if($this.val() != ''){
-                total_tax  = eval(parseFloat(total_tax) + parseFloat($this.val().replace(/,/g,'')));
-            }
-        });
-		
-		$('#EstimateTable tbody tr td select.Taxentity').each(function(i, el){
-            var $this 	=	 $(el);
-			var tt		=	 $('option:selected', this);
-            if($this.val() != '' && $this.val() != 0)
-			{ 
-			//Tax_type[$this.val()] = 
-                //total_tax  = eval(parseFloat(total_tax) + parseFloat($this.val().replace(',/g','')));
-				
-				  var obj 		 =   $(el).parent().parent();
-				  var price 	 = 	 parseFloat(obj.find(".Price").val().replace(/,/g,''));	
- 			      var qty 		 =	 parseInt(obj.find(".Qty").val());
-				  
-				  var taxAmount  =   parseFloat(tt.attr("data-amount").replace(/,/g,''));				
-				  var flatstatus = 	 parseFloat(tt.attr("data-flatstatus").replace(/,/g,''));
-				  var titleTax	 =   tt.text();
-				  
-				  if(flatstatus == 1){
-						var tax = parseFloat( ( taxAmount) );
-				   }else{
-						var tax = parseFloat( (price * qty * taxAmount)/100 );
-				   }				
-             }			
-			 if(Tax_type[$this.val()]!= null){
-				 Tax_type[$this.val()]		 = Tax_type[$this.val()]+tax;
-			 }else{
-				 Tax_type[$this.val()]		 = 		tax;
-			 }
-			 Tax_type_title[$this.val()] = titleTax;
+        $('#EstimateTable tbody tr').each(function(i, el){
+            var $self = $(el);
+            var productType = $self.find('.product_dropdown').find(':selected').parents('optgroup').prop('label');
+            $self.find('td .TaxAmount').each(function(i, el){
+                var $this = $(el);
+                if($this.val() != ''){
+                    if(productType==txtITEM){
+                        total_tax_item  = eval(parseFloat(total_tax_item) + parseFloat($this.val().replace(/,/g,'')));
+                    }else if(productType==txtSUBSCRIPTION){
+                        total_tax_subscription  = eval(parseFloat(total_tax_subscription) + parseFloat($this.val().replace(/,/g,'')));
+                    }
+                }
+            });
+
+            $self.find('td select.Taxentity').each(function(i, el){
+                var $this 	=	 $(el);
+                var tt		=	 $('option:selected', this);
+                if($this.val() != '' && $this.val() != 0)
+                {
+                    //Tax_type[$this.val()] =
+                    //total_tax  = eval(parseFloat(total_tax) + parseFloat($this.val().replace(',/g','')));
+
+                    var obj 		 =   $(el).parent().parent();
+                    var price 	 = 	 parseFloat(obj.find(".Price").val().replace(/,/g,''));
+                    var qty 		 =	 parseInt(obj.find(".Qty").val());
+
+                    var taxAmount  =   parseFloat(tt.attr("data-amount").replace(/,/g,''));
+                    var flatstatus = 	 parseFloat(tt.attr("data-flatstatus").replace(/,/g,''));
+                    var titleTax	 =   tt.text();
+
+                    if(flatstatus == 1){
+                        var tax = parseFloat( ( taxAmount) );
+                    }else{
+                        var tax = parseFloat( (price * qty * taxAmount)/100 );
+                    }
+                }
+                //if(productType==txtITEM) {
+                    if (Tax_type_item[$this.val()] != null) {
+                        Tax_type_item[$this.val()] = Tax_type_item[$this.val()] + tax;
+                    } else {
+                        Tax_type_item[$this.val()] = tax;
+                    }
+                    Tax_type_title_item[$this.val()] = titleTax;
+                /*}else if(productType==txtSUBSCRIPTION) {
+                    if (Tax_type_subscription[$this.val()] != null) {
+                        Tax_type_subscription[$this.val()] = Tax_type_subscription[$this.val()] + tax;
+                    } else {
+                        Tax_type_subscription[$this.val()] = tax;
+                    }
+                    Tax_type_title_subscription[$this.val()] = titleTax;
+                }*/
+            });
+            $self.find('td .LineTotal').each(function(i, el){
+                var $this = $(el);
+                if($this.val() != ''){
+                    //decimal_places = get_decimal_places($this.val())
+                    if(productType==txtITEM) {
+                        grand_total_item = eval(parseFloat(grand_total_item) + parseFloat($this.val().replace(/,/g, '')));
+                    }else if(productType==txtSUBSCRIPTION){
+                        grand_total_subscription = eval(parseFloat(grand_total_subscription) + parseFloat($this.val().replace(/,/g, '')));
+                    }
+                }
+            });
         });
 		
 	
 		$('.tax_rows_estimate').remove();
 		
-		
-		Tax_type.forEach(AddTaxRows);
-		function AddTaxRows(value, index) {
-			if(value != null){
-				$('.grand_total_estimate').before('<tr class="tax_rows_estimate"><td>'+Tax_type_title[index]+'</td><td><input class="form-control text-right" readonly="readonly" name="Tax['+index+']" value="'+value.toFixed(decimal_places)+'" type="text">  </td> </tr>');	
-			}
-		}
-		
-        $('#EstimateTable tbody tr td .LineTotal').each(function(i, el){
-            var $this = $(el);
-            if($this.val() != ''){
-                //decimal_places = get_decimal_places($this.val())
-                grand_total = eval(parseFloat(grand_total) + parseFloat($this.val().replace(/,/g,'')));
+		if(grand_total_item > 0){
+            var txt = 'One off Sub Total';
+            if(grand_total_subscription == 0){
+                txt = 'Sub Total';
             }
-        });
-	
-       /* $('#EstimateTable tbody tr td .Discount').each(function(i, el){
-            var $this = $(el);
-            if($this.val() != ''){
-                total_discount = eval(parseFloat(total_discount) + parseFloat($this.val().replace(/,/g,'')));
+            //$('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"><th colspan="2">One off charge</th></tr>');
+            $('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"> <td>'+txt+'</td> <td><input class="form-control SubTotal text-right" readonly="readonly" name="SubTotalOnOffCharge" value="'+grand_total_item.toFixed(decimal_places)+'" type="text"></td> </tr>');
+            /*if(total_tax_item) {
+                $('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"> <td>Total Tax</td> <td><input class="form-control TotalTax text-right" readonly="readonly" name="TotalTax" value="' + total_tax_item.toFixed(decimal_places) + '" type="text"></td> </tr>');
+            }*/
+        }
+        if(grand_total_subscription > 0){
+            var txt = 'Recurring Sub Total';
+            if(grand_total_item == 0){
+                txt = 'Sub Total';
             }
-        });*/
+            //$('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"><th colspan="2">Recurring Charges</th></tr>');
+            $('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"> <td>'+txt+'</td> <td><input class="form-control SubTotal text-right" readonly="readonly" name="SubTotalSubscription" value="'+grand_total_subscription.toFixed(decimal_places)+'" type="text"></td> </tr>');
+            /*Tax_type_subscription.forEach(function(value, index){
+                if(value != null){
+                    $('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"><td>'+Tax_type_title_subscription[index]+'</td><td><input class="form-control text-right" readonly="readonly" name="Tax['+index+']" value="'+value.toFixed(decimal_places)+'" type="text">  </td> </tr>');
+                }
+            });*/
+            /*if(total_tax_subscription) {
+                $('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"> <td>Total Tax</td> <td><input class="form-control TotalTax text-right" readonly="readonly" name="TotalTax" value="' + total_tax_subscription.toFixed(decimal_places) + '" type="text"></td> </tr>');
+            }*/
+        }
+        if(Tax_type_item.length > 0) {
+            Tax_type_item.forEach(function (value, index) {
+                if (value != null) {
+                    $('#summary tfoot .grand_total_estimate').before('<tr class="tax_rows_estimate"><td>' + Tax_type_title_item[index] + '</td><td><input class="form-control text-right" readonly="readonly" name="Tax[' + index + ']" value="' + value.toFixed(decimal_places) + '" type="text">  </td> </tr>');
+                }
+            });
+        }
 
-        $('input[name=SubTotal]').val(grand_total.toFixed(decimal_places));
-        $('input[name=TotalTax]').val(total_tax.toFixed(decimal_places));
-        total = eval(grand_total + total_tax).toFixed(decimal_places);
+        total = eval(grand_total_item + total_tax_item + grand_total_subscription + total_tax_subscription).toFixed(decimal_places);
 
-        //$('input[name=TotalDiscount]').val(total_discount.toFixed(decimal_places));
-        $('input[name=GrandTotal]').val(total);
-		
+        $('#summary tfoot .grand_total_estimate .GrandTotal').val(total);
+
 		estimate_main_total_tax = 0; var taxes_array = new Array();
 	   $('.EstimateTaxesFld').each(function(index, element) {
 		   
@@ -429,13 +476,23 @@ $(document).ready(function(){
                     $("#Account_Address").html('');
                     $("input[name=CurrencyCode]").val('');
                     $("input[name=CurrencyID]").val('');
+                    $('#subscription').find('[data-type="currency"]').val('').trigger('change');
+                    if($('#add-new-billing_subscription-form input[name=CurrencyID]').length > 0) {
+                        $('#add-new-billing_subscription-form input[name=CurrencyID]').val('');
+                    }
                     $("input[name=InvoiceTemplateID]").val('');
                     $("[name=Terms]").val('');
                     $("[name=FooterTerm]").val('');
                 } else {
-                    $("#Account_Address").html(response.Address);
+                    $("#Account_Address").html(response.EstimateToAddress);
                     $("input[name=CurrencyCode]").val(response.Currency);
                     $("input[name=CurrencyID]").val(response.CurrencyId);
+                    $('#add-new-billing_subscription-form [data-type="currency"]').val(response.CurrencyId).trigger('change');
+                    if($('#add-new-billing_subscription-form input[name=CurrencyID]').length > 0) {
+                        $('#add-new-billing_subscription-form input[name=CurrencyID]').val(response.CurrencyId);
+                    }else{
+                        $('#add-new-billing_subscription-form select[data-type="currency"]').after($('<input type="hidden" name="CurrencyID" value="' + response.CurrencyId + '" />'));
+                    }
                     $("input[name=EstimateTemplateID]").val(response.EstimateTemplateID);
                     $("[name=Terms]").val(response.Terms);
                     $("[name=FooterTerm]").val(response.FooterTerm);

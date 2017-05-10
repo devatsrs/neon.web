@@ -7,7 +7,7 @@ class NeonAPI{
         self::$api_url = CompanyConfiguration::get('NEON_API_URL').'/';
     }
 
-    public static function login(){
+    public static function login($type = "user"){
         self::$api_url = CompanyConfiguration::get('NEON_API_URL').'/';
         $curl = new Curl\Curl();
         $call_method = 'login';
@@ -17,8 +17,7 @@ class NeonAPI{
 			'LicenceKey' =>  getenv('LICENCE_KEY'),
             'CompanyName'=>getenv('COMPANY_NAME'),
 			'LoginType' =>$type
-
-        ));
+	    ));
         $curl->close();
         $response = json_decode($curl->response);  
         if(isset($response->token)){
@@ -33,26 +32,37 @@ class NeonAPI{
 	{
 		NeonAPI::request('logout',[]);		 
 	}
-	
-   public static function login_by_id($id,$type = 'user'){
+
+    public static function login_by_id($id,$type = 'user'){
         $curl = new Curl\Curl();
         $call_method = 'l/'.$id;
 
-       self::$api_url = CompanyConfiguration::get('NEON_API_URL').'/';
-       $curl->post(self::$api_url.$call_method, array(
-           'LoggedUserID' => $id,
-           "LicenceKey" =>  getenv('LICENCE_KEY'),
-           'CompanyName'=>getenv('COMPANY_NAME'),
-		   'LoginType' => $type
-       )); Log::info("api_url:".self::$api_url);
+        self::$api_url = CompanyConfiguration::get('NEON_API_URL').'/';
+        $request = array(
+            'LoggedUserID' => $id,
+            "LicenceKey" =>  getenv('LICENCE_KEY'),
+            'CompanyName'=>getenv('COMPANY_NAME'),
+            'LoginType' => $type
+        );
+        $curl->post(self::$api_url.$call_method, $request );
 
-        $response = json_decode($curl->response); Log::info(print_r($response,true));
+        Log::info("request");
+        Log::info($request);
+        Log::info("api_url:".self::$api_url.$call_method);
+
+        $response = json_decode($curl->response);
+        Log::info("Response");
+        Log::info(print_r($response,true));
         if(isset($response->token)){
-            self::setToken($response->token); 
+            self::setToken($response->token);
             return true;
         }else{
             Log::info("-----Not Loggedin on API-----");
+            Log::info($request);
             Log::info(print_r($response,true));
+            Log::info("_ENV");
+            Log::info($_ENV);
+            Log::info("findEnvironmentVariable");
         }
         return false;
 
@@ -88,7 +98,7 @@ class NeonAPI{
 			$post_data['LoginType']= 'customer';	
 		}
 		
-		
+		\Illuminate\Support\Facades\Log::info(self::$api_url . $call_method);
         if($post === 'delete') {
             $curl->delete(self::$api_url . $call_method, $post_data);
         }else if($post === 'put') {
@@ -100,6 +110,7 @@ class NeonAPI{
         }
 
         $curl->close();
+
         self::parse_header($curl->response_headers);
         $response = self::makeResponse($curl,$is_array);
         return $response;

@@ -30,5 +30,15 @@ class AccountBalance extends \Eloquent {
 
 
     }
+	
+	  public static function getBalanceAmount($AccountID){
+        return AccountBalance::where(['AccountID'=>$AccountID])->pluck('BalanceAmount');
+    }
+	
+	 public static function getBalanceThresholdAmount($AccountID){
+        return AccountBalance::where(['AccountID'=>$AccountID])->pluck('BalanceThreshold');
+    }
+	
+	
 
 }

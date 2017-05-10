@@ -7,6 +7,9 @@
         <li>
             <a href="{{URL::to('discount_plan')}}">Discount Plan </a>
         </li>
+        <li>
+            <a><span>{{discountplan_dropbox($id)}}</span></a>
+        </li>
         <li class="active">
             <strong>Discount ({{$name}})</strong>
         </li>

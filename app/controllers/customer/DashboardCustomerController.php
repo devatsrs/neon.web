@@ -55,9 +55,23 @@ class DashboardCustomerController extends BaseController {
         $query = "call prc_getDashboardinvoiceExpenseTotalOutstanding ('". $companyID  . "',  '". $CurrencyID  . "','".$CustomerID."','".$data['Startdate']."','".$data['Enddate']."')";
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
         if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
-            $AccountBallane = AccountBalance::where(['AccountID'=>$CustomerID])->first();
-            $InvoiceExpenseResult[0]->TotalUnbillidAmount = $AccountBallane->UnbilledAmount + $AccountBallane->VendorUnbilledAmount;
-            return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
+            $UnbilledAmount = $VendorUnbilledAmount = $BalanceAmount = 0;
+            $getdata['AccountID'] = $CustomerID;
+            $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
+            if(!empty($response) && $response->status == 'success' ) {
+                $SOA_Amount = AccountBalance::getAccountSOA($companyID, $CustomerID);
+                if(!empty($response->data->UnbilledAmount)){
+                    $UnbilledAmount = $response->data->UnbilledAmount;
+                }
+                if(!empty($response->data->VendorUnbilledAmount)){
+                    $VendorUnbilledAmount = $response->data->VendorUnbilledAmount;
+                }
+                $BalanceAmount = $SOA_Amount+($UnbilledAmount-$VendorUnbilledAmount);
+                $InvoiceExpenseResult[0]->TotalUnbillidAmount = $BalanceAmount>=0?$BalanceAmount:0;
+                return Response::json(array("data" => $InvoiceExpenseResult[0], 'CurrencyCode' => $CurrencyCode, 'CurrencySymbol' => $CurrencySymbol));
+            }else {
+                return view_response_api($response);
+            }
         }
 
         //return View::make('customer.billingdashboard.invoice_expense_total', compact( 'CurrencyCode', 'CurrencySymbol','TotalOutstanding'));

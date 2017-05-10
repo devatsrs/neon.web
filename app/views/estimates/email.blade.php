@@ -24,8 +24,9 @@
     <div class="form-group">
       <label for="field-4" class="control-label">Message</label>
       {{Form::textarea('Message',$Message,array("class"=>"form-control","id"=>"InvoiceMessage","rows"=>8 ))}} <br>
-      <a target="_blank" href="{{URL::to('/estimate/'.$Estimate->EstimateID.'/estimate_preview')}}">View Estimate</a> <br>
-      <span style="display:none;"> <br>
+    <span style="display:none;"> 
+     <a target="_blank" href="{{URL::to('/estimate/'.$Estimate->EstimateID.'/estimate_preview')}}">View Estimate</a> <br>
+      <br>
       <br>
       Best Regards,<br>
       <br>
@@ -35,24 +36,7 @@
 {{Form::hidden('EstimateID',$Estimate->EstimateID)}}
 <script>
 jQuery(document).ready(function ($) {
-	 $("#send-modal-estimate").find(".select22").select2(); 
-	   $('#InvoiceMessage').wysihtml5({
-				   "font-styles": true,				
-				  	"leadoptions":false,	
-				    "invoiceoptions":false,	
-				    "estimateoptions":false,
-					"TicketsSingle":false,					
-				    "Tickets":false,
-					"Crm":false,			
-					"emphasis": true,
-					"lists": true,
-					"html": true,
-					"link": true,
-					"image": true,
-					"color": false,
-				parser: function(html) {
-		        	return html;
-    			}
-		});	 
+	$("#send-modal-estimate").find(".select22").select2();
+    show_summernote($("#InvoiceMessage"),{});
 });
 </script>

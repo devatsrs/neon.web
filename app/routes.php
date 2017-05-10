@@ -70,6 +70,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/customer/tickets/{id}/detail','TicketsCustomerController@Detail');
 	Route::any('/customer/tickets/add','TicketsCustomerController@add');
 	Route::any('/customer/tickets/ajex_result','TicketsCustomerController@ajex_result'); 
+	Route::any('/customer/tickets/ajex_result_export','TicketsCustomerController@ajex_result_export'); 
 	Route::post('/customer/tickets/{id}/close_ticket', 'TicketsCustomerController@CloseTicket');
 	Route::any('/customer/tickets/{id}/edit', 'TicketsCustomerController@edit');
 	Route::any('/customer/tickets/{id}/update', "TicketsCustomerController@Update");
@@ -121,6 +122,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('/rmdashboard', "DashboardController@rmdashboard");
 	Route::any('/salesdashboard', array("as" => "salesdashboard", "uses" => "DashboardController@salesdashboard"));
     Route::any('/billingdashboard', "DashboardController@billingdashboard");
+    Route::any('/ticketdashboard', "DashboardController@TicketDashboard");
 	Route::post('/dashboard/GetUsersTasks', "DashboardController@GetUsersTasks");	
 	Route::post('/dashboard/getpiplelinedata', "DashboardController@GetPipleLineData");		
 	Route::post('/dashboard/getSalesdata', "DashboardController@getSalesdata");		
@@ -201,6 +203,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/account/note/update', 'AccountsController@update_note');
 	Route::any('/accounts/delete_task_prent', 'AccountsController@Delete_task_parent');
 	Route::any('/accounts/update_bulk_account_status', 'AccountsController@UpdateBulkAccountStatus');
+	Route::any('/accounts/bulkactions', 'AccountsController@BulkAction');
 	
 	
 
@@ -468,18 +471,20 @@ Route::group(array('before' => 'auth'), function () {
 	Route::controller('jobs', 'JobsController');
 	
 	//email msgs
-	Route::any('loadDashboardMsgsDropDown', 'MessagesController@loadDashboardMsgsDropDown');
+	/*Route::any('loadDashboardMsgsDropDown', 'MessagesController@loadDashboardMsgsDropDown');
 	Route::any('/emailmessages', 'MessagesController@index');
 	Route::any('/emailmessages/ajax_datagrid', array('as' => 'jobs_dg', 'uses' => 'MessagesController@ajax_datagrid'));
 	Route::any('/emailmessages/{id}/show', array('as' => 'jobs_view', 'uses' => 'MessagesController@show'));
 	Route::any('/emailmessages/ajex_result','MessagesController@ajex_result'); 
+	Route::any('/emailmessages/ajex_result_export','MessagesController@ajex_result_export'); 
+	
 	Route::any('/emailmessages/{id}/detail', array('as' => 'jobs_view', 'uses' => 'MessagesController@detail'));
 	Route::any('/emailmessages/sent','MessagesController@SentBox');	
 	Route::any('/emailmessages/draft','MessagesController@Draft');
 	Route::any('/emailmessages/compose','MessagesController@Compose');
 	Route::any('/emailmessages/SendMail','MessagesController@SendMail');
 	Route::any('emailmessages/{id}/compose','MessagesController@Compose');
-	Route::any('/emailmessages/ajax_action','MessagesController@Ajax_Action');
+	Route::any('/emailmessages/ajax_action','MessagesController@Ajax_Action');*/
 	
 	//Tickets	
 	Route::any('/ticketgroups', array('as' => 'ticketgroups', 'uses' => 'TicketsGroupController@index'));
@@ -492,6 +497,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/ticketgroups/{id}/delete', 'TicketsGroupController@delete');
 	Route::any('/ticketgroups/{id}/send_activation', 'TicketsGroupController@send_activation_single');
 	Route::any('/ticketgroups/{id}/getgroupagents', 'TicketsGroupController@get_group_agents');
+	Route::any('/ticketgroups/validatesmtp', 'TicketsGroupController@validatesmtp');
 	
 	Route::any('/ticketsfields', "TicketsFieldsController@index");
 	Route::any('/ticketsfields/iframe', "TicketsFieldsController@iframe");
@@ -499,14 +505,29 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/ticketsfields/ajax_ticketsfields', "TicketsFieldsController@ajax_ticketsfields");
 	Route::any('/ticketsfields/ajax_ticketsfields_choices', "TicketsFieldsController@Ajax_Ticketsfields_Choices");
 	Route::any('/ticketsfields/save_single_field', "TicketsFieldsController@Save_Single_Field");
-	Route::any('//ticketsfields/update_fields_sorting', "TicketsFieldsController@Update_Fields_Sorting");
+	Route::any('/ticketsfields/update_fields_sorting', "TicketsFieldsController@Update_Fields_Sorting");
+
+	Route::any('/tickets/sla_policies', "TicketsSlaController@index");
+	Route::any('/tickets/sla_policies/{id}/edit', "TicketsSlaController@index");
+	Route::any('/tickets/sla_policies/ajax_datagrid', "TicketsSlaController@ajax_datagrid");
+	Route::any('tickets/sla_policies/exports/{type}', 'TicketsSlaController@ajax_datagrid');
+	Route::any('/tickets/sla_policies/add', "TicketsSlaController@add");
+	Route::any('/tickets/sla_policies/store', "TicketsSlaController@store");
+	Route::any('/tickets/sla_policies/{id}/delete', 'TicketsSlaController@delete');
+	Route::any('/tickets/sla_policies/{id}/edit', 'TicketsSlaController@edit');
+	Route::any('/tickets/sla_policies/{id}/update', "TicketsSlaController@update");
+	Route::resource('sla_policies', 'TicketsSlaController');
+	Route::controller('sla_policies', 'TicketsSlaController');
 	
 	
 	
-	
+	Route::any('/tickets',"TicketsController@TicketGroupAccess");
+	Route::any('/tickets',"TicketsController@TicketRestrictedAccess");
+	Route::any('/tickets',"TicketsController@TicketsGlobalAccess");
 	Route::any('/tickets',array('as' => 'tickets', 'uses' => 'TicketsController@index'));
 	Route::any('/tickets/ajax_datagrid/{type}', "TicketsController@ajax_datagrid");
 	Route::any('/tickets/ajex_result','TicketsController@ajex_result'); 
+	Route::any('/tickets/ajex_result_export','TicketsController@ajex_result_export'); 
 	Route::any('/tickets/add', "TicketsController@add");
 	Route::post('/tickets/upload_file', 'TicketsController@uploadFile');
 	Route::any('/tickets/delete_attachment_file', 'TicketsController@deleteUploadFile');
@@ -515,7 +536,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/tickets/{id}/update', "TicketsController@Update");
 	Route::any('/tickets/{id}/updatedetailpage', "TicketsController@UpdateDetailPage");
 	Route::any('/tickets/{id}/delete', "TicketsController@delete");
-	Route::any('/tickets/{id}/detail', "TicketsController@Detail");
+	Route::any('/tickets/{id}/detail', "TicketsController@Detail");	
+	Route::any('/tickets/{id}/updateTicketDueTime', "TicketsController@UpdateTicketDueTime");	
 	Route::post('tickets/ticket_action', 'TicketsController@TicketAction');
 	Route::post('tickets/{id}/updateticketattributes', 'TicketsController@UpdateTicketAttributes');
 	Route::post('tickets/{id}/actionsubmit', 'TicketsController@ActionSubmit');
@@ -526,6 +548,22 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('tickets/compose_email', 'TicketsController@ComposeEmail');	
 	Route::post('tickets/SendMail', 'TicketsController@SendMail');
 	Route::post('tickets/add_note', 'TicketsController@add_note');
+
+	Route::any('businesshours', 'TicketsBusinessHoursController@index');
+	Route::any('businesshours/ajax_datagrid', 'TicketsBusinessHoursController@ajax_datagrid');
+	Route::any('businesshours/exports/{type}', 'TicketsBusinessHoursController@ajax_datagrid');
+	Route::any('businesshours/create', "TicketsBusinessHoursController@create");
+	Route::any('businesshours/store','TicketsBusinessHoursController@store');
+	Route::any('businesshours/{id}/delete', 'TicketsBusinessHoursController@delete');
+	Route::any('businesshours/{id}/edit', 'TicketsBusinessHoursController@edit');
+	Route::any('businesshours/{id}/update', "TicketsBusinessHoursController@update");
+	
+	
+    Route::post('tickets/bulkactions', 'TicketsController@BulkAction');
+    Route::post('tickets/bulkdelete', 'TicketsController@BulkDelete');
+
+    Route::get('ticket_dashboard/summarywidgets', 'TicketDashboardController@ticketSummaryWidget');
+    Route::get('ticket_dashboard/timelinewidgets/{limit}', 'TicketDashboardController@ticketTimeLineWidget');
 	
 	
 	Route::any('/contacts/get_note', 'ContactsController@get_note');
@@ -655,6 +693,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/activecronjob', 'CronJobController@activecronjob');
     Route::any('/cronjobs/activecronjob_ajax_datagrid', 'CronJobController@activecronjob_ajax_datagrid');
     Route::any('/cronjobs/activeprocessdelete/', 'CronJobController@activeprocessdelete');
+    Route::any('/cronjobs/check_failing', 'CronJobController@check_failing');
 
 
 	Route::any('/cronjob_monitor', 'CronJobController@cronjob_monitor');
@@ -735,6 +774,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice_template/{id}/print', 'InvoiceTemplatesController@print_preview');
 	Route::any('/invoice_template/{id}/pdf_download', 'InvoiceTemplatesController@pdf_download');
     Route::any('/invoice_template/{id}/get_logo', 'InvoiceTemplatesController@get_logo');
+    Route::any('/invoice_template/save_single_field', 'InvoiceTemplatesController@save_single_field');
 
 	//CDR Upload
 	Route::any('/cdr_upload', 'CDRController@index');
@@ -762,6 +802,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_upload/check_vendorupload', 'CDRController@check_vendorupload');
 	Route::any('/cdr_upload/storeVendorTemplate', 'CDRController@storeVendorTemplate');
 
+
+    //CDR Template
+    Route::any('/cdr_template', 'CDRTemplateController@index');;
+    Route::any('/cdr_template/upload', 'CDRTemplateController@upload');
+    Route::any('/cdr_template/check_upload', 'CDRTemplateController@check_upload');
+    Route::any('/cdr_template/ajaxfilegrid', 'CDRTemplateController@ajaxfilegrid');
+    Route::any('/cdr_template/storeTemplate', 'CDRTemplateController@storeTemplate');
 
 	/////////////////
 	//Estimates
@@ -802,22 +849,22 @@ Route::group(array('before' => 'auth'), function () {
 
     /////////////////
     //Recurring Item Invoices
-    Route::any('/recurringinvoices', 'RecurringInvoiceController@index');
-    Route::any('/recurringinvoices/create', 'RecurringInvoiceController@create');
-    Route::any('/recurringinvoices/store', 'RecurringInvoiceController@store');
-    Route::any('/recurringinvoices/{id}/edit', 'RecurringInvoiceController@edit');
-    Route::any('/recurringinvoices/delete', 'RecurringInvoiceController@delete');
-    Route::any('/recurringinvoices/{id}/update', 'RecurringInvoiceController@update');
-    Route::any('/recurringinvoices/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_datagrid');
-    Route::any('/recurringinvoices/calculate_total', 'RecurringInvoiceController@calculate_total');
-    Route::any('/recurringinvoices/get_account_info', 'RecurringInvoiceController@getAccountInfo');
-    Route::any('/recurringinvoices/get_billingclassinfo_info', 'RecurringInvoiceController@getBillingClassInfo');
-    Route::any('/recurringinvoices/{id}/log', 'RecurringInvoiceController@recurringinvoicelog');
-    Route::any('/recurringinvoices/{id}/log/{type}', 'RecurringInvoiceController@recurringinvoicelog');
-    Route::any('/recurringinvoices/{id}/log/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_recurringinvoicelog_datagrid');
-    Route::any('/recurringinvoices/startstop/{start_stop}', 'RecurringInvoiceController@startstop');
-    Route::any('/recurringinvoices/sendinvoice', 'RecurringInvoiceController@sendInvoice');
-    Route::any('/recurringinvoices/generate', 'RecurringInvoiceController@generate');
+    Route::any('/recurringprofiles', 'RecurringInvoiceController@index');
+    Route::any('/recurringprofiles/create', 'RecurringInvoiceController@create');
+    Route::any('/recurringprofiles/store', 'RecurringInvoiceController@store');
+    Route::any('/recurringprofiles/{id}/edit', 'RecurringInvoiceController@edit');
+    Route::any('/recurringprofiles/delete', 'RecurringInvoiceController@delete');
+    Route::any('/recurringprofiles/{id}/update', 'RecurringInvoiceController@update');
+    Route::any('/recurringprofiles/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_datagrid');
+    Route::any('/recurringprofiles/calculate_total', 'RecurringInvoiceController@calculate_total');
+    Route::any('/recurringprofiles/get_account_info', 'RecurringInvoiceController@getAccountInfo');
+    Route::any('/recurringprofiles/get_billingclassinfo_info', 'RecurringInvoiceController@getBillingClassInfo');
+    Route::any('/recurringprofiles/{id}/log', 'RecurringInvoiceController@recurringinvoicelog');
+    Route::any('/recurringprofiles/{id}/log/{type}', 'RecurringInvoiceController@recurringinvoicelog');
+    Route::any('/recurringprofiles/{id}/log/ajax_datagrid/{type}', 'RecurringInvoiceController@ajax_recurringinvoicelog_datagrid');
+    Route::any('/recurringprofiles/startstop/{start_stop}', 'RecurringInvoiceController@startstop');
+    Route::any('/recurringprofiles/sendinvoice', 'RecurringInvoiceController@sendInvoice');
+    Route::any('/recurringprofiles/generate', 'RecurringInvoiceController@generate');
     ///////////////////////////
 
 	//Invoice
@@ -1130,6 +1177,21 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/clitable/delete/{id}','AccountsController@clitable_delete');
 	Route::any('/clitable/update','AccountsController@clitable_update');
 
+	// services
+	Route::any('services', 'ServicesController@index');
+	Route::any('services/ajax_datagrid', 'ServicesController@ajax_datagrid');
+	Route::any('services/store', 'ServicesController@store');
+	Route::any('services/update/{id}', 'ServicesController@update');
+	Route::any('services/delete/{id}', 'ServicesController@delete');
+	Route::any('services/exports/{type}', 'ServicesController@exports');
+
+	//accountservice
+	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
+	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
+	Route::any('accountservices/{id}/ajax_datagrid', 'AccountServiceController@ajax_datagrid');
+	Route::any('accountservices/{id}/update/{serviceid}', 'AccountServiceController@update');
+	Route::any('accountservices/{id}/changestatus/{status}', 'AccountServiceController@changestatus');
+	Route::any('accountservices/{id}/{serviceid}/delete', 'AccountServiceController@delete');
 });
 
 Route::group(array('before' => 'global_admin'), function () {
@@ -1206,6 +1268,9 @@ Route::group(array('before' => 'guest'), function () {
 	Route::any('/estimate/{id}/create_comment', 'EstimatesController@create_comment');
 
 	Route::any('/estimate/download_estimate/{id}', 'EstimatesController@download_estimate');
+	
+	Route::any('/download_file', 'HomeController@DownloadFile');
+	
 
 });
 
