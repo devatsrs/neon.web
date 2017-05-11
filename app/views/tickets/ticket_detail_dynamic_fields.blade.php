@@ -197,7 +197,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 	  $(document).on('change','#{{$htmlgroupID}}',function(e){
 		   var changeGroupID =  	$(this).val();
 		   if(changeGroupID==0){
-		   		 $('#{{$htmlagentID}} option').remove();
+		   		 $('#{{$htmlagentID}} option:gt(0)').remove();
 				 return false;
 			}
 		   if(changeGroupID)
@@ -222,7 +222,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 						   $.each(response.data, function(key,value) {							  
 							  $('#{{$htmlagentID}}').append($("<option></option>").attr("value", value).text(key));
 							});	
-							$('#{{$htmlgroupID}}').trigger('change');				
+							$('#{{$htmlagentID}}').trigger('change');			
 						}else{
 							toastr.error(response.message, "Error", toastr_opts);
 						}                   
