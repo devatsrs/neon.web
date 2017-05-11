@@ -361,7 +361,7 @@ class CDRController extends BaseController {
             return json_validator_response($validator);
         }
         if($data['RateCDR']) {
-            if ($data['Authentication'] != 'IP' && $data['Authentication'] != 'CLI' && $data['TrunkID'] == '' && empty($data['ServiceID']) && empty($data['OutboundRateTableID']) && empty($data['OutboundRateTableID']) ) {
+            if ($data['Authentication'] != 'IP' && $data['Authentication'] != 'CLI' && $data['selection']['TrunkID'] == '' && empty($data['selection']['ServiceID']) && empty($data['selection']['InboundRateTableID']) && empty($data['selection']['OutboundRateTableID']) ) {
                 return Response::json(array("status" => "failed", "message" => "Either Service or Trunk or Rate Table is Required."));
             }
         }
@@ -531,7 +531,7 @@ class CDRController extends BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor CDR.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Vendor CDR.xlsx';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }

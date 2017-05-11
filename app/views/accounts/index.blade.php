@@ -442,6 +442,10 @@
                                  }
                                  action += '</select>';*/
                                 <?php } ?>
+								
+								if(full[9]==1 || full[10]==1){
+                                 	action += '&nbsp;<a href="'+authenticate_+'" title="Authentication Rule" class="btn btn-default btn-xs"><i class="entypo-lock"></i></a>';
+                                } 
 
                                 if(full[9]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
@@ -453,11 +457,8 @@
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
                                         action += '&nbsp;<a href="'+vendor_blocking_+'" title="Vendor" class="btn btn-info btn-xs"><i class="fa fa-slideshare"></i></a>';
                                     <?php } ?>
-                                } 
+                                } 								
 								
-								if(full[9]==1 || full[10]==1){
-                                 	action += '&nbsp;<a href="'+authenticate_+'" title="Authentication Rule" class="btn btn-info btn-xs"><i class="entypo-lock"></i></a>';
-                                } 
                                 action +='<input type="hidden" name="accountid" value="'+full[0]+'"/>';
                                 action +='<input type="hidden" name="address1" value="'+full[12]+'"/>';
                                 action +='<input type="hidden" name="address2" value="'+full[13]+'"/>';
@@ -527,12 +528,12 @@
                     return true;
                 }
                 var temp = childrens.eq(9).clone(); 
-                $(temp).find('a').each(function () {
+                /*$(temp).find('a').each(function () {
                    // $(this).find('i').remove();
                     $(this).removeClass('btn btn-icon icon-left');
                     $(this).addClass('label');
                     $(this).addClass('padding-4');
-                });
+                });*/
                 $(temp).find('.select2-container').remove();
                 $(temp).find('select[name="varification_status"]').remove();
                 var address1 = $(temp).find('input[name="address1"]').val();

@@ -27,59 +27,9 @@ BEGIN
 		AuthRule VARCHAR(50)
 	);
 
-	SET v_pointer_ = 1;
-	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Service_);
-	/* service level authentication rule */ 
-	IF v_rowCount_ > 0
-	THEN
-
-		WHILE v_pointer_ <= v_rowCount_
-		DO		
-			
-			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Service_ t WHERE t.RowID = v_pointer_);
-			TRUNCATE TABLE tmp_AuthenticateRules_;
-			IF p_NameFormat != ''
-			THEN
-				INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-				SELECT p_NameFormat;
-			END IF;
-			
-			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-			SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = v_ServiceID_
-			UNION
-			SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = v_ServiceID_;
-	
-			CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,v_ServiceID_);
-
-			SET v_pointer_ = v_pointer_ + 1;
-	
-		END WHILE;
-
-	END IF;
-	
-	/* account level authentication rule */
-	IF (SELECT COUNT(*) FROM NeonRMDev.tblAccountAuthenticate WHERE CompanyID = p_CompanyID AND ServiceID = 0) > 0
-	THEN
-		
-		TRUNCATE TABLE tmp_AuthenticateRules_;
-		IF p_NameFormat != ''
-		THEN
-			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-			SELECT p_NameFormat;
-		END IF;
-		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-		SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = 0
-		UNION
-		SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = 0;
-		
-		CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0);
-
-	END IF;
-	
 	/* gateway level authentication rule */
 	IF p_NameFormat = ''
 	THEN
-		TRUNCATE TABLE tmp_AuthenticateRules_;
 		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
 		SELECT
 			CASE WHEN Settings LIKE '%"NameFormat":"NAMENUB"%'
@@ -109,12 +59,48 @@ BEGIN
 
 	IF p_NameFormat != ''
 	THEN
-		TRUNCATE TABLE tmp_AuthenticateRules_;
 		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
 		SELECT p_NameFormat;
 
 	END IF;
-	
+	SET v_pointer_ = 1;
+	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Service_);
+	/* service level authentication rule */ 
+	IF v_rowCount_ > 0
+	THEN
+
+		WHILE v_pointer_ <= v_rowCount_
+		DO
+
+			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Service_ t WHERE t.RowID = v_pointer_);
+
+			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+			SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND CustomerAuthRule IS NOT NULL AND ServiceID = v_ServiceID_
+			UNION
+			SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND VendorAuthRule IS NOT NULL AND ServiceID = v_ServiceID_;
+
+			CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,v_ServiceID_);
+
+			SET v_pointer_ = v_pointer_ + 1;
+
+		END WHILE;
+
+	END IF;
+
+	/* account level authentication rule */
+	IF (SELECT COUNT(*) FROM NeonRMDev.tblAccountAuthenticate WHERE CompanyID = p_CompanyID AND ServiceID = 0) > 0
+	THEN
+
+
+		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+		SELECT DISTINCT CustomerAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND CustomerAuthRule IS NOT NULL AND ServiceID = 0
+		UNION
+		SELECT DISTINCT VendorAuthRule FROM NeonRMDev.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND VendorAuthRule IS NOT NULL AND ServiceID = 0;
+
+		CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0);
+
+	END IF;
+
 	CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0);
 
 	UPDATE tblGatewayAccount

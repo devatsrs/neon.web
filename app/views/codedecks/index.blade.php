@@ -9,6 +9,9 @@
     <li>
             <a href="{{URL::to('codedecks')}}">Code Decks</a>
     </li>
+    <li>
+        <a><span>{{basecodedeck_dropbox($id)}}</span></a>
+    </li>
     <li class="active">
         <strong>{{$CodeDeckName}}</strong>
     </li>

@@ -13,6 +13,9 @@
     <li class="active">
         <a href="{{URL::to('invoice_template')}}">  Invoice Template</a>
     </li>
+    <li>
+        <a><span>{{invoicetemplate_dropbox($InvoiceTemplate->InvoiceTemplateID)}}</span></a>
+    </li>
     <li class="active">
         <strong>Edit {{$InvoiceTemplate->Name}}</strong>
     </li>
@@ -285,8 +288,30 @@
             });*/
         });
 
+        $('#drp_invoicetemplate_jump').on('change',function(){
+            var val = $(this).val();
+            if(val!="") {
+                var InvoiceTemplateID = '{{$InvoiceTemplate->InvoiceTemplateID}}';
+                var url ='/invoice_template/'+ val + '/view?Type=2';
+                window.location.href = baseurl + url;
+            }
+        });
+
     });
 	</script>
+    <style>
+        #drp_invoicetemplate_jump{
+            border: 0px solid #fff;
+            background-color: rgba(255,255,255,0);
+            padding: 0px;
+        }
+        #drp_invoicetemplate_jump option{
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            border: 0px;
+        }
+
+    </style>
 @stop
 @section('footer_ext')
 @parent

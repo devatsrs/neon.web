@@ -260,9 +260,15 @@ class AccountsController extends \BaseController {
 				}
 			}else{ 	
 				if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
-					return	Redirect::to('/logout'); 	
+                    \Illuminate\Support\Facades\Log::info("Account 401 ");
+                    \Illuminate\Support\Facades\Log::info(print_r($response_timeline,true));
+					//return	Redirect::to('/logout');
 				}		
-				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
+				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){
+                    \Illuminate\Support\Facades\Log::info("Account token_expired ");
+                    \Illuminate\Support\Facades\Log::info(print_r($response_timeline,true));
+                    //Redirect::to('/login');
+                }
 				$message = json_response_api($response_timeline,false,false);
 			}
 			
@@ -899,7 +905,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $status = "success";
                 $message = "";
             }else{
-                $message = "CLI Already exits";
+                $message = "CLI Already exists";
             }
         }else{
             $message = "CLI is blank, Please enter valid cli";
@@ -920,7 +926,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $status = "success";
                 $message = "";
             } else {
-                $message = "IP Already exits";
+                $message = "IP Already exists";
             }
         } else {
             $message = "IP is blank, Please enter valid IP";
@@ -1269,7 +1275,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
         if(!empty($message)){
-            $message = 'Following CLI already exits.<br>'.$message;
+            $message = 'Following CLI already exists.<br>'.$message;
             return Response::json(array("status" => "error", "message" => $message));
         }else{
             return Response::json(array("status" => "success", "message" => "CLI Successfully Added"));
@@ -1391,9 +1397,18 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $selectedIDs = explode(',',$data['BulkselectedIDs']);		
         try{
             //Implement loop because boot is triggering for each updated record to log the changes.
-            foreach ($selectedIDs as $id) {
+            foreach ($selectedIDs as $id)
+			{
 				DB::beginTransaction();
-                Account::where(['AccountID'=>$id])->update($update);
+				
+				if(isset($update['CurrencyId']))
+				{ 
+					Account::whereRaw("(AccountID = '".$id."' AND (CurrencyId is null or CurrencyId ='0'))")->update($update);
+				}
+				else
+				{
+                	Account::where(['AccountID'=>$id])->update($update);
+				}
 				DB::commit();				
             }
 			 return Response::json(array("status" => "success", "message" => "Accounts Updated Successfully"));

@@ -72,6 +72,5 @@ BEGIN
 	WHERE 
 	(p_billing_time =1 and connect_time >= p_StartDate AND connect_time <= p_EndDate)
 	OR 
-	(p_billing_time =2 and disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate)
-	AND billed_duration > 0;
+	(p_billing_time =2 and disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate);
 END

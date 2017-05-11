@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS `tblAccountService` (
   `ServiceID` int(3) NOT NULL DEFAULT '0',
   `CompanyID` int(3) NOT NULL DEFAULT '0',
   `Status` int(3) NOT NULL DEFAULT '1',
-  `created_at` datetime NULL DEFAULT 'CURRENT_TIMESTAMP',
-  `updated_at` datetime NULL DEFAULT 'CURRENT_TIMESTAMP' on update CURRENT_TIMESTAMP,
+  `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NULL DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `ServiceTitle` varchar(50) NULL,
   PRIMARY KEY (`AccountServiceID`)
 ) ENGINE=InnoDB;

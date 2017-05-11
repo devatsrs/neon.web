@@ -11,7 +11,7 @@
         <a href="{{URL::to('/rategenerators')}}">Rate Generator</a>
     </li>
 		<li>
-        <a><span>{{businesshours_dropbox($rategenerators->RateGeneratorId)}}</span></a>
+        <a><span>{{rategenerators_dropbox($rategenerators->RateGeneratorId)}}</span></a>
     </li>
    <!-- <li class="active">
         <strong>{{!empty($rategenerator)?$rategenerator->RateGeneratorName:''}}</strong>
