@@ -278,7 +278,7 @@ var required_flds	  =          '{{json_encode($required)}}';
 			}
       });
 	  
-	  $(document).on('change','#{{$htmlgroupID}}',function(e){ alert("here");
+	  $(document).on('change','#{{$htmlgroupID}}',function(e){
 		   var changeGroupID =  	$(this).val(); 
 		   
 		  	if(changeGroupID==0){
