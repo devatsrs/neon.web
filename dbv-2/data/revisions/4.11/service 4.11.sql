@@ -45,7 +45,7 @@ ON tblBillingClass.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
 SET tblInvoiceTemplate.CDRType = tblBillingClass.CDRType
 WHERE tblBillingClass.CDRType IS NOT NULL;
 
-UPDATE tblInvoiceTemplate SET tblInvoiceTemplate.CDRType = 1 WHERE CDRType IS NULL;
+UPDATE tblInvoiceTemplate SET CDRType = 1 WHERE CDRType IS NULL;
   
 DROP TABLE `tblUsageDaily`;
 
