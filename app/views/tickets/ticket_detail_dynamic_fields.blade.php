@@ -221,7 +221,8 @@ var required_flds	  =          '{{json_encode($required)}}';
 						   $('#{{$htmlagentID}} option').remove();
 						   $.each(response.data, function(key,value) {							  
 							  $('#{{$htmlagentID}}').append($("<option></option>").attr("value", value).text(key));
-							});					
+							});	
+							$('#{{$htmlgroupID}}').trigger('change');				
 						}else{
 							toastr.error(response.message, "Error", toastr_opts);
 						}                   
