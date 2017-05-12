@@ -1,5 +1,5 @@
 @font-face {
-  font-family: SourceSansPro;
+  font-family: Source Sans Pro;
   src: url(SourceSansPro-Regular.ttf);
 }
 
@@ -10,7 +10,7 @@
 }
 
 a {
-  color: #555555;
+  color: #000000;
   text-decoration: none;
 }
 
@@ -19,10 +19,10 @@ a {
   width: 21cm;  
   height: 29.7cm;*/
   margin: 0 auto; 
-  color: #555555 !important;
+  color: #000000 !important;
   background: #FFFFFF;
   font-size: 12px;
-  font-family: SourceSansPro;
+  font-family: Source Sans Pro;
 }
 
 header {
@@ -38,7 +38,7 @@ header {
 }
 
 #logo img {
-  height: 70px;
+  /*height: 70px;*/
 }
 
 #company {
@@ -54,12 +54,12 @@ header {
 
 #client {
   padding-left: 6px;
-  border-left: 6px solid #555555;
+  border-left: 3px solid #000000;
   float: left;
 }
 
 #client .to {
-  color: #555555;
+  color: #000000;
   font-size:16px;
 }
 
@@ -75,7 +75,7 @@ h2.name {
 }
 
 #invoice h1 {
-  color: #555555;
+  color: #000000;
   font-size: 2.0em;
   line-height: 1em;
   font-weight: normal;
@@ -84,7 +84,7 @@ h2.name {
 
 #invoice .date {
   font-size: 1.1em;
-  color: #555555;
+  color: #000000;
 }
 
 table {
@@ -96,9 +96,9 @@ table {
 
 #frontinvoice th,
 #frontinvoice td {
-  padding: 12px;
+  padding: 09px;
   background: #EEEEEE;
-  text-align: center;
+  /*text-align: center;*/
   border-bottom: 1px solid #FFFFFF;
 }
 
@@ -168,7 +168,7 @@ table th {
 
 #frontinvoice tfoot tr:last-child td.subtotal{  
   font-size: 1.4em;
-  border-top: 1px solid #AAAAAA; 
+  /*border-top: 1px solid #AAAAAA;*/
 
 }
 
@@ -177,7 +177,7 @@ table th {
 }
 
 .subtotal {
-	border-top: 1px solid #AAAAAA; 
+	border-bottom: 1px solid #000000 !important;
 	text-align: center;
 }
 
@@ -272,6 +272,6 @@ footer {
   text-align: center;
   */
   bottom: 0;
-  color: #777777;
+  color: #000000;
   font-size: 10px;
 }
