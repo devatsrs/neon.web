@@ -159,16 +159,16 @@ table th {
   border-bottom: none;
   font-size: 1.2em;
   white-space: nowrap;
-  padding: 6px 12px;
+  padding: 6px 09px;
 }
 
 #frontinvoice tfoot tr:first-child td {
   border-top: none; 
 }
 
-#frontinvoice tfoot tr:last-child td.subtotal{  
-  font-size: 1.4em;
-  /*border-top: 1px solid #AAAAAA;*/
+#frontinvoice tfoot tr:last-child td.subtotal{
+  /*font-size: 1.4em;
+  border-top: 1px solid #AAAAAA;*/
 
 }
 

@@ -110,7 +110,7 @@
                     <td></td>
                 @endif
 				<td colspan="2"><b>Grand Total</b></td>
-				<td class="subtotal">$6,500.00</td>
+				<td class="subtotal"><b>$6,500.00</b></td>
 			</tr>
 			</tfoot>
 		</table>

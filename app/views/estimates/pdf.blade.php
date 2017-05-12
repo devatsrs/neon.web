@@ -156,7 +156,7 @@ $inlineTaxes        =   [];
                 <tr>
                     <td colspan="2"></td>
                     <td colspan="2"><b>Grand Total</b></td>
-                    <td class="subtotal">{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$RoundChargesAmount)}}</td>
+                    <td class="subtotal"><b>{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$RoundChargesAmount)}}</b></td>
                 </tr>
                 
                 </tfoot>
