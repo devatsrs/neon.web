@@ -75,7 +75,7 @@ var postdata;
 
         //show_loading_bar(40);
 		 $searchFilter.Gateway = $("#gateway_form [name='Gateway']").val();
-        var ftpGatewayID = {{$ftpGatewayID}};
+        var ftpGatewayID = '{{$ftpGatewayID}}';
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,

@@ -122,8 +122,8 @@ BEGIN
 	DEALLOCATE PREPARE stmt2;
 
 	SET @stm6 = CONCAT('
-	INSERT INTO tblVendorCDRFailed (VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
-	SELECT VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
+	INSERT INTO tblVendorCDRFailed (VendorCDRHeaderID,billed_duration,duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
+	SELECT VendorCDRHeaderID,billed_duration,duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
 	FROM `' , p_tbltempusagedetail_name , '` d 
 	INNER JOIN tblVendorCDRHeader h	 
 	ON h.CompanyID = d.CompanyID
@@ -147,8 +147,8 @@ BEGIN
 	DEALLOCATE PREPARE stmt3;
 
 	SET @stm4 = CONCAT('
-	INSERT INTO tblVendorCDR (VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
-	SELECT VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
+	INSERT INTO tblVendorCDR (VendorCDRHeaderID,billed_duration,duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
+	SELECT VendorCDRHeaderID,billed_duration,duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
 	FROM `' , p_tbltempusagedetail_name , '` d 
 	INNER JOIN tblVendorCDRHeader h	 
 	ON h.CompanyID = d.CompanyID
