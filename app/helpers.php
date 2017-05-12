@@ -406,7 +406,7 @@ function compositDropdown($name,$data,$selection,$arr)
         $select .= ' <optgroup class="optgroup_'.Product::$TypetoProducts[$index].'" label="'.ucfirst(Product::$TypetoProducts[$index]).'">';
         foreach($cate as $key=>$val) {
             $selected = (!empty($selection) && $key==$selection['ID'] && $index==$selection['Type'])?'selected':'';
-            $select .= '    <option value="' . $key . '" '.$selected.'>';
+            $select .= '    <option Item_Subscription_txt="'.ucfirst(Product::$TypetoProducts[$index]).'" Item_Subscription_type="'.$index.'" value="' . $key . '" '.$selected.'>';
             $select .= $val;
             $select .= '    </option>';
         }

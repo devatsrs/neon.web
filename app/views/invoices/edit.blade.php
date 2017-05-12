@@ -33,6 +33,9 @@
                         <div class="col-sm-6"> {{Form::select('AccountID',$accounts,$Invoice->AccountID,array("class"=>"select2" ,"disabled"=>"disabled"))}}
                             {{Form::hidden('AccountID',$Invoice->AccountID)}} </div>
                         <div class="clearfix margin-bottom "></div>
+                          <label for="field-1" class="col-sm-2 control-label">*Billing Class</label>
+ 				         <div class="col-sm-6">{{Form::select('BillingClassID', $BillingClass,$InvoiceBillingClass,array("class"=>"select2 small form-control1 small","id"=>"AccountBillingClassID","disabled"=>"disabled"));}}</div>
+			            <div class="clearfix margin-bottom "></div>
                         <label for="field-1" class="col-sm-2 control-label">*Address</label>
                         <div class="col-sm-6"> {{Form::textarea('Address',$Invoice->Address,array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}} </div>
                         <div class="clearfix margin-bottom "></div>

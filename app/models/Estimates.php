@@ -39,7 +39,8 @@ class Estimate extends \Eloquent {
 		{
             $Estimate 			= 	Estimate::find($EstimateID);
             $EstimateDetail 	= 	EstimateDetail::where(["EstimateID" => $EstimateID])->get();
-            $EstimateTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>0])->orderby('EstimateTaxRateID')->get();
+            $EstimateItemTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>0])->orderby('EstimateTaxRateID')->get();
+			  $EstimateSubscriptionTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>2])->orderby('EstimateTaxRateID')->get();
 			//$EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>1])->orderby('EstimateTaxRateID')->get();
             $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice();
 			$EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')
@@ -50,11 +51,13 @@ class Estimate extends \Eloquent {
                     ->groupBy("TaxRateID")                   
                     ->get();
             $Account 			= 	Account::find($Estimate->AccountID);
-            $AccountBilling = AccountBilling::getBilling($Estimate->AccountID);
+           // $AccountBilling 	=   AccountBilling::getBilling($Estimate->AccountID);
             $Currency 			= 	Currency::find($Account->CurrencyId);
             $CurrencyCode 		= 	!empty($Currency)?$Currency->Code:'';
 			$CurrencySymbol 	=   Currency::getCurrencySymbol($Account->CurrencyId);
-            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Estimate->AccountID);
+            
+			//$InvoiceTemplateID  =	AccountBilling::getInvoiceTemplateID($Estimate->AccountID);
+			$InvoiceTemplateID  =   self::GetEstimateInvoiceTemplateID($Estimate);
             $EstimateTemplate 	= 	InvoiceTemplate::find($InvoiceTemplateID);
 			
             if (empty($EstimateTemplate->CompanyLogoUrl) || AmazonS3::unSignedUrl($EstimateTemplate->CompanyLogoAS3Key) == '')
@@ -75,7 +78,7 @@ class Estimate extends \Eloquent {
             $file_name 						= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.pdf';
             $htmlfile_name 					= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.html';
 			$print_type = 'Estimate';
-            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','EstimateTaxRates','EstimateAllTaxRates','taxes'))->render();
+            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','EstimateItemTaxRates','EstimateSubscriptionTaxRates','EstimateAllTaxRates','taxes'))->render();
             $body 	= 	htmlspecialchars_decode($body); 
             $footer = 	View::make('estimates.pdffooter', compact('Estimate','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);
@@ -180,5 +183,24 @@ class Estimate extends \Eloquent {
         }
         return $EstimateNumberPrefix.$Estimate->EstimateNumber;
     }
+	
+	public static function GetEstimateBillingClass($Estimate)
+	{
+			if(isset($Estimate->BillingClassID))
+			{
+				$EstimateBillingClass	 =	 $Estimate->BillingClassID;
+			}
+			else
+			{
+				$AccountBilling 	  	=  	 AccountBilling::getBilling($Estimate->AccountID);
+				$EstimateBillingClass 	= 	 $AccountBilling->BillingClassID;	
+			}	
+			return $EstimateBillingClass;
+	}
+	
+	public static function GetEstimateInvoiceTemplateID($Estimate){
+	  	$billingclass = 	self::GetEstimateBillingClass($Estimate);
+		return BillingClass::getInvoiceTemplateID($billingclass);
+	}
 
 }

@@ -113,34 +113,64 @@ $inlineTaxes        =   [];
                         {{-- @endif --}}
                 @endforeach
                 </tbody>
-                <tfoot>
+                <tfoot> <?php $item_tax_total = $subscription_tax_total = 0; ?>
                 @if($grand_total_item > 0)
                     <tr>
                         <td colspan="2"></td>
                         <td colspan="2">ONE OFF SUB TOTAL</td>
                         <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_item,$RoundChargesAmount)}}</td>
+                        <?php $item_tax_total = $grand_total_item; ?>
                     </tr>
                 @endif
+                @if(count($EstimateItemTaxRates) > 0) 
+                    @foreach($EstimateItemTaxRates as $EstimateItemTaxRatesData)
+                        <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2">{{$EstimateItemTaxRatesData->Title}}</td>
+                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($EstimateItemTaxRatesData->TaxAmount,$RoundChargesAmount)}}</td>
+                        </tr> <?php $item_tax_total = $item_tax_total+$EstimateItemTaxRatesData->TaxAmount; ?>
+                    @endforeach
+                @endif  
+                @if($item_tax_total>0)
+               		 <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2"><strong>ONE OFF TOTAL</strong></td>
+                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($item_tax_total,$RoundChargesAmount)}}</td>
+                        </tr>
+                @endif  
+                              
                 @if($grand_total_subscription > 0)
                     <tr>
                         <td colspan="2"></td>
                         <td colspan="2">RECURRING SUB TOTAL</td>
                         <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_subscription,$RoundChargesAmount)}}</td>
+                        <?php $subscription_tax_total = $grand_total_subscription; ?>
                     </tr>
-                @endif
-                @if(count($inlineTaxes) > 0)
-                    @foreach($inlineTaxes as $index=>$value)
+                @endif    
+                
+                  @if(count($EstimateSubscriptionTaxRates) > 0)
+                    @foreach($EstimateSubscriptionTaxRates as $EstimateSubscriptionTaxRatesData)
                         <tr>
                             <td colspan="2"></td>
-                            <td colspan="2">{{$taxes[$index]['Title']}}</td>
-                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($value,$RoundChargesAmount)}}</td>
+                            <td colspan="2">{{$EstimateSubscriptionTaxRatesData->Title}}</td>
+                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($EstimateSubscriptionTaxRatesData->TaxAmount,$RoundChargesAmount)}}</td>
+                            <?php $subscription_tax_total = $subscription_tax_total+$EstimateSubscriptionTaxRatesData->TaxAmount; ?>
                         </tr>
                     @endforeach
                 @endif
+                
+                @if($subscription_tax_total>0)
+               		 <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2"><strong>Recurring Total	</strong></td>
+                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($subscription_tax_total,$RoundChargesAmount)}}</td>
+                        </tr>
+                @endif  
+                          
                 <tr>
                     <td colspan="2"></td>
                     <td colspan="2">ESTIMATE TOTAL</td>
-                    <td class="subtotal">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$RoundChargesAmount)}}</td>
+                    <td class="subtotal">{{$CurrencySymbol}}{{number_format($Estimate->EstimateTotal,$RoundChargesAmount)}}</td>
                 </tr>
                 
                 @if(count($EstimateAllTaxRates))
