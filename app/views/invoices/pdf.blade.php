@@ -77,7 +77,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
             {{---@if($ProductRow->ProductType == Product::ITEM)--}}
               <tr>
                 <td class="desc">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
-                <td class="desc">{{$ProductRow->Description}}</td>
+                <td class="desc">{{nl2br($ProductRow->Description)}}</td>
                 <td class="rightalign">{{$ProductRow->Qty}}</td>
                 <td class="rightalign">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
                 <td class="total">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
