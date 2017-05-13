@@ -75,6 +75,7 @@ var postdata;
 
         //show_loading_bar(40);
 		 $searchFilter.Gateway = $("#gateway_form [name='Gateway']").val();
+        var GatewayName = '{{$GatewayName}}';
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -234,12 +235,9 @@ var postdata;
         $("#GatewayID").select2().select2('val',GatewayID);
         $("#GatewayID").trigger('change');
 
-        /**  need to change
-         GatewayID = Gateway::getGatewayID(Gateway::GATEWAY_FTP);
-        if(GatewayID == 7){
+        if(GatewayName == 'FTP'){
             $('#CDRMapping').removeClass('hidden');
         }
-         */
 
         $('#add-new-modal-config h4').html('Edit Gateway');
         $('#add-new-modal-config').modal('show');
