@@ -75,7 +75,7 @@ var postdata;
 
         //show_loading_bar(40);
 		 $searchFilter.Gateway = $("#gateway_form [name='Gateway']").val();
-        var ftpGatewayID = '{{$ftpGatewayID}}';
+        var GatewayName = '{{$GatewayName}}';
 
         data_table = $("#table-4").dataTable({
             "bDestroy": true,
@@ -235,7 +235,7 @@ var postdata;
         $("#GatewayID").select2().select2('val',GatewayID);
         $("#GatewayID").trigger('change');
 
-        if(GatewayID == ftpGatewayID){
+        if(GatewayName == 'FTP'){
             $('#CDRMapping').removeClass('hidden');
         }
 
