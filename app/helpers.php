@@ -176,6 +176,10 @@ function contacts_dropbox($id=0,$data=array()){
     $all_contacts = Contact::getContacts($data);
     return Form::select('contacts', $all_contacts, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
+function recurring_invoice_log_dropbox($id=0,$data=array()){
+    $all_getInvoice = RecurringInvoice::getRecurringInvoices($data);
+    return Form::select('recurringinvoicelogs', $all_getInvoice, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
 function ticketgroup_dropbox($id=0,$data=array()){
     $all_ticketsgroups = TicketGroups::getTicketGroups_dropdown($data);
     return Form::select('ticketgroups', $all_ticketsgroups, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
