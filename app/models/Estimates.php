@@ -37,8 +37,12 @@ class Estimate extends \Eloquent {
 	{
         if($EstimateID>0)
 		{
-            $Estimate 			= 	Estimate::find($EstimateID);
-            $EstimateDetail 	= 	EstimateDetail::where(["EstimateID" => $EstimateID])->get();
+            $Estimate 				= 	Estimate::find($EstimateID);
+            $EstimateDetail 		= 	EstimateDetail::where(["EstimateID" => $EstimateID])->get();
+			$EstimateDetailItems 	= 	EstimateDetail::where(["EstimateID" => $EstimateID,"ProductType"=>Product::ITEM])->get();
+			$EstimateDetailISubscription 	= 	EstimateDetail::where(["EstimateID" => $EstimateID,"ProductType"=>Product::SUBSCRIPTION])->get();
+			
+			
             $EstimateItemTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>0])->orderby('EstimateTaxRateID')->get();
 			  $EstimateSubscriptionTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>2])->orderby('EstimateTaxRateID')->get();
 			//$EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>1])->orderby('EstimateTaxRateID')->get();
@@ -78,7 +82,7 @@ class Estimate extends \Eloquent {
             $file_name 						= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.pdf';
             $htmlfile_name 					= 	'Estimate--' .$Account->AccountName.'-' .date($EstimateTemplate->DateFormat) . '.html';
 			$print_type = 'Estimate';
-            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','EstimateItemTaxRates','EstimateSubscriptionTaxRates','EstimateAllTaxRates','taxes'))->render();
+            $body 	= 	View::make('estimates.pdf', compact('Estimate', 'EstimateDetail', 'Account', 'EstimateTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','EstimateItemTaxRates','EstimateSubscriptionTaxRates','EstimateAllTaxRates','taxes',"EstimateDetailItems","EstimateDetailISubscription"))->render();
             $body 	= 	htmlspecialchars_decode($body); 
             $footer = 	View::make('estimates.pdffooter', compact('Estimate','print_type'))->render();
             $footer = 	htmlspecialchars_decode($footer);
@@ -119,9 +123,9 @@ class Estimate extends \Eloquent {
                 exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
             Log::info($output);
-            @unlink($local_htmlfile);
-            @unlink($footer_html);
-            @unlink($header_html);
+          //  @unlink($local_htmlfile);
+          //  @unlink($footer_html);
+          //  @unlink($header_html);
             if (file_exists($local_file)) {
                 $fullPath = $amazonPath . basename($local_file); //$destinationPath . $file_name;
                 if (AmazonS3::upload($local_file, $amazonPath)) {
