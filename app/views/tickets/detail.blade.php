@@ -9,7 +9,7 @@
 @include('includes.success')
 <div class="pull-left"> @if( User::checkCategoryPermission('Tickets','Edit')) <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a> <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> <a data-toggle="tooltip"  data-placement="top" data-original-title="Edit" href="{{URL::to('tickets/'.$ticketdata->TicketID.'/edit/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="entypo-pencil"></i> </a> @endif
   @if( User::checkCategoryPermission('Tickets','Edit')) <a data-toggle="tooltip"  data-placement="top" data-original-title="Add Note"  class="btn btn-primary add_note tooltip-primary btn-xs"><i class="fa fa-sticky-note"></i> </a> @endif
-  @if( User::checkCategoryPermission('Tickets','Edit')) @if($ClosedTicketStatus!=$ticketdata->Status) <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a> @endif @endif
+  @if( User::checkCategoryPermission('Tickets','Edit')) @if($ClosedTicketStatus!=$ticketdata->Status) <a data-toggle="tooltip"  data-placement="top" data-original-title="Close Ticket" ticket_number="{{$ticketdata->TicketID}}"  title="Shift+Close to skip notification mail"  class="btn btn-red close_ticket tooltip-primary btn-xs"><i class="glyphicon glyphicon-ban-circle"></i> </a> @endif @endif
   @if( User::checkCategoryPermission('Tickets','Delete')) <a data-toggle="tooltip"  data-placement="top" data-original-title="Delete Ticket" ticket_number="{{$ticketdata->TicketID}}" class="btn btn-red delete_ticket tooltip-primary btn-xs"><i class="entypo-trash"></i> </a> @endif </div>
 <div class="pull-right">@if($PrevTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Previous Ticket" href="{{URL::to('tickets/'.$PrevTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-backward"></i> </a> @endif
   @if($NextTicket) <a data-toggle="tooltip"  data-placement="top" data-original-title="Next Ticket" href="{{URL::to('tickets/'.$NextTicket.'/detail/')}}" class="btn btn-primary tooltip-primary btn-xs"><i class="fa fa-step-forward"></i> </a> @endif</div>
@@ -607,18 +607,23 @@ $(document).ready(function(e) {
             });
 			
 			$('.close_ticket').click(function(e) {
+				 e.preventDefault();
+				var isSendEmail = 1;
+				if(e.shiftKey){ 
+			 		isSendEmail = 0;
+				 }else{isSendEmail = 1;} 
                 var ticket_number   =     parseInt($(this).attr('ticket_number'));
 				if(ticket_number){
 					var confirm_close = confirm("Are you sure you want to close this ticket?");
 					if(confirm_close)
 					{
-						var url 		    = 	  baseurl + '/tickets/'+ticket_number+'/close_ticket';
+						var url 	 = 	  baseurl + '/tickets/'+ticket_number+'/close_ticket';
 						$.ajax({
 							url: url,
 							type: 'POST',
 							dataType: 'json',
 							async :false,
-							data:{s:1,ticket_number:ticket_number},
+							data:{s:1,ticket_number:ticket_number,isSendEmail:isSendEmail},
 							success: function(response){	  
 									if(response.status =='success'){									
 									toastr.success(response.message, "Success", toastr_opts);

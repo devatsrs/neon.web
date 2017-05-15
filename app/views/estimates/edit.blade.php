@@ -56,6 +56,13 @@
                             {{Form::hidden('AccountID',$Estimate->AccountID)}}
                         </div>
                         <div class="clearfix margin-bottom "></div>
+                        
+                        <label for="field-1" class="col-sm-2 control-label">*Billing Class</label>
+ 				         <div class="col-sm-6">
+                         {{Form::select('BillingClassID', $BillingClass,$EstimateBillingClass,array("class"=>"select2 small form-control1 small","id"=>"AccountBillingClassID","disabled"=>"disabled"));}}
+                         </div>
+			            <div class="clearfix margin-bottom "></div>
+                        
                         <label for="field-1" class="col-sm-2 control-label">*Address</label>
                         <div class="col-sm-6">
 

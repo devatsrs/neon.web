@@ -7,6 +7,9 @@
 .invoice table,.invoice table td,.invoice table th,
 .invoice ul li
 { font-size: 12px; }
+#frontinvoice{margin-bottom:10px !important;  }
+.EstiamteTotalTable{margin-bottom:0px !important;}
+.EstiamteTotalTable tbody{font-size:2px !important;}
 
 #pdf_header, #pdf_footer{
     /*position: fixed;*/
@@ -64,8 +67,13 @@ $inlineTaxes        =   [];
                 <h1>Item</h1>
             </div>-->
             <div class="clearfix"></div>
-            <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
+          
+                @if(count($EstimateDetailItems)>0)
+                  <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
                 <thead>
+                <tr>
+                    <th colspan="5" class="desc"><b>ONE OFF</b></th>
+                </tr>
                 <tr>
                     <th class="desc"><b>Title</b></th>
                     <th class="desc"><b>Description</b></th>
@@ -76,7 +84,89 @@ $inlineTaxes        =   [];
                 </thead>
                 
                 <tbody>
-                @foreach($EstimateDetail as $ProductRow)
+                @foreach($EstimateDetailItems as $ProductItemRow)
+                     <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductItemRow->TaxRateID); }
+                        if ($ProductItemRow->TaxRateID!= 0) {
+                            $tax = $taxes[$ProductItemRow->TaxRateID];
+                            $amount = $tax['FlatStatus']==1?$tax['Amount']:(($ProductItemRow->LineTotal * $ProductItemRow->Qty * $tax['Amount'])/100 );
+                            if(array_key_exists($ProductItemRow->TaxRateID, $inlineTaxes)){
+                                $inlineTaxes[$ProductItemRow->TaxRateID] += $amount;
+                            }else{
+                                $inlineTaxes[$ProductItemRow->TaxRateID] = $amount;
+                            }
+                        }
+                        if($ProductItemRow->TaxRateID2 != 0){
+                            $tax = $taxes[$ProductItemRow->TaxRateID2];
+                            $amount = $tax['FlatStatus']==1?$tax['Amount']:(($ProductItemRow->LineTotal * $ProductItemRow->Qty * $tax['Amount'])/100 );
+                            if(array_key_exists($ProductItemRow->TaxRateID2, $inlineTaxes)){
+                                $inlineTaxes[$ProductItemRow->TaxRateID2] += $amount;
+                            }else{
+                                $inlineTaxes[$ProductItemRow->TaxRateID2] = $amount;
+                            }
+                        }
+                        $grand_total_item += $ProductItemRow->LineTotal;
+                        
+                    ?>
+                            <tr>
+                                <td class="desc">{{Product::getProductName($ProductItemRow->ProductID,$ProductItemRow->ProductType)}}</td>
+                                <td class="desc">{{nl2br($ProductItemRow->Description)}}</td>
+                                <td class="rightalign">{{$ProductItemRow->Qty}}</td>
+                                <td class="rightalign">{{number_format($ProductItemRow->Price,$RoundChargesAmount)}}</td>
+                                <td class="total">{{number_format($ProductItemRow->LineTotal,$RoundChargesAmount)}}</td>
+                            </tr>   
+                @endforeach
+                </tbody>
+                <tfoot>      
+                <?php $item_tax_total = 0; ?>
+                 @if($grand_total_item > 0)
+                    <tr>
+                        <td colspan="2"></td>
+                        <td colspan="2">Sub Total</td>
+                        <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_item,$RoundChargesAmount)}}</td>
+                        <?php $item_tax_total = $grand_total_item; ?>
+                    </tr>
+                @endif
+                @if(count($EstimateItemTaxRates) > 0) 
+                    @foreach($EstimateItemTaxRates as $EstimateItemTaxRatesData)
+                        <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2">{{$EstimateItemTaxRatesData->Title}}</td>
+                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($EstimateItemTaxRatesData->TaxAmount,$RoundChargesAmount)}}</td>
+                        </tr> <?php $item_tax_total = $item_tax_total+$EstimateItemTaxRatesData->TaxAmount; ?>
+                    @endforeach
+                @endif  
+                @if($item_tax_total>0)
+               		 <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2"><strong>ONE OFF TOTAL</strong></td>
+                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($item_tax_total,$RoundChargesAmount)}}</td>
+                        </tr>
+                @endif  
+                </tfoot>
+                </table>
+                @endif
+                
+                 @if(count($EstimateDetailItems)>0 && count($EstimateDetailISubscription)>0)                 
+                 @endif
+                 
+                
+                @if(count($EstimateDetailISubscription)>0)
+                  <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
+                <thead>
+                <tr>
+                    <th colspan="5" class="desc"><b>RECURRING</b></th>
+                </tr>
+                <tr>
+                    <th class="desc"><b>Title</b></th>
+                    <th class="desc"><b>Description</b></th>
+                    <th class="rightalign"><b>Quantity</b></th>
+                    <th class="rightalign"><b>Price</b></th>
+                    <th class="total"><b>Line Total</b></th>
+                </tr>
+                </thead>
+                
+                <tbody>
+                @foreach($EstimateDetailISubscription as $ProductRow)
                     <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); }
                         if ($ProductRow->TaxRateID!= 0) {
                             $tax = $taxes[$ProductRow->TaxRateID];
@@ -96,13 +186,8 @@ $inlineTaxes        =   [];
                                 $inlineTaxes[$ProductRow->TaxRateID2] = $amount;
                             }
                         }
-                        if($ProductRow->ProductType == Product::ITEM){
-                            $grand_total_item += $ProductRow->LineTotal;
-                        }elseif($ProductRow->ProductType == Product::SUBSCRIPTION){
-                            $grand_total_subscription += $ProductRow->LineTotal;
-                        }
+                        $grand_total_subscription += $ProductRow->LineTotal;
                     ?>
-                        {{--@if($ProductRow->ProductType == Product::ITEM)--}}
                             <tr>
                                 <td class="desc">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
                                 <td class="desc">{{nl2br($ProductRow->Description)}}</td>
@@ -110,37 +195,60 @@ $inlineTaxes        =   [];
                                 <td class="rightalign">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
                                 <td class="total">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
                             </tr>   
-                        {{-- @endif --}}
                 @endforeach
                 </tbody>
-                <tfoot>
-                @if($grand_total_item > 0)
-                    <tr>
-                        <td colspan="2"></td>
-                        <td colspan="2">One Off Sub Total</td>
-                        <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_item,$RoundChargesAmount)}}</td>
-                    </tr>
-                @endif
+                <tfoot>   
+                <?php  $subscription_tax_total = 0; ?>
                 @if($grand_total_subscription > 0)
                     <tr>
                         <td colspan="2"></td>
-                        <td colspan="2">Recurring Sub Total</td>
+                        <td colspan="2">Sub Total</td>
                         <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_subscription,$RoundChargesAmount)}}</td>
+                        <?php $subscription_tax_total = $grand_total_subscription; ?>
                     </tr>
-                @endif
-                @if(count($inlineTaxes) > 0)
-                    @foreach($inlineTaxes as $index=>$value)
+                @endif    
+                
+                  @if(count($EstimateSubscriptionTaxRates) > 0)
+                    @foreach($EstimateSubscriptionTaxRates as $EstimateSubscriptionTaxRatesData)
                         <tr>
                             <td colspan="2"></td>
-                            <td colspan="2">{{$taxes[$index]['Title']}}</td>
-                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($value,$RoundChargesAmount)}}</td>
+                            <td colspan="2">{{$EstimateSubscriptionTaxRatesData->Title}}</td>
+                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($EstimateSubscriptionTaxRatesData->TaxAmount,$RoundChargesAmount)}}</td>
+                            <?php $subscription_tax_total = $subscription_tax_total+$EstimateSubscriptionTaxRatesData->TaxAmount; ?>
                         </tr>
                     @endforeach
                 @endif
+                
+                @if($subscription_tax_total>0)
+               		 <tr>
+                            <td colspan="2"></td>
+                            <td colspan="2"><strong>Recurring Total	</strong></td>
+                            <td class="subtotal">{{$CurrencySymbol}}{{number_format($subscription_tax_total,$RoundChargesAmount)}}</td>
+                        </tr>
+                @endif  
+                </tfoot>
+                 </table>
+                @endif
+                
+                  <table class="EstiamteTotalTable" border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
+                  <thead>                                     
+ 		       </thead>
+                 <tbody>
+                 @foreach($EstimateDetail as $ProductRow)
+                 <tr style="visibility:hidden;">
+                    <td class="desc">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
+                    <td class="desc">{{$ProductRow->Description}}</td>
+                    <td class="desc">{{$ProductRow->Qty}}</td>
+                    <td class="desc">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
+                    <td class="total">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
+                 </tr>   <?php break; ?>
+                @endforeach
+                 </tbody>
+                <tfoot>                           
                 <tr>
                     <td colspan="2"></td>
-                    <td colspan="2">Estimate Total</td>
-                    <td class="subtotal">{{$CurrencySymbol}}{{number_format($Estimate->SubTotal,$RoundChargesAmount)}}</td>
+                    <td colspan="2">ESTIMATE TOTAL</td>
+                    <td class="subtotal">{{$CurrencySymbol}}{{number_format($Estimate->EstimateTotal,$RoundChargesAmount)}}</td>
                 </tr>
                 
                 @if(count($EstimateAllTaxRates))

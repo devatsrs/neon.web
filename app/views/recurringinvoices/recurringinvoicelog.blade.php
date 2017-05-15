@@ -2,8 +2,9 @@
 
 <ol class="breadcrumb bc-3">
     <li><a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a></li>
-    <li><a href="{{URL::to('invoice')}}">Invoice</a></li>
-    <li><a href="{{URL::to('/recurringprofiles')}}">Recurring Invoice</a></li>
+    <li><a href="{{URL::to('invoice')}}">Invoice</a></li>    
+    <li><a href="{{URL::to('/recurringprofiles')}}">Recurring Invoice</a></li>    
+    <li><a><span>{{recurring_invoice_log_dropbox($id)}}</span></a></li>
     <li class="active"><strong>Recurring Invoice Log</strong></li>
 </ol>
 <h3>View Recurring Invoice Log</h3>

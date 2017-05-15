@@ -837,6 +837,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/estimate/ajax_datagrid_total', 'EstimatesController@ajax_datagrid_total');	
 	Route::any('/estimate/calculate_total', 'EstimatesController@calculate_total');
 	Route::any('/estimate/get_account_info', 'EstimatesController@getAccountInfo');
+	Route::any('/estimate/get_billingclass_info', 'EstimatesController@getBillingclassInfo');
 	Route::any('/estimate/bulk_estimate', 'EstimatesController@bulk_estimate');
 	Route::any('/estimate/add_estimate_in', 'EstimatesController@add_estimate_in');
 	Route::any('/estimate/update_estimate_in/{id}', 'EstimatesController@update_estimate_in');
@@ -894,6 +895,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/ajax_datagrid_total', 'InvoicesController@ajax_datagrid_total');
 	Route::any('/invoice/calculate_total', 'InvoicesController@calculate_total');
 	Route::any('/invoice/get_account_info', 'InvoicesController@getAccountInfo');
+	Route::any('/invoice/get_billingclass_info', 'InvoicesController@getBillingclassInfo');
+	
 	Route::any('/invoice/bulk_invoice', 'InvoicesController@bulk_invoice');
 	Route::any('/invoice/add_invoice_in', 'InvoicesController@add_invoice_in');
 	Route::any('/invoice/update_invoice_in/{id}', 'InvoicesController@update_invoice_in');
