@@ -591,14 +591,14 @@
                     <input id="Attachment" name="Attachment" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                 </div>
             </div>
-            <div class="col-md-12">
+            {{--<div class="col-md-12">
                 <div class="form-group">
                     <label class="control-label"  >Send Email to Customer</label>
                         <p class="make-switch switch-small">
                             <input id="senEMail" name="sendEmail" type="checkbox" value="1" >
                         </p>
                 </div>
-            </div>
+            </div>--}}
         </div>
       </div>
       <div class="modal-footer">

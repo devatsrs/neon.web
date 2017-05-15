@@ -99,9 +99,13 @@ class TicketsController extends \BaseController {
 		$array						=  	 $this->GetResult($data);
 
 		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
-			return json_response_api($array);  
+			\Illuminate\Support\Facades\Log::info("Ticket 401");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
 		}		
-		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){
+			\Illuminate\Support\Facades\Log::info("Ticket token_expired");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
 			return json_response_api($array);  
 		}	
 		
@@ -167,10 +171,14 @@ class TicketsController extends \BaseController {
 		$array						=  	 $this->GetResult($data); 
 
 		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
-			return json_response_api($array);  
+			\Illuminate\Support\Facades\Log::info("Ticket 401");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
 		}		
-		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
-			return json_response_api($array);  
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){
+			\Illuminate\Support\Facades\Log::info("Ticket token_expired");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
 		}	
 
 		

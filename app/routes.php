@@ -802,17 +802,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cdr_upload/check_vendorupload', 'CDRController@check_vendorupload');
 	Route::any('/cdr_upload/storeVendorTemplate', 'CDRController@storeVendorTemplate');
 
-	//Ftp Customer CDR Template
-	Route::any('/ftp_cdr_template', 'FTPCDRTemplateController@index');
-    Route::any('/ftp_cdr_template/upload', 'FTPCDRTemplateController@upload');
-    Route::any('/ftp_cdr_template/check_upload', 'FTPCDRTemplateController@check_upload');
-    Route::any('/ftp_cdr_template/ajaxfilegrid', 'FTPCDRTemplateController@ajaxfilegrid');
-    Route::any('/ftp_cdr_template/storeTemplate', 'FTPCDRTemplateController@storeTemplate');
-	
-	//Ftp Customer CDR Template
-	Route::any('/ftp_cdr_vendor_template', 'FTPCDRTemplateController@Vendorindex');
-	Route::any('/ftp_cdr_vendor_template/storeTemplate', 'FTPCDRTemplateController@storeTemplateVendor');
-	
+
     //CDR Template
     Route::any('/cdr_template', 'CDRTemplateController@index');;
     Route::any('/cdr_template/upload', 'CDRTemplateController@upload');

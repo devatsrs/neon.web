@@ -21,6 +21,31 @@ ALTER TABLE `tblInvoiceTemplate`
   , ADD COLUMN `UsageColumn` longtext NULL
   , ADD COLUMN `GroupByService` INT NULL DEFAULT '0'
   , ADD COLUMN `CDRType` INT(11) NULL DEFAULT '0';    
+
+
+UPDATE tblInvoiceTemplate SET  InvoiceTo = '{AccountName}
+{Address1},
+{Address2},
+{Address3},
+{City},
+{PostCode},
+{Country}' WHERE InvoiceTo IS NULL;
+
+
+UPDATE tblInvoiceTemplate SET  
+UsageColumn = '{"Summary":[{"Title":"Trunk","ValuesID":"1","UsageName":"Trunk","Status":true,"FieldOrder":1},{"Title":"Prefix","ValuesID":"2","UsageName":"Prefix","Status":true,"FieldOrder":2},{"Title":"Country","ValuesID":"3","UsageName":"Country","Status":true,"FieldOrder":3},{"Title":"Description","ValuesID":"4","UsageName":"Description","Status":true,"FieldOrder":4},{"Title":"NoOfCalls","ValuesID":"5","UsageName":"No of calls","Status":true,"FieldOrder":5},{"Title":"Duration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"BillDuration","ValuesID":"7","UsageName":"Billed Duration","Status":true,"FieldOrder":7},{"Title":"AvgRatePerMin","ValuesID":"8","UsageName":"Avg Rate\/Min","Status":true,"FieldOrder":8},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":9}],"Detail":[{"Title":"Prefix","ValuesID":"1","UsageName":"Prefix","Status":true,"FieldOrder":1},{"Title":"CLI","ValuesID":"2","UsageName":"CLI","Status":true,"FieldOrder":2},{"Title":"CLD","ValuesID":"3","UsageName":"CLD","Status":true,"FieldOrder":3},{"Title":"ConnectTime","ValuesID":"4","UsageName":"Connect Time","Status":true,"FieldOrder":4},{"Title":"DisconnectTime","ValuesID":"4","UsageName":"Disconnect Time","Status":true,"FieldOrder":5},{"Title":"BillDuration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":7}]}'
+WHERE UsageColumn IS NULL;
+
+
+UPDATE tblInvoiceTemplate SET  GroupByService = 0;
+
+UPDATE tblInvoiceTemplate 
+INNER JOIN Ratemanagement3.tblBillingClass
+ON tblBillingClass.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
+SET tblInvoiceTemplate.CDRType = tblBillingClass.CDRType
+WHERE tblBillingClass.CDRType IS NOT NULL;
+
+UPDATE tblInvoiceTemplate SET CDRType = 1 WHERE CDRType IS NULL;
   
 DROP TABLE `tblUsageDaily`;
 
@@ -1482,6 +1507,8 @@ BEGIN
 END|
 DELIMITER ;
 
+
+DROP PROCEDURE IF EXISTS `prc_GetCDR`;
 DELIMITER |
 CREATE PROCEDURE `prc_GetCDR`(
 	IN `p_company_id` INT,
@@ -2649,7 +2676,7 @@ BEGIN
 			CONCAT("'",cld) AS CLD,
 			connect_time AS ConnectTime,
 			disconnect_time AS DisconnectTime,
-			billed_duration AS BilledDuration,
+			billed_duration AS BillDuration,
 			cost AS ChargedAmount,
 			ServiceID
 		FROM tmp_tblUsageDetails_ ud

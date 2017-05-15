@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `tblResourceCategoriesGroups` (
   `CategoriesGroupID` int(11) NOT NULL AUTO_INCREMENT,
   `GroupName` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   KEY `Index 1` (`CategoriesGroupID`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 INSERT INTO `tblResourceCategoriesGroups` (`CategoriesGroupID`, `GroupName`) VALUES
 	(1, 'All'),
 	(2, 'Dashboard'),

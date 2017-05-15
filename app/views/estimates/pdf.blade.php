@@ -41,7 +41,7 @@ $inlineTaxes        =   [];
             @endif
         </div>
         <div id="company">
-            <h2 class="name">ESTIMATE FROM</h2>
+            <h2 class="name"><b>Estimate From</b></h2>
             <div>{{ nl2br($EstimateTemplate->Header)}}</div>
         </div>
     </header>
@@ -50,7 +50,7 @@ $inlineTaxes        =   [];
     <main>
             <div id="details" class="clearfix">
                 <div id="client">
-                    <div class="to">ESTIMATE TO:</div>
+                    <div class="to"><b>Estimate To:</b></div>
                     <div>{{nl2br($Estimate->Address)}}</div>
                 </div>
                 <div id="invoice">
@@ -67,11 +67,11 @@ $inlineTaxes        =   [];
             <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
                 <thead>
                 <tr>
-                    <th class="desc">Title</th>
-                    <th class="desc">Description</th>
-                    <th class="desc">Quantity</th>
-                    <th class="desc">Price</th>
-                    <th class="total">Line Total</th>
+                    <th class="desc"><b>Title</b></th>
+                    <th class="desc"><b>Description</b></th>
+                    <th class="rightalign"><b>Quantity</b></th>
+                    <th class="rightalign"><b>Price</b></th>
+                    <th class="total"><b>Line Total</b></th>
                 </tr>
                 </thead>
                 
@@ -105,9 +105,9 @@ $inlineTaxes        =   [];
                         {{--@if($ProductRow->ProductType == Product::ITEM)--}}
                             <tr>
                                 <td class="desc">{{Product::getProductName($ProductRow->ProductID,$ProductRow->ProductType)}}</td>
-                                <td class="desc">{{$ProductRow->Description}}</td>
-                                <td class="desc">{{$ProductRow->Qty}}</td>
-                                <td class="desc">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
+                                <td class="desc">{{nl2br($ProductRow->Description)}}</td>
+                                <td class="rightalign">{{$ProductRow->Qty}}</td>
+                                <td class="rightalign">{{number_format($ProductRow->Price,$RoundChargesAmount)}}</td>
                                 <td class="total">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
                             </tr>   
                         {{-- @endif --}}
@@ -117,7 +117,7 @@ $inlineTaxes        =   [];
                 @if($grand_total_item > 0)
                     <tr>
                         <td colspan="2"></td>
-                        <td colspan="2">ONE OFF SUB TOTAL</td>
+                        <td colspan="2">One Off Sub Total</td>
                         <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_item,$RoundChargesAmount)}}</td>
                         <?php $item_tax_total = $grand_total_item; ?>
                     </tr>
@@ -142,7 +142,7 @@ $inlineTaxes        =   [];
                 @if($grand_total_subscription > 0)
                     <tr>
                         <td colspan="2"></td>
-                        <td colspan="2">RECURRING SUB TOTAL</td>
+                        <td colspan="2">Recurring Sub Total</td>
                         <td class="subtotal">{{$CurrencySymbol}}{{number_format($grand_total_subscription,$RoundChargesAmount)}}</td>
                         <?php $subscription_tax_total = $grand_total_subscription; ?>
                     </tr>
@@ -185,8 +185,8 @@ $inlineTaxes        =   [];
                 
                 <tr>
                     <td colspan="2"></td>
-                    <td colspan="2">GRAND TOTAL</td>
-                    <td class="subtotal">{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$RoundChargesAmount)}}</td>
+                    <td colspan="2"><b>Grand Total</b></td>
+                    <td class="subtotal"><b>{{$CurrencySymbol}}{{number_format($Estimate->GrandTotal,$RoundChargesAmount)}}</b></td>
                 </tr>
                 
                 </tfoot>

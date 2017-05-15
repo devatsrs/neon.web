@@ -13,6 +13,9 @@
     <li class="active">
         <a href="{{URL::to('invoice_template')}}">  Invoice Template</a>
     </li>
+    <li>
+        <a><span>{{invoicetemplate_dropbox($InvoiceTemplate->InvoiceTemplateID)}}</span></a>
+    </li>
     <li class="active">
         <strong>Edit {{$InvoiceTemplate->Name}}</strong>
     </li>
@@ -46,7 +49,7 @@
 
     <div id="details" class="clearfix">
         <div style="float:left;">
-            <h2 class="name">INVOICE TO:</h2><br/>
+            <h2 class="name"><b>Invoice To:</b></h2><br/>
             <div style="padding-bottom:8px;">{{ Form::select('InvoiceToInfo', Invoice::$invoice_account_info, (!empty(Input::get('InvoiceToInfo'))?explode(',',Input::get('InvoiceFromInfo')):[]), array("class"=>"","data-allow-clear"=>"true","data-placeholder"=>"Select Account Info")) }}</div>
             <textarea class="invoice-to" style="min-width: 400px;" rows="7">@if(!empty($InvoiceTemplate->InvoiceTo)){{$InvoiceTemplate->InvoiceTo}} @else {AccountName} @endif</textarea>
 
@@ -68,51 +71,51 @@
     <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
         <thead>
         <tr>
-            <th class="desc">Title</th>
-            <th class="desc">Description</th>
-            <th class="desc">Quantity</th>
-            <th class="desc">Price</th>
-            <th class="total">Line Total</th>
+            <th class="desc"><b>Title</b></th>
+            <th class="desc"><b>Description</b></th>
+            <th class="rightalign"><b>Quantity</b></th>
+            <th class="rightalign"><b>Price</b></th>
+            <th class="total"><b>Line Total</b></th>
         </tr>
         </thead>
         <tbody>
         <tr>
-            <td class="desc">Item 1</td>
-            <td class="desc">Item Description</td>
-            <td class="desc">2</td>
-            <td class="desc">25</td>
+            <td class="desc">Item Testing 1</td>
+            <td class="desc">Item Testing Description</td>
+            <td class="rightalign">2</td>
+            <td class="rightalign">25</td>
             <td class="total">50</td>
         </tr>
         <tr>
-            <td class="desc">Item 1</td>
-            <td class="desc">Item Description</td>
-            <td class="desc">2</td>
-            <td class="desc">25</td>
+            <td class="desc">Item Testing 1</td>
+            <td class="desc">Item Testing Description</td>
+            <td class="rightalign">2</td>
+            <td class="rightalign">25</td>
             <td class="total">50</td>
         </tr>
         </tbody>
         <tfoot>
         <tr>
             <td colspan="2"></td>
-            <td colspan="2">SUB TOTAL</td>
+            <td colspan="2">Sub Total</td>
             <td class="subtotal">$5,200.00</td>
         </tr>
         <tr>
             <td colspan="2"></td>
-            <td colspan="2">TAX 25%</td>
+            <td colspan="2">Tax 25%</td>
             <td class="subtotal">$1,300.00</td>
         </tr>
         @if($InvoiceTemplate->ShowPrevBal)
             <tr>
                 <td colspan="2"></td>
-                <td colspan="2">BROUGHT FORWARD</td>
+                <td colspan="2">Brought Forward</td>
                 <td class="subtotal">$0.00</td>
             </tr>
         @endif
         <tr>
             <td colspan="2"></td>
-            <td colspan="2">GRAND TOTAL</td>
-            <td class="subtotal">$6,500.00</td>
+            <td colspan="2"><b>Grand Total</b></td>
+            <td class="subtotal"><b>$6,500.00</b></td>
         </tr>
         </tfoot>
     </table>
@@ -285,8 +288,30 @@
             });*/
         });
 
+        $('#drp_invoicetemplate_jump').on('change',function(){
+            var val = $(this).val();
+            if(val!="") {
+                var InvoiceTemplateID = '{{$InvoiceTemplate->InvoiceTemplateID}}';
+                var url ='/invoice_template/'+ val + '/view?Type=2';
+                window.location.href = baseurl + url;
+            }
+        });
+
     });
 	</script>
+    <style>
+        #drp_invoicetemplate_jump{
+            border: 0px solid #fff;
+            background-color: rgba(255,255,255,0);
+            padding: 0px;
+        }
+        #drp_invoicetemplate_jump option{
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            border: 0px;
+        }
+
+    </style>
 @stop
 @section('footer_ext')
 @parent

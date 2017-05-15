@@ -1096,7 +1096,7 @@ class InvoicesController extends \BaseController {
             if( !empty($data["DisputeAmount"])  ){
 
                 //Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],  "InvoiceID"=>$Invoice->InvoiceID,"DisputeTotal"=>$data["DisputeTotal"],"DisputeDifference"=>$data["DisputeDifference"],"DisputeDifferencePer"=>$data["DisputeDifferencePer"],"DisputeMinutes"=>$data["DisputeMinutes"],"MinutesDifference"=>$data["MinutesDifference"],"MinutesDifferencePer"=>$data["MinutesDifferencePer"]));
-                Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],"InvoiceType"=>Invoice::INVOICE_IN,  "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"]));
+                Dispute::add_update_dispute(array( "DisputeID"=> $data["DisputeID"],"InvoiceType"=>Invoice::INVOICE_IN,  "AccountID"=> $data["AccountID"], "InvoiceNo"=>$data["InvoiceNumber"],"DisputeAmount"=>$data["DisputeAmount"],"sendEmail"=>1));
 
             }
 
@@ -1881,6 +1881,7 @@ class InvoicesController extends \BaseController {
         $output = Dispute::reconcile($companyID,$accountID,$StartDate,$EndDate,$data["GrandTotal"],$data["TotalMinutes"]);
         $message = '';
         if(isset($data["DisputeID"]) && $data["DisputeID"] > 0 ) {
+            $data['CompanyID'] = $companyID;
             $data['InvoiceType'] = Invoice::RECEIVED;
             $status = Dispute::sendDisputeEmailCustomer($data);
             $message = $status['message'];

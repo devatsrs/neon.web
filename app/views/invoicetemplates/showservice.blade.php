@@ -13,6 +13,9 @@
     <li class="active">
         <a href="{{URL::to('invoice_template')}}">  Invoice Template</a>
     </li>
+    <li>
+        <a><span>{{invoicetemplate_dropbox($InvoiceTemplate->InvoiceTemplateID)}}</span></a>
+    </li>
     <li class="active">
         <strong>Edit {{$InvoiceTemplate->Name}}</strong>
     </li>
@@ -46,7 +49,7 @@
 
     <div id="details" class="clearfix">
         <div style="float:left;">
-            <h2 class="name">INVOICE TO:</h2><br/>
+            <h2 class="name"><b>Invoice To:</b></h2><br/>
             <div style="padding-bottom:8px;">{{ Form::select('InvoiceToInfo', Invoice::$invoice_account_info, (!empty(Input::get('InvoiceToInfo'))?explode(',',Input::get('InvoiceFromInfo')):[]), array("class"=>"","data-allow-clear"=>"true","data-placeholder"=>"Select Account Info")) }}</div>
             <textarea class="invoice-to" style="min-width: 400px;" rows="7">@if(!empty($InvoiceTemplate->InvoiceTo)){{$InvoiceTemplate->InvoiceTo}} @else {AccountName} @endif</textarea>
 
@@ -65,12 +68,12 @@
         <thead>
         <tr>
             @if($InvoiceTemplate->GroupByService==1)
-            <th class="desc">DESCRIPTION</th>
+            <th class="desc"><b>Description</b></th>
             @endif
-            <th class="desc">Usage</th>
-            <th class="desc">Recurring</th>
-            <th class="desc">Additional</th>
-            <th class="total">TOTAL</th>
+            <th class="desc"><b>Usage</b></th>
+            <th class="desc"><b>Recurring</b></th>
+            <th class="desc"><b>Additional</b></th>
+            <th class="total"><b>Total</b></th>
         </tr>
         </thead>
         <tbody>
@@ -107,7 +110,7 @@
             @else
                 <td></td>
             @endif
-            <td colspan="2">SUB TOTAL</td>
+            <td colspan="2">Sub Total</td>
             <td class="subtotal">$5,200.00</td>
         </tr>
         <tr>
@@ -116,7 +119,7 @@
             @else
                 <td></td>
             @endif
-            <td colspan="2">TAX 25%</td>
+            <td colspan="2">Tax 25%</td>
             <td class="subtotal">$1,300.00</td>
         </tr>
         @if($InvoiceTemplate->ShowPrevBal)
@@ -126,7 +129,7 @@
                 @else
                     <td></td>
                 @endif
-                <td colspan="2">BROUGHT FORWARD</td>
+                <td colspan="2">Brought Forward</td>
                 <td class="subtotal">$0.00</td>
             </tr>
         @endif
@@ -136,8 +139,8 @@
             @else
                 <td></td>
             @endif
-            <td colspan="2">GRAND TOTAL</td>
-            <td class="subtotal">$6,500.00</td>
+            <td colspan="2"><b>Grand Total</b></td>
+            <td class="subtotal"><b>$6,500.00</b></td>
         </tr>
         </tfoot>
     </table>
@@ -416,9 +419,30 @@
                 }
             });*/
         });
+        $('#drp_invoicetemplate_jump').on('change',function(){
+            var val = $(this).val();
+            if(val!="") {
+                var InvoiceTemplateID = '{{$InvoiceTemplate->InvoiceTemplateID}}';
+                var url ='/invoice_template/'+ val + '/view?Type=1';
+                window.location.href = baseurl + url;
+            }
+        });
 
     });
 	</script>
+    <style>
+        #drp_invoicetemplate_jump{
+            border: 0px solid #fff;
+            background-color: rgba(255,255,255,0);
+            padding: 0px;
+        }
+        #drp_invoicetemplate_jump option{
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            border: 0px;
+        }
+
+    </style>
 @stop
 @section('footer_ext')
 @parent

@@ -5,7 +5,7 @@
 	#pdf_footer {
 		bottom: 0;
 		/*border-top: 1px solid #aaaaaa;  */
-		color: #555555;
+		color: #000000;
 		font-size: 10px;
 }
 #pdf_footer table {
