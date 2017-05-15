@@ -3,9 +3,9 @@
  * Created by deven on 07/07/2015.
  */
 $(document).ready(function(){
-	show_summernote($("[name=Terms]"),{});
-	show_summernote($("[name=FooterTerm]"),{});
-    var USAGE = '{{Product::USAGE}}';
+	show_summerinvoicetemplate($("[name=Terms]"));
+	show_summerinvoicetemplate($("[name=FooterTerm]"));	
+	var USAGE = '{{Product::USAGE}}';
     var SUBSCRIPTION = '{{Product::SUBSCRIPTION}}';
     var ITEM = '{{Product::ITEM}}';
     var txtUSAGE                    =   '{{ucFirst(Product::$TypetoProducts[Product::USAGE])}}';
