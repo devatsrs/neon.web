@@ -4,8 +4,11 @@
 */
 
 $(document).ready(function(){
-	show_summernote($("[name=Terms]"),{});
-	show_summernote($("[name=FooterTerm]"),{});
+	/*show_summernote($("[name=Terms]"),{});
+	show_summernote($("[name=FooterTerm]"),{});*/
+	show_summerinvoicetemplate($("[name=Terms]"));
+	show_summerinvoicetemplate($("[name=FooterTerm]"));	
+	
     var USAGE 						= 	'{{Product::USAGE}}';
     var SUBSCRIPTION 				= 	'{{Product::SUBSCRIPTION}}';
     var ITEM 						= 	'{{Product::ITEM}}';
