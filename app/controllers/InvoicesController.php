@@ -339,13 +339,13 @@ class InvoicesController extends \BaseController {
                 }
                 if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { 
                     $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); 
-                    /*if (empty($pdf_path)) {
+                    if (empty($pdf_path)) {
                         $error['message'] = 'Failed to generate Invoice PDF File';
                         $error['status'] = 'failure';
                         return $error;
                     } else {
                         $Invoice->update(["PDF" => $pdf_path]);
-                    }*/
+                    }
 
 
                     DB::connection('sqlsrv2')->commit();
