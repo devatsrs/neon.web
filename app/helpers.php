@@ -1681,6 +1681,13 @@ function get_ticket_status_date_array($result_data) {
 
         if(\Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->isFuture()) {
             $due = true ;
+
+            // round up minutes 1 hours 59 minutes to 2 hours
+            if(\Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->minute >= 1){
+                $the_date = \Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->addHour(1);
+            }
+
+
         }else {
             $overdue = true;
         }
