@@ -6,6 +6,7 @@
         ul.grid li div.box{
             min-height:16.5em;
         }
+		#card-features-details .modal-footer{clear:both !important;}
     </style>
 <div  style="min-height: 1050px;">
   <ol class="breadcrumb bc-3">

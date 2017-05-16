@@ -154,7 +154,8 @@ class InvoicesController extends \BaseController {
         $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice();
 		//echo "<pre>"; 		print_r($taxes);		echo "</pre>"; exit;
         //$gateway_product_ids = Product::getGatewayProductIDs();
-        return View::make('invoices.create',compact('accounts','products','taxes'));
+		$BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass'));
 
     }
 
@@ -168,6 +169,7 @@ class InvoicesController extends \BaseController {
         if($id > 0) {
 
             $Invoice = Invoice::find($id);
+			$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);			
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID"=>$id])->get();
             $accounts = Account::getAccountIDList();
             $products = Product::getProductDropdownList();
@@ -175,7 +177,7 @@ class InvoicesController extends \BaseController {
             $Account = Account::where(["AccountID" => $Invoice->AccountID])->select(["AccountName","BillingEmail", "CurrencyId"])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
             $CurrencyID = !empty($Invoice->CurrencyID)?$Invoice->CurrencyID:$Account->CurrencyId;
             $RoundChargesAmount = get_round_decimal_places($Invoice->AccountID);
-            $InvoiceTemplateID =AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+            $InvoiceTemplateID = BillingClass::getInvoiceTemplateID($InvoiceBillingClass);
             $InvoiceNumberPrefix = ($InvoiceTemplateID>0)?InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix:'';
             $Currency = Currency::find($CurrencyID);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
@@ -183,8 +185,9 @@ class InvoicesController extends \BaseController {
             $taxes =  TaxRate::getTaxRateDropdownIDListForInvoice();
             $invoicelog =  InVoiceLog::where(array('InvoiceID'=>$id))->get();
 			$InvoiceAllTax =  InvoiceTaxRate::where(["InvoiceID"=>$id,"InvoiceTaxType"=>1])->get();
+			$BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
 			
-            return View::make('invoices.edit', compact( 'id', 'Invoice','InvoiceDetail','InvoiceTemplateID','InvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax'));
+            return View::make('invoices.edit', compact( 'id', 'Invoice','InvoiceDetail','InvoiceTemplateID','InvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax','BillingClass','InvoiceBillingClass'));
         }
     }
 
@@ -193,7 +196,6 @@ class InvoicesController extends \BaseController {
      */
     public function store(){
         $data = Input::all();
-				
         if($data){
 
             $companyID = User::get_companyID();
@@ -204,11 +206,12 @@ class InvoicesController extends \BaseController {
             if(!empty($data["InvoiceNumber"])){
                 $isAutoInvoiceNumber = false;
             }
+			$InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
             $InvoiceData = array();
             $InvoiceData["CompanyID"] = $companyID;
             $InvoiceData["AccountID"] = intval($data["AccountID"]);
             $InvoiceData["Address"] = $data["Address"];
-            $InvoiceData["InvoiceNumber"] = $LastInvoiceNumber = ($isAutoInvoiceNumber)?InvoiceTemplate::getAccountNextInvoiceNumber($data["AccountID"]):$data["InvoiceNumber"];
+            $InvoiceData["InvoiceNumber"] = $LastInvoiceNumber = ($isAutoInvoiceNumber)?InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID):$data["InvoiceNumber"];
             $InvoiceData["IssueDate"] = $data["IssueDate"];
             $InvoiceData["PONumber"] = $data["PONumber"];
             $InvoiceData["SubTotal"] = str_replace(",","",$data["SubTotal"]);
@@ -226,8 +229,10 @@ class InvoicesController extends \BaseController {
             $InvoiceData["FooterTerm"] = $data["FooterTerm"];
             $InvoiceData["CreatedBy"] = $CreatedBy;
 			$InvoiceData['InvoiceTotal'] = str_replace(",","",$data["GrandTotal"]);
+			$InvoiceData['BillingClassID'] =$data["BillingClassID"];
 			
-            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($data["AccountID"]);
+            //$InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($data["AccountID"]);
+			
             if((int)$InvoiceTemplateID == 0){
                 return Response::json(array("status" => "failed", "message" => "Please enable billing."));
             }
@@ -236,16 +241,18 @@ class InvoicesController extends \BaseController {
                 'CompanyID' => 'required',
                 'AccountID' => 'required',
                 'Address' => 'required',
+				'BillingClassID'=> 'required',
                 'InvoiceNumber' => 'required|unique:tblInvoice,InvoiceNumber,NULL,InvoiceID,CompanyID,'.$companyID,
                 'IssueDate' => 'required',
                 'CurrencyID' => 'required',
                 'GrandTotal' => 'required',
                 'InvoiceType' => 'required',
             );
+			$message = ['BillingClassID.required'=>'Billing Class field is required'];
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
 
-            $validator = Validator::make($InvoiceData, $rules);
+            $validator = Validator::make($InvoiceData, $rules,$message);
             $validator->setPresenceVerifier($verifier);
 
             if ($validator->fails()) {
@@ -332,13 +339,13 @@ class InvoicesController extends \BaseController {
                 }
                 if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { 
                     $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); 
-                    if (empty($pdf_path)) {
+                    /*if (empty($pdf_path)) {
                         $error['message'] = 'Failed to generate Invoice PDF File';
                         $error['status'] = 'failure';
                         return $error;
                     } else {
                         $Invoice->update(["PDF" => $pdf_path]);
-                    }
+                    }*/
 
 
                     DB::connection('sqlsrv2')->commit();
@@ -538,9 +545,9 @@ class InvoicesController extends \BaseController {
         if(isset($data['product_type']) && Product::$ProductTypes[$data['product_type']] && isset($data['account_id']) && isset($data['product_id']) && isset($data['qty'])) {
             $AccountID = intval($data['account_id']);
             $Account = Account::find($AccountID);
-            $AccountBilling = AccountBilling::getBilling($AccountID);
             if (!empty($Account)) {
-                $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($AccountID);
+                //$InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($AccountID);
+				$InvoiceTemplateID   = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
                 $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
                 if (isset($InvoiceTemplate->InvoiceTemplateID) && $InvoiceTemplate->InvoiceTemplateID > 0) {
                     $decimal_places = get_round_decimal_places($AccountID);
@@ -562,7 +569,8 @@ class InvoicesController extends \BaseController {
                             if(!empty($TaxRates)){
                                 $TaxRates->toArray();
                             }
-                            $AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
+                            //$AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
+							$AccountTaxRate =  explode(",",BillingClass::getTaxRate($data['BillingClassID']));
 							//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 
                             $TaxRateAmount = $TaxRateId = $FlatStatus =  0; 
@@ -614,7 +622,7 @@ class InvoicesController extends \BaseController {
 
                         $Subscription = BillingSubscription::find($data['product_id']);
                         if (!empty($Subscription)) {
-                            if($AccountBilling->BillingCycleType=='daily'){
+                            /*if($AccountBilling->BillingCycleType=='daily'){
                                 $ProductAmount = number_format($Subscription->DailyFee, $decimal_places,".","");
                             }elseif($AccountBilling->BillingCycleType=='weekly'){
                                 $ProductAmount = number_format($Subscription->WeeklyFee, $decimal_places,".","");
@@ -626,7 +634,12 @@ class InvoicesController extends \BaseController {
                                 $ProductAmount = number_format($Subscription->AnnuallyFee, $decimal_places,".","");
                             }else{
                                 $ProductAmount = number_format($Subscription->MonthlyFee, $decimal_places,".","");
-                            }
+                            }*/
+							
+							$ProductAmount = number_format($Subscription->MonthlyFee, $decimal_places,".","");
+							if(!is_numeric($ProductAmount)){
+								$ProductAmount = number_format(0, $decimal_places,".","");
+							}
 
                             $ProductDescription = $Subscription->InvoiceLineDescription;
 
@@ -636,7 +649,8 @@ class InvoicesController extends \BaseController {
                                 $TaxRates->toArray();
                             }
                             //$AccountTaxRate = explode(",", $AccountBilling->TaxRateId);
-                            $AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
+                           // $AccountTaxRate = explode(",",AccountBilling::getTaxRate($AccountID));
+						    $AccountTaxRate =  explode(",",BillingClass::getTaxRate($data['BillingClassID']));
 
                             $TaxRateAmount = $TaxRateId = 0;
                             if (isset($TaxRates['TaxRateID']) && in_array($TaxRates['TaxRateID'], $AccountTaxRate)) {
@@ -704,25 +718,59 @@ class InvoicesController extends \BaseController {
 			 $AccountTaxRate = AccountBilling::getTaxRateType($Account->AccountID,TaxRate::TAX_ALL);
 			//\Illuminate\Support\Facades\Log::error(print_r($TaxRates, true));
 		
-            if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
+           // if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
                 $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
                 /* for item invoice generate - invoice to address as invoice template */
-
-                $message = $InvoiceTemplate->InvoiceTo;
-                $replace_array = Invoice::create_accountdetails($Account);
-                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
-                $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
-
-                $Terms = $InvoiceTemplate->Terms;
-                $FooterTerm = $InvoiceTemplate->FooterTerm;
-                $return = ['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate','InvoiceToAddress'];
-            }else{
+				
+				if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
+                	$message = $InvoiceTemplate->InvoiceTo;
+                	$replace_array = Invoice::create_accountdetails($Account);
+	                $text = Invoice::getInvoiceToByAccount($message,$replace_array);
+    	            $InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
+				    $Terms = $InvoiceTemplate->Terms;
+    	            $FooterTerm = $InvoiceTemplate->FooterTerm;
+				}
+				else{
+					$InvoiceToAddress 	= 	'';
+				    $Terms 				= 	'';
+    	            $FooterTerm 		= 	'';
+				}
+				$BillingClassID     =   AccountBilling::getBillingClassID($data['account_id']);
+				
+                $return = ['Terms','FooterTerm','Currency','CurrencyId','Address','InvoiceTemplateID','AccountTaxRate','InvoiceToAddress','BillingClassID'];
+            /*}else{
                 return Response::json(array("status" => "failed", "message" => "You can not create Invoice for this Account. as It has no Invoice Template assigned" ));
-            }
+            }*/
             return Response::json(compact($return));
         }
     }
-
+	
+	public function getBillingclassInfo(){
+		
+        $data = Input::all();
+        if ((isset($data['BillingClassID']) && $data['BillingClassID'] > 0 ) && (isset($data['account_id']) && $data['account_id'] > 0 ) ) {
+            $fields =["CurrencyId","Address1","AccountID","Address2","Address3","City","PostCode","Country"];
+            $Account = Account::where(["AccountID"=>$data['account_id']])->select($fields)->first();
+            $InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
+            $Terms = $FooterTerm = $InvoiceToAddress ='';						
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+                /* for item invoice generate - invoice to address as invoice template */
+				
+			if(isset($InvoiceTemplateID) && $InvoiceTemplateID > 0) {
+				$message = $InvoiceTemplate->InvoiceTo;
+				$replace_array = Invoice::create_accountdetails($Account);
+				$text = Invoice::getInvoiceToByAccount($message,$replace_array);
+				$InvoiceToAddress = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $text);
+				$Terms = $InvoiceTemplate->Terms;
+				$FooterTerm = $InvoiceTemplate->FooterTerm;			
+				$AccountTaxRate  = BillingClass::getTaxRateType($data['BillingClassID'],TaxRate::TAX_ALL);
+				$return = ['Terms','FooterTerm','InvoiceTemplateID','InvoiceToAddress','AccountTaxRate'];
+			}else{
+			return Response::json(array("status" => "failed", "message" => "You can not create Invoice for this Account. as It has no Invoice Template assigned" ));
+		   }
+            return Response::json(compact($return));
+        }
+    }
 
     public function delete($id)
     {
@@ -882,7 +930,8 @@ class InvoicesController extends \BaseController {
             $Account = Account::find($Invoice->AccountID);
             $Currency = Currency::find($Account->CurrencyId);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-            $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
+			$InvoiceTemplateID = Invoice::GetInvoiceTemplateID($Invoice);
+            //$InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
             $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
             if (empty($InvoiceTemplate->CompanyLogoUrl)) {
                 $as3url =  public_path("/assets/images/250x100.png"); 
@@ -1531,7 +1580,6 @@ class InvoicesController extends \BaseController {
         }
         $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
         $account = Account::where(['AccountID'=>$AccountID])->first();
-        $AccountBilling = AccountBilling::getBilling($AccountID);
 
         $payment_log = Payment::getPaymentByInvoice($Invoice->InvoiceID);
 

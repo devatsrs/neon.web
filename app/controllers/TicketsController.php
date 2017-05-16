@@ -598,7 +598,8 @@ class TicketsController extends \BaseController {
 	
 	function CloseTicket($ticketID)
 	{
-		$response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,array(),true,true); 
+		$data 				= 		Input::all();
+		$response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,$data,true,true); 
 		return json_response_api($response);    		
 	}
 	
