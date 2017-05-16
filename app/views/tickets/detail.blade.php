@@ -708,11 +708,12 @@ $(document).ready(function(e) {
             });
 			 
 });
-setTimeout(setagentval(),6000);
+//setTimeout(setagentval(),6000);
 	function setagentval(){
-		$('.ticketgroup').trigger('change');
-		console.log(agent);
-		$('#ticketagent').val(agent);
+		$('#TicketGroup').trigger('change');		
+		$('#TicketAgent').val(agent);
+		$('#TicketAgent').trigger('change');
+		console.log("Agent:"+agent);
 		
 	}
 </script> 
