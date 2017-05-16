@@ -532,8 +532,8 @@ $(document).ready(function(){
 					add_invoce_tax(response.AccountTaxRate);
                     InvoiceTemplateID = response.InvoiceTemplateID;
                 }
-				show_summernote($("[name=Terms]"),{});
-				show_summernote($("[name=FooterTerm]"),{});
+				show_summerinvoicetemplate($("[name=Terms]"));
+				show_summerinvoicetemplate($("[name=FooterTerm]"));	
             });
         }   
 	
