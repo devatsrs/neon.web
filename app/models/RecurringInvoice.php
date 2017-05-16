@@ -107,5 +107,14 @@ class RecurringInvoice extends \Eloquent {
         }
         return $row;
     }
+	
+	public static function getRecurringInvoices(){
+        $compantID = User::get_companyID();
+        $where = ['CompanyID'=>$compantID];      
+	    $result = RecurringInvoice::select(array('Title', 'RecurringInvoiceID'))->where($where)->orderBy('Title')->lists('Title', 'RecurringInvoiceID');		        if(!empty($result)){
+            $result = [''=>'Select'] + $result;
+        }
+        return $result;
+    }
 
 }
