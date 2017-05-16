@@ -525,8 +525,8 @@ $(document).ready(function(){
 					add_estimate_tax(response.AccountTaxRate);
                     EstimateTemplateID = response.EstimateTemplateID;
                 }
-				show_summernote($("[name=Terms]"),{});
-				show_summernote($("[name=FooterTerm]"),{});
+			 	show_summerinvoicetemplate($("[name=Terms]"));
+				show_summerinvoicetemplate($("[name=FooterTerm]"));	
 
             });
         }
