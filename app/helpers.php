@@ -1293,6 +1293,7 @@ function view_response_api($response){
     if(is_array($response)){
         $isArray = true;
     }
+    //@TODO: there is no key with Code.
     if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)) {
         //return Redirect::to('/logout');
         \Illuminate\Support\Facades\Log::info("helpers.php view_response_api");
