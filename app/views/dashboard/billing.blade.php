@@ -62,6 +62,28 @@
                                 <p> Total Outstanding</p></a></div>
                     </div>
                     @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-orange"><a target="_blank" class="undefined" data-startdate=""
+                                                                   data-enddate="" data-currency=""
+                                                                   href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Total Payable Amount</p></a></div>
+                        </div>
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
+                                                                data-enddate="" data-currency=""
+                                                                href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Total Receivable Amount</p></a></div>
+                        </div>
+                    @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
                     <div class="col-sm-3 col-xs-6">
                         <div class="tile-stats tile-green"><a target="_blank" class="undefined" data-startdate=""
@@ -165,6 +187,37 @@
         </div>
     </div>
     <?php } ?>
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaybleWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardPaybleWidget','View'))
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-primary panel-table">
+                    <div class="panel-heading">
+                        <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+                        <div class="panel-title forecase_title">
+                            <h3>Payable & Receivable  </h3>
+                            <div class="PayableReceivable"></div>
+                        </div>
+                    </div>
+                    <div class="form_Sales panel-body white-bg">
+                        <form novalidate class="form-horizontal form-groups-bordered"  id="PayableReceivableForm">
+                            <div class="form-group form-group-border-none">
+                                <div class="col-sm-8">
+                                    <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
+                                    <div class="col-sm-3"> <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">   </div>
+                                    <div class="col-sm-2"> {{ Form::select('ListType',array("Daily"=>"Daily","Weekly"=>"Weekly","Monthly"=>"Monthly"),'Daily',array("class"=>"select_gray","id"=>"ListType")) }} </div>
+                                    <div class="col-sm-2"> {{ Form::select('Type',array("0"=>"Exclude Unbill Amount","1"=>"Include Unbill Amount"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }} </div>
+                                    <div class="col-sm-1"> <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div id="PayableReceivable1" style="min-width: 310px; height: 400px; margin: 0 auto" class="PayableReceivable1"></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
     @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
     <div class="row">
         <div class="col-md-12">
@@ -288,6 +341,7 @@
         </div>
     </div>
     @endif
+    <script src="{{ URL::asset('assets/js/highcharts.js') }}"></script>
     <script type="text/javascript">
 
         jQuery(document).ready(function ($) {
@@ -303,6 +357,15 @@
             var TotalPaymentSum = 0;
             var TotalPendingSum = 0;
             var url = '{{$url}}';
+            Highcharts.theme = {
+                colors: ['#3366cc', '#ff9900' ,'#dc3912' , '#109618', '#66aa00', '#dd4477','#0099c6', '#990099', '#143DFF']
+            };
+            // Apply the theme
+            Highcharts.setOptions(Highcharts.theme);
+            $('#PayableReceivableForm').submit(function(e) {
+                e.preventDefault();
+                GetDashboardPR();
+            });
             function getDrilDown(type) {
                 if(type==1) {
                     $("#paymentTable").dataTable({
@@ -727,6 +790,7 @@
         });
         $(function () {
             reload_invoice_expense();
+            GetDashboardPR();
             $("#filter-pin").hide();
             $('#billing_filter').submit(function (e) {
                 e.preventDefault();
@@ -820,7 +884,7 @@
                 @endif
             }
         function invoiceExpenseTotalwidgets(){
-            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
+            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets) || in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets) || in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
                 var data = $('#billing_filter').serialize();
                 var get_url = baseurl + "/billing_dashboard/invoice_expense_total_widget";
                 $.get(get_url, data, function (response) {
@@ -848,15 +912,29 @@
                     option["enddate"] = enddate;
                     option["currency"] = CurrencyID;
                     option["count"] = '';
+                    option["round"] = response.data.Round;
 
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
                     option["amount"] = response.data.TotalOutstanding;
                     option["end"] = response.data.TotalOutstanding;
                     option["tileclass"] = 'tile-blue';
-                    option["class"] = 'outstanding';
                     option["type"] = 'Total Outstanding';
-                    option["count"] = '';
-                    option["round"] = response.data.Round;
                     widgets += buildbox(option);
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets))
+                        option["amount"] = response.data.TotalPayable;
+                        option["end"] = response.data.TotalPayable;
+                        option["tileclass"] = 'tile-orange';
+                        option["type"] = 'Total Payable amount';
+                        widgets += buildbox(option);
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
+                        option["amount"] = response.data.TotalReceivable;
+                        option["end"] = response.data.TotalReceivable;
+                        option["tileclass"] = 'tile-red';
+                        option["type"] = 'Total Receivable Amount';
+                        widgets += buildbox(option);
+                    @endif
                     var ele = $('<div></div>');
                     ele.html(widgets);
                     var temp = ele.find('.col-xs-6');
@@ -1116,7 +1194,122 @@
 
             });
         }
+        function GetDashboardPR(){
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaybleWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardPaybleWidget','View'))
+                        loadingUnload(".PayableReceivable1",1);
+            var CurrencyID  = $("#billing_filter [name='CurrencyID']").val();
+            var Duedate     = $("#PayableReceivableForm [name='Duedate']").val();
+            var ListType     = $("#PayableReceivableForm [name='ListType']").val();
+            var Type     = $("#PayableReceivableForm [name='Type']").val();
+            $.ajax({
+                type: 'POST',
+                url: baseurl+'/billing_dashboard/GetDashboardPR',
+                dataType: 'json',
+                data:{CurrencyID:CurrencyID,Duedate:Duedate,ListType:ListType,Type:Type},
+                aysync: true,
+                success: function(dataObj) {
+                    $('#PayableReceivable1').html('');
+                    loadingUnload(".PayableReceivable1",0);
+
+                    if(dataObj.series != '' && dataObj.series.length > 0) {
+
+                            var seriesdata =  [];
+                            var categories =  [];
+                        seriesdata = JSON.parse(JSON.stringify(dataObj.series));
+
+
+                            $('#PayableReceivable1').highcharts({
+                                chart: {
+                                    type: 'column'
+                                },
+                                title: {
+                                    text: 'Payable & Receivable'
+                                },
+                                xAxis: {
+                                    /*categories: dataObj.categories.split(','),*/
+                                    title: {
+                                        text: ""
+                                    },
+                                    type: 'category'
+                                },
+                                yAxis: {
+                                    min: 0,
+                                    title: {
+                                        text: 'Amount',
+                                        align: 'high'
+                                    },
+                                    labels: {
+                                        overflow: 'justify'
+                                    }
+                                },
+                                tooltip: {
+                                    valueSuffix: ''
+                                },
+                                plotOptions: {
+                                    bar: {
+                                        dataLabels: {
+                                            enabled: true
+                                        }
+                                    },
+                                    column: {
+                                        pointPadding: 0.2,
+                                        borderWidth: 0
+                                    }
+                                },
+                                legend: {
+                                    layout: 'vertical',
+                                    align: 'right',
+                                    verticalAlign: 'top',
+                                    x: -40,
+                                    y: 80,
+                                    floating: false,
+                                    borderWidth: 1,
+                                    backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                                    shadow: false
+                                },
+                                credits: {
+                                    enabled: false
+                                },
+
+                                series: seriesdata,
+
+                            });
+
+
+                        }else{
+                            $('.PayableReceivable1').html('<br><h4>No Data</h4>');
+                            $('.PayableReceivable').html('');
+                        }
+
+                    ////////
+                }
+            });
+            @endif
+        }
     </script>
+    <style>
+
+        .form_Sales, .form_Forecast{ margin-left:30px;}
+        .forecase_title{padding-bottom:10px !important;}
+        .form-group-border-none{border-bottom:none !important; padding-bottom:0px !important;}
+        .small-date-input
+        {
+            width:150px;
+        }
+        .white-bg{background:#fff none repeat scroll 0 0 !important; }
+        .managerLabel{
+            padding-left:0;
+            padding-right:0;
+            width:38px;
+        }
+        .panel-heading{
+            border:none !important;
+        }
+        #customer .panel-heading{
+            border-bottom:1px solid transparent !important;
+            border-color:#ebebeb !important;
+        }
+    </style>
 @stop
 
 @section('footer_ext')
