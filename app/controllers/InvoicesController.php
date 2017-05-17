@@ -195,7 +195,7 @@ class InvoicesController extends \BaseController {
      * Store Invoice
      */
     public function store(){
-        $data = Input::all();
+        $data = Input::all(); 
         if($data){
 
             $companyID = User::get_companyID();
@@ -203,15 +203,22 @@ class InvoicesController extends \BaseController {
 
             //$CurrencyId = Account::where("AccountID",intval($data["AccountID"]))->pluck('CurrencyId');
             $isAutoInvoiceNumber = true;
+			$InvoiceData = array();
             if(!empty($data["InvoiceNumber"])){
                 $isAutoInvoiceNumber = false;
+				$InvoiceData["InvoiceNumber"] =  $data["InvoiceNumber"];
             }
-			$InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
-            $InvoiceData = array();
+			
+			
+			 if(isset($data['BillingClassID']) && $data['BillingClassID']>0){  
+				$InvoiceTemplateID  = 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
+				$InvoiceData["InvoiceNumber"] = $LastInvoiceNumber = ($isAutoInvoiceNumber)?InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID):$data["InvoiceNumber"];
+			 }
+            
             $InvoiceData["CompanyID"] = $companyID;
             $InvoiceData["AccountID"] = intval($data["AccountID"]);
             $InvoiceData["Address"] = $data["Address"];
-            $InvoiceData["InvoiceNumber"] = $LastInvoiceNumber = ($isAutoInvoiceNumber)?InvoiceTemplate::getNextInvoiceNumber($InvoiceTemplateID):$data["InvoiceNumber"];
+         
             $InvoiceData["IssueDate"] = $data["IssueDate"];
             $InvoiceData["PONumber"] = $data["PONumber"];
             $InvoiceData["SubTotal"] = str_replace(",","",$data["SubTotal"]);
@@ -233,7 +240,7 @@ class InvoicesController extends \BaseController {
 			
             //$InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($data["AccountID"]);
 			
-            if((int)$InvoiceTemplateID == 0){
+            if(!isset($InvoiceTemplateID) || (int)$InvoiceTemplateID == 0){
                 return Response::json(array("status" => "failed", "message" => "Please enable billing."));
             }
             ///////////
@@ -291,9 +298,10 @@ class InvoicesController extends \BaseController {
 						if($field == 'TaxAmount'){
                             $InvoiceTaxRates[$i][$field] = str_replace(",","",$value);
                         }
-                        if(empty($InvoiceDetailData[$i]['ProductID'])){
+                       */
+					    if(empty($InvoiceDetailData[$i]['ProductID'])){
                             unset($InvoiceDetailData[$i]);
-                        }*/
+                        }
                         $i++;
                     }
                 } 
@@ -336,7 +344,7 @@ class InvoicesController extends \BaseController {
 				
 				 if(!empty($InvoiceAllTaxRates)) { //Invoice tax
                     InvoiceTaxRate::insert($InvoiceAllTaxRates);
-                }
+                } 
                 if (!empty($InvoiceDetailData) && InvoiceDetail::insert($InvoiceDetailData)) { 
                     $pdf_path = Invoice::generate_pdf($Invoice->InvoiceID); 
                     if (empty($pdf_path)) {
