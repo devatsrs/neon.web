@@ -153,23 +153,27 @@ class EstimatesController extends \BaseController {
      */
     public function store()
 	{
-        $data = Input::all();
+        $data = Input::all(); 
         if($data)
-		{
+		{  
             $companyID 						=   User::get_companyID();
             $CreatedBy 						= 	User::get_user_full_name();
-            $isAutoEstimateNumber		    =   true;
+            $isAutoEstimateNumber		    =   true;			
 			
+			$EstimateData 					= 	array();
             if(!empty($data["EstimateNumber"]))
 			{
-                $isAutoEstimateNumber = false;
+                $isAutoEstimateNumber 			=  false;
+				$EstimateData["EstimateNumber"] =  $data["EstimateNumber"];
             }
+			 if(isset($data['BillingClassID']) && $data['BillingClassID']>0){  
+			$EstimateData["EstimateNumber"] = 	$LastEstimateNumber = ($isAutoEstimateNumber)?InvoiceTemplate::getNextEstimateNumber($InvoiceTemplateID):$data["EstimateNumber"];
 			$InvoiceTemplateID  			= 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
-            $EstimateData 					= 	array();
+			 }
+            
             $EstimateData["CompanyID"] 		= 	$companyID;
             $EstimateData["AccountID"] 		= 	intval($data["AccountID"]);
-            $EstimateData["Address"] 		= 	$data["Address"];
-            $EstimateData["EstimateNumber"] = 	$LastEstimateNumber = ($isAutoEstimateNumber)?InvoiceTemplate::getNextEstimateNumber($InvoiceTemplateID):$data["EstimateNumber"];
+            $EstimateData["Address"] 		= 	$data["Address"];           
             $EstimateData["IssueDate"] 		= 	$data["IssueDate"];
             $EstimateData["PONumber"] 		= 	$data["PONumber"];
             $EstimateData["SubTotal"] 		= 	str_replace(",","",isset($data["SubTotalOnOffCharge"])?$data["SubTotalOnOffCharge"]:0)+str_replace(",","",isset($data["SubTotalSubscription"])?$data["SubTotalSubscription"]:0);
@@ -185,7 +189,7 @@ class EstimatesController extends \BaseController {
             $EstimateData["CreatedBy"] 		= 	$CreatedBy;
 			$EstimateData['EstimateTotal'] 	=  str_replace(",","",$data["GrandTotal"]);
 			//$EstimateData["converted"] 		= 	'N';
-			$EstimateData['BillingClassID'] =  $data["BillingClassID"]; 
+			$EstimateData['BillingClassID'] =  $data["BillingClassID"];  
             ///////////
             $rules = array(
                 'CompanyID' => 'required',
@@ -320,7 +324,7 @@ class EstimatesController extends \BaseController {
 				 if(!empty($EstimateAllTaxRates)) { //estimate tax
                     DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateAllTaxRates);
                 }
-
+Log::info(print_r($EstimateDetailData,true));
                 if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
 				{
                     $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
