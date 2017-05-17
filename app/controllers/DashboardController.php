@@ -136,6 +136,7 @@ class DashboardController extends BaseController {
         $company_gateway =  CompanyGateway::getCompanyGatewayIdList();
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
         $StartDateDefault 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+        $StartDateDefault1 	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 week'));
         $DateEndDefault  	= 	date('Y-m-d');
         $monthfilter = 'Weekly';
         if(Cache::has('billing_Chart_cache_'.User::get_companyID().'_'.User::get_userID())){
@@ -145,7 +146,7 @@ class DashboardController extends BaseController {
         if(!empty($BillingDashboardWidgets)) {
             $BillingDashboardWidgets			=	explode(",",$BillingDashboardWidgets);
         }
-       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json','StartDateDefault','DateEndDefault','monthfilter','BillingDashboardWidgets'));
+       return View::make('dashboard.billing',compact('DefaultCurrencyID','original_startdate','original_enddate','company_gateway','invoice_status_json','StartDateDefault','DateEndDefault','monthfilter','BillingDashboardWidgets','StartDateDefault1'));
 
     }
     public function monitor_dashboard(){

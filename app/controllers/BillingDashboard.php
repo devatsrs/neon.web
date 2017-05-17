@@ -200,7 +200,6 @@ class BillingDashboard extends \BaseController {
     public function GetDashboardPR(){
         $data = Input::all();
         $companyID = User::get_companyID();
-        $report_label = 'Payable & Receivable';
         $data['ListType'] = empty($data['ListType'])?1:$data['ListType'];
         $data['Type'] = empty($data['Type'])?0:$data['Type'];
         $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
@@ -241,6 +240,43 @@ class BillingDashboard extends \BaseController {
             $series[] = array('name' => 'Total Outstanding', 'data' => $category1, 'color' => '#3366cc');
             $series[] = array('name' => 'Total Payable', 'data' => $category2, 'color' => '#ff9900');
             $series[] = array('name' => 'Total Receivable', 'data' => $category3, 'color' => '#dc3912');
+        }
+        $reponse['series'] = $series;
+        return json_encode($reponse,JSON_NUMERIC_CHECK);
+    }
+    public function GetDashboardPL(){
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        $data['ListType'] = empty($data['ListType'])?1:$data['ListType'];
+        $data['AccountID'] = empty($data['AccountID'])?'0':$data['AccountID'];
+        if(isset($data['Duedate'])){
+            $Duedate		=	explode(' - ',$data['Duedate']);
+            $Startdate			=   $Duedate[0];
+            $Enddate			=	$Duedate[1];
+        }else{
+            $Startdate = empty($data['Startdate'])?date('Y-m-d', strtotime('-1 week')):$data['Startdate'];
+            $Enddate = empty($data['Enddate'])?date('Y-m-d'):$data['Enddate'];
+        }
+        $data['Startdate'] = trim($Startdate).' 00:00:00';
+        $data['Enddate'] = trim($Enddate).' 23:59:59';
+
+        $CurrencySymbol = $CurrencyID = "";
+        if(isset($data["CurrencyID"]) && !empty($data["CurrencyID"])){
+            $CurrencyID = $data["CurrencyID"];
+            $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
+        }
+
+        $query = "call prc_getDashboardProfitLoss ('". $companyID  . "', '".intval($CurrencyID)."','".$data['AccountID']."', '". $data['Startdate']  . "','". $data['Enddate']  . "','". $data['ListType']  . "')";
+        $PayableReceivable_data = DB::connection('neon_report')->select($query);
+        $series = $category1 = $category2 = $category3 = array();
+        $cat_index = 0;
+        foreach($PayableReceivable_data as $TopReport){
+            $category1[$cat_index]['name'] = $TopReport->Date;
+            $category1[$cat_index]['y'] = $TopReport->PL;
+            $cat_index++;
+        }
+        if(!empty($category1)) {
+            $series[] = array('name' => 'Profit Loss', 'data' => $category1, 'color' => '#3366cc');
         }
         $reponse['series'] = $series;
         return json_encode($reponse,JSON_NUMERIC_CHECK);

@@ -61,7 +61,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>Total Payable Amount</p></a></div>
+                                    <p>Total Payable</p></a></div>
                         </div>
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
@@ -72,7 +72,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>Total Receivable Amount</p></a></div>
+                                    <p>Total Receivable</p></a></div>
                         </div>
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
@@ -339,14 +339,14 @@
                     option["amount"] = response.data.TotalPayable;
                     option["end"] = response.data.TotalPayable;
                     option["tileclass"] = 'tile-orange';
-                    option["type"] = 'Total Payable amount';
+                    option["type"] = 'Total Payable';
                     widgets += buildbox(option);
                 @endif
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
                     option["amount"] = response.data.TotalReceivable;
                     option["end"] = response.data.TotalReceivable;
                     option["tileclass"] = 'tile-red';
-                    option["type"] = 'Total Receivable Amount';
+                    option["type"] = 'Total Receivable';
                     widgets += buildbox(option);
                 @endif
                 var ele = $('<div></div>');
