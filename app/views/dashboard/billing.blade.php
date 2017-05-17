@@ -204,7 +204,7 @@
                                 <div class="col-sm-8">
                                     <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
                                     <div class="col-sm-6"> <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
-                                        {{ Form::select('ListType',array("Daily"=>"Daily","Weekly"=>"Weekly","Monthly"=>"Monthly"),'Daily',array("class"=>"select_gray","id"=>"ListType")) }}
+                                        {{ Form::select('ListType',array("Daily"=>"Daily","Weekly"=>"Weekly","Monthly"=>"Monthly"),$GetDashboardPR,array("class"=>"select_gray","id"=>"ListType")) }}
                                         {{ Form::select('Type',array("0"=>"Exclude Unbill Amount","1"=>"Include Unbill Amount"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }}
                                         <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
                                 </div>
@@ -235,7 +235,7 @@
                                 <div class="col-sm-8">
                                     <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
                                     <div class="col-sm-6"> <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
-                                        {{ Form::select('ListType',array("Daily"=>"Daily","Weekly"=>"Weekly","Monthly"=>"Monthly"),'Daily',array("class"=>"select_gray","id"=>"ListType")) }}
+                                        {{ Form::select('ListType',array("Daily"=>"Daily","Weekly"=>"Weekly","Monthly"=>"Monthly"),$GetDashboardPL,array("class"=>"select_gray","id"=>"ListType")) }}
                                         <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
                                 </div>
                             </div>

@@ -219,7 +219,7 @@ class BillingDashboard extends \BaseController {
             $CurrencyID = $data["CurrencyID"];
             $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
-
+        Cache::forever('GetDashboardPR_'.User::get_companyID().'_'.User::get_userID(),$data['ListType']);
         $query = "call prc_getDashboardPayableReceivable ('". $companyID  . "', '".intval($CurrencyID)."','".$data['AccountID']."', '". $data['Startdate']  . "','". $data['Enddate']  . "','". $data['Type']  . "','". $data['ListType']  . "')";
         $PayableReceivable_data = DB::connection('neon_report')->select($query);
         $series = $category1 = $category2 = $category3 = array();
@@ -266,6 +266,7 @@ class BillingDashboard extends \BaseController {
             $CurrencySymbol = Currency::getCurrencySymbol($CurrencyID);
         }
 
+        Cache::forever('GetDashboardPL_'.User::get_companyID().'_'.User::get_userID(),$data['ListType']);
         $query = "call prc_getDashboardProfitLoss ('". $companyID  . "', '".intval($CurrencyID)."','".$data['AccountID']."', '". $data['Startdate']  . "','". $data['Enddate']  . "','". $data['ListType']  . "')";
         $PayableReceivable_data = DB::connection('neon_report')->select($query);
         $series = $category1 = $category2 = $category3 = array();
