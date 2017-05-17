@@ -72,7 +72,7 @@ $inlineTaxes        =   [];
                   <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
                 <thead>
                 <tr>
-                    <th colspan="5" class="desc"><b>ONE OFF</b></th>
+                    <th colspan="5" class="desc"><b>ONE OFF Fees</b></th>
                 </tr>
                 <tr>
                     <th class="desc"><b>Title</b></th>
@@ -154,7 +154,7 @@ $inlineTaxes        =   [];
                   <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
                 <thead>
                 <tr>
-                    <th colspan="5" class="desc"><b>RECURRING</b></th>
+                    <th colspan="5" class="desc"><b>RECURRING Fees</b></th>
                 </tr>
                 <tr>
                     <th class="desc"><b>Title</b></th>

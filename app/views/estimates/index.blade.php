@@ -545,8 +545,10 @@ var postdata;
     });
 	
 	$(document).on( 'click', '.convert_estimate', function(e){			
-			  estimate_id = $(this).attr('estimate');
-       
+		$(this).attr('disabled', 'disabled');	 
+		$(this).button('loading');
+		$('.dataTables_processing').css("visibility","visible");
+		estimate_id = $(this).attr('estimate');       
         var ajaxurl_convert = base_url_estimate+"/"+estimate_id+"/convert_estimate";
 		
 		   $.ajax({
@@ -556,6 +558,7 @@ var postdata;
 			data:{'eid':estimate_id,'convert':1},
 			success: function(response) {
 				$(this).button('reset');
+				$('.dataTables_processing').css("visibility","hidden");
 				if (response.status == 'success') {
 					toastr.success(response.message, "Success", toastr_opts);
 					data_table.fnFilter('', 0);
