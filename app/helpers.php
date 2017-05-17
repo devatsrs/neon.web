@@ -1297,6 +1297,7 @@ function view_response_api($response){
     if(is_array($response)){
         $isArray = true;
     }
+    //@TODO: there is no key with Code.
     if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)) {
         //return Redirect::to('/logout');
         \Illuminate\Support\Facades\Log::info("helpers.php view_response_api");
@@ -1680,6 +1681,13 @@ function get_ticket_status_date_array($result_data) {
 
         if(\Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->isFuture()) {
             $due = true ;
+
+            // round up minutes 1 hours 59 minutes to 2 hours
+            if(\Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->minute >= 1){
+                $the_date = \Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->addHour(1);
+            }
+
+
         }else {
             $overdue = true;
         }

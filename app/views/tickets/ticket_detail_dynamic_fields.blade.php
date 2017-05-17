@@ -273,8 +273,10 @@ var required_flds	  =          '{{json_encode($required)}}';
 				  	$( this ).val(0);
 				  }
             });
-		$('#{{$htmlgroupID}}').trigger('change');
 			
+		//$('#{{$htmlgroupID}}').trigger('change');
+			setagentval();
+
     });
 </script> 
 <?php } ?>
