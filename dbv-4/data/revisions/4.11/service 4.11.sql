@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS `tblHeaderV` (
   `VAccountID` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `TotalCharges` double DEFAULT NULL,
+  `TotalSales` double DEFAULT NULL,
   `TotalBilledDuration` int(11) DEFAULT NULL,
   `TotalDuration` int(11) DEFAULT NULL,
   `NoOfCalls` int(11) DEFAULT NULL,
@@ -752,8 +753,27 @@ BEGIN
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID;	
+	AND us.ServiceID = sh.ServiceID;
 
+	DELETE h FROM tblHeader h 
+	INNER JOIN tmp_UsageSummaryLive u 
+		ON h.DateID = u.DateID 
+		AND h.CompanyID = u.CompanyID
+	WHERE u.CompanyID = p_CompanyID;
+	
+	INSERT INTO tblHeader(DateID,CompanyID,AccountID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	SELECT 
+		u.DateID,
+		u.CompanyID,
+		u.AccountID,
+		SUM(u.TotalCharges) as TotalCharges,
+		SUM(u.TotalBilledDuration) as TotalBilledDuration,
+		SUM(u.TotalDuration) as TotalDuration,
+		SUM(u.NoOfCalls) as NoOfCalls,
+		SUM(u.NoOfFailCalls) as NoOfFailCalls
+	FROM tmp_UsageSummaryLive u 
+	WHERE u.CompanyID = p_CompanyID
+	GROUP BY u.DateID,u.AccountID,u.CompanyID;
 	COMMIT;
 	
 END|
@@ -912,12 +932,13 @@ BEGIN
 		AND h.CompanyID = u.CompanyID
 	WHERE u.CompanyID = p_CompanyID;
 	
-	INSERT INTO tblHeaderV(DateID,CompanyID,VAccountID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	INSERT INTO tblHeaderV(DateID,CompanyID,VAccountID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
 	SELECT 
 		u.DateID,
 		u.CompanyID,
 		u.AccountID,
 		SUM(u.TotalCharges) as TotalCharges,
+		SUM(u.TotalSales) as TotalSales,
 		SUM(u.TotalBilledDuration) as TotalBilledDuration,
 		SUM(u.TotalDuration) as TotalDuration,
 		SUM(u.NoOfCalls) as NoOfCalls,
@@ -1079,6 +1100,27 @@ BEGIN
 	AND sh.AreaPrefix = us.AreaPrefix
 	AND sh.ServiceID = us.ServiceID;
 
+	DELETE h FROM tblHeaderV h 
+	INNER JOIN tmp_VendorUsageSummaryLive u 
+		ON h.DateID = u.DateID 
+		AND h.CompanyID = u.CompanyID
+	WHERE u.CompanyID = p_CompanyID;
+	
+	INSERT INTO tblHeaderV(DateID,CompanyID,VAccountID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	SELECT 
+		u.DateID,
+		u.CompanyID,
+		u.AccountID,
+		SUM(u.TotalCharges) as TotalCharges,
+		SUM(u.TotalSales) as TotalSales,
+		SUM(u.TotalBilledDuration) as TotalBilledDuration,
+		SUM(u.TotalDuration) as TotalDuration,
+		SUM(u.NoOfCalls) as NoOfCalls,
+		SUM(u.NoOfFailCalls) as NoOfFailCalls
+	FROM tmp_VendorUsageSummaryLive u 
+	WHERE u.CompanyID = p_CompanyID
+	GROUP BY u.DateID,u.AccountID,u.CompanyID;	
+
 	COMMIT;
 	
 END|
@@ -1229,8 +1271,8 @@ BEGIN
 		SUM(IF(PaymentType='Payment In',p.Amount,0)),
 		SUM(IF(PaymentType='Payment Out',p.Amount,0)) 
 	INTO 
-		prev_TotalPaymentOut,
-		prev_TotalPaymentIn
+		prev_TotalPaymentIn,
+		prev_TotalPaymentOut
 	FROM RMBilling3.tblPayment p 
 	INNER JOIN Ratemanagement3.tblAccount ac 
 		ON ac.AccountID = p.AccountID
@@ -1275,7 +1317,7 @@ BEGIN
 			SELECT 
 				SUM(IF(InvoiceType=1,GrandTotal,0)) AS TotalInvoiceOut,
 				SUM(IF(InvoiceType=2,GrandTotal,0)) AS TotalInvoiceIn,
-				tblInvoice.IssueDate 
+				DATE(tblInvoice.IssueDate) AS  IssueDate 
 			FROM RMBilling3.tblInvoice 
 			WHERE 
 				CompanyID = p_CompanyID
@@ -1283,14 +1325,14 @@ BEGIN
 				AND ( (InvoiceType = 2) OR ( InvoiceType = 1 AND InvoiceStatus NOT IN ( 'cancel' , 'draft') )  )
 				AND (p_AccountID = 0 or AccountID = p_AccountID)
 				AND IssueDate BETWEEN p_StartDate AND p_EndDate
-			GROUP BY tblInvoice.IssueDate
+			GROUP BY DATE(tblInvoice.IssueDate)
 			HAVING (TotalInvoiceOut <> 0 OR TotalInvoiceIn <> 0)
 		) TBL ON IssueDate = dd.date
 		LEFT JOIN (
 			SELECT
 				SUM(IF(PaymentType='Payment In',p.Amount,0)) AS TotalPaymentIn ,
 				SUM(IF(PaymentType='Payment Out',p.Amount,0)) AS TotalPaymentOut,
-				p.PaymentDate
+				DATE(p.PaymentDate) AS PaymentDate
 			FROM RMBilling3.tblPayment p
 			INNER JOIN Ratemanagement3.tblAccount ac
 				ON ac.AccountID = p.AccountID
@@ -1301,7 +1343,7 @@ BEGIN
 				AND p.Recall=0
 				AND (p_AccountID = 0 or p.AccountID = p_AccountID)
 				AND PaymentDate BETWEEN p_StartDate AND p_EndDate
-			GROUP BY p.PaymentDate
+			GROUP BY DATE(p.PaymentDate)
 			HAVING (TotalPaymentIn <> 0 OR TotalPaymentOut <> 0)
 		)TBL2 ON PaymentDate = dd.date
 		LEFT JOIN tmp_CustomerUnbilled_ cu 
@@ -1369,7 +1411,7 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS `prc_getUnbilledReport`;
 
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getUnbilledReport`(
+CREATE PROCEDURE `prc_getUnbilledReport`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
 	IN `p_LastInvoiceDate` DATETIME,
@@ -1416,8 +1458,7 @@ BEGIN
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
 		WHERE dd.date BETWEEN p_LastInvoiceDate AND p_Today 
 		AND us.CompanyID = p_CompanyID
-		AND us.AccountID = p_AccountID
-		GROUP BY us.DateID;
+		AND us.AccountID = p_AccountID;
 		
 	END IF;
  
@@ -1475,12 +1516,137 @@ BEGIN
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
 		WHERE dd.date BETWEEN p_LastInvoiceDate AND p_Today 
 		AND us.CompanyID = p_CompanyID
-		AND us.VAccountID = p_AccountID
-		GROUP BY us.DateID;
+		AND us.VAccountID = p_AccountID;
 
 	END IF;
  
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getDashboardProfitLoss`;
+DELIMITER |
+CREATE PROCEDURE `prc_getDashboardProfitLoss`(
+	IN `p_CompanyID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_ListType` VARCHAR(50)
+)
+BEGIN
+	DECLARE v_Round_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	DROP TEMPORARY TABLE IF EXISTS tmp_Customerbilled_;
+	CREATE TEMPORARY TABLE tmp_Customerbilled_  (
+		DateID INT,
+		Customerbill DOUBLE
+	);
+	DROP TEMPORARY TABLE IF EXISTS tmp_Vendorbilled_;
+	CREATE TEMPORARY TABLE tmp_Vendorbilled_  (
+		DateID INT,
+		Vendrorbill DOUBLE
+	);
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_FinalResult_;
+	CREATE TEMPORARY TABLE tmp_FinalResult_  (
+		Customerbill DOUBLE,
+		Vendrorbill DOUBLE,
+		date DATE
+	);
+
+	INSERT INTO tmp_Customerbilled_(DateID,Customerbill)
+	SELECT 
+		dd.DateID,
+		SUM(h.TotalCharges)
+	FROM tblDimDate dd
+	INNER JOIN tblHeader h
+		ON h.DateID = dd.DateID
+	WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+	AND (p_AccountID = 0 or AccountID = p_AccountID)
+	GROUP BY dd.date;
+
+	INSERT INTO tmp_Vendorbilled_ (DateID,Vendrorbill)
+	SELECT 
+		dd.DateID,
+		SUM(h.TotalCharges)
+	FROM tblDimDate dd
+	INNER JOIN tblHeaderV h
+		ON h.DateID = dd.DateID
+	WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+	AND (p_AccountID = 0 or VAccountID = p_AccountID)
+	GROUP BY dd.date;
+
+	INSERT INTO tmp_FinalResult_(Customerbill,Vendrorbill,date)
+	SELECT 
+		IFNULL(Customerbill,0) AS Customerbill,
+		IFNULL(Vendrorbill,0) AS Vendrorbill,
+		date
+	FROM(
+		SELECT 
+			dd.date,
+			Customerbill,
+			Vendrorbill
+		FROM tblDimDate dd 
+		LEFT JOIN tmp_Customerbilled_ cu 
+			ON cu.DateID = dd.DateID
+		LEFT JOIN tmp_Vendorbilled_ vu
+			ON vu.DateID = dd.DateID
+		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+		AND (cu.DateID IS NOT NULL OR vu.DateID IS NOT NULL)
+		ORDER BY dd.date
+	)tbl;
+	
+	IF p_ListType = 'Daily'
+	THEN
+
+		SELECT
+			(Customerbill - Vendrorbill) AS PL,
+			date AS Date
+		FROM  tmp_FinalResult_
+		ORDER BY date;
+
+	END IF;
+
+	IF p_ListType = 'Weekly'
+	THEN
+
+		SELECT 
+			(SUM(Customerbill) - SUM(Vendrorbill)) AS PL,
+			CONCAT( YEAR(MAX(date)),' - ',WEEK(MAX(date))) AS Date
+		FROM	tmp_FinalResult_
+		GROUP BY 
+			YEAR(date),
+			WEEK(date)
+		ORDER BY
+			YEAR(date),
+			WEEK(date);
+
+	END IF;
+	
+	IF p_ListType = 'Monthly'
+	THEN
+
+		SELECT 
+			(SUM(Customerbill) - SUM(Vendrorbill)) AS PL,
+			CONCAT( YEAR(MAX(date)),' - ',MONTHNAME(MAX(date))) AS Date
+		FROM	tmp_FinalResult_
+		GROUP BY
+			YEAR(date)
+			,MONTH(date)
+		ORDER BY 
+			YEAR(date)
+			,MONTH(date);
+
+	END IF;
+	
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END|
 DELIMITER ;

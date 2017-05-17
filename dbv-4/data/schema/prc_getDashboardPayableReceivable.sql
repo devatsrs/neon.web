@@ -141,8 +141,8 @@ BEGIN
 		SUM(IF(PaymentType='Payment In',p.Amount,0)),
 		SUM(IF(PaymentType='Payment Out',p.Amount,0)) 
 	INTO 
-		prev_TotalPaymentOut,
-		prev_TotalPaymentIn
+		prev_TotalPaymentIn,
+		prev_TotalPaymentOut
 	FROM NeonBillingDev.tblPayment p 
 	INNER JOIN NeonRMDev.tblAccount ac 
 		ON ac.AccountID = p.AccountID
@@ -187,7 +187,7 @@ BEGIN
 			SELECT 
 				SUM(IF(InvoiceType=1,GrandTotal,0)) AS TotalInvoiceOut,
 				SUM(IF(InvoiceType=2,GrandTotal,0)) AS TotalInvoiceIn,
-				tblInvoice.IssueDate 
+				DATE(tblInvoice.IssueDate) AS  IssueDate
 			FROM NeonBillingDev.tblInvoice 
 			WHERE 
 				CompanyID = p_CompanyID
@@ -195,14 +195,14 @@ BEGIN
 				AND ( (InvoiceType = 2) OR ( InvoiceType = 1 AND InvoiceStatus NOT IN ( 'cancel' , 'draft') )  )
 				AND (p_AccountID = 0 or AccountID = p_AccountID)
 				AND IssueDate BETWEEN p_StartDate AND p_EndDate
-			GROUP BY tblInvoice.IssueDate
+			GROUP BY DATE(tblInvoice.IssueDate)
 			HAVING (TotalInvoiceOut <> 0 OR TotalInvoiceIn <> 0)
 		) TBL ON IssueDate = dd.date
 		LEFT JOIN (
 			SELECT
 				SUM(IF(PaymentType='Payment In',p.Amount,0)) AS TotalPaymentIn ,
 				SUM(IF(PaymentType='Payment Out',p.Amount,0)) AS TotalPaymentOut,
-				p.PaymentDate
+				DATE(p.PaymentDate) AS PaymentDate
 			FROM NeonBillingDev.tblPayment p
 			INNER JOIN NeonRMDev.tblAccount ac
 				ON ac.AccountID = p.AccountID
@@ -213,7 +213,7 @@ BEGIN
 				AND p.Recall=0
 				AND (p_AccountID = 0 or p.AccountID = p_AccountID)
 				AND PaymentDate BETWEEN p_StartDate AND p_EndDate
-			GROUP BY p.PaymentDate
+			GROUP BY DATE(p.PaymentDate)
 			HAVING (TotalPaymentIn <> 0 OR TotalPaymentOut <> 0)
 		)TBL2 ON PaymentDate = dd.date
 		LEFT JOIN tmp_CustomerUnbilled_ cu 
