@@ -31,6 +31,10 @@ class Customer extends Eloquent implements UserInterface{
 	 public static function get_user_full_name_with_email(){
         return Auth::user()->FirstName.' '. Auth::user()->LastName.' <'.Auth::user()->BillingEmail.'>';
     }
+	
+	 public static function get_user_full_name_with_email2(){
+        return Auth::user()->FirstName.' '. Auth::user()->LastName.' <'.Session::get('CustomerEmail').'>';
+    }
 
     public static function get_accountName(){
         return Auth::user()->AccountName;

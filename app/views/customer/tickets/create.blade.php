@@ -29,7 +29,8 @@
 				if($TicketfieldsData->FieldType == 'default_requester')
 				 {
 			 ?>
-             <input type="hidden"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}"  value="{{Customer::get_user_full_name_with_email()}}">
+             <input type="hidden"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}"  value="{{Customer::get_user_full_name_with_email2()}}">
+             <input type="hidden"  name='TicketAccount' class="form-control formfld" id=""  value="{{Auth::user()->AccountID}}">
              <?php	
 			 continue; 
 			 }else{
