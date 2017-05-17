@@ -870,16 +870,6 @@ function SortBillingType(){
     ksort(Company::$BillingCycleType);
     return Company::$BillingCycleType;
 }
-function parse_reponse($response){
-    $response = json_decode($response);
-    if($response->status_code == 200){
-        return $response;
-    }elseif($response->status_code == 401 && $response->message == 'Token has expired'){
-        Session::flush();
-        Auth::logout();
-        return Redirect::to('/login')->with('message', 'Your are now logged out!');
-    }
-}
 function getUploadedFileRealPath($files)
 {
     $realPaths = [];
@@ -1227,8 +1217,11 @@ function view_response_api($response){
     if(is_array($response)){
         $isArray = true;
     }
+    //@TODO: there is no key with Code.
     if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)) {
-        return Redirect::to('/logout');
+        //return Redirect::to('/logout');
+        \Illuminate\Support\Facades\Log::info("helpers.php view_response_api");
+        \Illuminate\Support\Facades\Log::info(print_r($response,true));
     }else if(($isArray && $response['status'] =='failed') || !$isArray && $response->status=='failed'){
         $Code = $isArray?$response['Code']:$response->Code;
         $validator = $isArray?$response['message']:(array)$response->message;
@@ -1277,9 +1270,9 @@ function Get_Api_file_extentsions($ajax=false){
 		}else{
 			
 			if(isset($response->Code) && ($response->Code==400 || $response->Code==401)){
-					return Redirect::to('/logout'); 	
+					//return Redirect::to('/logout');
 			}		
-			if(isset($response->error) && $response->error=='token_expired'){ return Redirect::to('/login');}	
+			//if(isset($response->error) && $response->error=='token_expired'){ return Redirect::to('/login');}
 		}
 	}else{		
 		$response_extensions 		 = 	json_response_api($response,true,true); 

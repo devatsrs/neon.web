@@ -62,7 +62,7 @@ class OpportunityController extends \BaseController {
         if(!empty($opportunityattachment)) {
             $FilesArray = array();
             $allowed = Get_Api_file_extentsions(true);
-			if(isset($allowed->headers)){ return	Redirect::to('/logout'); 	}
+			//if(isset($allowed->headers)){ return	Redirect::to('/logout'); 	}
 			if(!isset($allowed['allowed_extensions'])){
 				return json_response_api($allowed,false,true);
 			}

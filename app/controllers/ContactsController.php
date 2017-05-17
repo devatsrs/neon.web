@@ -311,9 +311,9 @@ class ContactsController extends \BaseController {
 				}
 			}else{ 	
 				if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
-					return	Redirect::to('/logout'); 	
+					//return	Redirect::to('/logout');
 				}		
-				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
+				//if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}
 				$message = json_response_api($response_timeline,false,false);
 			}
 			
@@ -323,7 +323,7 @@ class ContactsController extends \BaseController {
             
 			//Backup code for getting extensions from api
 		   $response_api_extensions 	=   Get_Api_file_extentsions();
-		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
+		   //if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}
 		   $response_extensions			=	json_encode($response_api_extensions['allowed_extensions']);
 		   
            //all users email address
