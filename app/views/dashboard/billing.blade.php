@@ -1419,7 +1419,7 @@
             border-bottom:1px solid transparent !important;
             border-color:#ebebeb !important;
         }
-        .highcharts-point.highcharts-negative {
+        #ProfitLoss1 .highcharts-point.highcharts-negative {
             fill: #f56954;
         }
     </style>
