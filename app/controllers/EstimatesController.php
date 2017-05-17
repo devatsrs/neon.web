@@ -167,8 +167,9 @@ class EstimatesController extends \BaseController {
 				$EstimateData["EstimateNumber"] =  $data["EstimateNumber"];
             }
 			 if(isset($data['BillingClassID']) && $data['BillingClassID']>0){  
+			 $InvoiceTemplateID  			= 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
 			$EstimateData["EstimateNumber"] = 	$LastEstimateNumber = ($isAutoEstimateNumber)?InvoiceTemplate::getNextEstimateNumber($InvoiceTemplateID):$data["EstimateNumber"];
-			$InvoiceTemplateID  			= 	BillingClass::getInvoiceTemplateID($data['BillingClassID']);
+			
 			 }
             
             $EstimateData["CompanyID"] 		= 	$companyID;
