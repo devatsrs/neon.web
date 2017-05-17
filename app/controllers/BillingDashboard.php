@@ -277,7 +277,7 @@ class BillingDashboard extends \BaseController {
             $cat_index++;
         }
         if(!empty($category1)) {
-            $series[] = array('name' => 'Profit Loss', 'data' => $category1, 'color' => '#3366cc');
+            $series[] = array('name' => 'Profit Loss', 'data' => $category1, 'color' => '#3366cc','showInLegend'=>false);
         }
         $reponse['series'] = $series;
         return json_encode($reponse,JSON_NUMERIC_CHECK);
