@@ -143,7 +143,7 @@ BEGIN
 	AND sh.ServiceID = us.ServiceID;
 
 	DELETE h FROM tblHeaderV h 
-	INNER JOIN tmp_VendorUsageSummary u 
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummary)u
 		ON h.DateID = u.DateID 
 		AND h.CompanyID = u.CompanyID
 	WHERE u.CompanyID = p_CompanyID;

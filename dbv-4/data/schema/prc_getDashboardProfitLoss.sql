@@ -78,7 +78,7 @@ BEGIN
 	THEN
 
 		SELECT
-			(Customerbill - Vendrorbill) AS PL,
+			ROUND(Customerbill - Vendrorbill,v_Round_) AS PL,
 			date AS Date
 		FROM  tmp_FinalResult_
 		ORDER BY date;
@@ -89,7 +89,7 @@ BEGIN
 	THEN
 
 		SELECT 
-			(SUM(Customerbill) - SUM(Vendrorbill)) AS PL,
+			ROUND(SUM(Customerbill) - SUM(Vendrorbill),v_Round_) AS PL,
 			CONCAT( YEAR(MAX(date)),' - ',WEEK(MAX(date))) AS Date
 		FROM	tmp_FinalResult_
 		GROUP BY 
@@ -105,7 +105,7 @@ BEGIN
 	THEN
 
 		SELECT 
-			(SUM(Customerbill) - SUM(Vendrorbill)) AS PL,
+			ROUND(SUM(Customerbill) - SUM(Vendrorbill),v_Round_) AS PL,
 			CONCAT( YEAR(MAX(date)),' - ',MONTHNAME(MAX(date))) AS Date
 		FROM	tmp_FinalResult_
 		GROUP BY

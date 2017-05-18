@@ -229,9 +229,9 @@ BEGIN
 	THEN
 
 		SELECT
-			TotalOutstanding,
-			TotalPayable,
-			TotalReceivable,
+			ROUND(TotalOutstanding,v_Round_),
+			ROUND(TotalPayable,v_Round_),
+			ROUND(TotalReceivable,v_Round_),
 			date AS Date
 		FROM  tmp_FinalResult_;
 
@@ -241,9 +241,9 @@ BEGIN
 	THEN
 
 		SELECT 
-			SUM(TotalOutstanding)  AS TotalOutstanding,
-			SUM(TotalPayable)  AS TotalPayable,
-			SUM(TotalReceivable)  AS TotalReceivable,
+			ROUND(SUM(TotalOutstanding),v_Round_)  AS TotalOutstanding,
+			ROUND(SUM(TotalPayable),v_Round_)  AS TotalPayable,
+			ROUND(SUM(TotalReceivable),v_Round_)  AS TotalReceivable,
 			CONCAT( YEAR(MAX(date)),' - ',WEEK(MAX(date))) AS Date
 		FROM	tmp_FinalResult_
 		GROUP BY 
@@ -259,9 +259,9 @@ BEGIN
 	THEN
 
 		SELECT 
-			SUM(TotalOutstanding)  AS TotalOutstanding,
-			SUM(TotalPayable)  AS TotalPayable,
-			SUM(TotalReceivable)  AS TotalReceivable,
+			ROUND(SUM(TotalOutstanding),v_Round_)  AS TotalOutstanding,
+			ROUND(SUM(TotalPayable),v_Round_)  AS TotalPayable,
+			ROUND(SUM(TotalReceivable),v_Round_)  AS TotalReceivable,
 			CONCAT( YEAR(MAX(date)),' - ',MONTHNAME(MAX(date))) AS Date
 		FROM	tmp_FinalResult_
 		GROUP BY

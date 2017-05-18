@@ -85,8 +85,8 @@ tblSummaryHeader ON tblSummaryHeader.SummaryHeaderID = tblUsageSummary.SummaryHe
 WHERE CompanyID =1
 GROUP BY DateID,AccountID;
 
-INSERT INTO tblHeaderV (DateID,CompanyID,VAccountID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
-SELECT DateID,CompanyID,AccountID,SUM(TotalCharges),SUM(TotalBilledDuration),SUM(TotalDuration),SUM(NoOfCalls),SUM(NoOfFailCalls) FROM tblSummaryVendorHeader INNER JOIN 
+INSERT INTO tblHeaderV (DateID,CompanyID,VAccountID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+SELECT DateID,CompanyID,AccountID,SUM(TotalCharges),SUM(TotalSales),SUM(TotalBilledDuration),SUM(TotalDuration),SUM(NoOfCalls),SUM(NoOfFailCalls) FROM tblSummaryVendorHeader INNER JOIN 
 tblUsageVendorSummary ON tblSummaryVendorHeader.SummaryVendorHeaderID = tblUsageVendorSummary.SummaryVendorHeaderID
 WHERE CompanyID =1
 GROUP BY DateID,AccountID;
@@ -586,7 +586,7 @@ BEGIN
 	AND us.ServiceID = sh.ServiceID;
 	
 	DELETE h FROM tblHeader h 
-	INNER JOIN tmp_UsageSummary u 
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummary)u
 		ON h.DateID = u.DateID 
 		AND h.CompanyID = u.CompanyID
 	WHERE u.CompanyID = p_CompanyID;
@@ -756,7 +756,7 @@ BEGIN
 	AND us.ServiceID = sh.ServiceID;
 
 	DELETE h FROM tblHeader h 
-	INNER JOIN tmp_UsageSummaryLive u 
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)u
 		ON h.DateID = u.DateID 
 		AND h.CompanyID = u.CompanyID
 	WHERE u.CompanyID = p_CompanyID;
@@ -927,7 +927,7 @@ BEGIN
 	AND sh.ServiceID = us.ServiceID;
 	
 	DELETE h FROM tblHeaderV h 
-	INNER JOIN tmp_VendorUsageSummary u 
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummary)u
 		ON h.DateID = u.DateID 
 		AND h.CompanyID = u.CompanyID
 	WHERE u.CompanyID = p_CompanyID;
@@ -1101,7 +1101,7 @@ BEGIN
 	AND sh.ServiceID = us.ServiceID;
 
 	DELETE h FROM tblHeaderV h 
-	INNER JOIN tmp_VendorUsageSummaryLive u 
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummaryLive)u
 		ON h.DateID = u.DateID 
 		AND h.CompanyID = u.CompanyID
 	WHERE u.CompanyID = p_CompanyID;
@@ -1359,9 +1359,9 @@ BEGIN
 	THEN
 
 		SELECT
-			TotalOutstanding,
-			TotalPayable,
-			TotalReceivable,
+			ROUND(TotalOutstanding,v_Round_),
+			ROUND(TotalPayable,v_Round_),
+			ROUND(TotalReceivable,v_Round_),
 			date AS Date
 		FROM  tmp_FinalResult_;
 
@@ -1371,9 +1371,9 @@ BEGIN
 	THEN
 
 		SELECT 
-			SUM(TotalOutstanding)  AS TotalOutstanding,
-			SUM(TotalPayable)  AS TotalPayable,
-			SUM(TotalReceivable)  AS TotalReceivable,
+			ROUND(SUM(TotalOutstanding),v_Round_)  AS TotalOutstanding,
+			ROUND(SUM(TotalPayable),v_Round_)  AS TotalPayable,
+			ROUND(SUM(TotalReceivable),v_Round_)  AS TotalReceivable,
 			CONCAT( YEAR(MAX(date)),' - ',WEEK(MAX(date))) AS Date
 		FROM	tmp_FinalResult_
 		GROUP BY 
@@ -1389,9 +1389,9 @@ BEGIN
 	THEN
 
 		SELECT 
-			SUM(TotalOutstanding)  AS TotalOutstanding,
-			SUM(TotalPayable)  AS TotalPayable,
-			SUM(TotalReceivable)  AS TotalReceivable,
+			ROUND(SUM(TotalOutstanding),v_Round_)  AS TotalOutstanding,
+			ROUND(SUM(TotalPayable),v_Round_)  AS TotalPayable,
+			ROUND(SUM(TotalReceivable),v_Round_)  AS TotalReceivable,
 			CONCAT( YEAR(MAX(date)),' - ',MONTHNAME(MAX(date))) AS Date
 		FROM	tmp_FinalResult_
 		GROUP BY
@@ -1607,7 +1607,7 @@ BEGIN
 	THEN
 
 		SELECT
-			(Customerbill - Vendrorbill) AS PL,
+			ROUND(Customerbill - Vendrorbill,v_Round_) AS PL,
 			date AS Date
 		FROM  tmp_FinalResult_
 		ORDER BY date;
@@ -1618,7 +1618,7 @@ BEGIN
 	THEN
 
 		SELECT 
-			(SUM(Customerbill) - SUM(Vendrorbill)) AS PL,
+			ROUND(SUM(Customerbill) - SUM(Vendrorbill),v_Round_) AS PL,
 			CONCAT( YEAR(MAX(date)),' - ',WEEK(MAX(date))) AS Date
 		FROM	tmp_FinalResult_
 		GROUP BY 
@@ -1634,7 +1634,7 @@ BEGIN
 	THEN
 
 		SELECT 
-			(SUM(Customerbill) - SUM(Vendrorbill)) AS PL,
+			ROUND(SUM(Customerbill) - SUM(Vendrorbill),v_Round_) AS PL,
 			CONCAT( YEAR(MAX(date)),' - ',MONTHNAME(MAX(date))) AS Date
 		FROM	tmp_FinalResult_
 		GROUP BY
