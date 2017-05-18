@@ -2028,15 +2028,17 @@ function table_html($data,$table_data){
 }
 function generateReportTable2($data,$response)
 {
-    $row_count = count($data['row']);
+    if(!empty($response['data'])) {
+        $table = '<table class="table table-bordered">';
 
-    $table = '<table class="table table-bordered">';
+        $table_data =  table_array($data,$response);
 
-    $table_data =  table_array($data,$response);
-
-    $table .=  table_html($data,$table_data);
+        $table .=  table_html($data,$table_data);
 
         $table .= '</table>';
+    }else{
+        $table = 'No Data Found Or Select at least one Measure';
+    }
 
     return $table;
 }

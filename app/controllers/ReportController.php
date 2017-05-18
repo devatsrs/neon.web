@@ -45,7 +45,7 @@ class ReportController extends \BaseController {
         $data['column'] = array_filter(explode(",",$data['column']));
         //$data['sum'] = array_filter(explode(",",$data['Cube']));
         $data['row'] = array_filter(explode(",",$data['row']));
-        $data['sum'] = array();
+        $data['sum'] = $response = array();
 
         $measures = Report::$measures[$cube];
         foreach ($measures as $measure){
@@ -66,7 +66,9 @@ class ReportController extends \BaseController {
         $data['row'] = array_values($data['row']);
 
         $CompanyID = User::get_companyID();
-        $response = Report::generateDynamicTable($CompanyID,$cube,$data);
-        return json_encode(generateReportTable($data,$response));
+        if(count($data['sum'])) {
+            $response = Report::generateDynamicTable($CompanyID, $cube, $data);
+        }
+        return json_encode(generateReportTable2($data,$response));
     }
 }

@@ -77,8 +77,9 @@ class Report extends \Eloquent {
         }
 
         $data['row'] = array_merge($data['row'],$data['column']);
-        $data['row'][] = DB::Raw("SUM(NoOfCalls) as NoOfCalls");
-        $data['row'][] = DB::Raw("SUM(TotalCharges) AS TotalCharges");
+        foreach($data['sum'] as $colname) {
+            $data['row'][] = DB::Raw("SUM(tblUsageSummaryDay.".$colname.") as ".$colname);
+        }
         /*if(!empty($select_columns)){
             $data['row'][] = DB::Raw($select_columns);
         }*/
