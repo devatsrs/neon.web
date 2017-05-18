@@ -4424,8 +4424,8 @@ BEGIN
 	--	SELECT ROUND((v_TotalInvoice_ - v_TotalPayment_),v_Round_) AS TotalOutstanding ;
 	SELECT 
 		ROUND((IFNULL(v_TotalInvoiceOut_,0) - IFNULL(v_TotalPaymentIn_,0)) - (IFNULL(v_TotalInvoiceIn_,0) - IFNULL(v_TotalPaymentOut_,0)),v_Round_) AS TotalOutstanding,
-		ROUND((IFNULL(v_TotalInvoiceOut_,0) - IFNULL(v_TotalPaymentIn_,0)),v_Round_) AS TotalPayable,
-		ROUND((IFNULL(v_TotalInvoiceIn_,0) - IFNULL(v_TotalPaymentOut_,0)),v_Round_) AS TotalReceivable;
+		ROUND((IFNULL(v_TotalInvoiceOut_,0) - IFNULL(v_TotalPaymentIn_,0)),v_Round_) AS TotalReceivable,
+		ROUND((IFNULL(v_TotalInvoiceIn_,0) - IFNULL(v_TotalPaymentOut_,0)),v_Round_) AS TotalPayable;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END|
