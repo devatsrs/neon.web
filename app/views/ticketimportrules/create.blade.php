@@ -127,7 +127,7 @@
                 type: 'POST',
                 dataType: 'html',
 				data:{Counter:Counter,DataType:DataType},
-				async :true,
+				async :false,
                 success: function(response) { 
 					response_html = response;
 				},
@@ -269,11 +269,13 @@
                 },
 			});
         });	
-		
-		setTimeout(StartData(),1000);
-		function StartData(){ alert("here");
+		setTimeout(startdata(),1000);
+		function startdata(){
+			setTimeout(function(){
 			$('#add_new_condition').click();		
 			$('#add_new_rule').click();
+			},500)
+			
 		}	
 		
 	});	
