@@ -1087,7 +1087,7 @@ function check_uri($parent_link=''){
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
 	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
-    $array_billing    =    array("Dashboard",'Estimates','Invoices','RecurringInvoice','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR',"Discount","BillingClass");
+    $array_billing    =    array("Dashboard",'Estimates','Invoices','RecurringInvoice','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR',"Discount","BillingClass","Services");
     $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer',"DashboardCustomer");
 	
     if(count($path_array)>0)
@@ -1095,7 +1095,7 @@ function check_uri($parent_link=''){
   		$controller = $path_array[0];
 	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
-			if(Request::segment(1)!='monitor' && $path_array[1]!='@CrmDashboard'){
+			if(Request::segment(1)!='monitor' && $path_array[1]!='@CrmDashboard' && $path_array[1]!='@TicketDashboard'){
             	return 'opened';
 			} 
         }
@@ -1127,7 +1127,7 @@ function check_uri($parent_link=''){
 
         if(in_array($controller,$array_crm) && $parent_link =='Crm')
         {
-			if($path_array[1]!='@billingdashboard' && $path_array[1]!='@monitor_dashboard'){
+			if($path_array[1]!='@billingdashboard' && $path_array[1]!='@monitor_dashboard' && $path_array[1]!='@TicketDashboard'){
 				return 'opened';
 			}
         }
@@ -1142,7 +1142,7 @@ function check_uri($parent_link=''){
             return 'opened';
         }
 		
-		 if(in_array($controller,$array_tickets) && $parent_link =='tickets' && $path_array[1]!='@monitor_dashboard')
+		 if(in_array($controller,$array_tickets) && $parent_link =='tickets' && $path_array[1]!='@CrmDashboard' && $path_array[1]!='@monitor_dashboard' && $path_array[1]!='@billingdashboard')
         {
             return 'opened';
         }

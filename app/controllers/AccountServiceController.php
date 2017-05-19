@@ -81,11 +81,11 @@ class AccountServiceController extends \BaseController {
 
     // get all account service
     public function ajax_datagrid($id){
-        $data = Input::all();        
+        $data = Input::all();
         $id=$data['account_id'];
-        $select = ["tblService.ServiceName","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
+        $select = ["tblAccountService.ServiceID","tblService.ServiceName","tblAccountService.Status","tblAccountService.ServiceID","tblAccountService.AccountServiceID"];
         $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$id);
-        if(!empty($data['SubscriptionName'])){
+        if(!empty($data['ServiceName'])){
             $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
         }
         if(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'true'){
@@ -253,4 +253,152 @@ class AccountServiceController extends \BaseController {
         }
 	}
 
+    public function cloneservice($AccountID){
+        $data = Input::all();
+        if(empty($data['ServiceTitle']) && empty($data['Subscription']) && empty($data['Additional']) && empty($data['Billing']) && empty($data['Tariff']) && empty($data['DiscountPlan'])){
+            return Response::json(array("status" => "failed", "message" => "No Service Section selected."));
+        }
+
+        $data['ServiceTitle'] = empty($data['ServiceTitle']) ? '' : $data['ServiceTitle'];
+        $data['Subscription'] = empty($data['Subscription']) ? '' : $data['Subscription'];
+        $data['Additional'] = empty($data['Additional']) ? '' : $data['Additional'];
+        $data['Billing'] = empty($data['Billing']) ? '' : $data['Billing'];
+        $data['Tariff'] = empty($data['Tariff']) ? '' : $data['Tariff'];
+        $data['DiscountPlan'] = empty($data['DiscountPlan']) ? '' : $data['DiscountPlan'];
+
+
+        $CloneIDs = $data['CloneID'];
+        if(!empty($data['AccountID'])){
+            $AccountIDs = $data['AccountID'];
+            //service id for clone
+            if(!empty($data['criteria'])){
+                $criteria = $data['criteria'];
+                $criteria = json_decode($criteria,true);
+
+
+                $select = ["tblAccountService.ServiceID"];
+                $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$AccountID);
+                if(!empty($criteria['ServiceName'])){
+                    $services->where('tblService.ServiceName','Like','%'.trim($criteria['ServiceName']).'%');
+                }
+                if(!empty($criteria['ServiceActive']) && $criteria['ServiceActive'] == 'true'){
+                    $services->where(function($query){
+                        $query->where('tblAccountService.Status','=','1');
+                    });
+
+                }elseif(!empty($criteria['ServiceActive']) && $criteria['ServiceActive'] == 'false'){
+                    $services->where(function($query){
+                        $query->where('tblAccountService.Status','=','0');
+                    });
+                }
+                $results = $services->get($select);
+
+                $results = json_decode(json_encode($results),true);
+                if(empty($results)){
+                    return Response::json(array("status" => "failed", "message" => "No Services selected."));
+                }
+                $CloneIDs='';
+                foreach($results as $result){
+                    $CloneIDs.= $result['ServiceID'].',';
+                }
+                $CloneIDs = rtrim($CloneIDs,',');
+
+
+            }
+            if(!empty($CloneIDs)){
+                $CloneIDs=explode(',',$CloneIDs);
+                $data['SourceAccountID'] = $AccountID;
+                $data['AccountIDs'] = $AccountIDs;
+                $data['ServiceIDs'] = $CloneIDs;
+
+                $clone_result = AccountService::CloneServices($data);
+                if(!empty($clone_result['Success'])){
+                    return Response::json(array("status" => "success", "message" => $clone_result['Success']));
+                }elseif(!empty($clone_result['Error'])){
+                    return Response::json(array("status" => "failed", "message" => "Problem cloning service."));
+                }
+            }
+
+            return Response::json(array("status" => "failed", "message" => "Problem cloning service."));
+        }
+        return Response::json(array("status" => "failed", "message" => "No Accounts selected."));
+
+    }
+
+    public function search_accounts_grid($AccountID){
+        //$AllAccounts = Account::getAllAccounts();
+        //return Account::getCustomersGridPopup($opt);
+        return Account::getAllAccounts($AccountID);
+    }
+
+    public function bulk_change_status($AccountID){
+        $data = Input::all();
+        $ServiceIds = array();
+        $save = array();
+        if(!empty($data['action']) && !empty($AccountID)){
+            if(!empty($data['Criteria'])){
+                $criteria = $data['Criteria'];
+                $criteria = json_decode($criteria,true);
+                $ServiceIds = AccountService::getServiceIDsByCriteria($AccountID,$criteria);
+            }
+            if($data['ServiceID']){
+                $ServiceIds = $data['ServiceID'];
+                $ServiceIds=explode(',',$ServiceIds);
+            }
+
+            if ($data['action'] == 'active') {
+                $save['Status'] = 1;
+            } else if ($data['action'] == 'deactive') {
+                $save['Status'] = 0;
+            }
+            if(AccountService::whereIn('ServiceID',$ServiceIds)->where(array('AccountID'=>$AccountID))->update($save)){
+                return Response::json(array("status" => "success", "message" => "Service Successfully Updated"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Service."));
+            }
+
+        }
+
+        return Response::json(array("status" => "failed", "message" => "Problem Updating Service."));
+    }
+
+    public function bulk_delete($AccountID){
+        $data = Input::all();
+        $ServiceIds = array();
+        $save = array();
+        $errormsg = '';
+        if(!empty($data['action']) && !empty($AccountID)){
+            if(!empty($data['Criteria'])){
+                $criteria = $data['Criteria'];
+                $criteria = json_decode($criteria,true);
+                $ServiceIds = AccountService::getServiceIDsByCriteria($AccountID,$criteria);
+            }
+            if($data['ServiceID']){
+                $ServiceIds = $data['ServiceID'];
+                $ServiceIds=explode(',',$ServiceIds);
+            }
+            $error = '';
+            try {
+                foreach ($ServiceIds as $Service => $key) {
+                    if (AccountService::checkForeignKeyById($AccountID, $key)) {
+                        AccountService::where(array('AccountID' => $AccountID, 'ServiceID' => $key))->delete();
+                    } else {
+                        $ServiceName = Service::getServiceNameByID($key);
+                        $error .= '<br>' . $ServiceName;
+
+                    }
+                }
+                if (!empty($error)) {
+                    $errormsg = '<br>Following Service is Use,you can not delete.' . $error;
+                }
+                $message = 'Service Sucessfully deleted.' . $errormsg;
+                return Response::json(array("status" => "success", "message" => $message));
+            }catch (Exception $ex){
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
+            }
+
+        }
+
+        return Response::json(array("status" => "failed", "message" => "Problem Updating Service."));
+    }
 }
