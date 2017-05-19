@@ -8,9 +8,9 @@
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li> <a href="{{URL::to('/tickets/sla_policies')}}">Ticket SLA Policies</a> </li>
   <li><a><span>{{slapolicies_dropbox($Sla->TicketSlaID)}}</span></a></li>
-  <li class="active"> <strong>New SLA Policy</strong> </li>
+  <li class="active"> <strong>Edit SLA Policy</strong> </li>
 </ol>
-<h3>New SLA Policy</h3>
+<h3>Edit SLA Policy</h3>
 <div class="panel-title"> @include('includes.errors')
   @include('includes.success') </div>
 <p style="text-align: right;">

@@ -67,7 +67,7 @@ class TicketImportRulesController extends \BaseController {
 			$Conditions			=	TicketImportRuleConditionType::GetAllConditions();  //print_r($Rules); exit;
 			$Groups			 	=	TicketGroups::getTicketGroups(0); 
 			$priority 			= 	TicketPriority::getPriorityIDLIst();
-			$status			 	=   TicketsTable::getTicketStatus(0); 
+			$status			 	=   TicketsTable::getTicketStatusSelectable(0); 
 			$type				=	TicketsTable::getTicketType(0); 
 			$agentsAll 			= 	TicketGroupAgents::select([DB::raw("concat(IFNULL(tblUser.FirstName,''),' ' ,IFNULL(tblUser.LastName,''))  AS FullName "),"tblUser.UserID"])
 				->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()                      
@@ -91,7 +91,7 @@ class TicketImportRulesController extends \BaseController {
 		$Conditions					=	TicketImportRuleConditionType::GetAllConditions();  //print_r($Rules); exit;
 		$Groups			 			=	TicketGroups::getTicketGroups(0); 
 		$priority 					= 	TicketPriority::getPriorityIDLIst();
-		$status			 			=   TicketsTable::getTicketStatus(0); 
+		$status			 			=   TicketsTable::getTicketStatusSelectable(0); 
 		$type						=	TicketsTable::getTicketType(0); 
 		$agentsAll 					= 	TicketGroupAgents::select([DB::raw("concat(IFNULL(tblUser.FirstName,''),' ' ,IFNULL(tblUser.LastName,''))  AS FullName "),"tblUser.UserID"])
 			->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()                      
@@ -111,4 +111,24 @@ class TicketImportRulesController extends \BaseController {
 		$response 		= 		NeonAPI::request('tickets/importrules/delete/'.$id,array(),true,false,false); 
 		return json_response_api($response);
     }
+	
+	function CloneRule($id)
+	{
+		$EditImportData				=  TicketImportRule::find($id);	
+		$EditImportCondition		=  TicketImportRuleCondition::GetImportRulesCondition($id);
+		$EditImportAction			=  TicketImportRuleAction::GetImportRulesAction($id);			
+		$SubjectOrDescriptionID 	=  TicketImportRuleConditionType::GetSubjectOrDescriptionID();
+		
+		$Rules						=	TicketImportRuleActionType::GetAllRules();
+		$Conditions					=	TicketImportRuleConditionType::GetAllConditions();  //print_r($Rules); exit;
+		$Groups			 			=	TicketGroups::getTicketGroups(0); 
+		$priority 					= 	TicketPriority::getPriorityIDLIst();
+		$status			 			=   TicketsTable::getTicketStatusSelectable(0); 
+		$type						=	TicketsTable::getTicketType(0); 
+		$agentsAll 					= 	TicketGroupAgents::select([DB::raw("concat(IFNULL(tblUser.FirstName,''),' ' ,IFNULL(tblUser.LastName,''))  AS FullName "),"tblUser.UserID"])
+			->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()                      
+			->lists('FullName','UserID');   
+		
+		return View::make('ticketimportrules.clone', compact('SubjectOrDescriptionID',"EditImportData","EditImportCondition","EditImportAction",'priority','Groups','agentsAll',"priorities","status","type","Conditions","Rules"));
+	}	
 }
