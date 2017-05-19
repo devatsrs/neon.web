@@ -138,11 +138,11 @@ class ServicesController extends BaseController {
 
             $services = json_decode(json_encode($services),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Services.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Services.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($services);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Services.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Services.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($services);
             }
