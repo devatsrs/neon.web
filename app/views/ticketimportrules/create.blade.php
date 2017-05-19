@@ -15,7 +15,7 @@
   @include('includes.success') </div>
 <p style="text-align: right;">
   <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
-  <a href="{{URL::to('/tickets/sla_policies')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i> Close </a> </p>
+  <a href="{{URL::to('/tickets/importrules')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i> Close </a> </p>
 <br>
 <div class="row">
   <div class="col-md-12">
@@ -42,8 +42,7 @@
             <label class="col-sm-3 control-label">Status</label>
             <div class="col-sm-9">
               <p class="make-switch switch-small">
-                <input id="Status" name="Status" type="checkbox" checked value="1">
-              </p>
+                <input type="checkbox"   name="RuleStatus" class"rulestatus"  value="1"> </p>
             </div>
           </div>
         </div>
@@ -86,10 +85,10 @@
     </form>
   </div>
 </div>
-<div class="hidden new_condition_content"> </div>
-<div class="hidden new_action_content"> </div>
 <script>
-	 jQuery(document).ready(function ($) {
+	 $(document).ready(function ($) {
+		 
+		 
 	var SubjectOrDescriptionID = {{$SubjectOrDescriptionID}};	 
     function initSortableCondition(){
                 // Code using $ as usual goes here.
@@ -128,7 +127,7 @@
                 type: 'POST',
                 dataType: 'html',
 				data:{Counter:Counter,DataType:DataType},
-				async :false,
+				async :true,
                 success: function(response) { 
 					response_html = response;
 				},
@@ -269,13 +268,13 @@
                     $(".save.btn").button('reset');
                 },
 			});
-
-        });
-		setTimeout(startdata(),1000);
-		function startdata(){
+        });	
+		
+		setTimeout(StartData(),1000);
+		function StartData(){ alert("here");
 			$('#add_new_condition').click();		
 			$('#add_new_rule').click();
-		}
+		}	
 		
 	});	
 		
