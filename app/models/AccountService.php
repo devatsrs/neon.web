@@ -261,4 +261,29 @@ class AccountService extends \Eloquent {
 
     }
 
+    public static function getServiceIDsByCriteria($AccountID,$data=array()){
+        $select = ["tblAccountService.ServiceID"];
+        $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$AccountID);
+        if(!empty($data['ServiceName'])){
+            $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
+        }
+        if(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'true'){
+            $services->where(function($query){
+                $query->where('tblAccountService.Status','=','1');
+            });
+
+        }elseif(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'false'){
+            $services->where(function($query){
+                $query->where('tblAccountService.Status','=','0');
+            });
+        }
+        $services->select($select);
+        $results = $services->get();
+        $ServiceID = array();
+        foreach($results as $result){
+            $ServiceID[]=$result->ServiceID;
+        }
+        return $ServiceID;
+    }
+
 }

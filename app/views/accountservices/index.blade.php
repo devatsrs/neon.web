@@ -53,14 +53,48 @@
                 </div>
             </div>
         </div>
-        @if(User::checkCategoryPermission('AccountService','Add'))
-        <div class="text-right">
-            <a  id="clone-services" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="fa fa-clone"></i>Clone</a>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-            <a  id="add-services" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
-            <div class="clear clearfix"><br></div>
+        <div class="row ropdown">
+            <div  class="col-md-12">
+                <div class="input-group-btn pull-right" style="width:70px;">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                    <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                        @if(User::checkCategoryPermission('AccountService','Add'))
+                            <li>
+                                <a href="javascript:void(0)" id="add-services">
+                                    <i class="entypo-plus"></i>&nbsp;Add New
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" id="clone-services">
+                                    <i class="fa fa-clone"></i>&nbsp;&nbsp;&nbsp;Clone
+                                </a>
+                            </li>
+                        @endif
+                        @if(User::checkCategoryPermission('AccountService','Edit'))
+                            <li>
+                                <a href="javascript:void(0)" data-name="active" id="active-services">
+                                    <i class="entypo-check"></i>&nbsp;Active
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:void(0)" data-name="deactive" id="deactive-services">
+                                    <i class="entypo-minus-circled"></i>&nbsp;Deactivate
+                                </a>
+                            </li>
+                        @endif
+                        @if(User::checkCategoryPermission('AccountService','Delete'))
+                            <li>
+                                <a href="javascript:void(0)" data-name="delete" id="delete-services">
+                                    <i class="entypo-trash"></i>&nbsp;Delete
+                                </a>
+                            </li>
+                        @endif
+                    </ul>
+                </div><!-- /btn-group -->
+            </div>
+            <div class="clear"></div>
         </div>
-        @endif
+        <div id="last_msg_loader" style="display: table; position: absolute; padding: 10px; text-align: center; left: 50%; top: auto; margin: 71px auto; z-index: 999;"></div>
         <div class="dataTables_wrapper">
             <table id="table-service" class="table table-bordered datatable">
                 <thead>
@@ -267,6 +301,74 @@
                        return false;
                 });
 
+
+                $(document).on('click', '#active-services , #deactive-services,#delete-services', function (ev) {
+                    ev.preventDefault();
+                    var self = $(this);
+                    var action = self.attr('data-name');
+
+                    var criteria='';
+                    var CloneIDs = [];
+                    var record = '';
+                    var result = '';
+                    var url ='';
+                    $('#table-service tr .rowcheckbox:checked').each(function(i, el) {
+                        record = 1;
+                    });
+                    if(record==1){
+
+                        if($('#selectallbutton').is(':checked')){
+                            criteria = JSON.stringify($searchService);
+                        }else{
+                            var i = 0;
+                            $('#table-service tr .rowcheckbox:checked').each(function(i, el) {
+                                CloneID = $(this).val();
+                                CloneIDs[i++] = CloneID;
+                            });
+                        }
+                        var accountid='{{$account->AccountID}}';
+                        if(action=='active' || action=='deactive'){
+                            result = confirm('Are you sure you want to change status?');
+                            url = baseurl + '/accountservices/' + accountid + '/bulk_change_status';
+                        }
+                        if(action=='delete'){
+                            result = confirm('Are you sure you want to delete?');
+                            url =  baseurl + '/accountservices/' + accountid + '/bulk_delete';
+                        }
+                        if(result){
+                            var ServiceID = CloneIDs.join(",");
+                            var data = 'ServiceID='+ServiceID+'&action='+action+'&Criteria='+criteria;
+                            $('div#last_msg_loader').html('<img src="'+baseurl+'/assets/images/loader-2.gif">');
+                            $.ajax({
+                                url: url, //Server script to process data
+                                type: 'POST',
+                                dataType: 'json',
+                                success: function (response) {
+                                    $('div#last_msg_loader').empty();
+                                    if (response.status == 'success') {
+                                        toastr.success(response.message, "Success", toastr_opts);
+                                        data_table_service.fnFilter('', 0);
+                                    } else {
+                                        toastr.error(response.message, "Error", toastr_opts);
+                                    }
+
+                                },
+                                // Form data
+                                data: data,
+                                //Options to tell jQuery not to process data or worry about content-type.
+                                cache: false
+
+                            });
+
+                        }
+
+                    }else{
+                        alert('No service selected');
+                    }
+
+                });
+
+
                 $('table tbody').on('click', '.activeservice , .deactiveservice', function (ev) {
                     ev.preventDefault();
                     var data='accountid='+'{{$account->AccountID}}}';
@@ -378,7 +480,7 @@
 
                         initCustomerGrid();
                     }else{
-                        alert('No record selected');
+                        alert('No service selected');
                     }
                     return false;
                 });
@@ -525,7 +627,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <span style="font-size:15px;">Select Service Clone Sections</span>
+                            <span style="font-size:15px;">Select Sections To Clones</span>
                             </div>
                         </div>
                     <div class="row">

@@ -331,4 +331,74 @@ class AccountServiceController extends \BaseController {
         return Account::getAllAccounts($AccountID);
     }
 
+    public function bulk_change_status($AccountID){
+        $data = Input::all();
+        $ServiceIds = array();
+        $save = array();
+        if(!empty($data['action']) && !empty($AccountID)){
+            if(!empty($data['Criteria'])){
+                $criteria = $data['Criteria'];
+                $criteria = json_decode($criteria,true);
+                $ServiceIds = AccountService::getServiceIDsByCriteria($AccountID,$criteria);
+            }
+            if($data['ServiceID']){
+                $ServiceIds = $data['ServiceID'];
+                $ServiceIds=explode(',',$ServiceIds);
+            }
+
+            if ($data['action'] == 'active') {
+                $save['Status'] = 1;
+            } else if ($data['action'] == 'deactive') {
+                $save['Status'] = 0;
+            }
+            if(AccountService::whereIn('ServiceID',$ServiceIds)->where(array('AccountID'=>$AccountID))->update($save)){
+                return Response::json(array("status" => "success", "message" => "Service Successfully Updated"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Updating Service."));
+            }
+
+        }
+
+        return Response::json(array("status" => "failed", "message" => "Problem Updating Service."));
+    }
+
+    public function bulk_delete($AccountID){
+        $data = Input::all();
+        $ServiceIds = array();
+        $save = array();
+        $errormsg = '';
+        if(!empty($data['action']) && !empty($AccountID)){
+            if(!empty($data['Criteria'])){
+                $criteria = $data['Criteria'];
+                $criteria = json_decode($criteria,true);
+                $ServiceIds = AccountService::getServiceIDsByCriteria($AccountID,$criteria);
+            }
+            if($data['ServiceID']){
+                $ServiceIds = $data['ServiceID'];
+                $ServiceIds=explode(',',$ServiceIds);
+            }
+            $error = '';
+            try {
+                foreach ($ServiceIds as $Service => $key) {
+                    if (AccountService::checkForeignKeyById($AccountID, $key)) {
+                        AccountService::where(array('AccountID' => $AccountID, 'ServiceID' => $key))->delete();
+                    } else {
+                        $ServiceName = Service::getServiceNameByID($key);
+                        $error .= '<br>' . $ServiceName;
+
+                    }
+                }
+                if (!empty($error)) {
+                    $errormsg = '<br>Following Service is Use,you can not delete.' . $error;
+                }
+                $message = 'Service Sucessfully deleted.' . $errormsg;
+                return Response::json(array("status" => "success", "message" => $message));
+            }catch (Exception $ex){
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting. Exception:". $ex->getMessage()));
+            }
+
+        }
+
+        return Response::json(array("status" => "failed", "message" => "Problem Updating Service."));
+    }
 }
