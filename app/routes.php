@@ -528,6 +528,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/tickets/importrules/store', "TicketImportRulesController@store");
 	Route::any('/tickets/importrules/getdata', "TicketImportRulesController@GetData");
 	
+	Route::any('/tickets/importrules/{id}/clone', "TicketImportRulesController@CloneRule");
+	
 	Route::any('/tickets/importrules/{id}/delete', 'TicketImportRulesController@delete');
 	Route::any('/tickets/importrules/{id}/edit', 'TicketImportRulesController@edit');
 	Route::any('/tickets/importrules/{id}/update', "TicketImportRulesController@update");

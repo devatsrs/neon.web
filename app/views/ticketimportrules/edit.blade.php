@@ -4,13 +4,14 @@
 .day_time_data .col-sm-4{padding-right:0px !important; width:25%; } 
 .condtion_border li:hover {cursor:all-scroll; }
 .action_border li:hover {cursor:all-scroll; }
+.popover-primary{padding:4px 5px !important; font-size:11px !important; line-height:1.5 !important; }
 </style>
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li> <a href="{{URL::to('/tickets/importrules')}}">Import Rules</a> </li>
-  <li class="active"> <strong>New Import Rule</strong> </li>
+  <li class="active"> <strong>Edit Import Rule</strong> </li>
 </ol>
-<h3>New Import Rules</h3>
+<h3>Edit Import Rules</h3>
 <div class="panel-title"> @include('includes.errors')
   @include('includes.success') </div>
 <p style="text-align: right;">
@@ -134,7 +135,11 @@
 		   ?>
            <li class="sortable-item">
   <div class="custom_hours form-group">
-    <div class="col-sm-1"><a title="Delete" class="btn btn-danger actionentry clickable btn-xs btn-default btn-sm"><i class="entypo-trash"></i></a></div>
+    <div class="col-sm-1">
+    @if($key>0)
+    <a title="Delete" class="btn btn-danger actionentry clickable btn-xs btn-default btn-sm"><i class="entypo-trash"></i></a>
+    @endif
+    </div>
     <div class="col-sm-3">
       <select name="rule[{{$counter}}][rule_action]" class="form-control rule_action drpdown">
         <option value="">Select Action</option>
