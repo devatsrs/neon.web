@@ -70,7 +70,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>Total Payable Amount</p></a></div>
+                                    <p>Total Payable</p></a></div>
                         </div>
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
@@ -81,7 +81,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>Total Receivable Amount</p></a></div>
+                                    <p>Total Receivable</p></a></div>
                         </div>
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
@@ -203,14 +203,44 @@
                             <div class="form-group form-group-border-none">
                                 <div class="col-sm-8">
                                     <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
-                                    <div class="col-sm-3"> <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">   </div>
-                                    <div class="col-sm-2"> {{ Form::select('ListType',array("Daily"=>"Daily","Weekly"=>"Weekly","Monthly"=>"Monthly"),'Daily',array("class"=>"select_gray","id"=>"ListType")) }} </div>
-                                    <div class="col-sm-2"> {{ Form::select('Type',array("0"=>"Exclude Unbill Amount","1"=>"Include Unbill Amount"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }} </div>
-                                    <div class="col-sm-1"> <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
+                                    <div class="col-sm-6"> <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
+                                        {{ Form::select('ListType',array("Daily"=>"Daily","Weekly"=>"Weekly","Monthly"=>"Monthly"),$GetDashboardPR,array("class"=>"select_gray","id"=>"ListType")) }}
+                                        {{ Form::select('Type',array("0"=>"Exclude Unbill Amount","1"=>"Include Unbill Amount"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }}
+                                        <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
                                 </div>
                             </div>
                             <div class="text-center">
                                 <div id="PayableReceivable1" style="min-width: 310px; height: 400px; margin: 0 auto" class="PayableReceivable1"></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+    @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardProfitWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardProfitWidget','View'))
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-primary panel-table">
+                    <div class="panel-heading">
+                        <div id="Sales_Manager" class="pull-right panel-box panel-options"> <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a> <a data-rel="reload" href="#"><i class="entypo-arrows-ccw"></i></a> <a data-rel="close" href="#"><i class="entypo-cancel"></i></a></div>
+                        <div class="panel-title forecase_title">
+                            <h3>Profit & Loss  </h3>
+                            <div class="ProfitLoss"></div>
+                        </div>
+                    </div>
+                    <div class="form_Sales panel-body white-bg">
+                        <form novalidate class="form-horizontal form-groups-bordered"  id="ProfitLossForm">
+                            <div class="form-group form-group-border-none">
+                                <div class="col-sm-8">
+                                    <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
+                                    <div class="col-sm-6"> <input value="{{$StartDateDefault1}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">
+                                        {{ Form::select('ListType',array("Daily"=>"Daily","Weekly"=>"Weekly","Monthly"=>"Monthly"),$GetDashboardPL,array("class"=>"select_gray","id"=>"ListType")) }}
+                                        <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div id="ProfitLoss1" style="min-width: 310px; height: 400px; margin: 0 auto" class="ProfitLoss1"></div>
                             </div>
                         </form>
                     </div>
@@ -365,6 +395,10 @@
             $('#PayableReceivableForm').submit(function(e) {
                 e.preventDefault();
                 GetDashboardPR();
+            });
+            $('#ProfitLossForm').submit(function(e) {
+                e.preventDefault();
+                GetDashboardPL();
             });
             function getDrilDown(type) {
                 if(type==1) {
@@ -791,6 +825,7 @@
         $(function () {
             reload_invoice_expense();
             GetDashboardPR();
+            GetDashboardPL();
             $("#filter-pin").hide();
             $('#billing_filter').submit(function (e) {
                 e.preventDefault();
@@ -925,14 +960,14 @@
                         option["amount"] = response.data.TotalPayable;
                         option["end"] = response.data.TotalPayable;
                         option["tileclass"] = 'tile-orange';
-                        option["type"] = 'Total Payable amount';
+                        option["type"] = 'Total Payable';
                         widgets += buildbox(option);
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
                         option["amount"] = response.data.TotalReceivable;
                         option["end"] = response.data.TotalReceivable;
                         option["tileclass"] = 'tile-red';
-                        option["type"] = 'Total Receivable Amount';
+                        option["type"] = 'Total Receivable';
                         widgets += buildbox(option);
                     @endif
                     var ele = $('<div></div>');
@@ -1223,7 +1258,7 @@
                                     type: 'column'
                                 },
                                 title: {
-                                    text: 'Payable & Receivable'
+                                    text: ''
                                 },
                                 xAxis: {
                                     /*categories: dataObj.categories.split(','),*/
@@ -1231,16 +1266,6 @@
                                         text: ""
                                     },
                                     type: 'category'
-                                },
-                                yAxis: {
-                                    min: 0,
-                                    title: {
-                                        text: 'Amount',
-                                        align: 'high'
-                                    },
-                                    labels: {
-                                        overflow: 'justify'
-                                    }
                                 },
                                 tooltip: {
                                     valueSuffix: ''
@@ -1286,6 +1311,81 @@
             });
             @endif
         }
+        function GetDashboardPL(){
+            @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardProfitWidget',$BillingDashboardWidgets))&&User::checkCategoryPermission('BillingDashboardProfitWidget','View'))
+                        loadingUnload(".ProfitLoss1",1);
+            var CurrencyID  = $("#billing_filter [name='CurrencyID']").val();
+            var Duedate     = $("#ProfitLossForm [name='Duedate']").val();
+            var ListType     = $("#ProfitLossForm [name='ListType']").val();
+            $.ajax({
+                type: 'POST',
+                url: baseurl+'/billing_dashboard/GetDashboardPL',
+                dataType: 'json',
+                data:{CurrencyID:CurrencyID,Duedate:Duedate,ListType:ListType},
+                aysync: true,
+                success: function(dataObj) {
+                    $('#ProfitLoss1').html('');
+                    loadingUnload(".ProfitLoss1",0);
+
+                    if(dataObj.series != '' && dataObj.series.length > 0) {
+
+                        var seriesdata =  [];
+                        var categories =  [];
+                        seriesdata = JSON.parse(JSON.stringify(dataObj.series));
+
+
+                        $('#ProfitLoss1').highcharts({
+                            chart: {
+                                type: 'column'
+                            },
+                            title: {
+                                text: ''
+                            },
+                            xAxis: {
+                                /*categories: dataObj.categories.split(','),*/
+                                title: {
+                                    text: ""
+                                },
+                                type: 'category'
+                            },
+                            tooltip: {
+                                valueSuffix: ''
+                            },
+                            plotOptions: {
+                                bar: {
+                                    dataLabels: {
+                                        enabled: true
+                                    }
+                                },
+                                column: {
+                                    pointPadding: 0.2,
+                                    borderWidth: 0
+                                },
+                                series: {
+                                    className: 'main-color',
+                                    negativeColor: true
+                                }
+                            },
+
+                            credits: {
+                                enabled: false
+                            },
+
+                            series: seriesdata,
+
+                        });
+
+
+                    }else{
+                        $('.ProfitLoss1').html('<br><h4>No Data</h4>');
+                        $('.ProfitLoss').html('');
+                    }
+
+                    ////////
+                }
+            });
+            @endif
+        }
     </script>
     <style>
 
@@ -1308,6 +1408,9 @@
         #customer .panel-heading{
             border-bottom:1px solid transparent !important;
             border-color:#ebebeb !important;
+        }
+        #ProfitLoss1 .highcharts-point.highcharts-negative {
+            fill: #f56954;
         }
     </style>
 @stop

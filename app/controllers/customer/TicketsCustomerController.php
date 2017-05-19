@@ -61,10 +61,10 @@ private $validlicense;
 			$data['currentpage'] 		= 	 0;
 			//echo "<pre>";		print_r($result);			exit;
 			$Groups						= 	TicketGroups::getTicketGroupsFromData($array->GroupsData);				
-			
-		TicketsTable::SetTicketSession($result);
+			$OpenTicketStatus 			=	 TicketsTable::GetOpenTicketStatus();
+			TicketsTable::SetTicketSession($result);
 		
-        return View::make('customer.tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page","pagination"));  
+        return View::make('customer.tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page","pagination","OpenTicketStatus"));  
 			/////////
 	  }	
 	  

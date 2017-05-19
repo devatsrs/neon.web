@@ -65,7 +65,7 @@ class TicketsSlaController extends \BaseController {
         $response 				= 		NeonAPI::request('tickets/sla_policies/store',$postdata,true,false,false);
 		
         if(!empty($response) && $response->status == 'success'){
-            $response->redirect =  URL::to('/sla_policies/');
+            $response->redirect =  URL::to('/tickets/sla_policies/');
         }
         return json_response_api($response);     
 	

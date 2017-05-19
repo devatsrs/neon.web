@@ -1023,6 +1023,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_dashboard/ajaxgrid_top_pincode/{type}', 'BillingDashboard@ajaxgrid_top_pincode');
     Route::any('/billing_dashboard/ajax_datagrid_Invoice_Expense/{exporttype}', 'BillingDashboard@ajax_datagrid_Invoice_Expense');
 	Route::any('/billing_dashboard/GetDashboardPR', 'BillingDashboard@GetDashboardPR');
+	Route::any('/billing_dashboard/GetDashboardPL', 'BillingDashboard@GetDashboardPL');
 
 
     //AccountPaymentProfile

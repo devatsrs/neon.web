@@ -161,7 +161,7 @@
 					
                    
                 }
-                $('#edit-modal-ticketfield h4').text('Edit Field');
+             //   $('#edit-modal-ticketfield h4').text('Edit Field');
                 $('#edit-modal-ticketfield').modal('show');
 				
 				var checked_visible_in_portal = $('#edit-modal-ticketfield #visible_in_portal').prop("checked");
