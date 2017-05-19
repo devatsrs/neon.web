@@ -45,8 +45,7 @@ BEGIN
 		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
 		WHERE dd.date BETWEEN p_LastInvoiceDate AND p_Today 
 		AND us.CompanyID = p_CompanyID
-		AND us.VAccountID = p_AccountID
-		GROUP BY us.DateID;
+		AND us.VAccountID = p_AccountID;
 	
 	END IF;
  

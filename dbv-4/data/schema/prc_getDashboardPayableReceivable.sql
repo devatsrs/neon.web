@@ -46,6 +46,20 @@ BEGIN
 		TotalReceivable DOUBLE
 	);
 	
+	DROP TEMPORARY TABLE IF EXISTS tmp_FinalResult2_;
+	CREATE TEMPORARY TABLE tmp_FinalResult2_  (
+		TotalInvoiceOut DOUBLE,
+		TotalInvoiceIn DOUBLE,
+		TotalPaymentOut DOUBLE,
+		TotalPaymentIn DOUBLE,
+		CustomerUnbill DOUBLE,
+		VendrorUnbill DOUBLE,
+		date DATE,
+		TotalOutstanding DOUBLE,
+		TotalPayable DOUBLE,
+		TotalReceivable DOUBLE
+	);
+	
 	IF p_Unbilled = 1
 	THEN
 		DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
@@ -141,8 +155,8 @@ BEGIN
 		SUM(IF(PaymentType='Payment In',p.Amount,0)),
 		SUM(IF(PaymentType='Payment Out',p.Amount,0)) 
 	INTO 
-		prev_TotalPaymentOut,
-		prev_TotalPaymentIn
+		prev_TotalPaymentIn,
+		prev_TotalPaymentOut
 	FROM NeonBillingDev.tblPayment p 
 	INNER JOIN NeonRMDev.tblAccount ac 
 		ON ac.AccountID = p.AccountID
@@ -161,7 +175,7 @@ BEGIN
 	SET @prev_CustomerUnbill := IFNULL(prev_CustomerUnbill,0) ;
 	SET @prev_VendrorUnbill := IFNULL(prev_VendrorUnbill,0) ;
 	
-	INSERT INTO tmp_FinalResult_(TotalInvoiceOut,TotalInvoiceIn,TotalPaymentOut,TotalPaymentIn,CustomerUnbill,VendrorUnbill,date,TotalOutstanding,TotalPayable,TotalReceivable)
+	INSERT INTO tmp_FinalResult_(TotalInvoiceOut,TotalInvoiceIn,TotalPaymentOut,TotalPaymentIn,CustomerUnbill,VendrorUnbill,date,TotalOutstanding,TotalReceivable,TotalPayable)
 	SELECT 
 		@prev_TotalInvoiceOut := @prev_TotalInvoiceOut +    IFNULL(TotalInvoiceOut,0) AS TotalInvoiceOut ,
 		@prev_TotalInvoiceIn := @prev_TotalInvoiceIn +   IFNULL(TotalInvoiceIn,0) AS TotalInvoiceIn,
@@ -171,8 +185,8 @@ BEGIN
 		@prev_VendrorUnbill := @prev_VendrorUnbill +   IFNULL(VendrorUnbill,0) AS VendrorUnbill,
 		date,
 		ROUND( ( @prev_TotalInvoiceOut - @prev_TotalPaymentIn ) - ( @prev_TotalInvoiceIn - @prev_TotalPaymentOut ) + ( @prev_CustomerUnbill - @prev_VendrorUnbill ) , v_Round_ ) AS TotalOutstanding,
-		ROUND( ( @prev_TotalInvoiceOut - @prev_TotalPaymentIn + @prev_CustomerUnbill ), v_Round_ ) AS TotalPayable,
-		ROUND( ( @prev_TotalInvoiceIn - @prev_TotalPaymentOut + @prev_VendrorUnbill), v_Round_ ) AS TotalReceivable
+		ROUND( ( @prev_TotalInvoiceOut - @prev_TotalPaymentIn + @prev_CustomerUnbill ), v_Round_ ) AS TotalReceivable,
+		ROUND( ( @prev_TotalInvoiceIn - @prev_TotalPaymentOut + @prev_VendrorUnbill), v_Round_ ) AS TotalPayable
 	FROM(
 		SELECT 
 			dd.date,
@@ -187,7 +201,7 @@ BEGIN
 			SELECT 
 				SUM(IF(InvoiceType=1,GrandTotal,0)) AS TotalInvoiceOut,
 				SUM(IF(InvoiceType=2,GrandTotal,0)) AS TotalInvoiceIn,
-				tblInvoice.IssueDate 
+				DATE(tblInvoice.IssueDate) AS  IssueDate 
 			FROM NeonBillingDev.tblInvoice 
 			WHERE 
 				CompanyID = p_CompanyID
@@ -195,14 +209,14 @@ BEGIN
 				AND ( (InvoiceType = 2) OR ( InvoiceType = 1 AND InvoiceStatus NOT IN ( 'cancel' , 'draft') )  )
 				AND (p_AccountID = 0 or AccountID = p_AccountID)
 				AND IssueDate BETWEEN p_StartDate AND p_EndDate
-			GROUP BY tblInvoice.IssueDate
+			GROUP BY DATE(tblInvoice.IssueDate)
 			HAVING (TotalInvoiceOut <> 0 OR TotalInvoiceIn <> 0)
 		) TBL ON IssueDate = dd.date
 		LEFT JOIN (
 			SELECT
 				SUM(IF(PaymentType='Payment In',p.Amount,0)) AS TotalPaymentIn ,
 				SUM(IF(PaymentType='Payment Out',p.Amount,0)) AS TotalPaymentOut,
-				p.PaymentDate
+				DATE(p.PaymentDate) AS PaymentDate
 			FROM NeonBillingDev.tblPayment p
 			INNER JOIN NeonRMDev.tblAccount ac
 				ON ac.AccountID = p.AccountID
@@ -213,7 +227,7 @@ BEGIN
 				AND p.Recall=0
 				AND (p_AccountID = 0 or p.AccountID = p_AccountID)
 				AND PaymentDate BETWEEN p_StartDate AND p_EndDate
-			GROUP BY p.PaymentDate
+			GROUP BY DATE(p.PaymentDate)
 			HAVING (TotalPaymentIn <> 0 OR TotalPaymentOut <> 0)
 		)TBL2 ON PaymentDate = dd.date
 		LEFT JOIN tmp_CustomerUnbilled_ cu 
@@ -225,6 +239,9 @@ BEGIN
 		ORDER BY dd.date
 	)tbl;
 	
+	INSERT INTO tmp_FinalResult2_
+	SELECT * FROM tmp_FinalResult_;
+
 	IF p_ListType = 'Daily'
 	THEN
 
@@ -241,17 +258,18 @@ BEGIN
 	THEN
 
 		SELECT 
-			SUM(TotalOutstanding)  AS TotalOutstanding,
-			SUM(TotalPayable)  AS TotalPayable,
-			SUM(TotalReceivable)  AS TotalReceivable,
-			CONCAT( YEAR(MAX(date)),' - ',WEEK(MAX(date))) AS Date
-		FROM	tmp_FinalResult_
-		GROUP BY 
-			YEAR(date),
-			WEEK(date)
-		ORDER BY
-			YEAR(date),
-			WEEK(date);
+			TotalOutstanding,
+			TotalPayable,
+			TotalReceivable,
+			CONCAT( YEAR(date),' - ',WEEK(date,1)) AS Date
+		FROM	tmp_FinalResult_ t1
+		INNER JOIN (
+			SELECT 
+				MAX(date) as finaldate
+			FROM tmp_FinalResult2_
+			GROUP BY
+			YEAR(date),WEEK(date,1)
+		)TBL ON TBL.finaldate = t1.date;
 
 	END IF;
 	
@@ -259,17 +277,18 @@ BEGIN
 	THEN
 
 		SELECT 
-			SUM(TotalOutstanding)  AS TotalOutstanding,
-			SUM(TotalPayable)  AS TotalPayable,
-			SUM(TotalReceivable)  AS TotalReceivable,
-			CONCAT( YEAR(MAX(date)),' - ',MONTHNAME(MAX(date))) AS Date
-		FROM	tmp_FinalResult_
-		GROUP BY
-			YEAR(date)
-			,MONTH(date)
-		ORDER BY 
-			YEAR(date)
-			,MONTH(date);
+			TotalOutstanding,
+			TotalPayable,
+			TotalReceivable,
+			CONCAT( YEAR(date),' - ',MONTHNAME(date)) AS Date
+		FROM	tmp_FinalResult_ t1
+		INNER JOIN (
+			SELECT 
+				MAX(date) as finaldate
+			FROM tmp_FinalResult2_
+			GROUP BY
+			YEAR(date),MONTH(date)
+		)TBL ON TBL.finaldate = t1.date;
 
 	END IF;
 	
