@@ -520,6 +520,21 @@ Route::group(array('before' => 'auth'), function () {
 	Route::controller('sla_policies', 'TicketsSlaController');
 	
 	
+	Route::any('/tickets/importrules', "TicketImportRulesController@index");
+	Route::any('/tickets/importrules/{id}/edit', "TicketImportRulesController@index");
+	Route::any('/tickets/importrules/ajax_datagrid', "TicketImportRulesController@ajax_datagrid");
+	Route::any('tickets/importrules/exports/{type}', 'TicketImportRulesController@ajax_datagrid');
+	Route::any('/tickets/importrules/add', "TicketImportRulesController@add");
+	Route::any('/tickets/importrules/store', "TicketImportRulesController@store");
+	Route::any('/tickets/importrules/getdata', "TicketImportRulesController@GetData");
+	
+	Route::any('/tickets/importrules/{id}/delete', 'TicketImportRulesController@delete');
+	Route::any('/tickets/importrules/{id}/edit', 'TicketImportRulesController@edit');
+	Route::any('/tickets/importrules/{id}/update', "TicketImportRulesController@update");
+	Route::resource('importrules', 'TicketImportRulesController');
+	Route::controller('importrules', 'TicketImportRulesController');
+	
+	
 	
 	Route::any('/tickets',"TicketsController@TicketGroupAccess");
 	Route::any('/tickets',"TicketsController@TicketRestrictedAccess");
