@@ -350,9 +350,9 @@ class EmailsTemplates{
 			if(Auth::guest()){
 				return $array;
 			}
-			$UserID = user::get_userID();
+			$UserID = User::get_userID();
 			   if(!empty($UserID)){
-				   $UserData = user::find($UserID);
+				   $UserData = User::find($UserID);
 				   $array['User'] 							   = User::get_user_full_name();
 				  if(isset($UserData->EmailFooter) && trim($UserData->EmailFooter) != '')
 					{
