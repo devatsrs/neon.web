@@ -1920,7 +1920,9 @@ class InvoicesController extends \BaseController {
 
             $Notes = $paypal->get_note();
 
-            if ($paypal->success() && count($Invoice) > 0) {
+            $PaymentCount = Payment::where('Notes',$Notes)->count();
+
+            if ($paypal->success() && count($Invoice) > 0 && $PaymentCount == 0) {
 
 
                 $Invoice = Invoice::find($Invoice->InvoiceID);
