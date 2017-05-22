@@ -55,7 +55,8 @@ DROP FUNCTION IF EXISTS `FnGetInvoiceNumber`;
 
 DELIMITER |
 CREATE FUNCTION `FnGetInvoiceNumber`(
-	`p_account_id` INT,
+	`p_CompanyID` INT,
+	`p_AccountID` INT,
 	`p_BillingClassID` INT
 ) RETURNS int(11)
     NO SQL
