@@ -3,7 +3,7 @@
 class GatewayAPI extends \Eloquent {
 	protected $fillable = [];
 
-    private static $gateway_class = array('Sippy','Porta','PBX','FTP', 'VOS');
+    private static $gateway_class = array('Sippy','Porta','PBX','FTP', 'VOS','MOR');
 
     public static $required_key = array('api_url','BillingTime','cdr_folder','dbserver','host','NameFormat','password','username');
 
@@ -41,6 +41,19 @@ class GatewayAPI extends \Eloquent {
             }
             return 'true';
         }
+    }
+
+    public static function getRules($gatewayid){
+        $rules = array();
+        if($gatewayid >0){
+            $requrieddata =  Gateway::getGatewayConfig($gatewayid);
+            foreach($requrieddata as $key => $rowdata){
+                if(in_array($key,self::$required_key)) {
+                    $rules[$key] = 'required';
+                }
+            }
+        }
+        return $rules;
     }
 
 }
