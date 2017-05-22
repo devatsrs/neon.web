@@ -17,6 +17,8 @@
             $NameFormat = GatewayConfig::$Sippy_NameFormat;
         }else if($GatewayName == 'PBX'){
             $NameFormat = GatewayConfig::$Mirta_NameFormat;
+        }else if($GatewayName == 'MOR'){
+            $NameFormat = GatewayConfig::$MOR_NameFormat;
         }
     ?>
     @if($count%2 == 0)
