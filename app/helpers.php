@@ -134,6 +134,10 @@ function rename_upload_file($destinationPath,$full_name){
     $basename = $name . $increment . '.' . $extension;
     return $basename;
 }
+function importrules_dropbox($id=0,$data=array()){
+    $all_ImportRules = TicketImportRule::getImportRules($data);
+    return Form::select('importrules', $all_ImportRules, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
 function customer_dropbox($id=0,$data=array()){
     $all_customers = Account::getAccountIDList($data);
     return Form::select('customers', $all_customers, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
