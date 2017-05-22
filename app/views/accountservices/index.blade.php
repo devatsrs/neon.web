@@ -128,6 +128,7 @@
             var service_edit_url = baseurl + "/accountservices/{{$account->AccountID}}/edit/{id}";
             var service_delete_url = baseurl + "/accountservices/{{$account->AccountID}}/{id}/delete";
             var service_datagrid_url = baseurl + "/accountservices/{{$account->AccountID}}/ajax_datagrid";
+            var service_export_url = baseurl + "/accountservices/{{$account->AccountID}}/exports";
             var service_clone_url = baseurl + "/accountservices/{{$account->AccountID}}/clone";
 
             $("#service_submit").click(function(e) {                
@@ -148,7 +149,8 @@
                                 data_table_extra_params.length = 0;
                                 data_table_extra_params.push({"name": "account_id", "value": account_id},
                                         {"name": "ServiceName", "value": $searchService.ServiceName},
-                                        {"name": "ServiceActive", "value": $searchService.ServiceActive});
+                                        {"name": "ServiceActive", "value": $searchService.ServiceActive},
+                                        {"name":"Export","value":1});
 
                             },
                             "iDisplayLength": 10,
@@ -196,9 +198,15 @@
                             "aButtons": [
                                 {
                                     "sExtends": "download",
-                                    "sButtonText": "Export Data",
-                                    "sUrl": service_datagrid_url,
-                                    sButtonClass: "save-collection"
+                                    "sButtonText": "EXCEL",
+                                    "sUrl": service_export_url + "/xlsx", //baseurl + "/generate_xls.php",
+                                    sButtonClass: "save-collection btn-sm"
+                                },
+                                {
+                                    "sExtends": "download",
+                                    "sButtonText": "CSV",
+                                    "sUrl": service_export_url + "/csv", //baseurl + "/generate_csv.php",
+                                    sButtonClass: "save-collection btn-sm"
                                 }
                             ]
                         },
