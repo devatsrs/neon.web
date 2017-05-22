@@ -184,7 +184,7 @@ var postdata;
 					   var invoice_log = (baseurl + "/recurringprofiles/{id}/log").replace("{id}", full[0]);
                         var str = '<div><strong>Frequency:</strong><span>'+billingCyleType[full[9]]+((full[10])?'('+anniversary+')':'');+'</span></div>';
                         str += '<div><strong>Occurrence:</strong><span>'+full[7]+'</span></div>';
-						str += '<div><strong>Sent:</strong><span><a href="' + invoice_log + '" target="_blank">'+(full[8]?full[8]:0)+'</a></span></div>';
+						str += '<div><strong>Log:</strong><span><a href="' + invoice_log + '" target="_blank">'+(full[8]?full[8]:0)+'</a></span></div>';
                         return str;
                     }
                 },
