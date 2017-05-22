@@ -401,4 +401,40 @@ class AccountServiceController extends \BaseController {
 
         return Response::json(array("status" => "failed", "message" => "Problem Updating Service."));
     }
+
+    public function exports($id,$type){
+        $data = Input::all();
+
+        $select = ["tblAccountService.ServiceID","tblService.ServiceName","tblAccountService.Status"];
+        $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$id);
+        if(!empty($data['ServiceName'])){
+            $services->where('tblService.ServiceName','Like','%'.trim($data['ServiceName']).'%');
+        }
+        if(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'true'){
+            $services->where(function($query){
+                $query->where('tblAccountService.Status','=','1');
+            });
+
+        }elseif(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'false'){
+            $services->where(function($query){
+                $query->where('tblAccountService.Status','=','0');
+            });
+        }
+        $services->select($select);
+
+        $servicedata =  $services->get();
+
+
+        $servicedata = json_decode(json_encode($servicedata),true);
+        if($type=='csv'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AccountServices.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($servicedata);
+        }elseif($type=='xlsx'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/AccountServices.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($servicedata);
+        }
+
+    }
 }

@@ -1194,6 +1194,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
 	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
 	Route::any('accountservices/{id}/ajax_datagrid', 'AccountServiceController@ajax_datagrid');
+	Route::any('accountservices/{id}/exports/{type}', 'AccountServiceController@exports');
 	Route::any('accountservices/{id}/update/{serviceid}', 'AccountServiceController@update');
 	Route::any('accountservices/{id}/changestatus/{status}', 'AccountServiceController@changestatus');
 	Route::any('accountservices/{id}/{serviceid}/delete', 'AccountServiceController@delete');
