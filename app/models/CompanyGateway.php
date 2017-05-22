@@ -213,7 +213,7 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
                 log::info('--MOR CRONJOB END--');
 
-                CompanyGateway::createSummaryCronJobs(0);
+                CompanyGateway::createSummaryCronJobs(1);
             }
         }else{
             log::info('--Other CRONJOB START--');

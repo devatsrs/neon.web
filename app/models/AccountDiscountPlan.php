@@ -29,5 +29,9 @@ class AccountDiscountPlan extends \Eloquent
         return DB::select('call prc_getAccountDiscountPlan(?,?,?)',array($AccountID,intval($Type),$ServiceID));
 
     }
+    public static function checkDiscountPlan($AccountID){
+        return (int)AccountDiscountPlan::where(["AccountID"=> $AccountID])->count();
+
+    }
 
 }

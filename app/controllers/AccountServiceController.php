@@ -139,7 +139,7 @@ class AccountServiceController extends \BaseController {
             }
 
             if(!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue'])  || !empty($data['BillingClassID'])){
-                AccountBilling::insertUpdateBilling($AccountID, $data,$ServiceID);
+                AccountBilling::insertUpdateBilling($AccountID, $data,$ServiceID,$invoice_count);
                 AccountBilling::storeFirstTimeInvoicePeriod($AccountID,$ServiceID);
                 $AccountPeriod = AccountBilling::getCurrentPeriod($AccountID, date('Y-m-d'),$ServiceID);
             }else{
