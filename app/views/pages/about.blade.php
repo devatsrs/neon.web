@@ -13,14 +13,45 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.09</h1>
+    <h1>NEON - 4.11</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.09</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.11</strong></div>
 </p>
 </div>
+
+<h2>
+    <span class="label label-success">4.11</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>23-05-2017</h4>
+                    01. Added system email templates under Email Templates which you can ON/OFF and Modify.<br>
+                    02. Added Invoice Paid notification under Admin -> Notifications.<br>
+                    03. Added Quarterly and Yearly price in subscription.<br>
+                    04. Added option to select Subscriptions in Estimate.<br>
+                    05. Improved Estimate PDF to show One off and recurring fees separately<br>
+                    06. Added options for Service Based billing.<br>
+                    07. Improved HTML editor control.<br>
+                    08. Improved Invoice Templates. Added option to select Usage Columns and Account Info.<br>
+                    09. Added new widgets under Billing -> Analysis. Profit/Loss and Account Receivable and Payable.<br>
+                    10. Implemented integration with MOR kolmisoft.<br>
+                    11. Fixed issues with logging and session time out.<br>
+                    12. Added Ticketing module.<br>
+                    13. Removed hash keys from Customer/Vendor File names.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.09</span> &nbsp; Version Highlights
