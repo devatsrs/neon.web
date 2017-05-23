@@ -40,9 +40,14 @@ class MOR{
     //get data from gateway and insert in temp table
     public static function getAccountsDetail($addparams=array()){
         $response = array();
+        $currency = Currency::getCurrencyDropdownIDList();
+        $country = Country::getCountryDropdownList();
         if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
             try{
-                $query = "select * from asterisk.te_tenants "; // and userfield like '%outbound%'  removed for inbound calls
+                $query = "select users.*,addresses.*,currencies.name as currencyname from mor.users
+left JOIN mor.addresses on addresses.id = users.address_id
+left JOIN mor.currencies on currencies.id = users.currency_id
+"; // and userfield like '%outbound%'  removed for inbound calls
                 //$response = DB::connection('pbxmysql')->select($query);
                 $results = DB::connection('pbxmysql')->select($query);
                 if(count($results)>0){
@@ -53,12 +58,27 @@ class MOR{
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ($results as $temp_row) {
-                            $count = DB::table('tblAccount')->where(["AccountName" => $temp_row->te_name, "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
+                            $count = DB::table('tblAccount')->where(["AccountName" => $temp_row->username, "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
                             if($count==0){
-                                $tempItemData['AccountName'] = $temp_row->te_name;
-                                $tempItemData['Number'] = $temp_row->te_code;
-                                $tempItemData['Email'] = $temp_row->te_alertemail;
-                                $tempItemData['BillingTimezone'] = $temp_row->te_timezone;
+                                $tempItemData['AccountName'] = $temp_row->username;
+                                $tempItemData['Number'] = $temp_row->username;
+                                $tempItemData['FirstName'] = $temp_row->first_name;
+                                $tempItemData['LastName'] = $temp_row->last_name;
+                                $tempItemData['VatNumber'] = $temp_row->vat_number;
+                                $tempItemData['Address3'] = $temp_row->state;
+                                $tempItemData['Country'] = isset($country[$temp_row->county])?$country[$temp_row->county]:'';
+                                $tempItemData['City'] = $temp_row->city;
+                                $tempItemData['PostCode'] = $temp_row->postcode;
+                                $tempItemData['Address1'] = $temp_row->address;
+                                $tempItemData['Phone'] = $temp_row->phone;
+                                $tempItemData['Mobile'] = $temp_row->mob_phone;
+                                $tempItemData['BillingEmail'] = $temp_row->email;
+                                $tempItemData['Email'] = $temp_row->email;
+                                $tempItemData['Address2'] = $temp_row->address2;
+                                $tempItemData['Fax'] = $temp_row->fax;
+                                $tempItemData['Skype'] = $temp_row->skype;
+                                $tempItemData['Currency'] = isset($currency[$temp_row->currencyname])?$currency[$temp_row->currencyname]:'0';
+
                                 $tempItemData['AccountType'] = 1;
                                 $tempItemData['CompanyId'] = $CompanyID;
                                 $tempItemData['Status'] = 1;
