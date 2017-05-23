@@ -423,7 +423,15 @@ class AccountsController extends \BaseController {
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
         $services = Service::getAllServices($companyID);
 
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID'));
+        $billing_disable = $hiden_class= '';
+        if($invoice_count > 0 || AccountDiscountPlan::checkDiscountPlan($id) > 0){
+            $billing_disable = 'disabled';
+        }
+        if(isset($AccountBilling->BillingCycleType)){
+            $hiden_class= 'hidden';
+        }
+
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class'));
     }
 
     /**
@@ -513,7 +521,7 @@ class AccountsController extends \BaseController {
         }
         if ($account->update($data)) {
             if($data['Billing'] == 1) {
-                AccountBilling::insertUpdateBilling($id, $data,$ServiceID);
+                AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
                 AccountBilling::storeFirstTimeInvoicePeriod($id,$ServiceID);
                 /*
                 $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'),$ServiceID);
