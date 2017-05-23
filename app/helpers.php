@@ -770,6 +770,15 @@ function email_log($data){
         $status['message'] = 'Message not set in Account mail log';
         return $status;
     }
+	
+	if(isset($data['AttachmentPaths']) && count($data['AttachmentPaths'])>0)
+    {
+        $data['AttachmentPaths'] = serialize($data['AttachmentPaths']);
+    }
+    else
+    {
+        $data['AttachmentPaths'] = serialize([]);
+    }
 
     if(is_array($data['EmailTo'])){
         $data['EmailTo'] = implode(',',$data['EmailTo']);
@@ -800,6 +809,7 @@ function email_log($data){
         'CreatedBy'=>User::get_user_full_name(),
         'Cc'=>implode(",",$data['cc']),
         'Bcc'=>implode(",",$data['bcc']),
+		"AttachmentPaths"=>$data['AttachmentPaths'],
 		"MessageID"=>$data['message_id']];
     if(AccountEmailLog::Create($logData)){
         $status['status'] = 1;

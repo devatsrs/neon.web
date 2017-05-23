@@ -131,6 +131,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/dashboard/GetRevenueDrillDown', "DashboardController@GetRevenueDrillDown");
 	Route::any('/dashboard/get_top_alert', "DashboardController@getTopAlerts");
 	
+	Route::post('/user/upload_file', 'HomeController@uploadFile');
+	Route::any('/user/delete_attachment_file', 'HomeController@deleteUploadFile');
+
+	
 	
 	Route::any('/monitor', array('as' => 'monitor', 'uses' => 'DashboardController@monitor_dashboard'));
 	Route::any('/crmdashboard', "DashboardController@CrmDashboard");

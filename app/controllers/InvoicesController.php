@@ -1220,10 +1220,15 @@ class InvoicesController extends \BaseController {
 			//	$Message 	 		 = 	 $templateData->TemplateBody;		
 				$Message	 		 =	 EmailsTemplates::SendinvoiceSingle($id,'body',$data);
 				$Subject	 		 =	 EmailsTemplates::SendinvoiceSingle($id,"subject",$data);
+				
+				$response_api_extensions 	=    Get_Api_file_extentsions();
+			    if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
+			    $response_extensions		=	json_encode($response_api_extensions['allowed_extensions']); 
+			    $max_file_size				=	get_max_file_size();	
 				 
 				if(!empty($Subject) && !empty($Message)){
 					$from	 = $templateData->EmailFrom;	
-					return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName','from'));
+					return View::make('invoices.email', compact('Invoice', 'Account', 'Subject','Message','CompanyName','from','response_extensions','max_file_size'));
 				}
 				return Response::json(["status" => "failure", "message" => "Subject or message is empty"]);
 	            
@@ -1235,7 +1240,7 @@ class InvoicesController extends \BaseController {
         if($id){
             set_time_limit(600); // 10 min time limit.
             $CreatedBy = User::get_user_full_name();
-            $data = Input::all();
+            $data = Input::all(); //Log::info(print_r($data,true)); exit;
 			$postdata = Input::all();
             $Invoice = Invoice::find($id);
             $Company = Company::find($Invoice->CompanyID);
@@ -1265,6 +1270,34 @@ class InvoicesController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
+			
+			
+		   $attachmentsinfo        =	$data['attachmentsinfo']; 
+			if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
+				$files_array = json_decode($attachmentsinfo,true);
+			}
+	
+			if(!empty($files_array) && count($files_array)>0) {
+				$FilesArray = array();
+				foreach($files_array as $key=> $array_file_data){
+					$file_name  = basename($array_file_data['filepath']); 
+					$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT']);
+					$destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+	
+					if (!file_exists($destinationPath)) {
+						mkdir($destinationPath, 0777, true);
+					}
+					copy($array_file_data['filepath'], $destinationPath . $file_name);
+					if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+						return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+					}
+					$FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
+					@unlink($array_file_data['filepath']);
+				}
+				$data['AttachmentPaths']		=	$FilesArray;
+			} 
+		
+			
             /*
              * Send to Customer
              * */
@@ -1325,7 +1358,8 @@ class InvoicesController extends \BaseController {
                     'EmailTo'=>$CustomerEmail,
                     'Subject'=>$data['Subject'],
                     'Message'=>$body,
-					"message_id"=>$message_id
+					"message_id"=>$message_id,
+					"AttachmentPaths"=>isset($data["AttachmentPaths"])?$data["AttachmentPaths"]:array()
 					];
                 email_log($logData);
             }
