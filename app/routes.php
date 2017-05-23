@@ -553,7 +553,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/tickets/{id}/update', "TicketsController@Update");
 	Route::any('/tickets/{id}/updatedetailpage', "TicketsController@UpdateDetailPage");
 	Route::any('/tickets/{id}/delete', "TicketsController@delete");
-	Route::any('/tickets/{id}/detail', "TicketsController@Detail");	
+	Route::any('/tickets/{id}/detail', "TicketsController@Detail");		
 	Route::any('/tickets/{id}/updateTicketDueTime', "TicketsController@UpdateTicketDueTime");	
 	Route::post('tickets/ticket_action', 'TicketsController@TicketAction');
 	Route::post('tickets/{id}/updateticketattributes', 'TicketsController@UpdateTicketAttributes');
@@ -564,7 +564,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::get('contacts/{id}/show', 'ContactsController@ShowTimeLine');
 	Route::get('tickets/compose_email', 'TicketsController@ComposeEmail');	
 	Route::post('tickets/SendMail', 'TicketsController@SendMail');
-	Route::post('tickets/add_note', 'TicketsController@add_note');
+	Route::post('tickets/add_note', 'TicketsController@add_note');	
+	Route::any('/tickets/{id}/log', "TicketsController@Show_Log");
+	Route::any('tickets/{id}/log/ajax_datagrid/type', 'TicketsController@log_ajax_datagrid');	
+	
 
 	Route::any('businesshours', 'TicketsBusinessHoursController@index');
 	Route::any('businesshours/ajax_datagrid', 'TicketsBusinessHoursController@ajax_datagrid');
