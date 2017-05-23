@@ -1,5 +1,7 @@
 USE `Ratemanagement3`;
 
+ALTER TABLE `tblCompanyConfiguration`
+	CHANGE COLUMN `Value` `Value` TEXT NOT NULL COLLATE 'utf8_unicode_ci';
 
 ALTER TABLE `tblAccountBilling` DROP INDEX `AccountID`;
 

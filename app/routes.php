@@ -1046,6 +1046,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/billing_dashboard/ajax_top_pincode', 'BillingDashboard@ajax_top_pincode');
 	Route::any('/billing_dashboard/ajaxgrid_top_pincode/{type}', 'BillingDashboard@ajaxgrid_top_pincode');
     Route::any('/billing_dashboard/ajax_datagrid_Invoice_Expense/{exporttype}', 'BillingDashboard@ajax_datagrid_Invoice_Expense');
+	Route::any('/billing_dashboard/GetDashboardPR', 'BillingDashboard@GetDashboardPR');
+	Route::any('/billing_dashboard/GetDashboardPL', 'BillingDashboard@GetDashboardPL');
 
 
     //AccountPaymentProfile
@@ -1217,9 +1219,14 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
 	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
 	Route::any('accountservices/{id}/ajax_datagrid', 'AccountServiceController@ajax_datagrid');
+	Route::any('accountservices/{id}/exports/{type}', 'AccountServiceController@exports');
 	Route::any('accountservices/{id}/update/{serviceid}', 'AccountServiceController@update');
 	Route::any('accountservices/{id}/changestatus/{status}', 'AccountServiceController@changestatus');
 	Route::any('accountservices/{id}/{serviceid}/delete', 'AccountServiceController@delete');
+	Route::any('accountservices/{id}/cloneservice', 'AccountServiceController@cloneservice');
+	Route::any('accountservices/{id}/search_accounts_grid', 'AccountServiceController@search_accounts_grid');
+	Route::any('accountservices/{id}/bulk_change_status', 'AccountServiceController@bulk_change_status');
+	Route::any('accountservices/{id}/bulk_delete', 'AccountServiceController@bulk_delete');
 });
 
 Route::group(array('before' => 'global_admin'), function () {

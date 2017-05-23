@@ -1101,7 +1101,7 @@ function check_uri($parent_link=''){
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
 	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
-    $array_billing    =    array("Dashboard",'Estimates','Invoices','RecurringInvoice','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR',"Discount","BillingClass");
+    $array_billing    =    array("Dashboard",'Estimates','Invoices','RecurringInvoice','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR',"Discount","BillingClass","Services");
     $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer',"DashboardCustomer");
 	
     if(count($path_array)>0)
@@ -1109,7 +1109,7 @@ function check_uri($parent_link=''){
   		$controller = $path_array[0];
 	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
-			if(Request::segment(1)!='monitor' && $path_array[1]!='@CrmDashboard'){
+			if(Request::segment(1)!='monitor' && $path_array[1]!='@CrmDashboard' && $path_array[1]!='@TicketDashboard'){
             	return 'opened';
 			} 
         }
@@ -1141,7 +1141,7 @@ function check_uri($parent_link=''){
 
         if(in_array($controller,$array_crm) && $parent_link =='Crm')
         {
-			if($path_array[1]!='@billingdashboard' && $path_array[1]!='@monitor_dashboard'){
+			if($path_array[1]!='@billingdashboard' && $path_array[1]!='@monitor_dashboard' && $path_array[1]!='@TicketDashboard'){
 				return 'opened';
 			}
         }
@@ -1156,7 +1156,7 @@ function check_uri($parent_link=''){
             return 'opened';
         }
 		
-		 if(in_array($controller,$array_tickets) && $parent_link =='tickets' && $path_array[1]!='@monitor_dashboard')
+		 if(in_array($controller,$array_tickets) && $parent_link =='tickets' && $path_array[1]!='@CrmDashboard' && $path_array[1]!='@monitor_dashboard' && $path_array[1]!='@billingdashboard')
         {
             return 'opened';
         }
@@ -1311,6 +1311,7 @@ function view_response_api($response){
     if(is_array($response)){
         $isArray = true;
     }
+    //@TODO: there is no key with Code.
     if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)) {
         //return Redirect::to('/logout');
         \Illuminate\Support\Facades\Log::info("helpers.php view_response_api");
@@ -1694,6 +1695,13 @@ function get_ticket_status_date_array($result_data) {
 
         if(\Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->isFuture()) {
             $due = true ;
+
+            // round up minutes 1 hours 59 minutes to 2 hours
+            if(\Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->minute >= 1){
+                $the_date = \Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->addHour(1);
+            }
+
+
         }else {
             $overdue = true;
         }

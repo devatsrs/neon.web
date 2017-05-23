@@ -53,6 +53,28 @@
                                     <p> Total Outstanding</p></a></div>
                         </div>
                     @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-orange"><a target="_blank" class="undefined" data-startdate=""
+                                                                   data-enddate="" data-currency=""
+                                                                   href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Total Payable</p></a></div>
+                        </div>
+                    @endif
+                    @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="tile-stats tile-red"><a target="_blank" class="undefined" data-startdate=""
+                                                                data-enddate="" data-currency=""
+                                                                href="javascript:void(0)">
+                                    <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                         data-duration="1500" data-delay="1200">0
+                                    </div>
+                                    <p>Total Receivable</p></a></div>
+                        </div>
+                    @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
 
                         <div class="col-sm-3 col-xs-6">
@@ -277,7 +299,7 @@
         }
 
         function invoiceExpenseTotalwidgets(){
-            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
+            @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets) || in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets) || in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
             var data = $('#billing_filter').serialize();
             var get_url = baseurl + "/customer/invoice_expense_total_widget";
             $.get(get_url, data, function (response) {
@@ -305,15 +327,28 @@
                 option["enddate"] = enddate;
                 option["currency"] = CurrencyID;
                 option["count"] = '';
-
-                option["amount"] = response.data.TotalOutstanding;
-                option["end"] = response.data.TotalOutstanding;
-                option["tileclass"] = 'tile-blue';
-                option["class"] = 'outstanding';
-                option["type"] = 'Total Outstanding';
-                option["count"] = '';
                 option["round"] = response.data.Round;
-                widgets += buildbox(option);
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalOutstanding',$BillingDashboardWidgets))
+                    option["amount"] = response.data.TotalOutstanding;
+                    option["end"] = response.data.TotalOutstanding;
+                    option["tileclass"] = 'tile-blue';
+                    option["type"] = 'Total Outstanding';
+                    widgets += buildbox(option);
+                @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets))
+                    option["amount"] = response.data.TotalPayable;
+                    option["end"] = response.data.TotalPayable;
+                    option["tileclass"] = 'tile-orange';
+                    option["type"] = 'Total Payable';
+                    widgets += buildbox(option);
+                @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
+                    option["amount"] = response.data.TotalReceivable;
+                    option["end"] = response.data.TotalReceivable;
+                    option["tileclass"] = 'tile-red';
+                    option["type"] = 'Total Receivable';
+                    widgets += buildbox(option);
+                @endif
                 var ele = $('<div></div>');
                 ele.html(widgets);
                 var temp = ele.find('.col-xs-6');

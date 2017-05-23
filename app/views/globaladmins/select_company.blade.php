@@ -84,7 +84,7 @@
 
                 <br />
 
-                <a href="#">ToS</a>  - <a href="#">Privacy Policy</a>
+
 
             </div>
 
