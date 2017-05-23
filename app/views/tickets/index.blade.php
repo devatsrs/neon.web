@@ -123,6 +123,7 @@
         left:   5px;
 }
 .full-width-error{text-align:center;}
+.ticketaction{min-width:100px !important;}
 </style>
 <script type="text/javascript">
 	

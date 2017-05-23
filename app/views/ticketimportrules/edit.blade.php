@@ -9,6 +9,7 @@
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
   <li> <a href="{{URL::to('/tickets/importrules')}}">Import Rules</a> </li>
+  <li><a><span>{{importrules_dropbox($EditImportData->TicketImportRuleID)}}</span></a></li>
   <li class="active"> <strong>Edit Import Rule</strong> </li>
 </ol>
 <h3>Edit Import Rules</h3>

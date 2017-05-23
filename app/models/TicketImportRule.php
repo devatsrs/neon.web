@@ -41,6 +41,16 @@ class TicketImportRule extends \Eloquent {
 		self::IMPORTRULE_STATUS_DISABLE=>"Active"		
 	);
 	
+	public static function getImportRules(){
+        $compantID   = 	User::get_companyID();
+        $where 		 =	['CompanyID'=>$compantID];      
+        $ImportRules =  TicketImportRule::select(['TicketImportRuleID','Title'])->where($where)->orderBy('TicketImportRuleID', 'asc')->lists('Title','TicketImportRuleID');
+        if(!empty($ImportRules)){
+            $ImportRules = [''=>'Select'] + $ImportRules;
+        }
+        return $ImportRules;
+    }
+	
 }
 
 ?>
