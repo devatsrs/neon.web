@@ -197,7 +197,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
 	Route::post('/accounts/{id}/ajax_conversations', 'AccountsController@AjaxConversations');
-
+	
 	Route::post('/account/upload_file', 'AccountsController@uploadFile');
 	Route::any('/account/delete_actvity_attachment_file', 'AccountsController@deleteUploadFile');
 
@@ -1213,6 +1213,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('services/exports/{type}', 'ServicesController@exports');
 
 	//accountservice
+	Route::any('accountservices/{id}', 'AccountServiceController@index');
 	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
 	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
 	Route::any('accountservices/{id}/ajax_datagrid', 'AccountServiceController@ajax_datagrid');
