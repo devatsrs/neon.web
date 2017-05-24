@@ -644,7 +644,7 @@
                 html += '     <div class="address account-address">' + address1 + ''+address2+''+address3+''+city+''+PostCode+''+country+'</div>';
                 html += '  </div>';
                 html += '  </div>';
-                html += '  <div class="col-sm-11 padding-0 action">';
+                html += '  <div class="col-sm-12 padding-0 action">';
                 html += '   ' + temp.html();
                 html += '  </div>';
                 html += ' </div>';
