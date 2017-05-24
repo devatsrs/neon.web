@@ -92,7 +92,10 @@ class DashboardCustomerController extends BaseController {
         $companyID = User::get_companyID();
         $query = "call prc_getDashboardTotalOutStanding ('". $companyID  . "',  '". $CurrencyID  . "',".$CustomerID.")";
         $InvoiceExpenseResult = DB::connection('sqlsrv2')->select($query);
+        $account_number = Account::where('AccountID',$CustomerID)->pluck('Number');
+        $response = MOR::getAccountsBalace(array('username'=>$account_number));
         if(!empty($InvoiceExpenseResult) && isset($InvoiceExpenseResult[0])) {
+            $InvoiceExpenseResult[0]['MOR_Balance'] = $response['balance'];
             return Response::json(array("data" =>$InvoiceExpenseResult[0],'CurrencyCode'=>$CurrencyCode,'CurrencySymbol'=>$CurrencySymbol));
         }
     }
