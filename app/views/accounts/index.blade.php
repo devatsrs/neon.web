@@ -420,6 +420,15 @@
                                 <?php if(User::checkCategoryPermission('CreditControl','View')){ ?>
                                         action +='&nbsp;<button redirecto="'+credit_+'" class="btn btn-default btn-xs" title="Credit Control" data-id="'+full[0]+'" type="button"> <i class="fa fa-credit-card"></i> </button>';
                                 <?php } ?>
+								
+								if(full[9]==1 || full[10]==1){
+                                 	action += '&nbsp;<a href="'+authenticate_+'" title="Authentication Rule" class="btn btn-default btn-xs"><i class="entypo-lock"></i></a>';
+                                } 
+								
+								<?php if(User::checkCategoryPermission('AccountService','View')) { ?>
+                                action +='&nbsp;<button class="btn btn-default btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';
+                                <?php } ?>
+								
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
                                 action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i></button>';
                                 <?php } ?>
@@ -446,13 +455,6 @@
                                  action += '</select>';*/
                                 <?php } ?>
 								
-								if(full[9]==1 || full[10]==1){
-                                 	action += '&nbsp;<a href="'+authenticate_+'" title="Authentication Rule" class="btn btn-default btn-xs"><i class="entypo-lock"></i></a>';
-                                } 
-								
-								<?php if(User::checkCategoryPermission('AccountService','View')) { ?>
-                                action +='&nbsp;<button class="btn btn-default btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';
-                                <?php } ?>
 
                                 if(full[9]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
@@ -642,7 +644,7 @@
                 html += '     <div class="address account-address">' + address1 + ''+address2+''+address3+''+city+''+PostCode+''+country+'</div>';
                 html += '  </div>';
                 html += '  </div>';
-                html += '  <div class="col-sm-11 padding-0 action">';
+                html += '  <div class="col-sm-12 padding-0 action">';
                 html += '   ' + temp.html();
                 html += '  </div>';
                 html += ' </div>';
