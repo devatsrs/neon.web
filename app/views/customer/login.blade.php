@@ -52,9 +52,6 @@
                         </button>
                     </div>
                 </form>
-                <div class="login-bottom-links">
-                    <a href="#">ToS</a>  - <a href="#">Privacy Policy</a>
-                </div>
             </div>
         </div>
     </div>

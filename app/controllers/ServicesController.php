@@ -124,18 +124,25 @@ class ServicesController extends BaseController {
             $companyID = User::get_companyID();
             $data = Input::all();
             $data['ServiceStatus']=$data['ServiceStatus']=='true'?1:0;
-            if (isset($data['ServiceStatus']) && $data['ServiceStatus'] == '1') {
-                $services = Service::where(["CompanyID" => $companyID, "Status" => 1])->orderBy("ServiceID", "desc")->get(["ServiceID","ServiceName", "ServiceTYpe"]);
-            } else {
-                $services = Service::where(["CompanyID" => $companyID, "Status" => 0])->orderBy("ServiceID", "desc")->get(["ServiceID","ServiceName", "ServiceTYpe"]);
+
+            $query = Service::leftJoin('tblCompanyGateway','tblService.CompanyGatewayID','=','tblCompanyGateway.CompanyGatewayID')
+                    ->select(["tblService.ServiceName","tblService.ServiceType","tblCompanyGateway.Title as Gateway","tblService.ServiceID",])
+                    ->orderBy("tblService.ServiceName", "ASC")
+                    ->where("tblService.CompanyID","=",$companyID);
+            if(isset($data['ServiceStatus']) && $data['ServiceStatus'] == '1') {
+                            $query->where("tblService.Status","=",1);
+            }else{
+                $query->where("tblService.Status","=",0);
             }
+            $services = $query->get();
+
             $services = json_decode(json_encode($services),true);
             if($type=='csv'){
-                $file_path = getenv('UPLOAD_PATH') .'/Services.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Services.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($services);
             }elseif($type=='xlsx'){
-                $file_path = getenv('UPLOAD_PATH') .'/Services.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Services.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($services);
             }

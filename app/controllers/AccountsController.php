@@ -260,9 +260,15 @@ class AccountsController extends \BaseController {
 				}
 			}else{ 	
 				if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
-					return	Redirect::to('/logout'); 	
+                    \Illuminate\Support\Facades\Log::info("Account 401 ");
+                    \Illuminate\Support\Facades\Log::info(print_r($response_timeline,true));
+					//return	Redirect::to('/logout');
 				}		
-				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
+				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){
+                    \Illuminate\Support\Facades\Log::info("Account token_expired ");
+                    \Illuminate\Support\Facades\Log::info(print_r($response_timeline,true));
+                    //Redirect::to('/login');
+                }
 				$message = json_response_api($response_timeline,false,false);
 			}
 			
@@ -286,7 +292,7 @@ class AccountsController extends \BaseController {
             
 			//Backup code for getting extensions from api
 		   $response_api_extensions 	=   Get_Api_file_extentsions();
-		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
+		   //if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}
 		   $response_extensions			=	json_encode($response_api_extensions['allowed_extensions']);
 		   
            //all users email address
@@ -417,7 +423,15 @@ class AccountsController extends \BaseController {
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
         $services = Service::getAllServices($companyID);
 
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID'));
+        $billing_disable = $hiden_class= '';
+        if($invoice_count > 0 || AccountDiscountPlan::checkDiscountPlan($id) > 0){
+            $billing_disable = 'disabled';
+        }
+        if(isset($AccountBilling->BillingCycleType)){
+            $hiden_class= 'hidden';
+        }
+
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class'));
     }
 
     /**
@@ -507,7 +521,7 @@ class AccountsController extends \BaseController {
         }
         if ($account->update($data)) {
             if($data['Billing'] == 1) {
-                AccountBilling::insertUpdateBilling($id, $data,$ServiceID);
+                AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
                 AccountBilling::storeFirstTimeInvoicePeriod($id,$ServiceID);
                 /*
                 $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'),$ServiceID);

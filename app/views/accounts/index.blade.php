@@ -394,7 +394,7 @@
                                 credit_ = "{{ URL::to('account/get_credit/{id}')}}";
                                 customer_rate_ = "{{Url::to('/customers_rates/{id}')}}";
                                 vendor_blocking_ = "{{Url::to('/vendor_rates/{id}')}}";
-								
+								subscriptions_ = "{{ URL::to('account_subscription/')}}?id={id}";
 								authenticate_ = "{{Url::to('/accounts/authenticate/{id}')}}";
 
                                 edit_ = edit_.replace( '{id}', full[0] );
@@ -403,9 +403,12 @@
                                 credit_ = credit_.replace( '{id}', full[0] );
                                 customer_rate_ = customer_rate_.replace( '{id}', full[0] );
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
+								subscriptions_ = subscriptions_.replace( '{id}', full[0] );
 								authenticate_ = authenticate_.replace( '{id}', full[0] );
                                 action = '';
-                                <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
+                                
+								
+								<?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
                                 action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
                                 <?php } ?>
 
@@ -446,6 +449,10 @@
 								if(full[9]==1 || full[10]==1){
                                  	action += '&nbsp;<a href="'+authenticate_+'" title="Authentication Rule" class="btn btn-default btn-xs"><i class="entypo-lock"></i></a>';
                                 } 
+								
+								<?php if(User::checkCategoryPermission('AccountService','View')) { ?>
+                                action +='&nbsp;<button class="btn btn-default btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';
+                                <?php } ?>
 
                                 if(full[9]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>

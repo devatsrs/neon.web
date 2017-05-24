@@ -42,7 +42,54 @@ ALTER TABLE `tmp_tblVendorUsageDetailsReport`
 ALTER TABLE `tmp_tblVendorUsageDetailsReportLive`
   ADD COLUMN `ServiceID` int(11) NULL;
 
-  
+CREATE TABLE IF NOT EXISTS `tblHeader` (
+  `HeaderID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `DateID` bigint(20) NOT NULL,
+  `CompanyID` int(11) DEFAULT NULL,
+  `AccountID` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `TotalCharges` double DEFAULT NULL,
+  `TotalBilledDuration` int(11) DEFAULT NULL,
+  `TotalDuration` int(11) DEFAULT NULL,
+  `NoOfCalls` int(11) DEFAULT NULL,
+  `NoOfFailCalls` int(11) DEFAULT NULL,
+  PRIMARY KEY (`HeaderID`),
+  UNIQUE KEY `Unique_key` (`DateID`,`AccountID`),
+  KEY `FK_tblSummaryHeaderNew_dim_date` (`DateID`),
+  KEY `IX_CompanyID` (`CompanyID`),
+  CONSTRAINT `tblHeader_ibfk_1` FOREIGN KEY (`DateID`) REFERENCES `tblDimDate` (`DateID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `tblHeaderV` (
+  `HeaderVID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `DateID` bigint(20) NOT NULL,
+  `CompanyID` int(11) DEFAULT NULL,
+  `VAccountID` int(11) DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `TotalCharges` double DEFAULT NULL,
+  `TotalSales` double DEFAULT NULL,
+  `TotalBilledDuration` int(11) DEFAULT NULL,
+  `TotalDuration` int(11) DEFAULT NULL,
+  `NoOfCalls` int(11) DEFAULT NULL,
+  `NoOfFailCalls` int(11) DEFAULT NULL,
+  PRIMARY KEY (`HeaderVID`),
+  UNIQUE KEY `Unique_key` (`DateID`,`VAccountID`),
+  KEY `FK_tblHeaderV_dim_date` (`DateID`),
+  KEY `IX_CompanyID` (`CompanyID`),
+  CONSTRAINT `tblHeader_ibfk_2` FOREIGN KEY (`DateID`) REFERENCES `tblDimDate` (`DateID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;  
+
+INSERT INTO tblHeader (DateID,CompanyID,AccountID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+SELECT DateID,CompanyID,AccountID,SUM(TotalCharges),SUM(TotalBilledDuration),SUM(TotalDuration),SUM(NoOfCalls),SUM(NoOfFailCalls) FROM tblUsageSummary INNER JOIN 
+tblSummaryHeader ON tblSummaryHeader.SummaryHeaderID = tblUsageSummary.SummaryHeaderID
+WHERE CompanyID =1
+GROUP BY DateID,AccountID;
+
+INSERT INTO tblHeaderV (DateID,CompanyID,VAccountID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+SELECT DateID,CompanyID,AccountID,SUM(TotalCharges),SUM(TotalSales),SUM(TotalBilledDuration),SUM(TotalDuration),SUM(NoOfCalls),SUM(NoOfFailCalls) FROM tblSummaryVendorHeader INNER JOIN 
+tblUsageVendorSummary ON tblSummaryVendorHeader.SummaryVendorHeaderID = tblUsageVendorSummary.SummaryVendorHeaderID
+WHERE CompanyID =1
+GROUP BY DateID,AccountID;
   
 DROP FUNCTION IF EXISTS `fngetLastInvoiceDate`;
 
@@ -537,6 +584,26 @@ BEGIN
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
 	AND us.ServiceID = sh.ServiceID;
+	
+	DELETE h FROM tblHeader h 
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummary)u
+		ON h.DateID = u.DateID 
+		AND h.CompanyID = u.CompanyID
+	WHERE u.CompanyID = p_CompanyID;
+	
+	INSERT INTO tblHeader(DateID,CompanyID,AccountID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	SELECT 
+		u.DateID,
+		u.CompanyID,
+		u.AccountID,
+		SUM(u.TotalCharges) as TotalCharges,
+		SUM(u.TotalBilledDuration) as TotalBilledDuration,
+		SUM(u.TotalDuration) as TotalDuration,
+		SUM(u.NoOfCalls) as NoOfCalls,
+		SUM(u.NoOfFailCalls) as NoOfFailCalls
+	FROM tmp_UsageSummary u 
+	WHERE u.CompanyID = p_CompanyID
+	GROUP BY u.DateID,u.AccountID,u.CompanyID;
 
 	COMMIT;
 	
@@ -686,8 +753,27 @@ BEGIN
 	AND us.CompanyGatewayID = sh.CompanyGatewayID
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID;	
+	AND us.ServiceID = sh.ServiceID;
 
+	DELETE h FROM tblHeader h 
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)u
+		ON h.DateID = u.DateID 
+		AND h.CompanyID = u.CompanyID
+	WHERE u.CompanyID = p_CompanyID;
+	
+	INSERT INTO tblHeader(DateID,CompanyID,AccountID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	SELECT 
+		u.DateID,
+		u.CompanyID,
+		u.AccountID,
+		SUM(u.TotalCharges) as TotalCharges,
+		SUM(u.TotalBilledDuration) as TotalBilledDuration,
+		SUM(u.TotalDuration) as TotalDuration,
+		SUM(u.NoOfCalls) as NoOfCalls,
+		SUM(u.NoOfFailCalls) as NoOfFailCalls
+	FROM tmp_UsageSummaryLive u 
+	WHERE u.CompanyID = p_CompanyID
+	GROUP BY u.DateID,u.AccountID,u.CompanyID;
 	COMMIT;
 	
 END|
@@ -839,6 +925,27 @@ BEGIN
 	AND sh.Trunk = us.Trunk
 	AND sh.AreaPrefix = us.AreaPrefix
 	AND sh.ServiceID = us.ServiceID;
+	
+	DELETE h FROM tblHeaderV h 
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummary)u
+		ON h.DateID = u.DateID 
+		AND h.CompanyID = u.CompanyID
+	WHERE u.CompanyID = p_CompanyID;
+	
+	INSERT INTO tblHeaderV(DateID,CompanyID,VAccountID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	SELECT 
+		u.DateID,
+		u.CompanyID,
+		u.AccountID,
+		SUM(u.TotalCharges) as TotalCharges,
+		SUM(u.TotalSales) as TotalSales,
+		SUM(u.TotalBilledDuration) as TotalBilledDuration,
+		SUM(u.TotalDuration) as TotalDuration,
+		SUM(u.NoOfCalls) as NoOfCalls,
+		SUM(u.NoOfFailCalls) as NoOfFailCalls
+	FROM tmp_VendorUsageSummary u 
+	WHERE u.CompanyID = p_CompanyID
+	GROUP BY u.DateID,u.AccountID,u.CompanyID;
 	
 	COMMIT;
 
@@ -993,7 +1100,572 @@ BEGIN
 	AND sh.AreaPrefix = us.AreaPrefix
 	AND sh.ServiceID = us.ServiceID;
 
+	DELETE h FROM tblHeaderV h 
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummaryLive)u
+		ON h.DateID = u.DateID 
+		AND h.CompanyID = u.CompanyID
+	WHERE u.CompanyID = p_CompanyID;
+	
+	INSERT INTO tblHeaderV(DateID,CompanyID,VAccountID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	SELECT 
+		u.DateID,
+		u.CompanyID,
+		u.AccountID,
+		SUM(u.TotalCharges) as TotalCharges,
+		SUM(u.TotalSales) as TotalSales,
+		SUM(u.TotalBilledDuration) as TotalBilledDuration,
+		SUM(u.TotalDuration) as TotalDuration,
+		SUM(u.NoOfCalls) as NoOfCalls,
+		SUM(u.NoOfFailCalls) as NoOfFailCalls
+	FROM tmp_VendorUsageSummaryLive u 
+	WHERE u.CompanyID = p_CompanyID
+	GROUP BY u.DateID,u.AccountID,u.CompanyID;	
+
 	COMMIT;
 	
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getDashboardPayableReceivable`;
+DELIMITER |
+CREATE PROCEDURE `prc_getDashboardPayableReceivable`(
+	IN `p_CompanyID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_Unbilled` INT,
+	IN `p_ListType` VARCHAR(50)
+)
+BEGIN
+	DECLARE v_Round_ INT;
+	DECLARE prev_TotalInvoiceOut  DECIMAL(18,6);
+	DECLARE prev_TotalInvoiceIn DECIMAL(18,6);
+	DECLARE prev_TotalPaymentOut DECIMAL(18,6);
+	DECLARE prev_TotalPaymentIn DECIMAL(18,6);
+	DECLARE prev_CustomerUnbill DECIMAL(18,6);
+	DECLARE prev_VendrorUnbill DECIMAL(18,6);
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerUnbilled_;
+	CREATE TEMPORARY TABLE tmp_CustomerUnbilled_  (
+		DateID INT,
+		CustomerUnbill DOUBLE
+	);
+	DROP TEMPORARY TABLE IF EXISTS tmp_VendorUbilled_;
+	CREATE TEMPORARY TABLE tmp_VendorUbilled_  (
+		DateID INT,
+		VendrorUnbill DOUBLE
+	);
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_FinalResult_;
+	CREATE TEMPORARY TABLE tmp_FinalResult_  (
+		TotalInvoiceOut DOUBLE,
+		TotalInvoiceIn DOUBLE,
+		TotalPaymentOut DOUBLE,
+		TotalPaymentIn DOUBLE,
+		CustomerUnbill DOUBLE,
+		VendrorUnbill DOUBLE,
+		date DATE,
+		TotalOutstanding DOUBLE,
+		TotalPayable DOUBLE,
+		TotalReceivable DOUBLE
+	);
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_FinalResult2_;
+	CREATE TEMPORARY TABLE tmp_FinalResult2_  (
+		TotalInvoiceOut DOUBLE,
+		TotalInvoiceIn DOUBLE,
+		TotalPaymentOut DOUBLE,
+		TotalPaymentIn DOUBLE,
+		CustomerUnbill DOUBLE,
+		VendrorUnbill DOUBLE,
+		date DATE,
+		TotalOutstanding DOUBLE,
+		TotalPayable DOUBLE,
+		TotalReceivable DOUBLE
+	);
+	
+	IF p_Unbilled = 1
+	THEN
+		DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
+		CREATE TEMPORARY TABLE tmp_Account_  (
+			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			AccountID INT,
+			LastInvoiceDate DATE
+		);
+		DROP TEMPORARY TABLE IF EXISTS tmp_Account2_;
+		CREATE TEMPORARY TABLE tmp_Account2_  (
+			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			AccountID INT,
+			LastInvoiceDate DATE
+		);
+
+		INSERT INTO tmp_Account_ (AccountID)
+		SELECT DISTINCT tblSummaryHeader.AccountID  FROM tblSummaryHeader INNER JOIN Ratemanagement3.tblAccount ON tblAccount.AccountID = tblSummaryHeader.AccountID WHERE tblSummaryHeader.CompanyID = 1;
+
+		UPDATE tmp_Account_ SET LastInvoiceDate = fngetLastInvoiceDate(AccountID);
+
+		INSERT INTO tmp_Account2_ (AccountID)
+		SELECT DISTINCT tblSummaryVendorHeader.AccountID  FROM tblSummaryVendorHeader INNER JOIN Ratemanagement3.tblAccount ON tblAccount.AccountID = tblSummaryVendorHeader.AccountID WHERE tblSummaryVendorHeader.CompanyID = p_CompanyID;
+
+		UPDATE tmp_Account2_ SET LastInvoiceDate = fngetLastVendorInvoiceDate(AccountID);
+
+		SELECT 
+			SUM(h.TotalCharges)
+		INTO
+			prev_CustomerUnbill
+		FROM tmp_Account_ a
+		INNER JOIN tblDimDate dd
+			ON dd.date >= a.LastInvoiceDate
+		INNER JOIN tblHeader h
+			ON h.AccountID = a.AccountID
+			AND h.DateID = dd.DateID
+		WHERE dd.date < p_StartDate;
+		
+		SELECT 
+			SUM(h.TotalCharges)
+		INTO 
+			prev_VendrorUnbill
+		FROM tmp_Account2_ a
+		INNER JOIN tblDimDate dd
+			ON dd.date >= a.LastInvoiceDate
+		INNER JOIN tblHeaderV h
+			ON h.VAccountID = a.AccountID
+			AND h.DateID = dd.DateID
+		WHERE dd.date < p_StartDate;
+
+		INSERT INTO tmp_CustomerUnbilled_(DateID,CustomerUnbill)
+		SELECT 
+			dd.DateID,
+			SUM(h.TotalCharges)
+		FROM tmp_Account_ a
+		INNER JOIN tblDimDate dd
+			ON dd.date >= a.LastInvoiceDate
+		INNER JOIN tblHeader h
+			ON h.AccountID = a.AccountID
+			AND h.DateID = dd.DateID
+		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+		GROUP BY dd.date;
+
+		INSERT INTO tmp_VendorUbilled_ (DateID,VendrorUnbill)
+		SELECT 
+			dd.DateID,
+			SUM(h.TotalCharges)
+		FROM tmp_Account2_ a
+		INNER JOIN tblDimDate dd
+			ON dd.date >= a.LastInvoiceDate
+		INNER JOIN tblHeaderV h
+			ON h.VAccountID = a.AccountID
+			AND h.DateID = dd.DateID
+		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+		GROUP BY dd.date;
+	
+	END IF;
+
+	SELECT 
+		SUM(IF(InvoiceType=1,GrandTotal,0)),
+		SUM(IF(InvoiceType=2,GrandTotal,0)) 
+	INTO 
+		prev_TotalInvoiceOut,
+		prev_TotalInvoiceIn
+	FROM RMBilling3.tblInvoice 
+	WHERE 
+		CompanyID = p_CompanyID
+		AND CurrencyID = p_CurrencyID
+		AND ( (InvoiceType = 2) OR ( InvoiceType = 1 AND InvoiceStatus NOT IN ( 'cancel' , 'draft') )  )
+		AND (p_AccountID = 0 or AccountID = p_AccountID)
+	AND tblInvoice.IssueDate < p_StartDate ;
+
+	SELECT 
+		SUM(IF(PaymentType='Payment In',p.Amount,0)),
+		SUM(IF(PaymentType='Payment Out',p.Amount,0)) 
+	INTO 
+		prev_TotalPaymentIn,
+		prev_TotalPaymentOut
+	FROM RMBilling3.tblPayment p 
+	INNER JOIN Ratemanagement3.tblAccount ac 
+		ON ac.AccountID = p.AccountID
+	WHERE 
+		p.CompanyID = p_CompanyID
+		AND ac.CurrencyId = p_CurrencyID
+		AND p.Status = 'Approved'
+		AND p.Recall=0
+		AND (p_AccountID = 0 or p.AccountID = p_AccountID)
+	AND p.PaymentDate < p_StartDate;
+	
+	SET @prev_TotalInvoiceOut := IFNULL(prev_TotalInvoiceOut,0) ;
+	SET @prev_TotalInvoiceIn := IFNULL(prev_TotalInvoiceIn,0) ;
+	SET @prev_TotalPaymentOut := IFNULL(prev_TotalPaymentOut,0) ;
+	SET @prev_TotalPaymentIn := IFNULL(prev_TotalPaymentIn,0) ;
+	SET @prev_CustomerUnbill := IFNULL(prev_CustomerUnbill,0) ;
+	SET @prev_VendrorUnbill := IFNULL(prev_VendrorUnbill,0) ;
+	
+	INSERT INTO tmp_FinalResult_(TotalInvoiceOut,TotalInvoiceIn,TotalPaymentOut,TotalPaymentIn,CustomerUnbill,VendrorUnbill,date,TotalOutstanding,TotalReceivable,TotalPayable)
+	SELECT 
+		@prev_TotalInvoiceOut := @prev_TotalInvoiceOut +    IFNULL(TotalInvoiceOut,0) AS TotalInvoiceOut ,
+		@prev_TotalInvoiceIn := @prev_TotalInvoiceIn +   IFNULL(TotalInvoiceIn,0) AS TotalInvoiceIn,
+		@prev_TotalPaymentOut := @prev_TotalPaymentOut +   IFNULL(TotalPaymentOut,0) AS TotalPaymentOut,
+		@prev_TotalPaymentIn := @prev_TotalPaymentIn +   IFNULL(TotalPaymentIn,0) AS TotalPaymentIn,
+		@prev_CustomerUnbill := @prev_CustomerUnbill +   IFNULL(CustomerUnbill,0) AS CustomerUnbill,
+		@prev_VendrorUnbill := @prev_VendrorUnbill +   IFNULL(VendrorUnbill,0) AS VendrorUnbill,
+		date,
+		ROUND( ( @prev_TotalInvoiceOut - @prev_TotalPaymentIn ) - ( @prev_TotalInvoiceIn - @prev_TotalPaymentOut ) + ( @prev_CustomerUnbill - @prev_VendrorUnbill ) , v_Round_ ) AS TotalOutstanding,
+		ROUND( ( @prev_TotalInvoiceOut - @prev_TotalPaymentIn + @prev_CustomerUnbill ), v_Round_ ) AS TotalReceivable,
+		ROUND( ( @prev_TotalInvoiceIn - @prev_TotalPaymentOut + @prev_VendrorUnbill), v_Round_ ) AS TotalPayable
+	FROM(
+		SELECT 
+			dd.date,
+			TotalPaymentIn,
+			TotalPaymentOut,
+			TotalInvoiceOut,
+			TotalInvoiceIn,
+			CustomerUnbill,
+			VendrorUnbill
+		FROM tblDimDate dd 
+		LEFT JOIN(
+			SELECT 
+				SUM(IF(InvoiceType=1,GrandTotal,0)) AS TotalInvoiceOut,
+				SUM(IF(InvoiceType=2,GrandTotal,0)) AS TotalInvoiceIn,
+				DATE(tblInvoice.IssueDate) AS  IssueDate 
+			FROM RMBilling3.tblInvoice 
+			WHERE 
+				CompanyID = p_CompanyID
+				AND CurrencyID = p_CurrencyID
+				AND ( (InvoiceType = 2) OR ( InvoiceType = 1 AND InvoiceStatus NOT IN ( 'cancel' , 'draft') )  )
+				AND (p_AccountID = 0 or AccountID = p_AccountID)
+				AND IssueDate BETWEEN p_StartDate AND p_EndDate
+			GROUP BY DATE(tblInvoice.IssueDate)
+			HAVING (TotalInvoiceOut <> 0 OR TotalInvoiceIn <> 0)
+		) TBL ON IssueDate = dd.date
+		LEFT JOIN (
+			SELECT
+				SUM(IF(PaymentType='Payment In',p.Amount,0)) AS TotalPaymentIn ,
+				SUM(IF(PaymentType='Payment Out',p.Amount,0)) AS TotalPaymentOut,
+				DATE(p.PaymentDate) AS PaymentDate
+			FROM RMBilling3.tblPayment p
+			INNER JOIN Ratemanagement3.tblAccount ac
+				ON ac.AccountID = p.AccountID
+			WHERE
+				p.CompanyID = p_CompanyID
+				AND ac.CurrencyId = p_CurrencyID
+				AND p.Status = 'Approved'
+				AND p.Recall=0
+				AND (p_AccountID = 0 or p.AccountID = p_AccountID)
+				AND PaymentDate BETWEEN p_StartDate AND p_EndDate
+			GROUP BY DATE(p.PaymentDate)
+			HAVING (TotalPaymentIn <> 0 OR TotalPaymentOut <> 0)
+		)TBL2 ON PaymentDate = dd.date
+		LEFT JOIN tmp_CustomerUnbilled_ cu 
+			ON cu.DateID = dd.DateID
+		LEFT JOIN tmp_VendorUbilled_ vu
+			ON vu.DateID = dd.DateID
+		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+		AND ( PaymentDate IS NOT NULL OR IssueDate IS NOT NULL OR cu.DateID IS NOT NULL OR vu.DateID IS NOT NULL)
+		ORDER BY dd.date
+	)tbl;
+	
+	INSERT INTO tmp_FinalResult2_
+	SELECT * FROM tmp_FinalResult_;
+
+	IF p_ListType = 'Daily'
+	THEN
+
+		SELECT
+			TotalOutstanding,
+			TotalPayable,
+			TotalReceivable,
+			date AS Date
+		FROM  tmp_FinalResult_;
+
+	END IF;
+
+	IF p_ListType = 'Weekly'
+	THEN
+
+		SELECT 
+			TotalOutstanding,
+			TotalPayable,
+			TotalReceivable,
+			CONCAT( YEAR(date),' - ',WEEK(date,1)) AS Date
+		FROM	tmp_FinalResult_ t1
+		INNER JOIN (
+			SELECT 
+				MAX(date) as finaldate
+			FROM tmp_FinalResult2_
+			GROUP BY
+			YEAR(date),WEEK(date,1)
+		)TBL ON TBL.finaldate = t1.date;
+
+	END IF;
+	
+	IF p_ListType = 'Monthly'
+	THEN
+
+		SELECT 
+			TotalOutstanding,
+			TotalPayable,
+			TotalReceivable,
+			CONCAT( YEAR(date),' - ',MONTHNAME(date)) AS Date
+		FROM	tmp_FinalResult_ t1
+		INNER JOIN (
+			SELECT 
+				MAX(date) as finaldate
+			FROM tmp_FinalResult2_
+			GROUP BY
+			YEAR(date),MONTH(date)
+		)TBL ON TBL.finaldate = t1.date;
+
+	END IF;
+	
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getUnbilledReport`;
+
+DELIMITER |
+CREATE PROCEDURE `prc_getUnbilledReport`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_LastInvoiceDate` DATETIME,
+	IN `p_Today` DATETIME,
+	IN `p_Detail` INT
+)
+BEGIN
+	
+	DECLARE v_Round_ INT;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	
+	IF p_Detail = 1
+	THEN
+	
+		SELECT 
+			dd.date,
+			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
+		FROM tblHeader us
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
+		WHERE dd.date BETWEEN p_LastInvoiceDate AND p_Today 
+		AND us.CompanyID = p_CompanyID
+		AND us.AccountID = p_AccountID
+		GROUP BY us.DateID;	
+		
+	
+	END IF;
+	
+	IF p_Detail = 3
+	THEN
+	
+		DROP TEMPORARY TABLE IF EXISTS tmp_FinalAmount_;
+		CREATE TEMPORARY TABLE tmp_FinalAmount_  (
+			FinalAmount DOUBLE
+		);
+		INSERT INTO tmp_FinalAmount_
+		SELECT 
+			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+		FROM tblHeader us
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
+		WHERE dd.date BETWEEN p_LastInvoiceDate AND p_Today 
+		AND us.CompanyID = p_CompanyID
+		AND us.AccountID = p_AccountID;
+		
+	END IF;
+ 
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_getVendorUnbilledReport`;
+
+DELIMITER |
+CREATE PROCEDURE `prc_getVendorUnbilledReport`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_LastInvoiceDate` DATETIME,
+	IN `p_Today` DATETIME,
+	IN `p_Detail` INT
+)
+BEGIN
+	
+	DECLARE v_Round_ INT;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	IF p_Detail = 1
+	THEN
+	
+		SELECT 
+			dd.date,
+			ROUND(COALESCE(SUM(TotalBilledDuration),0)/60,0) as TotalMinutes,
+			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost
+		FROM tblHeaderV us
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
+		WHERE dd.date BETWEEN p_LastInvoiceDate AND p_Today 
+		AND us.CompanyID = p_CompanyID
+		AND us.VAccountID = p_AccountID
+		GROUP BY us.DateID;	
+	
+	END IF;
+
+	IF p_Detail = 3
+	THEN
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_FinalAmount_;
+		CREATE TEMPORARY TABLE tmp_FinalAmount_  (
+			FinalAmount DOUBLE
+		);
+		INSERT INTO tmp_FinalAmount_
+		SELECT 
+			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+		FROM tblHeaderV us
+		INNER JOIN tblDimDate dd on dd.DateID = us.DateID
+		WHERE dd.date BETWEEN p_LastInvoiceDate AND p_Today 
+		AND us.CompanyID = p_CompanyID
+		AND us.VAccountID = p_AccountID;
+
+	END IF;
+ 
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getDashboardProfitLoss`;
+DELIMITER |
+CREATE PROCEDURE `prc_getDashboardProfitLoss`(
+	IN `p_CompanyID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_ListType` VARCHAR(50)
+)
+BEGIN
+	DECLARE v_Round_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	DROP TEMPORARY TABLE IF EXISTS tmp_Customerbilled_;
+	CREATE TEMPORARY TABLE tmp_Customerbilled_  (
+		DateID INT,
+		Customerbill DOUBLE
+	);
+	DROP TEMPORARY TABLE IF EXISTS tmp_Vendorbilled_;
+	CREATE TEMPORARY TABLE tmp_Vendorbilled_  (
+		DateID INT,
+		Vendrorbill DOUBLE
+	);
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_FinalResult_;
+	CREATE TEMPORARY TABLE tmp_FinalResult_  (
+		Customerbill DOUBLE,
+		Vendrorbill DOUBLE,
+		date DATE
+	);
+
+	INSERT INTO tmp_Customerbilled_(DateID,Customerbill)
+	SELECT 
+		dd.DateID,
+		SUM(h.TotalCharges)
+	FROM tblDimDate dd
+	INNER JOIN tblHeader h
+		ON h.DateID = dd.DateID
+	WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+	AND (p_AccountID = 0 or AccountID = p_AccountID)
+	GROUP BY dd.date;
+
+	INSERT INTO tmp_Vendorbilled_ (DateID,Vendrorbill)
+	SELECT 
+		dd.DateID,
+		SUM(h.TotalCharges)
+	FROM tblDimDate dd
+	INNER JOIN tblHeaderV h
+		ON h.DateID = dd.DateID
+	WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+	AND (p_AccountID = 0 or VAccountID = p_AccountID)
+	GROUP BY dd.date;
+
+	INSERT INTO tmp_FinalResult_(Customerbill,Vendrorbill,date)
+	SELECT 
+		IFNULL(Customerbill,0) AS Customerbill,
+		IFNULL(Vendrorbill,0) AS Vendrorbill,
+		date
+	FROM(
+		SELECT 
+			dd.date,
+			Customerbill,
+			Vendrorbill
+		FROM tblDimDate dd 
+		LEFT JOIN tmp_Customerbilled_ cu 
+			ON cu.DateID = dd.DateID
+		LEFT JOIN tmp_Vendorbilled_ vu
+			ON vu.DateID = dd.DateID
+		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
+		AND (cu.DateID IS NOT NULL OR vu.DateID IS NOT NULL)
+		ORDER BY dd.date
+	)tbl;
+	
+	IF p_ListType = 'Daily'
+	THEN
+
+		SELECT
+			ROUND(Customerbill - Vendrorbill,v_Round_) AS PL,
+			date AS Date
+		FROM  tmp_FinalResult_
+		ORDER BY date;
+
+	END IF;
+
+	IF p_ListType = 'Weekly'
+	THEN
+
+		SELECT 
+			ROUND(SUM(Customerbill) - SUM(Vendrorbill),v_Round_) AS PL,
+			CONCAT( YEAR(MAX(date)),' - ',WEEK(MAX(date))) AS Date
+		FROM	tmp_FinalResult_
+		GROUP BY 
+			YEAR(date),
+			WEEK(date)
+		ORDER BY
+			YEAR(date),
+			WEEK(date);
+
+	END IF;
+	
+	IF p_ListType = 'Monthly'
+	THEN
+
+		SELECT 
+			ROUND(SUM(Customerbill) - SUM(Vendrorbill),v_Round_) AS PL,
+			CONCAT( YEAR(MAX(date)),' - ',MONTHNAME(MAX(date))) AS Date
+		FROM	tmp_FinalResult_
+		GROUP BY
+			YEAR(date)
+			,MONTH(date)
+		ORDER BY 
+			YEAR(date)
+			,MONTH(date);
+
+	END IF;
+	
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END|
 DELIMITER ;

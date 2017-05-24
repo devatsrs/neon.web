@@ -92,9 +92,9 @@ class PHPMAILERIntegtration{
         $mail->MessageID  =  $message_id;
 		 	
 	if(isset($data['AttachmentPaths']) && !empty($data['AttachmentPaths'])) {
-        foreach($data['AttachmentPaths'] as $attachment_data) { 
-            $file = \Webpatser\Uuid\Uuid::generate()."_". basename($attachment_data['filepath']); 
-            $Attachmenturl = \App\AmazonS3::unSignedUrl($attachment_data['filepath']);
+        foreach($data['AttachmentPaths'] as $attachment_data) {
+			$file = \Webpatser\Uuid\Uuid::generate()."_". basename($attachment_data['filepath']); 
+            $Attachmenturl = AmazonS3::unSignedUrl($attachment_data['filepath']);
             file_put_contents($file,file_get_contents($Attachmenturl));
             $mail->AddAttachment($file,$attachment_data['filename']);
         }
@@ -110,7 +110,7 @@ class PHPMAILERIntegtration{
 					$status['message'] = 'Email has been sent';
 					$status['body'] = $body;
 					$status['message_id']	=	$mail->getLastMessageID(); 
-		} 
+		} Log::info(print_r($mail,true));
 		return $status;
 	}
 	

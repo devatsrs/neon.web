@@ -37,9 +37,9 @@ class GatewayController extends \BaseController {
     {
         $gateway 			= 	Gateway::getGatewayListID();
         $timezones 			= 	TimeZone::getTimeZoneDropdownList();
-        $ftpGatewayID       =   Gateway::getGatewayID(Gateway::GATEWAY_FTP);
+        $GatewayName       =   Gateway::getGatewayName($id);
        // $gateway['other'] 	= 	'other';
-        return View::make('gateway.index', compact('gateway','timezones','ftpGatewayID','id'));
+        return View::make('gateway.index', compact('gateway','GatewayName','timezones','id'));
     }
 
     /**
@@ -50,23 +50,16 @@ class GatewayController extends \BaseController {
      */
     public function create()
     {
-        $data = array();
-        $datainput = Input::all();
+        $data = Input::all();
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
-        $data['Title'] =$datainput['Title'];
-        $data['GatewayID'] =$datainput['GatewayID'];
-        $data['Status'] =$datainput['Status'];
-        $data['IP'] =$datainput['IP'];
-        $data['TimeZone'] =$datainput['TimeZone'];
-        //$data['BillingTime'] =$datainput['BillingTime'];
-        $data['BillingTimeZone'] =$datainput['BillingTimeZone'];
         $rules = array(
             'Title' => 'required|unique:tblCompanyGateway,Title,NULL,CompanyGatewayID,CompanyID,'.$data['CompanyID'],
             'GatewayID'=>'required',
             'TimeZone'=>'required',
             'BillingTimeZone'=>'required',
         );
+        $rules = $rules +GatewayAPI::getRules($data['GatewayID']);
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
@@ -75,20 +68,14 @@ class GatewayController extends \BaseController {
         if($data['GatewayID'] == 'other'){
             unset($data['GatewayID']);
         }
-        if(isset($datainput['password']) && !empty($datainput['password'])){
-            $datainput['password'] = Crypt::encrypt($datainput['password']);
+        if(isset($data['password']) && !empty($data['password'])){
+            $data['password'] = Crypt::encrypt($data['password']);
         }
         $today = date('Y-m-d');
         $data['CreatedBy'] = User::get_user_full_name();
         $data['created_at'] =  $today;
-        unset($datainput['CompanyGatewayID']);
-        unset($datainput['Title']);
-        unset($datainput['GatewayID']);
-        unset($datainput['Status']);
-        unset($datainput['Status_name']);
-        unset($datainput['IP']);
-        if(count($datainput)>0){
-            $data['Settings'] =  json_encode($datainput);
+        if(count($data)>0){
+            $data['Settings'] =  json_encode($data);
         }
         if ($CompanyGateway = CompanyGateway::create($data)) {
             $CompanyGatewayID = $CompanyGateway->CompanyGatewayID;
@@ -135,23 +122,24 @@ class GatewayController extends \BaseController {
         if( $id > 0 ) {
 
             $CompanyGateway = CompanyGateway::findOrFail($id);
-            $data = array();
-            $datainput = Input::all();
+            $data = Input::all();
             $companyID = User::get_companyID();
             $data['CompanyID'] = $companyID;
-            $data['Title'] =$datainput['Title'];
-            $data['GatewayID'] =$datainput['GatewayID'];
-            $data['Status'] =$datainput['Status'];
-            $data['IP'] =$datainput['IP'];
-            $data['TimeZone'] =$datainput['TimeZone'];
-            //$data['BillingTime'] =$datainput['BillingTime'];
-            $data['BillingTimeZone'] =$datainput['BillingTimeZone'];
             $rules = array(
                 'Title' => 'required|unique:tblCompanyGateway,Title,'.$id.',CompanyGatewayID,CompanyID,'.$data['CompanyID'],
                 'GatewayID'=>'required',
                 'TimeZone'=>'required',
                 'BillingTimeZone'=>'required',
             );
+            $rules = $rules +GatewayAPI::getRules($data['GatewayID']);
+            if(isset($data['password']) && !empty($data['password'])){
+                $data['password'] = Crypt::encrypt($data['password']);
+            }else {
+                $settings = json_decode($CompanyGateway->Settings,true);
+                if(isset($settings["password"])&& !empty($settings["password"])){
+                    $data['password'] = $settings["password"];
+                }
+            }
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
@@ -163,31 +151,18 @@ class GatewayController extends \BaseController {
             $today = date('Y-m-d');
             $data['CreatedBy'] = User::get_user_full_name();
             $data['created_at'] =  $today;
-            if(isset($datainput['password']) && !empty($datainput['password'])){
-                $datainput['password'] = Crypt::encrypt($datainput['password']);
-            }else {
-                $settings = json_decode($CompanyGateway->Settings,true);
-                if(isset($settings["password"])&& !empty($settings["password"])){
-                    $datainput['password'] = $settings["password"];
-                }
-            }
+
             $tag = '"CompanyGatewayID":"'.$id.'"';
-            if($datainput['Status']==1){
+            if($data['Status']==1){
                 if(CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->count()==0){
                     CompanyGateway::createCronJobsByCompanyGateway($id);
                 }
                 CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->update(['Status'=>1]);
-            }else if($datainput['Status']==0){
+            }else if($data['Status']==0){
                 CronJob::where('Settings','LIKE', '%'.$tag.'%')->where(['CompanyID'=>$companyID])->update(['Status'=>0]);
             }
-            unset($datainput['CompanyGatewayID']);
-            unset($datainput['Title']);
-            unset($datainput['GatewayID']);
-            unset($datainput['Status']);
-            unset($datainput['Status_name']);
-            unset($datainput['IP']);
-            if(count($datainput)>0){
-                $data['Settings'] =  json_encode($datainput);
+            if(count($data)>0){
+                $data['Settings'] =  json_encode($data);
             }
             if ($CompanyGateway->update($data)) {
                 return Response::json(array("status" => "success", "message" => "Gateway Successfully Updated"));

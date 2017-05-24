@@ -299,8 +299,6 @@ class InvoiceTemplatesController extends \BaseController {
             return View::make('invoicetemplates.serviceinvoice_pdf', compact('InvoiceTemplate','logo'));
         }elseif($type==2){
             return View::make('invoicetemplates.iteminvoice_pdf', compact('InvoiceTemplate','logo'));
-        }elseif($type==3){
-            return View::make('invoicetemplates.usageinvoice_pdf', compact('InvoiceTemplate','logo'));
         }
 
 

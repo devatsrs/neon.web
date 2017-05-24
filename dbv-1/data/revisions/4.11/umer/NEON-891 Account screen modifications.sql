@@ -5,7 +5,8 @@ ALTER TABLE `tblTempAccount`
 	
 ALTER TABLE `tblTempAccount`
 	ADD COLUMN `IsCustomer` TINYINT(1) NULL DEFAULT NULL AFTER `IsVendor`;
-	
+
+DROP PROCEDURE IF EXISTS `prc_WSProcessImportAccount`;	
 DELIMITER //
 CREATE PROCEDURE `prc_WSProcessImportAccount`(
 	IN `p_processId` VARCHAR(200) ,

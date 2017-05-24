@@ -9,7 +9,7 @@ class AccountBilling extends \Eloquent {
 
     public $timestamps = false; // no created_at and updated_at
 
-    public static function insertUpdateBilling($AccountID,$data=array(),$ServiceID){
+    public static function insertUpdateBilling($AccountID,$data=array(),$ServiceID,$invoice_count=0){
         if(empty($ServiceID)){
             $ServiceID=0;
         }
@@ -54,7 +54,33 @@ class AccountBilling extends \Eloquent {
             $AccountBilling['ServiceID'] = $ServiceID;
             AccountBilling::create($AccountBilling);
         }else{
-            AccountNextBilling::insertUpdateBilling($AccountID,$data,$ServiceID);
+            if(AccountDiscountPlan::checkDiscountPlan($AccountID) > 0 || $invoice_count > 0) {
+                AccountNextBilling::insertUpdateBilling($AccountID, $data, $ServiceID);
+            }else{
+                $AccountBilling['BillingCycleType'] = $data['BillingCycleType'];
+                if (!empty($data['BillingStartDate'])) {
+                    $AccountBilling['BillingStartDate'] = $data['BillingStartDate'];
+                }
+                if (!empty($data['BillingCycleValue'])) {
+                    $AccountBilling['BillingCycleValue'] = $data['BillingCycleValue'];
+                } else {
+                    $AccountBilling['BillingCycleValue'] = '';
+                }
+                if (!empty($data['LastInvoiceDate'])) {
+                    $AccountBilling['LastInvoiceDate'] = $data['LastInvoiceDate'];
+                } elseif (!empty($data['BillingStartDate'])) {
+                    $AccountBilling['LastInvoiceDate'] = $data['BillingStartDate'];
+                }
+                if (!empty($AccountBilling['LastInvoiceDate'])) {
+                    $BillingStartDate = strtotime($AccountBilling['LastInvoiceDate']);
+                } else if (!empty($AccountBilling['BillingStartDate'])) {
+                    $BillingStartDate = strtotime($AccountBilling['BillingStartDate']);
+                }
+                if (!empty($BillingStartDate)) {
+                    $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
+                }
+
+            }
             if (!empty($data['BillingClassID'])) {
                 $AccountBilling['BillingClassID'] = $data['BillingClassID'];
             }
