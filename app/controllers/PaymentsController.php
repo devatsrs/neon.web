@@ -587,6 +587,8 @@ class PaymentsController extends \BaseController {
             $jobdata['JobStatusMessage'] = 'Exception: ' . $err->getMessage();
             Job::where(["JobID" => $JobID])->update($jobdata);
             Log::error($err);
+            
+            return Response::json(array("status" => "failure", "message" => "Error in Uploading Payments."));
         }
         if($result){
             return Response::json(array("status" => "success", "message" => "Payments Successfully Uploaded"));
