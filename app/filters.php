@@ -43,9 +43,7 @@ Route::filter('auth', function()
 	{
 		if (Request::ajax())
 		{
-            \Illuminate\Support\Facades\Log::info("filters.php Request::ajax HTTP_REFERER: " . $_SERVER['HTTP_REFERER']);
-            \Illuminate\Support\Facades\Log::info("filters.php Request::ajax REQUEST_URI: " . $_SERVER['REQUEST_URI']);
-			return Response::make('Unauthorized', 401);
+            return Response::make('Unauthorized', 401);
 		}
 		else
 		{

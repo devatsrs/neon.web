@@ -18,7 +18,7 @@
         <div class="panel-body">
           <div class="form-group">
           <label for="field-1" class="col-sm-1 control-label">Account</label>
-          <div class="col-sm-2">{{ Form::select('AccountID', $accounts, $SelectedAccount->AccountID, array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}</div>
+          <div class="col-sm-2">{{ Form::select('AccountID', $accounts, $SelectedAccount->AccountID, array("id"=>"filter_AccountID", "class"=>"select2 filter_AccountID","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}</div>
           <label for="field-1" class="col-sm-1 control-label">Service</label>
           <div class="col-sm-2">{{ Form::select('ServiceID', $services,'', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Service")) }}</div>
           
@@ -235,10 +235,11 @@
                         $('#subscription-form').attr("action",subscription_add_url);
 						$('#modal-subscription').find('.dropdown1').removeAttr('disabled');
 						document.getElementById('subscription-form').reset();
+						$('#AccountID_add_change').val($('#filter_AccountID').val()); 
 						$('#ServiceID_add_change').change();
 						$('#SubscriptionID_add_change').change();
 						$('#AccountID_add_change').change();
-						$('.dropdown1').change();
+						//$('.dropdown1').change();						
                         $('#modal-subscription').modal('show');                        
                 });
                 $('table tbody').on('click', '.edit-subscription', function (ev) {
@@ -278,7 +279,7 @@
 				$(document).on("change","#AccountID_add_change",function(){
 					var account_change = $(this).val();
 					if(account_change){
-						var UrlGetSubscription1 	= 	"<?php echo URL::to('/account_subscription/{id}/get_services'); ?>";
+						/*var UrlGetSubscription1 	= 	"<?php echo URL::to('/account_subscription/{id}/get_services'); ?>";
 						var UrlGetSubscription		=	UrlGetSubscription1.replace( '{id}', account_change );
 						 $.ajax({
 							url: UrlGetSubscription,
@@ -293,7 +294,7 @@
 							});	
 							$('#ServiceID_add_change').trigger('change');		
 							}
-						});
+						});*/
 						
 						
 						var UrlGetSubscription1 	= 	"<?php echo URL::to('/account_subscription/{id}/get_subscriptions'); ?>";
@@ -321,7 +322,18 @@
 				 function ServiceSubmit(){
 					var submit_error_service = 0;
 					var ServiceID_add = new Array($('#ServiceID_add_change').val());
-					var AccountID_add = $('#AccountID_add_change').val();
+					var AccountID_add = $('#AccountID_add_change').val(); 
+					if(!AccountID_add){
+						toastr.error("The Account field is required", "Error", toastr_opts);
+						 $('#modal-subscription').find(".btn").button('reset');
+						return 0;
+					} 
+					if(ServiceID_add<1){ 
+ 						toastr.error("The Service field is required", "Error", toastr_opts);
+						 $('#modal-subscription').find(".btn").button('reset');
+						return 0;
+					}
+					
                     var post_data = {ServiceID:ServiceID_add,AccountID:AccountID_add};
                     var _url = baseurl + '/accountservices/' + AccountID_add + '/addservices';
 					$.ajax({
@@ -333,7 +345,9 @@
 							
 							success: function(response) {								
 								 if(response.status =='success'){
-									toastr.success(response.message, "Success", toastr_opts);      
+									 if(response.message.indexOf('Following service already exists')<0){
+									   toastr.success(response.message, "Success", toastr_opts);      
+									 }
 									submit_error_service = 1;		
 									 //window.location =  baseurl+"/tickets/importrules";               
 								}else{
@@ -350,11 +364,15 @@
 					var servicesubmited =  ServiceSubmit();                   
 				   if(servicesubmited==1){
                    	var _url  = $(this).attr("action");
-					var AccountID_add = $('#AccountID_add_change').val();
+					var AccountID_add = $('#AccountID_add_change').val();  
+					if(!AccountID_add){
+						toastr.error("The Account field is required", "Error", toastr_opts);
+						return false;
+					}
 					_url = _url.replace("{id}",AccountID_add);
                    	submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
-				   }else{
-				   	toastr.error(response.message, "Error", toastr_opts);
+				   }else{ 				   
+				  	setTimeout($('#modal-subscription').find('.btn').reset(),1000);
 				   }
                   
                });
@@ -432,7 +450,7 @@
               <div class="form-group">
                 <label for="field-5" class="control-label">Service</label>
                 	<div>
-        			{{ Form::select('ServiceID',array('0'=>'Select'),'0', array("class"=>"select2 dropdown1","id"=>"ServiceID_add_change")) }}        
+        			{{ Form::select('ServiceID',$services,'', array("class"=>"select2 dropdown1","id"=>"ServiceID_add_change")) }}        
                     </div>
                 </div>
             </div>
