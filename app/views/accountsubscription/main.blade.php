@@ -149,7 +149,7 @@
              "fnServerParams": function(aoData) {				
                 aoData.push({"name":"Name","value":$search.Name},{"name":"AccountID","value":$search.Account},{"name":"ServiceID","value":$search.ServiceID},{"name":"Active","value":$search.Active});
                 data_table_extra_params.length = 0;
-                data_table_extra_params.push({"name":"Name","value":$search.Name},{"name":"AccountID","value":$search.Account},{"name":"ServiceID","value":$search.ServiceID},{"name":"Active","value":$search.Active});
+                data_table_extra_params.push({"name":"Name","value":$search.Name},{"name":"AccountID","value":$search.Account},{"name":"ServiceID","value":$search.ServiceID},{"name":"Active","value":$search.Active},{ "name": "Export", "value": 1});
             },
              "aoColumns":
             [

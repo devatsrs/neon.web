@@ -45,7 +45,7 @@ public function main() {
     }
 
 
-	public function ajax_datagrid_page(){
+	public function ajax_datagrid_page($type=''){
         $data 						 = 	Input::all(); //Log::info(print_r($data,true));
         $data['iDisplayStart'] 		+=	1;
         $companyID 					 =  User::get_companyID(); 

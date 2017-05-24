@@ -251,6 +251,7 @@ Route::group(array('before' => 'auth'), function () {
 	//Account Subscription
 	Route::any('account_subscription', 'AccountSubscriptionController@main');
 	Route::any('account_subscription/ajax_datagrid_page', 'AccountSubscriptionController@ajax_datagrid_page');
+	Route::any('account_subscription/ajax_datagrid_page/{type}', 'AccountSubscriptionController@ajax_datagrid_page');
 	Route::any('account_subscription/{id}/get_services	', 'AccountSubscriptionController@GetAccountServices')->where('id', '(.[09]*)+');
 	Route::any('account_subscription/{id}/get_subscriptions	', 'AccountSubscriptionController@GetAccountSubscriptions')->where('id', '(.[09]*)+');	
 	Route::any('account_subscription/{id}/store', 'AccountSubscriptionController@store');
