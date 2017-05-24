@@ -344,4 +344,29 @@ class HomeController extends BaseController {
 		  }
 		 exit;
 	}
+	
+	  function uploadFile(){
+        $data       =  Input::all();
+        $attachment    =  Input::file('emailattachment');
+        if(!empty($attachment)) {
+            try { 
+                $data['file'] = $attachment;
+                $returnArray = UploadFile::UploadFileLocal($data);
+                return Response::json(array("status" => "success", "message" => '','data'=>$returnArray));
+            } catch (Exception $ex) {
+                return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+            }
+        }
+
+    }
+	
+	function deleteUploadFile(){
+        $data    =  Input::all();  
+        try {
+            UploadFile::DeleteUploadFileLocal($data);
+            return Response::json(array("status" => "success", "message" => 'Attachments delete successfully'));
+        } catch (Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
 }

@@ -362,14 +362,8 @@
             </div>
         </div>
         <?php
-            $billing_disable = $hiden_class= '';
-        if($invoice_count > 0){
-            $billing_disable = 'disabled';
-        }
-            if(isset($AccountBilling->BillingCycleType)){
-                $hiden_class= 'hidden';
-                $billing_disable = 'disabled';
-            }
+
+
         $Days = array( ""=>"Select",
                 "monday"=>"Monday",
                 "tuesday"=>"Tuesday",

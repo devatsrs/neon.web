@@ -22,7 +22,7 @@
 				<p> {{ Form::select('InvoiceToInfo', Invoice::$invoice_account_info, (!empty(Input::get('InvoiceToInfo'))?explode(',',Input::get('InvoiceFromInfo')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Account Info")) }} </p>
 			</div>
 			<div id="client">
-				<div class="to">INVOICE TO:</div>
+				<div class="to"><b>Invoice To:</b></div>
                 <div>{{nl2br(Invoice::getInvoiceTo($InvoiceTemplate->InvoiceTo))}}</div>
 			</div>
 			<div id="invoice">
@@ -38,12 +38,12 @@
 			<thead>
 			<tr>
                 @if($InvoiceTemplate->GroupByService==1)
-				<th class="desc">DESCRIPTION</th>
+				<th class="desc"><b>Description</b></th>
                 @endif
-				<th class="desc">Usage</th>
-				<th class="desc">Recurring</th>
-				<th class="desc">Additional</th>
-				<th class="total">TOTAL</th>
+				<th class="desc"><b>Usage</b></th>
+				<th class="desc"><b>Recurring</b></th>
+				<th class="desc"><b>Additional</b></th>
+				<th class="total"><b>Total</b></th>
 			</tr>
 			</thead>
 			<tbody>
@@ -80,7 +80,7 @@
                 @else
                 <td></td>
                 @endif
-				<td colspan="2">SUB TOTAL</td>
+				<td colspan="2">Sub Total</td>
 				<td class="subtotal">$5,200.00</td>
 			</tr>
 			<tr>
@@ -89,7 +89,7 @@
                 @else
                     <td></td>
                 @endif
-				<td colspan="2">TAX 25%</td>
+				<td colspan="2">Tax 25%</td>
 				<td class="subtotal">$1,300.00</td>
 			</tr>
             @if($InvoiceTemplate->ShowPrevBal)
@@ -99,7 +99,7 @@
                     @else
                         <td></td>
                     @endif
-                    <td colspan="2">BROUGHT FORWARD</td>
+                    <td colspan="2">Brought Forward</td>
                     <td class="subtotal">$0.00</td>
                 </tr>
             @endif
@@ -109,8 +109,8 @@
                 @else
                     <td></td>
                 @endif
-				<td colspan="2">GRAND TOTAL</td>
-				<td class="subtotal">$6,500.00</td>
+				<td colspan="2"><b>Grand Total</b></td>
+				<td class="subtotal"><b>$6,500.00</b></td>
 			</tr>
 			</tfoot>
 		</table>

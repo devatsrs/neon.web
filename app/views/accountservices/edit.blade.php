@@ -74,7 +74,7 @@
 
                     <!-- Account Option start -->
 
-            <div class="panel panel-primary" data-collapsed="0">
+            <div class="panel panel-primary additional-optional-section-hide" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
                         Additional Options
@@ -304,6 +304,11 @@
         var OutTariffID = '{{$OutboundTariffID}}';
         var OutDiscountPlanID = '{{$DiscountPlanID}}';
         var InDiscountPlanID = '{{$InboundDiscountPlanID}}';
+
+        if(AccountBilling == false && InTariffID =='' && OutTariffID =='' && OutDiscountPlanID =='' && InDiscountPlanID ==''){
+            $(".additional-optional-section-hide").find('.panel-body').hide();
+        }
+
 
         if(InTariffID =='' && OutTariffID ==''){
             $(".tarrif-section-hide").find('.panel-body').hide();

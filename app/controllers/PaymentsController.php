@@ -568,11 +568,28 @@ class PaymentsController extends \BaseController {
         $JobFileID = JobFile::insertGetId($jobfiledata);
         $UserID = User::get_userID();
         //echo "CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')";exit();
-        $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
-        $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
-        $jobupdatedata['JobStatusMessage'] = 'Payments uploaded successfully';
-        $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
-        Job::where(["JobID" => $JobID])->update($jobupdatedata);
+        try {
+            DB::connection('sqlsrv2')->beginTransaction();
+            $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
+            DB::connection('sqlsrv2')->commit();
+
+            $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
+            $jobupdatedata['JobStatusMessage'] = 'Payments uploaded successfully';
+            $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
+            Job::where(["JobID" => $JobID])->update($jobupdatedata);
+        }catch ( Exception $err ){
+            try{
+                DB::connection('sqlsrv2')->rollback();
+            }catch (Exception $err) {
+                Log::error($err);
+            }
+            $jobdata['JobStatusID'] = JobStatus::where('Code', 'F')->pluck('JobStatusID');
+            $jobdata['JobStatusMessage'] = 'Exception: ' . $err->getMessage();
+            Job::where(["JobID" => $JobID])->update($jobdata);
+            Log::error($err);
+            
+            return Response::json(array("status" => "failure", "message" => "Error in Uploading Payments."));
+        }
         if($result){
             return Response::json(array("status" => "success", "message" => "Payments Successfully Uploaded"));
         }else{

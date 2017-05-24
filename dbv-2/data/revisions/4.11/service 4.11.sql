@@ -21,6 +21,31 @@ ALTER TABLE `tblInvoiceTemplate`
   , ADD COLUMN `UsageColumn` longtext NULL
   , ADD COLUMN `GroupByService` INT NULL DEFAULT '0'
   , ADD COLUMN `CDRType` INT(11) NULL DEFAULT '0';    
+
+
+UPDATE tblInvoiceTemplate SET  InvoiceTo = '{AccountName}
+{Address1},
+{Address2},
+{Address3},
+{City},
+{PostCode},
+{Country}' WHERE InvoiceTo IS NULL;
+
+
+UPDATE tblInvoiceTemplate SET  
+UsageColumn = '{"Summary":[{"Title":"Trunk","ValuesID":"1","UsageName":"Trunk","Status":true,"FieldOrder":1},{"Title":"Prefix","ValuesID":"2","UsageName":"Prefix","Status":true,"FieldOrder":2},{"Title":"Country","ValuesID":"3","UsageName":"Country","Status":true,"FieldOrder":3},{"Title":"Description","ValuesID":"4","UsageName":"Description","Status":true,"FieldOrder":4},{"Title":"NoOfCalls","ValuesID":"5","UsageName":"No of calls","Status":true,"FieldOrder":5},{"Title":"Duration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"BillDuration","ValuesID":"7","UsageName":"Billed Duration","Status":true,"FieldOrder":7},{"Title":"AvgRatePerMin","ValuesID":"8","UsageName":"Avg Rate\/Min","Status":true,"FieldOrder":8},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":9}],"Detail":[{"Title":"Prefix","ValuesID":"1","UsageName":"Prefix","Status":true,"FieldOrder":1},{"Title":"CLI","ValuesID":"2","UsageName":"CLI","Status":true,"FieldOrder":2},{"Title":"CLD","ValuesID":"3","UsageName":"CLD","Status":true,"FieldOrder":3},{"Title":"ConnectTime","ValuesID":"4","UsageName":"Connect Time","Status":true,"FieldOrder":4},{"Title":"DisconnectTime","ValuesID":"4","UsageName":"Disconnect Time","Status":true,"FieldOrder":5},{"Title":"BillDuration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":7}]}'
+WHERE UsageColumn IS NULL;
+
+
+UPDATE tblInvoiceTemplate SET  GroupByService = 0;
+
+UPDATE tblInvoiceTemplate 
+INNER JOIN Ratemanagement3.tblBillingClass
+ON tblBillingClass.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
+SET tblInvoiceTemplate.CDRType = tblBillingClass.CDRType
+WHERE tblBillingClass.CDRType IS NOT NULL;
+
+UPDATE tblInvoiceTemplate SET CDRType = 1 WHERE CDRType IS NULL;
   
 DROP TABLE `tblUsageDaily`;
 
@@ -30,7 +55,8 @@ DROP FUNCTION IF EXISTS `FnGetInvoiceNumber`;
 
 DELIMITER |
 CREATE FUNCTION `FnGetInvoiceNumber`(
-	`p_account_id` INT,
+	`p_CompanyID` INT,
+	`p_AccountID` INT,
 	`p_BillingClassID` INT
 ) RETURNS int(11)
     NO SQL
@@ -1482,6 +1508,8 @@ BEGIN
 END|
 DELIMITER ;
 
+
+DROP PROCEDURE IF EXISTS `prc_GetCDR`;
 DELIMITER |
 CREATE PROCEDURE `prc_GetCDR`(
 	IN `p_company_id` INT,
@@ -2649,7 +2677,7 @@ BEGIN
 			CONCAT("'",cld) AS CLD,
 			connect_time AS ConnectTime,
 			disconnect_time AS DisconnectTime,
-			billed_duration AS BilledDuration,
+			billed_duration AS BillDuration,
 			cost AS ChargedAmount,
 			ServiceID
 		FROM tmp_tblUsageDetails_ ud
@@ -4347,7 +4375,132 @@ BEGIN
 END|
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `prc_getDashboardTotalOutStanding`;
+DELIMITER |
+CREATE PROCEDURE `prc_getDashboardTotalOutStanding`(
+	IN `p_CompanyID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_AccountID` INT
+)
+BEGIN
+	DECLARE v_Round_ int;
+	DECLARE v_TotalInvoiceOut_ decimal(18,6);
+	DECLARE v_TotalPaymentIn_ decimal(18,6);
+	DECLARE v_TotalInvoiceIn_ decimal(18,6);
+	DECLARE v_TotalPaymentOut_ decimal(18,6);
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+
+	SELECT 
+		SUM(IF(InvoiceType=1,GrandTotal,0)),
+		SUM(IF(InvoiceType=2,GrandTotal,0)) 
+	INTO 
+		v_TotalInvoiceOut_,
+		v_TotalInvoiceIn_
+	FROM tblInvoice 
+	WHERE 
+		CompanyID = p_CompanyID
+		AND CurrencyID = p_CurrencyID
+		AND ( (InvoiceType = 2) OR ( InvoiceType = 1 AND InvoiceStatus NOT IN ( 'cancel' , 'draft') )  )
+		AND (p_AccountID = 0 or AccountID = p_AccountID);
+		
+	SELECT 
+		SUM(IF(PaymentType='Payment In',p.Amount,0)),
+		SUM(IF(PaymentType='Payment Out',p.Amount,0)) 
+	INTO 
+		v_TotalPaymentIn_,
+		v_TotalPaymentOut_
+	FROM tblPayment p 
+	INNER JOIN Ratemanagement3.tblAccount ac 
+		ON ac.AccountID = p.AccountID
+	WHERE 
+		p.CompanyID = p_CompanyID
+		AND ac.CurrencyId = p_CurrencyID
+		AND p.Status = 'Approved'
+		AND p.Recall=0
+		AND (p_AccountID = 0 or ac.AccountID = p_AccountID);
+	
+	--	SELECT ROUND((v_TotalInvoice_ - v_TotalPayment_),v_Round_) AS TotalOutstanding ;
+	SELECT 
+		ROUND((IFNULL(v_TotalInvoiceOut_,0) - IFNULL(v_TotalPaymentIn_,0)) - (IFNULL(v_TotalInvoiceIn_,0) - IFNULL(v_TotalPaymentOut_,0)),v_Round_) AS TotalOutstanding,
+		ROUND((IFNULL(v_TotalInvoiceOut_,0) - IFNULL(v_TotalPaymentIn_,0)),v_Round_) AS TotalReceivable,
+		ROUND((IFNULL(v_TotalInvoiceIn_,0) - IFNULL(v_TotalPaymentOut_,0)),v_Round_) AS TotalPayable;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END|
+DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_insertDailyData`;
 
 DROP PROCEDURE IF EXISTS `prc_salesDashboard`;
+
+DROP PROCEDURE IF EXISTS `prc_insertPayments`;
+
+DELIMITER |
+CREATE PROCEDURE `prc_insertPayments`(
+	IN `p_CompanyID` INT,
+	IN `p_ProcessID` VARCHAR(100),
+	IN `p_UserID` INT
+)
+BEGIN
+
+	
+	DECLARE v_UserName varchar(30);
+ 	
+ 	SELECT CONCAT(u.FirstName,CONCAT(' ',u.LastName)) as name into v_UserName from Ratemanagement3.tblUser u where u.UserID=p_UserID;
+ 	
+ 	INSERT INTO tblPayment (
+	 		CompanyID,
+	 		 AccountID,
+			 InvoiceNo,
+			 PaymentDate,
+			 PaymentMethod,
+			 PaymentType,
+			 Notes,
+			 Amount,
+			 CurrencyID,
+			 Recall,
+			 `Status`,
+			 created_at,
+			 updated_at,
+			 CreatedBy,
+			 ModifyBy,
+			 RecallReasoan,
+			 RecallBy,
+			 BulkUpload,
+			 InvoiceID
+			 )
+ 	select tp.CompanyID,
+	 		 tp.AccountID,
+			 COALESCE(tp.InvoiceNo,''),
+			 tp.PaymentDate,
+			 tp.PaymentMethod,
+			 tp.PaymentType,
+			 tp.Notes,
+			 tp.Amount,
+			 ac.CurrencyId,
+			 0 as Recall,
+			 tp.Status,
+			 Now() as created_at,
+			 Now() as updated_at,
+			 v_UserName as CreatedBy,
+			 '' as ModifyBy,
+			 '' as RecallReasoan,
+			 '' as RecallBy,
+			 1 as BulkUpload,
+			 InvoiceID
+	from tblTempPayment tp
+	INNER JOIN Ratemanagement3.tblAccount ac 
+		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1 and ac.CurrencyId IS NOT NULL
+	where tp.ProcessID = p_ProcessID
+			AND tp.PaymentDate <= NOW()
+			AND tp.CompanyID = p_CompanyID;
+			
+	
+	/* Delete tmp table */		
+	 delete from tblTempPayment where CompanyID = p_CompanyID and ProcessID = p_ProcessID;
+	 
+END|
+DELIMITER ;

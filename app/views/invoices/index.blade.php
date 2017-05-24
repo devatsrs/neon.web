@@ -906,7 +906,8 @@
                 send_url = ("/invoice/{id}/invoice_email").replace("{id}", InvoiceID);
                 showAjaxModal(send_url, 'send-modal-invoice');
 				
-                $('#send-modal-invoice').modal('show');			
+                $('#send-modal-invoice').modal('show');		
+				emailFileList = [];	
             });
 
             $("#send-invoice-form").submit(function (e) {
@@ -915,6 +916,7 @@
                 var InvoiceID = $(this).find("[name=InvoiceID]").val();
                 var _url = baseurl + '/invoice/' + InvoiceID + '/send';
                 submit_ajax(_url, post_data);
+				
             });
 
             $("#bulk-invoice-send").click(function (ev) {

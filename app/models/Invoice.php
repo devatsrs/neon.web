@@ -98,9 +98,9 @@ class Invoice extends \Eloquent {
                 $InvoiceTemplateID = $billingClass->InvoiceTemplateID;
                 $PaymentDueInDays = $billingClass->PaymentDueInDays;
             }else{
-                $AccountBilling = AccountBilling::getBilling($Invoice->AccountID);
-                $InvoiceTemplateID = AccountBilling::getInvoiceTemplateID($Invoice->AccountID);
-                $PaymentDueInDays = AccountBilling::getPaymentDueInDays($Invoice->AccountID);
+				$BillingClassID = self::GetInvoiceBillingClass($Invoice);
+				$InvoiceTemplateID = self::GetInvoiceTemplateID($Invoice);
+                $PaymentDueInDays = BillingClass::getPaymentDueInDays($BillingClassID);
             }
 
             $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
@@ -121,7 +121,7 @@ class Invoice extends \Eloquent {
             $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
 
 			$print_type = 'Invoice';
-            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','AccountBilling','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates'))->render();
+            $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates'))->render();
 
             $body = htmlspecialchars_decode($body);  
             $footer = View::make('invoices.pdffooter', compact('Invoice','print_type'))->render();
@@ -155,10 +155,16 @@ class Invoice extends \Eloquent {
             @chmod($footer_html,0777);
 
             $output= "";
-            if(getenv('APP_OS') == 'Linux'){
+           /* if(getenv('APP_OS') == 'Linux'){
                 exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }else{
                 exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe  --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" -- footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+            }*/
+			 if(getenv('APP_OS') == 'Linux'){
+                exec (base_path(). '/wkhtmltox/bin/wkhtmltopdf --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
+
+            }else{
+                exec (base_path().'/wkhtmltopdf/bin/wkhtmltopdf.exe --header-spacing 3 --footer-spacing 1 --header-html "'.$header_html.'" --footer-html "'.$footer_html.'" "'.$local_htmlfile.'" "'.$local_file.'"',$output);
             }
             @chmod($local_file,0777);
             Log::info($output); 
@@ -276,4 +282,23 @@ class Invoice extends \Eloquent {
         }
         return $Message;
     }
+	
+	public static function GetInvoiceBillingClass($Invoice)
+	{
+			if(isset($Invoice->BillingClassID))
+			{
+				$InvoiceBillingClass	 =	 $Invoice->BillingClassID;
+			}
+			else
+			{
+				$AccountBilling 	  	=  	 AccountBilling::getBilling($Invoice->AccountID);
+				$InvoiceBillingClass 	= 	 $AccountBilling->BillingClassID;	
+			}	
+			return $InvoiceBillingClass;
+	}
+	
+	public static function GetInvoiceTemplateID($Invoice){
+	  	$billingclass = 	self::GetInvoiceBillingClass($Invoice);
+		return BillingClass::getInvoiceTemplateID($billingclass);
+	}
 }

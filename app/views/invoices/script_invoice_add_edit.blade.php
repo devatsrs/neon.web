@@ -3,8 +3,9 @@
  * Created by deven on 07/07/2015.
  */
 $(document).ready(function(){
-
-    var USAGE = '{{Product::USAGE}}';
+	show_summerinvoicetemplate($("[name=Terms]"));
+	show_summerinvoicetemplate($("[name=FooterTerm]"));	
+	var USAGE = '{{Product::USAGE}}';
     var SUBSCRIPTION = '{{Product::SUBSCRIPTION}}';
     var ITEM = '{{Product::ITEM}}';
     var txtUSAGE                    =   '{{ucFirst(Product::$TypetoProducts[Product::USAGE])}}';
@@ -24,19 +25,22 @@ $(document).ready(function(){
     * */
 
     function getCalculateInvoiceByProduct(product_type,productID,AccountID,qty,callback){
-        post_data = {"product_type":product_type,"product_id":productID,"account_id":AccountID,"qty":qty};
+		var AccountBillingClassID = $('#AccountBillingClassID').val();
+        post_data = {"product_type":product_type,"product_id":productID,"account_id":AccountID,"qty":qty,"BillingClassID":AccountBillingClassID};
         var _url = baseurl + '/invoice/calculate_total';
         $.post( _url, post_data, callback, "json" );
     }
 
     function getCalculateInvoiceBySubscription(product_type,productID,AccountID,qty,callback){
-        post_data = {"product_type":product_type,"product_id":productID,"account_id":AccountID,"qty":qty};
+		var AccountBillingClassID = $('#AccountBillingClassID').val();
+        post_data = {"product_type":product_type,"product_id":productID,"account_id":AccountID,"qty":qty,"BillingClassID":AccountBillingClassID};
         var _url = baseurl + '/invoice/calculate_total';
         $.post( _url, post_data, callback, "json" );
     }
 
     function getCalculateInvoiceByDuration(product_type,productID,AccountID,qty,start_date,end_date,InvoiceDetailID,callback){
-        post_data = {"product_type":product_type, "product_id":productID,"account_id":AccountID,"qty":qty,"start_date":start_date,"end_date":end_date,"InvoiceDetailID":InvoiceDetailID};
+		var AccountBillingClassID = $('#AccountBillingClassID').val();
+        post_data = {"product_type":product_type, "product_id":productID,"account_id":AccountID,"qty":qty,"start_date":start_date,"end_date":end_date,"InvoiceDetailID":InvoiceDetailID,"BillingClassID":AccountBillingClassID};
         var _url = baseurl + '/invoice/calculate_total';
         $.post( _url, post_data, callback, "json" );
     }
@@ -486,6 +490,7 @@ $(document).ready(function(){
                     $("#Account_Address").html(response.InvoiceToAddress);
                     $("input[name=CurrencyCode]").val(response.Currency);
                     $("input[name=CurrencyID]").val(response.CurrencyId);
+					$("#AccountBillingClassID").val(response.BillingClassID).trigger('change'); 
                     $('#add-new-billing_subscription-form [data-type="currency"]').val(response.CurrencyId).trigger('change');
                     if($('#add-new-billing_subscription-form input[name=CurrencyID]').length > 0) {
                         $('#add-new-billing_subscription-form input[name=CurrencyID]').val(response.CurrencyId);
@@ -498,12 +503,41 @@ $(document).ready(function(){
 					add_invoce_tax(response.AccountTaxRate);
                     InvoiceTemplateID = response.InvoiceTemplateID;
                 }
-
+				show_summerinvoicetemplate($("[name=Terms]"));
+				show_summerinvoicetemplate($("[name=FooterTerm]"));	
             });
         }
 
     });
 	
+	$("#AccountBillingClassID").change( function (e) {
+		
+        url = baseurl + "/invoice/get_billingclass_info";
+        $this = $(this);
+        data = {BillingClassID:$this.val(),account_id:$("select[name=AccountID]").val()}
+        if($this.val() > 0){
+            ajax_json(url,data,function(response){
+                if ( typeof response.status != undefined &&  response.status == 'failed') {
+                    toastr.error(response.message, "Error", toastr_opts);
+                    $("#Account_Address").html('');
+                   
+                    $("input[name=InvoiceTemplateID]").val('');
+                    $("[name=Terms]").val('');
+                    $("[name=FooterTerm]").val('');
+                } else {
+                    $("#Account_Address").html(response.InvoiceToAddress);
+                    $("input[name=InvoiceTemplateID]").val(response.InvoiceTemplateID);
+                    $("[name=Terms]").val(response.Terms);
+                    $("[name=FooterTerm]").val(response.FooterTerm);
+					add_invoce_tax(response.AccountTaxRate);
+                    InvoiceTemplateID = response.InvoiceTemplateID;
+                }
+				show_summerinvoicetemplate($("[name=Terms]"));
+				show_summerinvoicetemplate($("[name=FooterTerm]"));	
+            });
+        }   
+	
+	});
 	function add_invoce_tax(AccountTaxRate){		
 		$('.all_tax_row').remove();
 		if(AccountTaxRate.length>0){			
