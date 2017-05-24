@@ -249,6 +249,14 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accounts/activity_pdf_download/{id}', 'AccountsController@activity_pdf_download');
 
 	//Account Subscription
+	Route::any('account_subscription', 'AccountSubscriptionController@main');
+	Route::any('account_subscription/ajax_datagrid_page', 'AccountSubscriptionController@ajax_datagrid_page');
+	Route::any('account_subscription/{id}/get_services	', 'AccountSubscriptionController@GetAccountServices')->where('id', '(.[09]*)+');
+	Route::any('account_subscription/{id}/get_subscriptions	', 'AccountSubscriptionController@GetAccountSubscriptions')->where('id', '(.[09]*)+');	
+	Route::any('account_subscription/{id}/store', 'AccountSubscriptionController@store');
+	Route::any('account_subscription/{subscription_id}/update', 'AccountSubscriptionController@update')->where('subscription_id', '(.[09]*)+');
+	Route::any('account_subscription/{subscription_id}/delete', 'AccountSubscriptionController@delete')->where('subscription_id', '(.[09]*)+');
+	
 	Route::any('accounts/{id}/subscription/ajax_datagrid', 'AccountSubscriptionController@ajax_datagrid');
 	Route::any('accounts/{id}/subscription/store', 'AccountSubscriptionController@store');
 	Route::any('accounts/{id}/subscription/{subscription_id}/update', 'AccountSubscriptionController@update')->where('subscription_id', '(.[09]*)+');
@@ -1214,8 +1222,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('services/delete/{id}', 'ServicesController@delete');
 	Route::any('services/exports/{type}', 'ServicesController@exports');
 
-	//accountservice
-	Route::any('accountservices/{id}', 'AccountServiceController@index');
+	//accountservice	
 	Route::any('accountservices/{id}/addservices', 'AccountServiceController@addservices');
 	Route::any('accountservices/{id}/edit/{serviceid}', 'AccountServiceController@edit');
 	Route::any('accountservices/{id}/ajax_datagrid', 'AccountServiceController@ajax_datagrid');
