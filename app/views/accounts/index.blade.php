@@ -422,7 +422,7 @@
                                 <?php } ?>
 								
 								if(full[9]==1 || full[10]==1){
-                                 	action += '&nbsp;<a href="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></a>';
+                                 	action += '&nbsp;<button redirecto="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></button>';
                                 } 
 								
 								<?php if(User::checkCategoryPermission('AccountService','View')) { ?>
@@ -458,13 +458,13 @@
 
                                 if(full[9]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
-                                        action += '&nbsp;<a href="'+customer_rate_+'" title="Customer" class="btn small_icons btn-warning btn-xs"><i class="entypo-user"></i></a>';
+                                        action += '&nbsp;<button redirecto="'+customer_rate_+'" title="Customer" class="btn small_icons btn-warning btn-xs"><i class="entypo-user"></i></button>';
                                     <?php } ?>
                                 }
 
                                 if(full[10]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
-                                        action += '&nbsp;<a href="'+vendor_blocking_+'" title="Vendor" class="btn small_icons btn-info btn-xs"><i class="fa fa-slideshare"></i></a>';
+                                        action += '&nbsp;<button redirecto="'+vendor_blocking_+'" title="Vendor" class="btn small_icons btn-info btn-xs"><i class="fa fa-slideshare"></i></button>';
                                     <?php } ?>
                                 } 								
 								
