@@ -5,6 +5,15 @@ ALTER TABLE `tblUsageHeader`
 
 ALTER TABLE `tblVendorCDRHeader`
   ADD COLUMN `ServiceID` int(11) NULL DEFAULT '0';
+  
+SET @tables = NULL;
+SELECT GROUP_CONCAT('`', table_schema, '`.`', table_name,'`') INTO @tables FROM information_schema.tables 
+WHERE table_schema = 'RMCDR3' AND table_name LIKE BINARY 'tblTemp%';
+
+SET @tables = CONCAT('DROP TABLE ', @tables);
+PREPARE stmt1 FROM @tables;
+EXECUTE stmt1;
+DEALLOCATE PREPARE stmt1;
 
 DROP PROCEDURE IF EXISTS `prc_insertCDR`;
 
