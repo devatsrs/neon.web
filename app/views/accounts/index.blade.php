@@ -409,7 +409,7 @@
                                 
 								
 								<?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
-                               // action +='&nbsp;<button class="btn  btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
+                                action +='&nbsp;<button class="btn  btn-default btn-xs small_icons" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
                                 <?php } ?>
 
                                 <?php if(User::checkCategoryPermission('AccountActivityChart','View')){ ?>
