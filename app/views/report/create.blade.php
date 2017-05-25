@@ -39,6 +39,9 @@
                             <div class="col-sm-9 vertical-border border_left">
                                 <input type="hidden" id="hidden_row" name="row">
                                 <input type="hidden" id="hidden_columns" name="column">
+                                <input type="hidden" id="hidden_filter" name="filter">
+                                <input type="hidden" id="hidden_filter_col" name="filter_col_name">
+                                <input type="hidden" id="hidden_setting" name="filter_settings">
                                 <label for="field-5" class="control-label">Columns</label>
                                 <div id="Columns_Drop" class="form-control ui-widget-content ui-state-default select2-container select2-container-multi">
                                     <ul class=" select2-choices ui-helper-reset"></ul>
@@ -59,64 +62,15 @@
                                     <div   class="col-sm-12 vertical-border border_bottom" style="margin-top: 15px;padding-top: 15px">
                                         <div class="nested-list dd with-margins">
                                             <ul id="Dimension" class=" ui-helper-reset ui-helper-clearfix">
-                                                <li class="dd-item">
-                                                    <div>
-                                                        DateTime
-                                                    </div>
-                                                    <ul class="dd-list">
-                                                        <li class="dd-item select2-search-choice dimension" data-val="year">
+                                                @foreach($dimensions as $cube => $dimension)
+                                                    @foreach($dimension as $dimension_key => $dimension_val)
+                                                        <li class="dd-item select2-search-choice dimension" data-cube="{{$cube}}" data-val="{{$dimension_key}}">
                                                             <div class="dd-handle">
-                                                                Year
+                                                                {{$dimension_val}}
                                                             </div>
                                                         </li>
-                                                        <li class="dd-item select2-search-choice dimension" data-val="quarter_of_year">
-                                                            <div class="dd-handle">
-                                                                Quarter
-                                                            </div>
-                                                        </li>
-                                                        <li class="dd-item select2-search-choice dimension" data-val="month">
-                                                            <div class="dd-handle">
-                                                                Month
-                                                            </div>
-                                                        </li>
-                                                        <li class="dd-item select2-search-choice dimension" data-val="week_of_year">
-                                                            <div class="dd-handle">
-                                                                Week
-                                                            </div>
-                                                        </li>
-                                                        <li class="dd-item select2-search-choice dimension" data-val="date">
-                                                            <div class="dd-handle">
-                                                                Day
-                                                            </div>
-                                                        </li>
-                                                    </ul>
-                                                </li>
-                                                <li class="dd-item select2-search-choice dimension" data-val="AccountID">
-                                                    <div class="dd-handle">
-                                                        Account
-                                                    </div>
-                                                </li>
-                                                <li class="dd-item select2-search-choice dimension" data-val="CompanyGatewayID">
-                                                    <div class="dd-handle">
-                                                        Gateway
-                                                    </div>
-                                                </li>
-                                                <li class="dd-item select2-search-choice dimension" data-val="Trunk">
-                                                    <div class="dd-handle">
-                                                        Trunk
-                                                    </div>
-                                                </li>
-                                                <li class="dd-item select2-search-choice dimension" data-val="CountryID">
-                                                    <div class="dd-handle">
-                                                        Country
-                                                    </div>
-                                                </li>
-                                                <li class="dd-item select2-search-choice dimension" data-val="AreaPrefix">
-                                                    <div class="dd-handle">
-                                                        Prefix
-                                                    </div>
-                                                </li>
-
+                                                    @endforeach
+                                                @endforeach
                                             </ul>
 
                                         </div>
@@ -127,26 +81,15 @@
                                     <div class="col-sm-12 vertical-border" style="margin-top: 15px;padding-top: 15px">
                                         <div id="list-1" class="nested-list dd with-margins">
                                             <ul id="Measures" class="dd-list">
-                                                <li class="dd-item select2-search-choice measures" data-val="TotalCharges">
-                                                    <div class="dd-handle">
-                                                        Cost
-                                                    </div>
-                                                </li>
-                                                <li class="dd-item select2-search-choice measures" data-val="TotalBilledDuration">
-                                                    <div class="dd-handle">
-                                                        Duration
-                                                    </div>
-                                                </li>
-                                                <li class="dd-item select2-search-choice measures" data-val="NoOfCalls">
-                                                    <div class="dd-handle">
-                                                        No Of Calls
-                                                    </div>
-                                                </li>
-                                                <li class="dd-item select2-search-choice measures" data-val="NoOfFailCalls">
-                                                    <div class="dd-handle">
-                                                        No Of Failed Calls
-                                                    </div>
-                                                </li>
+                                                @foreach($measures as $cube => $measure)
+                                                    @foreach($measure as $measure_key => $measure_val)
+                                                        <li class="dd-item select2-search-choice dimension" data-cube="{{$cube}}" data-val="{{$measure_key}}">
+                                                            <div class="dd-handle">
+                                                                {{$measure_val}}
+                                                            </div>
+                                                        </li>
+                                                    @endforeach
+                                                @endforeach
                                             </ul>
                                         </div>
                                     </div>
@@ -170,15 +113,28 @@
         .select2-container-multi .select2-choices .select2-search-choice{
             padding: 0px;
         }
+        .dataTables_filter label{
+            display:none !important;
+        }
+        .dataTables_wrapper .export-data{
+            right: 30px !important;
+        }
+        #selectcheckbox{
+            padding: 15px 10px;
+        }
+
+        .li_active{display:none;}
 
     </style>
     <script>
+        var checked = '';
         $( function() {
 
             // There's the Dimension and the Measures
             var $Dimension = $( "#Dimension" ),
                 $Measures = $( "#Measures" ),
                 $Columns = $( "#Columns_Drop" ),
+                $Filter = $( "#Filter_Drop" ),
                 $Row = $( "#Row_Drop" );
 
             // Let the Dimension items be draggable
@@ -203,6 +159,12 @@
                 classes: {
                     "ui-droppable-active": "ui-state-highlight"
                 },
+                out: function( event, ui ) {
+                    var drop_ele_val = $(ui.draggable).attr('data-val');
+                    if( $Dimension.find('[data-val="'+drop_ele_val+'"]').length == 1 || $Measures.find('[data-val="'+drop_ele_val+'"]').length) {
+                        $Columns.find('[data-val="'+drop_ele_val+'"]').remove();
+                    }
+                },
                 drop: function( event, ui ) {
 
                     deleteImage( ui.draggable,$Columns );
@@ -222,6 +184,12 @@
                 classes: {
                     "ui-droppable-active": "ui-state-highlight"
                 },
+                out: function( event, ui ) {
+                    var drop_ele_val = $(ui.draggable).attr('data-val');
+                    if( $Dimension.find('[data-val="'+drop_ele_val+'"]').length == 1 || $Measures.find('[data-val="'+drop_ele_val+'"]').length) {
+                        $Row.find('[data-val="'+drop_ele_val+'"]').remove();
+                    }
+                },
                 drop: function( event, ui ) {
                     deleteImage( ui.draggable,$Row );
                     update_columns(ui.draggable,'remove',0);
@@ -230,64 +198,50 @@
                 }
             });
 
-            // Let the Dimension be droppable as well, accepting items from the Measures
-            $Dimension.droppable({
-                accept: ".dimension",
+            // Let the Measures be droppable, accepting the Dimension items
+            $Filter.droppable({
+                accept: function(d) {
+                    if(d.hasClass("dimension")){
+                        return true;
+                    }
+                },
                 classes: {
-                    "ui-droppable-active": "custom-state-active"
+                    "ui-droppable-active": "ui-state-highlight"
+                },
+                out: function( event, ui ) {
+                    var drop_ele_val = $(ui.draggable).attr('data-val');
+                    if( $Dimension.find('[data-val="'+drop_ele_val+'"]').length == 1 || $Measures.find('[data-val="'+drop_ele_val+'"]').length) {
+                        $Filter.find('[data-val="'+drop_ele_val+'"]').remove();
+                    }
                 },
                 drop: function( event, ui ) {
-                    recycleImage( ui.draggable,$Dimension);
-                    update_rows(ui.draggable,'remove',1);
-                    update_columns(ui.draggable,'remove',1);
+                    deleteImage( ui.draggable,$Filter );
+                    update_filter(ui.draggable,'add',0);
+                    show_filter(ui.draggable);
+                    //update_rows(ui.draggable,'add',1);
 
                 }
             });
 
-            // Let the Dimension be droppable as well, accepting items from the Measures
-            $Measures.droppable({
-                accept: ".measures",
-                classes: {
-                    "ui-droppable-active": "custom-state-active"
-                },
-                drop: function( event, ui ) {
-                    recycleImage( ui.draggable, $Measures);
-                    update_rows(ui.draggable,'remove',1);
-                    update_columns(ui.draggable,'remove',1);
-
-                }
-            });
 
 
             function deleteImage( $item, $droppable) {
-                $item.fadeOut(function() {
+                var element=$item.clone();
+                var drop_ele_val = $(element).attr('data-val');
+                if( $droppable.find('[data-val="'+drop_ele_val+'"]').length == 0){
                     var $list = $( "ul", $droppable ).length ?
-                        $( "ul", $droppable ) :
-                        $( "<ul class=' select2-choices ui-helper-reset'/>" ).appendTo( $droppable );
-
-                    //$item.find( "a.ui-icon-trash" ).remove();
-                    $item.appendTo( $list ).fadeIn();
-                });
+                            $( "ul", $droppable ) :
+                            $( "<ul class=' select2-choices ui-helper-reset'/>" ).appendTo( $droppable );
+                    $(element).draggable({helper: 'clone'});
+                    $(element).appendTo( $list ).fadeIn();
+                }
             }
 
-            var trash_icon = '';
-            function recycleImage( $item ,$droppable) {
-                $item.fadeOut(function() {
-                    $item
-                        .find( "a.ui-icon-refresh" )
-                        .remove()
-                        .end()
-                        .append( trash_icon )
-                        .find( "img" )
-                        .end()
-                        .appendTo( $droppable )
-                        .fadeIn();
-                });
-            }
+
             //reload_table();
             function reload_table(){
-                var data = $("#report-row-col").serialize();
-                loading_table('.table_report_overflow',1);
+                var data = $("#report-row-col").serialize()+'&'+$("#add-new-filter-form").serialize();
+                /*loading_table('.table_report_overflow',1);
                 $.ajax({
                     url:baseurl +'/report/getdatagrid', //Server script to process data
                     type: 'POST',
@@ -299,7 +253,7 @@
                     data: data,
                     //Options to tell jQuery not to process data or worry about content-type.
                     cache: false
-                });
+                });*/
             }
             $("#hidden_row").on('change', function () {
                 reload_table();
@@ -361,6 +315,159 @@
                 }
 
             }
+            function show_filter($items){
+                $items.attr('data-val');
+                var data = $("#report-row-col").serialize();
+
+                data_table_filter = $("#table-filter-list").dataTable({
+                    "bDestroy": true,
+                    "bProcessing":true,
+                    "bServerSide":true,
+                    "sAjaxSource": baseurl + "/report/getdatalist",
+                    "iDisplayLength": 10,
+                    "sPaginationType": "bootstrap",
+                    "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                    "aaSorting": [[0, 'asc']],
+                    "fnServerParams": function(aoData) {
+                        aoData.push(
+                                {"name":"filter_col_name","value":$("#hidden_filter_col").val()},
+                                {"name":"Cube","value":$("#report-row-col [name='Cube']").val()}
+
+                        );
+                        data_table_extra_params.length = 0;
+                        data_table_extra_params.push(
+                                {"name":"filter_col_name","value":$("#hidden_filter_col").val()},
+                                {"name":"Cube","value":$("#report-row-col [name='Cube']").val()},
+                                {"name":"Export","value":1}
+                        );
+                    },
+                    "aoColumns":
+                            [
+                                {"bSortable": false,
+                                    mRender: function(id, type, full) {
+                                        return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                    }
+                                }, //0Checkbox
+                                { "bSortable": true}
+                            ],
+                    "oTableTools": {
+                        "aButtons": [
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "EXCEL",
+                                "sUrl": baseurl + "/currency/exports/xlsx",
+                                sButtonClass: "save-collection btn-sm"
+                            },
+                            {
+                                "sExtends": "download",
+                                "sButtonText": "CSV",
+                                "sUrl": baseurl + "/currency/exports/csv",
+                                sButtonClass: "save-collection btn-sm"
+                            }
+                        ]
+                    }
+                });
+                $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
+                $(".dataTables_wrapper select").select2({
+                    minimumResultsForSearch: -1
+                });
+                $("#table-filter-list tbody input[type=checkbox]").each(function (i, el) {
+                    var $this = $(el),
+                            $p = $this.closest('tr');
+
+                    $(el).on('change', function () {
+                        var is_checked = $this.is(':checked');
+
+                        $p[is_checked ? 'addClass' : 'removeClass']('highlight');
+                    });
+                });
+                $(document).on('click', '#table-filter-list tbody tr,.gridview ul li div.box', function() {
+                    if (checked =='') {
+                        $(this).toggleClass('selected');
+                        if($(this).is('tr')) {
+                            if ($(this).hasClass('selected')) {
+                                $(this).find('.rowcheckbox').prop("checked", true);
+                            } else {
+                                $(this).find('.rowcheckbox').prop("checked", false);
+                            }
+                        }
+                    }
+                });
+                $("#selectall").click(function(ev) {
+                    var is_checked = $(this).is(':checked');
+                    $('#table-filter-list tbody tr').each(function(i, el) {
+                        if (is_checked) {
+                            $(this).find('.rowcheckbox').prop("checked", true);
+                            $(this).addClass('selected');
+                        } else {
+                            $(this).find('.rowcheckbox').prop("checked", false);
+                            $(this).removeClass('selected');
+                        }
+                    });
+                });
+                // Replace Checboxes
+                $(".pagination a").click(function (ev) {
+                    replaceCheckboxes();
+                });
+                //select all record
+                $('#selectallbutton').click(function(){
+                    if($('#selectallbutton').is(':checked')){
+                        checked = 'checked=checked disabled';
+                        $("#selectall").prop("checked", true).prop('disabled', true);
+                        //if($('.gridview').is(':visible')){
+                        $('.gridview li div.box').each(function(i,el){
+                            $(this).addClass('selected');
+                        });
+                        //}else{
+                        $('#table-filter-list tbody tr').each(function (i, el) {
+                            $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                            $(this).addClass('selected');
+                        });
+                        //}
+                    }else{
+                        checked = '';
+                        $("#selectall").prop("checked", false).prop('disabled', false);
+                        //if($('.gridview').is(':visible')){
+                        $('.gridview li div.box').each(function(i,el){
+                            $(this).removeClass('selected');
+                        });
+                        //}else{
+                        $('#table-filter-list tbody tr').each(function (i, el) {
+                            $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                            $(this).removeClass('selected');
+                        });
+                        //}
+                    }
+                });
+                $('#add-new-modal-filter').modal('show');
+            }
+
+            function update_filter($item,action,trigger) {
+                var rows = [];
+                var previous_val = $("#hidden_filter").val();
+                if($("#hidden_filter").val() != '') {
+                    rows = $("#hidden_filter").val().split(',');
+                }
+                //if(action == 'remove') {
+                var index = rows.indexOf($item.attr('data-val'));
+                if (index > -1) {
+                    rows.splice(index, 1);
+                }
+                //}
+                if(action == 'add') {
+                    rows[rows.length] = $item.attr('data-val');
+                    $('#hidden_filter_col').val($item.attr('data-val'));
+                }
+                $("#hidden_filter").val(rows.join(","));
+                if($("#hidden_filter").val() != previous_val && trigger == 1){
+                    $("#hidden_filter").trigger('change');
+                }
+
+            }
+            $('#report-update').click(function(){
+                reload_table();
+            });
+            $("#hidden_filter").val('');
             $("#hidden_row").val('');
             $("#hidden_columns").val('');
         } );

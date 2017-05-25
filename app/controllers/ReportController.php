@@ -7,7 +7,23 @@ class ReportController extends \BaseController {
     }
 
     public function create(){
-        return View::make('report.create', compact(''));
+       /* $data['column'] = array('AccountID');
+        $data['row'] = array('Trunk','CompanyGatewayID');
+        $data['sum'] = array('NoOfCalls','TotalCharges');
+        $cube = 'summary';
+        $CompanyID = User::get_companyID();
+        $response = Report::generateDynamicTable($CompanyID,$cube,$data);
+        //print_r($response);exit;
+        //echo generateReportTable($data,$response);
+        echo generateReportTable2($data,$response);
+        //exit;*/
+
+        $dimensions = Report::$dimension;
+        $measures = Report::$measures;
+
+        $Columns = Report::$dimension['summary']+Report::$measures['summary'];
+
+        return View::make('report.create', compact('dimensions','measures','Columns'));
     }
     public function edit(){
         return View::make('report.edit', compact(''));
@@ -70,5 +86,14 @@ class ReportController extends \BaseController {
             $response = Report::generateDynamicTable($CompanyID, $cube, $data);
         }
         return json_encode(generateReportTable2($data,$response));
+    }
+
+    public function getdatalist(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $data['iDisplayStart'] +=1;
+        $ColName = $data['filter_col_name'];
+        $query = "CALL prc_getDistinctList('".$CompanyID."','".$ColName."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].")";
+        return DataTableSql::of($query,'neon_report')->make();
     }
 }

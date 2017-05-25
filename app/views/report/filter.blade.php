@@ -17,24 +17,14 @@
 
 
         <div class="filter-group" id="group-1">
-            <label for="field-1" class="col-sm-12 control-label">Name</label>
-            <div class="col-sm-12">
-                <input class="form-control" name="account_name"  type="text" >
-            </div>
-            <label for="field-1" class="col-sm-12 control-label">Number</label>
-            <div class="col-sm-12">
-                <input class="form-control" name="account_number"  type="text" >
-            </div>
-            <label class="col-sm-12 control-label"  >Customer</label>
-            <div class="col-sm-12">
-                <p class="make-switch switch-small">
-                    <input id="Customer_on_off" name="customer_on_off" type="checkbox" value="1" >
-                </p>
+            <label for="field-5" class="control-label">Filters</label>
+            <div id="Filter_Drop" class="col-sm-12 ui-widget-content ui-state-default select2-container select2-container-multi">
+                <ul class=" select2-choices ui-helper-reset"></ul>
             </div>
             <p style="text-align: right;">
                 <button type="submit" class="btn btn-green btn-sm btn-icon icon-left">
-                    <i class="entypo-search"></i>
-                    Search
+                    <i class="entypo-floppy"></i>
+                    Save
                 </button>
             </p>
         </div>
@@ -128,4 +118,164 @@
 
     }
 </script>
+
+<div class="modal fade" id="add-new-modal-filter">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="add-new-filter-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add New Filter</h4>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs refresh_tab">
+                            <li class="active"><a href="#general" data-toggle="tab">General</a></li>
+                            <li ><a href="#wildcard" data-toggle="tab">Wildcard</a></li>
+                            <li ><a href="#condition" data-toggle="tab">Condition</a></li>
+                            <li ><a href="#top" data-toggle="tab">Top</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="general" >
+                            <div class="row margin-top">
+                                <div class="col-md-12">
+                                    <table class="table table-bordered datatable" id="table-filter-list">
+                                        <thead>
+                                        <tr>
+                                            <th><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+                                            <th>Name</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="wildcard" >
+                            <div class="row margin-top">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="field-5" class="control-label">Match Value</label>
+                                        <input type="text"  name="wildcard_match_val" class="form-control" id="field-5" placeholder="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="condition" >
+                            <div class="row margin-top">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio"  value="none" checked name="condition" class="" id="field-5" placeholder="">None
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="condition" value="condition_active" class="" id="field-5" placeholder="">
+                                                By Field
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 clear">
+                                    <div class="form-group">
+                                        {{Form::select('condition_col',$Columns,'',array("class"=>"select2 small"))}}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{Form::select('condition_agg',Report::$aggregator,'',array("class"=>"select2 small"))}}
+                                    </div>
+                                </div>
+                                <div class="col-md-6 clear">
+                                    <div class="form-group">
+                                        {{Form::select('Condition_sign',Report::$condition,'',array("class"=>"select2 small"))}}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="condition_agg_val" value="" class="form-control" id="field-5" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6 clear">
+                                    <div class="form-group">
+                                        <label for="field-5" class="control-label">Range Min</label>
+                                        <input type="text" name="condition_agg_range_min" value="" class="form-control" id="field-5" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="field-5" class="control-label">Range Max</label>
+                                        <input type="text" name="condition_agg_range_max" value="" class="form-control" id="field-5" placeholder="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="top" >
+                            <div class="row margin-top">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio"  value="none" checked name="top" class="" id="field-5" placeholder="">
+                                                None
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div class="radio">
+                                            <label>
+                                                <input type="radio" name="top" value="top_active" class="" id="field-5" placeholder="">
+                                                By Field
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 clear">
+                                    <div class="form-group">
+                                        {{Form::select('top_agg_con',Report::$top,'',array("class"=>"select2 small"))}}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" name="top_agg" value="" class="form-control" id="field-5" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="col-md-6 clear">
+                                    <div class="form-group">
+                                        {{Form::select('condition_col',$Columns,'',array("class"=>"select2 small"))}}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{Form::select('condition_agg',Report::$aggregator,'',array("class"=>"select2 small"))}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="report-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @stop

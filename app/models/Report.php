@@ -17,12 +17,54 @@ class Report extends \Eloquent {
     );
 
     public static $dimension = array(
-        'summary'=>array('year','quarter_of_year','month','week_of_year','date','AccountID','CompanyGatewayID','Trunk','CountryID','AreaPrefix'),
+        'summary'=>array(
+            'year' => 'Year',
+            'quarter_of_year' => 'Quarter' ,
+            'month' => 'Month',
+            'week_of_year' => 'Week',
+            'date' => 'Day',
+            'AccountID' =>'Account',
+            'CompanyGatewayID' =>'Gateway',
+            'Trunk' => 'Trunk',
+            'CountryID' => 'Country',
+            'AreaPrefix' => 'Prefix',
+            'GatewayAccountID' => 'IP/CLI'
+        ),
     );
 
     public static $measures = array(
-        'summary'=>array('TotalCharges','TotalBilledDuration','NoOfCalls','NoOfFailCalls'),
+        'summary'=>array(
+            'TotalCharges' => 'Cost',
+            'TotalBilledDuration' => 'Duration',
+            'NoOfCalls' => 'No Of Calls',
+            'NoOfFailCalls' => 'No Of Failed Calls'
+        ),
     );
+
+    public static $aggregator = array(
+        'SUM' => 'Sum',
+        'AVG' => 'Average',
+        'COUNT' => 'Count',
+        'COUNT_DISTINCT' => 'Count(Distinct)',
+        'MAX' => 'Maximum',
+        'MIN' => 'Minimum',
+    );
+
+    public static $condition = array(
+        '=' => '=',
+        '<>' => '<>',
+        '<' => '<',
+        '<=' => '<=',
+        '>' => '>',
+        '>=' => '>=',
+    );
+
+    public static $top = array(
+        'top' => 'Top',
+        'bottom' => 'Bottom',
+
+    );
+
 
 
     public static  function generateDynamicTable($CompanyID,$cube,$data=array()){
@@ -134,6 +176,23 @@ class Report extends \Eloquent {
             }
         }
         return $header_array;
+    }
+
+    public static function getDistinctList($ColumnName){
+        $name = '';
+        switch ($ColumnName) {
+            case 'CompanyGatewayID':
+                $name = CompanyGateway::getCompanyGatewayIdList();
+                break;
+            case 'AccountID':
+                $name = Account::getAccountIDList();
+                break;
+            case 'CountryID':
+                $name = Country::getCountryDropdownList();
+                break;
+
+        }
+        return $name;
     }
 
 
