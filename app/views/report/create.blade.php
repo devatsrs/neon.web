@@ -128,6 +128,7 @@
     </style>
     <script>
         var checked = '';
+        var filter_settings = {};
         $( function() {
 
             // There's the Dimension and the Measures
@@ -241,7 +242,7 @@
             //reload_table();
             function reload_table(){
                 var data = $("#report-row-col").serialize()+'&'+$("#add-new-filter-form").serialize();
-                /*loading_table('.table_report_overflow',1);
+                loading_table('.table_report_overflow',1);
                 $.ajax({
                     url:baseurl +'/report/getdatagrid', //Server script to process data
                     type: 'POST',
@@ -253,7 +254,7 @@
                     data: data,
                     //Options to tell jQuery not to process data or worry about content-type.
                     cache: false
-                });*/
+                });
             }
             $("#hidden_row").on('change', function () {
                 reload_table();
@@ -345,7 +346,7 @@
                             [
                                 {"bSortable": false,
                                     mRender: function(id, type, full) {
-                                        return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                        return '<div class="checkbox "><input type="checkbox" name="'+$("#hidden_filter_col").val()+'[]" value="' + id + '" class="rowcheckbox" ></div>';
                                     }
                                 }, //0Checkbox
                                 { "bSortable": true}
@@ -464,7 +465,10 @@
                 }
 
             }
-            $('#report-update').click(function(){
+            $('#report-update').click(function(e){
+                filter_settings[$("#hidden_filter_col").val()] = $("#add-new-filter-form").serialize();
+                $('#hidden_setting').val(JSON.stringify(filter_settings));
+                e.preventDefault();
                 reload_table();
             });
             $("#hidden_filter").val('');
