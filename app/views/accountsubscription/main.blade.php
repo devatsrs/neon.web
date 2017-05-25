@@ -159,7 +159,7 @@
 						{  "bSortable": true },  // 2 Name
 						{                          // InvoiceDescription
                            "bSortable": true,
-                            mRender: function ( id, type, full ) {return '....';}
+                            mRender: function ( id, type, full ) {return id.length > 50 ? (id.substring(0,50)+' ...'):id}							
                           },  // 2 InvoiceDescription
                         {  "bSortable": true },  // 3 Qty
                         {  "bSortable": true },  // 4 StartDate
