@@ -183,7 +183,7 @@
                                         <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                              data-duration="1500" data-delay="1200">0
                                         </div>
-                                        <p>MOR Balance</p></a></div>
+                                        <p>Total Balance</p></a></div>
                             </div>
                         @endif
                 </div>
@@ -502,7 +502,7 @@
                 option["end"] = response.data.MOR_Balance;
                 option["tileclass"] = 'tile-aqua';
                 option["class"] = 'morbalance';
-                option["type"] = 'MOR Balance';
+                option["type"] = 'Total Balance';
                 /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
                 @endif

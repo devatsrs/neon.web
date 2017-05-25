@@ -207,7 +207,7 @@
                     <div class="col-md-1">
                         @if($hiden_class != '')
                             <button class="btn btn-sm btn-primary tooltip-primary" id="billing_edit" data-original-title="Edit Billing Cycle" title="" data-placement="top" data-toggle="tooltip">
-                                <i class="fa fa-pencil"></i>
+                                <i class="entypo-pencil"></i>
                             </button>
                         @endif
                     </div>
