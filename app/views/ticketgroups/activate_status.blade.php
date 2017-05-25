@@ -16,7 +16,7 @@
   <div class="login-form">
     <div class="login-content">      
       <div class="login-bottom-links"> <a href="{{URL::to('/login')}}" class="link"> <i class="entypo-lock"></i> Return to Login Page </a> <br />
-        <a href="#">ToS</a> - <a href="#">Privacy Policy</a> </div>
+         </div>
     </div>
   </div>
 </div>

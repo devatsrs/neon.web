@@ -27,7 +27,7 @@
             <label for="field-1" class="col-sm-1 control-label small_label">Search</label>
             <div class="col-sm-2"> {{ Form::text('search', '', array("class"=>"form-control")) }} </div>
             <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-            <div class="col-sm-2"> {{Form::select('status[]', $status, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
+            <div class="col-sm-2"> {{Form::select('status[]', $status, $OpenTicketStatus ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
             <label for="field-1" class="col-sm-1 control-label small_label">Priority</label>
             <div class="col-sm-2"> {{Form::select('priority[]', $Priority, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
           </div>
@@ -69,7 +69,7 @@
 .col-time span{color:black;}
 .dropdown_sort li  a{color:white !important;}
 @if(count($result)>0)	 
-#table-4{display: block; padding-bottom:50px;}
+#table-4{padding-bottom:50px;}
 @endif
 .borderside{border-left-style: solid; border-left-width: 8px;}
 .bordersideLow{border-left-color:#00A651;}

@@ -30,12 +30,12 @@
 </ol>
 <h3>Authentication Rule</h3>
 <p style="text-align: right;">
-    @if(User::checkCategoryPermission('AuthenticationRule','Add'))
+
     <button type="button" id="save_account" data-loading-text = "Loading..." class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
         <i class="entypo-floppy"></i>
         Save
     </button>
-    @endif
+
 
     @if($ServiceID=='0')
         <a href="{{URL::to('accounts/'.$account->AccountID.'/edit')}}" class="btn btn-danger btn-sm btn-icon icon-left">
@@ -133,7 +133,7 @@
                                                 {{$cip['ServiceName']}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs customer-delete-ip"> <i class="entypo-trash"></i> </button>
+                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-sm customer-delete-ip"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -242,7 +242,7 @@
                                             </td>
 
                                             <td>
-                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-xs vendor-delete-ip"> <i class="entypo-trash"></i> </button>
+                                                <button type="button" title="delete IP" class="btn btn-danger icon-left btn-sm vendor-delete-ip"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -293,7 +293,7 @@
                                                 {{$row2}}
                                             </td>
                                             <td>
-                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-xs vendor-delete-cli"> <i class="entypo-trash"></i> </button>
+                                                <button type="button" title="delete CLI" class="btn btn-danger icon-left btn-sm vendor-delete-cli"> <i class="entypo-trash"></i> </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -624,7 +624,7 @@
 
 							
 						});
-                        accoutipclihtml += '<td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-trash"></i> </button></td></tr>';
+                        accoutipclihtml += '<td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-sm icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-trash"></i> </button></td></tr>';
 					});
 
 					/*
@@ -636,7 +636,7 @@
 				}else{
 					$.each(authValue, function (index, item) {
 					if(item){
-                    accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td>' + item + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-xs icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-trash"></i> </button></td></tr>';
+                    accoutipclihtml += '<tr><td><div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + index + '" class="rowcheckbox" ></div></td><td>' + item + '</td><td>' + item + '</td><td><button type="button" title="'+class_deletipcli+'" class="btn btn-danger btn-sm icon-left delete-cli '+class_deletipcli +'"> <i class="entypo-trash"></i> </button></td></tr>';
 					}
                 });	
 				}

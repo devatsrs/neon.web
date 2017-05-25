@@ -5,24 +5,12 @@ class TicketsCustomerController extends \BaseController {
 private $validlicense;	
 
 	public function __construct(){
-		$this->validlicense = Tickets::CheckTicketLicense();
-		 if(!$this->validlicense)
-		 {
-			NeonAPI::logout();
-	        Session::flush();
-    	    Auth::logout();
-			Redirect::to('customer/login')->send();
-			//return Redirect::to('customer/login')->with('message', 'Your are now logged out!');
-		 }
-	 } 
-	 
-	 protected function IsValidLicense(){		 
-	 	//return $this->validlicense;		
-	 }
+		parent::validateTicketLicence();		 	 
+	 } 	
 	
 	 public function index(){
 		 
-			$this->IsValidLicense();
+			
 			$CompanyID 		 			= 	 User::get_companyID(); 
 			$data 			 			= 	 array();	
 			$status			 			=    TicketsTable::getCustomerTicketStatus();
@@ -55,10 +43,14 @@ private $validlicense;
 			$companyID 					= 	 User::get_companyID();
 			$array						= 	 $this->GetResult($data); 
 			if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
-				return	Redirect::to('/logout'); 
+				\Illuminate\Support\Facades\Log::info("TicketCustomer 401");
+				\Illuminate\Support\Facades\Log::info(print_r($array,true));
+				//return	Redirect::to('/logout');
 			}		
-			if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
-				Redirect::to('/login');
+			if(isset($array->Code->error) && $array->Code->error=='token_expired'){
+				\Illuminate\Support\Facades\Log::info("TicketCustomer token_expired");
+				\Illuminate\Support\Facades\Log::info(print_r($array,true));
+				//Redirect::to('/login');
 			}
 			
 			$resultpage  				= 	 $array->resultpage;		 
@@ -69,10 +61,10 @@ private $validlicense;
 			$data['currentpage'] 		= 	 0;
 			//echo "<pre>";		print_r($result);			exit;
 			$Groups						= 	TicketGroups::getTicketGroupsFromData($array->GroupsData);				
-			
-		TicketsTable::SetTicketSession($result);
+			$OpenTicketStatus 			=	 TicketsTable::GetOpenTicketStatus();
+			TicketsTable::SetTicketSession($result);
 		
-        return View::make('customer.tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page","pagination"));  
+        return View::make('customer.tickets.index', compact('PageResult','result','iDisplayLength','iTotalDisplayRecords','totalResults','data','EscalationTimes_json','status','Priority','Groups','Agents','Type',"Sortcolumns","per_page","pagination","OpenTicketStatus"));  
 			/////////
 	  }	
 	  
@@ -107,10 +99,14 @@ private $validlicense;
 		$array						= 	 $this->GetResult($data);
 		
 		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
-			return json_response_api($array);  
+			\Illuminate\Support\Facades\Log::info("TicketCustomer 401");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
 		}		
-		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
-			return json_response_api($array);  
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){
+			\Illuminate\Support\Facades\Log::info("TicketCustomer token_expired");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
 		}
 		
 		$resultpage  				= 	 $array->resultpage;		 
@@ -201,15 +197,19 @@ private $validlicense;
 		$data['iDisplayStart']		=	 0;
 		$data['iDisplayLength']		=	 100;	
 		$companyID					= 	 User::get_companyID();
-		$array						=  	 $this->GetResult($data); 
-		
+		$array						=  	 $this->GetResult($data);
+
 		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
-			return json_response_api($array);  
-		}		
-		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
-			return json_response_api($array);  
+			\Illuminate\Support\Facades\Log::info("TicketCustomer 401");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
 		}
-		
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){
+			\Illuminate\Support\Facades\Log::info("TicketCustomer token_expired");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
+		}
+
 		$resultpage  				=  	 $array->resultpage;			
 		$result 					= 	 $array->ResultCurrentPage;		
 		$type						=	 $postdata['export_type'];
@@ -232,7 +232,6 @@ private $validlicense;
 	  
 	function add()
 	{	
-			$this->IsValidLicense();				
 			
 			$response 		=   NeonAPI::request('ticketsfields/getfields',array("fields"=>"simple"),true,false,false);   
 			$data			=	array();	
@@ -269,7 +268,7 @@ private $validlicense;
 	  
 	public function edit($id)
 	{
-		$this->IsValidLicense();
+		
 		$accountemailaddresses	=	  Account::GetAccountAllEmails(User::get_userID(),true);
         $response  		    	=  	  NeonAPI::request('tickets/edit/'.$id,array(),true);
 	
@@ -314,7 +313,7 @@ private $validlicense;
 	  
 	  function Store(){
 		  
-	    $this->IsValidLicense();
+	    
 		$postdata 			= 	Input::all();  
 
 		if(!isset($postdata['Ticket'])){
@@ -354,7 +353,7 @@ private $validlicense;
 	  function Update($id)
 	  {	  
 		  	  
-	    $this->IsValidLicense();
+	    
 		$postdata 			= 	Input::all(); 		
 		
 		if(!isset($postdata['Ticket'])){
@@ -391,7 +390,7 @@ private $validlicense;
 	 }
 	 
 	  function UpdateDetailPage($id){
-	    $this->IsValidLicense();
+	    
 		$postdata 			= 	Input::all(); 		
 		
 		if(!isset($postdata['Ticket'])){
@@ -434,7 +433,7 @@ private $validlicense;
 	
 	function Detail($id){
 		
-		$this->IsValidLicense();
+		
 		$accountemailaddresses	=	 Account::GetAccountAllEmails(User::get_userID(),true);
 		
 		 $response 		=   NeonAPI::request('ticketsfields/GetDynamicFields',array(),true,false,false);   
@@ -519,7 +518,7 @@ private $validlicense;
 	
 	function UpdateTicketAttributes($id)
 	{
-		$this->IsValidLicense();
+		
 		$data 				= 		Input::all();  
 		$data['admin'] 		= 		User::is_admin();		
 		$response 			= 		NeonAPI::request('tickets/updateticketattributes/'.$id,$data,true,false,false);
@@ -528,7 +527,7 @@ private $validlicense;
 	
 	function ActionSubmit($id){
 		
-		$this->IsValidLicense();
+		
 		$postdata    =  Input::all();	
 		
 		 $attachmentsinfo        =	$postdata['attachmentsinfo']; 

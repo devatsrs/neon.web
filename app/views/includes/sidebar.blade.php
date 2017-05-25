@@ -71,6 +71,9 @@
         @if(User::checkCategoryPermission('BusinessHours','View'))
         <li> <a href="{{URL::to('/businesshours')}}">  <span>Business Hours</span></a> </li>
         @endif
+         @if(User::checkCategoryPermission('TicketImportRules','View'))
+        <li> <a href="{{URL::to('/tickets/importrules')}}">  <span>Import Rules</span></a> </li>
+        @endif
       </ul>
     </li>
     @endif
@@ -129,7 +132,7 @@
     User::checkCategoryPermission('Payments','View') || User::checkCategoryPermission('AccountStatement','All') ||
     User::checkCategoryPermission('Products','View') || User::checkCategoryPermission('InvoiceTemplates','View') ||
     User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View')  ||
-    User::checkCategoryPermission('Disputes','View'))
+    User::checkCategoryPermission('Disputes','View') || User::checkCategoryPermission('Service','View'))
     <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="fa fa-credit-card" ></i> <span>Billing</span> </a>
       <ul>
         @if(User::checkCategoryPermission('BillingDashboard','All'))
@@ -149,6 +152,9 @@
         @endif
           @if(User::checkCategoryPermission('AccountStatement','All'))
             <li> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>
+          @endif
+          @if(User::checkCategoryPermission('Service','View'))
+            <li> <a href="{{URL::to('/services')}}">  <span>Services</span> </a> </li>
           @endif
           @if(User::checkCategoryPermission('BillingSubscription','View'))
             <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
@@ -174,9 +180,7 @@
         @if(User::checkCategoryPermission('CDR','View'))
         <li> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
         @endif
-        @if(User::checkCategoryPermission('Service','View'))
-            <li> <a href="{{URL::to('/services')}}">  <span>Services</span> </a> </li>
-         @endif
+
         <!--<li>
 <a href="{{URL::to('/cdr_recal')}}">
   <i class="entypo-pencil"></i>

@@ -13,6 +13,9 @@
     <li class="active">
         <a href="{{URL::to('invoice_template')}}">  Invoice Template</a>
     </li>
+    <li>
+        <a><span>{{invoicetemplate_dropbox($InvoiceTemplate->InvoiceTemplateID)}}</span></a>
+    </li>
     <li class="active">
         <strong>Edit {{$InvoiceTemplate->Name}}</strong>
     </li>
@@ -46,7 +49,7 @@
 
     <div id="details" class="clearfix">
         <div style="float:left;">
-            <h2 class="name">INVOICE TO:</h2><br/>
+            <h2 class="name"><b>Invoice To:</b></h2><br/>
             <div style="padding-bottom:8px;">{{ Form::select('InvoiceToInfo', Invoice::$invoice_account_info, (!empty(Input::get('InvoiceToInfo'))?explode(',',Input::get('InvoiceFromInfo')):[]), array("class"=>"","data-allow-clear"=>"true","data-placeholder"=>"Select Account Info")) }}</div>
             <textarea class="invoice-to" style="min-width: 400px;" rows="7">@if(!empty($InvoiceTemplate->InvoiceTo)){{$InvoiceTemplate->InvoiceTo}} @else {AccountName} @endif</textarea>
 
@@ -65,12 +68,12 @@
         <thead>
         <tr>
             @if($InvoiceTemplate->GroupByService==1)
-            <th class="desc">DESCRIPTION</th>
+            <th class="desc"><b>Description</b></th>
             @endif
-            <th class="desc">Usage</th>
-            <th class="desc">Recurring</th>
-            <th class="desc">Additional</th>
-            <th class="total">TOTAL</th>
+            <th class="desc"><b>Usage</b></th>
+            <th class="desc"><b>Recurring</b></th>
+            <th class="desc"><b>Additional</b></th>
+            <th class="total"><b>Total</b></th>
         </tr>
         </thead>
         <tbody>
@@ -83,24 +86,22 @@
             <td class="desc">$1,000.00</td>
             <td class="total">$3,200.00</td>
         </tr>
+        @if($InvoiceTemplate->GroupByService==1)
         <tr>
-            @if($InvoiceTemplate->GroupByService==1)
             <td class="desc">Service - 2</td>
-            @endif
             <td class="desc">$1,200.00</td>
             <td class="desc">$1,000.00</td>
             <td class="desc">$1,000.00</td>
             <td class="total">$3,200.00</td>
         </tr>
         <tr>
-            @if($InvoiceTemplate->GroupByService==1)
             <td class="desc">Other Service</td>
-            @endif
             <td class="desc">$400.00</td>
             <td class="desc">$400.00</td>
             <td class="desc">$400.00</td>
             <td class="total">$1,200.00</td>
         </tr>
+        @endif
         </tbody>
         <tfoot>
         <tr>
@@ -109,7 +110,7 @@
             @else
                 <td></td>
             @endif
-            <td colspan="2">SUB TOTAL</td>
+            <td colspan="2">Sub Total</td>
             <td class="subtotal">$5,200.00</td>
         </tr>
         <tr>
@@ -118,7 +119,7 @@
             @else
                 <td></td>
             @endif
-            <td colspan="2">TAX 25%</td>
+            <td colspan="2">Tax 25%</td>
             <td class="subtotal">$1,300.00</td>
         </tr>
         @if($InvoiceTemplate->ShowPrevBal)
@@ -128,7 +129,7 @@
                 @else
                     <td></td>
                 @endif
-                <td colspan="2">BROUGHT FORWARD</td>
+                <td colspan="2">Brought Forward</td>
                 <td class="subtotal">$0.00</td>
             </tr>
         @endif
@@ -138,8 +139,8 @@
             @else
                 <td></td>
             @endif
-            <td colspan="2">GRAND TOTAL</td>
-            <td class="subtotal">$6,500.00</td>
+            <td colspan="2"><b>Grand Total</b></td>
+            <td class="subtotal"><b>$6,500.00</b></td>
         </tr>
         </tfoot>
     </table>
@@ -167,16 +168,6 @@
     <header class="clearfix">
         <div id="Service" style="float:left;width:40%">
             <h1>Service 1</h1>
-        </div>
-        <div style="float:right;width:58%";>
-            <label class="col-sm-5" style="font-size: 1.5em;">Split Services on separate pages
-                <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If ON each service will be displayed on separate page" data-original-title="Service Split">?</span></label>
-            </label>
-            <div class="col-sm-2">
-                <p class="make-switch switch-small">
-                    <input id="ServiceSplit" name="ServiceSplit" type="checkbox"  @if($InvoiceTemplate->ServiceSplit == 1 )checked="" @endif value="1" >
-                </p>
-            </div>
         </div>
     </header>
     @endif
@@ -428,9 +419,30 @@
                 }
             });*/
         });
+        $('#drp_invoicetemplate_jump').on('change',function(){
+            var val = $(this).val();
+            if(val!="") {
+                var InvoiceTemplateID = '{{$InvoiceTemplate->InvoiceTemplateID}}';
+                var url ='/invoice_template/'+ val + '/view?Type=1';
+                window.location.href = baseurl + url;
+            }
+        });
 
     });
 	</script>
+    <style>
+        #drp_invoicetemplate_jump{
+            border: 0px solid #fff;
+            background-color: rgba(255,255,255,0);
+            padding: 0px;
+        }
+        #drp_invoicetemplate_jump option{
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            border: 0px;
+        }
+
+    </style>
 @stop
 @section('footer_ext')
 @parent

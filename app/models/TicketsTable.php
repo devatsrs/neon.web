@@ -90,6 +90,16 @@ class TicketsTable extends \Eloquent
         }
 			return $row;
 	}
+	
+	static function getTicketStatusSelectable($select=1){
+		//TicketfieldsValues::WHERE
+		 $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')->where('tblTicketfieldsValues.FieldValueAgent',"!=",TicketfieldsValues::$Status_UnResolved)
+            ->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD])->lists('FieldValueAgent','ValuesID');
+        if($select==1) {
+            $row = array("0" => "Select") + $row;
+        }
+			return $row;
+	}
 
     static function getTicketStatusOnHold(){
         $row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')

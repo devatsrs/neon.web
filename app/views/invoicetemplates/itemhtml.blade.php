@@ -3,7 +3,7 @@
         <img src="{{$logo}}" alt="Company Logo" title="Company Logo" style="max-width: 250px">
     </div>
     <div id="company">
-        <h2 class="name">INVOICE FROM</h2><br>
+        <h2 class="name"><b>Invoice From</b></h2><br>
         @if(isset($editable))
             <div style="float:right;">
                 <p><a href="#" id="InvoiceTemplateHeader" title="Invoice Header Content" data-inputclass="editable-textarea" class="invoice-editable form-control autogrow " style="height: auto" data-name="Header" data-type="textarea" data-placeholder="Press Ctrl + Enter to save" data-title="Header">{{($InvoiceTemplate->Header)}}</a></p>

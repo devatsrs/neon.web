@@ -2,32 +2,18 @@
 
 class TicketsGroupController extends \BaseController {
 
-private $validlicense;	
 	public function __construct(){
-		$this->validlicense = Tickets::CheckTicketLicense();
-		 if(!$this->validlicense)
-		 {
-			NeonAPI::logout();
-	        Session::flush();
-    	    Auth::logout();
-			Redirect::to('/login')->send();
-			//return Redirect::to('/login')->with('message', 'Your are now logged out!');
-		 }
-	 } 
-	 
-	 protected function IsValidLicense(){
-	 	return $this->validlicense;		
-	 }
+		parent::validateTicketLicence();	  
+	 } 	 
+	
 	
    public function index() {          
-		$this->IsValidLicense();
 		$data 			 		= 	array();	
 		$EscalationTimes_json 	= 	json_encode(TicketGroups::$EscalationTimes);
         return View::make('ticketgroups.groups', compact('data','EscalationTimes_json'));   
 	  }		
 	  
 	  function add(){	  
-		$this->IsValidLicense();		
 		$Agents			= 	User::getUserIDListAll(0);
 		$AllUsers		= 	User::getUserIDListAll(0); 
 		$businessHours	=	TicketBusinessHours::getBusinesshours(1); 
@@ -38,7 +24,7 @@ private $validlicense;
 	  }	
 	  
 	  function Edit($id){	   
-		$this->IsValidLicense();
+		
 		$response =  NeonAPI::request('ticketgroups/get/'.$id,array());
 		
 		if(!empty($response) && $response->status == 'success' ){
@@ -86,7 +72,7 @@ private $validlicense;
 	 }
 	  
 	  function Store(){
-	    $this->IsValidLicense();
+	    
 		
 		$postdata 				= 		Input::all();  		
 		$postdata['activate'] 	= 		URL::to('/activate_support_email');
@@ -99,7 +85,7 @@ private $validlicense;
 	  }
 	  
 	  function Update($id){
-	    $this->IsValidLicense();
+	    
 		
 		$postdata 				= 		Input::all();
 		$postdata['activate'] 	= 		URL::to('/activate_support_email');

@@ -4,28 +4,15 @@ class TicketsFieldsController extends \BaseController {
 
 private $validlicense;	
 	public function __construct(){
-		$this->validlicense = Tickets::CheckTicketLicense();
-		 if(!$this->validlicense)
-		 {
-			NeonAPI::logout();
-	        Session::flush();
-    	    Auth::logout();
-			Redirect::to('/login')->send();
-			//return Redirect::to('/login')->with('message', 'Your are now logged out!');
-		 }
+		parent::validateTicketLicence();
 	 } 
-	 protected function IsValidLicense(){
-	 	return $this->validlicense;		
-	 }
+	 
 	
 	function index(){
-		$this->IsValidLicense();		   
 		return View::make('ticketsfields.index', compact('data','response_extensions','final'));   
 	}
 	
-	function iframe(){
-		
-		$this->IsValidLicense();
+	function iframe(){	
 		
 		$data 			= 	 array();	
 		$final			=	Session::get("ticketsfields");		

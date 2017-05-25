@@ -2,30 +2,11 @@
 
 class TicketsController extends \BaseController {
 
-private $validlicense;	
-
 	public function __construct(){
-		$this->validlicense = Tickets::CheckTicketLicense();
-		 if(!$this->validlicense)
-		 {
-			NeonAPI::logout();
-	        Session::flush();
-    	    Auth::logout();
-			Redirect::to('/login')->send();
-			//return Redirect::to('/login')->with('message', 'Your are now logged out!');
-		 }
-	 } 
-	 
-	 protected function IsValidLicense(){		
-	 	//return $this->validlicense;		
-	 }
+		parent::validateTicketLicence();		 
+	 } 	 
 	
 	 public function index(){	
-	 
-        $this->IsValidLicense();
-        $this->TicketGroupAccess();
-        $this->TicketGroupAccess();
-        $this->TicketRestrictedAccess();
 		$postdata					= 	Input::all(); 
         $TicketPermission			=	TicketsTable::GetTicketAccessPermission();
         $CompanyID 		 			= 	 User::get_companyID();
@@ -118,9 +99,13 @@ private $validlicense;
 		$array						=  	 $this->GetResult($data);
 
 		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
-			return json_response_api($array);  
+			\Illuminate\Support\Facades\Log::info("Ticket 401");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
 		}		
-		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){
+			\Illuminate\Support\Facades\Log::info("Ticket token_expired");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
 			return json_response_api($array);  
 		}	
 		
@@ -186,10 +171,14 @@ private $validlicense;
 		$array						=  	 $this->GetResult($data); 
 
 		if(isset($array->Code) && ($array->Code==400 || $array->Code==401)){
-			return json_response_api($array);  
+			\Illuminate\Support\Facades\Log::info("Ticket 401");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
 		}		
-		if(isset($array->Code->error) && $array->Code->error=='token_expired'){ 
-			return json_response_api($array);  
+		if(isset($array->Code->error) && $array->Code->error=='token_expired'){
+			\Illuminate\Support\Facades\Log::info("Ticket token_expired");
+			\Illuminate\Support\Facades\Log::info(print_r($array,true));
+			return json_response_api($array);
 		}	
 
 		
@@ -237,9 +226,7 @@ private $validlicense;
 	}
 
 		function add()
-		{	
-			$this->IsValidLicense();				
-			
+		{				
 			$response 		=   NeonAPI::request('ticketsfields/getfields',array("fields"=>"simple"),true,false,false);   
 			$data			=	array();	
 			
@@ -277,9 +264,7 @@ private $validlicense;
 	  }	
 	  
 	public function edit($id)
-	{
-		$this->IsValidLicense();
-		
+	{		
         $response  		    =  	  NeonAPI::request('tickets/edit/'.$id,array(),true);
 	
 		if(!empty($response) && $response->status == 'success' )
@@ -314,9 +299,7 @@ private $validlicense;
         }
 	}
 	  
-	  function Store(){
-		  
-	    $this->IsValidLicense();
+	  function Store(){		  
 		$postdata 			= 	Input::all();  
 
 		if(!isset($postdata['Ticket'])){
@@ -353,9 +336,7 @@ private $validlicense;
 	  }
 	  
 	  function Update($id)
-	  {
-		  	  
-	    $this->IsValidLicense();
+	  {		  	  
 		$postdata 			= 	Input::all(); 		
 		
 		if(!isset($postdata['Ticket'])){
@@ -392,7 +373,6 @@ private $validlicense;
 	  }
 	  
 	  function UpdateDetailPage($id){
-	    $this->IsValidLicense();
 		$postdata 			= 	Input::all(); 		
 		
 		if(!isset($postdata['Ticket'])){
@@ -435,7 +415,6 @@ private $validlicense;
     }
 	
 	function Detail($id){
-		$this->IsValidLicense();
 		$response =  NeonAPI::request('tickets/getticket/'.$id,array());
 			
 		if(!empty($response) && $response->status == 'success' )
@@ -537,7 +516,6 @@ private $validlicense;
 	// not in used
 	function UpdateTicketAttributes($id)
 	{
-		$this->IsValidLicense();
 		$data 				= 		Input::all();  
 		$data['admin'] 		= 		User::is_admin();		
 		$response 			= 		NeonAPI::request('tickets/updateticketattributes/'.$id,$data,true,false,false);
@@ -545,7 +523,6 @@ private $validlicense;
 	}
 	
 	function ActionSubmit($id){
-		$this->IsValidLicense();
 		$postdata    =  Input::all();		 
 		 $attachmentsinfo        =	$postdata['attachmentsinfo']; 
         if(!empty($attachmentsinfo) && count($attachmentsinfo)>0){
@@ -621,7 +598,8 @@ private $validlicense;
 	
 	function CloseTicket($ticketID)
 	{
-		$response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,array(),true,true); 
+		$data 				= 		Input::all();
+		$response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,$data,true,true); 
 		return json_response_api($response);    		
 	}
 	
@@ -658,7 +636,6 @@ private $validlicense;
 	}
 	
 	function SendMail(){		   
-	    $this->IsValidLicense();
 		$postdata 			= 	Input::all();  
 		if(!isset($postdata['Ticket'])){
 			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
@@ -694,8 +671,7 @@ private $validlicense;
 	  }	
 	  
 	  function add_note(){
-    	$this->IsValidLicense();
-		$postdata 			= 	Input::all();  		
+		$postdata 			= 		Input::all();  		
 		$response 			= 		NeonAPI::request('tickets/add_note',$postdata,true,false,false);
 		return json_response_api($response);     
 	  }  
@@ -736,4 +712,9 @@ private $validlicense;
         $response  		    =  	  NeonAPI::request('tickets/bulkdelete',$data,true,true);
         return json_response_api($response);
     }
+	
+	function Show_Log($id){
+	    $TicketData = TicketsTable::find($id);
+        return View::make('tickets.ticketslog', compact('TicketData','id'));    
+	}	
 }

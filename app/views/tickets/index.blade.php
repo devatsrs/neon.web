@@ -123,6 +123,7 @@
         left:   5px;
 }
 .full-width-error{text-align:center;}
+.ticketaction{min-width:100px !important;}
 </style>
 <script type="text/javascript">
 	
@@ -332,7 +333,7 @@ $(document).ready(function(e) {
         modal.find('[name="isSendEmail"]').val(1);
         if(e.shiftKey){
             modal.find('[name="isSendEmail"]').val(0);
-        }
+        } 
         $("#bulk-submit").button('reset');
         modal.find('.col-md-12').addClass('col-md-4').removeClass('col-md-12');
         modal.find('.col-md-4').each(function(){

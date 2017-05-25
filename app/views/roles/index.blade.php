@@ -199,7 +199,7 @@
                         </div>
                         <div class="tab-pane full-width"  id="righttab3">
                         <div class="row">
-                        	<div class="col-md-6">
+                        	<div class="col-md-6">  
                             <div class="form-group">
                             {{ Form::select('groupsearch', $ResourcesGroups, '', array("id"=>"groupsearch","class"=>"select2 pull-left form-control small")) }}
                             </div>

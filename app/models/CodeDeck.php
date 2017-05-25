@@ -19,6 +19,7 @@ class CodeDeck extends \Eloquent {
          * Tables To Check Foreign Key before Delete.
          * */
 
+        //@TODO: need to check this is not correct .
         $hasInCustomerRate = CustomerRate::where("RateID",$id)->count();
         $hasInRateTableRate = RateTableRate::where("RateID",$id)->count();
         $hasInVendorRate = VendorRate::where("RateID",$id)->count();

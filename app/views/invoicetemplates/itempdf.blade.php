@@ -29,7 +29,7 @@
 		<main>
 			<div id="details" class="clearfix">
 				<div id="client">
-					<div class="to">INVOICE TO:</div>
+					<div class="to"><b>Invoice To:</b></div>
 					<div>{{nl2br(Invoice::getInvoiceTo($InvoiceTemplate->InvoiceTo))}}</div>
 					<!--<h2 class="name">Bhavin Prajapati</h2>
 					<div class="address">Rajkot</div>
@@ -55,51 +55,51 @@
 			<table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
 				<thead>
 				<tr>
-					<th class="desc">Title</th>
-					<th class="desc">Description</th>
-					<th class="desc">Quantity</th>
-					<th class="desc">Price</th>
-					<th class="total">Line Total</th>
+					<th class="desc"><b>Title</b></th>
+					<th class="desc"><b>Description</b></th>
+					<th class="rightalign"><b>Quantity</b></th>
+					<th class="rightalign"><b>Price</b></th>
+					<th class="total"><b>Line Total</b></th>
 				</tr>
 				</thead>
 				<tbody>
 				<tr>
-					<td class="desc">Item 1</td>
-					<td class="desc">Item Description</td>
-					<td class="desc">2</td>
-					<td class="desc">25</td>
+					<td class="desc">Item Testing 1</td>
+					<td class="desc">Item Testing Description</td>
+					<td class="rightalign">2</td>
+					<td class="rightalign">25</td>
 					<td class="total">50</td>
 				</tr>
 				<tr>
-					<td class="desc">Item 1</td>
-					<td class="desc">Item Description</td>
-					<td class="desc">2</td>
-					<td class="desc">25</td>
+					<td class="desc">Item Testing 1</td>
+					<td class="desc">Item Testing Description</td>
+					<td class="rightalign">2</td>
+					<td class="rightalign">25</td>
 					<td class="total">50</td>
 				</tr>
 				</tbody>
 				<tfoot>
 				<tr>
 					<td colspan="2"></td>
-					<td colspan="2">SUB TOTAL</td>
+					<td colspan="2">Sub Total</td>
 					<td class="subtotal">$5,200.00</td>
 				</tr>
 				<tr>
 					<td colspan="2"></td>
-					<td colspan="2">TAX 25%</td>
+					<td colspan="2">Tax 25%</td>
 					<td class="subtotal">$1,300.00</td>
 				</tr>
 				@if($InvoiceTemplate->ShowPrevBal)
 					<tr>
 						<td colspan="2"></td>
-						<td colspan="2">BROUGHT FORWARD</td>
+						<td colspan="2">Brought Forward</td>
 						<td class="subtotal">$0.00</td>
 					</tr>
 				@endif
 				<tr>
 					<td colspan="2"></td>
-					<td colspan="2">GRAND TOTAL</td>
-					<td class="subtotal">$6,500.00</td>
+					<td colspan="2"><b>Grand Total</b></td>
+					<td class="subtotal"><b>$6,500.00</b></td>
 				</tr>
 				</tfoot>
 			</table>

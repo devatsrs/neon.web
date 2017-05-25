@@ -1,10 +1,16 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_insertPayments`(IN `p_CompanyID` INT, IN `p_ProcessID` VARCHAR(100), IN `p_UserID` INT)
+CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_insertPayments`(
+	IN `p_CompanyID` INT,
+	IN `p_ProcessID` VARCHAR(100),
+	IN `p_UserID` INT
+
+
+)
 BEGIN
 
 	
 	DECLARE v_UserName varchar(30);
  	
- 	SELECT CONCAT(u.FirstName,CONCAT(' ',u.LastName)) as name into v_UserName from Ratemanagement3.tblUser u where u.UserID=p_UserID;
+ 	SELECT CONCAT(u.FirstName,CONCAT(' ',u.LastName)) as name into v_UserName from NeonRMDev.tblUser u where u.UserID=p_UserID;
  	
  	INSERT INTO tblPayment (
 	 		CompanyID,
@@ -47,15 +53,15 @@ BEGIN
 			 1 as BulkUpload,
 			 InvoiceID
 	from tblTempPayment tp
-	INNER JOIN Ratemanagement3.tblAccount ac 
-		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1
+	INNER JOIN NeonRMDev.tblAccount ac 
+		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1 and ac.CurrencyId IS NOT NULL
 	where tp.ProcessID = p_ProcessID
 			AND tp.PaymentDate <= NOW()
 			AND tp.CompanyID = p_CompanyID;
 			
 	
-	/* Delete tmp table */		
-	delete from tblTempPayment where CompanyID = p_CompanyID and ProcessID = p_ProcessID;
+			
+	 delete from tblTempPayment where CompanyID = p_CompanyID and ProcessID = p_ProcessID;
 	 
 			
 END

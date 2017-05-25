@@ -2,7 +2,16 @@
 
 class AccountSubscriptionController extends \BaseController {
 
+public function main() {	
+		$data 				=  Input::all();        
+		$id					=  $data['id'];
+		$companyID 			=  User::get_companyID();
+		$SelectedAccount    =  Account::find($id);	 
+		$accounts	 		=  Account::getAccountIDList();
+		$services 			=  Service::getDropdownIDList($companyID);
+	    return View::make('accountsubscription.main', compact('accounts','services','SelectedAccount','services'));
 
+    }	
 
     public function ajax_datagrid($id){
         $data = Input::all();        
@@ -33,6 +42,45 @@ class AccountSubscriptionController extends \BaseController {
         $subscriptions->select($select);
 
         return Datatables::of($subscriptions)->make();
+    }
+
+
+	public function ajax_datagrid_page($type=''){
+        $data 						 = 	Input::all(); //Log::info(print_r($data,true));
+        $data['iDisplayStart'] 		+=	1;
+        $companyID 					 =  User::get_companyID(); 
+        $columns 					 =  ['SequenceNo','AccountName','ServiceName','Name','Qty','StartDate','EndDate','ActivationFee','DailyFee','WeeklyFee','MonthlyFee','QuarterlyFee','AnnuallyFee'];   
+        $sort_column 				 =  $columns[$data['iSortCol_0']];
+        $data['AccountID'] 			 =  empty($data['AccountID'])?'0':$data['AccountID'];
+		if($data['Active'] == 'true'){
+			$data['Active']	=	1;
+		}else{
+			$data['Active'] =   0;
+		}
+		$data['ServiceID'] 			 =  empty($data['ServiceID'])?'null':$data['ServiceID'];
+        $query = "call prc_GetAccountSubscriptions (".$companyID.",".intval($data['AccountID']).",".intval($data['ServiceID']).",'".$data['Name']."','".$data['Active']."','".date('Y-m-d')."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".strtoupper($data['sSortDir_0'])."'";
+		
+        if(isset($data['Export']) && $data['Export'] == 1)
+		{
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+			
+            $excel_data = json_decode(json_encode($excel_data),true);
+            if($type=='csv'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/accountsubscription.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/subscription.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }         
+        }
+		
+
+        $query .=',0)'; Log::info($query);
+       // echo $query;exit;
+        $result =  DataTableSql::of($query,'sqlsrv2')->make();
+		return $result;
     }
 
 	/**
@@ -153,6 +201,28 @@ class AccountSubscriptionController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Subscription is in Use, You can not delete this Subscription."));
             }
         }
+	}
+	
+	function GetAccountServices($id){
+	    $data = Input::all();
+        $select = ["tblService.ServiceID","tblService.ServiceName"];
+        $services = AccountService::join('tblService', 'tblAccountService.ServiceID', '=', 'tblService.ServiceID')->where("tblAccountService.AccountID",$id);
+        $services->where(function($query){ $query->where('tblAccountService.Status','=','1'); });
+        $services->select($select);
+		$ServicesDataDb =  $services->get();
+		$servicesArray = array();
+		
+		//
+		foreach($ServicesDataDb as $ServicesData){				
+			$servicesArray[$ServicesData->ServiceName] =	$ServicesData->ServiceID; 						
+		} 
+		return $servicesArray;
+	}
+	
+	function GetAccountSubscriptions($id){
+		$account = Account::find($id);
+		$subscriptions =  BillingSubscription::getSubscriptionsArray($account->CompanyId,$account->CurrencyId);	
+		return $subscriptions;
 	}
 
 }

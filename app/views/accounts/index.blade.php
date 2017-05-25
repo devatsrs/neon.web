@@ -131,6 +131,14 @@
                         <span>Bulk Tags</span>
                     </a>
                 </li>
+                
+                <li>
+                    <a href="javascript:void(0)" id="bulk-Actions">
+                        <i class="entypo-tag"></i>
+                        <span>Bulk Actions</span>
+                    </a>
+                </li>
+                
                 @endif
                 @if(User::checkCategoryPermission('Account','Email'))
                 <li>
@@ -386,6 +394,8 @@
                                 credit_ = "{{ URL::to('account/get_credit/{id}')}}";
                                 customer_rate_ = "{{Url::to('/customers_rates/{id}')}}";
                                 vendor_blocking_ = "{{Url::to('/vendor_rates/{id}')}}";
+								subscriptions_ = "{{ URL::to('account_subscription/')}}?id={id}";
+								authenticate_ = "{{Url::to('/accounts/authenticate/{id}')}}";
 
                                 edit_ = edit_.replace( '{id}', full[0] );
                                 show_ = show_.replace( '{id}', full[0] );
@@ -393,23 +403,36 @@
                                 credit_ = credit_.replace( '{id}', full[0] );
                                 customer_rate_ = customer_rate_.replace( '{id}', full[0] );
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
+								subscriptions_ = subscriptions_.replace( '{id}', full[0] );
+								authenticate_ = authenticate_.replace( '{id}', full[0] );
                                 action = '';
-                                <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
-                                action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
+                                
+								
+								<?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
+                                action +='&nbsp;<button class="btn  btn-default btn-xs small_icons" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
                                 <?php } ?>
 
                                 <?php if(User::checkCategoryPermission('AccountActivityChart','View')){ ?>
-                                action +='&nbsp;<button redirecto="'+chart_+'" class="btn btn-default btn-xs" title="Account Activity Chart" data-id="'+full[0]+'" type="button"> <i class="fa fa-bar-chart"></i> </button>';
+                                action +='&nbsp;<button redirecto="'+chart_+'" class="btn small_icons btn-default btn-xs" title="Account Activity Chart" data-id="'+full[0]+'" type="button"> <i class="fa fa-bar-chart"></i> </button>';
                                 //action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                 <?php } ?>
 
                                 <?php if(User::checkCategoryPermission('CreditControl','View')){ ?>
-                                        action +='&nbsp;<button redirecto="'+credit_+'" class="btn btn-default btn-xs" title="Credit Control" data-id="'+full[0]+'" type="button"> <i class="fa fa-credit-card"></i> </button>';
+                                        action +='&nbsp;<button redirecto="'+credit_+'" class="btn small_icons btn-default btn-xs" title="Credit Control" data-id="'+full[0]+'" type="button"> <i class="fa fa-credit-card"></i> </button>';
                                 <?php } ?>
+								
+								if(full[9]==1 || full[10]==1){
+                                 	action += '&nbsp;<button redirecto="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></button>';
+                                } 
+								
+								<?php if(User::checkCategoryPermission('AccountService','View')) { ?>
+                                action +='&nbsp;<button class="btn btn-default small_icons btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';
+                                <?php } ?>
+								
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
-                                action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i></button>';
+                                action +='&nbsp;<button redirecto="'+edit_+'" class="btn small_icons btn-default btn-xs" title="Edit" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i></button>';
                                 <?php } ?>
-                                action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View" data-id="'+full[0]+'" type="button"> <i class="fa fa-eye"></i></button>';//entypo-info
+                                action +='&nbsp;<button redirecto="'+show_+'" class="btn small_icons btn-default btn-xs" title="View" data-id="'+full[0]+'" type="button"> <i class="fa fa-eye"></i></button>';//entypo-info
                                 /*full[6] == Customer verified
                                  full[7] == Vendor verified */
                                 varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/';
@@ -431,18 +454,20 @@
                                  }
                                  action += '</select>';*/
                                 <?php } ?>
+								
 
                                 if(full[9]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
-                                        action += '&nbsp;<a href="'+customer_rate_+'" title="Customer" class="btn btn-warning btn-xs"><i class="entypo-user"></i></a>';
+                                        action += '&nbsp;<button redirecto="'+customer_rate_+'" title="Customer" class="btn small_icons btn-warning btn-xs"><i class="entypo-user"></i></button>';
                                     <?php } ?>
                                 }
 
                                 if(full[10]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
-                                        action += '&nbsp;<a href="'+vendor_blocking_+'" title="Vendor" class="btn btn-info btn-xs"><i class="fa fa-slideshare"></i></a>';
+                                        action += '&nbsp;<button redirecto="'+vendor_blocking_+'" title="Vendor" class="btn small_icons btn-info btn-xs"><i class="fa fa-slideshare"></i></button>';
                                     <?php } ?>
-                                }
+                                } 								
+								
                                 action +='<input type="hidden" name="accountid" value="'+full[0]+'"/>';
                                 action +='<input type="hidden" name="address1" value="'+full[12]+'"/>';
                                 action +='<input type="hidden" name="address2" value="'+full[13]+'"/>';
@@ -511,13 +536,13 @@
                 if(childrens.eq(0).hasClass('dataTables_empty')){
                     return true;
                 }
-                var temp = childrens.eq(9).clone();
-                $(temp).find('a').each(function () {
+                var temp = childrens.eq(9).clone(); 
+                /*$(temp).find('a').each(function () {
                    // $(this).find('i').remove();
                     $(this).removeClass('btn btn-icon icon-left');
                     $(this).addClass('label');
                     $(this).addClass('padding-4');
-                });
+                });*/
                 $(temp).find('.select2-container').remove();
                 $(temp).find('select[name="varification_status"]').remove();
                 var address1 = $(temp).find('input[name="address1"]').val();
@@ -619,7 +644,7 @@
                 html += '     <div class="address account-address">' + address1 + ''+address2+''+address3+''+city+''+PostCode+''+country+'</div>';
                 html += '  </div>';
                 html += '  </div>';
-                html += '  <div class="col-sm-11 padding-0 action">';
+                html += '  <div class="col-sm-12 padding-0 action">';
                 html += '   ' + temp.html();
                 html += '  </div>';
                 html += ' </div>';
@@ -963,6 +988,12 @@
             $('.save').button('reset');
             $('#modal-BulkTags').modal('show');
         });
+		
+		  $("#bulk-Actions").click(function() {
+            var el = $('#modal-bulk-actions'); 
+            $('.save').button('reset');
+            el.modal('show');
+        });
 
         $(document).on('click','.switcher',function(){
             var self = $(this);
@@ -1081,6 +1112,34 @@
                 modal.find('.message').val('');
             }
         }
+		
+		
+		$('#BulkAction-form').submit(function(e){
+			e.preventDefault();
+			var SelectedIDs = getselectedIDs();
+			if (SelectedIDs.length == 0) {
+				$('#modal-bulk-actions').modal('hide');
+				toastr.error('Please select at least one Account.', "Error", toastr_opts);
+				return false;
+			}else {
+				var selectedIDs = $(this).find('[name="BulkselectedIDs"]').val(SelectedIDs.join(","));
+				var url = baseurl + '/accounts/bulkactions';
+				showAjaxScript(url, new FormData(($('#BulkAction-form')[0])), function (response) {
+					$("#bulk-submit").button('reset');
+					if (response.status == 'success') {
+						data_table.fnFilter('', 0);
+						$('#modal-bulk-actions').modal('hide');
+						document.getElementById('BulkAction-form').reset();
+						$('#BulkOwnerChange').val('').trigger('change');
+						$('#BulkCurrencyChange').val('').trigger('change');
+						toastr.success(response.message, "Success", toastr_opts);
+					} else {
+						toastr.error(response.message, "Error", toastr_opts);
+					}
+				});
+			}
+   	    });
+		
     });
 
     function getselectedIDs(){
@@ -1177,4 +1236,62 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="modal-bulk-actions">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="BulkAction-form" method="post" action="" enctype="multipart/form-data">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Bulk Actions</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row"> @if(User::is_admin())
+            <div id="Owner" class="col-md-6">
+              <div class="form-group">
+                <label for="field-1" class="control-label">
+                  <input type="checkbox" name="OwnerCheck">
+                  <span>Owner</span></label>
+                {{Form::select('account_owners',$account_owners,'',array("class"=>"select2 small","id"=>"BulkOwnerChange"))}} </div>
+            </div>
+            @endif
+            <div id="Currency" class="col-md-6">
+              <div class="form-group">
+                <label for="field-1" class="control-label">
+                  <input type="checkbox"  name="CurrencyCheck">
+                  <span>Currency</span></label>
+                {{Form::select('Currency',$Currencies,'',array("class"=>"select2 small","id"=>"BulkCurrencyChange"))}} </div>
+            </div>
+          </div>
+          <div class="row">
+            <div id="Vendor" class="col-md-6">
+              <div class="form-group">
+                <label for="field-3" class="control-label">
+                  <input type="checkbox"  name="VendorCheck">
+                  <span>Vendor</span></label><br>
+                <p class="make-switch switch-small">
+                  <input id="BulkVendorChange" name="vendor_on_off" type="checkbox" value="1">
+                </p>
+              </div>
+            </div>
+            <div id="Customer" class="col-md-6">
+              <div class="form-group">
+                <label for="field-3" class="control-label">
+                  <input type="checkbox"  name="CustomerCheck">
+                  <span>Customer</span></label><br>
+                <p class="make-switch switch-small">
+                  <input id="BulkCustomerChange" name="Customer_on_off" type="checkbox" value="1">
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" name="BulkselectedIDs" />
+        <div class="modal-footer">
+          <button  type="submit" id="bulk-submit" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @stop

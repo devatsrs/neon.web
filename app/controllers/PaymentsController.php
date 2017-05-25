@@ -41,7 +41,7 @@ class PaymentsController extends \BaseController {
 			$data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
 			$columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy','Notes');
 			$sort_column = $columns[$data['iSortCol_0']];
-			$query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend'].",0)";
+			$query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend'].",0)";
 		   
 			$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
 			$result2  = $result['data']['Total_grand_field'][0]->total_grand;
@@ -88,7 +88,7 @@ class PaymentsController extends \BaseController {
         $data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
         $columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy','Notes');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$data['CurrencyID'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -568,11 +568,28 @@ class PaymentsController extends \BaseController {
         $JobFileID = JobFile::insertGetId($jobfiledata);
         $UserID = User::get_userID();
         //echo "CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')";exit();
-        $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
-        $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
-        $jobupdatedata['JobStatusMessage'] = 'Payments uploaded successfully';
-        $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
-        Job::where(["JobID" => $JobID])->update($jobupdatedata);
+        try {
+            DB::connection('sqlsrv2')->beginTransaction();
+            $result = DB::connection('sqlsrv2')->statement("CALL  prc_insertPayments ('" . $CompanyID . "','".$ProcessID."','".$UserID."')");
+            DB::connection('sqlsrv2')->commit();
+
+            $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
+            $jobupdatedata['JobStatusMessage'] = 'Payments uploaded successfully';
+            $jobupdatedata['JobStatusID'] = JobStatus::where('Code','S')->pluck('JobStatusID');
+            Job::where(["JobID" => $JobID])->update($jobupdatedata);
+        }catch ( Exception $err ){
+            try{
+                DB::connection('sqlsrv2')->rollback();
+            }catch (Exception $err) {
+                Log::error($err);
+            }
+            $jobdata['JobStatusID'] = JobStatus::where('Code', 'F')->pluck('JobStatusID');
+            $jobdata['JobStatusMessage'] = 'Exception: ' . $err->getMessage();
+            Job::where(["JobID" => $JobID])->update($jobdata);
+            Log::error($err);
+            
+            return Response::json(array("status" => "failure", "message" => "Error in Uploading Payments."));
+        }
         if($result){
             return Response::json(array("status" => "success", "message" => "Payments Successfully Uploaded"));
         }else{

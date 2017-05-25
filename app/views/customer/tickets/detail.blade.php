@@ -73,8 +73,8 @@
       <div class="panel-heading panel-heading-convesation">        
           <div class="panel-title" ><span><?php 
 		  if($TicketConversationData->EmailCall==Messages::Received){
-		   ?>From <?php if(!empty($TicketConversationData->EmailfromName)){ echo $TicketConversationData->EmailfromName." (".$TicketConversationData->Emailfrom.")"; ?> <?php }else{ ?> <?php echo $TicketConversationData->Emailfrom; } ?>
-		 <?php }elseif($TicketConversationData->EmailCall==Messages::Sent){ echo $TicketConversationData->CreatedBy; ?> (<?php echo $TicketConversationData->Emailfrom; ?>) replied<br>to (<?php echo $TicketConversationData->EmailTo; ?>) <?php } ?></span>
+		   ?>From <?php echo $TicketConversationData->Emailfrom;  ?>
+		 <?php }elseif($TicketConversationData->EmailCall==Messages::Sent){ echo $TicketConversationData->Emailfrom; ?> replied<br>to (<?php echo $TicketConversationData->EmailTo; ?>) <?php } ?></span>
           
           <?php if(!empty($TicketConversationData->EmailCc)){ ?><br>cc:  <?php echo $TicketConversationData->EmailCc; ?> <?php } ?>
 		  <?php if(!empty($TicketConversationData->EmailBcc)){ ?><br>bcc: <?php echo $TicketConversationData->EmailBcc; ?> <?php } ?> </div>

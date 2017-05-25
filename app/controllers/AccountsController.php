@@ -95,8 +95,7 @@ class AccountsController extends \BaseController {
      *
      * @return Response
      */
-    public function index() {
-
+    public function index() {		
         $trunks = CustomerTrunk::getTrunkDropdownIDListAll(); //$this->trunks;
         $accountTags = json_encode(Tags::getTagsArray(Tags::Account_tag));
         $account_owners = User::getOwnerUsersbyRole();
@@ -111,7 +110,8 @@ class AccountsController extends \BaseController {
         $leadOrAccountCheck = 'account';
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 		$bulk_type = 'accounts';
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type'));
+		$Currencies = Currency::getCurrencyDropdownIDList();
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies'));
 
     }
 
@@ -260,9 +260,15 @@ class AccountsController extends \BaseController {
 				}
 			}else{ 	
 				if(isset($response_timeline['Code']) && ($response_timeline['Code']==400 || $response_timeline['Code']==401)){
-					return	Redirect::to('/logout'); 	
+                    \Illuminate\Support\Facades\Log::info("Account 401 ");
+                    \Illuminate\Support\Facades\Log::info(print_r($response_timeline,true));
+					//return	Redirect::to('/logout');
 				}		
-				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){ Redirect::to('/login');}	
+				if(isset($response_timeline->error) && $response_timeline->error=='token_expired'){
+                    \Illuminate\Support\Facades\Log::info("Account token_expired ");
+                    \Illuminate\Support\Facades\Log::info(print_r($response_timeline,true));
+                    //Redirect::to('/login');
+                }
 				$message = json_response_api($response_timeline,false,false);
 			}
 			
@@ -286,7 +292,7 @@ class AccountsController extends \BaseController {
             
 			//Backup code for getting extensions from api
 		   $response_api_extensions 	=   Get_Api_file_extentsions();
-		   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
+		   //if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}
 		   $response_extensions			=	json_encode($response_api_extensions['allowed_extensions']);
 		   
            //all users email address
@@ -417,7 +423,15 @@ class AccountsController extends \BaseController {
         $rate_table = RateTable::getRateTableList(array('CurrencyID'=>$account->CurrencyId));
         $services = Service::getAllServices($companyID);
 
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID'));
+        $billing_disable = $hiden_class= '';
+        if($invoice_count > 0 || AccountDiscountPlan::checkDiscountPlan($id) > 0){
+            $billing_disable = 'disabled';
+        }
+        if(isset($AccountBilling->BillingCycleType)){
+            $hiden_class= 'hidden';
+        }
+
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class'));
     }
 
     /**
@@ -507,7 +521,7 @@ class AccountsController extends \BaseController {
         }
         if ($account->update($data)) {
             if($data['Billing'] == 1) {
-                AccountBilling::insertUpdateBilling($id, $data,$ServiceID);
+                AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
                 AccountBilling::storeFirstTimeInvoicePeriod($id,$ServiceID);
                 /*
                 $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'),$ServiceID);
@@ -899,7 +913,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $status = "success";
                 $message = "";
             }else{
-                $message = "CLI Already exits";
+                $message = "CLI Already exists";
             }
         }else{
             $message = "CLI is blank, Please enter valid cli";
@@ -920,7 +934,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 $status = "success";
                 $message = "";
             } else {
-                $message = "IP Already exits";
+                $message = "IP Already exists";
             }
         } else {
             $message = "IP is blank, Please enter valid IP";
@@ -1269,7 +1283,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         }
 
         if(!empty($message)){
-            $message = 'Following CLI already exits.<br>'.$message;
+            $message = 'Following CLI already exists.<br>'.$message;
             return Response::json(array("status" => "error", "message" => $message));
         }else{
             return Response::json(array("status" => "success", "message" => "CLI Successfully Added"));
@@ -1357,5 +1371,58 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         return Response::json(array("status" => "success", "message" => "CLI Updated Successfully"));
     }
 	
-	
+	function BulkAction(){
+        $data = Input::all();  				
+        if(
+		   !isset($data['OwnerCheck']) &&
+		   !isset($data['CurrencyCheck']) &&
+           !isset($data['VendorCheck']) &&
+           !isset($data['CustomerCheck'])
+		  )
+		{
+			return Response::json(array("status" => "error", "message" => "Please select at least one option."));
+        }
+		elseif(!isset($data['BulkselectedIDs']) || empty($data['BulkselectedIDs']))
+		{
+			return Response::json(array("status" => "error", "message" => "Please select at least one Account."));
+        }
+		
+		
+        $update = [];
+        if(isset($data['account_owners']) && $data['account_owners'] != 0 && isset($data['OwnerCheck'])){
+            $update['Owner'] = $data['account_owners'];
+        }
+        if(isset($data['Currency']) && $data['Currency'] != 0 && isset($data['CurrencyCheck'])){
+            $update['CurrencyId'] = $data['Currency'];
+        }		
+        if(isset($data['VendorCheck'])){
+            $update['IsVendor'] = isset($data['vendor_on_off'])?1:0;
+        }		
+		if(isset($data['CustomerCheck'])){
+            $update['IsCustomer'] = isset($data['Customer_on_off'])?1:0;
+        }
+		
+        $selectedIDs = explode(',',$data['BulkselectedIDs']);		
+        try{
+            //Implement loop because boot is triggering for each updated record to log the changes.
+            foreach ($selectedIDs as $id)
+			{
+				DB::beginTransaction();
+				
+				if(isset($update['CurrencyId']))
+				{ 
+					Account::whereRaw("(AccountID = '".$id."' AND (CurrencyId is null or CurrencyId ='0'))")->update($update);
+				}
+				else
+				{
+                	Account::where(['AccountID'=>$id])->update($update);
+				}
+				DB::commit();				
+            }
+			 return Response::json(array("status" => "success", "message" => "Accounts Updated Successfully"));
+        }catch (Exception $e) {
+            DB::rollback();
+			return Response::json(array("status" => "error", "message" => $e->getMessage()));
+        }
+    }	
 }

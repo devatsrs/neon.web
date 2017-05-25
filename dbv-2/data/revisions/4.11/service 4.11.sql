@@ -21,6 +21,31 @@ ALTER TABLE `tblInvoiceTemplate`
   , ADD COLUMN `UsageColumn` longtext NULL
   , ADD COLUMN `GroupByService` INT NULL DEFAULT '0'
   , ADD COLUMN `CDRType` INT(11) NULL DEFAULT '0';    
+
+
+UPDATE tblInvoiceTemplate SET  InvoiceTo = '{AccountName}
+{Address1},
+{Address2},
+{Address3},
+{City},
+{PostCode},
+{Country}' WHERE InvoiceTo IS NULL;
+
+
+UPDATE tblInvoiceTemplate SET  
+UsageColumn = '{"Summary":[{"Title":"Trunk","ValuesID":"1","UsageName":"Trunk","Status":true,"FieldOrder":1},{"Title":"Prefix","ValuesID":"2","UsageName":"Prefix","Status":true,"FieldOrder":2},{"Title":"Country","ValuesID":"3","UsageName":"Country","Status":true,"FieldOrder":3},{"Title":"Description","ValuesID":"4","UsageName":"Description","Status":true,"FieldOrder":4},{"Title":"NoOfCalls","ValuesID":"5","UsageName":"No of calls","Status":true,"FieldOrder":5},{"Title":"Duration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"BillDuration","ValuesID":"7","UsageName":"Billed Duration","Status":true,"FieldOrder":7},{"Title":"AvgRatePerMin","ValuesID":"8","UsageName":"Avg Rate\/Min","Status":true,"FieldOrder":8},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":9}],"Detail":[{"Title":"Prefix","ValuesID":"1","UsageName":"Prefix","Status":true,"FieldOrder":1},{"Title":"CLI","ValuesID":"2","UsageName":"CLI","Status":true,"FieldOrder":2},{"Title":"CLD","ValuesID":"3","UsageName":"CLD","Status":true,"FieldOrder":3},{"Title":"ConnectTime","ValuesID":"4","UsageName":"Connect Time","Status":true,"FieldOrder":4},{"Title":"DisconnectTime","ValuesID":"4","UsageName":"Disconnect Time","Status":true,"FieldOrder":5},{"Title":"BillDuration","ValuesID":"6","UsageName":"Duration","Status":true,"FieldOrder":6},{"Title":"ChargedAmount","ValuesID":"7","UsageName":"Cost","Status":true,"FieldOrder":7}]}'
+WHERE UsageColumn IS NULL;
+
+
+UPDATE tblInvoiceTemplate SET  GroupByService = 0;
+
+UPDATE tblInvoiceTemplate 
+INNER JOIN Ratemanagement3.tblBillingClass
+ON tblBillingClass.InvoiceTemplateID = tblInvoiceTemplate.InvoiceTemplateID
+SET tblInvoiceTemplate.CDRType = tblBillingClass.CDRType
+WHERE tblBillingClass.CDRType IS NOT NULL;
+
+UPDATE tblInvoiceTemplate SET CDRType = 1 WHERE CDRType IS NULL;
   
 DROP TABLE `tblUsageDaily`;
 
@@ -30,7 +55,8 @@ DROP FUNCTION IF EXISTS `FnGetInvoiceNumber`;
 
 DELIMITER |
 CREATE FUNCTION `FnGetInvoiceNumber`(
-	`p_account_id` INT,
+	`p_CompanyID` INT,
+	`p_AccountID` INT,
 	`p_BillingClassID` INT
 ) RETURNS int(11)
     NO SQL
@@ -168,8 +194,97 @@ BEGIN
 	WHERE 
 	(p_billing_time =1 and connect_time >= p_StartDate AND connect_time <= p_EndDate)
 	OR 
-	(p_billing_time =2 and disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate)
-	AND billed_duration > 0;
+	(p_billing_time =2 and disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate);
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `fnUsageDetail`;
+DELIMITER |
+CREATE PROCEDURE `fnUsageDetail`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `p_GatewayID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_billing_time` INT,
+	IN `p_cdr_type` CHAR(1),
+	IN `p_CLI` VARCHAR(50),
+	IN `p_CLD` VARCHAR(50),
+	IN `p_zerovaluecost` INT
+)
+BEGIN
+	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageDetails_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageDetails_(
+		AccountID int,
+		AccountName varchar(100),
+		GatewayAccountID varchar(100),
+		trunk varchar(50),
+		area_prefix varchar(50),
+		pincode VARCHAR(50),
+		extension VARCHAR(50),
+		UsageDetailID int,
+		duration int,
+		billed_duration int,
+		billed_second int,
+		cli varchar(500),
+		cld varchar(500),
+		cost decimal(18,6),
+		connect_time datetime,
+		disconnect_time datetime,
+		is_inbound tinyint(1) default 0,
+		ID INT,
+		ServiceID INT
+	);
+	INSERT INTO tmp_tblUsageDetails_
+	SELECT
+	*
+	FROM (
+		SELECT
+			uh.AccountID,
+			a.AccountName,
+			uh.GatewayAccountID,
+			trunk,
+			area_prefix,
+			pincode,
+			extension,
+			UsageDetailID,
+			duration,
+			billed_duration,
+			billed_second,
+			cli,
+			cld,
+			cost,
+			connect_time,
+			disconnect_time,
+			ud.is_inbound,
+			ud.ID,
+			uh.ServiceID
+		FROM RMCDR3.tblUsageDetails  ud
+		INNER JOIN RMCDR3.tblUsageHeader uh
+			ON uh.UsageHeaderID = ud.UsageHeaderID
+		INNER JOIN Ratemanagement3.tblAccount a
+			ON uh.AccountID = a.AccountID
+		WHERE
+		(p_cdr_type = '' OR  ud.is_inbound = p_cdr_type)
+		AND  StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
+		AND StartDate <= DATE_ADD(p_EndDate,INTERVAL 1 DAY)
+		AND uh.CompanyID = p_CompanyID
+		AND uh.AccountID IS NOT NULL
+		AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
+		AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
+		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
+		AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))
+		AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))
+		AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost = 0) OR ( p_zerovaluecost = 2 AND cost > 0))
+	) tbl
+	WHERE 
+	(p_billing_time =1 AND connect_time >= p_StartDate AND connect_time <= p_EndDate)
+	OR 
+	(p_billing_time =2 AND disconnect_time >= p_StartDate AND disconnect_time <= p_EndDate)
+	AND billed_duration > 0
+	ORDER BY disconnect_time DESC;
 END|
 DELIMITER ;
 
@@ -1304,59 +1419,9 @@ BEGIN
 		AuthRule VARCHAR(50)
 	);
 
-	SET v_pointer_ = 1;
-	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Service_);
-	/* service level authentication rule */ 
-	IF v_rowCount_ > 0
-	THEN
-
-		WHILE v_pointer_ <= v_rowCount_
-		DO
-
-			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Service_ t WHERE t.RowID = v_pointer_);
-			TRUNCATE TABLE tmp_AuthenticateRules_;
-			IF p_NameFormat != ''
-			THEN
-				INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-				SELECT p_NameFormat;
-			END IF;
-
-			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-			SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = v_ServiceID_
-			UNION
-			SELECT DISTINCT VendorAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = v_ServiceID_;
-
-			CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,v_ServiceID_);
-
-			SET v_pointer_ = v_pointer_ + 1;
-
-		END WHILE;
-
-	END IF;
-
-	/* account level authentication rule */
-	IF (SELECT COUNT(*) FROM Ratemanagement3.tblAccountAuthenticate WHERE CompanyID = p_CompanyID AND ServiceID = 0) > 0
-	THEN
-
-		TRUNCATE TABLE tmp_AuthenticateRules_;
-		IF p_NameFormat != ''
-		THEN
-			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-			SELECT p_NameFormat;
-		END IF;
-		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
-		SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CustomerAuthRule IS NOT NULL AND ServiceID = 0
-		UNION
-		SELECT DISTINCT VendorAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE VendorAuthRule IS NOT NULL AND ServiceID = 0;
-
-		CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0);
-
-	END IF;
-
 	/* gateway level authentication rule */
 	IF p_NameFormat = ''
 	THEN
-		TRUNCATE TABLE tmp_AuthenticateRules_;
 		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
 		SELECT
 			CASE WHEN Settings LIKE '%"NameFormat":"NAMENUB"%'
@@ -1386,9 +1451,45 @@ BEGIN
 
 	IF p_NameFormat != ''
 	THEN
-		TRUNCATE TABLE tmp_AuthenticateRules_;
 		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
 		SELECT p_NameFormat;
+
+	END IF;
+	SET v_pointer_ = 1;
+	SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Service_);
+	/* service level authentication rule */ 
+	IF v_rowCount_ > 0
+	THEN
+
+		WHILE v_pointer_ <= v_rowCount_
+		DO
+
+			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Service_ t WHERE t.RowID = v_pointer_);
+
+			INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+			SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND CustomerAuthRule IS NOT NULL AND ServiceID = v_ServiceID_
+			UNION
+			SELECT DISTINCT VendorAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND VendorAuthRule IS NOT NULL AND ServiceID = v_ServiceID_;
+
+			CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,v_ServiceID_);
+
+			SET v_pointer_ = v_pointer_ + 1;
+
+		END WHILE;
+
+	END IF;
+
+	/* account level authentication rule */
+	IF (SELECT COUNT(*) FROM Ratemanagement3.tblAccountAuthenticate WHERE CompanyID = p_CompanyID AND ServiceID = 0) > 0
+	THEN
+
+
+		INSERT INTO tmp_AuthenticateRules_  (AuthRule)
+		SELECT DISTINCT CustomerAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND CustomerAuthRule IS NOT NULL AND ServiceID = 0
+		UNION
+		SELECT DISTINCT VendorAuthRule FROM Ratemanagement3.tblAccountAuthenticate aa WHERE CompanyID = p_CompanyID AND VendorAuthRule IS NOT NULL AND ServiceID = 0;
+
+		CALL prc_ApplyAuthRule(p_CompanyID,p_CompanyGatewayID,0);
 
 	END IF;
 
@@ -1401,6 +1502,118 @@ BEGIN
 		AND tblGatewayAccount.ServiceID = a.ServiceID
 	SET tblGatewayAccount.AccountID = a.AccountID
 	WHERE tblGatewayAccount.AccountID IS NULL;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_GetCDR`;
+DELIMITER |
+CREATE PROCEDURE `prc_GetCDR`(
+	IN `p_company_id` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_start_date` DATETIME,
+	IN `p_end_date` DATETIME,
+	IN `p_AccountID` INT ,
+	IN `p_CDRType` CHAR(1),
+	IN `p_CLI` VARCHAR(50),
+	IN `p_CLD` VARCHAR(50),
+	IN `p_zerovaluecost` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_area_prefix` VARCHAR(50),
+	IN `p_trunk` VARCHAR(50),
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN 
+
+	DECLARE v_OffSet_ INT;
+	DECLARE v_BillingTime_ INT;
+	DECLARE v_Round_ INT;
+	DECLARE v_CurrencyCode_ VARCHAR(50);
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	SELECT fnGetRoundingPoint(p_company_id) INTO v_Round_;
+
+	SELECT cr.Symbol INTO v_CurrencyCode_ FROM Ratemanagement3.tblCurrency cr WHERE cr.CurrencyId =p_CurrencyID;
+
+	SELECT fnGetBillingTime(p_CompanyGatewayID,p_AccountID) INTO v_BillingTime_;
+
+	Call fnUsageDetail(p_company_id,p_AccountID,p_CompanyGatewayID,p_start_date,p_end_date,0,1,v_BillingTime_,p_CDRType,p_CLI,p_CLD,p_zerovaluecost);
+
+	IF p_isExport = 0
+	THEN 
+		SELECT
+			uh.UsageDetailID,
+			uh.AccountName,
+			uh.connect_time,
+			uh.disconnect_time,
+			uh.billed_duration,
+			CONCAT(IFNULL(v_CurrencyCode_,''),TRIM(uh.cost)+0) AS cost,
+			CONCAT(IFNULL(v_CurrencyCode_,''),TRIM(ROUND((uh.cost/uh.billed_duration)*60.0,6))+0) AS rate,
+			uh.cli,
+			uh.cld,
+			uh.area_prefix,
+			uh.trunk,
+			s.ServiceName,
+			uh.AccountID,
+			p_CompanyGatewayID AS CompanyGatewayID,
+			p_start_date AS StartDate,
+			p_end_date AS EndDate,
+			uh.is_inbound AS CDRType
+		FROM tmp_tblUsageDetails_ uh
+		INNER JOIN Ratemanagement3.tblAccount a
+			ON uh.AccountID = a.AccountID
+		LEFT JOIN Ratemanagement3.tblService s
+			ON uh.ServiceID = s.ServiceID
+		WHERE  (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
+			AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
+			AND (p_trunk = '' OR trunk = p_trunk )
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(*) AS totalcount,
+			fnFormateDuration(sum(billed_duration)) AS total_duration,
+			sum(cost) AS total_cost,
+			v_CurrencyCode_ AS CurrencyCode
+		FROM  tmp_tblUsageDetails_ uh
+		INNER JOIN Ratemanagement3.tblAccount a
+			ON uh.AccountID = a.AccountID
+		WHERE  (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
+			AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
+			AND (p_trunk = '' OR trunk = p_trunk );
+
+	END IF;
+
+	IF p_isExport = 1
+	THEN
+
+		SELECT
+			uh.AccountName AS 'Account Name',
+			uh.connect_time AS 'Connect Time',
+			uh.disconnect_time AS 'Disconnect Time',
+			uh.billed_duration AS 'Billed Duration (sec)' ,
+			CONCAT(IFNULL(v_CurrencyCode_,''),TRIM(uh.cost)+0) AS 'Cost',
+			CONCAT(IFNULL(v_CurrencyCode_,''),TRIM(ROUND((uh.cost/uh.billed_duration)*60.0,6))+0) AS 'Avg. Rate/Min',
+			uh.cli AS 'CLI',
+			uh.cld AS 'CLD',
+			uh.area_prefix AS 'Prefix',
+			uh.trunk AS 'Trunk',
+			uh.is_inbound
+		FROM tmp_tblUsageDetails_ uh
+		INNER JOIN Ratemanagement3.tblAccount a
+			ON uh.AccountID = a.AccountID
+		WHERE  (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
+			AND (p_area_prefix = '' OR area_prefix LIKE REPLACE(p_area_prefix, '*', '%'))
+			AND (p_trunk = '' OR trunk = p_trunk );
+	END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
@@ -2122,7 +2335,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	SELECT cr.Symbol INTO v_CurrencyCode_ FROM Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	SELECT cr.Symbol INTO v_CurrencyCode_ from Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_;
@@ -2180,7 +2393,7 @@ BEGIN
 			LEFT JOIN Ratemanagement3.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
 			WHERE ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
-			AND (p_InvoiceNumber = '' OR (inv.InvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
+			AND (p_InvoiceNumber = '' OR (inv.FullInvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
 			AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
 			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
 			AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND inv.InvoiceType = p_InvoiceType))
@@ -2343,7 +2556,7 @@ BEGIN
 			SET InvoiceStatus = 'paid' 
 			WHERE ac.CompanyID = p_CompanyID
 				AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
-				AND (p_InvoiceNumber = '' OR (inv.InvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
+				AND (p_InvoiceNumber = '' OR (inv.FullInvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
 				AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
 				AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
 				AND (p_InvoiceType = 0 OR ( p_InvoiceType != 0 AND inv.InvoiceType = p_InvoiceType))
@@ -2354,7 +2567,7 @@ BEGIN
 				AND (p_IsOverdue = 0 
 					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(b.PaymentDueInDays,0)
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
-							AND((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) FROM tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) )>0)
+							AND((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) )>0)
 						)
 				);
 		END IF; 
@@ -2464,7 +2677,7 @@ BEGIN
 			CONCAT("'",cld) AS CLD,
 			connect_time AS ConnectTime,
 			disconnect_time AS DisconnectTime,
-			billed_duration AS BilledDuration,
+			billed_duration AS BillDuration,
 			cost AS ChargedAmount,
 			ServiceID
 		FROM tmp_tblUsageDetails_ ud
@@ -2514,6 +2727,211 @@ BEGIN
 	HAVING (IFNULL(MAX(i.GrandTotal), 0) - IFNULL(SUM(p.Amount), 0)) > 0;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getPayments`;
+DELIMITER |
+CREATE PROCEDURE `prc_getPayments`(
+	IN `p_CompanyID` INT,
+	IN `p_accountID` INT,
+	IN `p_InvoiceNo` VARCHAR(30),
+	IN `p_FullInvoiceNumber` VARCHAR(50),
+	IN `p_Status` VARCHAR(20),
+	IN `p_PaymentType` VARCHAR(20),
+	IN `p_PaymentMethod` VARCHAR(20),
+	IN `p_RecallOnOff` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isCustomer` INT ,
+	IN `p_paymentStartDate` DATETIME,
+	IN `p_paymentEndDate` DATETIME,
+	IN `p_isExport` INT
+)
+BEGIN
+		
+	DECLARE v_OffSet_ INT;
+	DECLARE v_Round_ INT;
+	DECLARE v_CurrencyCode_ VARCHAR(50);
+	SET sql_mode = '';
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	SELECT cr.Symbol INTO v_CurrencyCode_ FROM Ratemanagement3.tblCurrency cr WHERE cr.CurrencyId =p_CurrencyID;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	IF p_isExport = 0
+	THEN
+		SELECT
+			tblPayment.PaymentID,
+			tblAccount.AccountName,
+			tblPayment.AccountID,
+			ROUND(tblPayment.Amount,v_Round_) AS Amount,
+			CASE WHEN p_isCustomer = 1 THEN
+				CASE WHEN PaymentType='Payment Out' THEN 'Payment In' ELSE 'Payment Out'
+				END
+			ELSE
+				PaymentType
+			END as PaymentType,
+			tblPayment.CurrencyID,
+			tblPayment.PaymentDate,
+			CASE WHEN p_RecallOnOff = -1 AND tblPayment.Recall=1  THEN 'Recalled' ELSE tblPayment.Status END as `Status`,
+			tblPayment.CreatedBy,
+			tblPayment.PaymentProof,
+			tblPayment.InvoiceNo,
+			tblPayment.PaymentMethod,
+			tblPayment.Notes,
+			tblPayment.Recall,
+			tblPayment.RecallReasoan,
+			tblPayment.RecallBy,
+			CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(tblPayment.Amount,v_Round_)) AS AmountWithSymbol
+		FROM tblPayment
+		LEFT JOIN Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+		WHERE tblPayment.CompanyID = p_CompanyID
+			AND(p_RecallOnOff = -1 OR tblPayment.Recall = p_RecallOnOff)
+			AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
+			AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo like Concat('%',p_InvoiceNo,'%')))
+			AND((p_FullInvoiceNumber = '' OR tblPayment.InvoiceNo = p_FullInvoiceNumber))
+			AND((p_Status IS NULL OR tblPayment.Status = p_Status))
+			AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
+			AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
+			AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate))
+			AND (p_CurrencyID = 0 OR tblPayment.CurrencyId = p_CurrencyID)
+		ORDER BY
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN tblAccount.AccountName
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN tblAccount.AccountName
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNoDESC') THEN InvoiceNo
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNoASC') THEN InvoiceNo
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AmountDESC') THEN Amount
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AmountASC') THEN Amount
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PaymentTypeDESC') THEN PaymentType
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PaymentTypeASC') THEN PaymentType
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PaymentDateDESC') THEN PaymentDate
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'PaymentDateASC') THEN PaymentDate
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StatusDESC') THEN tblPayment.Status
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'StatusASC') THEN tblPayment.Status
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreatedByDESC') THEN tblPayment.CreatedBy
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreatedByASC') THEN tblPayment.CreatedBy
+			END ASC
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(tblPayment.PaymentID) AS totalcount,
+			CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(sum(Amount),v_Round_)) AS total_grand
+		FROM tblPayment
+		LEFT JOIN Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+		WHERE tblPayment.CompanyID = p_CompanyID
+			AND(p_RecallOnOff = -1 OR tblPayment.Recall = p_RecallOnOff)
+			AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
+			AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo like Concat('%',p_InvoiceNo,'%')))
+			AND((p_FullInvoiceNumber = '' OR tblPayment.InvoiceNo = p_FullInvoiceNumber))
+			AND((p_Status IS NULL OR tblPayment.Status = p_Status))
+			AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
+			AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
+			AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate))
+			AND (p_CurrencyID = 0 OR tblPayment.CurrencyId = p_CurrencyID);
+
+	END IF;
+	IF p_isExport = 1
+	THEN
+
+		SELECT 
+			AccountName,
+			CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(tblPayment.Amount,v_Round_)) AS Amount,
+			CASE WHEN p_isCustomer = 1 THEN
+				CASE WHEN PaymentType='Payment Out' THEN 'Payment In' ELSE 'Payment Out'
+				END
+			ELSE  PaymentType
+			END AS PaymentType,
+			PaymentDate,
+			tblPayment.Status,
+			tblPayment.CreatedBy,
+			InvoiceNo,
+			tblPayment.PaymentMethod,
+			Notes 
+		FROM tblPayment
+		LEFT JOIN Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+		WHERE tblPayment.CompanyID = p_CompanyID
+			AND(p_RecallOnOff = -1 OR tblPayment.Recall = p_RecallOnOff)
+			AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
+			AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo like Concat('%',p_InvoiceNo,'%')))
+			AND((p_FullInvoiceNumber = '' OR tblPayment.InvoiceNo = p_FullInvoiceNumber))
+			AND((p_Status IS NULL OR tblPayment.Status = p_Status))
+			AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
+			AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
+			AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate))
+			AND (p_CurrencyID = 0 OR tblPayment.CurrencyId = p_CurrencyID);
+	END IF;
+	
+	-- export data for customer panel
+	IF p_isExport = 2
+	THEN
+
+		SELECT 
+			AccountName,
+			CONCAT(IFNULL(v_CurrencyCode_,''),ROUND(tblPayment.Amount,v_Round_)) as Amount,
+			CASE WHEN p_isCustomer = 1 THEN
+				CASE WHEN PaymentType='Payment Out' THEN 'Payment In' ELSE 'Payment Out'
+				END
+			ELSE  PaymentType
+			END as PaymentType,
+			PaymentDate,
+			tblPayment.Status,
+			InvoiceNo,
+			tblPayment.PaymentMethod,
+			Notes 
+		FROM tblPayment
+		LEFT JOIN Ratemanagement3.tblAccount ON tblPayment.AccountID = tblAccount.AccountID
+		WHERE tblPayment.CompanyID = p_CompanyID
+			AND(tblPayment.Recall = p_RecallOnOff)
+			AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
+			AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
+			AND((p_FullInvoiceNumber = '' OR tblPayment.InvoiceNo = p_FullInvoiceNumber))
+			AND((p_Status IS NULL OR tblPayment.Status = p_Status))
+			AND((p_PaymentType IS NULL OR tblPayment.PaymentType = p_PaymentType))
+			AND((p_PaymentMethod IS NULL OR tblPayment.PaymentMethod = p_PaymentMethod))
+			AND (p_paymentStartDate is null OR ( p_paymentStartDate != '' AND tblPayment.PaymentDate >= p_paymentStartDate))
+			AND (p_paymentEndDate  is null OR ( p_paymentEndDate != '' AND tblPayment.PaymentDate <= p_paymentEndDate))
+			AND (p_CurrencyID = 0 OR tblPayment.CurrencyId = p_CurrencyID);
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
 END|
 DELIMITER ;
 
@@ -2739,7 +3157,8 @@ BEGIN
 
 	SELECT COUNT(*) INTO v_ServiceAccountID_CLI_Count_ 
 	FROM Ratemanagement3.tblAccountAuthenticate aa
-	WHERE (CustomerAuthRule = 'CLI' OR VendorAuthRule = 'CLI') AND ServiceID > 0;
+	INNER JOIN Ratemanagement3.tblCLIRateTable crt ON crt.AccountID = aa.AccountID
+	WHERE aa.CompanyID = p_CompanyID AND (CustomerAuthRule = 'CLI' OR VendorAuthRule = 'CLI') AND crt.ServiceID > 0 ;
 
 	IF v_ServiceAccountID_CLI_Count_ > 0
 	THEN
@@ -2763,7 +3182,7 @@ BEGIN
 	
 	SELECT COUNT(*) INTO v_ServiceAccountID_IP_Count_ 
 	FROM Ratemanagement3.tblAccountAuthenticate aa
-	WHERE (CustomerAuthRule = 'IP' OR VendorAuthRule = 'IP') AND ServiceID > 0;
+	WHERE aa.CompanyID = p_CompanyID AND (CustomerAuthRule = 'IP' OR VendorAuthRule = 'IP') AND ServiceID > 0;
 
 	IF v_ServiceAccountID_IP_Count_ > 0
 	THEN
@@ -3956,7 +4375,207 @@ BEGIN
 END|
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `prc_getDashboardTotalOutStanding`;
+DELIMITER |
+CREATE PROCEDURE `prc_getDashboardTotalOutStanding`(
+	IN `p_CompanyID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_AccountID` INT
+)
+BEGIN
+	DECLARE v_Round_ int;
+	DECLARE v_TotalInvoiceOut_ decimal(18,6);
+	DECLARE v_TotalPaymentIn_ decimal(18,6);
+	DECLARE v_TotalInvoiceIn_ decimal(18,6);
+	DECLARE v_TotalPaymentOut_ decimal(18,6);
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+
+	SELECT 
+		SUM(IF(InvoiceType=1,GrandTotal,0)),
+		SUM(IF(InvoiceType=2,GrandTotal,0)) 
+	INTO 
+		v_TotalInvoiceOut_,
+		v_TotalInvoiceIn_
+	FROM tblInvoice 
+	WHERE 
+		CompanyID = p_CompanyID
+		AND CurrencyID = p_CurrencyID
+		AND ( (InvoiceType = 2) OR ( InvoiceType = 1 AND InvoiceStatus NOT IN ( 'cancel' , 'draft') )  )
+		AND (p_AccountID = 0 or AccountID = p_AccountID);
+		
+	SELECT 
+		SUM(IF(PaymentType='Payment In',p.Amount,0)),
+		SUM(IF(PaymentType='Payment Out',p.Amount,0)) 
+	INTO 
+		v_TotalPaymentIn_,
+		v_TotalPaymentOut_
+	FROM tblPayment p 
+	INNER JOIN Ratemanagement3.tblAccount ac 
+		ON ac.AccountID = p.AccountID
+	WHERE 
+		p.CompanyID = p_CompanyID
+		AND ac.CurrencyId = p_CurrencyID
+		AND p.Status = 'Approved'
+		AND p.Recall=0
+		AND (p_AccountID = 0 or ac.AccountID = p_AccountID);
+	
+	--	SELECT ROUND((v_TotalInvoice_ - v_TotalPayment_),v_Round_) AS TotalOutstanding ;
+	SELECT 
+		ROUND((IFNULL(v_TotalInvoiceOut_,0) - IFNULL(v_TotalPaymentIn_,0)) - (IFNULL(v_TotalInvoiceIn_,0) - IFNULL(v_TotalPaymentOut_,0)),v_Round_) AS TotalOutstanding,
+		ROUND((IFNULL(v_TotalInvoiceOut_,0) - IFNULL(v_TotalPaymentIn_,0)),v_Round_) AS TotalReceivable,
+		ROUND((IFNULL(v_TotalInvoiceIn_,0) - IFNULL(v_TotalPaymentOut_,0)),v_Round_) AS TotalPayable;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END|
+DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_insertDailyData`;
 
 DROP PROCEDURE IF EXISTS `prc_salesDashboard`;
+
+DROP PROCEDURE IF EXISTS `prc_insertPayments`;
+
+DELIMITER |
+CREATE PROCEDURE `prc_insertPayments`(
+	IN `p_CompanyID` INT,
+	IN `p_ProcessID` VARCHAR(100),
+	IN `p_UserID` INT
+)
+BEGIN
+
+	
+	DECLARE v_UserName varchar(30);
+ 	
+ 	SELECT CONCAT(u.FirstName,CONCAT(' ',u.LastName)) as name into v_UserName from Ratemanagement3.tblUser u where u.UserID=p_UserID;
+ 	
+ 	INSERT INTO tblPayment (
+	 		CompanyID,
+	 		 AccountID,
+			 InvoiceNo,
+			 PaymentDate,
+			 PaymentMethod,
+			 PaymentType,
+			 Notes,
+			 Amount,
+			 CurrencyID,
+			 Recall,
+			 `Status`,
+			 created_at,
+			 updated_at,
+			 CreatedBy,
+			 ModifyBy,
+			 RecallReasoan,
+			 RecallBy,
+			 BulkUpload,
+			 InvoiceID
+			 )
+ 	select tp.CompanyID,
+	 		 tp.AccountID,
+			 COALESCE(tp.InvoiceNo,''),
+			 tp.PaymentDate,
+			 tp.PaymentMethod,
+			 tp.PaymentType,
+			 tp.Notes,
+			 tp.Amount,
+			 ac.CurrencyId,
+			 0 as Recall,
+			 tp.Status,
+			 Now() as created_at,
+			 Now() as updated_at,
+			 v_UserName as CreatedBy,
+			 '' as ModifyBy,
+			 '' as RecallReasoan,
+			 '' as RecallBy,
+			 1 as BulkUpload,
+			 InvoiceID
+	from tblTempPayment tp
+	INNER JOIN Ratemanagement3.tblAccount ac 
+		ON  ac.AccountID = tp.AccountID  and ac.AccountType = 1 and ac.CurrencyId IS NOT NULL
+	where tp.ProcessID = p_ProcessID
+			AND tp.PaymentDate <= NOW()
+			AND tp.CompanyID = p_CompanyID;
+			
+	
+	/* Delete tmp table */		
+	 delete from tblTempPayment where CompanyID = p_CompanyID and ProcessID = p_ProcessID;
+	 
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_validatePayments`;
+CREATE PROCEDURE `prc_validatePayments`(
+	IN `p_CompanyID` INT,
+	IN `p_ProcessID` VARCHAR(50)
+
+)
+BEGIN
+
+SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+SET SESSION group_concat_max_len=5000;
+
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_error_;
+	CREATE TEMPORARY TABLE tmp_error_(
+		`ErrorMessage` VARCHAR(500)
+	);
+	
+		INSERT INTO tmp_error_	
+	SELECT DISTINCT CONCAT('Future payments will not be uploaded - Account: ',IFNULL(ac.AccountName,''),' Action: ' ,IFNULL(pt.PaymentType,''),' Payment Date: ',IFNULL(pt.PaymentDate,''),' Amount: ',pt.Amount) as ErrorMessage
+	FROM tblTempPayment pt
+	INNER JOIN Ratemanagement3.tblAccount ac on ac.AccountID = pt.AccountID
+	WHERE pt.CompanyID = p_CompanyID
+		AND pt.PaymentDate > NOW()
+		AND pt.ProcessID = p_ProcessID;
+
+	INSERT INTO tmp_error_
+	SELECT distinct CONCAT('Duplicate payment in file - Account: ',IFNULL(ac.AccountName,''),' Action: ' ,IFNULL(pt.PaymentType,''),' Payment Date: ',IFNULL(pt.PaymentDate,''),' Amount: ',pt.Amount) as ErrorMessage  
+	FROM tblTempPayment pt
+	INNER JOIN Ratemanagement3.tblAccount ac on ac.AccountID = pt.AccountID
+	INNER JOIN tblTempPayment tp on tp.ProcessID = pt.ProcessID
+		AND tp.AccountID = pt.AccountID
+		AND tp.PaymentDate = pt.PaymentDate
+		AND tp.Amount = pt.Amount
+		AND tp.PaymentType = pt.PaymentType
+		AND tp.PaymentMethod = pt.PaymentMethod
+	WHERE pt.CompanyID = p_CompanyID
+		AND pt.ProcessID = p_ProcessID
+ 	GROUP BY pt.InvoiceNo,pt.AccountID,pt.PaymentDate,pt.PaymentType,pt.PaymentMethod,pt.Amount having count(*)>=2;
+ 	
+	INSERT INTO tmp_error_	
+	SELECT DISTINCT
+		CONCAT('Duplicate payment in system - Account: ',IFNULL(ac.AccountName,''),' Action: ' ,IFNULL(pt.PaymentType,''),' Payment Date: ',IFNULL(pt.PaymentDate,''),' Amount: ',pt.Amount) as ErrorMessage
+	FROM tblTempPayment pt
+	INNER JOIN Ratemanagement3.tblAccount ac on ac.AccountID = pt.AccountID
+	INNER JOIN tblPayment p on p.CompanyID = pt.CompanyID 
+		AND p.AccountID = pt.AccountID
+		AND p.PaymentDate = pt.PaymentDate
+		AND p.Amount = pt.Amount
+		AND p.PaymentType = pt.PaymentType
+		AND p.Recall = 0
+	WHERE pt.CompanyID = p_CompanyID
+		AND pt.ProcessID = p_ProcessID;
+		
+		
+		INSERT INTO tmp_error_	
+	SELECT DISTINCT
+		CONCAT('Currency Not Set - Account: ',IFNULL(ac.AccountName,''),' Action: ' ,IFNULL(pt.PaymentType,''),' Payment Date: ',IFNULL(pt.PaymentDate,''),' Amount: ',pt.Amount) as ErrorMessage
+	FROM tblTempPayment pt
+	INNER JOIN Ratemanagement3.tblAccount ac on ac.AccountID = pt.AccountID
+			and ac.AccountType = 1
+		WHERE pt.CompanyID = p_CompanyID
+		   AND ac.CurrencyId IS NULL
+			AND pt.ProcessID = p_ProcessID;
+	
+	
+	IF (SELECT COUNT(*) FROM tmp_error_) > 0
+	THEN
+	SELECT GROUP_CONCAT(ErrorMessage SEPARATOR "\r\n" ) as ErrorMessage FROM	tmp_error_;
+		
+	END IF;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END|
+DELIMITER ;

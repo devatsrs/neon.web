@@ -5,6 +5,15 @@ ALTER TABLE `tblUsageHeader`
 
 ALTER TABLE `tblVendorCDRHeader`
   ADD COLUMN `ServiceID` int(11) NULL DEFAULT '0';
+  
+SET @tables = NULL;
+SELECT GROUP_CONCAT('`', table_schema, '`.`', table_name,'`') INTO @tables FROM information_schema.tables 
+WHERE table_schema = 'RMCDR3' AND table_name LIKE BINARY 'tblTemp%';
+
+SET @tables = CONCAT('DROP TABLE ', @tables);
+PREPARE stmt1 FROM @tables;
+EXECUTE stmt1;
+DEALLOCATE PREPARE stmt1;
 
 DROP PROCEDURE IF EXISTS `prc_insertCDR`;
 
@@ -122,8 +131,8 @@ BEGIN
 	DEALLOCATE PREPARE stmt2;
 
 	SET @stm6 = CONCAT('
-	INSERT INTO tblVendorCDRFailed (VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
-	SELECT VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
+	INSERT INTO tblVendorCDRFailed (VendorCDRHeaderID,billed_duration,duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
+	SELECT VendorCDRHeaderID,billed_duration,duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
 	FROM `' , p_tbltempusagedetail_name , '` d 
 	INNER JOIN tblVendorCDRHeader h	 
 	ON h.CompanyID = d.CompanyID
@@ -147,8 +156,8 @@ BEGIN
 	DEALLOCATE PREPARE stmt3;
 
 	SET @stm4 = CONCAT('
-	INSERT INTO tblVendorCDR (VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
-	SELECT VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
+	INSERT INTO tblVendorCDR (VendorCDRHeaderID,billed_duration,duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
+	SELECT VendorCDRHeaderID,billed_duration,duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
 	FROM `' , p_tbltempusagedetail_name , '` d 
 	INNER JOIN tblVendorCDRHeader h	 
 	ON h.CompanyID = d.CompanyID

@@ -10,6 +10,9 @@
 
         <a href="{{URL::to('contacts')}}">Contacts</a>
     </li>
+    <li>
+        <a><span>{{contacts_dropbox($contact->ContactID)}}</span></a>
+    </li>
     <li class="active">
         <strong>Edit Contact</strong>
     </li>
