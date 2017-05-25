@@ -60,15 +60,14 @@
                                     var action = '';
 
                                     @if(User::checkCategoryPermission('TicketImportRules','Edit'))
-                                            action += '<a  href="' + edit_ + '" class="btn btn-sm btn-default"><i class="entypo-pencil"></i></a>';
-                                    @endif
+                                          action += '<a  href="' + edit_ + '" title="Edit" class="btn btn-sm btn-default"><i class="entypo-pencil"></i></a>';                                    @endif
 									
 									 @if(User::checkCategoryPermission('TicketImportRules','Add'))
-                                            action += '&nbsp;<a  href="' + clone_ + '" class="btn btn-sm btn-default"><i class="fa fa-clone"></i></a>';
+                                            action += '&nbsp;<a title="Clone"  href="' + clone_ + '" class="btn btn-sm btn-default"><i class="fa fa-clone"></i></a>';
                                     @endif
 
                                             @if(User::checkCategoryPermission('TicketImportRules','Delete'))											
-                                            action += '&nbsp;<a grouptickets="'+id+'" data-id="'+full[2]+'" id="group-'+full[2]+'" class="delete-ticketrule btn-sm btn delete btn-danger "><i class="entypo-trash"></i></a>';
+                                            action += '&nbsp;<a title="Delete" grouptickets="'+id+'" data-id="'+full[2]+'" id="group-'+full[2]+'" class="delete-ticketrule btn-sm btn delete btn-danger "><i class="entypo-trash"></i></a>';
 											
                                     @endif									
                                             return action;
