@@ -974,7 +974,9 @@
                     ele.html(widgets);
                     var temp = ele.find('.col-xs-6');
                     $('#invoice-widgets').prepend(temp);
-                    titleState(temp.find('.tile-stats'));
+                    $("#invoice-widgets").find('.tile-stats').each(function (i, el) {
+						titleState(el);
+					});
 
                 }, "json");
             @endif
