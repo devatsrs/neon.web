@@ -1628,6 +1628,10 @@ ALTER TABLE `tblTickets`
 ALTER TABLE `tblTickets`
 	ADD COLUMN `CustomerRepliedDate` DATETIME NULL DEFAULT NULL AFTER `AgentRepliedDate`;	
 -- ############################################
+
+DELETE FROM `tblResourceCategories` WHERE ResourceCategoryID between 1249 AND 1298;
+DELETE FROM `tblResource` WHERE CategoryID between 1249 AND 1298;
+
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1298, 'AccountService.All', 1, 3);
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1297, 'AccountService.View', 1, 3);
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1296, 'AccountService.Delete', 1, 3);
