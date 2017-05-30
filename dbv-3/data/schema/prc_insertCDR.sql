@@ -9,14 +9,11 @@ BEGIN
 	SET SESSION innodb_lock_wait_timeout = 180;
 
 	SET @stm2 = CONCAT('
-	INSERT INTO   tblUsageHeader (CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,StartDate,created_at,ServiceID)
-	SELECT DISTINCT d.CompanyID,d.CompanyGatewayID,d.GatewayAccountID,d.AccountID,DATE_FORMAT(connect_time,"%Y-%m-%d"),NOW(),d.ServiceID
+	INSERT INTO   tblUsageHeader (CompanyID,CompanyGatewayID,GatewayAccountPKID,GatewayAccountID,AccountID,StartDate,created_at,ServiceID)
+	SELECT DISTINCT d.CompanyID,d.CompanyGatewayID,d.GatewayAccountPKID,d.GatewayAccountID,d.AccountID,DATE_FORMAT(connect_time,"%Y-%m-%d"),NOW(),d.ServiceID
 	FROM `' , p_tbltempusagedetail_name , '` d
 	LEFT JOIN tblUsageHeader h
-	ON h.CompanyID = d.CompanyID
-		AND h.CompanyGatewayID = d.CompanyGatewayID
-		AND h.GatewayAccountID = d.GatewayAccountID
-		AND h.ServiceID = d.ServiceID
+	ON h.GatewayAccountPKID = d.GatewayAccountPKID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
 	WHERE h.GatewayAccountID IS NULL AND processid = "' , p_processId , '";
 	');
@@ -30,10 +27,7 @@ BEGIN
 	SELECT UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition
 	FROM  `' , p_tbltempusagedetail_name , '` d
 	INNER JOIN tblUsageHeader h
-	ON h.CompanyID = d.CompanyID
-		AND h.CompanyGatewayID = d.CompanyGatewayID
-		AND h.GatewayAccountID = d.GatewayAccountID
-		AND h.ServiceID = d.ServiceID
+	ON h.GatewayAccountPKID = d.GatewayAccountPKID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
 	WHERE   processid = "' , p_processId , '"
 		AND billed_duration = 0 AND cost = 0 AND ( disposition <> "ANSWERED" OR disposition IS NULL);
@@ -57,10 +51,7 @@ BEGIN
 	SELECT UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition
 	FROM  `' , p_tbltempusagedetail_name , '` d
 	INNER JOIN tblUsageHeader h
-	ON h.CompanyID = d.CompanyID
-		AND h.CompanyGatewayID = d.CompanyGatewayID
-		AND h.GatewayAccountID = d.GatewayAccountID
-		AND h.ServiceID = d.ServiceID
+	ON h.GatewayAccountPKID = d.GatewayAccountPKID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
 	WHERE   processid = "' , p_processId , '" ;
 	');

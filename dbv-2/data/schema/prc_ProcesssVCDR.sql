@@ -43,18 +43,26 @@ BEGIN
 
 	/* insert new account */
 	SET @stm = CONCAT('
-	INSERT INTO tblGatewayAccount (CompanyID, CompanyGatewayID, GatewayAccountID, AccountName,IsVendor)
+	INSERT INTO tblGatewayAccount (CompanyID, CompanyGatewayID, GatewayAccountID, AccountName,AccountNumber,AccountCLI,AccountIP,ServiceID,IsVendor)
 	SELECT
 		DISTINCT
 		ud.CompanyID,
 		ud.CompanyGatewayID,
 		ud.GatewayAccountID,
-		ud.GatewayAccountID,
+		ud.AccountName,
+		ud.AccountNumber,
+		ud.AccountCLI,
+		ud.AccountIP,
+		ud.ServiceID,
 		1 as IsVendor
 	FROM NeonCDRDev.' , p_tbltempusagedetail_name , ' ud
 	LEFT JOIN tblGatewayAccount ga
-		ON ga.GatewayAccountID = ud.GatewayAccountID
+		ON ga.AccountName = ud.AccountName
+		AND ga.AccountNumber = ud.AccountNumber
+		AND ga.AccountCLI = ud.AccountCLI
+		AND ga.AccountIP = ud.AccountIP
 		AND ga.CompanyGatewayID = ud.CompanyGatewayID
+		AND ga.ServiceID = ud.ServiceID
 		AND ga.CompanyID = ud.CompanyID
 	WHERE ProcessID =  "' , p_processId , '"
 		AND ga.GatewayAccountID IS NULL
@@ -65,6 +73,25 @@ BEGIN
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 
+	/* update cdr account */
+	SET @stm = CONCAT('
+	UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` uh
+	INNER JOIN tblGatewayAccount ga
+		ON  ga.CompanyID = uh.CompanyID
+		AND ga.CompanyGatewayID = uh.CompanyGatewayID
+		AND ga.AccountName = uh.AccountName
+		AND ga.AccountNumber = uh.AccountNumber
+		AND ga.AccountCLI = uh.AccountCLI
+		AND ga.AccountIP = uh.AccountIP
+		AND ga.ServiceID = uh.ServiceID
+	SET uh.GatewayAccountPKID = ga.GatewayAccountPKID
+	WHERE uh.CompanyID = ' ,  p_CompanyID , '
+	AND uh.ProcessID = "' , p_processId , '" ;
+	');
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+	
 	/* active new account */
 	CALL  prc_getActiveGatewayAccount(p_CompanyID,p_CompanyGatewayID,p_NameFormat);
 
@@ -74,11 +101,15 @@ BEGIN
 	INNER JOIN tblGatewayAccount ga
 		ON  ga.CompanyID = uh.CompanyID
 		AND ga.CompanyGatewayID = uh.CompanyGatewayID
-		AND ga.GatewayAccountID = uh.GatewayAccountID
+		AND ga.AccountName = uh.AccountName
+		AND ga.AccountNumber = uh.AccountNumber
+		AND ga.AccountCLI = uh.AccountCLI
+		AND ga.AccountIP = uh.AccountIP
+		AND ga.ServiceID = uh.ServiceID
 	SET uh.AccountID = ga.AccountID
 	WHERE uh.AccountID IS NULL
 	AND ga.AccountID is not null
-	AND uh.CompanyID = ' ,  p_companyid , '
+	AND uh.CompanyID = ' ,  p_CompanyID , '
 	AND uh.ProcessID = "' , p_processId , '" ;
 	');
 	PREPARE stmt FROM @stm;
@@ -88,9 +119,7 @@ BEGIN
 	SELECT COUNT(*) INTO v_NewAccountIDCount_ 
 	FROM NeonCDRDev.tblVendorCDRHeader uh
 	INNER JOIN tblGatewayAccount ga
-		ON  ga.CompanyID = uh.CompanyID
-		AND ga.CompanyGatewayID = uh.CompanyGatewayID
-		AND ga.GatewayAccountID = uh.GatewayAccountID
+		ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
 	WHERE uh.AccountID IS NULL
 	AND ga.AccountID is not null
 	AND uh.CompanyID = p_CompanyID
@@ -101,9 +130,7 @@ BEGIN
 		/* update header cdr account */
 		UPDATE NeonCDRDev.tblVendorCDRHeader uh
 		INNER JOIN tblGatewayAccount ga
-			ON  ga.CompanyID = uh.CompanyID
-			AND ga.CompanyGatewayID = uh.CompanyGatewayID
-			AND ga.GatewayAccountID = uh.GatewayAccountID
+			ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
 		SET uh.AccountID = ga.AccountID
 		WHERE uh.AccountID IS NULL
 		AND ga.AccountID is not null
@@ -242,9 +269,13 @@ BEGIN
 	SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,1,  CONCAT( "Account:  " , ga.AccountName ," - Gateway: ",cg.Title," - Doesnt exist in NEON") as Message ,DATE(NOW())
 	FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
 	INNER JOIN tblGatewayAccount ga 
-		ON ga.CompanyGatewayID = ud.CompanyGatewayID
+		ON ga.AccountName = ud.AccountName
+		AND ga.AccountNumber = ud.AccountNumber
+		AND ga.AccountCLI = ud.AccountCLI
+		AND ga.AccountIP = ud.AccountIP
+		AND ga.CompanyGatewayID = ud.CompanyGatewayID
 		AND ga.CompanyID = ud.CompanyID
-		AND ga.GatewayAccountID = ud.GatewayAccountID
+		AND ga.ServiceID = ud.ServiceID
 	INNER JOIN NeonRMDev.tblCompanyGateway cg ON cg.CompanyGatewayID = ud.CompanyGatewayID
 	WHERE ud.ProcessID = "' , p_processid  , '" and ud.AccountID IS NULL');
 	
