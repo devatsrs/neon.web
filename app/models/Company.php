@@ -168,10 +168,13 @@ class Company extends \Eloquent {
 
         $LicenceApiResponse = Session::get('LicenceApiResponse','');
 
-        if(empty($LicenceApiResponse)) { // if first time login ...
+        if(empty($LicenceApiResponse) || (!empty($LicenceApiResponse) && isset($LicenceApiResponse["Status"]) &&  empty($LicenceApiResponse["Status"]) ) ) { // if first time login ... // check if status is empty then also try again
             $valresponse = Company::ValidateLicenceKey();
             Session::set('LicenceApiResponse', $valresponse);
             $LicenceApiResponse = $valresponse;
+            //Log response;
+            \Illuminate\Support\Facades\Log::info($LicenceApiResponse);
+
         }
         return $LicenceApiResponse;
     }
