@@ -191,6 +191,9 @@ class ImportsController extends \BaseController {
             }elseif($gateway == 'Porta'){
                 $porta = new Porta($CompanyGatewayID);
                 $response1 = $porta->getAccountsDetail($param);
+            }elseif($gateway == 'MOR'){
+                $mor = new MOR($CompanyGatewayID);
+                $response1 = $mor->getAccountsDetail($param);
             }
             //$pbx = new PBX($CompanyGatewayID);
 

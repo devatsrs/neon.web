@@ -43,8 +43,7 @@ Route::filter('auth', function()
 	{
 		if (Request::ajax())
 		{
-            \Illuminate\Support\Facades\Log::info("filters.php Request::ajax");
-			return Response::make('Unauthorized', 401);
+            return Response::make('Unauthorized', 401);
 		}
 		else
 		{

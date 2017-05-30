@@ -71,6 +71,9 @@
         @if(User::checkCategoryPermission('BusinessHours','View'))
         <li> <a href="{{URL::to('/businesshours')}}">  <span>Business Hours</span></a> </li>
         @endif
+         @if(User::checkCategoryPermission('TicketImportRules','View'))
+        <li> <a href="{{URL::to('/tickets/importrules')}}">  <span>Import Rules</span></a> </li>
+        @endif
       </ul>
     </li>
     @endif

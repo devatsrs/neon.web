@@ -598,7 +598,8 @@ class TicketsController extends \BaseController {
 	
 	function CloseTicket($ticketID)
 	{
-		$response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,array(),true,true); 
+		$data 				= 		Input::all();
+		$response  		    =  	  NeonAPI::request('tickets/closeticket/'.$ticketID,$data,true,true); 
 		return json_response_api($response);    		
 	}
 	
@@ -711,4 +712,9 @@ class TicketsController extends \BaseController {
         $response  		    =  	  NeonAPI::request('tickets/bulkdelete',$data,true,true);
         return json_response_api($response);
     }
+	
+	function Show_Log($id){
+	    $TicketData = TicketsTable::find($id);
+        return View::make('tickets.ticketslog', compact('TicketData','id'));    
+	}	
 }

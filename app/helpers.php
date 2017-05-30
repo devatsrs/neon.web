@@ -134,6 +134,10 @@ function rename_upload_file($destinationPath,$full_name){
     $basename = $name . $increment . '.' . $extension;
     return $basename;
 }
+function importrules_dropbox($id=0,$data=array()){
+    $all_ImportRules = TicketImportRule::getImportRules($data);
+    return Form::select('importrules', $all_ImportRules, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
 function customer_dropbox($id=0,$data=array()){
     $all_customers = Account::getAccountIDList($data);
     return Form::select('customers', $all_customers, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
@@ -175,6 +179,10 @@ function rate_tables_dropbox($id=0,$data=array()){
 function contacts_dropbox($id=0,$data=array()){
     $all_contacts = Contact::getContacts($data);
     return Form::select('contacts', $all_contacts, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+function recurring_invoice_log_dropbox($id=0,$data=array()){
+    $all_getInvoice = RecurringInvoice::getRecurringInvoices($data);
+    return Form::select('recurringinvoicelogs', $all_getInvoice, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 function ticketgroup_dropbox($id=0,$data=array()){
     $all_ticketsgroups = TicketGroups::getTicketGroups_dropdown($data);
@@ -420,7 +428,7 @@ function compositDropdown($name,$data,$selection,$arr)
         $select .= ' <optgroup class="optgroup_'.Product::$TypetoProducts[$index].'" label="'.ucfirst(Product::$TypetoProducts[$index]).'">';
         foreach($cate as $key=>$val) {
             $selected = (!empty($selection) && $key==$selection['ID'] && $index==$selection['Type'])?'selected':'';
-            $select .= '    <option value="' . $key . '" '.$selected.'>';
+            $select .= '    <option Item_Subscription_txt="'.ucfirst(Product::$TypetoProducts[$index]).'" Item_Subscription_type="'.$index.'" value="' . $key . '" '.$selected.'>';
             $select .= $val;
             $select .= '    </option>';
         }
@@ -762,6 +770,15 @@ function email_log($data){
         $status['message'] = 'Message not set in Account mail log';
         return $status;
     }
+	
+	if(isset($data['AttachmentPaths']) && count($data['AttachmentPaths'])>0)
+    {
+        $data['AttachmentPaths'] = serialize($data['AttachmentPaths']);
+    }
+    else
+    {
+        $data['AttachmentPaths'] = serialize([]);
+    }
 
     if(is_array($data['EmailTo'])){
         $data['EmailTo'] = implode(',',$data['EmailTo']);
@@ -792,6 +809,7 @@ function email_log($data){
         'CreatedBy'=>User::get_user_full_name(),
         'Cc'=>implode(",",$data['cc']),
         'Bcc'=>implode(",",$data['bcc']),
+		"AttachmentPaths"=>$data['AttachmentPaths'],
 		"MessageID"=>$data['message_id']];
     if(AccountEmailLog::Create($logData)){
         $status['status'] = 1;
@@ -1076,14 +1094,14 @@ function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
     $path_array 	  =    explode("Controller",$Path);
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup","DialString");
-    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention");
+    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention");  
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
-	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours");
+	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours","TicketImportRules");
     $array_template   =    array("");
     $array_dashboard  =    array("Dashboard");
 	$array_crm 		  =    array("OpportunityBoard","Task","Dashboard");
-    $array_billing    =    array("Dashboard",'Estimates','Invoices','RecurringInvoice','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR',"Discount","BillingClass");
+    $array_billing    =    array("Dashboard",'Estimates','Invoices','RecurringInvoice','Dispute','BillingSubscription','Payments','AccountStatement','Products','InvoiceTemplates','TaxRates','CDR',"Discount","BillingClass","Services");
     $customer_billing    =    array('InvoicesCustomer','PaymentsCustomer','AccountStatementCustomer','PaymentProfileCustomer','CDRCustomer',"DashboardCustomer");
 	
     if(count($path_array)>0)
@@ -1091,7 +1109,7 @@ function check_uri($parent_link=''){
   		$controller = $path_array[0];
 	   	if(in_array($controller,$array_billing) && $parent_link =='Billing')
         {
-			if(Request::segment(1)!='monitor' && $path_array[1]!='@CrmDashboard'){
+			if(Request::segment(1)!='monitor' && $path_array[1]!='@CrmDashboard' && $path_array[1]!='@TicketDashboard'){
             	return 'opened';
 			} 
         }
@@ -1123,7 +1141,7 @@ function check_uri($parent_link=''){
 
         if(in_array($controller,$array_crm) && $parent_link =='Crm')
         {
-			if($path_array[1]!='@billingdashboard' && $path_array[1]!='@monitor_dashboard'){
+			if($path_array[1]!='@billingdashboard' && $path_array[1]!='@monitor_dashboard' && $path_array[1]!='@TicketDashboard'){
 				return 'opened';
 			}
         }
@@ -1138,7 +1156,7 @@ function check_uri($parent_link=''){
             return 'opened';
         }
 		
-		 if(in_array($controller,$array_tickets) && $parent_link =='tickets' && $path_array[1]!='@monitor_dashboard')
+		 if(in_array($controller,$array_tickets) && $parent_link =='tickets' && $path_array[1]!='@CrmDashboard' && $path_array[1]!='@monitor_dashboard' && $path_array[1]!='@billingdashboard')
         {
             return 'opened';
         }
@@ -1293,6 +1311,7 @@ function view_response_api($response){
     if(is_array($response)){
         $isArray = true;
     }
+    //@TODO: there is no key with Code.
     if(($isArray && isset($response['Code']) && $response['Code'] ==401) || (!$isArray && isset($response->Code) && $response->Code == 401)) {
         //return Redirect::to('/logout');
         \Illuminate\Support\Facades\Log::info("helpers.php view_response_api");
@@ -1676,6 +1695,13 @@ function get_ticket_status_date_array($result_data) {
 
         if(\Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->isFuture()) {
             $due = true ;
+
+            // round up minutes 1 hours 59 minutes to 2 hours
+            if(\Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->minute >= 1){
+                $the_date = \Carbon\Carbon::createFromTimeStamp(strtotime($the_date))->addHour(1);
+            }
+
+
         }else {
             $overdue = true;
         }

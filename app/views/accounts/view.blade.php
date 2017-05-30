@@ -6,6 +6,7 @@
         ul.grid li div.box{
             min-height:16.5em;
         }
+		#card-features-details .modal-footer{clear:both !important;}
     </style>
 <div  style="min-height: 1050px;">
   <ol class="breadcrumb bc-3">
@@ -96,6 +97,13 @@
                     <a  href="{{Url::to('account/get_credit/'.$account->AccountID)}}"  data-id="{{$account->AccountID}}"  title="Credit Control" class="btn btn-default btn-xs redirect_link" > <i class="fa fa-credit-card"></i> </a>
                   @endif
                   <button type="button" href_id="edit_account" data-id="{{$account->AccountID}}"  title="Edit" class="btn btn-default btn-xs redirect_link" > <i class="entypo-pencil"></i> </button>
+                  
+                     <a class="btn btn-default btn-xs redirect_link"  title="View Account Subscriptions" href="{{ URL::to('/account_subscription?id='.$account->AccountID)}}"><i class="fa fa-refresh"></i></a>
+                 
+                  
+                  @if($account->IsCustomer==1 || $account->IsVendor==1)
+                     <a class="btn btn-default btn-xs redirect_link" title="Authentication Rule" href="{{ URL::to('accounts/authenticate/'.$account->AccountID)}}"><i class="entypo-lock"></i></a>
+                  @endif
                   @if($leadOrAccountCheck=='account')
                   @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED)
                      <a class="btn-warning btn btn-default btn-xs" href="{{ URL::to('customers_rates/'.$account->AccountID)}}"><i class="entypo-user"></i></a>

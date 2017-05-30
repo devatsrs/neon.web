@@ -508,5 +508,28 @@ class Account extends \Eloquent {
 	
 	public static function checkAccountByEmail($email){
 		   return Account::whereRaw( "( Email = '".$email."' OR  BillingEmail = '".$email."' )")->pluck('AccountID');
-	}	
+	}
+
+    public static function getAllAccounts($AccountID){
+        $data=array();
+        //$Accounts = [$AccountID];
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
+        $data['Status'] = 1;
+        if(!isset($data['AccountType'])) {
+            $data['AccountType'] = 1;
+            $data['VerificationStatus'] = Account::VERIFIED;
+            $data['Billing']=1;
+        }
+        $data['CompanyID']=User::get_companyID();
+        $row = Account::where($data)->where('AccountID','<>',$AccountID)->select(array('AccountID','AccountName'))->orderBy('AccountName');
+        return Datatables::of($row)->make();
+        //return $row;
+    }
+
 }

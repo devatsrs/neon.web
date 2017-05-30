@@ -2520,6 +2520,7 @@ background:white none repeat scroll 0 0;
     border-radius: 3px !important;
     -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
     box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+    color: #ffffff;
 }
 .popover3.left {
     margin-left: -10px;
@@ -2719,4 +2720,7 @@ a:focus,a:hover{text-decoration:none !important}
 }
 .popover .popover-content,.popover .popover-title{
 	color:#FFFFFF;
+}
+button.btn.btn-xs.small_icons{
+    margin-bottom: 5px;
 }

@@ -65,7 +65,7 @@ class TicketsSlaController extends \BaseController {
         $response 				= 		NeonAPI::request('tickets/sla_policies/store',$postdata,true,false,false);
 		
         if(!empty($response) && $response->status == 'success'){
-            $response->redirect =  URL::to('/sla_policies/');
+            $response->redirect =  URL::to('/tickets/sla_policies/');
         }
         return json_response_api($response);     
 	
@@ -89,10 +89,9 @@ class TicketsSlaController extends \BaseController {
 		$targetsData				=	TicketSlaTarget::ProcessTargets($id); 
 		$slaApply					=	TicketSlaPolicyApplyTo::where(['TicketSlaID'=>$id])->first();
 		
-		$slaApplyGroup				=	explode(",",$slaApply->GroupFilter);
-		
-		$slaApplyCompany			=	explode(",",$slaApply->CompanyFilter);
-		$slaApplyType				=	explode(",",$slaApply->TypeFilter);
+		$slaApplyGroup				=	isset($slaApply->GroupFilter)?explode(",",$slaApply->GroupFilter):array();		
+		$slaApplyCompany			=	isset($slaApply->CompanyFilter)?explode(",",$slaApply->CompanyFilter):array();
+		$slaApplyType				=	isset($slaApply->TypeFilter)?explode(",",$slaApply->TypeFilter):array();
 		$RespondedVoilation			=	TicketSlaPolicyViolation::where(['TicketSlaID'=>$id,"VoilationType"=>TicketSlaPolicyViolation::$RespondedVoilationType])->select(['Time','Value'])->first();
 		
 		$ResolveVoilation			=	TicketSlaPolicyViolation::where(['TicketSlaID'=>$id,"VoilationType"=>TicketSlaPolicyViolation::$ResolvedVoilationType])->select(['Time','Value'])->get();
