@@ -21,10 +21,12 @@ BEGIN
 	
 			INSERT INTO tmp_ActiveAccount
 			SELECT DISTINCT
-				GatewayAccountID,
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
 				a.AccountID,
-				ga.ServiceID,
-				a.AccountName
+				ga.ServiceID
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
 				ON ga.CompanyID = a.CompanyId
@@ -39,20 +41,22 @@ BEGIN
 			AND ga.CompanyGatewayID = p_CompanyGatewayID
 			AND ga.ServiceID = p_ServiceID
 			AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NAMENUB' OR aa.VendorAuthRule ='NAMENUB' )) OR
-				aa.AccountID IS NULL
-				);
-
+              aa.AccountID IS NULL
+          );
+	
 		END IF;
-
+	
 		IF p_NameFormat = 'NUBNAME'
 		THEN
-
+	
 			INSERT INTO tmp_ActiveAccount
 			SELECT DISTINCT
-				GatewayAccountID,
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
 				a.AccountID,
-				ga.ServiceID,
-				a.AccountName
+				ga.ServiceID
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
 				ON ga.CompanyID = a.CompanyId
@@ -67,24 +71,26 @@ BEGIN
 			AND ga.CompanyGatewayID = p_CompanyGatewayID
 			AND ga.ServiceID = p_ServiceID
 			AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NUBNAME' OR aa.VendorAuthRule ='NUBNAME' )) OR
-					aa.AccountID IS NULL
-				);
-
+              aa.AccountID IS NULL
+          );
+	
 		END IF;
-
+	
 		IF p_NameFormat = 'NUB'
 		THEN
-
+	
 			INSERT INTO tmp_ActiveAccount
 			SELECT DISTINCT
-				GatewayAccountID,
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
 				a.AccountID,
-				ga.ServiceID,
-				a.AccountName
+				ga.ServiceID
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
 				ON ga.CompanyID = a.CompanyId
-				AND a.Number = ga.AccountName
+				AND a.Number = ga.AccountNumber
 			LEFT JOIN NeonRMDev.tblAccountAuthenticate aa 
 				ON a.AccountID = aa.AccountID 
 				AND aa.ServiceID = ga.ServiceID	
@@ -95,68 +101,74 @@ BEGIN
 			AND ga.CompanyGatewayID = p_CompanyGatewayID
 			AND ga.ServiceID = p_ServiceID
 			AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NUB' OR aa.VendorAuthRule ='NUB' )) OR
-					aa.AccountID IS NULL
-				);
-
+              aa.AccountID IS NULL
+          );
+	
 		END IF;
-
+	
 		IF p_NameFormat = 'IP'
 		THEN
-
+	
 			INSERT INTO tmp_ActiveAccount
 			SELECT DISTINCT
-				GatewayAccountID,
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
 				a.AccountID,
-				aa.ServiceID,
-				a.AccountName
+				aa.ServiceID
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN NeonRMDev.tblAccountAuthenticate aa
 				ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'IP' OR aa.VendorAuthRule ='IP')
 			INNER JOIN tblGatewayAccount ga
 				ON ga.CompanyID = a.CompanyId 
 				AND ga.ServiceID = p_ServiceID AND aa.ServiceID = ga.ServiceID 
-				AND ( FIND_IN_SET(ga.AccountName,aa.CustomerAuthValue) != 0 OR FIND_IN_SET(ga.AccountName,aa.VendorAuthValue) != 0 )
+				AND ( (aa.CustomerAuthRule = 'IP' AND FIND_IN_SET(ga.AccountIP,aa.CustomerAuthValue) != 0) OR (aa.VendorAuthRule ='IP' AND FIND_IN_SET(ga.AccountIP,aa.VendorAuthValue) != 0) )
 			WHERE a.CompanyId = p_CompanyID
-			AND a.`Status` = 1
+			AND a.`Status` = 1			
 			AND GatewayAccountID IS NOT NULL
 			AND ga.AccountID IS NULL
 			AND ga.CompanyGatewayID = p_CompanyGatewayID;
-
+	
 		END IF;
-
+	
 		IF p_NameFormat = 'CLI'
 		THEN
-
+	
 			INSERT INTO tmp_ActiveAccount
 			SELECT DISTINCT
-				GatewayAccountID,
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
 				a.AccountID,
-				aa.ServiceID,
-				a.AccountName
+				aa.ServiceID
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
 				ON ga.CompanyID = a.CompanyId 
 			INNER JOIN NeonRMDev.tblCLIRateTable aa
 				ON a.AccountID = aa.AccountID
 				AND ga.ServiceID = p_ServiceID AND aa.ServiceID = ga.ServiceID 
-				AND ga.AccountName = aa.CLI
+				AND ga.AccountCLI = aa.CLI
 			WHERE a.CompanyId = p_CompanyID
-			AND a.`Status` = 1
+			AND a.`Status` = 1			
 			AND GatewayAccountID IS NOT NULL
 			AND ga.AccountID IS NULL
 			AND ga.CompanyGatewayID = p_CompanyGatewayID;
-
+	
 		END IF;
-
+	
 		IF p_NameFormat = '' OR p_NameFormat IS NULL OR p_NameFormat = 'NAME'
 		THEN
-
+	
 			INSERT INTO tmp_ActiveAccount
 			SELECT DISTINCT
-				GatewayAccountID,
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
 				a.AccountID,
-				ga.ServiceID,
-				a.AccountName
+				ga.ServiceID
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN tblGatewayAccount ga
 				ON ga.CompanyID = a.CompanyId 
@@ -171,34 +183,36 @@ BEGIN
 			AND ga.AccountID IS NULL
 			AND ga.CompanyGatewayID = p_CompanyGatewayID
 			AND ( ( aa.AccountID IS NOT NULL AND (aa.CustomerAuthRule = 'NAME' OR aa.VendorAuthRule ='NAME' )) OR
-					aa.AccountID IS NULL
-				);
-
+              aa.AccountID IS NULL
+          );
+	
 		END IF;
-
+		
 		IF p_NameFormat = 'Other'
 		THEN
-
+	
 			INSERT INTO tmp_ActiveAccount
 			SELECT DISTINCT
-				GatewayAccountID,
+				ga.AccountName,
+				ga.AccountNumber,
+				ga.AccountCLI,
+				ga.AccountIP,
 				a.AccountID,
-				aa.ServiceID,
-				a.AccountName
+				aa.ServiceID
 			FROM NeonRMDev.tblAccount  a
 			INNER JOIN NeonRMDev.tblAccountAuthenticate aa
 				ON a.AccountID = aa.AccountID AND (aa.CustomerAuthRule = 'Other' OR aa.VendorAuthRule ='Other')
 			INNER JOIN tblGatewayAccount ga
 				ON ga.CompanyID = a.CompanyId
 				AND ga.ServiceID = aa.ServiceID 
-				AND ( aa.VendorAuthValue = ga.AccountName OR aa.CustomerAuthValue = ga.AccountName )
+				AND ( (aa.VendorAuthRule ='Other' AND aa.VendorAuthValue = ga.AccountName) OR (aa.CustomerAuthRule = 'Other' AND aa.CustomerAuthValue = ga.AccountName) )
 			WHERE a.CompanyId = p_CompanyID
-			AND a.`Status` = 1
+			AND a.`Status` = 1			
 			AND GatewayAccountID IS NOT NULL
 			AND ga.AccountID IS NULL
 			AND ga.CompanyGatewayID = p_CompanyGatewayID
 			AND ga.ServiceID = p_ServiceID;
-
+	
 		END IF;
 
 		SET v_pointer_ = v_pointer_ + 1;
