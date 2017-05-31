@@ -7,6 +7,8 @@ ALTER TABLE `tblGatewayAccount`
 
 CREATE INDEX `IX6` ON `tblGatewayAccount`(`AccountName`, `AccountNumber`, `AccountCLI`, `AccountIP`, `CompanyGatewayID`, `ServiceID`, `CompanyID`);
 
+delete from tblGatewayAccount where AccountID IS NULL AND AccountCLI IS NULL; 
+
 DROP PROCEDURE IF EXISTS `prc_ApplyAuthRule`;
 
 DELIMITER |
