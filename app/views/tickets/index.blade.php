@@ -351,6 +351,9 @@ $(document).ready(function(e) {
             modal.find('.modal-title').text('Bulk Assign');
             modal.find('#agent').removeClass('hidden col-md-4').addClass('col-md-12');
             modal.find('.modal-dialog').addClass('modal-sm');
+
+            modal.find('#group').removeClass('hidden col-md-4').addClass('col-md-12');
+
         }else if($(this).prop('id')=='bulk-close'){
 			
             //modal.find('.modal-title').text('Bulk Close');
