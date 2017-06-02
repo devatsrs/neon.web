@@ -7,14 +7,11 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 
 	SET @stm2 = CONCAT('
-	INSERT INTO   tblVendorCDRHeader (CompanyID,CompanyGatewayID,GatewayAccountID,AccountID,StartDate,created_at,ServiceID)
-	SELECT DISTINCT d.CompanyID,d.CompanyGatewayID,d.GatewayAccountID,d.AccountID,DATE_FORMAT(connect_time,"%Y-%m-%d"),NOW(),d.ServiceID
+	INSERT INTO   tblVendorCDRHeader (CompanyID,CompanyGatewayID,GatewayAccountPKID,GatewayAccountID,AccountID,StartDate,created_at,ServiceID)
+	SELECT DISTINCT d.CompanyID,d.CompanyGatewayID,d.GatewayAccountPKID,d.GatewayAccountID,d.AccountID,DATE_FORMAT(connect_time,"%Y-%m-%d"),NOW(),d.ServiceID
 	FROM `' , p_tbltempusagedetail_name , '` d
 	LEFT JOIN tblVendorCDRHeader h 
-	ON h.CompanyID = d.CompanyID
-		AND h.CompanyGatewayID = d.CompanyGatewayID
-		AND h.ServiceID = d.ServiceID
-		AND h.GatewayAccountID = d.GatewayAccountID
+	ON h.GatewayAccountPKID = d.GatewayAccountPKID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
 	WHERE h.GatewayAccountID IS NULL AND processid = "' , p_processId , '";
 	');
@@ -24,14 +21,11 @@ BEGIN
 	DEALLOCATE PREPARE stmt2;
 
 	SET @stm6 = CONCAT('
-	INSERT INTO tblVendorCDRFailed (VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
-	SELECT VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
+	INSERT INTO tblVendorCDRFailed (VendorCDRHeaderID,billed_duration,duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
+	SELECT VendorCDRHeaderID,billed_duration,duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
 	FROM `' , p_tbltempusagedetail_name , '` d 
 	INNER JOIN tblVendorCDRHeader h	 
-	ON h.CompanyID = d.CompanyID
-		AND h.CompanyGatewayID = d.CompanyGatewayID
-		AND h.GatewayAccountID = d.GatewayAccountID
-		AND h.ServiceID = d.ServiceID
+	ON h.GatewayAccountPKID = d.GatewayAccountPKID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
 	WHERE processid = "' , p_processId , '" AND  billed_duration = 0 AND buying_cost = 0 ;
 	');
@@ -49,14 +43,11 @@ BEGIN
 	DEALLOCATE PREPARE stmt3;
 
 	SET @stm4 = CONCAT('
-	INSERT INTO tblVendorCDR (VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
-	SELECT VendorCDRHeaderID,billed_duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
+	INSERT INTO tblVendorCDR (VendorCDRHeaderID,billed_duration,duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID)
+	SELECT VendorCDRHeaderID,billed_duration,duration,billed_second, ID, selling_cost, buying_cost, connect_time, disconnect_time,cli, cld,trunk,area_prefix,  remote_ip, ProcessID
 	FROM `' , p_tbltempusagedetail_name , '` d 
 	INNER JOIN tblVendorCDRHeader h	 
-	ON h.CompanyID = d.CompanyID
-		AND h.CompanyGatewayID = d.CompanyGatewayID
-		AND h.GatewayAccountID = d.GatewayAccountID
-		AND h.ServiceID = d.ServiceID
+	ON h.GatewayAccountPKID = d.GatewayAccountPKID
 		AND h.StartDate = DATE_FORMAT(connect_time,"%Y-%m-%d")
 	WHERE processid = "' , p_processId , '" ;
 	');
