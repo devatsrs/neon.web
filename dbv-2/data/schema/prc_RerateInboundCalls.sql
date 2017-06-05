@@ -99,6 +99,7 @@ BEGIN
 			THEN 
 
 				SET p_InboundTableID = (SELECT RateTableID FROM NeonRMDev.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 2 LIMIT 1);
+				SET p_InboundTableID = IFNULL(p_InboundTableID,0);
 				/* get inbound rate process*/
 				CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
 			END IF;
