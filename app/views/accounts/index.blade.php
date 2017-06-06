@@ -990,7 +990,20 @@
         });
 		
 		  $("#bulk-Actions").click(function() {
-            var el = $('#modal-bulk-actions'); 
+            var SelectedIDs = getselectedIDs();
+            if (SelectedIDs.length == 0) {
+              toastr.error('Please select at least one Account.', "Error", toastr_opts);
+              return false;
+            }
+            var el = $('#modal-bulk-actions');
+            $('#BulkAction-form')[0].reset();
+             $('#BulkOwnerChange').val('').trigger('change');
+             $('#BulkCurrencyChange').val('').trigger('change');
+            $("#BulkAction-form [name='BillingClassID']").select2().select2('val', '');
+            $("#BulkAction-form [name='BillingType']").select2().select2('val', '');
+            $("#BulkAction-form [name='BillingTimezone']").select2().select2('val', '');
+            $("#BulkAction-form [name='BillingCycleType']").select2().select2('val', '');
+            $("#BulkAction-form [name='SendInvoiceSetting']").select2().select2('val', '');
             $('.save').button('reset');
             el.modal('show');
         });
@@ -1117,30 +1130,117 @@
 		$('#BulkAction-form').submit(function(e){
 			e.preventDefault();
 			var SelectedIDs = getselectedIDs();
+            var criteria = '';
+            if($('#selectallbutton').is(':checked')){
+                criteria = JSON.stringify($searchFilter);
+            }
 			if (SelectedIDs.length == 0) {
 				$('#modal-bulk-actions').modal('hide');
 				toastr.error('Please select at least one Account.', "Error", toastr_opts);
 				return false;
 			}else {
 				var selectedIDs = $(this).find('[name="BulkselectedIDs"]').val(SelectedIDs.join(","));
+				var criterias = $(this).find('[name="BulkActionCriteria"]').val(criteria);
 				var url = baseurl + '/accounts/bulkactions';
 				showAjaxScript(url, new FormData(($('#BulkAction-form')[0])), function (response) {
-					$("#bulk-submit").button('reset');
+                    $("#bulk-submit").button('reset');
 					if (response.status == 'success') {
 						data_table.fnFilter('', 0);
-						$('#modal-bulk-actions').modal('hide');
-						document.getElementById('BulkAction-form').reset();
+						//$('#modal-bulk-actions').modal('hide');
+						$('#BulkAction-form')[0].reset();
 						$('#BulkOwnerChange').val('').trigger('change');
 						$('#BulkCurrencyChange').val('').trigger('change');
+                        $("#BulkAction-form [name='BillingClassID']").select2().select2('val', '');
+                        $("#BulkAction-form [name='BillingType']").select2().select2('val', '');
+                        $("#BulkAction-form [name='BillingTimezone']").select2().select2('val', '');
+                        $("#BulkAction-form [name='BillingCycleType']").select2().select2('val', '');
+                        $("#BulkAction-form [name='SendInvoiceSetting']").select2().select2('val', '');
+                        $('#modal-bulk-actions').modal('hide');
 						toastr.success(response.message, "Success", toastr_opts);
 					} else {
 						toastr.error(response.message, "Error", toastr_opts);
+                        return false;
 					}
 				});
 			}
    	    });
+
+        /* bulk action billing class on change event */
+        $("#BulkAction-form select[name='BillingClassID']").change(function(e){
+            if($(this).val()>0) {
+                $.ajax({
+                    url: baseurl+'/billing_class/getInfo/' + $(this).val(),
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        $(this).button('reset');
+                        if (response.status == 'success') {
+
+                            $("#BulkAction-form select[name='BillingTimezone']").select2().select2('val', response.data.BillingTimezone);
+
+                            $("#BulkAction-form [name='SendInvoiceSetting']").select2().select2('val',response.data.SendInvoiceSetting);
+                        }
+                    }
+                });
+            }
+        }); // billingclass change event over
+
+        $('#BulkAction-form select[name="BillingCycleType"]').change(function(e){
+            var selection = $(this).val();
+            var hidden = false;
+            if($(this).hasClass('hidden')){
+                hidden = true;
+            }
+            $(".billing_options input, .billing_options select").attr("disabled", "disabled");
+            $(".billing_options").hide();
+            console.log(selection);
+            switch (selection){
+                case "weekly":
+                    $("#billing_cycle_weekly").show();
+                    $("#billing_cycle_weekly select").removeAttr("disabled");
+                    $("#billing_cycle_weekly select").addClass('billing_options_active');
+                    if(hidden){
+                        $("#billing_cycle_weekly select").addClass('hidden');
+                    }
+                    break;
+                case "monthly_anniversary":
+                    $("#billing_cycle_monthly_anniversary").show();
+                    $("#billing_cycle_monthly_anniversary input").removeAttr("disabled");
+                    $("#billing_cycle_monthly_anniversary input").addClass('billing_options_active');
+                    if(hidden){
+                        $("#billing_cycle_monthly_anniversary input").addClass('hidden');
+                    }
+                    break;
+                case "in_specific_days":
+                    $("#billing_cycle_in_specific_days").show();
+                    $("#billing_cycle_in_specific_days input").removeAttr("disabled");
+                    $("#billing_cycle_in_specific_days input").addClass('billing_options_active');
+                    if(hidden){
+                        $("#billing_cycle_in_specific_days input").addClass('hidden');
+                    }
+                    break;
+                case "subscription":
+                    $("#billing_cycle_subscription").show();
+                    $("#billing_cycle_subscription input").removeAttr("disabled");
+                    $("#billing_cycle_subscription input").addClass('billing_options_active');
+                    if(hidden){
+                        $("#billing_cycle_subscription input").addClass('hidden');
+                    }
+                    break;
+            }
+        });
+
+        $('#BulkAction-form [name="BillingCheck"]').change(function(e){
+            var checked = $(this).is(':checked');
+            if(checked){
+                $('.bulkbillinghide').hide();
+            }else{
+                $('.bulkbillinghide').show();
+            }
+
+        });
 		
-    });
+    }); // main script over
 
     function getselectedIDs(){
         var SelectedIDs = [];
@@ -1180,7 +1280,6 @@
         }
         return "";
     }
-
 
 </script>
 <style>
@@ -1284,8 +1383,120 @@
               </div>
             </div>
           </div>
+            <hr>
+          <!-- billing section start -->
+            <div class="row">
+                <div id="BillingRow" class="col-md-12">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox"  name="BillingCheck">
+                            <span>Billing</span></label><br>
+                            <p class="make-switch switch-small">
+                            <input id="BulkBillingChange" name="billing_on_off" type="checkbox" value="1">
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox" name="BulkBillingClassCheck" class="bulkbillinghide">
+                            <span>Billing Class*</span></label><br>
+                        {{Form::select('BillingClassID', $BillingClass, '' ,array("id"=>"billingclass_id","class"=>"select2 small form-control1"));}}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox" name="BulkBillingTypeCheck" class="bulkbillinghide">
+                            <span>Billing Type*</span></label><br>
+                            {{Form::select('BillingType', AccountApproval::$billing_type, '' ,array('id'=>'billing_type',"class"=>"select2 small"))}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox" name="BulkBillingTimezoneCheck" class="bulkbillinghide">
+                            <span>Billing Timezone*</span></label><br>
+                            {{Form::select('BillingTimezone', $timezones, '' ,array("class"=>"form-control select2"))}}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox" name="BulkBillingStartDateCheck" class="bulkbillinghide">
+                            <span>Billing Start Date*</span></label><br>
+                        {{Form::text('BillingStartDate', '',array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox" name="BulkBillingCycleTypeCheck" class="bulkbillinghide">
+                            <span>Billing Cycle*</span></label><br>
+                        {{Form::select('BillingCycleType', SortBillingType(), '' ,array("class"=>'form-control select2'))}}
+                    </div>
+                </div>
+                <div  id="billing_cycle_weekly" class="billing_options col-md-6" style="display: none">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <span>Billing Cycle - Start of Day*</span></label><br>
+                        <?php $Days = array( ""=>"Select",
+                                "monday"=>"Monday",
+                                "tuesday"=>"Tuesday",
+                                "wednesday"=>"Wednesday",
+                                "thursday"=>"Thursday",
+                                "friday"=>"Friday",
+                                "saturday"=>"Saturday",
+                                "sunday"=>"Sunday");?>
+                        {{Form::select('BillingCycleValue',$Days,''  ,array("class"=>"form-control select2"))}}
+                    </div>
+                </div>
+                <div  id="billing_cycle_in_specific_days" class="billing_options col-md-6" style="display: none">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <span>Billing Cycle - for Days*</span></label><br>
+                        {{Form::text('BillingCycleValue', '' ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Billing Days"))}}
+                    </div>
+                </div>
+                <div  id="billing_cycle_subscription" class="billing_options col-md-6" style="display: none">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <span>Billing Cycle - Subscription Qty*</span></label><br>
+                        {{Form::text('BillingCycleValue', '' ,array("data-mask"=>"decimal", "data-min"=>1, "maxlength"=>"3", "data-max"=>365, "class"=>"form-control","Placeholder"=>"Enter Subscription Qty"))}}
+                    </div>
+                </div>
+                <div  id="billing_cycle_monthly_anniversary" class="billing_options col-md-6" style="display: none">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <span>Billing Cycle - Monthly Anniversary Date*</span></label><br>
+                        {{Form::text('BillingCycleValue', '' ,array("class"=>"form-control datepicker","Placeholder"=>"Anniversary Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox" name="BulkSendInvoiceSettingCheck" class="bulkbillinghide">
+                            <span>Send Invoice via Email</span></label><br>
+                        {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, '' ,array("class"=>'form-control select2 '))}}
+                    </div>
+                </div>
+            </div>
+           <!-- billing section end -->
         </div>
         <input type="hidden" name="BulkselectedIDs" />
+        <input type="hidden" name="BulkActionCriteria" />
         <div class="modal-footer">
           <button  type="submit" id="bulk-submit" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
           <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
