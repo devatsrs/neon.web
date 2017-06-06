@@ -2724,3 +2724,16 @@ a:focus,a:hover{text-decoration:none !important}
 button.btn.btn-xs.small_icons{
     margin-bottom: 5px;
 }
+
+.post-success {
+    background-color: #00a651 !important;
+}
+.post-error {
+    background-color: #cc2424 !important;
+}
+.post-info {
+    background-color: #21a9e1 !important;
+}
+.post-warning {
+    background-color: #f89406 !important;
+}
