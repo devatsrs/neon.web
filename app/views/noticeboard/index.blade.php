@@ -1,4 +1,4 @@
-@extends('layout.main_only_sidebar')
+@extends($extends)
 @section('content')
 
     <!-- Header text-->

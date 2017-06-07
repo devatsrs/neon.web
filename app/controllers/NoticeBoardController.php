@@ -9,8 +9,9 @@ class NoticeBoardController extends BaseController{
     public function index(){
         $CompanyID = User::get_companyID();
         $LastUpdated = NoticeBoardPost::where("CompanyID", $CompanyID)->limit(1)->orderBy('NoticeBoardPostID','Desc')->pluck('updated_at');
+        $extends = 'layout.main_only_sidebar';
 
-        return View::make('noticeboard.index', compact('LastUpdated'));
+        return View::make('noticeboard.index', compact('LastUpdated','extends'));
 
     }
 
