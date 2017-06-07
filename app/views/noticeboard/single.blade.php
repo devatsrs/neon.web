@@ -9,6 +9,7 @@
                 @if(Session::get('customer') == 0 && User::checkCategoryPermission('NoticeBoardPost','Delete'))
                 <div class="panel-options ">
                     <a href="#" class="white delete_post" data-id="{{$NoticeBoardPost->NoticeBoardPostID}}"><i class="entypo-trash"></i></a>
+                    <a data-rel="collapse" href="#" class="white"><i class="entypo-down-open"></i></a>
                 </div>
                 @endif
             </div>

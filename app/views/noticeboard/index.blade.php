@@ -85,11 +85,9 @@
                 <div class="panel panel-default make_round">
                     <div class="panel-heading make_round post-success">
                         <div class="panel-title white">
-
                         </div>
-
                         <div class="panel-options ">
-                            <a href="#" class="white delete_post" data-id=""><i class="entypo-trash"></i></a>
+                            <a data-rel="collapse" href="#" class="white"><i class="entypo-down-open"></i></a>
                         </div>
                     </div>
                     <div class="panel-body section_border_1 no_top_border make_round make_round_bottom_only">
