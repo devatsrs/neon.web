@@ -48,6 +48,7 @@ Route::group(array('before' => 'auth'), function () {
 
 	//notice board
 	Route::any('customer/noticeboard', 'NoticeBoardCustomerController@index');
+	Route::any('customer/get_next_update/{id}', 'NoticeBoardCustomerController@get_next_update');
 	//cdr
 
 	Route::any('customer/cdr', 'CDRCustomerController@index');

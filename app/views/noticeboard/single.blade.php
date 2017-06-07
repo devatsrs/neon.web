@@ -6,16 +6,23 @@
                 <div class="panel-title white">
                     {{$NoticeBoardPost->Title}}
                 </div>
+
                 @if(Session::get('customer') == 0 && User::checkCategoryPermission('NoticeBoardPost','Delete'))
                 <div class="panel-options ">
                     <a href="#" class="white delete_post" data-id="{{$NoticeBoardPost->NoticeBoardPostID}}"><i class="entypo-trash"></i></a>
                     <a data-rel="collapse" href="#" class="white"><i class="entypo-down-open"></i></a>
+                    <strong class="incident_time white">Updated  {{\Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPost->updated_at))->diffForHumans() }}</strong>
                 </div>
+                @else
+                    <div class="panel-options ">
+                        <strong class="incident_time white">Updated  {{\Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPost->updated_at))->diffForHumans() }}</strong>
+                    </div>
                 @endif
             </div>
             <div class="panel-body section_border_1 no_top_border make_round make_round_bottom_only">
+                @if(Session::get('customer') == 0)
                 <div class="form-group">
-                    @if(Session::get('customer') == 0)
+
                     <label for="field-1" class="col-md-2 control-label">Title*</label>
                     <div class="col-md-4">
                         <input type="text" name="Title" class="form-control" id="field-1" placeholder="" value="{{$NoticeBoardPost->Title}}" />
@@ -30,24 +37,26 @@
                         <label for="subject">Detail *</label>
                         <textarea class="form-control" name="Detail" id="txtNote" rows="5" placeholder="Add Note...">{{$NoticeBoardPost->Detail}}</textarea>
                     </div>
-                    @else
-                        <div class="col-xs-12 col-md-12">
-                            <p>{{$NoticeBoardPost->Detail}}</p>
-                        </div>
-                    @endif
-                </div>
-                <input type="hidden" name="NoticeBoardPostID" value="{{$NoticeBoardPost->NoticeBoardPostID}}">
 
+                </div>
+                @else
+                    <div class="col-xs-12 col-md-12">
+                        <p>{{$NoticeBoardPost->Detail}}</p>
+                    </div>
+                @endif
+                <input type="hidden" name="NoticeBoardPostID" value="{{$NoticeBoardPost->NoticeBoardPostID}}">
+                @if(Session::get('customer') == 0 && User::checkCategoryPermission('NoticeBoardPost','Edit'))
                 <div class="row">
-                    <div class="col-md-12"><strong class="incident_time">Updated  {{\Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPost->updated_at))->diffForHumans() }}</strong>
-                        @if(Session::get('customer') == 0 && User::checkCategoryPermission('NoticeBoardPost','Edit'))
+                    <div class="col-md-12">
+
                             <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left save_post pull-right" data-loading-text="loading">
                                 <i class="entypo-floppy"></i>
                                 Save
                             </button>
-                        @endif
+
                     </div>
                 </div>
+                @endif
 
             </div>
         </div>

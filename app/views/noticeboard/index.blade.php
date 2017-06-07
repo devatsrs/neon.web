@@ -14,28 +14,7 @@
         border: 0;
         margin: 1em 0; padding: 0;
     }
-    /* Navigation pills */
-    .nav-pills > li.active > a,
-    .nav-pills > li.active > a:hover,
-    .nav-pills > li.active > a:focus {
-        color: #2C3E50;
-        background-color: #F2F3F4;
-        margin-left: 5px;
-        line-height: 15px;
-    }
-    .nav-pills > li > a {
-        color: #BFC6C6;
-        background-color: #5A6465;
-        margin-left: 5px;
-        line-height: 15px;
-    }
-    .nav-pills > li > a:hover,
-    .nav-pills > li > a:focus {
-        color: #2C3E50;
-        background-color: #F2F3F4;
-        margin-left: 5px;
-        line-height: 15px;
-    }
+
     /* Page sections */
 
     .page_section h3 {
@@ -47,7 +26,6 @@
 
     .incident_time {
         font-size: 12px;
-        opacity: 0.5;
     }
     .make_round {
     }
