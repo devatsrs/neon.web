@@ -71,6 +71,9 @@
         @if(User::checkCategoryPermission('BusinessHours','View'))
         <li> <a href="{{URL::to('/businesshours')}}">  <span>Business Hours</span></a> </li>
         @endif
+         @if(User::checkCategoryPermission('TicketImportRules','View'))
+        <li> <a href="{{URL::to('/tickets/importrules')}}">  <span>Import Rules</span></a> </li>
+        @endif
       </ul>
     </li>
     @endif
@@ -129,7 +132,8 @@
     User::checkCategoryPermission('Payments','View') || User::checkCategoryPermission('AccountStatement','All') ||
     User::checkCategoryPermission('Products','View') || User::checkCategoryPermission('InvoiceTemplates','View') ||
     User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View')  ||
-    User::checkCategoryPermission('Disputes','View') || User::checkCategoryPermission('Service','View'))
+    User::checkCategoryPermission('Disputes','View') || User::checkCategoryPermission('Service','View') || User::checkCategoryPermission('BillingDashboard','All') ||
+    User::checkCategoryPermission('BillingClass','View') || User::checkCategoryPermission('DiscountPlan','View'))
     <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="fa fa-credit-card" ></i> <span>Billing</span> </a>
       <ul>
         @if(User::checkCategoryPermission('BillingDashboard','All'))

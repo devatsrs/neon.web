@@ -3,16 +3,19 @@ CREATE TABLE `tblGatewayAccount` (
   `CompanyID` int(11) NOT NULL,
   `CompanyGatewayID` int(11) NOT NULL,
   `GatewayAccountID` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `AccountName` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `AccountName` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `AccountNumber` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `AccountCLI` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `AccountIP` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `AccountDetailInfo` longtext COLLATE utf8_unicode_ci,
   `IsVendor` tinyint(3) unsigned DEFAULT NULL,
   `GatewayVendorID` int(11) DEFAULT NULL,
   `AccountID` int(11) DEFAULT NULL,
-  `AccountIP` longtext COLLATE utf8_unicode_ci,
   `ServiceID` int(11) DEFAULT '0',
   PRIMARY KEY (`GatewayAccountPKID`),
   KEY `IX_tblGatewayAccount_GatewayAccountID_AccountName_5F8A5` (`GatewayAccountID`,`AccountName`,`CompanyGatewayID`),
   KEY `IX_tblGatewayAccount_AccountID_63248` (`AccountID`,`GatewayAccountID`),
   KEY `IX_tblGatewayAccount_AccountID_CDCF2` (`AccountID`),
-  KEY `IX_CID_CGID_GAID_AID` (`CompanyID`,`CompanyGatewayID`,`GatewayAccountID`)
+  KEY `IX_CID_CGID_GAID_AID` (`CompanyID`,`CompanyGatewayID`,`GatewayAccountID`),
+  KEY `IX6` (`AccountName`,`AccountNumber`,`AccountCLI`,`AccountIP`,`CompanyGatewayID`,`ServiceID`,`CompanyID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

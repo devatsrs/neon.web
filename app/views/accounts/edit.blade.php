@@ -362,14 +362,8 @@
             </div>
         </div>
         <?php
-            $billing_disable = $hiden_class= '';
-        if($invoice_count > 0){
-            $billing_disable = 'disabled';
-        }
-            if(isset($AccountBilling->BillingCycleType)){
-                $hiden_class= 'hidden';
-                $billing_disable = 'disabled';
-            }
+
+
         $Days = array( ""=>"Select",
                 "monday"=>"Monday",
                 "tuesday"=>"Tuesday",
@@ -470,7 +464,7 @@
                     <div class="col-md-1">
                         @if($hiden_class != '')
                         <button class="btn btn-sm btn-primary tooltip-primary" id="billing_edit" data-original-title="Edit Billing Cycle" title="" data-placement="top" data-toggle="tooltip">
-                            <i class="fa fa-pencil"></i>
+                            <i class="entypo-pencil"></i>
                         </button>
                         @endif
                     </div>

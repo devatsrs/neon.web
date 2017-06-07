@@ -68,6 +68,12 @@ class DashboardCustomerController extends BaseController {
                 }
                 $BalanceAmount = $SOA_Amount+($UnbilledAmount-$VendorUnbilledAmount);
                 $InvoiceExpenseResult[0]->TotalUnbillidAmount = $BalanceAmount>=0?$BalanceAmount:0;
+                $account_number = Account::where('AccountID',$CustomerID)->pluck('Number');
+                $GatewayID = Gateway::getGatewayID('MOR');
+                $CompanyGatewayID = CompanyGateway::getCompanyGatewayID($GatewayID);
+                $mor = new MOR($CompanyGatewayID);
+                $response = $mor->getAccountsBalace(array('username'=>$account_number));
+                $InvoiceExpenseResult[0]->MOR_Balance = $response['balance'];
                 return Response::json(array("data" => $InvoiceExpenseResult[0], 'CurrencyCode' => $CurrencyCode, 'CurrencySymbol' => $CurrencySymbol));
             }else {
                 return view_response_api($response);

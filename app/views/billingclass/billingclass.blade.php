@@ -36,7 +36,7 @@ $privacy = EmailTemplate::$privacy;
                                 <div class="col-sm-4">
                                     <div class="input-spinner">
                                         <button type="button" class="btn btn-default">-</button>
-                                        {{Form::text('PaymentDueInDays',( isset($BillingClass->PaymentDueInDays)?$BillingClass->PaymentDueInDays:'1' ),array("class"=>"form-control","data-min"=>0, "maxlength"=>"2", "data-max"=>30,"Placeholder"=>"Add Numeric value", "data-mask"=>"decimal"))}}
+                                        {{Form::text('PaymentDueInDays',( isset($BillingClass->PaymentDueInDays)?$BillingClass->PaymentDueInDays:'1' ),array("class"=>"form-control","data-min"=>0, "maxlength"=>"3", "data-max"=>300,"Placeholder"=>"Add Numeric value", "data-mask"=>"decimal"))}}
                                         <button type="button" class="btn btn-default">+</button>
                                     </div>
                                 </div>

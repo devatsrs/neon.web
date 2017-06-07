@@ -15,10 +15,12 @@ BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_ActiveAccount;
 	CREATE TEMPORARY TABLE tmp_ActiveAccount (
-		GatewayAccountID varchar(100),
+		AccountName varchar(100),
+		AccountNumber varchar(100),
+		AccountCLI varchar(100),
+		AccountIP varchar(100),
 		AccountID INT,
-		ServiceID INT,
-		AccountName varchar(100)
+		ServiceID INT
 	);
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_AuthenticateRules_;
@@ -105,7 +107,10 @@ BEGIN
 
 	UPDATE tblGatewayAccount
 	INNER JOIN tmp_ActiveAccount a
-		ON a.GatewayAccountID = tblGatewayAccount.GatewayAccountID
+		ON a.AccountName = tblGatewayAccount.AccountName
+		AND a.AccountNumber = tblGatewayAccount.AccountNumber
+		AND a.AccountCLI = tblGatewayAccount.AccountCLI
+		AND a.AccountIP = tblGatewayAccount.AccountIP
 		AND tblGatewayAccount.CompanyGatewayID = p_CompanyGatewayID
 		AND tblGatewayAccount.ServiceID = a.ServiceID
 	SET tblGatewayAccount.AccountID = a.AccountID

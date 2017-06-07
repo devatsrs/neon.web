@@ -137,6 +137,26 @@ BEGIN
 	AND us.Trunk = sh.Trunk
 	AND us.AreaPrefix = sh.AreaPrefix
 	AND us.ServiceID = sh.ServiceID;
+	
+	DELETE h FROM tblHeader h 
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummary)u
+		ON h.DateID = u.DateID 
+		AND h.CompanyID = u.CompanyID
+	WHERE u.CompanyID = p_CompanyID;
+	
+	INSERT INTO tblHeader(DateID,CompanyID,AccountID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	SELECT 
+		u.DateID,
+		u.CompanyID,
+		u.AccountID,
+		SUM(u.TotalCharges) as TotalCharges,
+		SUM(u.TotalBilledDuration) as TotalBilledDuration,
+		SUM(u.TotalDuration) as TotalDuration,
+		SUM(u.NoOfCalls) as NoOfCalls,
+		SUM(u.NoOfFailCalls) as NoOfFailCalls
+	FROM tmp_UsageSummary u 
+	WHERE u.CompanyID = p_CompanyID
+	GROUP BY u.DateID,u.AccountID,u.CompanyID;
 
 	COMMIT;
 	

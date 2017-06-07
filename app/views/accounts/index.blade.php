@@ -394,7 +394,7 @@
                                 credit_ = "{{ URL::to('account/get_credit/{id}')}}";
                                 customer_rate_ = "{{Url::to('/customers_rates/{id}')}}";
                                 vendor_blocking_ = "{{Url::to('/vendor_rates/{id}')}}";
-								
+								subscriptions_ = "{{ URL::to('account_subscription/')}}?id={id}";
 								authenticate_ = "{{Url::to('/accounts/authenticate/{id}')}}";
 
                                 edit_ = edit_.replace( '{id}', full[0] );
@@ -403,24 +403,36 @@
                                 credit_ = credit_.replace( '{id}', full[0] );
                                 customer_rate_ = customer_rate_.replace( '{id}', full[0] );
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
+								subscriptions_ = subscriptions_.replace( '{id}', full[0] );
 								authenticate_ = authenticate_.replace( '{id}', full[0] );
                                 action = '';
-                                <?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
-                                action +='&nbsp;<button class="btn btn-default btn-xs opportunity" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
+                                
+								
+								<?php if(User::checkCategoryPermission('Opportunity','Add')) { ?>
+                                action +='&nbsp;<button class="btn  btn-default btn-xs small_icons" title="Add Opportunity" data-id="'+full[0]+'" type="button"> <i class="fa fa-line-chart"></i> </button>';
                                 <?php } ?>
 
                                 <?php if(User::checkCategoryPermission('AccountActivityChart','View')){ ?>
-                                action +='&nbsp;<button redirecto="'+chart_+'" class="btn btn-default btn-xs" title="Account Activity Chart" data-id="'+full[0]+'" type="button"> <i class="fa fa-bar-chart"></i> </button>';
+                                action +='&nbsp;<button redirecto="'+chart_+'" class="btn small_icons btn-default btn-xs" title="Account Activity Chart" data-id="'+full[0]+'" type="button"> <i class="fa fa-bar-chart"></i> </button>';
                                 //action += '&nbsp;<a href="'+edit_+'" class="btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>';
                                 <?php } ?>
 
                                 <?php if(User::checkCategoryPermission('CreditControl','View')){ ?>
-                                        action +='&nbsp;<button redirecto="'+credit_+'" class="btn btn-default btn-xs" title="Credit Control" data-id="'+full[0]+'" type="button"> <i class="fa fa-credit-card"></i> </button>';
+                                        action +='&nbsp;<button redirecto="'+credit_+'" class="btn small_icons btn-default btn-xs" title="Credit Control" data-id="'+full[0]+'" type="button"> <i class="fa fa-credit-card"></i> </button>';
                                 <?php } ?>
+								
+								if(full[9]==1 || full[10]==1){
+                                 	action += '&nbsp;<button redirecto="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></button>';
+                                } 
+								
+								<?php if(User::checkCategoryPermission('AccountService','View')) { ?>
+                                action +='&nbsp;<button class="btn btn-default small_icons btn-xs " redirecto="'+subscriptions_+'" title="View Account Subscriptions" data-id="'+full[0]+'" type="button"> <i class="fa fa-refresh"></i> </button>';
+                                <?php } ?>
+								
                                 <?php if(User::checkCategoryPermission('Account','Edit')){ ?>
-                                action +='&nbsp;<button redirecto="'+edit_+'" class="btn btn-default btn-xs" title="Edit" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i></button>';
+                                action +='&nbsp;<button redirecto="'+edit_+'" class="btn small_icons btn-default btn-xs" title="Edit" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i></button>';
                                 <?php } ?>
-                                action +='&nbsp;<button redirecto="'+show_+'" class="btn btn-default btn-xs" title="View" data-id="'+full[0]+'" type="button"> <i class="fa fa-eye"></i></button>';//entypo-info
+                                action +='&nbsp;<button redirecto="'+show_+'" class="btn small_icons btn-default btn-xs" title="View" data-id="'+full[0]+'" type="button"> <i class="fa fa-eye"></i></button>';//entypo-info
                                 /*full[6] == Customer verified
                                  full[7] == Vendor verified */
                                 varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/';
@@ -443,19 +455,16 @@
                                  action += '</select>';*/
                                 <?php } ?>
 								
-								if(full[9]==1 || full[10]==1){
-                                 	action += '&nbsp;<a href="'+authenticate_+'" title="Authentication Rule" class="btn btn-default btn-xs"><i class="entypo-lock"></i></a>';
-                                } 
 
                                 if(full[9]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
-                                        action += '&nbsp;<a href="'+customer_rate_+'" title="Customer" class="btn btn-warning btn-xs"><i class="entypo-user"></i></a>';
+                                        action += '&nbsp;<button redirecto="'+customer_rate_+'" title="Customer" class="btn small_icons btn-warning btn-xs"><i class="entypo-user"></i></button>';
                                     <?php } ?>
                                 }
 
                                 if(full[10]==1 && full[11]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
-                                        action += '&nbsp;<a href="'+vendor_blocking_+'" title="Vendor" class="btn btn-info btn-xs"><i class="fa fa-slideshare"></i></a>';
+                                        action += '&nbsp;<button redirecto="'+vendor_blocking_+'" title="Vendor" class="btn small_icons btn-info btn-xs"><i class="fa fa-slideshare"></i></button>';
                                     <?php } ?>
                                 } 								
 								
@@ -635,7 +644,7 @@
                 html += '     <div class="address account-address">' + address1 + ''+address2+''+address3+''+city+''+PostCode+''+country+'</div>';
                 html += '  </div>';
                 html += '  </div>';
-                html += '  <div class="col-sm-11 padding-0 action">';
+                html += '  <div class="col-sm-12 padding-0 action">';
                 html += '   ' + temp.html();
                 html += '  </div>';
                 html += ' </div>';
