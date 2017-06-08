@@ -2737,3 +2737,6 @@ button.btn.btn-xs.small_icons{
 .post-warning {
     background-color: #f89406 !important;
 }
+.post-none {
+    display: none;
+}
