@@ -8,17 +8,18 @@ $NoticeBoardPostLast = NoticeBoardPost::where("CompanyID", $CompanyID)->limit(1)
 ?>
 @if(count($NoticeBoardPostLast))
 <div class="cc_banner-wrapper  ">
-    <div class="cc_banner cc_container {{$NoticeBoardPostLast->Type}} cc_container--open">
+    <div class="cc_banner cc_container  cc_container--open">
         <div class="pull-right">
-            <a href="{{Url::to('customer/prev_noticeboard')}}" data-cc-event="click:dismiss" target="_blank" class="btn btn-default btn-sm tooltip-primary prev_post"><i class="entypo-left-open-big"></i></a>
-            <a href="{{Url::to('customer/next_noticeboard')}}" data-cc-event="click:dismiss" target="_blank" class="btn btn-default btn-sm tooltip-primary next_post"><i class="entypo-right-open-big"></i></a>
-            <a href="{{Url::to('customer/noticeboard')}}" data-cc-event="click:dismiss" target="_blank" class="btn btn-default btn-sm tooltip-primary"><i class="entypo-list"></i></a>
-            <a href="#" data-cc-event="click:dismiss" class="btn btn-default btn-sm tooltip-primary cc_btn_close"><i class="entypo-cancel-circled"></i></a>
+            <a href="#" data-cc-event="click:dismiss" class="tooltip-primary prev_post"><i class="entypo-left-open-big"></i></a>
+            <a href="#" data-cc-event="click:dismiss" class="tooltip-primary next_post"><i class="entypo-right-open-big"></i></a>
+            <a href="{{Url::to('customer/noticeboard')}}" data-cc-event="click:dismiss" target="_blank" class="tooltip-primary post_detail"><i class="entypo-list"></i></a>
+            <a href="#" data-cc-event="click:dismiss" class="tooltip-primary cc_btn_close"><i class="entypo-cancel-circled"></i></a>
         </div>
         <input type="hidden" id="NoticeBoardPostID_last" name="NoticeBoardPostID" value="{{$NoticeBoardPostLast->NoticeBoardPostID}}">
-        <p class="cc_message">{{$NoticeBoardPostLast->Title}} </p>
-        <p class="cc_last_updated">Updated {{\Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPostLast->updated_at))->diffForHumans() }} </p>
-        <div class="cc_detail">{{ strlen($NoticeBoardPostLast->Detail)>100 ? substr($NoticeBoardPostLast->Detail,0,100).'...':$NoticeBoardPostLast->Detail}}</div>
+        <p class="cc_message"><span class="badge {{$NoticeBoardPostLast->Type}}">&nbsp;</span> <strong>{{$NoticeBoardPostLast->Title}}</strong> (<span class="cc_last_updated"> Updated {{\Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPostLast->updated_at))->diffForHumans() }}</span>)
+        </p>
+
+        <div class="cc_detail" style="padding-left: 20px;">{{ strlen($NoticeBoardPostLast->Detail)>350 ? substr($NoticeBoardPostLast->Detail,0,350).'...':$NoticeBoardPostLast->Detail}}</div>
     </div>
 </div>
 @endif
@@ -38,19 +39,13 @@ $NoticeBoardPostLast = NoticeBoardPost::where("CompanyID", $CompanyID)->limit(1)
             }
             $(this).button('loading');
             ajax_json(baseurl + '/customer/get_next_update/' + NoticeBoardPostID+'?next='+next, $(this).serialize(), function (response) {
-                $(".btn").button('reset');
-
+                $(".prev_post,.next_post").button('reset');
                 if (response.NoticeBoardPostID) {
                     $('#NoticeBoardPostID_last').val(response.NoticeBoardPostID);
-                    $('.cc_message').html(response.Title);
+                    var post_title = '<span class="badge '+response.Type+'">&nbsp;</span> <strong>'+response.Title +'</strong> (<span class="cc_last_updated"> Updated '+response.LastUpdated+'</span>)';
+                    $('.cc_message').html(post_title);
                     $('.cc_detail').html(response.Detail);
-                    $('.cc_last_updated').html(response.LastUpdated);
-
-                    $('.cc_container').removeClass('post-success');
-                    $('.cc_container').removeClass('post-error');
-                    $('.cc_container').removeClass('post-info');
-                    $('.cc_container').removeClass('post-warning');
-                    $('.cc_container').addClass(response.Type);
+                    $('.post_detail').attr('href',baseurl+'/customer/noticeboard#'+response.NoticeBoardPostID);
 
                 }
 

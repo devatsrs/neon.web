@@ -3,10 +3,7 @@
 
     <!-- Header text-->
 <style >
-    .white {
-        color: #fff;
-        font-size: 16px;
-    }
+
     /* Misc */
     hr {
         display: block;
@@ -35,6 +32,7 @@
     }
 </style>
 
+@if(Session::get('customer') == 1)
 <div class="row">
     <div class="col-md-12">
         <div class="alert alert-success">
@@ -47,6 +45,7 @@
         </div>
     </div>
 </div>
+@endif
 <p style="text-align: right;">
 @if(User::checkCategoryPermission('NoticeBoardPost','Add'))
     <a href="#" class="btn btn-primary add_post ">
@@ -61,12 +60,15 @@
         <div class="col-md-12" >
             <form id="post_form_0" method=""  action="" class="form-horizontal post_form form-groups-bordered validate" novalidate>
                 <div class="panel panel-default make_round">
-                    <div class="panel-heading make_round post-success">
-                        <div class="panel-title white">
+                    <div class="panel-heading make_round post-none" data-rel="collapse" data-collapsed="1">
+                        <div class="panel-title">
+                            <span class="badge ">&nbsp;</span>
                         </div>
-                        <div class="panel-options ">
-                            <a data-rel="collapse" href="#" class="white"><i class="entypo-down-open"></i></a>
-                        </div>
+                        @if(User::checkCategoryPermission('NoticeBoardPost','Edit'))
+                            <div class="panel-options ">
+                                <a href="#" class="save_post" data-original-title="Save" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-floppy"></i></a>
+                            </div>
+                        @endif
                     </div>
                     <div class="panel-body section_border_1 no_top_border make_round make_round_bottom_only">
                         <div class="form-group">
@@ -77,7 +79,7 @@
 
                             <label for="field-1" class="col-md-2 control-label">Type*</label>
                             <div class="col-md-4">
-                                {{Form::select('Type',array('post-success'=>'Success','post-error'=>'Error','post-info'=>'Information','post-warning'=>'Warning'),'',array("class"=>"select2 post_type"))}}
+                                {{Form::select('Type',array('post-none'=>'None','post-error'=>'Error','post-info'=>'Information','post-warning'=>'Warning'),'',array("class"=>"select2 post_type"))}}
                             </div>
                             <div class="col-xs-12 col-md-12">
                                 <label for="subject">Detail *</label>
@@ -86,14 +88,7 @@
                         </div>
                         <input type="hidden" name="NoticeBoardPostID" value="0">
 
-                        <div class="row">
-                            <div class="col-md-12"><strong class="incident_time"></strong>
-                                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left save_post pull-right" data-loading-text="loading">
-                                    <i class="entypo-floppy"></i>
-                                    Save
-                                </button>
-                            </div>
-                        </div>
+
 
                     </div>
                 </div>
@@ -112,26 +107,69 @@
     $(document).ready(function() {
 
         load_more_updates();
+        if(window.location.hash) {
+            var hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
+            var $selected_panel = $('#post_form_'+hash).find('[data-rel="collapse"]').closest('.panel');
+            if($selected_panel.length) {
+                $selected_panel.children('.panel-body, .table').show();
+                $selected_panel.attr('data-collapsed', 0);
+                var $first_panel = $('#timeline-ul [data-rel="collapse"]:first').closest('.panel');
+                $first_panel.children('.panel-body, .table').hide();
+                $first_panel.attr('data-collapsed', 1);
+            }
+        }
         //$('.save_post').unbind('click');
+        $(document).on('click', '[data-rel="collapse"]', function(ev)
+        {
+            ev.preventDefault();
+
+            var $this = $(this),
+                    $panel = $this.closest('.panel'),
+                    $body = $panel.children('.panel-body, .table'),
+                    do_collapse = !$panel.hasClass('panel-collapse');
+
+            if ($panel.is('[data-collapsed="1"]'))
+            {
+                $panel.attr('data-collapsed', 0);
+                $body.hide();
+                do_collapse = false;
+            }
+
+            if (do_collapse)
+            {
+                $body.slideUp('normal', fit_main_content_height);
+                $panel.addClass('panel-collapse');
+            }
+            else
+            {
+                $body.slideDown('normal', fit_main_content_height);
+                $panel.removeClass('panel-collapse');
+            }
+        });
+
         $(document).on('click', '.add_post', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             $('#post_form_0').trigger("reset");
             $('.add_new_post').show();
         });
         //$('.delete_post').unbind('click');
         $(document).on('click', '.delete_post', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             var NoticeBoardPostID = $(this).attr('data-id');
             if (confirm("Are you sure?")) {
                 $(this).button('loading');
                 ajax_json(baseurl + '/delete_post/' + NoticeBoardPostID, $(this).serialize(), function (response) {
-                    $(".btn").button('reset');
+                    $(".delete_post").button('reset');
+
                     if (response.status == 'success') {
                         toastr.success(response.message, "Success", toastr_opts);
                         $('#post_form_' + NoticeBoardPostID).parents('.page_section').fadeOut().remove();
                     } else {
                         toastr.error(response.message, "Error", toastr_opts);
                     }
+                    first_open();
                 });
             }
 
@@ -139,6 +177,7 @@
         //$('.save_post').unbind('click');
         $(document).on('click', '.save_post', function(e) {
             e.preventDefault();
+            e.stopPropagation();
             $(this).button('loading');
             $('#'+$(this).parents('form').attr('id')).submit();
         });
@@ -146,7 +185,7 @@
         $(document).on('submit', '.post_form', function(e) {
             e.preventDefault();
             ajax_json(baseurl + '/save_post', $(this).serialize(), function (response) {
-                $(".btn").button('reset');
+                $(".save_post").button('reset');
                 if (response.status == 'success') {
                     toastr.success(response.message, "Success", toastr_opts);
                     if(response.html != ''){
@@ -162,16 +201,20 @@
                 } else {
                     toastr.error(response.message, "Error", toastr_opts);
                 }
+
+                $('select.select2').select2();
+                $('select.select2').addClass('visible');
+                first_open();
             });
 
         });
         $(document).on('change', '.post_type', function(e) {
             e.preventDefault();
-            $(this).parents('form').find('.panel-heading').removeClass('post-success');
-            $(this).parents('form').find('.panel-heading').removeClass('post-error');
-            $(this).parents('form').find('.panel-heading').removeClass('post-info');
-            $(this).parents('form').find('.panel-heading').removeClass('post-warning');
-            $(this).parents('form').find('.panel-heading').first().addClass($(this).val());
+            $(this).parents('form').find('.badge').removeClass('post-none');
+            $(this).parents('form').find('.badge').removeClass('post-error');
+            $(this).parents('form').find('.badge').removeClass('post-info');
+            $(this).parents('form').find('.badge').removeClass('post-warning');
+            $(this).parents('form').find('.badge').first().addClass($(this).val());
         });
         $('.add_new_post').hide();
     });
@@ -211,8 +254,9 @@
                             return false;
                         }
 
-                        var html_end = '<div>Updates completed</div>';
-                        $("#timeline-ul").append(html_end);
+                        //var html_end = '<div>Updates completed</div>';
+                        //$("#timeline-ul").append(html_end);
+
                         scroll_more = 0;
                         $('div#last_msg_loader').empty();
                         console.log("Results completed");
@@ -222,9 +266,16 @@
                 } else {
                     $("#timeline-ul").append(response1);
                 }
+                first_open();
                 $('div#last_msg_loader').empty();
             }
         });
+    }
+
+    function first_open(){
+        var $first_panel = $('#timeline-ul [data-rel="collapse"]:first').closest('.panel');
+        $first_panel.children('.panel-body, .table').show();
+        $first_panel.attr('data-collapsed', 0);
     }
 </script>
 

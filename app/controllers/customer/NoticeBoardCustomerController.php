@@ -38,6 +38,7 @@ class NoticeBoardCustomerController extends BaseController{
         }
         if(isset($NoticeBoardPost->updated_at)){
             $NoticeBoardPost->LastUpdated = \Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPost->updated_at))->diffForHumans();
+            $NoticeBoardPost->Detail =  strlen($NoticeBoardPost->Detail)>350 ? substr($NoticeBoardPost->Detail,0,350).'...':$NoticeBoardPost->Detail;
         }
         if (count($NoticeBoardPost) == 0) {
             return Response::json(array("status" => "failed", "message" => "No Result Found", "scroll" => "end"));
