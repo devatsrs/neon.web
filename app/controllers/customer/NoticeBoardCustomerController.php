@@ -38,7 +38,7 @@ class NoticeBoardCustomerController extends BaseController{
         }
         if(isset($NoticeBoardPost->updated_at)){
             $NoticeBoardPost->LastUpdated = \Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPost->updated_at))->diffForHumans();
-            $NoticeBoardPost->Detail =  strlen($NoticeBoardPost->Detail)>350 ? substr($NoticeBoardPost->Detail,0,350).'...':$NoticeBoardPost->Detail;
+            $NoticeBoardPost->Detail =  strlen(strip_tags($NoticeBoardPost->Detail))>250 ? substr(strip_tags($NoticeBoardPost->Detail),0,250).'...'.'<a href="'.URL::to('customer/noticeboard').'" data-cc-event="click:dismiss" target="_blank" class="tooltip-primary post_detail">more</a>':strip_tags($NoticeBoardPost->Detail);
         }
         if (count($NoticeBoardPost) == 0) {
             return Response::json(array("status" => "failed", "message" => "No Result Found", "scroll" => "end"));

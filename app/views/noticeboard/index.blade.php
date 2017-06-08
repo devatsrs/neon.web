@@ -60,9 +60,9 @@
         <div class="col-md-12" >
             <form id="post_form_0" method=""  action="" class="form-horizontal post_form form-groups-bordered validate" novalidate>
                 <div class="panel panel-default make_round">
-                    <div class="panel-heading make_round post-none" data-rel="collapse" data-collapsed="1">
+                    <div class="panel-heading make_round " data-rel="collapse" data-collapsed="1">
                         <div class="panel-title">
-                            <span class="badge ">&nbsp;</span>
+                            <span class="badge  post-none">&nbsp;</span>
                         </div>
                         @if(User::checkCategoryPermission('NoticeBoardPost','Edit'))
                             <div class="panel-options ">
@@ -105,17 +105,18 @@
 <script>
     var scroll_more 	  =  		1;
     $(document).ready(function() {
-
+        show_summerinvoicetemplate($("[name=Detail]"));
         load_more_updates();
         if(window.location.hash) {
             var hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
             var $selected_panel = $('#post_form_'+hash).find('[data-rel="collapse"]').closest('.panel');
             if($selected_panel.length) {
-                $selected_panel.children('.panel-body, .table').show();
-                $selected_panel.attr('data-collapsed', 0);
                 var $first_panel = $('#timeline-ul [data-rel="collapse"]:first').closest('.panel');
                 $first_panel.children('.panel-body, .table').hide();
                 $first_panel.attr('data-collapsed', 1);
+                $selected_panel.children('.panel-body, .table').show();
+                $selected_panel.attr('data-collapsed', 0);
+
             }
         }
         //$('.save_post').unbind('click');

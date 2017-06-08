@@ -10,16 +10,16 @@ $NoticeBoardPostLast = NoticeBoardPost::where("CompanyID", $CompanyID)->limit(1)
 <div class="cc_banner-wrapper  ">
     <div class="cc_banner cc_container  cc_container--open">
         <div class="pull-right">
-            <a href="#" data-cc-event="click:dismiss" class="tooltip-primary prev_post"><i class="entypo-left-open-big"></i></a>
-            <a href="#" data-cc-event="click:dismiss" class="tooltip-primary next_post"><i class="entypo-right-open-big"></i></a>
-            <a href="{{Url::to('customer/noticeboard')}}" data-cc-event="click:dismiss" target="_blank" class="tooltip-primary post_detail"><i class="entypo-list"></i></a>
-            <a href="#" data-cc-event="click:dismiss" class="tooltip-primary cc_btn_close"><i class="entypo-cancel-circled"></i></a>
+            <a href="#" data-cc-event="click:dismiss" data-original-title="Previous" title="" data-placement="bottom" data-toggle="tooltip" class="tooltip-primary prev_post"><i class="entypo-left-open-big"></i></a>
+            <a href="#" data-cc-event="click:dismiss" data-original-title="Next" title="" data-placement="bottom" data-toggle="tooltip" class="tooltip-primary next_post"><i class="entypo-right-open-big"></i></a>
+            <a href="{{Url::to('customer/noticeboard')}}" data-original-title="View All" title="" data-placement="bottom" data-toggle="tooltip" data-cc-event="click:dismiss" target="_blank" class="tooltip-primary post_detail"><i class="entypo-list"></i></a>
+            <a href="#" data-cc-event="click:dismiss" data-original-title="Dismiss" title="" data-placement="bottom" data-toggle="tooltip" class="tooltip-primary cc_btn_close"><i class="entypo-cancel-circled"></i></a>
         </div>
         <input type="hidden" id="NoticeBoardPostID_last" name="NoticeBoardPostID" value="{{$NoticeBoardPostLast->NoticeBoardPostID}}">
         <p class="cc_message"><span class="badge {{$NoticeBoardPostLast->Type}}">&nbsp;</span> <strong>{{$NoticeBoardPostLast->Title}}</strong> (<span class="cc_last_updated"> Updated {{\Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPostLast->updated_at))->diffForHumans() }}</span>)
         </p>
 
-        <div class="cc_detail" style="padding-left: 20px;">{{ strlen($NoticeBoardPostLast->Detail)>350 ? substr($NoticeBoardPostLast->Detail,0,350).'...':$NoticeBoardPostLast->Detail}}</div>
+        <div class="cc_detail" style="padding-left: 20px;">{{ strlen(strip_tags($NoticeBoardPostLast->Detail))>250 ? substr(strip_tags($NoticeBoardPostLast->Detail),0,250).'...'.'<a href="'.Url::to('customer/noticeboard#'.$NoticeBoardPostLast->NoticeBoardPostID).'" data-cc-event="click:dismiss" target="_blank" class="tooltip-primary post_detail">more</a>':strip_tags($NoticeBoardPostLast->Detail)}}</div>
     </div>
 </div>
 @endif
