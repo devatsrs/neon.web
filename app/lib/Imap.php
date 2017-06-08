@@ -189,7 +189,7 @@ protected $server;
 				if(empty($filename)) $filename = $attachment['filename'];		
 				if(empty($filename)) $filename = time() . ".dat";
 				
-				$file_name 		=  \Webpatser\Uuid\Uuid::generate()."_".basename($filename);
+				$file_name 		=  \Nathanmac\GUID\Facades\GUID::generate()."_".basename($filename);
 				$amazonPath 	= 	AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT'],'');
 				
 				if(!is_dir(CompanyConfiguration::get('UPLOAD_PATH').'/'.$amazonPath)){

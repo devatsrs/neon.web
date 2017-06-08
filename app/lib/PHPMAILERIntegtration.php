@@ -93,7 +93,7 @@ class PHPMAILERIntegtration{
 		 	
 	if(isset($data['AttachmentPaths']) && !empty($data['AttachmentPaths'])) {
         foreach($data['AttachmentPaths'] as $attachment_data) {
-			$file = \Webpatser\Uuid\Uuid::generate()."_". basename($attachment_data['filepath']); 
+			$file = \Nathanmac\GUID\Facades\GUID::generate()."_". basename($attachment_data['filepath']);
             $Attachmenturl = AmazonS3::unSignedUrl($attachment_data['filepath']);
             file_put_contents($file,file_get_contents($Attachmenturl));
             $mail->AddAttachment($file,$attachment_data['filename']);

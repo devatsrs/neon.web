@@ -47,16 +47,20 @@ BEGIN
 		ID,
 		is_inbound,
 		billed_second,
-		disposition
+		disposition,
+		AccountName,
+		AccountNumber,
+		AccountCLI,
+		AccountIP
 	)
 
 	SELECT
 	*
 	FROM (SELECT
 		uh.CompanyID,
-		CompanyGatewayID,
-		GatewayAccountID,
-		GatewayAccountPKID,
+		uh.CompanyGatewayID,
+		uh.GatewayAccountID,
+		uh.GatewayAccountPKID,
 		uh.AccountID,
 		uh.ServiceID,
 		connect_time,
@@ -75,12 +79,18 @@ BEGIN
 		ID,
 		is_inbound,
 		billed_second,
-		disposition
+		disposition,
+		IFNULL(ga.AccountName,""),
+		IFNULL(ga.AccountNumber,""),
+		IFNULL(ga.AccountCLI,""),
+		IFNULL(ga.AccountIP,"")
 	FROM NeonCDRDev.tblUsageDetails  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	INNER JOIN NeonRMDev.tblAccount a
 		ON uh.AccountID = a.AccountID
+	LEFT JOIN tblGatewayAccount ga
+		ON ga.GatewayAccountPKID = uh.GatewayAccountPKID
 	WHERE
 	( "' , p_CDRType , '" = "" OR  ud.is_inbound =  "' , p_CDRType , '")
 	AND  StartDate >= DATE_ADD( "' , p_StartDate , '",INTERVAL -1 DAY)
@@ -88,7 +98,7 @@ BEGIN
 	AND uh.CompanyID =  "' , p_CompanyID , '"
 	AND uh.AccountID is not null
 	AND ( "' , p_AccountID , '" = 0 OR uh.AccountID = "' , p_AccountID , '")
-	AND ( "' , p_CompanyGatewayID , '" = 0 OR CompanyGatewayID = "' , p_CompanyGatewayID , '")
+	AND ( "' , p_CompanyGatewayID , '" = 0 OR uh.CompanyGatewayID = "' , p_CompanyGatewayID , '")
 	AND ( "' , p_CurrencyID ,'" = "0" OR a.CurrencyId = "' , p_CurrencyID , '")
 	AND ( "' , p_CLI , '" = "" OR cli LIKE REPLACE("' , p_CLI , '", "*", "%"))	
 	AND ( "' , p_CLD , '" = "" OR cld LIKE REPLACE("' , p_CLD , '", "*", "%"))

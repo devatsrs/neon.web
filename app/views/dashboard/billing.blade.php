@@ -906,7 +906,7 @@
         }
 
             function invoiceExpense() {
-                @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpense','View'))
+                @if(((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardInvoiceExpense',$BillingDashboardWidgets)) && User::checkCategoryPermission('BillingDashboardInvoiceExpenseWidgets','View'))
                 var get_url = baseurl + "/billing_dashboard/invoice_expense_chart";
                 data = $('#billing_filter').serialize() + '&ListType=' + $('#invoiceExpensefilter-form [name="ListType"]').val();
                 var CurrencyID = $('#billing_filter [name="CurrencyID"]').val();
