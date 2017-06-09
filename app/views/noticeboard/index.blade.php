@@ -14,7 +14,7 @@
 
     /* Page sections */
     .panel{
-        margin-bottom: 10px !important; 
+        margin-bottom: 10px !important;
     }
     .page_section h3 {
         font-size: 20px;
@@ -73,7 +73,7 @@
                         @endif
                     </div>
                     <div class="panel-body section_border_1 no_top_border make_round make_round_bottom_only">
-                        <div class="form-group">
+                        <div class="row">
                             <label for="field-1" class="col-md-2 control-label">Title*</label>
                             <div class="col-md-4">
                                 <input type="text" name="Title" class="form-control" id="field-1" placeholder="" value="" />
@@ -89,9 +89,6 @@
                             </div>
                         </div>
                         <input type="hidden" name="NoticeBoardPostID" value="0">
-
-
-
                     </div>
                 </div>
             </form>
