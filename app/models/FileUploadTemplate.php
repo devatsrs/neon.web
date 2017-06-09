@@ -16,6 +16,7 @@ class FileUploadTemplate extends \Eloquent {
     const TEMPLATE_Account = 3;
     const TEMPLATE_Leads = 4;
     const TEMPLATE_DIALSTRING = 5;
+    const TEMPLATE_IPS = 6;
 
     public static function getTemplateIDList($Type){
         $row = FileUploadTemplate::where(['CompanyID'=>User::get_companyID(),'Type'=>$Type])->orderBy('Title')->lists('Title', 'FileUploadTemplateID');

@@ -153,6 +153,12 @@
                         <span>Import</span>
                    </a>
                 </li>
+                <li>
+                   <a href="{{ URL::to('/import/ips') }}" >
+                        <i class="entypo-user-add"></i>
+                        <span>Import IPS</span>
+                   </a>
+                </li>
                 <li class="li_active">
                    <a class="type_active_deactive" type_ad="active" href="javascript:void(0);" >
                         <i class="fa fa-plus-circle"></i>
