@@ -13,7 +13,9 @@
     }
 
     /* Page sections */
-
+    .panel{
+        margin-bottom: 10px !important; 
+    }
     .page_section h3 {
         font-size: 20px;
         opacity: 0.6;
