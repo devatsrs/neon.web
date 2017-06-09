@@ -401,7 +401,7 @@ jQuery(document).ready(function ($) {
                                 <tr>
                                     <th>AccountName</th>
                                     <th>IP</th>
-                                    <th>TYpe</th>
+                                    <th>Type</th>
                                 </tr>
                             </thead>
                             <tbody>
