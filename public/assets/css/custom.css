@@ -2724,3 +2724,6 @@ a:focus,a:hover{text-decoration:none !important}
 button.btn.btn-xs.small_icons{
     margin-bottom: 5px;
 }
+.mail-text table td {
+    box-sizing: content-box;
+}
