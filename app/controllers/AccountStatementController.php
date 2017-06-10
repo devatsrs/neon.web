@@ -53,17 +53,17 @@ class AccountStatementController extends \BaseController
 
         $BroughtForwardOffset = !empty($BroughtForwardOffset[0]["BroughtForwardOffset"]) ? number_format(doubleval($BroughtForwardOffset[0]["BroughtForwardOffset"]), $roundplaces) : 0;
 
-        $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
+        $InvoiceOutAmountTotal = (!empty(doubleval($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"]))) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
 
-        $InvoiceOutDisputeAmountTotal = ($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] > 0) ? $InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] : 0;
+        $InvoiceOutDisputeAmountTotal = (!empty(doubleval($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"]))) ? $InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] : 0;
 
-        $PaymentInAmountTotal = ($PaymentInAmountTotal[0]["PaymentInAmountTotal"] > 0) ? $PaymentInAmountTotal[0]["PaymentInAmountTotal"] : 0;
+        $PaymentInAmountTotal = (!empty(doubleval($PaymentInAmountTotal[0]["PaymentInAmountTotal"]))) ? $PaymentInAmountTotal[0]["PaymentInAmountTotal"] : 0;
 
-        $InvoiceInAmountTotal = ($InvoiceInAmountTotal[0]["InvoiceInAmountTotal"] > 0) ? $InvoiceInAmountTotal[0]["InvoiceInAmountTotal"] : 0;
+        $InvoiceInAmountTotal = (!empty(doubleval($InvoiceInAmountTotal[0]["InvoiceInAmountTotal"]))) ? $InvoiceInAmountTotal[0]["InvoiceInAmountTotal"] : 0;
 
-        $InvoiceInDisputeAmountTotal = ($InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"] > 0) ? $InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"] : 0;
+        $InvoiceInDisputeAmountTotal = ((!empty(doubleval($InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"])))) ? $InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"] : 0;
 
-        $PaymentOutAmountTotal = ($PaymentOutAmountTotal[0]["PaymentOutAmountTotal"] > 0) ? $PaymentOutAmountTotal[0]["PaymentOutAmountTotal"] : 0;
+        $PaymentOutAmountTotal = ((!empty(doubleval($PaymentOutAmountTotal[0]["PaymentOutAmountTotal"])))) ? $PaymentOutAmountTotal[0]["PaymentOutAmountTotal"] : 0;
 
         $CompanyBalance = number_format(($InvoiceInAmountTotal - $PaymentOutAmountTotal), $roundplaces);
         $AccountBalance = number_format(($InvoiceOutAmountTotal - $PaymentInAmountTotal), $roundplaces);
@@ -180,17 +180,17 @@ class AccountStatementController extends \BaseController
 
         $BroughtForwardOffset = !empty($BroughtForwardOffset[0]["BroughtForwardOffset"]) ? number_format(doubleval($BroughtForwardOffset[0]["BroughtForwardOffset"]), $roundplaces) : 0;
 
-        $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] > 0) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
+        $InvoiceOutAmountTotal = (!empty(doubleval($InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"]))) ? $InvoiceOutAmountTotal[0]["InvoiceOutAmountTotal"] : 0;
 
-        $InvoiceOutDisputeAmountTotal = ($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] > 0) ? $InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] : 0;
+        $InvoiceOutDisputeAmountTotal = (!empty(doubleval($InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"]))) ? $InvoiceOutDisputeAmountTotal[0]["InvoiceOutDisputeAmountTotal"] : 0;
 
-        $PaymentInAmountTotal = ($PaymentInAmountTotal[0]["PaymentInAmountTotal"] > 0) ? $PaymentInAmountTotal[0]["PaymentInAmountTotal"] : 0;
+        $PaymentInAmountTotal = (!empty(doubleval($PaymentInAmountTotal[0]["PaymentInAmountTotal"]))) ? $PaymentInAmountTotal[0]["PaymentInAmountTotal"] : 0;
 
-        $InvoiceInAmountTotal = ($InvoiceInAmountTotal[0]["InvoiceInAmountTotal"] > 0) ? $InvoiceInAmountTotal[0]["InvoiceInAmountTotal"] : 0;
+        $InvoiceInAmountTotal = (!empty(doubleval($InvoiceInAmountTotal[0]["InvoiceInAmountTotal"]))) ? $InvoiceInAmountTotal[0]["InvoiceInAmountTotal"] : 0;
 
-        $InvoiceInDisputeAmountTotal = ($InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"] > 0) ? $InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"] : 0;
+        $InvoiceInDisputeAmountTotal = ((!empty(doubleval($InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"])))) ? $InvoiceInDisputeAmountTotal[0]["InvoiceInDisputeAmountTotal"] : 0;
 
-        $PaymentOutAmountTotal = ($PaymentOutAmountTotal[0]["PaymentOutAmountTotal"] > 0) ? $PaymentOutAmountTotal[0]["PaymentOutAmountTotal"] : 0;
+        $PaymentOutAmountTotal = ((!empty(doubleval($PaymentOutAmountTotal[0]["PaymentOutAmountTotal"])))) ? $PaymentOutAmountTotal[0]["PaymentOutAmountTotal"] : 0;
 
         $CompanyBalance = number_format(($InvoiceInAmountTotal - $PaymentOutAmountTotal), $roundplaces);
         $AccountBalance = number_format(($InvoiceOutAmountTotal - $PaymentInAmountTotal), $roundplaces);

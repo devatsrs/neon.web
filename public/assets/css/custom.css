@@ -2740,3 +2740,6 @@ button.btn.btn-xs.small_icons{
 .post-none {
     display: none;
 }
+.mail-text table td {
+    box-sizing: content-box;
+}
