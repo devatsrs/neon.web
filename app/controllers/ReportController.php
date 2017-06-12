@@ -63,7 +63,7 @@ class ReportController extends \BaseController {
         $data['row'] = array_filter(explode(",",$data['row']));
         $data['sum'] = $response = array();
 
-        $measures = Report::$measures[$cube];
+        $measures = array_keys(Report::$measures[$cube]);
         foreach ($measures as $measure){
             if(in_array($measure,$data['column'])){
                 $data['sum'][] = $measure;
