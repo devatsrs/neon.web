@@ -6,9 +6,23 @@ if(empty($offset)){
 $NoticeBoardPostLast = NoticeBoardPost::where("CompanyID", $CompanyID)->limit(1)->offset($offset)
         ->orderBy('NoticeBoardPostID','Desc')->first();
 ?>
+<style>
+    .post-success {
+        border-left: 20px solid #00a651 !important;
+    }
+    .post-error {
+        border-left: 20px solid #cc2424 !important;
+    }
+    .post-info {
+        border-left: 20px solid #21a9e1 !important;
+    }
+    .post-warning {
+        border-left: 20px solid #f89406 !important;
+    }
+</style>
 @if(count($NoticeBoardPostLast))
 <div class="cc_banner-wrapper  ">
-    <div class="cc_banner cc_container  cc_container--open">
+    <div class="cc_banner cc_container {{$NoticeBoardPostLast->Type}}  cc_container--open">
         <div class="pull-right">
             <a href="#" data-cc-event="click:dismiss" data-original-title="Previous" title="" data-placement="bottom" data-toggle="tooltip" class="tooltip-primary prev_post"><i class="entypo-left-open-big"></i></a>
             <a href="#" data-cc-event="click:dismiss" data-original-title="Next" title="" data-placement="bottom" data-toggle="tooltip" class="tooltip-primary next_post"><i class="entypo-right-open-big"></i></a>
@@ -16,10 +30,10 @@ $NoticeBoardPostLast = NoticeBoardPost::where("CompanyID", $CompanyID)->limit(1)
             <a href="#" data-cc-event="click:dismiss" data-original-title="Dismiss" title="" data-placement="bottom" data-toggle="tooltip" class="tooltip-primary cc_btn_close"><i class="entypo-cancel-circled"></i></a>
         </div>
         <input type="hidden" id="NoticeBoardPostID_last" name="NoticeBoardPostID" value="{{$NoticeBoardPostLast->NoticeBoardPostID}}">
-        <p class="cc_message"><span class="badge {{$NoticeBoardPostLast->Type}}">&nbsp;</span> <strong>{{$NoticeBoardPostLast->Title}}</strong> (<span class="cc_last_updated"> Updated {{\Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPostLast->updated_at))->diffForHumans() }}</span>)
+        <p class="cc_message"> <strong>{{$NoticeBoardPostLast->Title}}</strong> (<span class="cc_last_updated"> Updated {{\Carbon\Carbon::createFromTimeStamp(strtotime($NoticeBoardPostLast->updated_at))->diffForHumans() }}</span>)
         </p>
 
-        <div class="cc_detail" style="padding-left: 20px;">{{ strlen(strip_tags($NoticeBoardPostLast->Detail))>250 ? substr(strip_tags($NoticeBoardPostLast->Detail),0,250).'...'.'<a href="'.Url::to('customer/noticeboard#'.$NoticeBoardPostLast->NoticeBoardPostID).'" data-cc-event="click:dismiss" target="_blank" class="tooltip-primary post_detail">more</a>':strip_tags($NoticeBoardPostLast->Detail)}}</div>
+        <div class="cc_detail">{{ strlen(strip_tags($NoticeBoardPostLast->Detail))>250 ? substr(strip_tags($NoticeBoardPostLast->Detail),0,250).'...'.'<a href="'.Url::to('customer/noticeboard#'.$NoticeBoardPostLast->NoticeBoardPostID).'" data-cc-event="click:dismiss" target="_blank" class="tooltip-primary post_detail">more</a>':strip_tags($NoticeBoardPostLast->Detail)}}</div>
     </div>
 </div>
 @endif
@@ -41,12 +55,17 @@ $NoticeBoardPostLast = NoticeBoardPost::where("CompanyID", $CompanyID)->limit(1)
             ajax_json(baseurl + '/customer/get_next_update/' + NoticeBoardPostID+'?next='+next, $(this).serialize(), function (response) {
                 $(".prev_post,.next_post").button('reset');
                 if (response.NoticeBoardPostID) {
+
                     $('#NoticeBoardPostID_last').val(response.NoticeBoardPostID);
-                    var post_title = '<span class="badge '+response.Type+'">&nbsp;</span> <strong>'+response.Title +'</strong> (<span class="cc_last_updated"> Updated '+response.LastUpdated+'</span>)';
+                    var post_title = '<strong>'+response.Title +'</strong> (<span class="cc_last_updated"> Updated '+response.LastUpdated+'</span>)';
                     $('.cc_message').html(post_title);
                     $('.cc_detail').html(response.Detail);
                     $('.post_detail').attr('href',baseurl+'/customer/noticeboard#'+response.NoticeBoardPostID);
-
+                    $('.cc_container').removeClass('post-none');
+                    $('.cc_container').removeClass('post-error');
+                    $('.cc_container').removeClass('post-info');
+                    $('.cc_container').removeClass('post-warning');
+                    $('.cc_container').first().addClass(response.Type);
                 }
 
             });

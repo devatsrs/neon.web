@@ -2,9 +2,9 @@
     <div class="col-md-12" >
         <form id="post_form_{{$NoticeBoardPost->NoticeBoardPostID}}" method=""  action="" class="form-horizontal post_form form-groups-bordered validate" novalidate>
         <div class="panel panel-default make_round"  data-collapsed="1">
-            <div class="panel-heading  make_round panel-collapse" data-rel="collapse" >
+            <div class="panel-heading  make_round panel-collapse {{$NoticeBoardPost->Type}}" data-rel="collapse" >
                 <div class="panel-title ">
-                    <span class="badge {{$NoticeBoardPost->Type}}">&nbsp;</span> {{$NoticeBoardPost->Title}}
+                    {{$NoticeBoardPost->Title}}
                 </div>
 
                 @if(Session::get('customer') == 0)

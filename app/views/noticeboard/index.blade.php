@@ -14,7 +14,7 @@
 
     /* Page sections */
     .panel{
-        margin-bottom: 10px !important;
+        margin-bottom: 5px !important;
     }
     .page_section h3 {
         font-size: 20px;
@@ -64,7 +64,7 @@
                 <div class="panel panel-default make_round">
                     <div class="panel-heading make_round " data-rel="collapse" data-collapsed="1">
                         <div class="panel-title">
-                            <span class="badge  post-none">&nbsp;</span>
+
                         </div>
                         @if(User::checkCategoryPermission('NoticeBoardPost','Edit'))
                             <div class="panel-options ">
@@ -210,11 +210,11 @@
         });
         $(document).on('change', '.post_type', function(e) {
             e.preventDefault();
-            $(this).parents('form').find('.badge').removeClass('post-none');
-            $(this).parents('form').find('.badge').removeClass('post-error');
-            $(this).parents('form').find('.badge').removeClass('post-info');
-            $(this).parents('form').find('.badge').removeClass('post-warning');
-            $(this).parents('form').find('.badge').first().addClass($(this).val());
+            $(this).parents('form').find('.panel-heading').removeClass('post-none');
+            $(this).parents('form').find('.panel-heading').removeClass('post-error');
+            $(this).parents('form').find('.panel-heading').removeClass('post-info');
+            $(this).parents('form').find('.panel-heading').removeClass('post-warning');
+            $(this).parents('form').find('.panel-heading').first().addClass($(this).val());
         });
         $('.add_new_post').hide();
     });

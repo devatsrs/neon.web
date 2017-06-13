@@ -2726,20 +2726,18 @@ button.btn.btn-xs.small_icons{
 }
 
 .post-success {
-    background-color: #00a651 !important;
+    border-left: 5px solid #00a651 !important;
 }
 .post-error {
-    background-color: #cc2424 !important;
+    border-left: 5px solid #cc2424 !important;
 }
 .post-info {
-    background-color: #21a9e1 !important;
+    border-left: 5px solid #21a9e1 !important;
 }
 .post-warning {
-    background-color: #f89406 !important;
+    border-left: 5px solid #f89406 !important;
 }
-.post-none {
-    display: none;
-}
+
 .mail-text table td {
     box-sizing: content-box;
 }
