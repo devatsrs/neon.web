@@ -48,6 +48,7 @@
 
         </div>
 
+            @include('includes.customer.noticepanel')
             @yield('footer_ext')
 
             @include('includes.customer.login-js')
