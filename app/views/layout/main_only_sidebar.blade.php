@@ -30,7 +30,7 @@
 
     </head>
 
-    <body class="page-body gray">
+    <body class="page-body ">
 
         <div class="page-container">
 

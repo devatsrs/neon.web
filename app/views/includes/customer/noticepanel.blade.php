@@ -8,16 +8,16 @@ $NoticeBoardPostLast = NoticeBoardPost::where("CompanyID", $CompanyID)->limit(1)
 ?>
 <style>
     .post-success {
-        border-left: 20px solid #00a651 !important;
+        border-left: 10px solid #00a651 !important;
     }
     .post-error {
-        border-left: 20px solid #cc2424 !important;
+        border-left: 10px solid #cc2424 !important;
     }
     .post-info {
-        border-left: 20px solid #21a9e1 !important;
+        border-left: 10px solid #21a9e1 !important;
     }
     .post-warning {
-        border-left: 20px solid #f89406 !important;
+        border-left: 10px solid #f89406 !important;
     }
 </style>
 @if(count($NoticeBoardPostLast))
