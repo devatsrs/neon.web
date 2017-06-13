@@ -285,10 +285,13 @@ class Invoice extends \Eloquent {
 	
 	public static function GetInvoiceBillingClass($Invoice)
 	{
-			if(isset($Invoice->BillingClassID))
+			if(!empty($Invoice->BillingClassID))
 			{
 				$InvoiceBillingClass	 =	 $Invoice->BillingClassID;
-			}
+			}elseif(!empty($Invoice->RecurringInvoiceID) && (RecurringInvoice::where(["RecurringInvoiceID"=>$Invoice->RecurringInvoiceID])->count())>0){
+
+                $InvoiceBillingClass = RecurringInvoice::where(["RecurringInvoiceID"=>$Invoice->RecurringInvoiceID])->pluck('BillingClassID');
+            }
 			else
 			{
 				$AccountBilling 	  	=  	 AccountBilling::getBilling($Invoice->AccountID);
