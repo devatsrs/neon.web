@@ -82,6 +82,7 @@ class DisputeController extends \BaseController {
 
 		$data = Input::all();
 		$data['sendEmail']=0;
+		$data['DisputeAttachment']=1;
 		$output = Dispute::add_update_dispute($data);
 
 		return $output;
@@ -102,6 +103,7 @@ class DisputeController extends \BaseController {
 
 			$data = Input::all();
 			$data['sendEmail']=0;
+			$data['DisputeAttachment']=1;
 			$output = Dispute::add_update_dispute($data);
 
 			return $output;
