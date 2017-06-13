@@ -1052,14 +1052,15 @@ class InvoicesController extends \BaseController {
         $message = '';
         if (Input::hasFile('Attachment')) {
             $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
+            $destinationPath = $upload_path . '/' . $amazonPath;
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
             $ext = $Attachment->getClientOriginalExtension();
             if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif"))) {
                 $file_name = GUID::generate() . '.' . $Attachment->getClientOriginalExtension();
-                $Attachment->move($upload_path, $file_name);
-                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
-                if (!AmazonS3::upload($upload_path . '/' . $file_name, $amazonPath)) {
+                $Attachment->move($destinationPath, $file_name);
+                if (!AmazonS3::upload($destinationPath.$file_name, $amazonPath)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
@@ -1135,14 +1136,15 @@ class InvoicesController extends \BaseController {
         $message = '';
         if (Input::hasFile('Attachment')) {
             $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
+            $destinationPath = $upload_path . '/' . $amazonPath;
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
             $ext = $Attachment->getClientOriginalExtension();
             if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif"))) {
                 $file_name = GUID::generate() . '.' . $Attachment->getClientOriginalExtension();
-                $Attachment->move($upload_path, $file_name);
-                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
-                if (!AmazonS3::upload($upload_path . '/' . $file_name, $amazonPath)) {
+                $Attachment->move($destinationPath, $file_name);
+                if (!AmazonS3::upload($destinationPath.$file_name, $amazonPath)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;

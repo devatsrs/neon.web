@@ -1,4 +1,8 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_InsertTempReRateCDR`(
+USE `RMBilling3`;
+
+DROP PROCEDURE IF EXISTS `prc_InsertTempReRateCDR`;
+DELIMITER |
+CREATE PROCEDURE `prc_InsertTempReRateCDR`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_StartDate` DATETIME,
@@ -20,11 +24,9 @@ BEGIN
 
 	SELECT fnGetBillingTime(p_CompanyGatewayID,p_AccountID) INTO v_BillingTime_;
 
-	
+	SET @stm1 = CONCAT('
 
-	set @stm1 = CONCAT('
-
-	INSERT INTO NeonCDRDev.`' , p_tbltempusagedetail_name , '` (
+	INSERT INTO RMCDR3.`' , p_tbltempusagedetail_name , '` (
 		CompanyID,
 		CompanyGatewayID,
 		GatewayAccountID,
@@ -84,10 +86,10 @@ BEGIN
 		IFNULL(ga.AccountNumber,""),
 		IFNULL(ga.AccountCLI,""),
 		IFNULL(ga.AccountIP,"")
-	FROM NeonCDRDev.tblUsageDetails  ud
-	INNER JOIN NeonCDRDev.tblUsageHeader uh
+	FROM RMCDR3.tblUsageDetails  ud
+	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
-	INNER JOIN NeonRMDev.tblAccount a
+	INNER JOIN Ratemanagement3.tblAccount a
 		ON uh.AccountID = a.AccountID
 	LEFT JOIN tblGatewayAccount ga
 		ON ga.GatewayAccountPKID = uh.GatewayAccountPKID
@@ -107,9 +109,9 @@ BEGIN
 	AND ( "' , p_zerovaluecost , '" = 0 OR (  "' , p_zerovaluecost , '" = 1 AND cost = 0) OR (  "' , p_zerovaluecost , '" = 2 AND cost > 0))	
 	) tbl
 	WHERE 
-	("' , v_BillingTime_ , '" =1 and connect_time >=  "' , p_StartDate , '" AND connect_time <=  "' , p_EndDate , '")
+	("' , v_BillingTime_ , '" =1 AND connect_time >=  "' , p_StartDate , '" AND connect_time <=  "' , p_EndDate , '")
 	OR 
-	("' , v_BillingTime_ , '" =2 and disconnect_time >=  "' , p_StartDate , '" AND disconnect_time <=  "' , p_EndDate , '")
+	("' , v_BillingTime_ , '" =2 AND disconnect_time >=  "' , p_StartDate , '" AND disconnect_time <=  "' , p_EndDate , '")
 	AND billed_duration > 0;
 	');
 
@@ -120,4 +122,5 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 	
-END
+END|
+DELIMITER ;
