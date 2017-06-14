@@ -186,7 +186,7 @@ jQuery(document).ready(function ($) {
                 cache: false
             });
 
-            if($(this).val()=='Vos 3.2'){
+            if($(this).val()=='{{RateSheetFormate::RATESHEET_FORMAT_VOS32}}' || $(this).val()=='{{RateSheetFormate::RATESHEET_FORMAT_VOS20}}'){
                 $('#fileeffective').empty();
                 var html ='<option value="Now">Now</option><option value="Future">Future</option>';
                 $('#fileeffective').append(html);

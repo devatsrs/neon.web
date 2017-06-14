@@ -10,6 +10,7 @@ class RateSheetFormate extends \Eloquent {
     protected  $primaryKey = "RateSheetFormateID";
 
     const  RATESHEET_FORMAT_VOS32 = 'Vos 3.2';
+    const  RATESHEET_FORMAT_VOS20 = 'Vos 2.0';
     const  RATESHEET_FORMAT_RATESHEET = 'Rate Sheet';
     const  RATESHEET_FORMAT_SIPPY = 'Sippy';
     const  RATESHEET_FORMAT_PORTA = 'Porta';
