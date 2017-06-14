@@ -485,6 +485,15 @@ function is_paypal(){
     return false;
 }
 
+function is_sagepay(){
+
+    $sagepay = new SagePay();
+    if($sagepay->status){
+        return true;
+    }
+    return false;
+}
+
 
 function get_image_data($path){
     $type = pathinfo($path, PATHINFO_EXTENSION);
