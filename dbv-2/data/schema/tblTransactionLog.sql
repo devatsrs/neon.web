@@ -11,6 +11,6 @@ CREATE TABLE `tblTransactionLog` (
   `updated_at` datetime NOT NULL,
   `ModifyBy` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `Reposnse` longtext COLLATE utf8_unicode_ci,
+  `Response` longtext COLLATE utf8_unicode_ci,
   PRIMARY KEY (`TransactionLogID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

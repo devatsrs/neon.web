@@ -1670,7 +1670,7 @@ class InvoicesController extends \BaseController {
                 $transactiondata['updated_at'] = date('Y-m-d H:i:s');
                 $transactiondata['CreatedBy'] = 'customer';
                 $transactiondata['ModifyBy'] = 'customer';
-                $transactiondata['Reposnse'] = json_encode($response);
+                $transactiondata['Response'] = json_encode($response);
                 TransactionLog::insert($transactiondata);
                 $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
                 $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
@@ -1691,7 +1691,7 @@ class InvoicesController extends \BaseController {
                 $transactiondata['updated_at'] = date('Y-m-d H:i:s');
                 $transactiondata['CreatedBy'] = 'customer';
                 $transactiondata['ModifyBy'] = 'customer';
-                $transactiondata['Reposnse'] = json_encode($response);
+                $transactiondata['Response'] = json_encode($response);
                 TransactionLog::insert($transactiondata);
                 return Response::json(array("status" => "failed", "message" => $response->response_reason_text));
             }
@@ -2186,7 +2186,7 @@ class InvoicesController extends \BaseController {
             $transactiondata['updated_at'] = date('Y-m-d H:i:s');
             $transactiondata['CreatedBy'] = 'Customer';
             $transactiondata['ModifyBy'] = 'Customer';
-            $transactiondata['Reposnse'] = json_encode($StripeResponse['response']);
+            $transactiondata['Response'] = json_encode($StripeResponse['response']);
 
             TransactionLog::insert($transactiondata);
 
