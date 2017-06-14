@@ -46,6 +46,9 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/customer/PaymentMethodProfiles/{id}/set_default', 'PaymentProfileCustomerController@set_default');
     Route::any('/customer/PaymentMethodProfiles/{id}/card_status/{active_deactive}', array('as' => 'payment_rules', 'uses' => 'PaymentProfileCustomerController@card_active_deactive'))->where('active_deactive', '(active|deactive)');
 
+	//notice board
+	Route::any('customer/noticeboard', 'NoticeBoardCustomerController@index');
+	Route::any('customer/get_next_update/{id}', 'NoticeBoardCustomerController@get_next_update');
 	//cdr
 
 	Route::any('customer/cdr', 'CDRCustomerController@index');
@@ -1242,6 +1245,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/{id}/search_accounts_grid', 'AccountServiceController@search_accounts_grid');
 	Route::any('accountservices/{id}/bulk_change_status', 'AccountServiceController@bulk_change_status');
 	Route::any('accountservices/{id}/bulk_delete', 'AccountServiceController@bulk_delete');
+
+	//noticeboard
+	Route::any('/noticeboard', 'NoticeBoardController@index');
+	Route::any('/get_mor_updates', 'NoticeBoardController@get_mor_updates');
+	Route::any('/save_post', 'NoticeBoardController@store');
+	Route::any('/delete_post/{id}', 'NoticeBoardController@delete');
 });
 
 Route::group(array('before' => 'global_admin'), function () {

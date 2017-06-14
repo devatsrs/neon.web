@@ -38,6 +38,12 @@
                 <span>Dashboard</span>
             </a>
         </li>
+        <li>
+            <a href="{{Url::to('customer/noticeboard')}}">
+                <i class="entypo-gauge"></i>
+                <span>Notice Board</span>
+            </a>
+        </li>
         	   <!--tickets start -->    
     @if(Tickets::CheckTicketLicense())
     <li class="{{check_uri('tickets')}}"> <a href="#"> <i class="fa fa-ticket"></i> <span>&nbsp;Ticket Management</span> </a>
