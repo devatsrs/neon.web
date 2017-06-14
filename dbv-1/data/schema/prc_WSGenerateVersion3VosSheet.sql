@@ -1,4 +1,10 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateVersion3VosSheet`(IN `p_CustomerID` INT , IN `p_trunks` VARCHAR(200), IN `p_Effective` VARCHAR(50))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateVersion3VosSheet`(
+	IN `p_CustomerID` INT ,
+	IN `p_trunks` varchar(200) ,
+	IN `p_Effective` VARCHAR(50)
+,
+	IN `p_Format` VARCHAR(50)
+)
 BEGIN
     
     DECLARE v_codedeckid_ INT;
@@ -72,8 +78,8 @@ BEGIN
         
         SET v_pointer_ = v_pointer_ + 1;
     END WHILE;
-            
-        IF p_Effective = 'Now'		
+    
+    	IF p_Effective = 'Now' OR p_Format = 'Vos 2.0'		
 		  THEN	
             
         SELECT distinct 
@@ -97,11 +103,11 @@ BEGIN
        
 		 END IF; 
 		 
-	 	IF p_Effective = 'Future'		
+	 	IF p_Effective = 'Future' AND p_Format = 'Vos 3.2'		
 		  THEN	
             
         SELECT distinct 
-        			 EffectiveDate as `Time of timing replace`,
+        			 CONCAT(EffectiveDate,' 00:00') as `Time of timing replace`,
         			 'Append replace' as `Mode of timing replace`,
                 IFNULL(RatePrefix, '') as `Rate Prefix` ,
                 Concat(IFNULL(AreaPrefix,''), Code) as `Area Prefix` ,
