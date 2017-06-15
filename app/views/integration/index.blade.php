@@ -394,6 +394,14 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
+                        <label for="field-1" class="control-label">* Live:</label>
+                        <div id="SagePayLiveDiv">
+                            <input id="isLive" class="subcatstatus" Divid="SagePayLiveDiv" name="isLive" type="checkbox" value="1" <?php if(isset($SagePayDbData->isLive) && $SagePayDbData->isLive==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
                         <label class="control-label">Active:
                             <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Enabling this will deactivate all other Payment categories" data-original-title="Status" class="label label-info popover-primary">?</span>
                         </label>
@@ -402,6 +410,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
       <!-- SagePay end -->

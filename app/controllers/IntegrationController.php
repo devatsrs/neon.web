@@ -238,6 +238,7 @@ class IntegrationController extends \BaseController
 				$rules = array(
 					'ServiceKey'	 => 'required',
 					'SoftwareVendorKey'	 => 'required',
+					'isLive'	 => 'required',
 				);
 
 				$validator = Validator::make($data, $rules);
@@ -255,7 +256,8 @@ class IntegrationController extends \BaseController
 
 				$SagePayData = array(
 					"ServiceKey"=>$data['ServiceKey'],
-					"SoftwareVendorKey"=>$data['SoftwareVendorKey']
+					"SoftwareVendorKey"=>$data['SoftwareVendorKey'],
+					"isLive"=>$data['isLive']
 				);
 
 				$SagePayDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
