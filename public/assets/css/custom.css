@@ -2738,6 +2738,6 @@ button.btn.btn-xs.small_icons{
     border-left: 5px solid #f89406 !important;
 }
 
-.mail-text table td {
+.mail-body table td {
     box-sizing: content-box;
 }
