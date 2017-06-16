@@ -2235,7 +2235,7 @@ class InvoicesController extends \BaseController {
         $CustomerEndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($CustomerLastInvoiceDate));
         $VendorEndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($VendorLastInvoiceDate));
         $today = date('Y-m-d');
-        $yesterday = time() - 86400;
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
         $CustomerNextBilling = $VendorNextBilling = array();
         $StartDate = $CustomerLastInvoiceDate;
         $EndDate = $CustomerEndDate;
