@@ -305,4 +305,11 @@ class TicketsTable extends \Eloquent
 		}		
 		return $Requester;
 	}
+
+	static function getTicketStatusWithSLAOff(){
+		$row =  TicketfieldsValues::join('tblTicketfields','tblTicketfields.TicketFieldsID','=','tblTicketfieldsValues.FieldsID')
+			->where(['tblTicketfields.FieldType'=>Ticketfields::TICKET_SYSTEM_STATUS_FLD,'tblTicketfieldsValues.FieldSlaTime'=>0])
+			->lists('FieldValueAgent','ValuesID');
+		return $row;
+	}
 }
