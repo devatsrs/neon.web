@@ -942,7 +942,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
     Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
 	Route::any('/invoice/invoice_quickbookpost', 'InvoicesController@invoice_quickbookpost');
-
+	Route::any('/get_unbill_report/{id}', 'InvoicesController@get_unbill_report');
+	Route::any('/generate_manual_invoice', 'InvoicesController@generate_manual_invoice');
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');

@@ -169,14 +169,17 @@ class AccountsController extends \BaseController {
             }
             $data['Number'] = trim($data['Number']);
         unset($data['DataTables_Table_0_length']);
+        $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
-            Account::$rules['BillingStartDate'] = 'required';
-			Account::$rules['BillingClassID'] = 'required';
+            Account::$rules['BillingClassID'] = 'required';
             if(isset($data['BillingCycleValue'])){
                 Account::$rules['BillingCycleValue'] = 'required';
+            }
+            if($ManualBilling ==0) {
+                Account::$rules['BillingStartDate'] = 'required';
             }
         }
 
@@ -192,7 +195,9 @@ class AccountsController extends \BaseController {
             if ($account = Account::create($data)) {
                 if($data['Billing'] == 1) {
                     AccountBilling::insertUpdateBilling($account->AccountID, $data,$ServiceID);
-                    AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID,$ServiceID);
+                    if($ManualBilling ==0) {
+                        AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, $ServiceID);
+                    }
                 }
 
                 if (trim(Input::get('Number')) == '') {
@@ -494,15 +499,17 @@ class AccountsController extends \BaseController {
             }
         }
         $data['Number'] = trim($data['Number']);
-
+        $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
-            Account::$rules['BillingStartDate'] = 'required';
-			Account::$rules['BillingClassID'] = 'required';
+            Account::$rules['BillingClassID'] = 'required';
             if(isset($data['BillingCycleValue'])){
                 Account::$rules['BillingCycleValue'] = 'required';
+            }
+            if($ManualBilling == 0){
+                Account::$rules['BillingStartDate'] = 'required';
             }
         }
 
@@ -522,7 +529,9 @@ class AccountsController extends \BaseController {
         if ($account->update($data)) {
             if($data['Billing'] == 1) {
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
-                AccountBilling::storeFirstTimeInvoicePeriod($id,$ServiceID);
+                if($ManualBilling == 0){
+                    AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                }
                 /*
                 $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'),$ServiceID);
                 if(!empty($AccountPeriod)) {
@@ -1415,5 +1424,5 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             DB::rollback();
 			return Response::json(array("status" => "error", "message" => $e->getMessage()));
         }
-    }	
+    }
 }

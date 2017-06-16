@@ -437,7 +437,7 @@
                     ?>
                     <div class="form-group">
                         <label for="field-1" class="col-md-2 control-label">Current Billing Cycle</label>
-                        <div class="col-md-4">{{SortBillingType()[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
+                        <div class="col-md-4">{{SortBillingType(1)[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
                         <label for="field-1" class="col-md-2 control-label">New Billing Cycle Effective From</label>
                         <div class="col-md-4">{{$AccountNextBilling->LastInvoiceDate}}</div>
                     </div>
@@ -455,10 +455,10 @@
                         }
                         ?>
                         @if($hiden_class != '' && isset($AccountBilling->BillingCycleType) )
-                            <div class="billing_edit_text"> {{SortBillingType()[$BillingCycleType]}} </div>
+                            <div class="billing_edit_text"> {{SortBillingType(1)[$BillingCycleType]}} </div>
                         @endif
 
-                        {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType ,array("class"=>'form-control '.$hiden_class.' select2 '))}}
+                        {{Form::select('BillingCycleType', SortBillingType(1), $BillingCycleType ,array("class"=>'form-control '.$hiden_class.' select2 '))}}
 
                     </div>
                     <div class="col-md-1">
