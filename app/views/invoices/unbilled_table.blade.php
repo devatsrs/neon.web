@@ -21,13 +21,13 @@
 <div class="col-md-6">
     <div class="form-group">
         <label for="field-5" class="control-label">Period From</label>
-        <input value="" name="PeriodFrom" class="form-control datepicker" id="field-5" data-date-format="yyyy-mm-dd" placeholder="" type="text" data-enddate="{{$today}}">
+        <input value="" name="PeriodFrom" class="form-control datepicker" id="field-5" data-date-format="yyyy-mm-dd" placeholder="" type="text" data-enddate="{{$yesterday}}">
     </div>
 </div>
 <div class="col-md-6">
     <div class="form-group">
         <label for="field-5" class="control-label">Period To</label>
-        <input value="" name="PeriodTo" class="form-control datepicker" id="field-5" placeholder="" data-date-format="yyyy-mm-dd" type="text" data-enddate="{{$today}}">
+        <input value="" name="PeriodTo" class="form-control datepicker" id="field-5" placeholder="" data-date-format="yyyy-mm-dd" type="text" data-enddate="{{$yesterday}}">
     </div>
 </div>
 <ul class="nav tabs-vertical">

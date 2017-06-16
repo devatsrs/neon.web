@@ -2235,6 +2235,7 @@ class InvoicesController extends \BaseController {
         $CustomerEndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($CustomerLastInvoiceDate));
         $VendorEndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($VendorLastInvoiceDate));
         $today = date('Y-m-d');
+        $yesterday = time() - 86400;
         $CustomerNextBilling = $VendorNextBilling = array();
         $StartDate = $CustomerLastInvoiceDate;
         $EndDate = $CustomerEndDate;
@@ -2321,7 +2322,7 @@ class InvoicesController extends \BaseController {
             }
         }
 
-        return View::make('invoices.unbilled_table', compact('VendorNextBilling','CustomerNextBilling','CurrencySymbol','CustomerEndDate','CustomerLastInvoiceDate','today'));
+        return View::make('invoices.unbilled_table', compact('VendorNextBilling','CustomerNextBilling','CurrencySymbol','CustomerEndDate','CustomerLastInvoiceDate','today','yesterday'));
 
     }
 
