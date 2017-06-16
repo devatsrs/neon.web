@@ -1178,8 +1178,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $AccountBilling = AccountBilling::getBilling($id,0);
         $account = Account::find($id);
         $today = date('Y-m-d 23:59:59');
-        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($account,$AccountBilling);
-        $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($account,$AccountBilling);
+        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
+        $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($AccountBilling,$account);
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
         $query = "call prc_getUnbilledReport (?,?,?,?,?)";
         $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1));

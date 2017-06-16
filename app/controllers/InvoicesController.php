@@ -2228,8 +2228,8 @@ class InvoicesController extends \BaseController {
     public function get_unbill_report($id){
         $AccountBilling = AccountBilling::getBilling($id, 0);
         $account = Account::find($id);
-        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($account, $AccountBilling);
-        $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($account, $AccountBilling);
+        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
+        $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($AccountBilling,$account);
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
 
         $CustomerEndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($CustomerLastInvoiceDate));
