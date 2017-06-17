@@ -31,6 +31,7 @@ class AccountsController extends \BaseController {
         $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
+            \Illuminate\Support\Facades\Log::info("Account query ".$query.',2)');
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
@@ -111,7 +112,10 @@ class AccountsController extends \BaseController {
         $opportunitytags = json_encode(Tags::getTagsArray(Tags::Opportunity_tag));
 		$bulk_type = 'accounts';
 		$Currencies = Currency::getCurrencyDropdownIDList();
-        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies'));
+
+        $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+        $timezones = TimeZone::getTimeZoneDropdownList();
+        return View::make('accounts.index', compact('account_owners', 'emailTemplates', 'templateoption', 'accounts', 'accountTags', 'privacy', 'type', 'trunks', 'rate_sheet_formates','boards','opportunityTags','accounts','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','bulk_type','Currencies','BillingClass','timezones'));
 
     }
 
@@ -1362,13 +1366,24 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         return Response::json(array("status" => "success", "message" => "CLI Updated Successfully"));
     }
 	
-	function BulkAction(){
-        $data = Input::all();  				
+	public function BulkAction(){
+        $data = Input::all();
+        $update_billing=0;
+        $accountbillngdata=0;
+
+        $ServiceID = 0;
         if(
 		   !isset($data['OwnerCheck']) &&
 		   !isset($data['CurrencyCheck']) &&
            !isset($data['VendorCheck']) &&
-           !isset($data['CustomerCheck'])
+           !isset($data['BillingCheck']) &&
+           !isset($data['CustomerCheck'])&&
+           !isset($data['BulkBillingClassCheck'])&&
+           !isset($data['BulkBillingTypeCheck'])&&
+           !isset($data['BulkBillingTimezoneCheck'])&&
+           !isset($data['BulkBillingStartDateCheck'])&&
+           !isset($data['BulkBillingCycleTypeCheck'])&&
+           !isset($data['BulkSendInvoiceSettingCheck'])
 		  )
 		{
 			return Response::json(array("status" => "error", "message" => "Please select at least one option."));
@@ -1377,9 +1392,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		{
 			return Response::json(array("status" => "error", "message" => "Please select at least one Account."));
         }
-		
+
 		
         $update = [];
+        $billingupdate = array();
         if(isset($data['account_owners']) && $data['account_owners'] != 0 && isset($data['OwnerCheck'])){
             $update['Owner'] = $data['account_owners'];
         }
@@ -1392,22 +1408,150 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		if(isset($data['CustomerCheck'])){
             $update['IsCustomer'] = isset($data['Customer_on_off'])?1:0;
         }
-		
+		if(isset($data['BillingCheck'])){
+            $billing_on_off = isset($data['billing_on_off'])?1:0;
+            \Illuminate\Support\Facades\Log::info('billing -- '.$billing_on_off);
+            if(!empty($billing_on_off)){
+                Account::$billingrules['BillingClassID'] = 'required';
+                Account::$billingrules['BillingType'] = 'required';
+                Account::$billingrules['BillingTimezone'] = 'required';
+                Account::$billingrules['BillingStartDate'] = 'required';
+                Account::$billingrules['BillingCycleType'] = 'required';
+                if(isset($data['BillingCycleValue'])){
+                    Account::$billingrules['BillingCycleValue'] = 'required';
+                }
+
+                $validator = Validator::make($data, Account::$billingrules, Account::$billingmessages);
+                if ($validator->fails()) {
+                    return json_validator_response($validator);
+                }
+                $update['Billing'] = 1;
+            }else{
+                $update['Billing'] = 0;
+            }
+        }else{
+            if(isset($data['BulkBillingClassCheck'])){
+                $update_billing=1;
+                if(!empty($data['BillingClassID'])){
+                    $billingupdate['BillingClassID'] = $data['BillingClassID'];
+                }
+                Account::$billingrules['BillingClassID'] = 'required';
+            }
+            if(isset($data['BulkBillingTypeCheck'])){
+                $update_billing=1;
+                if(!empty($data['BillingType'])){
+                    $billingupdate['BillingType'] = $data['BillingType'];
+                }
+                Account::$billingrules['BillingType'] = 'required';
+            }
+            if(isset($data['BulkBillingTimezoneCheck'])){
+                $update_billing=1;
+                if(!empty($data['BillingTimezone'])){
+                    $billingupdate['BillingTimezone'] = $data['BillingTimezone'];
+                }
+                Account::$billingrules['BillingTimezone'] = 'required';
+            }
+            if(isset($data['BulkBillingStartDateCheck'])){
+                $update_billing=1;
+                if(!empty($data['BillingStartDate'])){
+                    $accountbillngdata = 1;
+                    $billingupdate['BillingStartDate'] = $data['BillingStartDate'];
+                }
+                Account::$billingrules['BillingStartDate'] = 'required';
+            }
+            if(isset($data['BulkBillingCycleTypeCheck'])){
+                $update_billing=1;
+                if(!empty($data['BillingCycleType'])){
+                    $accountbillngdata = 1;
+                    $billingupdate['BillingCycleType'] = $data['BillingCycleType'];
+                    if(isset($data['BillingCycleValue'])){
+                        Account::$billingrules['BillingCycleValue'] = 'required';
+                        $billingupdate['BillingCycleValue'] = $data['BillingCycleValue'];
+                    }else{
+                        $billingupdate['BillingCycleValue'] = '';
+                    }
+                }
+                Account::$billingrules['BillingCycleType'] = 'required';
+            }
+            if(isset($data['BulkSendInvoiceSettingCheck'])){
+                if(!empty($data['SendInvoiceSetting'])){
+                    $update_billing=1;
+                    $billingupdate['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
+                }
+            }
+
+            $validator = Validator::make($data, Account::$billingrules, Account::$billingmessages);
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+        }
+
+        if(!empty($data['BulkActionCriteria'])){
+            $criteria = json_decode($data['BulkActionCriteria'], true);
+            $BulkselectedIDs = $this->getAccountsByCriteria($criteria);
+            $selectedIDs = explode(',',$BulkselectedIDs);
+            \Illuminate\Support\Facades\Log::info('--criteria-- '.$BulkselectedIDs);
+        }else{
+            \Illuminate\Support\Facades\Log::info('--ids-- '.$data['BulkselectedIDs']);
+            $selectedIDs = explode(',',$data['BulkselectedIDs']);
+        }
+
         $selectedIDs = explode(',',$data['BulkselectedIDs']);		
         try{
             //Implement loop because boot is triggering for each updated record to log the changes.
             foreach ($selectedIDs as $id)
 			{
+                \Illuminate\Support\Facades\Log::info('Account id -- '.$id);
+                \Illuminate\Support\Facades\Log::info(print_r($update,true));
 				DB::beginTransaction();
-				
 				if(isset($update['CurrencyId']))
-				{ 
-					Account::whereRaw("(AccountID = '".$id."' AND (CurrencyId is null or CurrencyId ='0'))")->update($update);
-				}
-				else
 				{
-                	Account::where(['AccountID'=>$id])->update($update);
+                    $CurrencyCount = Account::whereRaw("(AccountID = '".$id."' AND (CurrencyId is null or CurrencyId ='0'))")->count();
+                    if($CurrencyCount>0){
+                        unset($update['CurrencyId']);
+                    }
 				}
+
+                Account::where(['AccountID'=>$id])->update($update);
+
+                if(isset($data['BillingCheck']) && !empty($billing_on_off)) {
+                    \Illuminate\Support\Facades\Log::info('--update billing--');
+                    //billing section start
+                    $invoice_count = Account::getInvoiceCount($id);
+                    if ($invoice_count > 0 || AccountDiscountPlan::checkDiscountPlan($id) > 0) {
+                        \Illuminate\Support\Facades\Log::info('--invoice count-- '.$invoice_count);
+                        AccountBilling::insertUpdateBilling($id, $data, $ServiceID, $invoice_count);
+                        AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                    } else {
+                        $data['LastInvoiceDate'] = $data['BillingStartDate'];
+                        \Illuminate\Support\Facades\Log::info('--account billing updating-- ');
+                        AccountBilling::insertUpdateBilling($id, $data, $ServiceID);
+                        AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                    }
+                    \Illuminate\Support\Facades\Log::info('--update billing over--');
+                }
+
+                if(!empty($update_billing) && $update_billing==1){
+                    $count = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->count();
+                    if($count>0){
+                        AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
+                        if(!empty($accountbillngdata) && $accountbillngdata==1){
+                            $abdata = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->first();
+
+                            if(empty($billingupdate['BillingStartDate'])){
+                                $billingupdate['BillingStartDate'] = $abdata->BillingStartDate;
+                            }
+                            if(empty($billingupdate['BillingCycleType'])){
+                                $billingupdate['BillingCycleType'] = $abdata->BillingCycleType;
+                            }
+                            AccountBilling::insertUpdateBilling($id, $billingupdate, $ServiceID);
+                            AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                        }
+                    }
+
+                }
+                //billing section end
+
 				DB::commit();				
             }
 			 return Response::json(array("status" => "success", "message" => "Accounts Updated Successfully"));
@@ -1415,5 +1559,34 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             DB::rollback();
 			return Response::json(array("status" => "error", "message" => $e->getMessage()));
         }
-    }	
+    }
+
+    public function getAccountsByCriteria($data=array()){
+
+        $CompanyID = User::get_companyID();
+        $userID = 0;
+        if (User::is('AccountManager')) { // Account Manager
+            $userID = $userID = User::get_userID();
+        }elseif(User::is_admin() && isset($data['account_owners'])  && trim($data['account_owners']) > 0) {
+            $userID = (int)$data['account_owners'];
+        }
+        $data['vendor_on_off'] = $data['vendor_on_off']== 'true'?1:0;
+        $data['customer_on_off'] = $data['customer_on_off']== 'true'?1:0;
+        $data['account_active'] = $data['account_active']== 'true'?1:0;
+        $data['low_balance'] = $data['low_balance']== 'true'?1:0;
+
+        $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',1,50,'AccountName','asc',2)";
+        $excel_data  = DB::select($query);
+        $excel_datas = json_decode(json_encode($excel_data),true);
+
+        \Illuminate\Support\Facades\Log::info(print_r($excel_data,true));
+
+        $selectedIDs='';
+        foreach($excel_datas as $exceldata){
+            $selectedIDs.= $exceldata['AccountID'].',';
+        }
+
+        return $selectedIDs;
+
+    }
 }

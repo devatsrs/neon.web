@@ -72,6 +72,17 @@ class Account extends \Eloquent {
         'selection.LastName.required' =>'The Last Name field is required'
     );
 
+    public static $billingrules = array(
+
+    );
+    public static $billingmessages = array(
+        'BillingClassID.required' =>'Billing Class field is required',
+        'BillingType.required' =>'Billing Type field is required',
+        'BillingTimezone.required' =>'Billing Timezone field is required',
+        'BillingStartDate.required' =>'Billing Start Date field is required',
+        'BillingCycleType.required' =>'Billing Cycle field is required',
+        'BillingCycleValue.required' =>'Billing Cycle Value field is required',
+    );
     public static function getCompanyNameByID($id=0){
 
         return $AccountName = Account::where(["AccountID"=>$id])->pluck('AccountName');

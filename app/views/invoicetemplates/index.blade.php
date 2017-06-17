@@ -363,7 +363,7 @@ function ajax_update(fullurl,data){
                             <label class="col-sm-2 control-label">Group By Service</label>
                             <div class="col-sm-4">
                                 <p class="make-switch switch-small">
-                                    <input type="checkbox" checked=""  name="GroupByService" value="0">
+                                    <input type="checkbox" name="GroupByService" value="0">
                                 </p>
                             </div>
                             <label class="col-sm-4 control-label">Split Services on separate pages

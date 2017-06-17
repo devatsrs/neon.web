@@ -71,7 +71,7 @@
 <thead>
 <tr>
     <th width="25%">Name</th>
-    <th width="10%">Annually Fee</th>
+    <th width="10%">Yearly Fee</th>
     <th width="10%">Quarterly Fee</th>
     <th width="10%">Monthly Fee</th>
     <th width="10%">Weekly Fee</th>

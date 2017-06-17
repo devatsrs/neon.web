@@ -75,6 +75,9 @@ class InvoiceTemplate extends \Eloquent {
 	{
         $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateid);
         $NewEstimateNumber =  (($InvoiceTemplate->LastEstimateNumber > 0)?($InvoiceTemplate->LastEstimateNumber + 1):$InvoiceTemplate->EstimateStartNumber);
+        if(empty($NewEstimateNumber)){
+            $NewEstimateNumber=1;
+        }
         $CompanyID = User::get_companyID();
         
 		while(Estimate::where(["EstimateNumber"=> $NewEstimateNumber,'CompanyID'=>$CompanyID])->count()>0)
