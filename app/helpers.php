@@ -485,6 +485,15 @@ function is_paypal(){
     return false;
 }
 
+function is_sagepay(){
+
+    $sagepay = new SagePay();
+    if($sagepay->status){
+        return true;
+    }
+    return false;
+}
+
 
 function get_image_data($path){
     $type = pathinfo($path, PATHINFO_EXTENSION);
@@ -1685,7 +1694,7 @@ function get_ticket_status_date_array($result_data) {
     $sla_timer = true;
     $status				=	TicketsTable::getTicketStatusByID($result_data->Status);
 
-    if (in_array($result_data->Status, array_keys( TicketsTable::getTicketStatusOnHold() ) )) {  // SLATimer=off
+    if (in_array($result_data->Status, array_keys( TicketsTable::getTicketStatusWithSLAOff() ) )) {  // SLATimer=off
         $sla_timer = false;
     }
     $due = $overdue = false ;
@@ -1737,7 +1746,7 @@ function get_ticket_response_due_label($result_data) {
         return '<div class="label label-danger">'.strtoupper(TicketfieldsValues::$Status_Resolved).'</div>';
     }else {
 
-        $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
+        $TicketStatusOnHold = TicketsTable::getTicketStatusWithSLAOff();
 
         if (in_array($result_data->Status,array_keys($TicketStatusOnHold))) {  // SLATimer=off
             $output = '<div class="label label-warning">'.strtoupper($TicketStatusOnHold[$result_data->Status]).'</div>';

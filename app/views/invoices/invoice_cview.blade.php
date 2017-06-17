@@ -44,6 +44,9 @@
           @elseif(($Invoice->InvoiceStatus != Invoice::PAID) && (is_paypal()  ) )
                 {{$paypal_button}}
                 <div class="pull-right"> &nbsp;</div>
+          @elseif(($Invoice->InvoiceStatus != Invoice::PAID) && (is_sagepay()  ) )
+                {{$sagepay_button}}
+                <div class="pull-right"> &nbsp;</div>
             @elseif(($Invoice->InvoiceStatus != Invoice::PAID) && (is_Stripe()  ) )
                 <a href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Stripe');}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay With Stripe </a>
                 <div class="pull-right"> &nbsp;</div>

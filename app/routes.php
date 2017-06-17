@@ -1315,6 +1315,10 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/paypal_ipn/{id}', 'InvoicesController@paypal_ipn'); //Payment response by paypal.
     Route::any('/paypal_cancel/{id}', 'InvoicesController@paypal_cancel'); //Payment response by paypal.
 
+	Route::any('/sagepay_ipn', 'InvoicesController@sagepay_ipn'); //Payment response by sagepay.
+	Route::any('/sagepay_declined', 'InvoicesController@sagepay_declined'); //Payment declined.
+	Route::any('/sagepay_return', 'InvoicesController@sagepay_return'); //Payment declined.
+
 	#estimate
 	Route::any('/estimate/{id}/cview', 'EstimatesController@cview'); //Customer View
 	Route::any('/estimate/display_estimate/{id}', 'EstimatesController@display_estimate');

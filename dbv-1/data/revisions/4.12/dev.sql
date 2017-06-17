@@ -1,5 +1,8 @@
 USE `Ratemanagement3`;
 
+-- Sage pay Integration
+INSERT INTO `tblIntegration` (`CompanyId`, `Title`, `Slug`, `ParentID`) VALUES ('1', 'SagePay', 'sagepay', '4');
+
 
 Delimiter ;;
 CREATE PROCEDURE `prc_ManualImportAccount`(

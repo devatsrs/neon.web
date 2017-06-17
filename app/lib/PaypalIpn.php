@@ -18,11 +18,12 @@ class PaypalIpn
     var $curreny_code;
     var $logo_url;
     var $status;
+    var $method;
 
 
     function __Construct(){
 
-        $paypal_key  = "PAYPAL_IPN";
+        $this->method  = "PAYPAL_IPN";
         //$is_paypal 	 = CompanyConfiguration::get($paypal_key);
 		$is_paypal	 = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$paypalSlug);
 
@@ -185,7 +186,7 @@ class PaypalIpn
     /**
      * paynow button show.
      */
-    public function get_paynow_button($InvoiceID,$AccountID){
+    public function get_paynow_button($AccountID,$InvoiceID){
 
         $paypal_success_url = url('/invoice_thanks/'.$AccountID . '-' . $InvoiceID );
         $paypal_cancel_url = url('/paypal_cancel/'.$AccountID . '-' . $InvoiceID );
@@ -229,6 +230,8 @@ class PaypalIpn
             $post = \Illuminate\Support\Facades\Input::all();
 
             $this->ipn = $post;
+
+            $this->log();
         }
         return $this->ipn;
     }
