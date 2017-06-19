@@ -279,7 +279,9 @@
 
             </div>
         </div>
+                    @if(AccountBilling::where(array('AccountID'=>$AccountID,'BillingCycleType'=>'manual'))->count() == 0 || !empty($BillingCycleType))
         @include('accountdiscountplan.index')
+                        @endif
 
          </div>
             </div>
@@ -297,6 +299,7 @@
         var AccountBilling = '{{$AccountBilling}}';
 
         if(AccountBilling == false){
+            $(".billing-section-hide").addClass('panel-collapse');
             $(".billing-section-hide").find('.panel-body').hide();
         }
 
@@ -306,15 +309,18 @@
         var InDiscountPlanID = '{{$InboundDiscountPlanID}}';
 
         if(AccountBilling == false && InTariffID =='' && OutTariffID =='' && OutDiscountPlanID =='' && InDiscountPlanID ==''){
+            $(".additional-optional-section-hide").addClass('panel-collapse');
             $(".additional-optional-section-hide").find('.panel-body').hide();
         }
 
 
         if(InTariffID =='' && OutTariffID ==''){
+            $(".tarrif-section-hide").addClass('panel-collapse');
             $(".tarrif-section-hide").find('.panel-body').hide();
         }
 
         if(OutDiscountPlanID =='' && InDiscountPlanID ==''){
+            $(".discount-section-hide").addClass('panel-collapse');
             $(".discount-section-hide").find('.panel-body').hide();
         }
 

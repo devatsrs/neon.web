@@ -54,7 +54,8 @@ class AccountBilling extends \Eloquent {
             $AccountBilling['ServiceID'] = $ServiceID;
             AccountBilling::create($AccountBilling);
         }else{
-            if(AccountDiscountPlan::checkDiscountPlan($AccountID) > 0 || $invoice_count > 0) {
+            $AccountBillingObj =  AccountBilling::getBilling($AccountID,$ServiceID);
+            if($AccountBillingObj->BillingCycleType != 'manual' && (AccountDiscountPlan::checkDiscountPlan($AccountID) > 0 || $invoice_count > 0)) {
                 AccountNextBilling::insertUpdateBilling($AccountID, $data, $ServiceID);
             }else{
                 $AccountBilling['BillingCycleType'] = $data['BillingCycleType'];
