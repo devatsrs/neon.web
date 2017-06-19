@@ -1396,7 +1396,9 @@
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <input type="checkbox"  name="BillingCheck">
-                            <span>Billing</span></label><br>
+                            <span>Billing
+                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If invoice already generated or discountplan enable than billing effectively work from next billing." data-original-title="Billing">?</span>
+                            </span></label><br>
                             <p class="make-switch switch-small">
                             <input id="BulkBillingChange" name="billing_on_off" type="checkbox" value="1">
                         </p>
