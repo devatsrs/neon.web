@@ -77,7 +77,7 @@ class AccountBilling extends \Eloquent {
                 } else if (!empty($AccountBilling['BillingStartDate'])) {
                     $BillingStartDate = strtotime($AccountBilling['BillingStartDate']);
                 }
-                if (!empty($BillingStartDate)) {
+                if (!empty($BillingStartDate) && $data['BillingCycleType'] != 'manual') {
                     $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
                 }
 
