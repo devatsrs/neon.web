@@ -29,6 +29,8 @@ class AccountNextBilling extends \Eloquent {
             $BillingStartDate = strtotime($AccountNextBilling['LastInvoiceDate']);
             if (!empty($BillingStartDate) && $data['BillingCycleType'] != 'manual') {
                 $AccountNextBilling['NextInvoiceDate'] = next_billing_date($AccountNextBilling['BillingCycleType'], $AccountNextBilling['BillingCycleValue'], $BillingStartDate);
+            }else if($data['BillingCycleType'] == 'manual'){
+                $AccountNextBilling['NextInvoiceDate'] = null;
             }
             if (AccountNextBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count()) {
                 AccountNextBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->update($AccountNextBilling);
