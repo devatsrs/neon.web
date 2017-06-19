@@ -2341,7 +2341,7 @@ class InvoicesController extends \BaseController {
             if ($validator->fails()) {
                 return json_validator_response($validator);
             }
-            if($data['PeriodFrom'] >= $data['PeriodTo']){
+            if($data['PeriodFrom'] > $data['PeriodTo']){
                 return Response::json(array("status" => "failed", "message" => "Dates are invalid"));
             }
             $AlreadyBilled = Invoice::checkIfAccountUsageAlreadyBilled($CompanyID, $AccountID, $data['PeriodFrom'], $data['PeriodTo'], 0);

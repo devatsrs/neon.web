@@ -434,6 +434,9 @@ class AccountsController extends \BaseController {
         }
         if(isset($AccountBilling->BillingCycleType)){
             $hiden_class= 'hidden';
+            if(empty($AccountBilling->BillingStartDate)){
+                $AccountBilling->BillingStartDate = $AccountBilling->LastInvoiceDate;
+            }
         }
 
         return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class'));

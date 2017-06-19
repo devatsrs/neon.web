@@ -21,7 +21,11 @@ class AccountNextBilling extends \Eloquent {
             } else {
                 $AccountNextBilling['BillingCycleValue'] = '';
             }
-            $AccountNextBilling['LastInvoiceDate'] = $AccountBilling->NextInvoiceDate;
+            if($AccountBilling->BillingCycleType == 'manual'){
+                $AccountNextBilling['LastInvoiceDate'] = $AccountBilling->LastInvoiceDate;
+            }else{
+                $AccountNextBilling['LastInvoiceDate'] = $AccountBilling->NextInvoiceDate;
+            }
             $BillingStartDate = strtotime($AccountNextBilling['LastInvoiceDate']);
             if (!empty($BillingStartDate)) {
                 $AccountNextBilling['NextInvoiceDate'] = next_billing_date($AccountNextBilling['BillingCycleType'], $AccountNextBilling['BillingCycleValue'], $BillingStartDate);
