@@ -4,44 +4,8 @@ USE `Ratemanagement3`;
 -- Sage pay Integration - Not Tested yet
 -- INSERT INTO `tblIntegration` (`CompanyId`, `Title`, `Slug`, `ParentID`) VALUES ('1', 'SagePay', 'sagepay', '4');
 
-
--- Payment Import from MOR
-CREATE TABLE IF NOT EXISTS `tblTempPaymentImportExport` (
-CREATE TABLE `tblTempPaymentImportExport` (
-	`PaymentID` INT(11) NOT NULL AUTO_INCREMENT,
-	`CompanyID` INT(11) NOT NULL,
-	`ProcessID` VARCHAR(50) NOT NULL COLLATE 'utf8_unicode_ci',
-	`AccountID` INT(11) NOT NULL,
-	`AccountNumber` VARCHAR(50) NOT NULL COLLATE 'utf8_unicode_ci',
-	`PaymentDate` DATETIME NOT NULL,
-	`PaymentMethod` VARCHAR(15) NOT NULL COLLATE 'utf8_unicode_ci',
-	`PaymentType` VARCHAR(15) NOT NULL COLLATE 'utf8_unicode_ci',
-	`Notes` VARCHAR(500) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
-	`Amount` DECIMAL(18,8) NOT NULL,
-	`Status` VARCHAR(50) NOT NULL COLLATE 'utf8_unicode_ci',
-	`TransactionID` VARCHAR(20) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
-	PRIMARY KEY (`PaymentID`),
-	INDEX `IX_CompanyID_ProcessID_TransactionID` (`ProcessID`, `CompanyID`, `TransactionID`)
-)
-COLLATE='utf8_unicode_ci'
-ENGINE=InnoDB
-ROW_FORMAT=COMPACT;
-
-	ALTER TABLE `tblPayment`
-	ADD COLUMN `TransactionID` VARCHAR(20) NULL AFTER `InvoiceID`;
-
-
-	ALTER TABLE `tblPayment`
-	CHANGE COLUMN `updated_at` `updated_at` DATETIME NULL AFTER `created_at`,
-	CHANGE COLUMN `ModifyBy` `ModifyBy` VARCHAR(50) NULL COLLATE 'utf8_unicode_ci' AFTER `updated_at`,
-	CHANGE COLUMN `RecallReasoan` `RecallReasoan` VARCHAR(500) NULL COLLATE 'utf8_unicode_ci' AFTER `Recall`,
-	CHANGE COLUMN `RecallBy` `RecallBy` VARCHAR(30) NULL COLLATE 'utf8_unicode_ci' AFTER `RecallReasoan`;
-
-  ALTER TABLE `tblPayment`	ADD INDEX `IX_CompanyID_TransactionID` (`CompanyID`, `TransactionID`);
-
-
-
 Delimiter ;;
+DROP PROCEDURE IF EXISTS `prc_ManualImportAccount`;
 CREATE PROCEDURE `prc_ManualImportAccount`(
 	IN `p_ProcessID` VARCHAR(50)
 )
