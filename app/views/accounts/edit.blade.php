@@ -419,8 +419,8 @@
                     ?>
                     <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
                     <div class="col-md-4">
-                        @if($billing_disable == '')
-                            {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
+                        @if($billing_disable == '' && $AccountBilling->BillingCycleType != 'manual')
+                            {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         @else
                             {{Form::hidden('BillingStartDate', $BillingStartDate)}}
                             {{$BillingStartDate}}
@@ -693,6 +693,7 @@
             }
             $(".billing_options input, .billing_options select").attr("disabled", "disabled");
             $(".billing_options").hide();
+            $(".billing_start_date").removeAttr('readonly');
             console.log(selection);
             switch (selection){
                 case "weekly":
@@ -727,6 +728,9 @@
                             $("#billing_cycle_subscription input").addClass('hidden');
                         }
                         break;
+                case "manual":
+                    $(".billing_start_date").attr('readonly','true');
+                    break;
             }
             if(FirstTimeTrigger == true) {
                 BillingChanged = false;

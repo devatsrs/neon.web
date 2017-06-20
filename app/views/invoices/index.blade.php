@@ -11,15 +11,15 @@
 <p style="text-align: right;">
 
     @if(User::checkCategoryPermission('RecurringProfile','View'))
-        <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > <i class="fa fa-repeat"></i> <i class="entypo-doc-text"></i>  </a>
+        <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-blue tooltip-primary" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > <i class="entypo-cw"></i> </a>
     @endif
     @if(User::checkCategoryPermission('Invoice','Add'))
-            <a href="javascript:;" id="invoice-in" class="btn btn-primary tooltip-primary " data-original-title="Add Invoice Received" title="" data-placement="top" data-toggle="tooltip"> <i class="entypo-right-bold"></i><i class="entypo-doc-text"></i>  </a>
-            <a href="{{URL::to("invoice/create")}}" id="add-new-invoice" class="btn btn-primary tooltip-primary " data-original-title="Add Oneoff Invoice" title="" data-placement="top" data-toggle="tooltip"> <i class="entypo-left-bold"></i><i class="entypo-doc-text"></i>  </a>
+            <a href="javascript:;" id="invoice-in" class="btn btn-orange tooltip-primary " data-original-title="Add Invoice Received" title="" data-placement="top" data-toggle="tooltip"> <i class="entypo-plus"></i> </a>
+            <a href="{{URL::to("invoice/create")}}" id="add-new-invoice" class="btn btn-info tooltip-primary " data-original-title="Add Oneoff Invoice" title="" data-placement="top" data-toggle="tooltip"> <i class="entypo-plus"></i> </a>
     @endif
     @if(User::checkCategoryPermission('Invoice','Generate'))
-            <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary tooltip-primary " data-original-title="Generate Invoice" title="" data-placement="top" data-toggle="tooltip"> <i class="entypo-plus"></i> <i class="entypo-doc-text"></i>  </a>
-            <a href="javascript:;" id="manual_billing" class="btn btn-primary tooltip-primary manual_billing " data-original-title="Generate Manual Invoice" title="" data-placement="top" data-toggle="tooltip"> <i class="entypo-plus"></i> <i class="entypo-doc-text"></i>  </a>
+            <a href="javascript:;" id="generate-new-invoice" class="btn btn-gold tooltip-primary " data-original-title="Generate Invoice" title="" data-placement="top" data-toggle="tooltip"> <i class="entypo-plus"></i>  </a>
+            <a href="javascript:;" id="manual_billing" class="btn btn-primary tooltip-primary manual_billing " data-original-title="Manual Invoice" title="" data-placement="top" data-toggle="tooltip"> <i class="entypo-plus"></i> </a>
     @endif
   <!-- <a href="javascript:;" id="bulk-invoice" class="btn upload btn-primary ">
         <i class="entypo-upload"></i>
