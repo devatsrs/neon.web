@@ -14,7 +14,8 @@ class CurrenciesController extends \BaseController {
 
 	public function index()
 	{
-        return View::make('currencies.index', compact(''));
+        $PageRefresh=1;
+        return View::make('currencies.index', compact('PageRefresh'));
 
     }
 
@@ -30,6 +31,7 @@ class CurrenciesController extends \BaseController {
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         unset($data['CurrencyID']);
+        unset($data['PageRefresh']);
         $rules = array(
             'CompanyID' => 'required',
             'Code' => 'required|unique:tblCurrency,Code,NULL,CurrencyID,CompanyID,'.$data['CompanyID'],
@@ -101,6 +103,7 @@ class CurrenciesController extends \BaseController {
                 return json_validator_response($validator);
             }
             unset($data['CurrencyID']);
+            unset($data['PageRefresh']);
             if ($Currency->update($data)) {
                 Currency::clearCache();
                 return Response::json(array("status" => "success", "message" => "Currency Successfully Updated"));

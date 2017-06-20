@@ -140,7 +140,11 @@
                         <th width="10%" >Disconnect Time</th>
                         <th width="10%" >Billed Duration (sec)</th>
                         <th width="10%" >Cost</th>
+                        @if($Hide_AvgRateMinute=='1')
+                            <th width="10%" class="hide">Avg. Rate/Min</th>
+                        @else
                         <th width="10%" >Avg. Rate/Min</th>
+                        @endif
                         <th width="10%" >CLI</th>
                         <th width="10%" >CLD</th>
                         <th width="10%" >Prefix</th>
@@ -274,7 +278,13 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },
-                    { "bSortable": false },
+                    {
+                        @if($Hide_AvgRateMinute=='1')
+                        "bVisible": false,
+                        @else
+                        "bSortable": false
+                        @endif
+                    },
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },

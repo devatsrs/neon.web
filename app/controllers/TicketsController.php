@@ -623,7 +623,7 @@ class TicketsController extends \BaseController {
 		else{
 			$ticketsfields = 	array();
 		}    	
-		$default_status				=	TicketsTable::getDefaultStatus();
+		$default_status				=	TicketsTable::getDefaultEmailStatus();
 		 $agentsAll = DB::table('tblTicketGroupAgents')
             ->join('tblUser', 'tblUser.UserID', '=', 'tblTicketGroupAgents.UserID')->distinct()          
             ->select('tblUser.UserID', 'tblUser.FirstName', 'tblUser.LastName')

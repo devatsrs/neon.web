@@ -314,6 +314,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/account/ajax_get_missing_quickbookaccounts',  'ImportsController@ajax_get_missing_quickbookaccounts');
 	Route::any('/import/account/add_missing_quickbookaccounts',  'ImportsController@add_missing_quickbookaccounts');
 
+	//import ips
+	Route::any('/import/ips',  'ImportsController@import_ips');
+	Route::any('/import/ips_download_sample_excel_file',  'ImportsController@ips_download_sample_excel_file');
+	Route::any('/import/ips_check_upload',  'ImportsController@ips_check_upload');
+	Route::any('/import/ips_ajaxfilegrid',  'ImportsController@ips_ajaxfilegrid');
+	Route::any('/import/ips_storeTemplate',  'ImportsController@ips_storeTemplate');
+
 	//import leads
 	Route::any('/import/leads',  'ImportsController@import_leads');
 	Route::any('/import/leads/leads_check_upload',  'ImportsController@leads_check_upload');
@@ -1308,6 +1315,10 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
     Route::any('/paypal_ipn/{id}', 'InvoicesController@paypal_ipn'); //Payment response by paypal.
     Route::any('/paypal_cancel/{id}', 'InvoicesController@paypal_cancel'); //Payment response by paypal.
+
+	Route::any('/sagepay_ipn', 'InvoicesController@sagepay_ipn'); //Payment response by sagepay.
+	Route::any('/sagepay_declined', 'InvoicesController@sagepay_declined'); //Payment declined.
+	Route::any('/sagepay_return', 'InvoicesController@sagepay_return'); //Payment declined.
 
 	#estimate
 	Route::any('/estimate/{id}/cview', 'EstimatesController@cview'); //Customer View

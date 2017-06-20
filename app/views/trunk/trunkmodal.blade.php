@@ -27,6 +27,7 @@
                             return a.text == b.text ? 0 : a.text < b.text ? -1 : 1;
                         }));
                     });
+                    $('#TrunkStatus').trigger('change');
                 }else{
                     toastr.error(response.message, "Error", toastr_opts);
                 }

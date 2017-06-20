@@ -1,0 +1,5 @@
+AccountName,IP,Type
+Test Account,1.1.1.1,Customer
+Test Account,1.1.1.2,Customer
+Test Account,2.1.1.1,Vendor
+Test Account,2.1.1.2,Vendor

@@ -1,9 +1,14 @@
-
+<?php
+ if(empty($PageRefresh)){
+     $PageRefresh='';
+ }
+?>
 <script>
     $(document).ready(function ($) {
         $('#add-new-currency-form').submit(function(e){
             e.preventDefault();
-            var CurrencyID = $("#add-new-currency-form [name='CurrencyID']").val()
+            var PageRefresh = '{{$PageRefresh}}';
+            var CurrencyID = $("#add-new-currency-form [name='CurrencyID']").val();
             if( typeof CurrencyID != 'undefined' && CurrencyID != ''){
                 update_new_url = baseurl + '/currency/update/'+CurrencyID;
             }else{
@@ -14,6 +19,9 @@
                 $(".btn").button('reset');
                 if (response.status == 'success') {
                     $('#add-new-modal-currency').modal('hide');
+                    if( typeof PageRefresh != 'undefined' && PageRefresh != ''){
+                        data_table.fnFilter('', 0);
+                    }
                     toastr.success(response.message, "Success", toastr_opts);
                     $('select[data-type="currency"]').each(function(key,el){
                         if($(el).attr('data-active') == 1) {
