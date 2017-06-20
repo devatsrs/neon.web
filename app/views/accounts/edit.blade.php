@@ -362,7 +362,7 @@
             </div>
         </div>
         <?php
-        if(AccountDiscountPlan::checkDiscountPlan($id)){
+        if(AccountDiscountPlan::checkDiscountPlan($account->AccountID)){
             $BillingCycleTypeArray = SortBillingType();
         }else{
             $BillingCycleTypeArray = SortBillingType(1);
