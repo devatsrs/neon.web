@@ -1,6 +1,5 @@
-<div class="clear"></div>
 @if(!empty($CustomerLastInvoiceDate))
-<div class="col-md-6">
+<div class="col-md-4">
     <div class="form-group">
         <label for="field-5" class="control-label">Last Invoice Date</label>
         <div> {{$CustomerLastInvoiceDate}}</div>
@@ -8,7 +7,7 @@
 </div>
 @endif
 @if(!empty($CustomerEndDate))
-<div class="col-md-6">
+<div class="col-md-4">
     <div class="form-group">
         <label for="field-5" class="control-label">Next Invoice Date</label>
         <div> {{$CustomerEndDate}}</div>

@@ -2290,15 +2290,13 @@ class InvoicesController extends \BaseController {
         $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
         $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($AccountBilling,$account);
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
-
-        $CustomerEndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($CustomerLastInvoiceDate));
-        $VendorEndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($VendorLastInvoiceDate));
+        $CustomerEndDate = '';
         $today = date('Y-m-d');
         $yesterday = date('Y-m-d', strtotime('-1 day'));
         $CustomerNextBilling = $VendorNextBilling = array();
         $StartDate = $CustomerLastInvoiceDate;
-        $EndDate = $CustomerEndDate;
-        if (!empty($EndDate) && $EndDate != '0000-00-00 00:00:00' && $AccountBilling->BillingCycleType != 'manual') {
+        if (!empty($AccountBilling) && $AccountBilling->BillingCycleType != 'manual') {
+            $EndDate = $CustomerEndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($CustomerLastInvoiceDate));
             while ($EndDate < $today) {
                 $query = DB::connection('neon_report')->table('tblHeader')
                     ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
@@ -2318,7 +2316,7 @@ class InvoicesController extends \BaseController {
                 $StartDate = $EndDate;
                 $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($StartDate));
             }
-        } else if ($AccountBilling->BillingCycleType == 'manual') {
+        } else {
             $EndDate = $today;
             $query = DB::connection('neon_report')->table('tblHeader')
                 ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
@@ -2339,8 +2337,8 @@ class InvoicesController extends \BaseController {
             }
         }
         $StartDate = $VendorLastInvoiceDate;
-        $EndDate = $VendorEndDate;
-        if (!empty($EndDate) && $EndDate != '0000-00-00 00:00:00' && $AccountBilling->BillingCycleType != 'manual') {
+        if (!empty($AccountBilling) && $AccountBilling->BillingCycleType != 'manual') {
+            $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($VendorLastInvoiceDate));
             while ($EndDate < $today) {
                 $query = DB::connection('neon_report')->table('tblHeaderV')
                     ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
@@ -2360,7 +2358,7 @@ class InvoicesController extends \BaseController {
                 $StartDate = $EndDate;
                 $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($StartDate));
             }
-        } else if ($AccountBilling->BillingCycleType == 'manual') {
+        } else {
             $EndDate = $today;
             $query = DB::connection('neon_report')->table('tblHeaderV')
                 ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')

@@ -5,25 +5,8 @@
             e.preventDefault();
 			var update_new_url 	= 	baseurl + '/accounts_manual_bill';
             $('#manual-billing-modal').modal('show');
-            //$('#manual_billing_html').html('<div class="col-md-12">Loading...</div>');
-            /*$.ajax({
-                url: update_new_url,  //Server script to process data
-                type: 'POST',
-                dataType: 'html',
-                success: function (response) {
-                    $('#manual-billing-modal').modal('show');
-                    $('#manual_billing_html').html(response);
-                    $('#unbilling_html').html('');
-
-                    reinitializeSelect2('manual_billing_html')
-                },
-                //Options to tell jQuery not to process data or worry about content-type.
-                cache: false,
-                contentType: false,
-                processData: false
-            });*/
         });
-        $('#add-manualbilling-form [name="AccountID"]').change(function(e){
+        $('#add-manualbilling-form .billing_account').change(function(e){
             e.preventDefault();
             if($(this).val() > 0) {
                 var update_new_url = baseurl + '/get_unbill_report/' + $(this).val();
@@ -44,7 +27,20 @@
                 $('#unbilling_html').html('');
             }
         });
+
+        $('#add-manualbilling-form [name="BillingCheck"]').change(function(e){
+            var checked = $(this).is(':checked');
+            if(checked){
+                $('.all_accounts').hide();
+                $('.manual_accounts').show();
+            }else{
+                $('.all_accounts').show();
+                $('.manual_accounts').hide();
+            }
+
+        });
         $('#add-manualbilling-form [name="AccountID"]').val('').trigger('change');
+        $('#add-manualbilling-form [name="BillingCheck"]').val('').trigger('change');
 
         $('#add-manualbilling-form').submit(function(e){
             e.preventDefault();
@@ -67,16 +63,36 @@
 
             </div>
           <div class="row" id="manual_billing_html">
-              <div class="col-md-6">
+              <div class="col-md-4">
                   <div class="form-group">
-                      <label for="field-5" class="control-label">Accounts</label>
-                      {{Form::select('AccountID',$accounts,'',array( "class"=>"select2", "data-allow-clear"=>"true","data-placeholder"=>"Select Account"))}}
+                      <?php
+                      $manual_data['Status'] =1;
+                      $manual_data['AccountType'] =1;
+                      $manual_data['VerificationStatus'] =Account::VERIFIED;
+                      $manual_data['CompanyID'] =User::get_companyID();
+                      $manual_data['BillingCycleType'] = 'manual';
+                      $manual_accounts = Account::join('tblAccountBilling','tblAccountBilling.AccountID','=','tblAccount.AccountID')
+                              ->where($manual_data)->select(array('AccountName', 'tblAccount.AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+                      if(!empty($manual_accounts)){
+                          $manual_accounts = array(""=> "Select")+$manual_accounts;
+                      }
+                      ?>
+                          <div class="checkbox" style="padding-left: 0px;">
+                              <label class="control-label "> <input name="BillingCheck" type="checkbox">Manual Billing
+                                  <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Display only account which have manual billing." data-original-title="Manual Billing">?</span>
+                                   Accounts
+                              </label>
+                          </div>
+
+                      {{Form::select('AccountID',$accounts,'',array( "class"=>"select2 all_accounts billing_account", "data-allow-clear"=>"true","data-placeholder"=>"Select Account"))}}
+                      {{Form::select('AccountID',$manual_accounts,'',array( "class"=>"select2 manual_accounts billing_account", "data-allow-clear"=>"true","data-placeholder"=>"Select Account"))}}
                   </div>
               </div>
-          </div>
-            <div class="row" id="unbilling_html">
+              <div id="unbilling_html">
 
-            </div>
+              </div>
+          </div>
+
         </div>
         <div class="modal-footer">
             <button  type="submit" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Generate New Invoice </button>
