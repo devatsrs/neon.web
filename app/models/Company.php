@@ -164,14 +164,18 @@ class Company extends \Eloquent {
 
     }
 
-    public static function getLicenceResponse(){
+    public static function getLicenceResponse() {
 
-        $valresponse = Company::ValidateLicenceKey();
-        Session::set('LicenceApiResponse', $valresponse);
-        $LicenceApiResponse = $valresponse;
-        //Log response;
-        \Illuminate\Support\Facades\Log::info($LicenceApiResponse);
+        $LicenceApiResponse = Session::get('LicenceApiResponse','');
 
+        if(empty($LicenceApiResponse) || (!empty($LicenceApiResponse) && isset($LicenceApiResponse["Status"]) &&  $LicenceApiResponse["Status"] != 1) ) {  // if first time login ... // check if status is empty then also try again
+            $valresponse = Company::ValidateLicenceKey();
+            Session::set('LicenceApiResponse', $valresponse);
+            $LicenceApiResponse = $valresponse;
+            //Log response;
+            \Illuminate\Support\Facades\Log::info($LicenceApiResponse);
+
+        }
         return $LicenceApiResponse;
     }
 
