@@ -87,6 +87,8 @@ class Company extends \Eloquent {
                 $result['Type'] = $response['Type'];
                 $result['LicenceProperties'] = $response['LicenceProperties'];
             }else{
+                \Illuminate\Support\Facades\Log::info("ValidateLicenceKey response");
+                \Illuminate\Support\Facades\Log::info($response);
                 $result['Status'] = 0 ;
                 $result['Message'] = 'Unable To Validate Licence';
                 $result['ExpiryDate']='';
@@ -97,6 +99,9 @@ class Company extends \Eloquent {
             $result['Message'] = "Licence key not found";
             $result['Status'] = "Licence key not found";
             $result['ExpiryDate'] = "";
+
+            \Illuminate\Support\Facades\Log::info("Licence key not found");
+
         }
 
         return $result;
