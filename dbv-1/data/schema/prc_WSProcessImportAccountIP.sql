@@ -1,6 +1,8 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_WSProcessImportAccountIP`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessImportAccountIP`(
 	IN `p_processId` VARCHAR(200),
-	IN `p_companyId` INT)
+	IN `p_companyId` INT
+
+)
 BEGIN
     DECLARE v_AffectedRecords_ INT DEFAULT 0;         
 	DECLARE totalduplicatecode INT(11);	 
@@ -76,14 +78,17 @@ BEGIN
 							  `VendorAuthValue` VARCHAR(500),
 							  `ServiceID` INT
 			) ENGINE=InnoDB;  
+						
+		
 		INSERT INTO tmp_accountcustomerip(CompanyID,AccountID,CustomerAuthRule,CustomerAuthValue,ServiceID)
-		select CompanyID,AccountID,'IP' as CustomerAuthRule, GROUP_CONCAT(IP) as CustomerAuthValue,ServiceID from tmp_accountipimport where Type='Customer' GROUP BY AccountID;
+		select CompanyID,AccountID,'IP' as CustomerAuthRule, GROUP_CONCAT(IP) as CustomerAuthValue,ServiceID from tmp_accountipimport where Type='Customer' GROUP BY AccountID,ServiceID;
+		
 		
 		INSERT INTO tmp_accountvendorip(CompanyID,AccountID,VendorAuthRule,VendorAuthValue,ServiceID)
-		select CompanyID,AccountID,'IP' as VendorAuthRule, GROUP_CONCAT(IP) as VendorAuthValue,ServiceID from tmp_accountipimport where Type='Vendor' GROUP BY AccountID;
+		select CompanyID,AccountID,'IP' as VendorAuthRule, GROUP_CONCAT(IP) as VendorAuthValue,ServiceID from tmp_accountipimport where Type='Vendor' GROUP BY AccountID,ServiceID;
 		
 		-- insert authentication
-		
+	
 		INSERT INTO tblAccountAuthenticate(CompanyID,AccountID,CustomerAuthRule,CustomerAuthValue,ServiceID)				
 			SELECT ac.CompanyID,ac.AccountID,ac.CustomerAuthRule,ac.CustomerAuthValue,ac.ServiceID
 				FROM tmp_accountcustomerip ac LEFT JOIN tblAccountAuthenticate aa
@@ -119,16 +124,16 @@ BEGIN
 									CONCAT(aa.VendorAuthValue,',',av.VendorAuthValue) 
 								END
 			 WHERE av.AccountID IS NOT NULL AND aa.AccountID IS NOT NULL;	
-					
+			
 			
 			SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();	
 
 			INSERT INTO tmp_JobLog_ (Message)
 			SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );	
 			
-			DELETE  FROM tblTempAccountIP WHERE ProcessID = p_processId;
+			-- DELETE  FROM tblTempAccountIP WHERE ProcessID = p_processId;
 		
-		SELECT * from tmp_JobLog_;
+		SELECT * from tmp_JobLog_; 					
 	      
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
