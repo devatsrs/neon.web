@@ -156,7 +156,7 @@
                 <li>
                    <a href="{{ URL::to('/import/ips') }}" >
                         <i class="entypo-user-add"></i>
-                        <span>Import IPS</span>
+                        <span>Import IPs</span>
                    </a>
                 </li>
                 <li class="li_active">

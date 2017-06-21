@@ -18,7 +18,7 @@
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
-                    Upload Account IPS
+                    Upload Account IPs
                 </div>
                 
                 <div class="panel-options">
@@ -166,6 +166,11 @@
                         </label>
                         <div class="col-sm-4">
                             {{Form::select('selection[Type]', array(),'',array("class"=>"select2 small"))}}
+                        </div>
+
+                        <label for="field-1" class="col-sm-2 control-label">Service</label>
+                        <div class="col-sm-4">
+                            {{Form::select('selection[Service]', array(),'',array("class"=>"select2 small"))}}
                         </div>
                     </div>
                 </div>
@@ -350,7 +355,7 @@ jQuery(document).ready(function ($) {
                 rebuildSelect2(self,data.columns,'Skip loading');
             }
         });
-        if(data.AccountFileUploadTemplate){
+        if(data.IPFileUploadTemplate){
             $.each( data.IPFileUploadTemplate, function( optionskey, option_value ) {
                 if(optionskey == 'Title'){
                     $('#add-template-form').find('[name="TemplateName"]').val(option_value)
@@ -396,12 +401,14 @@ jQuery(document).ready(function ($) {
                 <h4 class="modal-title">IP File Format</h4>
             </div>
             <div class="modal-body">
+                <p>All columns are mandatory and the first line should have the column headings.</p>
                         <table class="table responsive">
                             <thead>
                                 <tr>
                                     <th>AccountName</th>
                                     <th>IP</th>
                                     <th>Type</th>
+                                    <th>Service(Opt.)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -409,21 +416,25 @@ jQuery(document).ready(function ($) {
                                     <td>Test Account</td>
                                     <td>1.1.1.1</td>
                                     <td>Customer</td>
+                                    <td>Default Service</td>
                                 </tr>
                                 <tr>
                                     <td>Test Account</td>
                                     <td>1.1.1.2</td>
                                     <td>Customer</td>
+                                    <td>Default Service</td>
                                 </tr>
                                 <tr>
                                     <td>Test Account</td>
                                     <td>2.1.1.1</td>
                                     <td>Vendor</td>
+                                    <td>Default Service</td>
                                 </tr>
                                 <tr>
                                     <td>Test Account</td>
                                     <td>2.1.1.1</td>
                                     <td>Vendor</td>
+                                    <td>Default Service</td>
                                 </tr>
                             </tbody>
                         </table>
