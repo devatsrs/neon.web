@@ -5,7 +5,18 @@
          <div class="description">
              <!-- First half of text show in 1 line -->
              <!-- Ticket Create or submit by user or customer, showing name with link -->
-             <a href="{{($row->TimelineType == 3 && $row->TicketFieldID == 0 && $row->CustomerID != 0)?(URL::to('accounts/'.$row->UserID.'/show')):URL::to('users/edit/'.$row->UserID)}}" target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
+             @if($row->TimelineType == 3 && $row->TicketFieldID == 0 && $row->CustomerID != 0)
+                 @if($row->CustomerType == 1)
+                     <a href="{{(URL::to('accounts/'.$row->CustomerID.'/show'))}}"
+                        target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
+                 @elseif($row->CustomerType == 2)
+                     <a href="{{(URL::to('contacts/'.$row->CustomerID.'/show'))}}"
+                        target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
+                 @endif
+             @else
+                 <a href="{{(URL::to('users/edit/'.$row->UserID))}}"
+                    target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
+                 @endif
              <!--TimelineType: Email -->
              @if($row->TimelineType == 1)
                  <!--Ticket Submit by Email -->
