@@ -2287,6 +2287,10 @@ class InvoicesController extends \BaseController {
     public function get_unbill_report($id){
         $AccountBilling = AccountBilling::getBilling($id, 0);
         $account = Account::find($id);
+        $lastInvoicePeriod = Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')
+            ->where(array('AccountID'=>$account->AccountID,'InvoiceType'=>Invoice::INVOICE_OUT,'ProductType'=>Product::USAGE))
+            ->orderBy('IssueDate','DESC')->limit(1)
+            ->first(['StartDate','EndDate']);
         $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
         $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($AccountBilling,$account);
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
@@ -2379,7 +2383,7 @@ class InvoicesController extends \BaseController {
             }
         }
 
-        return View::make('invoices.unbilled_table', compact('VendorNextBilling','CustomerNextBilling','CurrencySymbol','CustomerEndDate','CustomerLastInvoiceDate','today','yesterday'));
+        return View::make('invoices.unbilled_table', compact('VendorNextBilling','CustomerNextBilling','CurrencySymbol','CustomerEndDate','CustomerLastInvoiceDate','today','yesterday','lastInvoicePeriod'));
 
     }
 

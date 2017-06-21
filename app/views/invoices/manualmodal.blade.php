@@ -9,7 +9,12 @@
         $('#add-manualbilling-form .billing_account').change(function(e){
             e.preventDefault();
             if($(this).val() > 0) {
-                var update_new_url = baseurl + '/get_unbill_report/' + $(this).val();
+                var querystring = '';
+                if($('#add-manualbilling-form [name="PeriodFrom"]').val() && $('#add-manualbilling-form [name="PeriodTo"]').val()){
+                    querystring=  '?PeriodFrom='+$('#add-manualbilling-form [name="PeriodFrom"]').val()+'&PeriodTo='+$('#add-manualbilling-form [name="PeriodTo"]').val();
+                }
+                var update_new_url = baseurl + '/get_unbill_report/' + $(this).val()+querystring;
+
                 $('#unbilling_html').html('<div class="col-md-12">Loading...</div>');
                 $.ajax({
                     url: update_new_url,  //Server script to process data
@@ -44,7 +49,22 @@
 
         $('#add-manualbilling-form').submit(function(e){
             e.preventDefault();
-            submit_ajax(baseurl + '/generate_manual_invoice',$(this).serialize())
+            $.ajax({
+                url:baseurl + '/generate_manual_invoice', //Server script to process data
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    $(".btn").button('reset');
+                    if (response.status == 'success') {
+                        toastr.success(response.message, "Success", toastr_opts);
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },
+                data: $(this).serialize(),
+                //Options to tell jQuery not to process data or worry about content-type.
+                cache: false
+            });
         });
     });
 </script>
@@ -56,7 +76,7 @@
       <form id="add-manualbilling-form" method="post">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title"><strong>Manual Billing</strong></h4>
+          <h4 class="modal-title"><strong>Manual Invoice</strong></h4>
         </div>
         <div class="modal-body">
             <div class="row" id="error_html">
@@ -78,9 +98,7 @@
                       }
                       ?>
                           <div class="checkbox" style="padding-left: 0px;">
-                              <label class="control-label "> <input name="BillingCheck" type="checkbox">Manual Billing
-                                  <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Display only account which have manual billing." data-original-title="Manual Billing">?</span>
-                                   Accounts
+                              <label class="control-label "> <input name="BillingCheck" type="checkbox">Show Manual Billing Accounts
                               </label>
                           </div>
 
