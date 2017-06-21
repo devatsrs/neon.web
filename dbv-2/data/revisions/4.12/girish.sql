@@ -16,7 +16,8 @@ CREATE PROCEDURE `prc_InsertTempReRateCDR`(
 	IN `p_zerovaluecost` INT,
 	IN `p_CurrencyID` INT,
 	IN `p_area_prefix` VARCHAR(50),
-	IN `p_trunk` VARCHAR(50)
+	IN `p_trunk` VARCHAR(50),
+	IN `p_RateMethod` VARCHAR(50)
 )
 BEGIN
 	DECLARE v_BillingTime_ INT;
@@ -37,6 +38,7 @@ BEGIN
 		disconnect_time,
 		billed_duration,
 		area_prefix,
+		trunk,
 		pincode,
 		extension,
 		cli,
@@ -44,7 +46,6 @@ BEGIN
 		cost,
 		remote_ip,
 		duration,
-		trunk,
 		ProcessID,
 		ID,
 		is_inbound,
@@ -68,7 +69,20 @@ BEGIN
 		connect_time,
 		disconnect_time,
 		billed_duration,
-		"Other" as area_prefix,
+		CASE WHEN   "' , p_RateMethod , '" = "SpecifyRate"
+		THEN 
+			area_prefix
+		ELSE
+			"Other" 
+		END
+		AS area_prefix,
+		CASE WHEN   "' , p_RateMethod , '" = "SpecifyRate"
+		THEN 
+			trunk
+		ELSE
+			"Other" 
+		END
+		AS trunk,		
 		pincode,
 		extension,
 		cli,
@@ -76,7 +90,6 @@ BEGIN
 		cost,
 		remote_ip,
 		duration,
-		"Other" as trunk,
 		"',p_ProcessID,'",
 		ID,
 		is_inbound,

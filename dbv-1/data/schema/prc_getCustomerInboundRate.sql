@@ -9,6 +9,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerInboundRate`(
 BEGIN
 
 	DECLARE v_inboundratetableid_ INT;
+	DECLARE v_CompanyID_ INT;	
 
 	IF p_CLD != ''
 	THEN
@@ -64,6 +65,27 @@ BEGIN
 		/* if Specify Rate is set when cdr rerate */
 		IF p_RateMethod = 'SpecifyRate'
 		THEN
+		
+			IF (SELECT COUNT(*) FROM tmp_inboundcodes_) = 0
+			THEN
+			
+				SET v_CompanyID_ = (SELECT CompanyId FROM tblAccount WHERE AccountID = p_AccountID);
+				INSERT INTO tmp_inboundcodes_
+				SELECT
+					DISTINCT
+					tblRate.RateID,
+					tblRate.Code,
+					p_SpecifyRate,
+					0,
+					IFNULL(tblRate.Interval1,1),
+					IFNULL(tblRate.IntervalN,1)
+				FROM tblRate
+				INNER JOIN tblCodeDeck
+					ON tblCodeDeck.CodeDeckId = tblRate.CodeDeckId
+				WHERE tblCodeDeck.CompanyId = v_CompanyID_
+				AND tblCodeDeck.DefaultCodedeck = 1 ;
+			
+			END IF;
 		
 			UPDATE tmp_inboundcodes_ SET Rate=p_SpecifyRate;
 			
