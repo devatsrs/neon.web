@@ -697,7 +697,7 @@ BEGIN
 
 		SET @stm = CONCAT('
 		UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN Ratemanagement3.tmp_inboundcodes_ cr ON cr.Code = ud.area_prefix
+		LEFT JOIN Ratemanagement3.tmp_inboundcodes_ cr ON cr.Code = ud.area_prefix
 		SET cost =
 			CASE WHEN  billed_second >= 1
 			THEN
