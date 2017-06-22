@@ -423,7 +423,7 @@
                     ?>
                     <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
                     <div class="col-md-4">
-                        @if($billing_disable == '' && isset($AccountBilling->BillingCycleType) && $AccountBilling->BillingCycleType != 'manual')
+                        @if($billing_disable == '' || (isset($AccountBilling->BillingCycleType) && $AccountBilling->BillingCycleType != 'manual'))
                             {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         @else
                             {{Form::hidden('BillingStartDate', $BillingStartDate)}}
