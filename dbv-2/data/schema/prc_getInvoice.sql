@@ -80,7 +80,7 @@ BEGIN
 			ac.NominalAnalysisNominalAccountNumber
 			FROM tblInvoice inv
 			INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
-			LEFT JOIN tblInvoiceDetail invd ON invd.InvoiceID = inv.InvoiceID AND invd.ProductType = 2
+			LEFT JOIN tblInvoiceDetail invd ON invd.InvoiceID = inv.InvoiceID AND (invd.ProductType = 2 OR inv.InvoiceType = 2) 
 			LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
 			WHERE ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))

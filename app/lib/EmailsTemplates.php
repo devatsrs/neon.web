@@ -21,6 +21,7 @@ class EmailsTemplates{
 				'{{Country}}',
 				'{{Signature}}',
 				'{{Currency}}',
+				'{{CurrencySign}}',
 				'{{OutstandingExcludeUnbilledAmount}}',
 				'{{OutstandingIncludeUnbilledAmount}}',
 				'{{BalanceThreshold}}',
@@ -344,6 +345,7 @@ class EmailsTemplates{
 			$array['PostCode']				=	 $AccoutData->PostCode;
 			$array['Country']				=	 $AccoutData->Country;
 			$array['Currency']				=	 Currency::where(["CurrencyId"=>$AccoutData->CurrencyId])->pluck("Code");
+			$array['CurrencySign']			=	 Currency::where(["CurrencyId"=>$AccoutData->CurrencyId])->pluck("Symbol");
 			$array['OutstandingExcludeUnbilledAmount'] = Account::getOutstandingAmount($companyID, $AccountID, get_round_decimal_places($AccountID));
 			$array['OutstandingIncludeUnbilledAmount'] = AccountBalance::getBalanceAmount($AccountID);
 			$array['BalanceThreshold'] 				   = AccountBalance::getBalanceThresholdAmount($AccountID);

@@ -14,6 +14,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         "/assets/css/neon-theme.css",
         "/assets/css/neon-forms.css",
         "/assets/css/custom.css",
+            "assets/css/dark-bottom.css",
 
 
 
@@ -43,6 +44,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         // New editor
         "assets/js/summernote/summernote.css",
         "assets/css/custom.css",
+            "assets/css/dark-bottom.css",
 
     ];
 }

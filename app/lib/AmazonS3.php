@@ -39,7 +39,7 @@ class AmazonS3 {
         'EMAIL_ATTACHMENT'=>'EmailAttachment',
 		'TICKET_ATTACHMENT'=>'TicketAttachment',
         'DIALSTRING_UPLOAD'=>'DialString',
-        'DIALSTRING_UPLOAD'=>'DialString',
+        'IP_UPLOAD'=>'IPUpload',
         'RECURRING_INVOICE_UPLOAD'=>'RecurringInvoice'
     );
 

@@ -59,25 +59,47 @@
         var quarterly = '';
         var monthly = '';
         var decimal_places = 2;
+        var weekly = '';
+        var daily = '';
         if(name=='AnnuallyFee'){
             var t = $(obj).val();
             t = parseFloat(t);
             monthly = t/12;
             quarterly = monthly * 3;
+            weekly =  parseFloat(monthly / 30 * 7);
+            daily = parseFloat(monthly / 30);
         }else if(name=='QuarterlyFee'){
             var t = $(obj).val();
             t = parseFloat(t);
             monthly = t / 3;
             Yearly  = monthly * 12;
+            weekly =  parseFloat(monthly / 30 * 7);
+            daily = parseFloat(monthly / 30);
         } else if(name=='MonthlyFee'){
-            var monthly = $(obj).val();
-            monthly = parseFloat(monthly);
+            var monthlyfee = $(obj).val();
+            monthly = parseFloat(monthlyfee);
             Yearly  = monthly * 12;
+            quarterly = monthly * 3;
+            weekly =  parseFloat(monthly / 30 * 7);
+            daily = parseFloat(monthly / 30);
+        } else if(name=='WeeklyFee'){
+            var weeklyfee = $(obj).val();
+            weekly = parseFloat(weeklyfee);
+            monthly = weekly * 4;
+            Yearly = monthly * 12;
+            quarterly = monthly * 3;
+            daily = parseFloat(weekly / 7);
+
+        }else if(name=='DailyFee'){
+            var dailyfee = $(obj).val();
+            daily = parseFloat(dailyfee);
+            weekly = dailyfee * 7;
+            monthly = weekly * 4;
+            Yearly = monthly * 12;
             quarterly = monthly * 3;
         }
 
-        var weekly =  parseFloat(monthly / 30 * 7);
-        var daily = parseFloat(monthly / 30);
+
 
         if(Yearly != '' && $('#add-new-billing_subscription-form [name="AnnuallyFee"]').val()=='') {
             $('#add-new-billing_subscription-form [name="AnnuallyFee"]').val(Yearly.toFixed(decimal_places));
@@ -132,12 +154,12 @@
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Weekly Fee</label>
                     <div class="col-sm-4">
-                        <input type="text" name="WeeklyFee" class="form-control"   maxlength="10" id="field-1" placeholder="" value="" />
+                        <input type="text" name="WeeklyFee" onchange="txtChange(this)" class="form-control"   maxlength="10" id="field-1" placeholder="" value="" />
                     </div>
 
                     <label for="field-1" class="col-sm-2 control-label">Daily Fee</label>
                     <div class="col-sm-4">
-                        <input type="text" name="DailyFee" class="form-control" maxlength="10" id="field-1" placeholder="" value="" />
+                        <input type="text" name="DailyFee" onchange="txtChange(this)" class="form-control" maxlength="10" id="field-1" placeholder="" value="" />
                     </div>
 
                 </div>

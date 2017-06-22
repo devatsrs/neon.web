@@ -101,7 +101,8 @@ class Dispute extends \Eloquent {
 			'DisputeAmount' => 'required|numeric',
 			'InvoiceType' => 'required|numeric',
 		);
-
+		$DisputeAttachment = !empty($data['DisputeAttachment']) ? 1 : 0;
+		unset($data['DisputeAttachment']);
 
 		$validator = Validator::make($data, $rules);
 
@@ -110,7 +111,7 @@ class Dispute extends \Eloquent {
 			return json_validator_response($validator);
 		}
 
-		if (Input::hasFile('Attachment')){
+		if (Input::hasFile('Attachment') && $DisputeAttachment==1){
 			$upload_path = CompanyConfiguration::get('UPLOAD_PATH');
 			$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['DISPUTE_ATTACHMENTS'],$data["AccountID"]) ;
 			$destinationPath = $upload_path . '/' . $amazonPath;

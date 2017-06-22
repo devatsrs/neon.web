@@ -362,7 +362,11 @@
             </div>
         </div>
         <?php
-
+        if(AccountDiscountPlan::checkDiscountPlan($account->AccountID)){
+            $BillingCycleTypeArray = SortBillingType();
+        }else{
+            $BillingCycleTypeArray = SortBillingType(1);
+        }
 
         $Days = array( ""=>"Select",
                 "monday"=>"Monday",
@@ -419,8 +423,8 @@
                     ?>
                     <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
                     <div class="col-md-4">
-                        @if($hiden_class == '')
-                            {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
+                        @if($billing_disable == '' || (isset($AccountBilling->BillingCycleType) && $AccountBilling->BillingCycleType != 'manual'))
+                            {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         @else
                             {{Form::hidden('BillingStartDate', $BillingStartDate)}}
                             {{$BillingStartDate}}
@@ -437,7 +441,7 @@
                     ?>
                     <div class="form-group">
                         <label for="field-1" class="col-md-2 control-label">Current Billing Cycle</label>
-                        <div class="col-md-4">{{SortBillingType()[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
+                        <div class="col-md-4">{{$BillingCycleTypeArray[$AccountBilling->BillingCycleType]}}@if(!empty($oldBillingCycleValue)) {{'('.$oldBillingCycleValue.')'}} @endif</div>
                         <label for="field-1" class="col-md-2 control-label">New Billing Cycle Effective From</label>
                         <div class="col-md-4">{{$AccountNextBilling->LastInvoiceDate}}</div>
                     </div>
@@ -453,12 +457,13 @@
                         }else{
                             $BillingCycleType = '';
                         }
+
                         ?>
                         @if($hiden_class != '' && isset($AccountBilling->BillingCycleType) )
-                            <div class="billing_edit_text"> {{SortBillingType()[$BillingCycleType]}} </div>
+                            <div class="billing_edit_text"> {{$BillingCycleTypeArray[$BillingCycleType]}} </div>
                         @endif
 
-                        {{Form::select('BillingCycleType', SortBillingType(), $BillingCycleType ,array("class"=>'form-control '.$hiden_class.' select2 '))}}
+                        {{Form::select('BillingCycleType', $BillingCycleTypeArray, $BillingCycleType ,array("class"=>'form-control '.$hiden_class.' select2 '))}}
 
                     </div>
                     <div class="col-md-1">
@@ -693,6 +698,7 @@
             }
             $(".billing_options input, .billing_options select").attr("disabled", "disabled");
             $(".billing_options").hide();
+            $(".billing_start_date").removeAttr('readonly');
             console.log(selection);
             switch (selection){
                 case "weekly":
@@ -727,6 +733,9 @@
                             $("#billing_cycle_subscription input").addClass('hidden');
                         }
                         break;
+                case "manual":
+                    $(".billing_start_date").attr('readonly','true');
+                    break;
             }
             if(FirstTimeTrigger == true) {
                 BillingChanged = false;

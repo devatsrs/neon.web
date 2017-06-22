@@ -9,6 +9,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getCustomerCodeRate`(
 BEGIN
 	DECLARE v_codedeckid_ INT;
 	DECLARE v_ratetableid_ INT;
+	DECLARE v_CompanyID_ INT;
 	
 	IF p_RateTableID > 0
 	THEN
@@ -160,6 +161,28 @@ BEGIN
 		/* if Specify Rate is set when cdr rerate */
 		IF p_RateMethod = 'SpecifyRate'
 		THEN
+		
+			
+			IF (SELECT COUNT(*) FROM tmp_codes_) = 0
+			THEN
+			
+				SET v_CompanyID_ = (SELECT CompanyId FROM tblAccount WHERE AccountID = p_AccountID);
+				INSERT INTO tmp_codes_
+				SELECT
+					DISTINCT
+					tblRate.RateID,
+					tblRate.Code,
+					p_SpecifyRate,
+					0,
+					IFNULL(tblRate.Interval1,1),
+					IFNULL(tblRate.IntervalN,1)
+				FROM tblRate
+				INNER JOIN tblCodeDeck
+					ON tblCodeDeck.CodeDeckId = tblRate.CodeDeckId
+				WHERE tblCodeDeck.CompanyId = v_CompanyID_
+				AND tblCodeDeck.DefaultCodedeck = 1 ;
+			
+			END IF;
 		
 			UPDATE tmp_codes_ SET Rate=p_SpecifyRate;
 			

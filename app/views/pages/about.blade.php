@@ -13,14 +13,42 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.11</h1>
+    <h1>NEON - 4.12</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.11</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.12</strong></div>
 </p>
 </div>
+
+<h2>
+    <span class="label label-success">4.12</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>22-06-2017</h4>
+                    01. Added new output format Vos 2.0 for older versions of Vos.<br>
+                    02. Fixed issues in ticketing.<br>
+                    03. Added currency sign placeholder in email templates.<br>
+                    04. Added option to bulk update accounts.<br>
+                    05. Added option to import Account Ips.<br>
+                    06. Added Notice Board to display warnings or messages to customers in Customer Portal.<br>
+                    07. Added Prefix Translation rule.<br>
+                    08. Added option of Manually Billing customers.<br>
+                    09. Added option to import Payments from MOR.<br>
+                    10. Added Integration with SagePay(.co.za).<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.11</span> &nbsp; Version Highlights

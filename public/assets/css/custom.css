@@ -2724,3 +2724,20 @@ a:focus,a:hover{text-decoration:none !important}
 button.btn.btn-xs.small_icons{
     margin-bottom: 5px;
 }
+
+.post-success {
+    border-left: 5px solid #00a651 !important;
+}
+.post-error {
+    border-left: 5px solid #cc2424 !important;
+}
+.post-info {
+    border-left: 5px solid #21a9e1 !important;
+}
+.post-warning {
+    border-left: 5px solid #f89406 !important;
+}
+
+.mail-body table td {
+    box-sizing: content-box;
+}

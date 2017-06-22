@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `prc_RerateInboundCalls`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_RerateInboundCalls`(
 	IN `p_CompanyID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
@@ -99,6 +99,7 @@ BEGIN
 			THEN 
 
 				SET p_InboundTableID = (SELECT RateTableID FROM NeonRMDev.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 2 LIMIT 1);
+				SET p_InboundTableID = IFNULL(p_InboundTableID,0);
 				/* get inbound rate process*/
 				CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
 			END IF;
@@ -107,7 +108,7 @@ BEGIN
 			CALL prc_updateInboundPrefix(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_);
 
 			/* inbound rerate process*/
-			CALL prc_updateInboundRate(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_);
+			CALL prc_updateInboundRate(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_,p_RateMethod,p_SpecifyRate);
 
 			SET v_pointer_ = v_pointer_ + 1;
 

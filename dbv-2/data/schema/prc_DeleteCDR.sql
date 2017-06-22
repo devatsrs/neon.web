@@ -4,14 +4,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteCDR`(
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
 	IN `p_AccountID` INT,
-	IN `p_CDRType` CHAR(1),
+	IN `p_CDRType` VARCHAR(50),
 	IN `p_CLI` VARCHAR(50),
 	IN `p_CLD` VARCHAR(50),
 	IN `p_zerovaluecost` INT,
 	IN `p_CurrencyID` INT,
 	IN `p_area_prefix` VARCHAR(50),
 	IN `p_trunk` VARCHAR(50)
-
 )
 BEGIN
 
@@ -51,7 +50,7 @@ BEGIN
 				AND uh.AccountID is not null
 				AND (p_AccountID = 0 OR uh.AccountID = p_AccountID)
 				AND (p_GatewayID = 0 OR CompanyGatewayID = p_GatewayID)
-				AND (p_CDRType = '' OR ud.is_inbound = p_CDRType)
+				AND (p_CDRType = '' OR ud.userfield LIKE CONCAT('%',p_CDRType,'%') )
 				AND (p_CLI = '' OR cli LIKE REPLACE(p_CLI, '*', '%'))	
 				AND (p_CLD = '' OR cld LIKE REPLACE(p_CLD, '*', '%'))	
 				AND (p_zerovaluecost = 0 OR ( p_zerovaluecost = 1 AND cost = 0) OR ( p_zerovaluecost = 2 AND cost > 0))

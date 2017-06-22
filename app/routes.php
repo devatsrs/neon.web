@@ -46,6 +46,9 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/customer/PaymentMethodProfiles/{id}/set_default', 'PaymentProfileCustomerController@set_default');
     Route::any('/customer/PaymentMethodProfiles/{id}/card_status/{active_deactive}', array('as' => 'payment_rules', 'uses' => 'PaymentProfileCustomerController@card_active_deactive'))->where('active_deactive', '(active|deactive)');
 
+	//notice board
+	Route::any('customer/noticeboard', 'NoticeBoardCustomerController@index');
+	Route::any('customer/get_next_update/{id}', 'NoticeBoardCustomerController@get_next_update');
 	//cdr
 
 	Route::any('customer/cdr', 'CDRCustomerController@index');
@@ -310,6 +313,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/account/getAccountInfoFromQuickbook',  'ImportsController@getAccountInfoFromQuickbook');
 	Route::any('/import/account/ajax_get_missing_quickbookaccounts',  'ImportsController@ajax_get_missing_quickbookaccounts');
 	Route::any('/import/account/add_missing_quickbookaccounts',  'ImportsController@add_missing_quickbookaccounts');
+
+	//import ips
+	Route::any('/import/ips',  'ImportsController@import_ips');
+	Route::any('/import/ips_download_sample_excel_file',  'ImportsController@ips_download_sample_excel_file');
+	Route::any('/import/ips_check_upload',  'ImportsController@ips_check_upload');
+	Route::any('/import/ips_ajaxfilegrid',  'ImportsController@ips_ajaxfilegrid');
+	Route::any('/import/ips_storeTemplate',  'ImportsController@ips_storeTemplate');
 
 	//import leads
 	Route::any('/import/leads',  'ImportsController@import_leads');
@@ -939,7 +949,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
     Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
 	Route::any('/invoice/invoice_quickbookpost', 'InvoicesController@invoice_quickbookpost');
-
+	Route::any('/get_unbill_report/{id}', 'InvoicesController@get_unbill_report');
+	Route::any('/generate_manual_invoice', 'InvoicesController@generate_manual_invoice');
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');
@@ -1235,6 +1246,12 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('accountservices/{id}/search_accounts_grid', 'AccountServiceController@search_accounts_grid');
 	Route::any('accountservices/{id}/bulk_change_status', 'AccountServiceController@bulk_change_status');
 	Route::any('accountservices/{id}/bulk_delete', 'AccountServiceController@bulk_delete');
+
+	//noticeboard
+	Route::any('/noticeboard', 'NoticeBoardController@index');
+	Route::any('/get_mor_updates', 'NoticeBoardController@get_mor_updates');
+	Route::any('/save_post', 'NoticeBoardController@store');
+	Route::any('/delete_post/{id}', 'NoticeBoardController@delete');
 });
 
 Route::group(array('before' => 'global_admin'), function () {
@@ -1298,6 +1315,10 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
     Route::any('/paypal_ipn/{id}', 'InvoicesController@paypal_ipn'); //Payment response by paypal.
     Route::any('/paypal_cancel/{id}', 'InvoicesController@paypal_cancel'); //Payment response by paypal.
+
+	Route::any('/sagepay_ipn', 'InvoicesController@sagepay_ipn'); //Payment response by sagepay.
+	Route::any('/sagepay_declined', 'InvoicesController@sagepay_declined'); //Payment declined.
+	Route::any('/sagepay_return', 'InvoicesController@sagepay_return'); //Payment declined.
 
 	#estimate
 	Route::any('/estimate/{id}/cview', 'EstimatesController@cview'); //Customer View

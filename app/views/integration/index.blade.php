@@ -371,6 +371,49 @@
             </div>
         </div>
       <!-- stripe end -->
+      <!-- SagePay start -->
+        <?php
+        $SagePayDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$SagePaySlug);
+        $SagePayData   = isset($SagePayDbData->Settings)?json_decode($SagePayDbData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$SagePayDbData->Slug}}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Service Key:</label>
+                        <input type="text"  class="form-control" name="ServiceKey" value="{{isset($SagePayData->ServiceKey)?$SagePayData->ServiceKey:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Software Vendor Key:</label>
+                        <input type="text"  class="form-control" name="SoftwareVendorKey" value="{{isset($SagePayData->SoftwareVendorKey)?$SagePayData->SoftwareVendorKey:''}}" placeholder="94cdf2e6-f2e7-4c91-ad34-da5684bfbd6f" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Live:</label>
+                        <div id="SagePayLiveDiv">
+                            <input id="isLive" class="subcatstatus" Divid="SagePayLiveDiv" name="isLive" type="checkbox" value="1" <?php if(isset($SagePayDbData->isLive) && $SagePayDbData->isLive==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Active:
+                            <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Enabling this will deactivate all other Payment categories" data-original-title="Status" class="label label-info popover-primary">?</span>
+                        </label>
+                        <div id="SagePayStatusDiv">
+                            <input id="SagePayStatus" class="subcatstatus" Divid="SagePayStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($SagePayDbData->Status) && $SagePayDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+      <!-- SagePay end -->
       <!-- Mandril start -->
        <?php 
 	   		$ManrdilDbData   = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$mandrillSlug);
