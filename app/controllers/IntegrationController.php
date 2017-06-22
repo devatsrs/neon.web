@@ -232,6 +232,49 @@ class IntegrationController extends \BaseController
 				}
 				return Response::json(array("status" => "success", "message" => "Stripe Settings Successfully Updated"));
 			}
+
+			if($data['secondcategory']=='SagePay')
+			{
+				$rules = array(
+					'ServiceKey'	 => 'required',
+					'SoftwareVendorKey'	 => 'required',
+					'isLive'	 => 'required',
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['Status'] 		= 	isset($data['Status'])?1:0;
+
+				if($data['Status']==1){ //disable all other payment subcategories
+					$status =	array("Status"=>0);
+					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
+				}
+
+				$SagePayData = array(
+					"ServiceKey"=>$data['ServiceKey'],
+					"SoftwareVendorKey"=>$data['SoftwareVendorKey'],
+					"isLive"=>$data['isLive']
+				);
+
+				$SagePayDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($SagePayDbData)>0)
+				{
+					$SaveData = array("Settings"=>json_encode($SagePayData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$SagePayDbData->IntegrationConfigurationID))->update($SaveData);
+
+				}
+				else
+				{
+					$SaveData = array("Settings"=>json_encode($SagePayData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "SagePay Settings Successfully Updated"));
+			}
 		}
 		
 		if($data['firstcategory']=='email') {

@@ -6,13 +6,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_InsertTempReRateCDR`(
 	IN `p_AccountID` INT,
 	IN `p_ProcessID` VARCHAR(50),
 	IN `p_tbltempusagedetail_name` VARCHAR(50),
-	IN `p_CDRType` CHAR(1),
+	IN `p_CDRType` VARCHAR(50),
 	IN `p_CLI` VARCHAR(50),
 	IN `p_CLD` VARCHAR(50),
 	IN `p_zerovaluecost` INT,
 	IN `p_CurrencyID` INT,
 	IN `p_area_prefix` VARCHAR(50),
-	IN `p_trunk` VARCHAR(50)
+	IN `p_trunk` VARCHAR(50),
+	IN `p_RateMethod` VARCHAR(50)
 )
 BEGIN
 	DECLARE v_BillingTime_ INT;
@@ -28,12 +29,14 @@ BEGIN
 		CompanyID,
 		CompanyGatewayID,
 		GatewayAccountID,
+		GatewayAccountPKID,
 		AccountID,
 		ServiceID,
 		connect_time,
 		disconnect_time,
 		billed_duration,
 		area_prefix,
+		trunk,
 		pincode,
 		extension,
 		cli,
@@ -41,26 +44,44 @@ BEGIN
 		cost,
 		remote_ip,
 		duration,
-		trunk,
 		ProcessID,
 		ID,
 		is_inbound,
 		billed_second,
-		disposition
+		disposition,
+		userfield,
+		AccountName,
+		AccountNumber,
+		AccountCLI,
+		AccountIP
 	)
 
 	SELECT
 	*
 	FROM (SELECT
 		uh.CompanyID,
-		CompanyGatewayID,
-		GatewayAccountID,
+		uh.CompanyGatewayID,
+		uh.GatewayAccountID,
+		uh.GatewayAccountPKID,
 		uh.AccountID,
 		uh.ServiceID,
 		connect_time,
 		disconnect_time,
 		billed_duration,
-		"Other" as area_prefix,
+		CASE WHEN   "' , p_RateMethod , '" = "SpecifyRate"
+		THEN 
+			area_prefix
+		ELSE
+			"Other" 
+		END
+		AS area_prefix,
+		CASE WHEN   "' , p_RateMethod , '" = "SpecifyRate"
+		THEN 
+			trunk
+		ELSE
+			"Other" 
+		END
+		AS trunk,		
 		pincode,
 		extension,
 		cli,
@@ -68,25 +89,31 @@ BEGIN
 		cost,
 		remote_ip,
 		duration,
-		"Other" as trunk,
 		"',p_ProcessID,'",
 		ID,
 		is_inbound,
 		billed_second,
-		disposition
+		disposition,
+		userfield,
+		IFNULL(ga.AccountName,""),
+		IFNULL(ga.AccountNumber,""),
+		IFNULL(ga.AccountCLI,""),
+		IFNULL(ga.AccountIP,"")
 	FROM NeonCDRDev.tblUsageDetails  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	INNER JOIN NeonRMDev.tblAccount a
 		ON uh.AccountID = a.AccountID
+	LEFT JOIN tblGatewayAccount ga
+		ON ga.GatewayAccountPKID = uh.GatewayAccountPKID
 	WHERE
-	( "' , p_CDRType , '" = "" OR  ud.is_inbound =  "' , p_CDRType , '")
+	( "' , p_CDRType , '" = "" OR  ud.userfield LIKE  CONCAT("%","' , p_CDRType , '","%"))
 	AND  StartDate >= DATE_ADD( "' , p_StartDate , '",INTERVAL -1 DAY)
 	AND StartDate <= DATE_ADD( "' , p_EndDate , '",INTERVAL 1 DAY)
 	AND uh.CompanyID =  "' , p_CompanyID , '"
 	AND uh.AccountID is not null
 	AND ( "' , p_AccountID , '" = 0 OR uh.AccountID = "' , p_AccountID , '")
-	AND ( "' , p_CompanyGatewayID , '" = 0 OR CompanyGatewayID = "' , p_CompanyGatewayID , '")
+	AND ( "' , p_CompanyGatewayID , '" = 0 OR uh.CompanyGatewayID = "' , p_CompanyGatewayID , '")
 	AND ( "' , p_CurrencyID ,'" = "0" OR a.CurrencyId = "' , p_CurrencyID , '")
 	AND ( "' , p_CLI , '" = "" OR cli LIKE REPLACE("' , p_CLI , '", "*", "%"))	
 	AND ( "' , p_CLD , '" = "" OR cld LIKE REPLACE("' , p_CLD , '", "*", "%"))

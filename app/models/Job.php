@@ -606,6 +606,109 @@ class Job extends \Eloquent {
                 }
 
                 break;
+            case 'ICU':
+                /*
+                 *  Ip Upload  Job Log
+                 */
+                $rules = array(
+                    'CompanyID' => 'required',
+                    'JobTypeID' => 'required',
+                    'JobStatusID' => 'required',
+                    'JobLoggedUserID' => 'required',
+                    'Title' => 'required',
+                    'CreatedBy' => 'required',
+                );
+
+                $jobType = JobType::where(["Code" => $JobType])->get(["JobTypeID", "Title"]);
+                $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+
+                $CompanyID = User::get_companyID();
+                $options["CompanyID"] = $CompanyID;
+                $data["CompanyID"] = $CompanyID;
+                $data["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+                $data["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+                $data["JobLoggedUserID"] = User::get_userID();
+                $data["Title"] = 'IP Upload';
+                $data["Description"] = ' ' . isset($jobType[0]->Title) ? $jobType[0]->Title : '';
+                $data["CreatedBy"] = User::get_user_full_name();
+                $data["updated_at"] = date('Y-m-d H:i:s');
+                $data["created_at"] = date('Y-m-d H:i:s');
+
+                $validator = Validator::make($data, $rules);
+
+                if ($validator->fails()) {
+                    return validator_response($validator);
+                }
+
+                /*
+                 * Double check if file is uploaded correctly before loging job
+                 * */
+
+                $rules = array(
+                    'FileName' => 'required',
+                    'FilePath' => 'required',
+                    'HttpPath' => 'required',
+                    'Options' => 'required',
+                    'CreatedBy' => 'required',
+                );
+
+                $JobFile_data_  = array();
+                $JobFile_data_["FileName"] = basename($options["full_path"]);
+                $JobFile_data_["FilePath"] = $options["full_path"];
+                $JobFile_data_["HttpPath"] = 0;
+                $JobFile_data_["Options"] =  json_encode(self::removeUnnecesorryOptions($JobType,$options) );
+                $JobFile_data_["CreatedBy"] = User::get_user_full_name();
+                $JobFile_data_["created_at"] = date('Y-m-d H:i:s');
+                $JobFile_data_["updated_at"] = date('Y-m-d H:i:s');
+
+                $validator = Validator::make($JobFile_data_, $rules);
+                if ($validator->fails()) {
+                    return validator_response($validator);
+                }
+                /*
+                  Job Insers Here
+                 */
+
+                if ($JobID = Job::insertGetId($data)) {
+
+
+                    /*
+                     * JobFile Insers here
+                     */
+                    $rules = array(
+                        'JobID' => 'required',
+                        'FileName' => 'required',
+                        'FilePath' => 'required',
+                        'HttpPath' => 'required',
+                        'Options' => 'required',
+                        'CreatedBy' => 'required',
+                    );
+
+                    $data = array();
+                    $data["JobID"] = $JobID;
+                    $data["FileName"] = basename($options["full_path"]);
+                    $data["FilePath"] = $options["full_path"];//(is_file($options["full_path"]) && file_exists($options["full_path"]))?$options["full_path"]:'';
+                    $data["HttpPath"] = 0;
+                    $data["Options"] =  json_encode(self::removeUnnecesorryOptions($jobType,$options) );
+                    $data["CreatedBy"] = User::get_user_full_name();
+                    $data["created_at"] = date('Y-m-d H:i:s');
+                    $data["updated_at"] = date('Y-m-d H:i:s');
+
+                    $validator = Validator::make($data, $rules);
+
+                    if ($validator->fails()) {
+                        return validator_response($validator);
+                    }
+                    if ($JobFileID = JobFile::insertGetId($data)) {
+                        return array("status" => "success", "message" => "Job Logged Successfully");
+                    } else {
+                        return array("status" => "failed", "message" => "JobFile Insertion Error");
+                    }
+                } else {
+                    return array("status" => "failed", "message" => "Problem Inserting Job.");
+                }
+
+                break;
             case 'MGA':
                 /*
                  *  Import/upload account  Job Log

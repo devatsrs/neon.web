@@ -72,6 +72,17 @@ class Account extends \Eloquent {
         'selection.LastName.required' =>'The Last Name field is required'
     );
 
+    public static $billingrules = array(
+
+    );
+    public static $billingmessages = array(
+        'BillingClassID.required' =>'Billing Class field is required',
+        'BillingType.required' =>'Billing Type field is required',
+        'BillingTimezone.required' =>'Billing Timezone field is required',
+        'BillingStartDate.required' =>'Billing Start Date field is required',
+        'BillingCycleType.required' =>'Billing Cycle field is required',
+        'BillingCycleValue.required' =>'Billing Cycle Value field is required',
+    );
     public static function getCompanyNameByID($id=0){
 
         return $AccountName = Account::where(["AccountID"=>$id])->pluck('AccountName');
@@ -225,6 +236,7 @@ class Account extends \Eloquent {
     // ignore item invoice
     public static function getInvoiceCount($AccountID){
         return (int)Invoice::where(array('AccountID'=>$AccountID))
+            ->where('InvoiceStatus','!=',Invoice::CANCEL)
             ->Where(function($query)
             {
                 $query->whereNull('ItemInvoice')
@@ -394,13 +406,25 @@ class Account extends \Eloquent {
         return  Account::where(["AccountName"=>$Name,"CompanyID" => $companyID])->pluck('AccountID');
     }
 
-    public static function getVendorLastInvoiceDate($AccountID){
-        $LastInvoiceDate = '';
-        $invoiceDetail =   Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')->where(array('AccountID'=>$AccountID,'InvoiceType'=>Invoice::INVOICE_IN))->orderBy('IssueDate','DESC')->limit(1)->first(['EndDate']);
+    public static function getVendorLastInvoiceDate($AccountBilling,$account){
+        $invoiceDetail =   Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')->where(array('AccountID'=>$account->AccountID,'InvoiceType'=>Invoice::INVOICE_IN))->orderBy('IssueDate','DESC')->limit(1)->first(['EndDate']);
         if(!empty($invoiceDetail)){
             $LastInvoiceDate = $invoiceDetail->EndDate;
+        }else if(!empty($AccountBilling->BillingStartDate)) {
+            $LastInvoiceDate = $AccountBilling->BillingStartDate;
         }else{
-            $account = Account::find($AccountID);
+            $LastInvoiceDate = date('Y-m-d',strtotime($account->created_at));
+        }
+
+        return $LastInvoiceDate;
+
+    }
+    public static function getCustomerLastInvoiceDate($AccountBilling,$account){
+        if(!empty($AccountBilling->LastInvoiceDate)){
+            $LastInvoiceDate = $AccountBilling->LastInvoiceDate;
+        }else if(!empty($AccountBilling->BillingStartDate)) {
+            $LastInvoiceDate = $AccountBilling->BillingStartDate;
+        }else{
             $LastInvoiceDate = date('Y-m-d',strtotime($account->created_at));
         }
         return $LastInvoiceDate;

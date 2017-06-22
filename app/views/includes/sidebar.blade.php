@@ -132,7 +132,8 @@
     User::checkCategoryPermission('Payments','View') || User::checkCategoryPermission('AccountStatement','All') ||
     User::checkCategoryPermission('Products','View') || User::checkCategoryPermission('InvoiceTemplates','View') ||
     User::checkCategoryPermission('TaxRates','View') || User::checkCategoryPermission('CDR','Upload') || User::checkCategoryPermission('CDR','View')  ||
-    User::checkCategoryPermission('Disputes','View') || User::checkCategoryPermission('Service','View'))
+    User::checkCategoryPermission('Disputes','View') || User::checkCategoryPermission('Service','View') || User::checkCategoryPermission('BillingDashboard','All') ||
+    User::checkCategoryPermission('BillingClass','View') || User::checkCategoryPermission('DiscountPlan','View'))
     <li class="{{check_uri('Billing')}}"> <a href="#"> <i class="fa fa-credit-card" ></i> <span>Billing</span> </a>
       <ul>
         @if(User::checkCategoryPermission('BillingDashboard','All'))
@@ -255,6 +256,9 @@
          @if( User::checkCategoryPermission('EmailTemplate','View'))
         <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
     	@endif
+          @if( User::checkCategoryPermission('NoticeBoardPost','View'))
+            <li> <a href="{{URL::to('/noticeboard')}}">  <span>Notice Board</span> </a> </li>
+          @endif
          @if( User::checkCategoryPermission('ServerInfo','View'))
         <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif

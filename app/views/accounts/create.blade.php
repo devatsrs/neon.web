@@ -263,13 +263,13 @@
                         </div>
                         <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
                         <div class="col-md-4">
-                            {{Form::text('BillingStartDate','',array('class'=>'form-control datepicker',"data-date-format"=>"yyyy-mm-dd"))}}
+                            {{Form::text('BillingStartDate','',array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="field-1" class="col-md-2 control-label">Billing Cycle*</label>
                         <div class="col-md-4">
-                            {{Form::select('BillingCycleType', SortBillingType(), '' ,array("class"=>"form-control select2"))}}
+                            {{Form::select('BillingCycleType', SortBillingType(1), '' ,array("class"=>"form-control select2"))}}
                         </div>
                         <div id="billing_cycle_weekly" class="billing_options" style="display: none">
                             <label for="field-1" class="col-md-2 control-label">Billing Cycle - Start of Day*</label>
@@ -331,6 +331,7 @@
             var selection = $(this).val();
             $(".billing_options input, .billing_options select").attr("disabled", "disabled");// This is to avoid not posting same name hidden elements
             $(".billing_options").hide();
+            $(".billing_start_date").removeAttr('readonly');
             console.log(selection);
             switch (selection){
                 case "weekly":
@@ -349,6 +350,9 @@
                         $("#billing_cycle_subscription").show();
                         $("#billing_cycle_subscription input").removeAttr("disabled");
                         break;
+                case "manual":
+                    $(".billing_start_date").attr('readonly','true');
+                    break;
             }
         });
 

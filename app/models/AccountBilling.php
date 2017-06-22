@@ -54,9 +54,13 @@ class AccountBilling extends \Eloquent {
             $AccountBilling['ServiceID'] = $ServiceID;
             AccountBilling::create($AccountBilling);
         }else{
-            if(AccountDiscountPlan::checkDiscountPlan($AccountID) > 0 || $invoice_count > 0) {
+            $AccountBillingObj =  AccountBilling::getBilling($AccountID,$ServiceID);
+            if($AccountBillingObj->BillingCycleType != 'manual' && $data['BillingCycleType'] != 'manual' && (AccountDiscountPlan::checkDiscountPlan($AccountID) > 0 || $invoice_count > 0)) {
                 AccountNextBilling::insertUpdateBilling($AccountID, $data, $ServiceID);
             }else{
+                if($data['BillingCycleType'] == 'manual') {
+                    AccountNextBilling::where(array('AccountID' => $AccountID, 'ServiceID' => $ServiceID))->delete();
+                }
                 $AccountBilling['BillingCycleType'] = $data['BillingCycleType'];
                 if (!empty($data['BillingStartDate'])) {
                     $AccountBilling['BillingStartDate'] = $data['BillingStartDate'];
@@ -76,8 +80,10 @@ class AccountBilling extends \Eloquent {
                 } else if (!empty($AccountBilling['BillingStartDate'])) {
                     $BillingStartDate = strtotime($AccountBilling['BillingStartDate']);
                 }
-                if (!empty($BillingStartDate)) {
+                if (!empty($BillingStartDate) && $data['BillingCycleType'] != 'manual') {
                     $AccountBilling['NextInvoiceDate'] = next_billing_date($AccountBilling['BillingCycleType'], $AccountBilling['BillingCycleValue'], $BillingStartDate);
+                }else if($data['BillingCycleType'] == 'manual'){
+                    $AccountBilling['NextInvoiceDate'] = null;
                 }
 
             }

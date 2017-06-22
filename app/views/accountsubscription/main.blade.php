@@ -62,7 +62,7 @@
       <th width="5%">Weekly Fee</th>
       <th width="10%">Monthly Fee</th>
       <th width="10%">Quarterly Fee</th>
-      <th width="10%">Annually Fee</th>
+      <th width="10%">Yearly Fee</th>
       <th width="20%">Action</th>
     </tr>
   </thead>
@@ -159,7 +159,7 @@
 						{  "bSortable": true },  // 2 Name
 						{                          // InvoiceDescription
                            "bSortable": true,
-                            mRender: function ( id, type, full ) {return '....';}
+                            mRender: function ( id, type, full ) {return id.length > 50 ? (id.substring(0,50)+' ...'):id}							
                           },  // 2 InvoiceDescription
                         {  "bSortable": true },  // 3 Qty
                         {  "bSortable": true },  // 4 StartDate
@@ -495,7 +495,7 @@
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <label for="AnnuallyFee" class="control-label">Annually Fee</label>
+                <label for="AnnuallyFee" class="control-label">Yearly Fee</label>
                 <input type="text" name="AnnuallyFee" class="form-control"   maxlength="10" id="AnnuallyFee" placeholder="" value="" />
               </div>
             </div>
@@ -625,7 +625,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="AnnuallyFee" class="control-label">Annually Fee</label>
+                                <label for="AnnuallyFee" class="control-label">Yearly Fee</label>
                                 <input type="text" name="AnnuallyFee" class="form-control"   maxlength="10" id="AnnuallyFee" placeholder="" value="" />
                             </div>
                         </div>

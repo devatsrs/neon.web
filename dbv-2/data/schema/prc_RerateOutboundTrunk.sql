@@ -135,7 +135,7 @@ BEGIN
 		/* outbound rerate process*/
 		IF p_RateCDR = 1
 		THEN
-			CALL prc_updateOutboundRate(v_AccountID_,v_TrunkID_, p_processId, p_tbltempusagedetail_name,0);
+			CALL prc_updateOutboundRate(v_AccountID_,v_TrunkID_, p_processId, p_tbltempusagedetail_name,0,p_RateMethod,p_SpecifyRate);
 		END IF;
 
 		SET v_pointer_ = v_pointer_ + 1;

@@ -18,6 +18,7 @@ CREATE TABLE `tblUsageDetailFailedCall` (
   `is_inbound` tinyint(1) DEFAULT '0',
   `billed_second` int(11) DEFAULT NULL,
   `disposition` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `userfield` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`UsageDetailFailedCallID`),
   KEY `IX_ID` (`ID`),
   KEY `IX_UsageHeaderID` (`UsageHeaderID`),

@@ -19,10 +19,10 @@ class AccountBalance extends \Eloquent {
         $InvoiceInAmountTotal = $result['data']['InvoiceInAmountTotal'];
         $PaymentOutAmountTotal = $result['data']['PaymentOutAmountTotal'];
 
-        $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]->InvoiceOutAmountTotal > 0) ? $InvoiceOutAmountTotal[0]->InvoiceOutAmountTotal : 0;
-        $PaymentInAmountTotal = ($PaymentInAmountTotal[0]->PaymentInAmountTotal > 0) ? $PaymentInAmountTotal[0]->PaymentInAmountTotal : 0;
-        $InvoiceInAmountTotal = ($InvoiceInAmountTotal[0]->InvoiceInAmountTotal > 0) ? $InvoiceInAmountTotal[0]->InvoiceInAmountTotal : 0;
-        $PaymentOutAmountTotal = ($PaymentOutAmountTotal[0]->PaymentOutAmountTotal > 0) ? $PaymentOutAmountTotal[0]->PaymentOutAmountTotal : 0;
+        $InvoiceOutAmountTotal = ($InvoiceOutAmountTotal[0]->InvoiceOutAmountTotal <> 0) ? $InvoiceOutAmountTotal[0]->InvoiceOutAmountTotal : 0;
+        $PaymentInAmountTotal = ($PaymentInAmountTotal[0]->PaymentInAmountTotal <> 0) ? $PaymentInAmountTotal[0]->PaymentInAmountTotal : 0;
+        $InvoiceInAmountTotal = ($InvoiceInAmountTotal[0]->InvoiceInAmountTotal <> 0) ? $InvoiceInAmountTotal[0]->InvoiceInAmountTotal : 0;
+        $PaymentOutAmountTotal = ($PaymentOutAmountTotal[0]->PaymentOutAmountTotal <> 0) ? $PaymentOutAmountTotal[0]->PaymentOutAmountTotal : 0;
 
         $OffsetBalance = ($InvoiceOutAmountTotal - $PaymentInAmountTotal) - ($InvoiceInAmountTotal - $PaymentOutAmountTotal);
 

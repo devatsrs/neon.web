@@ -6,7 +6,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         "assets/js/jquery-ui/css/no-theme/jquery-ui-1.10.3.custom.min.css",
         "/assets/css/font-icons/entypo/css/entypo.css",
             "assets/css/font-icons/font-awesome/css/font-awesome.css",
-        "http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic",
+        "https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic",
 		// Dashboard
         "assets/js/rickshaw/rickshaw.min.css",
         "/assets/css/bootstrap.css",
@@ -22,7 +22,7 @@ if ( Request::is('/') || Request::is('login') || Request::is('forgot_password') 
         "assets/js/jquery-ui/css/no-theme/jquery-ui-1.10.3.custom.min.css",
         "assets/css/font-icons/entypo/css/entypo.css",
             "assets/css/font-icons/font-awesome/css/font-awesome.css",
-        "http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic",
+        "https://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic",
         "assets/css/bootstrap.css",
         "assets/css/neon-core.css",
         "assets/css/neon-theme.css",

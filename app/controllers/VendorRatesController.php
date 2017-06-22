@@ -793,7 +793,7 @@ class VendorRatesController extends \BaseController
     }
 
     public function vendordownloadtype($id,$type){
-        if($type=='Vos 3.2'){
+        if($type==RateSheetFormate::RATESHEET_FORMAT_VOS32 || $type==RateSheetFormate::RATESHEET_FORMAT_VOS20){
             $downloadtype = '<option value="">Select</option><option value="txt">TXT</option>';
         }else{
             $downloadtype = '<option value="">Select</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';

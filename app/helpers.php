@@ -485,6 +485,15 @@ function is_paypal(){
     return false;
 }
 
+function is_sagepay(){
+
+    $sagepay = new SagePay();
+    if($sagepay->status){
+        return true;
+    }
+    return false;
+}
+
 
 function get_image_data($path){
     $type = pathinfo($path, PATHINFO_EXTENSION);
@@ -961,9 +970,14 @@ function formatSmallDate($date,$dateformat='d-m-y') {
     return $datetime;
 }
 
-function SortBillingType(){
+function SortBillingType($account=0){
     ksort(Company::$BillingCycleType);
-    return Company::$BillingCycleType;
+    ksort(Company::$BillingCycleType2);
+    if($account == 0) {
+        return Company::$BillingCycleType;
+    }else{
+        return Company::$BillingCycleType2;
+    }
 }
 function getUploadedFileRealPath($files)
 {
@@ -1094,7 +1108,7 @@ function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
     $path_array 	  =    explode("Controller",$Path);
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup","DialString");
-    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention");  
+    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention","NoticeBoard");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
 	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours","TicketImportRules");
@@ -2097,7 +2111,7 @@ function get_ticket_status_date_array($result_data) {
     $sla_timer = true;
     $status				=	TicketsTable::getTicketStatusByID($result_data->Status);
 
-    if (in_array($result_data->Status, array_keys( TicketsTable::getTicketStatusOnHold() ) )) {  // SLATimer=off
+    if (in_array($result_data->Status, array_keys( TicketsTable::getTicketStatusWithSLAOff() ) )) {  // SLATimer=off
         $sla_timer = false;
     }
     $due = $overdue = false ;
@@ -2149,7 +2163,7 @@ function get_ticket_response_due_label($result_data) {
         return '<div class="label label-danger">'.strtoupper(TicketfieldsValues::$Status_Resolved).'</div>';
     }else {
 
-        $TicketStatusOnHold = TicketsTable::getTicketStatusOnHold();
+        $TicketStatusOnHold = TicketsTable::getTicketStatusWithSLAOff();
 
         if (in_array($result_data->Status,array_keys($TicketStatusOnHold))) {  // SLATimer=off
             $output = '<div class="label label-warning">'.strtoupper($TicketStatusOnHold[$result_data->Status]).'</div>';

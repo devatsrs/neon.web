@@ -87,10 +87,10 @@ var postdata;
                         action += '&nbsp;<a  href="'+ view_url +'?Type=1" data-name = "'+full[0]+'" data-id="'+ id +'" data-original-title="Periodic View" title="" data-placement="top" data-toggle="tooltip" class="view-invoice_template btn btn-default btn-sm tooltip-primary"><i class="entypo-calendar"></i></a>';
                         action += '&nbsp;<a  href="'+ view_url +'?Type=3" data-name = "'+full[0]+'" data-id="'+ id +'" data-original-title="Usage Column" title="" data-placement="top" data-toggle="tooltip" class="view-invoice_template btn btn-default btn-sm tooltip-primary"><i class="entypo-doc-text"></i></a>';
                         <?php if(User::checkCategoryPermission('InvoiceTemplates','Edit') ){ ?>
-                                action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-invoice_template btn btn-default btn-sm" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip" ><i class="fa fa-pencil"></i></a>';
+                                action += ' <a data-name = "'+full[0]+'" data-id="'+ id +'" class="edit-invoice_template btn btn-default btn-sm" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip" ><i class="entypo-pencil"></i></a>';
                         <?php } ?>
                                 <?php if(User::checkCategoryPermission('InvoiceTemplates','Delete') ){ ?>
-                                action += '&nbsp;<a data-id="'+ id +'" class="delete-invoice_template btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" ><i class="fa fa-trash"></i></a>';
+                                action += '&nbsp;<a data-id="'+ id +'" class="delete-invoice_template btn btn-danger btn-sm tooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip" ><i class="entypo-trash"></i></a>';
                         <?php } ?>
 
                         return action;
@@ -363,7 +363,7 @@ function ajax_update(fullurl,data){
                             <label class="col-sm-2 control-label">Group By Service</label>
                             <div class="col-sm-4">
                                 <p class="make-switch switch-small">
-                                    <input type="checkbox" checked=""  name="GroupByService" value="0">
+                                    <input type="checkbox" name="GroupByService" value="0">
                                 </p>
                             </div>
                             <label class="col-sm-4 control-label">Split Services on separate pages
