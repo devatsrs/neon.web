@@ -74,7 +74,7 @@
             </div>
         </div>
         </br>
-        <table id="table-clitable" class="table table-bordered datatable">
+        <table id="table-clitable" class="table table-bordered datatable table-clitable">
             <thead>
             <tr>
                 <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
