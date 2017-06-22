@@ -236,6 +236,7 @@ class Account extends \Eloquent {
     // ignore item invoice
     public static function getInvoiceCount($AccountID){
         return (int)Invoice::where(array('AccountID'=>$AccountID))
+            ->where('InvoiceStatus','!=',Invoice::CANCEL)
             ->Where(function($query)
             {
                 $query->whereNull('ItemInvoice')

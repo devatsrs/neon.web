@@ -21,10 +21,16 @@ class AccountNextBilling extends \Eloquent {
             } else {
                 $AccountNextBilling['BillingCycleValue'] = '';
             }
-            $AccountNextBilling['LastInvoiceDate'] = $AccountBilling->NextInvoiceDate;
+            if($AccountBilling->BillingCycleType == 'manual'){
+                $AccountNextBilling['LastInvoiceDate'] = $AccountBilling->LastInvoiceDate;
+            }else{
+                $AccountNextBilling['LastInvoiceDate'] = $AccountBilling->NextInvoiceDate;
+            }
             $BillingStartDate = strtotime($AccountNextBilling['LastInvoiceDate']);
-            if (!empty($BillingStartDate)) {
+            if (!empty($BillingStartDate) && $data['BillingCycleType'] != 'manual') {
                 $AccountNextBilling['NextInvoiceDate'] = next_billing_date($AccountNextBilling['BillingCycleType'], $AccountNextBilling['BillingCycleValue'], $BillingStartDate);
+            }else if($data['BillingCycleType'] == 'manual'){
+                $AccountNextBilling['NextInvoiceDate'] = null;
             }
             if (AccountNextBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->count()) {
                 AccountNextBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->update($AccountNextBilling);
@@ -33,7 +39,9 @@ class AccountNextBilling extends \Eloquent {
                 $AccountNextBilling['ServiceID'] = $ServiceID;
                 AccountNextBilling::create($AccountNextBilling);
             }
-            AccountBilling::storeNextInvoicePeriod($AccountID,$AccountNextBilling['BillingCycleType'],$AccountNextBilling['BillingCycleValue'],$AccountNextBilling['LastInvoiceDate'],$AccountNextBilling['NextInvoiceDate'],$ServiceID);
+            if($data['BillingCycleType'] != 'manual') {
+                AccountBilling::storeNextInvoicePeriod($AccountID, $AccountNextBilling['BillingCycleType'], $AccountNextBilling['BillingCycleValue'], $AccountNextBilling['LastInvoiceDate'], $AccountNextBilling['NextInvoiceDate'], $ServiceID);
+            }
         }else{
             AccountNextBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->delete();
         }

@@ -173,14 +173,17 @@ class AccountsController extends \BaseController {
             }
             $data['Number'] = trim($data['Number']);
         unset($data['DataTables_Table_0_length']);
+        $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
-            Account::$rules['BillingStartDate'] = 'required';
-			Account::$rules['BillingClassID'] = 'required';
+            Account::$rules['BillingClassID'] = 'required';
             if(isset($data['BillingCycleValue'])){
                 Account::$rules['BillingCycleValue'] = 'required';
+            }
+            if($ManualBilling ==0) {
+                Account::$rules['BillingStartDate'] = 'required';
             }
         }
 
@@ -196,7 +199,9 @@ class AccountsController extends \BaseController {
             if ($account = Account::create($data)) {
                 if($data['Billing'] == 1) {
                     AccountBilling::insertUpdateBilling($account->AccountID, $data,$ServiceID);
-                    AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID,$ServiceID);
+                    if($ManualBilling ==0) {
+                        AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, $ServiceID);
+                    }
                 }
 
                 if (trim(Input::get('Number')) == '') {
@@ -433,6 +438,9 @@ class AccountsController extends \BaseController {
         }
         if(isset($AccountBilling->BillingCycleType)){
             $hiden_class= 'hidden';
+            if(empty($AccountBilling->BillingStartDate)){
+                $AccountBilling->BillingStartDate = $AccountBilling->LastInvoiceDate;
+            }
         }
 
         return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class'));
@@ -498,15 +506,17 @@ class AccountsController extends \BaseController {
             }
         }
         $data['Number'] = trim($data['Number']);
-
+        $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
             Account::$rules['BillingType'] = 'required';
             Account::$rules['BillingTimezone'] = 'required';
             Account::$rules['BillingCycleType'] = 'required';
-            Account::$rules['BillingStartDate'] = 'required';
-			Account::$rules['BillingClassID'] = 'required';
+            Account::$rules['BillingClassID'] = 'required';
             if(isset($data['BillingCycleValue'])){
                 Account::$rules['BillingCycleValue'] = 'required';
+            }
+            if($ManualBilling == 0){
+                Account::$rules['BillingStartDate'] = 'required';
             }
         }
 
@@ -526,7 +536,9 @@ class AccountsController extends \BaseController {
         if ($account->update($data)) {
             if($data['Billing'] == 1) {
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
-                AccountBilling::storeFirstTimeInvoicePeriod($id,$ServiceID);
+                if($ManualBilling == 0){
+                    AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                }
                 /*
                 $AccountPeriod = AccountBilling::getCurrentPeriod($id, date('Y-m-d'),$ServiceID);
                 if(!empty($AccountPeriod)) {
@@ -1173,8 +1185,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $AccountBilling = AccountBilling::getBilling($id,0);
         $account = Account::find($id);
         $today = date('Y-m-d 23:59:59');
-        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($account,$AccountBilling);
-        $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($account,$AccountBilling);
+        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
+        $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($AccountBilling,$account);
         $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
         $query = "call prc_getUnbilledReport (?,?,?,?,?)";
         $UnbilledResult = DB::connection('neon_report')->select($query,array($companyID,$id,$CustomerLastInvoiceDate,$today,1));
@@ -1370,7 +1382,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         $data = Input::all();
         $update_billing=0;
         $accountbillngdata=0;
-
+        $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
         $ServiceID = 0;
         if(
 		   !isset($data['OwnerCheck']) &&
@@ -1415,10 +1427,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 Account::$billingrules['BillingClassID'] = 'required';
                 Account::$billingrules['BillingType'] = 'required';
                 Account::$billingrules['BillingTimezone'] = 'required';
-                Account::$billingrules['BillingStartDate'] = 'required';
+
                 Account::$billingrules['BillingCycleType'] = 'required';
                 if(isset($data['BillingCycleValue'])){
                     Account::$billingrules['BillingCycleValue'] = 'required';
+                }
+                if($ManualBilling ==0) {
+                    Account::$billingrules['BillingStartDate'] = 'required';
                 }
 
                 $validator = Validator::make($data, Account::$billingrules, Account::$billingmessages);
@@ -1496,7 +1511,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $selectedIDs = explode(',',$data['BulkselectedIDs']);
         }
 
-        $selectedIDs = explode(',',$data['BulkselectedIDs']);		
+        //$selectedIDs = explode(',',$data['BulkselectedIDs']);
         try{
             //Implement loop because boot is triggering for each updated record to log the changes.
             foreach ($selectedIDs as $id)
@@ -1513,19 +1528,14 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 				}
 
                 Account::where(['AccountID'=>$id])->update($update);
-
+                $invoice_count = Account::getInvoiceCount($id);
                 if(isset($data['BillingCheck']) && !empty($billing_on_off)) {
                     \Illuminate\Support\Facades\Log::info('--update billing--');
                     //billing section start
-                    $invoice_count = Account::getInvoiceCount($id);
-                    if ($invoice_count > 0 || AccountDiscountPlan::checkDiscountPlan($id) > 0) {
-                        \Illuminate\Support\Facades\Log::info('--invoice count-- '.$invoice_count);
-                        AccountBilling::insertUpdateBilling($id, $data, $ServiceID, $invoice_count);
-                        AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
-                    } else {
-                        $data['LastInvoiceDate'] = $data['BillingStartDate'];
-                        \Illuminate\Support\Facades\Log::info('--account billing updating-- ');
-                        AccountBilling::insertUpdateBilling($id, $data, $ServiceID);
+
+                    $data['LastInvoiceDate'] = $data['BillingStartDate'];
+                    AccountBilling::insertUpdateBilling($id, $data, $ServiceID, $invoice_count);
+                    if($ManualBilling ==0) {
                         AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
                     }
                     \Illuminate\Support\Facades\Log::info('--update billing over--');
@@ -1534,18 +1544,23 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 if(!empty($update_billing) && $update_billing==1){
                     $count = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->count();
                     if($count>0){
-                        AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
+                        //AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
                         if(!empty($accountbillngdata) && $accountbillngdata==1){
                             $abdata = AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->first();
 
-                            if(empty($billingupdate['BillingStartDate'])){
-                                $billingupdate['BillingStartDate'] = $abdata->BillingStartDate;
-                            }
                             if(empty($billingupdate['BillingCycleType'])){
                                 $billingupdate['BillingCycleType'] = $abdata->BillingCycleType;
                             }
+                            if(empty($billingupdate['BillingCycleValue'])){
+                                $billingupdate['BillingCycleValue'] = $abdata->BillingCycleValue;
+                            }
+                            if(empty($billingupdate['BillingStartDate'])){
+                                $billingupdate['BillingStartDate'] = $abdata->BillingStartDate;
+                            }
                             AccountBilling::insertUpdateBilling($id, $billingupdate, $ServiceID);
-                            AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                            if($ManualBilling ==0) {
+                                AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
+                            }
                         }
                     }
 
@@ -1556,6 +1571,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             }
 			 return Response::json(array("status" => "success", "message" => "Accounts Updated Successfully"));
         }catch (Exception $e) {
+            Log::error($e);
             DB::rollback();
 			return Response::json(array("status" => "error", "message" => $e->getMessage()));
         }
