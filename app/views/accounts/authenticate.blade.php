@@ -325,7 +325,7 @@
         attachchangeevent('vendoriptable');
         attachchangeevent('customeriptable');
         attachchangeevent('vendorclitable');
-        attachchangeevent('customerclitable');
+        attachchangeevent('table-clitable');
 
         if($('#customer_detail select[name="CustomerAuthRule"]').val()=='IP'){
             $('.customer_accountip').removeClass('hidden');
@@ -337,7 +337,7 @@
         }else if($('#vendor_detail select[name="VendorAuthRule"]').val()=='CLI'){
             $('.vendor_accountcli').removeClass('hidden');
         }
-        $('.vendoriptable,.customeriptable,.vendorclitable,.customerclitable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
+        $('.vendoriptable,.customeriptable,.vendorclitable,.table-clitable').DataTable({"aaSorting":[[1, 'asc']],"fnDrawCallback": function() {
             $(".dataTables_wrapper select").select2({
                 minimumResultsForSearch: -1
             });
@@ -349,7 +349,7 @@
                 if ($('#customer_detail select[name="CustomerAuthRule"]').val() != 'IP') {
                     $('.customeriptable').DataTable().fnClearTable();
                 } else if ($('#customer_detail select[name="CustomerAuthRule"]').val() != 'CLI') {
-                    $('.customerclitable').DataTable().fnClearTable();
+                    $('.table-clitable').DataTable().fnClearTable();
                 }
                 post_data = $('#customer_detail').serialize();
             }
@@ -400,7 +400,7 @@
                 $("#addipcli-modal").find('.modal-title').text('Add IP');
                 $("#addipcli-modal").find('.control-label').text('Add IP');
             }else if($(this).hasClass('customer-add-cli')){
-                acountipclitable = 'customerclitable';
+                acountipclitable = 'table-clitable';
                 type = 1; //1 for cli
                 isCustomerOrVendor = 1; //1 for customer
                 $("#addipcli-modal").find('.modal-title').text('Add CLI');
@@ -523,9 +523,9 @@
                 var processing = 'customeriptableprocessing';
                 var selection = 'IP Address';
             }else if($(this).hasClass('customer-delete-cli')){
-                acountipclitable = 'customerclitable';
+                acountipclitable = 'table-clitable';
                 isCustomerOrVendor = 1;
-                var processing = 'customerclitableprocessing';
+                var processing = 'table-clitableprocessing';
                 var selection = 'CLI';
             }
             var SelectedIDs = getselectedIDs(acountipclitable);
@@ -593,7 +593,7 @@
             var class_deletipcli = '';
             if(acountipclitable == 'customeriptable'){
                 class_deletipcli = 'customer-delete-ip';
-            }else if(acountipclitable == 'customerclitable'){
+            }else if(acountipclitable == 'table-clitable'){
                 class_deletipcli = 'customer-delete-cli';
             }else if(acountipclitable == 'vendoriptable'){
                 class_deletipcli = 'vendor-delete-ip';
