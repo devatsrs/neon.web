@@ -41,6 +41,7 @@
                     07. Added Prefix Translation rule.<br>
                     08. Added option of Manually Billing customers.<br>
                     09. Added option to import Payments from MOR.<br>
+                    10. Added Integration with SagePay(.co.za).<br>
                 </div>
             </li>
         </ul>
