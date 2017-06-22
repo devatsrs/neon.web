@@ -2284,6 +2284,162 @@ class InvoicesController extends \BaseController {
         }
     }
 
+    public function get_unbill_report($id){
+        $AccountBilling = AccountBilling::getBilling($id, 0);
+        $account = Account::find($id);
+        $lastInvoicePeriod = Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')
+            ->where(array('AccountID'=>$account->AccountID,'InvoiceType'=>Invoice::INVOICE_OUT,'ProductType'=>Product::USAGE))
+            ->orderBy('IssueDate','DESC')->limit(1)
+            ->first(['StartDate','EndDate']);
+        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
+        $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($AccountBilling,$account);
+        $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
+        $CustomerEndDate = '';
+        $today = date('Y-m-d');
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
+        $CustomerNextBilling = $VendorNextBilling = array();
+        $StartDate = $CustomerLastInvoiceDate;
+        if (!empty($AccountBilling) && $AccountBilling->BillingCycleType != 'manual') {
+            $EndDate = $CustomerEndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($CustomerLastInvoiceDate));
+            while ($EndDate < $today) {
+                $query = DB::connection('neon_report')->table('tblHeader')
+                    ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
+                    ->where(array('AccountID' => $id))
+                    ->where('date', '>=', $StartDate)
+                    ->where('date', '<', $EndDate);
+                $TotalAmount = (double)$query->sum('TotalCharges');
+                $TotalMinutes = (double)$query->sum('TotalBilledDuration');
+                $CustomerNextBilling[] = array(
+                    'StartDate' => $StartDate,
+                    'EndDate' => $EndDate,
+                    'AccountID' => $id,
+                    'ServiceID' => 0,
+                    'TotalAmount' => $TotalAmount,
+                    'TotalMinutes' => $TotalMinutes,
+                );
+                $StartDate = $EndDate;
+                $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($StartDate));
+            }
+        } else {
+            $EndDate = $today;
+            $query = DB::connection('neon_report')->table('tblHeader')
+                ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
+                ->where(array('AccountID' => $id))
+                ->where('date', '>=', $StartDate)
+                ->where('date', '<', $EndDate);
+            $TotalAmount = (double)$query->sum('TotalCharges');
+            $TotalMinutes = (double)$query->sum('TotalBilledDuration');
+            if ($TotalAmount > 0) {
+                $CustomerNextBilling[] = array(
+                    'StartDate' => $StartDate,
+                    'EndDate' => $EndDate,
+                    'AccountID' => $id,
+                    'ServiceID' => 0,
+                    'TotalAmount' => $TotalAmount,
+                    'TotalMinutes' => $TotalMinutes,
+                );
+            }
+        }
+        $StartDate = $VendorLastInvoiceDate;
+        if (!empty($AccountBilling) && $AccountBilling->BillingCycleType != 'manual') {
+            $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($VendorLastInvoiceDate));
+            while ($EndDate < $today) {
+                $query = DB::connection('neon_report')->table('tblHeaderV')
+                    ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
+                    ->where(array('VAccountID' => $id))
+                    ->where('date', '>=', $StartDate)
+                    ->where('date', '<', $EndDate);
+                $TotalAmount = (double)$query->sum('TotalCharges');
+                $TotalMinutes = (double)$query->sum('TotalBilledDuration');
+                $VendorNextBilling[] = array(
+                    'StartDate' => $StartDate,
+                    'EndDate' => $EndDate,
+                    'AccountID' => $id,
+                    'ServiceID' => 0,
+                    'TotalAmount' => $TotalAmount,
+                    'TotalMinutes' => $TotalMinutes,
+                );
+                $StartDate = $EndDate;
+                $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($StartDate));
+            }
+        } else {
+            $EndDate = $today;
+            $query = DB::connection('neon_report')->table('tblHeaderV')
+                ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
+                ->where(array('VAccountID' => $id))
+                ->where('date', '>=', $StartDate)
+                ->where('date', '<', $EndDate);
+            $TotalAmount = (double)$query->sum('TotalCharges');
+            $TotalMinutes = (double)$query->sum('TotalBilledDuration');
+            if ($TotalAmount > 0) {
+                $VendorNextBilling[] = array(
+                    'StartDate' => $StartDate,
+                    'EndDate' => $EndDate,
+                    'AccountID' => $id,
+                    'ServiceID' => 0,
+                    'TotalAmount' => $TotalAmount,
+                    'TotalMinutes' => $TotalMinutes,
+                );
+            }
+        }
+
+        return View::make('invoices.unbilled_table', compact('VendorNextBilling','CustomerNextBilling','CurrencySymbol','CustomerEndDate','CustomerLastInvoiceDate','today','yesterday','lastInvoicePeriod'));
+
+    }
+
+    public function generate_manual_invoice(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $UserID = User::get_userID();
+        $AccountID = $data['AccountID'];
+        $AccountBilling = AccountBilling::getBilling($AccountID, 0);
+        if ($AccountID > 0 && $AccountBilling->BillingCycleType == 'manual') {
+            $rules = array(
+                'PeriodFrom' => 'required',
+                'PeriodTo' => 'required',
+            );
+            $validator = Validator::make($data, $rules);
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+            if($data['PeriodFrom'] > $data['PeriodTo']){
+                return Response::json(array("status" => "failed", "message" => "Dates are invalid"));
+            }
+            $AlreadyBilled = Invoice::checkIfAccountUsageAlreadyBilled($CompanyID, $AccountID, $data['PeriodFrom'], $data['PeriodTo'], 0);
+            if ($AlreadyBilled) {
+                return Response::json(array("status" => "failed", "message" => "Account already billed for this period.Select different period"));
+            } else {
+                $CronJobCommandID = CronJobCommand::where(array('Command'=>'invoicegenerator','CompanyID'=>$CompanyID))->pluck('CronJobCommandID');
+                $CronJobID = CronJob::where(array('CronJobCommandID'=>(int)$CronJobCommandID,'CompanyID'=>$CompanyID))->pluck('CronJobID');
+                if($CronJobID > 0) {
+
+                    $jobType = JobType::where(["Code" => 'BI'])->get(["JobTypeID", "Title"]);
+                    $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+                    $jobdata["CompanyID"] = $CompanyID;
+                    $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+                    $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+                    $jobdata["JobLoggedUserID"] = $UserID;
+                    $jobdata["Title"] = "[Manual] " . (isset($jobType[0]->Title) ? $jobType[0]->Title : '') . ' Generate & Send';
+                    $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
+                    $jobdata["CreatedBy"] = User::get_user_full_name($UserID);
+                    $jobdata['Options'] = json_encode(array('CronJobID'=>$CronJobID,'ManualInvoice'=>1)+$data);
+                    $jobdata["created_at"] = date('Y-m-d H:i:s');
+                    $jobdata["updated_at"] = date('Y-m-d H:i:s');
+                    $JobID = Job::insertGetId($jobdata);
+
+                    if($JobID>0) {
+                        return Response::json(array("status" => "success", "message" => "Invoice Generation Job Added in queue to process.You will be notified once job is completed. "));
+                    }
+                }
+                return Response::json(array("status" => "error", "message" => "Please Setup Invoice Generator in CronJob"));
+
+            }
+
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Please select account or account should have manual billing."));
+        }
+    }
+
     public function sagepay_return(){
         echo "sagepay_return";
     }

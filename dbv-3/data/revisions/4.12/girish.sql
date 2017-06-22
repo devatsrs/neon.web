@@ -1,4 +1,22 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertCDR`(
+USE `RMCDR3`;
+
+
+ALTER TABLE `tblUsageDetails`
+	ADD COLUMN `userfield` VARCHAR(255) NULL;
+	
+ALTER TABLE `tblUsageDetailFailedCall`
+	ADD COLUMN `userfield` VARCHAR(255) NULL ;
+	
+UPDATE tblUsageDetails SET userfield = 'inbound' WHERE is_inbound = 1;
+UPDATE tblUsageDetailFailedCall SET userfield = 'inbound' WHERE is_inbound = 1;
+
+UPDATE tblUsageDetails SET userfield = 'outbound' WHERE is_inbound = 0;
+UPDATE tblUsageDetailFailedCall SET userfield = 'outbound' WHERE is_inbound = 0;
+	
+	
+DROP PROCEDURE IF EXISTS `prc_insertCDR`;
+DELIMITER |
+CREATE PROCEDURE `prc_insertCDR`(
 	IN `p_processId` varchar(200),
 	IN `p_tbltempusagedetail_name` VARCHAR(200)
 )
@@ -70,4 +88,5 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-END
+END|
+DELIMITER ;
