@@ -100,6 +100,8 @@ class Company extends \Eloquent {
                 $result['Type'] = $response['Type'];
                 $result['LicenceProperties'] = $response['LicenceProperties'];
             }else{
+                \Illuminate\Support\Facades\Log::info("ValidateLicenceKey response");
+                \Illuminate\Support\Facades\Log::info($response);
                 $result['Status'] = 0 ;
                 $result['Message'] = 'Unable To Validate Licence';
                 $result['ExpiryDate']='';
@@ -110,6 +112,9 @@ class Company extends \Eloquent {
             $result['Message'] = "Licence key not found";
             $result['Status'] = "Licence key not found";
             $result['ExpiryDate'] = "";
+
+            \Illuminate\Support\Facades\Log::info("Licence key not found");
+
         }
 
         return $result;
@@ -177,11 +182,11 @@ class Company extends \Eloquent {
 
     }
 
-    public static function getLicenceResponse(){
+    public static function getLicenceResponse() {
 
         $LicenceApiResponse = Session::get('LicenceApiResponse','');
 
-        if(empty($LicenceApiResponse) || (!empty($LicenceApiResponse) && isset($LicenceApiResponse["Status"]) &&  empty($LicenceApiResponse["Status"]) ) ) { // if first time login ... // check if status is empty then also try again
+        if(empty($LicenceApiResponse) || (!empty($LicenceApiResponse) && isset($LicenceApiResponse["Status"]) &&  $LicenceApiResponse["Status"] != 1) ) {  // if first time login ... // check if status is empty then also try again
             $valresponse = Company::ValidateLicenceKey();
             Session::set('LicenceApiResponse', $valresponse);
             $LicenceApiResponse = $valresponse;

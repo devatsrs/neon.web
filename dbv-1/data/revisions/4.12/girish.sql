@@ -231,7 +231,7 @@ BEGIN
 END|
 DELIMITER ;
 
--- Dumping structure for procedure NeonRMDev.prc_getCustomerInboundRate
+-- Dumping structure for procedure Ratemanagement3.prc_getCustomerInboundRate
 DROP PROCEDURE IF EXISTS `prc_getCustomerInboundRate`;
 DELIMITER |
 CREATE PROCEDURE `prc_getCustomerInboundRate`(

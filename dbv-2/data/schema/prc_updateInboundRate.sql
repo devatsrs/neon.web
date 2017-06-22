@@ -59,7 +59,7 @@ BEGIN
 
 		SET @stm = CONCAT('
 		UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tmp_inboundcodes_ cr ON cr.Code = ud.area_prefix
+		LEFT JOIN NeonRMDev.tmp_inboundcodes_ cr ON cr.Code = ud.area_prefix
 		SET cost =
 			CASE WHEN  billed_second >= 1
 			THEN
