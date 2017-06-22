@@ -27,6 +27,19 @@ class Company extends \Eloquent {
             "monthly_anniversary"=>"Monthly anniversary",
             "yearly" => "Yearly"
         );
+    public static $BillingCycleType2 =
+        array(
+            ""=>"Select",
+            "weekly"=>"Weekly",
+            "fortnightly"=>"Fortnightly",
+            "monthly"=>"Monthly" ,
+            "quarterly"=>"Quarterly",
+            "daily"=>"Daily",
+            "in_specific_days"=>"In Specific days",
+            "monthly_anniversary"=>"Monthly anniversary",
+            "yearly" => "Yearly",
+            "manual" => "Manual",
+        );
 
     // CDR Rerate Based on Charge code or Prefix
     const CHARGECODE =1;

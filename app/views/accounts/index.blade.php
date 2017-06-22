@@ -1452,7 +1452,7 @@
                             <span>Billing Cycle*</span>
                             <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Billing Cycle will be updated instantly if no invoice is generated OR No discount plan applied OR all invoices are marked as Cancel against the selected account. Otherwise it will be effective from after current billing period." data-original-title="Billing Cycle">?</span>
                             </label><br>
-                        {{Form::select('BillingCycleType', SortBillingType(), '' ,array("class"=>'form-control select2'))}}
+                        {{Form::select('BillingCycleType', SortBillingType(1), '' ,array("class"=>'form-control select2'))}}                            
                     </div>
                 </div>
                 <div  id="billing_cycle_weekly" class="billing_options col-md-6" style="display: none">

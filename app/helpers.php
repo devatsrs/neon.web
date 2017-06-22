@@ -970,9 +970,14 @@ function formatSmallDate($date,$dateformat='d-m-y') {
     return $datetime;
 }
 
-function SortBillingType(){
+function SortBillingType($account=0){
     ksort(Company::$BillingCycleType);
-    return Company::$BillingCycleType;
+    ksort(Company::$BillingCycleType2);
+    if($account == 0) {
+        return Company::$BillingCycleType;
+    }else{
+        return Company::$BillingCycleType2;
+    }
 }
 function getUploadedFileRealPath($files)
 {

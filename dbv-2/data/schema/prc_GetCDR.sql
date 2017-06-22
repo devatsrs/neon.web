@@ -1,10 +1,10 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_GetCDR`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCDR`(
 	IN `p_company_id` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_start_date` DATETIME,
 	IN `p_end_date` DATETIME,
 	IN `p_AccountID` INT ,
-	IN `p_CDRType` CHAR(1),
+	IN `p_CDRType` VARCHAR(50),
 	IN `p_CLI` VARCHAR(50),
 	IN `p_CLD` VARCHAR(50),
 	IN `p_zerovaluecost` INT,

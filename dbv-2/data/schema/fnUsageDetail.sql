@@ -7,7 +7,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageDetail`(
 	IN `p_UserID` INT,
 	IN `p_isAdmin` INT,
 	IN `p_billing_time` INT,
-	IN `p_cdr_type` CHAR(1),
+	IN `p_cdr_type` VARCHAR(50),
 	IN `p_CLI` VARCHAR(50),
 	IN `p_CLD` VARCHAR(50),
 	IN `p_zerovaluecost` INT
@@ -65,7 +65,7 @@ BEGIN
 		INNER JOIN NeonRMDev.tblAccount a
 			ON uh.AccountID = a.AccountID
 		WHERE
-		(p_cdr_type = '' OR  ud.is_inbound = p_cdr_type)
+		(p_cdr_type = '' OR  ud.userfield LIKE CONCAT('%',p_cdr_type,'%'))
 		AND  StartDate >= DATE_ADD(p_StartDate,INTERVAL -1 DAY)
 		AND StartDate <= DATE_ADD(p_EndDate,INTERVAL 1 DAY)
 		AND uh.CompanyID = p_CompanyID
