@@ -447,7 +447,7 @@ BEGIN
 	IF p_RateCDR = 1  
 	THEN
 
-		IF (SELECT COUNT(*) FROM NeonRMDev.tblCLIRateTable WHERE CompanyID = p_CompanyID AND RateTableID > 0) > 0
+		IF (SELECT COUNT(*) FROM Ratemanagement3.tblCLIRateTable WHERE CompanyID = p_CompanyID AND RateTableID > 0) > 0
 		THEN
 
 			/* temp accounts*/
@@ -460,7 +460,7 @@ BEGIN
 			);
 			SET @stm = CONCAT('
 			INSERT INTO tmp_Account_(AccountID,ServiceID,cld)
-			SELECT DISTINCT AccountID,ServiceID,cld FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
+			SELECT DISTINCT AccountID,ServiceID,cld FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
 			');
 
 			PREPARE stm FROM @stm;
@@ -480,7 +480,7 @@ BEGIN
 			);
 			SET @stm = CONCAT('
 			INSERT INTO tmp_Account_(AccountID,ServiceID,cld)
-			SELECT DISTINCT AccountID,ServiceID,"" FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
+			SELECT DISTINCT AccountID,ServiceID,"" FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
 			');
 
 			PREPARE stm FROM @stm;
@@ -499,7 +499,7 @@ BEGIN
 			);
 			SET @stm = CONCAT('
 			INSERT INTO tmp_Account_(AccountID,ServiceID,cld)
-			SELECT DISTINCT AccountID,ServiceID,"" FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
+			SELECT DISTINCT AccountID,ServiceID,"" FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 1;
 			');
 
 			PREPARE stm FROM @stm;
@@ -514,7 +514,7 @@ BEGIN
 		IF p_InboundTableID > 0
 		THEN 
 			/* get inbound rate process*/
-			CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
+			CALL Ratemanagement3.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
 		END IF;
 
 		WHILE v_pointer_ <= v_rowCount_
@@ -527,10 +527,10 @@ BEGIN
 			IF p_InboundTableID =  0
 			THEN 
 
-				SET p_InboundTableID = (SELECT RateTableID FROM NeonRMDev.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 2 LIMIT 1);
+				SET p_InboundTableID = (SELECT RateTableID FROM Ratemanagement3.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 2 LIMIT 1);
 				SET p_InboundTableID = IFNULL(p_InboundTableID,0);
 				/* get inbound rate process*/
-				CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
+				CALL Ratemanagement3.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
 			END IF;
 
 			/* update prefix inbound process*/
@@ -580,7 +580,7 @@ BEGIN
 		);
 		SET @stm = CONCAT('
 		INSERT INTO tmp_AccountService2_(AccountID,ServiceID)
-		SELECT DISTINCT AccountID,ServiceID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 0;
+		SELECT DISTINCT AccountID,ServiceID FROM RMCDR3.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND ud.is_inbound = 0;
 		');
 
 		PREPARE stm FROM @stm;
@@ -592,7 +592,7 @@ BEGIN
 		IF p_OutboundTableID > 0
 		THEN
 			/* get outbound rate process*/
-			CALL NeonRMDev.prc_getCustomerCodeRate(v_AccountID_,0,p_RateCDR,p_RateMethod,p_SpecifyRate,p_OutboundTableID);
+			CALL Ratemanagement3.prc_getCustomerCodeRate(v_AccountID_,0,p_RateCDR,p_RateMethod,p_SpecifyRate,p_OutboundTableID);
 		END IF;
 
 		WHILE v_pointer_ <= v_rowCount_
@@ -604,9 +604,9 @@ BEGIN
 			
 			IF p_OutboundTableID = 0
 			THEN
-				SET v_RateTableID_ = (SELECT RateTableID FROM NeonRMDev.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 1 LIMIT 1);
+				SET v_RateTableID_ = (SELECT RateTableID FROM Ratemanagement3.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 1 LIMIT 1);
 				/* get outbound rate process*/
-				CALL NeonRMDev.prc_getCustomerCodeRate(v_AccountID_,0,p_RateCDR,p_RateMethod,p_SpecifyRate,v_RateTableID_);
+				CALL Ratemanagement3.prc_getCustomerCodeRate(v_AccountID_,0,p_RateCDR,p_RateMethod,p_SpecifyRate,v_RateTableID_);
 			END IF;
 			
 			
@@ -647,15 +647,15 @@ CREATE PROCEDURE `prc_updateInboundRate`(
 )
 BEGIN
 
-	SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND ServiceID = "',p_ServiceID ,'" AND ("' , p_CLD , '" = "" OR cld = "' , p_CLD , '") AND is_inbound = 1 ') ;
+	SET @stm = CONCAT('UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND ServiceID = "',p_ServiceID ,'" AND ("' , p_CLD , '" = "" OR cld = "' , p_CLD , '") AND is_inbound = 1 ') ;
 
 	PREPARE stmt FROM @stm;
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 
 	SET @stm = CONCAT('
-	UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud 
-	INNER JOIN NeonRMDev.tmp_inboundcodes_ cr ON cr.Code = ud.area_prefix
+	UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud 
+	INNER JOIN Ratemanagement3.tmp_inboundcodes_ cr ON cr.Code = ud.area_prefix
 	SET cost = 
 		CASE WHEN  billed_second >= Interval1
 		THEN
@@ -696,8 +696,8 @@ BEGIN
 	THEN
 
 		SET @stm = CONCAT('
-		UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		INNER JOIN NeonRMDev.tmp_inboundcodes_ cr ON cr.Code = ud.area_prefix
+		UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN Ratemanagement3.tmp_inboundcodes_ cr ON cr.Code = ud.area_prefix
 		SET cost =
 			CASE WHEN  billed_second >= 1
 			THEN
@@ -754,15 +754,15 @@ CREATE PROCEDURE `prc_updateOutboundRate`(
 )
 BEGIN
 
-	SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND ServiceID = "',p_ServiceID ,'" AND ("',p_TrunkID ,'" = 0 OR TrunkID = "',p_TrunkID ,'") AND is_inbound = 0 ') ;
+	SET @stm = CONCAT('UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND AccountID = "',p_AccountID ,'" AND ServiceID = "',p_ServiceID ,'" AND ("',p_TrunkID ,'" = 0 OR TrunkID = "',p_TrunkID ,'") AND is_inbound = 0 ') ;
 
 	PREPARE stmt FROM @stm;
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 
 	SET @stm = CONCAT('
-	UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-	INNER JOIN NeonRMDev.tmp_codes_ cr ON cr.Code = ud.area_prefix
+	UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+	INNER JOIN Ratemanagement3.tmp_codes_ cr ON cr.Code = ud.area_prefix
 	SET cost =
 		CASE WHEN  billed_second >= Interval1
 		THEN
@@ -803,8 +803,8 @@ BEGIN
 	THEN
 		
 		SET @stm = CONCAT('
-		UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
-		LEFT JOIN NeonRMDev.tmp_codes_ cr ON cr.Code = ud.area_prefix
+		UPDATE   RMCDR3.`' , p_tbltempusagedetail_name , '` ud
+		LEFT JOIN Ratemanagement3.tmp_codes_ cr ON cr.Code = ud.area_prefix
 		SET cost =
 			CASE WHEN  billed_second >= 1
 			THEN
