@@ -2326,7 +2326,7 @@ class InvoicesController extends \BaseController {
 			->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
 			->where(array('AccountID' => $id))
 			->where('date', '>=', $StartDate)
-			->where('date', '<', $EndDate);
+			->where('date', '<=', $EndDate);
 		$TotalAmount = (double)$query->sum('TotalCharges');
 		$TotalMinutes = (double)$query->sum('TotalBilledDuration');
 		if ($TotalAmount > 0) {
@@ -2368,7 +2368,7 @@ class InvoicesController extends \BaseController {
 			->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
 			->where(array('VAccountID' => $id))
 			->where('date', '>=', $StartDate)
-			->where('date', '<', $EndDate);
+			->where('date', '<=', $EndDate);
 		$TotalAmount = (double)$query->sum('TotalCharges');
 		$TotalMinutes = (double)$query->sum('TotalBilledDuration');
 		if ($TotalAmount > 0) {
