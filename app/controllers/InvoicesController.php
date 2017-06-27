@@ -2320,26 +2320,26 @@ class InvoicesController extends \BaseController {
                 $StartDate = $EndDate;
                 $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($StartDate));
             }
-        } else {
-            $EndDate = $today;
-            $query = DB::connection('neon_report')->table('tblHeader')
-                ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
-                ->where(array('AccountID' => $id))
-                ->where('date', '>=', $StartDate)
-                ->where('date', '<', $EndDate);
-            $TotalAmount = (double)$query->sum('TotalCharges');
-            $TotalMinutes = (double)$query->sum('TotalBilledDuration');
-            if ($TotalAmount > 0) {
-                $CustomerNextBilling[] = array(
-                    'StartDate' => $StartDate,
-                    'EndDate' => $EndDate,
-                    'AccountID' => $id,
-                    'ServiceID' => 0,
-                    'TotalAmount' => $TotalAmount,
-                    'TotalMinutes' => $TotalMinutes,
-                );
-            }
-        }
+        } 
+		$EndDate = $today;
+		$query = DB::connection('neon_report')->table('tblHeader')
+			->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
+			->where(array('AccountID' => $id))
+			->where('date', '>=', $StartDate)
+			->where('date', '<=', $EndDate);
+		$TotalAmount = (double)$query->sum('TotalCharges');
+		$TotalMinutes = (double)$query->sum('TotalBilledDuration');
+		if ($TotalAmount > 0) {
+			$CustomerNextBilling[] = array(
+				'StartDate' => $StartDate,
+				'EndDate' => $EndDate,
+				'AccountID' => $id,
+				'ServiceID' => 0,
+				'TotalAmount' => $TotalAmount,
+				'TotalMinutes' => $TotalMinutes,
+			);
+		}
+        
         $StartDate = $VendorLastInvoiceDate;
         if (!empty($AccountBilling) && $AccountBilling->BillingCycleType != 'manual') {
             $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($VendorLastInvoiceDate));
@@ -2362,26 +2362,26 @@ class InvoicesController extends \BaseController {
                 $StartDate = $EndDate;
                 $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($StartDate));
             }
-        } else {
-            $EndDate = $today;
-            $query = DB::connection('neon_report')->table('tblHeaderV')
-                ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
-                ->where(array('VAccountID' => $id))
-                ->where('date', '>=', $StartDate)
-                ->where('date', '<', $EndDate);
-            $TotalAmount = (double)$query->sum('TotalCharges');
-            $TotalMinutes = (double)$query->sum('TotalBilledDuration');
-            if ($TotalAmount > 0) {
-                $VendorNextBilling[] = array(
-                    'StartDate' => $StartDate,
-                    'EndDate' => $EndDate,
-                    'AccountID' => $id,
-                    'ServiceID' => 0,
-                    'TotalAmount' => $TotalAmount,
-                    'TotalMinutes' => $TotalMinutes,
-                );
-            }
-        }
+        } 
+		$EndDate = $today;
+		$query = DB::connection('neon_report')->table('tblHeaderV')
+			->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
+			->where(array('VAccountID' => $id))
+			->where('date', '>=', $StartDate)
+			->where('date', '<=', $EndDate);
+		$TotalAmount = (double)$query->sum('TotalCharges');
+		$TotalMinutes = (double)$query->sum('TotalBilledDuration');
+		if ($TotalAmount > 0) {
+			$VendorNextBilling[] = array(
+				'StartDate' => $StartDate,
+				'EndDate' => $EndDate,
+				'AccountID' => $id,
+				'ServiceID' => 0,
+				'TotalAmount' => $TotalAmount,
+				'TotalMinutes' => $TotalMinutes,
+			);
+		}
+        
 
         return View::make('invoices.unbilled_table', compact('VendorNextBilling','CustomerNextBilling','CurrencySymbol','CustomerEndDate','CustomerLastInvoiceDate','today','yesterday','lastInvoicePeriod'));
 
