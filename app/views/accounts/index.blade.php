@@ -619,6 +619,10 @@
 				if(account_name.length>40){
 					account_name  = account_name.substring(0,40)+"...";	
 				}
+				var account_email = childrens.eq(8).text();
+				if(account_email.length>65){
+					account_email  = account_email.substring(0,65)+"...";
+				}
 
                 popup_html = "<label class='col-sm-6' >Invoice Outstanding:</label><div class='col-sm-6' >" + childrens.eq(5).text() + "</div>";
                 popup_html += "<div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >" + CUA + "</div>";
@@ -634,7 +638,7 @@
                 html += '  <div class="col-sm-6 padding-0">';
                 html += '  <div class="block">';
                 html += '     <div class="meta">Email</div>';
-                html += '     <div><a href="javascript:void(0)" class="sendemail">' + childrens.eq(8).text() + '</a></div>';
+                html += '     <div style="word-break:break-all;"><a href="javascript:void(0)" class="sendemail">' + account_email + '</a></div>';
                 html += '  </div>';
                 html += '  <div class="cellNo">';
                 html += '     <div class="meta">Phone</div>';
