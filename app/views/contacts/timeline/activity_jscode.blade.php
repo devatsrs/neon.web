@@ -267,7 +267,6 @@ toastr.error(status, "Error", toastr_opts);
 			//var doc = $('.mail-compose');
 			var doc = $(document).find('.'+parent_box);
 			doc.find('.message').show();
-			show_summernote(doc.find(".message"),editor_options);
 
 			if(!Array.isArray(data)){
 				var EmailTemplate = data['EmailTemplate'];
@@ -277,6 +276,7 @@ toastr.error(status, "Error", toastr_opts);
 				doc.find('[name="Subject"]').val('');
 				doc.find('.message').val('');
 			}
+			show_summernote(doc.find(".message"),editor_options);
 		}
 		
     // When Lead is converted to account.

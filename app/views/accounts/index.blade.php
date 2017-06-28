@@ -1125,7 +1125,6 @@
         }
         function editor_reset(data){
             var modal = $("#modal-BulkMail");
-            show_summernote(modal.find(".message"),editor_options);
             if(!Array.isArray(data)){
                 var EmailTemplate = data['EmailTemplate'];
                 modal.find('[name="subject"]').val(EmailTemplate.Subject);
@@ -1134,6 +1133,7 @@
                 modal.find('[name="subject"]').val('');
                 modal.find('.message').val('');
             }
+            show_summernote(modal.find(".message"),editor_options);
         }
 		
 		
