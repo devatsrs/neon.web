@@ -1561,6 +1561,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                             if($ManualBilling ==0) {
                                 AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
                             }
+                        }else{
+                            AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
                         }
                     }
 
