@@ -66,8 +66,8 @@
         var list_fields_index  = ["Name","ReportID"];
 
         var $search = {};
-        var report_edit_url = baseurl + "/report/{id}/edit";
-        var report_delete_url = baseurl + "/report/{id}/delete";
+        var report_edit_url = baseurl + "/report/edit/{id}";
+        var report_delete_url = baseurl + "/report/delete/{id}";
         var report_datagrid_url = baseurl + "/report/ajax_datagrid/type";
         jQuery(document).ready(function ($) {
             data_table_char = $("#table-4").dataTable({

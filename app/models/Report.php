@@ -13,7 +13,7 @@ class Report extends \Eloquent {
     );
 
     public static $cube = array(
-        'summary'=>'Summary',
+        'summary'=>'CDR',
     );
 
     public static $dimension = array(
@@ -65,13 +65,15 @@ class Report extends \Eloquent {
 
     );
 
+    public static $date_fields = ['date'];
 
 
-    public static  function generateDynamicTable($CompanyID,$cube,$data=array()){
+
+    public static  function generateDynamicTable($CompanyID,$cube,$data=array(),$filters){
         $response = '';
         switch ($cube) {
             case 'summary':
-                $response = self::generateSummaryQuery($CompanyID,$data);
+                $response = self::generateSummaryQuery($CompanyID,$data,$filters);
                 break;
             case 'payment':
                 break;
@@ -82,16 +84,31 @@ class Report extends \Eloquent {
         return $response;
     }
 
-    public static function generateSummaryQuery($CompanyID,$data){
+    public static function generateSummaryQuery($CompanyID,$data,$filters){
         $columns = array();
+        $query_common = DB::connection('neon_report')
+            ->table('tblHeader')
+            ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
+            ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
+            ->where(['CompanyID' => $CompanyID]);
+
+        foreach($filters as $key => $filter){
+            if(!empty($filter[$key]) && is_array($filter[$key])){
+                $query_common->whereIn($key,$filter[$key]);
+            }else if(!empty($filter['wildcard_match_val'])){
+                $query_common->where($key,'like',str_replace('*','%',$filter['wildcard_match_val']));
+            }else if($key == 'date'){
+                if(!empty($filter['start_date'])){
+                    $query_common->where('date','>=',str_replace('*','%',$filter['start_date']));
+                }
+                if(!empty($filter['end_date'])){
+                    $query_common->where('date','<=',str_replace('*','%',$filter['end_date']));
+                }
+            }
+        }
+
         if(count($data['row'])) {
-            $query_distinct = DB::connection('neon_report')
-                ->table('tblHeader')
-                ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
-                ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
-                ->where(['CompanyID' => $CompanyID])
-                //->where(['AccountID' => 30])
-                ->distinct();
+            $query_distinct = $query_common->distinct();
             foreach ($data['row'] as $column) {
                 $query_distinct->orderby($column);
             }
@@ -104,13 +121,7 @@ class Report extends \Eloquent {
         }
 
 
-        $final_query = DB::connection('neon_report')
-            ->table('tblHeader')
-            ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
-            ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
-            ->where(['CompanyID' => $CompanyID])
-            //->where(['AccountID' => 30])
-        ;
+        $final_query = $query_common;
         foreach ($data['column'] as $column) {
             $final_query->groupby($column);
         }
@@ -188,7 +199,7 @@ class Report extends \Eloquent {
                 $name = Account::getAccountIDList();
                 break;
             case 'CountryID':
-                $name = Country::getCountryDropdownList();
+                $name = Country::getCountryDropdownIDList();
                 break;
 
         }

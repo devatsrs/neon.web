@@ -22,11 +22,19 @@ class ReportController extends \BaseController {
         $measures = Report::$measures;
 
         $Columns = Report::$dimension['summary']+Report::$measures['summary'];
+        $report_settings =array();
 
-        return View::make('report.create', compact('dimensions','measures','Columns'));
+        return View::make('report.create', compact('dimensions','measures','Columns','report_settings'));
     }
-    public function edit(){
-        return View::make('report.edit', compact(''));
+    public function edit($id){
+        $report = Report::find($id);
+        $report_settings = json_decode($report->Settings,true);
+
+        $dimensions = Report::$dimension;
+        $measures = Report::$measures;
+
+        $Columns = Report::$dimension['summary']+Report::$measures['summary'];
+        return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report'));
     }
 
     public function report_store(){
@@ -57,6 +65,14 @@ class ReportController extends \BaseController {
     public function getdatagrid(){
         $data = Input::all();
         $cube = $data['Cube'];
+        $filter_settings = json_decode($data['filter_settings'],true);
+        $filters = array();
+        if(!empty($filter_settings) && is_array($filter_settings)) {
+            foreach ($filter_settings as $key => $filter_setting) {
+                parse_str($filter_setting, $filter);
+                $filters[$key] = $filter;
+            }
+        }
 
         $data['column'] = array_filter(explode(",",$data['column']));
         //$data['sum'] = array_filter(explode(",",$data['Cube']));
@@ -83,7 +99,7 @@ class ReportController extends \BaseController {
 
         $CompanyID = User::get_companyID();
         if(count($data['sum'])) {
-            $response = Report::generateDynamicTable($CompanyID, $cube, $data);
+            $response = Report::generateDynamicTable($CompanyID, $cube, $data,$filters);
         }
         return json_encode(generateReportTable2($data,$response));
     }

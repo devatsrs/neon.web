@@ -34,21 +34,41 @@
                         <div class="form-group">
                             <div class="col-sm-3">
                                 <label for="field-5" class="control-label">Cube</label>
-                                {{Form::select('Cube',Report::$cube,'',array("class"=>"select2 small"))}}
+                                {{Form::select('Cube',Report::$cube,(isset($report_settings['Cube'])?$report_settings['Cube']:''),array("class"=>"select2 small"))}}
                             </div>
                             <div class="col-sm-9 vertical-border border_left">
-                                <input type="hidden" id="hidden_row" name="row">
-                                <input type="hidden" id="hidden_columns" name="column">
-                                <input type="hidden" id="hidden_filter" name="filter">
-                                <input type="hidden" id="hidden_filter_col" name="filter_col_name">
-                                <input type="hidden" id="hidden_setting" name="filter_settings">
+                                <input type="hidden" id="hidden_row" name="row" value="{{$report_settings['row'] or ''}}">
+                                <input type="hidden" id="hidden_columns" name="column" value="{{$report_settings['column'] or ''}}">
+                                <input type="hidden" id="hidden_filter" name="filter" value="{{$report_settings['filter'] or ''}}">
+                                <input type="hidden" id="hidden_filter_col" name="filter_col_name" value="{{$report_settings['filter_col_name'] or ''}}">
+                                <input type="hidden" id="hidden_setting" name="filter_settings" value="{{$report_settings['filter_settings'] or ''}}">
                                 <label for="field-5" class="control-label">Columns</label>
                                 <div id="Columns_Drop" class="form-control ui-widget-content ui-state-default select2-container select2-container-multi">
-                                    <ul class=" select2-choices ui-helper-reset"></ul>
+                                    <ul class=" select2-choices ui-helper-reset">
+                                        @if(isset($report_settings['column']) && $selectedColumns = array_filter(explode(',',$report_settings['column'])))
+                                        @foreach($selectedColumns as $selectedColumn)
+                                            <li class="dd-item select2-search-choice {{isset($dimensions[$report_settings['Cube']][$selectedColumn])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
+                                                <div class="dd-handle">
+                                                    {{$dimensions[$report_settings['Cube']][$selectedColumn] or $measures[$report_settings['Cube']][$selectedColumn]}}
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                        @endif
+                                    </ul>
                                 </div>
                                 <label for="field-5" class="control-label">Row</label>
                                 <div id="Row_Drop" class="form-control ui-widget-content ui-state-default select2-container select2-container-multi">
-                                    <ul class=" select2-choices ui-helper-reset"></ul>
+                                    <ul class=" select2-choices ui-helper-reset">
+                                        @if(isset($report_settings['row']) && $selectedRows = array_filter(explode(',',$report_settings['row'])))
+                                        @foreach($selectedRows as $selectedRow)
+                                            <li class="dd-item select2-search-choice {{isset($dimensions[$report_settings['Cube']][$selectedRow])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedRow}}">
+                                                <div class="dd-handle">
+                                                    {{$dimensions[$report_settings['Cube']][$selectedRow] or $measures[$report_settings['Cube']][$selectedRow]}}
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                        @endif
+                                    </ul>
                                 </div>
 
                             </div>
@@ -83,7 +103,7 @@
                                             <ul id="Measures" class="dd-list">
                                                 @foreach($measures as $cube => $measure)
                                                     @foreach($measure as $measure_key => $measure_val)
-                                                        <li class="dd-item select2-search-choice dimension" data-cube="{{$cube}}" data-val="{{$measure_key}}">
+                                                        <li class="dd-item select2-search-choice measures" data-cube="{{$cube}}" data-val="{{$measure_key}}">
                                                             <div class="dd-handle">
                                                                 {{$measure_val}}
                                                             </div>
@@ -96,6 +116,7 @@
                                 </div>
                             </div>
                             <div class="col-sm-9 table_report_overflow loading">
+
 
                             </div>
                         </div>
@@ -319,127 +340,22 @@
             function show_filter($items){
                 $items.attr('data-val');
                 var data = $("#report-row-col").serialize();
+                var date_fields = {{json_encode(Report::$date_fields)}};
+                if($.inArray($("#hidden_filter_col").val(),date_fields) > -1){
+                    $(".filter_data_table").hide();
+                    $(".filter_data_wildcard").hide();
+                    $("li.date_filters a").trigger('click');
+                    $(".date_filters").show();
+                }else{
+                    $(".filter_data_table").show();
+                    $(".filter_data_wildcard").show();
+                    $("li.filter_data_table a").trigger('click');
+                    $(".date_filters").hide();
+                    filter_data_table();
+                }
 
-                data_table_filter = $("#table-filter-list").dataTable({
-                    "bDestroy": true,
-                    "bProcessing":true,
-                    "bServerSide":true,
-                    "sAjaxSource": baseurl + "/report/getdatalist",
-                    "iDisplayLength": 10,
-                    "sPaginationType": "bootstrap",
-                    "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                    "aaSorting": [[0, 'asc']],
-                    "fnServerParams": function(aoData) {
-                        aoData.push(
-                                {"name":"filter_col_name","value":$("#hidden_filter_col").val()},
-                                {"name":"Cube","value":$("#report-row-col [name='Cube']").val()}
 
-                        );
-                        data_table_extra_params.length = 0;
-                        data_table_extra_params.push(
-                                {"name":"filter_col_name","value":$("#hidden_filter_col").val()},
-                                {"name":"Cube","value":$("#report-row-col [name='Cube']").val()},
-                                {"name":"Export","value":1}
-                        );
-                    },
-                    "aoColumns":
-                            [
-                                {"bSortable": false,
-                                    mRender: function(id, type, full) {
-                                        return '<div class="checkbox "><input type="checkbox" name="'+$("#hidden_filter_col").val()+'[]" value="' + id + '" class="rowcheckbox" ></div>';
-                                    }
-                                }, //0Checkbox
-                                { "bSortable": true}
-                            ],
-                    "oTableTools": {
-                        "aButtons": [
-                            {
-                                "sExtends": "download",
-                                "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/currency/exports/xlsx",
-                                sButtonClass: "save-collection btn-sm"
-                            },
-                            {
-                                "sExtends": "download",
-                                "sButtonText": "CSV",
-                                "sUrl": baseurl + "/currency/exports/csv",
-                                sButtonClass: "save-collection btn-sm"
-                            }
-                        ]
-                    }
-                });
-                $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
-                $(".dataTables_wrapper select").select2({
-                    minimumResultsForSearch: -1
-                });
-                $("#table-filter-list tbody input[type=checkbox]").each(function (i, el) {
-                    var $this = $(el),
-                            $p = $this.closest('tr');
 
-                    $(el).on('change', function () {
-                        var is_checked = $this.is(':checked');
-
-                        $p[is_checked ? 'addClass' : 'removeClass']('highlight');
-                    });
-                });
-                $(document).on('click', '#table-filter-list tbody tr,.gridview ul li div.box', function() {
-                    if (checked =='') {
-                        $(this).toggleClass('selected');
-                        if($(this).is('tr')) {
-                            if ($(this).hasClass('selected')) {
-                                $(this).find('.rowcheckbox').prop("checked", true);
-                            } else {
-                                $(this).find('.rowcheckbox').prop("checked", false);
-                            }
-                        }
-                    }
-                });
-                $("#selectall").click(function(ev) {
-                    var is_checked = $(this).is(':checked');
-                    $('#table-filter-list tbody tr').each(function(i, el) {
-                        if (is_checked) {
-                            $(this).find('.rowcheckbox').prop("checked", true);
-                            $(this).addClass('selected');
-                        } else {
-                            $(this).find('.rowcheckbox').prop("checked", false);
-                            $(this).removeClass('selected');
-                        }
-                    });
-                });
-                // Replace Checboxes
-                $(".pagination a").click(function (ev) {
-                    replaceCheckboxes();
-                });
-                //select all record
-                $('#selectallbutton').click(function(){
-                    if($('#selectallbutton').is(':checked')){
-                        checked = 'checked=checked disabled';
-                        $("#selectall").prop("checked", true).prop('disabled', true);
-                        //if($('.gridview').is(':visible')){
-                        $('.gridview li div.box').each(function(i,el){
-                            $(this).addClass('selected');
-                        });
-                        //}else{
-                        $('#table-filter-list tbody tr').each(function (i, el) {
-                            $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
-                            $(this).addClass('selected');
-                        });
-                        //}
-                    }else{
-                        checked = '';
-                        $("#selectall").prop("checked", false).prop('disabled', false);
-                        //if($('.gridview').is(':visible')){
-                        $('.gridview li div.box').each(function(i,el){
-                            $(this).removeClass('selected');
-                        });
-                        //}else{
-                        $('#table-filter-list tbody tr').each(function (i, el) {
-                            $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
-                            $(this).removeClass('selected');
-                        });
-                        //}
-                    }
-                });
                 $('#add-new-modal-filter').modal('show');
             }
 
@@ -471,10 +387,127 @@
                 e.preventDefault();
                 reload_table();
             });
+
+            $(document).on('click', '#table-filter-list tbody tr', function() {
+                if (checked =='') {
+                    $(this).toggleClass('selected');
+                    if($(this).is('tr')) {
+                        if ($(this).hasClass('selected')) {
+                            $(this).find('.rowcheckbox').prop("checked", true);
+                        } else {
+                            $(this).find('.rowcheckbox').prop("checked", false);
+                        }
+                    }
+                }
+            });
+            @if(empty($report_settings))
             $("#hidden_filter").val('');
             $("#hidden_row").val('');
             $("#hidden_columns").val('');
+            @else
+                    reload_table();
+            @endif
         } );
+
+        function filter_data_table(){
+            data_table_filter = $("#table-filter-list").dataTable({
+                "bDestroy": true,
+                "bProcessing":true,
+                "bServerSide":true,
+                "sAjaxSource": baseurl + "/report/getdatalist",
+                "iDisplayLength": 10,
+                "sPaginationType": "bootstrap",
+                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "aaSorting": [[0, 'asc']],
+                "fnServerParams": function(aoData) {
+                    aoData.push(
+                            {"name":"filter_col_name","value":$("#hidden_filter_col").val()},
+                            {"name":"Cube","value":$("#report-row-col [name='Cube']").val()}
+
+                    );
+                    data_table_extra_params.length = 0;
+                    data_table_extra_params.push(
+                            {"name":"filter_col_name","value":$("#hidden_filter_col").val()},
+                            {"name":"Cube","value":$("#report-row-col [name='Cube']").val()},
+                            {"name":"Export","value":1}
+                    );
+                },
+                "aoColumns":
+                        [
+                            {"bSortable": false,
+                                mRender: function(id, type, full) {
+                                    return '<div class="checkbox "><input type="checkbox" name="'+$("#hidden_filter_col").val()+'[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                }
+                            }, //0Checkbox
+                            { "bSortable": true}
+                        ],
+                "oTableTools": {
+                    "aButtons": [
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "EXCEL",
+                            "sUrl": baseurl + "/currency/exports/xlsx",
+                            sButtonClass: "save-collection btn-sm"
+                        },
+                        {
+                            "sExtends": "download",
+                            "sButtonText": "CSV",
+                            "sUrl": baseurl + "/currency/exports/csv",
+                            sButtonClass: "save-collection btn-sm"
+                        }
+                    ]
+                }
+            });
+            $("#selectcheckbox").append('<input type="checkbox" id="selectallbutton" name="checkboxselect[]" class="" title="Select All Found Records" />');
+            $(".dataTables_wrapper select").select2({
+                minimumResultsForSearch: -1
+            });
+            $("#table-filter-list tbody input[type=checkbox]").each(function (i, el) {
+                var $this = $(el),
+                        $p = $this.closest('tr');
+
+                $(el).on('change', function () {
+                    var is_checked = $this.is(':checked');
+
+                    $p[is_checked ? 'addClass' : 'removeClass']('highlight');
+                });
+            });
+            $("#selectall").click(function(ev) {
+                var is_checked = $(this).is(':checked');
+                $('#table-filter-list tbody tr').each(function(i, el) {
+                    if (is_checked) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                        $(this).addClass('selected');
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                        $(this).removeClass('selected');
+                    }
+                });
+            });
+            // Replace Checboxes
+            $(".pagination a").click(function (ev) {
+                replaceCheckboxes();
+            });
+            //select all record
+            $('#selectallbutton').click(function(){
+                if($('#selectallbutton').is(':checked')){
+                    checked = 'checked=checked disabled';
+                    $("#selectall").prop("checked", true).prop('disabled', true);
+                    $('#table-filter-list tbody tr').each(function (i, el) {
+                        $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                        $(this).addClass('selected');
+                    });
+
+                }else{
+                    checked = '';
+                    $("#selectall").prop("checked", false).prop('disabled', false);
+                    $('#table-filter-list tbody tr').each(function (i, el) {
+                        $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                        $(this).removeClass('selected');
+                    });
+                }
+            });
+        }
 
     </script>
 @include('report.filter')

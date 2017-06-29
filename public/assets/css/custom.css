@@ -2844,6 +2844,8 @@ a:focus,a:hover{text-decoration:none !important}
 }
 .new_filter .filter-group {
     margin-top: 30px;
+    display: table;
+    width: 100%;
 }
 
  /* Relatively-Small screen */
