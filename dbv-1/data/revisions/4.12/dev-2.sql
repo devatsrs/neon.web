@@ -16,9 +16,9 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 
-	select t.* , ael.EmailTo from tblTickets t
+	select t.* , eal.EmailTo from tblTickets t
 	left join AccountEmailLog eal on t.TicketID = eal.TicketID and eal.EmailParent = 0
-	where t.TicketID =  p_TicketID and eal.AccountEmailLogID is not null limit 1;
+	where t.TicketID =  p_TicketID limit 1;
 
 
 
