@@ -28,7 +28,10 @@
     <div class="mail-header"> 
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
-      <div class="mail-date"> @if(!empty($ticketdata->RequesterCC))cc: {{$ticketdata->RequesterCC}}<br>
+      <div class="mail-date">
+        @if(!empty($ticketdata->EmailTo))To: {{$ticketdata->EmailTo}}<br>
+        @endif
+        @if(!empty($ticketdata->RequesterCC))cc: {{$ticketdata->RequesterCC}}<br>
         @endif
             {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
       <!-- links --> 
