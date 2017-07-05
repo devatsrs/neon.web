@@ -29,7 +29,7 @@
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
-        From: <a target="_blank" class="blue_link" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
+        From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
         To: {{$ticketdata->EmailTo}}<br>
         @if(!empty($ticketdata->RequesterCC))CC: {{$ticketdata->RequesterCC}}<br>
         @endif
