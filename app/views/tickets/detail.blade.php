@@ -29,10 +29,11 @@
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
-        To: {{$ticketdata->EmailTo}}, &nbsp;
+        To: {{$ticketdata->EmailTo}} <br>
         From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
-        @if(!empty($ticketdata->RequesterCC))Cc: {{$ticketdata->RequesterCC}}, &nbsp; @endif
-        @if(!empty($ticketdata->RequesterBCC))Bcc: {{$ticketdata->RequesterBCC}}<br> @endif
+        @if(!empty($ticketdata->RequesterCC))Cc: {{$ticketdata->RequesterCC}} &nbsp; @endif
+        @if(!empty($ticketdata->RequesterBCC))Bcc: {{$ticketdata->RequesterBCC}} @endif
+        <br>
         {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}} ( {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))}} )</div>
       <!-- links --> 
     </div>
