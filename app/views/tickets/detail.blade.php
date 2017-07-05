@@ -29,13 +29,11 @@
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
+        To: {{$ticketdata->EmailTo}}, &nbsp;
         From: <a class="" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
-        To: {{$ticketdata->EmailTo}}<br>
-        @if(!empty($ticketdata->RequesterCC))CC: {{$ticketdata->RequesterCC}}<br>
-        @endif
-        @if(!empty($ticketdata->RequesterBCC))BCC: {{$ticketdata->RequesterBCC}}<br>
-        @endif
-            {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
+        @if(!empty($ticketdata->RequesterCC))Cc: {{$ticketdata->RequesterCC}}, &nbsp; @endif
+        @if(!empty($ticketdata->RequesterBCC))Bcc: {{$ticketdata->RequesterBCC}}<br> @endif
+        {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}} ( {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))}} )</div>
       <!-- links --> 
     </div>
     <?php $attachments = unserialize($ticketdata->AttachmentPaths); ?>
