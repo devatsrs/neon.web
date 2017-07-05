@@ -29,9 +29,11 @@
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
-        @if(!empty($ticketdata->EmailTo))To: {{$ticketdata->EmailTo}}<br>
+        From: <a target="_blank" class="blue_link" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a> ({{$Requester['Email']}})<br>
+        To: {{$ticketdata->EmailTo}}<br>
+        @if(!empty($ticketdata->RequesterCC))CC: {{$ticketdata->RequesterCC}}<br>
         @endif
-        @if(!empty($ticketdata->RequesterCC))cc: {{$ticketdata->RequesterCC}}<br>
+        @if(!empty($ticketdata->RequesterBCC))BCC: {{$ticketdata->RequesterBCC}}<br>
         @endif
             {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
       <!-- links --> 
@@ -203,13 +205,12 @@
             </div>
             
             <!-- panel body -->
-            <div class="Requester_Info panel-body"> @if(!empty($Requester))
-              <p><a target="_blank" class="blue_link" href="@if($ticketdata->AccountID>0) {{URL::to('/')}}/accounts/{{$ticketdata->AccountID}}/show @elseif($ticketdata->ContactID>0) {{URL::to('/')}}/contacts/{{$ticketdata->ContactID}}/show @else # @endif">{{$Requester['Title']}}</a><br>
-                ({{$ticketdata->Requester}}). </p>
-              @else
-              <p><a target="_blank" href="@if($ticketdata->AccountID>0) {{URL::to('/')}}/accounts/{{$ticketdata->AccountID}}/show @elseif(!empty($ticketdata->ContactID)) {{URL::to('/')}}/contacts/{{$ticketdata->ContactID}}/show @else # @endif">{{$ticketdata->Requester}}</a></p>
-              @endif
-              @if($ticketdata->ContactID>0 && $ticketdata->AccountID==0 && $ticketdata->UserID==0)   
+            <div class="Requester_Info panel-body">
+
+                <p><a target="_blank" class="blue_link" href="{{$Requester['URL']}}">{{$Requester['Title']}}</a><br>
+                ({{$Requester['Email']}}). </p>
+
+              @if($ticketdata->ContactID>0 && $ticketdata->AccountID==0 && $ticketdata->UserID==0)
               @if(User::checkCategoryPermission('Contacts','Edit'))
               <form role="form" id="form-tickets-owner_edit" method="post"  class="form-horizontal form-groups-bordered validate" novalidate>
                 <div class="form-group">
