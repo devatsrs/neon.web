@@ -22,7 +22,6 @@ BEGIN
 			`Time` VARCHAR(50) NOT NULL,
 			`CompanyID` INT(11) NOT NULL,
 			`AccountID` INT(11) NOT NULL,
-			`GatewayAccountID` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 			`CompanyGatewayID` INT(11) NOT NULL,
 			`Trunk` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 			`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
@@ -55,27 +54,26 @@ BEGIN
 		dt.TimeID,
 		CONCAT(dd.date,' ',dt.fulltime),
 		sh.CompanyID,
-		sh.AccountID,
-		sh.GatewayAccountID,
-		sh.CompanyGatewayID,
-		sh.Trunk,
-		sh.AreaPrefix,
-		sh.CountryID,
+		sh.VAccountID,
+		usd.CompanyGatewayID,
+		usd.Trunk,
+		usd.AreaPrefix,
+		usd.CountryID,
 		usd.TotalCharges,
 		usd.TotalBilledDuration,
 		usd.TotalDuration,
 		usd.NoOfCalls,
 		usd.NoOfFailCalls,
 		a.AccountName
-	FROM tblSummaryVendorHeader sh
-	INNER JOIN tblUsageVendorSummaryDetail usd
-		ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
+	FROM tblHeaderV sh
+	INNER JOIN tblVendorSummaryHour usd
+		ON usd.HeaderVID = sh.HeaderVID 
 	INNER JOIN tblDimDate dd
 		ON dd.DateID = sh.DateID
 	INNER JOIN tblDimTime dt
 		ON dt.TimeID = usd.TimeID
 	INNER JOIN NeonRMDev.tblAccount a
-		ON sh.AccountID = a.AccountID
+		ON sh.VAccountID = a.AccountID
 	LEFT JOIN NeonRMDev.tblTrunk t
 		ON t.Trunk = sh.Trunk
 	LEFT JOIN tmp_AreaPrefix_ ap 
@@ -83,7 +81,7 @@ BEGIN
 	WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 	AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 	AND sh.CompanyID = p_CompanyID
-	AND (p_AccountID = '' OR FIND_IN_SET(sh.AccountID,p_AccountID))
+	AND (p_AccountID = '' OR FIND_IN_SET(sh.VAccountID,p_AccountID))
 	AND (p_CompanyGatewayID = '' OR FIND_IN_SET(sh.CompanyGatewayID,p_CompanyGatewayID))
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
 	AND (p_Trunk = '' OR FIND_IN_SET(t.TrunkID,p_Trunk))
@@ -97,27 +95,26 @@ BEGIN
 		dt.TimeID,
 		CONCAT(dd.date,' ',dt.fulltime),
 		sh.CompanyID,
-		sh.AccountID,
-		sh.GatewayAccountID,
-		sh.CompanyGatewayID,
-		sh.Trunk,
-		sh.AreaPrefix,
-		sh.CountryID,
+		sh.VAccountID,
+		usd.CompanyGatewayID,
+		usd.Trunk,
+		usd.AreaPrefix,
+		usd.CountryID,
 		usd.TotalCharges,
 		usd.TotalBilledDuration,
 		usd.TotalDuration,
 		usd.NoOfCalls,
 		usd.NoOfFailCalls,
 		a.AccountName
-	FROM tblSummaryVendorHeader sh
-	INNER JOIN tblUsageVendorSummaryDetailLive usd
-		ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
+	FROM tblHeaderV sh
+	INNER JOIN tblVendorSummaryHourLive usd
+		ON usd.HeaderVID = sh.HeaderVID
 	INNER JOIN tblDimDate dd
 		ON dd.DateID = sh.DateID
 	INNER JOIN tblDimTime dt
 		ON dt.TimeID = usd.TimeID
 	INNER JOIN NeonRMDev.tblAccount a
-		ON sh.AccountID = a.AccountID
+		ON sh.VAccountID = a.AccountID
 	LEFT JOIN NeonRMDev.tblTrunk t
 		ON t.Trunk = sh.Trunk
 	LEFT JOIN tmp_AreaPrefix_ ap 
@@ -125,7 +122,7 @@ BEGIN
 	WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 	AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 	AND sh.CompanyID = p_CompanyID
-	AND (p_AccountID = '' OR FIND_IN_SET(sh.AccountID,p_AccountID))
+	AND (p_AccountID = '' OR FIND_IN_SET(sh.VAccountID,p_AccountID))
 	AND (p_CompanyGatewayID = '' OR FIND_IN_SET(sh.CompanyGatewayID,p_CompanyGatewayID))
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
 	AND (p_Trunk = '' OR FIND_IN_SET(t.TrunkID,p_Trunk))

@@ -1882,7 +1882,7 @@ function row_array_html($data,$response){
     return $table_data;
 
 }
-function table_array($data,$response){
+function table_array($data,$response,$all_data_list){
     $table_data = array();
     $col_seprator = '##';
     $row_seprator = '!!';
@@ -1912,13 +1912,16 @@ function table_array($data,$response){
         $key_col_comb = $key_row_comb = '';
         $key_col_index = $key_row_index = 0;
         foreach ($row as $col_name => $col_val) {
+            if(empty($response['name'][$col_name][$col_val])){
+                $response['name'][$col_name][$col_val] = Report::getName($col_name,$col_val,$all_data_list);
+            }
 
             if(in_array($col_name,$data['column'])){
                 $key_col_comb .= $col_val.$col_seprator;
                 if (empty(${'count_colspan_' . $key_col_comb})) {
                     ${'count_colspan_' . $key_col_comb} = 0;
                 }
-                $table_data['columns'][$key_col_index][$key_col_comb]['name'] = $col_name.'@'.$col_val; //$response['name'][$col_name][$col_val]
+                $table_data['columns'][$key_col_index][$key_col_comb]['name'] =  $response['name'][$col_name][$col_val];//$col_name.'@'.$col_val
                 ${'count_colspan_' . $key_col_comb}++;
                 $table_data['columns'][$key_col_index][$key_col_comb]['colspan'] = ${'count_colspan_' . $key_col_comb};
                 $key_col_index++;
@@ -1929,7 +1932,7 @@ function table_array($data,$response){
                 if (empty(${'count_rowspan_' . $key_row_comb})) {
                     ${'count_rowspan_' . $key_row_comb} = 0;
                 }
-                $table_data['row'][$key_row_index][$key_row_comb]['name'] = $col_name.'@'.$col_val; //$response['name'][$col_name][$col_val]
+                $table_data['row'][$key_row_index][$key_row_comb]['name'] = $response['name'][$col_name][$col_val]; //$col_name.'@'.$col_val
                 ${'count_rowspan_' . $key_row_comb}++;
                 if(!isset($table_data['row'][$key_row_index][$key_row_comb]['rowspan'])) {
                     $table_data['row'][$key_row_index][$key_row_comb]['rowspan'] = ${'count_rowspan_' . $key_row_comb};
@@ -2039,14 +2042,18 @@ function table_html($data,$table_data){
     $table_td = '';
     //print_r($table_data);exit;
     foreach ($table_data['data'] as $datakey => $row) {
-        $explode_row_array = array_filter(explode('!!', $datakey));
+        $explode_row_array = explode('!!', $datakey);
+        array_pop($explode_row_array);
+        //$explode_row_array = array_filter(explode('!!', $datakey));
         $explode_row_count = count($explode_row_array);
 
 
         $key_index= 0;
         $table_single_row = $table_col_row = '';
         foreach ($row as $col_name => $col_val) {
-            $explode_array = array_filter(explode('##', $col_name));
+            $explode_array = explode('##', $col_name);
+            array_pop($explode_array);
+            //$explode_array = array_filter(explode('##', $col_name));
             $explode_count = count($explode_array);
 
 
@@ -2073,12 +2080,12 @@ function table_html($data,$table_data){
     }
     return $table_header.$table_row;
 }
-function generateReportTable2($data,$response)
+function generateReportTable2($data,$response,$all_data_list)
 {
     if(!empty($response['data'])) {
         $table = '<table class="table table-bordered">';
 
-        $table_data =  table_array($data,$response);
+        $table_data =  table_array($data,$response,$all_data_list);
 
         $table .=  table_html($data,$table_data);
 

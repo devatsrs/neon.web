@@ -40,6 +40,9 @@ class ReportController extends \BaseController {
     public function report_store(){
         $postdata = Input::all();
         $response =  NeonAPI::request('report/store',$postdata,true,false,false);
+        if(!empty($response->data)) {
+            return Response::json(array("status" => $response->status, "message" => $response->message, 'LastID' => $response->data->ReportID, 'redirect' => URL::to('/report/edit/' . $response->data->ReportID)));
+        }
         return json_response_api($response);
     }
     public function report_delete($id){
@@ -96,12 +99,15 @@ class ReportController extends \BaseController {
         }
         $data['column'] = array_values($data['column']);
         $data['row'] = array_values($data['row']);
+        $all_data_list['CompanyGateway'] = CompanyGateway::getCompanyGatewayIdList();
+        $all_data_list['Country'] = Country::getCountryDropdownIDList();
+        $all_data_list['Account'] = Account::getAccountIDList();
 
         $CompanyID = User::get_companyID();
         if(count($data['sum'])) {
             $response = Report::generateDynamicTable($CompanyID, $cube, $data,$filters);
         }
-        return json_encode(generateReportTable2($data,$response));
+        return json_encode(generateReportTable2($data,$response,$all_data_list));
     }
 
     public function getdatalist(){

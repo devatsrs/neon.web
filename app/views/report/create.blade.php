@@ -9,7 +9,7 @@
             <a href="{{URL::to('report')}}">Report</a>
         </li>
         <li class="active">
-            <a href="javascript:void(0)">New Report</a>
+            <a href="javascript:void(0)">{{$report->Name or ''}}</a>
         </li>
     </ol>
 
@@ -41,7 +41,7 @@
                                 <input type="hidden" id="hidden_columns" name="column" value="{{$report_settings['column'] or ''}}">
                                 <input type="hidden" id="hidden_filter" name="filter" value="{{$report_settings['filter'] or ''}}">
                                 <input type="hidden" id="hidden_filter_col" name="filter_col_name" value="{{$report_settings['filter_col_name'] or ''}}">
-                                <input type="hidden" id="hidden_setting" name="filter_settings" value="{{$report_settings['filter_settings'] or ''}}">
+                                <input type="hidden" id="hidden_setting" name="filter_settings" value='{{$report_settings['filter_settings'] or ''}}'>
                                 <label for="field-5" class="control-label">Columns</label>
                                 <div id="Columns_Drop" class="form-control ui-widget-content ui-state-default select2-container select2-container-multi">
                                     <ul class=" select2-choices ui-helper-reset">
@@ -170,6 +170,22 @@
                 helper: "clone",
                 cursor: "move"
             });
+            // Let the Dimension items be draggable
+            $( "li", $Columns ).draggable({
+                helper: "clone",
+                cursor: "move"
+            });
+
+            // Let the Measures items be draggable
+            $( "li", $Filter ).draggable({
+                helper: "clone",
+                cursor: "move"
+            });
+            // Let the Dimension items be draggable
+            $( "li", $Row ).draggable({
+                helper: "clone",
+                cursor: "move"
+            });
 
             // Let the Measures be droppable, accepting the Dimension items
             $Columns.droppable({
@@ -185,6 +201,7 @@
                     var drop_ele_val = $(ui.draggable).attr('data-val');
                     if( $Dimension.find('[data-val="'+drop_ele_val+'"]').length == 1 || $Measures.find('[data-val="'+drop_ele_val+'"]').length) {
                         $Columns.find('[data-val="'+drop_ele_val+'"]').remove();
+                        update_columns(ui.draggable,'remove',1);
                     }
                 },
                 drop: function( event, ui ) {
@@ -210,6 +227,7 @@
                     var drop_ele_val = $(ui.draggable).attr('data-val');
                     if( $Dimension.find('[data-val="'+drop_ele_val+'"]').length == 1 || $Measures.find('[data-val="'+drop_ele_val+'"]').length) {
                         $Row.find('[data-val="'+drop_ele_val+'"]').remove();
+                        update_rows(ui.draggable,'remove',1);
                     }
                 },
                 drop: function( event, ui ) {
@@ -234,6 +252,8 @@
                     var drop_ele_val = $(ui.draggable).attr('data-val');
                     if( $Dimension.find('[data-val="'+drop_ele_val+'"]').length == 1 || $Measures.find('[data-val="'+drop_ele_val+'"]').length) {
                         $Filter.find('[data-val="'+drop_ele_val+'"]').remove();
+                        update_filter(ui.draggable,'remove',1);
+
                     }
                 },
                 drop: function( event, ui ) {

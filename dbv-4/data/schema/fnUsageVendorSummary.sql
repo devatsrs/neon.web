@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `fnUsageVendorSummary`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageVendorSummary`(
 	IN `p_CompanyID` int ,
 	IN `p_CompanyGatewayID` int ,
 	IN `p_AccountID` int ,
@@ -28,7 +28,6 @@ BEGIN
 				`DateID` BIGINT(20) NOT NULL,
 				`CompanyID` INT(11) NOT NULL,
 				`AccountID` INT(11) NOT NULL,
-				`GatewayAccountID` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`CompanyGatewayID` INT(11) NOT NULL,
 				`Trunk` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
@@ -45,28 +44,27 @@ BEGIN
 		SELECT
 			sh.DateID,
 			sh.CompanyID,
-			sh.AccountID,
-			sh.GatewayAccountID,
-			sh.CompanyGatewayID,
-			sh.Trunk,
-			sh.AreaPrefix,
-			sh.CountryID,
+			sh.VAccountID,
+			us.CompanyGatewayID,
+			us.Trunk,
+			us.AreaPrefix,
+			us.CountryID,
 			us.TotalCharges,
 			us.TotalBilledDuration,
 			us.TotalDuration,
 			us.NoOfCalls,
 			us.NoOfFailCalls,
 			a.AccountName
-		FROM tblSummaryVendorHeader sh
-		INNER JOIN tblUsageVendorSummary us
-			ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
+		FROM tblHeaderV sh
+		INNER JOIN tblVendorSummaryDay us
+			ON us.HeaderVID = sh.HeaderVID 
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
 		INNER JOIN NeonRMDev.tblAccount a
-			ON sh.AccountID = a.AccountID
+			ON sh.VAccountID = a.AccountID
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
-		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
+		AND (p_AccountID = 0 OR sh.VAccountID = p_AccountID)
 		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
 		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
@@ -78,28 +76,27 @@ BEGIN
 		SELECT
 			sh.DateID,
 			sh.CompanyID,
-			sh.AccountID,
-			sh.GatewayAccountID,
-			sh.CompanyGatewayID,
-			sh.Trunk,
-			sh.AreaPrefix,
-			sh.CountryID,
+			sh.VAccountID,
+			us.CompanyGatewayID,
+			us.Trunk,
+			us.AreaPrefix,
+			us.CountryID,
 			us.TotalCharges,
 			us.TotalBilledDuration,
 			us.TotalDuration,
 			us.NoOfCalls,
 			us.NoOfFailCalls,
 			a.AccountName
-		FROM tblSummaryVendorHeader sh
-		INNER JOIN tblUsageVendorSummaryLive us
-			ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
+		FROM tblHeaderV sh
+		INNER JOIN tblVendorSummaryDayLive us
+			ON us.HeaderVID = sh.HeaderVID 
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
 		INNER JOIN NeonRMDev.tblAccount a
-			ON sh.AccountID = a.AccountID
+			ON sh.VAccountID = a.AccountID
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
-		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
+		AND (p_AccountID = 0 OR sh.VAccountID = p_AccountID)
 		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
 		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
@@ -119,7 +116,6 @@ BEGIN
 				`TimeID` INT(11) NOT NULL,
 				`CompanyID` INT(11) NOT NULL,
 				`AccountID` INT(11) NOT NULL,
-				`GatewayAccountID` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`CompanyGatewayID` INT(11) NOT NULL,
 				`Trunk` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
@@ -138,31 +134,30 @@ BEGIN
 			sh.DateID,
 			dt.TimeID,
 			sh.CompanyID,
-			sh.AccountID,
-			sh.GatewayAccountID,
-			sh.CompanyGatewayID,
-			sh.Trunk,
-			sh.AreaPrefix,
-			sh.CountryID,
+			sh.VAccountID,
+			usd.CompanyGatewayID,
+			usd.Trunk,
+			usd.AreaPrefix,
+			usd.CountryID,
 			usd.TotalCharges,
 			usd.TotalBilledDuration,
 			usd.TotalDuration,
 			usd.NoOfCalls,
 			usd.NoOfFailCalls,
 			a.AccountName
-		FROM tblSummaryVendorHeader sh
-		INNER JOIN tblUsageVendorSummaryDetail usd
-			ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
+		FROM tblHeaderV sh
+		INNER JOIN tblVendorSummaryHour usd
+			ON usd.HeaderVID = sh.HeaderVID 
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
 			ON dt.TimeID = usd.TimeID
 		INNER JOIN NeonRMDev.tblAccount a
-			ON sh.AccountID = a.AccountID
+			ON sh.VAccountID = a.AccountID
 		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
-		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
+		AND (p_AccountID = 0 OR sh.VAccountID = p_AccountID)
 		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
 		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
@@ -175,31 +170,30 @@ BEGIN
 			sh.DateID,
 			dt.TimeID,
 			sh.CompanyID,
-			sh.AccountID,
-			sh.GatewayAccountID,
-			sh.CompanyGatewayID,
-			sh.Trunk,
-			sh.AreaPrefix,
-			sh.CountryID,
+			sh.VAccountID,
+			usd.CompanyGatewayID,
+			usd.Trunk,
+			usd.AreaPrefix,
+			usd.CountryID,
 			usd.TotalCharges,
 			usd.TotalBilledDuration,
 			usd.TotalDuration,
 			usd.NoOfCalls,
 			usd.NoOfFailCalls,
 			a.AccountName
-		FROM tblSummaryVendorHeader sh
-		INNER JOIN tblUsageVendorSummaryDetailLive usd
-			ON usd.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
+		FROM tblHeaderV sh
+		INNER JOIN tblVendorSummaryHourLive usd
+			ON usd.HeaderVID = sh.HeaderVID 
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
 			ON dt.TimeID = usd.TimeID
 		INNER JOIN NeonRMDev.tblAccount a
-			ON sh.AccountID = a.AccountID
+			ON sh.VAccountID = a.AccountID
 		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
-		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
+		AND (p_AccountID = 0 OR sh.VAccountID = p_AccountID)
 		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
 		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))

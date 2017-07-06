@@ -1,60 +1,118 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fnGetUsageForSummary`(
 	IN `p_CompanyID` INT,
 	IN `p_StartDate` DATE,
-	IN `p_EndDate` DATE
+	IN `p_EndDate` DATE,
+	IN `p_UniqueID` VARCHAR(50)
 )
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	DELETE FROM tmp_tblUsageDetailsReport WHERE CompanyID = p_CompanyID;
-
-	INSERT INTO tmp_tblUsageDetailsReport (UsageDetailID,AccountID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,cost,connect_time,connect_date,call_status)
-	SELECT
+	SET @stmt = CONCAT('
+	INSERT INTO tmp_tblUsageDetailsReport_' , p_UniqueID , ' (
+		UsageDetailID,
+		AccountID,
+		CompanyID,
+		CompanyGatewayID,
+		GatewayAccountPKID,
+		connect_time,
+		connect_date,
+		billed_duration,
+		area_prefix,
+		cost,
+		duration,
+		trunk,
+		call_status,
+		ServiceID,
+		disposition,
+		userfield,
+		pincode,
+		extension
+	)
+	SELECT 
 		ud.UsageDetailID,
 		uh.AccountID,
 		uh.CompanyID,
 		uh.CompanyGatewayID,
-		uh.ServiceID,
-		uh.GatewayAccountID,
-		trunk,
-		area_prefix,
-		duration,
+		uh.GatewayAccountPKID,
+		CONCAT(DATE_FORMAT(ud.connect_time,"%H"),":",IF(MINUTE(ud.connect_time)<30,"00","30"),":00"),
+		DATE_FORMAT(ud.connect_time,"%Y-%m-%d"),
 		billed_duration,
+		area_prefix,
 		cost,
-		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
-		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
-		1 as call_status
+		duration,
+		trunk,
+		1 as call_status,
+		uh.ServiceID,
+		disposition,
+		userfield,
+		pincode,
+		extension
 	FROM NeonCDRDev.tblUsageDetails  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
-		uh.CompanyID = p_CompanyID
-	AND uh.AccountID is not null
-	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
+		uh.CompanyID = ' , p_CompanyID , '
+	AND uh.AccountID IS NOT NULL
+	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
+	');
 
-	INSERT INTO tmp_tblUsageDetailsReport (UsageDetailID,AccountID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,trunk,area_prefix,duration,billed_duration,cost,connect_time,connect_date,call_status)
-	SELECT
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+	
+	
+	SET @stmt = CONCAT('
+	INSERT INTO tmp_tblUsageDetailsReport_' , p_UniqueID , ' (
+		UsageDetailID,
+		AccountID,
+		CompanyID,
+		CompanyGatewayID,
+		GatewayAccountPKID,
+		connect_time,
+		connect_date,
+		billed_duration,
+		area_prefix,
+		cost,
+		duration,
+		trunk,
+		call_status,
+		ServiceID,
+		disposition,
+		userfield,
+		pincode,
+		extension
+	)
+	SELECT 
 		ud.UsageDetailFailedCallID,
 		uh.AccountID,
 		uh.CompanyID,
 		uh.CompanyGatewayID,
-		uh.ServiceID,
-		uh.GatewayAccountID,
-		trunk,
-		area_prefix,
-		duration,
+		uh.GatewayAccountPKID,
+		CONCAT(DATE_FORMAT(ud.connect_time,"%H"),":",IF(MINUTE(ud.connect_time)<30,"00","30"),":00"),
+		DATE_FORMAT(ud.connect_time,"%Y-%m-%d"),
 		billed_duration,
+		area_prefix,
 		cost,
-		CONCAT(DATE_FORMAT(ud.connect_time,'%H'),':',IF(MINUTE(ud.connect_time)<30,'00','30'),':00'),
-		DATE_FORMAT(ud.connect_time,'%Y-%m-%d'),
-		2 as call_status
+		duration,
+		trunk,
+		2 as call_status,
+		uh.ServiceID,
+		disposition,
+		userfield,
+		pincode,
+		extension
 	FROM NeonCDRDev.tblUsageDetailFailedCall  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
-		uh.CompanyID = p_CompanyID
-	AND uh.AccountID is not null
-	AND uh.StartDate BETWEEN p_StartDate AND p_EndDate;
+		uh.CompanyID = ' , p_CompanyID , '
+	AND uh.AccountID IS NOT NULL
+	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
+	');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
 
 END

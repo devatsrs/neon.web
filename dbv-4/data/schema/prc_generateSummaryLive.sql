@@ -1,36 +1,56 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_generateSummaryLive`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_generateSummaryLive`(
 	IN `p_CompanyID` INT,
 	IN `p_StartDate` DATE,
-	IN `p_EndDate` DATE
+	IN `p_EndDate` DATE,
+	IN `p_UniqueID` VARCHAR(50)
 )
 BEGIN
-
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
-		-- ERROR
+		
 		GET DIAGNOSTICS CONDITION 1
 		@p2 = MESSAGE_TEXT;
 	
 		SELECT @p2 as Message;
 		ROLLBACK;
 	END;
-	
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-
+	
 	CALL fngetDefaultCodes(p_CompanyID); 
-	CALL fnGetUsageForSummaryLive(p_CompanyID, p_StartDate, p_EndDate);
-	 
- 	/* insert into success summary*/
- 	DELETE FROM tmp_UsageSummaryLive WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_UsageSummaryLive(DateID,TimeID,CompanyID,CompanyGatewayID,ServiceID,GatewayAccountID,AccountID,Trunk,AreaPrefix,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+	CALL fnUpdateCustomerLink(p_CompanyID,p_UniqueID,p_StartDate,p_EndDate);
+
+	DELETE FROM tmp_UsageSummaryLive WHERE CompanyID = p_CompanyID;
+
+	SET @stmt = CONCAT('
+	INSERT INTO tmp_UsageSummaryLive(
+		DateID,
+		TimeID,
+		CompanyID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		AccountID,
+		VAccountID,
+		Trunk,
+		AreaPrefix,
+		TotalCharges,
+		TotalBilledDuration,
+		TotalDuration,
+		NoOfCalls,
+		NoOfFailCalls
+	)
 	SELECT 
 		d.DateID,
 		t.TimeID,
 		ud.CompanyID,
 		ud.CompanyGatewayID,
 		ud.ServiceID,
-		ANY_VALUE(ud.GatewayAccountID),
+		ud.GatewayAccountPKID,
+		ud.GatewayVAccountPKID,
 		ud.AccountID,
+		ud.VAccountID,
 		ud.trunk,
 		ud.area_prefix,
 		COALESCE(SUM(ud.cost),0)  AS TotalCharges ,
@@ -38,128 +58,154 @@ BEGIN
 		COALESCE(SUM(ud.duration),0) AS TotalDuration,
 		SUM(IF(ud.call_status=1,1,0)) AS  NoOfCalls,
 		SUM(IF(ud.call_status=2,1,0)) AS  NoOfFailCalls
-	FROM tmp_tblUsageDetailsReportLive ud  
+	FROM tmp_tblUsageDetailsReport_',p_UniqueID,' ud  
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
-	GROUP BY d.DateID,t.TimeID,ud.area_prefix,ud.trunk,ud.AccountID,ud.CompanyGatewayID,ud.ServiceID,ud.CompanyID;
+	WHERE ud.CompanyID = ',p_CompanyID,'
+	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk;
+	');
 
-	UPDATE tmp_UsageSummaryLive 
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	UPDATE tmp_UsageSummaryLive
 	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
 	SET tmp_UsageSummaryLive.CountryID =code.CountryID
 	WHERE tmp_UsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
 
-	DELETE FROM tmp_SummaryHeaderLive WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_SummaryHeaderLive (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
-	SELECT 
-		sh.SummaryHeaderID,
-		sh.DateID,
-		sh.CompanyID,
-		sh.AccountID,
-		sh.GatewayAccountID,
-		sh.CompanyGatewayID,
-		sh.ServiceID,
-		sh.Trunk,
-		sh.AreaPrefix,
-		sh.CountryID,
-		sh.created_at 
-	FROM tblSummaryHeader sh
-	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)TBL
-	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
-	WHERE sh.CompanyID =  p_CompanyID ;
-
 	START TRANSACTION;
-
-	INSERT INTO tblSummaryHeader (DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
-	SELECT us.DateID,us.CompanyID,us.AccountID,ANY_VALUE(us.GatewayAccountID),us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix,ANY_VALUE(us.CountryID),now() 
-	FROM tmp_UsageSummaryLive us
-	LEFT JOIN tmp_SummaryHeaderLive sh	 
-	ON 
-		 us.DateID = sh.DateID
-	AND us.CompanyID = sh.CompanyID
-	AND us.AccountID = sh.AccountID
-	AND us.CompanyGatewayID = sh.CompanyGatewayID
-	AND us.Trunk = sh.Trunk
-	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID
-	WHERE sh.SummaryHeaderID IS NULL
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix;
-
-	DELETE FROM tmp_SummaryHeaderLive WHERE CompanyID = p_CompanyID;
-	INSERT INTO tmp_SummaryHeaderLive (SummaryHeaderID,DateID,CompanyID,AccountID,GatewayAccountID,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,created_at)
-	SELECT 
-		sh.SummaryHeaderID,
-		sh.DateID,
-		sh.CompanyID,
-		sh.AccountID,
-		sh.GatewayAccountID,
-		sh.CompanyGatewayID,
-		sh.ServiceID,
-		sh.Trunk,
-		sh.AreaPrefix,
-		sh.CountryID,
-		sh.created_at 
-	FROM tblSummaryHeader sh
-	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)TBL
-	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
-	WHERE sh.CompanyID =  p_CompanyID ;
-
-	DELETE us FROM tblUsageSummaryLive us 
-	INNER JOIN tblSummaryHeader sh ON us.SummaryHeaderID = sh.SummaryHeaderID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE sh.CompanyID = p_CompanyID; 
-
-	DELETE usd FROM tblUsageSummaryDetailLive usd
-	INNER JOIN tblSummaryHeader sh ON usd.SummaryHeaderID = sh.SummaryHeaderID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE sh.CompanyID = p_CompanyID;
-
-	INSERT INTO tblUsageSummaryLive (SummaryHeaderID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
-	SELECT ANY_VALUE(sh.SummaryHeaderID),SUM(us.TotalCharges),SUM(us.TotalBilledDuration),SUM(us.TotalDuration),SUM(us.NoOfCalls),SUM(us.NoOfFailCalls)
-	FROM tmp_SummaryHeaderLive sh
-	INNER JOIN tmp_UsageSummaryLive us FORCE INDEX (Unique_key)
-	ON 
-		 us.DateID = sh.DateID
-	AND us.CompanyID = sh.CompanyID
-	AND us.AccountID = sh.AccountID
-	AND us.CompanyGatewayID = sh.CompanyGatewayID
-	AND us.Trunk = sh.Trunk
-	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID
-	GROUP BY us.DateID,us.CompanyID,us.AccountID,us.CompanyGatewayID,us.ServiceID,us.Trunk,us.AreaPrefix; 
 	
-	INSERT INTO tblUsageSummaryDetailLive (SummaryHeaderID,TimeID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
-	SELECT sh.SummaryHeaderID,TimeID,us.TotalCharges,us.TotalBilledDuration,us.TotalDuration,us.NoOfCalls,us.NoOfFailCalls
-	FROM tmp_SummaryHeaderLive sh
-	INNER JOIN tmp_UsageSummaryLive us FORCE INDEX (Unique_key)
-	ON 
-		 us.DateID = sh.DateID
-	AND us.CompanyID = sh.CompanyID
-	AND us.AccountID = sh.AccountID
-	AND us.CompanyGatewayID = sh.CompanyGatewayID
-	AND us.Trunk = sh.Trunk
-	AND us.AreaPrefix = sh.AreaPrefix
-	AND us.ServiceID = sh.ServiceID;
-
 	DELETE h FROM tblHeader h 
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)u
 		ON h.DateID = u.DateID 
 		AND h.CompanyID = u.CompanyID
 	WHERE u.CompanyID = p_CompanyID;
 	
-	INSERT INTO tblHeader(DateID,CompanyID,AccountID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls)
+	INSERT INTO tblHeader (
+		DateID,
+		CompanyID,
+		AccountID,
+		TotalCharges,
+		TotalBilledDuration,
+		TotalDuration,
+		NoOfCalls,
+		NoOfFailCalls
+	)
 	SELECT 
-		u.DateID,
-		u.CompanyID,
-		u.AccountID,
-		SUM(u.TotalCharges) as TotalCharges,
-		SUM(u.TotalBilledDuration) as TotalBilledDuration,
-		SUM(u.TotalDuration) as TotalDuration,
-		SUM(u.NoOfCalls) as NoOfCalls,
-		SUM(u.NoOfFailCalls) as NoOfFailCalls
-	FROM tmp_UsageSummaryLive u 
-	WHERE u.CompanyID = p_CompanyID
-	GROUP BY u.DateID,u.AccountID,u.CompanyID;
+		DateID,
+		CompanyID,
+		AccountID,
+		SUM(TotalCharges) as TotalCharges,
+		SUM(TotalBilledDuration) as TotalBilledDuration,
+		SUM(TotalDuration) as TotalDuration,
+		SUM(NoOfCalls) as NoOfCalls,
+		SUM(NoOfFailCalls) as NoOfFailCalls
+	FROM tmp_UsageSummaryLive 
+	WHERE CompanyID = p_CompanyID
+	GROUP BY DateID,CompanyID,AccountID;
 	
+	DELETE FROM tmp_SummaryHeaderLive WHERE CompanyID = p_CompanyID;
+	INSERT INTO tmp_SummaryHeaderLive (HeaderID,DateID,CompanyID,AccountID)
+	SELECT 
+		sh.HeaderID,
+		sh.DateID,
+		sh.CompanyID,
+		sh.AccountID
+	FROM tblHeader sh
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)TBL
+	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
+	WHERE sh.CompanyID =  p_CompanyID ;
+
+	DELETE us FROM tblUsageSummaryDayLive us 
+	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
+	DELETE usd FROM tblUsageSummaryHourLive usd
+	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
+	INSERT INTO tblUsageSummaryDayLive (
+		HeaderID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		VAccountID,
+		Trunk,
+		AreaPrefix,
+		CountryID,
+		TotalCharges,
+		TotalBilledDuration,
+		TotalDuration,
+		NoOfCalls,
+		NoOfFailCalls
+	)
+	SELECT
+		sh.HeaderID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		VAccountID,
+		Trunk,
+		AreaPrefix,
+		CountryID,
+		SUM(us.TotalCharges),
+		SUM(us.TotalBilledDuration),
+		SUM(us.TotalDuration),
+		SUM(us.NoOfCalls),
+		SUM(us.NoOfFailCalls)
+	FROM tmp_SummaryHeaderLive sh
+	INNER JOIN tmp_UsageSummaryLive us FORCE INDEX (Unique_key)	 
+		ON  us.DateID = sh.DateID
+		AND us.CompanyID = sh.CompanyID
+		AND us.AccountID = sh.AccountID
+	WHERE us.CompanyID = p_CompanyID
+	GROUP BY us.DateID,us.CompanyID,us.CompanyGatewayID,us.ServiceID,us.GatewayAccountPKID,us.GatewayVAccountPKID,us.AccountID,us.VAccountID,us.AreaPrefix,us.Trunk,us.CountryID,sh.HeaderID;
+	
+	INSERT INTO tblUsageSummaryHourLive (
+		HeaderID,
+		TimeID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		VAccountID,
+		Trunk,
+		AreaPrefix,
+		CountryID,
+		TotalCharges,
+		TotalBilledDuration,
+		TotalDuration,
+		NoOfCalls,
+		NoOfFailCalls	
+	)
+	SELECT 
+		sh.HeaderID,
+		TimeID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		VAccountID,
+		Trunk,
+		AreaPrefix,
+		CountryID,
+		us.TotalCharges,
+		us.TotalBilledDuration,
+		us.TotalDuration,
+		us.NoOfCalls,
+		us.NoOfFailCalls
+	FROM tmp_SummaryHeaderLive sh
+	INNER JOIN tmp_UsageSummaryLive us FORCE INDEX (Unique_key)
+		ON  us.DateID = sh.DateID
+		AND us.CompanyID = sh.CompanyID
+		AND us.AccountID = sh.AccountID
+	WHERE us.CompanyID = p_CompanyID;
 
 	COMMIT;
 	

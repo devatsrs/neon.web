@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `fnUsageSummary`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageSummary`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
@@ -22,7 +22,7 @@ BEGIN
 	THEN
 		SET p_Detail = 1;
 	END IF;
-	
+
 	IF p_Detail = 1 
 	THEN
 	
@@ -31,7 +31,6 @@ BEGIN
 				`DateID` BIGINT(20) NOT NULL,
 				`CompanyID` INT(11) NOT NULL,
 				`AccountID` INT(11) NOT NULL,
-				`GatewayAccountID` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`CompanyGatewayID` INT(11) NOT NULL,
 				`Trunk` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
@@ -49,20 +48,19 @@ BEGIN
 			sh.DateID,
 			sh.CompanyID,
 			sh.AccountID,
-			sh.GatewayAccountID,
-			sh.CompanyGatewayID,
-			sh.Trunk,
-			sh.AreaPrefix,
-			sh.CountryID,
+			us.CompanyGatewayID,
+			us.Trunk,
+			us.AreaPrefix,
+			us.CountryID,
 			us.TotalCharges,
 			us.TotalBilledDuration,
 			us.TotalDuration,
 			us.NoOfCalls,
 			us.NoOfFailCalls,
 			a.AccountName
-		FROM tblSummaryHeader sh
-		INNER JOIN tblUsageSummary us
-			ON us.SummaryHeaderID = sh.SummaryHeaderID 
+		FROM tblHeader sh
+		INNER JOIN tblUsageSummaryDay  us
+			ON us.HeaderID = sh.HeaderID
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
 		INNER JOIN NeonRMDev.tblAccount a
@@ -82,20 +80,19 @@ BEGIN
 			sh.DateID,
 			sh.CompanyID,
 			sh.AccountID,
-			sh.GatewayAccountID,
-			sh.CompanyGatewayID,
-			sh.Trunk,
-			sh.AreaPrefix,
-			sh.CountryID,
+			us.CompanyGatewayID,
+			us.Trunk,
+			us.AreaPrefix,
+			us.CountryID,
 			us.TotalCharges,
 			us.TotalBilledDuration,
 			us.TotalDuration,
 			us.NoOfCalls,
 			us.NoOfFailCalls,
 			a.AccountName
-		FROM tblSummaryHeader sh
-		INNER JOIN tblUsageSummaryLive us
-			ON us.SummaryHeaderID = sh.SummaryHeaderID 
+		FROM tblHeader sh
+		INNER JOIN tblUsageSummaryDayLive  us
+			ON us.HeaderID = sh.HeaderID
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
 		INNER JOIN NeonRMDev.tblAccount a
@@ -123,7 +120,6 @@ BEGIN
 				`TimeID` INT(11) NOT NULL,
 				`CompanyID` INT(11) NOT NULL,
 				`AccountID` INT(11) NOT NULL,
-				`GatewayAccountID` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`CompanyGatewayID` INT(11) NOT NULL,
 				`Trunk` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
@@ -143,20 +139,19 @@ BEGIN
 			dt.TimeID,
 			sh.CompanyID,
 			sh.AccountID,
-			sh.GatewayAccountID,
-			sh.CompanyGatewayID,
-			sh.Trunk,
-			sh.AreaPrefix,
-			sh.CountryID,
+			usd.CompanyGatewayID,
+			usd.Trunk,
+			usd.AreaPrefix,
+			usd.CountryID,
 			usd.TotalCharges,
 			usd.TotalBilledDuration,
 			usd.TotalDuration,
 			usd.NoOfCalls,
 			usd.NoOfFailCalls,
 			a.AccountName
-		FROM tblSummaryHeader sh
-		INNER JOIN tblUsageSummaryDetail usd
-			ON usd.SummaryHeaderID = sh.SummaryHeaderID 
+		FROM tblHeader sh
+		INNER JOIN tblUsageSummaryHour  usd
+			ON usd.HeaderID = sh.HeaderID
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
@@ -180,20 +175,19 @@ BEGIN
 			dt.TimeID,
 			sh.CompanyID,
 			sh.AccountID,
-			sh.GatewayAccountID,
-			sh.CompanyGatewayID,
-			sh.Trunk,
-			sh.AreaPrefix,
-			sh.CountryID,
+			usd.CompanyGatewayID,
+			usd.Trunk,
+			usd.AreaPrefix,
+			usd.CountryID,
 			usd.TotalCharges,
 			usd.TotalBilledDuration,
 			usd.TotalDuration,
 			usd.NoOfCalls,
 			usd.NoOfFailCalls,
 			a.AccountName
-		FROM tblSummaryHeader sh
-		INNER JOIN tblUsageSummaryDetailLive usd
-			ON usd.SummaryHeaderID = sh.SummaryHeaderID 
+		FROM tblHeader sh
+		INNER JOIN tblUsageSummaryHourLive  usd
+			ON usd.HeaderID = sh.HeaderID
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt

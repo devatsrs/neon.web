@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `fngetDefaultCodes`(IN `p_CompanyID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fngetDefaultCodes`(IN `p_CompanyID` INT)
 BEGIN
 	
 	DROP TEMPORARY TABLE IF EXISTS tmp_codes_;

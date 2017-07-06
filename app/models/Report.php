@@ -13,7 +13,7 @@ class Report extends \Eloquent {
     );
 
     public static $cube = array(
-        'summary'=>'CDR',
+        'summary'=>'Customer CDR',
     );
 
     public static $dimension = array(
@@ -23,12 +23,13 @@ class Report extends \Eloquent {
             'month' => 'Month',
             'week_of_year' => 'Week',
             'date' => 'Day',
-            'AccountID' =>'Account',
+            'AccountID' =>'Customer',
+            'VAccountID' =>'Vendor',
             'CompanyGatewayID' =>'Gateway',
             'Trunk' => 'Trunk',
             'CountryID' => 'Country',
             'AreaPrefix' => 'Prefix',
-            'GatewayAccountID' => 'IP/CLI'
+            'GatewayAccountPKID' => 'IP/CLI'
         ),
     );
 
@@ -85,33 +86,13 @@ class Report extends \Eloquent {
     }
 
     public static function generateSummaryQuery($CompanyID,$data,$filters){
-        $columns = array();
-        $query_common = DB::connection('neon_report')
-            ->table('tblHeader')
-            ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
-            ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
-            ->where(['CompanyID' => $CompanyID]);
-
-        foreach($filters as $key => $filter){
-            if(!empty($filter[$key]) && is_array($filter[$key])){
-                $query_common->whereIn($key,$filter[$key]);
-            }else if(!empty($filter['wildcard_match_val'])){
-                $query_common->where($key,'like',str_replace('*','%',$filter['wildcard_match_val']));
-            }else if($key == 'date'){
-                if(!empty($filter['start_date'])){
-                    $query_common->where('date','>=',str_replace('*','%',$filter['start_date']));
-                }
-                if(!empty($filter['end_date'])){
-                    $query_common->where('date','<=',str_replace('*','%',$filter['end_date']));
-                }
-            }
-        }
 
         if(count($data['row'])) {
-            $query_distinct = $query_common->distinct();
+            $query_distinct = self::commonCDRQuery($CompanyID,$data,$filters);
             foreach ($data['row'] as $column) {
                 $query_distinct->orderby($column);
             }
+            $query_distinct = $query_distinct->distinct();
             $columns = $query_distinct->get($data['row']);
             $columns = json_decode(json_encode($columns), true);
 
@@ -120,8 +101,7 @@ class Report extends \Eloquent {
             $response['distinct_row'] = array_map('custom_implode',$response['distinct_row']);
         }
 
-
-        $final_query = $query_common;
+        $final_query = self::commonCDRQuery($CompanyID,$data,$filters);
         foreach ($data['column'] as $column) {
             $final_query->groupby($column);
         }
@@ -148,63 +128,70 @@ class Report extends \Eloquent {
         return $response;
     }
 
-    public static function generateColumnNames($columns){
-        $header_array = array();
-        foreach ($columns as $key => $single_columns){
-            foreach ($single_columns as $col_name => $col_val) {
-                if(!isset($header_array['names'][$col_name][$col_val])) {
-                    $header_array['names'][$col_name][$col_val] = self::getName($col_name, $col_val); //$col_name.$col_val
-                }
-            }
-        }
-        return $header_array;
-    }
 
-    public static function getName($PKColumnName,$ID){
+    public static function getName($PKColumnName,$ID,$all_data){
         $name = $ID;
         switch ($PKColumnName) {
             case 'CompanyGatewayID':
-                $name = CompanyGateway::getCompanyGatewayName($ID);
+                if($ID > 0 && isset($all_data['CompanyGateway'][$ID])) {
+                    $name = $all_data['CompanyGateway'][$ID];
+                }else{
+                    $name = '';
+                }
                 break;
             case 'AccountID':
-                $name = Account::getCompanyNameByID($ID);
+                if($ID > 0 && isset($all_data['Account'][$ID])) {
+                    $name = $all_data['Account'][$ID];
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'VAccountID':
+                if($ID > 0 && isset($all_data['Account'][$ID])) {
+                    $name = $all_data['Account'][$ID];
+                }else{
+                    $name = '';
+                }
                 break;
             case 'CountryID':
-                $name = Country::getName($ID);
+                if($ID > 0 && isset($all_data['Country'][$ID])) {
+                    $name = $all_data['Country'][$ID];
+                }else{
+                    $name = '';
+                }
                 break;
 
         }
         return $name;
     }
 
-    public static function generateRowNames($columns){
-        $header_array = array();
-        foreach ($columns as $key => $single_columns){
-            foreach ($single_columns as $col_name => $col_val) {
-                if(!isset($header_array['names'][$col_name][$col_val])) {
-                    $header_array['names'][$col_name][$col_val] = self::getName($col_name, $col_val); //$col_name.$col_val
+    public static function commonCDRQuery($CompanyID,$data,$filters){
+        $query_common = DB::connection('neon_report')
+            ->table('tblHeader')
+            ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
+            ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
+            ->where(['CompanyID' => $CompanyID]);
+
+        foreach($filters as $key => $filter){
+            if(!empty($filter[$key]) && is_array($filter[$key])){
+                $query_common->whereIn($key,$filter[$key]);
+            }else if(!empty($filter['wildcard_match_val'])){
+                $query_common->where($key,'like',str_replace('*','%',$filter['wildcard_match_val']));
+            }else if($key == 'date'){
+                if(!empty($filter['start_date'])){
+                    $query_common->where('date','>=',str_replace('*','%',$filter['start_date']));
+                }
+                if(!empty($filter['end_date'])){
+                    $query_common->where('date','<=',str_replace('*','%',$filter['end_date']));
                 }
             }
         }
-        return $header_array;
+        return $query_common;
     }
 
-    public static function getDistinctList($ColumnName){
-        $name = '';
-        switch ($ColumnName) {
-            case 'CompanyGatewayID':
-                $name = CompanyGateway::getCompanyGatewayIdList();
-                break;
-            case 'AccountID':
-                $name = Account::getAccountIDList();
-                break;
-            case 'CountryID':
-                $name = Country::getCountryDropdownIDList();
-                break;
 
-        }
-        return $name;
-    }
+
+
 
 
 }

@@ -22,7 +22,6 @@ BEGIN
 			`Time` VARCHAR(50) NOT NULL,
 			`CompanyID` INT(11) NOT NULL,
 			`AccountID` INT(11) NOT NULL,
-			`GatewayAccountID` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 			`CompanyGatewayID` INT(11) NOT NULL,
 			`Trunk` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 			`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
@@ -56,20 +55,19 @@ BEGIN
 		CONCAT(dd.date,' ',dt.fulltime),
 		sh.CompanyID,
 		sh.AccountID,
-		sh.GatewayAccountID,
-		sh.CompanyGatewayID,
-		sh.Trunk,
-		sh.AreaPrefix,
-		sh.CountryID,
+		usd.CompanyGatewayID,
+		usd.Trunk,
+		usd.AreaPrefix,
+		usd.CountryID,
 		usd.TotalCharges,
 		usd.TotalBilledDuration,
 		usd.TotalDuration,
 		usd.NoOfCalls,
 		usd.NoOfFailCalls,
 		a.AccountName
-	FROM tblSummaryHeader sh
-	INNER JOIN tblUsageSummaryDetail usd
-		ON usd.SummaryHeaderID = sh.SummaryHeaderID 
+	FROM tblHeader sh
+	INNER JOIN tblUsageSummaryHour  usd
+		ON usd.HeaderID = sh.HeaderID
 	INNER JOIN tblDimDate dd
 		ON dd.DateID = sh.DateID
 	INNER JOIN tblDimTime dt
@@ -98,20 +96,19 @@ BEGIN
 		CONCAT(dd.date,' ',dt.fulltime),
 		sh.CompanyID,
 		sh.AccountID,
-		sh.GatewayAccountID,
-		sh.CompanyGatewayID,
-		sh.Trunk,
-		sh.AreaPrefix,
-		sh.CountryID,
+		usd.CompanyGatewayID,
+		usd.Trunk,
+		usd.AreaPrefix,
+		usd.CountryID,
 		usd.TotalCharges,
 		usd.TotalBilledDuration,
 		usd.TotalDuration,
 		usd.NoOfCalls,
 		usd.NoOfFailCalls,
 		a.AccountName
-	FROM tblSummaryHeader sh
-	INNER JOIN tblUsageSummaryDetailLive usd
-		ON usd.SummaryHeaderID = sh.SummaryHeaderID 
+	FROM tblHeader sh
+	INNER JOIN tblUsageSummaryHourLive  usd
+		ON usd.HeaderID = sh.HeaderID
 	INNER JOIN tblDimDate dd
 		ON dd.DateID = sh.DateID
 	INNER JOIN tblDimTime dt
