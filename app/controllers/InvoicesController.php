@@ -2340,6 +2340,10 @@ class InvoicesController extends \BaseController {
                 );
             }
         }
+
+        if(strpos($VendorLastInvoiceDate, "23:59:59") !== false){
+            $VendorLastInvoiceDate = date('Y-m-d',strtotime($VendorLastInvoiceDate)+1);
+        }
         $StartDate = $VendorLastInvoiceDate;
         if (!empty($AccountBilling) && $AccountBilling->BillingCycleType != 'manual') {
             $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($VendorLastInvoiceDate));
