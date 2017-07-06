@@ -1890,7 +1890,9 @@ function table_array($data,$response,$all_data_list){
     if(count($data['row'])) {
 
         foreach ($response['distinct_row'] as $col_key => $data_key) {
-            $data_key_array = array_filter(explode($row_seprator,$data_key));
+            //$data_key_array = array_filter(explode($row_seprator,$data_key));
+            $data_key_array = explode($row_seprator, $data_key);
+            array_pop($data_key_array);
             for ($i = 1; $i <= count($data['row']); $i++) {
                 $fincalcol_key = implode($row_seprator,array_slice($data_key_array,0,$i));
                 if (empty(${'new_count_rowspan_' . $fincalcol_key . $row_seprator})) {
