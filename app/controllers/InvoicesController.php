@@ -1986,11 +1986,9 @@ class InvoicesController extends \BaseController {
 
         //https://sagepay.co.za/integration/sage-pay-integration-documents/pay-now-gateway-technical-guide/
         $SagePay = new SagePay();
-        $AccountnInvoice = $SagePay->get_response_var("Extra2");
+        $AccountnInvoice = $SagePay->getAccountInvoiceID();
 
         if ($AccountnInvoice != null) { // Extra2 = m5 (hidden field of sagepay form).
-
-            $AccountnInvoice = json_decode($AccountnInvoice,true);
 
             $AccountID = intval($AccountnInvoice["AccountID"]);
             $InvoiceID = intval($AccountnInvoice["InvoiceID"]);
@@ -2440,10 +2438,34 @@ class InvoicesController extends \BaseController {
         }
     }
 
-    public function sagepay_return(){
-        echo "sagepay_return";
+    public function sagepay_return() {
+
+        $SagePay = new SagePay();
+        $AccountnInvoice = $SagePay->getAccountInvoiceID('m10');
+
+        if(isset($AccountnInvoice["AccountID"]) && isset($AccountnInvoice["InvoiceID"])) {
+            $TransactionLog = TransactionLog::where(["AccountID" => $AccountnInvoice["AccountID"], "InvoiceID" => $AccountnInvoice["InvoiceID"]])->orderby("created_at", "desc")->first();
+
+            $TransactionLog = json_decode(json_encode($TransactionLog),true);
+            if($TransactionLog["Status"] == TransactionLog::SUCCESS ){
+
+                $Amount = $TransactionLog["Amount"];
+                $Transaction = $TransactionLog["Transaction"];
+
+                echo "<center>" . "Payment done successfully, Your Transaction ID is ". $Transaction .", Amount Received ".  $Amount  . " </center>";
+
+            } else {
+
+                echo "<center>Payment failed, Go back and try again later</center>";
+
+            }
+        }
+
+
     }
-    public function sagepay_declined(){
-        echo "sagepay_declined";
+    public function sagepay_declined() {
+
+        echo "<center>Payment declined, Go back and try again later.</center>";
+
     }
 }
