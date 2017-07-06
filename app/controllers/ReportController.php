@@ -67,6 +67,7 @@ class ReportController extends \BaseController {
 
     public function getdatagrid(){
         $data = Input::all();
+        $CompanyID = User::get_companyID();
         $cube = $data['Cube'];
         $filter_settings = json_decode($data['filter_settings'],true);
         $filters = array();
@@ -102,6 +103,8 @@ class ReportController extends \BaseController {
         $all_data_list['CompanyGateway'] = CompanyGateway::getCompanyGatewayIdList();
         $all_data_list['Country'] = Country::getCountryDropdownIDList();
         $all_data_list['Account'] = Account::getAccountIDList();
+        $all_data_list['AccountIP'] = GatewayAccount::getAccountIPList($CompanyID);
+        $all_data_list['AccountCLI'] = GatewayAccount::getAccountCLIList($CompanyID);
 
         $CompanyID = User::get_companyID();
         if(count($data['sum'])) {

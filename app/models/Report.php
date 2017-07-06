@@ -29,7 +29,8 @@ class Report extends \Eloquent {
             'Trunk' => 'Trunk',
             'CountryID' => 'Country',
             'AreaPrefix' => 'Prefix',
-            'GatewayAccountPKID' => 'IP/CLI'
+            'GatewayAccountPKID' => 'Customer IP/CLI',
+            'GatewayVAccountPKID' => 'Vendor IP/CLI'
         ),
     );
 
@@ -163,12 +164,21 @@ class Report extends \Eloquent {
             case 'GatewayAccountPKID':
                 if($ID > 0 && isset($all_data['GatewayAccountPKID'][$ID])) {
                     $name = $all_data['GatewayAccountPKID'][$ID];
-                }else if($ID > 0){
-                    $name = $AccountIP = GatewayAccount::where('GatewayAccountPKID',$ID)->pluck('AccountIP');
-                    if(empty($AccountIP)) {
-                        $name = $AccountCLI = GatewayAccount::where('GatewayAccountPKID', $ID)->pluck('AccountCLI');
-                    }
-                    $all_data['GatewayAccountPKID'][$ID] = $name;
+                }else if($ID > 0 && !empty($all_data['AccountIP'][$ID])){
+                    $all_data['GatewayAccountPKID'][$ID] = $name = $all_data['AccountIP'][$ID];
+                }else if($ID > 0 && !empty($all_data['AccountCLI'][$ID])){
+                    $all_data['GatewayAccountPKID'][$ID] = $name = $all_data['AccountCLI'][$ID];
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'GatewayVAccountPKID':
+                if($ID > 0 && isset($all_data['GatewayAccountPKID'][$ID])) {
+                    $name = $all_data['GatewayAccountPKID'][$ID];
+                }else if($ID > 0 && !empty($all_data['AccountIP'][$ID])){
+                    $all_data['GatewayAccountPKID'][$ID] = $name = $all_data['AccountIP'][$ID];
+                }else if($ID > 0 && !empty($all_data['AccountCLI'][$ID])){
+                    $all_data['GatewayAccountPKID'][$ID] = $name = $all_data['AccountCLI'][$ID];
                 }else{
                     $name = '';
                 }
