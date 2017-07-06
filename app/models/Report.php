@@ -160,6 +160,19 @@ class Report extends \Eloquent {
                     $name = '';
                 }
                 break;
+            case 'GatewayAccountPKID':
+                if($ID > 0 && isset($all_data['GatewayAccountPKID'][$ID])) {
+                    $name = $all_data['GatewayAccountPKID'][$ID];
+                }else if($ID > 0){
+                    $name = $AccountIP = GatewayAccount::where('GatewayAccountPKID',$ID)->pluck('AccountIP');
+                    if(empty($AccountIP)) {
+                        $name = $AccountCLI = GatewayAccount::where('GatewayAccountPKID', $ID)->pluck('AccountCLI');
+                    }
+                    $all_data['GatewayAccountPKID'][$ID] = $name;
+                }else{
+                    $name = '';
+                }
+                break;
 
         }
         return $name;
