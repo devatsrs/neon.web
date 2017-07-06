@@ -238,7 +238,6 @@ class IntegrationController extends \BaseController
 				$rules = array(
 					'ServiceKey'	 => 'required',
 					'SoftwareVendorKey'	 => 'required',
-					'isLive'	 => 'required',
 				);
 
 				$validator = Validator::make($data, $rules);
@@ -248,6 +247,7 @@ class IntegrationController extends \BaseController
 				}
 
 				$data['Status'] 		= 	isset($data['Status'])?1:0;
+				$data['isLive'] 		= 	isset($data['isLive'])?1:0;
 
 				if($data['Status']==1){ //disable all other payment subcategories
 					$status =	array("Status"=>0);
