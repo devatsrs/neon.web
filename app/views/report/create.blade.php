@@ -172,19 +172,16 @@
             });
             // Let the Dimension items be draggable
             $( "li", $Columns ).draggable({
-                helper: "clone",
-                cursor: "move"
+                helper: "clone"
             });
 
             // Let the Measures items be draggable
             $( "li", $Filter ).draggable({
-                helper: "clone",
-                cursor: "move"
+                helper: "clone"
             });
             // Let the Dimension items be draggable
             $( "li", $Row ).draggable({
-                helper: "clone",
-                cursor: "move"
+                helper: "clone"
             });
 
             // Let the Measures be droppable, accepting the Dimension items
