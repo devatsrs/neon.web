@@ -12,9 +12,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageVendorSummaryDetail`(
 	IN `p_isAdmin` INT
 )
 BEGIN
-	
+
 	DECLARE i INTEGER;
-	
+
 	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageVendorSummary_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageVendorSummary_(
 			`DateID` BIGINT(20) NOT NULL,
@@ -34,12 +34,12 @@ BEGIN
 			`AccountName` varchar(100),
 			INDEX `tblUsageSummary_dim_date` (`DateID`)
 	);
-	
+
 	DROP TEMPORARY TABLE IF EXISTS tmp_AreaPrefix_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_AreaPrefix_ (
 		`Code` Text NULL DEFAULT NULL
 	);
-    
+
 	SET i = 1;
 	REPEAT
 		INSERT INTO tmp_AreaPrefix_ ( Code)
@@ -47,7 +47,7 @@ BEGIN
 		SET i = i + 1;
 		UNTIL ROW_COUNT() = 0
 	END REPEAT;
-	
+
 	INSERT INTO tmp_tblUsageVendorSummary_
 	SELECT
 		sh.DateID,
@@ -75,20 +75,20 @@ BEGIN
 	INNER JOIN NeonRMDev.tblAccount a
 		ON sh.VAccountID = a.AccountID
 	LEFT JOIN NeonRMDev.tblTrunk t
-		ON t.Trunk = sh.Trunk
+		ON t.Trunk = usd.Trunk
 	LEFT JOIN tmp_AreaPrefix_ ap 
-		ON sh.AreaPrefix LIKE REPLACE(ap.Code, '*', '%')
+		ON usd.AreaPrefix LIKE REPLACE(ap.Code, '*', '%')
 	WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 	AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 	AND sh.CompanyID = p_CompanyID
 	AND (p_AccountID = '' OR FIND_IN_SET(sh.VAccountID,p_AccountID))
-	AND (p_CompanyGatewayID = '' OR FIND_IN_SET(sh.CompanyGatewayID,p_CompanyGatewayID))
+	AND (p_CompanyGatewayID = '' OR FIND_IN_SET(usd.CompanyGatewayID,p_CompanyGatewayID))
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
 	AND (p_Trunk = '' OR FIND_IN_SET(t.TrunkID,p_Trunk))
-	AND (p_CountryID = '' OR FIND_IN_SET(sh.CountryID,p_CountryID))
+	AND (p_CountryID = '' OR FIND_IN_SET(usd.CountryID,p_CountryID))
 	AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
 	AND (p_AreaPrefix ='' OR ap.Code IS NOT NULL);
-	
+
 	INSERT INTO tmp_tblUsageVendorSummary_
 	SELECT
 		sh.DateID,
@@ -116,17 +116,17 @@ BEGIN
 	INNER JOIN NeonRMDev.tblAccount a
 		ON sh.VAccountID = a.AccountID
 	LEFT JOIN NeonRMDev.tblTrunk t
-		ON t.Trunk = sh.Trunk
+		ON t.Trunk = usd.Trunk
 	LEFT JOIN tmp_AreaPrefix_ ap 
-		ON sh.AreaPrefix LIKE REPLACE(ap.Code, '*', '%')
+		ON usd.AreaPrefix LIKE REPLACE(ap.Code, '*', '%')
 	WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 	AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 	AND sh.CompanyID = p_CompanyID
 	AND (p_AccountID = '' OR FIND_IN_SET(sh.VAccountID,p_AccountID))
-	AND (p_CompanyGatewayID = '' OR FIND_IN_SET(sh.CompanyGatewayID,p_CompanyGatewayID))
+	AND (p_CompanyGatewayID = '' OR FIND_IN_SET(usd.CompanyGatewayID,p_CompanyGatewayID))
 	AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
 	AND (p_Trunk = '' OR FIND_IN_SET(t.TrunkID,p_Trunk))
-	AND (p_CountryID = '' OR FIND_IN_SET(sh.CountryID,p_CountryID))
+	AND (p_CountryID = '' OR FIND_IN_SET(usd.CountryID,p_CountryID))
 	AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID)
 	AND (p_AreaPrefix ='' OR ap.Code IS NOT NULL);
 

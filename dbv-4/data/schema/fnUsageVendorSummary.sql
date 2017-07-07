@@ -14,15 +14,15 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageVendorSummary`(
 )
 BEGIN
 	DECLARE v_TimeId_ INT;
-	
+
 	IF DATEDIFF(p_EndDate,p_StartDate) > 31 AND p_Detail =2
 	THEN
 		SET p_Detail = 1;
 	END IF;
-	
+
 	IF p_Detail = 1 
 	THEN
-	
+
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageVendorSummary_;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageVendorSummary_(
 				`DateID` BIGINT(20) NOT NULL,
@@ -65,13 +65,13 @@ BEGIN
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR sh.VAccountID = p_AccountID)
-		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
+		AND (p_CompanyGatewayID = 0 OR us.CompanyGatewayID = p_CompanyGatewayID)
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
-		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
-		AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
+		AND (p_Trunk = '' OR us.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
+		AND (p_AreaPrefix = '' OR us.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
+		AND (p_CountryID = 0 OR us.CountryID = p_CountryID)
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
-		
+
 		INSERT INTO tmp_tblUsageVendorSummary_
 		SELECT
 			sh.DateID,
@@ -97,19 +97,18 @@ BEGIN
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR sh.VAccountID = p_AccountID)
-		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
+		AND (p_CompanyGatewayID = 0 OR us.CompanyGatewayID = p_CompanyGatewayID)
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
-		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
-		AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
+		AND (p_Trunk = '' OR us.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
+		AND (p_AreaPrefix = '' OR us.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
+		AND (p_CountryID = 0 OR us.CountryID = p_CountryID)
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
-		
-		
+
 	END IF;
-	
+
 	IF p_Detail = 2 
 	THEN
-	
+
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageVendorSummary_;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageVendorSummary_(
 				`DateID` BIGINT(20) NOT NULL,
@@ -128,7 +127,7 @@ BEGIN
 				`AccountName` varchar(100),
 				INDEX `tblUsageSummary_dim_date` (`DateID`)
 		);
-		
+
 		INSERT INTO tmp_tblUsageVendorSummary_
 		SELECT
 			sh.DateID,
@@ -158,13 +157,13 @@ BEGIN
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR sh.VAccountID = p_AccountID)
-		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
+		AND (p_CompanyGatewayID = 0 OR usd.CompanyGatewayID = p_CompanyGatewayID)
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
-		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
-		AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
+		AND (p_Trunk = '' OR usd.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
+		AND (p_AreaPrefix = '' OR usd.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
+		AND (p_CountryID = 0 OR usd.CountryID = p_CountryID)
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
-		
+
 		INSERT INTO tmp_tblUsageVendorSummary_
 		SELECT
 			sh.DateID,
@@ -194,12 +193,12 @@ BEGIN
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR sh.VAccountID = p_AccountID)
-		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
+		AND (p_CompanyGatewayID = 0 OR usd.CompanyGatewayID = p_CompanyGatewayID)
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
-		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
-		AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
+		AND (p_Trunk = '' OR usd.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
+		AND (p_AreaPrefix = '' OR usd.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
+		AND (p_CountryID = 0 OR usd.CountryID = p_CountryID)
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
-		
+
 	END IF;
 END
