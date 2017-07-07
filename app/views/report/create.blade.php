@@ -140,6 +140,9 @@
         .dataTables_wrapper .export-data{
             right: 30px !important;
         }
+        #table-filter-list_wrapper label{
+            display:block !important;
+        }
         #selectcheckbox{
             padding: 15px 10px;
         }
@@ -434,7 +437,7 @@
                 "sAjaxSource": baseurl + "/report/getdatalist",
                 "iDisplayLength": 10,
                 "sPaginationType": "bootstrap",
-                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'> f>r> t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                 "aaSorting": [[0, 'asc']],
                 "fnServerParams": function(aoData) {
                     aoData.push(

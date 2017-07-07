@@ -198,8 +198,13 @@ class Report extends \Eloquent {
         foreach($filters as $key => $filter){
             if(!empty($filter[$key]) && is_array($filter[$key])){
                 $query_common->whereIn($key,$filter[$key]);
-            }else if(!empty($filter['wildcard_match_val'])){
+            }else if(!empty($filter['wildcard_match_val']) && in_array($key,array('Trunk','AreaPrefix'))){
                 $query_common->where($key,'like',str_replace('*','%',$filter['wildcard_match_val']));
+            }else if(!empty($filter['wildcard_match_val'])){
+                $data_in_array = Report::getDataInArray($CompanyID,$key,$filter['wildcard_match_val']);
+                if(!empty($data_in_array)) {
+                    $query_common->whereIn($key, $data_in_array);
+                }
             }else if($key == 'date'){
                 if(!empty($filter['start_date'])){
                     $query_common->where('date','>=',str_replace('*','%',$filter['start_date']));
@@ -210,6 +215,41 @@ class Report extends \Eloquent {
             }
         }
         return $query_common;
+    }
+
+    public static function getDataInArray($CompanyID,$PKColumnName,$search){
+        $data_in_array = array();
+        switch ($PKColumnName) {
+            case 'CompanyGatewayID':
+                $data_in_array = CompanyGateway::where(array('CompanyID'=>$CompanyID,'Status'=>1))->where('Title','like',str_replace('*','%',$search))->lists('CompanyGatewayID');
+                break;
+            case 'AccountID':
+                $data_in_array = Account::where(array('CompanyID'=>$CompanyID,'Status'=>1,'VerificationStatus'=>2))->where('AccountName','like',str_replace('*','%',$search))->lists('AccountID');
+                break;
+            case 'VAccountID':
+                $data_in_array = Account::where(array('CompanyID'=>$CompanyID,'Status'=>1,'VerificationStatus'=>2))->where('AccountName','like',str_replace('*','%',$search))->lists('AccountID');
+                break;
+            case 'CountryID':
+                $data_in_array = Country::where('Country','like',str_replace('*','%',$search))->lists('CountryID');
+                break;
+            case 'GatewayAccountPKID':
+                $data_in_array = GatewayAccount::where(array('CompanyID'=>$CompanyID))
+                    ->where(function($where)use($search){
+                        $where->where('AccountIP','like',str_replace('*','%',$search));
+                        $where->orwhere('AccountCLI','like',str_replace('*','%',$search));
+                    })
+                    ->lists('GatewayAccountPKID');
+                break;
+            case 'GatewayVAccountPKID':
+                $data_in_array = GatewayAccount::where(array('CompanyID'=>$CompanyID))
+                    ->where(function($where)use($search){
+                    $where->where('AccountIP','like',str_replace('*','%',$search));
+                    $where->orwhere('AccountCLI','like',str_replace('*','%',$search));
+                })->lists('GatewayAccountPKID');
+                break;
+
+        }
+        return $data_in_array;
     }
 
 

@@ -1,6 +1,7 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDistinctList`(
 	IN `p_CompanyID` INT,
 	IN `p_ColName` VARCHAR(50),
+	IN `p_Search` VARCHAR(50),
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT
 )
@@ -20,12 +21,14 @@ BEGIN
 			Title 
 		FROM NeonRMDev.tblCompanyGateway 
 		WHERE CompanyID = p_CompanyID
+		AND Title LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
 		FROM NeonRMDev.tblCompanyGateway 
-		WHERE CompanyID = p_CompanyID;
+		WHERE CompanyID = p_CompanyID
+		AND Title LIKE CONCAT(p_Search,'%');
 
 	END IF;
 	
@@ -36,11 +39,13 @@ BEGIN
 			CountryID,
 			Country 
 		FROM NeonRMDev.tblCountry
+		WHERE Country LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
-		FROM NeonRMDev.tblCountry;
+		FROM NeonRMDev.tblCountry
+		WHERE Country LIKE CONCAT(p_Search,'%');
 
 	END IF;
 	
@@ -52,12 +57,14 @@ BEGIN
 			AccountName 
 		FROM NeonRMDev.tblAccount
 		WHERE CompanyID = p_CompanyID
+		AND AccountName LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
 		FROM NeonRMDev.tblAccount
-		WHERE CompanyID = p_CompanyID;
+		WHERE CompanyID = p_CompanyID
+		AND AccountName LIKE CONCAT(p_Search,'%');
 
 	END IF;
 	
@@ -70,12 +77,15 @@ BEGIN
 			Trunk as Trunk1,
 			Trunk
 		FROM tblRTrunk
+		WHERE CompanyID = p_CompanyID
+		AND Trunk LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
 		FROM tblRTrunk
-		WHERE CompanyID = p_CompanyID;
+		WHERE CompanyID = p_CompanyID
+		AND Trunk LIKE CONCAT(p_Search,'%');
 
 	END IF;
 	
@@ -88,12 +98,14 @@ BEGIN
 			Code
 		FROM tblRRate
 		WHERE CompanyID = p_CompanyID
+		AND Code LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
 		FROM tblRRate
-		WHERE CompanyID = p_CompanyID;
+		WHERE CompanyID = p_CompanyID
+		AND Code LIKE CONCAT(p_Search,'%');
 
 	END IF;
 	
@@ -117,6 +129,7 @@ BEGIN
 		FROM NeonBillingDev.tblGatewayAccount 
 		WHERE CompanyID = p_CompanyID
 		AND (AccountIP <> '' OR AccountCLI <> '')
+		AND ( AccountIP LIKE CONCAT(p_Search,'%') OR AccountCLI LIKE CONCAT(p_Search,'%'))
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
@@ -130,7 +143,8 @@ BEGIN
 			END) AS totalcount
 		FROM NeonBillingDev.tblGatewayAccount 
 		WHERE CompanyID = p_CompanyID
-		AND (AccountIP <> '' OR AccountCLI <> '');
+		AND (AccountIP <> '' OR AccountCLI <> '')
+		AND ( AccountIP LIKE CONCAT(p_Search,'%') OR AccountCLI LIKE CONCAT(p_Search,'%'));
 
 	END IF;
 	

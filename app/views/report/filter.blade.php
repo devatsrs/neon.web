@@ -23,7 +23,7 @@
                 </ul>
             </div>
         </div>
-        <div class="default-padding padd">
+        <div class="default-padding" style="padding-top: 10px;">
             <button type="submit" id="save_report" class="btn btn-green btn-sm btn-icon icon-left"><i class="entypo-floppy"></i> Save </button>
         </div>
     </div>
