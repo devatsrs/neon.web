@@ -18,6 +18,10 @@
             <br>
             @if( User::is_admin() || User::is('BillingAdmin'))
                 <p style="text-align: right;">
+                    <a href="{{ URL::to('products/upload') }}" class="btn btn-primary ">
+                        <i class="entypo-upload"></i>
+                        Upload
+                    </a>
                     <a href="#" data-action="showAddModal" data-type="item" data-modal="add-edit-modal-product" class="btn btn-primary ">
                         <i class="entypo-plus"></i>
                         Add New
@@ -133,6 +137,10 @@
                                         for(var i = 0 ; i< list_fields.length; i++){
                                             action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                         }
+
+                                        $.each(full['DynamicFields'], function(key, value){
+                                            action += '<input type = "hidden"  name = "DynamicFields[' + key + ']"       value = "' + (value != null?value:'')+ '" / >';
+                                        });
                                         action += '</div>';
                                         <?php if(User::checkCategoryPermission('Products','Edit')){ ?>
                                             action += ' <a data-name = "' + full[0] + '" data-id="' + full[5] + '" title="Edit" class="edit-product btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
@@ -198,6 +206,16 @@
                                 }else{
                                     $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                                 }
+                            }
+                            var DynamicFields = $(this).prev().find('input[name^=DynamicFields]');
+                            for(var j=0;j<DynamicFields.length;j++) {
+                                var dfName = DynamicFields[j].getAttribute('name');
+                                var dfValue = DynamicFields[j].value;
+                                $('#add-edit-product-form').find('input[name^=DynamicFields]').each(function(){
+                                    if($(this).attr('name') == dfName){
+                                        $(this).val(dfValue);
+                                    }
+                                });
                             }
                             $('#add-edit-modal-product h4').html('Edit Item');
                             $('#add-edit-modal-product').modal('show');

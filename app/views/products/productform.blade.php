@@ -83,6 +83,20 @@
                     <textarea name="Note" class="form-control"></textarea>
                 </div>
             </div>
+
+            @if (isset($DynamicFields) && $DynamicFields['totalfields'] > 0)
+                @foreach($DynamicFields['fields'] as $field)
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">{{ $field->FieldName }}</label>
+                            {{Form::text('DynamicFields['.$field->DynamicFieldsID.']', '',array("class"=>"form-control"))}}
+                        </div>
+                    </div>
+
+                @endforeach
+            @endif
+
             <div class="col-md-12">
                 <div class="form-group">
                     <label for="field-5" class="control-label">Active</label>
