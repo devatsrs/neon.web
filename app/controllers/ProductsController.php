@@ -138,12 +138,13 @@ class ProductsController extends \BaseController {
         if( $id > 0 ) {
             $data = Input::all();
             $Product = Product::findOrFail($id);
+            $user = User::get_user_full_name();
             $roundplaces = $RoundChargesAmount = get_round_decimal_places();
 
             $companyID = User::get_companyID();
             $data["CompanyID"] = $companyID;
             $data['Active'] = isset($data['Active']) ? 1 : 0;
-            $data["ModifiedBy"] = User::get_user_full_name();
+            $data["ModifiedBy"] = $user;
 
             if($error = Product::validate($data)){
                 return $error;
@@ -169,7 +170,9 @@ class ProductsController extends \BaseController {
                         $DynamicFields['DynamicFieldsID'] = $key;
                         $DynamicFields['FieldValue'] = $value;
                         $DynamicFields['created_at'] = date('Y-m-d H:i:s.000');
-                        $DynamicFields['created_by'] = User::get_user_full_name();
+                        $DynamicFields['created_by'] = $user;
+                        $DynamicFields['updated_at'] = date('Y-m-d H:i:s.000');
+                        $DynamicFields['updated_by'] = $user;
 
                         DB::table('tblDynamicFieldsValue')->insert($DynamicFields);
                     }
