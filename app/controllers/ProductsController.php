@@ -152,11 +152,27 @@ class ProductsController extends \BaseController {
             if(isset($data['DynamicFields']) && count($data['DynamicFields']) > 0) {
                 $CompanyID = User::get_companyID();
                 foreach ($data['DynamicFields'] as $key => $value) {
-                    DB::table('tblDynamicFieldsValue')
+                    $isDynamicFields = DB::table('tblDynamicFieldsValue')
                         ->where('CompanyID',$CompanyID)
                         ->where('ParentID',$data['ProductID'])
-                        ->where('DynamicFieldsID',$key)
-                        ->update(['FieldValue' => $value]);
+                        ->where('DynamicFieldsID',$key)->count();
+
+                    if($isDynamicFields > 0){
+                        DB::table('tblDynamicFieldsValue')
+                            ->where('CompanyID',$CompanyID)
+                            ->where('ParentID',$data['ProductID'])
+                            ->where('DynamicFieldsID',$key)
+                            ->update(['FieldValue' => $value]);
+                    } else {
+                        $DynamicFields['CompanyID'] = $companyID;
+                        $DynamicFields['ParentID'] = $data['ProductID'];
+                        $DynamicFields['DynamicFieldsID'] = $key;
+                        $DynamicFields['FieldValue'] = $value;
+                        $DynamicFields['created_at'] = date('Y-m-d H:i:s.000');
+                        $DynamicFields['created_by'] = User::get_user_full_name();
+
+                        DB::table('tblDynamicFieldsValue')->insert($DynamicFields);
+                    }
                 }
                 unset($data['DynamicFields']);
             }
