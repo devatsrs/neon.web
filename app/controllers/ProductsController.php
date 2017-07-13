@@ -46,9 +46,9 @@ class ProductsController extends \BaseController {
             for($i=0;$i<count($data['aaData']);$i++) {
                 foreach ($DynamicFields['fields'] as $field) {
                     $DynamicFieldsID = $field->DynamicFieldsID;
-                    $DynamicFieldsValues = $this->getDynamicColumnValuesByProductID($DynamicFieldsID,$data['aaData'][$i][5]);
+                    $DynamicFieldsValues = DynamicFieldsValue::getDynamicColumnValuesByProductID($DynamicFieldsID,$data['aaData'][$i][5]);
 
-                    if($DynamicFieldsValues){
+                    if($DynamicFieldsValues->count() > 0){
                         foreach ($DynamicFieldsValues as $DynamicFieldsValue) {
                             $data['aaData'][$i]['DynamicFields'][$field->DynamicFieldsID] = $DynamicFieldsValue->FieldValue;
                         }
@@ -213,7 +213,7 @@ class ProductsController extends \BaseController {
                             foreach ($DynamicFields['fields'] as $field) {
                                 $DynamicFieldsIDs[] = $field->DynamicFieldsID;
                             }
-                            $this->deleteDynamicColumnValuesByProductID($companyID,$id,$DynamicFieldsIDs);
+                            DynamicFieldsValue::deleteDynamicColumnValuesByProductID($companyID,$id,$DynamicFieldsIDs);
                         }
                         return Response::json(array("status" => "success", "message" => "Product Successfully Deleted"));
                     } else {
@@ -458,36 +458,26 @@ class ProductsController extends \BaseController {
 
         return $dynamicFields;
     }
-    public function deleteDynamicColumnValuesByProductID($CompanyID,$ProductID,$DynamicFieldsIDs) {
-        return DB::table('tblDynamicFieldsValue')
-            ->where('CompanyID',$CompanyID)
-            ->where('ParentID',$ProductID)
-            ->whereIn('DynamicFieldsID',$DynamicFieldsIDs)
-            ->delete();
-    }
-    public function getDynamicColumnValuesByProductID($DynamicFieldsID,$ProductID) {
-//        $Type = 'product';
-        $CompanyID = User::get_companyID();
 
-        return DB::table('tblDynamicFieldsValue')
-            ->where('CompanyID',$CompanyID)
-            ->where('ParentID',$ProductID)
-            ->where('DynamicFieldsID',$DynamicFieldsID)
-            ->get();
+    /**
+     * @return mixed
+     */
+    public static function getDynamicFieldsIDBySlug() {
+        return DB::table('tblDynamicFields')->where('FieldSlug',DynamicFieldsValue::BARCODE_SLUG)->pluck('DynamicFieldsID');
     }
 
+    /**
+     * @param $BarCode
+     * @return mixed
+     */
     public function getProductByBarCode($BarCode) {
-        $ColumnID = DB::table('tblDynamicFields')->where('FieldSlug',Product::BARCODE_SLUG)->pluck('DynamicFieldsID');
+        $ColumnID = $this->getDynamicFieldsIDBySlug();
 
         if($ColumnID) {
-            $product = DB::table('LocalBillingDev.tblProduct AS P')
-                ->leftJoin('tblDynamicFieldsValue AS B', 'P.ProductID', '=', 'B.ParentID')
-                ->select('P.ProductID','P.Name', 'P.Description','P.Amount')
-                ->where('B.FieldValue', $BarCode)
-                ->where('B.DynamicFieldsID', $ColumnID)->first();
+            $product = DB::connection('sqlsrv2')->select("CALL  prc_getProductByBarCode ('" . $BarCode . "','" . $ColumnID . "')");
 
             if($product) {
-                return Response::json(array("status" => "success", "message" => "Product found.", "data" => $product));
+                return Response::json(array("status" => "success", "message" => "Product found.", "data" => $product[0]));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Product not found."));
             }
