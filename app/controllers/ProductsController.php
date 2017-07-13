@@ -163,7 +163,7 @@ class ProductsController extends \BaseController {
                             ->where('CompanyID',$CompanyID)
                             ->where('ParentID',$data['ProductID'])
                             ->where('DynamicFieldsID',$key)
-                            ->update(['FieldValue' => $value]);
+                            ->update(['FieldValue' => $value, 'updated_at' => date('Y-m-d H:i:s.000'), 'updated_by' => $user]);
                     } else {
                         $DynamicFields['CompanyID'] = $companyID;
                         $DynamicFields['ParentID'] = $data['ProductID'];
