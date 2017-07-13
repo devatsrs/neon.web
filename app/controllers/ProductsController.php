@@ -456,4 +456,24 @@ class ProductsController extends \BaseController {
             ->where('DynamicFieldsID',$DynamicFieldsID)
             ->get();
     }
+
+    public function getProductByBarCode($BarCode) {
+        $ColumnID = DB::table('tblDynamicFields')->where('FieldSlug',Product::BARCODE_SLUG)->pluck('DynamicFieldsID');
+
+        if($ColumnID) {
+            $product = DB::table('LocalBillingDev.tblProduct AS P')
+                ->leftJoin('tblDynamicFieldsValue AS B', 'P.ProductID', '=', 'B.ParentID')
+                ->select('P.ProductID','P.Name', 'P.Description','P.Amount')
+                ->where('B.FieldValue', $BarCode)
+                ->where('B.DynamicFieldsID', $ColumnID)->first();
+
+            if($product) {
+                return Response::json(array("status" => "success", "message" => "Product found.", "data" => $product));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Product not found."));
+            }
+        } else {
+            return Response::json(array("status" => "failed", "message" => "BarCode column not found."));
+        }
+    }
 }

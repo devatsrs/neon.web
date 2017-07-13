@@ -35,7 +35,10 @@
           <div class="clearfix margin-bottom "></div>
            <label for="field-1" class="col-sm-2 control-label">*Address</label>
           <div class="col-sm-6"> {{Form::textarea('Address','',array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}} </div>
-          <div class="clearfix margin-bottom "></div>       
+          <div class="clearfix margin-bottom "></div>
+           <label for="field-1" class="col-sm-2 control-label">BarCode</label>
+          <div class="col-sm-6"> {{Form::text('BarCode','',array( "ID"=>"BarCode", "class"=>"form-control"))}} </div>
+          <div class="clearfix margin-bottom "></div>
         </div>
         <div class="col-sm-6">
           <label for="field-1" class="col-sm-7 control-label">*Invoice Number</label>
@@ -69,14 +72,14 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
+                <!--<tr>
                   <td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td>
                   <td>{{Form::SelectControl('item_and_Subscription',0,'',0,'InvoiceDetail[ProductID][]')}}</td>
                   <td>{{Form::textarea('InvoiceDetail[Description][]','',array("class"=>"form-control autogrow invoice_estimate_textarea descriptions","rows"=>1))}}</td>
                   <td class="text-center">{{Form::text('InvoiceDetail[Price][]','',array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td>
                   <td class="text-center">{{Form::text('InvoiceDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>
                   <!-- <td class="text-center">{{Form::text('InvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>-->
-                  <td>{{Form::SelectExt(
+              <!--    <td>{{Form::SelectExt(
                     [
                     "name"=>"InvoiceDetail[TaxRateID][]",
                     "data"=>$taxes,
@@ -107,7 +110,7 @@
                   <td class="hidden">{{Form::text('InvoiceDetail[TaxAmount][]','',array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>
                   <td>{{Form::text('InvoiceDetail[LineTotal][]',0,array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}
                     {{Form::hidden('InvoiceDetail[ProductType][]',Product::ITEM,array("class"=>"ProductType"))}} </td>
-                </tr>
+                </tr>-->
               </tbody>
             </table>
           </div>
@@ -219,6 +222,76 @@ function ajax_form_success(response){
         window.location = response.redirect;
     }
 }
+
+    jQuery(document).ready(function(){
+        jQuery('#BarCode').on("input", function(){
+            var BarCode = jQuery('#BarCode').val();
+            var url = baseurl + '/products/get_product_by_barcode/'+BarCode;
+
+            if(BarCode != '' && BarCode != null){
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+
+                            var isExist = 0;
+                            jQuery('#InvoiceTable > tbody').find('tr').each(function(){
+                                var crow = this;
+                                jQuery(this).find('select[name^=InvoiceDetail]').each(function(){
+                                    if(this.getAttribute('name') == 'InvoiceDetail[ProductID][]') {
+                                        if(jQuery(this).val() == response.data.ProductID) {
+                                            isExist = 1;
+                                            jQuery(crow).find('input[name^=InvoiceDetail]').each(function(){
+                                                if(jQuery(this).attr('name') == 'InvoiceDetail[Qty][]'){
+                                                    jQuery(this).val(parseInt(jQuery(this).val()) + 1);
+
+                                                    var $this = jQuery(this);
+                                                    var $row = $this.parents("tr");
+                                                    cal_line_total($row);
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            });
+
+                            if(isExist == 0) {
+                                jQuery('#add-row').click();
+
+                                var row = jQuery('#InvoiceTable > tbody tr:last');
+
+                                row.find('select[name^=InvoiceDetail]').each(function(){
+                                    if(this.getAttribute('name') == 'InvoiceDetail[ProductID][]') {
+                                        jQuery(this).select2("val", response.data.ProductID);
+                                    }
+                                });
+                                row.find('textarea[name^=InvoiceDetail]').each(function(){
+                                    if(this.getAttribute('name') == 'InvoiceDetail[Description][]') {
+                                        jQuery(this).val(response.data.Description);
+                                    }
+                                });
+                                row.find('input[name^=InvoiceDetail]').each(function(){
+                                    if(this.getAttribute('name') == 'InvoiceDetail[Price][]') {
+                                        jQuery(this).val(response.data.Amount);
+                                    }
+                                });
+
+                                cal_line_total(row);
+                            }
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+        });
+    });
 </script>
 @include('invoices.script_invoice_add_edit')
 @include('composetmodels.productsubscriptionmodal')

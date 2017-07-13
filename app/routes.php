@@ -1060,6 +1060,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/products/check_upload', 'ProductsController@check_upload');
 	Route::any('/products/ajaxfilegrid', 'ProductsController@ajaxfilegrid');
 	Route::any('/products/storeTemplate', 'ProductsController@storeTemplate');
+	Route::any('/products/get_product_by_barcode/{BarCode}', 'ProductsController@getProductByBarCode');
 
 	Route::any('/product/{id}/get/{FieldName}', 'ProductsController@get')->where('FieldName', '(.[azAZ]*)+');
     Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');

@@ -16,6 +16,7 @@ class Product extends \Eloquent {
     public static $TypetoProducts = [self::ITEM => "item", self::USAGE => "usage", self::SUBSCRIPTION =>"subscription"];
 
     const DYNAMIC_TYPE = 'product';
+    const BARCODE_SLUG = 'BarCode';
 
     static public function checkForeignKeyById($id) {
         $hasAccountApprovalList = InvoiceDetail::where("ProductID",$id)->count();

@@ -1,7 +1,7 @@
 <?php
 
 class InvoicesController extends \BaseController {
-	
+
 	public function ajax_datagrid_total() 
 	{
         $data 						 = 	Input::all();
@@ -148,14 +148,19 @@ class InvoicesController extends \BaseController {
      */
     public function create()
     {
-
+        $companyID  =   User::get_companyID();
         $accounts 	= 	Account::getAccountIDList();
         $products 	= 	Product::getProductDropdownList();
         $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice();
 		//echo "<pre>"; 		print_r($taxes);		echo "</pre>"; exit;
         //$gateway_product_ids = Product::getGatewayProductIDs();
-		$BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
-        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass'));
+		$BillingClass = BillingClass::getDropdownIDList($companyID);
+
+        $Type =  Product::DYNAMIC_TYPE;
+        $productsControllerObj = new ProductsController();
+        $DynamicFields = $productsControllerObj->getDynamicFields($companyID,$Type);
+
+        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass','DynamicFields'));
 
     }
 
