@@ -19,6 +19,8 @@
             $NameFormat = GatewayConfig::$Mirta_NameFormat;
         }else if($GatewayName == 'MOR'){
             $NameFormat = GatewayConfig::$MOR_NameFormat;
+        }else if($GatewayName == 'CallShop'){
+            $NameFormat = GatewayConfig::$CallShop_NameFormat;
         }
     ?>
     @if($count%2 == 0)

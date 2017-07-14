@@ -528,7 +528,7 @@
                         $("#rootwizard-2").find("input[name='importway']").val(importfrom);
                         $('#gatewayimport').hide();
                         $('#csvimport').show();
-                    }else if(importfrom=='PBX' || importfrom=='Porta' || importfrom=='MOR'){
+                    }else if(importfrom=='PBX' || importfrom=='Porta' || importfrom=='MOR' || importfrom =='CallShop'){
                         $('#st3').remove();
                         $("#st2 h5.test").html('Select Accounts');
                         $("#st3 h5.test").html('Import Accounts');
