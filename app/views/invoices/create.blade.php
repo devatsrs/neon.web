@@ -25,32 +25,34 @@
   <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-body">
       <div class="form-group">
-        <div class="col-sm-6">
-          <label for="field-1" class="col-sm-2 control-label">*Client</label>
-          <div class="col-sm-6"> {{Form::select('AccountID',$accounts,'',array("class"=>"select2"))}} </div><br>
+        <div class="col-sm-4">
+          <label for="field-1" class="col-sm-3 control-label">*Client</label>
+          <div class="col-sm-9"> {{Form::select('AccountID',$accounts,'',array("class"=>"select2"))}} </div><br>
 
           <div class="clearfix margin-bottom "></div>
-          <label for="field-1" class="col-sm-2 control-label">*Billing Class</label>
-          <div class="col-sm-6">{{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"select2 small form-control1 small","id"=>"AccountBillingClassID"));}}</div>
+          <label for="field-1" class="col-sm-3 control-label">*Billing Class</label>
+          <div class="col-sm-9">{{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"select2 small form-control1 small","id"=>"AccountBillingClassID"));}}</div>
           <div class="clearfix margin-bottom "></div>
-           <label for="field-1" class="col-sm-2 control-label">*Address</label>
-          <div class="col-sm-6"> {{Form::textarea('Address','',array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}} </div>
-          <div class="clearfix margin-bottom "></div>
-           <label for="field-1" class="col-sm-2 control-label">BarCode</label>
-          <div class="col-sm-6"> {{Form::text('BarCode','',array( "ID"=>"BarCode", "class"=>"form-control"))}} </div>
+           <label for="field-1" class="col-sm-3 control-label">*Address</label>
+          <div class="col-sm-9"> {{Form::textarea('Address','',array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}} </div>
           <div class="clearfix margin-bottom "></div>
         </div>
-        <div class="col-sm-6">
-          <label for="field-1" class="col-sm-7 control-label">*Invoice Number</label>
-          <div class="col-sm-5"> {{Form::text('InvoiceNumber','',array("Placeholder"=>"AUTO", "class"=>"form-control"))}} </div>
+        <div class="col-sm-4">
+            <label for="field-1" class="col-sm-3 control-label">BarCode</label>
+            <div class="col-sm-9"> {{Form::text('BarCode','',array( "ID"=>"BarCode", "class"=>"form-control", "onkeypress"=>"validateBarCodeInput(event)"))}} </div>
+            <div class="clearfix margin-bottom "></div>
+        </div>
+        <div class="col-sm-4">
+          <label for="field-1" class="col-sm-4 control-label">*Invoice Number</label>
+          <div class="col-sm-8"> {{Form::text('InvoiceNumber','',array("Placeholder"=>"AUTO", "class"=>"form-control"))}} </div>
           <br />
           <br />
-          <label for="field-1" class="col-sm-7 control-label">*Date of issue</label>
-          <div class="col-sm-5"> {{Form::text('IssueDate',date('Y-m-d'),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
+          <label for="field-1" class="col-sm-4 control-label">*Date of issue</label>
+          <div class="col-sm-8"> {{Form::text('IssueDate',date('Y-m-d'),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
           <br />
           <br />
-          <label for="field-1" class="col-sm-7 control-label">PO Number</label>
-          <div class="col-sm-5"> {{Form::text('PONumber','',array("class"=>" form-control" ))}} </div>
+          <label for="field-1" class="col-sm-4 control-label">PO Number</label>
+          <div class="col-sm-8"> {{Form::text('PONumber','',array("class"=>" form-control" ))}} </div>
         </div>
       </div>
       <div class="form-group">
@@ -223,76 +225,8 @@ function ajax_form_success(response){
     }
 }
 
-    jQuery(document).ready(function(){
-        jQuery('#BarCode').on("input", function(){
-            var BarCode = jQuery('#BarCode').val();
-            var url = baseurl + '/products/get_product_by_barcode/'+BarCode;
-
-            if(BarCode != '' && BarCode != null){
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function (response) {
-                        if (response.status == 'success') {
-                            toastr.success(response.message, "Success", toastr_opts);
-
-                            var isExist = 0;
-                            jQuery('#InvoiceTable > tbody').find('tr').each(function(){
-                                var crow = this;
-                                jQuery(this).find('select[name^=InvoiceDetail]').each(function(){
-                                    if(this.getAttribute('name') == 'InvoiceDetail[ProductID][]') {
-                                        if(jQuery(this).val() == response.data.ProductID) {
-                                            isExist = 1;
-                                            jQuery(crow).find('input[name^=InvoiceDetail]').each(function(){
-                                                if(jQuery(this).attr('name') == 'InvoiceDetail[Qty][]'){
-                                                    jQuery(this).val(parseInt(jQuery(this).val()) + 1);
-
-                                                    var $this = jQuery(this);
-                                                    var $row = $this.parents("tr");
-                                                    cal_line_total($row);
-                                                }
-                                            });
-                                        }
-                                    }
-                                });
-                            });
-
-                            if(isExist == 0) {
-                                jQuery('#add-row').click();
-
-                                var row = jQuery('#InvoiceTable > tbody tr:last');
-
-                                row.find('select[name^=InvoiceDetail]').each(function(){
-                                    if(this.getAttribute('name') == 'InvoiceDetail[ProductID][]') {
-                                        jQuery(this).select2("val", response.data.ProductID);
-                                    }
-                                });
-                                row.find('textarea[name^=InvoiceDetail]').each(function(){
-                                    if(this.getAttribute('name') == 'InvoiceDetail[Description][]') {
-                                        jQuery(this).val(response.data.Description);
-                                    }
-                                });
-                                row.find('input[name^=InvoiceDetail]').each(function(){
-                                    if(this.getAttribute('name') == 'InvoiceDetail[Price][]') {
-                                        jQuery(this).val(response.data.Amount);
-                                    }
-                                });
-
-                                cal_line_total(row);
-                            }
-                        } else {
-                            toastr.error(response.message, "Error", toastr_opts);
-                        }
-                    },
-                    cache: false,
-                    contentType: false,
-                    processData: false
-                });
-            }
-        });
-    });
 </script>
+@include('invoices.script_invoice_barcode_product')
 @include('invoices.script_invoice_add_edit')
 @include('composetmodels.productsubscriptionmodal')
 @include('includes.ajax_submit_script', array('formID'=>'invoice-from' , 'url' => 'invoice/store','update_url'=>'invoice/{id}/update' ))
