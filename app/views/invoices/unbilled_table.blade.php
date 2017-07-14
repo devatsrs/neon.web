@@ -63,7 +63,7 @@
                         ?>
                         <tr>
                             <td>{{$CustomerNextBillingRow['StartDate'].' - '.$CustomerNextBillingRow['EndDate']}}</td>
-                            <td>{{$CustomerNextBillingRow['TotalMinutes']}}</td>
+                            <td>{{intval($CustomerNextBillingRow['TotalMinutes']/60)}}</td>
                             <td>{{$CurrencySymbol.$CustomerNextBillingRow['TotalAmount']}}</td>
                         </tr>
                     @endforeach
@@ -76,7 +76,7 @@
                 <tfoot>
                 <tr>
                     <td><strong>Total</strong></td>
-                    <td><strong>{{$totalSecond}}</strong></td>
+                    <td><strong>{{intval($totalSecond/60)}}</strong></td>
                     <td><strong>{{$CurrencySymbol.$totalcost}}</strong></td>
                 </tr>
                 </tfoot>
@@ -107,7 +107,7 @@
                         <tr>
 
                             <td>{{$VendorNextBillingRow['StartDate'].' - '.$VendorNextBillingRow['EndDate']}}</td>
-                            <td>{{$VendorNextBillingRow['TotalMinutes']}}</td>
+                            <td>{{intval($VendorNextBillingRow['TotalMinutes']/60)}}</td>
                             <td>{{$CurrencySymbol.$VendorNextBillingRow['TotalAmount']}}</td>
                         </tr>
                     @endforeach
@@ -120,7 +120,7 @@
                 <tfoot>
                 <tr>
                     <td><strong>Total</strong></td>
-                    <td><strong>{{$totalSecond}}</strong></td>
+                    <td><strong>{{intval($totalSecond/60)}}</strong></td>
                     <td><strong>{{$CurrencySymbol.$totalcost}}</strong></td>
                 </tr>
                 </tfoot>
