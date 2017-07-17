@@ -49,9 +49,12 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_WSProcessItemUpload`(
 	IN `p_companyId` INT
 	)
 BEGIN
-   DECLARE v_AffectedRecords_ INT DEFAULT 0;
+   	DECLARE v_AffectedRecords_ INT DEFAULT 0;
 	DECLARE totalexistingcode INT(11) DEFAULT 0;
 	DECLARE duplicate_c_records INT DEFAULT 0;
+	DECLARE dynamic_columns_count INT DEFAULT 0;
+	DECLARE dynamic_column_type VARCHAR(20) DEFAULT 'product';
+	DECLARE duplicate_f_records INT DEFAULT 0;
 		
 	SET sql_mode = '';	    
    	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -80,13 +83,15 @@ BEGIN
 						HAVING COUNT(*)>1) AS tbl;
 	END IF;
     
-	DELETE n1
+	DELETE n1,fv
 		FROM tblTempProduct n1
 		INNER JOIN (
-			SELECT MAX(ProductID) as ProductID FROM tblTempProduct WHERE ProcessID = p_processId
+			SELECT MIN(ProductID) as minid,Code FROM tblTempProduct WHERE ProcessID = p_processId
 			GROUP BY Code
-			HAVING COUNT(*)>1
-		) n2 ON n1.ProductID = n2.ProductID
+			HAVING COUNT(1)>1
+		) n2 ON n2.Code = n1.Code AND minid <> n1.ProductID
+		LEFT JOIN tblTempDynamicFieldsValue AS fv
+		ON fv.ParentID = n1.ProductID
 		WHERE n1.ProcessID = p_processId;
 
 	-- check unique code
@@ -114,10 +119,216 @@ BEGIN
 						WHERE
 							ttp3.Code = ttp4.Code) AS tbl;
 	END IF;
-		
+	
+	-- check if there is any dynamic columns for product table
+	SELECT count(*) INTO dynamic_columns_count FROM NeonRMDev.tblDynamicFields WHERE Type = dynamic_column_type AND Status = 1;
+
+	IF dynamic_columns_count > 0
+	THEN
+		SELECT COUNT(*) INTO duplicate_f_records FROM (SELECT count(FieldValue)
+			FROM 
+				tblTempDynamicFieldsValue 
+			WHERE
+				DynamicFieldsID IN (
+					SELECT
+						f.DynamicFieldsID
+					FROM 
+						NeonRMDev.tblDynamicFields AS f
+					LEFT JOIN
+						NeonRMDev.tblDynamicFieldsDetail AS fd
+					ON
+						f.DynamicFieldsID = fd.DynamicFieldsID
+					WHERE 
+						f.Type = dynamic_column_type AND 
+						f.Status = 1 AND
+						fd.FieldType = 'is_unique' AND
+						fd.Options = 1
+				)
+			GROUP BY FieldValue,DynamicFieldsID
+			HAVING COUNT(*)>1) AS tbl;
+			
+		IF duplicate_f_records > 0
+		THEN
+			INSERT INTO tmp_JobLog_ (Message)
+			  	SELECT DISTINCT 
+				  	CONCAT( 'Duplicate ',FieldName,' in excel file - (',f_duplicate_count,' occurences) - ', FieldValue)
+				  		FROM(
+							SELECT 
+								count(fv.FieldValue) AS f_duplicate_count, fv.FieldValue AS FieldValue, f.FieldName AS FieldName
+							FROM 
+								NeonBillingDev.tblTempDynamicFieldsValue AS fv
+							LEFT JOIN
+								NeonRMDev.tblDynamicFields AS f
+							ON
+								fv.DynamicFieldsID = f.DynamicFieldsID
+							WHERE
+								fv.DynamicFieldsID IN (
+									SELECT
+										f1.DynamicFieldsID
+									FROM 
+										NeonRMDev.tblDynamicFields AS f1
+									LEFT JOIN
+										NeonRMDev.tblDynamicFieldsDetail AS fd
+									ON
+										f1.DynamicFieldsID = fd.DynamicFieldsID
+									WHERE 
+										f1.Type = dynamic_column_type AND 
+										f1.Status = 1 AND
+										fd.FieldType = 'is_unique' AND
+										fd.Options = 1
+								)
+							GROUP BY fv.FieldValue,fv.DynamicFieldsID
+							HAVING COUNT(*)>1) AS tbl;
+			-- if dynamic column is unique than delete all duplicate records from temp table
+			DELETE fv1, p
+				FROM NeonBillingDev.tblTempDynamicFieldsValue fv1 
+				INNER JOIN (
+					SELECT MIN(DynamicFieldsValueID) AS minid, DynamicFieldsID, FieldValue FROM NeonBillingDev.tblTempDynamicFieldsValue
+					WHERE ProcessID = p_processId
+			     	GROUP BY FieldValue,DynamicFieldsID
+					HAVING COUNT(1) > 1
+				) AS fv2
+			   ON (fv2.FieldValue = fv1.FieldValue
+			   AND fv1.DynamicFieldsID = fv2.DynamicFieldsID
+			   AND fv2.minid <> fv1.DynamicFieldsValueID)
+			   INNER JOIN
+					NeonBillingDev.tblTempProduct AS p
+				ON
+					fv1.ParentID = p.ProductID
+				LEFT JOIN
+					NeonRMDev.tblDynamicFields AS f
+				ON
+					fv1.DynamicFieldsID = f.DynamicFieldsID
+				WHERE
+					fv1.DynamicFieldsID IN (
+						SELECT
+							f1.DynamicFieldsID
+						FROM 
+							NeonRMDev.tblDynamicFields AS f1
+						LEFT JOIN
+							NeonRMDev.tblDynamicFieldsDetail AS fd
+						ON
+							f1.DynamicFieldsID = fd.DynamicFieldsID
+						WHERE 
+							f1.Type = dynamic_column_type AND 
+							f1.Status = 1 AND
+							fd.FieldType = 'is_unique' AND
+							fd.Options = 1
+					)
+				AND
+					fv1.ProcessID = p_processId;
+
+		END IF;
+	END IF;
+
+	-- check unique dynamic column (if exist in tblDynamicFieldsValue)
+	SELECT 
+		count(fv1.FieldValue) INTO duplicate_f_records
+	FROM 
+		NeonBillingDev.tblTempDynamicFieldsValue fv1
+	LEFT JOIN
+		NeonRMDev.tblDynamicFieldsValue fv2 
+	ON 
+		fv1.DynamicFieldsID = fv2.DynamicFieldsID AND
+		fv1.FieldValue = fv2.FieldValue
+	WHERE
+		fv1.DynamicFieldsID = fv2.DynamicFieldsID AND
+		fv1.FieldValue = fv2.FieldValue AND
+		fv1.DynamicFieldsID IN (
+								SELECT
+									f1.DynamicFieldsID
+								FROM 
+									NeonRMDev.tblDynamicFields AS f1
+								LEFT JOIN
+									NeonRMDev.tblDynamicFieldsDetail AS fd
+								ON
+									f1.DynamicFieldsID = fd.DynamicFieldsID
+								WHERE 
+									f1.Type = dynamic_column_type AND 
+									f1.Status = 1 AND
+									fd.FieldType = 'is_unique' AND
+									fd.Options = 1
+							);
+
+	IF duplicate_f_records > 0
+	THEN
+		INSERT INTO tmp_JobLog_ (Message)
+			  SELECT DISTINCT 
+			  CONCAT( 'Existing ',FieldName,' - ', FieldValue)
+			  		FROM(
+						SELECT 
+							fv1.FieldValue AS FieldValue, f.FieldName AS FieldName
+						FROM 
+							NeonBillingDev.tblTempDynamicFieldsValue fv1
+						LEFT JOIN
+							NeonRMDev.tblDynamicFieldsValue fv2
+						ON 
+							fv1.DynamicFieldsID = fv2.DynamicFieldsID AND
+							fv1.FieldValue = fv2.FieldValue
+						LEFT JOIN
+							NeonRMDev.tblDynamicFields AS f
+						ON
+							fv1.DynamicFieldsID = f.DynamicFieldsID
+						WHERE
+							fv1.DynamicFieldsID = fv2.DynamicFieldsID AND
+							fv1.FieldValue = fv2.FieldValue AND
+							fv1.DynamicFieldsID IN (
+													SELECT
+														f1.DynamicFieldsID
+													FROM 
+														NeonRMDev.tblDynamicFields AS f1
+													LEFT JOIN
+														NeonRMDev.tblDynamicFieldsDetail AS fd
+													ON
+														f1.DynamicFieldsID = fd.DynamicFieldsID
+													WHERE 
+														f1.Type = dynamic_column_type AND 
+														f1.Status = 1 AND
+														fd.FieldType = 'is_unique' AND
+														fd.Options = 1
+												)
+						) AS tbl;
+	END IF;
+
+	-- delete duplicate data from temp table which is already exist in main table (dynamic column which is unique)
+	DELETE
+		fv1, p
+	FROM
+		NeonBillingDev.tblTempDynamicFieldsValue fv1
+	LEFT JOIN
+		NeonRMDev.tblDynamicFieldsValue fv2
+	ON 
+		fv1.DynamicFieldsID = fv2.DynamicFieldsID AND
+		fv1.FieldValue = fv2.FieldValue
+	LEFT JOIN
+		NeonRMDev.tblDynamicFields AS f
+	ON
+		fv1.DynamicFieldsID = f.DynamicFieldsID
+	INNER JOIN
+		NeonBillingDev.tblTempProduct AS p
+	WHERE
+		fv1.ParentID = p.ProductID AND
+		fv1.DynamicFieldsID = fv2.DynamicFieldsID AND
+		fv1.FieldValue = fv2.FieldValue AND
+		fv1.DynamicFieldsID IN (
+								SELECT
+									f1.DynamicFieldsID
+								FROM 
+									NeonRMDev.tblDynamicFields AS f1
+								LEFT JOIN
+									NeonRMDev.tblDynamicFieldsDetail AS fd
+								ON
+									f1.DynamicFieldsID = fd.DynamicFieldsID
+								WHERE 
+									f1.Type = 'product' AND 
+									f1.Status = 1 AND
+									fd.FieldType = 'is_unique' AND
+									fd.Options = 1
+							);
+
 	-- dynamic column insert
 	INSERT INTO
-		LocalRMDev.tblDynamicFieldsValue (`CompanyId`,`ParentID`,`DynamicFieldsID`,`FieldValue`,`created_at`,`created_by`)
+		NeonRMDev.tblDynamicFieldsValue (`CompanyId`,`ParentID`,`DynamicFieldsID`,`FieldValue`,`created_at`,`created_by`)
 	SELECT
 		ttdfv.CompanyId,ttdfv.ParentID,ttdfv.DynamicFieldsID,ttdfv.FieldValue,ttdfv.created_at,ttdfv.created_by
 	FROM
@@ -148,7 +359,7 @@ BEGIN
 	SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
 
 	UPDATE 
-		LocalRMDev.tblDynamicFieldsValue tdfv
+		NeonRMDev.tblDynamicFieldsValue tdfv
 	LEFT JOIN
 		tblTempProduct ttp ON tdfv.ParentID = ttp.ProductID
 	LEFT JOIN
@@ -178,8 +389,7 @@ BEGIN
 	      
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-END//
-DELIMITER ;
+END
 
 
 
