@@ -107,13 +107,13 @@ class CallShop{
         $response['balance'] = 0;
         if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
             try{
-                $query = "select * from mor.users where username='".$addparams['username']."' limit 1 "; // and userfield like '%outbound%'  removed for inbound calls
+                $query = "select * from svbpanel.usuarios where usuario='".$addparams['username']."' limit 1 "; // and userfield like '%outbound%'  removed for inbound calls
                 //$response = DB::connection('pbxmysql')->select($query);
                 $results = DB::connection('pbxmysql')->select($query);
                 if(count($results)>0){
                     foreach ($results as $temp_row) {
                         $response['result'] = 'OK';
-                        $response['balance'] = $temp_row->balance;
+                        $response['balance'] = $temp_row->saldo;
                     }
                 }
             }catch(Exception $e){
