@@ -200,7 +200,8 @@ class InvoicesController extends \BaseController {
      * Store Invoice
      */
     public function store(){
-        $data = Input::all(); 
+        $data = Input::all();
+        unset($data['BarCode']);
         if($data){
 
             $companyID = User::get_companyID();
@@ -382,7 +383,8 @@ class InvoicesController extends \BaseController {
      * Store Invoice
      */
     public function update($id){
-        $data = Input::all(); 
+        $data = Input::all();
+        unset($data['BarCode']);
         if(!empty($data) && $id > 0){
 
             $Invoice = Invoice::find($id);
