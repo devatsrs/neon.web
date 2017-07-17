@@ -63,7 +63,7 @@ class CallShop{
                                 $tempItemData['Phone'] = $temp_row->telefono;
                                 $tempItemData['BillingEmail'] = $temp_row->email;
                                 $tempItemData['Email'] = $temp_row->email;
-                                $tempItemData['Currency'] = isset($currency[$temp_row->moneda]) && $temp_row->moneda != ''?$currency[$temp_row->moneda]:'0';
+                                $tempItemData['Currency'] = isset($currency[$temp_row->moneda]) && $temp_row->moneda != ''?$currency[$temp_row->moneda]:null;
                                 $tempItemData['AccountType'] = 1;
                                 $tempItemData['CompanyId'] = $CompanyID;
                                 $tempItemData['Status'] = 1;
