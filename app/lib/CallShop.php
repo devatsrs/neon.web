@@ -43,7 +43,7 @@ class CallShop{
         $currency = Currency::getCurrencyDropdownIDList();
         if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
             try{
-                $query = "select * from svbpanel.users"; // and userfield like '%outbound%'  removed for inbound calls
+                $query = "select * from svbpanel.usuarios"; // and userfield like '%outbound%'  removed for inbound calls
                 //$response = DB::connection('pbxmysql')->select($query);
                 $results = DB::connection('pbxmysql')->select($query);
                 if(count($results)>0){
