@@ -41,7 +41,7 @@
                         <div class="clearfix margin-bottom "></div>
                     </div>
                     <div class="col-sm-4">
-                        <label for="field-1" class="col-sm-3 control-label">BarCode</label>
+                        <label for="field-1" class="col-sm-3 control-label">Barcode</label>
                         <div class="col-sm-9"> {{Form::text('BarCode','',array( "ID"=>"BarCode", "class"=>"form-control", "onkeypress"=>"validateBarCodeInput(event)"))}} </div>
                         <div class="clearfix margin-bottom "></div>
                     </div>
