@@ -90,19 +90,17 @@ class ProductsController extends \BaseController {
         $data["CreatedBy"] = User::get_user_full_name();
 
         unset($data['ProductID']);
-        if($error = Product::validate($data)){
-            return $error;
-        }
 
         if(isset($data['DynamicFields'])) {
             $j=0;
             foreach($data['DynamicFields'] as $key => $value) {
+                $key = (int) $key;
                 if(!empty($data['DynamicFields'][$key])){
                     $DynamicFields[$j]['FieldValue'] = trim($data['DynamicFields'][$key]);
                 } else {
                     $DynamicFields[$j]['FieldValue'] = "";
                 }
-                $DynamicFields[$j]['DynamicFieldsID'] = (int) $key;
+                $DynamicFields[$j]['DynamicFieldsID'] = $key;
                 $DynamicFields[$j]['CompanyID'] = $companyID;
                 $DynamicFields[$j]['created_at'] = date('Y-m-d H:i:s.000');
                 $DynamicFields[$j]['created_by'] = User::get_user_full_name();
@@ -110,6 +108,14 @@ class ProductsController extends \BaseController {
             }
             unset($data['DynamicFields']);
         }
+
+        if($error = DynamicFieldsValue::validate($DynamicFields)){
+            return $error;
+        }
+        if($error = Product::validate($data)){
+            return $error;
+        }
+
 
         $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
         if ($product = Product::create($data)) {
@@ -146,19 +152,26 @@ class ProductsController extends \BaseController {
             $data['Active'] = isset($data['Active']) ? 1 : 0;
             $data["ModifiedBy"] = $user;
 
-            if($error = Product::validate($data)){
-                return $error;
-            }
-
             if(isset($data['DynamicFields']) && count($data['DynamicFields']) > 0) {
                 $CompanyID = User::get_companyID();
                 foreach ($data['DynamicFields'] as $key => $value) {
+                    $key = (int) $key;
                     $isDynamicFields = DB::table('tblDynamicFieldsValue')
                         ->where('CompanyID',$CompanyID)
                         ->where('ParentID',$data['ProductID'])
-                        ->where('DynamicFieldsID',$key)->count();
+                        ->where('DynamicFieldsID',$key);
 
-                    if($isDynamicFields > 0){
+                    if($isDynamicFields->count() > 0){
+                        $isDynamicFields = $isDynamicFields->first();
+
+                        $DynamicFields['DynamicFieldsID'] = $key;
+                        $DynamicFields['FieldValue'] = $value;
+                        $DynamicFields['DynamicFieldsValueID'] = $isDynamicFields->DynamicFieldsValueID;
+
+                        if($error = DynamicFieldsValue::validateOnUpdate($DynamicFields)){
+                            return $error;
+                        }
+
                         DB::table('tblDynamicFieldsValue')
                             ->where('CompanyID',$CompanyID)
                             ->where('ParentID',$data['ProductID'])
@@ -169,15 +182,24 @@ class ProductsController extends \BaseController {
                         $DynamicFields['ParentID'] = $data['ProductID'];
                         $DynamicFields['DynamicFieldsID'] = $key;
                         $DynamicFields['FieldValue'] = $value;
+                        $DynamicFields['DynamicFieldsValueID'] = 'NULL';
                         $DynamicFields['created_at'] = date('Y-m-d H:i:s.000');
                         $DynamicFields['created_by'] = $user;
                         $DynamicFields['updated_at'] = date('Y-m-d H:i:s.000');
                         $DynamicFields['updated_by'] = $user;
 
+                        if($error = DynamicFieldsValue::validateOnUpdate($DynamicFields)){
+                            return $error;
+                        }
+
                         DB::table('tblDynamicFieldsValue')->insert($DynamicFields);
                     }
                 }
                 unset($data['DynamicFields']);
+            }
+
+            if($error = Product::validate($data)){
+                return $error;
             }
 
             $data["Amount"] = number_format(str_replace(",","",$data["Amount"]),$roundplaces,".","");
@@ -206,7 +228,8 @@ class ProductsController extends \BaseController {
                     if ($result) {
                         $Type =  Product::DYNAMIC_TYPE;
                         $companyID = User::get_companyID();
-                        $DynamicFields = $this->getDynamicFields($companyID,$Type);
+                        $action = "delete";
+                        $DynamicFields = $this->getDynamicFields($companyID,$Type,$action);
 
                         if($DynamicFields['totalfields'] > 0){
                             $DynamicFieldsIDs = array();
@@ -448,11 +471,20 @@ class ProductsController extends \BaseController {
      * @return mixed
      */
 
-    public function getDynamicFields($CompanyID, $Type='product'){
-        $dynamicFields['fields'] = DB::table('tblDynamicFields')
-            ->where('Type',$Type)
-            ->where('CompanyID',$CompanyID)
-            ->get();
+    public function getDynamicFields($CompanyID, $Type='product', $action=''){
+
+        if($action && $action == 'delete') {
+            $dynamicFields['fields'] = DB::table('tblDynamicFields')
+                ->where('Type',$Type)
+                ->where('CompanyID',$CompanyID)
+                ->get();
+        } else {
+            $dynamicFields['fields'] = DB::table('tblDynamicFields')
+                ->where('Type',$Type)
+                ->where('CompanyID',$CompanyID)
+                ->where('Status',1)
+                ->get();
+        }
 
         $dynamicFields['totalfields'] = count($dynamicFields['fields']);
 

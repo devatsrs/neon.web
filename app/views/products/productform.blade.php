@@ -86,6 +86,7 @@
 
             @if (isset($DynamicFields) && $DynamicFields['totalfields'] > 0)
                 @foreach($DynamicFields['fields'] as $field)
+                    @if($field->Status == 1)
 
                     <div class="col-md-12">
                         <div class="form-group">
@@ -94,6 +95,7 @@
                         </div>
                     </div>
 
+                    @endif
                 @endforeach
             @endif
 

@@ -26,4 +26,63 @@ class DynamicFieldsValue extends \Eloquent {
                                     ->whereIn('DynamicFieldsID',$DynamicFieldsIDs)
                                     ->delete();
     }
+
+    public static function validate($data) {
+        foreach ($data as $DynamicField) {
+
+            $DynamicColumn = DynamicFields::where('Status',1)->find($DynamicField['DynamicFieldsID']);
+
+            if($DynamicColumn) {
+                $isUnique = $DynamicColumn->fieldUniqueOption()->first();
+
+                if ($isUnique->count() > 0) {
+                    if ($isUnique->Options == 1) {
+                        $rules = array(
+                            'FieldValue' => 'unique:tblDynamicFieldsValue,FieldValue,NULL,DynamicFieldsValueID,DynamicFieldsID,' . $DynamicField['DynamicFieldsID'],
+                        );
+                        $message = array(
+                            'FieldValue.unique' => $DynamicColumn->FieldName . ' is already exist!',
+                        );
+
+                        $validator = Validator::make($DynamicField, $rules, $message);
+
+                        if ($validator->fails()) {
+                            return json_validator_response($validator);
+                        }
+                    }
+                }
+            } else {
+                return  Response::json(array("status" => "failed", "message" => "Requested dynamic field not exist or it is disabled, Please contact your system administrator!"));
+            }
+        }
+    }
+
+    public static function validateOnUpdate($DynamicField) {
+
+        $DynamicColumn = DynamicFields::where('Status',1)->find($DynamicField['DynamicFieldsID']);
+
+        if($DynamicColumn) {
+            $isUnique = $DynamicColumn->fieldUniqueOption()->first();
+
+            if ($isUnique->count() > 0) {
+                if ($isUnique->Options == 1) {
+                    $rules = array(
+                        'FieldValue' => 'unique:tblDynamicFieldsValue,FieldValue,'.$DynamicField['DynamicFieldsValueID'].',DynamicFieldsValueID,DynamicFieldsID,' . $DynamicField['DynamicFieldsID'],
+                    );
+                    $message = array(
+                        'FieldValue.unique' => $DynamicColumn->FieldName . ' is already exist!',
+                    );
+
+                    $validator = Validator::make($DynamicField, $rules, $message);
+
+                    if ($validator->fails()) {
+                        return json_validator_response($validator);
+                    }
+                }
+            }
+        } else {
+            return  Response::json(array("status" => "failed", "message" => "Requested dynamic field not exist or it is disabled, Please contact your system administrator!"));
+        }
+    }
+
 }

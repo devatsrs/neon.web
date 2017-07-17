@@ -180,15 +180,17 @@
                                 @if (isset($DynamicFields) && $DynamicFields['totalfields'] > 0)
                                     <?php $l=0; ?>
                                     @foreach($DynamicFields['fields'] as $field)
-                                        @if($l%2 != 0)
+                                        @if($field->Status == 1)
+                                            @if($l%2 != 0)
+                                                </div>
+                                                <div class="form-group">
+                                            @endif
+                                            <label for="field-1" class="col-sm-2 control-label">{{ $field->FieldName }}</label>
+                                            <div class="col-sm-4">
+                                                {{Form::select('selection[DynamicFields-'.$field->DynamicFieldsID.']', array(),'',array("class"=>"select2 small"))}}
                                             </div>
-                                            <div class="form-group">
+                                            <?php $l++; ?>
                                         @endif
-                                        <label for="field-1" class="col-sm-2 control-label">{{ $field->FieldName }}</label>
-                                        <div class="col-sm-4">
-                                            {{Form::select('selection[DynamicFields-'.$field->DynamicFieldsID.']', array(),'',array("class"=>"select2 small"))}}
-                                        </div>
-                                        <?php $l++; ?>
                                     @endforeach
                                 @endif
 
