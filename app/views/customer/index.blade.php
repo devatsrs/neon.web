@@ -186,6 +186,17 @@
                                         <p>Total Balance</p></a></div>
                             </div>
                         @endif
+                        @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardCallShopBalance',$BillingDashboardWidgets))
+                            <div class="col-sm-3 col-xs-6">
+                                <div class="tile-stats tile-aqua"><a target="_blank" class="undefined" data-startdate=""
+                                                                     data-enddate="" data-currency=""
+                                                                     href="javascript:void(0)">
+                                        <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
+                                             data-duration="1500" data-delay="1200">0
+                                        </div>
+                                        <p>Total Balance</p></a></div>
+                            </div>
+                        @endif
                 </div>
             </div>
         </div>
@@ -502,6 +513,15 @@
                 option["end"] = response.data.MOR_Balance;
                 option["tileclass"] = 'tile-aqua';
                 option["class"] = 'morbalance';
+                option["type"] = 'Total Balance';
+                /*option["count"] = response.data.CountTotalDispute;*/
+                widgets += buildbox(option);
+                @endif
+                @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardCallShopBalance',$BillingDashboardWidgets))
+                option["amount"] = response.data.CallShop_Balance;
+                option["end"] = response.data.CallShop_Balance;
+                option["tileclass"] = 'tile-aqua';
+                option["class"] = 'callshopbalance';
                 option["type"] = 'Total Balance';
                 /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
