@@ -18,6 +18,7 @@
             <br>
             @if( User::is_admin() || User::is('BillingAdmin'))
                 <p style="text-align: right;">
+                    @if(User::checkCategoryPermission('Products','Add'))
                     <a href="{{ URL::to('products/upload') }}" class="btn btn-primary ">
                         <i class="entypo-upload"></i>
                         Upload
@@ -26,6 +27,7 @@
                         <i class="entypo-plus"></i>
                         Add New
                     </a>
+                    @endif
                 </p>
             @endif
             <div class="row">

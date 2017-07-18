@@ -294,6 +294,9 @@ class ProductsController extends \BaseController {
         return View::make('products.upload',compact('UploadTemplate','DynamicFields'));
     }
 
+    /**
+     * @return mixed
+     */
     public function check_upload()
     {
         try {
@@ -345,6 +348,9 @@ class ProductsController extends \BaseController {
         }
     }
 
+    /**
+     * @return mixed
+     */
     public function ajaxfilegrid(){
         try {
             $data = Input::all();
@@ -365,6 +371,9 @@ class ProductsController extends \BaseController {
         }
     }
 
+    /**
+     * @return mixed
+     */
     public function storeTemplate() {
         $data = Input::all();
         $CompanyID = User::get_companyID();
