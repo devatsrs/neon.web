@@ -214,6 +214,20 @@ class CompanyGateway extends \Eloquent {
                 log::info('--MOR CRONJOB END--');
 
                 CompanyGateway::createSummaryCronJobs(1);
+            }elseif(isset($GatewayName) && $GatewayName == 'CallShop'){
+                log::info($GatewayName);
+                log::info('--CallShop CRONJOB START--');
+
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('callshopaccountusage');
+                $setting = CompanyConfiguration::get('CALLSHOP_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                CompanyGateway::createSummaryCronJobs(1);
+                log::info('--CallShop CRONJOB END--');
             }
         }else{
             log::info('--Other CRONJOB START--');
