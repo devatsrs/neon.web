@@ -150,23 +150,23 @@
 
                         <div class="panel-body" id="mapping">
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-2 control-label">Name</label>
+                                <label for="field-1" class="col-sm-2 control-label">Name *</label>
                                 <div class="col-sm-4">
                                     {{Form::select('selection[Name]', array(),'',array("class"=>"select2 small"))}}
                                 </div>
 
-                                <label for="field-1" class="col-sm-2 control-label">Code</label>
+                                <label for="field-1" class="col-sm-2 control-label">Code *</label>
                                 <div class="col-sm-4">
                                     {{Form::select('selection[Code]', array(),'',array("class"=>"select2 small"))}}
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="field-1" class="col-sm-2 control-label">Description</label>
+                                <label for="field-1" class="col-sm-2 control-label">Description *</label>
                                 <div class="col-sm-4">
                                     {{Form::select('selection[Description]', array(),'',array("class"=>"select2 small"))}}
                                 </div>
 
-                                <label for="field-1" class="col-sm-2 control-label">Amount</label>
+                                <label for="field-1" class="col-sm-2 control-label">Unit Cost *</label>
                                 <div class="col-sm-4">
                                     {{Form::select('selection[Amount]', array(),'',array("class"=>"select2 small"))}}
                                 </div>
@@ -437,37 +437,37 @@
                     <table class="table responsive">
                         <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Code</th>
-                            <th>Description</th>
-                            <th>Cost</th>
+                            <th>Name *</th>
+                            <th>Code *</th>
+                            <th>Description *</th>
+                            <th>Unit Cost *</th>
                             <th>Note</th>
-                            <th>BarCode</th>
+                            <th>Barcode</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr>
-                            <td>vasim test 1</td>
+                            <td>abc</td>
                             <td>v1</td>
-                            <td>v1</td>
-                            <td>1</td>
-                            <td>vasim test 1</td>
+                            <td>abc product</td>
+                            <td>50</td>
+                            <td>abc note</td>
                             <td>111</td>
                         </tr>
                         <tr>
-                            <td>vasim test 2</td>
+                            <td>pqr</td>
                             <td>v2</td>
-                            <td>v2</td>
-                            <td>2</td>
-                            <td>vasim test 2</td>
+                            <td>pqr product</td>
+                            <td>100</td>
+                            <td>pqr note</td>
                             <td>222</td>
                         </tr>
                         <tr>
-                            <td>vasim test 3</td>
+                            <td>xyz</td>
                             <td>v3</td>
-                            <td>v3</td>
-                            <td>3</td>
-                            <td>vasim test 3</td>
+                            <td>xyz product</td>
+                            <td>75</td>
+                            <td>xyz note</td>
                             <td>333</td>
                         </tr>
                         </tbody>

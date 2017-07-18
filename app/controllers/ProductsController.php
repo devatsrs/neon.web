@@ -400,7 +400,7 @@ class ProductsController extends \BaseController {
         if(!empty($data['selection']['Note'])){
             $data['Note'] = $data['selection']['Note'];
         }else{
-            $rules['Note'] = 'required';
+            $data['Note'] = '';
         }
         /*if(!empty($data['selection']['Active'])){
             $data['Active'] = $data['selection']['Active'];
@@ -412,6 +412,17 @@ class ProductsController extends \BaseController {
         }else{
             $rules['BarCode'] = 'required';
         }*/
+
+        $DynamicFields = $this->getDynamicFields($CompanyID, Product::DYNAMIC_TYPE);
+        if($DynamicFields['totalfields'] > 0) {
+            foreach ($DynamicFields['fields'] as $dynamicField) {
+                if(!empty($data['selection']['DynamicFields-'.$dynamicField->DynamicFieldsID])) {
+                    $data['DynamicFields-'.$dynamicField->DynamicFieldsID] = $data['selection']['DynamicFields-'.$dynamicField->DynamicFieldsID];
+                } else {
+                    $data['DynamicFields-'.$dynamicField->DynamicFieldsID] = "";
+                }
+            }
+        }
 
         $validator = Validator::make($data, $rules);
 
@@ -488,7 +499,7 @@ class ProductsController extends \BaseController {
      * @return mixed
      */
 
-    public function getDynamicFields($CompanyID, $Type='product', $action=''){
+    public function getDynamicFields($CompanyID, $Type=Product::DYNAMIC_TYPE, $action=''){
 
         if($action && $action == 'delete') {
             $dynamicFields['fields'] = DynamicFields::where('Type',$Type)->where('CompanyID',$CompanyID)->get();

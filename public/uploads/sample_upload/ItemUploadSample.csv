@@ -1,11 +1,4 @@
-Name,Code,Description,Cost,Note,BarCode
-vasim test 1,v1,v1,1,vasim test 1,1
-vasim test 2,v2,v2,2,vasim test 2,2
-vasim test 3,v3,v3,3,vasim test 3,3
-vasim test 4,v4,v4,4,vasim test 4,4
-vasim test 5,v5,v5,5,vasim test 5,5
-vasim test 6,v6,v6,6,vasim test 6,6
-vasim test 7,v7,v7,7,vasim test 7,7
-vasim test 8,v8,v8,8,vasim test 8,8
-vasim test 9,v9,v9,9,vasim test 9,9
-vasim test 10,v10,v10,10,vasim test 10,10
+Name,Code,Description,Unit Cost,Note,Barcode
+abc,v1,abc product,50,abc note,1
+pqr,v2,pqr product,100,pqr note,2
+xyz,v3,xyz product,75,xyz note,3
