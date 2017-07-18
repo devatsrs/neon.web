@@ -41,7 +41,7 @@ class DynamicFieldsValue extends \Eloquent {
                             'FieldValue' => 'unique:tblDynamicFieldsValue,FieldValue,NULL,DynamicFieldsValueID,DynamicFieldsID,' . $DynamicField['DynamicFieldsID'],
                         );
                         $message = array(
-                            'FieldValue.unique' => $DynamicColumn->FieldName . ' is already exist!',
+                            'FieldValue.unique' => $DynamicColumn->FieldName . ' already exist!',
                         );
 
                         $validator = Validator::make($DynamicField, $rules, $message);
@@ -52,7 +52,7 @@ class DynamicFieldsValue extends \Eloquent {
                     }
                 }
             } else {
-                return  Response::json(array("status" => "failed", "message" => "Requested dynamic field not exist or it is disabled, Please contact your system administrator!"));
+                return  Response::json(array("status" => "failed", "message" => "Requested field not exist or it is disabled, Please refresh the page and try again or Please contact your system administrator!"));
             }
         }
     }
@@ -70,7 +70,7 @@ class DynamicFieldsValue extends \Eloquent {
                         'FieldValue' => 'unique:tblDynamicFieldsValue,FieldValue,'.$DynamicField['DynamicFieldsValueID'].',DynamicFieldsValueID,DynamicFieldsID,' . $DynamicField['DynamicFieldsID'],
                     );
                     $message = array(
-                        'FieldValue.unique' => $DynamicColumn->FieldName . ' is already exist!',
+                        'FieldValue.unique' => $DynamicColumn->FieldName . ' already exist!',
                     );
 
                     $validator = Validator::make($DynamicField, $rules, $message);
@@ -81,7 +81,7 @@ class DynamicFieldsValue extends \Eloquent {
                 }
             }
         } else {
-            return  Response::json(array("status" => "failed", "message" => "Requested dynamic field not exist or it is disabled, Please contact your system administrator!"));
+            return  Response::json(array("status" => "failed", "message" => "Requested dynamic field not exist or it is disabled, Please refresh the page and try again or Please contact your system administrator!"));
         }
     }
 

@@ -18,8 +18,29 @@ class ProductsController extends \BaseController {
         $columns = ['Name','Code','Amount','updated_at','Active'];
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_getProducts (".$CompanyID.", '".$data['Name']."','".$data['Code']."','".$data['Active']."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+
+        $Type =  Product::DYNAMIC_TYPE;
+        $DynamicFields = $this->getDynamicFields($CompanyID,$Type);
+
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
+            if($DynamicFields['totalfields'] > 0){
+                foreach ($excel_data as $key => $value) {
+                    foreach ($DynamicFields['fields'] as $field) {
+                        $DynamicFieldsID = $field->DynamicFieldsID;
+                        $DynamicFieldsValues = DynamicFieldsValue::getDynamicColumnValuesByProductID($DynamicFieldsID,$excel_data[$key]->ProductID);
+                        $FieldName = $field->FieldName;
+                        if($DynamicFieldsValues->count() > 0){
+                            foreach ($DynamicFieldsValues as $DynamicFieldsValue) {
+                                $excel_data[$key]->$FieldName = $DynamicFieldsValue->FieldValue;
+                            }
+                        } else {
+                            $excel_data[$key]->$FieldName = "";
+                        }
+                    }
+                    unset($excel_data[$key]->ProductID);
+                }
+            }
             $excel_data = json_decode(json_encode($excel_data),true);
             if($type=='csv'){
                 $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Item.csv';
@@ -38,9 +59,6 @@ class ProductsController extends \BaseController {
         }
         $query .=',0)';
         $data = DataTableSql::of($query,'sqlsrv2')->make(false);
-
-        $Type =  Product::DYNAMIC_TYPE;
-        $DynamicFields = $this->getDynamicFields($CompanyID,$Type);
 
         if($DynamicFields['totalfields'] > 0){
             for($i=0;$i<count($data['aaData']);$i++) {
@@ -172,8 +190,7 @@ class ProductsController extends \BaseController {
                             return $error;
                         }
 
-                        DB::table('tblDynamicFieldsValue')
-                            ->where('CompanyID',$CompanyID)
+                        DynamicFieldsValue::where('CompanyID',$CompanyID)
                             ->where('ParentID',$data['ProductID'])
                             ->where('DynamicFieldsID',$key)
                             ->update(['FieldValue' => $value, 'updated_at' => date('Y-m-d H:i:s.000'), 'updated_by' => $user]);
@@ -192,7 +209,7 @@ class ProductsController extends \BaseController {
                             return $error;
                         }
 
-                        DB::table('tblDynamicFieldsValue')->insert($DynamicFields);
+                        DynamicFieldsValue::insert($DynamicFields);
                     }
                 }
                 unset($data['DynamicFields']);
@@ -474,16 +491,9 @@ class ProductsController extends \BaseController {
     public function getDynamicFields($CompanyID, $Type='product', $action=''){
 
         if($action && $action == 'delete') {
-            $dynamicFields['fields'] = DB::table('tblDynamicFields')
-                ->where('Type',$Type)
-                ->where('CompanyID',$CompanyID)
-                ->get();
+            $dynamicFields['fields'] = DynamicFields::where('Type',$Type)->where('CompanyID',$CompanyID)->get();
         } else {
-            $dynamicFields['fields'] = DB::table('tblDynamicFields')
-                ->where('Type',$Type)
-                ->where('CompanyID',$CompanyID)
-                ->where('Status',1)
-                ->get();
+            $dynamicFields['fields'] = DynamicFields::where('Type',$Type)->where('CompanyID',$CompanyID)->where('Status',1)->get();
         }
 
         $dynamicFields['totalfields'] = count($dynamicFields['fields']);
@@ -516,5 +526,10 @@ class ProductsController extends \BaseController {
         } else {
             return Response::json(array("status" => "failed", "message" => "BarCode column not found."));
         }
+    }
+
+    public function download_sample_excel_file(){
+        $filePath =  public_path() .'/uploads/sample_upload/ItemUploadSample.csv';
+        download_file($filePath);
     }
 }

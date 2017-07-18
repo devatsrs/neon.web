@@ -66,8 +66,8 @@
                                 <label for="field-1" class="col-sm-2 control-label">Note</label>
                                 <div class="col-sm-8">
                                     <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
-                                    {{--<p>Please upload the file in given <span class="label label-info" onclick="jQuery('#modal-fileformat-detail').modal('show');" style="cursor: pointer">Detail File Format</span> </p>
-                                    <p>Sample File <a href="{{URL::to('cdr_upload/download_sample_excel_file',array('type'=>'detail'))}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Detail File Download</a> </p>--}}
+                                    <p>Please upload the file in given <span class="label label-info" onclick="jQuery('#modal-fileformat').modal('show');" style="cursor: pointer">File Format</span> </p>
+                                    <p>Sample File <a href="{{URL::to('products_upload/download_sample_excel_file')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a> </p>
                                 </div>
                             </div>
                             <p style="text-align: right;">
@@ -420,5 +420,65 @@
 </style>
 @stop
 @section('footer_ext')
-@parent
+    @parent
+    <div class="modal fade" id="modal-fileformat">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Item File Format</h4>
+                </div>
+
+
+
+                <div class="modal-body scrollx">
+                    <p>The first line should have the column headings.</p>
+                    <table class="table responsive">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Code</th>
+                            <th>Description</th>
+                            <th>Cost</th>
+                            <th>Note</th>
+                            <th>BarCode</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>vasim test 1</td>
+                            <td>v1</td>
+                            <td>v1</td>
+                            <td>1</td>
+                            <td>vasim test 1</td>
+                            <td>111</td>
+                        </tr>
+                        <tr>
+                            <td>vasim test 2</td>
+                            <td>v2</td>
+                            <td>v2</td>
+                            <td>2</td>
+                            <td>vasim test 2</td>
+                            <td>222</td>
+                        </tr>
+                        <tr>
+                            <td>vasim test 3</td>
+                            <td>v3</td>
+                            <td>v3</td>
+                            <td>3</td>
+                            <td>vasim test 3</td>
+                            <td>333</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @stop
