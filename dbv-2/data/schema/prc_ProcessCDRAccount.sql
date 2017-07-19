@@ -106,6 +106,25 @@ BEGIN
 		AND ga.AccountID is not null
 		AND uh.CompanyID = p_CompanyID
 		AND uh.CompanyGatewayID = p_CompanyGatewayID;
+		
+		UPDATE NeonCDRDev.tblCallDetail uh
+		INNER JOIN tblGatewayAccount ga
+			ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
+		SET uh.AccountID = ga.AccountID
+		WHERE uh.AccountID IS NULL
+		AND ga.AccountID is not null
+		AND uh.CompanyID = p_CompanyID
+		AND uh.CompanyGatewayID = p_CompanyGatewayID;
+		
+		UPDATE NeonCDRDev.tblCallDetail uh
+		INNER JOIN tblGatewayAccount ga
+			ON  uh.GatewayVAccountPKID = ga.GatewayAccountPKID
+		SET uh.VAccountID = ga.AccountID
+		WHERE uh.VAccountID IS NULL
+		AND ga.AccountID is not null
+		AND uh.CompanyID = p_CompanyID
+		AND uh.CompanyGatewayID = p_CompanyGatewayID;
+		
 
 	END IF;
 
