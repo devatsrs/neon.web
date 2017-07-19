@@ -5,7 +5,7 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	INSERT INTO tblRRate(AreaPrefix,CompanyID,CountryID)
+	INSERT INTO tblRRate(Code,CompanyID,CountryID)
 	SELECT tbl.AreaPrefix,tbl.CompanyID,tbl.CountryID FROM (SELECT DISTINCT AreaPrefix,CountryID,CompanyID FROM tmp_UsageSummary)tbl
 	LEFT JOIN tblRRate
 		ON	tbl.AreaPrefix = tblRRate.Code
@@ -21,7 +21,7 @@ BEGIN
 	WHERE tblRTrunk.CompanyID = p_CompanyID
 	AND tbl.Trunk IS NULL;
 	
-	INSERT INTO tblRRate(AreaPrefix,CompanyID,CountryID)
+	INSERT INTO tblRRate(Code,CompanyID,CountryID)
 	SELECT tbl.AreaPrefix,tbl.CompanyID,tbl.CountryID FROM (SELECT DISTINCT AreaPrefix,CountryID,CompanyID FROM tmp_VendorUsageSummary)tbl
 	LEFT JOIN tblRRate
 		ON	tbl.AreaPrefix = tblRRate.Code

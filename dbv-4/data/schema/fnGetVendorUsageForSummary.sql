@@ -7,16 +7,9 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnGetVendorUsageForSummary`(
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	SET @stmt = CONCAT('
-	DELETE FROM tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ';
-	');
-	
-	PREPARE stmt FROM @stmt;
-	EXECUTE stmt;
-	DEALLOCATE PREPARE stmt;
 	
 	SET @stmt = CONCAT('
-	INSERT INTO tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' (
+	INSERT IGNORE INTO tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' (
 		VendorCDRID,
 		VAccountID,
 		CompanyID,
@@ -63,7 +56,7 @@ BEGIN
 	DEALLOCATE PREPARE stmt;
 	
 	SET @stmt = CONCAT('
-	INSERT INTO tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' (
+	INSERT IGNORE INTO tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' (
 		VendorCDRID,
 		VAccountID,
 		CompanyID,
@@ -108,7 +101,5 @@ BEGIN
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
-
-	
 
 END

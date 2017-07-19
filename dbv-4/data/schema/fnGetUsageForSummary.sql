@@ -9,15 +9,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
 	SET @stmt = CONCAT('
-	DELETE FROM tmp_tblUsageDetailsReport_' , p_UniqueID , ';
-	');
-	
-	PREPARE stmt FROM @stmt;
-	EXECUTE stmt;
-	DEALLOCATE PREPARE stmt;
-
-	SET @stmt = CONCAT('
-	INSERT INTO tmp_tblUsageDetailsReport_' , p_UniqueID , ' (
+	INSERT IGNORE INTO tmp_tblUsageDetailsReport_' , p_UniqueID , ' (
 		UsageDetailID,
 		AccountID,
 		CompanyID,
@@ -71,7 +63,7 @@ BEGIN
 	
 	
 	SET @stmt = CONCAT('
-	INSERT INTO tmp_tblUsageDetailsReport_' , p_UniqueID , ' (
+	INSERT IGNORE INTO tmp_tblUsageDetailsReport_' , p_UniqueID , ' (
 		UsageDetailID,
 		AccountID,
 		CompanyID,
