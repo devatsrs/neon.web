@@ -1,0 +1,4 @@
+CREATE TABLE `tblUCall` (
+  `UID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`UID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
