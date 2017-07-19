@@ -18,7 +18,7 @@ BEGIN
 	
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
-	CALL fnUpdateVendorLink(p_CompanyID,p_UniqueID,p_StartDate,p_EndDate);
+	CALL fnUpdateVendorLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 
 	DELETE FROM tmp_VendorUsageSummary WHERE CompanyID = p_CompanyID;
 

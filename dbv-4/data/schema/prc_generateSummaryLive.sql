@@ -18,7 +18,7 @@ BEGIN
 	
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
-	CALL fnUpdateCustomerLink(p_CompanyID,p_UniqueID,p_StartDate,p_EndDate);
+	CALL fnUpdateCustomerLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 
 	DELETE FROM tmp_UsageSummaryLive WHERE CompanyID = p_CompanyID;
 

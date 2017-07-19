@@ -17,22 +17,22 @@ BEGIN
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageVendorSummary_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageVendorSummary_(
-			`DateID` BIGINT(20) NOT NULL,
-			`TimeID` INT(11) NOT NULL,
-			`Time` VARCHAR(50) NOT NULL,
-			`CompanyID` INT(11) NOT NULL,
-			`AccountID` INT(11) NOT NULL,
-			`CompanyGatewayID` INT(11) NOT NULL,
-			`Trunk` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
-			`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
-			`CountryID` INT(11) NULL DEFAULT NULL,
-			`TotalCharges` DOUBLE NULL DEFAULT NULL,
-			`TotalBilledDuration` INT(11) NULL DEFAULT NULL,
-			`TotalDuration` INT(11) NULL DEFAULT NULL,
-			`NoOfCalls` INT(11) NULL DEFAULT NULL,
-			`NoOfFailCalls` INT(11) NULL DEFAULT NULL,
-			`AccountName` varchar(100),
-			INDEX `tblUsageSummary_dim_date` (`DateID`)
+		`DateID` BIGINT(20) NOT NULL,
+		`TimeID` INT(11) NOT NULL,
+		`Time` VARCHAR(50) NOT NULL,
+		`CompanyID` INT(11) NOT NULL,
+		`AccountID` INT(11) NOT NULL,
+		`CompanyGatewayID` INT(11) NOT NULL,
+		`Trunk` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+		`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+		`CountryID` INT(11) NULL DEFAULT NULL,
+		`TotalCharges` DOUBLE NULL DEFAULT NULL,
+		`TotalBilledDuration` INT(11) NULL DEFAULT NULL,
+		`TotalDuration` INT(11) NULL DEFAULT NULL,
+		`NoOfCalls` INT(11) NULL DEFAULT NULL,
+		`NoOfFailCalls` INT(11) NULL DEFAULT NULL,
+		`AccountName` varchar(100),
+		INDEX `tblUsageSummary_dim_date` (`DateID`)
 	);
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_AreaPrefix_;
@@ -67,7 +67,7 @@ BEGIN
 		a.AccountName
 	FROM tblHeaderV sh
 	INNER JOIN tblVendorSummaryHour usd
-		ON usd.HeaderVID = sh.HeaderVID 
+		ON usd.HeaderVID = sh.HeaderVID
 	INNER JOIN tblDimDate dd
 		ON dd.DateID = sh.DateID
 	INNER JOIN tblDimTime dt
@@ -76,7 +76,7 @@ BEGIN
 		ON sh.VAccountID = a.AccountID
 	LEFT JOIN NeonRMDev.tblTrunk t
 		ON t.Trunk = usd.Trunk
-	LEFT JOIN tmp_AreaPrefix_ ap 
+	LEFT JOIN tmp_AreaPrefix_ ap
 		ON usd.AreaPrefix LIKE REPLACE(ap.Code, '*', '%')
 	WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 	AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
@@ -117,7 +117,7 @@ BEGIN
 		ON sh.VAccountID = a.AccountID
 	LEFT JOIN NeonRMDev.tblTrunk t
 		ON t.Trunk = usd.Trunk
-	LEFT JOIN tmp_AreaPrefix_ ap 
+	LEFT JOIN tmp_AreaPrefix_ ap
 		ON usd.AreaPrefix LIKE REPLACE(ap.Code, '*', '%')
 	WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 	AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate

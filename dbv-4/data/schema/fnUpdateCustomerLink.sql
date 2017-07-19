@@ -1,8 +1,8 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUpdateCustomerLink`(
 	IN `p_CompanyID` INT,
-	IN `p_UniqueID` VARCHAR(50),
 	IN `p_StartDate` DATE,
-	IN `p_EndDate` DATE
+	IN `p_EndDate` DATE,
+	IN `p_UniqueID` VARCHAR(50)
 )
 BEGIN
 
