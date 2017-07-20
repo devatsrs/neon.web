@@ -169,6 +169,27 @@
                             <input type="text" class="form-control"  name="NominalAnalysisNominalAccountNumber" id="field-1" placeholder="" value="{{Input::old('NominalAnalysisNominalAccountNumber')}}" />
                         </div>
                     </div>
+                    @if(!empty($dynamicfields) && count($dynamicfields)>0)
+                        <div class="form-group">
+                            @foreach($dynamicfields as $dynamicfield)
+                                @if(!empty($dynamicfield['FieldSlug']))
+                                    @if($dynamicfield['FieldSlug']=='accountgateway')
+                                        <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                                        <div class="col-md-4">
+                                            {{Form::select('accountgateway[]', CompanyGateway::getCompanyGatewayIdList(), '' ,array("class"=>"form-control select2",'multiple'))}}
+                                        </div>
+                                    @endif
+                                    @if($dynamicfield['FieldSlug']=='vendorname')
+                                        <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" autocomplete="off"  name="vendorname" id="field-1" value="" />
+                                        </div>
+                                    @endif
+                                @endif
+                            @endforeach
+                        </div>
+                    @endif
+
                     <div class="panel-title desc clear">
                         Description
                     </div>

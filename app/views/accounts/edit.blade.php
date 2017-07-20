@@ -216,6 +216,28 @@
                     </div>
 
                 </div>
+
+                @if(!empty($dynamicfields) && count($dynamicfields)>0)
+                    <div class="form-group">
+                @foreach($dynamicfields as $dynamicfield)
+                    @if(!empty($dynamicfield['FieldSlug']))
+                        @if($dynamicfield['FieldSlug']=='accountgateway')
+                            <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                            <div class="col-md-4">
+                                {{Form::select('accountgateway[]', CompanyGateway::getCompanyGatewayIdList(), (isset($dynamicfield['FieldValue'])? explode(',',$dynamicfield['FieldValue']) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
+                            </div>
+                        @endif
+                        @if($dynamicfield['FieldSlug']=='vendorname')
+                            <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" autocomplete="off"  name="vendorname" id="field-1" value="{{$dynamicfield['FieldValue']}}" />
+                            </div>
+                        @endif
+                    @endif
+                @endforeach
+                    </div>
+                @endif
+
                 <script>
                     $(document).ready(function() {
                         $(".btn-toolbar .btn").first().button("toggle");

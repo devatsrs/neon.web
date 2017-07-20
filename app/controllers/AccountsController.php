@@ -139,7 +139,8 @@ class AccountsController extends \BaseController {
             if(!User::is_admin()){
                 unset($doc_status[Account::VERIFIED]);
             }
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass'));
+            $dynamicfields = Account::getDynamicfields('account',0);
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields'));
     }
 
     /**
@@ -160,6 +161,20 @@ class AccountsController extends \BaseController {
             $data['created_by'] = User::get_user_full_name();
             $data['AccountType'] = 1;
             $data['AccountName'] = trim($data['AccountName']);
+            if (isset($data['accountgateway'])) {
+                $AccountGateway = implode(',', array_filter(array_unique($data['accountgateway'])));
+                unset($data['accountgateway']);
+            }else{
+                $AccountGateway = '';
+            }
+            if(isset($data['vendorname'])){
+                $VendorName = $data['vendorname'];
+                unset($data['vendorname']);
+            }else{
+                $VendorName = '';
+            }
+
+
             if (isset($data['TaxRateId'])) {
                 $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
             }
@@ -196,7 +211,24 @@ class AccountsController extends \BaseController {
                 return json_validator_response($validator);
             }
 
+
             if ($account = Account::create($data)) {
+
+                $DynamicData = array();
+                $DynamicData['CompanyID']= $companyID;
+                $DynamicData['AccountID']= $account->AccountID;
+
+                if(!empty($AccountGateway)){
+                    $DynamicData['FieldName'] = 'accountgateway';
+                    $DynamicData['FieldValue']= $AccountGateway;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+                if(!empty($VendorName)){
+                    $DynamicData['FieldName'] = 'vendorname';
+                    $DynamicData['FieldValue']= $VendorName;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+
                 if($data['Billing'] == 1) {
                     AccountBilling::insertUpdateBilling($account->AccountID, $data,$ServiceID);
                     if($ManualBilling ==0) {
@@ -443,7 +475,8 @@ class AccountsController extends \BaseController {
             }
         }
 
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class'));
+        $dynamicfields = Account::getDynamicfields('account',$id);
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields'));
     }
 
     /**
@@ -533,7 +566,38 @@ class AccountsController extends \BaseController {
         if($invoice_count == 0){
             $data['LastInvoiceDate'] = $data['BillingStartDate'];
         }
+
+        if (isset($data['accountgateway'])) {
+            $AccountGateway = implode(',', array_filter(array_unique($data['accountgateway'])));
+            unset($data['accountgateway']);
+        }else{
+            $AccountGateway = '';
+        }
+
+        if (isset($data['vendorname'])) {
+            $VendorName = $data['vendorname'];
+            unset($data['vendorname']);
+        }else{
+            $VendorName = '';
+        }
+
         if ($account->update($data)) {
+
+            $DynamicData = array();
+            $DynamicData['CompanyID']= $companyID;
+            $DynamicData['AccountID']= $id;
+
+            if(!empty($AccountGateway)){
+                $DynamicData['FieldName'] = 'accountgateway';
+                $DynamicData['FieldValue']= $AccountGateway;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(!empty($VendorName)){
+                $DynamicData['FieldName'] = 'vendorname';
+                $DynamicData['FieldValue']= $VendorName;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+
             if($data['Billing'] == 1) {
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
                 if($ManualBilling == 0){
@@ -1522,12 +1586,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 				if(isset($update['CurrencyId']))
 				{
                     $CurrencyCount = Account::whereRaw("(AccountID = '".$id."' AND (CurrencyId is null or CurrencyId ='0'))")->count();
-                    if($CurrencyCount>0){
+                    if($CurrencyCount==0){
                         unset($update['CurrencyId']);
                     }
 				}
-
-                Account::where(['AccountID'=>$id])->update($update);
+                $upaccount = Account::find($id);
+                $upaccount->update($update);
+                //Account::where(['AccountID'=>$id])->update($update);
                 $invoice_count = Account::getInvoiceCount($id);
                 if(isset($data['BillingCheck']) && !empty($billing_on_off)) {
                     \Illuminate\Support\Facades\Log::info('--update billing--');
