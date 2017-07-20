@@ -59,6 +59,7 @@ BEGIN
 	DECLARE dynamic_column_type VARCHAR(20) DEFAULT 'product';
 	DECLARE duplicate_f_records INT DEFAULT 0;
 	DECLARE current_datetime DATETIME DEFAULT NOW();
+	DECLARE updated_records INT DEFAULT 0;
 		
 	SET sql_mode = '';	    
    	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -104,6 +105,17 @@ BEGIN
 	LEFT JOIN tblTempProduct tp ON tp.Code=p.Code
 	SET p.Active=0, p.updated_at=current_datetime, p.ModifiedBy='system'
 	WHERE tp.Code=p.Code AND tp.Change='D' AND tp.ProcessID=p_processId;
+
+	-- log updated status records
+	SELECT COUNT(*) INTO updated_records
+		FROM tblProduct p
+		LEFT JOIN tblTempProduct tp ON p.Code=tp.Code
+		WHERE tp.Code=p.Code AND tp.Change='D' AND tp.ProcessID=p_processId;
+		
+	IF updated_records > 0
+	THEN
+		INSERT INTO tmp_JobLog_ (Message) VALUES(CONCAT(updated_records, ' Item(s) has been deleted!'));
+	END IF;
 	-- ends disable products which has delete action in csv or excel file
 
 	-- starts delete all duplicate records from temp table if dynamic column is unique
@@ -316,64 +328,6 @@ BEGIN
 							);
 	-- ends check unique dynamic column and delete it if exist in tblDynamicFieldsValue
 
-	-- starts dynamic column insert of products to be inserted
-	INSERT INTO
-		NeonRMDev.tblDynamicFieldsValue (`CompanyId`,`ParentID`,`DynamicFieldsID`,`FieldValue`,`created_at`,`created_by`)
-	SELECT
-		ttdfv.CompanyId,ttdfv.ParentID,ttdfv.DynamicFieldsID,ttdfv.FieldValue,ttdfv.created_at,ttdfv.created_by
-	FROM
-		tblTempDynamicFieldsValue ttdfv
-	LEFT JOIN
-		tblTempProduct ttp3 ON ttp3.ProductID = ttdfv.ParentID
-	LEFT JOIN
-		tblProduct ttp4 ON ttp3.Code = ttp4.Code
-	WHERE
-		ttp3.ProductID = ttdfv.ParentID AND
-		ttp3.ProcessID = ttdfv.ProcessID AND
-		ttp4.Code IS NULL AND
-		ttdfv.ProcessID = p_processId;
-	-- ends dynamic column insert of products to be inserted
-
-	-- start product insert
-	INSERT INTO 
-		tblProduct (`CompanyId`,`Name`,`Code`,`Description`,`Amount`,`Active`,`Note`,`created_at`,`CreatedBy`)
-	SELECT 
-		tp3.CompanyId,tp3.Name,tp3.Code,tp3.Description,tp3.Amount,tp3.Active,tp3.Note,tp3.created_at,tp3.Created_By 
-	FROM 
-		tblTempProduct tp3
-	LEFT JOIN 
-		tblProduct tp2 ON tp3.Code = tp2.Code
-	WHERE 
-		tp2.Code IS NULL AND ProcessID = p_processId;
-	-- ends product insert
-
-	SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
-
-	INSERT INTO tmp_JobLog_ (Message)
-	SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded!' );	
-	
-	-- starts dynamic column update ParentID of inserted products
-	UPDATE 
-		NeonRMDev.tblDynamicFieldsValue tdfv
-	LEFT JOIN
-		tblTempProduct ttp ON tdfv.ParentID = ttp.ProductID
-	LEFT JOIN
-		tblProduct tp ON tp.Code = ttp.Code
-	SET 
-		ParentID = tp.ProductID
-	WHERE
-		tp.Name = ttp.Name AND 
-		tp.Code = ttp.Code AND 
-		tp.CompanyId = ttp.CompanyId AND 
-		tp.Description = ttp.Description AND 
-		tp.Amount = ttp.Amount AND
-		tp.Note = ttp.Note AND
-		tp.created_at = ttp.created_at AND
-		tp.CreatedBy = ttp.created_by AND
-		ttp.ProcessID = p_processId AND
-		tdfv.ParentID = ttp.ProductID;
-	-- ends dynamic column update ParentID of inserted products
-
 	-- start product update if already exist
 	UPDATE 
 		tblProduct p
@@ -384,6 +338,33 @@ BEGIN
 	WHERE 
 		tp.Code = p.Code AND  tp.Change!='D' AND tp.ProcessID = p_processId;
 	-- ends product update if already exist
+
+	-- starts count and log updated records
+	SELECT 
+		count(ttp1.Code) INTO totalexistingcode
+	FROM 
+		tblTempProduct ttp1
+	LEFT JOIN
+		tblProduct ttp2 ON ttp1.Code = ttp2.Code
+	WHERE
+		ttp1.Code = ttp2.Code;
+
+	IF totalexistingcode > 0
+	THEN
+		INSERT INTO tmp_JobLog_ (Message)
+			  SELECT DISTINCT 
+			  CONCAT(record_to_update, ' Records updated!')
+			  		FROM(
+						SELECT 
+							count(ttp3.Code) AS record_to_update
+						FROM 
+							tblTempProduct ttp3
+						LEFT JOIN
+							tblProduct ttp4 ON ttp3.Code = ttp4.Code
+						WHERE
+							ttp3.Code = ttp4.Code) AS tbl;
+	END IF;
+	-- ends count and log updated records
 
 	-- start insert dynamic columns if not exist of item to be updated
 	INSERT INTO
@@ -445,32 +426,65 @@ BEGIN
 		tfv.ProductID=fv.ParentID AND tfv.DynamicFieldsID=fv.DynamicFieldsID AND tfv.ProcessID=p_processId;
 	-- ends update dynamic columns if exist of item to be updated
 
-	-- starts count and log updated records
-	SELECT 
-		count(ttp1.Code) INTO totalexistingcode
-	FROM 
-		tblTempProduct ttp1
-	LEFT JOIN
-		tblProduct ttp2 ON ttp1.Code = ttp2.Code
-	WHERE
-		ttp1.Code = ttp2.Code;
 
-	IF totalexistingcode > 0
-	THEN
-		INSERT INTO tmp_JobLog_ (Message)
-			  SELECT DISTINCT 
-			  CONCAT(record_to_update, ' Records updated!')
-			  		FROM(
-						SELECT 
-							count(ttp3.Code) AS record_to_update
-						FROM 
-							tblTempProduct ttp3
-						LEFT JOIN
-							tblProduct ttp4 ON ttp3.Code = ttp4.Code
-						WHERE
-							ttp3.Code = ttp4.Code) AS tbl;
-	END IF;
-	-- ends count and log updated records
+	-- starts dynamic column insert of products to be inserted
+	INSERT INTO
+		NeonRMDev.tblDynamicFieldsValue (`CompanyId`,`ParentID`,`DynamicFieldsID`,`FieldValue`,`created_at`,`created_by`)
+	SELECT
+		ttdfv.CompanyId,ttdfv.ParentID,ttdfv.DynamicFieldsID,ttdfv.FieldValue,ttdfv.created_at,ttdfv.created_by
+	FROM
+		tblTempDynamicFieldsValue ttdfv
+	LEFT JOIN
+		tblTempProduct ttp3 ON ttp3.ProductID = ttdfv.ParentID
+	LEFT JOIN
+		tblProduct ttp4 ON ttp3.Code = ttp4.Code
+	WHERE
+		ttp3.ProductID = ttdfv.ParentID AND
+		ttp3.ProcessID = ttdfv.ProcessID AND
+		ttp4.Code IS NULL AND
+		ttdfv.ProcessID = p_processId;
+	-- ends dynamic column insert of products to be inserted
+
+	-- start product insert
+	INSERT INTO 
+		tblProduct (`CompanyId`,`Name`,`Code`,`Description`,`Amount`,`Active`,`Note`,`created_at`,`CreatedBy`)
+	SELECT 
+		tp3.CompanyId,tp3.Name,tp3.Code,tp3.Description,tp3.Amount,tp3.Active,tp3.Note,tp3.created_at,tp3.Created_By 
+	FROM 
+		tblTempProduct tp3
+	LEFT JOIN 
+		tblProduct tp2 ON tp3.Code = tp2.Code
+	WHERE 
+		tp2.Code IS NULL AND ProcessID = p_processId;
+	-- ends product insert
+
+	SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
+
+	INSERT INTO tmp_JobLog_ (Message)
+	SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded!' );	
+	
+	-- starts dynamic column update ParentID of inserted products
+	UPDATE 
+		NeonRMDev.tblDynamicFieldsValue tdfv
+	LEFT JOIN
+		tblTempProduct ttp ON tdfv.ParentID = ttp.ProductID
+	LEFT JOIN
+		tblProduct tp ON tp.Code = ttp.Code
+	SET 
+		ParentID = tp.ProductID
+	WHERE
+		tp.Name = ttp.Name AND 
+		tp.Code = ttp.Code AND 
+		tp.CompanyId = ttp.CompanyId AND 
+		tp.Description = ttp.Description AND 
+		tp.Amount = ttp.Amount AND
+		tp.Note = ttp.Note AND
+		tp.created_at = ttp.created_at AND
+		tp.CreatedBy = ttp.created_by AND
+		ttp.ProcessID = p_processId AND
+		tdfv.ParentID = ttp.ProductID;
+	-- ends dynamic column update ParentID of inserted products
+
 
 		DELETE  FROM tblTempProduct WHERE ProcessID = p_processId;
 		DELETE  FROM tblTempDynamicFieldsValue WHERE ProcessID = p_processId;
