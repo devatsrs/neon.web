@@ -39,11 +39,14 @@ CREATE TABLE IF NOT EXISTS `tblTempDynamicFieldsValue` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
+-- added Change column for insert, update, delete selection
+ALTER TABLE `tblTempProduct`
+	ADD COLUMN `Change` VARCHAR(100) NULL AFTER `BarCode`;
 
 
 -- Dumping structure for procedure LocalBillingDev.prc_WSProcessItemUpload
 DROP PROCEDURE IF EXISTS `prc_WSProcessItemUpload`;
-DELIMITER //
+DELIMITER |
 CREATE PROCEDURE `prc_WSProcessItemUpload`(
 	IN `p_processId` VARCHAR(50),
 	IN `p_companyId` INT
@@ -55,6 +58,7 @@ BEGIN
 	DECLARE dynamic_columns_count INT DEFAULT 0;
 	DECLARE dynamic_column_type VARCHAR(20) DEFAULT 'product';
 	DECLARE duplicate_f_records INT DEFAULT 0;
+	DECLARE current_datetime DATETIME DEFAULT NOW();
 		
 	SET sql_mode = '';	    
    	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -65,7 +69,7 @@ BEGIN
 			Message longtext     
    	);
     
-	-- delete duplicate Code record
+	-- starts delete duplicate Code record from temp table
 	SELECT COUNT(*) INTO duplicate_c_records FROM (SELECT count(Code)
 		FROM tblTempProduct 
 		GROUP BY Code
@@ -93,33 +97,16 @@ BEGIN
 		LEFT JOIN tblTempDynamicFieldsValue AS fv
 		ON fv.ParentID = n1.ProductID
 		WHERE n1.ProcessID = p_processId;
-
-	-- check unique code
-	SELECT 
-		count(ttp1.Code) INTO totalexistingcode
-	FROM 
-		tblTempProduct ttp1
-	LEFT JOIN
-		tblProduct ttp2 ON ttp1.Code = ttp2.Code
-	WHERE
-		ttp1.Code = ttp2.Code;
-
-	IF totalexistingcode > 0
-	THEN
-		INSERT INTO tmp_JobLog_ (Message)
-			  SELECT DISTINCT 
-			  CONCAT( 'Existing Code - ', Code)
-			  		FROM(
-						SELECT 
-							ttp3.Code AS Code
-						FROM 
-							tblTempProduct ttp3
-						LEFT JOIN
-							tblProduct ttp4 ON ttp3.Code = ttp4.Code
-						WHERE
-							ttp3.Code = ttp4.Code) AS tbl;
-	END IF;
+	-- ends delete duplicate Code record from temp table
 	
+	-- starts disable products which has delete action in csv or excel file
+	UPDATE tblProduct p
+	LEFT JOIN tblTempProduct tp ON tp.Code=p.Code
+	SET p.Active=0, p.updated_at=current_datetime, p.ModifiedBy='system'
+	WHERE tp.Code=p.Code AND tp.Change='D' AND tp.ProcessID=p_processId;
+	-- ends disable products which has delete action in csv or excel file
+
+	-- starts delete all duplicate records from temp table if dynamic column is unique
 	-- check if there is any dynamic columns for product table
 	SELECT count(*) INTO dynamic_columns_count FROM NeonRMDev.tblDynamicFields WHERE Type = dynamic_column_type AND Status = 1;
 
@@ -156,7 +143,7 @@ BEGIN
 							SELECT 
 								count(fv.FieldValue) AS f_duplicate_count, fv.FieldValue AS FieldValue, f.FieldName AS FieldName
 							FROM 
-								NeonBillingDev.tblTempDynamicFieldsValue AS fv
+								tblTempDynamicFieldsValue AS fv
 							LEFT JOIN
 								NeonRMDev.tblDynamicFields AS f
 							ON
@@ -181,9 +168,9 @@ BEGIN
 							HAVING COUNT(*)>1) AS tbl;
 			-- if dynamic column is unique than delete all duplicate records from temp table
 			DELETE fv1, p
-				FROM NeonBillingDev.tblTempDynamicFieldsValue fv1 
+				FROM tblTempDynamicFieldsValue fv1 
 				INNER JOIN (
-					SELECT MIN(DynamicFieldsValueID) AS minid, DynamicFieldsID, FieldValue FROM NeonBillingDev.tblTempDynamicFieldsValue
+					SELECT MIN(DynamicFieldsValueID) AS minid, DynamicFieldsID, FieldValue FROM tblTempDynamicFieldsValue
 					WHERE ProcessID = p_processId
 			     	GROUP BY FieldValue,DynamicFieldsID
 					HAVING COUNT(1) > 1
@@ -192,7 +179,7 @@ BEGIN
 			   AND fv1.DynamicFieldsID = fv2.DynamicFieldsID
 			   AND fv2.minid <> fv1.DynamicFieldsValueID)
 			   INNER JOIN
-					NeonBillingDev.tblTempProduct AS p
+					tblTempProduct AS p
 				ON
 					fv1.ParentID = p.ProductID
 				LEFT JOIN
@@ -220,12 +207,14 @@ BEGIN
 
 		END IF;
 	END IF;
+	-- ends delete all duplicate records from temp table if dynamic column is unique
 
+	-- starts check unique dynamic column and delete it if exist in tblDynamicFieldsValue
 	-- check unique dynamic column (if exist in tblDynamicFieldsValue)
 	SELECT 
 		count(fv1.FieldValue) INTO duplicate_f_records
 	FROM 
-		NeonBillingDev.tblTempDynamicFieldsValue fv1
+		tblTempDynamicFieldsValue fv1
 	LEFT JOIN
 		NeonRMDev.tblDynamicFieldsValue fv2 
 	ON 
@@ -259,7 +248,7 @@ BEGIN
 						SELECT 
 							fv1.FieldValue AS FieldValue, f.FieldName AS FieldName
 						FROM 
-							NeonBillingDev.tblTempDynamicFieldsValue fv1
+							tblTempDynamicFieldsValue fv1
 						LEFT JOIN
 							NeonRMDev.tblDynamicFieldsValue fv2
 						ON 
@@ -294,7 +283,7 @@ BEGIN
 	DELETE
 		fv1, p
 	FROM
-		NeonBillingDev.tblTempDynamicFieldsValue fv1
+		tblTempDynamicFieldsValue fv1
 	LEFT JOIN
 		NeonRMDev.tblDynamicFieldsValue fv2
 	ON 
@@ -305,7 +294,7 @@ BEGIN
 	ON
 		fv1.DynamicFieldsID = f.DynamicFieldsID
 	INNER JOIN
-		NeonBillingDev.tblTempProduct AS p
+		tblTempProduct AS p
 	WHERE
 		fv1.ParentID = p.ProductID AND
 		fv1.DynamicFieldsID = fv2.DynamicFieldsID AND
@@ -325,8 +314,9 @@ BEGIN
 									fd.FieldType = 'is_unique' AND
 									fd.Options = 1
 							);
+	-- ends check unique dynamic column and delete it if exist in tblDynamicFieldsValue
 
-	-- dynamic column insert
+	-- starts dynamic column insert of products to be inserted
 	INSERT INTO
 		NeonRMDev.tblDynamicFieldsValue (`CompanyId`,`ParentID`,`DynamicFieldsID`,`FieldValue`,`created_at`,`created_by`)
 	SELECT
@@ -342,8 +332,9 @@ BEGIN
 		ttp3.ProcessID = ttdfv.ProcessID AND
 		ttp4.Code IS NULL AND
 		ttdfv.ProcessID = p_processId;
+	-- ends dynamic column insert of products to be inserted
 
-	-- product insert
+	-- start product insert
 	INSERT INTO 
 		tblProduct (`CompanyId`,`Name`,`Code`,`Description`,`Amount`,`Active`,`Note`,`created_at`,`CreatedBy`)
 	SELECT 
@@ -354,10 +345,14 @@ BEGIN
 		tblProduct tp2 ON tp3.Code = tp2.Code
 	WHERE 
 		tp2.Code IS NULL AND ProcessID = p_processId;
+	-- ends product insert
 
-		
 	SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
 
+	INSERT INTO tmp_JobLog_ (Message)
+	SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded!' );	
+	
+	-- starts dynamic column update ParentID of inserted products
 	UPDATE 
 		NeonRMDev.tblDynamicFieldsValue tdfv
 	LEFT JOIN
@@ -377,11 +372,106 @@ BEGIN
 		tp.CreatedBy = ttp.created_by AND
 		ttp.ProcessID = p_processId AND
 		tdfv.ParentID = ttp.ProductID;
-	
+	-- ends dynamic column update ParentID of inserted products
 
+	-- start product update if already exist
+	UPDATE 
+		tblProduct p
+	LEFT JOIN
+		tblTempProduct tp ON tp.Code = p.Code
+	SET 
+		p.Name=tp.Name,p.Description=tp.Description,p.Amount=tp.Amount,p.Active=tp.Active,p.Note=tp.Note,p.ModifiedBy='system',p.updated_at=current_datetime
+	WHERE 
+		tp.Code = p.Code AND  tp.Change!='D' AND tp.ProcessID = p_processId;
+	-- ends product update if already exist
+
+	-- start insert dynamic columns if not exist of item to be updated
+	INSERT INTO
+		NeonRMDev.tblDynamicFieldsValue (`CompanyId`,`ParentID`,`DynamicFieldsID`,`FieldValue`,`created_at`,`created_by`)
+	SELECT
+		ttdfv.CompanyId,ttp4.ProductID,ttdfv.DynamicFieldsID,ttdfv.FieldValue,ttdfv.created_at,ttdfv.created_by
+	FROM
+		tblTempDynamicFieldsValue ttdfv
+	LEFT JOIN
+		tblTempProduct ttp3 ON ttp3.ProductID = ttdfv.ParentID
+	LEFT JOIN
+		tblProduct ttp4 ON ttp3.Code = ttp4.Code
+	WHERE
+		NOT EXISTS (
+		    SELECT * FROM NeonRMDev.tblDynamicFieldsValue WHERE ParentID = ttp4.ProductID
+		) AND
+		ttp3.ProductID = ttdfv.ParentID AND
+		ttp3.ProcessID = ttdfv.ProcessID AND
+		ttp3.Code = ttp4.Code AND
+		ttdfv.ProcessID = p_processId;
+	-- ends insert dynamic columns if not exist of item to be updated
+
+	-- start update dynamic columns if exist of item to be updated
+	DROP TEMPORARY TABLE IF EXISTS tmp_DynamicFieldsValue_;
+	CREATE TEMPORARY TABLE tmp_DynamicFieldsValue_  ( 
+		ProductID INT,
+		DynamicFieldsID INT,
+		FieldValue LONGTEXT,
+		ProcessID  LONGTEXT
+	);
+
+	INSERT INTO tmp_DynamicFieldsValue_ (ProductID,DynamicFieldsID,FieldValue,ProcessID)
+	SELECT
+		ttp4.ProductID,ttdfv.DynamicFieldsID,ttdfv.FieldValue,ttdfv.ProcessID
+	FROM
+		tblTempDynamicFieldsValue ttdfv
+	LEFT JOIN
+		tblTempProduct ttp3 ON ttp3.ProductID=ttdfv.ParentID
+	LEFT JOIN
+		tblProduct ttp4 ON ttp3.Code=ttp4.Code
+	WHERE
+		EXISTS (
+		    SELECT * FROM NeonRMDev.tblDynamicFieldsValue WHERE ParentID=ttp4.ProductID AND DynamicFieldsID=ttdfv.DynamicFieldsID
+		) AND
+		ttp3.ProductID=ttdfv.ParentID AND
+		ttp3.ProcessID=ttdfv.ProcessID AND
+		ttp3.Code=ttp4.Code AND
+		ttdfv.ProcessID=p_processId;
+
+	UPDATE
+		NeonRMDev.tblDynamicFieldsValue fv
+	LEFT JOIN
+		tmp_DynamicFieldsValue_ tfv
+	ON 
+		tfv.ProductID=fv.ParentID AND tfv.DynamicFieldsID=fv.DynamicFieldsID
+	SET
+		fv.FieldValue=tfv.FieldValue,fv.updated_at=current_datetime,fv.updated_by='system'
+	WHERE
+		tfv.ProductID=fv.ParentID AND tfv.DynamicFieldsID=fv.DynamicFieldsID AND tfv.ProcessID=p_processId;
+	-- ends update dynamic columns if exist of item to be updated
+
+	-- starts count and log updated records
+	SELECT 
+		count(ttp1.Code) INTO totalexistingcode
+	FROM 
+		tblTempProduct ttp1
+	LEFT JOIN
+		tblProduct ttp2 ON ttp1.Code = ttp2.Code
+	WHERE
+		ttp1.Code = ttp2.Code;
+
+	IF totalexistingcode > 0
+	THEN
 		INSERT INTO tmp_JobLog_ (Message)
-		SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded!' );	
-		
+			  SELECT DISTINCT 
+			  CONCAT(record_to_update, ' Records updated!')
+			  		FROM(
+						SELECT 
+							count(ttp3.Code) AS record_to_update
+						FROM 
+							tblTempProduct ttp3
+						LEFT JOIN
+							tblProduct ttp4 ON ttp3.Code = ttp4.Code
+						WHERE
+							ttp3.Code = ttp4.Code) AS tbl;
+	END IF;
+	-- ends count and log updated records
+
 		DELETE  FROM tblTempProduct WHERE ProcessID = p_processId;
 		DELETE  FROM tblTempDynamicFieldsValue WHERE ProcessID = p_processId;
 		
@@ -389,14 +479,15 @@ BEGIN
 	      
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-END
+END|
+DELIMITER ;
 
 
 
 
 -- Dumping structure for procedure NeonBillingDev.prc_getProductByBarCode
 DROP PROCEDURE IF EXISTS `prc_getProductByBarCode`;
-DELIMITER //
+DELIMITER |
 CREATE PROCEDURE `prc_getProductByBarCode`(
 	IN `p_fieldvalue` LONGTEXT,
 	IN `p_dynamicfieldsid` INT
@@ -415,11 +506,13 @@ BEGIN
 			`B`.`FieldValue` = p_fieldvalue AND 
 			`B`.`DynamicFieldsID` = p_dynamicfieldsid;
 	
-END//
+END|
 DELIMITER ;
 
 -- added tblProduct.ProductID column in last select query
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getProducts`(
+DROP PROCEDURE IF EXISTS `prc_getProducts`;
+DELIMITER |
+CREATE PROCEDURE `prc_getProducts`(
 	IN `p_CompanyID` INT,
 	IN `p_Name` VARCHAR(50),
 	IN `p_Code` VARCHAR(50),
@@ -509,6 +602,7 @@ BEGIN
 			tblProduct.ProductID,
 			tblProduct.Code,
 			tblProduct.Amount,
+			tblProduct.Description,
 			tblProduct.updated_at,
 			tblProduct.Active
             from tblProduct
@@ -521,4 +615,5 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 	
-END
+END|
+DELIMITER ;

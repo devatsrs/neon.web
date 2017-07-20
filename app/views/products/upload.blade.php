@@ -6,8 +6,11 @@
     <li>
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
     </li>
+    <li>
+        <a href="{{URL::to('products')}}">Items</a>
+    </li>
     <li class="active">
-        <strong>Items Upload</strong>
+        <strong>Upload Items</strong>
     </li>
 </ol>
 <h3>Items Upload</h3>
@@ -169,6 +172,27 @@
                                 <label for="field-1" class="col-sm-2 control-label">Unit Cost *</label>
                                 <div class="col-sm-4">
                                     {{Form::select('selection[Amount]', array(),'',array("class"=>"select2 small"))}}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-2 control-label">Action</label>
+                                <div class="col-sm-4">
+                                    {{Form::select('selection[Action]', array(),'',array("class"=>"select2 small"))}}
+                                </div>
+                                <label for="field-1" class="col-sm-2 control-label">Action Insert</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" name="selection[ActionInsert]" value="I" />
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-2 control-label">Action Update</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" name="selection[ActionUpdate]" value="U" />
+                                </div>
+                                <label for="field-1" class="col-sm-2 control-label">Action Delete</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" name="selection[ActionDelete]" value="D" />
                                 </div>
                             </div>
                             <div class="form-group">

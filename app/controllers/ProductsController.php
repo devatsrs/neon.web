@@ -15,7 +15,7 @@ class ProductsController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
-        $columns = ['Name','Code','Amount','updated_at','Active'];
+        $columns = ['ProductID','Name','Code','Amount','updated_at','Active'];
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_getProducts (".$CompanyID.", '".$data['Name']."','".$data['Code']."','".$data['Active']."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
 
@@ -551,5 +551,55 @@ class ProductsController extends \BaseController {
     public function download_sample_excel_file(){
         $filePath =  public_path() .'/uploads/sample_upload/ItemUploadSample.csv';
         download_file($filePath);
+    }
+
+    function UpdateBulkProductStatus()
+    {
+        $data 		= Input::all();
+        $CompanyID 	= User::get_companyID();
+        $UserName   = User::get_user_full_name();
+
+        if(isset($data['type_active_deactive']) && $data['type_active_deactive']!='')
+        {
+            if($data['type_active_deactive']=='active'){
+                $data['status_set']  = 1;
+            }else if($data['type_active_deactive']=='deactive'){
+                $data['status_set']  = 0;
+            }else{
+                return Response::json(array("status" => "failed", "message" => "No item status selected"));
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => "No item status selected"));
+        }
+
+        if($data['criteria_ac']=='criteria'){ //all item checkbox checked
+            $userID = User::get_userID();
+
+            if(!isset($data['Active']) || $data['Active'] == '') {
+                $data['Active'] = 9;
+            } else {
+                $data['Active'] = (int) $data['Active'];
+            }
+
+            $query = "call prc_UpdateProductsStatus (".$CompanyID.",'".$UserName."','".$data['Name']."','".$data['Code']."',".$data['Active'].",".$data['status_set'].")";
+
+            $result = DB::connection('sqlsrv2')->select($query);
+            return Response::json(array("status" => "success", "message" => "Items Status Updated"));
+        }
+
+        if($data['criteria_ac']=='selected'){ //selceted ids from current page
+            if(isset($data['SelectedIDs']) && count($data['SelectedIDs'])>0){
+//                foreach($data['SelectedIDs'] as $SelectedID){
+                    Product::whereIn('ProductID',$data['SelectedIDs'])->where('Active','!=',$data['status_set'])->update(["Active"=>intval($data['status_set'])]);
+//                    Product::find($SelectedID)->where('Active','!=',$data['status_set'])->update(["Active"=>intval($data['status_set']),'ModifiedBy'=>$UserName,'updated_at'=>date('Y-m-d H:i:s')]);
+//                }
+                return Response::json(array("status" => "success", "message" => "Items Status Updated"));
+            }else{
+                return Response::json(array("status" => "failed", "message" => "No Items selected"));
+            }
+
+        }
+
+
     }
 }
