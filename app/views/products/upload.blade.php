@@ -456,7 +456,7 @@
 
 
 
-                <div class="modal-body scrollx">
+                <div class="modal-body">
                     <p>The first line should have the column headings.</p>
                     <table class="table responsive">
                         <thead>
@@ -467,6 +467,7 @@
                             <th>Unit Cost *</th>
                             <th>Note</th>
                             <th>Barcode</th>
+                            <th>Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -477,6 +478,7 @@
                             <td>50</td>
                             <td>abc note</td>
                             <td>111</td>
+                            <td>I <span data-original-title="Insert" data-content="When action is set to 'I', It will insert new Item" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                         </tr>
                         <tr>
                             <td>pqr</td>
@@ -484,7 +486,8 @@
                             <td>pqr product</td>
                             <td>100</td>
                             <td>pqr note</td>
-                            <td>222</td>
+                            <td>111</td>
+                            <td>U <span data-original-title="Update" data-content="When action is set to 'U',It will replace existing Item" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                         </tr>
                         <tr>
                             <td>xyz</td>
@@ -492,7 +495,7 @@
                             <td>xyz product</td>
                             <td>75</td>
                             <td>xyz note</td>
-                            <td>333</td>
+                            <td>D</td><td>D <span data-original-title="Delete" data-content="When action is set to 'D',It will delete existing Item" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></td>
                         </tr>
                         </tbody>
                     </table>

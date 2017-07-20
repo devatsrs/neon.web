@@ -1,4 +1,4 @@
-Name,Code,Description,Unit Cost,Note,Barcode
-abc,v1,abc product,50,abc note,1
-pqr,v2,pqr product,100,pqr note,2
-xyz,v3,xyz product,75,xyz note,3
+Name,Code,Description,Unit Cost,Note,Barcode,Action
+abc,v1,abc product,500,abc note,111111,I
+pqr,v2,pqr product,1000,pqr note,121212,I
+xyz,v3,xyz product,750,xyz note,131313,D
