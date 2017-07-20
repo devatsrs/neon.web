@@ -32,6 +32,9 @@ class AccountsPaymentProfileController extends \BaseController {
         $CompanyID = User::get_companyID();
         $CustomerID = $data['AccountID'];
         if($CustomerID > 0) {
+            if($data['PaymentGatewayID']==PaymentGateway::StripeACH){
+                return AccountPaymentProfile::createBankProfile($CompanyID, $CustomerID);
+            }
             return AccountPaymentProfile::createProfile($CompanyID, $CustomerID);
         }
         return array("status" => "failed", "message" => 'Account not found');

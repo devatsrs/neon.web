@@ -21,6 +21,10 @@ class Payment extends \Eloquent {
         'Visa'=>'Visa',
         "JCB"=>"JCB",
     );
+    public static $account_holder_type = array(
+        'individual'=>'individual',
+        'company'=>'company',
+    );
 
     public static $importpaymentrules = array(
         'selection.AccountName' => 'required',

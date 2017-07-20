@@ -371,6 +371,40 @@
             </div>
         </div>
       <!-- stripe end -->
+      <!-- stripe ach start -->
+        <?php
+        $StripeACHDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$StripeACHSlug);
+        $StripeACHData   = isset($StripeACHDbData->Settings)?json_decode($StripeACHDbData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$StripeACHDbData->Slug}}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Secret Key:</label>
+                        <input type="text"  class="form-control" name="SecretKey" value="{{isset($StripeACHData->SecretKey)?$StripeACHData->SecretKey:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Publishable Key:</label>
+                        <input type="text"  class="form-control" name="PublishableKey" value="{{isset($StripeACHData->PublishableKey)?$StripeACHData->PublishableKey:''}}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Active:
+                            <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Enabling this will deactivate all other Payment categories" data-original-title="Status" class="label label-info popover-primary">?</span>
+                        </label>
+                        <div id="stripeachStatusDiv">
+                            <input id="StripeACHStatus" class="subcatstatus" Divid="stripeachStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($StripeACHDbData->Status) && $StripeACHDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      <!-- stripe ach end -->
       <!-- SagePay start -->
         <?php
         $SagePayDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$SagePaySlug);

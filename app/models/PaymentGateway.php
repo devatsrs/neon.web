@@ -5,9 +5,10 @@ class PaymentGateway extends \Eloquent {
     protected $primaryKey = "PaymentGatewayID";
     protected $guarded = array('PaymentGatewayID');
     public static $gateways = array('Authorize'=>'AuthorizeNet');
-    const  Authorize 	= 	1;
+    const  AuthorizeNet	= 	1;
     const  Stripe		=	2;
-    public static $paymentgateway_name = array(''=>'' ,self::Authorize => 'AuthorizeNet',self::Stripe=>'Stripe');
+    const  StripeACH	=	3;
+    public static $paymentgateway_name = array(''=>'' ,self::AuthorizeNet => 'AuthorizeNet',self::Stripe=>'Stripe',self::StripeACH=>'StripeACH');
 
     public static function getName($PaymentGatewayID)
     {
@@ -111,11 +112,17 @@ class PaymentGateway extends \Eloquent {
     public static function getPaymentGatewayID(){
         $PaymentGatewayID = 0;
         if(is_authorize()){
-            $PaymentGatewayID = PaymentGateway::Authorize;
+            $PaymentGatewayID = PaymentGateway::AuthorizeNet;
         }
         if(is_Stripe()){
             $PaymentGatewayID = PaymentGateway::Stripe;
         }
+        return $PaymentGatewayID;
+    }
+
+    public static function getPaymentGatewayIDByName($PaymentMehod){
+        $PaymentGateway = PaymentGateway::$paymentgateway_name;
+        $PaymentGatewayID = array_search($PaymentMehod, $PaymentGateway);
         return $PaymentGatewayID;
     }
 

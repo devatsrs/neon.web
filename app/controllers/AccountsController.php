@@ -59,10 +59,16 @@ class AccountsController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $PaymentGatewayName = '';
-        $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
+        $PaymentGatewayID='';
+        $account = Account::find($AccountID);
+        if(!empty($account->PaymentMethod)){
+            $PaymentGatewayName = $account->PaymentMethod;
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
+        }
+        /*$PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
         if(!empty($PaymentGatewayID)){
             $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
-        }
+        }*/
         $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID");
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])

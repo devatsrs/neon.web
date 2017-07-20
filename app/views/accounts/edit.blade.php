@@ -613,14 +613,23 @@
                                 <label for="minimal-radio-4-11">Stripe</label>
                             </li>
                             <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-4-11" name="PaymentMethod" value="StripeACH" @if( $account->PaymentMethod == 'StripeACH' ) checked="" @endif />
+                                <label for="minimal-radio-4-11">Stripe ACH</label>
+                            </li>
+                            <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
                                 <label for="minimal-radio-5-11">Other</label>
                             </li>
                         </ul>
                     </div>
                     <div class="col-md-9">
-                        @if (is_authorize() || is_Stripe())
-                            @include('customer.paymentprofile.paymentGrid')
+                        @if( $account->PaymentMethod == 'Stripe'  || $account->PaymentMethod == 'AuthorizeNet')
+                            @if (is_authorize() || is_Stripe())
+                                @include('customer.paymentprofile.paymentGrid')
+                            @endif
+                        @endif
+                        @if( $account->PaymentMethod == 'StripeACH')
+                            @include('customer.paymentprofile.bankpaymentGrid')
                         @endif
                     </div>
                 </div>
@@ -680,6 +689,7 @@
 		
 		
         $('#add-credit-card-form').find("[name=AccountID]").val('{{$account->AccountID}}');
+        $('#add-bankaccount-form').find("[name=AccountID]").val('{{$account->AccountID}}');
         $("#save_account").click(function (ev) {
             ev.preventDefault();
             //Subscription , Additional charge filter fields should not in account save.

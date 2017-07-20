@@ -12,8 +12,18 @@
     </ol>
     <script>
         var ajax_url = baseurl + "/customer/PaymentMethodProfiles/ajax_datagrid";
+        alert(ajax_url);
+        $('#add-credit-card-form').find("[name=AccountID]").val('{{$account->AccountID}}');
+        $('#add-bankaccount-form').find("[name=AccountID]").val('{{$account->AccountID}}');
     </script>
-    @include('customer.paymentprofile.paymentGrid')
+    @if( $account->PaymentMethod == 'Stripe'  || $account->PaymentMethod == 'AuthorizeNet')
+        @if (is_authorize() || is_Stripe())
+            @include('customer.paymentprofile.paymentGrid')
+        @endif
+    @endif
+    @if( $account->PaymentMethod == 'StripeACH')
+        @include('customer.paymentprofile.bankpaymentGrid')
+    @endif
 @stop
 
 @section('footer_ext')
