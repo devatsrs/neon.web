@@ -1581,6 +1581,9 @@ function ShortName($title,$length=8){
 function is_Stripe(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeSlug);
 }
+function is_StripeACH(){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeACHSlug);
+}
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
         date_default_timezone_set($billing_timezone);

@@ -629,7 +629,9 @@
                             @endif
                         @endif
                         @if( $account->PaymentMethod == 'StripeACH')
-                            @include('customer.paymentprofile.bankpaymentGrid')
+                            @if(is_StripeACH())
+                                @include('customer.paymentprofile.bankpaymentGrid')
+                            @endif
                         @endif
                     </div>
                 </div>
