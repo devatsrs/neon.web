@@ -21,7 +21,7 @@
         @endif
     @endif
     @if( $account->PaymentMethod == 'StripeACH')
-        @if (is_authorize() || is_Stripe())
+        @if (is_StripeACH())
             @include('customer.paymentprofile.bankpaymentGrid')
         @endif
     @endif
