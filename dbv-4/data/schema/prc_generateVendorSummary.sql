@@ -213,4 +213,20 @@ BEGIN
 
 	COMMIT;
 	
+	SET @stmt = CONCAT('DELETE FROM tmp_tblVendorUsageDetailsReport_',p_UniqueID,';');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+	
+	
+	SET @stmt = CONCAT('DELETE FROM tblTempCallDetail_2_',p_UniqueID,';');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+	
+	DELETE FROM tmp_VendorUsageSummary WHERE CompanyID = p_CompanyID;
+	
+	
 END
