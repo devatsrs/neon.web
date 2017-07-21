@@ -1,4 +1,4 @@
-use NeonRMDev;
+use Ratemanagement3;
 
 INSERT INTO `tblJobType` (`Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES ('IU', 'Item Upload', NULL, '2017-07-04 12:25:46', 'System', NULL, NULL);
 
@@ -12,7 +12,6 @@ INSERT INTO `tblResource` (`ResourceName`, `ResourceValue`, `CompanyID`, `Create
 
 
 
--- Dumping structure for table NeonRMDev.tblDynamicFields
 CREATE TABLE IF NOT EXISTS `tblDynamicFields` (
   `DynamicFieldsID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) NOT NULL DEFAULT '0',
@@ -29,16 +28,14 @@ CREATE TABLE IF NOT EXISTS `tblDynamicFields` (
   `updated_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`DynamicFieldsID`),
   KEY `IX_Type` (`Type`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- Dumping data for table NeonRMDev.tblDynamicFields: ~4 rows (approximately)
 INSERT INTO `tblDynamicFields` (`DynamicFieldsID`, `CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
 	(1, 1, 'account', 'multiselect', 'Gateway', 'accountgateway', 'Account Gateway', 0, 1, '2017-07-04 13:05:54', 'System', NULL, NULL),
 	(2, 1, 'account', 'text', 'Vendor Name', 'vendorname', 'Vendor Name', 0, 1, '2017-07-04 13:05:54', 'System', NULL, NULL),
 	(3, 1, 'product', 'text', 'Barcode', 'barcode', 'Product Barcode', 0, 1, '2017-07-05 18:04:45', 'System', NULL, NULL),
 	(4, 1, 'product', 'text', 'Barcode2', 'Barcode2', 'Product Barcode2', 0, 0, '2017-07-05 18:04:45', 'System', NULL, NULL);
 
--- Dumping structure for table NeonRMDev.tblDynamicFieldsDetail
 CREATE TABLE IF NOT EXISTS `tblDynamicFieldsDetail` (
   `DynamicFieldsDetailID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) NOT NULL DEFAULT '0',
@@ -52,15 +49,13 @@ CREATE TABLE IF NOT EXISTS `tblDynamicFieldsDetail` (
   `updated_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`DynamicFieldsDetailID`),
   KEY `IX_DynamicFieldsID` (`DynamicFieldsID`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- Dumping data for table NeonRMDev.tblDynamicFieldsDetail: ~3 rows (approximately)
 INSERT INTO `tblDynamicFieldsDetail` (`DynamicFieldsDetailID`, `CompanyID`, `DynamicFieldsID`, `FieldType`, `Options`, `FieldOrder`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
 	(1, 1, 1, 'gateway', NULL, 0, NULL, NULL, NULL, NULL),
 	(2, 1, 3, 'is_unique', '1', 0, NULL, NULL, NULL, NULL),
 	(3, 1, 4, 'is_unique', '1', 0, NULL, NULL, NULL, NULL);
 
--- Dumping structure for table NeonRMDev.tblDynamicFieldsValue
 CREATE TABLE IF NOT EXISTS `tblDynamicFieldsValue` (
   `DynamicFieldsValueID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) NOT NULL DEFAULT '0',
@@ -78,7 +73,6 @@ CREATE TABLE IF NOT EXISTS `tblDynamicFieldsValue` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
--- Dumping structure for procedure NeonRMDev.prc_CronJobAllPending
 DROP PROCEDURE IF EXISTS `prc_CronJobAllPending`;
 DELIMITER |
 CREATE PROCEDURE `prc_CronJobAllPending`(
