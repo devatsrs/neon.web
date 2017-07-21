@@ -17,7 +17,12 @@
 
 @include('includes.errors')
 @include('includes.success')
-
+<style>
+    .popover{
+        max-width:350px;
+        width:350px;
+    }
+</style>
 <form class="form-horizontal form-groups-bordered" action="{{URL::to('/invoice/store')}}" method="post" id="invoice-from" role="form">
   <p class="text-right">
     <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" data-loading-text="Loading..."> Save<i class="entypo-floppy"></i> </button>
@@ -38,7 +43,7 @@
           <div class="clearfix margin-bottom "></div>
         </div>
         <div class="col-sm-4">
-            <label for="field-1" class="col-sm-3 control-label">Barcode</label>
+            <label for="field-1" class="col-sm-3 control-label">Barcode <span id="barcode_tooltip" data-original-title="Barcode" data-content="Scan item barcode in order to add item to the invoice." data-placement="bottom" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></label>
             <div class="col-sm-9"> {{Form::text('BarCode','',array( "ID"=>"BarCode", "class"=>"form-control", "onkeypress"=>"validateBarCodeInput(event)"))}} </div>
             <div class="clearfix margin-bottom "></div>
         </div>

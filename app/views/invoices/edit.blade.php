@@ -17,7 +17,12 @@
 
     @include('includes.errors')
     @include('includes.success')
-
+    <style>
+        .popover{
+            max-width:350px;
+            width:350px;
+        }
+    </style>
     <form class="form-horizontal form-groups-bordered" method="post" id="invoice-from" role="form">
         <div class="pull-right"> @if(User::checkCategoryPermission('Invoice','Send')) <a href="Javascript:;" class="send-invoice btn btn-sm btn-success btn-icon icon-left hidden-print"> Send <i class="entypo-mail"></i> </a> @endif
             &nbsp; <a target="_blank" href="{{URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview')}}" class="btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a> &nbsp;
@@ -41,7 +46,7 @@
                         <div class="clearfix margin-bottom "></div>
                     </div>
                     <div class="col-sm-4">
-                        <label for="field-1" class="col-sm-3 control-label">Barcode</label>
+                        <label for="field-1" class="col-sm-3 control-label">Barcode <span id="barcode_tooltip" data-original-title="Barcode" data-content="Scan item barcode in order to add item to the invoice." data-placement="bottom" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></label>
                         <div class="col-sm-9"> {{Form::text('BarCode','',array( "ID"=>"BarCode", "class"=>"form-control", "onkeypress"=>"validateBarCodeInput(event)"))}} </div>
                         <div class="clearfix margin-bottom "></div>
                     </div>
