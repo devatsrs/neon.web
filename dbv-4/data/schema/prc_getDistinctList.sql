@@ -49,7 +49,7 @@ BEGIN
 
 	END IF;
 	
-	IF p_ColName = 'AccountID'
+	IF p_ColName = 'AccountID' OR p_ColName = 'VAccountID'
 	THEN
 
 		SELECT 
@@ -109,7 +109,7 @@ BEGIN
 
 	END IF;
 	
-	IF p_ColName = 'GatewayAccountID'
+	IF p_ColName = 'GatewayAccountPKID' OR p_ColName = 'GatewayVAccountPKID'
 	THEN
 
 		SELECT

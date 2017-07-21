@@ -196,8 +196,18 @@ class Report extends \Eloquent {
             ->where(['CompanyID' => $CompanyID]);
 
         foreach($filters as $key => $filter){
-            if(!empty($filter[$key]) && is_array($filter[$key])){
+            if(!empty($filter[$key]) && is_array($filter[$key]) && !in_array($key,array('GatewayAccountPKID','GatewayVAccountPKID'))){
                 $query_common->whereIn($key,$filter[$key]);
+            }else if(!empty($filter[$key]) && is_array($filter[$key]) && in_array($key,array('GatewayAccountPKID','GatewayVAccountPKID'))){
+                $data_in_array = GatewayAccount::where(array('CompanyID'=>$CompanyID))
+                    ->where(function($where)use($filter,$key){
+                        $where->where('AccountIP','like',$filter[$key]);
+                        $where->orwhere('AccountCLI','like',$filter[$key]);
+                    })
+                    ->lists('GatewayAccountPKID');
+                if(!empty($data_in_array)) {
+                    $query_common->whereIn($key, $data_in_array);
+                }
             }else if(!empty($filter['wildcard_match_val']) && in_array($key,array('Trunk','AreaPrefix'))){
                 $query_common->where($key,'like',str_replace('*','%',$filter['wildcard_match_val']));
             }else if(!empty($filter['wildcard_match_val'])){
