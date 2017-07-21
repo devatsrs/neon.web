@@ -1,6 +1,6 @@
 use NeonBillingDev;
 
--- Dumping structure for table LocalBillingDev.tblTempProduct
+-- Dumping structure for table NeonBillingDev.tblTempProduct
 CREATE TABLE IF NOT EXISTS `tblTempProduct` (
   `ProductID` bigint(20) NOT NULL AUTO_INCREMENT,
   `CompanyId` int(11) DEFAULT NULL,
@@ -10,17 +10,16 @@ CREATE TABLE IF NOT EXISTS `tblTempProduct` (
   `Amount` decimal(18,2) DEFAULT NULL,
   `Active` tinyint(3) unsigned DEFAULT '1',
   `Note` longtext COLLATE utf8_unicode_ci,
+  `BarCode` longtext COLLATE utf8_unicode_ci,
+  `Change` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `ProcessID` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `created_by` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`ProductID`),
   KEY `IX_ProcessID` (`ProcessID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=156 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-
-
-
--- Dumping structure for table LocalBillingDev.tblTempDynamicFieldsValue
+-- Dumping structure for table NeonBillingDev.tblTempDynamicFieldsValue
 CREATE TABLE IF NOT EXISTS `tblTempDynamicFieldsValue` (
   `DynamicFieldsValueID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) NOT NULL DEFAULT '0',
@@ -37,11 +36,6 @@ CREATE TABLE IF NOT EXISTS `tblTempDynamicFieldsValue` (
   UNIQUE KEY `IXUnique_ParentID_DynamicFieldsID` (`ParentID`,`DynamicFieldsID`),
   KEY `IX_ParentID_DynamicFieldsID` (`DynamicFieldsID`,`ParentID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-
--- added Change column for insert, update, delete selection
-ALTER TABLE `tblTempProduct`
-	ADD COLUMN `Change` VARCHAR(100) NULL AFTER `BarCode`;
 
 
 -- Dumping structure for procedure LocalBillingDev.prc_WSProcessItemUpload
@@ -555,12 +549,12 @@ BEGIN
 	THEN
 
     SELECT   
+			tblProduct.ProductID,
 			tblProduct.Name,
 			tblProduct.Code,
 			tblProduct.Amount,
 			tblProduct.updated_at,
 			tblProduct.Active,
-			tblProduct.ProductID,
 			tblProduct.Description,
 			tblProduct.Note
             from tblProduct
@@ -612,13 +606,14 @@ BEGIN
 	ELSE
 
 			SELECT
-			tblProduct.Name,
 			tblProduct.ProductID,
+			tblProduct.Name,
 			tblProduct.Code,
 			tblProduct.Amount,
-			tblProduct.Description,
 			tblProduct.updated_at,
-			tblProduct.Active
+			tblProduct.Active,
+			tblProduct.Description,
+			tblProduct.Note
             from tblProduct
 			where tblProduct.CompanyID = p_CompanyID
 			AND(p_Name ='' OR tblProduct.Name like Concat('%',p_Name,'%'))
