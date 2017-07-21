@@ -438,9 +438,9 @@ BEGIN
 
 	-- start product insert
 	INSERT INTO 
-		tblProduct (`CompanyId`,`Name`,`Code`,`Description`,`Amount`,`Active`,`Note`,`created_at`,`CreatedBy`)
+		tblProduct (`CompanyId`,`Name`,`Code`,`Description`,`Amount`,`Active`,`Note`,`created_at`,`CreatedBy`,`ModifiedBy`,`updated_at`)
 	SELECT 
-		tp3.CompanyId,tp3.Name,tp3.Code,tp3.Description,tp3.Amount,tp3.Active,tp3.Note,tp3.created_at,tp3.Created_By 
+		tp3.CompanyId,tp3.Name,tp3.Code,tp3.Description,tp3.Amount,tp3.Active,tp3.Note,tp3.created_at,tp3.Created_By,tp3.Created_By,tp3.created_at
 	FROM 
 		tblTempProduct tp3
 	LEFT JOIN 

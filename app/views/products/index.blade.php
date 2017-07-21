@@ -318,7 +318,8 @@
                                     toastr.success(response.message, "Success", toastr_opts);
                                     data_table.fnFilter('', 0);
                                     $('#selectall').removeAttr('checked');
-                                    $('#selectallbutton').click();
+                                    if(jQuery('#selectallbutton').is(':checked'))
+                                        $('#selectallbutton').click();
                                 }else{
                                     toastr.error(response.message, "Error", toastr_opts);
                                 }
