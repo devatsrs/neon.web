@@ -1990,6 +1990,7 @@ function table_array($data,$response,$all_data_list){
 }
 function table_html($data,$table_data){
     $index_col = 1;
+    $cube = $data['Cube'];
     $row_count = count($data['row']);
     $col_count = count($data['column']);
     $table_header = $table_header_colgroup = $table_row = '';
@@ -2035,7 +2036,11 @@ function table_html($data,$table_data){
         $key_count = count($data['column']);
         foreach ($table_data['columns'][$key_count] as $row_val) {
             foreach ($row_val['name'] as $row_name) {
-                $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . $row_name . '</th>';
+                if(array_key_exists($row_name,Report::$measures[$cube])){
+                    $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . Report::$measures[$cube][$row_name] . '</th>';
+                }else{
+                    $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . $row_name . '</th>';
+                }
             }
         }
         $table_header .= '</tr>';
