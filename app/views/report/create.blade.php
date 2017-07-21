@@ -152,7 +152,12 @@
     </style>
     <script>
         var checked = '';
-        var filter_settings = {{$report_settings['filter_settings'] or ''}};
+        @if(!empty($report_settings['filter_settings']))
+            var filter_settings = {{$report_settings['filter_settings']}};
+        @else
+            var filter_settings = {};
+        @endif
+
         $( function() {
 
             // There's the Dimension and the Measures
