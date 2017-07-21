@@ -152,7 +152,7 @@
     </style>
     <script>
         var checked = '';
-        var filter_settings = {};
+        var filter_settings = {{$report_settings['filter_settings'] or ''}};
         $( function() {
 
             // There's the Dimension and the Measures
@@ -390,6 +390,11 @@
                 if (index > -1) {
                     rows.splice(index, 1);
                 }
+                if (filter_settings[$item.attr('data-val')]) {
+                    delete filter_settings[$item.attr('data-val')];
+                    $('#hidden_setting').val(JSON.stringify(filter_settings));
+                    $("#hidden_filter_col").val('');
+                }
                 //}
                 if(action == 'add') {
                     rows[rows.length] = $item.attr('data-val');
@@ -398,11 +403,14 @@
                 $("#hidden_filter").val(rows.join(","));
                 if($("#hidden_filter").val() != previous_val && trigger == 1){
                     $("#hidden_filter").trigger('change');
+                    $("#report-update").trigger('click');
                 }
 
             }
             $('#report-update').click(function(e){
-                filter_settings[$("#hidden_filter_col").val()] = $("#add-new-filter-form").serialize();
+                if($("#hidden_filter_col").val() != '') {
+                    filter_settings[$("#hidden_filter_col").val()] = $("#add-new-filter-form").serialize();
+                }
                 $('#hidden_setting').val(JSON.stringify(filter_settings));
                 e.preventDefault();
                 reload_table();
