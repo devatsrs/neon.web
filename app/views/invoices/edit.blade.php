@@ -17,7 +17,12 @@
 
     @include('includes.errors')
     @include('includes.success')
-
+    <style>
+        .popover{
+            max-width:350px;
+            width:350px;
+        }
+    </style>
     <form class="form-horizontal form-groups-bordered" method="post" id="invoice-from" role="form">
         <div class="pull-right"> @if(User::checkCategoryPermission('Invoice','Send')) <a href="Javascript:;" class="send-invoice btn btn-sm btn-success btn-icon icon-left hidden-print"> Send <i class="entypo-mail"></i> </a> @endif
             &nbsp; <a target="_blank" href="{{URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_preview')}}" class="btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a> &nbsp;
@@ -28,29 +33,34 @@
         <div class="panel panel-primary" data-collapsed="0">
             <div class="panel-body">
                 <div class="form-group">
-                    <div class="col-sm-6">
-                        <label for="field-1" class="col-sm-2 control-label">*Client</label>
-                        <div class="col-sm-6"> {{Form::select('AccountID',$accounts,$Invoice->AccountID,array("class"=>"select2" ,"disabled"=>"disabled"))}}
+                    <div class="col-sm-4">
+                        <label for="field-1" class="col-sm-3 control-label">*Client</label>
+                        <div class="col-sm-9"> {{Form::select('AccountID',$accounts,$Invoice->AccountID,array("class"=>"select2" ,"disabled"=>"disabled"))}}
                             {{Form::hidden('AccountID',$Invoice->AccountID)}} </div>
                         <div class="clearfix margin-bottom "></div>
-                          <label for="field-1" class="col-sm-2 control-label">*Billing Class</label>
- 				         <div class="col-sm-6">{{Form::select('BillingClassID', $BillingClass,$InvoiceBillingClass,array("class"=>"select2 small form-control1 small","id"=>"AccountBillingClassID","disabled"=>"disabled"));}}</div>
+                          <label for="field-1" class="col-sm-3 control-label">*Billing Class</label>
+ 				         <div class="col-sm-9">{{Form::select('BillingClassID', $BillingClass,$InvoiceBillingClass,array("class"=>"select2 small form-control1 small","id"=>"AccountBillingClassID","disabled"=>"disabled"));}}</div>
 			            <div class="clearfix margin-bottom "></div>
-                        <label for="field-1" class="col-sm-2 control-label">*Address</label>
-                        <div class="col-sm-6"> {{Form::textarea('Address',$Invoice->Address,array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}} </div>
+                        <label for="field-1" class="col-sm-3 control-label">*Address</label>
+                        <div class="col-sm-9"> {{Form::textarea('Address',$Invoice->Address,array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}} </div>
                         <div class="clearfix margin-bottom "></div>
                     </div>
-                    <div class="col-sm-6">
-                        <label for="field-1" class="col-sm-7 control-label">*Invoice Number</label>
-                        <div class="col-sm-5"> {{Form::text('InvoiceNumber',$Invoice->InvoiceNumber,array("class"=>"form-control","readonly"=>"readonly"))}} </div>
+                    <div class="col-sm-4">
+                        <label for="field-1" class="col-sm-3 control-label">Barcode <span id="barcode_tooltip" data-original-title="Barcode" data-content="Scan item barcode in order to add item to the invoice." data-placement="bottom" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></label>
+                        <div class="col-sm-9"> {{Form::text('BarCode','',array( "ID"=>"BarCode", "class"=>"form-control", "onkeypress"=>"validateBarCodeInput(event)"))}} </div>
+                        <div class="clearfix margin-bottom "></div>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="field-1" class="col-sm-4 control-label">*Invoice Number</label>
+                        <div class="col-sm-8"> {{Form::text('InvoiceNumber',$Invoice->InvoiceNumber,array("class"=>"form-control","readonly"=>"readonly"))}} </div>
                         <br />
                         <br />
-                        <label for="field-1" class="col-sm-7 control-label">*Date of issue</label>
-                        <div class="col-sm-5"> {{Form::text('IssueDate',date('Y-m-d',strtotime($Invoice->IssueDate)),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
+                        <label for="field-1" class="col-sm-4 control-label">*Date of issue</label>
+                        <div class="col-sm-8"> {{Form::text('IssueDate',date('Y-m-d',strtotime($Invoice->IssueDate)),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
                         <br />
                         <br />
-                        <label for="field-1" class="col-sm-7 control-label">PO Number</label>
-                        <div class="col-sm-5"> {{Form::text('PONumber',$Invoice->PONumber,array("class"=>" form-control" ))}} </div>
+                        <label for="field-1" class="col-sm-4 control-label">PO Number</label>
+                        <div class="col-sm-8"> {{Form::text('PONumber',$Invoice->PONumber,array("class"=>" form-control" ))}} </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -278,6 +288,7 @@
 
         $('#rowContainer').append(add_row_html);
     </script>
+    @include('invoices.script_invoice_barcode_product')
     @include('invoices.script_invoice_add_edit')
     @include('composetmodels.productsubscriptionmodal')
     @include('includes.ajax_submit_script', array('formID'=>'invoice-from' , 'url' => 'invoice/'.$id.'/update' ))

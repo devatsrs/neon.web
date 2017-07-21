@@ -1,7 +1,7 @@
 <?php
 
 class InvoicesController extends \BaseController {
-	
+
 	public function ajax_datagrid_total() 
 	{
         $data 						 = 	Input::all();
@@ -148,14 +148,19 @@ class InvoicesController extends \BaseController {
      */
     public function create()
     {
-
+        $companyID  =   User::get_companyID();
         $accounts 	= 	Account::getAccountIDList();
         $products 	= 	Product::getProductDropdownList();
         $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice();
 		//echo "<pre>"; 		print_r($taxes);		echo "</pre>"; exit;
         //$gateway_product_ids = Product::getGatewayProductIDs();
-		$BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
-        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass'));
+		$BillingClass = BillingClass::getDropdownIDList($companyID);
+
+        $Type =  Product::DYNAMIC_TYPE;
+        $productsControllerObj = new ProductsController();
+        $DynamicFields = $productsControllerObj->getDynamicFields($companyID,$Type);
+
+        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass','DynamicFields'));
 
     }
 
@@ -195,7 +200,8 @@ class InvoicesController extends \BaseController {
      * Store Invoice
      */
     public function store(){
-        $data = Input::all(); 
+        $data = Input::all();
+        unset($data['BarCode']);
         if($data){
 
             $companyID = User::get_companyID();
@@ -377,7 +383,8 @@ class InvoicesController extends \BaseController {
      * Store Invoice
      */
     public function update($id){
-        $data = Input::all(); 
+        $data = Input::all();
+        unset($data['BarCode']);
         if(!empty($data) && $id > 0){
 
             $Invoice = Invoice::find($id);
@@ -1986,11 +1993,9 @@ class InvoicesController extends \BaseController {
 
         //https://sagepay.co.za/integration/sage-pay-integration-documents/pay-now-gateway-technical-guide/
         $SagePay = new SagePay();
-        $AccountnInvoice = $SagePay->get_response_var("Extra2");
+        $AccountnInvoice = $SagePay->getAccountInvoiceID();
 
         if ($AccountnInvoice != null) { // Extra2 = m5 (hidden field of sagepay form).
-
-            $AccountnInvoice = json_decode($AccountnInvoice,true);
 
             $AccountID = intval($AccountnInvoice["AccountID"]);
             $InvoiceID = intval($AccountnInvoice["InvoiceID"]);
@@ -2440,10 +2445,34 @@ class InvoicesController extends \BaseController {
         }
     }
 
-    public function sagepay_return(){
-        echo "sagepay_return";
+    public function sagepay_return() {
+
+        $SagePay = new SagePay();
+        $AccountnInvoice = $SagePay->getAccountInvoiceID('m10');
+
+        if(isset($AccountnInvoice["AccountID"]) && isset($AccountnInvoice["InvoiceID"])) {
+            $TransactionLog = TransactionLog::where(["AccountID" => $AccountnInvoice["AccountID"], "InvoiceID" => $AccountnInvoice["InvoiceID"]])->orderby("created_at", "desc")->first();
+
+            $TransactionLog = json_decode(json_encode($TransactionLog),true);
+            if($TransactionLog["Status"] == TransactionLog::SUCCESS ){
+
+                $Amount = $TransactionLog["Amount"];
+                $Transaction = $TransactionLog["Transaction"];
+
+                echo "<center>" . "Payment done successfully, Your Transaction ID is ". $Transaction .", Amount Received ".  $Amount  . " </center>";
+
+            } else {
+
+                echo "<center>Payment failed, Go back and try again later</center>";
+
+            }
+        }
+
+
     }
-    public function sagepay_declined(){
-        echo "sagepay_declined";
+    public function sagepay_declined() {
+
+        echo "<center>Payment declined, Go back and try again later.</center>";
+
     }
 }

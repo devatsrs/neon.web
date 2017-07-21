@@ -390,7 +390,8 @@ $(document).ready(function(){
 
     }
 
-    function cal_line_total(obj){
+//    function cal_line_total(obj){
+    window.cal_line_total = function (obj){
 
         var price = parseFloat(obj.find(".Price").val().replace(/,/g,''));
         //decimal_places = get_decimal_places(price);

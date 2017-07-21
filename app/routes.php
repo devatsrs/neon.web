@@ -1056,6 +1056,14 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/products/{id}/delete', 'ProductsController@delete');
 	Route::any('/products/ajax_datagrid/{type}', 'ProductsController@ajax_datagrid');
 
+	Route::any('/products/upload', 'ProductsController@upload');
+	Route::any('/products/check_upload', 'ProductsController@check_upload');
+	Route::any('/products/ajaxfilegrid', 'ProductsController@ajaxfilegrid');
+	Route::any('/products/storeTemplate', 'ProductsController@storeTemplate');
+	Route::any('/products/get_product_by_barcode/{BarCode}', 'ProductsController@getProductByBarCode');
+	Route::any('/products_upload/download_sample_excel_file', 'ProductsController@download_sample_excel_file');
+	Route::any('/products/update_bulk_product_status', 'ProductsController@UpdateBulkProductStatus');
+
 	Route::any('/product/{id}/get/{FieldName}', 'ProductsController@get')->where('FieldName', '(.[azAZ]*)+');
     Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
 
