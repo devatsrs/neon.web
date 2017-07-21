@@ -64,7 +64,7 @@ class ProductsController extends \BaseController {
             for($i=0;$i<count($data['aaData']);$i++) {
                 foreach ($DynamicFields['fields'] as $field) {
                     $DynamicFieldsID = $field->DynamicFieldsID;
-                    $DynamicFieldsValues = DynamicFieldsValue::getDynamicColumnValuesByProductID($DynamicFieldsID,$data['aaData'][$i][5]);
+                    $DynamicFieldsValues = DynamicFieldsValue::getDynamicColumnValuesByProductID($DynamicFieldsID,$data['aaData'][$i][0]);
 
                     if($DynamicFieldsValues->count() > 0){
                         foreach ($DynamicFieldsValues as $DynamicFieldsValue) {

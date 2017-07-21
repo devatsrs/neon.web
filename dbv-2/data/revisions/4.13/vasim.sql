@@ -1,6 +1,5 @@
-use NeonBillingDev;
+use RMBilling3;
 
--- Dumping structure for table NeonBillingDev.tblTempProduct
 CREATE TABLE IF NOT EXISTS `tblTempProduct` (
   `ProductID` bigint(20) NOT NULL AUTO_INCREMENT,
   `CompanyId` int(11) DEFAULT NULL,
@@ -17,9 +16,8 @@ CREATE TABLE IF NOT EXISTS `tblTempProduct` (
   `created_by` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`ProductID`),
   KEY `IX_ProcessID` (`ProcessID`)
-) ENGINE=InnoDB AUTO_INCREMENT=156 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
--- Dumping structure for table NeonBillingDev.tblTempDynamicFieldsValue
 CREATE TABLE IF NOT EXISTS `tblTempDynamicFieldsValue` (
   `DynamicFieldsValueID` int(11) NOT NULL AUTO_INCREMENT,
   `CompanyID` int(11) NOT NULL DEFAULT '0',
@@ -38,7 +36,6 @@ CREATE TABLE IF NOT EXISTS `tblTempDynamicFieldsValue` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
--- Dumping structure for procedure LocalBillingDev.prc_WSProcessItemUpload
 DROP PROCEDURE IF EXISTS `prc_WSProcessItemUpload`;
 DELIMITER |
 CREATE PROCEDURE `prc_WSProcessItemUpload`(
@@ -114,7 +111,7 @@ BEGIN
 
 	-- starts delete all duplicate records from temp table if dynamic column is unique
 	-- check if there is any dynamic columns for product table
-	SELECT count(*) INTO dynamic_columns_count FROM NeonRMDev.tblDynamicFields WHERE Type = dynamic_column_type AND Status = 1;
+	SELECT count(*) INTO dynamic_columns_count FROM Ratemanagement3.tblDynamicFields WHERE Type = dynamic_column_type AND Status = 1;
 
 	IF dynamic_columns_count > 0
 	THEN
@@ -126,9 +123,9 @@ BEGIN
 					SELECT
 						f.DynamicFieldsID
 					FROM 
-						NeonRMDev.tblDynamicFields AS f
+						Ratemanagement3.tblDynamicFields AS f
 					LEFT JOIN
-						NeonRMDev.tblDynamicFieldsDetail AS fd
+						Ratemanagement3.tblDynamicFieldsDetail AS fd
 					ON
 						f.DynamicFieldsID = fd.DynamicFieldsID
 					WHERE 
@@ -151,7 +148,7 @@ BEGIN
 							FROM 
 								tblTempDynamicFieldsValue AS fv
 							LEFT JOIN
-								NeonRMDev.tblDynamicFields AS f
+								Ratemanagement3.tblDynamicFields AS f
 							ON
 								fv.DynamicFieldsID = f.DynamicFieldsID
 							WHERE
@@ -159,9 +156,9 @@ BEGIN
 									SELECT
 										f1.DynamicFieldsID
 									FROM 
-										NeonRMDev.tblDynamicFields AS f1
+										Ratemanagement3.tblDynamicFields AS f1
 									LEFT JOIN
-										NeonRMDev.tblDynamicFieldsDetail AS fd
+										Ratemanagement3.tblDynamicFieldsDetail AS fd
 									ON
 										f1.DynamicFieldsID = fd.DynamicFieldsID
 									WHERE 
@@ -189,7 +186,7 @@ BEGIN
 				ON
 					fv1.ParentID = p.ProductID
 				LEFT JOIN
-					NeonRMDev.tblDynamicFields AS f
+					Ratemanagement3.tblDynamicFields AS f
 				ON
 					fv1.DynamicFieldsID = f.DynamicFieldsID
 				WHERE
@@ -197,9 +194,9 @@ BEGIN
 						SELECT
 							f1.DynamicFieldsID
 						FROM 
-							NeonRMDev.tblDynamicFields AS f1
+							Ratemanagement3.tblDynamicFields AS f1
 						LEFT JOIN
-							NeonRMDev.tblDynamicFieldsDetail AS fd
+							Ratemanagement3.tblDynamicFieldsDetail AS fd
 						ON
 							f1.DynamicFieldsID = fd.DynamicFieldsID
 						WHERE 
@@ -222,7 +219,7 @@ BEGIN
 	FROM 
 		tblTempDynamicFieldsValue fv1
 	LEFT JOIN
-		NeonRMDev.tblDynamicFieldsValue fv2 
+		Ratemanagement3.tblDynamicFieldsValue fv2 
 	ON 
 		fv1.DynamicFieldsID = fv2.DynamicFieldsID AND
 		fv1.FieldValue = fv2.FieldValue
@@ -233,9 +230,9 @@ BEGIN
 								SELECT
 									f1.DynamicFieldsID
 								FROM 
-									NeonRMDev.tblDynamicFields AS f1
+									Ratemanagement3.tblDynamicFields AS f1
 								LEFT JOIN
-									NeonRMDev.tblDynamicFieldsDetail AS fd
+									Ratemanagement3.tblDynamicFieldsDetail AS fd
 								ON
 									f1.DynamicFieldsID = fd.DynamicFieldsID
 								WHERE 
@@ -256,12 +253,12 @@ BEGIN
 						FROM 
 							tblTempDynamicFieldsValue fv1
 						LEFT JOIN
-							NeonRMDev.tblDynamicFieldsValue fv2
+							Ratemanagement3.tblDynamicFieldsValue fv2
 						ON 
 							fv1.DynamicFieldsID = fv2.DynamicFieldsID AND
 							fv1.FieldValue = fv2.FieldValue
 						LEFT JOIN
-							NeonRMDev.tblDynamicFields AS f
+							Ratemanagement3.tblDynamicFields AS f
 						ON
 							fv1.DynamicFieldsID = f.DynamicFieldsID
 						WHERE
@@ -271,9 +268,9 @@ BEGIN
 													SELECT
 														f1.DynamicFieldsID
 													FROM 
-														NeonRMDev.tblDynamicFields AS f1
+														Ratemanagement3.tblDynamicFields AS f1
 													LEFT JOIN
-														NeonRMDev.tblDynamicFieldsDetail AS fd
+														Ratemanagement3.tblDynamicFieldsDetail AS fd
 													ON
 														f1.DynamicFieldsID = fd.DynamicFieldsID
 													WHERE 
@@ -291,12 +288,12 @@ BEGIN
 	FROM
 		tblTempDynamicFieldsValue fv1
 	LEFT JOIN
-		NeonRMDev.tblDynamicFieldsValue fv2
+		Ratemanagement3.tblDynamicFieldsValue fv2
 	ON 
 		fv1.DynamicFieldsID = fv2.DynamicFieldsID AND
 		fv1.FieldValue = fv2.FieldValue
 	LEFT JOIN
-		NeonRMDev.tblDynamicFields AS f
+		Ratemanagement3.tblDynamicFields AS f
 	ON
 		fv1.DynamicFieldsID = f.DynamicFieldsID
 	INNER JOIN
@@ -309,9 +306,9 @@ BEGIN
 								SELECT
 									f1.DynamicFieldsID
 								FROM 
-									NeonRMDev.tblDynamicFields AS f1
+									Ratemanagement3.tblDynamicFields AS f1
 								LEFT JOIN
-									NeonRMDev.tblDynamicFieldsDetail AS fd
+									Ratemanagement3.tblDynamicFieldsDetail AS fd
 								ON
 									f1.DynamicFieldsID = fd.DynamicFieldsID
 								WHERE 
@@ -362,7 +359,7 @@ BEGIN
 
 	-- start insert dynamic columns if not exist of item to be updated
 	INSERT INTO
-		NeonRMDev.tblDynamicFieldsValue (`CompanyId`,`ParentID`,`DynamicFieldsID`,`FieldValue`,`created_at`,`created_by`)
+		Ratemanagement3.tblDynamicFieldsValue (`CompanyId`,`ParentID`,`DynamicFieldsID`,`FieldValue`,`created_at`,`created_by`)
 	SELECT
 		ttdfv.CompanyId,ttp4.ProductID,ttdfv.DynamicFieldsID,ttdfv.FieldValue,ttdfv.created_at,ttdfv.created_by
 	FROM
@@ -373,7 +370,7 @@ BEGIN
 		tblProduct ttp4 ON ttp3.Code = ttp4.Code
 	WHERE
 		NOT EXISTS (
-		    SELECT * FROM NeonRMDev.tblDynamicFieldsValue WHERE ParentID = ttp4.ProductID
+		    SELECT * FROM Ratemanagement3.tblDynamicFieldsValue WHERE ParentID = ttp4.ProductID
 		) AND
 		ttp3.ProductID = ttdfv.ParentID AND
 		ttp3.ProcessID = ttdfv.ProcessID AND
@@ -401,7 +398,7 @@ BEGIN
 		tblProduct ttp4 ON ttp3.Code=ttp4.Code
 	WHERE
 		EXISTS (
-		    SELECT * FROM NeonRMDev.tblDynamicFieldsValue WHERE ParentID=ttp4.ProductID AND DynamicFieldsID=ttdfv.DynamicFieldsID
+		    SELECT * FROM Ratemanagement3.tblDynamicFieldsValue WHERE ParentID=ttp4.ProductID AND DynamicFieldsID=ttdfv.DynamicFieldsID
 		) AND
 		ttp3.ProductID=ttdfv.ParentID AND
 		ttp3.ProcessID=ttdfv.ProcessID AND
@@ -409,7 +406,7 @@ BEGIN
 		ttdfv.ProcessID=p_processId;
 
 	UPDATE
-		NeonRMDev.tblDynamicFieldsValue fv
+		Ratemanagement3.tblDynamicFieldsValue fv
 	LEFT JOIN
 		tmp_DynamicFieldsValue_ tfv
 	ON 
@@ -423,7 +420,7 @@ BEGIN
 
 	-- starts dynamic column insert of products to be inserted
 	INSERT INTO
-		NeonRMDev.tblDynamicFieldsValue (`CompanyId`,`ParentID`,`DynamicFieldsID`,`FieldValue`,`created_at`,`created_by`)
+		Ratemanagement3.tblDynamicFieldsValue (`CompanyId`,`ParentID`,`DynamicFieldsID`,`FieldValue`,`created_at`,`created_by`)
 	SELECT
 		ttdfv.CompanyId,ttdfv.ParentID,ttdfv.DynamicFieldsID,ttdfv.FieldValue,ttdfv.created_at,ttdfv.created_by
 	FROM
@@ -459,7 +456,7 @@ BEGIN
 	
 	-- starts dynamic column update ParentID of inserted products
 	UPDATE 
-		NeonRMDev.tblDynamicFieldsValue tdfv
+		Ratemanagement3.tblDynamicFieldsValue tdfv
 	LEFT JOIN
 		tblTempProduct ttp ON tdfv.ParentID = ttp.ProductID
 	LEFT JOIN
@@ -493,7 +490,6 @@ DELIMITER ;
 
 
 
--- Dumping structure for procedure NeonBillingDev.prc_getProductByBarCode
 DROP PROCEDURE IF EXISTS `prc_getProductByBarCode`;
 DELIMITER |
 CREATE PROCEDURE `prc_getProductByBarCode`(
@@ -505,9 +501,9 @@ BEGIN
 	SELECT 
 		`P`.`ProductID`, `P`.`Name`, `P`.`Description`, `P`.`Amount` 
 		FROM 
-			`NeonBillingDev`.`tblProduct` AS `P` 
+			`tblProduct` AS `P` 
 		LEFT JOIN 
-			`NeonRMDev`.`tblDynamicFieldsValue` AS `B` 
+			`Ratemanagement3`.`tblDynamicFieldsValue` AS `B` 
 		ON 
 			`P`.`ProductID` = `B`.`ParentID` 
 		WHERE 
@@ -517,7 +513,6 @@ BEGIN
 END|
 DELIMITER ;
 
--- added tblProduct.ProductID column in last select query
 DROP PROCEDURE IF EXISTS `prc_getProducts`;
 DELIMITER |
 CREATE PROCEDURE `prc_getProducts`(
