@@ -1993,7 +1993,8 @@ function table_html($data,$table_data){
     $cube = $data['Cube'];
     $row_count = count($data['row']);
     $col_count = count($data['column']);
-    $table_header = $table_header_colgroup = $table_row = '';
+    $table_header = $table_header_colgroup = $table_row = $table_footer = '';
+    $table_data['table_footer_sum'] = array();
     $chartColor = array('#C5CAE9','#BBDEFB','#B3E5FC','#B2EBF2','#C8E6C9','#DCEDC8','#F0F4C3','#FFCCBC','#D7CCC8','#F5F5F5','#CFD8DC');
     if($row_count) {
         $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
@@ -2047,7 +2048,7 @@ function table_html($data,$table_data){
     }
     $table_header = $table_header_colgroup.$table_header;
     $table_td = '';
-    //print_r($table_data);exit;
+    //echo '<pre>';print_r($table_data);exit;
     foreach ($table_data['data'] as $datakey => $row) {
         $explode_row_array = explode('!!', $datakey);
         array_pop($explode_row_array);
@@ -2058,6 +2059,11 @@ function table_html($data,$table_data){
         $key_index= 0;
         $table_single_row = $table_col_row = '';
         foreach ($row as $col_name => $col_val) {
+            if(isset($table_data['table_footer_sum'][$col_name])){
+                $table_data['table_footer_sum'][$col_name] += $col_val;
+            }else{
+                $table_data['table_footer_sum'][$col_name] = $col_val;
+            }
             $explode_array = explode('##', $col_name);
             array_pop($explode_array);
             //$explode_array = array_filter(explode('##', $col_name));
@@ -2085,7 +2091,17 @@ function table_html($data,$table_data){
         }
 
     }
-    return $table_header.$table_row;
+    if(count($data['row'])) {
+        $table_footer = '<tr>';
+        foreach ($data['row'] as $rowkey => $blankrow_name) {
+            $table_footer .= '<td rowspan="1" style="background-color: #66a9bd"></td>';
+        }
+        foreach ($table_data['table_footer_sum'] as $foot_col_name => $foot_col_val) {
+            $table_footer .= '<td class="col" style="background-color: #91c5d4">' . $foot_col_val . '</td>';
+        }
+        $table_footer .= '</tr>';
+    }
+    return $table_header.$table_row.$table_footer;
 }
 function generateReportTable2($data,$response,$all_data_list)
 {

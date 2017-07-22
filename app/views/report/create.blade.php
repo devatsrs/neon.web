@@ -371,25 +371,31 @@
 
             }
             function show_filter($items){
-                var col_val =  $items.attr('data-val');
-                $('#hidden_filter_col').val($item.attr('data-val'));
+                var col_val=  $items.attr('data-val');
+                $('#hidden_filter_col').val(col_val);
                 var data = $("#report-row-col").serialize();
                 var date_fields = {{json_encode(Report::$date_fields)}};
-                var filter_settings_array = filter_settings[col_val];
+                if(filter_settings[col_val]) {
+                    var filter_settings_array = filter_settings[col_val];
+                }
 
                 if($.inArray(col_val,date_fields) > -1){
                     $(".filter_data_table").hide();
                     $(".filter_data_wildcard").hide();
                     $("li.date_filters a").trigger('click');
-                    $(".date_filters").show();
-                    $("#date_filter [name='start_date']").val(filter_settings_array.start_date);
-                    $("#date_filter [name='end_date']").val(filter_settings_array.end_date);
+                    $(".date_filters").show()
+                    if(typeof filter_settings_array != 'undefined') {
+                        $("#date_filter [name='start_date']").val(filter_settings_array.start_date);
+                        $("#date_filter [name='end_date']").val(filter_settings_array.end_date);
+                    }
                 }else{
                     $(".filter_data_table").show();
                     $(".filter_data_wildcard").show();
                     $("li.filter_data_table a").trigger('click');
                     $(".date_filters").hide();
-                    $("#wildcard [name='wildcard_match_val']").val(filter_settings_array.wildcard_match_val);
+                    if(typeof filter_settings_array != 'undefined') {
+                        $("#wildcard [name='wildcard_match_val']").val(filter_settings_array.wildcard_match_val);
+                    }
                     filter_data_table();
                 }
 
