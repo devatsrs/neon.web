@@ -1866,7 +1866,7 @@ margin-left:0px;
      margin-left: 0px;
     margin-right: -10px;
     }
-#sample-board-page tile-stats {
+#sample-board-page .tile-stats {
 background-color:#303641;
 }
 .margin-top-15 {
@@ -2889,12 +2889,12 @@ a:focus,a:hover{text-decoration:none !important}
         position: fixed;
     }
 }
-.table_report_overflow{
-    max-width: 74%;
+.table_report_overflow {
     overflow-x: auto;
     max-height: 700px;
     min-height: 200px;
     overflow-y: auto;
+}
 /*Cron job notification*/
 .notifications.dropdown.cron_jobs{
     padding-top: 2px;

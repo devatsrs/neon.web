@@ -69,14 +69,7 @@ class ReportController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $cube = $data['Cube'];
-        $filter_settings = json_decode($data['filter_settings'],true);
-        $filters = array();
-        if(!empty($filter_settings) && is_array($filter_settings)) {
-            foreach ($filter_settings as $key => $filter_setting) {
-                parse_str($filter_setting, $filter);
-                $filters[$key] = $filter;
-            }
-        }
+        $filters = json_decode($data['filter_settings'],true);
 
         $data['column'] = array_filter(explode(",",$data['column']));
         //$data['sum'] = array_filter(explode(",",$data['Cube']));

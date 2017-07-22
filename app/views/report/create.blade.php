@@ -31,12 +31,12 @@
                 <!-- panel body -->
                 <div class="panel-body">
                     <form role="form" class="form-horizontal form-groups-bordered" id="report-row-col">
-                        <div class="form-group">
+                        <div class="form-group {{Input::get('report')=='run'?'hidden':''}}" >
                             <div class="col-sm-3">
                                 <label for="field-5" class="control-label">Cube</label>
                                 {{Form::select('Cube',Report::$cube,(isset($report_settings['Cube'])?$report_settings['Cube']:''),array("class"=>"select2 small"))}}
                             </div>
-                            <div class="col-sm-9 vertical-border border_left">
+                            <div class="col-sm-9 vertical-border border_left ">
                                 <input type="hidden" id="hidden_row" name="row" value="{{$report_settings['row'] or ''}}">
                                 <input type="hidden" id="hidden_columns" name="column" value="{{$report_settings['column'] or ''}}">
                                 <input type="hidden" id="hidden_filter" name="filter" value="{{$report_settings['filter'] or ''}}">
@@ -74,7 +74,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-sm-3 vertical-border border_right">
+                            <div class="col-sm-3 vertical-border border_right {{Input::get('report')=='run'?'hidden':''}}">
                                 <div class="row">
                                     <div class="col-sm-12 vertical-border border_bottom">
                                         <label for="field-5" class="control-label">Dimension</label>
@@ -115,7 +115,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-9 table_report_overflow loading">
+                            <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-9'}} table_report_overflow loading">
 
 
                             </div>
@@ -148,6 +148,13 @@
         }
 
         .li_active{display:none;}
+        .table_report_overflow{
+       @if(Input::get('report') == 'run')
+            width: 99%;
+       @else
+            width: 74%;
+       @endif
+        }
 
     </style>
     <script>
@@ -157,7 +164,6 @@
         @else
             var filter_settings = {};
         @endif
-
         $( function() {
 
             // There's the Dimension and the Measures
@@ -270,7 +276,9 @@
                 }
             });
 
-
+            $( "#Filter_Drop .dimension" ).click(function(e){
+                show_filter($(this));
+            });
 
             function deleteImage( $item, $droppable) {
                 var element=$item.clone();
@@ -363,19 +371,25 @@
 
             }
             function show_filter($items){
-                $items.attr('data-val');
+                var col_val =  $items.attr('data-val');
+                $('#hidden_filter_col').val($item.attr('data-val'));
                 var data = $("#report-row-col").serialize();
                 var date_fields = {{json_encode(Report::$date_fields)}};
-                if($.inArray($("#hidden_filter_col").val(),date_fields) > -1){
+                var filter_settings_array = filter_settings[col_val];
+
+                if($.inArray(col_val,date_fields) > -1){
                     $(".filter_data_table").hide();
                     $(".filter_data_wildcard").hide();
                     $("li.date_filters a").trigger('click');
                     $(".date_filters").show();
+                    $("#date_filter [name='start_date']").val(filter_settings_array.start_date);
+                    $("#date_filter [name='end_date']").val(filter_settings_array.end_date);
                 }else{
                     $(".filter_data_table").show();
                     $(".filter_data_wildcard").show();
                     $("li.filter_data_table a").trigger('click');
                     $(".date_filters").hide();
+                    $("#wildcard [name='wildcard_match_val']").val(filter_settings_array.wildcard_match_val);
                     filter_data_table();
                 }
 
@@ -414,7 +428,27 @@
             }
             $('#report-update').click(function(e){
                 if($("#hidden_filter_col").val() != '') {
-                    filter_settings[$("#hidden_filter_col").val()] = $("#add-new-filter-form").serialize();
+                    var result = { };
+                    var ser_array = $("#add-new-filter-form").serializeArray();
+                    var counts = {};
+                    $.each(ser_array, function(index, value) {
+                        if (counts[value.name]){ counts[value.name] += 1; } else { counts[value.name] = 1; }
+                    });
+                    $.each(ser_array,function(){
+                        if(counts[this.name] > 1){
+                            var actual_name  = this.name;
+                            actual_name = actual_name.replace('[','');
+                            actual_name = actual_name.replace(']','');
+                            alert(actual_name)
+                            if(typeof result[actual_name]  == 'undefined'){
+                                result[actual_name] = [];
+                            }
+                            result[actual_name].push(this.value);
+                        }else{
+                            result[this.name] = this.value;
+                        }
+                    });
+                    filter_settings[$("#hidden_filter_col").val()] = result;
                 }
                 $('#hidden_setting').val(JSON.stringify(filter_settings));
                 e.preventDefault();
