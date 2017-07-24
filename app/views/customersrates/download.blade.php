@@ -186,7 +186,7 @@ jQuery(document).ready(function ($) {
                 cache: false
             });
 
-            if($(this).val()=='Vos 3.2'){
+            if($(this).val()=='{{RateSheetFormate::RATESHEET_FORMAT_VOS32}}' || $(this).val()=='{{RateSheetFormate::RATESHEET_FORMAT_VOS20}}'){
                 $('#fileeffective').empty();
                 var html ='<option value="Now">Now</option><option value="Future">Future</option>';
                 $('#fileeffective').append(html);
@@ -400,7 +400,6 @@ jQuery(document).ready(function ($) {
     function editor_reset(data){
         var modal = $("#modal-BulkMail");
         modal.find('.message').show();
-        show_summernote(modal.find('.message'),editor_options);
         if(!Array.isArray(data)){
             var EmailTemplate = data['EmailTemplate'];
             modal.find('[name="subject"]').val(EmailTemplate.Subject);
@@ -409,6 +408,7 @@ jQuery(document).ready(function ($) {
             modal.find('[name="subject"]').val('');
             modal.find('.message').val('');
         }
+        show_summernote(modal.find('.message'),editor_options);
      }
 
     $("#test").click(function(e){

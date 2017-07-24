@@ -1,7 +1,7 @@
 <?php
 
 class InvoicesController extends \BaseController {
-	
+
 	public function ajax_datagrid_total() 
 	{
         $data 						 = 	Input::all();
@@ -148,14 +148,19 @@ class InvoicesController extends \BaseController {
      */
     public function create()
     {
-
+        $companyID  =   User::get_companyID();
         $accounts 	= 	Account::getAccountIDList();
         $products 	= 	Product::getProductDropdownList();
         $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice();
 		//echo "<pre>"; 		print_r($taxes);		echo "</pre>"; exit;
         //$gateway_product_ids = Product::getGatewayProductIDs();
-		$BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
-        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass'));
+		$BillingClass = BillingClass::getDropdownIDList($companyID);
+
+        $Type =  Product::DYNAMIC_TYPE;
+        $productsControllerObj = new ProductsController();
+        $DynamicFields = $productsControllerObj->getDynamicFields($companyID,$Type);
+
+        return View::make('invoices.create',compact('accounts','products','taxes','BillingClass','DynamicFields'));
 
     }
 
@@ -195,7 +200,8 @@ class InvoicesController extends \BaseController {
      * Store Invoice
      */
     public function store(){
-        $data = Input::all(); 
+        $data = Input::all();
+        unset($data['BarCode']);
         if($data){
 
             $companyID = User::get_companyID();
@@ -377,7 +383,8 @@ class InvoicesController extends \BaseController {
      * Store Invoice
      */
     public function update($id){
-        $data = Input::all(); 
+        $data = Input::all();
+        unset($data['BarCode']);
         if(!empty($data) && $id > 0){
 
             $Invoice = Invoice::find($id);
@@ -1986,11 +1993,9 @@ class InvoicesController extends \BaseController {
 
         //https://sagepay.co.za/integration/sage-pay-integration-documents/pay-now-gateway-technical-guide/
         $SagePay = new SagePay();
-        $AccountnInvoice = $SagePay->get_response_var("Extra2");
+        $AccountnInvoice = $SagePay->getAccountInvoiceID();
 
         if ($AccountnInvoice != null) { // Extra2 = m5 (hidden field of sagepay form).
-
-            $AccountnInvoice = json_decode($AccountnInvoice,true);
 
             $AccountID = intval($AccountnInvoice["AccountID"]);
             $InvoiceID = intval($AccountnInvoice["InvoiceID"]);
@@ -2284,10 +2289,190 @@ class InvoicesController extends \BaseController {
         }
     }
 
-    public function sagepay_return(){
-        echo "sagepay_return";
+    public function get_unbill_report($id){
+        $AccountBilling = AccountBilling::getBilling($id, 0);
+        $account = Account::find($id);
+        $lastInvoicePeriod = Invoice::join('tblInvoiceDetail','tblInvoiceDetail.InvoiceID','=','tblInvoice.InvoiceID')
+            ->where(array('AccountID'=>$account->AccountID,'InvoiceType'=>Invoice::INVOICE_OUT,'ProductType'=>Product::USAGE))
+            ->orderBy('IssueDate','DESC')->limit(1)
+            ->first(['StartDate','EndDate']);
+        $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
+        $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($AccountBilling,$account);
+        $CurrencySymbol = Currency::getCurrencySymbol($account->CurrencyId);
+        $CustomerEndDate = '';
+        $today = date('Y-m-d');
+        $yesterday = date('Y-m-d', strtotime('-1 day'));
+        $CustomerNextBilling = $VendorNextBilling = array();
+        $StartDate = $CustomerLastInvoiceDate;
+        if (!empty($AccountBilling) && $AccountBilling->BillingCycleType != 'manual') {
+            $EndDate = $CustomerEndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($CustomerLastInvoiceDate));
+            while ($EndDate < $today) {
+                $query = DB::connection('neon_report')->table('tblHeader')
+                    ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
+                    ->where(array('AccountID' => $id))
+                    ->where('date', '>=', $StartDate)
+                    ->where('date', '<', $EndDate);
+                $TotalAmount = (double)$query->sum('TotalCharges');
+                $TotalMinutes = (double)$query->sum('TotalBilledDuration');
+                $CustomerNextBilling[] = array(
+                    'StartDate' => $StartDate,
+                    'EndDate' => $EndDate,
+                    'AccountID' => $id,
+                    'ServiceID' => 0,
+                    'TotalAmount' => $TotalAmount,
+                    'TotalMinutes' => $TotalMinutes,
+                );
+                $StartDate = $EndDate;
+                $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($StartDate));
+            }
+        } 
+		$EndDate = $today;
+		$query = DB::connection('neon_report')->table('tblHeader')
+			->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
+			->where(array('AccountID' => $id))
+			->where('date', '>=', $StartDate)
+			->where('date', '<=', $EndDate);
+		$TotalAmount = (double)$query->sum('TotalCharges');
+		$TotalMinutes = (double)$query->sum('TotalBilledDuration');
+		if ($TotalAmount > 0) {
+			$CustomerNextBilling[] = array(
+				'StartDate' => $StartDate,
+				'EndDate' => $EndDate,
+				'AccountID' => $id,
+				'ServiceID' => 0,
+				'TotalAmount' => $TotalAmount,
+				'TotalMinutes' => $TotalMinutes,
+			);
+		}
+        
+        $StartDate = $VendorLastInvoiceDate;
+        if (!empty($AccountBilling) && $AccountBilling->BillingCycleType != 'manual') {
+            $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($VendorLastInvoiceDate));
+            while ($EndDate < $today) {
+                $query = DB::connection('neon_report')->table('tblHeaderV')
+                    ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
+                    ->where(array('VAccountID' => $id))
+                    ->where('date', '>=', $StartDate)
+                    ->where('date', '<', $EndDate);
+                $TotalAmount = (double)$query->sum('TotalCharges');
+                $TotalMinutes = (double)$query->sum('TotalBilledDuration');
+                $VendorNextBilling[] = array(
+                    'StartDate' => $StartDate,
+                    'EndDate' => $EndDate,
+                    'AccountID' => $id,
+                    'ServiceID' => 0,
+                    'TotalAmount' => $TotalAmount,
+                    'TotalMinutes' => $TotalMinutes,
+                );
+                $StartDate = $EndDate;
+                $EndDate = next_billing_date($AccountBilling->BillingCycleType, $AccountBilling->BillingCycleValue, strtotime($StartDate));
+            }
+        } 
+		$EndDate = $today;
+		$query = DB::connection('neon_report')->table('tblHeaderV')
+			->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
+			->where(array('VAccountID' => $id))
+			->where('date', '>=', $StartDate)
+			->where('date', '<=', $EndDate);
+		$TotalAmount = (double)$query->sum('TotalCharges');
+		$TotalMinutes = (double)$query->sum('TotalBilledDuration');
+		if ($TotalAmount > 0) {
+			$VendorNextBilling[] = array(
+				'StartDate' => $StartDate,
+				'EndDate' => $EndDate,
+				'AccountID' => $id,
+				'ServiceID' => 0,
+				'TotalAmount' => $TotalAmount,
+				'TotalMinutes' => $TotalMinutes,
+			);
+		}
+        
+
+        return View::make('invoices.unbilled_table', compact('VendorNextBilling','CustomerNextBilling','CurrencySymbol','CustomerEndDate','CustomerLastInvoiceDate','today','yesterday','lastInvoicePeriod'));
+
     }
-    public function sagepay_declined(){
-        echo "sagepay_declined";
+
+    public function generate_manual_invoice(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $UserID = User::get_userID();
+        $AccountID = $data['AccountID'];
+        $AccountBilling = AccountBilling::getBilling($AccountID, 0);
+        if ($AccountID > 0 && $AccountBilling->BillingCycleType == 'manual') {
+            $rules = array(
+                'PeriodFrom' => 'required',
+                'PeriodTo' => 'required',
+            );
+            $validator = Validator::make($data, $rules);
+            if ($validator->fails()) {
+                return json_validator_response($validator);
+            }
+            if($data['PeriodFrom'] > $data['PeriodTo']){
+                return Response::json(array("status" => "failed", "message" => "Dates are invalid"));
+            }
+            $AlreadyBilled = Invoice::checkIfAccountUsageAlreadyBilled($CompanyID, $AccountID, $data['PeriodFrom'], $data['PeriodTo'], 0);
+            if ($AlreadyBilled) {
+                return Response::json(array("status" => "failed", "message" => "Account already billed for this period.Select different period"));
+            } else {
+                $CronJobCommandID = CronJobCommand::where(array('Command'=>'invoicegenerator','CompanyID'=>$CompanyID))->pluck('CronJobCommandID');
+                $CronJobID = CronJob::where(array('CronJobCommandID'=>(int)$CronJobCommandID,'CompanyID'=>$CompanyID))->pluck('CronJobID');
+                if($CronJobID > 0) {
+
+                    $jobType = JobType::where(["Code" => 'BI'])->get(["JobTypeID", "Title"]);
+                    $jobStatus = JobStatus::where(["Code" => "P"])->get(["JobStatusID"]);
+                    $jobdata["CompanyID"] = $CompanyID;
+                    $jobdata["JobTypeID"] = isset($jobType[0]->JobTypeID) ? $jobType[0]->JobTypeID : '';
+                    $jobdata["JobStatusID"] = isset($jobStatus[0]->JobStatusID) ? $jobStatus[0]->JobStatusID : '';
+                    $jobdata["JobLoggedUserID"] = $UserID;
+                    $jobdata["Title"] = "[Manual] " . (isset($jobType[0]->Title) ? $jobType[0]->Title : '') . ' Generate & Send';
+                    $jobdata["Description"] = isset($jobType[0]->Title) ? $jobType[0]->Title : '';
+                    $jobdata["CreatedBy"] = User::get_user_full_name($UserID);
+                    $jobdata['Options'] = json_encode(array('CronJobID'=>$CronJobID,'ManualInvoice'=>1)+$data);
+                    $jobdata["created_at"] = date('Y-m-d H:i:s');
+                    $jobdata["updated_at"] = date('Y-m-d H:i:s');
+                    $JobID = Job::insertGetId($jobdata);
+
+                    if($JobID>0) {
+                        return Response::json(array("status" => "success", "message" => "Invoice Generation Job Added in queue to process.You will be notified once job is completed. "));
+                    }
+                }
+                return Response::json(array("status" => "error", "message" => "Please Setup Invoice Generator in CronJob"));
+
+            }
+
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Please select account or account should have manual billing."));
+        }
+    }
+
+    public function sagepay_return() {
+
+        $SagePay = new SagePay();
+        $AccountnInvoice = $SagePay->getAccountInvoiceID('m10');
+
+        if(isset($AccountnInvoice["AccountID"]) && isset($AccountnInvoice["InvoiceID"])) {
+            $TransactionLog = TransactionLog::where(["AccountID" => $AccountnInvoice["AccountID"], "InvoiceID" => $AccountnInvoice["InvoiceID"]])->orderby("created_at", "desc")->first();
+
+            $TransactionLog = json_decode(json_encode($TransactionLog),true);
+            if($TransactionLog["Status"] == TransactionLog::SUCCESS ){
+
+                $Amount = $TransactionLog["Amount"];
+                $Transaction = $TransactionLog["Transaction"];
+
+                echo "<center>" . "Payment done successfully, Your Transaction ID is ". $Transaction .", Amount Received ".  $Amount  . " </center>";
+
+            } else {
+
+                echo "<center>Payment failed, Go back and try again later</center>";
+
+            }
+        }
+
+
+    }
+    public function sagepay_declined() {
+
+        echo "<center>Payment declined, Go back and try again later.</center>";
+
     }
 }

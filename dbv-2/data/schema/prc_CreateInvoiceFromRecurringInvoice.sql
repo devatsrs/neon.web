@@ -5,7 +5,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CreateInvoiceFromRecurringInvoi
 	IN `p_LogStatus` INT,
 	IN `p_ProsessID` VARCHAR(50),
 	IN `p_CurrentDate` DATETIME
-
 )
     COMMENT 'test'
 BEGIN
@@ -100,7 +99,7 @@ BEGIN
 		FROM tblRecurringInvoice rinv		
 		WHERE rinv.CompanyID = p_CompanyID
 		AND rinv.RecurringInvoiceID=p_InvoiceIDs;
-				 
+			 
 		/*Fill error message for recurring invoices with date check*/
      SELECT GROUP_CONCAT(CONCAT(temp.Title,': Skipped with INVOICE DATE ',DATE(temp.NextInvoiceDate)) separator '\n\r') INTO v_SkippedWIthDate
 	  FROM tmp_Invoices_ temp
@@ -121,7 +120,7 @@ BEGIN
 	IF(v_Message="") THEN
         /*insert new invoices and its related detail, texes and updating logs.*/
 
-		INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `IssueDate`, `CurrencyID`, `PONumber`, `InvoiceType`, `SubTotal`, `TotalDiscount`, `TaxRateID`, `TotalTax`, `InvoiceTotal`, `GrandTotal`, `Description`, `Attachment`, `Note`, `Terms`, `InvoiceStatus`, `PDF`, `UsagePath`, `PreviousBalance`, `TotalDue`, `Payment`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `ItemInvoice`, `FooterTerm`,RecurringInvoiceID,ProcessID)
+		INSERT INTO tblInvoice (`CompanyID`, `AccountID`, `Address`, `InvoiceNumber`, `IssueDate`, `CurrencyID`, `PONumber`, `InvoiceType`, `SubTotal`, `TotalDiscount`, `TaxRateID`, `TotalTax`, `InvoiceTotal`, `GrandTotal`, `Description`, `Attachment`, `Note`, `Terms`, `InvoiceStatus`, `PDF`, `UsagePath`, `PreviousBalance`, `TotalDue`, `Payment`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `ItemInvoice`, `FooterTerm`,`RecurringInvoiceID`,`ProcessID`,`BillingClassID`)
 	 	SELECT 
 		 rinv.CompanyID,
 		 rinv.AccountID,
@@ -154,11 +153,12 @@ BEGIN
 		1 as ItemInvoice,
 		rinv.FooterTerm,
 		rinv.RecurringInvoiceID,
-		p_ProsessID
+		p_ProsessID,
+		rinv.BillingClassID
 		FROM tmp_Invoices_ rinv;
 		
 		SET v_InvoiceID = LAST_INSERT_ID();
-		
+
 		INSERT INTO tblInvoiceDetail ( `InvoiceID`, `ProductID`, `Description`, `StartDate`, `EndDate`, `Price`, `Qty`, `Discount`, `TaxRateID`,`TaxRateID2`, `TaxAmount`, `LineTotal`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `ProductType`)
 			select 
 				inv.InvoiceID,

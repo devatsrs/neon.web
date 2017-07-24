@@ -99,7 +99,7 @@
                             <div class="form-group">
                                 <label class="col-md-2 control-label " for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">CDR Type</label>
                                 <div class="col-md-1" style="padding-right: 0px; width: 17%;">
-                                    {{ Form::select('CDRType',array(''=>'Both',1 => "Inbound", 0 => "Outbound" ),'', array("class"=>"select2 small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                                    {{ Form::select('CDRType',array(''=>'Both','inbound' => "Inbound", 'outbound' => "Outbound" ),'', array("class"=>"select2 small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
                                 <label class="col-md-1 control-label" for="field-1">Prefix</label>
                                 <div class="col-md-2">
@@ -140,7 +140,11 @@
                         <th width="10%" >Disconnect Time</th>
                         <th width="10%" >Billed Duration (sec)</th>
                         <th width="10%" >Cost</th>
+                        @if($Hide_AvgRateMinute=='1')
+                            <th width="10%" class="hide">Avg. Rate/Min</th>
+                        @else
                         <th width="10%" >Avg. Rate/Min</th>
+                        @endif
                         <th width="10%" >CLI</th>
                         <th width="10%" >CLD</th>
                         <th width="10%" >Prefix</th>
@@ -274,7 +278,13 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },
-                    { "bSortable": false },
+                    {
+                        @if($Hide_AvgRateMinute=='1')
+                        "bVisible": false,
+                        @else
+                        "bSortable": false
+                        @endif
+                    },
                     { "bSortable": false },
                     { "bSortable": false },
                     { "bSortable": false },

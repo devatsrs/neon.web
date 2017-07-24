@@ -1,7 +1,10 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CronJobAllPending`(IN `p_CompanyID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CronJobAllPending`(
+	IN `p_CompanyID` INT
+
+)
 BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-	/**PendingUploadCDR**/
+	
     SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -45,7 +48,7 @@ BEGIN
 	AND TBL2.JobLoggedUserID IS NULL;
 
 
-   /**PendingInvoiceGenerate**/
+   
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -91,7 +94,7 @@ BEGIN
 
 
 
-	/**PendingPortaSheet**/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -137,7 +140,7 @@ BEGIN
 	AND TBL2.JobLoggedUserID IS NULL;
 
 
-   /**getActiveCronCommand**/
+   
 	SELECT
 		tblCronJobCommand.Command,
 		tblCronJob.CronJobID
@@ -149,19 +152,10 @@ BEGIN
 	AND tblCronJob.Active = 0;
 
 
-	/**getVosDownloadCommand**/
-	/*SELECT
-		'vosdownloadcdr' as Command,
-		tblCronJob.CronJobID
-	FROM tblCronJob
-	INNER JOIN tblCronJobCommand
-		ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
-	WHERE tblCronJob.CompanyID = p_CompanyID
-	AND tblCronJob.Status = 1
-	-- AND tblCronJob.DownloadActive = 0
-	AND tblCronJobCommand.Command = 'vosaccountusage';*/
+	
+	
 
-	/**PendingBulkMailSend**/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -205,7 +199,7 @@ BEGIN
 	AND TBL2.JobLoggedUserID IS NULL;
 
 
-	/** PortVendorSheet **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -251,7 +245,7 @@ BEGIN
 	AND TBL2.JobLoggedUserID IS NULL;
 
 
-	/** Pending CDR Recalculate. **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -297,7 +291,7 @@ BEGIN
 	
 	 
 
-	/** PendingInvoice Usage File Generation. **/
+	
 
 
 	SELECT
@@ -342,7 +336,7 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 	
-	/** Pending RatesheetGeneration **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -387,7 +381,7 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 
-	/** Pending InvoiceRegenerate **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -430,7 +424,7 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 
-	/** Bulk Lead Email **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -473,7 +467,7 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 
-	/** Bulk Account Email **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -517,7 +511,7 @@ BEGIN
 	AND TBL2.JobLoggedUserID IS NULL;
 
 
-	/** Vendor Upload  **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -560,7 +554,7 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 
-	 /** Code Deck Upload **/
+	 
     SELECT
     	  "CodeDeckUpload",
         TBL1.JobID,
@@ -604,7 +598,7 @@ BEGIN
     WHERE TBL1.rowno = 1
     AND TBL2.JobLoggedUserID IS NULL;
 
-	   /** invoice reminder **/
+	   
     SELECT
         TBL1.JobID,
         TBL1.Options,
@@ -649,7 +643,7 @@ BEGIN
 
 
 
-	/** Customer Sippysheet download **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -695,7 +689,7 @@ BEGIN
 	AND TBL2.JobLoggedUserID IS NULL;
 
 
-	/** Vendor Sippysheet download **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -742,7 +736,7 @@ BEGIN
 
 
 
-	/** Customer VOSsheet download **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -766,7 +760,7 @@ BEGIN
 		WHERE jt.Code = 'CD'
         AND js.Code = 'P'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Vos 3.2"%'	
+		AND (j.Options like '%"Format":"Vos 3.2"%' OR j.Options like '%"Format":"Vos 2.0"%')	
 		ORDER BY j.JobLoggedUserID,j.created_at ASC
 	) TBL1
 	LEFT JOIN
@@ -781,14 +775,14 @@ BEGIN
 		WHERE jt.Code = 'CD'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Vos 3.2"%'	
+		AND (j.Options like '%"Format":"Vos 3.2"%' OR j.Options like '%"Format":"Vos 2.0"%')	
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 
 
-	/** Vendor VOSsheet download **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -812,7 +806,7 @@ BEGIN
 		WHERE jt.Code = 'VD'
         AND js.Code = 'P'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Vos 3.2"%'	
+		AND (j.Options like '%"Format":"Vos 3.2"%' OR j.Options like '%"Format":"Vos 2.0"%')
 		ORDER BY j.JobLoggedUserID,j.created_at ASC
 	) TBL1
 	LEFT JOIN
@@ -827,14 +821,14 @@ BEGIN
 		WHERE jt.Code = 'VD'
         AND js.Code = 'I'
 		AND j.CompanyID = p_CompanyID
-		AND j.Options like '%"Format":"Vos 3.2"%'	
+		AND (j.Options like '%"Format":"Vos 3.2"%' OR j.Options like '%"Format":"Vos 2.0"%')
 	) TBL2
 		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 
 
-	/** Generate Rate Table **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -877,7 +871,7 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 	
-	/** Rate Table Rate Upload **/
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -920,7 +914,7 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 	
-	/**VendorUploadCDR**/
+	
     SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -963,18 +957,9 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 	
-	/*SELECT
-		'sippydownloadcdr' as Command,
-		tblCronJob.CronJobID
-	FROM tblCronJob
-	INNER JOIN tblCronJobCommand
-		ON tblCronJobCommand.CronJobCommandID = tblCronJob.CronJobCommandID
-	WHERE tblCronJob.CompanyID = p_CompanyID
-	AND tblCronJob.Status = 1
-	-- AND tblCronJob.DownloadActive = 0
-	AND tblCronJobCommand.Command = 'sippyaccountusage';*/
 	
-		/** Import account or lead **/
+	
+		
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -1017,7 +1002,7 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 	
-	/* Dial String Upload */
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -1060,7 +1045,8 @@ BEGIN
 	WHERE TBL1.rowno = 1
 	AND TBL2.JobLoggedUserID IS NULL;
 	
-	/** Quickbook Post in Invoice **/
+	-- Quickbook post
+	
 	SELECT
 		TBL1.JobID,
 		TBL1.Options,
@@ -1096,6 +1082,50 @@ BEGIN
 		INNER JOIN tblJobStatus js
 			ON j.JobStatusID = js.JobStatusID
 		WHERE jt.Code = 'QIP'
+			AND js.Code = 'I'
+			AND j.CompanyID = p_CompanyID
+	) TBL2
+		ON TBL1.JobLoggedUserID = TBL2.JobLoggedUserID
+	WHERE TBL1.rowno = 1
+	AND TBL2.JobLoggedUserID IS NULL;
+	
+	-- Account Import Ip
+	
+	SELECT
+		TBL1.JobID,
+		TBL1.Options,
+		TBL1.AccountID
+	FROM
+	(
+		SELECT
+			j.Options,
+			j.AccountID,
+			j.JobID,
+			j.JobLoggedUserID,
+			@row_num := IF(@prev_JobLoggedUserID=j.JobLoggedUserID and @prev_created_at <= j.created_at ,@row_num+1,1) AS rowno,
+			@prev_JobLoggedUserID  := j.JobLoggedUserID,
+			@prev_created_at  := created_at
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		,(SELECT @row_num := 1) x,(SELECT @prev_JobLoggedUserID := '') y,(SELECT @prev_created_at := '') z
+		WHERE jt.Code = 'ICU'
+			AND js.Code = 'p'
+			AND j.CompanyID = p_CompanyID
+		ORDER BY j.JobLoggedUserID,j.created_at ASC
+	) TBL1
+	LEFT JOIN
+	(
+		SELECT
+			JobLoggedUserID
+		FROM tblJob j
+		INNER JOIN tblJobType jt
+			ON j.JobTypeID = jt.JobTypeID
+		INNER JOIN tblJobStatus js
+			ON j.JobStatusID = js.JobStatusID
+		WHERE jt.Code = 'ICU'
 			AND js.Code = 'I'
 			AND j.CompanyID = p_CompanyID
 	) TBL2

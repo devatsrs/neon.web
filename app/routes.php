@@ -314,6 +314,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/account/ajax_get_missing_quickbookaccounts',  'ImportsController@ajax_get_missing_quickbookaccounts');
 	Route::any('/import/account/add_missing_quickbookaccounts',  'ImportsController@add_missing_quickbookaccounts');
 
+	//import ips
+	Route::any('/import/ips',  'ImportsController@import_ips');
+	Route::any('/import/ips_download_sample_excel_file',  'ImportsController@ips_download_sample_excel_file');
+	Route::any('/import/ips_check_upload',  'ImportsController@ips_check_upload');
+	Route::any('/import/ips_ajaxfilegrid',  'ImportsController@ips_ajaxfilegrid');
+	Route::any('/import/ips_storeTemplate',  'ImportsController@ips_storeTemplate');
+
 	//import leads
 	Route::any('/import/leads',  'ImportsController@import_leads');
 	Route::any('/import/leads/leads_check_upload',  'ImportsController@leads_check_upload');
@@ -942,7 +949,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
     Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
 	Route::any('/invoice/invoice_quickbookpost', 'InvoicesController@invoice_quickbookpost');
-
+	Route::any('/get_unbill_report/{id}', 'InvoicesController@get_unbill_report');
+	Route::any('/generate_manual_invoice', 'InvoicesController@generate_manual_invoice');
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');
@@ -1047,6 +1055,14 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/products/{id}/update', 'ProductsController@update');
 	Route::any('/products/{id}/delete', 'ProductsController@delete');
 	Route::any('/products/ajax_datagrid/{type}', 'ProductsController@ajax_datagrid');
+
+	Route::any('/products/upload', 'ProductsController@upload');
+	Route::any('/products/check_upload', 'ProductsController@check_upload');
+	Route::any('/products/ajaxfilegrid', 'ProductsController@ajaxfilegrid');
+	Route::any('/products/storeTemplate', 'ProductsController@storeTemplate');
+	Route::any('/products/get_product_by_barcode/{BarCode}', 'ProductsController@getProductByBarCode');
+	Route::any('/products_upload/download_sample_excel_file', 'ProductsController@download_sample_excel_file');
+	Route::any('/products/update_bulk_product_status', 'ProductsController@UpdateBulkProductStatus');
 
 	Route::any('/product/{id}/get/{FieldName}', 'ProductsController@get')->where('FieldName', '(.[azAZ]*)+');
     Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');

@@ -39,8 +39,9 @@ class AmazonS3 {
         'EMAIL_ATTACHMENT'=>'EmailAttachment',
 		'TICKET_ATTACHMENT'=>'TicketAttachment',
         'DIALSTRING_UPLOAD'=>'DialString',
-        'DIALSTRING_UPLOAD'=>'DialString',
-        'RECURRING_INVOICE_UPLOAD'=>'RecurringInvoice'
+        'IP_UPLOAD'=>'IPUpload',
+        'RECURRING_INVOICE_UPLOAD'=>'RecurringInvoice',
+        'ITEM_UPLOAD'=>'ITEMUPload',
     );
 
     // Instantiate an S3 client

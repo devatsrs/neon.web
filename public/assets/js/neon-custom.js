@@ -3269,3 +3269,21 @@ function rebuildSelectComposite(el,data,label){
     el.find('optGroup').last().append(options);
     el.trigger('change');
 }
+
+function reinitializeSelect2(ajax_config_html){
+    $("#"+ajax_config_html+" .select2").each(function(i, el) {
+        buildselect2(el);
+    }).promise().done(function(){
+        $('.select2').css('visibility','visible');
+    });
+
+
+    if ($.isFunction($.fn.perfectScrollbar))
+    {
+        $(".select2-results").niceScroll({
+            cursorcolor: '#d4d4d4',
+            cursorborder: '1px solid #ccc',
+            railpadding: {right: 3}
+        });
+    }
+}

@@ -32,7 +32,8 @@ class CDRCustomerController extends BaseController {
         $CurrencyID 		 = 	 empty($account->CurrencyId)?'0':$account->CurrencyId;
         $trunks = Trunk::getTrunkDropdownList();
         $trunks = $trunks + array('Other'=>'Other');
-        return View::make('customer.cdr.index',compact('dashboardData','account','gateway','rate_cdr','AccountID','CurrencyID','trunks'));
+        $Hide_AvgRateMinute = CompanyConfiguration::get('HIDE_AVGRATEMINUTE');
+        return View::make('customer.cdr.index',compact('dashboardData','account','gateway','rate_cdr','AccountID','CurrencyID','trunks','Hide_AvgRateMinute'));
     }
     public function ajax_datagrid($type){
         $data						 =   Input::all();

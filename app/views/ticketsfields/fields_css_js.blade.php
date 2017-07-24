@@ -105,6 +105,7 @@
                     var rowHidden = $(this).parents('.tile-stats').children('div.row-hidden');
                 }
 				var Currentfieldtype = $(this).parent().attr('field_type'); 
+				var Currentlabel = rowHidden.find('input[name="label"]').val();
 				var fieldtype = '';
                 for(var i = 0 ; i< ticketfields.length; i++)
 				{
@@ -161,7 +162,7 @@
 					
                    
                 }
-             //   $('#edit-modal-ticketfield h4').text('Edit Field');
+                $('#edit-modal-ticketfield h3').text('Edit '+Currentlabel+' Field');
                 $('#edit-modal-ticketfield').modal('show');
 				
 				var checked_visible_in_portal = $('#edit-modal-ticketfield #visible_in_portal').prop("checked");

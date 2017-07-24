@@ -38,6 +38,7 @@ var dropdown_text =  {
     PostCode:"PostCode",
     Country:"Country",
     Currency:"Currency",
+    CurrencySign:"CurrencySign",
     Signature:"Signature",
     OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
     OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
@@ -75,6 +76,7 @@ var dropdown_text =  {
     PostCode:"PostCode",
     Country:"Country",
     Currency:"Currency",
+    CurrencySign:"CurrencySign",
     InvoiceNumber:"InvoiceNumber",
     InvoiceGrandTotal:"InvoiceGrandTotal",
     InvoiceOutstanding:"InvoiceOutstanding",
@@ -99,6 +101,7 @@ var dropdown_text =  {
     PostCode:"PostCode",
     Country:"Country",
     Currency:"Currency",
+    CurrencySign:"CurrencySign",
     EstimateNumber:"EstimateNumber",
     EstimateGrandTotal:"EstimateGrandTotal",
     CompanyName:"CompanyName",
@@ -192,6 +195,7 @@ var dropdown_text =  {
     PostCode:"PostCode",
     Country:"Country",
     Currency:"Currency",
+    CurrencySign:"CurrencySign",
     OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
     OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
     BalanceThreshold:"BalanceThreshold",
@@ -217,6 +221,7 @@ var neon_summernote_dropdown_tpl = {
           "<li><a data-value='{{PostCode}}'>" + dropdown_text.leadoptions.PostCode + "</a></li>" +
           "<li><a data-value='{{Country}}'>" + dropdown_text.leadoptions.Country + "</a></li>" +
           "<li><a data-value='{{Currency}}'>" + dropdown_text.leadoptions.Currency + "</a></li>" +
+          "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.leadoptions.CurrencySign + "</a></li>" +
           "<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.leadoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
           "<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.leadoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
           "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.leadoptions.BalanceThreshold + "</a></li>" +
@@ -248,6 +253,7 @@ var neon_summernote_dropdown_tpl = {
           "<li><a data-value='{{PostCode}}'>" + dropdown_text.invoiceoptions.PostCode + "</a></li>" +
           "<li><a data-value='{{Country}}'>" + dropdown_text.invoiceoptions.Country + "</a></li>" +
           "<li><a data-value='{{Currency}}'>" + dropdown_text.invoiceoptions.Currency + "</a></li>" +
+          "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.invoiceoptions.CurrencySign + "</a></li>" +
           "<li class='unclick'><a ><b>Invoice Fields</b></a></li>" +
           "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.invoiceoptions.InvoiceNumber + "</a></li>" +
           "<li><a data-value='{{InvoiceGrandTotal}}'>" + dropdown_text.invoiceoptions.InvoiceGrandTotal + "</a></li>" +
@@ -346,6 +352,7 @@ var neon_summernote_dropdown_tpl = {
           "<li><a data-value='{{PostCode}}'>" + dropdown_text.estimateoptions.PostCode + "</a></li>" +
           "<li><a data-value='{{Country}}'>" + dropdown_text.estimateoptions.Country + "</a></li>" +
           "<li><a data-value='{{Currency}}'>" + dropdown_text.estimateoptions.Currency + "</a></li>" +
+          "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.estimateoptions.CurrencySign + "</a></li>" +
           "<li class='unclick'><a ><b>Estimate Fields</b></a></li>" +
           "<li><a data-value='{{EstimateNumber}}'>" + dropdown_text.estimateoptions.EstimateNumber + "</a></li>" + "<li><a data-value='{{EstimateGrandTotal}}'>" + dropdown_text.estimateoptions.EstimateGrandTotal + "</a></li>" +
           "<li><a data-value='{{EstimateLink}}'>" + dropdown_text.estimateoptions.EstimateLink + "</a></li>" +
@@ -462,6 +469,7 @@ var neon_summernote_dropdown_tpl = {
           "<li><a data-value='{{PostCode}}'>" + dropdown_text.Tickets.PostCode + "</a></li>" +
           "<li><a data-value='{{Country}}'>" + dropdown_text.Tickets.Country + "</a></li>" +
           "<li><a data-value='{{Currency}}'>" + dropdown_text.Tickets.Currency + "</a></li>" +
+          "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.Tickets.CurrencySign + "</a></li>" +
           "<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.Tickets.OutstandingExcludeUnbilledAmount + "</a></li>" +
           "<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.Tickets.OutstandingIncludeUnbilledAmount + "</a></li>" +
           "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.Tickets.BalanceThreshold + "</a></li>" +
