@@ -228,6 +228,79 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
                 CompanyGateway::createSummaryCronJobs(1);
                 log::info('--CallShop CRONJOB END--');
+            }elseif(isset($GatewayName) && $GatewayName == 'Stremco'){
+                log::info($GatewayName);
+                log::info('--Stremco download CDR CRONJOB START--');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('stremcoaccountusage');
+                $setting = CompanyConfiguration::get('STREMCO_DOWNLOAD_CDR_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--Stremco download CDR CRONJOB END--');
+
+                log::info('--Stremco Customer Rate File Generation CRONJOB START--');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('stremcocustomerratefilegenerator');
+                $setting = CompanyConfiguration::get('STREMCO_CUSTOMER_RATE_FILE_GEN_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' Customer Rate File Generation';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--Stremco Customer Rate File Generation CRONJOB END--');
+
+                log::info('--Stremco Vendors Rate File Generation CRONJOB START--');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('stremcovendorratefilegenerator');
+                $setting = CompanyConfiguration::get('STREMCO_VENDOR_RATE_FILE_GEN_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' Vendors Rate File Generation';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--Stremco Vendors Rate File Generation CRONJOB END--');
+
+                log::info('--Stremco Customers Rate File Download CRONJOB START--');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('stremcocustomerratefiledownload');
+                $setting = CompanyConfiguration::get('STREMCO_RATE_FILE_DOWNLOAD_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' Customer Rate File Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--Stremco Customers Rate File Download CRONJOB END--');
+
+                log::info('--Stremco Vendors Rate File Download CRONJOB START--');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('stremcovendorratefiledownload');
+                $setting = CompanyConfiguration::get('STREMCO_RATE_FILE_DOWNLOAD_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' Vendor Rate File Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--Stremco Vendors Rate File Download CRONJOB END--');
+
+                log::info('--Stremco Customers Rate File Process CRONJOB START--');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('stremcocustomerratefileprocess');
+                $setting = CompanyConfiguration::get('STREMCO_RATE_FILE_PROCESS_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' Customer Rate File Process';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--Stremco Customers Rate File Process CRONJOB END--');
+
+                log::info('--Stremco Vendors Rate File Process CRONJOB START--');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('stremcovendorratefileprocess');
+                $setting = CompanyConfiguration::get('STREMCO_RATE_FILE_PROCESS_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' Vendor Rate File Process';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--Stremco Vendors Rate File Process CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(0);
             }
         }else{
             log::info('--Other CRONJOB START--');

@@ -21,6 +21,8 @@
             $NameFormat = GatewayConfig::$MOR_NameFormat;
         }else if($GatewayName == 'CallShop'){
             $NameFormat = GatewayConfig::$CallShop_NameFormat;
+        }else if($GatewayName == 'Streamco'){
+            $NameFormat = GatewayConfig::$Streamco_NameFormat;
         }
     ?>
     @if($count%2 == 0)

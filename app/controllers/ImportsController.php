@@ -197,6 +197,11 @@ class ImportsController extends \BaseController {
             }elseif($gateway == 'CallShop'){
                 $mor = new CallShop($CompanyGatewayID);
                 $response1 = $mor->getAccountsDetail($param);
+            }elseif($gateway == 'Streamco'){
+                if(Input::has('AccountType'))
+                    $param['AccountType'] = Input::get('AccountType', '');
+                $mor = new Streamco($CompanyGatewayID);
+                $response1 = $mor->getAccountsDetail($param);
             }
             //$pbx = new PBX($CompanyGatewayID);
 
