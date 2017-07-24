@@ -166,13 +166,13 @@ class CronJobController extends \BaseController {
             }else if($CronJobCommand->Command == 'accountbalanceprocess'){
                 //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
 				$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
-            }else if($CronJobCommand->Command == 'stremcocustomerratefilegenerator'){
+            }else if($CronJobCommand->Command == 'streamcocustomerratefilegenerator'){
                 $customers = Account::getCustomerIDList();
                 $customers = array_diff($customers, array('Select'));
-            }else if($CronJobCommand->Command == 'stremcovendorratefilegenerator'){
+            }else if($CronJobCommand->Command == 'streamcovendorratefilegenerator'){
                 $vendors = Account::getVendorIDList();
                 $vendors = array_diff($vendors, array('Select'));
-            }else if($CronJobCommand->Command == 'stremcocustomerratefiledownload' || $CronJobCommand->Command == 'stremcovendorratefiledownload' || $CronJobCommand->Command == 'stremcocustomerratefileprocess' || $CronJobCommand->Command == 'stremcovendorratefileprocess'){
+            }else if($CronJobCommand->Command == 'streamcocustomerratefiledownload' || $CronJobCommand->Command == 'streamcovendorratefiledownload' || $CronJobCommand->Command == 'streamcocustomerratefileprocess' || $CronJobCommand->Command == 'streamcovendorratefileprocess'){
                 $gateway = Gateway::where('Name','Stremco')->lists('Name', 'GatewayID');
                 $gateway = array_diff($gateway, array('Select'));
             }
