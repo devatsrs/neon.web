@@ -60,7 +60,7 @@ class Streamco{
                     $AccountType = 'originators';
                     $where = ["IsCustomer" => 1];
                 }
-                $query = "select a.name,a.enabled,c.email,c.invoice_email,c.address from streamco_config.".$AccountType." a LEFT JOIN streamco_config.companies c ON a.company_id=c.id"; // and userfield like '%outbound%'  removed for inbound calls
+                $query = "select a.name,a.enabled,c.email,c.invoice_email,c.address from ".self::$dbname1.".".$AccountType." a LEFT JOIN ".self::$dbname1.".companies c ON a.company_id=c.id"; // and userfield like '%outbound%'  removed for inbound calls
                 //$response = DB::connection('pbxmysql')->select($query);
                 $results = DB::connection('pbxmysql')->select($query);
                 if(count($results)>0){
