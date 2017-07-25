@@ -1,7 +1,7 @@
 <?php
 class Streamco{
     private static $config = array();
-    private static $dbname1 = 'streamco_config';
+    private static $dbname1 = 'config';
 
     public function __construct($CompanyGatewayID){
         $setting = GatewayAPI::getSetting($CompanyGatewayID,'Streamco');
@@ -14,6 +14,7 @@ class Streamco{
         }
         if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
             extract(self::$config);
+
             Config::set('database.connections.pbxmysql.host',$dbserver);
             Config::set('database.connections.pbxmysql.database',self::$dbname1);
             Config::set('database.connections.pbxmysql.username',$username);
@@ -75,7 +76,7 @@ class Streamco{
                             $count = DB::table('tblAccount')->where($where)->count();
                             if($count==0){
                                 $tempItemData['AccountName'] = $temp_row->name;
-                                $tempItemData['Number'] = $temp_row->name;
+//                                $tempItemData['Number'] = $temp_row->name;
                                 $tempItemData['FirstName'] = "";
                                 $tempItemData['Address1'] = $temp_row->address;
                                 $tempItemData['Phone'] = "";
@@ -121,30 +122,6 @@ class Streamco{
             }
         }
         return $response;
-    }
-    public static function getAccountsBalace($addparams=array()){
-        $response = array();
-        $response['balance'] = 0;
-        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
-            try{
-                $query = "select * from svbpanel.usuarios where usuario='".$addparams['username']."' limit 1 "; // and userfield like '%outbound%'  removed for inbound calls
-                //$response = DB::connection('pbxmysql')->select($query);
-                $results = DB::connection('pbxmysql')->select($query);
-                if(count($results)>0){
-                    foreach ($results as $temp_row) {
-                        $response['result'] = 'OK';
-                        $response['balance'] = $temp_row->saldo;
-                    }
-                }
-            }catch(Exception $e){
-                $response['faultString'] =  $e->getMessage();
-                $response['faultCode'] =  $e->getCode();
-                Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $e->getCode(). ", Reason: " . $e->getMessage());
-                //throw new Exception($e->getMessage());
-            }
-        }
-        return $response;
-
     }
 
 }
