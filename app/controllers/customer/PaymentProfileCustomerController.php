@@ -60,10 +60,11 @@ class PaymentProfileCustomerController extends \BaseController {
         $CompanyID = Customer::get_companyID();
         $CustomerID = Customer::get_accountID();
         if($CustomerID > 0) {
+            $PaymentGatewayID=$data['PaymentGatewayID'];
             if($data['PaymentGatewayID']==PaymentGateway::StripeACH){
-                return AccountPaymentProfile::createBankProfile($CompanyID, $CustomerID);
+                return AccountPaymentProfile::createBankProfile($CompanyID, $CustomerID,$PaymentGatewayID);
             }
-            return AccountPaymentProfile::createProfile($CompanyID, $CustomerID);
+            return AccountPaymentProfile::createProfile($CompanyID, $CustomerID,$PaymentGatewayID);
         }
     }
 

@@ -102,6 +102,57 @@ class PaymentGateway extends \Eloquent {
                 TransactionLog::insert($transactiondata);
                 return $transactionResponse;
 
+            case 'StripeACH':
+
+                $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+                $stripedata = array();
+                $stripedata['currency'] = strtolower($CurrencyCode);
+                $stripedata['amount'] = $amount;
+                $stripedata['description'] = $options->InvoiceNumber.' (Invoice) Payment';
+                $stripedata['customerid'] = $options->CustomerProfileID;
+
+                $transactionResponse = array();
+
+                $stripepayment = new StripeACH();
+                $transaction = $stripepayment->createchargebycustomer($stripedata);
+
+                $Notes = '';
+                if(!empty($transaction['response_code']) && $transaction['response_code'] == 1) {
+                    $Notes = 'Stripe transaction_id ' . $transaction['id'];
+                    $Status = TransactionLog::SUCCESS;
+                }else{
+                    $Status = TransactionLog::FAILED;
+                    $Notes = empty($transaction['error']) ? '' : $transaction['error'];
+                    AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
+                }
+                $transactionResponse['transaction_notes'] =$Notes;
+                if(!empty($transaction['response_code'])) {
+                    $transactionResponse['response_code'] = $transaction['response_code'];
+                }
+                $transactionResponse['transaction_payment_method'] = 'CREDIT CARD';
+                $transactionResponse['failed_reason'] = $Notes;
+                if(!empty($transaction['id'])) {
+                    $transactionResponse['transaction_id'] = $transaction['id'];
+                }
+                $transactiondata = array();
+                $transactiondata['CompanyID'] = $account->CompanyId;
+                $transactiondata['AccountID'] = $account->AccountID;
+                if(!empty($transaction['id'])) {
+                    $transactiondata['Transaction'] = $transaction['id'];
+                }
+                $transactiondata['Notes'] = $Notes;
+                if(!empty($transaction['amount'])) {
+                    $transactiondata['Amount'] = floatval($transaction['amount']);
+                }
+                $transactiondata['Status'] = $Status;
+                $transactiondata['created_at'] = date('Y-m-d H:i:s');
+                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+                $transactiondata['CreatedBy'] = $CreatedBy;
+                $transactiondata['ModifyBy'] = $CreatedBy;
+                $transactiondata['Response'] = json_encode($transaction);
+                TransactionLog::insert($transactiondata);
+                return $transactionResponse;
+
             case '':
                 return '';
 
@@ -126,4 +177,22 @@ class PaymentGateway extends \Eloquent {
         return $PaymentGatewayID;
     }
 
+    public static function getPaymentGatewayIDBYAccount($AccountID){
+        $Account = Account::find($AccountID);
+        $PaymentGatewayID = '';
+        if(!empty($Account->PaymentMethod)){
+            $PaymentGatewayName = $Account->PaymentMethod;
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
+        }
+        return $PaymentGatewayID;
+    }
+
+    public static function getPaymentGatewayNameBYAccount($AccountID){
+        $Account = Account::find($AccountID);
+        $PaymentGatewayName = '';
+        if(!empty($Account->PaymentMethod)){
+            $PaymentGatewayName = $Account->PaymentMethod;
+        }
+        return $PaymentGatewayName;
+    }
 }

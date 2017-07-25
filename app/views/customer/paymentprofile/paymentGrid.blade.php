@@ -2,7 +2,7 @@
 <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
-            Payment Method Profiles
+            {{PaymentGateway::getPaymentGatewayNameBYAccount($account->AccountID)}} Payment Method Profiles
         </div>
         <div class="panel-options">
             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -176,7 +176,8 @@
 
                 $('#add-new-card').click(function (ev) {
                     ev.preventDefault();
-                    var pgid = '{{PaymentGateway::getPaymentGatewayID()}}';
+
+                    var pgid = '{{PaymentGateway::getPaymentGatewayIDBYAccount($account->AccountID)}}';
                     $("#add-credit-card-form")[0].reset();
                     $("#add-credit-card-form").find('input[name="cardID"]').val('');
                     $("#add-credit-card-form [name='ExpirationMonth']").val('').trigger("change");

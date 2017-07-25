@@ -824,9 +824,10 @@
                         return;
                     }
                     //console.log(InvoiceIDs);
-                    var pgid = '{{PaymentGateway::getPaymentGatewayID()}}';
+                    //var pgid = '{{PaymentGateway::getPaymentGatewayID()}}';
                     $('#add-credit-card-form').find("[name=AccountID]").val(accoutid);
-                    $('#add-credit-card-form').find("[name=PaymentGatewayID]").val(pgid);
+                    $('#add-bankaccount-form').find("[name=AccountID]").val(accoutid);
+                    //$('#add-credit-card-form').find("[name=PaymentGatewayID]").val(pgid);
 
                     paynow_url = '/paymentprofile/' + accoutid;
                     showAjaxModal(paynow_url, 'pay_now_modal');
@@ -980,6 +981,13 @@
                 update_new_url = baseurl + '/paymentprofile/create';
                 submit_ajax(update_new_url, $('#add-credit-card-form').serialize())
             });
+
+            $('#add-bankaccount-form').submit(function (e) {
+                e.preventDefault();
+                update_new_url = baseurl + '/paymentprofile/create';
+                submit_ajax(update_new_url, $('#add-bankaccount-form').serialize())
+            });
+
             $('#generate-new-invoice').click(function (e) {
                 e.preventDefault();
                 update_new_url = "{{URL::to("invoice/generate")}}";
@@ -1659,6 +1667,60 @@
       </form>
     </div>
   </div>
+</div>
+<div class="modal fade" id="add-modal-bankaccount" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="add-bankaccount-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add New Bank Account</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Title</label>
+                                <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Account Holder Name*</label>
+                                <input type="text" name="AccountHolderName" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Account Number *</label>
+                                <input type="text" name="AccountNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                                <input type="hidden" name="cardID"/>
+                                <input type="hidden" name="AccountID"/>
+                                <input type="hidden" name="PaymentGatewayID"/>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Routing Number*</label>
+                                <input type="text" name="RoutingNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Account Holder Type*</label>
+                                {{ Form::select('AccountHolderType',Payment::$account_holder_type,'', array("class"=>"select2 small")) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="bankaccount-update" class="save btn btn-primary btn-sm btn-icon icon-left"
+                            data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 <div class="modal fade" id="add-edit-modal-payment">
   <div class="modal-dialog">

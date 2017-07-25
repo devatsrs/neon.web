@@ -26,11 +26,11 @@ class AccountPaymentProfile extends \Eloquent
         return $AccountPaymentProfile;
     }
 
-    public static function createProfile($CompanyID, $CustomerID)
+    public static function createProfile($CompanyID, $CustomerID,$PaymentGatewayID)
     {
         $data = Input::all();
 
-        $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
+        //$PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
         if(empty($PaymentGatewayID)){
             return Response::json(array("status" => "failed", "message" => "Please Select Payment Gateway"));
         }
@@ -67,10 +67,10 @@ class AccountPaymentProfile extends \Eloquent
 
     }
 
-    public static function createBankProfile($CompanyID, $CustomerID)
+    public static function createBankProfile($CompanyID, $CustomerID,$PaymentGatewayID)
     {
         $data = Input::all();
-        $PaymentGatewayID =$data['PaymentGatewayID'];
+        //$PaymentGatewayID =$data['PaymentGatewayID'];
         if(empty($PaymentGatewayID)){
             return Response::json(array("status" => "failed", "message" => "Please Select Payment Gateway"));
         }
@@ -151,6 +151,18 @@ class AccountPaymentProfile extends \Eloquent
                         return json_encode(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
                     }
                 }
+
+                if($PaymentGateway=='StripeACH'){
+                    $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+                    if(empty($CurrencyCode)){
+                        return json_encode(array("status" => "failed", "message" => "No account currency available"));
+                    }
+                    $stripeAchstatus = new StripeACH();
+                    if(empty($stripeAchstatus->status)){
+                        return json_encode(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
+                    }
+                }
+
                 $AccountPaymentProfileID = $CustomerProfile->AccountPaymentProfileID;
                 $options = json_decode($CustomerProfile->Options);
                 $options->InvoiceNumber = $fullnumber;

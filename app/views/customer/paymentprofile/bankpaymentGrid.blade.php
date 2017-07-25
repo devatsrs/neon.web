@@ -2,7 +2,13 @@
 <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
-            Payment Method Profiles
+            <?php
+            $title = PaymentGateway::getPaymentGatewayNameBYAccount($account->AccountID);
+                if($title=='StripeACH'){
+                    $title='Stripe ACH';
+                }
+            ?>
+            {{$title}} Payment Method Profiles
         </div>
         <div class="panel-options">
             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -176,7 +182,7 @@
 
                 $('#add-new-bankaccount').click(function (ev) {
                     ev.preventDefault();
-                    var pgid = '{{PaymentGateway::StripeACH}}';
+                    var pgid = '{{PaymentGateway::getPaymentGatewayIDBYAccount($account->AccountID)}}';
                     $("#add-bankaccount-form")[0].reset();
                     $("#add-bankaccount-form").find('input[name="cardID"]').val('');                    
                     $("#add-bankaccount-form").find('input[name="PaymentGatewayID"]').val(pgid);

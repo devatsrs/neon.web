@@ -216,8 +216,8 @@ class StripeACH {
 
 			//log::info(print_r($charge,true));
 
-			if(!empty($charge['paid'])){
-				$response['response_code'] = $charge['paid'];
+			if(empty($charge['failure_message'])){
+				$response['response_code'] = 1;
 				$response['status'] = 'Success';
 				$response['id'] = $charge['id'];
 				$response['note'] = 'Stripe transaction_id '.$charge['id'];

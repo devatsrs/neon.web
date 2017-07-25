@@ -712,11 +712,14 @@
 
               if(response.status =='success'){
                      toastr.success(response.message, "Success", toastr_opts);
-                  if($('[name="Billing"]').prop("checked") == true && BillingChanged) {
                       setTimeout(function () {
                           window.location.reload()
                       }, 1000);
-                  }
+                  /*if($('[name="Billing"]').prop("checked") == true && BillingChanged) {
+                      setTimeout(function () {
+                          window.location.reload()
+                      }, 1000);
+                  }*/
               }else{
                        toastr.error(response.message, "Error", toastr_opts);
               }

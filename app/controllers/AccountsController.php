@@ -627,9 +627,9 @@ class AccountsController extends \BaseController {
                // $this->sendPasswordEmail($account, $password, $data);
             }
 
-            if(is_authorize()) {
+            if(is_authorize() && $data['PaymentMethod']=='AuthorizeNet') {
 
-                $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
+                $PaymentGatewayID = PaymentGateway::AuthorizeNet;
                 $PaymentProfile = AccountPaymentProfile::where(['AccountID' => $id])
                     ->where(['CompanyID' => $companyID])
                     ->where(['PaymentGatewayID' => $PaymentGatewayID])
