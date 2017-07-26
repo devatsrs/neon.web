@@ -6,25 +6,25 @@ class Streamco{
     public function __construct($CompanyGatewayID){
         $setting = GatewayAPI::getSetting($CompanyGatewayID,'Streamco');
         foreach((array)$setting as $configkey => $configval){
-            if($configkey == 'password'){
+            if($configkey == 'dbpassword'){
                 self::$config[$configkey] = Crypt::decrypt($configval);
             }else{
                 self::$config[$configkey] = $configval;
             }
         }
-        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
+        if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['dbusername']) && isset(self::$config['dbpassword'])){
             extract(self::$config);
 
-            Config::set('database.connections.pbxmysql.host',$dbserver);
+            Config::set('database.connections.pbxmysql.host',$host);
             Config::set('database.connections.pbxmysql.database',self::$dbname1);
-            Config::set('database.connections.pbxmysql.username',$username);
-            Config::set('database.connections.pbxmysql.password',$password);
+            Config::set('database.connections.pbxmysql.username',$dbusername);
+            Config::set('database.connections.pbxmysql.password',$dbpassword);
 
         }
     }
     public static function testConnection(){
         $response = array();
-        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
+        if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['dbusername']) && isset(self::$config['dbpassword'])){
 
             try{
                 if(DB::connection('pbxmysql')->getDatabaseName()){
@@ -42,7 +42,7 @@ class Streamco{
     public static function getAccountsDetail($addparams=array()){
         $response = array();
         $currency = Currency::getCurrencyDropdownIDList();
-        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
+        if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['dbusername']) && isset(self::$config['dbpassword'])){
             try{
 //                echo "<pre>";print_r($addparams);exit();
                 if(isset($addparams['AccountType']) && $addparams['AccountType'] != '') {
