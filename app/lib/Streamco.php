@@ -40,6 +40,8 @@ class Streamco{
 
     //get data from gateway and insert in temp table
     public static function getAccountsDetail($addparams=array()){
+        // same code in service/Streamco.php@importStreamcoAccounts()
+        // if you change anything here than you also have to change there
         $response = array();
         $currency = Currency::getCurrencyDropdownIDList();
         if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['dbusername']) && isset(self::$config['dbpassword'])){
