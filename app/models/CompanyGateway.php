@@ -241,7 +241,7 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco download CDR CRONJOB END--');
 
                 log::info('--Streamco Customer Rate File Generation CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('streamcocustomerratefilegenerator');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefilegenerator');
                 $setting = CompanyConfiguration::get('STREAMCO_CUSTOMER_RATE_FILE_GEN_CRONJOB');
                 $JobTitle = $CompanyGateway->Title.' Customer Rate File Generation';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
@@ -251,7 +251,7 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Customer Rate File Generation CRONJOB END--');
 
                 log::info('--Streamco Vendors Rate File Generation CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('streamcovendorratefilegenerator');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefilegenerator');
                 $setting = CompanyConfiguration::get('STREAMCO_VENDOR_RATE_FILE_GEN_CRONJOB');
                 $JobTitle = $CompanyGateway->Title.' Vendors Rate File Generation';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
@@ -261,7 +261,7 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Vendors Rate File Generation CRONJOB END--');
 
                 log::info('--Streamco Customers Rate File Download CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('streamcocustomerratefiledownload');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefiledownload');
                 $setting = CompanyConfiguration::get('STREAMCO_RATE_FILE_DOWNLOAD_CRONJOB');
                 $JobTitle = $CompanyGateway->Title.' Customer Rate File Download';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
@@ -271,7 +271,7 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Customers Rate File Download CRONJOB END--');
 
                 log::info('--Streamco Vendors Rate File Download CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('streamcovendorratefiledownload');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefiledownload');
                 $setting = CompanyConfiguration::get('STREAMCO_RATE_FILE_DOWNLOAD_CRONJOB');
                 $JobTitle = $CompanyGateway->Title.' Vendor Rate File Download';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
@@ -281,7 +281,7 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Vendors Rate File Download CRONJOB END--');
 
                 log::info('--Streamco Customers Rate File Process CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('streamcocustomerratefileprocess');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefileprocess');
                 $setting = CompanyConfiguration::get('STREAMCO_RATE_FILE_PROCESS_CRONJOB');
                 $JobTitle = $CompanyGateway->Title.' Customer Rate File Process';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
@@ -291,7 +291,7 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Customers Rate File Process CRONJOB END--');
 
                 log::info('--Streamco Vendors Rate File Process CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('streamcovendorratefileprocess');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefileprocess');
                 $setting = CompanyConfiguration::get('STREAMCO_RATE_FILE_PROCESS_CRONJOB');
                 $JobTitle = $CompanyGateway->Title.' Vendor Rate File Process';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
