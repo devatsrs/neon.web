@@ -337,6 +337,7 @@ BEGIN
 			TransactionID,
 			`Status`,
 			PaymentMethod,
+			Notes,
 			created_at,
 			CreatedBy
 		)
@@ -350,6 +351,7 @@ BEGIN
 		tmpp.TransactionID,
 		'Approved' AS `Status`,
 		'Cash' AS PaymentMethod,
+		Notes,
 		p_CurrentDate AS created_at,
 		'System Imported' AS CreatedBy
 	FROM tblTempPaymentImportExport tmpp
