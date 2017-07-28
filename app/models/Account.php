@@ -455,6 +455,31 @@ class Account extends \Eloquent {
         }
         return $row;
     }
+    public static function getVendorIDList($data=array()){
+
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
+        $data['Status'] = 1;
+        $data['AccountType'] = 1;
+        $data['VerificationStatus'] = Account::VERIFIED;
+        $data['CompanyID']=User::get_companyID();
+        $row = Account::where($data)
+            ->where(function($where){
+                $where->Where(['IsVendor'=>1]);
+                $where->orwhereNull('IsVendor');
+                $where->orwhereRaw('(IsCustomer = 0 AND IsVendor = 0)');
+            })
+            ->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+    }
 	
 	 public static function GetAccountAllEmails($id,$ArrayReturn=false){
 	  $array			 =  array();
