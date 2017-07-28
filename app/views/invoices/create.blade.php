@@ -17,7 +17,12 @@
 
 @include('includes.errors')
 @include('includes.success')
-
+<style>
+    .popover{
+        max-width:350px;
+        width:350px;
+    }
+</style>
 <form class="form-horizontal form-groups-bordered" action="{{URL::to('/invoice/store')}}" method="post" id="invoice-from" role="form">
   <p class="text-right">
     <button type="submit" class="btn save btn-primary btn-icon btn-sm icon-left hidden-print" data-loading-text="Loading..."> Save<i class="entypo-floppy"></i> </button>
@@ -25,29 +30,34 @@
   <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-body">
       <div class="form-group">
-        <div class="col-sm-6">
-          <label for="field-1" class="col-sm-2 control-label">*Client</label>
-          <div class="col-sm-6"> {{Form::select('AccountID',$accounts,'',array("class"=>"select2"))}} </div><br>
+        <div class="col-sm-4">
+          <label for="field-1" class="col-sm-3 control-label">*Client</label>
+          <div class="col-sm-9"> {{Form::select('AccountID',$accounts,'',array("class"=>"select2"))}} </div><br>
 
           <div class="clearfix margin-bottom "></div>
-          <label for="field-1" class="col-sm-2 control-label">*Billing Class</label>
-          <div class="col-sm-6">{{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"select2 small form-control1 small","id"=>"AccountBillingClassID"));}}</div>
+          <label for="field-1" class="col-sm-3 control-label">*Billing Class</label>
+          <div class="col-sm-9">{{Form::select('BillingClassID', $BillingClass, '' ,array("class"=>"select2 small form-control1 small","id"=>"AccountBillingClassID"));}}</div>
           <div class="clearfix margin-bottom "></div>
-           <label for="field-1" class="col-sm-2 control-label">*Address</label>
-          <div class="col-sm-6"> {{Form::textarea('Address','',array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}} </div>
-          <div class="clearfix margin-bottom "></div>       
+           <label for="field-1" class="col-sm-3 control-label">*Address</label>
+          <div class="col-sm-9"> {{Form::textarea('Address','',array( "ID"=>"Account_Address", "rows"=>4, "class"=>"form-control"))}} </div>
+          <div class="clearfix margin-bottom "></div>
         </div>
-        <div class="col-sm-6">
-          <label for="field-1" class="col-sm-7 control-label">*Invoice Number</label>
-          <div class="col-sm-5"> {{Form::text('InvoiceNumber','',array("Placeholder"=>"AUTO", "class"=>"form-control"))}} </div>
+        <div class="col-sm-4">
+            <label for="field-1" class="col-sm-3 control-label">Barcode <span id="barcode_tooltip" data-original-title="Barcode" data-content="Scan item barcode in order to add item to the invoice." data-placement="bottom" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></label>
+            <div class="col-sm-9"> {{Form::text('BarCode','',array( "ID"=>"BarCode", "class"=>"form-control", "onkeypress"=>"validateBarCodeInput(event)"))}} </div>
+            <div class="clearfix margin-bottom "></div>
+        </div>
+        <div class="col-sm-4">
+          <label for="field-1" class="col-sm-4 control-label">*Invoice Number</label>
+          <div class="col-sm-8"> {{Form::text('InvoiceNumber','',array("Placeholder"=>"AUTO", "class"=>"form-control"))}} </div>
           <br />
           <br />
-          <label for="field-1" class="col-sm-7 control-label">*Date of issue</label>
-          <div class="col-sm-5"> {{Form::text('IssueDate',date('Y-m-d'),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
+          <label for="field-1" class="col-sm-4 control-label">*Date of issue</label>
+          <div class="col-sm-8"> {{Form::text('IssueDate',date('Y-m-d'),array("class"=>" form-control datepicker" , "data-startdate"=>date('Y-m-d',strtotime("-2 month")),  "data-date-format"=>"yyyy-mm-dd", "data-end-date"=>"+1w" ,"data-start-view"=>"2"))}} </div>
           <br />
           <br />
-          <label for="field-1" class="col-sm-7 control-label">PO Number</label>
-          <div class="col-sm-5"> {{Form::text('PONumber','',array("class"=>" form-control" ))}} </div>
+          <label for="field-1" class="col-sm-4 control-label">PO Number</label>
+          <div class="col-sm-8"> {{Form::text('PONumber','',array("class"=>" form-control" ))}} </div>
         </div>
       </div>
       <div class="form-group">
@@ -69,14 +79,14 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
+                <!--<tr>
                   <td><button type="button" class=" remove-row btn btn-danger btn-xs">X</button></td>
                   <td>{{Form::SelectControl('item_and_Subscription',0,'',0,'InvoiceDetail[ProductID][]')}}</td>
                   <td>{{Form::textarea('InvoiceDetail[Description][]','',array("class"=>"form-control autogrow invoice_estimate_textarea descriptions","rows"=>1))}}</td>
                   <td class="text-center">{{Form::text('InvoiceDetail[Price][]','',array("class"=>"form-control Price","data-mask"=>"fdecimal"))}}</td>
                   <td class="text-center">{{Form::text('InvoiceDetail[Qty][]',1,array("class"=>"form-control Qty","data-min"=>"1", "data-mask"=>"decimal"))}}</td>
                   <!-- <td class="text-center">{{Form::text('InvoiceDetail[Discount][]',0,array("class"=>"form-control Discount","data-min"=>"1", "data-mask"=>"fdecimal"))}}</td>-->
-                  <td>{{Form::SelectExt(
+              <!--    <td>{{Form::SelectExt(
                     [
                     "name"=>"InvoiceDetail[TaxRateID][]",
                     "data"=>$taxes,
@@ -107,7 +117,7 @@
                   <td class="hidden">{{Form::text('InvoiceDetail[TaxAmount][]','',array("class"=>"form-control TaxAmount","readonly"=>"readonly", "data-mask"=>"fdecimal"))}}</td>
                   <td>{{Form::text('InvoiceDetail[LineTotal][]',0,array("class"=>"form-control LineTotal","data-min"=>"1", "data-mask"=>"fdecimal","readonly"=>"readonly"))}}
                     {{Form::hidden('InvoiceDetail[ProductType][]',Product::ITEM,array("class"=>"ProductType"))}} </td>
-                </tr>
+                </tr>-->
               </tbody>
             </table>
           </div>
@@ -219,7 +229,9 @@ function ajax_form_success(response){
         window.location = response.redirect;
     }
 }
+
 </script>
+@include('invoices.script_invoice_barcode_product')
 @include('invoices.script_invoice_add_edit')
 @include('composetmodels.productsubscriptionmodal')
 @include('includes.ajax_submit_script', array('formID'=>'invoice-from' , 'url' => 'invoice/store','update_url'=>'invoice/{id}/update' ))
