@@ -205,7 +205,7 @@ class NeonExcelIO
             // For First Sheet only.
             if($key == 1) {
 
-                foreach ($sheet->getRowIterator(self::$start_row) as $row) {
+                foreach ($sheet->getRowIterator() as $row) {
 
                     if($limit > 0 && $limit == $this->row_cnt) {
                         break;
