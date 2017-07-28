@@ -200,8 +200,9 @@ class ImportsController extends \BaseController {
             }elseif($gateway == 'Streamco'){
                 if(Input::has('AccountType'))
                     $param['AccountType'] = Input::get('AccountType', '');
-                $mor = new Streamco($CompanyGatewayID);
-                $response1 = $mor->getAccountsDetail($param);
+                $param['ImportDate'] = date('Y-m-d H:i:s.000');
+                $streamco = new Streamco($CompanyGatewayID);
+                $response1 = $streamco->getAccountsDetail($param);
             }
             //$pbx = new PBX($CompanyGatewayID);
 

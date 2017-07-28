@@ -1,10 +1,11 @@
 use Ratemanagement3;
 
-INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'STREAMCO_DOWNLOAD_CDR_CRONJOB', '{"MaxInterval":"1440","CdrBehindDuration":"200","CdrBehindDurationEmail":"120","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"sumera@code-desk.com,bhavin@code-desk.com,girish.vadher@code-desk.com,deven@code-desk.com,vasim.seta@code-desk.com","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'STREAMCO_CUSTOMER_RATE_FILE_GEN_CRONJOB', '{"customers":[],"CdrBehindDuration":"200","CdrBehindDurationEmail":"120","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"sumera@code-desk.com,bhavin@code-desk.com,girish.vadher@code-desk.com,deven@code-desk.com,vasim.seta@code-desk.com","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'STREAMCO_VENDOR_RATE_FILE_GEN_CRONJOB', '{"vendors":[],"CdrBehindDuration":"200","CdrBehindDurationEmail":"120","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"sumera@code-desk.com,bhavin@code-desk.com,girish.vadher@code-desk.com,deven@code-desk.com,vasim.seta@code-desk.com","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'STREAMCO_RATE_FILE_DOWNLOAD_CRONJOB', '{"gateway":"","vendors":"","FilesDownloadLimit":"","FileLocationFrom":"","FileLocationTo":"","CdrBehindDuration":"200","CdrBehindDurationEmail":"120","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"sumera@code-desk.com,bhavin@code-desk.com,girish.vadher@code-desk.com,deven@code-desk.com,vasim.seta@code-desk.com","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
-INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'STREAMCO_RATE_FILE_PROCESS_CRONJOB', '{"gateway":"","FilesMaxProcess":"","FilesDownloadLimit":"","FileLocation":"","CdrBehindDuration":"200","CdrBehindDurationEmail":"120","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"sumera@code-desk.com,bhavin@code-desk.com,girish.vadher@code-desk.com,deven@code-desk.com,vasim.seta@code-desk.com","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'STREAMCO_DOWNLOAD_CDR_CRONJOB', '{"MaxInterval":"1440","CdrBehindDuration":"200","CdrBehindDurationEmail":"120","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'STREAMCO_CUSTOMER_RATE_FILE_GEN_CRONJOB', '{"customers":[],"CdrBehindDuration":"200","CdrBehindDurationEmail":"120","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'STREAMCO_VENDOR_RATE_FILE_GEN_CRONJOB', '{"vendors":[],"CdrBehindDuration":"200","CdrBehindDurationEmail":"120","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'STREAMCO_RATE_FILE_DOWNLOAD_CRONJOB', '{"gateway":"","vendors":"","FilesDownloadLimit":"","FileLocationFrom":"","FileLocationTo":"","CdrBehindDuration":"200","CdrBehindDurationEmail":"120","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'STREAMCO_RATE_FILE_PROCESS_CRONJOB', '{"gateway":"","FilesMaxProcess":"","FilesDownloadLimit":"","FileLocation":"","CdrBehindDuration":"200","CdrBehindDurationEmail":"120","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'STREAMCO_ACCOUNT_IMPORT', '{"ThresholdTime":"60","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"10","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":"25"}');
 
 INSERT INTO `tblGateway` (`GatewayID`, `Title`, `Name`, `Status`, `CreatedBy`, `created_at`, `ModifiedBy`, `updated_at`) VALUES (10, 'Streamco', 'Streamco', 1, 'RateManagementSystem', '2017-07-22 11:09:43', NULL, NULL);
 
@@ -28,6 +29,7 @@ INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `
 INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 10, 'Vendor Rate File Generator', 'vendorratefilegenerator', '[[{"title":"File Generation Location (Path)","type":"text","value":"","name":"FileLocation"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-04-21 15:11:06', 'RateManagementSystem');
 INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 10, 'Customer Rate File Generator', 'customerratefilegenerator', '[[{"title":"File Generation Location (Path)","type":"text","value":"","name":"FileLocation"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2015-04-21 15:11:06', 'RateManagementSystem');
 INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 10, 'Download Streamco CDR', 'streamcoaccountusage', '[[{"title":"STREMCO Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2017-07-22 08:22:13', 'RateManagementSystem');
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 10, 'Streamco Account Import', 'streamcoaccountimport', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2017-07-27 15:11:06', 'RateManagementSystem');
 
 INSERT INTO `tblJobType` (`Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES ('IU', 'Item Upload', NULL, '2017-07-04 12:25:46', 'System', NULL, NULL);
 
@@ -98,6 +100,7 @@ CREATE TABLE IF NOT EXISTS `tblDynamicFieldsValue` (
   UNIQUE KEY `IXUnique_ParentID_DynamicFieldsID` (`ParentID`,`DynamicFieldsID`),
   KEY `IX_ParentID_DynamicFieldsID` (`DynamicFieldsID`,`ParentID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 
 
 DROP PROCEDURE IF EXISTS `prc_WSProcessImportAccount`;
@@ -1699,5 +1702,87 @@ BEGIN
 	AND TBL2.JobLoggedUserID IS NULL;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END|
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getAccountAuditExportLog`;
+DELIMITER |
+CREATE PROCEDURE `prc_getAccountAuditExportLog`(
+	IN `p_CompanyID` INT,
+	IN `p_GatewayID` INT
+)
+BEGIN
+	DECLARE v_last_time_exist INT DEFAULT 0;
+	DECLARE v_last_time DATETIME;
+	DECLARE v_start_time DATETIME;
+	DECLARE v_end_time DATETIME;
+	DECLARE v_cur_date DATE DEFAULT CURDATE();
+	DECLARE v_cur_time DATETIME DEFAULT NOW();
+
+   	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+
+   	SELECT end_time INTO v_last_time FROM tblAccountAuditExportLog WHERE CompanyID=p_CompanyID AND CompanyGatewayID=p_GatewayID AND Status=1 ORDER BY AccountAuditExportLogID DESC LIMIT 1;
+
+   	IF (v_last_time IS NOT NULL AND v_last_time != '')
+   	THEN
+	   		-- SELECT end_time INTO v_last_time FROM tblAccountAuditExportLog WHERE CompanyID=p_CompanyID AND CompanyGatewayID=p_GatewayID AND Status=1 ORDER BY AccountAuditExportLogID DESC LIMIT 1;
+
+	   		SELECT
+	   			 MIN(tad.created_at), MAX(tad.created_at) INTO v_start_time, v_end_time
+	   		FROM
+	   			tblAuditHeader AS tah
+	   		LEFT JOIN
+	   			tblAuditDetails AS tad
+	   		ON
+	   			tah.AuditHeaderID=tad.AuditHeaderID
+	   		WHERE
+	   			tah.Type='account' AND tah.Date>=DATE(v_last_time) AND tah.Date<=DATE(v_last_time + INTERVAL 1 DAY) AND tad.created_at>v_last_time;
+
+	   		INSERT INTO tblAccountAuditExportLog (CompanyID,CompanyGatewayID,start_time,end_time,created_at) VALUES (p_CompanyID, p_GatewayID, v_start_time, v_end_time, v_cur_time);
+
+	   		SELECT
+	   			tah.ParentColumnID,tah.ParentColumnName,tad.ColumnName,tad.OldValue,tad.NewValue,v_start_time AS start_time,v_end_time AS end_time,v_cur_time AS created_at
+	   		FROM
+	   			tblAuditHeader AS tah
+	   		LEFT JOIN
+	   			tblAuditDetails AS tad
+	   		ON
+	   			tah.AuditHeaderID=tad.AuditHeaderID
+	   		WHERE
+	   			tah.Type='account' AND tah.Date>=DATE(v_last_time) AND tah.Date<=DATE(v_last_time + INTERVAL 1 DAY) AND tad.created_at>v_last_time;
+
+	ELSE
+		SELECT
+	   		MIN(tad.created_at), MAX(tad.created_at) INTO v_start_time, v_end_time
+   		FROM
+   			tblAuditHeader AS tah
+   		LEFT JOIN
+   			tblAuditDetails AS tad
+   		ON
+   			tah.AuditHeaderID=tad.AuditHeaderID
+   		WHERE
+   			tah.Type='account' AND tah.Date>=(v_cur_date - INTERVAL 1 DAY) AND tah.Date<=v_cur_date AND tad.created_at<=v_cur_time;
+
+		INSERT INTO tblAccountAuditExportLog (CompanyID,CompanyGatewayID,start_time,end_time,created_at) VALUES (p_CompanyID, p_GatewayID, v_start_time, v_end_time, v_cur_time);
+		
+		SELECT
+	   		tah.ParentColumnID,tah.ParentColumnName,tad.ColumnName,tad.OldValue,tad.NewValue,v_start_time AS start_time,v_end_time AS end_time,v_cur_time AS created_at
+   		FROM
+   			tblAuditHeader AS tah
+   		LEFT JOIN
+   			tblAuditDetails AS tad
+   		ON
+   			tah.AuditHeaderID=tad.AuditHeaderID
+   		WHERE
+   			tah.Type='account' AND tah.Date>=(v_cur_date - INTERVAL 1 DAY) AND tah.Date<=v_cur_date AND tad.created_at<=v_cur_time;
+   	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+
 END|
 DELIMITER ;

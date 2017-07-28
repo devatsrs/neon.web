@@ -172,10 +172,10 @@ class CronJobController extends \BaseController {
             }else if($CronJobCommand->Command == 'vendorratefilegenerator'){
                 $vendors = Account::getVendorIDList();
                 $vendors = array_diff($vendors, array('Select'));
-            }else if($CronJobCommand->Command == 'customerratefiledownload' || $CronJobCommand->Command == 'vendorratefiledownload' || $CronJobCommand->Command == 'customerratefileprocess' || $CronJobCommand->Command == 'vendorratefileprocess'){
+            }/*else if($CronJobCommand->Command == 'customerratefiledownload' || $CronJobCommand->Command == 'vendorratefiledownload' || $CronJobCommand->Command == 'customerratefileprocess' || $CronJobCommand->Command == 'vendorratefileprocess'){
                 $gateway = Gateway::where('Name','Stremco')->lists('Name', 'GatewayID');
                 $gateway = array_diff($gateway, array('Select'));
-            }
+            }*/
 			 
 
             $commandconfig = json_decode($commandconfig,true);

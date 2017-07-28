@@ -46,23 +46,37 @@ class Streamco{
         $currency = Currency::getCurrencyDropdownIDList();
         if(count(self::$config) && isset(self::$config['host']) && isset(self::$config['dbusername']) && isset(self::$config['dbpassword'])){
             try{
-//                echo "<pre>";print_r($addparams);exit();
                 if(isset($addparams['AccountType']) && $addparams['AccountType'] != '') {
                     if($addparams['AccountType'] == 'customers') {
-                        $AccountType = 'originators';
-                        $where = ["IsCustomer" => 1];
+                        $AccountType = 'customer';
+//                        $where = ["IsCustomer" => 1];
+                        $qwhere = "IF(o.company_id,1,0) = 1";
                     } else if ($addparams['AccountType'] == 'vendors') {
-                        $AccountType = 'terminators';
-                        $where = ["IsVendor" => 1];
+                        $AccountType = 'vendor';
+//                        $where = ["IsVendor" => 1];
+                        $qwhere = "IF(t.company_id,1,0) = 1";
                     } else {
-                        $AccountType = 'originators';
-                        $where = ["IsCustomer" => 1];
+                        $AccountType = 'customer';
+//                        $where = ["IsCustomer" => 1];
+                        $qwhere = "IF(o.company_id,1,0) = 1";
                     }
                 } else {
-                    $AccountType = 'originators';
-                    $where = ["IsCustomer" => 1];
+                    $AccountType = 'customer';
+//                    $where = ["IsCustomer" => 1];
+                    $qwhere = "IF(o.company_id,1,0) = 1";
                 }
-                $query = "select a.name,a.enabled,c.email,c.invoice_email,c.address from ".self::$dbname1.".".$AccountType." a LEFT JOIN ".self::$dbname1.".companies c ON a.company_id=c.id"; // and userfield like '%outbound%'  removed for inbound calls
+//                $query = "select a.name,a.enabled,c.email,c.invoice_email,c.address from ".self::$dbname1.".".$AccountType." a LEFT JOIN ".self::$dbname1.".companies c ON a.company_id=c.id"; // and userfield like '%outbound%'  removed for inbound calls
+                $query = "SELECT DISTINCT
+                              c.name,c.address,c.email,c.invoice_email,o.company_id,cu.name AS currency,IF(o.company_id,1,0) AS IsCustomer,IF(t.company_id,1,0) AS IsVendor
+                          FROM
+                              companies AS c
+                          LEFT JOIN
+                              originators AS o ON o.company_id = c.id
+                          LEFT JOIN
+                              terminators AS t ON t.company_id = c.id
+                          LEFT JOIN
+                              currencies AS cu ON c.balance_currency_id=cu.id
+                          WHERE ".$qwhere;
                 //$response = DB::connection('pbxmysql')->select($query);
                 $results = DB::connection('pbxmysql')->select($query);
                 if(count($results)>0){
@@ -74,26 +88,25 @@ class Streamco{
                         $ProcessID = $addparams['ProcessID'];
                         foreach ($results as $temp_row) {
                             $where1 = array("AccountName" => $temp_row->name, "AccountType" => 1,"CompanyId"=>$CompanyID);
-                            $where = $where1+$where;
-                            $count = DB::table('tblAccount')->where($where)->count();
+//                            $where = $where1+$where;
+                            $count = DB::table('tblAccount')->where($where1)->count();
                             if($count==0){
                                 $tempItemData['AccountName'] = $temp_row->name;
-//                                $tempItemData['Number'] = $temp_row->name;
                                 $tempItemData['FirstName'] = "";
                                 $tempItemData['Address1'] = $temp_row->address;
                                 $tempItemData['Phone'] = "";
                                 $tempItemData['BillingEmail'] = $temp_row->invoice_email;
                                 $tempItemData['Email'] = $temp_row->email;
-//                                $tempItemData['Currency'] = isset($currency[$temp_row->name]) && $temp_row->name != ''?$currency[$temp_row->name]:null;
+                                $tempItemData['Currency'] = array_search($temp_row->currency,$currency) ? array_search($temp_row->currency,$currency):null;
                                 $tempItemData['AccountType'] = 1;
                                 $tempItemData['CompanyId'] = $CompanyID;
-                                $tempItemData['Status'] = $temp_row->enabled == 'yes' ? 1 : 0;
-                                $tempItemData['IsCustomer'] = $AccountType == 'originators' ? 1 : 0;
-                                $tempItemData['IsVendor'] = $AccountType == 'terminators' ? 1 : 0;
+                                $tempItemData['Status'] = 1;
+                                $tempItemData['IsCustomer'] = $temp_row->IsCustomer;
+                                $tempItemData['IsVendor'] = $temp_row->IsVendor;
                                 $tempItemData['LeadSource'] = 'Gateway import';
                                 $tempItemData['CompanyGatewayID'] = $CompanyGatewayID;
                                 $tempItemData['ProcessID'] = $ProcessID;
-                                $tempItemData['created_at'] = date('Y-m-d H:i:s.000');
+                                $tempItemData['created_at'] = $addparams['ImportDate'];
                                 $tempItemData['created_by'] = 'Imported';
                                 $batch_insert_array[] = $tempItemData;
                             }
