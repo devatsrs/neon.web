@@ -80,8 +80,20 @@
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Upload Template</label>
                     <div class="col-sm-4">
-                        {{ Form::select('uploadtemplate', $uploadtemplate, '' , array("class"=>"select2")) }}
-
+                        {{Form::SelectExt(
+                            [
+                            "name"=>"uploadtemplate",
+                            "data"=>$uploadtemplate,
+                            "selected"=>'',
+                            "value_key"=>"VendorFileUploadTemplateID",
+                            "title_key"=>"Title",
+                            "data-title1"=>"start_row",
+                            "data-value1"=>"start_row",
+                            "data-title2"=>"end_row",
+                            "data-value2"=>"end_row",
+                            "class" =>"select2 small Taxentity TaxRateID2",
+                            ]
+                        )}}
                     </div>
                 </div>
                 <div class="form-group">
@@ -99,6 +111,19 @@
                         <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
                         
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="col-sm-2 control-label">Start Row</label>
+                    <div class="col-sm-3">
+                        <input name="start_row" type="number" class="form-control" data-label="
+                        <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Start Row" min="0">
+                    </div>
+                    <label class="col-sm-2 control-label">End Row</label>
+                    <div class="col-sm-3">
+                        <input name="end_row" type="number" class="form-control" data-label="
+                            <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="End Row" min="0">
+                    </div>
+
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Settings</label>
@@ -159,6 +184,9 @@
 <div class="row hidden" id="add-template">
     <div class="col-md-12">
         <form id="add-template-form" method="post">
+            <input name="start_row" type="hidden" value="0" min="0">
+            <input name="end_row" type="hidden" value="0" min="0">
+
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -374,6 +402,19 @@
 </div>
 <script type="text/javascript">
 jQuery(document).ready(function ($) {
+
+    $("#form-upload select[name='uploadtemplate']").change(function(){
+
+        var option=$(this).find("option[value='"+$(this).val()+"']");
+
+        var start_row= option.attr("start_row");
+        var end_row= option.attr("end_row");
+
+        $("#form-upload input[name=start_row]").val(start_row);
+        $("#form-upload input[name=end_row]").val(end_row);
+
+    });
+
     $('.btn.upload').click(function(e){
         e.preventDefault();
         //if($('#form-upload').find('select[name="uploadtemplate"]').val()>0){
@@ -540,19 +581,31 @@ jQuery(document).ready(function ($) {
         var body = $('#table-4 tbody');
         tr.empty();
         body.empty();
-        $.each( data.columns, function( key, value ) {
-            tr.append('<th>'+value+'</th>');
-        });
-
+        var count=0;
         $.each( data.rows, function(key, row) {
             var tr = '<tr>';
-            $.each( row, function(key, item) {
-                if(typeof item == 'object' && item != null ){
-                    tr+='<td>'+item.date+'</td>';
-                }else{
-                    tr+='<td>'+item+'</td>';
-                }
-            });
+            if(count==0)
+            {
+                $.each( row, function(key, item) {
+                    if(typeof item == 'object' && item != null ){
+                        tr+='<th>'+item.date+'</th>';
+                    }else{
+                        tr+='<th>'+item+'</th>';
+                    }
+                });
+                count++;
+            }
+            else
+            {
+                $.each( row, function(key, item) {
+                    if(typeof item == 'object' && item != null ){
+                        tr+='<td>'+item.date+'</td>';
+                    }else{
+                        tr+='<td>'+item+'</td>';
+                    }
+                });
+            }
+
             tr += '</tr>';
             body.append(tr);
         });
@@ -586,6 +639,10 @@ jQuery(document).ready(function ($) {
                         }
                     });
                 }
+
+                $('#add-template-form').find('[name="start_row"]').val(data.start_row);
+                $('#add-template-form').find('[name="end_row"]').val(data.end_row);
+
             });
         }
 

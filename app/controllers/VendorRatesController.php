@@ -45,7 +45,30 @@ class VendorRatesController extends \BaseController
      
     
     public function upload($id) {
-            $uploadtemplate = VendorFileUploadTemplate::getTemplateIDList();
+//            $uploadtemplate = VendorFileUploadTemplate::getTemplateIDList();
+            $arrData = VendorFileUploadTemplate::where(['CompanyID'=>User::get_companyID()])->orderBy('Title')->get(['Title', 'VendorFileUploadTemplateID', 'Options'])->toArray();
+            $uploadtemplate=[];
+            foreach($arrData as $val)
+            {
+                $arrUploadTmp=[];
+                $arrUploadTmp["Title"]=$val["Title"];
+                $arrUploadTmp["VendorFileUploadTemplateID"]=$val["VendorFileUploadTemplateID"];
+
+                $options=json_decode($val["Options"], true);
+
+                if(array_key_exists("skipRows", $options))
+                {
+                    $arrUploadTmp["start_row"]=$options["skipRows"]["start_row"];
+                    $arrUploadTmp["end_row"]=$options["skipRows"]["end_row"];
+                }
+                else
+                {
+                    $arrUploadTmp["start_row"]="";
+                    $arrUploadTmp["end_row"]="";
+                }
+                $uploadtemplate[]=$arrUploadTmp;
+            }
+
             $Account = Account::find($id);
             $trunks = VendorTrunk::getTrunkDropdownIDList($id);
             $trunk_keys = getDefaultTrunk($trunks);
@@ -631,6 +654,7 @@ class VendorRatesController extends \BaseController
             $save['created_by'] = User::get_user_full_name();
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
+            $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
             $save['Options'] = json_encode($option);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = VendorFileUploadTemplate::find($data['uploadtemplate']);
@@ -705,9 +729,14 @@ class VendorRatesController extends \BaseController
                     $data['Escape'] = $options['option']['Escape'];
                     $data['Firstrow'] = $options['option']['Firstrow'];
                 }
-                $grid = getFileContent($file_name, $data);
+
+                $grid = getFileContent($file_name, $data, $data["start_row"], $data["end_row"]);
                 $grid['tempfilename'] = $file_name;//$upload_path.'\\'.'temp.'.$ext;
                 $grid['filename'] = $file_name;
+
+                $grid['start_row'] = $data["start_row"];
+                $grid['end_row'] = $data["end_row"];
+
                 if (!empty($VendorFileUploadTemplate)) {
                     $grid['VendorFileUploadTemplate'] = json_decode(json_encode($VendorFileUploadTemplate), true);
                     $grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options, true);

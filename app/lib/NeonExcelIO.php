@@ -29,6 +29,8 @@ class NeonExcelIO
     var $Escape;
     var $csvoption;
     public static $COLUMN_NAMES 	= 	0 ;
+    public static $start_row 	= 	0 ;
+    public static $end_row 	= 	0 ;
     public static $DATA    			= 	1;
     public static $EXCEL   			= 	'xlsx'; // Excel file
     public static $EXCELs  			= 	'xls'; // Excel file
@@ -41,7 +43,10 @@ class NeonExcelIO
         $this->sheet = 0;
         $this->first_row = self::$COLUMN_NAMES;
         $this->file_type = self::$CSV;
-
+        if(self::$start_row>0)
+        {
+            self::$start_row--;
+        }
         $this->set_file_type();
         $this->get_file_settings($csvoption);
 
@@ -200,7 +205,7 @@ class NeonExcelIO
             // For First Sheet only.
             if($key == 1) {
 
-                foreach ($sheet->getRowIterator() as $row) {
+                foreach ($sheet->getRowIterator(self::$start_row, self::$end_row) as $row) {
 
                     if($limit > 0 && $limit == $this->row_cnt) {
                         break;
@@ -301,14 +306,26 @@ class NeonExcelIO
 				}
 			}
 			$isExcel = in_array(pathinfo($filepath, PATHINFO_EXTENSION),['xls','xlsx'])?true:false;
-			$results = Excel::selectSheetsByIndex(0)->load($filepath, function ($reader) use ($flag,$isExcel) {
+            $totalRow=0;
+			$results = Excel::selectSheetsByIndex(0)->load($filepath, function ($reader) use ($flag,$isExcel,&$totalRow) {
+                $reader->skip(self::$start_row);
+                $totalRow=$reader->getTotalRowsOfFile();
 				if ($flag == 1) {
 					$reader->noHeading();
 				}
 			})->take($limit)->toArray();
-			
-			return $results;
-				 
+
+             if(count($results) && self::$end_row)
+             {
+                $requiredRow = $totalRow - self::$end_row - self::$start_row-1;
+                $countRow =count($results);
+                for($i=$requiredRow ; $i < $countRow; $i++)
+                {
+                    unset($results[$i]);
+                }
+             }
+
+         return $results;
 	 }
 	///////////
 

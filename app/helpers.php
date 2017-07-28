@@ -508,11 +508,12 @@ function get_image_data($path){
 }
 
 
-function getFileContent($file_name,$data){
+function getFileContent($file_name,$data,$start_row=0,$end_row=0){
     $columns = [];
     $grid = [];
     $flag = 0;
-
+    NeonExcelIO::$start_row=$start_row;
+    NeonExcelIO::$end_row=$end_row;
     $NeonExcel = new NeonExcelIO($file_name, $data);
     $results = $NeonExcel->read(10);
 
