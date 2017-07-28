@@ -581,10 +581,18 @@ jQuery(document).ready(function ($) {
         var body = $('#table-4 tbody');
         tr.empty();
         body.empty();
+
+        if(typeof data.columns != "undefined")
+        {
+            $.each( data.columns, function( key, value ) {
+                tr.append('<th>'+value+'</th>');
+            });
+        }
+
         var count=0;
         $.each( data.rows, function(key, row) {
             var tr = '<tr>';
-            if(count==0)
+            if(count==0 && typeof data.columns=="undefined")
             {
                 $.each( row, function(key, item) {
                     if(typeof item == 'object' && item != null ){
