@@ -516,6 +516,8 @@ function getFileContent($file_name,$data,$start_row=0,$end_row=0){
     NeonExcelIO::$end_row=$end_row;
     $NeonExcel = new NeonExcelIO($file_name, $data);
     $results = $NeonExcel->read(10);
+    $file_type = $NeonExcel->file_type;
+
 
     /*
     if (!empty($data['Delimiter'])) {
@@ -568,6 +570,8 @@ function getFileContent($file_name,$data,$start_row=0,$end_row=0){
         Log::error($ex);
     }
 
+
+    $grid["fileType"]=$file_type;
     $grid['columns'] = $columns;
     $grid['rows'] = $results;
     $grid['filename'] = $file_name;

@@ -582,7 +582,7 @@ jQuery(document).ready(function ($) {
         tr.empty();
         body.empty();
 
-        if(typeof data.columns != "undefined")
+        if(data.fileType != "xls")
         {
             $.each( data.columns, function( key, value ) {
                 tr.append('<th>'+value+'</th>');
@@ -592,7 +592,7 @@ jQuery(document).ready(function ($) {
         var count=0;
         $.each( data.rows, function(key, row) {
             var tr = '<tr>';
-            if(count==0 && typeof data.columns=="undefined")
+            if(count==0 && data.fileType == "xls")
             {
                 $.each( row, function(key, item) {
                     if(typeof item == 'object' && item != null ){
