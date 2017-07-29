@@ -198,8 +198,6 @@ class ImportsController extends \BaseController {
                 $mor = new CallShop($CompanyGatewayID);
                 $response1 = $mor->getAccountsDetail($param);
             }elseif($gateway == 'Streamco'){
-                if(Input::has('AccountType'))
-                    $param['AccountType'] = Input::get('AccountType', '');
                 $param['ImportDate'] = date('Y-m-d H:i:s.000');
                 $streamco = new Streamco($CompanyGatewayID);
                 $response1 = $streamco->getAccountsDetail($param);

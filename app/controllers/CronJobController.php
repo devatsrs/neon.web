@@ -172,16 +172,11 @@ class CronJobController extends \BaseController {
             }else if($CronJobCommand->Command == 'vendorratefilegenerator'){
                 $vendors = Account::getVendorIDList();
                 $vendors = array_diff($vendors, array('Select'));
-            }/*else if($CronJobCommand->Command == 'customerratefiledownload' || $CronJobCommand->Command == 'vendorratefiledownload' || $CronJobCommand->Command == 'customerratefileprocess' || $CronJobCommand->Command == 'vendorratefileprocess'){
-                $gateway = Gateway::where('Name','Stremco')->lists('Name', 'GatewayID');
-                $gateway = array_diff($gateway, array('Select'));
-            }*/
-			 
+            }
 
             $commandconfig = json_decode($commandconfig,true);
 
-
-            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors','gateway'));
+            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors'));
         }
         return '';
     }
