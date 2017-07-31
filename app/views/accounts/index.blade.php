@@ -1014,6 +1014,7 @@
             $("#BulkAction-form [name='BillingTimezone']").select2().select2('val', '');
             $("#BulkAction-form [name='BillingCycleType']").select2().select2('val', '');
             $("#BulkAction-form [name='SendInvoiceSetting']").select2().select2('val', '');
+            $("#BulkAction-form [name='AutoPaymentSetting']").select2().select2('val', 'never');
             $('.save').button('reset');
             el.modal('show');
         });
@@ -1504,6 +1505,14 @@
                             <input type="checkbox" name="BulkSendInvoiceSettingCheck" class="bulkbillinghide">
                             <span>Send Invoice via Email</span></label><br>
                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, '' ,array("class"=>'form-control select2 '))}}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-3" class="control-label">
+                            <input type="checkbox" name="BulkAutoPaymentSettingCheck" class="bulkbillinghide">
+                            <span>Auto Invoice Pay</span></label><br>
+                        {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, 'never' ,array("class"=>'form-control select2 small'))}}
                     </div>
                 </div>
             </div>

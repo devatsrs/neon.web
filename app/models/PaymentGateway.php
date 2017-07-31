@@ -72,7 +72,7 @@ class PaymentGateway extends \Eloquent {
                 }else{
                     $Status = TransactionLog::FAILED;
                     $Notes = empty($transaction['error']) ? '' : $transaction['error'];
-                    AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
+                    //AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
                 }
                 $transactionResponse['transaction_notes'] =$Notes;
                 if(!empty($transaction['response_code'])) {
@@ -118,18 +118,18 @@ class PaymentGateway extends \Eloquent {
 
                 $Notes = '';
                 if(!empty($transaction['response_code']) && $transaction['response_code'] == 1) {
-                    $Notes = 'Stripe transaction_id ' . $transaction['id'];
+                    $Notes = 'Stripe ACH transaction_id ' . $transaction['id'];
                     $Status = TransactionLog::SUCCESS;
                 }else{
                     $Status = TransactionLog::FAILED;
                     $Notes = empty($transaction['error']) ? '' : $transaction['error'];
-                    AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
+                    //AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
                 }
                 $transactionResponse['transaction_notes'] =$Notes;
                 if(!empty($transaction['response_code'])) {
                     $transactionResponse['response_code'] = $transaction['response_code'];
                 }
-                $transactionResponse['transaction_payment_method'] = 'CREDIT CARD';
+                $transactionResponse['transaction_payment_method'] = 'BANK TRANSFER';
                 $transactionResponse['failed_reason'] = $Notes;
                 if(!empty($transaction['id'])) {
                     $transactionResponse['transaction_id'] = $transaction['id'];

@@ -2354,7 +2354,7 @@ class InvoicesController extends \BaseController {
             $stripepayment = new StripeACH();
 
             if(empty($stripepayment->status)){
-                return Response::json(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
+                return Response::json(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
             }
             $StripeResponse = array();
 

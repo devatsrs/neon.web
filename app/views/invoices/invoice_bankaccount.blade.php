@@ -1,3 +1,4 @@
+<script src="{{URL::to('/')}}/assets/js/bootstrap.min.js"></script>
 <div class="modal-body">
 <div class="row">
 	<div class="col-md-3"> </div>
@@ -41,6 +42,7 @@
 
                     $('.paynow').click(function(e) {
 						e.preventDefault();
+						$(this).button('loading');
 
 						var self= $(this);
 						var AccountPaymentProfileID = self.attr('data-id');
@@ -58,6 +60,7 @@
 							type: 'POST',
 							dataType: 'json',
 							success: function (response) {
+								$(".paynow").button('reset');
 								if(response.status =='success'){
 									toastr.success(response.message, "Success", toastr_opts);
 									window.location = '{{URL::to('/')}}/invoice_thanks/{{$Invoice->AccountID}}-{{$Invoice->InvoiceID}}';
@@ -66,6 +69,7 @@
 								}
 							},
 							error: function(error) {
+								$(".paynow").button('reset');
 								toastr.error(response.message, "Error", toastr_opts);
 							},
 							// Form data

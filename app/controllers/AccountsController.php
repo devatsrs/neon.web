@@ -627,25 +627,27 @@ class AccountsController extends \BaseController {
                // $this->sendPasswordEmail($account, $password, $data);
             }
 
-            if(is_authorize() && $data['PaymentMethod']=='AuthorizeNet') {
+            if(!empty($data['PaymentMethod'])) {
+                if (is_authorize() && $data['PaymentMethod'] == 'AuthorizeNet') {
 
-                $PaymentGatewayID = PaymentGateway::AuthorizeNet;
-                $PaymentProfile = AccountPaymentProfile::where(['AccountID' => $id])
-                    ->where(['CompanyID' => $companyID])
-                    ->where(['PaymentGatewayID' => $PaymentGatewayID])
-                    ->first();
-                if (!empty($PaymentProfile)) {
-                    $options = json_decode($PaymentProfile->Options);
-                    $ProfileID = $options->ProfileID;
-                    $ShippingProfileID = $options->ShippingProfileID;
+                    $PaymentGatewayID = PaymentGateway::AuthorizeNet;
+                    $PaymentProfile = AccountPaymentProfile::where(['AccountID' => $id])
+                        ->where(['CompanyID' => $companyID])
+                        ->where(['PaymentGatewayID' => $PaymentGatewayID])
+                        ->first();
+                    if (!empty($PaymentProfile)) {
+                        $options = json_decode($PaymentProfile->Options);
+                        $ProfileID = $options->ProfileID;
+                        $ShippingProfileID = $options->ShippingProfileID;
 
-                    //If using Authorize.net
-                    $isAuthorizedNet = SiteIntegration::CheckIntegrationConfiguration(false, SiteIntegration::$AuthorizeSlug);
-                    if ($isAuthorizedNet) {
-                        $AuthorizeNet = new AuthorizeNet();
-                        $result = $AuthorizeNet->UpdateShippingAddress($ProfileID, $ShippingProfileID, $shipping);
-                    } else {
-                        return Response::json(array("status" => "success", "message" => "Payment Method Not Integrated"));
+                        //If using Authorize.net
+                        $isAuthorizedNet = SiteIntegration::CheckIntegrationConfiguration(false, SiteIntegration::$AuthorizeSlug);
+                        if ($isAuthorizedNet) {
+                            $AuthorizeNet = new AuthorizeNet();
+                            $result = $AuthorizeNet->UpdateShippingAddress($ProfileID, $ShippingProfileID, $shipping);
+                        } else {
+                            return Response::json(array("status" => "success", "message" => "Payment Method Not Integrated"));
+                        }
                     }
                 }
             }
@@ -1465,7 +1467,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
            !isset($data['BulkBillingTimezoneCheck'])&&
            !isset($data['BulkBillingStartDateCheck'])&&
            !isset($data['BulkBillingCycleTypeCheck'])&&
-           !isset($data['BulkSendInvoiceSettingCheck'])
+           !isset($data['BulkSendInvoiceSettingCheck'])&&
+           !isset($data['BulkAutoPaymentSettingCheck'])
 		  )
 		{
 			return Response::json(array("status" => "error", "message" => "Please select at least one option."));
@@ -1562,6 +1565,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 if(!empty($data['SendInvoiceSetting'])){
                     $update_billing=1;
                     $billingupdate['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
+                }
+            }
+            if(isset($data['BulkAutoPaymentSettingCheck'])){
+                if(!empty($data['AutoPaymentSetting'])){
+                    $update_billing=1;
+                    $billingupdate['AutoPaymentSetting'] = $data['AutoPaymentSetting'];
                 }
             }
 

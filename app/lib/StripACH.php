@@ -162,7 +162,12 @@ class StripeACH {
 		$customerId = $customer['id'];
 		$bankAccountId = $customer['default_source'];
 		try{
-			$varify = Stripe::BankAccounts()->verify($customerId,$bankAccountId,array(32, 45));
+			/**
+			 * Need to add to micro payment
+			 * for test purpose just add 32,45
+			*/
+			//$varify = Stripe::BankAccounts()->verify($customerId,$bankAccountId,array(32, 45));
+			$varify = Stripe::BankAccounts()->verify($customerId,$bankAccountId,array(1, 1));
 			Log::info(print_r($varify,true));
 			if(!empty($varify['id'])){
 				$response['status'] = 'Success';

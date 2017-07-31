@@ -15,6 +15,7 @@ if( typeof neon_summernote_options == 'undefined') {
     "leadoptions": true,
     "TicketsSingle": false,
     "invoiceoptions": false,
+    "autopaymentoptions": false,
     "Cronjobs": false,
     "estimateoptions": false,
     "ratesheetoptions": false,
@@ -88,6 +89,34 @@ var dropdown_text =  {
     InvoiceLink:"InvoiceLink",
     AccountName:"AccountName",
     Signature:"Signature",
+  },
+    autopaymentoptions:{
+    FirstName:"FirstName",
+    LastName:"LastName",
+    Email:"Email",
+    Address1:"Address1",
+    Address2:"Address2",
+    Address3:"Address3",
+    City:"City",
+    State:"State",
+    PostCode:"PostCode",
+    Country:"Country",
+    Currency:"Currency",
+    PaidAmount:"PaidAmount",
+    PaidStatus:"PaidStatus",
+    PaymentMethod:"PaymentMethod",
+    PaymentNotes:"PaymentNotes",
+    CurrencySign:"CurrencySign",
+    InvoiceNumber:"InvoiceNumber",
+    InvoiceGrandTotal:"InvoiceGrandTotal",
+    InvoiceOutstanding:"InvoiceOutstanding",
+    OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
+    OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
+    BalanceThreshold:"BalanceThreshold",
+    Signature:"Signature",
+    CompanyName:"CompanyName",
+    InvoiceLink:"InvoiceLink",
+    AccountName:"AccountName"
   },
   estimateoptions:{
     FirstName:"FirstName",
@@ -274,6 +303,45 @@ var neon_summernote_dropdown_tpl = {
           "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
           "<li class='unclick'><a ><b>Others</b></a></li>" +
           "<li><a data-value='{{Signature}}'>" + dropdown_text.invoiceoptions.Signature + "</a></li>" ;
+    },
+    "autopaymentoptions": function () {
+
+        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+            "<li><a data-value='{{AccountName}}'>" + dropdown_text.autopaymentoptions.AccountName + "</a></li>" +
+            "<li><a data-value='{{FirstName}}'>" + dropdown_text.autopaymentoptions.FirstName + "</a></li>" +
+            "<li><a data-value='{{LastName}}'>" + dropdown_text.autopaymentoptions.LastName + "</a></li>" +
+            "<li><a data-value='{{Email}}'>" + dropdown_text.autopaymentoptions.Email + "</a></li>" +
+            "<li><a data-value='{{Address1}}'>" + dropdown_text.autopaymentoptions.Address1 + "</a></li>" +
+            "<li><a data-value='{{Address2}}'>" + dropdown_text.autopaymentoptions.Address2 + "</a></li>" +
+            "<li><a data-value='{{Address3}}'>" + dropdown_text.autopaymentoptions.Address3 + "</a></li>" +
+            "<li><a data-value='{{City}}'>" + dropdown_text.autopaymentoptions.City + "</a></li>" +
+            "<li><a data-value='{{State}}'>" + dropdown_text.autopaymentoptions.State + "</a></li>" +
+            "<li><a data-value='{{PostCode}}'>" + dropdown_text.autopaymentoptions.PostCode + "</a></li>" +
+            "<li><a data-value='{{Country}}'>" + dropdown_text.autopaymentoptions.Country + "</a></li>" +
+            "<li><a data-value='{{Currency}}'>" + dropdown_text.autopaymentoptions.Currency + "</a></li>" +
+            "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.autopaymentoptions.CurrencySign + "</a></li>" +
+            "<li class='unclick'><a ><b>Auto Payment Fields</b></a></li>" +
+            "<li><a data-value='{{PaidAmount}}'>" + dropdown_text.autopaymentoptions.PaidAmount + "</a></li>" +
+            "<li><a data-value='{{PaidStatus}}'>" + dropdown_text.autopaymentoptions.PaidStatus + "</a></li>" +
+            "<li><a data-value='{{PaymentMethod}}'>" + dropdown_text.autopaymentoptions.PaymentMethod + "</a></li>" +
+            "<li><a data-value='{{PaymentNotes}}'>" + dropdown_text.autopaymentoptions.PaymentNotes + "</a></li>" +
+            "<li class='unclick'><a ><b>Invoice Fields</b></a></li>" +
+            "<li><a data-value='{{InvoiceNumber}}'>" + dropdown_text.autopaymentoptions.InvoiceNumber + "</a></li>" +
+            "<li><a data-value='{{InvoiceGrandTotal}}'>" + dropdown_text.autopaymentoptions.InvoiceGrandTotal + "</a></li>" +
+            "<li><a data-value='{{InvoiceOutstanding}}'>" + dropdown_text.autopaymentoptions.InvoiceOutstanding + "</a></li>" +
+            "<li><a data-value='{{InvoiceLink}}'>" + dropdown_text.autopaymentoptions.InvoiceLink + "</a></li>" +
+            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
+            "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
+            "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
+            "<li><a data-value='{{CompanyAddress2}}'>" + dropdown_text.Company.Address2 + "</a></li>" +
+            "<li><a data-value='{{CompanyAddress3}}'>" + dropdown_text.Company.Address3 + "</a></li>" +
+            "<li><a data-value='{{CompanyCity}}'>" + dropdown_text.Company.City + "</a></li>" +
+            "<li><a data-value='{{CompanyPostCode}}'>" + dropdown_text.Company.PostCode + "</a></li>" +
+            "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
+            "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
+            "<li class='unclick'><a ><b>Others</b></a></li>" +
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.autopaymentoptions.Signature + "</a></li>" ;
     },
     "tasks": function () {
       return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
