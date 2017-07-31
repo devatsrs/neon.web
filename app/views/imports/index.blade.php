@@ -130,12 +130,6 @@
                 <span id="gateway_filter"></span>
                 <span id="get_account"></span>
                 <span class="gatewayloading">Retrieving Accounts ... </span>
-                <p style="float: left">
-                    <select id="AccountType" class="form-control" style="display: none;">
-                        <option value="customers" selected="selected">Customers</option>
-                        <option value="vendors">Vendors</option>
-                    </select>
-                </p>
                 <p style="float: right">
                     <button type="button" id="uploadaccount"  class="btn btn-primary "><i class="entypo-download"></i><span>Import</span></button>
                 </p>
@@ -829,72 +823,21 @@
 
         $("#gateway_filter").click(function(e) {
             var CompanyGatewayID = $("#rootwizard-2 input[name='size']:checked").attr('data-id');
-            //var gateway = $("#rootwizard-2 input[name='size']:checked").attr('data-name');
             var gateway = $("#rootwizard-2 input[name='size']:checked").val();
-            //var CompanyGatewayID = $("#gatewayimport input[name='CompanyGatewayID']").val();
-            var AccountType = gateway=='Streamco' ? '&AccountType=customers' : '';
             $.ajax({
                 url: baseurl + '/import/account/getAccountInfoFromGateway/' + CompanyGatewayID + '/' + gateway,
                 type: 'POST',
                 datatype: 'json',
-                data: 'gateway=' + gateway + AccountType,
+                data: 'gateway=' + gateway,
                 beforeSend: function(){
                     $(".gatewayloading").show();
                 },
                 success: function (response) {
-                    //$('#importaccount').button('reset');
                     $('.gatewayloading').hide();
                     if (response.status == 'success') {
-                        //$('#importaccount').hide();
                         $("#gatewayimport input[name='importaccountsuccess']").val('1');
                         $("#gatewayimport .importsuccessmsg").html('Account Succesfully Import. Please click on next.');
                         $("#gatewayimport input[name='importprocessid']").val(response.processid);
-                        //toastr.success(response.message, "Success", toastr_opts);
-                        $('#get_account').trigger('click');
-                        $('#uploadaccount').show();
-                        $('.pager li .next').addClass('disabled');
-                        if(gateway == 'Streamco') {
-                            jQuery('#AccountType').show();
-                        } else {
-                            jQuery('#AccountType').hide();
-                        }
-                    } else {
-                        toastr.error(response.message, "Error", toastr_opts);
-                        $('#get_account').trigger('click');
-                        $('#uploadaccount').show();
-                        $('.pager li .next').addClass('disabled');
-                    }
-                }
-            });
-
-        });
-
-        jQuery('#AccountType').change(function() {
-            var CompanyGatewayID = $("#rootwizard-2 input[name='size']:checked").attr('data-id');
-            var gateway = $("#rootwizard-2 input[name='size']:checked").val();
-
-            if(gateway == 'Streamco') {
-                var AccountType = "&AccountType="+jQuery('#AccountType').val();
-            } else {
-                var AccountType = "";
-            }
-            $.ajax({
-                url: baseurl + '/import/account/getAccountInfoFromGateway/' + CompanyGatewayID + '/' + gateway,
-                type: 'POST',
-                datatype: 'json',
-                data: 'gateway=' + gateway + AccountType,
-                beforeSend: function(){
-                    $(".gatewayloading").show();
-                },
-                success: function (response) {
-                    //$('#importaccount').button('reset');
-                    $('.gatewayloading').hide();
-                    if (response.status == 'success') {
-                        //$('#importaccount').hide();
-                        $("#gatewayimport input[name='importaccountsuccess']").val('1');
-                        $("#gatewayimport .importsuccessmsg").html('Account Succesfully Import. Please click on next.');
-                        $("#gatewayimport input[name='importprocessid']").val(response.processid);
-                        //toastr.success(response.message, "Success", toastr_opts);
                         $('#get_account').trigger('click');
                         $('#uploadaccount').show();
                         $('.pager li .next').addClass('disabled');
@@ -906,6 +849,7 @@
                     }
                 }
             });
+
         });
 
         $("#get_account").click(function(e) {
