@@ -6,17 +6,36 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_updateRateID`(
 )
 BEGIN
 
-	SET @stm = CONCAT('
-	INSERT IGNORE INTO tblRate (CountryID,Description,CompanyID,CodeDeckId,Code,Interval1,IntervalN,CreatedBy)
-	SELECT DISTINCT fnGetCountryIdByCodeAndCountry(temp.Code,temp.Description),temp.Description,temp.CompanyID,"' , p_CodeDeckID , '",temp.Code,temp.Interval1,temp.IntervalN,"SYSTEM IMPOERTED"
-	FROM `' , p_tbltemp_name , '` temp 
-	LEFT JOIN tblRate code ON code.CompanyID = temp.CompanyID AND code.Code = temp.Code AND code.CodeDeckId="' , p_CodeDeckID , '"
-	WHERE ProcessID="' , p_ProcessID , '" AND code.RateID IS NULL;
-	');
+	DECLARE v_code_count INT;
+	SET @rowcount = 1;
 
-	PREPARE stm FROM @stm;
-	EXECUTE stm;
-	DEALLOCATE PREPARE stm;
+	WHILE @rowcount  > 0 DO
+
+		SET @stm = CONCAT('
+		INSERT IGNORE INTO tblRate (CountryID,Description,CompanyID,CodeDeckId,Code,Interval1,IntervalN,CreatedBy)
+		SELECT DISTINCT fnGetCountryIdByCodeAndCountry(temp.Code,temp.Description),temp.Description,temp.CompanyID,"' , p_CodeDeckID , '",temp.Code,temp.Interval1,temp.IntervalN,"SYSTEM IMPOERTED"
+		FROM `' , p_tbltemp_name , '` temp 
+		LEFT JOIN tblRate code ON code.CompanyID = temp.CompanyID AND code.Code = temp.Code AND code.CodeDeckId="' , p_CodeDeckID , '"
+		WHERE ProcessID="' , p_ProcessID , '" AND code.RateID IS NULL
+		LIMIT 1000;
+		');
+
+		PREPARE stm FROM @stm;
+		EXECUTE stm;
+		DEALLOCATE PREPARE stm;
+		SET @stm = CONCAT('
+
+		SELECT COUNT(DISTINCT temp.Code) INTO @rowcount
+		FROM `' , p_tbltemp_name , '` temp 
+		LEFT JOIN tblRate code ON code.CompanyID = temp.CompanyID AND code.Code = temp.Code AND code.CodeDeckId="' , p_CodeDeckID , '"
+		WHERE ProcessID="' , p_ProcessID , '" AND code.RateID IS NULL;
+		');
+
+		PREPARE stm FROM @stm;
+		EXECUTE stm;
+		DEALLOCATE PREPARE stm;
+
+	END WHILE;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_codes_;
 	CREATE TEMPORARY TABLE tmp_codes_ (
