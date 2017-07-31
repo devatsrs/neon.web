@@ -1,7 +1,9 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPaymentPendingInvoice`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getPaymentPendingInvoice`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
 	IN `p_PaymentDueInDays` INT 
+
+
 )
 BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -22,13 +24,15 @@ BEGIN
 		AND p.Status = 'Approved'
 		AND p.Recall = 0
 	WHERE i.CompanyID = p_CompanyID
-	AND i.InvoiceStatus != 'cancel'
+	AND i.InvoiceStatus NOT IN ( 'cancel' , 'draft' , 'paid','post')
+	AND ( (i.ItemInvoice IS NULL) OR (i.ItemInvoice=1 AND i.RecurringInvoiceID IS NOT NULL))
+	AND i.InvoiceType =1
 	AND i.AccountID = p_AccountID
 	AND (p_PaymentDueInDays =0  OR (p_PaymentDueInDays =1 AND TIMESTAMPDIFF(DAY, i.IssueDate, NOW()) >= IFNULL(b.PaymentDueInDays,0) ) )
 
 	GROUP BY i.InvoiceID,
 			 p.AccountID
-	HAVING (IFNULL(MAX(i.GrandTotal), 0) - IFNULL(SUM(p.Amount), 0)) > 0;	
+	HAVING (IFNULL(MAX(i.GrandTotal), 0) - IFNULL(SUM(p.Amount), 0)) > 0;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
