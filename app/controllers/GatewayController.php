@@ -71,6 +71,12 @@ class GatewayController extends \BaseController {
         if(isset($data['password']) && !empty($data['password'])){
             $data['password'] = Crypt::encrypt($data['password']);
         }
+        if(isset($data['dbpassword']) && !empty($data['dbpassword'])){
+            $data['dbpassword'] = Crypt::encrypt($data['dbpassword']);
+        }
+        if(isset($data['sshpassword']) && !empty($data['sshpassword'])){
+            $data['sshpassword'] = Crypt::encrypt($data['sshpassword']);
+        }
         $today = date('Y-m-d');
         $data['CreatedBy'] = User::get_user_full_name();
         $data['created_at'] =  $today;
@@ -138,6 +144,22 @@ class GatewayController extends \BaseController {
                 $settings = json_decode($CompanyGateway->Settings,true);
                 if(isset($settings["password"])&& !empty($settings["password"])){
                     $data['password'] = $settings["password"];
+                }
+            }
+            if(isset($data['dbpassword']) && !empty($data['dbpassword'])){
+                $data['dbpassword'] = Crypt::encrypt($data['dbpassword']);
+            }else {
+                $settings = json_decode($CompanyGateway->Settings,true);
+                if(isset($settings["dbpassword"])&& !empty($settings["dbpassword"])){
+                    $data['dbpassword'] = $settings["dbpassword"];
+                }
+            }
+            if(isset($data['sshpassword']) && !empty($data['sshpassword'])){
+                $data['sshpassword'] = Crypt::encrypt($data['sshpassword']);
+            }else {
+                $settings = json_decode($CompanyGateway->Settings,true);
+                if(isset($settings["sshpassword"])&& !empty($settings["sshpassword"])){
+                    $data['sshpassword'] = $settings["sshpassword"];
                 }
             }
             $validator = Validator::make($data, $rules);

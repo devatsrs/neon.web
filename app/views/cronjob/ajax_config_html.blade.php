@@ -68,6 +68,30 @@
                 </div>
             </div>
         @endif
+        @if (isset($customers) && count($customers) > 0)
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="drp_rateGenerators" class="control-label ">Customers</label>
+                    {{Form::select('Setting[customers][]', $customers, (isset($commandconfigval->customers)?$commandconfigval->customers:'') ,array("id"=>"customers" ,"class"=>"select2",'multiple',"data-placeholder"=>"Select Customers"))}}
+                </div>
+            </div>
+        @endif
+        @if (isset($vendors) && count($vendors) > 0)
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="drp_rateGenerators" class="control-label ">Vendors</label>
+                    {{Form::select('Setting[vendors][]', $vendors, (isset($commandconfigval->vendors)?$commandconfigval->vendors:'') ,array("id"=>"vendors" ,"class"=>"select2",'multiple',"data-placeholder"=>"Select Vendors"))}}
+                </div>
+            </div>
+        @endif
+        @if (isset($gateway) && count($gateway) > 0)
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="drp_rateGenerators" class="control-label ">Gateway</label>
+                    {{Form::select('Setting[gateway]', $gateway, (isset($commandconfigval->gateway)?$commandconfigval->gateway:'') ,array("id"=>"gateway" ,"class"=>"select2"))}}
+                </div>
+            </div>
+        @endif
 @foreach((array)$commandconfig as  $config)
 @foreach((array)$config as $configtitle)
     <?php

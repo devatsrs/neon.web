@@ -422,7 +422,7 @@
                     <div class="form-group">
                         <label for="field-1" class="control-label">* Live:</label>
                         <div id="SagePayLiveDiv">
-                            <input id="isLive" class="subcatstatus" Divid="SagePayLiveDiv" name="isLive" type="checkbox" value="1" <?php if(isset($SagePayDbData->isLive) && $SagePayDbData->isLive==1){ ?>   checked="checked"<?php } ?> >
+                            <input id="isLive" class="subcatstatus" Divid="SagePayLiveDiv" name="isLive" type="checkbox" value="1" <?php if(isset($SagePayData->isLive) && $SagePayData->isLive==1){ ?>   checked="checked"<?php } ?> >
                         </div>
                     </div>
                 </div>
