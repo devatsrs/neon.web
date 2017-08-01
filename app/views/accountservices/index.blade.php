@@ -645,6 +645,8 @@
                                 <div class="checkbox ">
                                     <label><input id="rd-1" name="ServiceTitle" checked="" value="1" type="checkbox">ServiceTitle</label>
                                     &nbsp;&nbsp;
+                                    <label><input id="rd-1" name="ServiceDescription" checked="" value="1" type="checkbox">ServiceDescription</label>
+                                    &nbsp;&nbsp;
                                     <label><input id="rd-1" name="Subscription" checked="" value="1" type="checkbox">Subscription</label>
                                     &nbsp;&nbsp;
                                     <label><input id="rd-1" name="Additional" checked="" value="1" type="checkbox">Additional Charges</label>
