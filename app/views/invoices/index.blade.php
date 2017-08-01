@@ -8,32 +8,33 @@
 <h3>Invoice</h3>
 @include('includes.errors')
     @include('includes.success')
-<p style="text-align: right;">
+<div class="col-md-12" style="padding-bottom: 5px;">
+    @if(User::checkCategoryPermission('Invoice','Generate'))
+    <div class="pull-right"> &nbsp;</div>
+    <div class="input-group-btn pull-right" style="width: 90px;">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Generate <span class="caret"></span></button>
+        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%"> Manual </a> </li>
+                <li> <a id="generate-new-invoice" href="javascript:;">Automatic</a> </li>
 
-    @if(User::checkCategoryPermission('RecurringProfile','View'))
-        <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > <i class="entypo-cw"></i> </a>
+        </ul>
+    </div>
     @endif
     @if(User::checkCategoryPermission('Invoice','Add'))
-        <a href="javascript:;" id="invoice-in" class="btn btn-primary tooltip-primary " data-original-title="Add Invoice Received" title="" data-placement="top" data-toggle="tooltip">
-            <img src="assets/images/icons/165.png" width="16" height="16">
-        </a>
-        <a href="{{URL::to("invoice/create")}}" id="add-new-invoice" class="btn btn-primary tooltip-primary " data-original-title="Add Oneoff Invoice" title="" data-placement="top" data-toggle="tooltip">
-            <img src="assets/images/icons/167.png" width="16" height="16">
-        </a>
+    <div class="pull-right"> &nbsp;</div>
+    <div class="input-group-btn pull-right" style="width: 100px;">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
+        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff Invoice </a> </li>
+                <li> <a id="invoice-in" href="javascript:;">Invoice Received</a> </li>
+        </ul>
+    </div>
     @endif
-    @if(User::checkCategoryPermission('Invoice','Generate'))
-        <a href="javascript:;" id="manual_billing" class="btn  btn-primary tooltip-primary manual_billing " data-original-title="Manual Invoice" title="" data-placement="top" data-toggle="tooltip">
-            <img src="assets/images/icons/169.png" width="16" height="16">
-        </a>
-        <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary tooltip-primary " data-original-title="Generate Invoice" title="" data-placement="top" data-toggle="tooltip">
-            <img src="assets/images/icons/161.png" width="16" height="16">
-        </a>
-        @endif
-  <!-- <a href="javascript:;" id="bulk-invoice" class="btn upload btn-primary ">
-        <i class="entypo-upload"></i>
-        Bulk Invoice Generate.
-    </a>--> 
-</p>
+    @if(User::checkCategoryPermission('RecurringProfile','View'))
+    <div class="pull-right"> &nbsp;</div>
+    <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > <i class="entypo-cw"></i> </a>
+    @endif
+</div>
 <div class="tab-content">
   <div class="tab-pane active">
     <div class="row">
