@@ -581,18 +581,11 @@ jQuery(document).ready(function ($) {
         var body = $('#table-4 tbody');
         tr.empty();
         body.empty();
-
-        if(data.fileType != "xls")
-        {
-            $.each( data.columns, function( key, value ) {
-                tr.append('<th>'+value+'</th>');
-            });
-        }
-
         var count=0;
+        
         $.each( data.rows, function(key, row) {
             var tr = '<tr>';
-            if(count==0 && data.fileType == "xls")
+            if(count==0)
             {
                 $.each( row, function(key, item) {
                     if(typeof item == 'object' && item != null ){

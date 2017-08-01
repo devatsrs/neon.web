@@ -194,6 +194,14 @@ class NeonExcelIO
      * @throws \Box\Spout\Common\Exception\UnsupportedTypeException
      */
     public function read_csv($filepath,$limit=0) {
+        if(self::$start_row>0)
+        {
+            self::$start_row=self::$start_row+1;
+            if($limit>0)
+            {
+                $limit++;
+            }
+        }
 
         $result = array();
         $this->reader = ReaderFactory::create(Type::CSV); // for XLSX files
@@ -204,11 +212,19 @@ class NeonExcelIO
 
             // For First Sheet only.
             if($key == 1) {
+                    foreach ($sheet->getRowIterator() as $row) {
 
-                foreach ($sheet->getRowIterator() as $row) {
+                    if(self::$start_row > $this->row_cnt)
+                    {
+                        $this->row_cnt++;
+                        $limit++;
+                        continue;
+                    }
 
-                    if($limit > 0 && $limit == $this->row_cnt) {
-                        break;
+                    if($limit > 0 && $limit <= $this->row_cnt) {
+//                        break;
+                        $this->row_cnt++;
+                        continue;
                     }
 
                     if ($this->row_cnt == 0 && $this->first_row == self::$COLUMN_NAMES) {
@@ -228,6 +244,19 @@ class NeonExcelIO
                 }
             }
 
+        }
+
+        if(self::$end_row)
+        {
+            $requiredRow = abs($this->row_cnt - self::$end_row - self::$start_row);
+            $totatRow = count($result);
+            if($requiredRow<$limit)
+            {
+                for($i=$requiredRow ; $i < $totatRow; $i++)
+                {
+                    unset($result[$i]);
+                }
+            }
         }
 
         $this->reader->close();
@@ -242,6 +271,14 @@ class NeonExcelIO
 
     public function read_excel($filepath,$limit=0){
 
+        if(self::$start_row>0)
+        {
+            self::$start_row=self::$start_row+1;
+            if($limit>0)
+            {
+                $limit++;
+            }
+        }
 
         $this->reader = ReaderFactory::create(Type::XLSX); // for XLSX files
         $this->reader->open($filepath);
@@ -254,8 +291,17 @@ class NeonExcelIO
 
                 foreach ($sheet->getRowIterator() as $row) {
 
-                    if($limit > 0 && $limit == $this->row_cnt) {
-                        break;
+                    if(self::$start_row > $this->row_cnt)
+                    {
+                        $this->row_cnt++;
+                        $limit++;
+                        continue;
+                    }
+
+                    if($limit > 0 && $limit <= $this->row_cnt) {
+//                        break;
+                        $this->row_cnt++;
+                        continue;
                     }
 
                     if ($this->row_cnt == 0 && $this->first_row == self::$COLUMN_NAMES) {
@@ -273,7 +319,20 @@ class NeonExcelIO
 
                 }
             }
+        }
 
+
+        if(self::$end_row)
+        {
+            $requiredRow = abs($this->row_cnt - self::$end_row - self::$start_row);
+            $totatRow = count($result);
+            if($requiredRow<$limit)
+            {
+                for($i=$requiredRow ; $i < $totatRow; $i++)
+                {
+                    unset($result[$i]);
+                }
+            }
         }
         $this->reader->close();
 
