@@ -197,6 +197,7 @@
         <th width="8%">OS</th>
         <th width="5%">UA</th>
         <th width="5%">CL</th>
+        <th width="5%">AE</th>
         <th width="7%">Email</th>
         <th width="25%">Actions</th>
     </tr>
@@ -357,19 +358,19 @@
                                 return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                             }
                         }, //0Checkbox
-                        { "bSortable": true},
-                        { "bSortable": true},
-                        { "bSortable": true},
+                        { "bSortable": true}, //AccountName
+                        { "bSortable": true}, //Name
+                        { "bSortable": true}, //Phone
                         { "bSortable": true},
                         { "bSortable": true,
                             mRender:function(id, type, full){
                                 if(id !== null) {
                                     popup_html = "<label class='col-sm-6' >Invoice Outstanding:</label><div class='col-sm-6' >" + id + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >" + (full[20] !== null ? full[20] : '')  + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Vendor Unbilled Amount:</label><div class='col-sm-6' >" + (full[21] !== null ? full[21] : '') + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Account Exposure:</label><div class='col-sm-6' >" + (full[22] !== null ? full[22] : '') + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Available Credit Limit:</label><div class='col-sm-6' >" + (full[23] !== null ? full[23] : '') + "</div>";
-                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Balance Threshold:</label><div class='col-sm-6' >" + (full[24] !== null ? full[24] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Customer Unbilled Amount:</label><div class='col-sm-6' >" + (full[21] !== null ? full[21] : '')  + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Vendor Unbilled Amount:</label><div class='col-sm-6' >" + (full[22] !== null ? full[22] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Account Exposure:</label><div class='col-sm-6' >" + (full[23] !== null ? full[23] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Available Credit Limit:</label><div class='col-sm-6' >" + (full[24] !== null ? full[24] : '') + "</div>";
+                                    popup_html += "<div class='clear'></div><label class='col-sm-6' >Balance Threshold:</label><div class='col-sm-6' >" + (full[25] !== null ? full[25] : '') + "</div>";
 
                                     return '<div class="pull-left" data-toggle="popover" data-trigger="hover" data-original-title="aaa" data-content="'+popup_html+'">' +id+ '</div>';
                                 }else{
@@ -388,6 +389,7 @@
                             }
                         },
 						{ "bSortable": true},
+                        { "bSortable": true},//Account exposure
                         { "bSortable": true},
                         {
                             "bSortable": false,
@@ -427,7 +429,7 @@
                                         action +='&nbsp;<button redirecto="'+credit_+'" class="btn small_icons btn-default btn-xs" title="Credit Control" data-id="'+full[0]+'" type="button"> <i class="fa fa-credit-card"></i> </button>';
                                 <?php } ?>
 								
-								if(full[9]==1 || full[10]==1){
+								if(full[10]==1 || full[11]==1){
                                  	action += '&nbsp;<button redirecto="'+authenticate_+'" title="Authentication Rule" class="btn small_icons btn-default btn-xs"><i class="entypo-lock"></i></button>';
                                 } 
 								
@@ -462,35 +464,35 @@
                                 <?php } ?>
 								
 
-                                if(full[9]==1 && full[11]=='{{Account::VERIFIED}}'){
+                                if(full[10]==1 && full[12]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('CustomersRates','View')){ ?>
                                         action += '&nbsp;<button redirecto="'+customer_rate_+'" title="Customer" class="btn small_icons btn-warning btn-xs"><i class="entypo-user"></i></button>';
                                     <?php } ?>
                                 }
 
-                                if(full[10]==1 && full[11]=='{{Account::VERIFIED}}'){
+                                if(full[11]==1 && full[12]=='{{Account::VERIFIED}}'){
                                     <?php if(User::checkCategoryPermission('VendorRates','View')){ ?>
                                         action += '&nbsp;<button redirecto="'+vendor_blocking_+'" title="Vendor" class="btn small_icons btn-info btn-xs"><i class="fa fa-slideshare"></i></button>';
                                     <?php } ?>
                                 } 								
 								
                                 action +='<input type="hidden" name="accountid" value="'+full[0]+'"/>';
-                                action +='<input type="hidden" name="address1" value="'+full[12]+'"/>';
-                                action +='<input type="hidden" name="address2" value="'+full[13]+'"/>';
-                                action +='<input type="hidden" name="address3" value="'+full[14]+'"/>';
-                                action +='<input type="hidden" name="city" value="'+full[15]+'"/>';
-                                action +='<input type="hidden" name="country" value="'+full[16]+'"/>';
-								action +='<input type="hidden" name="PostCode" value="'+full[17]+'"/>';
-                                action +='<input type="hidden" name="picture" value="'+full[18]+'"/>';
+                                action +='<input type="hidden" name="address1" value="'+full[13]+'"/>';
+                                action +='<input type="hidden" name="address2" value="'+full[14]+'"/>';
+                                action +='<input type="hidden" name="address3" value="'+full[15]+'"/>';
+                                action +='<input type="hidden" name="city" value="'+full[16]+'"/>';
+                                action +='<input type="hidden" name="country" value="'+full[17]+'"/>';
+								action +='<input type="hidden" name="PostCode" value="'+full[18]+'"/>';
+                                action +='<input type="hidden" name="picture" value="'+full[19]+'"/>';
                                 action +='<input type="hidden" name="UnbilledAmount" value="'+full[6]+'"/>';
                                 action +='<input type="hidden" name="PermanentCredit" value="'+full[7]+'"/>';
-                                action +='<input type="hidden" name="LowBalance" value="'+full[19]+'"/>';
-                                action +='<input type="hidden" name="CUA" value="'+full[20]+'"/>';
-                                action +='<input type="hidden" name="VUA" value="'+full[21]+'"/>';
-                                action +='<input type="hidden" name="AE" value="'+full[22]+'"/>';
-                                action +='<input type="hidden" name="ACL" value="'+full[23]+'"/>';
-                                action +='<input type="hidden" name="BalanceThreshold" value="'+full[24]+'"/>';
-                                action +='<input type="hidden" name="Blocked" value="'+full[25]+'"/>';
+                                action +='<input type="hidden" name="LowBalance" value="'+full[20]+'"/>';
+                                action +='<input type="hidden" name="CUA" value="'+full[21]+'"/>';
+                                action +='<input type="hidden" name="VUA" value="'+full[22]+'"/>';
+                                action +='<input type="hidden" name="AE" value="'+full[23]+'"/>';
+                                action +='<input type="hidden" name="ACL" value="'+full[24]+'"/>';
+                                action +='<input type="hidden" name="BalanceThreshold" value="'+full[25]+'"/>';
+                                action +='<input type="hidden" name="Blocked" value="'+full[26]+'"/>';
                                 return action;
                             }
                         },
@@ -542,7 +544,7 @@
                 if(childrens.eq(0).hasClass('dataTables_empty')){
                     return true;
                 }
-                var temp = childrens.eq(9).clone(); 
+                var temp = childrens.eq(10).clone();
                 /*$(temp).find('a').each(function () {
                    // $(this).find('i').remove();
                     $(this).removeClass('btn btn-icon icon-left');
@@ -619,7 +621,7 @@
 				if(account_name.length>40){
 					account_name  = account_name.substring(0,40)+"...";	
 				}
-				var account_email = childrens.eq(8).text();
+				var account_email = childrens.eq(9).text();
 				if(account_email.length>65){
 					account_email  = account_email.substring(0,65)+"...";
 				}

@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetAccounts`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetAccounts`(
 	IN `p_CompanyID` int,
 	IN `p_userID` int ,
 	IN `p_IsVendor` int ,
@@ -15,12 +15,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetAccounts`(
 	IN `p_RowspPage` INT,
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
-	IN `p_isExport` INT 
+	IN `p_isExport` INT
+
 )
 BEGIN
 	DECLARE v_OffSet_ int;
 	DECLARE v_Round_ int;
-	
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
@@ -31,15 +32,16 @@ BEGIN
 
 		SELECT
 			tblAccount.AccountID,
-			tblAccount.Number, 
+			tblAccount.Number,
 			tblAccount.AccountName,
 			CONCAT(tblAccount.FirstName,' ',tblAccount.LastName) as Ownername,
-			tblAccount.Phone, 
+			tblAccount.Phone,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.SOAOffset,0),v_Round_)) as OutStandingAmount,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.UnbilledAmount,0),v_Round_) - ROUND(COALESCE(abc.VendorUnbilledAmount,0),v_Round_)) as UnbilledAmount,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.PermanentCredit,0),v_Round_)) as PermanentCredit,
-			tblAccount.Email, 
-			tblAccount.IsCustomer, 
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.BalanceAmount,0),v_Round_)) as AccountExposure,
+			tblAccount.Email,
+			tblAccount.IsCustomer,
 			tblAccount.IsVendor,
 			tblAccount.VerificationStatus,
 			tblAccount.Address1,
@@ -48,7 +50,7 @@ BEGIN
 			tblAccount.City,
 			tblAccount.Country,
 			tblAccount.PostCode,
-			tblAccount.Picture,			
+			tblAccount.Picture,
 			IF ( (CASE WHEN abc.BalanceThreshold LIKE '%p' THEN REPLACE(abc.BalanceThreshold, 'p', '')/ 100 * abc.PermanentCredit ELSE abc.BalanceThreshold END) < abc.BalanceAmount AND abc.BalanceThreshold <> 0 ,1,0) as BalanceWarning,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.UnbilledAmount,0),v_Round_)) as CUA,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.VendorUnbilledAmount,0),v_Round_)) as VUA,
@@ -87,7 +89,7 @@ BEGIN
 			END ASC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN tblAccount.AccountName
-			END DESC,                
+			END DESC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NumberDESC') THEN tblAccount.Number
 			END DESC,
@@ -166,7 +168,7 @@ BEGIN
 			tblAccount.Number as NO,
 			tblAccount.AccountName,
 			CONCAT(tblAccount.FirstName,' ',tblAccount.LastName) as Name,
-			tblAccount.Phone, 
+			tblAccount.Phone,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.SOAOffset,0),v_Round_)) as 'OutStanding',
 			tblAccount.Email,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.UnbilledAmount,0),v_Round_)  - ROUND(COALESCE(abc.VendorUnbilledAmount,0),v_Round_)) as 'Unbilled Amount',
@@ -202,7 +204,7 @@ BEGIN
 	THEN
 		SELECT
 			tblAccount.AccountID,
-			tblAccount.AccountName			
+			tblAccount.AccountName
 		FROM tblAccount
 		LEFT JOIN tblAccountBalance abc
 			ON abc.AccountID = tblAccount.AccountID
