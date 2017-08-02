@@ -120,11 +120,12 @@ class IntegrationController extends \BaseController
 				
 				$data['Status'] 				= 	isset($data['Status'])?1:0;	
 				$data['AuthorizeTestAccount'] 	= 	isset($data['AuthorizeTestAccount'])?1:0;	
-				
+
+				/*
 				 if($data['Status']==1){ //disable all other payment subcategories
 					$status =	array("Status"=>0);
 					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
-		  		 }
+		  		 }*/
 				
 				$AuthorizeData = array(
 					"AuthorizeLoginID"=>$data['AuthorizeLoginID'],
@@ -164,11 +165,12 @@ class IntegrationController extends \BaseController
 				
 				$data['Status'] 		= 	isset($data['Status'])?1:0;	
 				$data['PaypalLive'] 	= 	isset($data['PaypalLive'])?1:0;	
-				
+
+				/*
 				 if($data['Status']==1){ //disable all other payment subcategories
 					$status =	array("Status"=>0);
 					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
-		  		 }
+		  		 }*/
 				
 				$PaypalData = array(
 					"PaypalEmail"=>$data['PaypalEmail'],
@@ -206,11 +208,11 @@ class IntegrationController extends \BaseController
 				}
 
 				$data['Status'] 		= 	isset($data['Status'])?1:0;
-
+				/*
 				if($data['Status']==1){ //disable all other payment subcategories
 					$status =	array("Status"=>0);
 					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
-				}
+				}*/
 
 				$StripeData = array(
 					"SecretKey"=>$data['SecretKey'],
@@ -233,6 +235,47 @@ class IntegrationController extends \BaseController
 				return Response::json(array("status" => "success", "message" => "Stripe Settings Successfully Updated"));
 			}
 
+			if($data['secondcategory']=='Stripe ACH')
+			{
+				$rules = array(
+					'SecretKey'	 => 'required',
+					'PublishableKey'	 => 'required',
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['Status'] 		= 	isset($data['Status'])?1:0;
+				/*
+				if($data['Status']==1){ //disable all other payment subcategories
+					$status =	array("Status"=>0);
+					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
+				}*/
+
+				$StripeACHData = array(
+					"SecretKey"=>$data['SecretKey'],
+					"PublishableKey"=>$data['PublishableKey']
+				);
+
+				$StripeACHDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($StripeACHDbData)>0)
+				{
+					$SaveData = array("Settings"=>json_encode($StripeACHData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$StripeACHDbData->IntegrationConfigurationID))->update($SaveData);
+
+				}
+				else
+				{
+					$SaveData = array("Settings"=>json_encode($StripeACHData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "Stripe ACH Settings Successfully Updated"));
+			}
+
 			if($data['secondcategory']=='SagePay')
 			{
 				$rules = array(
@@ -249,10 +292,11 @@ class IntegrationController extends \BaseController
 				$data['Status'] 		= 	isset($data['Status'])?1:0;
 				$data['isLive'] 		= 	isset($data['isLive'])?1:0;
 
+				/*
 				if($data['Status']==1){ //disable all other payment subcategories
 					$status =	array("Status"=>0);
 					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
-				}
+				}*/
 
 				$SagePayData = array(
 					"ServiceKey"=>$data['ServiceKey'],

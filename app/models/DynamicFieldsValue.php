@@ -2,6 +2,14 @@
 
 class DynamicFieldsValue extends \Eloquent {
 
+    protected $guarded = array("DynamicFieldsValueID");
+
+    protected $table = 'tblDynamicFieldsValue';
+
+    protected  $primaryKey = "DynamicFieldsValueID";
+
+    public    $timestamps 	= 	false; // no created_at and updated_at
+
     protected $connection = 'sqlsrv';
     protected $fillable = [];
     protected $guarded = array('DynamicFieldsValueID');
@@ -84,5 +92,6 @@ class DynamicFieldsValue extends \Eloquent {
             return  Response::json(array("status" => "failed", "message" => "Requested dynamic field not exist or it is disabled, Please refresh the page and try again or Please contact your system administrator!"));
         }
     }
+
 
 }
