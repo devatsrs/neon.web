@@ -22,8 +22,8 @@
     @endif
     @if(User::checkCategoryPermission('Invoice','Add'))
     <div class="pull-right"> &nbsp;</div>
-    <div class="input-group-btn pull-right" style="width: 100px;">
-        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
+    <div class="input-group-btn pull-right" style="width: 60px;">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add <span class="caret"></span></button>
         <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                 <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff Invoice </a> </li>
                 <li> <a id="invoice-in" href="javascript:;">Invoice Received</a> </li>

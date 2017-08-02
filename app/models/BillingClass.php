@@ -9,7 +9,7 @@ class BillingClass extends \Eloquent
     protected $primaryKey = "BillingClassID";
 
     public static $SendInvoiceSetting = array(""=>"Please Select an Option", "automatically"=>"Automatically", "after_admin_review"=>"After Admin Review");
-    public static $AutoPaymentSetting = array("never"=>"Never", "invoiceday"=>"On Invoice Day","duedate"=>"On Due Date");
+    public static $AutoPaymentSetting = array("never"=>"Never", "invoiceday"=>"On Invoice Date","duedate"=>"On Due Date");
 
     public static function getDropdownIDList($CompanyID=0){
         if($CompanyID==0){
