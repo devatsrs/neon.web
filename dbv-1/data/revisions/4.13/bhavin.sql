@@ -1,4 +1,51 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetAccounts`(
+USE `Ratemanagement3`;
+CREATE TABLE `tblAuditHeader` (
+	`AuditHeaderID` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`UserID` INT(11) NOT NULL,
+	`CompanyID` INT(11) NOT NULL,
+	`Date` DATE NULL DEFAULT NULL COMMENT 'account, product etc',
+	`ParentColumnName` TEXT NULL COLLATE 'utf8_unicode_ci',
+	`ParentColumnID` INT(11) NOT NULL,
+	`Type` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`IP` TEXT NULL COLLATE 'utf8_unicode_ci',
+	`UserType` INT(11) NULL DEFAULT '0',
+	PRIMARY KEY (`AuditHeaderID`)
+)
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB
+;
+
+
+CREATE TABLE `tblAuditDetails` (
+	`AuditDetailID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`AuditHeaderID` INT(11) UNSIGNED NOT NULL,
+	`ColumnName` VARCHAR(255) NOT NULL COLLATE 'utf8_unicode_ci',
+	`OldValue` LONGTEXT NULL COLLATE 'utf8_unicode_ci',
+	`NewValue` LONGTEXT NULL COLLATE 'utf8_unicode_ci',
+	`created_at` DATETIME NULL DEFAULT NULL,
+	`created_by` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	PRIMARY KEY (`AuditDetailID`),
+	INDEX `IX_AuditHeaderID` (`AuditHeaderID`)
+)
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB
+;
+
+
+ALTER TABLE `tblAccountBilling`
+	ADD COLUMN `AutoPaymentSetting` VARCHAR(50) NULL DEFAULT NULL;
+
+ALTER TABLE `tblAccountService`
+	ADD COLUMN `ServiceDescription` TEXT NULL DEFAULT NULL;
+
+INSERT INTO `tblIntegration` (`IntegrationID`, `CompanyId`, `Title`, `Slug`, `ParentID`, `MultiOption`) VALUES (20, 1, 'Stripe ACH', 'stripeach', 4, 'N');
+	
+INSERT INTO `tblEmailTemplate` (`CompanyID`, `TemplateName`, `Subject`, `TemplateBody`, `created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`, `userID`, `Type`, `EmailFrom`, `StaticType`, `SystemType`, `Status`, `StatusDisabled`, `TicketTemplate`) VALUES ( 1, 'Auto Invoice Paid', '{{InvoiceNumber}} Invoice Paid', '<p>Hi</p><p>We hereby confirm that we have received payment..</p><h4>Payment Detail</h4><p>Account Name : {{AccountName}}</p><p>Paid Amount : {{PaidAmount}}</p><p>Status : {{PaidStatus}}</p><p>Payment Method : {{PaymentMethod}}</p><p>Payment Notes : {{PaymentNotes}}</p><p><br></p><h4>Best Regards</h4><p>{{CompanyName}}<br></p><p><br></p>', '2017-07-28 11:12:25', NULL, '2017-07-28 16:02:36', 'System', NULL, 10, '', 1, 'AutoInvoicePayment', 0, 0, 0);
+
+	
+DROP PROCEDURE IF EXISTS `prc_GetAccounts`;
+DELIMITER |	
+CREATE PROCEDURE `prc_GetAccounts`(
 	IN `p_CompanyID` int,
 	IN `p_userID` int ,
 	IN `p_IsVendor` int ,
@@ -16,8 +63,6 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetAccounts`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
-
-
 )
 BEGIN
 	DECLARE v_OffSet_ int;
@@ -234,4 +279,6 @@ BEGIN
 		GROUP BY tblAccount.AccountID;
 	END IF;
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END
+END|
+DELIMITER ;
+	

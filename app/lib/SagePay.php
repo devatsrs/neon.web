@@ -151,7 +151,7 @@ class SagePay
         $notify_url = url('/sagepay_ipn');
 
 
-        $form = '<form name="form" id="form" method="POST" action="' . $sagepay_url .'" target="_self" class="no-margin">
+        $form = '<form name="form" id="sagepayform" method="POST" action="' . $sagepay_url .'" target="_self" class="no-margin">
                   <input type="hidden" name="m1" value="' . $this->ServiceKey . '"> <!-- // Pay Now Service Key -->
                   <input type="hidden" name="m2" value="' . $this->SoftwareVendorKey . '"> <!-- // // Software Vendor Key -->
                   <input type="hidden" name="p2" value="' . $InvoiceID.':'.date('YmdHis') . '"> <!-- // // Unique ID for this transaction -->
@@ -169,7 +169,7 @@ class SagePay
                   <input type="hidden" name="notify_url" value="' . $notify_url  .  '">
 
 
-                  <button name="submit"  type="submit" class="pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay with SagePay</button>
+                  <button name="submit"  type="submit" class="pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print" style="display:none;"> <i class="entypo-credit-card"></i> Pay with SagePay</button>
                 </form>';
 
         return $form;

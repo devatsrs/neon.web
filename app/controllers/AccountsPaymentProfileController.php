@@ -7,10 +7,14 @@ class AccountsPaymentProfileController extends \BaseController {
         $CompanyID = User::get_companyID();
 
         $PaymentGatewayName = '';
-        $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
-        if(!empty($PaymentGatewayID)){
-            $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
+        $PaymentGatewayID = '';
+        //$PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
+        $account = Account::find($AccountID);
+        if(!empty($account->PaymentMethod)){
+            $PaymentGatewayName = $account->PaymentMethod;
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
         }
+
         $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID");
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
@@ -19,12 +23,24 @@ class AccountsPaymentProfileController extends \BaseController {
         return Datatables::of($carddetail)->make();
 
     }
+
+    /**
+     * Call from Invoice Pay now button
+     *
+    */
     public function index($AccountID)
     {
 
         \Debugbar::disable();
+        $PaymentGatewayID = '';
+        $Account = Account::find($AccountID);
+        $PaymentMethod = '';
+        if(!empty($Account->PaymentMethod)){
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($Account->PaymentMethod);
+            $PaymentMethod = $Account->PaymentMethod;
+        }
 
-        return View::make('accountpaymentprofile.index',compact('AccountID'));
+        return View::make('accountpaymentprofile.index',compact('AccountID','PaymentGatewayID','PaymentMethod'));
     }
     public function create()
     {
@@ -32,7 +48,11 @@ class AccountsPaymentProfileController extends \BaseController {
         $CompanyID = User::get_companyID();
         $CustomerID = $data['AccountID'];
         if($CustomerID > 0) {
-            return AccountPaymentProfile::createProfile($CompanyID, $CustomerID);
+            $PaymentGatewayID = $data['PaymentGatewayID'];
+            if($data['PaymentGatewayID']==PaymentGateway::StripeACH){
+                return AccountPaymentProfile::createBankProfile($CompanyID, $CustomerID,$PaymentGatewayID);
+            }
+            return AccountPaymentProfile::createProfile($CompanyID, $CustomerID,$PaymentGatewayID);
         }
         return array("status" => "failed", "message" => 'Account not found');
     }
