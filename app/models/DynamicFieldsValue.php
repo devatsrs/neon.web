@@ -3,20 +3,11 @@
 class DynamicFieldsValue extends \Eloquent {
 
     protected $guarded = array("DynamicFieldsValueID");
-
     protected $table = 'tblDynamicFieldsValue';
-
     protected  $primaryKey = "DynamicFieldsValueID";
-
     public    $timestamps 	= 	false; // no created_at and updated_at
-
-    protected $connection = 'sqlsrv';
     protected $fillable = [];
-    protected $guarded = array('DynamicFieldsValueID');
-    protected $table = 'tblDynamicFieldsValue';
-    public  $primaryKey = "DynamicFieldsValueID"; //Used in BasedController
     static protected  $enable_cache = false;
-
     const BARCODE_SLUG = 'BarCode';
 
     public static function getDynamicColumnValuesByProductID($DynamicFieldsID,$ProductID) {
