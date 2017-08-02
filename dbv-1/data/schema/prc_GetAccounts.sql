@@ -17,6 +17,7 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetAccounts`(
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
 
+
 )
 BEGIN
 	DECLARE v_OffSet_ int;
@@ -173,7 +174,8 @@ BEGIN
 			tblAccount.Email,
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.UnbilledAmount,0),v_Round_)  - ROUND(COALESCE(abc.VendorUnbilledAmount,0),v_Round_)) as 'Unbilled Amount',
 			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.PermanentCredit,0),v_Round_)) as 'Credit Limit',
-			CONCAT(tblUser.FirstName,' ',tblUser.LastName) as 'Account Owner'
+			CONCAT(tblUser.FirstName,' ',tblUser.LastName) as 'Account Owner',
+			CONCAT((SELECT Symbol FROM tblCurrency WHERE tblCurrency.CurrencyId = tblAccount.CurrencyId) ,ROUND(COALESCE(abc.BalanceAmount,0),v_Round_)) as AccountExposure
 		FROM tblAccount
 		LEFT JOIN tblAccountBalance abc
 			ON abc.AccountID = tblAccount.AccountID
