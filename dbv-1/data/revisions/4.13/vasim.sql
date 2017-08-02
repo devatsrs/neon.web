@@ -65,9 +65,9 @@ CREATE TABLE IF NOT EXISTS `tblDynamicFields` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `tblDynamicFields` (`DynamicFieldsID`, `CompanyID`, `Type`, `FieldDomType`, `FieldName`, `FieldSlug`, `FieldDescription`, `FieldOrder`, `Status`, `created_at`, `created_by`, `updated_at`, `updated_by`) VALUES
-	(1, 1, 'account', 'multiselect', 'Gateway', 'accountgateway', 'Account Gateway', 0, 1, '2017-07-04 13:05:54', 'System', NULL, NULL),
-	(2, 1, 'account', 'text', 'Vendor Name', 'vendorname', 'Vendor Name', 0, 1, '2017-07-04 13:05:54', 'System', NULL, NULL),
-	(3, 1, 'product', 'text', 'Barcode', 'barcode', 'Product Barcode', 0, 1, '2017-07-05 18:04:45', 'System', NULL, NULL);
+	(1, 1, 'account', 'multiselect', 'Gateway', 'accountgateway', 'Account Gateway', 0, 0, '2017-07-04 13:05:54', 'System', NULL, NULL),
+	(2, 1, 'account', 'text', 'Vendor Name', 'vendorname', 'Vendor Name', 0, 0, '2017-07-04 13:05:54', 'System', NULL, NULL),
+	(3, 1, 'product', 'text', 'Barcode', 'barcode', 'Product Barcode', 0, 0, '2017-07-05 18:04:45', 'System', NULL, NULL);
 
 CREATE TABLE IF NOT EXISTS `tblDynamicFieldsDetail` (
   `DynamicFieldsDetailID` int(11) NOT NULL AUTO_INCREMENT,
