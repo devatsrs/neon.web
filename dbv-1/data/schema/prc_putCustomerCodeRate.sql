@@ -12,14 +12,13 @@ BEGIN
 	);
 	/* delete codes which are not exist in temp table*/
 	SET @stm = CONCAT('
-	DELETE cr
-	FROM `' , p_tbltemp_name , '` cr
-	INNER JOIN `' , p_tbltemp_name , '` cr2
-		ON cr2.AccountID = cr.AccountID
-		AND cr2.TrunkID = cr.TrunkID
-		AND cr2.RateID = cr.RateID
-		AND cr2.ProcessID = cr.ProcessID
-	WHERE cr2.ProcessID = "' , p_ProcessID , '" AND cr.EffectiveDate <= NOW() AND cr2.EffectiveDate <= NOW() AND cr.EffectiveDate < cr2.EffectiveDate;');
+	DELETE cr FROM `' , p_tbltemp_name , '` cr 
+	LEFT JOIN (SELECT AccountID,TrunkID,RateID,MAX(EffectiveDate) as EffectiveDate FROM `' , p_tbltemp_name , '`  WHERE ProcessID = "' , p_ProcessID , '" AND EffectiveDate <= NOW()  GROUP BY  AccountID,TrunkID,RateID )tbl
+		ON tbl.AccountID = cr.AccountID  
+		AND tbl.TrunkID = cr.TrunkID
+		AND tbl.RateID = cr.RateID
+		AND tbl.EffectiveDate = cr.EffectiveDate
+	WHERE tbl.EffectiveDate IS NULL AND cr.EffectiveDate <= NOW() AND cr.ProcessID = "' , p_ProcessID , '";');
 
 	PREPARE stm FROM @stm;
 	EXECUTE stm;

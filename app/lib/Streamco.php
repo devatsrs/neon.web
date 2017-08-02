@@ -135,8 +135,10 @@ class Streamco{
                                 $tempItemData['AccountType'] = 1;
                                 $tempItemData['CompanyId'] = $CompanyID;
                                 $tempItemData['Status'] = 1;
-                                $tempItemData['IsCustomer'] = $temp_row->IsCustomer;
-                                $tempItemData['IsVendor'] = $temp_row->IsVendor;
+                                /*$tempItemData['IsCustomer'] = $temp_row->IsCustomer;
+                                $tempItemData['IsVendor'] = $temp_row->IsVendor;*/
+                                $tempItemData['IsCustomer'] = 1;
+                                $tempItemData['IsVendor'] = 1;
                                 $tempItemData['LeadSource'] = 'Gateway import';
                                 $tempItemData['CompanyGatewayID'] = $CompanyGatewayID;
                                 $tempItemData['ProcessID'] = $ProcessID;

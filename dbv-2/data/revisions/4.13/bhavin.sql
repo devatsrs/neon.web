@@ -1,9 +1,10 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getPaymentPendingInvoice`(
+USE `RMBilling3`;
+DROP PROCEDURE IF EXISTS `prc_getPaymentPendingInvoice`;
+DELIMITER |
+CREATE PROCEDURE `prc_getPaymentPendingInvoice`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
 	IN `p_PaymentDueInDays` INT 
-
-
 )
 BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -12,11 +13,11 @@ BEGIN
 		MAX(i.InvoiceID) AS InvoiceID,
 		(IFNULL(MAX(i.GrandTotal), 0) - IFNULL(SUM(p.Amount), 0)) AS RemaingAmount
 	FROM tblInvoice i
-	INNER JOIN NeonRMDev.tblAccount a
+	INNER JOIN Ratemanagement3.tblAccount a
 		ON i.AccountID = a.AccountID
-	INNER JOIN NeonRMDev.tblAccountBilling ab 
+	INNER JOIN Ratemanagement3.tblAccountBilling ab 
 		ON ab.AccountID = a.AccountID AND ab.ServiceID = i.ServiceID
-	INNER JOIN NeonRMDev.tblBillingClass b
+	INNER JOIN Ratemanagement3.tblBillingClass b
 		ON b.BillingClassID = ab.BillingClassID
 	LEFT JOIN tblPayment p
 		ON p.AccountID = i.AccountID
@@ -35,4 +36,5 @@ BEGIN
 	HAVING (IFNULL(MAX(i.GrandTotal), 0) - IFNULL(SUM(p.Amount), 0)) > 0;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END
+END|
+DELIMITER ;

@@ -39,9 +39,9 @@ class AccountServiceController extends \BaseController {
         $InboundDiscountPlanID = AccountDiscountPlan::where(array('AccountID'=>$id,'Type'=>AccountDiscountPlan::INBOUND,'ServiceID'=>$ServiceID))->pluck('DiscountPlanID');
 
         $ServiceTitle = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceTitle');
+        $ServiceDescription = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceDescription');
 
-
-		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle'));
+		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription'));
 	}
 
     // add account services
@@ -206,6 +206,7 @@ class AccountServiceController extends \BaseController {
 
             $accdata=array();
             $accdata['ServiceTitle'] = empty($data['ServiceTitle']) ? '':$data['ServiceTitle'];
+            $accdata['ServiceDescription'] = empty($data['ServiceDescription']) ? '':$data['ServiceDescription'];
             AccountService::where(['AccountID'=>$AccountID,'ServiceID'=>$ServiceID])->update($accdata);
 
             return Response::json(array("status" => "success", "message" => "Account Service Successfully updated."));

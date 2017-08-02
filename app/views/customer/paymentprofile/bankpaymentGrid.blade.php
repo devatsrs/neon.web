@@ -2,7 +2,13 @@
 <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
-            {{PaymentGateway::getPaymentGatewayNameBYAccount($account->AccountID)}} Payment Method Profiles
+            <?php
+            $title = PaymentGateway::getPaymentGatewayNameBYAccount($account->AccountID);
+                if($title=='StripeACH'){
+                    $title='Stripe ACH';
+                }
+            ?>
+            {{$title}} Payment Method Profiles
         </div>
         <div class="panel-options">
             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -10,7 +16,7 @@
     </div>
     <div class="panel-body">
         <div class="text-right">
-            <a  id="add-new-card" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
+            <a  id="add-new-bankaccount" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add Bank Account</a>
             <div class="clear clearfix"><br></div>
         </div>
         <table class="table table-bordered datatable" id="table-4">
@@ -89,7 +95,7 @@
                                     action += '</div>';
 
                                     //action += ' <a class="edit-card btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
-                                    action += ' <a data-id="'+ id +'" class="delete-card btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                                    action += ' <a data-id="'+ id +'" class="delete-bankaccount btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
 
                                     if (full[1]=="1") {
                                         action += ' <button href="' + DeActive_Card + '"  class="btn change_status btn-danger btn-sm disablecard" data-loading-text="Loading...">Deactivate</button>';
@@ -117,7 +123,7 @@
                         ]
                     },
                     "fnDrawCallback": function () {
-                        FnDeleteCardSuccess = function(response){
+                        FnDeleteBankAccountSuccess = function(response){
 
                             if (response.status == 'success') {
                                 ShowToastr("success",response.message);
@@ -128,18 +134,18 @@
                             $("#table-4_processing").hide();
                         }
                         //onDelete Click
-                        FnDeleteCard = function(e){
+                        FnDeleteBankAccount = function(e){
                             result = confirm("Are you Sure?");
                             if(result){
                                 var id  = $(this).attr("data-id");
                                 $("#table-4_processing").show();
                                 var url = deletePaymentMethodProfile_url;
                                 url = url.replace('{id}', id);
-                                showAjaxScript( url ,"",FnDeleteCardSuccess );
+                                showAjaxScript( url ,"",FnDeleteBankAccountSuccess );
                             }
                             return false;
                         }
-                        $(".delete-card").click(FnDeleteCard); // Delete Card
+                        $(".delete-bankaccount").click(FnDeleteBankAccount); // Delete Bank Account
                         $(".dataTables_wrapper select").select2({
                             minimumResultsForSearch: -1
                         });
@@ -174,22 +180,19 @@
                     return false;
                 });
 
-                $('#add-new-card').click(function (ev) {
+                $('#add-new-bankaccount').click(function (ev) {
                     ev.preventDefault();
-
                     var pgid = '{{PaymentGateway::getPaymentGatewayIDBYAccount($account->AccountID)}}';
-                    $("#add-credit-card-form")[0].reset();
-                    $("#add-credit-card-form").find('input[name="cardID"]').val('');
-                    $("#add-credit-card-form [name='ExpirationMonth']").val('').trigger("change");
-                    $("#add-credit-card-form [name='ExpirationYear']").val('').trigger("change");
-                    $("#add-credit-card-form").find('input[name="PaymentGatewayID"]').val(pgid);
-                    $('#add-modal-card').modal('show');
+                    $("#add-bankaccount-form")[0].reset();
+                    $("#add-bankaccount-form").find('input[name="cardID"]').val('');                    
+                    $("#add-bankaccount-form").find('input[name="PaymentGatewayID"]').val(pgid);
+                    $('#add-modal-bankaccount').modal('show');
                 });
 
-                $('#add-credit-card-form').submit(function(e){
+                $('#add-bankaccount-form').submit(function(e){
                     e.preventDefault();
                     $("#table-4_processing").show();
-                    var cardID = $("#add-credit-card-form").find('[name="cardID"]').val();
+                    var cardID = $("#add-bankaccount-form").find('[name="cardID"]').val();
                     if(cardID!=""){
                         update_new_url = baseurl + '/customer/PaymentMethodProfiles/update';
                     }else{
@@ -201,24 +204,22 @@
                     ajax_Add_update(update_new_url);
                 });
 
-                $('table tbody').on('click','.edit-card',function(ev){
+                $('table tbody').on('click','.edit-bankaccount',function(ev){
                     ev.preventDefault();
                     ev.stopPropagation();
-                    $("#add-credit-card-form")[0].reset();
-                    $("#add-credit-card-form [name='ExpirationMonth']").val('').trigger("change");
-                    $("#add-credit-card-form [name='ExpirationYear']").val('').trigger("change");
+                    $("#add-bankaccount-form")[0].reset();                    
                     cardID = $(this).prev("div.hiddenRowData").find("input[name='cardID']").val();
                     Title = $(this).prev("div.hiddenRowData").find("input[name='Title']").val();
-                    $("#add-credit-card-form").find('[name="cardID"]').val(cardID);
-                    $("#add-credit-card-form").find('[name="Title"]').val(Title);
-                    $('#add-modal-card').modal('show');
+                    $("#add-bankaccount-form").find('[name="cardID"]').val(cardID);
+                    $("#add-bankaccount-form").find('[name="Title"]').val(Title);
+                    $('#add-modal-bankaccount').modal('show');
                 })
 
             });
 
 
             function ajax_Add_update(fullurl){
-                var data = new FormData($('#add-credit-card-form')[0]);
+                var data = new FormData($('#add-bankaccount-form')[0]);
                 //show_loading_bar(0);
 
                 $.ajax({
@@ -226,12 +227,12 @@
                     type: 'POST',
                     dataType: 'json',
                     success: function(response) {
-                        $("#card-update").button('reset');
+                        $("#bankaccount-update").button('reset');
                         $(".btn").button('reset');
                         if (response.status == 'success') {
-                            $('#add-modal-card').modal('hide');
+                            $('#add-modal-bankaccount').modal('hide');
                             toastr.success(response.message, "Success", toastr_opts);
-                            $('#add-modal-card').modal('hide');
+                            $('#add-modal-bankaccount').modal('hide');
                             if( typeof data_table !=  'undefined'){
                                 data_table.fnFilter('', 0);
                             }
@@ -272,13 +273,13 @@
 
 @section('footer_ext')
     @parent
-    <div class="modal fade" id="add-modal-card" data-backdrop="static">
+    <div class="modal fade" id="add-modal-bankaccount" data-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form id="add-credit-card-form" method="post">
+                <form id="add-bankaccount-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add New Card</h4>
+                        <h4 class="modal-title">Add Bank Account</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row">
@@ -290,49 +291,35 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Name on card*</label>
-                                    <input type="text" name="NameOnCard" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                                    <label for="field-5" class="control-label">Account Holder Name*</label>
+                                    <input type="text" name="AccountHolderName" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                 </div>
-                            </div>
+                            </div>                            
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Credit Card Number *</label>
-                                    <input type="text" name="CardNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                                    <label for="field-5" class="control-label">Account Number *</label>
+                                    <input type="text" name="AccountNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="cardID" />
                                     <input type="hidden" name="AccountID" />
                                     <input type="hidden" name="PaymentGatewayID" />
                                 </div>
                             </div>
-                            <div class="col-md-12">
+							<div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Card Type*</label>
-                                    {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"select2 small")) }}
+                                    <label for="field-5" class="control-label">Routing Number*</label>
+                                    <input type="text" name="RoutingNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">CVV Number*</label>
-                                    <input type="text" data-mask="decimal" name="CVVNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                                    <label for="field-5" class="control-label">Account Holder Type*</label>
+                                    {{ Form::select('AccountHolderType',Payment::$account_holder_type,'', array("class"=>"select2 small")) }}
                                 </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <div class="col-md-4">
-                                        <label for="field-5" class="control-label">Expiry Date *</label>
-                                    </div>
-                                    <div class="col-md-4">
-                                        {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"select2 small")) }}
-                                    </div>
-                                    <div class="col-md-4">
-                                        {{ Form::select('ExpirationYear', getYears(), date('Y'), array("class"=>"select2 small")) }}
-                                    </div>
-
-                                </div>
-                            </div>
+                            </div>                            
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" id="card-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <button type="submit" id="bankaccount-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
                         </button>

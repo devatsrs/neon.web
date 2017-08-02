@@ -6,10 +6,11 @@
 
             </div>
             <div class="col-md-6 text-right">
+                @if($PaymentGatewayID!='')
                 <p>
-                     <a  id="add-new-card" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
+                     <a  id="add-new-card" data-id="{{$PaymentGatewayID}}" data-name="{{$PaymentMethod}}" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
                 </p>
-
+                @endif
             </div>
 
             <table class="table table-bordered datatable" id="ajxtable-4">
@@ -114,8 +115,20 @@
 
                     $('#add-new-card').click(function (ev) {
                         ev.preventDefault();
-                        $("#add-credit-card-form")[0].reset();
-                        $('#add-modal-card').modal('show');
+                        var pid = $(this).attr('data-id');
+                        var gatewayname = $(this).attr('data-name');
+                        if(gatewayname=='StripeACH'){
+                            $("#add-bankaccount-form")[0].reset();
+                            $("#add-bankaccount-form [name='PaymentGatewayID']").val(pid);
+                            $('#add-modal-bankaccount').modal('show');
+                        }else if(gatewayname=='AuthorizeNet' || gatewayname=='Stripe'){
+                            $("#add-credit-card-form")[0].reset();
+                            $("#add-credit-card-form [name='PaymentGatewayID']").val(pid);
+                            $('#add-modal-card').modal('show');
+                        }else{
+                            return false;
+                        }
+
                     });
                     var paymentInvoiceIDs = [];
                     var k = 0;

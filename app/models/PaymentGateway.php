@@ -5,9 +5,10 @@ class PaymentGateway extends \Eloquent {
     protected $primaryKey = "PaymentGatewayID";
     protected $guarded = array('PaymentGatewayID');
     public static $gateways = array('Authorize'=>'AuthorizeNet');
-    const  Authorize 	= 	1;
+    const  AuthorizeNet	= 	1;
     const  Stripe		=	2;
-    public static $paymentgateway_name = array(''=>'' ,self::Authorize => 'AuthorizeNet',self::Stripe=>'Stripe');
+    const  StripeACH	=	3;
+    public static $paymentgateway_name = array(''=>'' ,self::AuthorizeNet => 'AuthorizeNet',self::Stripe=>'Stripe',self::StripeACH=>'StripeACH');
 
     public static function getName($PaymentGatewayID)
     {
@@ -71,13 +72,64 @@ class PaymentGateway extends \Eloquent {
                 }else{
                     $Status = TransactionLog::FAILED;
                     $Notes = empty($transaction['error']) ? '' : $transaction['error'];
-                    AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
+                    //AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
                 }
                 $transactionResponse['transaction_notes'] =$Notes;
                 if(!empty($transaction['response_code'])) {
                     $transactionResponse['response_code'] = $transaction['response_code'];
                 }
                 $transactionResponse['transaction_payment_method'] = 'CREDIT CARD';
+                $transactionResponse['failed_reason'] = $Notes;
+                if(!empty($transaction['id'])) {
+                    $transactionResponse['transaction_id'] = $transaction['id'];
+                }
+                $transactiondata = array();
+                $transactiondata['CompanyID'] = $account->CompanyId;
+                $transactiondata['AccountID'] = $account->AccountID;
+                if(!empty($transaction['id'])) {
+                    $transactiondata['Transaction'] = $transaction['id'];
+                }
+                $transactiondata['Notes'] = $Notes;
+                if(!empty($transaction['amount'])) {
+                    $transactiondata['Amount'] = floatval($transaction['amount']);
+                }
+                $transactiondata['Status'] = $Status;
+                $transactiondata['created_at'] = date('Y-m-d H:i:s');
+                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+                $transactiondata['CreatedBy'] = $CreatedBy;
+                $transactiondata['ModifyBy'] = $CreatedBy;
+                $transactiondata['Response'] = json_encode($transaction);
+                TransactionLog::insert($transactiondata);
+                return $transactionResponse;
+
+            case 'StripeACH':
+
+                $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+                $stripedata = array();
+                $stripedata['currency'] = strtolower($CurrencyCode);
+                $stripedata['amount'] = $amount;
+                $stripedata['description'] = $options->InvoiceNumber.' (Invoice) Payment';
+                $stripedata['customerid'] = $options->CustomerProfileID;
+
+                $transactionResponse = array();
+
+                $stripepayment = new StripeACH();
+                $transaction = $stripepayment->createchargebycustomer($stripedata);
+
+                $Notes = '';
+                if(!empty($transaction['response_code']) && $transaction['response_code'] == 1) {
+                    $Notes = 'Stripe ACH transaction_id ' . $transaction['id'];
+                    $Status = TransactionLog::SUCCESS;
+                }else{
+                    $Status = TransactionLog::FAILED;
+                    $Notes = empty($transaction['error']) ? '' : $transaction['error'];
+                    //AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
+                }
+                $transactionResponse['transaction_notes'] =$Notes;
+                if(!empty($transaction['response_code'])) {
+                    $transactionResponse['response_code'] = $transaction['response_code'];
+                }
+                $transactionResponse['transaction_payment_method'] = 'BANK TRANSFER';
                 $transactionResponse['failed_reason'] = $Notes;
                 if(!empty($transaction['id'])) {
                     $transactionResponse['transaction_id'] = $transaction['id'];
@@ -111,7 +163,7 @@ class PaymentGateway extends \Eloquent {
     public static function getPaymentGatewayID(){
         $PaymentGatewayID = 0;
         if(is_authorize()){
-            $PaymentGatewayID = PaymentGateway::Authorize;
+            $PaymentGatewayID = PaymentGateway::AuthorizeNet;
         }
         if(is_Stripe()){
             $PaymentGatewayID = PaymentGateway::Stripe;
@@ -119,4 +171,28 @@ class PaymentGateway extends \Eloquent {
         return $PaymentGatewayID;
     }
 
+    public static function getPaymentGatewayIDByName($PaymentMehod){
+        $PaymentGateway = PaymentGateway::$paymentgateway_name;
+        $PaymentGatewayID = array_search($PaymentMehod, $PaymentGateway);
+        return $PaymentGatewayID;
+    }
+
+    public static function getPaymentGatewayIDBYAccount($AccountID){
+        $Account = Account::find($AccountID);
+        $PaymentGatewayID = '';
+        if(!empty($Account->PaymentMethod)){
+            $PaymentGatewayName = $Account->PaymentMethod;
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
+        }
+        return $PaymentGatewayID;
+    }
+
+    public static function getPaymentGatewayNameBYAccount($AccountID){
+        $Account = Account::find($AccountID);
+        $PaymentGatewayName = '';
+        if(!empty($Account->PaymentMethod)){
+            $PaymentGatewayName = $Account->PaymentMethod;
+        }
+        return $PaymentGatewayName;
+    }
 }
