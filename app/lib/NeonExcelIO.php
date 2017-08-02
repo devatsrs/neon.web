@@ -43,10 +43,6 @@ class NeonExcelIO
         $this->sheet = 0;
         $this->first_row = self::$COLUMN_NAMES;
         $this->file_type = self::$CSV;
-        if(self::$start_row>0)
-        {
-            self::$start_row--;
-        }
         $this->set_file_type();
         $this->get_file_settings($csvoption);
 
@@ -196,7 +192,6 @@ class NeonExcelIO
     public function read_csv($filepath,$limit=0) {
         if(self::$start_row>0)
         {
-            self::$start_row=self::$start_row+1;
             if($limit>0)
             {
                 $limit++;
@@ -273,7 +268,6 @@ class NeonExcelIO
 
         if(self::$start_row>0)
         {
-            self::$start_row=self::$start_row+1;
             if($limit>0)
             {
                 $limit++;
@@ -343,7 +337,12 @@ class NeonExcelIO
 		Read xls file
 	*/
 	////////
-	 public function read_xls_excel($filepath,$limit=0){
+    /**
+     * @param $filepath
+     * @param int $limit
+     * @return mixed
+     */
+    public function read_xls_excel($filepath, $limit=0){
 		  $result = array();
 		  $flag   = 0;			 
 		   if (!empty($data['Delimiter'])) {
@@ -367,18 +366,18 @@ class NeonExcelIO
 			$isExcel = in_array(pathinfo($filepath, PATHINFO_EXTENSION),['xls','xlsx'])?true:false;
             $totalRow=0;
 			$results = Excel::selectSheetsByIndex(0)->load($filepath, function ($reader) use ($flag,$isExcel,&$totalRow) {
-                $reader->skip(self::$start_row);
+                $reader->skip(self::$start_row-1);
                 $totalRow=$reader->getTotalRowsOfFile();
 				if ($flag == 1) {
 					$reader->noHeading();
 				}
-			})->take($limit)->toArray();
+			})->take($limit+1)->toArray();
 
-             if(count($results) && self::$end_row)
+             if(self::$end_row && $totalRow>0)
              {
-                $requiredRow = $totalRow - self::$end_row - self::$start_row-1;
-                $countRow =count($results);
-                for($i=$requiredRow ; $i < $countRow; $i++)
+                 $requiredRow = $totalRow - self::$end_row - self::$start_row;
+                 $countRow =count($results);
+                for($i=$requiredRow-1 ; $i < $countRow; $i++)
                 {
                     unset($results[$i]);
                 }
