@@ -45,7 +45,10 @@ class NeonExcelIO
         $this->file_type = self::$CSV;
         $this->set_file_type();
         $this->get_file_settings($csvoption);
-
+        if(self::$start_row>0)
+        {
+            self::$start_row--;
+        }
     }
 
 
@@ -192,6 +195,7 @@ class NeonExcelIO
     public function read_csv($filepath,$limit=0) {
         if(self::$start_row>0)
         {
+            self::$start_row++;
             if($limit>0)
             {
                 $limit++;
@@ -202,14 +206,13 @@ class NeonExcelIO
         $this->reader = ReaderFactory::create(Type::CSV); // for XLSX files
         $this->set_file_settings();
         $this->reader->open($filepath);
-
         foreach($this->reader->getSheetIterator() as $key  => $sheet) {
 
             // For First Sheet only.
             if($key == 1) {
                     foreach ($sheet->getRowIterator() as $row) {
 
-                    if(self::$start_row > $this->row_cnt)
+                    if(self::$start_row>= ($this->row_cnt+1))
                     {
                         $this->row_cnt++;
                         $limit++;
@@ -268,6 +271,7 @@ class NeonExcelIO
 
         if(self::$start_row>0)
         {
+            self::$start_row++;
             if($limit>0)
             {
                 $limit++;

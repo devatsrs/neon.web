@@ -113,19 +113,6 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Start Row</label>
-                    <div class="col-sm-3">
-                        <input name="start_row" type="number" class="form-control" data-label="
-                        <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Start Row" min="0">
-                    </div>
-                    <label class="col-sm-2 control-label">End Row</label>
-                    <div class="col-sm-3">
-                        <input name="end_row" type="number" class="form-control" data-label="
-                            <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="End Row" min="0">
-                    </div>
-
-                </div>
-                <div class="form-group">
                     <label class="col-sm-2 control-label">Settings</label>
                     
                     <div class="col-sm-10">
@@ -145,6 +132,18 @@
                         <div class="checkbox ">
                             <input type="hidden" name="checkbox_add_new_codes_to_code_decks" value="0" >
                             <label><input type="checkbox" id="rd-1" name="checkbox_add_new_codes_to_code_decks" value="1" checked> Add new codes from the file to code decks</label>
+                        </div>
+                        <div style="margin-top:10px;">
+                            <label for="field-1" class="col-sm-2 control-label" style="text-align: right;width: 11%;">Skip from Start</label>
+                            <div class="col-sm-3" style="padding-left:40px;">
+                                <input name="start_row" type="number" class="form-control" data-label="
+                                <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Skip from Start" min="0" value="0">
+                            </div>
+                            <label class="col-sm-2 control-label" style="text-align: right;">Skip from Bottom</label>
+                            <div class="col-sm-3">
+                                <input name="end_row" type="number" class="form-control" data-label="
+                                    <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="Skip from Bottom" min="0" value="0">
+                            </div>
                         </div>
                     </div>
                 </div>
