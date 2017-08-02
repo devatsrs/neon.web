@@ -2,13 +2,12 @@
 
 class DynamicFieldsValue extends \Eloquent {
 
-    protected $connection = 'sqlsrv';
-    protected $fillable = [];
-    protected $guarded = array('DynamicFieldsValueID');
+    protected $guarded = array("DynamicFieldsValueID");
     protected $table = 'tblDynamicFieldsValue';
-    public  $primaryKey = "DynamicFieldsValueID"; //Used in BasedController
+    protected  $primaryKey = "DynamicFieldsValueID";
+    public    $timestamps 	= 	false; // no created_at and updated_at
+    protected $fillable = [];
     static protected  $enable_cache = false;
-
     const BARCODE_SLUG = 'BarCode';
 
     public static function getDynamicColumnValuesByProductID($DynamicFieldsID,$ProductID) {
@@ -84,5 +83,6 @@ class DynamicFieldsValue extends \Eloquent {
             return  Response::json(array("status" => "failed", "message" => "Requested dynamic field not exist or it is disabled, Please refresh the page and try again or Please contact your system administrator!"));
         }
     }
+
 
 }
