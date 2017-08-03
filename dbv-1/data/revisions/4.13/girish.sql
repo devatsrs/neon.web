@@ -1,4 +1,5 @@
 USE `Ratemanagement3`;
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'CUSTOMER_MOVEMENT_REPORT_DISPLAY', '1');
 
 -- Dumping structure for procedure Ratemanagement3.prc_CustomerRatesFileImport
 DROP PROCEDURE IF EXISTS `prc_CustomerRatesFileImport`;
