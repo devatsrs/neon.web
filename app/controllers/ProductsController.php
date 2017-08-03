@@ -127,8 +127,10 @@ class ProductsController extends \BaseController {
             unset($data['DynamicFields']);
         }
 
-        if($error = DynamicFieldsValue::validate($DynamicFields)){
-            return $error;
+        if(isset($DynamicFields)) {
+            if ($error = DynamicFieldsValue::validate($DynamicFields)) {
+                return $error;
+            }
         }
         if($error = Product::validate($data)){
             return $error;
