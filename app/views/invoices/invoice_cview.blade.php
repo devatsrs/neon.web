@@ -1,4 +1,13 @@
 @extends('layout.blank')
+<script src="{{URL::to('/')}}/assets/js/jquery-1.11.0.min.js"></script>
+<script src="{{URL::to('/')}}/assets/js/toastr.js"></script>
+<script src="{{URL::to('/')}}/assets/js/jquery-ui/js/jquery-ui-1.10.3.minimal.min.js"></script>
+<script src="{{URL::to('/')}}/assets/js/select2/select2.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{URL::to('/')}}/assets/js/select2/select2-bootstrap.css">
+<link rel="stylesheet" type="text/css" href="{{URL::to('/')}}/assets/js/select2/select2.css">
+
+<!-- bootstarp.js is for action button-->
+<script src="{{URL::to('/')}}/assets/js/bootstrap.js"></script>
 @section('content')
 <?php
     $PDFurl = "";
@@ -38,23 +47,38 @@
              */
 
             ?>
-          @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_authorize()  ) )
-                <a href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Authorize');}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay With Authorize </a>
-                <div class="pull-right"> &nbsp;</div>
-          @elseif(($Invoice->InvoiceStatus != Invoice::PAID) && (is_paypal()  ) )
-                {{$paypal_button}}
-                <div class="pull-right"> &nbsp;</div>
-          @elseif(($Invoice->InvoiceStatus != Invoice::PAID) && (is_sagepay()  ) )
-                {{$sagepay_button}}
-                <div class="pull-right"> &nbsp;</div>
-            @elseif(($Invoice->InvoiceStatus != Invoice::PAID) && (is_Stripe()  ) )
-                <a href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Stripe');}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay With Stripe </a>
-                <div class="pull-right"> &nbsp;</div>
-          @endif
-
+              <div class="pull-right"> &nbsp;</div>
+              <div class="input-group-btn pull-right" style="width: 70px;">
+                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="padding:4px 10px;"> Pay Now <span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                      @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_authorize()  ) )
+                      <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/AuthorizeNet');}}" id="pay_AuthorizeNet" href="javascript:;"style="width:100%"> AuthorizeNet </a> </li>
+                      @endif
+                      @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_Stripe()  ) )
+                      <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Stripe');}}" id="pay_Stripe" href="javascript:;"> Stripe </a> </li>
+                      @endif
+                      @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_StripeACH() && $StripeACHCount==1 ) )
+                      <li> <a class="generate_rate create"  href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/StripeACH');}}" id="pay_StripeACH" href="javascript:;"> StripeACH </a> </li>
+                      @endif
+                      @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_paypal()  ) )
+                      <li> <a class="pay_now create" id="pay_paypal" href="javascript:;"> Paypal </a> </li>
+                      @endif
+                      @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_sagepay()  ) )
+                      <li> <a class="pay_now create" id="pay_SagePay" href="javascript:;"> SagePay </a> </li>
+                      @endif
+                  </ul>
+              </div>
+              <div class="pull-right"> &nbsp;</div>
           @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> Downlod Usage </a>
           <div class="pull-right"> &nbsp;</div>
-          @endif <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a> </div>
+          @endif <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a>
+              @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_paypal()  ) )
+              {{$paypal_button}}
+              @endif
+              @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_sagepay()  ) )
+              {{$sagepay_button}}
+              @endif
+        </div>
       </div>
     </div>
   </div>
@@ -71,4 +95,56 @@
     </center>
     @endif </div>
 </div>
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        $('#pay_paypal').click( function(){
+            $('#pyapalform').submit();
+        });
+        $('#pay_SagePay').click( function(){
+            $('#sagepayform').submit();
+        });
+    });
+
+    if ($.isFunction($.fn.select2))
+    {
+        $("select.select2").each(function(i, el)
+        {
+            var $this = $(el),
+                    opts = {
+                        allowClear: attrDefault($this, 'allowClear', false)
+                    };
+            if($this.hasClass('small')){
+                opts['minimumResultsForSearch'] = attrDefault($this, 'allowClear', Infinity);
+                opts['dropdownCssClass'] = attrDefault($this, 'allowClear', 'no-search')
+            }
+            $this.select2(opts);
+            if($this.hasClass('small')){
+                $this.select2('container').find('.select2-search').addClass ('hidden') ;
+            }
+            //$this.select2("open");
+        }).promise().done(function(){
+            $('.select2').css('visibility','visible');
+        });
+
+
+        if ($.isFunction($.fn.perfectScrollbar))
+        {
+            $(".select2-results").niceScroll({
+                cursorcolor: '#d4d4d4',
+                cursorborder: '1px solid #ccc',
+                railpadding: {right: 3}
+            });
+        }
+    }
+    // Element Attribute Helper
+    function attrDefault($el, data_var, default_val)
+    {
+        if (typeof $el.data(data_var) != 'undefined')
+        {
+            return $el.data(data_var);
+        }
+
+        return default_val;
+    }
+</script>
 @stop

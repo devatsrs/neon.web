@@ -64,6 +64,15 @@
                         </div>
 
                     </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-md-2 control-label">Service Description
+                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="This Service Description will appear on the invoice" data-original-title="Service Description">?</span></label>
+                        </label>
+                        <div class="col-md-4">
+                            <textarea class="form-control" name="ServiceDescription" rows="5" placeholder="Description">{{$ServiceDescription}}</textarea>
+                        </div>
+
+                    </div>
                 </div>
             </div>
             <!-- Service Title For Invoice -->
