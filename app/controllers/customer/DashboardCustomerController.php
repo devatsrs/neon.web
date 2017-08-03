@@ -165,4 +165,47 @@ class DashboardCustomerController extends BaseController {
         return DataTableSql::of($query,'sqlsrv2')->make();
     }
 
+    public function daily_report(){
+
+        $companyID = User::get_companyID();
+        $DefaultCurrencyID = Company::where("CompanyID", $companyID)->pluck("CurrencyId");
+        $original_startdate = date('Y-m-d', strtotime('-1 week'));
+        $original_enddate = date('Y-m-d');
+
+        return View::make('customer.daily_report', compact('DefaultCurrencyID', 'original_startdate', 'original_enddate'));
+
+    }
+    public function daily_report_ajax_datagrid($type){
+        $CompanyID = User::get_companyID();
+        $data = Input::all();
+        $CustomerID = Customer::get_accountID();
+        $data['iDisplayStart'] += 1;
+        $query = "call prc_getDailyReport (" . $CompanyID . ",$CustomerID,'" . $data['StartDate'] . "','" . $data['EndDate'] . "'," . (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) . " ," . $data['iDisplayLength'];
+        if (isset($data['Export']) && $data['Export'] == 1) {
+            $filesname = '';
+            if(!empty($data['StartDate'])){
+                $filesname .= ' From '.$data['StartDate'];
+            }
+            if(!empty($data['EndDate'])){
+                $filesname .= ' To '.$data['EndDate'];
+            }
+            $excel_data = DB::connection('neon_report')->select($query . ',1)');
+            $excel_data = json_decode(json_encode($excel_data), true);
+
+            if ($type == 'csv') {
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') . '/Movement Report '.$filesname.'.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            } elseif ($type == 'xlsx') {
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') . '/Movement Report '.$filesname.'.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
+        $query .= ',0)';
+
+        return DataTableSql::of($query,'neon_report')->make();
+
+    }
+
 }
