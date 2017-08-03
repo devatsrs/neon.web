@@ -8,6 +8,7 @@ CREATE PROCEDURE `prc_getTrunkByMaxMatch`(
 BEGIN
 
 
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 
@@ -36,11 +37,10 @@ BEGIN
 
 	-- select TrunkID from tmp_all_trunk_ order by RowNo desc limit 1;
 
-	select TrunkID from tmp_all_trunk_ where ( @p_Trunk like concat('%' , Trunk ) ) order by  RowNo desc limit 1;
+	select TrunkID , @p_Trunk  as Trunk  from tmp_all_trunk_ where ( @p_Trunk like concat('%' , Trunk ) ) order by  RowNo desc limit 1;
 
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-
 
 
 END//
