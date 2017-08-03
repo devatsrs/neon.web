@@ -1481,11 +1481,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		
         $update = [];
         $billingupdate = array();
+        $currencyupdate = array();
         if(isset($data['account_owners']) && $data['account_owners'] != 0 && isset($data['OwnerCheck'])){
             $update['Owner'] = $data['account_owners'];
         }
         if(isset($data['Currency']) && $data['Currency'] != 0 && isset($data['CurrencyCheck'])){
-            $update['CurrencyId'] = $data['Currency'];
+            $currencyupdate['CurrencyId'] = $data['Currency'];
         }		
         if(isset($data['VendorCheck'])){
             $update['IsVendor'] = isset($data['vendor_on_off'])?1:0;
@@ -1598,14 +1599,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 \Illuminate\Support\Facades\Log::info('Account id -- '.$id);
                 \Illuminate\Support\Facades\Log::info(print_r($update,true));
 				DB::beginTransaction();
-				if(isset($update['CurrencyId']))
-				{
-                    $CurrencyCount = Account::whereRaw("(AccountID = '".$id."' AND (CurrencyId is null or CurrencyId ='0'))")->count();
-                    if($CurrencyCount==0){
-                        unset($update['CurrencyId']);
-                    }
-				}
                 $upaccount = Account::find($id);
+                if(empty($upaccount->CurrencyId) && isset($currencyupdate['CurrencyId'])){
+                    $upaccount->update($currencyupdate);
+                }
+
                 $upaccount->update($update);
                 //Account::where(['AccountID'=>$id])->update($update);
                 $invoice_count = Account::getInvoiceCount($id);
