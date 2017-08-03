@@ -195,7 +195,6 @@ class NeonExcelIO
     public function read_csv($filepath,$limit=0) {
         if(self::$start_row>0)
         {
-            self::$start_row++;
             if($limit>0)
             {
                 $limit++;
@@ -271,7 +270,6 @@ class NeonExcelIO
 
         if(self::$start_row>0)
         {
-            self::$start_row++;
             if($limit>0)
             {
                 $limit++;
