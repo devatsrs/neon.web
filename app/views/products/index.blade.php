@@ -177,9 +177,11 @@
                                         action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                     }
 
-                                    $.each(full['DynamicFields'], function(key, value){
-                                        action += '<input type = "hidden"  name = "DynamicFields[' + key + ']"       value = "' + (value != null?value:'')+ '" / >';
-                                    });
+                                    if(typeof full['DynamicFields'] != 'undefined') {
+                                        $.each(full['DynamicFields'], function (key, value) {
+                                            action += '<input type = "hidden"  name = "DynamicFields[' + key + ']"       value = "' + (value != null ? value : '') + '" / >';
+                                        });
+                                    }
                                     action += '</div>';
                                     <?php if(User::checkCategoryPermission('Products','Edit')){ ?>
                                         action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-product btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
