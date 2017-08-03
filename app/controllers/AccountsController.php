@@ -1599,11 +1599,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 \Illuminate\Support\Facades\Log::info('Account id -- '.$id);
                 \Illuminate\Support\Facades\Log::info(print_r($update,true));
 				DB::beginTransaction();
-                $upaccount = Account::find($id);
-                if(empty($upaccount->CurrencyId) && isset($currencyupdate['CurrencyId'])){
-                    $upaccount->update($currencyupdate);
+                $upcurrencyaccount = Account::find($id);
+                if(empty($upcurrencyaccount->CurrencyId) && isset($currencyupdate['CurrencyId'])){
+                    $upcurrencyaccount->update($currencyupdate);
                 }
-
+                $upaccount = Account::find($id);
                 $upaccount->update($update);
                 //Account::where(['AccountID'=>$id])->update($update);
                 $invoice_count = Account::getInvoiceCount($id);
