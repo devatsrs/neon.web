@@ -1,11 +1,16 @@
 Use Ratemanagement3;
 
+
+UPDATE tblCronJobCommand SET Settings='[[{"title":"File Generation Location (Path)","type":"text","value":"","name":"FileLocation"},{"title":"Effective","type":"select","value":{"Now":"Now","Future":"Future","All":"All"},"name":"Effective"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]' WHERE  `Command`='customerratefileexport' ;
+UPDATE tblCronJobCommand SET Settings='[[{"title":"File Generation Location (Path)","type":"text","value":"","name":"FileLocation"},{"title":"Effective","type":"select","value":{"Now":"Now","Future":"Future","All":"All"},"name":"Effective"},{"title":"Add Discontinue Rates","type":"select","value":{"no":"No","yes":"Yes"},"name":"AddDiscontinueRates"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]' WHERE  `Command`='vendorratefileexport';
+
 DELIMITER //
 CREATE PROCEDURE `prc_getTrunkByMaxMatch`(
 	IN `p_CompanyID` INT,
 	IN `p_Trunk` VARCHAR(200)
 )
 BEGIN
+
 
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -36,11 +41,10 @@ BEGIN
 
 	-- select TrunkID from tmp_all_trunk_ order by RowNo desc limit 1;
 
-	select TrunkID from tmp_all_trunk_ where ( @p_Trunk like concat('%' , Trunk ) ) order by  RowNo desc limit 1;
+	select TrunkID , @p_Trunk  as Trunk  from tmp_all_trunk_ where ( @p_Trunk like concat('%' , Trunk ) ) order by  RowNo desc limit 1;
 
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-
 
 
 END//

@@ -1,4 +1,5 @@
 USE `Ratemanagement3`;
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'CUSTOMER_MOVEMENT_REPORT_DISPLAY', '0');
 
 -- Dumping structure for procedure Ratemanagement3.prc_CustomerRatesFileImport
 DROP PROCEDURE IF EXISTS `prc_CustomerRatesFileImport`;
@@ -41,7 +42,7 @@ BEGIN
 
 		SET v_TrunkID_ = (SELECT TrunkID FROM tmp_AccountTrunk_ t WHERE t.RowID = v_pointer_); 
 		SET v_AccountID_ = (SELECT AccountID FROM tmp_AccountTrunk_ t WHERE t.RowID = v_pointer_);
-		SET v_codedeckid_ = (SELECT CodeDeckId FROM tblCustomerTrunk WHERE tblCustomerTrunk.TrunkID = v_TrunkID_ AND tblCustomerTrunk.AccountID = v_AccountID_ AND tblCustomerTrunk.Status = 1);
+		SET v_codedeckid_ = (SELECT CodeDeckId FROM tblCustomerTrunk WHERE tblCustomerTrunk.TrunkID = v_TrunkID_ AND tblCustomerTrunk.AccountID = v_AccountID_ /*AND tblCustomerTrunk.Status = 1 */ );
 
 		IF v_codedeckid_ IS NOT NULL AND (SELECT COUNT(*) FROM tblCodeDeck WHERE CodeDeckId = v_codedeckid_)>0
 		THEN
@@ -301,7 +302,6 @@ BEGIN
 		ON tblVendorPreference.RateId = temp.RateID
 		AND tblVendorPreference.TrunkID = temp.TrunkID
 		AND tblVendorPreference.AccountId  = temp.AccountID
-		AND tblVendorPreference.EffectiveDate = temp.EffectiveDate
 	SET tblVendorPreference.Preference = temp.Interval1,created_at=NOW(),CreatedBy="SYSTEM IMPORTED"
 	WHERE tblVendorPreference.AccountId = "' , p_AccountID , '" AND tblVendorPreference.TrunkID = "' , p_TrunkID , '" AND ProcessID = "' , p_ProcessID , ' AND tblVendorPreference.Preference <> 0";
 	');
@@ -318,7 +318,6 @@ BEGIN
 		ON tblVendorPreference.RateId = temp.RateID
 		AND tblVendorPreference.TrunkID = temp.TrunkID
 		AND tblVendorPreference.AccountId  = temp.AccountID
-		AND tblVendorPreference.EffectiveDate = temp.EffectiveDate
 		AND ProcessID = "' , p_ProcessID , '"
 	WHERE VendorRateID IS NULL AND temp.AccountID = "' , p_AccountID , '" AND temp.TrunkID = "' , p_TrunkID , '" AND tblVendorPreference.Preference <> 0 AND temp.RateID IS NOT NULL;
 	');
@@ -442,7 +441,7 @@ BEGIN
 
 		SET v_TrunkID_ = (SELECT TrunkID FROM tmp_AccountTrunk_ t WHERE t.RowID = v_pointer_); 
 		SET v_AccountID_ = (SELECT AccountID FROM tmp_AccountTrunk_ t WHERE t.RowID = v_pointer_);
-		SET v_codedeckid_ = (SELECT CodeDeckId FROM tblVendorTrunk WHERE tblVendorTrunk.TrunkID = v_TrunkID_ AND tblVendorTrunk.AccountID = v_AccountID_ AND tblVendorTrunk.Status = 1);
+		SET v_codedeckid_ = (SELECT CodeDeckId FROM tblVendorTrunk WHERE tblVendorTrunk.TrunkID = v_TrunkID_ AND tblVendorTrunk.AccountID = v_AccountID_ /*AND tblVendorTrunk.Status = 1*/);
 
 		IF v_codedeckid_ IS NOT NULL AND (SELECT COUNT(*) FROM tblCodeDeck WHERE CodeDeckId = v_codedeckid_)>0
 		THEN
