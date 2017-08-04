@@ -356,7 +356,8 @@ class Account extends \Eloquent {
     }
         public static function getOutstandingInvoiceAmount($CompanyID,$AccountID,$Invoiceids,$decimal_places = 2,$PaymentDue =0){
         $Outstanding = 0;
-        $unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $CompanyID . ',' . $AccountID.','.$PaymentDue.')');
+        $AutoPay = 0;
+        $unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $CompanyID . ',' . $AccountID.','.$PaymentDue.',',$AutoPay.')');
         foreach ($unPaidInvoices as $Invoiceid) {
             if(in_array($Invoiceid->InvoiceID,explode(',',$Invoiceids))) {
                 $Outstanding += $Invoiceid->RemaingAmount;
