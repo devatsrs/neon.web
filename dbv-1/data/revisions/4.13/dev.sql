@@ -1,5 +1,9 @@
 Use Ratemanagement3;
 
+
+UPDATE tblCronJobCommand SET Settings='[[{"title":"File Generation Location (Path)","type":"text","value":"","name":"FileLocation"},{"title":"Effective","type":"select","value":{"Now":"Now","Future":"Future","All":"All"},"name":"Effective"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]' WHERE  `Command`='customerratefileexport';
+UPDATE tblCronJobCommand SET Settings='[[{"title":"File Generation Location (Path)","type":"text","value":"","name":"FileLocation"},{"title":"Effective","type":"select","value":{"Now":"Now","Future":"Future","All":"All"},"name":"Effective"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]' WHERE  `Command`='vendorratefileexport';
+
 DELIMITER //
 CREATE PROCEDURE `prc_getTrunkByMaxMatch`(
 	IN `p_CompanyID` INT,
