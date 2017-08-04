@@ -134,15 +134,15 @@
                             <label><input type="checkbox" id="rd-1" name="checkbox_add_new_codes_to_code_decks" value="1" checked> Add new codes from the file to code decks</label>
                         </div>
                         <div style="margin-top:10px;">
-                            <label for="field-1" class="col-sm-2 control-label" style="text-align: right;width: 11%;">Skip from Start</label>
+                            <label for="field-1" class="col-sm-2 control-label" style="text-align: right;width: 11%;">Skips rows from Start</label>
                             <div class="col-sm-3" style="padding-left:40px;">
                                 <input name="start_row" type="number" class="form-control" data-label="
-                                <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Skip from Start" min="0" value="0">
+                                <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Skips rows from Start" min="0" value="0">
                             </div>
-                            <label class="col-sm-2 control-label" style="text-align: right;">Skip from Bottom</label>
+                            <label class="col-sm-2 control-label" style="text-align: right;">Skips rows from Bottom</label>
                             <div class="col-sm-3">
                                 <input name="end_row" type="number" class="form-control" data-label="
-                                    <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="Skip from Bottom" min="0" value="0">
+                                    <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="Skips rows from Bottom" min="0" value="0">
                             </div>
                         </div>
                     </div>

@@ -572,7 +572,7 @@ function getFileContent($file_name,$data,$start_row=0,$end_row=0){
 
 
     $grid["fileType"]=$file_type;
-    $grid['columns'] = $columns;
+    $grid['columns'] = $results[0];
     $grid['rows'] = $results;
     $grid['filename'] = $file_name;
     return $grid;
