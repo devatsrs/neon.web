@@ -20,6 +20,7 @@ if( typeof neon_summernote_options == 'undefined') {
         "opportunities": false,
         "tasks": false,
         "Tickets": false,
+        "ratetemplateoptions":false
     };
 } else {
 
@@ -232,6 +233,26 @@ var dropdown_text =  {
         InvoiceGrandTotal:"InvoiceGrandTotal",
         InvoiceOutstanding:"InvoiceOutstanding",
     },
+    ratetemplateoptions:{
+        FirstName:"FirstName",
+        LastName:"LastName",
+        Email:"Email",
+        Address1:"Address1",
+        Address2:"Address2",
+        Address3:"Address3",
+        City:"City",
+        State:"State",
+        PostCode:"PostCode",
+        Country:"Country",
+        Currency:"Currency",
+        CurrencySign:"CurrencySign",
+        Signature:"Signature",
+        OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
+        OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
+        BalanceThreshold:"BalanceThreshold",
+        TrunkPrefix:"TrunkPrefix"
+
+    },
 };
 
 
@@ -265,6 +286,38 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>Others</b></a></li>" +
             "<li><a data-value='{{Signature}}'>" + dropdown_text.leadoptions.Signature + "</a></li>";
+    },
+    "ratetemplateoptions": function () {
+        return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+            "<li><a data-value='{{FirstName}}'>" + dropdown_text.ratetemplateoptions.FirstName + "</a></li>" +
+            "<li><a data-value='{{LastName}}'>" + dropdown_text.ratetemplateoptions.LastName + "</a></li>" +
+            "<li><a data-value='{{Email}}'>" + dropdown_text.ratetemplateoptions.Email + "</a></li>" +
+            "<li><a data-value='{{Address1}}'>" + dropdown_text.ratetemplateoptions.Address1 + "</a></li>" +
+            "<li><a data-value='{{Address2}}'>" + dropdown_text.ratetemplateoptions.Address2 + "</a></li>" +
+            "<li><a data-value='{{Address3}}'>" + dropdown_text.ratetemplateoptions.Address3 + "</a></li>" +
+            "<li><a data-value='{{City}}'>" + dropdown_text.ratetemplateoptions.City + "</a></li>" +
+            "<li><a data-value='{{State}}'>" + dropdown_text.ratetemplateoptions.State + "</a></li>" +
+            "<li><a data-value='{{PostCode}}'>" + dropdown_text.ratetemplateoptions.PostCode + "</a></li>" +
+            "<li><a data-value='{{Country}}'>" + dropdown_text.ratetemplateoptions.Country + "</a></li>" +
+            "<li><a data-value='{{Currency}}'>" + dropdown_text.ratetemplateoptions.Currency + "</a></li>" +
+            "<li><a data-value='{{CurrencySign}}'>" + dropdown_text.ratetemplateoptions.CurrencySign + "</a></li>" +
+            "<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.ratetemplateoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
+            "<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.ratetemplateoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
+            "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.ratetemplateoptions.BalanceThreshold + "</a></li>" +
+            "<li class='unclick'><a ><b>Company Fields</b></a></li>" +
+            "<li><a data-value='{{CompanyName}}'>" + dropdown_text.Company.CompanyName + "</a></li>" +
+            "<li><a data-value='{{CompanyVAT}}'>" + dropdown_text.Company.Vat + "</a></li>" +
+            "<li><a data-value='{{CompanyAddress1}}'>" + dropdown_text.Company.Address1 + "</a></li>" +
+            "<li><a data-value='{{CompanyAddress2}}'>" + dropdown_text.Company.Address2 + "</a></li>" +
+            "<li><a data-value='{{CompanyAddress3}}'>" + dropdown_text.Company.Address3 + "</a></li>" +
+            "<li><a data-value='{{CompanyCity}}'>" + dropdown_text.Company.City + "</a></li>" +
+            "<li><a data-value='{{CompanyPostCode}}'>" + dropdown_text.Company.PostCode + "</a></li>" +
+            "<li><a data-value='{{CompanyCountry}}'>" + dropdown_text.Company.Country + "</a></li>" +
+            "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
+            "<li class='unclick'><a ><b>RateSheet Fields</b></a></li>" +
+            "<li><a data-value='{{TrunkPrefix}}'>" + dropdown_text.ratetemplateoptions.TrunkPrefix + "</a></li>"+
+            "<li class='unclick'><a ><b>Others</b></a></li>" +
+            "<li><a data-value='{{Signature}}'>" + dropdown_text.ratetemplateoptions.Signature + "</a></li>";
     },
     "invoiceoptions": function () {
 

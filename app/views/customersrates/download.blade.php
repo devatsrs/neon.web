@@ -166,7 +166,7 @@
 }
 </style>
 <script type="text/javascript">
-var editor_options 	 	=  		{"leadoptions":true};
+var editor_options 	  =  		{"ratetemplateoptions":true};
 jQuery(document).ready(function ($) {
 
     $('#fileformat').change(function(e){
