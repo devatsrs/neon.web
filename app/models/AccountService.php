@@ -105,6 +105,7 @@ class AccountService extends \Eloquent {
                             if (!empty($data['ServiceDescription'])) {
                                 $accountser['ServiceDescription'] = $AccountService->ServiceDescription;
                             }
+                            $accountser['ServiceTitleShow'] = $AccountService->ServiceTitleShow;
                             $AccountServices[] = $accountser;
                         }
 
