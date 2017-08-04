@@ -37,6 +37,9 @@ ALTER TABLE `tblAccountBilling`
 
 ALTER TABLE `tblAccountService`
 	ADD COLUMN `ServiceDescription` TEXT NULL DEFAULT NULL;
+	
+ALTER TABLE `tblAccountService`
+	ADD COLUMN `ServiceTitleShow` INT NOT NULL DEFAULT '1';	
 
 INSERT INTO `tblIntegration` (`IntegrationID`, `CompanyId`, `Title`, `Slug`, `ParentID`, `MultiOption`) VALUES (20, 1, 'Stripe ACH', 'stripeach', 4, 'N');
 	

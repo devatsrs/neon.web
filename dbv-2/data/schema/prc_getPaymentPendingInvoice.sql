@@ -1,10 +1,7 @@
 CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getPaymentPendingInvoice`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
-	IN `p_PaymentDueInDays` INT 
-
-
-,
+	IN `p_PaymentDueInDays` INT,
 	IN `p_AutoPay` INT
 )
 BEGIN
