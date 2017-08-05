@@ -95,6 +95,14 @@
                 </li>
             </ul>
         </li>
+        @if(CompanyConfiguration::get('CUSTOMER_MOVEMENT_REPORT_DISPLAY') == 1)
+            <li>
+                <a href="{{URL::to('customer/daily_report')}}">
+                    <i class="fa fa-calendar-plus-o"></i>
+                    <span>Movement Report</span>
+                </a>
+            </li>
+        @endif
         @if(CompanyConfiguration::get('CUSTOMER_COMMERCIAL_DISPLAY') == 1)
         <li>
             <a href="{{URL::to('customer/customers_rates')}}">

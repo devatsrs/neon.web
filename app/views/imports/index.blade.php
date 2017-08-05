@@ -528,7 +528,7 @@
                         $("#rootwizard-2").find("input[name='importway']").val(importfrom);
                         $('#gatewayimport').hide();
                         $('#csvimport').show();
-                    }else if(importfrom=='PBX' || importfrom=='Porta' || importfrom=='MOR'){
+                    }else if(importfrom=='PBX' || importfrom=='Porta' || importfrom=='MOR' || importfrom =='CallShop' || importfrom =='Streamco'){
                         $('#st3').remove();
                         $("#st2 h5.test").html('Select Accounts');
                         $("#st3 h5.test").html('Import Accounts');
@@ -823,9 +823,7 @@
 
         $("#gateway_filter").click(function(e) {
             var CompanyGatewayID = $("#rootwizard-2 input[name='size']:checked").attr('data-id');
-            //var gateway = $("#rootwizard-2 input[name='size']:checked").attr('data-name');
             var gateway = $("#rootwizard-2 input[name='size']:checked").val();
-            //var CompanyGatewayID = $("#gatewayimport input[name='CompanyGatewayID']").val();
             $.ajax({
                 url: baseurl + '/import/account/getAccountInfoFromGateway/' + CompanyGatewayID + '/' + gateway,
                 type: 'POST',
@@ -835,14 +833,11 @@
                     $(".gatewayloading").show();
                 },
                 success: function (response) {
-                    //$('#importaccount').button('reset');
                     $('.gatewayloading').hide();
                     if (response.status == 'success') {
-                        //$('#importaccount').hide();
                         $("#gatewayimport input[name='importaccountsuccess']").val('1');
                         $("#gatewayimport .importsuccessmsg").html('Account Succesfully Import. Please click on next.');
                         $("#gatewayimport input[name='importprocessid']").val(response.processid);
-                        //toastr.success(response.message, "Success", toastr_opts);
                         $('#get_account').trigger('click');
                         $('#uploadaccount').show();
                         $('.pager li .next').addClass('disabled');

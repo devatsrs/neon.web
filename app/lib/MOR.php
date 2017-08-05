@@ -66,7 +66,7 @@ left JOIN mor.currencies on currencies.id = users.currency_id
                                 $tempItemData['LastName'] = $temp_row->last_name;
                                 $tempItemData['VatNumber'] = $temp_row->vat_number;
                                 $tempItemData['Address3'] = $temp_row->state;
-                                $tempItemData['Country'] = isset($country[$temp_row->county]) && $temp_row->county != ''?$country[$temp_row->county]:'';
+                                $tempItemData['Country'] = isset($country[$temp_row->county]) && $temp_row->county != ''?$country[$temp_row->county]:null;
                                 $tempItemData['City'] = $temp_row->city;
                                 $tempItemData['PostCode'] = $temp_row->postcode;
                                 $tempItemData['Address1'] = $temp_row->address;
@@ -77,7 +77,7 @@ left JOIN mor.currencies on currencies.id = users.currency_id
                                 $tempItemData['Address2'] = $temp_row->address2;
                                 $tempItemData['Fax'] = $temp_row->fax;
                                 $tempItemData['Skype'] = $temp_row->skype;
-                                $tempItemData['Currency'] = isset($currency[$temp_row->currencyname]) && $temp_row->currencyname != ''?$currency[$temp_row->currencyname]:'0';
+                                $tempItemData['Currency'] = isset($currency[$temp_row->currencyname]) && $temp_row->currencyname != ''?$currency[$temp_row->currencyname]:null;
 
                                 $tempItemData['AccountType'] = 1;
                                 $tempItemData['CompanyId'] = $CompanyID;

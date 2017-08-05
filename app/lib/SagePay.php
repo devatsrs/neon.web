@@ -144,14 +144,14 @@ class SagePay
 
         $this->amount = number_format($this->amount,2,'.','') ;// paypal gives error if more than 2 decimal placesrequies 2 decimal points
 
-        $custom_fields = json_encode(["AccountID"=>$AccountID,"InvoiceID",$InvoiceID]);
+        $custom_fields = "m10=".$AccountID.','.$InvoiceID;
 
         $return_url = url('/sagepay_return');
         $cancel_url = url('/sagepay_declined');
         $notify_url = url('/sagepay_ipn');
 
 
-        $form = '<form name="form" id="form" method="POST" action="' . $sagepay_url .'" target="_self" class="no-margin">
+        $form = '<form name="form" id="sagepayform" method="POST" action="' . $sagepay_url .'" target="_self" class="no-margin">
                   <input type="hidden" name="m1" value="' . $this->ServiceKey . '"> <!-- // Pay Now Service Key -->
                   <input type="hidden" name="m2" value="' . $this->SoftwareVendorKey . '"> <!-- // // Software Vendor Key -->
                   <input type="hidden" name="p2" value="' . $InvoiceID.':'.date('YmdHis') . '"> <!-- // // Unique ID for this transaction -->
@@ -162,14 +162,14 @@ class SagePay
                   <input type="hidden" name="m5" value="' . $custom_fields  .  '"> <!-- // // This is an extra field -->
                   <input type="hidden" name="m6" value=""> <!-- // // This is an extra field -->
                   <input type="hidden" name="m9" value=""> <!-- // // Card holders email address -->
-                  <input type="hidden" name="m10" value="m10"> <!-- // // M10 data -->
+                  <input type="hidden" name="m10" value="' . $custom_fields  .  '"> <!-- // // M10 data -->
 
                   <input type="hidden" name="return_url" value="' . $return_url  .  '">
                   <input type="hidden" name="cancel_url" value="' . $cancel_url  .  '">
                   <input type="hidden" name="notify_url" value="' . $notify_url  .  '">
 
 
-                  <button name="submit"  type="submit" class="pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> <i class="entypo-credit-card"></i> Pay with SagePay</button>
+                  <button name="submit"  type="submit" class="pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print" style="display:none;"> <i class="entypo-credit-card"></i> Pay with SagePay</button>
                 </form>';
 
         return $form;
@@ -185,5 +185,36 @@ class SagePay
             $this->ipn = $post;
         }
         return $this->ipn;
+    }
+
+    public function getAccountInvoiceID($type='extra2'){
+
+        if(strtolower($type) == 'extra2') {
+            $AccountnInvoice = str_replace("m10=","",$this->get_response_var("Extra2"));
+            return $this->extractAccountInvoiceID($AccountnInvoice);
+        } else {
+            return $this->extractAccountInvoiceID($_GET["m10"]);
+        }
+
+    }
+
+    public function extractAccountInvoiceID($AccountnInvoice) {
+
+        # AccountID,InvoiceID
+        # 123,123
+
+        $AccountID = $InvoiceID = 0;
+
+        $AccountnInvoiceArray = explode( "," , $AccountnInvoice );
+
+        if(isset($AccountnInvoiceArray[0])) {
+            $AccountID = intval($AccountnInvoiceArray[0]);
+        }
+        if(isset($AccountnInvoiceArray[1])) {
+            $InvoiceID = intval($AccountnInvoiceArray[1]);
+        }
+
+        return ["AccountID" => $AccountID , "InvoiceID" => $InvoiceID];
+
     }
 }

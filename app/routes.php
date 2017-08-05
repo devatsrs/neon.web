@@ -13,6 +13,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/subscription/ajax_datagrid', 'DashboardCustomerController@subscriptions_ajax_datagrid');	
     Route::any('customer/getoutstandingamount', 'ProfileController@get_outstanding_amount');
     Route::any('customer/invoice_expense_total_widget', 'DashboardCustomerController@invoice_expense_total_widget');
+	Route::any('customer/daily_report', 'DashboardCustomerController@daily_report');
+	Route::any('customer/daily_report/ajax_datagrid/{type}', 'DashboardCustomerController@daily_report_ajax_datagrid');
     //Invoice
     Route::any('customer/invoice', 'InvoicesCustomerController@index');
     Route::any('customer/invoice/ajax_datagrid/{type}', 'InvoicesCustomerController@ajax_datagrid');
@@ -1320,6 +1322,7 @@ Route::group(array('before' => 'guest'), function () {
 	Route::any('/invoice_payment/{id}/{type}', 'InvoicesController@invoice_payment'); //Customer payment View
     Route::any('/pay_invoice', 'InvoicesController@pay_invoice'); //Customer payment pay
 	Route::any('/stripe_payment', 'InvoicesController@stripe_payment'); //Customer payment with stripe
+	Route::any('/stripeach_payment', 'InvoicesController@stripeach_payment'); //Customer payment with stripe
     Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
     Route::any('/paypal_ipn/{id}', 'InvoicesController@paypal_ipn'); //Payment response by paypal.
     Route::any('/paypal_cancel/{id}', 'InvoicesController@paypal_cancel'); //Payment response by paypal.

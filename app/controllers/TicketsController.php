@@ -449,8 +449,7 @@ class TicketsController extends \BaseController {
 				   $response_api_extensions 	 =   Get_Api_file_extentsions();
 				   $max_file_size				 =	 get_max_file_size();	
 				   $CloseStatus					 =   $ResponseData->CloseStatus;  //close status id for ticket 
-				   if(isset($response_api_extensions->headers)){ return	Redirect::to('/logout'); 	}	
-					$response_extensions		 =	json_encode($response_api_extensions['allowed_extensions']); 
+					$response_extensions		 =	json_encode($response_api_extensions['allowed_extensions']);
 					
 					$TicketConversation			 =	$ResponseData->TicketConversation; 					
 					//$NextTicket 				 =	$ResponseData->NextTicket;

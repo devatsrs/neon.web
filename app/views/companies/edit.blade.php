@@ -240,7 +240,7 @@
                                     <div class="col-sm-4">
                                         <div class="input-spinner">
                                             <button type="button" class="btn btn-default">-</button>
-                                            {{Form::text('RoundChargesAmount', $RoundChargesAmount,array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>4,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
+                                            {{Form::text('RoundChargesAmount', $RoundChargesAmount,array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>6,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
                                             <button type="button" class="btn btn-default">+</button>
                                         </div>
                                     </div>
