@@ -168,7 +168,7 @@ class AccountPaymentProfile extends \Eloquent
                 $options->InvoiceNumber = $fullnumber;
                 $transactionResponse = PaymentGateway::addTransaction($PaymentGateway, $outstanginamount, $options, $account, $AccountPaymentProfileID,$CreatedBy);
                 /**  Get All UnPaid  Invoice */
-                $unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $CompanyID . ',' . $account->AccountID.',0)');
+                $unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $CompanyID . ',' . $account->AccountID.',0,0)');
                 if (isset($transactionResponse['response_code']) && $transactionResponse['response_code'] == 1) {
                     foreach ($unPaidInvoices as $Invoiceid) {
                         /**  Update Invoice as Paid */

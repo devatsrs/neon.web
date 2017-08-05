@@ -14,7 +14,7 @@ BEGIN
 	/* delete old dates rate */
 	SET @stm = CONCAT('
 	DELETE cr FROM `' , p_tbltemp_name , '` cr 
-	LEFT JOIN (SELECT AccountID,TrunkID,RateID,MAX(EffectiveDate) as EffectiveDate FROM `' , p_tbltemp_name , '`  WHERE ProcessID = "' , p_ProcessID , '"  GROUP BY  AccountID,TrunkID,RateID )tbl
+	LEFT JOIN (SELECT AccountID,TrunkID,RateID,MAX(EffectiveDate) as EffectiveDate FROM `' , p_tbltemp_name , '`  WHERE ProcessID = "' , p_ProcessID , '" AND EffectiveDate <= NOW() GROUP BY  AccountID,TrunkID,RateID )tbl
 		ON tbl.AccountID = cr.AccountID  
 		AND tbl.TrunkID = cr.TrunkID
 		AND tbl.RateID = cr.RateID
