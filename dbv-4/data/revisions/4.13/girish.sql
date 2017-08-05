@@ -12,17 +12,19 @@ CREATE PROCEDURE `prc_getDailyReport`(
 BEGIN
 	DECLARE v_OffSet_ int;
 	DECLARE v_Round_ int;
-	SET sql_mode = 'ALLOW_INVALID_DATES';	
+	SET sql_mode = 'ALLOW_INVALID_DATES';
 	SET @PreviosBalance := 0;
+	SET @TotalPreviosBalance := 0;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
-	
+
 	IF p_StartDate <> '0000-00-00'
 	THEN
+
 	SET @PreviosBalance := 
 	(SELECT 
 		COALESCE(SUM(Amount),0)
-	FROM RMBilling3.tblPayment 
+	FROM NeonBillingDev.tblPayment 
 	WHERE CompanyID = p_CompanyID
 		AND AccountID = p_AccountID
 		AND Status = 'Approved'
@@ -38,7 +40,9 @@ BEGIN
 	WHERE CompanyID = p_CompanyID
 		AND AccountID = p_AccountID
 		AND date < p_StartDate);
-		
+	
+	SET @TotalPreviosBalance := @PreviosBalance;
+
 	END IF;
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
@@ -52,7 +56,7 @@ BEGIN
 	INSERT INTO tmp_dates_ (Dates)
 	SELECT 
 		DISTINCT DATE(PaymentDate) 
-	FROM RMBilling3.tblPayment 
+	FROM NeonBillingDev.tblPayment 
 	WHERE CompanyID = p_CompanyID
 		AND AccountID = p_AccountID
 		AND Status = 'Approved'
@@ -60,7 +64,7 @@ BEGIN
 		AND PaymentType = 'Payment In'
 		AND (p_StartDate = '0000-00-00' OR ( p_StartDate != '0000-00-00' AND PaymentDate >= p_StartDate) )
 		AND (p_EndDate = '0000-00-00' OR ( p_EndDate != '0000-00-00' AND PaymentDate <= p_EndDate));
-	
+
 	INSERT IGNORE INTO tmp_dates_ (Dates)
 	SELECT 
 		DISTINCT date 
@@ -72,7 +76,6 @@ BEGIN
 		AND (p_StartDate = '0000-00-00' OR ( p_StartDate != '0000-00-00' AND date >= p_StartDate) )
 		AND (p_EndDate = '0000-00-00' OR ( p_EndDate != '0000-00-00' AND date <= p_EndDate));
 
-
 	IF p_isExport = 0
 	THEN
 
@@ -83,7 +86,7 @@ BEGIN
 			ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_),
 			@PreviosBalance:= ROUND(@PreviosBalance,v_Round_)+ ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_) AS Balance 
 		FROM tmp_dates_
-		LEFT JOIN RMBilling3.tblPayment 
+		LEFT JOIN NeonBillingDev.tblPayment 
 			ON date(PaymentDate) = Dates 
 			AND tblPayment.AccountID = p_AccountID
 			AND Status = 'Approved'
@@ -96,13 +99,28 @@ BEGIN
 			AND tblHeader.AccountID = p_AccountID
 		GROUP BY Dates 
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
-			COUNT(*) AS totalcount
-		FROM tmp_dates_;
+			COUNT(DISTINCT Dates) AS totalcount,
+			ROUND(COALESCE(SUM(Amount),0),v_Round_) AS TotalPayment,
+			ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) AS TotalCharge,
+			ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_) AS Total,
+			ROUND(@TotalPreviosBalance,v_Round_)+ ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_) AS Balance 
+		FROM tmp_dates_
+		LEFT JOIN NeonBillingDev.tblPayment 
+			ON date(PaymentDate) = Dates 
+			AND tblPayment.AccountID = p_AccountID
+			AND Status = 'Approved'
+			AND Recall =0
+			AND PaymentType = 'Payment In'
+		LEFT JOIN tblDimDate 
+			ON date = Dates
+		LEFT JOIN tblHeader 
+			ON tblDimDate.DateID = tblHeader.DateID 
+			AND tblHeader.AccountID = p_AccountID;
 
 	END IF;
-	
+
 	IF p_isExport = 1
 	THEN
 
@@ -113,7 +131,7 @@ BEGIN
 			ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_) AS `Total`,
 			@PreviosBalance:= ROUND(@PreviosBalance,v_Round_)+ ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_) AS `Balance`
 		FROM tmp_dates_
-		LEFT JOIN RMBilling3.tblPayment 
+		LEFT JOIN NeonBillingDev.tblPayment 
 			ON date(PaymentDate) = Dates 
 			AND tblPayment.AccountID = p_AccountID
 			AND Status = 'Approved'
@@ -125,7 +143,7 @@ BEGIN
 			ON tblDimDate.DateID = tblHeader.DateID 
 			AND tblHeader.AccountID = p_AccountID
 		GROUP BY Dates;
-		
+
 	END IF;
 
 END|
