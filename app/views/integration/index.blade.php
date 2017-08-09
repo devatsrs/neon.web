@@ -284,9 +284,7 @@
             </div>
             <div class="col-md-6">
             <div class="form-group">
-              <label class="control-label">Active:
-              <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Enabling this will deactivate all other Support categories" data-original-title="Status" class="label label-info popover-primary">?</span>
-              </label>
+              <label class="control-label">Active:</label>
               <div id="AuthorizeStatusDiv">
                    <input id="AuthorizeStatus" class="subcatstatus" Divid="AuthorizeStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($AuthorizeDbData->Status) && $AuthorizeDbData->Status==1){ ?>   checked="checked"<?php } ?> >
               </div>
@@ -326,9 +324,7 @@
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              <label class="control-label">Active:
-              <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Enabling this will deactivate all other Payment categories" data-original-title="Status" class="label label-info popover-primary">?</span>
-              </label>
+              <label class="control-label">Active:</label>
               <div id="paypalStatusDiv">
                    <input id="PaypalStatus" class="subcatstatus" Divid="paypalStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($PaypalDbData->Status) && $PaypalDbData->Status==1){ ?>   checked="checked"<?php } ?> >
               </div>
@@ -360,9 +356,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label class="control-label">Active:
-                            <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Enabling this will deactivate all other Payment categories" data-original-title="Status" class="label label-info popover-primary">?</span>
-                        </label>
+                        <label class="control-label">Active:</label>
                         <div id="stripeStatusDiv">
                             <input id="StripeStatus" class="subcatstatus" Divid="stripeStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($StripeDbData->Status) && $StripeDbData->Status==1){ ?>   checked="checked"<?php } ?> >
                         </div>
@@ -371,6 +365,63 @@
             </div>
         </div>
       <!-- stripe end -->
+      <!-- stripe ach start -->
+        <?php
+        $StripeACHDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$StripeACHSlug);
+        $StripeACHData   = isset($StripeACHDbData->Settings)?json_decode($StripeACHDbData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$StripeACHDbData->Slug}}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Secret Key:</label>
+                        <input type="text"  class="form-control" name="SecretKey" value="{{isset($StripeACHData->SecretKey)?$StripeACHData->SecretKey:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Publishable Key:</label>
+                        <input type="text"  class="form-control" name="PublishableKey" value="{{isset($StripeACHData->PublishableKey)?$StripeACHData->PublishableKey:''}}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Micro Deposit 1 :
+                            <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="You can verify your customer’s routing and account numbers by sending their account two micro-deposits. Two small deposits will be made to their account. The transfers can take 3-4 business days to appear on their account. Once they’ve been received by the customer, the amounts for each deposit will need to be provided to you by the customer to verify that they have access to their account statement." data-original-title="Micro Deposit" class="label label-info popover-primary">?</span>
+                        </label>
+                        <input type="text"  class="form-control" name="MicroDeposit1" value="{{isset($StripeACHData->MicroDeposit1)?$StripeACHData->MicroDeposit1:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Micro Deposit 2 :
+                            <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="You can verify your customer’s routing and account numbers by sending their account two micro-deposits. Two small deposits will be made to their account. The transfers can take 3-4 business days to appear on their account. Once they’ve been received by the customer, the amounts for each deposit will need to be provided to you by the customer to verify that they have access to their account statement." data-original-title="Micro Deposit" class="label label-info popover-primary">?</span>
+                        </label>
+                        <input type="text"  class="form-control" name="MicroDeposit2" value="{{isset($StripeACHData->MicroDeposit2)?$StripeACHData->MicroDeposit2:''}}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Active:</label>
+                        <div id="stripeachStatusDiv">
+                            <input id="StripeACHStatus" class="subcatstatus" Divid="stripeachStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($StripeACHDbData->Status) && $StripeACHDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="control-label">* For live payments you have upto 10 tries to verify bank account after that bank account is unverifiable.</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+      <!-- stripe ach end -->
       <!-- SagePay start -->
         <?php
         $SagePayDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$SagePaySlug);
@@ -402,9 +453,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label class="control-label">Active:
-                            <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Enabling this will deactivate all other Payment categories" data-original-title="Status" class="label label-info popover-primary">?</span>
-                        </label>
+                        <label class="control-label">Active:</label>
                         <div id="SagePayStatusDiv">
                             <input id="SagePayStatus" class="subcatstatus" Divid="SagePayStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($SagePayDbData->Status) && $SagePayDbData->Status==1){ ?>   checked="checked"<?php } ?> >
                         </div>

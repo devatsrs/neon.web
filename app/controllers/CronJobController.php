@@ -166,13 +166,17 @@ class CronJobController extends \BaseController {
             }else if($CronJobCommand->Command == 'accountbalanceprocess'){
                 //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
 				$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
+            }else if($CronJobCommand->Command == 'customerratefilegenerator' || $CronJobCommand->Command == 'customerratefilegeneration'){
+                $customers = Account::getCustomerIDList();
+                $customers = array_diff($customers, array('Select'));
+            }else if($CronJobCommand->Command == 'vendorratefilegenerator' || $CronJobCommand->Command == 'vendorratefilegeneration'){
+                $vendors = Account::getVendorIDList();
+                $vendors = array_diff($vendors, array('Select'));
             }
-			 
 
             $commandconfig = json_decode($commandconfig,true);
 
-
-            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts'));
+            return View::make('cronjob.ajax_config_html', compact('commandconfig','commandconfigval','hour_limit','rateGenerators','rateTables','CompanyGateway','day_limit','emailTemplates','accounts','customers','vendors'));
         }
         return '';
     }

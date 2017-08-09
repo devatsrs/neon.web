@@ -6,11 +6,21 @@ class PaymentProfileCustomerController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $AccountID = User::get_userID();
+
         $PaymentGatewayName = '';
+        $PaymentGatewayID='';
+        /*
         $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
         if(!empty($PaymentGatewayID)){
             $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
+        }*/
+
+        $account = Account::find($AccountID);
+        if(!empty($account->PaymentMethod)){
+            $PaymentGatewayName = $account->PaymentMethod;
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
         }
+
         $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID");
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
@@ -28,7 +38,9 @@ class PaymentProfileCustomerController extends \BaseController {
 	{
         $currentmonth = date("n");
         $currentyear = date("Y");
-        return View::make('customer.paymentprofile.index',compact('currentmonth','currentyear'));
+        $CustomerID = Customer::get_accountID();
+        $account = Account::find($CustomerID);
+        return View::make('customer.paymentprofile.index',compact('currentmonth','currentyear','account'));
 	}
 
     public function paynow()
@@ -44,9 +56,16 @@ class PaymentProfileCustomerController extends \BaseController {
 	 */
     public function create()
     {
+        $data = Input::all();
         $CompanyID = Customer::get_companyID();
         $CustomerID = Customer::get_accountID();
-        return AccountPaymentProfile::createProfile($CompanyID,$CustomerID);
+        if($CustomerID > 0) {
+            $PaymentGatewayID=$data['PaymentGatewayID'];
+            if($data['PaymentGatewayID']==PaymentGateway::StripeACH){
+                return AccountPaymentProfile::createBankProfile($CompanyID, $CustomerID,$PaymentGatewayID);
+            }
+            return AccountPaymentProfile::createProfile($CompanyID, $CustomerID,$PaymentGatewayID);
+        }
     }
 
     public function update(){
@@ -108,11 +127,14 @@ class PaymentProfileCustomerController extends \BaseController {
             $PaymentGatewayID = $PaymentProfile->PaymentGatewayID;
             if(!empty($PaymentGatewayID)){
 
-                if($PaymentGatewayID==PaymentGateway::Authorize){
+                if($PaymentGatewayID==PaymentGateway::AuthorizeNet){
                     $ProfileResponse = AccountPaymentProfile::deleteAuthorizeProfile($CompanyID, $AccountID,$id);
                 }
                 if($PaymentGatewayID==PaymentGateway::Stripe){
                     $ProfileResponse = AccountPaymentProfile::deleteStripeProfile($CompanyID, $AccountID,$id);
+                }
+                if($PaymentGatewayID==PaymentGateway::StripeACH){
+                    $ProfileResponse = AccountPaymentProfile::deleteStripeACHProfile($CompanyID, $AccountID,$id);
                 }
 
             }else{

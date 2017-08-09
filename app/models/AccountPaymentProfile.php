@@ -26,11 +26,11 @@ class AccountPaymentProfile extends \Eloquent
         return $AccountPaymentProfile;
     }
 
-    public static function createProfile($CompanyID, $CustomerID)
+    public static function createProfile($CompanyID, $CustomerID,$PaymentGatewayID)
     {
         $data = Input::all();
 
-        $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
+        //$PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
         if(empty($PaymentGatewayID)){
             return Response::json(array("status" => "failed", "message" => "Please Select Payment Gateway"));
         }
@@ -56,11 +56,58 @@ class AccountPaymentProfile extends \Eloquent
         }
 
         $ProfileResponse = array();
-        if($PaymentGatewayID==PaymentGateway::Authorize){
+        if($PaymentGatewayID==PaymentGateway::AuthorizeNet){
             $ProfileResponse = AccountPaymentProfile::createAuthorizeProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data);
         }
         if($PaymentGatewayID==PaymentGateway::Stripe){
             $ProfileResponse = AccountPaymentProfile::createStripeProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data);
+        }
+
+        return $ProfileResponse;
+
+    }
+
+    public static function createBankProfile($CompanyID, $CustomerID,$PaymentGatewayID)
+    {
+        $data = Input::all();
+        //$PaymentGatewayID =$data['PaymentGatewayID'];
+        if(empty($PaymentGatewayID)){
+            return Response::json(array("status" => "failed", "message" => "Please Select Payment Gateway"));
+        }
+        $rules = array(
+            'AccountNumber' => 'required|digits_between:6,19',
+            'RoutingNumber' => 'required',
+            'AccountHolderType' => 'required',
+            'AccountHolderName' => 'required',
+            //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
+        );
+
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+        $account = Account::find($CustomerID);
+        $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+        if(empty($CurrencyCode)){
+            return json_encode(array("status" => "failed", "message" => "No account currency available"));
+        }
+        $data['currency'] = strtolower($CurrencyCode);
+        $Country = $account->Country;
+        if(!empty($Country)){
+            $CountryCode = Country::where(['Country'=>$Country])->pluck('ISO2');
+        }else{
+            $CountryCode = '';
+        }
+        if(empty($CountryCode)){
+            return json_encode(array("status" => "failed", "message" => "No account country available"));
+        }
+
+        $data['currency'] = strtolower($CurrencyCode);
+        $data['country'] = strtolower($CountryCode);
+
+        $ProfileResponse = array();
+        if($PaymentGatewayID==PaymentGateway::StripeACH){
+            $ProfileResponse = AccountPaymentProfile::createStripeACHProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data);
         }
 
         return $ProfileResponse;
@@ -104,12 +151,24 @@ class AccountPaymentProfile extends \Eloquent
                         return json_encode(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
                     }
                 }
+
+                if($PaymentGateway=='StripeACH'){
+                    $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+                    if(empty($CurrencyCode)){
+                        return json_encode(array("status" => "failed", "message" => "No account currency available"));
+                    }
+                    $stripeAchstatus = new StripeACH();
+                    if(empty($stripeAchstatus->status)){
+                        return json_encode(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
+                    }
+                }
+
                 $AccountPaymentProfileID = $CustomerProfile->AccountPaymentProfileID;
                 $options = json_decode($CustomerProfile->Options);
                 $options->InvoiceNumber = $fullnumber;
                 $transactionResponse = PaymentGateway::addTransaction($PaymentGateway, $outstanginamount, $options, $account, $AccountPaymentProfileID,$CreatedBy);
                 /**  Get All UnPaid  Invoice */
-                $unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $CompanyID . ',' . $account->AccountID.',0)');
+                $unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $CompanyID . ',' . $account->AccountID.',0,0)');
                 if (isset($transactionResponse['response_code']) && $transactionResponse['response_code'] == 1) {
                     foreach ($unPaidInvoices as $Invoiceid) {
                         /**  Update Invoice as Paid */
@@ -405,6 +464,109 @@ class AccountPaymentProfile extends \Eloquent
         if($result["status"]=="Success"){
             if($PaymentProfile->delete()) {
                    return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => $result['error']));
+        }
+    }
+
+    public static function createStripeACHProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data)
+    {
+        $stripepayment = new StripeACH();
+
+        $stripedata = array();
+
+        if (empty($stripepayment->status) || empty($stripepayment->stripe_microdeposit1) || empty($stripepayment->stripe_microdeposit2)) {
+            return Response::json(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
+        }
+
+        $stripedata['MicroDeposit1']=$stripepayment->stripe_microdeposit1;
+        $stripedata['MicroDeposit2']=$stripepayment->stripe_microdeposit2;
+
+        $account = Account::where(array('AccountID' => $CustomerID))->first();
+
+        $isDefault = 1;
+
+        $count = AccountPaymentProfile::where(['AccountID' => $CustomerID])
+            ->where(['CompanyID' => $CompanyID])
+            ->where(['PaymentGatewayID' => $PaymentGatewayID])
+            ->where(['isDefault' => 1])
+            ->count();
+
+        if($count>0){
+            $isDefault = 0;
+        }
+
+        $email = empty($account->BillingEmail)?'':$account->BillingEmail;
+        $accountname = empty($account->AccountName)?'':$account->AccountName;
+
+
+        $StripeResponse = array();
+        $stripedata['account_holder_name'] = $data['AccountHolderName'];
+        $stripedata['account_number'] = $data['AccountNumber'];
+        $stripedata['routing_number'] = $data['RoutingNumber'];
+        $stripedata['account_holder_type'] = $data['AccountHolderType'];
+        $stripedata['country'] = $data['country'];
+        $stripedata['currency'] =  $data['currency'];
+        $stripedata['email'] = $email;
+        $stripedata['account'] = $accountname;
+
+        $StripeResponse = $stripepayment->create_customer($stripedata);
+
+        if ($StripeResponse["status"] == "Success") {
+            $option = array(
+                'CustomerProfileID' => $StripeResponse['CustomerProfileID'],
+                'BankAccountID' => $StripeResponse['BankAccountID'],
+                'VerifyStatus' => $StripeResponse['VerifyStatus'],
+            );
+            $CardDetail = array('Title' => $data['Title'],
+                'Options' => json_encode($option),
+                'Status' => 1,
+                'isDefault' => $isDefault,
+                'created_by' => Customer::get_accountName(),
+                'CompanyID' => $CompanyID,
+                'AccountID' => $CustomerID,
+                'PaymentGatewayID' => $PaymentGatewayID);
+            if (AccountPaymentProfile::create($CardDetail)) {
+                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
+        }
+    }
+
+    public static function deleteStripeACHProfile($CompanyID,$AccountID,$AccountPaymentProfileID){
+
+        $stripepayment = new StripeACH();
+
+        if (empty($stripepayment->status)) {
+            return Response::json(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
+        }
+
+        $count = AccountPaymentProfile::where(["CompanyID"=>$CompanyID])->where(["AccountID"=>$AccountID])->count();
+        $PaymentProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
+        if(!empty($PaymentProfile)){
+            $options = json_decode($PaymentProfile->Options);
+            $CustomerProfileID = $options->CustomerProfileID;
+            $isDefault = $PaymentProfile->isDefault;
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+        }
+        if($isDefault==1){
+            if($count!=1){
+                return Response::json(array("status" => "failed", "message" => "You can not delete default profile. Please set as default an other profile first."));
+            }
+        }
+
+        $result = $stripepayment->deleteCustomer($CustomerProfileID);
+
+        if($result["status"]=="Success"){
+            if($PaymentProfile->delete()) {
+                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
             }
