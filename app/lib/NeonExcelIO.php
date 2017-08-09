@@ -31,6 +31,7 @@ class NeonExcelIO
     public static $COLUMN_NAMES 	= 	0 ;
     public static $start_row 	= 	0 ;
     public static $end_row 	= 	0 ;
+    public static $hasHeader 	= 	true ;
     public static $DATA    			= 	1;
     public static $EXCEL   			= 	'xlsx'; // Excel file
     public static $EXCELs  			= 	'xls'; // Excel file
@@ -161,8 +162,13 @@ class NeonExcelIO
         $writer->openToFile($this->file); // write data to a file or to a PHP stream
 
         if(isset($rows[0]) && count($rows[0]) > 0 ) {
-            $columns = array_keys($rows[0]);
-            $writer->addRow($columns); // add a row at a time
+
+            if(self::$hasHeader)
+            {
+                $columns = array_keys($rows[0]);
+                $writer->addRow($columns); // add a row at a time
+            }
+
             $writer->addRows($rows); // add multiple rows at a time
         }
         $writer->close();
@@ -180,8 +186,10 @@ class NeonExcelIO
         $writer->openToFile($this->file); // write data to a file or to a PHP stream
 
         if(isset($rows[0]) && count($rows[0]) > 0 ) {
-            $columns = array_keys($rows[0]);  // Column Names
-            $writer->addRow($columns); // add a row at a time
+            if(self::$hasHeader) {
+                $columns = array_keys($rows[0]);  // Column Names
+                $writer->addRow($columns); // add a row at a time
+            }
             $writer->addRows($rows); // add multiple rows at a time
         }
         $writer->close();
@@ -214,7 +222,10 @@ class NeonExcelIO
                     if(self::$start_row>= ($this->row_cnt+1))
                     {
                         $this->row_cnt++;
-                        $limit++;
+                        if($limit>0)
+                        {
+                            $limit++;
+                        }
                         continue;
                     }
 
@@ -224,7 +235,7 @@ class NeonExcelIO
                         continue;
                     }
 
-                    if ($this->row_cnt == 0 && $this->first_row == self::$COLUMN_NAMES) {
+                    if ($this->row_cnt == 0 && $this->first_row == self::$COLUMN_NAMES && self::$start_row>0) {
                         $first_row = $row;
                         $this->set_columns($first_row);
                         $this->row_cnt++;
@@ -247,7 +258,7 @@ class NeonExcelIO
         {
             $requiredRow = abs($this->row_cnt - self::$end_row - self::$start_row);
             $totatRow = count($result);
-            if($requiredRow<$limit)
+            if($requiredRow<$limit || $limit==0)
             {
                 for($i=$requiredRow ; $i < $totatRow; $i++)
                 {
@@ -290,7 +301,9 @@ class NeonExcelIO
                     if(self::$start_row > $this->row_cnt)
                     {
                         $this->row_cnt++;
-                        $limit++;
+                        if($limit>0) {
+                            $limit++;
+                        }
                         continue;
                     }
 
@@ -300,7 +313,7 @@ class NeonExcelIO
                         continue;
                     }
 
-                    if ($this->row_cnt == 0 && $this->first_row == self::$COLUMN_NAMES) {
+                    if ($this->row_cnt == 0 && $this->first_row == self::$COLUMN_NAMES && self::$start_row>0) {
                         $first_row = $row;
                         $this->set_columns($first_row);
                         $this->row_cnt++;
@@ -322,7 +335,7 @@ class NeonExcelIO
         {
             $requiredRow = abs($this->row_cnt - self::$end_row - self::$start_row);
             $totatRow = count($result);
-            if($requiredRow<$limit)
+            if($requiredRow<$limit || $limit==0)
             {
                 for($i=$requiredRow ; $i < $totatRow; $i++)
                 {
@@ -367,13 +380,18 @@ class NeonExcelIO
 			}
 			$isExcel = in_array(pathinfo($filepath, PATHINFO_EXTENSION),['xls','xlsx'])?true:false;
             $totalRow=0;
+            if($limit>0)
+            {
+                $limit++;
+            }
+
 			$results = Excel::selectSheetsByIndex(0)->load($filepath, function ($reader) use ($flag,$isExcel,&$totalRow) {
                 $reader->skip(self::$start_row-1);
                 $totalRow=$reader->getTotalRowsOfFile();
 				if ($flag == 1) {
 					$reader->noHeading();
 				}
-			})->take($limit+1)->toArray();
+			})->take($limit)->toArray();
 
              if(self::$end_row && $totalRow>0)
              {
