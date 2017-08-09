@@ -24,7 +24,7 @@ BEGIN
 	SET @PreviosBalance := 
 	(SELECT 
 		COALESCE(SUM(Amount),0)
-	FROM NeonBillingDev.tblPayment 
+	FROM RMBilling3.tblPayment 
 	WHERE CompanyID = p_CompanyID
 		AND AccountID = p_AccountID
 		AND Status = 'Approved'
@@ -56,7 +56,7 @@ BEGIN
 	INSERT INTO tmp_dates_ (Dates)
 	SELECT 
 		DISTINCT DATE(PaymentDate) 
-	FROM NeonBillingDev.tblPayment 
+	FROM RMBilling3.tblPayment 
 	WHERE CompanyID = p_CompanyID
 		AND AccountID = p_AccountID
 		AND Status = 'Approved'
@@ -86,7 +86,7 @@ BEGIN
 			ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_),
 			@PreviosBalance:= ROUND(@PreviosBalance,v_Round_)+ ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_) AS Balance 
 		FROM tmp_dates_
-		LEFT JOIN NeonBillingDev.tblPayment 
+		LEFT JOIN RMBilling3.tblPayment 
 			ON date(PaymentDate) = Dates 
 			AND tblPayment.AccountID = p_AccountID
 			AND Status = 'Approved'
@@ -107,7 +107,7 @@ BEGIN
 			ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_) AS Total,
 			ROUND(@TotalPreviosBalance,v_Round_)+ ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_) AS Balance 
 		FROM tmp_dates_
-		LEFT JOIN NeonBillingDev.tblPayment 
+		LEFT JOIN RMBilling3.tblPayment 
 			ON date(PaymentDate) = Dates 
 			AND tblPayment.AccountID = p_AccountID
 			AND Status = 'Approved'
@@ -131,7 +131,7 @@ BEGIN
 			ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_) AS `Total`,
 			@PreviosBalance:= ROUND(@PreviosBalance,v_Round_)+ ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_) AS `Balance`
 		FROM tmp_dates_
-		LEFT JOIN NeonBillingDev.tblPayment 
+		LEFT JOIN RMBilling3.tblPayment 
 			ON date(PaymentDate) = Dates 
 			AND tblPayment.AccountID = p_AccountID
 			AND Status = 'Approved'
