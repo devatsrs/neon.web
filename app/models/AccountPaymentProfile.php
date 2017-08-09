@@ -478,9 +478,12 @@ class AccountPaymentProfile extends \Eloquent
 
         $stripedata = array();
 
-        if (empty($stripepayment->status)) {
-            return Response::json(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
+        if (empty($stripepayment->status) || empty($stripepayment->stripe_microdeposit1) || empty($stripepayment->stripe_microdeposit2)) {
+            return Response::json(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
         }
+
+        $stripedata['MicroDeposit1']=$stripepayment->stripe_microdeposit1;
+        $stripedata['MicroDeposit2']=$stripepayment->stripe_microdeposit2;
 
         $account = Account::where(array('AccountID' => $CustomerID))->first();
 

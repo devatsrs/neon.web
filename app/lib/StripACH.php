@@ -11,6 +11,8 @@ class StripeACH {
 	var $status ;
 	var $stripe_secret_key;
 	var $stripe_publishable_key;
+	var $stripe_microdeposit1;
+	var $stripe_microdeposit2;
 
 	function __Construct()
 	{
@@ -18,6 +20,8 @@ class StripeACH {
 		if(!empty($is_stripe)){
 			$this->stripe_secret_key = $is_stripe->SecretKey;
 			$this->stripe_publishable_key = $is_stripe->PublishableKey;
+			$this->stripe_microdeposit1 = $is_stripe->MicroDeposit1;
+			$this->stripe_microdeposit2 = $is_stripe->MicroDeposit2;
 
 			/**
 			 * Whenever you need work with stripe first we need to set key and version in services config
@@ -102,6 +106,8 @@ class StripeACH {
 		$response = array();
 		$token = array();
 		$customer = array();
+		$MicroDeposit1 = $data['MicroDeposit1'];
+		$MicroDeposit2 = $data['MicroDeposit2'];
 		/**
 		 * Need to Create token with bank detail
 		 * with token after that create customer
@@ -167,7 +173,7 @@ class StripeACH {
 			 * for test purpose just add 32,45
 			*/
 			//$varify = Stripe::BankAccounts()->verify($customerId,$bankAccountId,array(32, 45));
-			$varify = Stripe::BankAccounts()->verify($customerId,$bankAccountId,array(1, 1));
+			$varify = Stripe::BankAccounts()->verify($customerId,$bankAccountId,array($MicroDeposit1, $MicroDeposit2));
 			Log::info(print_r($varify,true));
 			if(!empty($varify['id'])){
 				$response['status'] = 'Success';
@@ -251,6 +257,7 @@ class StripeACH {
 		$token = array();
 		$customer = array();
 		Log::error('start');
+
 
 		/*
 		$token = Stripe::BankAccounts()->verify('cus_9wMcHZMnNqUQAR','ba_1AgvccCLEhHAk25KqUgkBI1Q',array(32, 45));
