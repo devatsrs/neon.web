@@ -330,6 +330,16 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
                 log::info('--Streamco Vendor Rate file Import CRONJOB END--');
 
+                log::info('--Streamco Vendor Rate file Import CRONJOB START--');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('ratefileexport');
+                $setting = CompanyConfiguration::get('RATE_FILE_EXPORT_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' Vendor Rate file Import';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--Streamco Vendor Rate file Import CRONJOB END--');
+
                 CompanyGateway::createSummaryCronJobs(0);
             }
         }else{
