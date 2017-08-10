@@ -592,7 +592,7 @@
             <div class="panel-body">
                 <div class="form-group">
                     <label for="field-1s" class="col-md-3 control-label">Show All Available Payment Methods On Invoice
-                        <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if on then customer can pay invoice by selecting any Available payment method, if off then customer can pay by only selected Preferred Payment Method" data-original-title="Show All Payment Methods On Invoice" class="label label-info popover-primary">?</span>
+                        <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if ON then customer can pay invoice by selecting any Available payment method, if OFF then customer can pay by only selected Preferred Payment Method" data-original-title="Show All Payment Methods On Invoice" class="label label-info popover-primary">?</span>
                     </label>
                     <div class="col-md-4">
                         <div class="make-switch switch-small">
