@@ -243,7 +243,7 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Customer Rate File Export CRONJOB START--');
                 $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefileexport');
                 $setting = CompanyConfiguration::get('STREAMCO_CUSTOMER_RATE_FILE_GEN_CRONJOB');
-                $JobTitle = $CompanyGateway->Title.' Customer Rate File Generation';
+                $JobTitle = $CompanyGateway->Title.' Customer Rate File Export';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
                 log::info($settings);
