@@ -2,6 +2,7 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_CustomerRateForExport
 	IN `p_CompanyID` INT,
 	IN `p_CustomerID` INT ,
 	IN `p_TrunkID` INT,
+	IN `p_NameFormat` VARCHAR(50),
 	IN `p_Account` VARCHAR(200),
 	IN `p_Trunk` VARCHAR(200) ,
 	IN `p_TrunkPrefix` VARCHAR(50),
@@ -13,7 +14,8 @@ BEGIN
 
 	CALL prc_GetCustomerRate(p_CompanyID,p_CustomerID,p_TrunkID,null,null,null,p_Effective,1,0,0,0,'','',-1);
 
-	SELECT 
+	SELECT
+		p_NameFormat AS AuthRule, 
 		p_Account AS AccountName,
 		p_Trunk AS Trunk,
 		p_TrunkPrefix AS CustomerTrunkPrefix,

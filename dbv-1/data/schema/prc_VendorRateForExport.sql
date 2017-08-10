@@ -2,6 +2,7 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_VendorRateForExport`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT ,
 	IN `p_TrunkID` INT,
+	IN `p_NameFormat` VARCHAR(50),
 	IN `p_Account` VARCHAR(200),
 	IN `p_Trunk` VARCHAR(200) ,
 	IN `p_TrunkPrefix` VARCHAR(50),
@@ -71,6 +72,7 @@ BEGIN
 	THEN
 
 		SELECT DISTINCT
+			p_NameFormat AS AuthRule,
 			p_Account AS AccountName,
 			p_Trunk AS Trunk,
 			p_TrunkPrefix AS VendorTrunkPrefix,
@@ -93,6 +95,7 @@ BEGIN
 			END  AS IntervalN ,
 			tblVendorRate.Rate,
 			tblVendorRate.EffectiveDate,
+			tblVendorRate.ConnectionFee,
 			IFNULL(Preference,5) as `Preference`,
 			CASE WHEN 
 				(blockCode.VendorBlockingId IS NOT NULL AND FIND_IN_SET(tblVendorRate.TrunkId,blockCode.TrunkId) != 0) 
@@ -125,6 +128,7 @@ BEGIN
 	ELSE
 
 		SELECT DISTINCT
+			p_NameFormat AS AuthRule,
 			p_Account AS AccountName,
 			p_Trunk AS Trunk,
 			p_TrunkPrefix AS VendorTrunkPrefix,
@@ -147,6 +151,7 @@ BEGIN
 			END  AS IntervalN,
 			tblVendorRate.Rate,
 			tblVendorRate.EffectiveDate,
+			tblVendorRate.ConnectionFee,
 			IFNULL(Preference,5) as `Preference`,
 			CASE WHEN 
 				(blockCode.VendorBlockingId IS NOT NULL AND FIND_IN_SET(tblVendorRate.TrunkId,blockCode.TrunkId) != 0 )
@@ -180,6 +185,7 @@ BEGIN
 		UNION ALL
 
 		SELECT
+			p_NameFormat AS AuthRule,
 			p_Account AS AccountName,
 			p_Trunk AS Trunk,
 			p_TrunkPrefix AS VendorTrunkPrefix,
@@ -192,6 +198,7 @@ BEGIN
 			vrd.IntervalN,
 			vrd.Rate,
 			vrd.EffectiveDate,
+			vrd.ConnectionFee,
 			'' AS `Preference`,
 			'' AS `Forbidden`,
 			'Y' AS `Discontinued`
