@@ -3,7 +3,7 @@
     <table class="table table-bordered datatable" id="description_table">
         <thead>
         <tr>
-            <th width="20%">Description</th>
+            <th width="20%">Destination Break</th>
             <th width="20%">No. of Calls</th>
             <th width="20%">Billed Duration (sec)</th>
             <th width="20%">Charged Amount</th>

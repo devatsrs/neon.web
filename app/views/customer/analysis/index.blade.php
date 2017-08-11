@@ -86,7 +86,7 @@
     <ul class="nav nav-tabs refresh_tab">
         @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
         <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
-        <li ><a href="#description" data-toggle="tab">Description</a></li>
+        <li ><a href="#description" data-toggle="tab">Destination Break</a></li>
         <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
         <li ><a href="#trunk" data-toggle="tab">Trunk</a></li>
         @endif

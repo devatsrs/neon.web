@@ -80,7 +80,7 @@
         <ul class="nav nav-tabs">
             @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
             <li class="active"><a href="#tab1" data-toggle="tab">Destination</a></li>
-            <li ><a href="#tab2" data-toggle="tab">Description</a></li>
+            <li ><a href="#tab2" data-toggle="tab">Destination Break</a></li>
             <li ><a href="#tab3" data-toggle="tab">Prefix</a></li>
             <li ><a href="#tab4" data-toggle="tab">Trunk</a></li>
             @endif
@@ -184,7 +184,7 @@
                             <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                                 <!-- panel head -->
                                 <div class="panel-heading">
-                                    <div class="panel-title">Top 10 Description - Call Count.</div>
+                                    <div class="panel-title">Top 10 Destination Break - Call Count.</div>
 
                                     {{--<div class="panel-options">
                                         <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -211,7 +211,7 @@
                             <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                                 <!-- panel head -->
                                 <div class="panel-heading">
-                                    <div class="panel-title">Top 10 Description - Call Cost.</div>
+                                    <div class="panel-title">Top 10 Destination Break - Call Cost.</div>
 
                                     {{--<div class="panel-options">
                                         <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -238,7 +238,7 @@
                             <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                                 <!-- panel head -->
                                 <div class="panel-heading">
-                                    <div class="panel-title">Top 10 Description - Call Minutes.</div>
+                                    <div class="panel-title">Top 10 Destination Break - Call Minutes.</div>
 
                                     {{--<div class="panel-options">
                                         <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
