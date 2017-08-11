@@ -550,7 +550,7 @@ function getFileContent($file_name, $data){
         if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
-            $columns[$index] = $index;
+            $columns[$value] = $value;
         }
         $counter++;
     }
@@ -572,7 +572,7 @@ function getFileContent($file_name, $data){
 
 
     $grid["fileType"]=$file_type;
-    $grid['columns'] = $results[0];
+    $grid['columns'] = $columns;
     $grid['rows'] = $results;
     $grid['filename'] = $file_name;
     return $grid;
