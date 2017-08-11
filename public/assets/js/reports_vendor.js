@@ -95,7 +95,7 @@ function set_search_parameter(submit_form){
     $searchFilter.TimeZone = $(submit_form).find("[name='TimeZone']").val();
 }
 function loadBarChart(chart_type,submit_data){
-    loading(".bar_chart_"+chart_type,1);
+    loading(".bar_chart",1);
     var seriesdata = [];
     var searchdates = {};
     $.ajax({
@@ -105,12 +105,12 @@ function loadBarChart(chart_type,submit_data){
         data:submit_data,
         aysync: true,
         success: function(data) {
-            loading(".bar_chart_"+chart_type,0);
+            loading(".bar_chart",0);
             if(data.series != '' && data.series.length > 0) {
 				char_title.length = 0;
 				char_title.push(data.Title);
                 seriesdata = JSON.parse(JSON.stringify(data.series));
-                $('.bar_chart_'+chart_type).highcharts({
+                $('.bar_chart').highcharts({
                     chart: {
                         type: 'column',
                         events: {
@@ -191,7 +191,7 @@ function loadBarChart(chart_type,submit_data){
                     }
                 });
             }else{
-                $('.bar_chart_'+chart_type).html('No Data');
+                $('.bar_chart').html('No Data');
             }
         }
     });
@@ -276,9 +276,15 @@ function loadTable(table_id,pageSize,$searchFilter){
                     delete $searchFilter.AccountID;
                     chart_type_param = 'AccountID='+full[6]+'&';
                 }
-                if($searchFilter.chart_type != 'destination') {
+                if($searchFilter.chart_type != 'destination' && $searchFilter.chart_type != 'description') {
+                    jQuery.each($searchFilter, function(index, item) {
+                        var cdr_query_parama = ['prefix','StartDate','EndDate','AccountID','CompanyGatewayID','Prefix','TrunkID','CurrencyID'];
+                        if(jQuery.inArray(index, cdr_query_parama) !== -1){
+                            chart_type_param += index+'='+item+'&'
+                        }
+                    });
                     output = '<a href="{url}" target="_blank" >{name}</a>';
-                    output = output.replace("{url}", cdr_url + '?' + chart_type_param + $.param($searchFilter));
+                    output = output.replace("{url}", cdr_url + '?' + chart_type_param.slice(0, -1));
                     output = output.replace("{name}", id);
                 }else{
                     output = id;

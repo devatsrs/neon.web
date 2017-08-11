@@ -1,11 +1,10 @@
 <div class="row">
-<div class="clear"></div>
 <div class="col-md-4">
 
     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
         <!-- panel head -->
         <div class="panel-heading">
-            <div class="panel-title">By Account - Call Count.</div>
+            <div class="panel-title">By Description - Call Count.</div>
 
             {{--<div class="panel-options">
                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -21,7 +20,7 @@
             <br />
 
             <div class="text-center">
-                <span class="account-call-count-pie-chart"></span>
+                <span class="description-call-count-pie-chart"></span>
             </div>
             <p class="call_count_desc"></p>
         </div>
@@ -32,7 +31,7 @@
     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
         <!-- panel head -->
         <div class="panel-heading">
-            <div class="panel-title">By Account - Call Cost. </div>
+            <div class="panel-title">By Description - Call Cost.</div>
 
             {{--<div class="panel-options">
                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -48,7 +47,7 @@
             <br />
 
             <div class="text-center">
-                <span class="account-call-cost-pie-chart"></span>
+                <span class="description-call-cost-pie-chart"></span>
             </div>
             <p class="call_cost_desc"></p>
         </div>
@@ -59,7 +58,7 @@
     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
         <!-- panel head -->
         <div class="panel-heading">
-            <div class="panel-title">By Account - Call Minutes.</div>
+            <div class="panel-title">By Description - Call Minutes.</div>
 
             {{--<div class="panel-options">
                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -75,7 +74,7 @@
             <br />
 
             <div class="text-center">
-                <span class="account-call-minutes-pie-chart"></span>
+                <span class="description-call-minutes-pie-chart"></span>
             </div>
             <p class="call_minutes_desc"></p>
         </div>

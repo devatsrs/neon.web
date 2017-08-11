@@ -1,5 +1,9 @@
 USE `Ratemanagement3`;
 
+ALTER TABLE `tblAccountAuthenticate`
+	CHANGE COLUMN `CustomerAuthValue` `CustomerAuthValue` TEXT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	CHANGE COLUMN `VendorAuthValue` `VendorAuthValue` TEXT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci';
+
 ALTER TABLE `tblCronJob`
 	CHANGE COLUMN `JobTitle` `JobTitle` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci';
 
