@@ -9,6 +9,7 @@ class LCR extends \Eloquent {
 	const LCR = 2;
 
 	public static $policy = array( self::LCR_PREFIX => "LCR + PREFIX", self::LCR => "LCR" );
+	public static $position = array( "5" => "5 Position", "10" => "10 Position" );
 
 
 }
