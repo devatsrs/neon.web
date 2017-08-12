@@ -1,4 +1,12 @@
 USE `Ratemanagement3`;
+
+ALTER TABLE `tblAccountAuthenticate`
+	CHANGE COLUMN `CustomerAuthValue` `CustomerAuthValue` TEXT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	CHANGE COLUMN `VendorAuthValue` `VendorAuthValue` TEXT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci';
+
+ALTER TABLE `tblCronJob`
+	CHANGE COLUMN `JobTitle` `JobTitle` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci';
+
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ('1', 'CUSTOMER_MOVEMENT_REPORT_DISPLAY', '0');
 
 -- Dumping structure for procedure Ratemanagement3.prc_CustomerRatesFileImport
@@ -481,6 +489,7 @@ CREATE PROCEDURE `prc_CustomerRateForExport`(
 	IN `p_CompanyID` INT,
 	IN `p_CustomerID` INT ,
 	IN `p_TrunkID` INT,
+	IN `p_NameFormat` VARCHAR(50),
 	IN `p_Account` VARCHAR(200),
 	IN `p_Trunk` VARCHAR(200) ,
 	IN `p_TrunkPrefix` VARCHAR(50),
@@ -492,7 +501,8 @@ BEGIN
 
 	CALL prc_GetCustomerRate(p_CompanyID,p_CustomerID,p_TrunkID,null,null,null,p_Effective,1,0,0,0,'','',-1);
 
-	SELECT 
+	SELECT
+		p_NameFormat AS AuthRule, 
 		p_Account AS AccountName,
 		p_Trunk AS Trunk,
 		p_TrunkPrefix AS CustomerTrunkPrefix,
@@ -519,6 +529,7 @@ CREATE PROCEDURE `prc_VendorRateForExport`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT ,
 	IN `p_TrunkID` INT,
+	IN `p_NameFormat` VARCHAR(50),
 	IN `p_Account` VARCHAR(200),
 	IN `p_Trunk` VARCHAR(200) ,
 	IN `p_TrunkPrefix` VARCHAR(50),
@@ -588,6 +599,7 @@ BEGIN
 	THEN
 
 		SELECT DISTINCT
+			p_NameFormat AS AuthRule,
 			p_Account AS AccountName,
 			p_Trunk AS Trunk,
 			p_TrunkPrefix AS VendorTrunkPrefix,
@@ -610,6 +622,7 @@ BEGIN
 			END  AS IntervalN ,
 			tblVendorRate.Rate,
 			tblVendorRate.EffectiveDate,
+			tblVendorRate.ConnectionFee,
 			IFNULL(Preference,5) as `Preference`,
 			CASE WHEN 
 				(blockCode.VendorBlockingId IS NOT NULL AND FIND_IN_SET(tblVendorRate.TrunkId,blockCode.TrunkId) != 0) 
@@ -643,6 +656,7 @@ BEGIN
 
 
 		SELECT DISTINCT
+			p_NameFormat AS AuthRule,
 			p_Account AS AccountName,
 			p_Trunk AS Trunk,
 			p_TrunkPrefix AS VendorTrunkPrefix,
@@ -665,6 +679,7 @@ BEGIN
 			END  AS IntervalN,
 			tblVendorRate.Rate,
 			tblVendorRate.EffectiveDate,
+			tblVendorRate.ConnectionFee,
 			IFNULL(Preference,5) as `Preference`,
 			CASE WHEN 
 				(blockCode.VendorBlockingId IS NOT NULL AND FIND_IN_SET(tblVendorRate.TrunkId,blockCode.TrunkId) != 0 )
@@ -698,6 +713,7 @@ BEGIN
 		UNION ALL
 
 		SELECT
+			p_NameFormat AS AuthRule,
 			p_Account AS AccountName,
 			p_Trunk AS Trunk,
 			p_TrunkPrefix AS VendorTrunkPrefix,
@@ -710,6 +726,7 @@ BEGIN
 			vrd.IntervalN,
 			vrd.Rate,
 			vrd.EffectiveDate,
+			vrd.ConnectionFee,
 			'' AS `Preference`,
 			'' AS `Forbidden`,
 			'Y' AS `Discontinued`

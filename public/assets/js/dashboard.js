@@ -8,6 +8,8 @@ function loadDashboard(){
             /* get destination data for today and display in pie three chart*/
             getReportData('destination');
 
+            /* get description data for today and display in three chart*/
+            getReportData('description');
             /* get prefix data for today and display in pie three chart*/
             getReportData('prefix');
 
