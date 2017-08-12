@@ -8,7 +8,9 @@ class LCRController extends \BaseController {
         $companyID = User::get_companyID();
         $data = Input::all();
         $AccountIDs = empty($data['Accounts'])?'':$data['Accounts'];
-
+        if($AccountIDs=='null'){
+            $AccountIDs='';
+        }
         $data['Use_Preference'] = $data['Use_Preference'] == 'true' ? 1:0;
         $data['iDisplayStart'] +=1;
 
