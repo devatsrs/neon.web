@@ -665,6 +665,11 @@ class VendorRatesController extends \BaseController
 
         if(in_array($file_type ,["xls","xlsx"]))
         {
+            if($file_type=="xls")
+            {
+                $columns=array_keys($results[0]);
+                $results=array_unshift($results, $columns);
+            }
             $NeonExcel->write_excel($results);
         }
         else if($file_type=='csv')
