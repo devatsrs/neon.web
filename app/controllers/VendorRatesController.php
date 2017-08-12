@@ -668,7 +668,7 @@ class VendorRatesController extends \BaseController
             if($file_type=="xls")
             {
                 $columns=array_keys($results[0]);
-                $results=array_unshift($results, $columns);
+                array_unshift($results, $columns);
             }
             $NeonExcel->write_excel($results);
         }
