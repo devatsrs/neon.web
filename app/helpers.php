@@ -556,6 +556,13 @@ function getFileContent($file_name, $data){
         }
         $counter++;
     }
+
+    if($file_type=="xls")
+    {
+        $columns=array_keys($results[0]);
+        $columns=array_combine($columns, $columns);
+    }
+
     foreach ($results as $outindex => $datarow) {
         //$datarow = array_filter($datarow);
         //$results[$outindex] =  array_filter($datarow);
