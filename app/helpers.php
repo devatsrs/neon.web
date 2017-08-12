@@ -517,8 +517,7 @@ function getFileContent($file_name, $data){
     $NeonExcel = new NeonExcelIO($file_name, $data);
     $results = $NeonExcel->read(10);
 
-    print_r($results);
-    exit;
+    
     $file_type = $NeonExcel->file_type;
 
 
