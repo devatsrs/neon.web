@@ -76,13 +76,13 @@
                         <div class="col-sm-2">
                             {{ Form::select('Policy', LCR::$policy, LCR::LCR_PREFIX , array("class"=>"select2")) }}
                         </div>
-                        <label for="field-1" class="col-sm-1 control-label">LCR Position</label>
+                        <label for="field-1" class="col-sm-1 control-label">Show Positions</label>
                         <div class="col-sm-2">
                             {{ Form::select('LCRPosition', LCR::$position, $LCRPosition , array("class"=>"select2")) }}
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Accounts</label>
+                        <label for="field-1" class="col-sm-1 control-label">Vendors</label>
                         <div class="col-sm-2">
                             {{Form::select('Accounts[]', $all_accounts, array() ,array("class"=>"form-control select2",'multiple'))}}
                         </div>
