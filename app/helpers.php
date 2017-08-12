@@ -560,6 +560,7 @@ function getFileContent($file_name, $data){
     if($file_type=="xls")
     {
         $columns=array_keys($results[0]);
+        array_unshift($results, $columns);
         $columns=array_combine($columns, $columns);
     }
 
