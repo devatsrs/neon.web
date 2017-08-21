@@ -751,6 +751,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/company', 'CompaniesController@edit');
 	Route::any('/company/update', 'CompaniesController@update');
 	Route::post('/company/validatesmtp', 'CompaniesController@ValidateSmtp');
+
+	Route::any('/company/download_rate_sheet_template', 'CompaniesController@DownloadRateSheetTemplate');
 	//Route::resource('Companies', 'CompaniesController');
 
 	//payment
