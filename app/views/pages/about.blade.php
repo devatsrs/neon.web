@@ -13,14 +13,42 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.12</h1>
+    <h1>NEON - 4.13</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.12</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.13</strong></div>
 </p>
 </div>
+
+<h2>
+    <span class="label label-success">4.13</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>22-08-2017</h4>
+                    01. Added Integration with Stripe ACH.<br>
+                    02. Added Auto Payment Capture for authorize(.net) and stripe.<br>
+                    03. Added STREAMCO Gateway Integration.<br>
+                    04. Added Locutorios Gateway Integration.<br>
+                    05. Added Movement Report in customer panel for MOR.<br>
+                    06. Added Barcode scanning option on OneOff Invoice.<br>
+                    07. Added New field under Account Service 'Details' where you can specify e.g. Location for that service or any other information.<br>
+                    08. Added Account Exposure column in Account Grid.<br>
+                    09. Added Vendors,Description and Position filter on LCR page.Now you can view upto 10 positions in LCR.<br>
+                    10. Added Trunk Prefix Placeholder in Ratesheet Email Template.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.12</span> &nbsp; Version Highlights

@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_putVendorPreference`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_putVendorPreference`(
 	IN `p_AccountID` INT,
 	IN `p_TrunkID` INT,
 	IN `p_tbltemp_name` VARCHAR(200),
@@ -28,7 +28,6 @@ BEGIN
 		ON tblVendorPreference.RateId = temp.RateID
 		AND tblVendorPreference.TrunkID = temp.TrunkID
 		AND tblVendorPreference.AccountId  = temp.AccountID
-		AND tblVendorPreference.EffectiveDate = temp.EffectiveDate
 	SET tblVendorPreference.Preference = temp.Interval1,created_at=NOW(),CreatedBy="SYSTEM IMPORTED"
 	WHERE tblVendorPreference.AccountId = "' , p_AccountID , '" AND tblVendorPreference.TrunkID = "' , p_TrunkID , '" AND ProcessID = "' , p_ProcessID , ' AND tblVendorPreference.Preference <> 0";
 	');
@@ -45,7 +44,6 @@ BEGIN
 		ON tblVendorPreference.RateId = temp.RateID
 		AND tblVendorPreference.TrunkID = temp.TrunkID
 		AND tblVendorPreference.AccountId  = temp.AccountID
-		AND tblVendorPreference.EffectiveDate = temp.EffectiveDate
 		AND ProcessID = "' , p_ProcessID , '"
 	WHERE VendorRateID IS NULL AND temp.AccountID = "' , p_AccountID , '" AND temp.TrunkID = "' , p_TrunkID , '" AND tblVendorPreference.Preference <> 0 AND temp.RateID IS NOT NULL;
 	');

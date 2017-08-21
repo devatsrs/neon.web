@@ -24,12 +24,23 @@ class CompaniesController extends \BaseController {
             $company->CustomerAccountPrefix = $LastPrefixNo->Value;
         }
         $RoundChargesAmount = CompanySetting::getKeyVal('RoundChargesAmount');
+        $RateSheetTemplate = CompanySetting::getKeyVal('RateSheetTemplate') != 'Invalid Key' ? (array) json_decode(CompanySetting::getKeyVal('RateSheetTemplate')) : '';
+        $RateSheetTemplateFile = '';
+        if($RateSheetTemplate != '') {
+            $RateSheetTemplateFile = $RateSheetTemplate['Excel'];
+            unset($RateSheetTemplate['Excel']);
+        } else {
+            $RateSheetTemplateFile['HeaderSize'] = 0;
+            $RateSheetTemplateFile['FooterSize'] = 0;
+            $RateSheetTemplateFile = "";
+        }
+
         $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
         $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('DefaultDashboard');
         //$PincodeWidget = CompanySetting::getKeyVal('PincodeWidget') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('PincodeWidget');
         $LastPrefixNo = LastPrefixNo::getLastPrefix();
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
-        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount'));
+        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile'));
 
     }
 
@@ -42,7 +53,8 @@ class CompaniesController extends \BaseController {
 	 */
 	public function update()
 	{
-        $data = Input::all(); 
+        $data = Input::all();
+//        echo "<pre>";print_r($data);exit();
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
@@ -54,6 +66,11 @@ class CompaniesController extends \BaseController {
             'CurrencyId' => 'required'
         );
 
+        if (Input::hasFile('RateSheetTemplateFile')) {
+            $rules['RateSheetTemplate.HeaderSize'] = 'required|numeric';
+            $rules['RateSheetTemplate.FooterSize'] = 'required|numeric';
+        }
+
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
@@ -61,6 +78,29 @@ class CompaniesController extends \BaseController {
         }
         if(empty($data['SMTPPassword'])){
             unset($data['SMTPPassword']);
+        }
+
+        if (Input::hasFile('RateSheetTemplateFile')) {
+            $upload_path = CompanyConfiguration::get('TEMP_PATH');
+            $excel = Input::file('RateSheetTemplateFile');
+            $ext = $excel->getClientOriginalExtension();
+            if (in_array($ext, array("csv", "xls", "xlsx"))) {
+                $file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
+                $excel->move($upload_path, $file_name);
+                $file_name = $upload_path . '/' . $file_name;
+                $RateSheetTemplateData['Excel'] = $file_name;
+                $RateSheetTemplateData['HeaderSize'] = $data['RateSheetTemplate']['HeaderSize'];
+                $RateSheetTemplateData['FooterSize'] = $data['RateSheetTemplate']['FooterSize'];
+                $RateSheetTemplateData = json_encode($RateSheetTemplateData);
+                CompanySetting::setKeyVal('RateSheetTemplate',$RateSheetTemplateData);
+                unset($data['RateSheetTemplate']);
+                unset($data['RateSheetTemplateFile']);
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
+            }
+        } else {
+            unset($data['RateSheetTemplate']);
+            unset($data['RateSheetTemplateFile']);
         }
         CompanySetting::setKeyVal('UseInBilling',$data['UseInBilling']);
         unset($data['UseInBilling']);
@@ -104,8 +144,14 @@ class CompaniesController extends \BaseController {
         }
 
     }
-	
-	function ValidateSmtp(){
+
+    public function DownloadRateSheetTemplate(){
+        $filePath =  CompanySetting::getKeyVal('RateSheetTemplate');
+        if($filePath != 'Invalid Key')
+            download_file($filePath);
+    }
+
+    function ValidateSmtp(){
 		$data 				= 		Input::all();
         $companyID 			= 		User::get_companyID();
         $company 			=		Company::find($companyID);
