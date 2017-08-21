@@ -240,25 +240,25 @@ class CompanyGateway extends \Eloquent {
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
                 log::info('--Streamco download CDR CRONJOB END--');
 
-                log::info('--Streamco Customer Rate File Generation CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefilegenerator');
+                log::info('--Streamco Customer Rate File Export CRONJOB START--');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefileexport');
                 $setting = CompanyConfiguration::get('STREAMCO_CUSTOMER_RATE_FILE_GEN_CRONJOB');
-                $JobTitle = $CompanyGateway->Title.' Customer Rate File Generation';
+                $JobTitle = $CompanyGateway->Title.' Customer Rate File Export';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
                 log::info($settings);
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
-                log::info('--Streamco Customer Rate File Generation CRONJOB END--');
+                log::info('--Streamco Customer Rate File Export CRONJOB END--');
 
-                log::info('--Streamco Vendors Rate File Generation CRONJOB START--');
-                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefilegenerator');
+                log::info('--Streamco Vendors Rate File Export CRONJOB START--');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vendorratefileexport');
                 $setting = CompanyConfiguration::get('STREAMCO_VENDOR_RATE_FILE_GEN_CRONJOB');
-                $JobTitle = $CompanyGateway->Title.' Vendors Rate File Generation';
+                $JobTitle = $CompanyGateway->Title.' Vendors Rate File Export';
                 $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
                 $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
                 log::info($settings);
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
-                log::info('--Streamco Vendors Rate File Generation CRONJOB END--');
+                log::info('--Streamco Vendors Rate File Export CRONJOB END--');
 
                 log::info('--Streamco Customers Rate File Download CRONJOB START--');
                 $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('customerratefiledownload');
@@ -329,6 +329,16 @@ class CompanyGateway extends \Eloquent {
                 log::info($settings);
                 CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
                 log::info('--Streamco Vendor Rate file Import CRONJOB END--');
+
+                log::info('--Streamco Rate File Export CRONJOB START--');
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('ratefileexport');
+                $setting = CompanyConfiguration::get('RATE_FILE_EXPORT_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' Rate File Export';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--Streamco Rate File Export Import CRONJOB END--');
 
                 CompanyGateway::createSummaryCronJobs(0);
             }

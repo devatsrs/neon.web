@@ -841,6 +841,12 @@ class InvoicesController extends \BaseController {
 			$result   			=	DataTableSql::of($query,'sqlsrv2')->getProcResult(array('result'));			
 			$payment_log		= 	array("total"=>$result['data']['result'][0]->total_grand,"paid_amount"=>$result['data']['result'][0]->paid_amount,"due_amount"=>$result['data']['result'][0]->due_amount);
             */
+            $PaymentMethod = '';
+            $ShowAllPaymentMethod = $Account->ShowAllPaymentMethod;
+            if(empty($ShowAllPaymentMethod)){
+                $PaymentMethod = $Account->PaymentMethod;
+            }
+
             $StripeACHGatewayID = PaymentGateway::StripeACH;
             $StripeACHCount=0;
             $AccountPaymentProfile = AccountPaymentProfile::where(['PaymentGatewayID'=> $StripeACHGatewayID,'AccountID'=>$Account->AccountID,'Status'=>1])->count();
@@ -887,7 +893,7 @@ class InvoicesController extends \BaseController {
 
             }
 
-            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log','paypal_button','sagepay_button','StripeACHCount'));
+            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log','paypal_button','sagepay_button','StripeACHCount','ShowAllPaymentMethod','PaymentMethod'));
         }
     }
 

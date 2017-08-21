@@ -509,6 +509,7 @@ class AccountsController extends \BaseController {
         $data['Billing'] = isset($data['Billing']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
 		$data['AccountName'] = trim($data['AccountName']);
+		$data['ShowAllPaymentMethod'] = isset($data['ShowAllPaymentMethod']) ? 1 : 0;
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],
@@ -1481,11 +1482,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		
         $update = [];
         $billingupdate = array();
+        $currencyupdate = array();
         if(isset($data['account_owners']) && $data['account_owners'] != 0 && isset($data['OwnerCheck'])){
             $update['Owner'] = $data['account_owners'];
         }
         if(isset($data['Currency']) && $data['Currency'] != 0 && isset($data['CurrencyCheck'])){
-            $update['CurrencyId'] = $data['Currency'];
+            $currencyupdate['CurrencyId'] = $data['Currency'];
         }		
         if(isset($data['VendorCheck'])){
             $update['IsVendor'] = isset($data['vendor_on_off'])?1:0;
@@ -1598,13 +1600,10 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 \Illuminate\Support\Facades\Log::info('Account id -- '.$id);
                 \Illuminate\Support\Facades\Log::info(print_r($update,true));
 				DB::beginTransaction();
-				if(isset($update['CurrencyId']))
-				{
-                    $CurrencyCount = Account::whereRaw("(AccountID = '".$id."' AND (CurrencyId is null or CurrencyId ='0'))")->count();
-                    if($CurrencyCount==0){
-                        unset($update['CurrencyId']);
-                    }
-				}
+                $upcurrencyaccount = Account::find($id);
+                if(empty($upcurrencyaccount->CurrencyId) && isset($currencyupdate['CurrencyId'])){
+                    $upcurrencyaccount->update($currencyupdate);
+                }
                 $upaccount = Account::find($id);
                 $upaccount->update($update);
                 //Account::where(['AccountID'=>$id])->update($update);

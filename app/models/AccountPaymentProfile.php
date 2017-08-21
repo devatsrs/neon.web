@@ -168,7 +168,7 @@ class AccountPaymentProfile extends \Eloquent
                 $options->InvoiceNumber = $fullnumber;
                 $transactionResponse = PaymentGateway::addTransaction($PaymentGateway, $outstanginamount, $options, $account, $AccountPaymentProfileID,$CreatedBy);
                 /**  Get All UnPaid  Invoice */
-                $unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $CompanyID . ',' . $account->AccountID.',0)');
+                $unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $CompanyID . ',' . $account->AccountID.',0,0)');
                 if (isset($transactionResponse['response_code']) && $transactionResponse['response_code'] == 1) {
                     foreach ($unPaidInvoices as $Invoiceid) {
                         /**  Update Invoice as Paid */
@@ -478,9 +478,12 @@ class AccountPaymentProfile extends \Eloquent
 
         $stripedata = array();
 
-        if (empty($stripepayment->status)) {
-            return Response::json(array("status" => "failed", "message" => "Stripe Payment not setup correctly"));
+        if (empty($stripepayment->status) || empty($stripepayment->stripe_microdeposit1) || empty($stripepayment->stripe_microdeposit2)) {
+            return Response::json(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
         }
+
+        $stripedata['MicroDeposit1']=$stripepayment->stripe_microdeposit1;
+        $stripedata['MicroDeposit2']=$stripepayment->stripe_microdeposit2;
 
         $account = Account::where(array('AccountID' => $CustomerID))->first();
 
