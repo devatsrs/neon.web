@@ -4,7 +4,7 @@
     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
         <!-- panel head -->
         <div class="panel-heading">
-            <div class="panel-title">By Description - Call Count.</div>
+            <div class="panel-title">By Destination Break - Call Count.</div>
 
             {{--<div class="panel-options">
                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -31,7 +31,7 @@
     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
         <!-- panel head -->
         <div class="panel-heading">
-            <div class="panel-title">By Description - Call Cost.</div>
+            <div class="panel-title">By Destination Break - Call Cost.</div>
 
             {{--<div class="panel-options">
                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -58,7 +58,7 @@
     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
         <!-- panel head -->
         <div class="panel-heading">
-            <div class="panel-title">By Description - Call Minutes.</div>
+            <div class="panel-title">By Destination Break - Call Minutes.</div>
 
             {{--<div class="panel-options">
                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
