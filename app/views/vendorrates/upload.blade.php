@@ -105,7 +105,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
+                    <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlsx, .csv)</label>
                     <div class="col-sm-4">
                         <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="
                         <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
@@ -151,7 +151,7 @@
                     <label class="col-sm-2 control-label">Note</label>
                     <div class="col-sm-8">
                         
-                        <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
+                        <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlsx, .csv</p>
                         <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" class="label label-info">Format</span></p>
 
                         <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('vendor_rates/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>

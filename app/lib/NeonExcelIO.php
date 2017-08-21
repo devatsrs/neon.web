@@ -298,7 +298,7 @@ class NeonExcelIO
 
                 foreach ($sheet->getRowIterator() as $row) {
 
-                    if(self::$start_row > ($this->row_cnt+1))
+                    if(self::$start_row > ($this->row_cnt))
                     {
                         $this->row_cnt++;
                         if($limit>0) {
@@ -333,7 +333,7 @@ class NeonExcelIO
 
         if(self::$end_row)
         {
-            $requiredRow = abs($this->row_cnt - self::$end_row - self::$start_row-1);
+            $requiredRow = abs($this->row_cnt - self::$end_row - self::$start_row);
             $totatRow = count($result);
             if($requiredRow<$limit || $limit==0)
             {
