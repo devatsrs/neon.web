@@ -30,8 +30,8 @@ class CompaniesController extends \BaseController {
             $RateSheetTemplateFile = $RateSheetTemplate['Excel'];
             unset($RateSheetTemplate['Excel']);
         } else {
-            $RateSheetTemplateFile['HeaderSize'] = 0;
-            $RateSheetTemplateFile['FooterSize'] = 0;
+            $RateSheetTemplate['HeaderSize'] = 0;
+            $RateSheetTemplate['FooterSize'] = 0;
             $RateSheetTemplateFile = "";
         }
 
