@@ -580,31 +580,21 @@ jQuery(document).ready(function ($) {
         var body = $('#table-4 tbody');
         tr.empty();
         body.empty();
-        var count=0;
-        
+
+        $.each( data.columns, function( key, value ) {
+            tr.append('<th>'+value+'</th>');
+        });
+
         $.each( data.rows, function(key, row) {
             var tr = '<tr>';
-            if(count==0)
-            {
-                $.each( row, function(key, item) {
-                    if(typeof item == 'object' && item != null ){
-                        tr+='<th>'+item.date+'</th>';
-                    }else{
-                        tr+='<th>'+item+'</th>';
-                    }
-                });
-                count++;
-            }
-            else
-            {
-                $.each( row, function(key, item) {
-                    if(typeof item == 'object' && item != null ){
-                        tr+='<td>'+item.date+'</td>';
-                    }else{
-                        tr+='<td>'+item+'</td>';
-                    }
-                });
-            }
+
+            $.each( row, function(key, item) {
+                if(typeof item == 'object' && item != null ){
+                    tr+='<td>'+item.date+'</td>';
+                }else{
+                    tr+='<td>'+item+'</td>';
+                }
+            });
 
             tr += '</tr>';
             body.append(tr);
