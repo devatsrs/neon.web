@@ -915,7 +915,7 @@
 
         $('#modal-BulkMail').on('shown.bs.modal', function(event){
             var modal = $(this);
-            show_summernote(modal.find(".message"),editor_options);
+            //show_summernote(modal.find(".message"),editor_options);
         });
 
         $('#modal-BulkMail').on('hidden.bs.modal', function(event){
@@ -923,6 +923,14 @@
         });
 
         $(document).on('click','#bulk-Ratesheet,.sendemail',function(){
+            var modal = $('#modal-BulkMail');
+            if($(this).hasClass('sendemail')){
+                editor_options 	  =  		{"leadoptions":true};
+                show_summernote(modal.find(".message"),editor_options);
+            }else{
+                editor_options 	  =  		{"ratetemplateoptions":true};
+                show_summernote(modal.find(".message"),editor_options);
+            }
 			document.getElementById('BulkMail-form').reset();
 			$("#modal-BulkMail").find('.file-input-name').html("");
             $("#BulkMail-form [name='template_option']").val('').trigger("change");
@@ -1132,6 +1140,9 @@
                 var EmailTemplate = data['EmailTemplate'];
                 modal.find('[name="subject"]').val(EmailTemplate.Subject);
                 modal.find('.message').val(EmailTemplate.TemplateBody);
+                if(EmailTemplate.Type=='{{EmailTemplate::RATESHEET_TEMPLATE}}'){
+                    editor_options 	  =  		{"ratetemplateoptions":true};
+                }
             }else{
                 modal.find('[name="subject"]').val('');
                 modal.find('.message').val('');

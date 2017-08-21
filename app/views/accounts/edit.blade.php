@@ -591,6 +591,18 @@
 
             <div class="panel-body">
                 <div class="form-group">
+                    <label for="field-1s" class="col-md-3 control-label">Show All Available Payment Methods On Invoice
+                        <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if ON then customer can pay invoice by selecting any Available payment method, if OFF then customer can pay by only selected Preferred Payment Method" data-original-title="Show All Payment Methods On Invoice" class="label label-info popover-primary">?</span>
+                    </label>
+                    <div class="col-md-4">
+                        <div class="make-switch switch-small">
+                            <input type="checkbox" @if($account->ShowAllPaymentMethod == 1 )checked="" @endif name="ShowAllPaymentMethod" value="1">
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="form-group">
                     <script>
                         var ajax_url = baseurl + "/accounts/{{$account->AccountID}}/ajax_datagrid_PaymentProfiles";
                     </script>
@@ -599,6 +611,10 @@
                         <h4>Preferred Payment Method</h4>
 
                         <ul class="icheck-list">
+                            <li>
+                                <input class="icheck-11" type="radio" id="minimal-radio-7-11" name="PaymentMethod" value="SagePay" @if( $account->PaymentMethod == 'SagePay' ) checked="" @endif />
+                                <label for="minimal-radio-7-11">SagePay</label>
+                            </li>
                             <li>
                                 <input class="icheck-11" type="radio" id="minimal-radio-1-11" name="PaymentMethod" value="Paypal" @if( $account->PaymentMethod == 'Paypal' ) checked="" @endif />
                                 <label for="minimal-radio-1-11">Paypal</label>

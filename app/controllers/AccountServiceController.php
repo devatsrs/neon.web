@@ -40,8 +40,9 @@ class AccountServiceController extends \BaseController {
 
         $ServiceTitle = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceTitle');
         $ServiceDescription = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceDescription');
+        $ServiceTitleShow = AccountService::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->pluck('ServiceTitleShow');
 
-		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription'));
+		return View::make('accountservices.edit', compact('AccountID','ServiceID','ServiceName','account','decimal_places','products','taxes','rate_table','DiscountPlan','InboundTariffID','OutboundTariffID','invoice_count','BillingClass','timezones','AccountBilling','AccountNextBilling','DiscountPlanID','InboundDiscountPlanID','ServiceTitle','ServiceDescription','ServiceTitleShow'));
 	}
 
     // add account services
@@ -112,6 +113,11 @@ class AccountServiceController extends \BaseController {
             $date = date('Y-m-d H:i:s');
             $data['Billing'] = isset($data['Billing']) ? 1 : 0;
             $CompanyID = User::get_companyID();
+            if(empty($data['ServiceTitleShow'])){
+                if(empty($data['ServiceDescription'])){
+                    return Response::json(array("status" => "failed", "message" => "Please fill Service Description."));
+                }
+            }
 
             if(!empty($data['BillingStartDate']) || !empty($data['BillingCycleType']) || !empty($data['BillingCycleValue']) || !empty($data['BillingClassID'])){
                 AccountService::$rules['BillingCycleType'] = 'required';
@@ -207,6 +213,7 @@ class AccountServiceController extends \BaseController {
             $accdata=array();
             $accdata['ServiceTitle'] = empty($data['ServiceTitle']) ? '':$data['ServiceTitle'];
             $accdata['ServiceDescription'] = empty($data['ServiceDescription']) ? '':$data['ServiceDescription'];
+            $accdata['ServiceTitleShow'] = isset($data['ServiceTitleShow']) ? 1 : 0;
             AccountService::where(['AccountID'=>$AccountID,'ServiceID'=>$ServiceID])->update($accdata);
 
             return Response::json(array("status" => "success", "message" => "Account Service Successfully updated."));

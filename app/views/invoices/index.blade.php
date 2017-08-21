@@ -11,28 +11,28 @@
 <div class="col-md-12" style="padding-bottom: 5px;">
     @if(User::checkCategoryPermission('Invoice','Generate'))
     <div class="pull-right"> &nbsp;</div>
-    <div class="input-group-btn pull-right" style="width: 90px;">
-        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Generate <span class="caret"></span></button>
+    <div class="input-group-btn pull-right" style="width: 115px;">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
         <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%"> Manual </a> </li>
-                <li> <a id="generate-new-invoice" href="javascript:;">Automatic</a> </li>
+                <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
+            <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li>
 
         </ul>
     </div>
     @endif
     @if(User::checkCategoryPermission('Invoice','Add'))
     <div class="pull-right"> &nbsp;</div>
-    <div class="input-group-btn pull-right" style="width: 60px;">
-        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add <span class="caret"></span></button>
+    <div class="input-group-btn pull-right" style="width: 100px;">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
         <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff Invoice </a> </li>
-                <li> <a id="invoice-in" href="javascript:;">Invoice Received</a> </li>
+                <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff </a> </li>
+                <li> <a id="invoice-in" href="javascript:;"> Received</a> </li>
         </ul>
     </div>
     @endif
     @if(User::checkCategoryPermission('RecurringProfile','View'))
     <div class="pull-right"> &nbsp;</div>
-    <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > <i class="entypo-cw"></i> </a>
+    <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </a>
     @endif
 </div>
 <div class="tab-content">

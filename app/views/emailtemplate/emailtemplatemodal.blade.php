@@ -52,7 +52,7 @@
 
 			} else if(popup_type == {{EmailTemplate::RATESHEET_TEMPLATE}}){
 
-				show_summernote(modal.find('.message'),{"ratesheetoptions":true});
+				show_summernote(modal.find('.message'),{"ratetemplateoptions":true});
 
 			} else if(popup_type == {{EmailTemplate::TICKET_TEMPLATE}}){
 
