@@ -29,6 +29,10 @@ class CompaniesController extends \BaseController {
         if($RateSheetTemplate != '') {
             $RateSheetTemplateFile = $RateSheetTemplate['Excel'];
             unset($RateSheetTemplate['Excel']);
+        } else {
+            $RateSheetTemplateFile['HeaderSize'] = 0;
+            $RateSheetTemplateFile['FooterSize'] = 0;
+            $RateSheetTemplateFile = "";
         }
 
         $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
