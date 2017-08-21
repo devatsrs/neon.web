@@ -258,7 +258,6 @@
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">Rate Sheet Header Size <span data-original-title="Rate Sheet Template Header Size" data-content="If your header has 4 rows occupied in template excel file than you have to put here 4" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></label>
                                     <div class="col-sm-4">
-                                        {{--$RateSheetTemplate[HeaderSize]--}}
                                         {{Form::text('RateSheetTemplate[HeaderSize]', $RateSheetTemplate['HeaderSize'],array("class"=>"form-control","Placeholder"=>"Add Numeric value"))}}
                                     </div>
                                     <div class="col-sm-4 pull-right">
@@ -269,7 +268,6 @@
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">Rate Sheet Footer Size <span data-original-title="Rate Sheet Template Footer Size" data-content="If your footer has 4 rows occupied in template excel file than you have to put here 4" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> </label>
                                     <div class="col-sm-4">
-                                        {{--$RateSheetTemplate[FooterSize]--}}
                                         {{Form::text('RateSheetTemplate[FooterSize]', $RateSheetTemplate['FooterSize'],array("class"=>"form-control","Placeholder"=>"Add Numeric value"))}}
                                     </div>
                                 </div>
