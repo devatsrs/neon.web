@@ -261,7 +261,7 @@
                                         {{Form::text('RateSheetTemplate[HeaderSize]', $RateSheetTemplate['HeaderSize'],array("class"=>"form-control","Placeholder"=>"Add Numeric value"))}}
                                     </div>
                                     <div class="col-sm-4 pull-right">
-                                        <a href="{{URL::to('company/download_rate_sheet_template')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
+                                        <a href="{{URL::to('company/download_rate_sheet_template_sample')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
                                     </div>
                                     <label for="field-1" class="col-sm-2 control-label pull-right">Demo Rate Sheet Template File</label>
                                 </div>

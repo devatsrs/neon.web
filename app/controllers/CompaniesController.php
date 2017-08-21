@@ -145,17 +145,17 @@ class CompaniesController extends \BaseController {
     }
 
     public function DownloadRateSheetTemplate(){
-        $filePath = public_path() .'/uploads/sample_upload/RateSheetTemplateSample.xls';
-        download_file($filePath);
-    }
-
-    public function DownloadRateSheetTemplateSample(){
         $fileTemplate =  CompanySetting::getKeyVal('RateSheetTemplate');
         if($fileTemplate != 'Invalid Key') {
             $fileTemplate = json_decode($fileTemplate);
             $filePath = $fileTemplate->Excel;
             download_file($filePath);
         }
+    }
+
+    public function DownloadRateSheetTemplateSample(){
+        $filePath = public_path() .'/uploads/sample_upload/RateSheetTemplateSample.xls';
+        download_file($filePath);
     }
 
     function ValidateSmtp(){
