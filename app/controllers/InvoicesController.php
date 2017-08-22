@@ -1125,6 +1125,7 @@ class InvoicesController extends \BaseController {
             $InvoiceDetailData['TotalMinutes'] = $data['TotalMinutes'];
             $InvoiceDetailData['Price'] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceDetailData['Qty'] = 1;
+            $InvoiceDetailData['ProductType'] = Product::INVOICE_PERIOD;
             $InvoiceDetailData['LineTotal'] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceDetailData["created_at"] = date("Y-m-d H:i:s");
             $InvoiceDetailData['Description'] = 'Invoice In';
