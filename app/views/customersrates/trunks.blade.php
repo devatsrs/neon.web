@@ -92,7 +92,7 @@
 
                                     <td  class="center">
                                         <?php
-                                        $rate_table = RateTable::getRateTableList(["TrunkID"=>$trunk->TrunkID,'CodeDeckId'=>$CodeDeckId,'CurrencyID'=>$Account->CurrencyId]);
+                                        $rate_table = RateTable::getRateTableList(['CodeDeckId'=>$CodeDeckId,'CurrencyID'=>$Account->CurrencyId]);
                                         $RateTableID = (isset($customer_trunks[$trunk->TrunkID]->RateTableID))?$customer_trunks[$trunk->TrunkID]->RateTableID:'';
                                         ?>
                                         {{ Form::select( 'CustomerTrunk['.$trunk->TrunkID.'][RateTableID]'    , $rate_table, $RateTableID   , array("class"=>"select2 small ratetableid","data-placeholder"=>"Select a Table")) }}
