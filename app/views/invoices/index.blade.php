@@ -8,32 +8,33 @@
 <h3>Invoice</h3>
 @include('includes.errors')
     @include('includes.success')
-<p style="text-align: right;">
+<div class="col-md-12" style="padding-bottom: 5px;">
+    @if(User::checkCategoryPermission('Invoice','Generate'))
+    <div class="pull-right"> &nbsp;</div>
+    <div class="input-group-btn pull-right" style="width: 115px;">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
+        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
+            <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li>
 
-    @if(User::checkCategoryPermission('RecurringProfile','View'))
-        <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > <i class="entypo-cw"></i> </a>
+        </ul>
+    </div>
     @endif
     @if(User::checkCategoryPermission('Invoice','Add'))
-        <a href="javascript:;" id="invoice-in" class="btn btn-primary tooltip-primary " data-original-title="Add Invoice Received" title="" data-placement="top" data-toggle="tooltip">
-            <img src="assets/images/icons/165.png" width="16" height="16">
-        </a>
-        <a href="{{URL::to("invoice/create")}}" id="add-new-invoice" class="btn btn-primary tooltip-primary " data-original-title="Add Oneoff Invoice" title="" data-placement="top" data-toggle="tooltip">
-            <img src="assets/images/icons/167.png" width="16" height="16">
-        </a>
+    <div class="pull-right"> &nbsp;</div>
+    <div class="input-group-btn pull-right" style="width: 100px;">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
+        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff </a> </li>
+                <li> <a id="invoice-in" href="javascript:;"> Received</a> </li>
+        </ul>
+    </div>
     @endif
-    @if(User::checkCategoryPermission('Invoice','Generate'))
-        <a href="javascript:;" id="manual_billing" class="btn  btn-primary tooltip-primary manual_billing " data-original-title="Manual Invoice" title="" data-placement="top" data-toggle="tooltip">
-            <img src="assets/images/icons/169.png" width="16" height="16">
-        </a>
-        <a href="javascript:;" id="generate-new-invoice" class="btn btn-primary tooltip-primary " data-original-title="Generate Invoice" title="" data-placement="top" data-toggle="tooltip">
-            <img src="assets/images/icons/161.png" width="16" height="16">
-        </a>
-        @endif
-  <!-- <a href="javascript:;" id="bulk-invoice" class="btn upload btn-primary ">
-        <i class="entypo-upload"></i>
-        Bulk Invoice Generate.
-    </a>--> 
-</p>
+    @if(User::checkCategoryPermission('RecurringProfile','View'))
+    <div class="pull-right"> &nbsp;</div>
+    <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </a>
+    @endif
+</div>
 <div class="tab-content">
   <div class="tab-pane active">
     <div class="row">
@@ -824,9 +825,10 @@
                         return;
                     }
                     //console.log(InvoiceIDs);
-                    var pgid = '{{PaymentGateway::getPaymentGatewayID()}}';
+                    //var pgid = '{{PaymentGateway::getPaymentGatewayID()}}';
                     $('#add-credit-card-form').find("[name=AccountID]").val(accoutid);
-                    $('#add-credit-card-form').find("[name=PaymentGatewayID]").val(pgid);
+                    $('#add-bankaccount-form').find("[name=AccountID]").val(accoutid);
+                    //$('#add-credit-card-form').find("[name=PaymentGatewayID]").val(pgid);
 
                     paynow_url = '/paymentprofile/' + accoutid;
                     showAjaxModal(paynow_url, 'pay_now_modal');
@@ -980,6 +982,13 @@
                 update_new_url = baseurl + '/paymentprofile/create';
                 submit_ajax(update_new_url, $('#add-credit-card-form').serialize())
             });
+
+            $('#add-bankaccount-form').submit(function (e) {
+                e.preventDefault();
+                update_new_url = baseurl + '/paymentprofile/create';
+                submit_ajax(update_new_url, $('#add-bankaccount-form').serialize())
+            });
+
             $('#generate-new-invoice').click(function (e) {
                 e.preventDefault();
                 update_new_url = "{{URL::to("invoice/generate")}}";
@@ -1659,6 +1668,60 @@
       </form>
     </div>
   </div>
+</div>
+<div class="modal fade" id="add-modal-bankaccount" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="add-bankaccount-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add New Bank Account</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Title</label>
+                                <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Account Holder Name*</label>
+                                <input type="text" name="AccountHolderName" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Account Number *</label>
+                                <input type="text" name="AccountNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                                <input type="hidden" name="cardID"/>
+                                <input type="hidden" name="AccountID"/>
+                                <input type="hidden" name="PaymentGatewayID"/>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Routing Number*</label>
+                                <input type="text" name="RoutingNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Account Holder Type*</label>
+                                {{ Form::select('AccountHolderType',Payment::$account_holder_type,'', array("class"=>"select2 small")) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="bankaccount-update" class="save btn btn-primary btn-sm btn-icon icon-left"
+                            data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 <div class="modal fade" id="add-edit-modal-payment">
   <div class="modal-dialog">

@@ -60,7 +60,7 @@ BEGIN
 			AND ud.UseInBilling = 1 
 			AND ud.area_prefix = "Other"
 			AND ( extension <> cld or extension IS NULL)
-			AND cld REGEXP "^[0-9]+$"
+			AND REPLACE(cld,ud.TrunkPrefix,"") REGEXP "^[0-9]+$"
 			AND cld like  CONCAT(ud.TrunkPrefix,c.Code,"%");
 		');
 

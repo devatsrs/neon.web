@@ -841,7 +841,18 @@ class InvoicesController extends \BaseController {
 			$result   			=	DataTableSql::of($query,'sqlsrv2')->getProcResult(array('result'));			
 			$payment_log		= 	array("total"=>$result['data']['result'][0]->total_grand,"paid_amount"=>$result['data']['result'][0]->paid_amount,"due_amount"=>$result['data']['result'][0]->due_amount);
             */
+            $PaymentMethod = '';
+            $ShowAllPaymentMethod = $Account->ShowAllPaymentMethod;
+            if(empty($ShowAllPaymentMethod)){
+                $PaymentMethod = $Account->PaymentMethod;
+            }
 
+            $StripeACHGatewayID = PaymentGateway::StripeACH;
+            $StripeACHCount=0;
+            $AccountPaymentProfile = AccountPaymentProfile::where(['PaymentGatewayID'=> $StripeACHGatewayID,'AccountID'=>$Account->AccountID,'Status'=>1])->count();
+            if($AccountPaymentProfile>0){
+                $StripeACHCount=1;
+            }
             $payment_log = Payment::getPaymentByInvoice($id);
 
             $paypal_button = $sagepay_button = "";
@@ -866,7 +877,8 @@ class InvoicesController extends \BaseController {
                 } */
 
                 $paypal_button = $paypal->get_paynow_button($Invoice->AccountID,$Invoice->InvoiceID);
-            } else if ( (new SagePay())->status()) {
+            }
+            if ( (new SagePay())->status()) {
 
                 $SagePay = new SagePay();
 
@@ -881,7 +893,7 @@ class InvoicesController extends \BaseController {
 
             }
 
-            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log','paypal_button','sagepay_button'));
+            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log','paypal_button','sagepay_button','StripeACHCount','ShowAllPaymentMethod','PaymentMethod'));
         }
     }
 
@@ -1113,6 +1125,7 @@ class InvoicesController extends \BaseController {
             $InvoiceDetailData['TotalMinutes'] = $data['TotalMinutes'];
             $InvoiceDetailData['Price'] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceDetailData['Qty'] = 1;
+            $InvoiceDetailData['ProductType'] = Product::INVOICE_PERIOD;
             $InvoiceDetailData['LineTotal'] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceDetailData["created_at"] = date("Y-m-d H:i:s");
             $InvoiceDetailData['Description'] = 'Invoice In';
@@ -1603,16 +1616,48 @@ class InvoicesController extends \BaseController {
     }
     public function invoice_payment($id,$type)
     {
+        $stripeachprofiles=array();
+        $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
         $account_inv = explode('-', $id);
         if (isset($account_inv[0]) && intval($account_inv[0]) > 0 && isset($account_inv[1]) && intval($account_inv[1]) > 0) {
             $AccountID = intval($account_inv[0]);
             $InvoiceID = intval($account_inv[1]);
             $Invoice = Invoice::where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
             $Account = Account::where(['AccountID'=>$AccountID])->first();
+
+            /* stripe ach gateway */
+            if(!empty($type) && $PaymentGatewayID==PaymentGateway::StripeACH){
+                $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
+
+                $data = AccountPaymentProfile::where(["tblAccountPaymentProfile.CompanyID"=>$Account->CompanyId])
+                    ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
+                    ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID])
+                    ->where(["tblAccountPaymentProfile.Status"=>1])
+                    ->get();
+                if(!empty($data) && count($data)){
+                    foreach($data as $profile){
+                        $stripedata=array();
+                        $stripedata['AccountPaymentProfileID'] = $profile->AccountPaymentProfileID;
+                        $stripedata['Title'] = $profile->Title;
+                        $stripedata['PaymentMethod'] = $type;
+                        $stripedata['isDefault'] = $profile->isDefault;
+                        $stripedata['created_at'] = $profile->created_at;
+                        $Options = json_decode($profile->Options);
+                        $CustomerProfileID = $Options->CustomerProfileID;
+                        $verifystatus = $Options->VerifyStatus;
+                        $BankAccountID = $Options->BankAccountID;
+                        $stripedata['CustomerProfileID'] = $CustomerProfileID;
+                        $stripedata['BankAccountID'] = $BankAccountID;
+                        $stripedata['verifystatus'] = $verifystatus;
+                        $stripeachprofiles[]=$stripedata;
+                    }
+                }
+            }
+            /* stripe ach gateway end */
             if (count($Invoice) > 0) {
                 $CurrencyCode = Currency::getCurrency($Invoice->CurrencyID);
                 $CurrencySymbol =  Currency::getCurrencySymbol($Invoice->CurrencyID);
-                return View::make('invoices.invoice_payment', compact('Invoice','CurrencySymbol','Account','CurrencyCode','type'));
+                return View::make('invoices.invoice_payment', compact('Invoice','CurrencySymbol','Account','CurrencyCode','type','PaymentGatewayID','stripeachprofiles'));
             }
         }
     }
@@ -2288,6 +2333,121 @@ class InvoicesController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Invoice not found"));
         }
     }
+
+
+    public function stripeach_payment(){
+        $data = Input::all();
+
+        $InvoiceID = $data['InvoiceID'];
+        $AccountID = $data['AccountID'];
+
+        $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
+        $data['CurrencyCode'] = Currency::getCurrency($Invoice->CurrencyID);
+        if(empty($data['CurrencyCode'])){
+            return Response::json(array("status" => "failed", "message" => "No invoice currency available"));
+        }
+
+        if(!empty($Invoice)) {
+
+            $Invoice = Invoice::find($Invoice->InvoiceID);
+
+            $payment_log = Payment::getPaymentByInvoice($Invoice->InvoiceID);
+
+            $data['Total'] = $payment_log['final_payment'];
+            $data['FullInvoiceNumber'] = $Invoice->FullInvoiceNumber;
+
+            $stripedata = array();
+
+            $stripedata['amount'] = $data['Total'];
+            $stripedata['currency'] = strtolower($data['CurrencyCode']);
+            $stripedata['description'] = $data['FullInvoiceNumber'].' (Invoice) Payment';
+            $stripedata['customerid'] = $data['CustomerProfileID'];
+
+            $stripepayment = new StripeACH();
+
+            if(empty($stripepayment->status)){
+                return Response::json(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
+            }
+            $StripeResponse = array();
+
+            $StripeResponse = $stripepayment->createchargebycustomer($stripedata);
+
+            if ($StripeResponse['status'] == 'Success') {
+
+                // Add Payment
+                $paymentdata = array();
+                $paymentdata['CompanyID'] = $Invoice->CompanyID;
+                $paymentdata['AccountID'] = $AccountID;
+                $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
+                $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
+                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+                $paymentdata['PaymentMethod'] = 'StripeACH';
+                $paymentdata['CurrencyID'] = $Invoice->CurrencyID;
+                $paymentdata['PaymentType'] = 'Payment In';
+                $paymentdata['Notes'] = $StripeResponse['note'];
+                $paymentdata['Amount'] = $StripeResponse['amount'];
+                $paymentdata['Status'] = 'Approved';
+                $paymentdata['CreatedBy'] = 'Customer';
+                $paymentdata['ModifyBy'] = 'Customer';
+                $paymentdata['created_at'] = date('Y-m-d H:i:s');
+                $paymentdata['updated_at'] = date('Y-m-d H:i:s');
+                Payment::insert($paymentdata);
+
+                \Illuminate\Support\Facades\Log::info("Payment done.");
+                \Illuminate\Support\Facades\Log::info($paymentdata);
+
+                // Add transaction
+                $transactiondata = array();
+                $transactiondata['CompanyID'] = $Invoice->CompanyID;
+                $transactiondata['AccountID'] = $AccountID;
+                $transactiondata['InvoiceID'] = (int)$Invoice->InvoiceID;
+                $transactiondata['Transaction'] = $StripeResponse['id'];
+                $transactiondata['Notes'] = $StripeResponse['note'];
+                $transactiondata['Amount'] = $StripeResponse['amount'];
+                $transactiondata['Status'] = TransactionLog::SUCCESS;
+                $transactiondata['created_at'] = date('Y-m-d H:i:s');
+                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+                $transactiondata['CreatedBy'] = 'Customer';
+                $transactiondata['ModifyBy'] = 'Customer';
+                $transactiondata['Response'] = json_encode($StripeResponse['response']);
+
+                TransactionLog::insert($transactiondata);
+
+                $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
+                $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
+                $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
+                $paymentdata['Invoice'] = $Invoice;
+                Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
+                \Illuminate\Support\Facades\Log::info("Transaction done.");
+                \Illuminate\Support\Facades\Log::info($transactiondata);
+
+                return Response::json(array("status" => "success", "message" => "Invoice paid successfully"));
+
+            } else {
+
+                $transactiondata = array();
+                $transactiondata['CompanyID'] = $Invoice->CompanyID;
+                $transactiondata['AccountID'] = $AccountID;
+                $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
+                $transactiondata['Transaction'] = '';
+                $transactiondata['Notes'] = $StripeResponse['error'];
+                $transactiondata['Amount'] = floatval(0);
+                $transactiondata['Status'] = TransactionLog::FAILED;
+                $transactiondata['created_at'] = date('Y-m-d H:i:s');
+                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+                $transactiondata['CreatedBy'] = 'customer';
+                $transactiondata['ModifyBy'] = 'customer';
+                $transactiondata['ModifyBy'] = 'customer';
+                TransactionLog::insert($transactiondata);
+
+                return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
+            }
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Invoice not found"));
+        }
+    }
+
 
     public function get_unbill_report($id){
         $AccountBilling = AccountBilling::getBilling($id, 0);

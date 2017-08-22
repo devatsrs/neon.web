@@ -29,6 +29,10 @@ class AccountBilling extends \Eloquent {
                 $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
             }
 
+            if (!empty($data['AutoPaymentSetting'])) {
+                $AccountBilling['AutoPaymentSetting'] = $data['AutoPaymentSetting'];
+            }
+
             if (!empty($data['BillingStartDate'])) {
                 $AccountBilling['BillingStartDate'] = $data['BillingStartDate'];
             }
@@ -100,6 +104,9 @@ class AccountBilling extends \Eloquent {
             }
             if (!empty($data['SendInvoiceSetting'])) {
                 $AccountBilling['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
+            }
+            if (!empty($data['AutoPaymentSetting'])) {
+                $AccountBilling['AutoPaymentSetting'] = $data['AutoPaymentSetting'];
             }
             if(!empty($AccountBilling)){
                 AccountBilling::where(array('AccountID'=>$AccountID,'ServiceID'=>$ServiceID))->update($AccountBilling);
