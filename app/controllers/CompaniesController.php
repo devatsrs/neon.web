@@ -83,7 +83,7 @@ class CompaniesController extends \BaseController {
             $upload_path = CompanyConfiguration::get('TEMP_PATH');
             $excel = Input::file('RateSheetTemplateFile');
             $ext = $excel->getClientOriginalExtension();
-            if (in_array($ext, array("csv", "xls", "xlsx"))) {
+            if (in_array($ext, array("xls", "xlsx"))) {
                 $file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
                 $excel->move($upload_path, $file_name);
                 $file_name = $upload_path . '/' . $file_name;
@@ -153,8 +153,8 @@ class CompaniesController extends \BaseController {
         }
     }
 
-    public function DownloadRateSheetTemplateSample(){
-        $filePath = public_path() .'/uploads/sample_upload/RateSheetTemplateSample.xls';
+    public function DownloadRateSheetTemplateDefault(){
+        $filePath = public_path() .'/uploads/sample_upload/RateSheetTemplateDefault.xls';
         download_file($filePath);
     }
 
