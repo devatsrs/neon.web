@@ -386,12 +386,23 @@ class NeonExcelIO
             }
 
 			$results = Excel::selectSheetsByIndex(0)->load($filepath, function ($reader) use ($flag,$isExcel,&$totalRow) {
-                $reader->skip(self::$start_row-1);
+                if(self::$start_row>0)
+                {
+                    $reader->skip(self::$start_row-1);
+                }
                 $totalRow=$reader->getTotalRowsOfFile();
 				if ($flag == 1) {
 					$reader->noHeading();
 				}
 			})->take($limit)->toArray();
+
+            if(self::$start_row==0)
+            {
+                $column=array_keys($results[0]);
+                $column=array_combine($column,$column);
+                array_unshift($results,$column);
+
+            }
 
              if(self::$end_row && $totalRow>0)
              {
