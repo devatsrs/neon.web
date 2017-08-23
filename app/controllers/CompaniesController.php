@@ -30,9 +30,8 @@ class CompaniesController extends \BaseController {
             $RateSheetTemplateFile = $RateSheetTemplate['Excel'];
             unset($RateSheetTemplate['Excel']);
         } else {
-            $RateSheetTemplateFile['HeaderSize'] = 0;
-            $RateSheetTemplateFile['FooterSize'] = 0;
-            $RateSheetTemplateFile = "";
+            $RateSheetTemplate['HeaderSize'] = "";
+            $RateSheetTemplate['FooterSize'] = "";
         }
 
         $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
@@ -84,7 +83,7 @@ class CompaniesController extends \BaseController {
             $upload_path = CompanyConfiguration::get('TEMP_PATH');
             $excel = Input::file('RateSheetTemplateFile');
             $ext = $excel->getClientOriginalExtension();
-            if (in_array($ext, array("csv", "xls", "xlsx"))) {
+            if (in_array($ext, array("xls", "xlsx"))) {
                 $file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
                 $excel->move($upload_path, $file_name);
                 $file_name = $upload_path . '/' . $file_name;
@@ -146,9 +145,17 @@ class CompaniesController extends \BaseController {
     }
 
     public function DownloadRateSheetTemplate(){
-        $filePath =  CompanySetting::getKeyVal('RateSheetTemplate');
-        if($filePath != 'Invalid Key')
+        $fileTemplate =  CompanySetting::getKeyVal('RateSheetTemplate');
+        if($fileTemplate != 'Invalid Key') {
+            $fileTemplate = json_decode($fileTemplate);
+            $filePath = $fileTemplate->Excel;
             download_file($filePath);
+        }
+    }
+
+    public function DownloadRateSheetTemplateDefault(){
+        $filePath = public_path() .'/uploads/sample_upload/RateSheetTemplateDefault.xls';
+        download_file($filePath);
     }
 
     function ValidateSmtp(){

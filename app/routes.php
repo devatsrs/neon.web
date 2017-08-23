@@ -753,6 +753,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::post('/company/validatesmtp', 'CompaniesController@ValidateSmtp');
 
 	Route::any('/company/download_rate_sheet_template', 'CompaniesController@DownloadRateSheetTemplate');
+	Route::any('/company/download_rate_sheet_default_template', 'CompaniesController@DownloadRateSheetTemplateDefault');
 	//Route::resource('Companies', 'CompaniesController');
 
 	//payment
