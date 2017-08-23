@@ -250,9 +250,13 @@
                                     <div class="col-sm-4">
                                         <input name="RateSheetTemplateFile" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
                                     </div>
-                                    <label for="field-1" class="col-sm-2 control-label">Current Rate Sheet Template</label>
+                                    <label for="field-1" class="col-sm-2 control-label">Your Rate Sheet Template</label>
                                     <div class="col-sm-4">
-                                        <a href="{{URL::to('company/download_rate_sheet_template')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
+                                        @if(isset($RateSheetTemplateFile) && $RateSheetTemplateFile != '')
+                                            <a href="{{URL::to('company/download_rate_sheet_template')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
+                                        @else
+                                            <a href="#" class="btn btn-default btn-sm btn-icon icon-left disabled"><i class="entypo-down"></i>Download</a>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -263,7 +267,7 @@
                                     <div class="col-sm-4 pull-right">
                                         <a href="{{URL::to('company/download_rate_sheet_default_template')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
                                     </div>
-                                    <label for="field-1" class="col-sm-2 control-label pull-right">Default Rate Sheet Template</label>
+                                    <label for="field-1" class="col-sm-2 control-label pull-right">Sample Rate Sheet Template</label>
                                 </div>
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">No of Footer Rows <span data-original-title="No of Footer Rows" data-content="If your footer has 4 rows occupied in template file than you have to put 4 here and if template file doesn't have footer than put 0 here" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> </label>
