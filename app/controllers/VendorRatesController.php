@@ -654,19 +654,7 @@ class VendorRatesController extends \BaseController
  
         $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 
-        NeonExcelIO::$start_row=$data["start_row"];
-        NeonExcelIO::$end_row=$data["end_row"];
-        NeonExcelIO::$hasHeader=false;
-
-        $NeonExcel = new NeonExcelIO($temp_path . $file_name, $data);
-        $results = $NeonExcel->read();
-        $file_type = $NeonExcel->file_type;
-
-        $arr_file=pathinfo($file_name);
-        $file_name=$arr_file["filename"].".csv";
-        $NeonExcel->file=$destinationPath . $file_name;
-        $NeonExcel->write_csv($results);
-
+        copy($temp_path . $file_name, $destinationPath . $file_name);
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
             return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
         }
