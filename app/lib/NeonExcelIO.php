@@ -403,6 +403,11 @@ class NeonExcelIO
                 array_unshift($results,$column);
 
             }
+            $tmp_results=array();
+            foreach ($results as $row) {
+                $tmp_results[]=array_values($row);
+            }
+            $results=$tmp_results;
 
              if(self::$end_row && $totalRow>0)
              {

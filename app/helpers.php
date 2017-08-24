@@ -552,7 +552,15 @@ function getFileContent($file_name, $data){
         if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
-            $columns[$value] = $value;
+            if(!is_null($value))
+            {
+                $columns[$value] = $value;
+            }
+            else
+            {
+                $columns[""]="";
+            }
+
         }
         $counter++;
     }
