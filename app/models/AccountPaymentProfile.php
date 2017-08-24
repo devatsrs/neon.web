@@ -161,6 +161,10 @@ class AccountPaymentProfile extends \Eloquent
                     if(empty($stripeAchstatus->status)){
                         return json_encode(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
                     }
+                    $StripeObj = json_decode($CustomerProfile->Options);
+                    if(empty($StripeObj->VerifyStatus) || $StripeObj->VerifyStatus!=='verified'){
+                        return json_encode(array("status" => "failed", "message" => "Bank Account not verified."));
+                    }
                 }
 
                 $AccountPaymentProfileID = $CustomerProfile->AccountPaymentProfileID;
@@ -478,12 +482,9 @@ class AccountPaymentProfile extends \Eloquent
 
         $stripedata = array();
 
-        if (empty($stripepayment->status) || empty($stripepayment->stripe_microdeposit1) || empty($stripepayment->stripe_microdeposit2)) {
+        if (empty($stripepayment->status)) {
             return Response::json(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
         }
-
-        $stripedata['MicroDeposit1']=$stripepayment->stripe_microdeposit1;
-        $stripedata['MicroDeposit2']=$stripepayment->stripe_microdeposit2;
 
         $account = Account::where(array('AccountID' => $CustomerID))->first();
 
@@ -519,7 +520,7 @@ class AccountPaymentProfile extends \Eloquent
             $option = array(
                 'CustomerProfileID' => $StripeResponse['CustomerProfileID'],
                 'BankAccountID' => $StripeResponse['BankAccountID'],
-                'VerifyStatus' => $StripeResponse['VerifyStatus'],
+                'VerifyStatus' => '',
             );
             $CardDetail = array('Title' => $data['Title'],
                 'Options' => json_encode($option),
