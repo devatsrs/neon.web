@@ -512,15 +512,14 @@ function getFileContent($file_name, $data){
     $columns = [];
     $grid = [];
     $flag = 0;
-    NeonExcelIO::$start_row=$data["start_row"];
-    NeonExcelIO::$end_row=$data["end_row"];
+    if(isset($data["start_row"]) && isset($data["end_row"]))
+    {
+        NeonExcelIO::$start_row=$data["start_row"];
+        NeonExcelIO::$end_row=$data["end_row"];
+    }
+
     $NeonExcel = new NeonExcelIO($file_name, $data);
     $results = $NeonExcel->read(10);
-
-    
-    $file_type = $NeonExcel->file_type;
-
-
     /*
     if (!empty($data['Delimiter'])) {
         Config::set('excel::csv.delimiter', $data['Delimiter']);
@@ -583,8 +582,6 @@ function getFileContent($file_name, $data){
         Log::error($ex);
     }
 
-
-    $grid["fileType"]=$file_type;
     $grid['columns'] = $columns;
     $grid['rows'] = $results;
     $grid['filename'] = $file_name;
