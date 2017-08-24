@@ -31,7 +31,6 @@ class NeonExcelIO
     public static $COLUMN_NAMES 	= 	0 ;
     public static $start_row 	= 	0 ;
     public static $end_row 	= 	0 ;
-    public static $hasHeader 	= 	true ;
     public static $DATA    			= 	1;
     public static $EXCEL   			= 	'xlsx'; // Excel file
     public static $EXCELs  			= 	'xls'; // Excel file
@@ -163,12 +162,8 @@ class NeonExcelIO
 
         if(isset($rows[0]) && count($rows[0]) > 0 ) {
 
-            if(self::$hasHeader)
-            {
-                $columns = array_keys($rows[0]);
-                $writer->addRow($columns); // add a row at a time
-            }
-
+            $columns = array_keys($rows[0]);
+            $writer->addRow($columns); // add a row at a time
             $writer->addRows($rows); // add multiple rows at a time
         }
         $writer->close();
@@ -186,10 +181,8 @@ class NeonExcelIO
         $writer->openToFile($this->file); // write data to a file or to a PHP stream
 
         if(isset($rows[0]) && count($rows[0]) > 0 ) {
-            if(self::$hasHeader) {
-                $columns = array_keys($rows[0]);  // Column Names
-                $writer->addRow($columns); // add a row at a time
-            }
+            $columns = array_keys($rows[0]);  // Column Names
+            $writer->addRow($columns); // add a row at a time
             $writer->addRows($rows); // add multiple rows at a time
         }
         $writer->close();
