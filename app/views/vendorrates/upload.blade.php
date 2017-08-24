@@ -361,6 +361,12 @@
                         <div class="col-sm-4">
                             {{Form::select('selection[DialString]',$dialstring ,'',array("class"=>"select2 small"))}}
                         </div>
+
+                        <label for=" field-1" class="col-sm-2 control-label">Number Range <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Only Required when you have selected Dial String in mapping." data-original-title="Number Range">?</span>
+                        </label>
+                        <div class="col-sm-4">
+                            {{Form::select('selection[DialStringPrefix]', array(),'',array("class"=>"select2 small"))}}
+                        </div>
                     </div>
                 </div>
             </div>

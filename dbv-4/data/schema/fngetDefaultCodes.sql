@@ -1,10 +1,13 @@
-CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `fngetDefaultCodes`(IN `p_CompanyID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fngetDefaultCodes`(
+	IN `p_CompanyID` INT
+)
 BEGIN
 	
 	DROP TEMPORARY TABLE IF EXISTS tmp_codes_;
 	CREATE TEMPORARY TABLE tmp_codes_ (
 		CountryID INT,
 		Code VARCHAR(50),
+		Description VARCHAR(200),
 		INDEX tmp_codes_CountryID (`CountryID`),
 		INDEX tmp_codes_Code (`Code`)
 	);
@@ -13,7 +16,8 @@ BEGIN
 	SELECT
 	DISTINCT
 		tblRate.CountryID,
-		tblRate.Code
+		tblRate.Code,
+		tblRate.Description
 	FROM NeonRMDev.tblRate
 	INNER JOIN NeonRMDev.tblCodeDeck
 		ON tblCodeDeck.CodeDeckId = tblRate.CodeDeckId
