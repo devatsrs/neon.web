@@ -240,8 +240,6 @@ class IntegrationController extends \BaseController
 				$rules = array(
 					'SecretKey'	 => 'required',
 					'PublishableKey'	 => 'required',
-					'MicroDeposit1'	 => 'required',
-					'MicroDeposit2'	 => 'required',
 				);
 
 				$validator = Validator::make($data, $rules);
@@ -259,9 +257,7 @@ class IntegrationController extends \BaseController
 
 				$StripeACHData = array(
 					"SecretKey"=>$data['SecretKey'],
-					"PublishableKey"=>$data['PublishableKey'],
-					"MicroDeposit1"=>trim($data['MicroDeposit1']),
-					"MicroDeposit2"=>trim($data['MicroDeposit2'])
+					"PublishableKey"=>$data['PublishableKey']
 				);
 
 				$StripeACHDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();

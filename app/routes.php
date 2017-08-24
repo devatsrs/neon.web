@@ -46,6 +46,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/customer/PaymentMethodProfiles/update', 'PaymentProfileCustomerController@update');
     Route::any('/customer/PaymentMethodProfiles/ajax_datagrid', 'PaymentProfileCustomerController@ajax_datagrid');
     Route::any('/customer/PaymentMethodProfiles/{id}/set_default', 'PaymentProfileCustomerController@set_default');
+    Route::any('/customer/PaymentMethodProfiles/verify_bankaccount', 'PaymentProfileCustomerController@verify_bankaccount');
     Route::any('/customer/PaymentMethodProfiles/{id}/card_status/{active_deactive}', array('as' => 'payment_rules', 'uses' => 'PaymentProfileCustomerController@card_active_deactive'))->where('active_deactive', '(active|deactive)');
 
 	//notice board
