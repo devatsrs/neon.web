@@ -629,13 +629,11 @@ jQuery(document).ready(function ($) {
                         }
                     });
                 }
-
-                $('#add-template-form').find('[name="start_row"]').val(data.start_row);
-                $('#add-template-form').find('[name="end_row"]').val(data.end_row);
-
             });
         }
-
+        
+        $('#add-template-form').find('[name="start_row"]').val(data.start_row);
+        $('#add-template-form').find('[name="end_row"]').val(data.end_row);
         $('#add-template-form').find('[name="TemplateFile"]').val(data.filename);
         $('#add-template-form').find('[name="TempFileName"]').val(data.tempfilename);
     }
