@@ -21,7 +21,7 @@ class PaymentProfileCustomerController extends \BaseController {
             $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
         }
 
-        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID");
+        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID","tblAccountPaymentProfile.Options");
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
             ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID]);
@@ -185,6 +185,46 @@ class PaymentProfileCustomerController extends \BaseController {
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Card."));
             }
+        }
+    }
+
+    public function verify_bankaccount(){
+        $data = Input::all();
+        $cardID = $data['cardID'];
+        if(empty($data['MicroDeposit1']) || empty($data['MicroDeposit2'])){
+            return Response::json(array("status" => "failed", "message" => "Both MicroDeposit Required."));
+        }
+        $AccountPaymentProfile = AccountPaymentProfile::find($cardID);
+        $options = json_decode($AccountPaymentProfile->Options,true);
+        $CustomerProfileID = $options['CustomerProfileID'];
+        $BankAccountID = $options['BankAccountID'];
+        $stripedata = array();
+        $stripedata['CustomerProfileID'] = $CustomerProfileID;
+        $stripedata['BankAccountID'] = $BankAccountID;
+        $stripedata['MicroDeposit1'] = $data['MicroDeposit1'];
+        $stripedata['MicroDeposit2'] = $data['MicroDeposit2'];
+        $stripepayment = new StripeACH();
+
+        if(empty($stripepayment->status)){
+            return Response::json(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
+        }
+        $StripeResponse = $stripepayment->verifyBankAccount($stripedata);
+        if($StripeResponse['status']=='Success'){
+            if($StripeResponse['VerifyStatus']=='verified'){
+                $option = array(
+                    'CustomerProfileID' => $CustomerProfileID,
+                    'BankAccountID' => $BankAccountID,
+                    'VerifyStatus' => $StripeResponse['VerifyStatus']
+                );
+                $AccountPaymentProfile->update(array('Options' => json_encode($option)));
+
+                return Response::json(array("status" => "success", "message" => "verification status is ".$StripeResponse['VerifyStatus']));
+            }else{
+                return Response::json(array("status" => "failed", "message" => "verification status is ".$StripeResponse['VerifyStatus']));
+            }
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
         }
     }
 }
