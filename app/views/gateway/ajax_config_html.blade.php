@@ -23,6 +23,8 @@
             $NameFormat = GatewayConfig::$CallShop_NameFormat;
         }else if($GatewayName == 'Streamco'){
             $NameFormat = GatewayConfig::$Streamco_NameFormat;
+        }else if($GatewayName == 'FusionPBX'){
+            $NameFormat = GatewayConfig::$FusionPBX_NameFormat;
         }
     ?>
     @if($count%2 == 0)
