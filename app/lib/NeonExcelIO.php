@@ -228,13 +228,20 @@ class NeonExcelIO
                         continue;
                     }
 
-                    if ($this->row_cnt == 0 && $this->first_row == self::$COLUMN_NAMES && self::$start_row>0) {
+                    if ($this->row_cnt == 0 && $this->first_row == self::$COLUMN_NAMES) {
                         $first_row = $row;
                         $this->set_columns($first_row);
                         $this->row_cnt++;
                         if($limit > 0 ){
                             $limit++;
                         }
+                        continue;
+                    }
+                    else if( self::$start_row>0 && $this->row_cnt == self::$start_row && $this->first_row == self::$COLUMN_NAMES)
+                    {
+                        $first_row = $row;
+                        $this->set_columns($first_row);
+                        $this->row_cnt++;
                         continue;
                     }
 
@@ -306,7 +313,7 @@ class NeonExcelIO
                         continue;
                     }
 
-                    if ($this->row_cnt == 0 && $this->first_row == self::$COLUMN_NAMES && self::$start_row>0) {
+                    if ($this->row_cnt == 0 && $this->first_row == self::$COLUMN_NAMES) {
                         $first_row = $row;
                         $this->set_columns($first_row);
                         $this->row_cnt++;
@@ -315,6 +322,15 @@ class NeonExcelIO
                         }
                         continue;
                     }
+                    else if(self::$start_row>0 && $this->row_cnt == self::$start_row && $this->first_row == self::$COLUMN_NAMES) {
+                            $first_row = $row;
+                            $this->set_columns($first_row);
+                            $this->row_cnt++;
+                            if($limit > 0 ){
+                                $limit++;
+                            }
+                            continue;
+                        }
 
                     $result[] = $this->set_row($row);
                     $this->row_cnt++;
@@ -389,18 +405,18 @@ class NeonExcelIO
 				}
 			})->take($limit)->toArray();
 
-            if(self::$start_row==0)
+            if(self::$start_row>0)
             {
-                $column=array_keys($results[0]);
-                $column=array_combine($column,$column);
-                array_unshift($results,$column);
+                $tmp_results=array();
+                $column=array_values($results[0]);
+                unset($results[0]);
+                foreach ($results as $row)
+                {
+                        $tmp_results[] = array_combine($column, array_values($row));
+                }
+                $results=$tmp_results;
+            }
 
-            }
-            $tmp_results=array();
-            foreach ($results as $row) {
-                $tmp_results[]=array_values($row);
-            }
-            $results=$tmp_results;
 
              if(self::$end_row && $totalRow>0)
              {

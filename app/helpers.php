@@ -551,9 +551,9 @@ function getFileContent($file_name, $data){
         if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
-            if(!is_null($value))
+            if(!is_null($index))
             {
-                $columns[$value] = $value;
+                $columns[$index] = $index;
             }
             else
             {
@@ -563,8 +563,6 @@ function getFileContent($file_name, $data){
         }
         $counter++;
     }
-
-    unset($results[0]);
 
     foreach ($results as $outindex => $datarow) {
         //$datarow = array_filter($datarow);
