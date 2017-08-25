@@ -326,9 +326,6 @@ class NeonExcelIO
                             $first_row = $row;
                             $this->set_columns($first_row);
                             $this->row_cnt++;
-                            if($limit > 0 ){
-                                $limit++;
-                            }
                             continue;
                         }
 
