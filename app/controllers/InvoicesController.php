@@ -1125,6 +1125,7 @@ class InvoicesController extends \BaseController {
             $InvoiceDetailData['TotalMinutes'] = $data['TotalMinutes'];
             $InvoiceDetailData['Price'] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceDetailData['Qty'] = 1;
+            $InvoiceDetailData['ProductType'] = Product::INVOICE_PERIOD;
             $InvoiceDetailData['LineTotal'] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceDetailData["created_at"] = date("Y-m-d H:i:s");
             $InvoiceDetailData['Description'] = 'Invoice In';
@@ -1635,20 +1636,22 @@ class InvoicesController extends \BaseController {
                     ->get();
                 if(!empty($data) && count($data)){
                     foreach($data as $profile){
-                        $stripedata=array();
-                        $stripedata['AccountPaymentProfileID'] = $profile->AccountPaymentProfileID;
-                        $stripedata['Title'] = $profile->Title;
-                        $stripedata['PaymentMethod'] = $type;
-                        $stripedata['isDefault'] = $profile->isDefault;
-                        $stripedata['created_at'] = $profile->created_at;
                         $Options = json_decode($profile->Options);
-                        $CustomerProfileID = $Options->CustomerProfileID;
-                        $verifystatus = $Options->VerifyStatus;
-                        $BankAccountID = $Options->BankAccountID;
-                        $stripedata['CustomerProfileID'] = $CustomerProfileID;
-                        $stripedata['BankAccountID'] = $BankAccountID;
-                        $stripedata['verifystatus'] = $verifystatus;
-                        $stripeachprofiles[]=$stripedata;
+                        if(!empty($Options->VerifyStatus) && $Options->VerifyStatus=='verified'){
+                            $stripedata=array();
+                            $stripedata['AccountPaymentProfileID'] = $profile->AccountPaymentProfileID;
+                            $stripedata['Title'] = $profile->Title;
+                            $stripedata['PaymentMethod'] = $type;
+                            $stripedata['isDefault'] = $profile->isDefault;
+                            $stripedata['created_at'] = $profile->created_at;
+                            $CustomerProfileID = $Options->CustomerProfileID;
+                            $verifystatus = $Options->VerifyStatus;
+                            $BankAccountID = $Options->BankAccountID;
+                            $stripedata['CustomerProfileID'] = $CustomerProfileID;
+                            $stripedata['BankAccountID'] = $BankAccountID;
+                            $stripedata['verifystatus'] = $verifystatus;
+                            $stripeachprofiles[]=$stripedata;
+                        }
                     }
                 }
             }

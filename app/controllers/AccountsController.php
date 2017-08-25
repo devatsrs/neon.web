@@ -69,7 +69,7 @@ class AccountsController extends \BaseController {
         if(!empty($PaymentGatewayID)){
             $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
         }*/
-        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID");
+        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID","tblAccountPaymentProfile.Options");
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
             ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID]);
@@ -1585,11 +1585,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($data['BulkActionCriteria'])){
             $criteria = json_decode($data['BulkActionCriteria'], true);
             $BulkselectedIDs = $this->getAccountsByCriteria($criteria);
-            $selectedIDs = explode(',',$BulkselectedIDs);
+            $selectedIDs = array_filter(explode(',',$BulkselectedIDs));
             \Illuminate\Support\Facades\Log::info('--criteria-- '.$BulkselectedIDs);
         }else{
             \Illuminate\Support\Facades\Log::info('--ids-- '.$data['BulkselectedIDs']);
-            $selectedIDs = explode(',',$data['BulkselectedIDs']);
+            $selectedIDs = array_filter(explode(',',$data['BulkselectedIDs']));
         }
 
         //$selectedIDs = explode(',',$data['BulkselectedIDs']);
