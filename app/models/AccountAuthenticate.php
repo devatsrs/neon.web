@@ -11,6 +11,11 @@ class AccountAuthenticate extends \Eloquent {
         'AccountID' =>      'required',
     );
 
+    static  $defaultAccountAuditFields = [
+        'CustomerAuthValue'=>'CustomerAuthValue',
+        'VendorAuthValue'=>'VendorAuthValue'
+    ];
+
     public static function validate_ipclis($data){
         $dbValue = [];
         if(!empty($data['ServiceID'])){
@@ -31,6 +36,17 @@ class AccountAuthenticate extends \Eloquent {
         $ipclis = str_replace(',','',$ipclis);
         $ipclis = array_filter(array_map('trim', $ipclis), 'strlen');
         $ipclist = implode(',',$ipclis);
+
+        $oldAccountAuthenticate = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID]);
+        if($oldAccountAuthenticate->count() > 0){
+            $oldAccountAuthenticate = $oldAccountAuthenticate->first();
+            $oldAuthValues['CustomerAuthValue'] = $oldAccountAuthenticate->CustomerAuthValue;
+            $oldAuthValues['VendorAuthValue'] = $oldAccountAuthenticate->VendorAuthValue;
+        } else {
+            $oldAuthValues['CustomerAuthValue'] = "";
+            $oldAuthValues['VendorAuthValue'] = "";
+        }
+
         $query = "CALL prc_AddAccountIPCLI(".$data['CompanyID'].",".$data['AccountID'].",".$data['isCustomerOrVendor'].",'".$ipclist."','".$type."',".$ServiceID.")";
         $found = DB::select($query);
         $validation = '';
@@ -45,6 +61,14 @@ class AccountAuthenticate extends \Eloquent {
                         $validation .= $value . ' ' . $type . ' already exist against '.$obj->AccountName.'.<br>';
                     }
                 }
+            }
+        }
+
+        if($type == 'IP') {
+            $accountAuthenticate = AccountAuthenticate::where(['CompanyID'=>$data['CompanyID'],'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID]);
+            if($accountAuthenticate->count() > 0) {
+                $accountAuthenticate = $accountAuthenticate->first();
+                AccountAuthenticate::addAuditLog($accountAuthenticate,$oldAuthValues);
             }
         }
 
@@ -123,4 +147,50 @@ class AccountAuthenticate extends \Eloquent {
 
         }
     }
+
+    public static function addAuditLog($newObj,$oldVal) {
+        $customer=Session::get('customer');
+        /* 0= user, 1=customer */
+        $UserType = 0;
+        if($customer==1){
+            $UserType = 1;
+        }
+        $UserID = User::get_userID();
+        $CompanyID = User::get_companyID();
+        $IP = get_client_ip();
+        $header = ["UserID"=>$UserID,
+            "CompanyID"=>$CompanyID,
+            "ParentColumnName"=>'AccountAuthenticateID',
+            "Type"=>'accountip',
+            "IP"=>$IP,
+            "UserType"=>$UserType
+        ];
+        $detail = array();
+        log::info('--create start--');
+
+        if ($newObj->attributes['CustomerAuthRule'] == "IP" && $oldVal['CustomerAuthValue'] != $newObj->attributes['CustomerAuthValue']) {
+            $data = ['OldValue' => $oldVal['CustomerAuthValue'],
+                'NewValue' => $newObj->attributes['CustomerAuthValue'],
+                'ColumnName' => 'CustomerAuthValue',
+                'ParentColumnID' => $newObj->attributes['AccountAuthenticateID']
+            ];
+            $detail[] = $data;
+        }
+        if ($newObj->attributes['VendorAuthRule'] == "IP" && $oldVal['VendorAuthValue'] != $newObj->attributes['VendorAuthValue']) {
+            $data = ['OldValue' => $oldVal['VendorAuthValue'],
+                'NewValue' => $newObj->attributes['VendorAuthValue'],
+                'ColumnName' => 'VendorAuthValue',
+                'ParentColumnID' => $newObj->attributes['AccountAuthenticateID']
+            ];
+            $detail[] = $data;
+        }
+
+        Log::info('start');
+        Log::info(print_r($header,true));
+        Log::info(print_r($detail,true));
+        AuditHeader::add_AuditLog($header,$detail);
+        Log::info('end');
+        log::info('--create end--');
+    }
+
 }

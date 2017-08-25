@@ -269,7 +269,7 @@ class AuthenticationController extends \BaseController
             $ServiceID = 0;
         }
         $data['AccountID'] = $id;
-        $accountAuthenticate = AccountAuthenticate::where(array('AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID))->first();
+        $accountAuthenticate = AccountAuthenticate::where(array('CompanyID'=>$companyID,'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID))->first();
         $isCustomerOrVendor = $data['isCustomerOrVendor']==1?'Customer':'Vendor';
         $query = "call prc_unsetCDRUsageAccount ('" . $companyID . "','" . $data['ipclis'] . "','".$Date."',".$Confirm.",".$ServiceID.")";
         $postIps = explode(',',$data['ipclis']);
@@ -279,6 +279,8 @@ class AuthenticationController extends \BaseController
         unset($data['ServiceID']);
         $ips = [];
         if(!empty($accountAuthenticate)){
+            $oldAuthValues['CustomerAuthValue'] = $accountAuthenticate->CustomerAuthValue;
+            $oldAuthValues['VendorAuthValue'] = $accountAuthenticate->VendorAuthValue;
             $recordFound = DB::Connection('sqlsrvcdr')->select($query);
             if($recordFound[0]->Status>0){
                 return Response::json(array("status" => "check","check"=>1));
@@ -342,6 +344,14 @@ class AuthenticationController extends \BaseController
                 //return Response::json(array("status" => "success","ipclis"=> explode(',',$ips),"object"=>$object,"message" => "Account Successfully Updated"));
 
             }
+
+            // starts add audit log
+            $accountAuthenticate = AccountAuthenticate::where(['CompanyID'=>$companyID,'AccountID'=>$data['AccountID'],'ServiceID'=>$ServiceID]);
+            if($accountAuthenticate->count() > 0) {
+                $accountAuthenticate = $accountAuthenticate->first();
+                AccountAuthenticate::addAuditLog($accountAuthenticate,$oldAuthValues);
+            }
+            // ends add audit log
 
             $customerip=array();
             $vendorip=array();
