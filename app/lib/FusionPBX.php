@@ -44,11 +44,8 @@ class FusionPBX{
         $country = Country::getCountryDropdownList();
         if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
             try{
-                $query = "select users.*,addresses.*,currencies.name as currencyname from mor.users
-left JOIN mor.addresses on addresses.id = users.address_id
-left JOIN mor.currencies on currencies.id = users.currency_id
-"; // and userfield like '%outbound%'  removed for inbound calls
-                //$response = DB::connection('pgsql')->select($query);
+                $query = "SELECT * FROM v_domains";
+                // and userfield like '%outbound%'  removed for inbound calls
                 $results = DB::connection('pgsql')->select($query);
                 if(count($results)>0){
                     $tempItemData = array();
@@ -58,11 +55,11 @@ left JOIN mor.currencies on currencies.id = users.currency_id
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ($results as $temp_row) {
-                            $count = DB::table('tblAccount')->where(["AccountName" => $temp_row->username, "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
+                            $count = DB::table('tblAccount')->where(["Number" => $temp_row->domain_name, "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
                             if($count==0){
-                                $tempItemData['AccountName'] = $temp_row->username;
-                                $tempItemData['Number'] = $temp_row->username;
-                                $tempItemData['FirstName'] = $temp_row->first_name;
+                                $tempItemData['AccountName'] = $temp_row->domain_description;
+                                $tempItemData['Number'] = $temp_row->domain_name;
+                                /*$tempItemData['FirstName'] = $temp_row->first_name;
                                 $tempItemData['LastName'] = $temp_row->last_name;
                                 $tempItemData['VatNumber'] = $temp_row->vat_number;
                                 $tempItemData['Address3'] = $temp_row->state;
@@ -77,7 +74,7 @@ left JOIN mor.currencies on currencies.id = users.currency_id
                                 $tempItemData['Address2'] = $temp_row->address2;
                                 $tempItemData['Fax'] = $temp_row->fax;
                                 $tempItemData['Skype'] = $temp_row->skype;
-                                $tempItemData['Currency'] = isset($currency[$temp_row->currencyname]) && $temp_row->currencyname != ''?$currency[$temp_row->currencyname]:null;
+                                $tempItemData['Currency'] = isset($currency[$temp_row->currencyname]) && $temp_row->currencyname != ''?$currency[$temp_row->currencyname]:null;*/
 
                                 $tempItemData['AccountType'] = 1;
                                 $tempItemData['CompanyId'] = $CompanyID;
