@@ -10,6 +10,7 @@ use Aws\S3\S3Client;
 class AmazonS3 {
 
     public static $isAmazonS3;
+    public static $isLocalFile=false;
     public static $dir = array(
         'CODEDECK_UPLOAD' =>  'CodedecksUploads',
         'VENDOR_UPLOAD' =>  'VendorUploads',
@@ -163,10 +164,12 @@ class AmazonS3 {
 
             $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH')."/".$key;
             if ( file_exists($Uploadpath) ) {
+                self::$isLocalFile=true;
                 return $Uploadpath;
             }
             elseif($s3!="NoAmazon")
             {
+                self::$isLocalFile=false;
                 $AmazonSettings = self::getAmazonSettings();
                 $bucket = $AmazonSettings['AWS_BUCKET'];
 

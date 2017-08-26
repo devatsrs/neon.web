@@ -1584,11 +1584,7 @@ class InvoicesController extends \BaseController {
     public static function display_invoice($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
         $PDFurl = '';
-        if(is_amazon() == true){
-            $PDFurl =  AmazonS3::preSignedUrl($Invoice->PDF);
-        }else{
-            $PDFurl = CompanyConfiguration::get('UPLOAD_PATH')."/".$Invoice->PDF;
-        }
+        $PDFurl =  AmazonS3::preSignedUrl($Invoice->PDF);
         header('Content-type: application/pdf');
         header('Content-Disposition: inline; filename="'.basename($PDFurl).'"');
         echo file_get_contents($PDFurl);
