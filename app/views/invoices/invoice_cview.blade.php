@@ -19,18 +19,9 @@
             $cdownload_usage =  URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cdownload_usage');
         }else{
             $PDFurl =  AmazonS3::preSignedUrl($Invoice->PDF);
-            $unsignPDFurl = $PDFurl;
-            if(AmazonS3::$isLocalFile)
-            {
-                $unsignPDFurl = URL::to('/invoice/display_invoice/'.$Invoice->InvoiceID);
-                $PDFurl = URL::to('/invoice/download_invoice/'.$Invoice->InvoiceID);
-            }
+            $unsignPDFurl =  AmazonS3::unSignedUrl($Invoice->PDF);
             if(!empty($Invoice->UsagePath)){
                 $cdownload_usage =  AmazonS3::preSignedUrl($Invoice->UsagePath);
-                if(AmazonS3::$isLocalFile)
-                {
-                    $cdownload_usage =  URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cdownload_usage');
-                }
             }
         }
     }
