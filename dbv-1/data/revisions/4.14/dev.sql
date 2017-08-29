@@ -400,7 +400,13 @@ CONTAINS SQL
 						EXECUTE stmt1;
 						DEALLOCATE PREPARE stmt1;
 
-						SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_VendorRate_ vr on vr.Code = tmp.Code set `', @ColumnName , '` =  concat(vr.Rate,"<br>",vr.EffectiveDate) WHERE vr.AccountID = ', @AccountID , ' ;');
+						SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_VendorRate_ vr on vr.Code = tmp.Code set `', @ColumnName , '` =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.AccountID = ', @AccountID , ' ;');
+
+						PREPARE stmt2 FROM @stm2;
+						EXECUTE stmt2;
+						DEALLOCATE PREPARE stmt2;
+
+						SET @stm2 = CONCAT('UPDATE `tmp_final_compare`  set `', @ColumnName , '` =  "" where  `', @ColumnName , '` is null;');
 
 						PREPARE stmt2 FROM @stm2;
 						EXECUTE stmt2;
@@ -439,12 +445,17 @@ CONTAINS SQL
 						EXECUTE stmt1;
 						DEALLOCATE PREPARE stmt1;
 
-						SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_CustomerRate_ vr on vr.Code = tmp.Code set `', @ColumnName , '` =  concat(vr.Rate,"<br>",vr.EffectiveDate) WHERE vr.AccountID = ', @AccountID , ' ;');
+						SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_CustomerRate_ vr on vr.Code = tmp.Code set `', @ColumnName , '` =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.AccountID = ', @AccountID , ' ;');
 
 						PREPARE stmt2 FROM @stm2;
 						EXECUTE stmt2;
 						DEALLOCATE PREPARE stmt2;
 
+						SET @stm2 = CONCAT('UPDATE `tmp_final_compare`  set `', @ColumnName , '` =  "" where  `', @ColumnName , '` is null;');
+
+						PREPARE stmt2 FROM @stm2;
+						EXECUTE stmt2;
+						DEALLOCATE PREPARE stmt2;
 
 					END IF;
 
@@ -478,7 +489,13 @@ CONTAINS SQL
 						EXECUTE stmt1;
 						DEALLOCATE PREPARE stmt1;
 
-						SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_RateTableRate_ vr on vr.Code = tmp.Code set `', @ColumnName , '` =  concat(vr.Rate,"<br>",vr.EffectiveDate) WHERE vr.RateTableID = ', @RateTableID , ' ;');
+						SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_RateTableRate_ vr on vr.Code = tmp.Code set `', @ColumnName , '` =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.RateTableID = ', @RateTableID , ' ;');
+
+						PREPARE stmt2 FROM @stm2;
+						EXECUTE stmt2;
+						DEALLOCATE PREPARE stmt2;
+
+						SET @stm2 = CONCAT('UPDATE `tmp_final_compare`  set `', @ColumnName , '` =  "" where  `', @ColumnName , '` is null;');
 
 						PREPARE stmt2 FROM @stm2;
 						EXECUTE stmt2;
@@ -517,7 +534,13 @@ CONTAINS SQL
 					EXECUTE stmt1;
 					DEALLOCATE PREPARE stmt1;
 
-					SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_VendorRate_ vr on vr.Code = tmp.Code set `', @ColumnName , '` =  concat(vr.Rate,"<br>",vr.EffectiveDate) WHERE vr.AccountID = ', @AccountID , ' ;');
+					SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_VendorRate_ vr on vr.Code = tmp.Code set `', @ColumnName , '` =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.AccountID = ', @AccountID , ' ;');
+
+					PREPARE stmt2 FROM @stm2;
+					EXECUTE stmt2;
+					DEALLOCATE PREPARE stmt2;
+
+					SET @stm2 = CONCAT('UPDATE `tmp_final_compare`  set `', @ColumnName , '` =  "" where  `', @ColumnName , '` is null;');
 
 					PREPARE stmt2 FROM @stm2;
 					EXECUTE stmt2;
@@ -556,12 +579,17 @@ CONTAINS SQL
 					EXECUTE stmt1;
 					DEALLOCATE PREPARE stmt1;
 
-					SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_CustomerRate_ vr on vr.Code = tmp.Code set `', @ColumnName , '` =  concat(vr.Rate,"<br>",vr.EffectiveDate) WHERE vr.AccountID = ', @AccountID , ' ;');
+					SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_CustomerRate_ vr on vr.Code = tmp.Code set `', @ColumnName , '` =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.AccountID = ', @AccountID , ' ;');
 
 					PREPARE stmt2 FROM @stm2;
 					EXECUTE stmt2;
 					DEALLOCATE PREPARE stmt2;
 
+					SET @stm2 = CONCAT('UPDATE `tmp_final_compare`  set `', @ColumnName , '` =  "" where  `', @ColumnName , '` is null;');
+
+					PREPARE stmt2 FROM @stm2;
+					EXECUTE stmt2;
+					DEALLOCATE PREPARE stmt2;
 
 				END IF;
 
@@ -595,7 +623,13 @@ CONTAINS SQL
 					EXECUTE stmt1;
 					DEALLOCATE PREPARE stmt1;
 
-					SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_RateTableRate_ vr on vr.Code = tmp.Code set `', @ColumnName , '` =  concat(vr.Rate,"<br>",vr.EffectiveDate) WHERE vr.RateTableID = ', @RateTableID , ' ;');
+					SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_RateTableRate_ vr on vr.Code = tmp.Code set `', @ColumnName , '` =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.RateTableID = ', @RateTableID , ' ;');
+
+					PREPARE stmt2 FROM @stm2;
+					EXECUTE stmt2;
+					DEALLOCATE PREPARE stmt2;
+
+					SET @stm2 = CONCAT('UPDATE `tmp_final_compare`  set `', @ColumnName , '` =  "" where  `', @ColumnName , '` is null;');
 
 					PREPARE stmt2 FROM @stm2;
 					EXECUTE stmt2;

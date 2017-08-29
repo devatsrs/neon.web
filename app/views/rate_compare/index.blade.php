@@ -196,12 +196,12 @@
                 GroupBy = $("#rate-compare-search-form select[name='GroupBy']").val();
                 Effective = $("#rate-compare-search-form select[name='Effective']").val();
                 SelectedEffectiveDate = $("#rate-compare-search-form input[name='SelectedEffectiveDate']").val();
-                SourceVendors = $("#rate-compare-search-form select[name='SourceVendors']").val();
-                SourceCustomers = $("#rate-compare-search-form select[name='SourceCustomers']").val();
-                SourceRateTables = $("#rate-compare-search-form select[name='SourceRateTables']").val();
-                DestinationVendors = $("#rate-compare-search-form select[name='DestinationVendors']").val();
-                DestinationCustomers = $("#rate-compare-search-form select[name='DestinationCustomers']").val();
-                DestinationRateTables = $("#rate-compare-search-form select[name='DestinationRateTables']").val();
+                SourceVendors = $("#rate-compare-search-form select[name='SourceVendors[]']").val();
+                SourceCustomers = $("#rate-compare-search-form select[name='SourceCustomers[]']").val();
+                SourceRateTables = $("#rate-compare-search-form select[name='SourceRateTables[]']").val();
+                DestinationVendors = $("#rate-compare-search-form select[name='DestinationVendors[]']").val();
+                DestinationCustomers = $("#rate-compare-search-form select[name='DestinationCustomers[]']").val();
+                DestinationRateTables = $("#rate-compare-search-form select[name='DestinationRateTables[]']").val();
 
                 if(typeof Trunk  == 'undefined' || Trunk == '' ){
                     setTimeout(function(){
@@ -282,7 +282,6 @@
                         if( typeof results.jqXHR.responseJSON.sColumns != 'undefined') {
 
                             $("#table-4"+'>thead>tr').empty();
-                            results.aoColumns = [];
                             $.each(results.jqXHR.responseJSON.sColumns, function (k, col) {
                                 console.log(k + col);
                                 var _class = "";
@@ -309,7 +308,13 @@
 
                         if( typeof results.jqXHR.responseJSON.aaData != 'undefined') {
 
+
                             $("#table-4"+'>tbody>tr').empty();
+                            if(results.jqXHR.responseJSON.aaData.length == 0) {
+                                html = "<td ><center>No Data found</center></td>";
+                                $(html).appendTo("#table-4"+'>tbody>tr:last');
+
+                            }
                             $.each(results.jqXHR.responseJSON.aaData, function (k, row) {
 
                                 console.log(k + row);
@@ -375,11 +380,11 @@
         .dataTables_wrapper .export-data{
             right: 30px !important;
         }
-        th.source , td.source{
-            background: #eff5da !important;
+        .dataTable th.source , .dataTable td.source {
+            background: #d7ef87 !important;
         }
 
-        th.destination , td.destination {
+        .dataTable th.destination , .dataTable td.destination {
             background: #ffc8c8  !important;
         }
     </style>
