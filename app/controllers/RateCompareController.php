@@ -31,7 +31,7 @@ class RateCompareController extends \BaseController {
         $companyID = User::get_companyID();
         $data = Input::all();
         $data['iDisplayStart'] +=1;
-
+        $data['isExport'] = 0;
         $query = "call prc_RateCompare (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$data['GroupBy']."','".$data['SourceVendors']."','".$data['SourceCustomers']."','".$data['SourceRateTables']."','".$data['DestinationVendors']."','".$data['DestinationCustomers']."','".$data['DestinationRateTables']."','".$data['Effective']."','".$data['SelectedEffectiveDate']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."'";
         $query .=',0)';
 
