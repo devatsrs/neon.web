@@ -3,25 +3,34 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_autoAddIP`(
 	IN `p_CompanyGatewayID` INT
 )
 BEGIN
+	DROP TEMPORARY TABLE IF EXISTS tmp_tblTempRateLog_;
+	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblTempRateLog_(
+		`CompanyID` INT(11) NULL DEFAULT NULL,
+		`CompanyGatewayID` INT(11) NULL DEFAULT NULL,
+		`MessageType` INT(11) NOT NULL,
+		`Message` VARCHAR(500) NOT NULL,
+		`RateDate` DATE NOT NULL	
+	);
 
-	INSERT IGNORE INTO NeonRMDev.tblTempRateLog (
+	INSERT IGNORE INTO tmp_tblTempRateLog_ (
 		CompanyID,
 		CompanyGatewayID,
 		MessageType,
 		Message,
-		RateDate,
-		created_at
+		RateDate
 	)
 	SELECT 
 		ga.CompanyID,
 		ga.CompanyGatewayID,
 		4,
 		CONCAT('Account: ',ga.AccountName,' - IP: ',GROUP_CONCAT(ga.AccountIP)),
-		DATE(NOW()),
-		NOW() 
-	FROM NeonBillingDev.tblGatewayAccount ga
+		DATE(NOW())
+	FROM tblGatewayAccount ga
 	INNER JOIN NeonRMDev.tblAccount a 
 		ON a.AccountName = ga.AccountName
+		AND a.CompanyId = p_CompanyID
+		AND a.AccountType = 1
+		AND a.`Status` = 1
 	WHERE  ga.CompanyID = p_CompanyID 
 		AND ga.CompanyGatewayID = p_CompanyGatewayID
 		AND ga.AccountID IS NULL 
@@ -29,6 +38,25 @@ BEGIN
 		AND ga.AccountIP <> ''
 		AND ga.IsVendor IS NULL
 	GROUP BY ga.CompanyID,ga.CompanyGatewayID,ga.AccountID,ga.AccountName,ga.ServiceID;
+	
+	INSERT INTO NeonRMDev.tblTempRateLog (
+		CompanyID,
+		CompanyGatewayID,
+		MessageType,
+		Message,
+		RateDate,
+		SentStatus,
+		created_at
+	)
+	SELECT
+		CompanyID,
+		CompanyGatewayID,
+		MessageType,
+		Message,
+		RateDate,
+		0,
+		NOW()
+	FROM tmp_tblTempRateLog_;
 
 	/* update customer ips */
 	UPDATE NeonRMDev.tblAccountAuthenticate aa
@@ -37,9 +65,12 @@ BEGIN
 			ga.CompanyID,
 			a.AccountID,
 			CONCAT(IFNULL(MAX(aa.CustomerAuthValue),''),IF(MAX(aa.CustomerAuthValue) IS NULL,'',','),GROUP_CONCAT(ga.AccountIP)) AS CustomerAuthValue 
-		FROM NeonBillingDev.tblGatewayAccount ga
+		FROM tblGatewayAccount ga
 		INNER JOIN NeonRMDev.tblAccount a 
 			ON a.AccountName = ga.AccountName
+			AND a.CompanyId = p_CompanyID
+			AND a.AccountType = 1
+			AND a.`Status` = 1
 		INNER JOIN NeonRMDev.tblAccountAuthenticate aa 
 			ON a.AccountID = aa.AccountID
 		WHERE  ga.CompanyID = p_CompanyID 
@@ -64,9 +95,12 @@ BEGIN
 			ga.CompanyID,
 			a.AccountID,
 			CONCAT(IFNULL(MAX(aa.VendorAuthValue),''),IF(MAX(aa.VendorAuthValue) IS NULL,'',','),GROUP_CONCAT(ga.AccountIP)) AS VendorAuthValue 
-		FROM NeonBillingDev.tblGatewayAccount ga
+		FROM tblGatewayAccount ga
 		INNER JOIN NeonRMDev.tblAccount a 
 			ON a.AccountName = ga.AccountName
+			AND a.CompanyId = p_CompanyID
+			AND a.AccountType = 1
+			AND a.`Status` = 1
 		INNER JOIN NeonRMDev.tblAccountAuthenticate aa 
 			ON a.AccountID = aa.AccountID
 		WHERE  ga.CompanyID = p_CompanyID 
@@ -98,9 +132,12 @@ BEGIN
 		'IP',
 		GROUP_CONCAT(ga.AccountIP),
 		ga.ServiceID
-	FROM NeonBillingDev.tblGatewayAccount ga
+	FROM tblGatewayAccount ga
 	INNER JOIN NeonRMDev.tblAccount a 
 		ON a.AccountName = ga.AccountName
+		AND a.CompanyId = p_CompanyID
+		AND a.AccountType = 1
+		AND a.`Status` = 1
 	LEFT JOIN NeonRMDev.tblAccountAuthenticate aa 
 		ON a.AccountID = aa.AccountID
 	WHERE  ga.CompanyID = p_CompanyID 
@@ -126,9 +163,12 @@ BEGIN
 		'IP',
 		GROUP_CONCAT(ga.AccountIP),
 		ga.ServiceID
-	FROM NeonBillingDev.tblGatewayAccount ga
+	FROM tblGatewayAccount ga
 	INNER JOIN NeonRMDev.tblAccount a 
 		ON a.AccountName = ga.AccountName
+		AND a.CompanyId = p_CompanyID
+		AND a.AccountType = 1
+		AND a.`Status` = 1
 	LEFT JOIN NeonRMDev.tblAccountAuthenticate aa 
 		ON a.AccountID = aa.AccountID
 	WHERE  ga.CompanyID = p_CompanyID 
