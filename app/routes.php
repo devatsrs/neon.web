@@ -1266,6 +1266,11 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/get_mor_updates', 'NoticeBoardController@get_mor_updates');
 	Route::any('/save_post', 'NoticeBoardController@store');
 	Route::any('/delete_post/{id}', 'NoticeBoardController@delete');
+
+
+	//RateCompare
+	Route::any('/rate_compare', 'RateCompareController@index');
+	Route::any('/rate_compare/search_ajax_datagrid', 'RateCompareController@search_ajax_datagrid');
 });
 
 Route::group(array('before' => 'global_admin'), function () {
