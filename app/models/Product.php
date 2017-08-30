@@ -12,8 +12,12 @@ class Product extends \Eloquent {
     const ITEM = 1;
     const USAGE = 2;
     const SUBSCRIPTION = 3;
+    const ONEOFFCHARGE =4;
+    const INVOICE_PERIOD = 5;
     public static $ProductTypes = ["item"=>self::ITEM, "usage"=>self::USAGE,"subscription"=>self::SUBSCRIPTION];
     public static $TypetoProducts = [self::ITEM => "item", self::USAGE => "usage", self::SUBSCRIPTION =>"subscription"];
+
+    const DYNAMIC_TYPE = 'product';
 
     static public function checkForeignKeyById($id) {
         $hasAccountApprovalList = InvoiceDetail::where("ProductID",$id)->count();

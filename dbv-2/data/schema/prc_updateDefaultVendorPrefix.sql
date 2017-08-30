@@ -1,4 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateDefaultVendorPrefix`(IN `p_processId` INT, IN `p_tbltempusagedetail_name` VARCHAR(200))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateDefaultVendorPrefix`(
+	IN `p_processId` INT,
+	IN `p_tbltempusagedetail_name` VARCHAR(200)
+)
 BEGIN
 	DECLARE v_pointer_ INT;	
 	DECLARE v_partition_limit_ INT;
@@ -16,13 +19,12 @@ BEGIN
 		INDEX IX_TempVendorCDRID2(`TempVendorCDRID`)
 	);
 	
-
-	/* find prefix from default codes and accounts doen't have active trunks */
+	/* find prefix from default codes and accounts doen't have active trunks */	
 	
 	SET v_pointer_ = 0;
 	SET v_partition_limit_ = 1000;
 	SET @stm = CONCAT('
-		SET @rowCount = (SELECT   COUNT(*)   FROM NeonCDRDev.' , p_tbltempusagedetail_name , '  ud LEFT JOIN tmp_Accounts_ a ON a.AccountID = ud.AccountID WHERE a.AccountID IS NULL AND ProcessID = "' , p_processId , '"  );
+		SET @rowCount = (SELECT   COUNT(*)   FROM NeonCDRDev.' , p_tbltempusagedetail_name , '  ud LEFT JOIN tmp_Accounts_ a ON a.AccountID = ud.AccountID WHERE a.AccountID IS NULL AND area_prefix = "Other" AND ProcessID = "' , p_processId , '"  );
 	');
 	PREPARE stmt FROM @stm;
 	EXECUTE stmt;

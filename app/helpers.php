@@ -508,11 +508,14 @@ function get_image_data($path){
 }
 
 
-function getFileContent($file_name,$data){
+function getFileContent($file_name, $data){
     $columns = [];
     $grid = [];
     $flag = 0;
-
+    if(isset($data["start_row"]) && isset($data["end_row"])){
+        NeonExcelIO::$start_row=$data["start_row"];
+        NeonExcelIO::$end_row=$data["end_row"];
+    }
     $NeonExcel = new NeonExcelIO($file_name, $data);
     $results = $NeonExcel->read(10);
 
@@ -547,10 +550,19 @@ function getFileContent($file_name,$data){
         if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
-            $columns[$index] = $index;
+            if(!is_null($index))
+            {
+                $columns[$index] = $index;
+            }
+            else
+            {
+                $columns[""]="";
+            }
+
         }
         $counter++;
     }
+
     foreach ($results as $outindex => $datarow) {
         //$datarow = array_filter($datarow);
         //$results[$outindex] =  array_filter($datarow);
@@ -1581,6 +1593,9 @@ function ShortName($title,$length=8){
 function is_Stripe(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeSlug);
 }
+function is_StripeACH(){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeACHSlug);
+}
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
         date_default_timezone_set($billing_timezone);
@@ -2248,3 +2263,22 @@ function SowCustomerAgentRepliedDate($result_data)
 
 }
 
+function get_client_ip() {
+    $ipaddress = '';
+    if (isset($_SERVER['HTTP_CLIENT_IP']))
+        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+    else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    else if(isset($_SERVER['HTTP_X_FORWARDED']))
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+    else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
+        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+    else if(isset($_SERVER['HTTP_FORWARDED']))
+        $ipaddress = $_SERVER['HTTP_FORWARDED'];
+    else if(isset($_SERVER['REMOTE_ADDR']))
+        $ipaddress = $_SERVER['REMOTE_ADDR'];
+    else
+        $ipaddress = 'UNKNOWN';
+    return $ipaddress;
+
+}

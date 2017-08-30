@@ -216,6 +216,28 @@
                     </div>
 
                 </div>
+
+                @if(!empty($dynamicfields) && count($dynamicfields)>0)
+                    <div class="form-group">
+                @foreach($dynamicfields as $dynamicfield)
+                    @if(!empty($dynamicfield['FieldSlug']))
+                        @if($dynamicfield['FieldSlug']=='accountgateway')
+                            <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                            <div class="col-md-4">
+                                {{Form::select('accountgateway[]', CompanyGateway::getCompanyGatewayIdList(), (isset($dynamicfield['FieldValue'])? explode(',',$dynamicfield['FieldValue']) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
+                            </div>
+                        @endif
+                        @if($dynamicfield['FieldSlug']=='vendorname')
+                            <label class="col-md-2 control-label">{{$dynamicfield['FieldName']}}</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" autocomplete="off"  name="vendorname" id="field-1" value="{{$dynamicfield['FieldValue']}}" />
+                            </div>
+                        @endif
+                    @endif
+                @endforeach
+                    </div>
+                @endif
+
                 <script>
                     $(document).ready(function() {
                         $(".btn-toolbar .btn").first().button("toggle");
@@ -524,9 +546,12 @@
                  <div class="form-group">
                      <label for="field-1" class="col-md-2 control-label">Send Invoice via Email</label>
                      <div class="col-md-4">
-                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'never' ),array("class"=>"form-control select2"))}}
+                         {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'after_admin_review' ),array("class"=>"form-control select2"))}}
                      </div>
-
+                     <label for="field-1" class="col-md-2 control-label">Auto Invoice Pay</label>
+                     <div class="col-md-4">
+                         {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, ( isset($AccountBilling->AutoPaymentSetting)?$AccountBilling->AutoPaymentSetting:'never' ),array("class"=>"form-control select2 small"))}}
+                     </div>
 
                 </div>
                 <div class="form-group">
@@ -566,6 +591,18 @@
 
             <div class="panel-body">
                 <div class="form-group">
+                    <label for="field-1s" class="col-md-3 control-label">Show All Available Payment Methods On Invoice
+                        <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if ON then customer can pay invoice by selecting any Available payment method, if OFF then customer can pay by only selected Preferred Payment Method" data-original-title="Show All Payment Methods On Invoice" class="label label-info popover-primary">?</span>
+                    </label>
+                    <div class="col-md-4">
+                        <div class="make-switch switch-small">
+                            <input type="checkbox" @if($account->ShowAllPaymentMethod == 1 )checked="" @endif name="ShowAllPaymentMethod" value="1">
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="form-group">
                     <script>
                         var ajax_url = baseurl + "/accounts/{{$account->AccountID}}/ajax_datagrid_PaymentProfiles";
                     </script>
@@ -574,6 +611,10 @@
                         <h4>Preferred Payment Method</h4>
 
                         <ul class="icheck-list">
+                            <li>
+                                <input class="icheck-11" type="radio" id="minimal-radio-7-11" name="PaymentMethod" value="SagePay" @if( $account->PaymentMethod == 'SagePay' ) checked="" @endif />
+                                <label for="minimal-radio-7-11">SagePay</label>
+                            </li>
                             <li>
                                 <input class="icheck-11" type="radio" id="minimal-radio-1-11" name="PaymentMethod" value="Paypal" @if( $account->PaymentMethod == 'Paypal' ) checked="" @endif />
                                 <label for="minimal-radio-1-11">Paypal</label>
@@ -591,14 +632,25 @@
                                 <label for="minimal-radio-4-11">Stripe</label>
                             </li>
                             <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-6-11" name="PaymentMethod" value="StripeACH" @if( $account->PaymentMethod == 'StripeACH' ) checked="" @endif />
+                                <label for="minimal-radio-6-11">Stripe ACH</label>
+                            </li>
+                            <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
                                 <label for="minimal-radio-5-11">Other</label>
                             </li>
                         </ul>
                     </div>
                     <div class="col-md-9">
-                        @if (is_authorize() || is_Stripe())
-                            @include('customer.paymentprofile.paymentGrid')
+                        @if( $account->PaymentMethod == 'Stripe'  || $account->PaymentMethod == 'AuthorizeNet')
+                            @if (is_authorize() || is_Stripe())
+                                @include('customer.paymentprofile.paymentGrid')
+                            @endif
+                        @endif
+                        @if( $account->PaymentMethod == 'StripeACH')
+                            @if(is_StripeACH())
+                                @include('customer.paymentprofile.bankpaymentGrid')
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -658,6 +710,7 @@
 		
 		
         $('#add-credit-card-form').find("[name=AccountID]").val('{{$account->AccountID}}');
+        $('#add-bankaccount-form').find("[name=AccountID]").val('{{$account->AccountID}}');
         $("#save_account").click(function (ev) {
             ev.preventDefault();
             //Subscription , Additional charge filter fields should not in account save.
@@ -678,11 +731,14 @@
 
               if(response.status =='success'){
                      toastr.success(response.message, "Success", toastr_opts);
-                  if($('[name="Billing"]').prop("checked") == true && BillingChanged) {
                       setTimeout(function () {
                           window.location.reload()
                       }, 1000);
-                  }
+                  /*if($('[name="Billing"]').prop("checked") == true && BillingChanged) {
+                      setTimeout(function () {
+                          window.location.reload()
+                      }, 1000);
+                  }*/
               }else{
                        toastr.error(response.message, "Error", toastr_opts);
               }

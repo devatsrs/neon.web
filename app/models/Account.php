@@ -43,7 +43,7 @@ class Account extends \Eloquent {
         'ConvertedBy', 'TimeZone', 'VerificationStatus','Subscription','SubscriptionQty',
         'created_at', 'created_by', 'updated_at','updated_by','password',
         'ResellerPassword', 'Picture', 'AutorizeProfileID','tags','Autopay',
-        'NominalAnalysisNominalAccountNumber', 'InboudRateTableID', 'Billing'
+        'NominalAnalysisNominalAccountNumber', 'InboudRateTableID', 'Billing','ShowAllPaymentMethod'
     );
 
     public static $messages = array(
@@ -83,6 +83,103 @@ class Account extends \Eloquent {
         'BillingCycleType.required' =>'Billing Cycle field is required',
         'BillingCycleValue.required' =>'Billing Cycle Value field is required',
     );
+
+    static  $defaultAccountAuditFields = [
+        'AccountName'=>'AccountName',
+        'Address1'=>'Address1',
+        'Address2'=>'Address2',
+        'Address3'=>'Address3',
+        'City'=>'City',
+        'PostCode'=>'PostCode',
+        'Country'=>'Country',
+        'IsCustomer'=>'IsCustomer',
+        'IsVendor'=>'IsVendor'
+    ];
+
+    public static function boot(){
+        parent::boot();
+
+
+        static::created(function($obj)
+        {
+            $customer=Session::get('customer');
+            /* 0= user, 1=customer */
+            $UserType = 0;
+            if($customer==1){
+                $UserType = 1;
+            }
+            $UserID = User::get_userID();
+            $CompanyID = User::get_companyID();
+            $IP = get_client_ip();
+            $header = ["UserID"=>$UserID,
+                "CompanyID"=>$CompanyID,
+                "ParentColumnName"=>'AccountID',
+                "Type"=>'account',
+                "IP"=>$IP,
+                "UserType"=>$UserType
+            ];
+            $detail = array();
+            log::info('--create start--');
+            foreach($obj->attributes as $index=>$value){
+                if(array_key_exists($index,Account::$defaultAccountAuditFields)) {
+                        $data = ['OldValue'=>'',
+                            'NewValue'=>$obj->attributes[$index],
+                            'ColumnName'=>$index,
+                            'ParentColumnID'=>$obj->attributes['AccountID']
+                        ];
+                        $detail[]=$data;
+                }
+            }
+            Log::info('start');
+            Log::info(print_r($header,true));
+            Log::info(print_r($detail,true));
+            AuditHeader::add_AuditLog($header,$detail);
+            Log::info('end');
+            log::info('--create end--');
+
+        });
+
+
+        static::updated(function($obj) {
+            $customer=Session::get('customer');
+            /* 0= user, 1=customer */
+            $UserType = 1;
+            if($customer==1){
+                $UserType = 0;
+            }
+            $UserID = User::get_userID();
+            $CompanyID = User::get_companyID();
+            $IP = get_client_ip();
+            $header = ["UserID"=>$UserID,
+                       "CompanyID"=>$CompanyID,
+                       "ParentColumnName"=>'AccountID',
+                       "Type"=>'account',
+                       "IP"=>$IP,
+                       "UserType"=>$UserType
+            ];
+            $detail = array();
+            log::info('--update start--');
+            foreach($obj->original as $index=>$value){
+                if(array_key_exists($index,Account::$defaultAccountAuditFields)) {
+                    if($obj->attributes[$index] != $value){
+                        $data = ['OldValue'=>$obj->original[$index],
+                                 'NewValue'=>$obj->attributes[$index],
+                                 'ColumnName'=>$index,
+                                 'ParentColumnID'=>$obj->original['AccountID']
+                        ];
+                        $detail[]=$data;
+                    }
+                }
+            }
+            Log::info('start');
+            Log::info(print_r($header,true));
+            Log::info(print_r($detail,true));
+            AuditHeader::add_AuditLog($header,$detail);
+            Log::info('end');
+            log::info('--update end--');
+        });
+    }
+
     public static function getCompanyNameByID($id=0){
 
         return $AccountName = Account::where(["AccountID"=>$id])->pluck('AccountName');
@@ -259,7 +356,8 @@ class Account extends \Eloquent {
     }
         public static function getOutstandingInvoiceAmount($CompanyID,$AccountID,$Invoiceids,$decimal_places = 2,$PaymentDue =0){
         $Outstanding = 0;
-        $unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $CompanyID . ',' . $AccountID.','.$PaymentDue.')');
+        $AutoPay = 0;
+        $unPaidInvoices = DB::connection('sqlsrv2')->select('call prc_getPaymentPendingInvoice (' . $CompanyID . ',' . $AccountID.','.$PaymentDue.','.$AutoPay.')');
         foreach ($unPaidInvoices as $Invoiceid) {
             if(in_array($Invoiceid->InvoiceID,explode(',',$Invoiceids))) {
                 $Outstanding += $Invoiceid->RemaingAmount;
@@ -455,6 +553,31 @@ class Account extends \Eloquent {
         }
         return $row;
     }
+    public static function getVendorIDList($data=array()){
+
+        if(User::is('AccountManager')){
+            $data['Owner'] = User::get_userID();
+        }
+        if(User::is_admin() && isset($data['UserID'])){
+            $data['Owner'] = $data['UserID'];
+        }
+
+        $data['Status'] = 1;
+        $data['AccountType'] = 1;
+        $data['VerificationStatus'] = Account::VERIFIED;
+        $data['CompanyID']=User::get_companyID();
+        $row = Account::where($data)
+            ->where(function($where){
+                $where->Where(['IsVendor'=>1]);
+                $where->orwhereNull('IsVendor');
+                $where->orwhereRaw('(IsCustomer = 0 AND IsVendor = 0)');
+            })
+            ->select(array('AccountName', 'AccountID'))->orderBy('AccountName')->lists('AccountName', 'AccountID');
+        if(!empty($row)){
+            $row = array(""=> "Select")+$row;
+        }
+        return $row;
+    }
 	
 	 public static function GetAccountAllEmails($id,$ArrayReturn=false){
 	  $array			 =  array();
@@ -556,4 +679,104 @@ class Account extends \Eloquent {
         //return $row;
     }
 
+    public static function addUpdateAccountDynamicfield($data=array()){
+        $DynamicFields = array();
+        $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>$data['CompanyID'],'FieldSlug'=>$data['FieldName']])->pluck('DynamicFieldsID');
+        if(!empty($FieldsID)){
+            $customer=Session::get('customer');
+            $UserType = 'user';
+            if($customer==1){
+                $UserType = 'customer';
+            }
+
+            $header = [
+                "UserID"=>User::get_userID(),
+                "CompanyID"=>$data['CompanyID'],
+                "ParentColumnName"=>'AccountID',
+                "Type"=>'account',
+                "IP"=>get_client_ip(),
+                "UserType"=>$UserType
+            ];
+
+            $count = DynamicFieldsValue::where(['ParentID'=>$data['AccountID'],'DynamicFieldsID'=>$FieldsID])->count();
+            /*update value */
+            if(!empty($count) && $count >0){
+
+                $DynamicValues = DynamicFieldsValue::where(['ParentID'=>$data['AccountID'],'DynamicFieldsID'=>$FieldsID])->first();
+                $Old_value = $DynamicValues->FieldValue;
+                $New_value = $data['FieldValue'];
+                $DynamicFields['FieldValue'] = $data['FieldValue'];
+                $DynamicFields["updated_at"] = date('Y-m-d H:i:s');
+                $DynamicFields["updated_by"] = User::get_user_full_name();
+                if($Old_value!=$New_value){
+                    DynamicFieldsValue::where(['ParentID'=>$data['AccountID'],'DynamicFieldsID'=>$FieldsID])->update($DynamicFields);
+
+                    $detail = array();
+                    $data = [
+                        'OldValue'=>$Old_value,
+                        'NewValue'=>$New_value,
+                        'ColumnName'=>$data['FieldName'],
+                        'ParentColumnID'=>$data['AccountID']
+                    ];
+                    $detail[]=$data;
+
+                    AuditHeader::add_AuditLog($header,$detail);
+                }
+
+            }else{
+                /* inssert value */
+                $DynamicFields['CompanyID'] = $data['CompanyID'];
+                $DynamicFields['ParentID'] = $data['AccountID'];
+                $DynamicFields['DynamicFieldsID'] = $FieldsID;
+                $DynamicFields['FieldValue'] = $data['FieldValue'];
+                $DynamicFields["created_at"] = date('Y-m-d H:i:s');
+                $DynamicFields["created_by"] = User::get_user_full_name();
+                DynamicFieldsValue::insert($DynamicFields);
+
+                $detail = array();
+                $data = [
+                    'OldValue'=>'',
+                    'NewValue'=>$data['FieldValue'],
+                    'ColumnName'=>$data['FieldName'],
+                    'ParentColumnID'=>$data['AccountID']
+                ];
+                $detail[]=$data;
+
+                AuditHeader::add_AuditLog($header,$detail);
+            }
+
+        }
+        return true;
+    }
+
+    public static function getDynamicfieldValue($ParentID,$FieldName){
+        $FieldValue = '';
+
+        $FieldsID = DB::table('tblDynamicFields')->where(['CompanyID'=>User::get_companyID(),'FieldSlug'=>$FieldName])->pluck('DynamicFieldsID');
+        if(!empty($FieldsID)){
+            $FieldValue = DynamicFieldsValue::where(['ParentID'=>$ParentID,'DynamicFieldsID'=>$FieldsID])->pluck('FieldValue');
+        }
+
+        return $FieldValue;
+    }
+
+    public static function getDynamicfields($Type,$ParentID){
+        $results = array();
+        $data = array();
+
+        $Fields = DB::table('tblDynamicFields')->where(['CompanyID'=>User::get_companyID(),'Type'=>$Type,'Status'=>1])->get();
+        if(!empty($Fields) && count($Fields)>0){
+            foreach($Fields as $Field){
+                $FieldValue = Account::getDynamicfieldValue($ParentID,$Field->FieldSlug);
+                $data['FieldDomType'] = $Field->FieldDomType;
+                $data['FieldName'] = $Field->FieldName;
+                $data['FieldSlug'] = $Field->FieldSlug;
+                $data['DynamicFieldsID'] = $Field->DynamicFieldsID;
+                $data['FieldValue'] = $FieldValue;
+                $results[] = $data;
+            }
+        }
+
+        return $results;
+    }
 }

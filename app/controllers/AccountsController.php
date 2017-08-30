@@ -26,7 +26,7 @@ class AccountsController extends \BaseController {
         //$data['tag'] = $data['tag']!= ''?$data['tag']:'null';
         //$data['account_number'] = $data['account_number']!= ''?$data['account_number']:0;
         //$data['contact_name'] = $data['contact_name']!= ''?$data['contact_name']:'';
-        $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','UnbilledAmount','PermanentCredit','Email','AccountID');
+        $columns = array('AccountID','Number','AccountName','Ownername','Phone','OutStandingAmount','UnbilledAmount','PermanentCredit','AccountExposure','Email','AccountID');
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_GetAccounts (".$CompanyID.",".$userID.",".$data['vendor_on_off'].",".$data['customer_on_off'].",".$data['account_active'].",".$data['verification_status'].",'".$data['account_number']."','".$data['contact_name']."','".$data['account_name']."','".$data['tag']."','".$data["ipclitext"]."','".$data['low_balance']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
@@ -59,11 +59,17 @@ class AccountsController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $PaymentGatewayName = '';
-        $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
+        $PaymentGatewayID='';
+        $account = Account::find($AccountID);
+        if(!empty($account->PaymentMethod)){
+            $PaymentGatewayName = $account->PaymentMethod;
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
+        }
+        /*$PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
         if(!empty($PaymentGatewayID)){
             $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
-        }
-        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID");
+        }*/
+        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID","tblAccountPaymentProfile.Options");
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
             ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID]);
@@ -139,7 +145,8 @@ class AccountsController extends \BaseController {
             if(!User::is_admin()){
                 unset($doc_status[Account::VERIFIED]);
             }
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass'));
+            $dynamicfields = Account::getDynamicfields('account',0);
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields'));
     }
 
     /**
@@ -160,6 +167,20 @@ class AccountsController extends \BaseController {
             $data['created_by'] = User::get_user_full_name();
             $data['AccountType'] = 1;
             $data['AccountName'] = trim($data['AccountName']);
+            if (isset($data['accountgateway'])) {
+                $AccountGateway = implode(',', array_filter(array_unique($data['accountgateway'])));
+                unset($data['accountgateway']);
+            }else{
+                $AccountGateway = '';
+            }
+            if(isset($data['vendorname'])){
+                $VendorName = $data['vendorname'];
+                unset($data['vendorname']);
+            }else{
+                $VendorName = '';
+            }
+
+
             if (isset($data['TaxRateId'])) {
                 $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
             }
@@ -196,7 +217,24 @@ class AccountsController extends \BaseController {
                 return json_validator_response($validator);
             }
 
+
             if ($account = Account::create($data)) {
+
+                $DynamicData = array();
+                $DynamicData['CompanyID']= $companyID;
+                $DynamicData['AccountID']= $account->AccountID;
+
+                if(!empty($AccountGateway)){
+                    $DynamicData['FieldName'] = 'accountgateway';
+                    $DynamicData['FieldValue']= $AccountGateway;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+                if(!empty($VendorName)){
+                    $DynamicData['FieldName'] = 'vendorname';
+                    $DynamicData['FieldValue']= $VendorName;
+                    Account::addUpdateAccountDynamicfield($DynamicData);
+                }
+
                 if($data['Billing'] == 1) {
                     AccountBilling::insertUpdateBilling($account->AccountID, $data,$ServiceID);
                     if($ManualBilling ==0) {
@@ -443,7 +481,8 @@ class AccountsController extends \BaseController {
             }
         }
 
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class'));
+        $dynamicfields = Account::getDynamicfields('account',$id);
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields'));
     }
 
     /**
@@ -470,6 +509,7 @@ class AccountsController extends \BaseController {
         $data['Billing'] = isset($data['Billing']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
 		$data['AccountName'] = trim($data['AccountName']);
+		$data['ShowAllPaymentMethod'] = isset($data['ShowAllPaymentMethod']) ? 1 : 0;
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],
@@ -533,7 +573,38 @@ class AccountsController extends \BaseController {
         if($invoice_count == 0){
             $data['LastInvoiceDate'] = $data['BillingStartDate'];
         }
+
+        if (isset($data['accountgateway'])) {
+            $AccountGateway = implode(',', array_filter(array_unique($data['accountgateway'])));
+            unset($data['accountgateway']);
+        }else{
+            $AccountGateway = '';
+        }
+
+        if (isset($data['vendorname'])) {
+            $VendorName = $data['vendorname'];
+            unset($data['vendorname']);
+        }else{
+            $VendorName = '';
+        }
+
         if ($account->update($data)) {
+
+            $DynamicData = array();
+            $DynamicData['CompanyID']= $companyID;
+            $DynamicData['AccountID']= $id;
+
+            if(!empty($AccountGateway)){
+                $DynamicData['FieldName'] = 'accountgateway';
+                $DynamicData['FieldValue']= $AccountGateway;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+            if(!empty($VendorName)){
+                $DynamicData['FieldName'] = 'vendorname';
+                $DynamicData['FieldValue']= $VendorName;
+                Account::addUpdateAccountDynamicfield($DynamicData);
+            }
+
             if($data['Billing'] == 1) {
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
                 if($ManualBilling == 0){
@@ -557,25 +628,27 @@ class AccountsController extends \BaseController {
                // $this->sendPasswordEmail($account, $password, $data);
             }
 
-            if(is_authorize()) {
+            if(!empty($data['PaymentMethod'])) {
+                if (is_authorize() && $data['PaymentMethod'] == 'AuthorizeNet') {
 
-                $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
-                $PaymentProfile = AccountPaymentProfile::where(['AccountID' => $id])
-                    ->where(['CompanyID' => $companyID])
-                    ->where(['PaymentGatewayID' => $PaymentGatewayID])
-                    ->first();
-                if (!empty($PaymentProfile)) {
-                    $options = json_decode($PaymentProfile->Options);
-                    $ProfileID = $options->ProfileID;
-                    $ShippingProfileID = $options->ShippingProfileID;
+                    $PaymentGatewayID = PaymentGateway::AuthorizeNet;
+                    $PaymentProfile = AccountPaymentProfile::where(['AccountID' => $id])
+                        ->where(['CompanyID' => $companyID])
+                        ->where(['PaymentGatewayID' => $PaymentGatewayID])
+                        ->first();
+                    if (!empty($PaymentProfile)) {
+                        $options = json_decode($PaymentProfile->Options);
+                        $ProfileID = $options->ProfileID;
+                        $ShippingProfileID = $options->ShippingProfileID;
 
-                    //If using Authorize.net
-                    $isAuthorizedNet = SiteIntegration::CheckIntegrationConfiguration(false, SiteIntegration::$AuthorizeSlug);
-                    if ($isAuthorizedNet) {
-                        $AuthorizeNet = new AuthorizeNet();
-                        $result = $AuthorizeNet->UpdateShippingAddress($ProfileID, $ShippingProfileID, $shipping);
-                    } else {
-                        return Response::json(array("status" => "success", "message" => "Payment Method Not Integrated"));
+                        //If using Authorize.net
+                        $isAuthorizedNet = SiteIntegration::CheckIntegrationConfiguration(false, SiteIntegration::$AuthorizeSlug);
+                        if ($isAuthorizedNet) {
+                            $AuthorizeNet = new AuthorizeNet();
+                            $result = $AuthorizeNet->UpdateShippingAddress($ProfileID, $ShippingProfileID, $shipping);
+                        } else {
+                            return Response::json(array("status" => "success", "message" => "Payment Method Not Integrated"));
+                        }
                     }
                 }
             }
@@ -1395,7 +1468,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
            !isset($data['BulkBillingTimezoneCheck'])&&
            !isset($data['BulkBillingStartDateCheck'])&&
            !isset($data['BulkBillingCycleTypeCheck'])&&
-           !isset($data['BulkSendInvoiceSettingCheck'])
+           !isset($data['BulkSendInvoiceSettingCheck'])&&
+           !isset($data['BulkAutoPaymentSettingCheck'])
 		  )
 		{
 			return Response::json(array("status" => "error", "message" => "Please select at least one option."));
@@ -1408,11 +1482,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 		
         $update = [];
         $billingupdate = array();
+        $currencyupdate = array();
         if(isset($data['account_owners']) && $data['account_owners'] != 0 && isset($data['OwnerCheck'])){
             $update['Owner'] = $data['account_owners'];
         }
         if(isset($data['Currency']) && $data['Currency'] != 0 && isset($data['CurrencyCheck'])){
-            $update['CurrencyId'] = $data['Currency'];
+            $currencyupdate['CurrencyId'] = $data['Currency'];
         }		
         if(isset($data['VendorCheck'])){
             $update['IsVendor'] = isset($data['vendor_on_off'])?1:0;
@@ -1494,6 +1569,12 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                     $billingupdate['SendInvoiceSetting'] = $data['SendInvoiceSetting'];
                 }
             }
+            if(isset($data['BulkAutoPaymentSettingCheck'])){
+                if(!empty($data['AutoPaymentSetting'])){
+                    $update_billing=1;
+                    $billingupdate['AutoPaymentSetting'] = $data['AutoPaymentSetting'];
+                }
+            }
 
             $validator = Validator::make($data, Account::$billingrules, Account::$billingmessages);
             if ($validator->fails()) {
@@ -1504,11 +1585,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($data['BulkActionCriteria'])){
             $criteria = json_decode($data['BulkActionCriteria'], true);
             $BulkselectedIDs = $this->getAccountsByCriteria($criteria);
-            $selectedIDs = explode(',',$BulkselectedIDs);
+            $selectedIDs = array_filter(explode(',',$BulkselectedIDs));
             \Illuminate\Support\Facades\Log::info('--criteria-- '.$BulkselectedIDs);
         }else{
             \Illuminate\Support\Facades\Log::info('--ids-- '.$data['BulkselectedIDs']);
-            $selectedIDs = explode(',',$data['BulkselectedIDs']);
+            $selectedIDs = array_filter(explode(',',$data['BulkselectedIDs']));
         }
 
         //$selectedIDs = explode(',',$data['BulkselectedIDs']);
@@ -1519,15 +1600,13 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                 \Illuminate\Support\Facades\Log::info('Account id -- '.$id);
                 \Illuminate\Support\Facades\Log::info(print_r($update,true));
 				DB::beginTransaction();
-				if(isset($update['CurrencyId']))
-				{
-                    $CurrencyCount = Account::whereRaw("(AccountID = '".$id."' AND (CurrencyId is null or CurrencyId ='0'))")->count();
-                    if($CurrencyCount>0){
-                        unset($update['CurrencyId']);
-                    }
-				}
-
-                Account::where(['AccountID'=>$id])->update($update);
+                $upcurrencyaccount = Account::find($id);
+                if(empty($upcurrencyaccount->CurrencyId) && isset($currencyupdate['CurrencyId'])){
+                    $upcurrencyaccount->update($currencyupdate);
+                }
+                $upaccount = Account::find($id);
+                $upaccount->update($update);
+                //Account::where(['AccountID'=>$id])->update($update);
                 $invoice_count = Account::getInvoiceCount($id);
                 if(isset($data['BillingCheck']) && !empty($billing_on_off)) {
                     \Illuminate\Support\Facades\Log::info('--update billing--');
@@ -1561,6 +1640,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
                             if($ManualBilling ==0) {
                                 AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
                             }
+                        }else{
+                            AccountBilling::where(['AccountID'=>$id,'ServiceID'=>$ServiceID])->update($billingupdate);
                         }
                     }
 

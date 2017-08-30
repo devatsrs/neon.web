@@ -166,7 +166,7 @@
 }
 </style>
 <script type="text/javascript">
-var editor_options 	 	=  		{"leadoptions":true};
+var editor_options 	  =  		{"ratetemplateoptions":true};
 jQuery(document).ready(function ($) {
 
     $('#fileformat').change(function(e){
@@ -400,7 +400,6 @@ jQuery(document).ready(function ($) {
     function editor_reset(data){
         var modal = $("#modal-BulkMail");
         modal.find('.message').show();
-        show_summernote(modal.find('.message'),editor_options);
         if(!Array.isArray(data)){
             var EmailTemplate = data['EmailTemplate'];
             modal.find('[name="subject"]').val(EmailTemplate.Subject);
@@ -409,6 +408,7 @@ jQuery(document).ready(function ($) {
             modal.find('[name="subject"]').val('');
             modal.find('.message').val('');
         }
+        show_summernote(modal.find('.message'),editor_options);
      }
 
     $("#test").click(function(e){

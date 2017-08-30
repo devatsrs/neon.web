@@ -45,7 +45,38 @@ class VendorRatesController extends \BaseController
      
     
     public function upload($id) {
-            $uploadtemplate = VendorFileUploadTemplate::getTemplateIDList();
+//            $uploadtemplate = VendorFileUploadTemplate::getTemplateIDList();
+            $arrData = VendorFileUploadTemplate::where(['CompanyID'=>User::get_companyID()])->orderBy('Title')->get(['Title', 'VendorFileUploadTemplateID', 'Options'])->toArray();
+
+            $uploadtemplate=[];
+            $uploadtemplate[]=[
+                "Title" => "Select",
+                "VendorFileUploadTemplateID" => "",
+                "start_row" => "",
+                "end_row" => ""
+            ];
+
+            foreach($arrData as $val)
+            {
+                $arrUploadTmp=[];
+                $arrUploadTmp["Title"]=$val["Title"];
+                $arrUploadTmp["VendorFileUploadTemplateID"]=$val["VendorFileUploadTemplateID"];
+
+                $options=json_decode($val["Options"], true);
+
+                if(array_key_exists("skipRows", $options))
+                {
+                    $arrUploadTmp["start_row"]=$options["skipRows"]["start_row"];
+                    $arrUploadTmp["end_row"]=$options["skipRows"]["end_row"];
+                }
+                else
+                {
+                    $arrUploadTmp["start_row"]="";
+                    $arrUploadTmp["end_row"]="";
+                }
+                $uploadtemplate[]=$arrUploadTmp;
+            }
+
             $Account = Account::find($id);
             $trunks = VendorTrunk::getTrunkDropdownIDList($id);
             $trunk_keys = getDefaultTrunk($trunks);
@@ -626,6 +657,7 @@ class VendorRatesController extends \BaseController
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
             return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
         }
+        $option["skipRows"] = array( "start_row"=>$data["start_row"], "end_row"=>$data["end_row"] );
         if(!empty($data['TemplateName'])){
             $save = ['CompanyID' => $CompanyID, 'Title' => $data['TemplateName'], 'TemplateFile' => $amazonPath . $file_name];
             $save['created_by'] = User::get_user_full_name();
@@ -708,6 +740,10 @@ class VendorRatesController extends \BaseController
                 $grid = getFileContent($file_name, $data);
                 $grid['tempfilename'] = $file_name;//$upload_path.'\\'.'temp.'.$ext;
                 $grid['filename'] = $file_name;
+
+                $grid['start_row'] = $data["start_row"];
+                $grid['end_row'] = $data["end_row"];
+
                 if (!empty($VendorFileUploadTemplate)) {
                     $grid['VendorFileUploadTemplate'] = json_decode(json_encode($VendorFileUploadTemplate), true);
                     $grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options, true);

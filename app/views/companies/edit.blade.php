@@ -240,9 +240,39 @@
                                     <div class="col-sm-4">
                                         <div class="input-spinner">
                                             <button type="button" class="btn btn-default">-</button>
-                                            {{Form::text('RoundChargesAmount', $RoundChargesAmount,array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>4,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
+                                            {{Form::text('RoundChargesAmount', $RoundChargesAmount,array("class"=>"form-control", "maxlength"=>"1", "data-min"=>0,"data-max"=>6,"Placeholder"=>"Add Numeric value" , "data-mask"=>"decimal"))}}
                                             <button type="button" class="btn btn-default">+</button>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-2 control-label">Rate Sheet Template <br/> allowed extensions (.xls,.xlsx) </label>
+                                    <div class="col-sm-4">
+                                        <input name="RateSheetTemplateFile" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
+                                    </div>
+                                    <label for="field-1" class="col-sm-2 control-label">Your Rate Sheet Template</label>
+                                    <div class="col-sm-4">
+                                        @if(isset($RateSheetTemplateFile) && $RateSheetTemplateFile != '')
+                                            <a href="{{URL::to('company/download_rate_sheet_template')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
+                                        @else
+                                            <a href="#" class="btn btn-default btn-sm btn-icon icon-left disabled"><i class="entypo-down"></i>Download</a>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-2 control-label">No of Header Rows <span data-original-title="No of Header Rows" data-content="If your header has 4 rows occupied in template file than you have to put 4 here and if template file doesn't have header than put 0 here" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span></label>
+                                    <div class="col-sm-4">
+                                        {{Form::text('RateSheetTemplate[HeaderSize]', $RateSheetTemplate['HeaderSize'],array("class"=>"form-control","Placeholder"=>"Add Numeric value"))}}
+                                    </div>
+                                    <div class="col-sm-4 pull-right">
+                                        <a href="{{URL::to('company/download_rate_sheet_default_template')}}" class="btn btn-success btn-sm btn-icon icon-left"><i class="entypo-down"></i>Download</a>
+                                    </div>
+                                    <label for="field-1" class="col-sm-2 control-label pull-right">Sample Rate Sheet Template</label>
+                                </div>
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-2 control-label">No of Footer Rows <span data-original-title="No of Footer Rows" data-content="If your footer has 4 rows occupied in template file than you have to put 4 here and if template file doesn't have footer than put 0 here" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> </label>
+                                    <div class="col-sm-4">
+                                        {{Form::text('RateSheetTemplate[FooterSize]', $RateSheetTemplate['FooterSize'],array("class"=>"form-control","Placeholder"=>"Add Numeric value"))}}
                                     </div>
                                 </div>
                                 {{--<div class="form-group">
@@ -476,6 +506,11 @@
     });
   
 </script>
+<style>
+    .popover{
+        min-width:300px !important;
+    }
+</style>
 @include('includes.ajax_submit_script', array('formID'=>'form-user-add' , 'url' => 'company/update'))
 @include('currencies.currencymodal')
 @stop

@@ -6,12 +6,22 @@ class PaymentProfileCustomerController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
         $AccountID = User::get_userID();
+
         $PaymentGatewayName = '';
+        $PaymentGatewayID='';
+        /*
         $PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
         if(!empty($PaymentGatewayID)){
             $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
+        }*/
+
+        $account = Account::find($AccountID);
+        if(!empty($account->PaymentMethod)){
+            $PaymentGatewayName = $account->PaymentMethod;
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
         }
-        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID");
+
+        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID","tblAccountPaymentProfile.Options");
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
             ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID]);
@@ -28,7 +38,9 @@ class PaymentProfileCustomerController extends \BaseController {
 	{
         $currentmonth = date("n");
         $currentyear = date("Y");
-        return View::make('customer.paymentprofile.index',compact('currentmonth','currentyear'));
+        $CustomerID = Customer::get_accountID();
+        $account = Account::find($CustomerID);
+        return View::make('customer.paymentprofile.index',compact('currentmonth','currentyear','account'));
 	}
 
     public function paynow()
@@ -44,9 +56,16 @@ class PaymentProfileCustomerController extends \BaseController {
 	 */
     public function create()
     {
+        $data = Input::all();
         $CompanyID = Customer::get_companyID();
         $CustomerID = Customer::get_accountID();
-        return AccountPaymentProfile::createProfile($CompanyID,$CustomerID);
+        if($CustomerID > 0) {
+            $PaymentGatewayID=$data['PaymentGatewayID'];
+            if($data['PaymentGatewayID']==PaymentGateway::StripeACH){
+                return AccountPaymentProfile::createBankProfile($CompanyID, $CustomerID,$PaymentGatewayID);
+            }
+            return AccountPaymentProfile::createProfile($CompanyID, $CustomerID,$PaymentGatewayID);
+        }
     }
 
     public function update(){
@@ -108,11 +127,14 @@ class PaymentProfileCustomerController extends \BaseController {
             $PaymentGatewayID = $PaymentProfile->PaymentGatewayID;
             if(!empty($PaymentGatewayID)){
 
-                if($PaymentGatewayID==PaymentGateway::Authorize){
+                if($PaymentGatewayID==PaymentGateway::AuthorizeNet){
                     $ProfileResponse = AccountPaymentProfile::deleteAuthorizeProfile($CompanyID, $AccountID,$id);
                 }
                 if($PaymentGatewayID==PaymentGateway::Stripe){
                     $ProfileResponse = AccountPaymentProfile::deleteStripeProfile($CompanyID, $AccountID,$id);
+                }
+                if($PaymentGatewayID==PaymentGateway::StripeACH){
+                    $ProfileResponse = AccountPaymentProfile::deleteStripeACHProfile($CompanyID, $AccountID,$id);
                 }
 
             }else{
@@ -163,6 +185,46 @@ class PaymentProfileCustomerController extends \BaseController {
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Card."));
             }
+        }
+    }
+
+    public function verify_bankaccount(){
+        $data = Input::all();
+        $cardID = $data['cardID'];
+        if(empty($data['MicroDeposit1']) || empty($data['MicroDeposit2'])){
+            return Response::json(array("status" => "failed", "message" => "Both MicroDeposit Required."));
+        }
+        $AccountPaymentProfile = AccountPaymentProfile::find($cardID);
+        $options = json_decode($AccountPaymentProfile->Options,true);
+        $CustomerProfileID = $options['CustomerProfileID'];
+        $BankAccountID = $options['BankAccountID'];
+        $stripedata = array();
+        $stripedata['CustomerProfileID'] = $CustomerProfileID;
+        $stripedata['BankAccountID'] = $BankAccountID;
+        $stripedata['MicroDeposit1'] = $data['MicroDeposit1'];
+        $stripedata['MicroDeposit2'] = $data['MicroDeposit2'];
+        $stripepayment = new StripeACH();
+
+        if(empty($stripepayment->status)){
+            return Response::json(array("status" => "failed", "message" => "Stripe ACH Payment not setup correctly"));
+        }
+        $StripeResponse = $stripepayment->verifyBankAccount($stripedata);
+        if($StripeResponse['status']=='Success'){
+            if($StripeResponse['VerifyStatus']=='verified'){
+                $option = array(
+                    'CustomerProfileID' => $CustomerProfileID,
+                    'BankAccountID' => $BankAccountID,
+                    'VerifyStatus' => $StripeResponse['VerifyStatus']
+                );
+                $AccountPaymentProfile->update(array('Options' => json_encode($option)));
+
+                return Response::json(array("status" => "success", "message" => "verification status is ".$StripeResponse['VerifyStatus']));
+            }else{
+                return Response::json(array("status" => "failed", "message" => "verification status is ".$StripeResponse['VerifyStatus']));
+            }
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
         }
     }
 }

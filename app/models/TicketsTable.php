@@ -299,17 +299,20 @@ class TicketsTable extends \Eloquent
 	static function SetRequester($TicketData){
 		$Requester = array();
 		if($TicketData->AccountID){
-				$data = 	DB::table('tblAccount')->where(['AccountID'=>$TicketData->AccountID])->get(array("AccountName"));				
-				$Requester = array("Title"=>$data[0]->AccountName,"Contact"=>0);
+				$data = 	DB::table('tblAccount')->where(['AccountID'=>$TicketData->AccountID])->get(array("AccountName"));
+				$url = URL::to('/') . '/accounts/'.$TicketData->AccountID . '/show';
+				$Requester = array("Title"=>$data[0]->AccountName,"Email"=>$TicketData->Requester,"URL"=>$url,"Contact"=>0);
 		}
 		if($TicketData->ContactID){
 				$data = 	DB::table('tblContact')->where(['ContactID'=>$TicketData->ContactID])->get(array("FirstName","LastName","Owner"));
-				$Requester = array("Title"=>$data[0]->FirstName.'&nbsp;'.$data[0]->LastName,"Contact"=>0);
+				$url = URL::to('/') . '/contacts/' . $TicketData->ContactID . '/show';
+				$Requester = array("Title"=>$data[0]->FirstName.'&nbsp;'.$data[0]->LastName,"Email"=>$TicketData->Requester,"URL"=>$url,"Contact"=>0);
 		}
 		if($TicketData->UserID){
 				$data = 	DB::table('tblUser')->where(['UserID'=>$TicketData->UserID])->get(array("FirstName","LastName"));
-				$Requester = array("Title"=>$data[0]->FirstName.'&nbsp;'.$data[0]->LastName,"Contact"=>0);
-		}		
+				$url = "#";
+				$Requester = array("Title"=>$data[0]->FirstName.'&nbsp;'.$data[0]->LastName,"Email"=>$TicketData->Requester,"URL"=>$url,"Contact"=>0);
+		}
 		return $Requester;
 	}
 
@@ -319,4 +322,6 @@ class TicketsTable extends \Eloquent
 			->lists('FieldValueAgent','ValuesID');
 		return $row;
 	}
+
+
 }

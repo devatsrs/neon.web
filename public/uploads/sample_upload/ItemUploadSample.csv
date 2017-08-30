@@ -1,0 +1,4 @@
+Name,Code,Description,Unit Cost,Note,Barcode,Action
+abc,v1,abc product,500,abc note,111111,I
+pqr,v2,pqr product,1000,pqr note,121212,I
+xyz,v3,xyz product,750,xyz note,131313,D

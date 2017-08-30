@@ -13,6 +13,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/subscription/ajax_datagrid', 'DashboardCustomerController@subscriptions_ajax_datagrid');	
     Route::any('customer/getoutstandingamount', 'ProfileController@get_outstanding_amount');
     Route::any('customer/invoice_expense_total_widget', 'DashboardCustomerController@invoice_expense_total_widget');
+	Route::any('customer/daily_report', 'DashboardCustomerController@daily_report');
+	Route::any('customer/daily_report/ajax_datagrid/{type}', 'DashboardCustomerController@daily_report_ajax_datagrid');
     //Invoice
     Route::any('customer/invoice', 'InvoicesCustomerController@index');
     Route::any('customer/invoice/ajax_datagrid/{type}', 'InvoicesCustomerController@ajax_datagrid');
@@ -44,6 +46,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/customer/PaymentMethodProfiles/update', 'PaymentProfileCustomerController@update');
     Route::any('/customer/PaymentMethodProfiles/ajax_datagrid', 'PaymentProfileCustomerController@ajax_datagrid');
     Route::any('/customer/PaymentMethodProfiles/{id}/set_default', 'PaymentProfileCustomerController@set_default');
+    Route::any('/customer/PaymentMethodProfiles/verify_bankaccount', 'PaymentProfileCustomerController@verify_bankaccount');
     Route::any('/customer/PaymentMethodProfiles/{id}/card_status/{active_deactive}', array('as' => 'payment_rules', 'uses' => 'PaymentProfileCustomerController@card_active_deactive'))->where('active_deactive', '(active|deactive)');
 
 	//notice board
@@ -749,6 +752,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/company', 'CompaniesController@edit');
 	Route::any('/company/update', 'CompaniesController@update');
 	Route::post('/company/validatesmtp', 'CompaniesController@ValidateSmtp');
+
+	Route::any('/company/download_rate_sheet_template', 'CompaniesController@DownloadRateSheetTemplate');
+	Route::any('/company/download_rate_sheet_default_template', 'CompaniesController@DownloadRateSheetTemplateDefault');
 	//Route::resource('Companies', 'CompaniesController');
 
 	//payment
@@ -1056,6 +1062,14 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/products/{id}/delete', 'ProductsController@delete');
 	Route::any('/products/ajax_datagrid/{type}', 'ProductsController@ajax_datagrid');
 
+	Route::any('/products/upload', 'ProductsController@upload');
+	Route::any('/products/check_upload', 'ProductsController@check_upload');
+	Route::any('/products/ajaxfilegrid', 'ProductsController@ajaxfilegrid');
+	Route::any('/products/storeTemplate', 'ProductsController@storeTemplate');
+	Route::any('/products/get_product_by_barcode/{BarCode}', 'ProductsController@getProductByBarCode');
+	Route::any('/products_upload/download_sample_excel_file', 'ProductsController@download_sample_excel_file');
+	Route::any('/products/update_bulk_product_status', 'ProductsController@UpdateBulkProductStatus');
+
 	Route::any('/product/{id}/get/{FieldName}', 'ProductsController@get')->where('FieldName', '(.[azAZ]*)+');
     Route::any('/billing_subscription/{id}/get/{FieldName}', 'BillingSubscriptionController@get')->where('FieldName', '(.[azAZ]*)+');
 
@@ -1324,6 +1338,7 @@ Route::group(array('before' => 'guest'), function () {
 	Route::any('/invoice_payment/{id}/{type}', 'InvoicesController@invoice_payment'); //Customer payment View
     Route::any('/pay_invoice', 'InvoicesController@pay_invoice'); //Customer payment pay
 	Route::any('/stripe_payment', 'InvoicesController@stripe_payment'); //Customer payment with stripe
+	Route::any('/stripeach_payment', 'InvoicesController@stripeach_payment'); //Customer payment with stripe
     Route::any('/invoice_thanks/{id}', 'InvoicesController@invoice_thanks'); //Customer payment pay
     Route::any('/paypal_ipn/{id}', 'InvoicesController@paypal_ipn'); //Payment response by paypal.
     Route::any('/paypal_cancel/{id}', 'InvoicesController@paypal_cancel'); //Payment response by paypal.

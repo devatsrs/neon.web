@@ -194,6 +194,13 @@ class ImportsController extends \BaseController {
             }elseif($gateway == 'MOR'){
                 $mor = new MOR($CompanyGatewayID);
                 $response1 = $mor->getAccountsDetail($param);
+            }elseif($gateway == 'CallShop'){
+                $mor = new CallShop($CompanyGatewayID);
+                $response1 = $mor->getAccountsDetail($param);
+            }elseif($gateway == 'Streamco'){
+                $param['ImportDate'] = date('Y-m-d H:i:s.000');
+                $streamco = new Streamco($CompanyGatewayID);
+                $response1 = $streamco->getAccountsDetail($param);
             }
             //$pbx = new PBX($CompanyGatewayID);
 
