@@ -80,8 +80,20 @@
                 <div class="form-group">
                     <label for="field-1" class="col-sm-2 control-label">Upload Template</label>
                     <div class="col-sm-4">
-                        {{ Form::select('uploadtemplate', $uploadtemplate, '' , array("class"=>"select2")) }}
-
+                        {{Form::SelectExt(
+                            [
+                            "name"=>"uploadtemplate",
+                            "data"=>$uploadtemplate,
+                            "selected"=>'',
+                            "value_key"=>"VendorFileUploadTemplateID",
+                            "title_key"=>"Title",
+                            "data-title1"=>"start_row",
+                            "data-value1"=>"start_row",
+                            "data-title2"=>"end_row",
+                            "data-value2"=>"end_row",
+                            "class" =>"select2",
+                            ]
+                        )}}
                     </div>
                 </div>
                 <div class="form-group">
@@ -93,7 +105,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlxs, .csv)</label>
+                    <label for="field-1" class="col-sm-2 control-label">Upload (.xls, .xlsx, .csv)</label>
                     <div class="col-sm-4">
                         <input name="excel" type="file" class="form-control file2 inline btn btn-primary" data-label="
                         <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" />
@@ -121,13 +133,25 @@
                             <input type="hidden" name="checkbox_add_new_codes_to_code_decks" value="0" >
                             <label><input type="checkbox" id="rd-1" name="checkbox_add_new_codes_to_code_decks" value="1" checked> Add new codes from the file to code decks</label>
                         </div>
+                        <div style="margin-top:10px;">
+                            <label for="field-1" class="col-sm-2 control-label" style="text-align: right;">Skips rows from Start</label>
+                            <div class="col-sm-3" style="padding-left:40px;">
+                                <input name="start_row" type="number" class="form-control" data-label="
+                                <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Skips rows from Start" min="0" value="0">
+                            </div>
+                            <label class="col-sm-2 control-label" style="text-align: right;">Skips rows from Bottom</label>
+                            <div class="col-sm-3">
+                                <input name="end_row" type="number" class="form-control" data-label="
+                                    <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="Skips rows from Bottom" min="0" value="0">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">Note</label>
                     <div class="col-sm-8">
                         
-                        <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlxs, .csv</p>
+                        <p><i class="glyphicon glyphicon-minus"></i><strong>Allowed Extension</strong> .xls, .xlsx, .csv</p>
                         <p>Please upload the file in given <span style="cursor: pointer" onclick="jQuery('#modal-fileformat').modal('show');" class="label label-info">Format</span></p>
 
                         <p>Sample File <a class="btn btn-success btn-sm btn-icon icon-left" href="{{URL::to('vendor_rates/download_sample_excel_file')}}"><i class="entypo-down"></i>Download</a></p>
@@ -159,6 +183,9 @@
 <div class="row hidden" id="add-template">
     <div class="col-md-12">
         <form id="add-template-form" method="post">
+            <input name="start_row" type="hidden" value="0" min="0">
+            <input name="end_row" type="hidden" value="0" min="0">
+
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
@@ -380,6 +407,19 @@
 </div>
 <script type="text/javascript">
 jQuery(document).ready(function ($) {
+
+    $("#form-upload select[name='uploadtemplate']").change(function(){
+
+        var option=$(this).find("option[value='"+$(this).val()+"']");
+
+        var start_row= option.attr("start_row");
+        var end_row= option.attr("end_row");
+
+        $("#form-upload input[name=start_row]").val(start_row);
+        $("#form-upload input[name=end_row]").val(end_row);
+
+    });
+
     $('.btn.upload').click(function(e){
         e.preventDefault();
         //if($('#form-upload').find('select[name="uploadtemplate"]').val()>0){
@@ -594,7 +634,9 @@ jQuery(document).ready(function ($) {
                 }
             });
         }
-
+        
+        $('#add-template-form').find('[name="start_row"]').val(data.start_row);
+        $('#add-template-form').find('[name="end_row"]').val(data.end_row);
         $('#add-template-form').find('[name="TemplateFile"]').val(data.filename);
         $('#add-template-form').find('[name="TempFileName"]').val(data.tempfilename);
     }
