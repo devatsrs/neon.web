@@ -694,7 +694,7 @@ class CDRController extends BaseController {
             $criteria['CompanyGatewayID'] = empty($criteria['CompanyGatewayID'])?'0':$criteria['CompanyGatewayID'];
 
             $companyID = User::get_companyID();
-            $query = "call prc_DeleteVCDR (".$companyID.",'".(int)$criteria['CompanyGatewayID']."','".$criteria['StartDate']."','".$criteria['EndDate']."','".(int)$criteria['AccountID']."','".$criteria['CLI']."','".$criteria['CLD']."','".(int)$criteria['zerovaluecost']."','".(int)$criteria['CurrencyID']."','".$criteria['area_prefix']."','".$criteria['Trunk']."')";
+            $query = "call prc_DeleteVCDR (".$companyID.",'".(int)$criteria['CompanyGatewayID']."','".$criteria['StartDate']."','".$criteria['EndDate']."','".(int)$criteria['AccountID']."','".$criteria['CLI']."','".$criteria['CLD']."','".(int)$criteria['zerovaluebuyingcost']."','".(int)$criteria['CurrencyID']."','".$criteria['area_prefix']."','".$criteria['Trunk']."')";
             //echo $query;exit;
             $results = DB::connection('sqlsrv2')->statement($query);
             if ($results) {
