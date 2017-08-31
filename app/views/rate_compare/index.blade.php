@@ -10,10 +10,6 @@
         <li>
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
-        <li>
-
-            <a href="{{URL::to('accounts')}}">Accounts</a>
-        </li>
         <li class="active">
             <strong>Rate Compare</strong>
         </li>
@@ -67,12 +63,12 @@
 
                             <label for="field-1" class="col-sm-1 control-label">Group By</label>
                             <div class="col-sm-2">
-                                {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], '' ,array("class"=>"form-control select2"))}}
+                                {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}
                             </div>
 
                             <label for="field-1" class="col-sm-1 control-label">Effective</label>
                             <div class="col-sm-2">
-                                {{Form::select('Effective', ["Now"=>"Now", "Future" => "Future", "Selected" => "Selected"], 'Now' ,array("class"=>"form-control select2"))}}
+                                {{Form::select('Effective', ["Now"=>"Current", "Future" => "Future", "Selected" => "Selected"], 'Now' ,array("class"=>"form-control select2"))}}
                             </div>
                             <div class="SelectedEffectiveDate_Class hidden">
                                 <label for="field-1" class="col-sm-1 control-label">Date</label>
@@ -131,6 +127,9 @@
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
+            <th>Destination</th>
+            <th>Source</th>
+            <th>Destination</th>
 
         <tr>
 
@@ -149,7 +148,7 @@
             //var data_table;
 
 
-            $('select[name="SelectedEffectiveDate"]').on( "change",function(e) {
+            $('select[name="Effective"]').on( "change",function(e) {
                 var selection = $(this).val();
                 var hidden = false;
                 if ($(this).hasClass('hidden')) {
@@ -165,12 +164,19 @@
             });
 
 
+            var aoColumns = [
+                { "bSortable": false },
+                { "bSortable": false }
+
+            ];
+            var aoColumnDefs = [{ "sClass": "", "aTargets": [ 0 ] },{ "sClass": "", "aTargets": [ 1 ] }];
+
 
             $("#rate-compare-search-form").submit(function(e) {
 
 
 
-                var Code, Description, Currency,CodeDeck,Trunk,GroupBy,Effective,SelectedEffectiveDate, SourceVendors,SourceCustomers,SourceRateTables,DestinationVendors,DestinationCustomers,DestinationRateTables,aoColumns,aoColumnDefs;
+                var Code, Description, Currency,CodeDeck,Trunk,GroupBy,Effective,SelectedEffectiveDate, SourceVendors,SourceCustomers,SourceRateTables,DestinationVendors,DestinationCustomers,DestinationRateTables;
                 Trunk = $("#rate-compare-search-form select[name='Trunk']").val();
                 CodeDeck = $("#rate-compare-search-form select[name='CodeDeckId']").val();
                 Currency = $("#rate-compare-search-form select[name='Currency']").val();
@@ -215,10 +221,13 @@
                     return false;
                 }
 
-                aoColumns = [
-                    { "bSortable": false ,}
-
-                ];
+                if(SourceVendors == null && SourceCustomers == null && SourceRateTables == null && DestinationVendors == null && DestinationCustomers == null && DestinationRateTables == null  ){
+                    setTimeout(function(){
+                        $('.btn').button('reset');
+                    },10);
+                    toastr.error("Please select a Source or a Destination", "Error", toastr_opts);
+                    return false;
+                }
 
 
                 data_table = $("#table-4").dataTable({
@@ -237,7 +246,7 @@
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
                     "aaSorting": [[0, "asc"]],
-                    // "aoColumnDefs": aoColumnDefs,
+                    "aoColumnDefs": aoColumnDefs,
                     "aoColumns":aoColumns,
                     "oTableTools":
                     {
@@ -262,6 +271,8 @@
 
                         var source_column_index = [];
                         var destination_column_index = [];
+                       // var aoColumnDefs = [];
+                       // var aoColumns = [];
                         if( typeof results.jqXHR.responseJSON.sColumns != 'undefined') {
 
                             $("#table-4"+'>thead>tr').empty();
@@ -269,7 +280,7 @@
                                 console.log(k + col);
                                 var _class = "";
 
-                                if (col.indexOf("Source:") >= 0) {
+                                if (col.indexOf("Source") >= 0) {
                                     _class = "source";
                                     source_column_index.push(k);
 
@@ -277,8 +288,19 @@
                                     _class = "destination";
                                     destination_column_index.push(k);
                                 }
+
+                                // aoColumns.push({ "bSortable": false });
+                               // aoColumnDefs.push({ "sClass": "", "aTargets": [k] });
+
+
+                                if(col == 'Destination') {
+                                    col = '';
+                                }
+
+
                                 str = '<th class="'+ _class +'">' + col + '</th>';
                                 $(str).appendTo("#table-4"+'>thead>tr');
+
 
 
                             });

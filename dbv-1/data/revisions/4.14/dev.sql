@@ -47,7 +47,7 @@ CONTAINS SQL
 
 		SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
-		SET SESSION sql_mode = '';
+		SET SESSION  sql_mode = '';
 
 
 		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_;
@@ -58,7 +58,7 @@ CONTAINS SQL
 			RateID INT,
 			Description VARCHAR(200) ,
 			Rate DECIMAL(18,6),
-			EffectiveDate DATETIME ,
+			EffectiveDate DATE ,
 			TrunkID INT ,
 			VendorRateID INT
 		);
@@ -71,7 +71,7 @@ CONTAINS SQL
 			RateID INT,
 			Description VARCHAR(200) ,
 			Rate DECIMAL(18,6) ,
-			EffectiveDate DATETIME ,
+			EffectiveDate DATE ,
 			TrunkID INT,
 			CustomerRateId INT
 		);
@@ -83,7 +83,7 @@ CONTAINS SQL
 			Code VARCHAR(50) ,
 			Description VARCHAR(200) ,
 			Rate DECIMAL(18,6) ,
-			EffectiveDate DATETIME ,
+			EffectiveDate DATE ,
 			RateTableID INT,
 			RateTableRateID INT
 		);
