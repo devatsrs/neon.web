@@ -163,12 +163,9 @@ class AmazonS3 {
 
             $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH')."/".$key;
             if ( file_exists($Uploadpath) ) {
-                if(is_amazon()) {
-                    return URL::to('/viewamazonfile?filepath='.$Uploadpath);
-                }
                 return $Uploadpath;
             }
-            elseif($s3!="NoAmazon")
+            elseif(self::$isAmazonS3=='Amazon')
             {
                 $AmazonSettings = self::getAmazonSettings();
                 $bucket = $AmazonSettings['AWS_BUCKET'];
@@ -183,11 +180,12 @@ class AmazonS3 {
 
                 // Create a signed URL from the command object that will last for
                 // 10 minutes from the current time
-                $signedUrl = $command->createPresignedUrl('+10 minutes');
-                return $signedUrl;
+                return $command->createPresignedUrl('+10 minutes');
             }
             else
+            {
                 return "";
+            }
     }
 
     static function unSignedUrl($key=''){
@@ -211,7 +209,7 @@ class AmazonS3 {
 
     static function unSignedImageUrl($key=''){
 
-        $s3 = self::getS3Client();
+        /*$s3 = self::getS3Client();
 
         //When no amazon ;
         if($s3 == 'NoAmazon'){
@@ -222,13 +220,19 @@ class AmazonS3 {
                 return get_image_data("http://placehold.it/250x100");
             }
         }
-        $imagepath=self::unSignedUrl($key);
-        if (!is_numeric(strpos($imagepath, "https://"))) {
-            return get_image_data($imagepath);
+        return self::unSignedUrl($key);*/
+
+        $imagepath=self::preSignedUrl($key);
+        if(file_exists($imagepath)){
+            return  get_image_data($imagepath);
+        }
+        elseif (self::$isAmazonS3=="Amazon") {
+            return  $imagepath;
         }
         else{
-            return $imagepath;
+            return get_image_data("http://placehold.it/250x100");
         }
+
     }
 
     static function delete($file){
