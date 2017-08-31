@@ -1016,7 +1016,11 @@ Log::info(print_r($EstimateDetailData,true));
             download_file($DocumentFile);
         }else{
             $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
-            header('Location: '.$FilePath);
+            if(file_exists($FilePath)){
+                download_file($FilePath);
+            }elseif(is_amazon() == true){
+                header('Location: '.$FilePath);
+            }
         }
         exit;
     }
@@ -1363,10 +1367,10 @@ Log::info(print_r($EstimateDetailData,true));
         //if( User::checkPermission('Job') && intval($id) > 0 ) {
         $OutputFilePath = Estimate::where("EstimateID", $id)->pluck("UsagePath");
         $FilePath 		= AmazonS3::preSignedUrl($OutputFilePath);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
@@ -1407,14 +1411,14 @@ Log::info(print_r($EstimateDetailData,true));
 	{
         $Estimate 	=  Estimate::find($EstimateID);
         $FilePath 	=  AmazonS3::preSignedUrl($Estimate->PDF);
-		
-        if(is_amazon() == true)
-		{
-            header('Location: '.$FilePath);
+
+        if(file_exists($FilePath))
+        {
+            download_file($FilePath);
         }
-		else if(file_exists($FilePath))
-		{
-            download_file($FilePath); 
+		elseif(is_amazon() == true)
+        {
+            header('Location: '.$FilePath);
         }
         exit;
     }

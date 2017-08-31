@@ -192,20 +192,20 @@ class AmazonS3 {
 
     static function unSignedUrl($key=''){
 
-        $s3 = self::getS3Client();
+//        $s3 = self::getS3Client();
 
         //When no amazon ;
 //        if($s3 == 'NoAmazon'){
             return  self::preSignedUrl($key);
 //        }
 
-        $AmazonSettings  = self::getAmazonSettings();		
+        /*$AmazonSettings  = self::getAmazonSettings();
         $bucket 		 = $AmazonSettings['AWS_BUCKET'];
         $unsignedUrl = '';
         if(!empty($key)){
            $unsignedUrl = $s3->getObjectUrl($bucket, $key);
         }
-        return $unsignedUrl;
+        return $unsignedUrl;*/
 
     }
 
@@ -222,7 +222,13 @@ class AmazonS3 {
                 return get_image_data("http://placehold.it/250x100");
             }
         }
-        return self::unSignedUrl($key);
+        $imagepath=self::unSignedUrl($key);
+        if (!is_numeric(strpos($imagepath, "https://"))) {
+            return get_image_data($imagepath);
+        }
+        else{
+            return $imagepath;
+        }
     }
 
     static function delete($file){

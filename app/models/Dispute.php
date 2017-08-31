@@ -159,8 +159,11 @@ class Dispute extends \Eloquent {
 
 			if(!empty($dispute->Attachment)){
 				//delete old Attachment file.
-				$FilePath =  AmazonS3::preSignedUrl($dispute->Attachment);
-				@unlink($FilePath);
+
+//				$FilePath =  AmazonS3::preSignedUrl($dispute->Attachment);
+//				@unlink($FilePath);
+				AmazonS3::delete($dispute->Attachment);
+
 			}
 			if(Dispute::find($data["DisputeID"])->update($disputeData) ) {
 				return Response::json(array("status" => "success", "message" => "Dispute updated successfully."));

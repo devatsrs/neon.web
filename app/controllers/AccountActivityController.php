@@ -312,11 +312,11 @@ class AccountActivityController extends \BaseController {
 			 {
 		 		$file			=	$attachments[$attachmentID];
 				$FilePath 		= 	AmazonS3::preSignedUrl($file['filepath']);
-				if(is_amazon() == true){
+                 if(file_exists($FilePath)){
+                     download_file($FilePath);
+                 }elseif(is_amazon() == true){
 					header('Location: '.$FilePath); exit;
-				}else if(file_exists($FilePath)){
-					download_file($FilePath); 
-				}
+                 }
 			 }
 		 }			
 	 }	

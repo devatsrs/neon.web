@@ -1235,7 +1235,14 @@ class InvoicesController extends \BaseController {
             download_file($DocumentFile);
         }else{
             $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
-            header('Location: '.$FilePath);
+            if(file_exists($FilePath))
+            {
+                download_file($FilePath);
+            }
+            elseif(is_amazon() == true)
+            {
+                header('Location: '.$FilePath);
+            }
         }
         exit;
     }
@@ -1527,10 +1534,10 @@ class InvoicesController extends \BaseController {
         //if( User::checkPermission('Job') && intval($id) > 0 ) {
         $OutputFilePath = Invoice::where("InvoiceID", $id)->pluck("UsagePath");
         $FilePath =  AmazonS3::preSignedUrl($OutputFilePath);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
@@ -1593,20 +1600,20 @@ class InvoicesController extends \BaseController {
     public static function download_invoice($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
         $FilePath =  AmazonS3::preSignedUrl($Invoice->PDF);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
     public static function download_attachment($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
         $FilePath =  AmazonS3::preSignedUrl($Invoice->Attachment);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }

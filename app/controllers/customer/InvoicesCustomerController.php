@@ -161,10 +161,10 @@ class InvoicesCustomerController extends \BaseController {
     public function  download_invoice_file($id){
         $DocumentFile = Invoice::where(["InvoiceID"=>$id])->pluck('Attachment');
         $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }else if(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
         /*$DocumentFile = CompanyConfiguration::get('UPLOAD_PATH') . '/'.$DocumentFile;

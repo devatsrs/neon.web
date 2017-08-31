@@ -779,20 +779,20 @@ class AccountsController extends \BaseController {
     public function  download_doc($id){
         $FileName = AccountApprovalList::where(["AccountApprovalListID"=>$id])->pluck('FileName');
         $FilePath =  AmazonS3::preSignedUrl($FileName);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
     public function  download_doc_file($id){
         $DocumentFile = AccountApproval::where(["AccountApprovalID"=>$id])->pluck('DocumentFile');
         $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
