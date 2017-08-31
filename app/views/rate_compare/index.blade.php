@@ -164,23 +164,6 @@
 
             });
 
-            /*if('{{$LCRPosition}}'=='5'){
-             setTimeout(function(){
-             $('#dt_company6').addClass("hidden");
-             $('#dt_company7').addClass("hidden");
-             $('#dt_company8').addClass("hidden");
-             $('#dt_company9').addClass("hidden");
-             $('#dt_company10').addClass("hidden");
-             },10);
-             }else{
-             setTimeout(function(){
-             $('#dt_company6').removeClass("hidden");
-             $('#dt_company7').removeClass("hidden");
-             $('#dt_company8').removeClass("hidden");
-             $('#dt_company9').removeClass("hidden");
-             $('#dt_company10').removeClass("hidden");
-             },10);
-             }*/
 
 
             $("#rate-compare-search-form").submit(function(e) {
@@ -286,13 +269,11 @@
                                 console.log(k + col);
                                 var _class = "";
 
-                                if (col == 'RateID' || col == 'Description'  ) {
-                                    _class = "hidden";
-                                } else if (col.indexOf("Source") >= 0) {
+                                if (col.indexOf("Source:") >= 0) {
                                     _class = "source";
                                     source_column_index.push(k);
 
-                                } else if (col.indexOf("Destination") >= 0) {
+                                } else if (col.indexOf("Destination:") >= 0) {
                                     _class = "destination";
                                     destination_column_index.push(k);
                                 }
@@ -323,24 +304,13 @@
                                 for(var i = 0 ; i < row.length ; i++ ){
                                     var str = _class = "";
 
-                                    if(i == 0 ){
-                                        str = row[0] + " : " + row[1];
-                                    }
-                                    else if(i == 1 ) {
-                                        str = '<input type="hidden" name="Description" value="'+row[1]+'" />';
-                                        _class = "hidden";
 
-                                    } else if(i == 2 ) {
-                                        str = '<input type="hidden" name="RateID" value="'+row[2]+'" />';
-                                        _class = "hidden";
-                                    } else {
-                                        str = row[i] ;
-                                        if($.inArray( i, source_column_index ) != -1 ){
-                                            _class = "source";
-                                        }else if($.inArray( i, destination_column_index ) != -1 ){
-                                            _class = "destination";
+                                    str = row[i] ;
+                                    if($.inArray( i, source_column_index ) != -1 ){
+                                        _class = "source";
+                                    }else if($.inArray( i, destination_column_index ) != -1 ){
+                                        _class = "destination";
 
-                                        }
                                     }
 
                                     html += '<td class="'+ _class +'">' + str + '</td>';
@@ -361,7 +331,7 @@
                         });
                     }
                 });
-                e.stopPropagation();
+
                 return false;
             });
 
@@ -371,7 +341,7 @@
                 replaceCheckboxes();
             });
 
-         });
+        });
     </script>
     <style>
         .dataTables_filter label{
