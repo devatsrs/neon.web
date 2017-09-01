@@ -149,9 +149,9 @@ class AccountApprovalController extends \BaseController {
                     $data['DocumentFile'] = $amazonPath . $filename;
                     if(file_exists($AccountApproval->DocumentFile)){
                         @unlink($AccountApproval->DocumentFile);
-                    }else{
-                        AmazonS3::delete($AccountApproval->DocumentFile);
                     }
+                    AmazonS3::delete($AccountApproval->DocumentFile);
+
 
                 }else{
                     $data['DocumentFile'] ='';
