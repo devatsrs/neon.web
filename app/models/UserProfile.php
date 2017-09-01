@@ -12,10 +12,11 @@ class UserProfile extends \Eloquent {
         if(empty($user_profile_img)){
             $user_profile_img =  \Illuminate\Support\Facades\URL::to('assets/images/placeholder-male.gif');
         }else{
-
-            if(AmazonS3::getS3Client() == 'NoAmazon'){
+            AmazonS3::getS3Client();
+            if(file_exists(public_path($user_profile_img)))
+            {
                 $user_profile_img = \Illuminate\Support\Facades\URL::to($user_profile_img);
-            }else{
+            }elseif(AmazonS3::$isAmazonS3 == 'Amazon'){
                 $user_profile_img = AmazonS3::unSignedImageUrl($user_profile_img);// str_replace("\\\\",'/',$destinationPath);
             }
         }
