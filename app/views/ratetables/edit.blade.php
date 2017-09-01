@@ -31,7 +31,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form role="form" id="rate-table-search"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
+        <form role="form" id="rate-table-search" action="javascript:void(0);"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">Search</div>
