@@ -48,6 +48,9 @@ class RateCompareController extends \BaseController {
             foreach($excel_data as $rowno => $rows){
                 foreach($rows as $colno => $colval){
                     unset($excel_data[$rowno][$colno]);
+                    if($colno =='Destination'){
+                        $colno = "";
+                    }
                     $colno = str_replace( "<br>" , "\n" ,$colno );
                     $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
                 }
