@@ -47,6 +47,7 @@ class RateCompareController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
             foreach($excel_data as $rowno => $rows){
                 foreach($rows as $colno => $colval){
+                    $colno = str_replace( "<br>" , "\n" ,$colno );
                     $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
                 }
             }
