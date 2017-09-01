@@ -51,7 +51,7 @@
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">CodeDeck</label>
                             <div class="col-sm-2">
-                                {{ Form::select('CodeDeckId', $codedecklist, '2' , array("class"=>"select2")) }}
+                                {{ Form::select('CodeDeckId', $codedecklist, '' , array("class"=>"select2")) }}
 
                             </div>
                         </div>
@@ -127,17 +127,14 @@
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
-            <th>Destination</th>
-            <th>Source</th>
-            <th>Destination</th>
-
-        <tr>
+        </tr>
 
         </thead>
-        <tbody>
-        <tr>
 
-        <tr>
+        <tbody>
+        <tr class="main">
+
+        </tr>
 
         </tbody>
     </table>
@@ -163,13 +160,6 @@
 
             });
 
-
-            var aoColumns = [
-                { "bSortable": false },
-                { "bSortable": false }
-
-            ];
-            var aoColumnDefs = [{ "sClass": "", "aTargets": [ 0 ] },{ "sClass": "", "aTargets": [ 1 ] }];
 
 
             $("#rate-compare-search-form").submit(function(e) {
@@ -230,11 +220,21 @@
                 }
 
 
+                var aoColumns = [
+                    { "bSortable": false },
+
+                ];
+                var aoColumnDefs = [
+                    { "sClass": "", "aTargets": [ 0 ] } ,
+
+                ];
+
+
                 data_table = $("#table-4").dataTable({
                     "bDestroy": true, // Destroy when resubmit form
                     "bProcessing": true,
                     "bServerSide": true,
-                    "sAjaxSource": baseurl + "/rate_compare/search_ajax_datagrid",
+                    "sAjaxSource": baseurl + "/rate_compare/search_ajax_datagrid/json",
                     "fnServerParams": function(aoData) {
                         aoData.push({ "name" : "Code"  , "value" : Code },{ "name" : "Description"  , "value" : Description },{ "name" : "Currency"  , "value" : Currency },{ "name" : "CodeDeck"  , "value" : CodeDeck },{ "name" : "Trunk"  , "value" : Trunk },{ "name" : "GroupBy"  , "value" : GroupBy },{ "name" : "Effective"  , "value" : Effective },{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{ "name" : "SourceVendors"  , "value" : SourceVendors },{ "name" : "SourceCustomers"  , "value" : SourceCustomers },{ "name" : "SourceRateTables"  , "value" : SourceRateTables },{ "name" : "DestinationVendors"  , "value" : DestinationVendors },{ "name" : "DestinationCustomers"  , "value" : DestinationCustomers },{ "name" : "DestinationRateTables"  , "value" : DestinationRateTables });
 
@@ -271,11 +271,10 @@
 
                         var source_column_index = [];
                         var destination_column_index = [];
-                       // var aoColumnDefs = [];
-                       // var aoColumns = [];
+
                         if( typeof results.jqXHR.responseJSON.sColumns != 'undefined') {
 
-                            $("#table-4"+'>thead>tr').empty();
+                            $("#table-4"+'>thead').html('<tr></tr>');
                             $.each(results.jqXHR.responseJSON.sColumns, function (k, col) {
                                 console.log(k + col);
                                 var _class = "";
@@ -288,9 +287,6 @@
                                     _class = "destination";
                                     destination_column_index.push(k);
                                 }
-
-                                // aoColumns.push({ "bSortable": false });
-                               // aoColumnDefs.push({ "sClass": "", "aTargets": [k] });
 
 
                                 if(col == 'Destination') {
@@ -311,8 +307,7 @@
 
                         if( typeof results.jqXHR.responseJSON.aaData != 'undefined') {
 
-
-                            $("#table-4"+'>tbody>tr').empty();
+                            $("#table-4"+'>tbody').html('<tr></tr>');
                             if(results.jqXHR.responseJSON.aaData.length == 0) {
                                 html = "<td ><center>No Data found</center></td>";
                                 $(html).appendTo("#table-4"+'>tbody>tr:last');
@@ -340,7 +335,7 @@
                                 }
 
                                 $(html).appendTo("#table-4"+'>tbody>tr:last');
-                                $('<tr></tr>').appendTo("#table-4"+'>tbody');
+                                $('<tr class="dynamic"></tr>').appendTo("#table-4"+'>tbody');
 
                             });
 

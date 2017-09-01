@@ -1270,7 +1270,7 @@ Route::group(array('before' => 'auth'), function () {
 
 	//RateCompare
 	Route::any('/rate_compare', 'RateCompareController@index');
-	Route::any('/rate_compare/search_ajax_datagrid', 'RateCompareController@search_ajax_datagrid');
+	Route::any('/rate_compare/search_ajax_datagrid/{type}', 'RateCompareController@search_ajax_datagrid');
 });
 
 Route::group(array('before' => 'global_admin'), function () {
