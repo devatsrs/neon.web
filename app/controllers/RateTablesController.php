@@ -31,7 +31,7 @@ class RateTablesController extends \BaseController {
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
 
-        $query = "call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$view.")";
+        $query = "call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',".$view.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
 
 
         return DataTableSql::of($query)->make();
@@ -443,7 +443,7 @@ class RateTablesController extends \BaseController {
 
         $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
 
-        $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',null,null,null,null,1,".$view.")";
+        $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',".$view.",null,null,null,null,1)";
 
         DB::setFetchMode( PDO::FETCH_ASSOC );
         $rate_table_rates  = DB::select($query);
