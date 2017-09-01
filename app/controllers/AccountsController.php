@@ -800,11 +800,7 @@ class AccountsController extends \BaseController {
         $AccountApprovalList = AccountApprovalList::find($id);
         $filename = $AccountApprovalList->FileName;
         if($AccountApprovalList->delete()){
-            if(file_exists($filename)){
-                @unlink($filename);
-            }
             AmazonS3::delete($filename);
-
             echo json_encode(array("status" => "success", "message" => "Document deleted successfully"));
         }else{
             echo json_encode(array("status" => "failed", "message" => "Problem Deleting Document"));

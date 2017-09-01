@@ -147,11 +147,7 @@ class AccountApprovalController extends \BaseController {
                         return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                     }
                     $data['DocumentFile'] = $amazonPath . $filename;
-                    if(file_exists($AccountApproval->DocumentFile)){
-                        @unlink($AccountApproval->DocumentFile);
-                    }
                     AmazonS3::delete($AccountApproval->DocumentFile);
-
 
                 }else{
                     $data['DocumentFile'] ='';
