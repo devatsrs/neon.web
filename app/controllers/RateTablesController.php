@@ -29,7 +29,9 @@ class RateTablesController extends \BaseController {
         $columns = array('RateTableRateID','Code','Description','Interval1','IntervalN','ConnectionFee','Rate','EffectiveDate','updated_at','ModifiedBy','RateTableRateID');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
+
+        $query = "call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0,".$view.")";
 
 
         return DataTableSql::of($query)->make();
@@ -180,8 +182,8 @@ class RateTablesController extends \BaseController {
     }
 
     public function clear_rate($id) {
-        if ($id > 0) {
-            if (RateTableRate::find($id)->delete()) {
+        if ($id != null) {
+            if (RateTableRate::whereRaw('FIND_IN_SET(RateTableRateID,"'.$id.'")')->delete()) {
                 return Response::json(array("status" => "success", "message" => "Rate Successfully Deleted"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Deleting Rate."));
@@ -234,7 +236,7 @@ class RateTablesController extends \BaseController {
     // update single rate table rate
     public function update_rate_table_rate($id, $RateTableRateID = 0) {
 
-        if ($id > 0 && $RateTableRateID > 0) {
+        if ($id > 0 && $RateTableRateID != 0) {
 
             $data = Input::all();
 
