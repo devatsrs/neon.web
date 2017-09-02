@@ -91,7 +91,7 @@
                             "data-value1"=>"start_row",
                             "data-title2"=>"end_row",
                             "data-value2"=>"end_row",
-                            "class" =>"select2 small Taxentity TaxRateID2",
+                            "class" =>"select2",
                             ]
                         )}}
                     </div>

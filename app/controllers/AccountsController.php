@@ -1581,11 +1581,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($data['BulkActionCriteria'])){
             $criteria = json_decode($data['BulkActionCriteria'], true);
             $BulkselectedIDs = $this->getAccountsByCriteria($criteria);
-            $selectedIDs = explode(',',$BulkselectedIDs);
+            $selectedIDs = array_filter(explode(',',$BulkselectedIDs));
             \Illuminate\Support\Facades\Log::info('--criteria-- '.$BulkselectedIDs);
         }else{
             \Illuminate\Support\Facades\Log::info('--ids-- '.$data['BulkselectedIDs']);
-            $selectedIDs = explode(',',$data['BulkselectedIDs']);
+            $selectedIDs = array_filter(explode(',',$data['BulkselectedIDs']));
         }
 
         //$selectedIDs = explode(',',$data['BulkselectedIDs']);
