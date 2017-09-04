@@ -106,7 +106,7 @@
                 <input type="checkbox" id="selectall" name="checkbox[]" />
             </div>
         </th>
-        <th width="4%">Code</th>
+        <th width="4%" id="Code-Header">Code</th>
         <th width="20%">Description</th>
         <th width="5%">Interval 1</th>
         <th width="5%">Interval N</th>
@@ -146,14 +146,10 @@
             return rateDataTable(view);
         });
 
-        $(document).on('click','.switcher',function(){
-            var self = $(this);
-            if(self.hasClass('active')){
-                return false;
-            }
-            var activeurl;
-            var desctiveurl;
-            if(self.hasClass('GroupByDesc')){
+        $(document).on('change','.switcher',function(){
+            var switcher = $(this);
+
+            if(switcher.val() == 'GroupByDesc'){
                 setCookie('ratetableview','GroupByDesc','30');
                 view = 2;
                 $('.switcher.GroupByDesc').addClass('active');
@@ -164,8 +160,6 @@
                 $('.switcher.GroupByCode').addClass('active');
                 $('.switcher.GroupByDesc').removeClass('active');
             }
-            self.addClass('active');
-            var sibling = self.siblings('a').removeClass('active');
 
             /*if(view == 2)
                 return rateDataTable2(view);
@@ -175,12 +169,14 @@
         });
 
         $('#table-4 tbody').on('click', 'tr', function() {
-            if (checked =='') {
-                $(this).toggleClass('selected');
-                if ($(this).hasClass('selected')) {
-                    $(this).find('.rowcheckbox').prop("checked", true);
-                } else {
-                    $(this).find('.rowcheckbox').prop("checked", false);
+            if(!$(this).hasClass('no-selection')) {
+                if (checked == '') {
+                    $(this).toggleClass('selected');
+                    if ($(this).hasClass('selected')) {
+                        $(this).find('.rowcheckbox').prop("checked", true);
+                    } else {
+                        $(this).find('.rowcheckbox').prop("checked", false);
+                    }
                 }
             }
         });
@@ -378,6 +374,32 @@
                 }
             }
         });
+
+        // to show/hide child row (Code list) when Group By Description
+        $('#table-4 tbody').on('click', 'td div.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = data_table.row(tr);
+
+            if (row.child.isShown()) {
+                $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                row.child.hide();
+                tr.removeClass('shown');
+            } else {
+                $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
+                var hiddenRowData = tr.find('.hiddenRowData');
+                var Code = hiddenRowData.find('input[name="Code"]').val();
+                var Code = Code.split(',');
+                var table = $('<table class="table table-bordered datatable dataTable no-footer" style="margin-left: 4%;width: 92% !important;"></table>');
+                table.append("<thead><tr><th>Code</th></tr></thead>");
+                var tbody = $("<tbody></tbody>");
+                for (var i = 0; i < Code.length; i++) {
+                    table.append("<tr class='no-selection'><td>" + Code[i] + "</td></tr>");
+                }
+                table.append(tbody);
+                row.child(table).show();
+                tr.addClass('shown');
+            }
+        });
     });
 
     function rateDataTable(view) {
@@ -402,7 +424,7 @@
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             //  "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-            "aaSorting": [[1, "asc"]],
+            "aaSorting": [[view==2 ? 2 : 1, "asc"]],
             "aoColumns":
                     [
                         {"bSortable": false,
@@ -415,7 +437,7 @@
                                 if(view==1) {
                                     return full[1];
                                 }else
-                                    return '<div class="details-control"><i class="entypo-plus-squared"></i></div>';
+                                    return '<div class="details-control" style="text-align: center; cursor: pointer;"><i class="entypo-plus-squared" style="font-size: 20px;"></i></div>';
                             },
                             "className":      'details-control',
                             "orderable":      false,
@@ -474,46 +496,26 @@
 
                 var toggle = '<header>';
                 toggle += '<span class="list-style-buttons">';
+                toggle += '<select class="switcher">';
 
                 if(view==1){
-                    toggle += '<a href="javascript:void(0)" title="Group By Code" class="btn btn-primary switcher GroupByCode active"><i class="entypo-doc"></i></a>';
-                    toggle += '<a href="javascript:void(0)" title="Group By Description" class="btn btn-primary switcher GroupByDesc"><i class="entypo-doc-text"></i></a>';
+                    toggle += '<option value="GroupByCode" class="GroupByCode" selected>Group By Code</option>';
+                    toggle += '<option value="GroupByDesc" class="GroupByDescription">Group By Description</option>';
+                    //toggle += '<a href="javascript:void(0)" title="Group By Code" class="btn btn-primary switcher GroupByCode active"><i class="entypo-doc"></i></a>';
+                    //toggle += '<a href="javascript:void(0)" title="Group By Description" class="btn btn-primary switcher GroupByDesc"><i class="entypo-doc-text"></i></a>';
+                    $('#Code-Header').html('Code');
                 }else{
-                    toggle += '<a href="javascript:void(0)" title="Group By Code" class="btn btn-primary switcher GroupByCode"><i class="entypo-doc"></i></a>';
-                    toggle += '<a href="javascript:void(0)" title="Group By Description" class="btn btn-primary switcher GroupByDesc active"><i class="entypo-doc-text"></i></a>';
+                    toggle += '<option value="GroupByCode" class="GroupByCode">Group By Code</option>';
+                    toggle += '<option value="GroupByDesc" class="GroupByDescription" selected>Group By Description</option>';
+                    //toggle += '<a href="javascript:void(0)" title="Group By Code" class="btn btn-primary switcher GroupByCode"><i class="entypo-doc"></i></a>';
+                    //toggle += '<a href="javascript:void(0)" title="Group By Description" class="btn btn-primary switcher GroupByDesc active"><i class="entypo-doc-text"></i></a>';
+                    $('#Code-Header').html('');
                 }
+
+                toggle += '</select>';
                 toggle +='</span>';
                 toggle += '</header>';
                 $('.change-view').html(toggle);
-
-                if(view == 2) {
-                    $('#table-4 tbody').on('click', 'td div.details-control', function () {
-                        var tr = $(this).closest('tr');
-                        var row = data_table.row(tr);
-
-                        if (row.child.isShown()) {
-                            $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
-                            row.child.hide();
-                            tr.removeClass('shown');
-                        } else {
-                            $(this).find('i').toggleClass('entypo-plus-squared entypo-minus-squared');
-                            var hiddenRowData = tr.find('.hiddenRowData');
-                            var Code = hiddenRowData.find('input[name="Code"]').val();
-                            var Code = Code.split(',');
-                            var div = $("<div></div>");
-                            var table = $('<table class="table table-bordered datatable dataTable no-footer"></table>');
-                            table.append("<thead><tr><th>Code</th></tr></thead>");
-                            var tbody = $("<tbody></tbody>");
-                            for (var i = 0; i < Code.length; i++) {
-                                table.append("<tr><td>" + Code[i] + "</td></tr>");
-                            }
-                            table.append(tbody);
-                            div.append(table);
-                            row.child(div).show();
-                            tr.addClass('shown');
-                        }
-                    });
-                }
 
                 $(".btn.clear").click(function(e) {
 
