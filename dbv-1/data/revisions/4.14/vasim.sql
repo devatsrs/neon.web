@@ -379,8 +379,8 @@ BEGIN
             FROM tmp_RateTableRate_;
         
         ELSE  -- group by Description view
-            SELECT group_concat(ID) AS ID, group_concat(Code) AS Code,Description,MAX(Interval1) AS Interval1,MAX(Intervaln) AS Intervaln,MAX(ConnectionFee) AS ConnectionFee,MAX(Rate) AS Rate,MAX(EffectiveDate) AS EffectiveDate,MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(RateID) AS RateID FROM tmp_RateTableRate_
-                    GROUP BY Description, EffectiveDate
+            SELECT group_concat(ID) AS ID, group_concat(Code) AS Code,Description,Interval1,Intervaln,ConnectionFee,Rate,EffectiveDate,MAX(updated_at) AS updated_at,MAX(ModifiedBy) AS ModifiedBy,group_concat(ID) AS RateTableRateID,group_concat(RateID) AS RateID FROM tmp_RateTableRate_
+                    GROUP BY Description, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate
                     ORDER BY
                 CASE
                     WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN Description
@@ -443,7 +443,7 @@ BEGIN
                 SELECT
                 Description
                 FROM tmp_RateTableRate_
-                GROUP BY Description, EffectiveDate
+                    GROUP BY Description, Interval1, Intervaln, ConnectionFee, Rate, EffectiveDate
             ) totalcount;
             
         -- END IF p_view = 1

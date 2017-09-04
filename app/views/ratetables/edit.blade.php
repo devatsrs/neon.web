@@ -70,6 +70,16 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Group By</label>
+                        <div class="col-sm-4">
+                            <select class="select2" name="GroupBy" id="GroupBy">
+                                <option value="GroupByCode">Group By Code</option>
+                                <option value="GroupByDesc">Group By Description</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <p style="text-align: right;">
                         <button type="submit"  class="btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-search"></i> Search
                         </button>
@@ -136,31 +146,13 @@
         var ratetableview = getCookie('ratetableview');
         if(ratetableview=='GroupByDesc'){
             view = 2;
+            $('#rate-table-search #GroupBy').val('GroupByDesc');
+        } else {
+            view = 1;
+            $('#rate-table-search #GroupBy').val('GroupByCode');
         }
 
         $("#rate-table-search").submit(function(e) {
-            /*if(view == 2)
-                return rateDataTable2(view);
-            else
-                return rateDataTable(view);*/
-            return rateDataTable(view);
-        });
-
-        $(document).on('change','.switcher',function(){
-            var switcher = $(this);
-
-            if(switcher.val() == 'GroupByDesc'){
-                setCookie('ratetableview','GroupByDesc','30');
-                view = 2;
-                $('.switcher.GroupByDesc').addClass('active');
-                $('.switcher.GroupByCode').removeClass('active');
-            }else{
-                setCookie('ratetableview','GroupByCode','30');
-                view = 1;
-                $('.switcher.GroupByCode').addClass('active');
-                $('.switcher.GroupByDesc').removeClass('active');
-            }
-
             /*if(view == 2)
                 return rateDataTable2(view);
             else
@@ -400,9 +392,19 @@
                 tr.addClass('shown');
             }
         });
+
+
     });
 
     function rateDataTable(view) {
+        var GroupBy = $('#rate-table-search #GroupBy').val();
+        if(GroupBy == 'GroupByDesc'){
+            setCookie('ratetableview','GroupByDesc','30');
+            view = 2;
+        }else{
+            setCookie('ratetableview','GroupByCode','30');
+            view = 1;
+        }
 
         $searchFilter.Code = $("#rate-table-search input[name='Code']").val();
         $searchFilter.Description = $("#rate-table-search input[name='Description']").val();
@@ -494,28 +496,11 @@
             },
             "fnDrawCallback": function() {
 
-                var toggle = '<header>';
-                toggle += '<span class="list-style-buttons">';
-                toggle += '<select class="switcher">';
-
                 if(view==1){
-                    toggle += '<option value="GroupByCode" class="GroupByCode" selected>Group By Code</option>';
-                    toggle += '<option value="GroupByDesc" class="GroupByDescription">Group By Description</option>';
-                    //toggle += '<a href="javascript:void(0)" title="Group By Code" class="btn btn-primary switcher GroupByCode active"><i class="entypo-doc"></i></a>';
-                    //toggle += '<a href="javascript:void(0)" title="Group By Description" class="btn btn-primary switcher GroupByDesc"><i class="entypo-doc-text"></i></a>';
                     $('#Code-Header').html('Code');
                 }else{
-                    toggle += '<option value="GroupByCode" class="GroupByCode">Group By Code</option>';
-                    toggle += '<option value="GroupByDesc" class="GroupByDescription" selected>Group By Description</option>';
-                    //toggle += '<a href="javascript:void(0)" title="Group By Code" class="btn btn-primary switcher GroupByCode"><i class="entypo-doc"></i></a>';
-                    //toggle += '<a href="javascript:void(0)" title="Group By Description" class="btn btn-primary switcher GroupByDesc active"><i class="entypo-doc-text"></i></a>';
                     $('#Code-Header').html('');
                 }
-
-                toggle += '</select>';
-                toggle +='</span>';
-                toggle += '</header>';
-                $('.change-view').html(toggle);
 
                 $(".btn.clear").click(function(e) {
 
