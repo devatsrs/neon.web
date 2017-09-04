@@ -244,6 +244,10 @@
                                             <button type="button" class="btn btn-default">+</button>
                                         </div>
                                     </div>
+                                    <label for="field-1" class="col-sm-2 control-label"> Account Verification </label>
+                                    <p class="make-switch switch-small">
+                                        <input id="AccountVerification" name="AccountVerification" type="checkbox" value="1" @if($AccountVerification == 1) checked="checked" @endif>
+                                    </p>
                                 </div>
                                 <div class="form-group">
                                     <label for="field-1" class="col-sm-2 control-label">Rate Sheet Template <br/> allowed extensions (.xls,.xlsx) </label>

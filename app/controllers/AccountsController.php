@@ -180,6 +180,13 @@ class AccountsController extends \BaseController {
                 $VendorName = '';
             }
 
+            //when account varification is off in company setting then varified the account by default.
+            $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
+
+            if ( $AccountVerification== CompanySetting::ACCOUT_VARIFICATION_OFF ) {
+                $data['VerificationStatus'] = Account::VERIFIED;
+            }
+
 
             if (isset($data['TaxRateId'])) {
                 $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));

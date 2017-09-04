@@ -5,6 +5,9 @@ class CompanySetting extends \Eloquent {
     protected $table = "tblCompanySetting";
     public $timestamps = false; // no created_at and updated_at
 
+    const ACCOUT_VARIFICATION_ON = 1;
+    const ACCOUT_VARIFICATION_OFF = 0;
+
     public static function getKeyVal($key){
         $CompanySetting = CompanySetting::where(["CompanyID"=> User::get_companyID(),'key'=>$key])->first();
         if(count($CompanySetting)>0 && isset($CompanySetting->Value)){
