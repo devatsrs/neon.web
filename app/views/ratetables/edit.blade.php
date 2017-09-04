@@ -74,8 +74,8 @@
                         <label for="field-1" class="col-sm-2 control-label">Group By</label>
                         <div class="col-sm-4">
                             <select class="select2" name="GroupBy" id="GroupBy">
-                                <option value="GroupByCode">Group By Code</option>
-                                <option value="GroupByDesc">Group By Description</option>
+                                <option value="GroupByCode">Code</option>
+                                <option value="GroupByDesc">Description</option>
                             </select>
                         </div>
                     </div>
