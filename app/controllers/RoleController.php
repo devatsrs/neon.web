@@ -249,18 +249,18 @@ class RoleController extends \BaseController {
             if(count($role)) {
                 $deleteRoles=true;
 
-                if(count(RolePermission::where(['roleID'=>$role->$id])->get()))
+                if(count(RolePermission::where(['roleID'=>$role->RoleID])->get()))
                 {
                     $deleteRoles=false;
                 }
 
-                if(count(UserRole::where(['roleID'=>$role->$id])->get()))
+                if(count(UserRole::where(['roleID'=>$role->RoleID])->get()))
                 {
                     $deleteRoles=false;
                 }
                 if($deleteRoles)
                 {
-                    Role::find($id)->delete();
+                    Role::find($role->RoleID)->delete();
                     return Response::json(array("status" => "success", "message" => "Role Successfully Deleted"));
                 }
                 else
