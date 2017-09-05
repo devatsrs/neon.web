@@ -276,35 +276,18 @@
 
                         $('#edit-modal-role').modal('show');
                     });
-                    FnEditRolesSuccess = function(response){
-                        $(".edit-roles").button('reset');
-                        if(response.status =='success'){
-                            ShowToastr("success",response.message);
-                            location.reload();
-                        }else{
-                            ShowToastr("error",response.message);
-                        }
-                    }
                     $("#edit-role-form").submit(function(ev){
+                        ev.preventDefault();
                         var rolesId = $("#edit-role-form [name='roleId']").val();
                         update_new_url = baseurl + '/roles/edit/'+rolesId;
-                        showAjaxScript( update_new_url ,$("#edit-role-form").serialize(),FnEditRolesSuccess  );
+                        submit_ajaxbtn(update_new_url,$("#edit-role-form").serialize(),'',$(".save"),1);
                     });
-                    FnDeleteRolesSuccess = function(response){
-                        $(".delete-roles").button('reset');
-                        if(response.status =='success'){
-                            ShowToastr("success",response.message);
-                            location.reload();
-                        }else{
-                            ShowToastr("error",response.message);
-                        }
-                    }
                     $(".delete-roles").click(function(e){
                         result = confirm("Are you Sure?");
                         if(result){
                             var id  = $(this).attr("data-id");
                             $(this).button('loading');
-                            showAjaxScript( baseurl + "/roles/"+id+"/delete" ,"",FnDeleteRolesSuccess );
+                            submit_ajaxbtn(baseurl + "/roles/"+id+"/delete",'','',$(".delete-roles"),1);
                         }
                         return false;
                     });
