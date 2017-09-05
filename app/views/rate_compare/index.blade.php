@@ -36,7 +36,7 @@
 
                             <label for="field-1" class="col-sm-1 control-label">Code</label>
                             <div class="col-sm-2">
-                                <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="" />
+                                <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="911*" />
                             </div>
 
                             <label for="field-1" class="col-sm-1 control-label">Description</label>
@@ -109,7 +109,7 @@
 
                             <label for="field-1" class="col-sm-1 control-label">Rate Tables</label>
                             <div class="col-sm-2">
-                                {{Form::select('DestinationRateTables[]', $rate_table, array() ,array("class"=>"form-control select2",'multiple'))}}
+                                {{Form::select('DestinationRateTables[]', $rate_table, array(137) ,array("class"=>"form-control select2",'multiple'))}}
                             </div>
                         </div>
                         <p style="text-align: right;">
@@ -143,7 +143,7 @@
     <script type="text/javascript">
         jQuery(document).ready(function($) {
             //var data_table;
-
+            var Code, Description, Currency,CodeDeck,Trunk,GroupBy,Effective,SelectedEffectiveDate, SourceVendors,SourceCustomers,SourceRateTables,DestinationVendors,DestinationCustomers,DestinationRateTables;
 
             $('select[name="Effective"]').on( "change",function(e) {
                 var selection = $(this).val();
@@ -164,9 +164,6 @@
 
             $("#rate-compare-search-form").submit(function(e) {
 
-
-
-                var Code, Description, Currency,CodeDeck,Trunk,GroupBy,Effective,SelectedEffectiveDate, SourceVendors,SourceCustomers,SourceRateTables,DestinationVendors,DestinationCustomers,DestinationRateTables;
                 Trunk = $("#rate-compare-search-form select[name='Trunk']").val();
                 CodeDeck = $("#rate-compare-search-form select[name='CodeDeckId']").val();
                 Currency = $("#rate-compare-search-form select[name='Currency']").val();
@@ -271,6 +268,10 @@
 
                         var source_column_index = [];
                         var destination_column_index = [];
+                        var customerrate_column_index = [];
+                        var vendorrate_column_index = [];
+                        var ratetable_column_index = [];
+                        var columnIDs_column_index = [];
 
                         if( typeof results.jqXHR.responseJSON.sColumns != 'undefined') {
 
@@ -287,15 +288,26 @@
                                     _class = "destination";
                                     destination_column_index.push(k);
                                 }
-
+                                if (col.indexOf("CustomerRate") >= 0) {
+                                    customerrate_column_index.push(k);
+                                }else if (col.indexOf("VendorRate") >= 0) {
+                                    vendorrate_column_index.push(k);
+                                }else if (col.indexOf("RateTable") >= 0) {
+                                    ratetable_column_index.push(k);
+                                }else if (col.indexOf("ColumnIDS") >= 0) {
+                                    columnIDs_column_index.push(k);
+                                }
 
                                 if(col == 'Destination') {
                                     col = '';
                                 }
 
+                                if (col.indexOf("ColumnIDS") == -1 ) {  // if not columnid no need to add column id in display
 
-                                str = '<th class="'+ _class +'">' + col + '</th>';
-                                $(str).appendTo("#table-4"+'>thead>tr');
+                                    str = '<th class="'+ _class +'">' + col + '</th>';
+                                    $(str).appendTo("#table-4"+'>thead>tr');
+                                }
+
 
 
 
@@ -316,21 +328,89 @@
                             $.each(results.jqXHR.responseJSON.aaData, function (k, row) {
 
                                 console.log(k + row);
-                                var _class = html = "";
+                                var _class = html = _code_description = "";
 
                                 for(var i = 0 ; i < row.length ; i++ ){
                                     var str = _class = "";
-
+                                    var _edit;
+                                    var _type = '';
 
                                     str = row[i] ;
                                     if($.inArray( i, source_column_index ) != -1 ){
                                         _class = "source";
                                     }else if($.inArray( i, destination_column_index ) != -1 ){
                                         _class = "destination";
-
                                     }
 
-                                    html += '<td class="'+ _class +'">' + str + '</td>';
+                                    if(i == 0) {
+                                        _code_description = str;
+                                    }
+                                    if (str.trim() != '') {
+
+                                        var action = '<span class = "hiddenRowData" >';
+
+                                        if (_class == 'source' || _class == 'destination') {
+
+
+
+                                            if ($.inArray(i, customerrate_column_index) != -1) {
+                                                _type = "customer_rate";
+
+                                                action += '<input type = "hidden"  name = "TypeID" value = "' + _class + '" / >';
+
+                                            } else if ($.inArray(i, vendorrate_column_index) != -1) {
+                                                _type = "vendor_rate";
+                                            } else if ($.inArray(i, ratetable_column_index) != -1) {
+                                                _type = "rate_table";
+                                            }
+
+                                            var _ColumnIDS_index = i - 1;
+                                            var ColumnIDS = row[row.length-1].split(',');
+                                            var _typeID = ColumnIDS[_ColumnIDS_index];
+
+                                            //action += '<input type = "hidden"  name = "SourceDestination" value = "' + _class + '" / >';
+                                            action += '<input type = "hidden"  name = "Type" value = "' + _type + '" / >';
+                                            action += '<input type = "hidden"  name = "TypeID" value = "' + _typeID + '" / >';
+                                            action += '<input type = "hidden"  name = "GroupBy" value = "' + GroupBy + '" / >';
+
+                                            if (GroupBy == 'description'){
+                                                action += '<input type = "hidden"  name = "Code" value = "" / >';
+                                                action += '<input type = "hidden"  name = "Description" value = "' + _code_description.trim() + '" / >';
+                                            } else {
+
+                                                var code_array = _code_description.split(':');
+
+                                                $.each(code_array, function(index, value) {
+                                                    if(index == 0){
+                                                        action += '<input type = "hidden"  name = "Code" value = "' + value.trim() + '" / >';
+                                                    } else if(index == 1){
+                                                        action += '<input type = "hidden"  name = "Description" value = "' + value.trim() + '" / >';
+                                                    }
+                                                });
+                                            }
+
+                                            var rate_array = str.split('<br>');
+                                            $.each(rate_array, function(index, value) {
+                                                if(index == 0){
+                                                    //rate = value;
+                                                    action += '<input type = "hidden"  name = "rate" value = "' + value + '" / >';
+
+                                                } else if(index == 1){
+                                                    //_effective_date = value;
+                                                    action += '<input type = "hidden"  name = "EffectiveDate" value = "' + value + '" / >';
+                                                }
+                                            });
+                                            action += '</span>';
+
+
+                                            _edit = ' <span class="float-right"><a href="#" class="edit-ratecompare btn btn-default btn-sm"><i class="entypo-pencil"></i> &nbsp;</a>'+action+'</span>';
+                                            str += _edit;
+
+                                        }
+                                    }
+                                    if (i < (row.length -1) ){ // skip ColumnIDS
+                                        html += '<td class="'+ _class +'">' + str + '</td>';
+                                    }
 
                                 }
 
@@ -358,6 +438,51 @@
                 replaceCheckboxes();
             });
 
+
+            $('table tbody').on('click', '.edit-ratecompare', function (ev) {
+
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                //reset form
+                $('#add-edit-ratecompare-form').find("input, textarea, select").val("");
+
+                var cur_obj = $(this).parent().find(".hiddenRowData");
+
+               var hidden_list_fields = ["GroupBy","Code","Description","EffectiveDate","Type","TypeID"];
+
+
+                for(var i = 0 ; i< hidden_list_fields.length; i++){
+
+                    var field_value = cur_obj.find("input[name='"+hidden_list_fields[i]+"']").val();
+                    $("#add-edit-ratecompare-form [name='"+hidden_list_fields[i]+"']").val(field_value);
+
+                }
+                $("#add-edit-ratecompare-form [name='TrunkID']").val(Trunk);
+                $("#add-edit-ratecompare-form [name='Effective']").val(Effective);
+                $("#add-edit-ratecompare-form [name='SelectedEffectiveDate']").val(SelectedEffectiveDate);
+
+
+                $('#add-edit-modal-ratecompare h4').html('Edit');
+                $('#add-edit-modal-ratecompare').modal('show');
+
+                if($("#add-edit-ratecompare-form [name='GroupBy']").val() == 'description' ){
+                    $('#add-edit-modal-ratecompare .hide_if_groupby_description').addClass("hidden");
+                }else {
+                    $('#add-edit-modal-ratecompare .hide_if_groupby_description').removeClass("hidden");
+                }
+
+            });
+
+            $('#add-edit-ratecompare-form').submit(function(e){
+                e.preventDefault();
+
+                var submit_url = baseurl + '/rate_compare/rate_update';
+
+                var formData = new FormData($('#add-edit-ratecompare-form')[0]);
+                submit_ajax_withfile(submit_url,formData,false,false);
+
+            });
         });
     </script>
     <style>
@@ -375,4 +500,51 @@
             background: #ffc8c8  !important;
         }
     </style>
+
+    <div class="modal fade" id="add-edit-modal-ratecompare">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="add-edit-ratecompare-form" method="post">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Rate</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group hide_if_groupby_description">
+                                    <label for="field-5" class="control-label">Code</label>
+                                    <input type="text" readonly="readonly" id="Code" name="Code" class="form-control" id="field-5" placeholder="">
+                                </div>
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Description</label>
+                                    <input type="text" readonly="readonly" id="Description" name="Description" class="form-control" id="field-5" placeholder="">
+                                </div>
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Rate</label>
+                                    <input type="text" id="Rate" name="Rate" class="form-control" id="field-5" placeholder="">
+                                </div>
+                                <div class="form-group hide_if_groupby_description">
+                                    <label for="field-5" class="control-label">Effective Date</label>
+                                    <input type="text" readonly="readonly" id="EffectiveDate" name="EffectiveDate" class="form-control" id="field-5" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="GroupBy" value="" >
+                        <input type="hidden" name="Type"  value="">
+                        <input type="hidden" name="TypeID"  value="">
+                        <input type="hidden" name="TrunkID"  value="">
+                        <input type="hidden" name="Effective"  value="">
+                        <input type="hidden" name="SelectedEffectiveDate"  value="">
+                        <button type="submit" id="ratecompare-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 @stop

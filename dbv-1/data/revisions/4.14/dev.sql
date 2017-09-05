@@ -1,31 +1,26 @@
 Use Ratemanagement3;
 
-
+DELIMITER  //
 CREATE PROCEDURE `prc_RateCompare`(
-	IN `p_companyid` INT,
-	IN `p_trunkID` INT,
-	IN `p_codedeckID` INT,
-	IN `p_currencyID` INT,
-	IN `p_code` VARCHAR(50),
-	IN `p_description` VARCHAR(50),
-	IN `p_groupby` VARCHAR(50),
-	IN `p_source_vendors` VARCHAR(100),
-	IN `p_source_customers` VARCHAR(100),
-	IN `p_source_rate_tables` VARCHAR(100),
-	IN `p_destination_vendors` VARCHAR(100),
-	IN `p_destination_customers` VARCHAR(100),
-	IN `p_destination_rate_tables` VARCHAR(100),
-	IN `p_Effective` VARCHAR(50),
-	IN `p_SelectedEffectiveDate` DATE,
-	IN `p_PageNumber` INT,
-	IN `p_RowspPage` INT,
-	IN `p_SortOrder` VARCHAR(50),
-	IN `p_isExport` INT
-
-
-
-
-
+  IN `p_companyid` INT,
+  IN `p_trunkID` INT,
+  IN `p_codedeckID` INT,
+  IN `p_currencyID` INT,
+  IN `p_code` VARCHAR(50),
+  IN `p_description` VARCHAR(50),
+  IN `p_groupby` VARCHAR(50),
+  IN `p_source_vendors` VARCHAR(100),
+  IN `p_source_customers` VARCHAR(100),
+  IN `p_source_rate_tables` VARCHAR(100),
+  IN `p_destination_vendors` VARCHAR(100),
+  IN `p_destination_customers` VARCHAR(100),
+  IN `p_destination_rate_tables` VARCHAR(100),
+  IN `p_Effective` VARCHAR(50),
+  IN `p_SelectedEffectiveDate` DATE,
+  IN `p_PageNumber` INT,
+  IN `p_RowspPage` INT,
+  IN `p_SortOrder` VARCHAR(50),
+  IN `p_isExport` INT
 )
 LANGUAGE SQL
 NOT DETERMINISTIC
@@ -129,7 +124,9 @@ CONTAINS SQL
 
     DROP TEMPORARY TABLE IF EXISTS tmp_dynamic_columns_;
     CREATE TEMPORARY TABLE tmp_dynamic_columns_ (
-      ColumnName  varchar(200)
+      ColumnName  varchar(200),
+      ColumnType  varchar(50),
+      ColumnID  INT
     );
 
     SELECT CurrencyId INTO v_CompanyCurrencyID_ FROM  tblCompany WHERE CompanyID = p_companyid;
@@ -418,7 +415,7 @@ CONTAINS SQL
           EXECUTE stmt2;
           DEALLOCATE PREPARE stmt2;
 
-          INSERT INTO tmp_dynamic_columns_  values ( @ColumnName );
+          INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , 'VendorRate' ,  @AccountID );
 
 
         END IF;
@@ -467,7 +464,7 @@ CONTAINS SQL
           DEALLOCATE PREPARE stmt2;
 
 
-          INSERT INTO tmp_dynamic_columns_  values ( @ColumnName );
+          INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , 'CustomerRate' ,  @AccountID );
 
         END IF;
 
@@ -513,7 +510,7 @@ CONTAINS SQL
           EXECUTE stmt2;
           DEALLOCATE PREPARE stmt2;
 
-          INSERT INTO tmp_dynamic_columns_  values ( @ColumnName );
+          INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , 'RateTable' ,  @RateTableID );
 
         END IF;
 
@@ -560,7 +557,7 @@ CONTAINS SQL
           EXECUTE stmt2;
           DEALLOCATE PREPARE stmt2;
 
-          INSERT INTO tmp_dynamic_columns_  values ( @ColumnName );
+          INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , 'VendorRate' ,  @AccountID );
 
         END IF;
 
@@ -607,7 +604,7 @@ CONTAINS SQL
           EXECUTE stmt2;
           DEALLOCATE PREPARE stmt2;
 
-          INSERT INTO tmp_dynamic_columns_  values ( @ColumnName );
+          INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , 'CustomerRate' ,  @AccountID );
 
         END IF;
 
@@ -653,7 +650,7 @@ CONTAINS SQL
           EXECUTE stmt2;
           DEALLOCATE PREPARE stmt2;
 
-          INSERT INTO tmp_dynamic_columns_  values ( @ColumnName );
+          INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , 'RateTable' ,  @RateTableID );
 
         END IF;
 
@@ -678,20 +675,21 @@ CONTAINS SQL
 
     IF p_groupby = 'description' THEN
 
-      select GROUP_CONCAT( concat(' max(' , ColumnName , ') as ' , ColumnName ) ) INTO @maxColumnNames from tmp_dynamic_columns_;
+      select GROUP_CONCAT( concat(' max(' , ColumnName , ') as ' , ColumnName ) ) , GROUP_CONCAT(ColumnID)  INTO @maxColumnNames , @ColumnIDS from tmp_dynamic_columns_;
 
     ELSE
 
-      select GROUP_CONCAT(ColumnName) INTO @ColumnNames from tmp_dynamic_columns_;
+      select GROUP_CONCAT(ColumnName) , GROUP_CONCAT(ColumnID) INTO @ColumnNames ,  @ColumnIDS from tmp_dynamic_columns_;
 
     END IF;
+
 
 
     IF p_isExport = 0 THEN
 
       IF p_groupby = 'description' THEN
 
-        SET @stm2 = CONCAT('select max(Description) as Destination , ',@maxColumnNames ,' from tmp_final_compare Group by  Description  order by Description LIMIT  ', p_RowspPage , ' OFFSET ' , v_OffSet_ , '');
+        SET @stm2 = CONCAT('select max(Description) as Destination , ',@maxColumnNames ,'  , "',@ColumnIDS ,'" as ColumnIDS   from tmp_final_compare Group by  Description  order by Description LIMIT  ', p_RowspPage , ' OFFSET ' , v_OffSet_ , '');
 
         PREPARE stmt2 FROM @stm2;
         EXECUTE stmt2;
@@ -701,7 +699,7 @@ CONTAINS SQL
 
       ELSE
 
-        SET @stm2 = CONCAT('select concat( Code , " : " , Description ) as Destination , ', @ColumnNames,' from tmp_final_compare order by Code LIMIT  ', p_RowspPage , ' OFFSET ' , v_OffSet_ , '');
+        SET @stm2 = CONCAT('select concat( Code , " : " , Description ) as Destination , ', @ColumnNames,' , "', @ColumnIDS ,'" as ColumnIDS from tmp_final_compare order by Code LIMIT  ', p_RowspPage , ' OFFSET ' , v_OffSet_ , '');
         PREPARE stmt2 FROM @stm2;
         EXECUTE stmt2;
         DEALLOCATE PREPARE stmt2;
@@ -740,4 +738,165 @@ CONTAINS SQL
 
 
 
-  END
+  END//
+DELIMITER ;
+
+
+DELIMITER  //
+CREATE PROCEDURE `prc_RateCompareRateUpdate`(
+  IN `p_CompanyID` INT,
+  IN `p_GroupBy` VARCHAR(50),
+  IN `p_Type` VARCHAR(50),
+  IN `p_TypeID` INT,
+  IN `p_Code` VARCHAR(50),
+  IN `p_Description` VARCHAR(200),
+  IN `p_EffectiveDate` VARCHAR(50),
+  IN `p_TrunkID` INT,
+  IN `p_Effective` VARCHAR(50),
+  IN `p_SelectedEffectiveDate` DATE
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+  SQL SECURITY DEFINER
+  COMMENT ''
+  BEGIN
+
+    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+    -- Vendor Rate
+    IF ( p_Type = 'vendor_rate') THEN
+
+      IF ( p_GroupBy = 'description') THEN
+
+        -- Vendor Rate group by description
+        Update
+        tblVendorRate v
+        inner join tblRate r on r.RateID = v.RateId
+        SET Rate = p_Rate
+        where r.CompanyID = p_CompanyID AND
+              r.Description = p_Description AND
+              v.AccountId = p_TypeID AND
+              v.TrunkID = p_TrunkID
+              AND
+              (
+                ( p_Effective = 'Now' AND v.EffectiveDate <= NOW() )
+                OR
+                ( p_Effective = 'Future' AND v.EffectiveDate > NOW())
+                OR
+                ( p_Effective = 'Selected' AND v.EffectiveDate <= DATE(p_SelectedEffectiveDate) )
+              );
+
+
+      ELSE
+        -- Vendor Rate by code and EffectiveDate
+        Update
+            tblVendorRate v
+            inner join tblRate r on r.RateID = v.RateId
+        SET Rate = p_Rate
+        where r.CompanyID = p_CompanyID AND
+              r.Code = p_Code AND
+              r.Description = p_Description AND
+              v.AccountId = p_TypeID AND
+              v.TrunkID = p_TrunkID AND
+              v.EffectiveDate = p_EffectiveDate;
+
+      END IF;
+
+
+    END IF;
+
+    -- Rate Table
+    IF ( p_Type = 'rate_table') THEN
+
+      IF ( p_GroupBy = 'description') THEN
+
+        -- Rate Table group by description
+        update
+            tblRateTableRate rtr
+            inner join tblRate r on r.RateID = rtr.RateId
+        SET Rate = p_Rate
+        where r.CompanyID = p_CompanyID AND
+              r.Description = p_Description AND
+              rtr.RateTableId = p_TypeID
+              AND
+              (
+                ( p_Effective = 'Now' AND rtr.EffectiveDate <= NOW() )
+                OR
+                ( p_Effective = 'Future' AND rtr.EffectiveDate > NOW())
+                OR
+                ( p_Effective = 'Selected' AND rtr.EffectiveDate <= DATE(p_SelectedEffectiveDate) )
+              );
+
+
+
+      ELSE
+
+        -- Rate Table by code and EffectiveDate
+        update
+            tblRateTableRate rtr
+            inner join tblRate r on r.RateID = rtr.RateId
+        SET Rate = p_Rate
+        where r.CompanyID = p_CompanyID AND
+              r.Code = p_Code AND
+              r.Description = p_Description AND
+              rtr.RateTableId = p_TypeID AND
+              rtr.EffectiveDate = p_EffectiveDate;
+
+
+      END IF;
+
+
+    END IF;
+
+    -- Customer Rate
+    IF ( p_Type = 'customer_rate') THEN
+
+      IF ( p_GroupBy = 'description') THEN
+
+        -- Customer Rate group by description
+        update
+            tblCustomerRate c
+            inner join tblRate r on r.RateID = v.RateId
+        SET Rate = p_Rate
+        where r.CompanyID = p_CompanyID AND
+              r.Description = p_Description AND
+              c.CustomerID = p_TypeID AND
+              c.TrunkID = p_TrunkID
+              AND
+              (
+                ( p_Effective = 'Now' AND c.EffectiveDate <= NOW() )
+                OR
+                ( p_Effective = 'Future' AND c.EffectiveDate > NOW())
+                OR (
+                  p_Effective = 'Selected' AND c.EffectiveDate <= DATE(p_SelectedEffectiveDate)
+                )
+              );
+
+      ELSE
+
+        -- Customer Rate by Code and EffectiveDate
+        update
+            tblCustomerRate c
+            inner join tblRate r on r.RateID = v.RateId
+        SET Rate = p_Rate
+        where r.CompanyID = p_CompanyID AND
+              r.Code = p_Code AND
+              r.Description = p_Description AND
+              c.CustomerID = p_TypeID AND
+              c.TrunkID = p_TrunkID AND
+              c.EffectiveDate = p_EffectiveDate;
+
+      END IF;
+
+    END IF;
+
+
+    select ROW_COUNT() as rows_update ;
+
+    SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+
+  END//
+DELIMITER ;
+
