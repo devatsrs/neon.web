@@ -50,7 +50,7 @@ class RoleController extends \BaseController {
      *
      * @return Response
      */
-    public function edit($id){
+    /*public function edit($id){
         $CompanyID = User::get_companyID();
         $role = Role::find($id);
         $select = ['tblPermission.PermissionID','tblResource.ResourceName','tblPermission.action'];
@@ -66,6 +66,30 @@ class RoleController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Some thing wrong."));
         }
         return $permission;
+    }*/
+
+
+    public function edit($id){
+        $data = Input::all();
+        $tblRole = Role::findOrFail($id);
+        $data['CompanyID'] = User::get_companyID();
+
+        $rules = array(
+            'RoleName' => 'required|unique:tblRole,RoleName,'.$id.',RoleID,CompanyID,'.$data['CompanyID'],
+            'CompanyID' => 'required',
+        );
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        $data['ModifiedBy'] = User::get_user_full_name();
+        if ($tblRole->update($data)) {
+            return Response::json(array("status" => "success", "message" => "Rate Table Name Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Rate Table Name."));
+        }
     }
 
     public function storerole(){
@@ -198,7 +222,7 @@ class RoleController extends \BaseController {
 	 * @return Response
 	 */
     public function delete($id) {
-        if( intval($id) > 0){
+        /*if( intval($id) > 0){
             $role = Role::find($id);
             if(!Role::checkForeignKeyByRole($role->RoleName)) {
                 try {
@@ -217,6 +241,37 @@ class RoleController extends \BaseController {
             }
         }else{
             return Response::json(array("status" => "failed", "message" => "Role is in Use, You cant delete this Role."));
+        }*/
+
+
+        if( intval($id) > 0){
+            $role = Role::find($id);
+            if(count($role)) {
+                $deleteRoles=true;
+
+                if(count(RolePermission::where(['roleID'=>$role->$id])->get()))
+                {
+                    $deleteRoles=false;
+                }
+
+                if(count(UserRole::where(['roleID'=>$role->$id])->get()))
+                {
+                    $deleteRoles=false;
+                }
+                if($deleteRoles)
+                {
+                    Role::find($id)->delete();
+                    return Response::json(array("status" => "success", "message" => "Role Successfully Deleted"));
+                }
+                else
+                {
+                    return Response::json(array("status" => "failed", "message" => "Role is in Use, You cant delete this Role."));
+                }
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Problem Deleting Role."));
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Something wrong Please try Again"));
         }
     }
 

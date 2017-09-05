@@ -67,7 +67,8 @@
                                                     <input type="checkbox" name="checkbox[]" class="selectall">
                                                 </div>
                                             </th>
-                                            <th width="90%">Users</th>
+                                            <th width="80%">Users</th>
+                                            <th width="10%">Actions</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -80,6 +81,9 @@
                                                         </div>
                                                     </td>
                                                     <td>{{$user}}</td>
+                                                    <td align="right">
+                                                            <a title="Edit" href="{{URL::to('users/edit_profile/'. $index )}}" target="_blank" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         @endif
@@ -100,7 +104,8 @@
                                                         <input type="checkbox" name="checkbox[]" class="selectall">
                                                     </div>
                                                 </th>
-                                                <th width="90%">Roles</th>
+                                                <th width="70%">Roles</th>
+                                                <th width="20%">Actions</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -113,6 +118,10 @@
                                                             </div>
                                                         </td>
                                                         <td>{{$role}}</td>
+                                                        <td>
+                                                            <a title="Edit" data-id="{{$index}}}}" data-roles="{{$role}}"  class="edit-roles btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
+                                                            <a title="Delete" data-id="{{$index}}" class="delete-roles btn btn-default delete btn-danger btn-sm"><i class="entypo-trash"></i></a>
+                                                        </td>
                                                     </tr>
                                                 @endforeach
                                             @endif
@@ -143,7 +152,8 @@
                                                     <input type="checkbox" name="checkbox[]" class="selectall">
                                                 </div>
                                             </th>
-                                            <th width="90%">Users</th>
+                                            <th width="80%">Users</th>
+                                            <th width="10%">Actions</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -156,6 +166,9 @@
                                                         </div>
                                                     </td>
                                                     <td>{{$user}}</td>
+                                                    <td>
+                                                        <a title="Edit" href="{{URL::to('users/edit_profile/'. $index )}}" target="_blank"  class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         @endif
@@ -176,7 +189,8 @@
                                                         <input type="checkbox" name="checkbox[]" class="selectall">
                                                     </div>
                                                 </th>
-                                                <th width="90%">Roles</th>
+                                                <th width="70%">Roles</th>
+                                                <th width="20%">Actions</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -189,6 +203,10 @@
                                                             </div>
                                                         </td>
                                                         <td>{{$role}}</td>
+                                                        <td>
+                                                            <a title="Edit" data-id="{{$index}}" data-roles="{{$role}}"  class="edit-roles btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
+                                                            <a title="Delete" data-id="{{$index}}" class="delete-roles btn btn-default delete btn-danger btn-sm"><i class="entypo-trash"></i></a>
+                                                        </td>
                                                     </tr>
                                                 @endforeach
                                             @endif
@@ -251,6 +269,45 @@
 				  var groupsearch;
                 jQuery(document).ready(function ($) {
                     disable();
+
+                    $(".edit-roles").click(function(ev) {
+                        $("#edit-role-form [name='roleId']").val($(this).attr('data-id'));
+                        $("#edit-role-form [name='RoleName']").val($(this).attr('data-roles'));
+
+                        $('#edit-modal-role').modal('show');
+                    });
+                    FnEditRolesSuccess = function(response){
+                        $(".edit-roles").button('reset');
+                        if(response.status =='success'){
+                            ShowToastr("success",response.message);
+                            location.reload();
+                        }else{
+                            ShowToastr("error",response.message);
+                        }
+                    }
+                    $("#edit-role-form").submit(function(ev){
+                        var rolesId = $("#edit-role-form [name='roleId']").val();
+                        update_new_url = baseurl + '/roles/edit/'+rolesId;
+                        showAjaxScript( update_new_url ,$("#edit-role-form").serialize(),FnEditRolesSuccess  );
+                    });
+                    FnDeleteRolesSuccess = function(response){
+                        $(".delete-roles").button('reset');
+                        if(response.status =='success'){
+                            ShowToastr("success",response.message);
+                            location.reload();
+                        }else{
+                            ShowToastr("error",response.message);
+                        }
+                    }
+                    $(".delete-roles").click(function(e){
+                        result = confirm("Are you Sure?");
+                        if(result){
+                            var id  = $(this).attr("data-id");
+                            $(this).button('loading');
+                            showAjaxScript( baseurl + "/roles/"+id+"/delete" ,"",FnDeleteRolesSuccess );
+                        }
+                        return false;
+                    });
                     $('#add-new-role,#add-new-permission').on('click',function(e){
                         e.preventDefault();
                         var self = $(this);
@@ -789,6 +846,39 @@
                         <button type="submit" id="role-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="edit-modal-role">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="edit-role-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Edit New Role</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row role">
+                            <div class="col-md-12">
+                                <label class="col-sm-3 control-label">Role Name</label>
+                                <div class="col-sm-5">
+                                    <input class="form-control" name="RoleName" type="text" >
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="roleId" value="role" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="edit-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Upate
                         </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>
