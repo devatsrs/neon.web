@@ -3,13 +3,12 @@
 class RateCompareController extends \BaseController {
 
     public function index() {
+
             $trunks = Trunk::getTrunkDropdownIDList();
-            $trunk_keys = getDefaultTrunk($trunks);
-            //$countries = Country::getCountryDropdownIDList();
+            $default_trunk = getDefaultTrunk($trunks);
             $codedecklist = BaseCodeDeck::getCodedeckIDList();
             $currencies = Currency::getCurrencyDropdownIDList();
             $CurrencyID = Company::where("CompanyID",User::get_companyID())->pluck("CurrencyId");
-            $LCRPosition = NeonCookie::getCookie('LCRPosition',5);
 
             $all_vendors = Account::getAccountIDList(['IsVendor'=>1]);
             if(!empty($all_vendors[''])){
@@ -24,7 +23,7 @@ class RateCompareController extends \BaseController {
 
             $GroupBy =    NeonCookie::getCookie('_RateCompare_GroupBy');
 
-            return View::make('rate_compare.index', compact('trunks', 'currencies','CurrencyID','codedecklist','trunk_keys','LCRPosition','all_vendors','all_customers','rate_table','GroupBy'));
+            return View::make('rate_compare.index', compact('trunks', 'currencies','CurrencyID','codedecklist','default_trunk','all_vendors','all_customers','rate_table','GroupBy'));
     }
 
     public function search_ajax_datagrid($type) {
@@ -65,17 +64,11 @@ class RateCompareController extends \BaseController {
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
-
-            /*Excel::create('LCR', function ($excel) use ($excel_data) {
-                $excel->sheet('LCR', function ($sheet) use ($excel_data) {
-                    $sheet->fromArray($excel_data);
-                });
-            })->download('xls');*/
         }
 
         $query .=',0)';
 
-        \Illuminate\Support\Facades\Log::info($query);
+        //\Illuminate\Support\Facades\Log::info($query);
 
         return DataTableSql::of($query)->make();
 
@@ -126,9 +119,8 @@ class RateCompareController extends \BaseController {
             return json_validator_response($validator);
         }
 
-        //CALL `prc_RateCompareRateUpdate`('1', 'code', 'rate_ratable', '137', '9111', 'India-Fixed-Delhi', '2016-05-05', '1', 'Now', '2016-05-05')
         $query = "call prc_RateCompareRateUpdate (" . $data['CompanyID'] . ",'".$data['GroupBy']."','".$data['Type']."','".$data['TypeID']."','".$data['Rate']."','".$data['Code']."','" .$data['Description']."','".$data['EffectiveDate']."','".$data['TrunkID']."','".$data['Effective']."','".$data['SelectedEffectiveDate']."' );";
-        \Illuminate\Support\Facades\Log::info($query);
+       // \Illuminate\Support\Facades\Log::info($query);
 
         $result  = DB::select($query);
         $result_array = json_decode(json_encode($result),true);

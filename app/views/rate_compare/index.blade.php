@@ -46,7 +46,7 @@
 
                             <label for="field-1" class="col-sm-1 control-label">Trunk</label>
                             <div class="col-sm-2">
-                                {{ Form::select('Trunk', $trunks, $trunk_keys, array("class"=>"select2")) }}
+                                {{ Form::select('Trunk', $trunks, $default_trunk, array("class"=>"select2")) }}
 
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">CodeDeck</label>
