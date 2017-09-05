@@ -73,7 +73,7 @@
                             <div class="SelectedEffectiveDate_Class hidden">
                                 <label for="field-1" class="col-sm-1 control-label">Date</label>
                                 <div class="col-sm-2">
-                                    {{Form::text('SelectedEffectiveDate', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-start-date"=>"" ,"data-date-format"=>"dd-mm-yyyy", "data-end-date"=>"+1w", "data-start-view"=>"2"))}}
+                                    {{Form::text('SelectedEffectiveDate', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-start-date"=>date('Y-m-d',strtotime(" today")) ,"data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
                                 </div>
                             </div>
                         </div>
