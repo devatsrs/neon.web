@@ -355,9 +355,6 @@
 
                                             if ($.inArray(i, customerrate_column_index) != -1) {
                                                 _type = "customer_rate";
-
-                                                action += '<input type = "hidden"  name = "TypeID" value = "' + _class + '" / >';
-
                                             } else if ($.inArray(i, vendorrate_column_index) != -1) {
                                                 _type = "vendor_rate";
                                             } else if ($.inArray(i, ratetable_column_index) != -1) {
@@ -393,7 +390,7 @@
                                             $.each(rate_array, function(index, value) {
                                                 if(index == 0){
                                                     //rate = value;
-                                                    action += '<input type = "hidden"  name = "rate" value = "' + value + '" / >';
+                                                    action += '<input type = "hidden"  name = "Rate" value = "' + value + '" / >';
 
                                                 } else if(index == 1){
                                                     //_effective_date = value;
@@ -449,7 +446,7 @@
 
                 var cur_obj = $(this).parent().find(".hiddenRowData");
 
-               var hidden_list_fields = ["GroupBy","Code","Description","EffectiveDate","Type","TypeID"];
+               var hidden_list_fields = ["GroupBy","Code","Description","Rate", "EffectiveDate","Type","TypeID"];
 
 
                 for(var i = 0 ; i< hidden_list_fields.length; i++){

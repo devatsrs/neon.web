@@ -268,42 +268,43 @@ CONTAINS SQL
         ORDER BY tblRate.Code asc;
 
       -- @TODO : skipp tmp_CustomerRate_ from rate table.
-
-      INSERT INTO tmp_CustomerRate_ ( AccountId ,AccountName ,		Code ,		RateID , 	Description , Rate , EffectiveDate , TrunkID , CustomerRateID )
-        SELECT
-          tblAccount.AccountID,
-          tblAccount.AccountName,
-          tblRate.Code,
-          tblRateTableRate.RateID,
-          tblRate.Description,
-          CASE WHEN  tblAccount.CurrencyId = p_CurrencyID
-            THEN tblRateTableRate.Rate
-          WHEN  v_CompanyCurrencyID_ = p_CurrencyID
-            THEN ( tblRateTableRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = p_companyid ) )
-          ELSE (
-            ( Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = p_CurrencyID and  CompanyID = p_companyid )
-            * ( tblRateTableRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = p_companyid ) )
+    -- dont show rate table rate in customer rate
+    /*
+    INSERT INTO tmp_CustomerRate_ ( AccountId ,AccountName ,		Code ,		RateID , 	Description , Rate , EffectiveDate , TrunkID , CustomerRateID )
+      SELECT
+        tblAccount.AccountID,
+        tblAccount.AccountName,
+        tblRate.Code,
+        tblRateTableRate.RateID,
+        tblRate.Description,
+        CASE WHEN  tblAccount.CurrencyId = p_CurrencyID
+          THEN tblRateTableRate.Rate
+        WHEN  v_CompanyCurrencyID_ = p_CurrencyID
+          THEN ( tblRateTableRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = p_companyid ) )
+        ELSE (
+          ( Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = p_CurrencyID and  CompanyID = p_companyid )
+          * ( tblRateTableRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = p_companyid ) )
+        )
+        END as  Rate,
+        tblRateTableRate.EffectiveDate,
+        p_trunkID as TrunkID,
+        NULL as CustomerRateId
+      FROM tblRateTableRate
+        INNER JOIN tblCustomerTrunk    ON  tblCustomerTrunk.CompanyID = p_companyid And  tblCustomerTrunk.Status= 1 And tblCustomerTrunk.TrunkID= p_trunkID  AND tblCustomerTrunk.RateTableID = tblRateTableRate.RateTableID
+        INNER JOIN tmp_customers_ as tblAccount   ON tblCustomerTrunk.AccountId = tblAccount.AccountID
+        INNER JOIN tblRate ON tblRateTableRate.RateId = tblRate.RateID
+        INNER JOIN tmp_code_ tc ON tc.Code = tblRate.Code
+      WHERE
+        (
+          ( p_Effective = 'Now' AND tblRateTableRate.EffectiveDate <= NOW() )
+          OR
+          ( p_Effective = 'Future' AND tblRateTableRate.EffectiveDate > NOW())
+          OR (
+            p_Effective = 'Selected' AND tblRateTableRate.EffectiveDate <= DATE(p_SelectedEffectiveDate)
           )
-          END as  Rate,
-          tblRateTableRate.EffectiveDate,
-          p_trunkID as TrunkID,
-          NULL as CustomerRateId
-        FROM tblRateTableRate
-          INNER JOIN tblCustomerTrunk    ON  tblCustomerTrunk.CompanyID = p_companyid And  tblCustomerTrunk.Status= 1 And tblCustomerTrunk.TrunkID= p_trunkID  AND tblCustomerTrunk.RateTableID = tblRateTableRate.RateTableID
-          INNER JOIN tmp_customers_ as tblAccount   ON tblCustomerTrunk.AccountId = tblAccount.AccountID
-          INNER JOIN tblRate ON tblRateTableRate.RateId = tblRate.RateID
-          INNER JOIN tmp_code_ tc ON tc.Code = tblRate.Code
-        WHERE
-          (
-            ( p_Effective = 'Now' AND tblRateTableRate.EffectiveDate <= NOW() )
-            OR
-            ( p_Effective = 'Future' AND tblRateTableRate.EffectiveDate > NOW())
-            OR (
-              p_Effective = 'Selected' AND tblRateTableRate.EffectiveDate <= DATE(p_SelectedEffectiveDate)
-            )
-          )
-        ORDER BY tblRate.Code asc;
-
+        )
+      ORDER BY tblRate.Code asc;
+      */
     END IF;
 
 
@@ -857,7 +858,7 @@ CONTAINS SQL
         -- Customer Rate group by description
         update
             tblCustomerRate c
-            inner join tblRate r on r.RateID = v.RateId
+            inner join tblRate r on r.RateID = c.RateId
         SET Rate = p_Rate
         where r.CompanyID = p_CompanyID AND
               r.Description = p_Description AND
@@ -878,7 +879,7 @@ CONTAINS SQL
         -- Customer Rate by Code and EffectiveDate
         update
             tblCustomerRate c
-            inner join tblRate r on r.RateID = v.RateId
+            inner join tblRate r on r.RateID = c.RateId
         SET Rate = p_Rate
         where r.CompanyID = p_CompanyID AND
               r.Code = p_Code AND
