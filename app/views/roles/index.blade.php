@@ -82,7 +82,7 @@
                                                     </td>
                                                     <td>{{$user}}</td>
                                                     <td align="right">
-                                                            <a title="Edit" href="{{URL::to('users/edit_profile/'. $index )}}" target="_blank" class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
+                                                            <a title="Edit" href="{{URL::to('users/edit/'. $index )}}" target="_blank" class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -167,7 +167,7 @@
                                                     </td>
                                                     <td>{{$user}}</td>
                                                     <td>
-                                                        <a title="Edit" href="{{URL::to('users/edit_profile/'. $index )}}" target="_blank"  class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
+                                                        <a title="Edit" href="{{URL::to('users/edit/'. $index )}}" target="_blank"  class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -571,7 +571,7 @@
                                                 newRow += '</td>';
                                             } else if (righttype == 'UserIds') {
                                                 newRow += '<td>';
-                                                newRow += '     <a title="Edit" href="' + baseurl + '/users/edit_profile/' + id + '" target="_blank"  class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>';
+                                                newRow += '     <a title="Edit" href="' + baseurl + '/users/edit/' + id + '" target="_blank"  class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>';
                                                 newRow += '</td>';
                                             }
                                             newRow += '  </tr>';
