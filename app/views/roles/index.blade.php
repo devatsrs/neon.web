@@ -82,7 +82,7 @@
                                                     </td>
                                                     <td>{{$user}}</td>
                                                     <td align="right">
-                                                            <a title="Edit" href="{{URL::to('users/edit_profile/'. $index )}}" target="_blank" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
+                                                            <a title="Edit" href="{{URL::to('users/edit_profile/'. $index )}}" target="_blank" class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -119,8 +119,8 @@
                                                         </td>
                                                         <td>{{$role}}</td>
                                                         <td>
-                                                            <a title="Edit" data-id="{{$index}}}}" data-roles="{{$role}}"  class="edit-roles btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
-                                                            <a title="Delete" data-id="{{$index}}" class="delete-roles btn btn-default delete btn-danger btn-sm"><i class="entypo-trash"></i></a>
+                                                            <a title="Edit" data-id="{{$index}}}}" onclick="editroles(this);" data-roles="{{$role}}"  class="edit-roles btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
+                                                            <a title="Delete" data-id="{{$index}}" onclick="deleteroles(this);" class="delete-roles btn btn-default delete btn-danger btn-sm"><i class="entypo-trash"></i></a>
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -167,7 +167,7 @@
                                                     </td>
                                                     <td>{{$user}}</td>
                                                     <td>
-                                                        <a title="Edit" href="{{URL::to('users/edit_profile/'. $index )}}" target="_blank"  class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
+                                                        <a title="Edit" href="{{URL::to('users/edit_profile/'. $index )}}" target="_blank"  class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -204,8 +204,8 @@
                                                         </td>
                                                         <td>{{$role}}</td>
                                                         <td>
-                                                            <a title="Edit" data-id="{{$index}}" data-roles="{{$role}}"  class="edit-roles btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
-                                                            <a title="Delete" data-id="{{$index}}" class="delete-roles btn btn-default delete btn-danger btn-sm"><i class="entypo-trash"></i></a>
+                                                            <a title="Edit" data-id="{{$index}}" onclick="editroles(this);" data-roles="{{$role}}"  class="edit-roles btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
+                                                            <a title="Delete" data-id="{{$index}}" onclick="deleteroles(this);" class="delete-roles btn btn-default delete btn-danger btn-sm"><i class="entypo-trash"></i></a>
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -267,29 +267,31 @@
             <script type="text/javascript">
                 var userpermission;
 				  var groupsearch;
+                function deleteroles(ele)
+                {
+                    result = confirm("Are you Sure?");
+                    if(result){
+                        var id  = $(ele).attr("data-id");
+                        $(ele).button('loading');
+                        submit_ajaxbtn(baseurl + "/roles/"+id+"/delete",'','',$(ele),1);
+                    }
+                    return false;
+                }
+                function editroles(ele)
+                {
+                    $("#edit-role-form [name='roleId']").val($(ele).attr('data-id'));
+                    $("#edit-role-form [name='RoleName']").val($(ele).attr('data-roles'));
+
+                    $('#edit-modal-role').modal('show');
+                }
                 jQuery(document).ready(function ($) {
                     disable();
 
-                    $(".edit-roles").click(function(ev) {
-                        $("#edit-role-form [name='roleId']").val($(this).attr('data-id'));
-                        $("#edit-role-form [name='RoleName']").val($(this).attr('data-roles'));
-
-                        $('#edit-modal-role').modal('show');
-                    });
                     $("#edit-role-form").submit(function(ev){
                         ev.preventDefault();
                         var rolesId = $("#edit-role-form [name='roleId']").val();
                         update_new_url = baseurl + '/roles/edit/'+rolesId;
                         submit_ajaxbtn(update_new_url,$("#edit-role-form").serialize(),'',$(".save"),1);
-                    });
-                    $(".delete-roles").click(function(e){
-                        result = confirm("Are you Sure?");
-                        if(result){
-                            var id  = $(this).attr("data-id");
-                            $(this).button('loading');
-                            submit_ajaxbtn(baseurl + "/roles/"+id+"/delete",'','',$(".delete-roles"),1);
-                        }
-                        return false;
                     });
                     $('#add-new-role,#add-new-permission').on('click',function(e){
                         e.preventDefault();
@@ -562,6 +564,16 @@
                                             newRow += '    </div>';
                                             newRow += '  </td>';
                                             newRow += '  <td>' + name + '</td>';
+                                            if (righttype == 'RoleIds') {
+                                                newRow += '<td>';
+                                                newRow += '     <a title="Edit" data-id="' + id + '"  onclick="editroles(this);" data-roles="' + name + '"  class="edit-roles btn btn-default btn-sm"><i class="entypo-pencil"></i></a>';
+                                                newRow += '     <a title="Delete" data-id="' + id + '" onclick="deleteroles(this);" class="delete-roles btn btn-default delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                                                newRow += '</td>';
+                                            } else if (righttype == 'UserIds') {
+                                                newRow += '<td>';
+                                                newRow += '     <a title="Edit" href="' + baseurl + '/users/edit_profile/' + id + '" target="_blank"  class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>';
+                                                newRow += '</td>';
+                                            }
                                             newRow += '  </tr>';
                                             $(table).find('tbody>tr:last').after(newRow);
 											if(righttype=='ResourceIds'){$('#groupsearch').trigger('change'); }
