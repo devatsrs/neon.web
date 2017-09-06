@@ -1273,6 +1273,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_compare', 'RateCompareController@index');
 	Route::any('/rate_compare/search_ajax_datagrid/{type}', 'RateCompareController@search_ajax_datagrid');
 	Route::any('/rate_compare/rate_update', 'RateCompareController@rate_update');
+	Route::any('/rate_compare/load_account_dropdown', 'RateCompareController@load_account_dropdown');
 });
 
 Route::group(array('before' => 'global_admin'), function () {

@@ -145,6 +145,31 @@
             //var data_table;
             var Code, Description, Currency,CodeDeck,Trunk,GroupBy,Effective,SelectedEffectiveDate, SourceVendors,SourceCustomers,SourceRateTables,DestinationVendors,DestinationCustomers,DestinationRateTables;
 
+
+
+            $('select[name="Trunk"]').on( "change",function(e) {
+
+                TrunkID = $(this).val();
+
+                $.post( baseurl + '/rate_compare/load_account_dropdown', {"TrunkID":TrunkID,"IsCustomer":1 }, function(response) {
+                    //var data = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }];
+
+
+                    rebuildSelect2($("#rate-compare-search-form select[name='SourceCustomers[]']"),response.data,'');
+                    rebuildSelect2($("#rate-compare-search-form select[name='DestinationCustomers[]']"),response.data,'');
+
+                 }, "json" );
+
+                $.post( baseurl + '/rate_compare/load_account_dropdown', {"TrunkID":TrunkID,"IsVendor":1 }, function(response) {
+                    //var data = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }];
+
+                    rebuildSelect2($("#rate-compare-search-form select[name='SourceVendors[]']"),response.data,'');
+                    rebuildSelect2($("#rate-compare-search-form select[name='DestinationVendors[]']"),response.data,'');
+
+                 }, "json" );
+
+            });
+
             $('select[name="Effective"]').on( "change",function(e) {
                 var selection = $(this).val();
                 var hidden = false;

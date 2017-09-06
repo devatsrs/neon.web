@@ -779,4 +779,42 @@ class Account extends \Eloquent {
 
         return $results;
     }
+
+    public static function getAccountDropdownWithTrunk($opt = array()){
+
+        if(isset($opt["CompanyID"]) && $opt["CompanyID"] > 0) {
+
+            $companyID = $opt["CompanyID"];// User::get_companyID();
+
+
+            if (isset($opt['IsCustomer'])) {
+
+                $accounts = Account::join('tblCustomerTrunk', 'tblCustomerTrunk.AccountID', '=', 'tblAccount.AccountID')
+                    ->where(["tblAccount.CompanyID" => $companyID, 'IsCustomer' => 1, 'AccountType' => 1,
+                        'tblAccount.Status' => 1, 'tblCustomerTrunk.Status' => 1]);
+
+            } else if (isset($opt['IsVendor'])) {
+
+                $accounts = Account::join('tblVendorTrunk', 'tblVendorTrunk.AccountID', '=', 'tblAccount.AccountID')
+                    ->where(["tblAccount.CompanyID" => $companyID, 'IsVendor' => 1, 'AccountType' => 1,
+                        'tblAccount.Status' => 1, 'tblVendorTrunk.Status' => 1]);
+            }
+
+            if (isset($opt['TrunkID'])) {
+
+                $accounts->where('TrunkID', $opt['TrunkID']);
+
+            }
+
+            /** only show his own accounts to Account Manager **/
+            if (User::is('AccountManager')) {
+                $UserID = User::get_userID();//  //$data['OwnerFilter'];
+                $accounts->where('Owner', $UserID);
+            }
+
+            return $accounts->orderBy("AccountName", "ASC")->get(array('tblAccount.AccountID','AccountName'))->toArray();
+
+        }
+    }
+
 }

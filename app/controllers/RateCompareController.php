@@ -141,4 +141,22 @@ class RateCompareController extends \BaseController {
 
     }
 
+    public function load_account_dropdown() {
+
+        $data = \Illuminate\Support\Facades\Input::all();
+
+        $data['CompanyID'] =  User::get_companyID();
+
+
+        $customers_array = Account::getAccountDropdownWithTrunk($data);
+
+        $select2_customer = array_map(function($customers_array){
+            return array("id" => $customers_array["AccountID"],"text" => $customers_array["AccountName"]);
+        },$customers_array);
+
+        return Response::json(array("status" => "success", "message" => "" ,"data" =>  $select2_customer));
+
+    }
+
+
 }
