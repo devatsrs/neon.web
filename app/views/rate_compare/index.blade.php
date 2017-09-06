@@ -66,7 +66,9 @@
                                 {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}
                             </div>
 
-                            <label for="field-1" class="col-sm-1 control-label">Effective</label>
+                            <label for="field-1" class="col-sm-1 control-label">Effective
+                                <span data-loading-text="..." data-html="true" data-trigger="hover" data-toggle="popover"  data-placement="bottom" data-content="<b>Current:</b> System will use Current Rates for comparison<br><b>Future:</b> System will use maximum future rates for comparison<br><b>Selected:</b> System will use rate where effective date is equal to selected effective date<br>" data-original-title="Effective" class="label label-info popover-primary">?</span>
+                            </label>
                             <div class="col-sm-2">
                                 {{Form::select('Effective', ["Now"=>"Current", "Future" => "Future", "Selected" => "Selected"], 'Now' ,array("class"=>"form-control select2"))}}
                             </div>
