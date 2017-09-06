@@ -96,6 +96,9 @@
         @if(User::checkCategoryPermission('VendorProfiling','All'))
         <li> <a href="{{URL::to('/vendor_profiling')}}">  <span>Vendor Profiling</span> </a> </li>
         @endif
+        @if(User::checkCategoryPermission('RateCompare','All'))
+        <li> <a href="{{URL::to('/rate_compare')}}">  <span>Rate Compare</span> </a> </li>
+        @endif
       </ul>
     </li>
     @endif
