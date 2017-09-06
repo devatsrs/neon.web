@@ -183,7 +183,7 @@ class AccountsController extends \BaseController {
             //when account varification is off in company setting then varified the account by default.
             $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
 
-            if ( $AccountVerification== CompanySetting::ACCOUT_VARIFICATION_OFF ) {
+            if ($AccountVerification == CompanySetting::ACCOUT_VARIFICATION_OFF && $AccountVerification != 'Invalid Key') {
                 $data['VerificationStatus'] = Account::VERIFIED;
             }
 
