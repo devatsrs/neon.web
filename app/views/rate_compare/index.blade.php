@@ -36,7 +36,7 @@
 
                             <label for="field-1" class="col-sm-1 control-label">Code</label>
                             <div class="col-sm-2">
-                                <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="911*" />
+                                <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="" />
                             </div>
 
                             <label for="field-1" class="col-sm-1 control-label">Description</label>
@@ -272,6 +272,7 @@
                         var vendorrate_column_index = [];
                         var ratetable_column_index = [];
                         var columnIDs_column_index = [];
+                        var column_name = [];
 
                         if( typeof results.jqXHR.responseJSON.sColumns != 'undefined') {
 
@@ -302,6 +303,7 @@
                                     col = '';
                                 }
 
+                                column_name.push(col);
                                 if (col.indexOf("ColumnIDS") == -1 ) {  // if not columnid no need to add column id in display
 
                                     str = '<th class="'+ _class +'">' + col + '</th>';
@@ -334,8 +336,12 @@
                                     var str = _class = "";
                                     var _edit;
                                     var _type = '';
+                                    var _column_name = '';
 
                                     str = row[i] ;
+                                    if(typeof  column_name[i] != 'undefind' ){
+                                        _column_name = column_name[i];
+                                    }
                                     if($.inArray( i, source_column_index ) != -1 ){
                                         _class = "source";
                                     }else if($.inArray( i, destination_column_index ) != -1 ){
@@ -369,6 +375,7 @@
                                             action += '<input type = "hidden"  name = "Type" value = "' + _type + '" / >';
                                             action += '<input type = "hidden"  name = "TypeID" value = "' + _typeID + '" / >';
                                             action += '<input type = "hidden"  name = "GroupBy" value = "' + GroupBy + '" / >';
+                                            action += '<input type = "hidden"  name = "ColumnName" value = "' + _column_name + '" / >';
 
                                             if (GroupBy == 'description'){
                                                 action += '<input type = "hidden"  name = "Code" value = "" / >';
@@ -400,7 +407,7 @@
                                             action += '</span>';
 
 
-                                            _edit = ' <span class="float-right"><a href="#" class="edit-ratecompare btn btn-default btn-sm"><i class="entypo-pencil"></i> &nbsp;</a>'+action+'</span>';
+                                            _edit = ' <span class="float-right"><a href="#" class="edit-ratecompare btn btn-default btn-xs"><i class="entypo-pencil"></i> &nbsp;</a>'+action+'</span>';
                                             str += _edit;
 
                                         }
@@ -459,8 +466,9 @@
                 $("#add-edit-ratecompare-form [name='Effective']").val(Effective);
                 $("#add-edit-ratecompare-form [name='SelectedEffectiveDate']").val(SelectedEffectiveDate);
 
+                var edit_title = 'Edit ' + cur_obj.find("input[name='ColumnName']").val().replace("<br>",' - ') ;
 
-                $('#add-edit-modal-ratecompare h4').html('Edit');
+                $('#add-edit-modal-ratecompare h4').html(edit_title);
                 $('#add-edit-modal-ratecompare').modal('show');
 
                 if($("#add-edit-ratecompare-form [name='GroupBy']").val() == 'description' ){

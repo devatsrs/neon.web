@@ -68,7 +68,7 @@ class RateCompareController extends \BaseController {
 
         $query .=',0)';
 
-        //\Illuminate\Support\Facades\Log::info($query);
+        \Illuminate\Support\Facades\Log::info($query);
 
         return DataTableSql::of($query)->make();
 
