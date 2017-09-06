@@ -51,7 +51,7 @@
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">CodeDeck</label>
                             <div class="col-sm-2">
-                                {{ Form::select('CodeDeckId', $codedecklist, '' , array("class"=>"select2")) }}
+                                {{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}
 
                             </div>
                         </div>
