@@ -180,6 +180,13 @@ class AccountsController extends \BaseController {
                 $VendorName = '';
             }
 
+            //when account varification is off in company setting then varified the account by default.
+            $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
+
+            if ( $AccountVerification== CompanySetting::ACCOUT_VARIFICATION_OFF ) {
+                $data['VerificationStatus'] = Account::VERIFIED;
+            }
+
 
             if (isset($data['TaxRateId'])) {
                 $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
@@ -779,20 +786,20 @@ class AccountsController extends \BaseController {
     public function  download_doc($id){
         $FileName = AccountApprovalList::where(["AccountApprovalListID"=>$id])->pluck('FileName');
         $FilePath =  AmazonS3::preSignedUrl($FileName);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
     public function  download_doc_file($id){
         $DocumentFile = AccountApproval::where(["AccountApprovalID"=>$id])->pluck('DocumentFile');
         $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
@@ -800,11 +807,7 @@ class AccountsController extends \BaseController {
         $AccountApprovalList = AccountApprovalList::find($id);
         $filename = $AccountApprovalList->FileName;
         if($AccountApprovalList->delete()){
-            if(file_exists($filename)){
-                @unlink($filename);
-            }else{
-                AmazonS3::delete($filename);
-            }
+            AmazonS3::delete($filename);
             echo json_encode(array("status" => "success", "message" => "Document deleted successfully"));
         }else{
             echo json_encode(array("status" => "failed", "message" => "Problem Deleting Document"));

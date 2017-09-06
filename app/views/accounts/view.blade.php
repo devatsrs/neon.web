@@ -415,14 +415,14 @@
 				foreach($attachments as $key_acttachment => $attachments_data)
 				{
 					//
-					 if(is_amazon() == true)
-					{
-						$Attachmenturl =  AmazonS3::preSignedUrl($attachments_data['filepath']);
-					}
-					else
-					{
-						$Attachmenturl = CompanyConfiguration::get('UPLOAD_PATH')."/".$attachments_data['filepath'];
-					}
+//					if(is_amazon() == true)
+//					{
+//						$Attachmenturl =  AmazonS3::preSignedUrl($attachments_data['filepath']);
+//					}
+//					else
+//					{
+//						$Attachmenturl = CompanyConfiguration::get('UPLOAD_PATH')."/".$attachments_data['filepath'];
+//					}
                     $Attachmenturl = URL::to('emails/'.$rows['AccountEmailLogID'].'/getattachment/'.$key_acttachment);
 					if($key_acttachment==(count($attachments)-1)){
 						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br><br>";

@@ -512,13 +512,14 @@ function getFileContent($file_name, $data){
     $columns = [];
     $grid = [];
     $flag = 0;
+
     if(isset($data["start_row"]) && isset($data["end_row"])){
         NeonExcelIO::$start_row=$data["start_row"];
         NeonExcelIO::$end_row=$data["end_row"];
     }
+
     $NeonExcel = new NeonExcelIO($file_name, $data);
     $results = $NeonExcel->read(10);
-
     /*
     if (!empty($data['Delimiter'])) {
         Config::set('excel::csv.delimiter', $data['Delimiter']);

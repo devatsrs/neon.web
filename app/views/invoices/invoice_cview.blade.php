@@ -13,7 +13,7 @@
     $PDFurl = "";
     $unsignPDFurl = "";
     if(!empty($Invoice->PDF)){
-        if(is_amazon() == false){
+        /*if(is_amazon() == false){
             $unsignPDFurl = URL::to('/invoice/display_invoice/'.$Invoice->InvoiceID);
             $PDFurl = URL::to('/invoice/download_invoice/'.$Invoice->InvoiceID);
             $cdownload_usage =  URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cdownload_usage');
@@ -23,7 +23,11 @@
             if(!empty($Invoice->UsagePath)){
                 $cdownload_usage =  AmazonS3::preSignedUrl($Invoice->UsagePath);
             }
-        }
+        }*/
+
+        $unsignPDFurl = URL::to('/invoice/display_invoice/'.$Invoice->InvoiceID);
+        $PDFurl = URL::to('/invoice/download_invoice/'.$Invoice->InvoiceID);
+        $cdownload_usage =  URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cdownload_usage');
     }
     ?>
 <header class="x-title">

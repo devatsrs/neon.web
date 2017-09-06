@@ -667,4 +667,27 @@ class RateTablesController extends \BaseController {
 
         return $rateids;
     }
+
+    public function edit($id){
+        $data = Input::all();
+        $rateTableId = RateTable::findOrFail($id);
+        $data['CompanyID'] = User::get_companyID();
+
+        $rules = array(
+            'RateTableName' => 'required|unique:tblRateTable,RateTableName,'.$id.',RateTableId,CompanyID,'.$data['CompanyID'],
+            'CompanyID' => 'required',
+        );
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        $data['ModifiedBy'] = User::get_user_full_name();
+        if ($rateTableId->update($data)) {
+            return Response::json(array("status" => "success", "message" => "Rate Table Name Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Rate Table Name."));
+        }
+    }
 }
