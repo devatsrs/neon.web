@@ -967,7 +967,14 @@
                         dataType: 'json',
                         success: function (response) {
                             if (response.status == 'success') {
-                                toastr.success(response.message, "Success", toastr_opts);
+                                if(response.filePath!=""){
+                                    document.location =baseurl + "/download_file?file"+response.filePath;
+                                }else if(response.invoiceId){
+                                    document.location =baseurl + "/invoice/download_invoice/"+response.filePath;
+                                }else{
+                                    toastr.error("Something Worng Please try again.", "Error", toastr_opts);
+                                }
+
                             } else {
                                 toastr.error(response.message, "Error", toastr_opts);
                             }

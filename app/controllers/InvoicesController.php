@@ -2662,24 +2662,32 @@ class InvoicesController extends \BaseController {
             $Invoices = Invoice::find($invoiceIds);
 
             foreach ($Invoices as $invoice) {
-                $zipfiles[]=AmazonS3::preSignedUrl($invoice->PDF);
+                $zipfiles[$invoice->InvoiceID] = AmazonS3::preSignedUrl($invoice->PDF);
             }
 
             if (!empty($zipfiles)) {
+
                 if (count($zipfiles) == 1) {
-                    $local_zip_file = $zipfiles[0];
+
+                    $downloadInvoiceid = array_keys($zipfiles)[0];
+                    return Response::json(array("status" => "success", "message" => " Download start ", "invoiceId" => $downloadInvoiceid, "filePath" =>""));
+
                 } else {
-                    $UPLOADPATH = CompanyConfiguration::get($companyID, 'UPLOAD_PATH');
-                    $local_zip_file = $UPLOADPATH . '/invoice' . date("d-m-Y-H-i-s") . '__.zip';
+
+                    $UPLOADPATH = CompanyConfiguration::get('UPLOAD_PATH');
+                    $filename='invoice' . date("dmYHis") . '.zip';
+                    $local_zip_file = $UPLOADPATH. "/" .$filename;
 
                     Zipper::make($local_zip_file)->add($zipfiles)->close();
+
+                    if (file_exists($local_zip_file)) {
+                        return Response::json(array("status" => "success", "message" => " Download start ", "invoiceId" => "", "filePath" =>base64_encode($filename)));
+                    }
+                    else {
+                        return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
+                    }
                 }
 
-                if (file_exists($local_zip_file)) {
-                    download_file($local_zip_file);
-                } else {
-                    return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
-                }
             }
         }
         else {
