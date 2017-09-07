@@ -51,7 +51,7 @@
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">CodeDeck</label>
                             <div class="col-sm-2">
-                                {{ Form::select('CodeDeckId', $codedecklist, '' , array("class"=>"select2")) }}
+                                {{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}
 
                             </div>
                         </div>
@@ -156,17 +156,24 @@
                 $.post( baseurl + '/rate_compare/load_account_dropdown', {"TrunkID":TrunkID,"IsCustomer":1 }, function(response) {
                     //var data = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }];
 
-
-                    rebuildSelect2($("#rate-compare-search-form select[name='SourceCustomers[]']"),response.data,'');
-                    rebuildSelect2($("#rate-compare-search-form select[name='DestinationCustomers[]']"),response.data,'');
+                    $("#rate-compare-search-form select[name='SourceCustomers[]']").select2({
+                        data: function() { return {results: response.data}; }
+                    });
+                    $("#rate-compare-search-form select[name='DestinationCustomers[]']").select2({
+                        data: function() { return {results: response.data}; }
+                    });
 
                  }, "json" );
 
                 $.post( baseurl + '/rate_compare/load_account_dropdown', {"TrunkID":TrunkID,"IsVendor":1 }, function(response) {
                     //var data = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }];
 
-                    rebuildSelect2($("#rate-compare-search-form select[name='SourceVendors[]']"),response.data,'');
-                    rebuildSelect2($("#rate-compare-search-form select[name='DestinationVendors[]']"),response.data,'');
+                    $("#rate-compare-search-form select[name='SourceVendors[]']").select2({
+                        data: function() { return {results: response.data}; }
+                    });
+                    $("#rate-compare-search-form select[name='DestinationVendors[]']").select2({
+                        data: function() { return {results: response.data}; }
+                    });
 
                  }, "json" );
 
@@ -434,7 +441,7 @@
                                             action += '</span>';
 
 
-                                            _edit = ' <span class="float-right"><a href="#" class="edit-ratecompare btn btn-default btn-xs"><i class="entypo-pencil"></i> &nbsp;</a>'+action+'</span>';
+                                            _edit = ' <span class="float-right"><a href="#" class="edit-ratecompare btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>'+action+'</span>';
                                             str += _edit;
 
                                         }
