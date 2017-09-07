@@ -42,6 +42,9 @@
                     08. Added Account Exposure column in Account Grid.<br>
                     09. Added Vendors,Description and Position filter on LCR page.Now you can view upto 10 positions in LCR.<br>
                     10. Added Trunk Prefix Placeholder in Ratesheet Email Template.<br>
+                    11. Added option to upload your own rate sheet templates.<br>
+                    12. Added option to skip no of header and footer lines when uploading Vendor Rate Sheets.<br>
+                    13. Fixed invoice period for Prepaid and Postpaid customers.<br>
                 </div>
             </li>
         </ul>

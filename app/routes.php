@@ -663,6 +663,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/ajax_datagrid', 'RateTablesController@ajax_datagrid');
 	Route::any('/rate_tables/{id}/edit_ajax_datagrid', 'RateTablesController@edit_ajax_datagrid');
 	Route::any('/rate_tables/store', 'RateTablesController@store');
+	Route::any('/rate_tables/edit/{id}', 'RateTablesController@edit');
 	Route::any('/rate_tables/{id}/delete', 'RateTablesController@delete');
 	Route::any('/rate_tables/{id}/view', 'RateTablesController@view');
     Route::any('/rate_tables/{id}/add_newrate', 'RateTablesController@add_newrate');
@@ -1266,6 +1267,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/get_mor_updates', 'NoticeBoardController@get_mor_updates');
 	Route::any('/save_post', 'NoticeBoardController@store');
 	Route::any('/delete_post/{id}', 'NoticeBoardController@delete');
+
+
+	//RateCompare
+	Route::any('/rate_compare', 'RateCompareController@index');
+	Route::any('/rate_compare/search_ajax_datagrid/{type}', 'RateCompareController@search_ajax_datagrid');
+	Route::any('/rate_compare/rate_update', 'RateCompareController@rate_update');
+	Route::any('/rate_compare/load_account_dropdown', 'RateCompareController@load_account_dropdown');
 });
 
 Route::group(array('before' => 'global_admin'), function () {
