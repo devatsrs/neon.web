@@ -200,6 +200,18 @@ class AccountsController extends \BaseController {
                 $data['Number'] = Account::getLastAccountNo();
             }
             $data['Number'] = trim($data['Number']);
+
+            if(empty($data['CurrencyId']) || empty($data['Country']))
+            {
+                $company = Company::find($companyID);
+                if (empty($data['CurrencyId'])) {
+                    $data['CurrencyId'] =$company->CurrencyId;
+                }
+                if (empty($data['Country'])) {
+                    $data['Country'] =$company->Country;
+                }
+            }
+
         unset($data['DataTables_Table_0_length']);
         $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
