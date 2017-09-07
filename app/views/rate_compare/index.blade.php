@@ -51,7 +51,7 @@
                             </div>
                             <label for="field-1" class="col-sm-1 control-label">CodeDeck</label>
                             <div class="col-sm-2">
-                                {{ Form::select('CodeDeckId', $codedecklist, '' , array("class"=>"select2")) }}
+                                {{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}
 
                             </div>
                         </div>
@@ -66,7 +66,9 @@
                                 {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}
                             </div>
 
-                            <label for="field-1" class="col-sm-1 control-label">Effective</label>
+                            <label for="field-1" class="col-sm-1 control-label">Effective
+                                <span data-loading-text="..." data-html="true" data-trigger="hover" data-toggle="popover"  data-placement="bottom" data-content="<b>Current:</b> System will use Current Rates for comparison<br><b>Future:</b> System will use maximum future rates for comparison<br><b>Selected:</b> System will use rate where effective date is equal to selected effective date<br>" data-original-title="Effective" class="label label-info popover-primary">?</span>
+                            </label>
                             <div class="col-sm-2">
                                 {{Form::select('Effective', ["Now"=>"Current", "Future" => "Future", "Selected" => "Selected"], 'Now' ,array("class"=>"form-control select2"))}}
                             </div>
@@ -144,6 +146,38 @@
         jQuery(document).ready(function($) {
             //var data_table;
             var Code, Description, Currency,CodeDeck,Trunk,GroupBy,Effective,SelectedEffectiveDate, SourceVendors,SourceCustomers,SourceRateTables,DestinationVendors,DestinationCustomers,DestinationRateTables;
+
+
+
+            $('select[name="Trunk"]').on( "change",function(e) {
+
+                TrunkID = $(this).val();
+
+                $.post( baseurl + '/rate_compare/load_account_dropdown', {"TrunkID":TrunkID,"IsCustomer":1 }, function(response) {
+                    //var data = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }];
+
+                    $("#rate-compare-search-form select[name='SourceCustomers[]']").select2({
+                        data: function() { return {results: response.data}; }
+                    });
+                    $("#rate-compare-search-form select[name='DestinationCustomers[]']").select2({
+                        data: function() { return {results: response.data}; }
+                    });
+
+                 }, "json" );
+
+                $.post( baseurl + '/rate_compare/load_account_dropdown', {"TrunkID":TrunkID,"IsVendor":1 }, function(response) {
+                    //var data = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }];
+
+                    $("#rate-compare-search-form select[name='SourceVendors[]']").select2({
+                        data: function() { return {results: response.data}; }
+                    });
+                    $("#rate-compare-search-form select[name='DestinationVendors[]']").select2({
+                        data: function() { return {results: response.data}; }
+                    });
+
+                 }, "json" );
+
+            });
 
             $('select[name="Effective"]').on( "change",function(e) {
                 var selection = $(this).val();
@@ -407,7 +441,7 @@
                                             action += '</span>';
 
 
-                                            _edit = ' <span class="float-right"><a href="#" class="edit-ratecompare btn btn-default btn-xs"><i class="entypo-pencil"></i> &nbsp;</a>'+action+'</span>';
+                                            _edit = ' <span class="float-right"><a href="#" class="edit-ratecompare btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>'+action+'</span>';
                                             str += _edit;
 
                                         }

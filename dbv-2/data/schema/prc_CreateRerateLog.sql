@@ -1,18 +1,9 @@
-CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `prc_CreateRerateLog`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CreateRerateLog`(
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
 	IN `p_RateCDR` INT
 )
 BEGIN
-
-	DROP TEMPORARY TABLE IF EXISTS tmp_tblTempRateLog_;
-	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblTempRateLog_(
-		`CompanyID` INT(11) NULL DEFAULT NULL,
-		`CompanyGatewayID` INT(11) NULL DEFAULT NULL,
-		`MessageType` INT(11) NOT NULL,
-		`Message` VARCHAR(500) NOT NULL,
-		`RateDate` DATE NOT NULL	
-	);
 
 	SET @stm = CONCAT('
 	INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)
@@ -24,8 +15,8 @@ BEGIN
 		AND ga.AccountCLI = ud.AccountCLI
 		AND ga.AccountIP = ud.AccountIP
 		AND ga.CompanyGatewayID = ud.CompanyGatewayID
-		AND ga.ServiceID = ud.ServiceID
 		AND ga.CompanyID = ud.CompanyID
+		AND ga.ServiceID = ud.ServiceID
 	INNER JOIN NeonRMDev.tblCompanyGateway cg ON cg.CompanyGatewayID = ud.CompanyGatewayID
 	WHERE ud.ProcessID = "' , p_processid  , '" and ud.AccountID IS NULL');
 

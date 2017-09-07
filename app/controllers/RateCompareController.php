@@ -18,12 +18,14 @@ class RateCompareController extends \BaseController {
             if(!empty($all_customers[''])){
                 unset($all_customers['']);
             }
+            $companyID = User::get_companyID();
+            $DefaultCodedeck = BaseCodeDeck::where(["CompanyID"=>$companyID,"DefaultCodedeck"=>1])->pluck("CodeDeckId");
 
             $rate_table = RateTable::getRateTableList([]);
 
             $GroupBy =    NeonCookie::getCookie('_RateCompare_GroupBy');
 
-            return View::make('rate_compare.index', compact('trunks', 'currencies','CurrencyID','codedecklist','default_trunk','all_vendors','all_customers','rate_table','GroupBy'));
+            return View::make('rate_compare.index', compact('trunks', 'currencies','CurrencyID','codedecklist', 'DefaultCodedeck' , 'default_trunk','all_vendors','all_customers','rate_table','GroupBy'));
     }
 
     public function search_ajax_datagrid($type) {
@@ -140,5 +142,23 @@ class RateCompareController extends \BaseController {
         return Response::json(array("status" => "success", "message" => "No Records updated."));
 
     }
+
+    public function load_account_dropdown() {
+
+        $data = \Illuminate\Support\Facades\Input::all();
+
+        $data['CompanyID'] =  User::get_companyID();
+
+
+        $customers_array = Account::getAccountDropdownWithTrunk($data);
+
+        $select2_customer = array_map(function($customers_array){
+            return array("id" => $customers_array["AccountID"],"text" => $customers_array["AccountName"]);
+        },$customers_array);
+
+        return Response::json(array("status" => "success", "message" => "" ,"data" =>  $select2_customer));
+
+    }
+
 
 }
