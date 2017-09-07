@@ -968,9 +968,9 @@
                         success: function (response) {
                             if (response.status == 'success') {
                                 if(response.filePath!=""){
-                                    document.location =baseurl + "/download_file?file"+response.filePath;
+                                    document.location =baseurl + "/download_file?file="+response.filePath;
                                 }else if(response.invoiceId){
-                                    document.location =baseurl + "/invoice/download_invoice/"+response.filePath;
+                                    document.location =baseurl + "/invoice/download_invoice/"+response.invoiceId;
                                 }else{
                                     toastr.error("Something Worng Please try again.", "Error", toastr_opts);
                                 }
