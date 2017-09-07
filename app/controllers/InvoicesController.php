@@ -2640,4 +2640,51 @@ class InvoicesController extends \BaseController {
         echo "<center>Payment declined, Go back and try again later.</center>";
 
     }
+
+    public function bulk_print_invoice(){
+        $zipfiles = array();
+        $data = Input::all();
+        $companyID = User::get_companyID();
+        if(!empty($data['criteria'])){
+            $invoiceid = $this->getInvoicesIdByCriteria($data);
+            $invoiceid = rtrim($invoiceid,',');
+            $data['InvoiceIDs'] = $invoiceid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }
+
+        $invoiceIds=array_map('intval', explode(',', $data['InvoiceIDs']));
+
+        if(!empty($invoiceIds)) {
+
+            $Invoices = Invoice::find($invoiceIds);
+
+            foreach ($Invoices as $invoice) {
+                $zipfiles[]=AmazonS3::preSignedUrl($invoice->PDF);
+            }
+
+            if (!empty($zipfiles)) {
+                if (count($zipfiles) == 1) {
+                    $local_zip_file = $zipfiles[0];
+                } else {
+                    $UPLOADPATH = CompanyConfiguration::get($companyID, 'UPLOAD_PATH');
+                    $local_zip_file = $UPLOADPATH . '/invoice' . date("d-m-Y-H-i-s") . '__.zip';
+
+                    Zipper::make($local_zip_file)->add($zipfiles)->close();
+                }
+
+                if (file_exists($local_zip_file)) {
+                    download_file($local_zip_file);
+                } else {
+                    return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
+                }
+            }
+        }
+        else {
+            return Response::json(array("status" => "error", "message" => "Please Select Invoice"));
+        }
+        exit;
+    }
 }
