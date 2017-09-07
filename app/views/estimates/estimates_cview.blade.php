@@ -11,7 +11,7 @@
 	
     if(!empty($Estimate->PDF))
 	{
-        if(is_amazon() == false)
+        /*if(is_amazon() == false)
 		{
             $unsignPDFurl 		= 	URL::to('/estimate/display_estimate/'.$Estimate->EstimateID);
             $PDFurl 			= 	URL::to('/estimate/download_estimate/'.$Estimate->EstimateID);
@@ -26,7 +26,10 @@
 			{
                 $cdownload_usage =  AmazonS3::preSignedUrl($Estimate->UsagePath);
     	    }
-        }
+        }*/
+        $unsignPDFurl 		= 	URL::to('/estimate/display_estimate/'.$Estimate->EstimateID);
+        $PDFurl 			= 	URL::to('/estimate/download_estimate/'.$Estimate->EstimateID);
+        $cdownload_usage 	=   URL::to('/estimate/'.$Estimate->AccountID.'-'.$Estimate->EstimateID.'/cdownload_usage');
     }
     ?>
 <header class="x-title">

@@ -43,14 +43,14 @@
    		//$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
 		$Filename		=	$attachments_data['filepath'];
 		
-		if(is_amazon() == true)
+		/*if(is_amazon() == true)
 		{
 			$Attachmenturl =  AmazonS3::preSignedUrl($attachments_data['filepath']);
 		}
 		else
 		{
 			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
-		}
+		}*/
 		$Attachmenturl = URL::to('/customer/tickets/'.$ticketdata->TicketID.'/getattachment/'.$key_acttachment);		
    	    ?>
         <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
@@ -94,14 +94,14 @@
    		//$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
 		$Filename		=	$attachments_data['filepath'];
 		
-		if(is_amazon() == true)
+		/*if(is_amazon() == true)
 		{
 			$Attachmenturl =  AmazonS3::preSignedUrl($attachments_data['filepath']);
 		}
 		else
 		{
 			$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
-		}
+		}*/
 		$Attachmenturl = URL::to('emails/'.$TicketConversationData->AccountEmailLogID.'/getattachment/'.$key_acttachment);
    	    ?>
             <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>

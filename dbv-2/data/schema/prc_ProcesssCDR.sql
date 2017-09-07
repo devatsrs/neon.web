@@ -16,6 +16,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 	
 	/* update service against cli or ip */
+	CALL prc_autoAddIP(p_CompanyID,p_CompanyGatewayID);
 	CALL prc_ProcessCDRService(p_CompanyID,p_processId,p_tbltempusagedetail_name);
 
 	/* check service enable at gateway*/

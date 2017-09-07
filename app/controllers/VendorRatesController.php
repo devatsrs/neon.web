@@ -653,6 +653,7 @@ class VendorRatesController extends \BaseController
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
  
         $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+
         copy($temp_path . $file_name, $destinationPath . $file_name);
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
             return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
@@ -737,6 +738,7 @@ class VendorRatesController extends \BaseController
                     $data['Escape'] = $options['option']['Escape'];
                     $data['Firstrow'] = $options['option']['Firstrow'];
                 }
+
                 $grid = getFileContent($file_name, $data);
                 $grid['tempfilename'] = $file_name;//$upload_path.'\\'.'temp.'.$ext;
                 $grid['filename'] = $file_name;

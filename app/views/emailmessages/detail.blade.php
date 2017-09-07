@@ -51,14 +51,14 @@
    		//$FilePath 		= 	AmazonS3::preSignedUrl($attachments_data['filepath']);
 		$Filename		=	$attachments_data['filepath'];
 		
-		if(is_amazon() == true)
+		/*if(is_amazon() == true)
 		{
 			$Attachmenturl =  AmazonS3::preSignedUrl($attachments_data['filepath']);
 		}
 		else
 		{
 			$Attachmenturl = CompanyConfiguration::get('UPLOAD_PATH')."/".$attachments_data['filepath'];
-		}
+		}*/
 		$Attachmenturl = URL::to('emails/'.$Emaildata->AccountEmailLogID.'/getattachment/'.$key_acttachment);
 		
    	    ?>

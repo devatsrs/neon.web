@@ -397,10 +397,21 @@ class LeadsController extends \BaseController {
             $data['Converted'] = 1;
             $data['ConvertedDate'] = date('m/d/Y h:i:s', time());
             $data['ConvertedBy'] = $user_name;
-            $data['VerificationStatus'] = 0; // Status : Unverified
+//            $data['VerificationStatus'] = 0; // Status : Unverified
             $data['BillingEmail'] = $account->Email; // BillingEmail : Email - We dont show Email field in Account.
 
-            $rules = array(
+            $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
+            if($AccountVerification==0)
+            {
+                $data['VerificationStatus'] = Account::VERIFIED;
+            }
+            else
+            {
+                $data['VerificationStatus'] = Account::NOT_VERIFIED;
+            }
+
+
+        $rules = array(
                 'ConvertedBy' => 'required',
                 'CompanyID' => 'required',
             );

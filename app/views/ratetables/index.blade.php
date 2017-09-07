@@ -127,7 +127,8 @@
                                 view_ = view_.replace('{id}', id);
                                 delete_ = delete_.replace('{id}', id);
 
-                                action = '<a title="Edit" href="' + view_ + '" class="btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                action = '<a title="View" href="' + view_ + '" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>&nbsp;';
+                                action += '<a title="Edit" data-id="'+  id +'" data-rateTableName="'+full[0]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
 
                                 <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
                                     action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
@@ -220,7 +221,14 @@
                 });
             }
         });
-
+        $('table tbody').on('click','.edit-ratetable',function(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
+            $('#modal-edit-new-rate-table').trigger("reset");
+            $("#modal-edit-new-rate-table [name='RateTableId']").val($(this).attr('data-id'));
+            $("#modal-edit-new-rate-table [name='RateTableName']").val($(this).attr('data-ratetablename'));
+            $('#modal-edit-new-rate-table').modal('show');
+        });
         $("#ratetable_filter").submit(function(e) {
             e.preventDefault();
             $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();
@@ -237,6 +245,12 @@
             update_new_url = baseurl + '/rate_tables/store';
             submit_ajax(update_new_url,$("#add-new-form").serialize());
          });
+        $("#edit-form").submit(function(ev){
+            ev.preventDefault();
+            var RateTableId = $("#modal-edit-new-rate-table [name='RateTableId']").val();
+            update_new_url = baseurl + '/rate_tables/edit/'+RateTableId;
+            submit_ajax(update_new_url,$("#edit-form").serialize());
+        });
     });
 
 </script>
@@ -290,6 +304,40 @@
                 </div>
                 <div class="modal-footer">
                     <button type="submit" id="codedeck-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-edit-new-rate-table">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="edit-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Edit New RateTable</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">RateTable Name</label>
+                                <input type="hidden" value="" name="RateTableId" />
+
+                                <input type="text" name="RateTableName" class="form-control" value="" required/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="codedeck-edit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
                     </button>

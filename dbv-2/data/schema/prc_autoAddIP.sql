@@ -1,36 +1,4 @@
-USE `RMBilling3`;
-
-DROP FUNCTION IF EXISTS `fnGetAutoAddIP`;
-DELIMITER |
-CREATE FUNCTION `fnGetAutoAddIP`(
-	`p_CompanyGatewayID` INT
-) RETURNS int(11)
-BEGIN
-
-	DECLARE v_AutoAddIP_ INT;
-
-	SELECT 
-		CASE WHEN REPLACE(JSON_EXTRACT(cg.Settings, '$.AutoAddIP'),'"','') > 0
-		THEN
-			CAST(REPLACE(JSON_EXTRACT(cg.Settings, '$.AutoAddIP'),'"','') AS UNSIGNED INTEGER)
-		ELSE
-			NULL
-		END
-	INTO v_AutoAddIP_
-	FROM Ratemanagement3.tblCompanyGateway cg
-	WHERE cg.CompanyGatewayID = p_CompanyGatewayID
-	LIMIT 1;
-	
-	SET v_AutoAddIP_ = IFNULL(v_AutoAddIP_,0);
-
-	RETURN v_AutoAddIP_;
-END|
-DELIMITER ;
-
-
-DROP PROCEDURE IF EXISTS `prc_autoAddIP`;
-DELIMITER |
-CREATE PROCEDURE `prc_autoAddIP`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_autoAddIP`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT
 )
@@ -61,7 +29,7 @@ BEGIN
 			CONCAT('Account: ',ga.AccountName,' - IP: ',GROUP_CONCAT(ga.AccountIP)),
 			DATE(NOW())
 		FROM tblGatewayAccount ga
-		INNER JOIN Ratemanagement3.tblAccount a 
+		INNER JOIN NeonRMDev.tblAccount a 
 			ON a.AccountName = ga.AccountName
 			AND a.CompanyId = p_CompanyID
 			AND a.AccountType = 1
@@ -74,7 +42,7 @@ BEGIN
 			AND ga.IsVendor IS NULL
 		GROUP BY ga.CompanyID,ga.CompanyGatewayID,ga.AccountID,ga.AccountName,ga.ServiceID;
 		
-		INSERT INTO Ratemanagement3.tblTempRateLog (
+		INSERT INTO NeonRMDev.tblTempRateLog (
 			CompanyID,
 			CompanyGatewayID,
 			MessageType,
@@ -94,19 +62,19 @@ BEGIN
 		FROM tmp_tblTempRateLog_;
 	
 		/* update customer ips */
-		UPDATE Ratemanagement3.tblAccountAuthenticate aa
+		UPDATE NeonRMDev.tblAccountAuthenticate aa
 		INNER JOIN (
 			SELECT 
 				ga.CompanyID,
 				a.AccountID,
 				CONCAT(IFNULL(MAX(aa.CustomerAuthValue),''),IF(MAX(aa.CustomerAuthValue) IS NULL,'',','),GROUP_CONCAT(ga.AccountIP)) AS CustomerAuthValue 
 			FROM tblGatewayAccount ga
-			INNER JOIN Ratemanagement3.tblAccount a 
+			INNER JOIN NeonRMDev.tblAccount a 
 				ON a.AccountName = ga.AccountName
 				AND a.CompanyId = p_CompanyID
 				AND a.AccountType = 1
 				AND a.`Status` = 1
-			INNER JOIN Ratemanagement3.tblAccountAuthenticate aa 
+			INNER JOIN NeonRMDev.tblAccountAuthenticate aa 
 				ON a.AccountID = aa.AccountID
 			WHERE  ga.CompanyID = p_CompanyID 
 				AND ga.CompanyGatewayID = p_CompanyGatewayID
@@ -124,19 +92,19 @@ BEGIN
 		SET aa.CustomerAuthValue = TBl.CustomerAuthValue;
 	
 		/* update vendor ips */
-		UPDATE Ratemanagement3.tblAccountAuthenticate aa
+		UPDATE NeonRMDev.tblAccountAuthenticate aa
 		INNER JOIN (
 			SELECT
 				ga.CompanyID,
 				a.AccountID,
 				CONCAT(IFNULL(MAX(aa.VendorAuthValue),''),IF(MAX(aa.VendorAuthValue) IS NULL,'',','),GROUP_CONCAT(ga.AccountIP)) AS VendorAuthValue 
 			FROM tblGatewayAccount ga
-			INNER JOIN Ratemanagement3.tblAccount a 
+			INNER JOIN NeonRMDev.tblAccount a 
 				ON a.AccountName = ga.AccountName
 				AND a.CompanyId = p_CompanyID
 				AND a.AccountType = 1
 				AND a.`Status` = 1
-			INNER JOIN Ratemanagement3.tblAccountAuthenticate aa 
+			INNER JOIN NeonRMDev.tblAccountAuthenticate aa 
 				ON a.AccountID = aa.AccountID
 			WHERE  ga.CompanyID = p_CompanyID 
 				AND ga.CompanyGatewayID = p_CompanyGatewayID
@@ -154,7 +122,7 @@ BEGIN
 		SET aa.VendorAuthValue = TBl.VendorAuthValue;
 	
 		/* insert customer ips */
-		INSERT IGNORE INTO Ratemanagement3.tblAccountAuthenticate (
+		INSERT IGNORE INTO NeonRMDev.tblAccountAuthenticate (
 			CompanyID,
 			AccountID,
 			CustomerAuthRule,
@@ -168,12 +136,12 @@ BEGIN
 			GROUP_CONCAT(ga.AccountIP),
 			ga.ServiceID
 		FROM tblGatewayAccount ga
-		INNER JOIN Ratemanagement3.tblAccount a 
+		INNER JOIN NeonRMDev.tblAccount a 
 			ON a.AccountName = ga.AccountName
 			AND a.CompanyId = p_CompanyID
 			AND a.AccountType = 1
 			AND a.`Status` = 1
-		LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa 
+		LEFT JOIN NeonRMDev.tblAccountAuthenticate aa 
 			ON a.AccountID = aa.AccountID
 		WHERE  ga.CompanyID = p_CompanyID 
 			AND ga.CompanyGatewayID = p_CompanyGatewayID
@@ -185,7 +153,7 @@ BEGIN
 		GROUP BY ga.CompanyID,ga.CompanyGatewayID,a.AccountID,ga.AccountName,ga.ServiceID;
 	
 		/* insert vendor ips */
-		INSERT IGNORE INTO Ratemanagement3.tblAccountAuthenticate (
+		INSERT IGNORE INTO NeonRMDev.tblAccountAuthenticate (
 			CompanyID,
 			AccountID,
 			VendorAuthRule,
@@ -199,12 +167,12 @@ BEGIN
 			GROUP_CONCAT(ga.AccountIP),
 			ga.ServiceID
 		FROM tblGatewayAccount ga
-		INNER JOIN Ratemanagement3.tblAccount a 
+		INNER JOIN NeonRMDev.tblAccount a 
 			ON a.AccountName = ga.AccountName
 			AND a.CompanyId = p_CompanyID
 			AND a.AccountType = 1
 			AND a.`Status` = 1
-		LEFT JOIN Ratemanagement3.tblAccountAuthenticate aa 
+		LEFT JOIN NeonRMDev.tblAccountAuthenticate aa 
 			ON a.AccountID = aa.AccountID
 		WHERE  ga.CompanyID = p_CompanyID 
 			AND ga.CompanyGatewayID = p_CompanyGatewayID
@@ -217,5 +185,4 @@ BEGIN
 
 	END IF;
 
-END|
-DELIMITER ;
+END

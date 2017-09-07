@@ -586,12 +586,14 @@ jQuery(document).ready(function ($) {
         var body = $('#table-4 tbody');
         tr.empty();
         body.empty();
+
         $.each( data.columns, function( key, value ) {
             tr.append('<th>'+value+'</th>');
         });
 
         $.each( data.rows, function(key, row) {
             var tr = '<tr>';
+
             $.each( row, function(key, item) {
                 if(typeof item == 'object' && item != null ){
                     tr+='<td>'+item.date+'</td>';
@@ -599,6 +601,7 @@ jQuery(document).ready(function ($) {
                     tr+='<td>'+item+'</td>';
                 }
             });
+
             tr += '</tr>';
             body.append(tr);
         });
