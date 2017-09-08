@@ -100,6 +100,9 @@
             <li> <a class="generate_rate create" id="bulk-invoice-send" href="javascript:;"
                                            style="width:100%"> Send Invoice </a> </li>
             @endif
+
+            <li> <a class="quickbookpost create" id="print_invoice" href="javascript:;"> Download Invoice </a> </li>
+
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;"> Change Status </a> </li>
             @endif
@@ -118,7 +121,6 @@
             <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Post </a> </li>
             @endif
 
-            <li> <a class="quickbookpost create" id="print_invoice" href="javascript:;"> Print Invoice </a> </li>
             <li> <a class="create" id="sage-export" href="javascript:;"> Sage Export </a> </li>
           </ul>
           @endif
