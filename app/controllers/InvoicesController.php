@@ -2640,4 +2640,70 @@ class InvoicesController extends \BaseController {
         echo "<center>Payment declined, Go back and try again later.</center>";
 
     }
+
+    public function bulk_print_invoice(){
+        $zipfiles = array();
+        $data = Input::all();
+        if(!empty($data['criteria'])){
+            $invoiceid = $this->getInvoicesIdByCriteria($data);
+            $invoiceid = rtrim($invoiceid,',');
+            $data['InvoiceIDs'] = $invoiceid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }
+
+        $invoiceIds=array_map('intval', explode(',', $data['InvoiceIDs']));
+
+        if(!empty($invoiceIds)) {
+
+            $Invoices = Invoice::find($invoiceIds);
+            $temp_path = CompanyConfiguration::get('TEMP_PATH'). "/";
+            $isAmazon = is_amazon();
+            foreach ($Invoices as $invoice) {
+                $path = AmazonS3::preSignedUrl($invoice->PDF);
+
+                if ( file_exists($path) ){
+                    $zipfiles[$invoice->InvoiceID]=$path;
+                }else if($isAmazon == true){
+
+                    $filepath = $temp_path . basename($invoice->PDF);
+                    $content = @file_get_contents($path);
+                    if($content != false){
+                        file_put_contents( $filepath, $content);
+                        $zipfiles[$invoice->InvoiceID] = $filepath;
+                    }
+                }
+            }
+
+            if (!empty($zipfiles)) {
+
+                if (count($zipfiles) == 1) {
+
+                    $downloadInvoiceid = array_keys($zipfiles)[0];
+                    return Response::json(array("status" => "success", "message" => " Download Starting ", "invoiceId" => $downloadInvoiceid, "filePath" => ""));
+
+                } else {
+
+                    $filename='invoice' . date("dmYHis") . '.zip';
+                    $local_zip_file = $temp_path . $filename;
+
+                    Zipper::make($local_zip_file)->add($zipfiles)->close();
+
+                    if (file_exists($local_zip_file)) {
+                        return Response::json(array("status" => "success", "message" => " Download Starting ", "invoiceId" => "", "filePath" => base64_encode($filename)));
+                    }
+                    else {
+                        return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
+                    }
+                }
+
+            }
+        }
+        else {
+            return Response::json(array("status" => "error", "message" => "Please Select Invoice"));
+        }
+        exit;
+    }
 }
