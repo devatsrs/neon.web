@@ -86,9 +86,9 @@ class RoleController extends \BaseController {
 
         $data['ModifiedBy'] = User::get_user_full_name();
         if ($tblRole->update($data)) {
-            return Response::json(array("status" => "success", "message" => "Rate Table Name Successfully Updated"));
+            return Response::json(array("status" => "success", "message" => "Role Name Successfully Updated"));
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Rate Table Name."));
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Role Name."));
         }
     }
 
