@@ -2660,19 +2660,19 @@ class InvoicesController extends \BaseController {
         if(!empty($invoiceIds)) {
 
             $Invoices = Invoice::find($invoiceIds);
-            $temp_path = CompanyConfiguration::get('TEMP_PATH');
-
+            $temp_path = CompanyConfiguration::get('TEMP_PATH'). "/";
+            $isAmazon = is_amazon();
             foreach ($Invoices as $invoice) {
                 $path = AmazonS3::preSignedUrl($invoice->PDF);
 
                 if ( file_exists($path) ){
                     $zipfiles[$invoice->InvoiceID]=$path;
-                }else if(is_amazon() == true){
+                }else if($isAmazon == true){
 
-                    $filepath = $temp_path.basename($path);
+                    $filepath = $temp_path . basename($invoice->PDF);
                     file_put_contents( $filepath, file_get_contents($path));
 
-                    $zipfiles[$invoice->InvoiceID]=$filepath;
+                    $zipfiles[$invoice->InvoiceID] = $filepath;
                 }
             }
 
@@ -2681,17 +2681,17 @@ class InvoicesController extends \BaseController {
                 if (count($zipfiles) == 1) {
 
                     $downloadInvoiceid = array_keys($zipfiles)[0];
-                    return Response::json(array("status" => "success", "message" => " Download start ", "invoiceId" => $downloadInvoiceid, "filePath" =>""));
+                    return Response::json(array("status" => "success", "message" => " Download Starting ", "invoiceId" => $downloadInvoiceid, "filePath" => ""));
 
                 } else {
 
                     $filename='invoice' . date("dmYHis") . '.zip';
-                    $local_zip_file = $temp_path. "/" .$filename;
+                    $local_zip_file = $temp_path . $filename;
 
                     Zipper::make($local_zip_file)->add($zipfiles)->close();
 
                     if (file_exists($local_zip_file)) {
-                        return Response::json(array("status" => "success", "message" => " Download start ", "invoiceId" => "", "filePath" =>base64_encode($filename)));
+                        return Response::json(array("status" => "success", "message" => " Download Starting ", "invoiceId" => "", "filePath" => base64_encode($filename)));
                     }
                     else {
                         return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
