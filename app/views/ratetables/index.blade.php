@@ -128,7 +128,7 @@
                                 delete_ = delete_.replace('{id}', id);
 
                                 action = '<a title="View" href="' + view_ + '" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>&nbsp;';
-                                action += '<a title="Edit" data-id="'+  id +'" data-rateTableName="'+full[0]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                action += '<a title="Edit" data-id="'+  id +'" data-rateTableName="'+full[0]+'" data-TrunkID="'+full[5]+'" data-CurrencyID="'+full[6]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
 
                                 <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
                                     action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
@@ -227,6 +227,8 @@
             $('#modal-edit-new-rate-table').trigger("reset");
             $("#modal-edit-new-rate-table [name='RateTableId']").val($(this).attr('data-id'));
             $("#modal-edit-new-rate-table [name='RateTableName']").val($(this).attr('data-ratetablename'));
+            $("#modal-edit-new-rate-table [name='TrunkID']").val($(this).attr('data-TrunkID')).select2();
+            $("#modal-edit-new-rate-table [name='CurrencyID']").val($(this).attr('data-CurrencyID')).select2();
             $('#modal-edit-new-rate-table').modal('show');
         });
         $("#ratetable_filter").submit(function(e) {
@@ -325,6 +327,22 @@
                     <h4 class="modal-title">Edit New RateTable</h4>
                 </div>
                 <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label for="field-5" class="control-label">Trunk</label>
+                                {{Form::SelectControl('trunk')}}
+                                        <!-- {Form::select('TrunkID', $trunks, $trunk_keys,array("class"=>"form-control select2"))}}-->
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label for="field-5" class="control-label">Currency</label>
+                                {{Form::SelectControl('currency')}}
+                                        <!--{ Form::select('CurrencyID', $currencylist,  '', array("class"=>"select2")) }}-->
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
