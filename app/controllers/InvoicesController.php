@@ -2644,7 +2644,6 @@ class InvoicesController extends \BaseController {
     public function bulk_print_invoice(){
         $zipfiles = array();
         $data = Input::all();
-        $companyID = User::get_companyID();
         if(!empty($data['criteria'])){
             $invoiceid = $this->getInvoicesIdByCriteria($data);
             $invoiceid = rtrim($invoiceid,',');
@@ -2670,9 +2669,11 @@ class InvoicesController extends \BaseController {
                 }else if($isAmazon == true){
 
                     $filepath = $temp_path . basename($invoice->PDF);
-                    file_put_contents( $filepath, file_get_contents($path));
-
-                    $zipfiles[$invoice->InvoiceID] = $filepath;
+                    $content = @file_get_contents($path);
+                    if($content != false){
+                        file_put_contents( $filepath, $content);
+                        $zipfiles[$invoice->InvoiceID] = $filepath;
+                    }
                 }
             }
 
