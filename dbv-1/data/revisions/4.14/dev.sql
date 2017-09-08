@@ -2,25 +2,25 @@ Use Ratemanagement3;
 
 DELIMITER  //
 CREATE PROCEDURE `prc_RateCompare`(
-  IN `p_companyid` INT,
-  IN `p_trunkID` INT,
-  IN `p_codedeckID` INT,
-  IN `p_currencyID` INT,
-  IN `p_code` VARCHAR(50),
-  IN `p_description` VARCHAR(50),
-  IN `p_groupby` VARCHAR(50),
-  IN `p_source_vendors` VARCHAR(100),
-  IN `p_source_customers` VARCHAR(100),
-  IN `p_source_rate_tables` VARCHAR(100),
-  IN `p_destination_vendors` VARCHAR(100),
-  IN `p_destination_customers` VARCHAR(100),
-  IN `p_destination_rate_tables` VARCHAR(100),
-  IN `p_Effective` VARCHAR(50),
-  IN `p_SelectedEffectiveDate` DATE,
-  IN `p_PageNumber` INT,
-  IN `p_RowspPage` INT,
-  IN `p_SortOrder` VARCHAR(50),
-  IN `p_isExport` INT
+	IN `p_companyid` INT,
+	IN `p_trunkID` INT,
+	IN `p_codedeckID` INT,
+	IN `p_currencyID` INT,
+	IN `p_code` VARCHAR(50),
+	IN `p_description` VARCHAR(50),
+	IN `p_groupby` VARCHAR(50),
+	IN `p_source_vendors` VARCHAR(100),
+	IN `p_source_customers` VARCHAR(100),
+	IN `p_source_rate_tables` VARCHAR(100),
+	IN `p_destination_vendors` VARCHAR(100),
+	IN `p_destination_customers` VARCHAR(100),
+	IN `p_destination_rate_tables` VARCHAR(100),
+	IN `p_Effective` VARCHAR(50),
+	IN `p_SelectedEffectiveDate` DATE,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_SortOrder` VARCHAR(50),
+	IN `p_isExport` INT
 )
 LANGUAGE SQL
 NOT DETERMINISTIC
@@ -86,6 +86,7 @@ BEGIN
 		DROP TEMPORARY TABLE IF EXISTS tmp_code_;
 		CREATE TEMPORARY TABLE tmp_code_ (
 			Code  varchar(50),
+			Description  varchar(250),
 			RateID int,
 			INDEX Index1 (Code)
 		);
@@ -94,7 +95,7 @@ BEGIN
 		CREATE TEMPORARY TABLE tmp_final_compare (
 			Code  varchar(50),
 			Description VARCHAR(200) ,
-			RateID int,
+	-- 		RateID int,
 			INDEX Index1 (Code)
 		);
 
@@ -170,7 +171,7 @@ BEGIN
 
 
         insert into tmp_code_
-        select Code,RateID
+        select Code,Description,RateID
         from tblRate
         WHERE CompanyID = p_companyid AND CodedeckID = p_codedeckID
 				AND ( CHAR_LENGTH(RTRIM(p_code)) = '' OR tblRate.Code LIKE REPLACE(p_code,'*', '%') )
@@ -188,7 +189,7 @@ BEGIN
 								 tblAccount.AccountName,
 								 tblRate.Code,
 								 tblRate.RateID,
-								 tblRate.Description,
+								 tc.Description,
 								 CASE WHEN  tblAccount.CurrencyId = p_CurrencyID
 									 THEN tblVendorRate.Rate
 								 WHEN  v_CompanyCurrencyID_ = p_CurrencyID
@@ -243,7 +244,7 @@ BEGIN
 						tblAccount.AccountName,
 						tblRate.Code,
 						tblCustomerRate.RateID,
-						tblRate.Description,
+						tc.Description,
 						CASE WHEN  tblAccount.CurrencyId = p_CurrencyID
 							THEN tblCustomerRate.Rate
 						WHEN  v_CompanyCurrencyID_ = p_CurrencyID
@@ -283,7 +284,7 @@ BEGIN
 								tblAccount.AccountName,
 								tblRate.Code,
 								tblRateTableRate.RateID,
-								tblRate.Description,
+								tc.Description,
 								CASE WHEN  tblAccount.CurrencyId = p_CurrencyID
 									THEN tblRateTableRate.Rate
 								WHEN  v_CompanyCurrencyID_ = p_CurrencyID
@@ -323,7 +324,7 @@ BEGIN
 					tblRateTable.RateTableName,
 					tblRateTableRate.RateID,
 					tblRate.Code,
-					tblRate.Description,
+					tc.Description,
 					CASE WHEN  tblRateTable.CurrencyID = p_CurrencyID
 						THEN tblRateTableRate.Rate
 					WHEN  v_CompanyCurrencyID_ = p_CurrencyID
@@ -360,8 +361,8 @@ BEGIN
 
 
 		#insert into tmp_final_compare
-		INSERT  INTO  tmp_final_compare (Code,Description,RateID)
-		SELECT 	DISTINCT 		Code,		Description,		RateID
+		INSERT  INTO  tmp_final_compare (Code,Description)
+		SELECT 	DISTINCT 		Code,		Description
 		FROM
 		(
 					SELECT DISTINCT
@@ -417,7 +418,7 @@ BEGIN
 						EXECUTE stmt1;
 						DEALLOCATE PREPARE stmt1;
 
-						SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_VendorRate_ vr on vr.Code = tmp.Code set ', @ColumnName , ' =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.AccountID = ', @AccountID , ' ;');
+						SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_VendorRate_ vr on vr.Code = tmp.Code and vr.Description = tmp.Description set ', @ColumnName , ' =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.AccountID = ', @AccountID , ' ;');
 
 						PREPARE stmt2 FROM @stm2;
 						EXECUTE stmt2;
@@ -429,7 +430,7 @@ BEGIN
 						EXECUTE stmt2;
 						DEALLOCATE PREPARE stmt2;
 
-                  INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , 'VendorRate' ,  @AccountID );
+                  INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , '(VR)' ,  @AccountID );
 
 
 					-- END IF;
@@ -467,7 +468,7 @@ BEGIN
 						EXECUTE stmt1;
 						DEALLOCATE PREPARE stmt1;
 
-						SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_CustomerRate_ vr on vr.Code = tmp.Code set ', @ColumnName , ' =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.AccountID = ', @AccountID , ' ;');
+						SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_CustomerRate_ vr on vr.Code = tmp.Code and vr.Description = tmp.Description  set ', @ColumnName , ' =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.AccountID = ', @AccountID , ' ;');
 
 						PREPARE stmt2 FROM @stm2;
 						EXECUTE stmt2;
@@ -480,7 +481,7 @@ BEGIN
 						DEALLOCATE PREPARE stmt2;
 
 
-                  INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , 'CustomerRate' ,  @AccountID );
+                  INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , '(CR)' ,  @AccountID );
 
 					-- END IF;
 
@@ -517,7 +518,7 @@ BEGIN
 						EXECUTE stmt1;
 						DEALLOCATE PREPARE stmt1;
 
-						SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_RateTableRate_ vr on vr.Code = tmp.Code set ', @ColumnName , ' =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.RateTableID = ', @RateTableID , ' ;');
+						SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_RateTableRate_ vr on vr.Code = tmp.Code and vr.Description = tmp.Description  set ', @ColumnName , ' =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.RateTableID = ', @RateTableID , ' ;');
 
 						PREPARE stmt2 FROM @stm2;
 						EXECUTE stmt2;
@@ -529,7 +530,7 @@ BEGIN
 						EXECUTE stmt2;
 						DEALLOCATE PREPARE stmt2;
 
-						INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , 'RateTable' ,  @RateTableID );
+						INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , '(RT)' ,  @RateTableID );
 
 					-- END IF;
 
@@ -566,7 +567,7 @@ BEGIN
 					EXECUTE stmt1;
 					DEALLOCATE PREPARE stmt1;
 
-					SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_VendorRate_ vr on vr.Code = tmp.Code set ', @ColumnName , ' =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.AccountID = ', @AccountID , ' ;');
+					SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_VendorRate_ vr on vr.Code = tmp.Code and vr.Description = tmp.Description  set ', @ColumnName , ' =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.AccountID = ', @AccountID , ' ;');
 
 					PREPARE stmt2 FROM @stm2;
 					EXECUTE stmt2;
@@ -578,7 +579,7 @@ BEGIN
 	             EXECUTE stmt2;
 	             DEALLOCATE PREPARE stmt2;
 
-                INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , 'VendorRate' ,  @AccountID );
+                INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , '(VR)' ,  @AccountID );
 
 				-- END IF;
 
@@ -615,7 +616,7 @@ BEGIN
 					EXECUTE stmt1;
 					DEALLOCATE PREPARE stmt1;
 
-					SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_CustomerRate_ vr on vr.Code = tmp.Code set ', @ColumnName , ' =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.AccountID = ', @AccountID , ' ;');
+					SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_CustomerRate_ vr on vr.Code = tmp.Code and vr.Description = tmp.Description  set ', @ColumnName , ' =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.AccountID = ', @AccountID , ' ;');
 
 					PREPARE stmt2 FROM @stm2;
 					EXECUTE stmt2;
@@ -627,7 +628,7 @@ BEGIN
 					EXECUTE stmt2;
 					DEALLOCATE PREPARE stmt2;
 
-					INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , 'CustomerRate' ,  @AccountID );
+					INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , '(CR)' ,  @AccountID );
 
 				-- END IF;
 
@@ -663,7 +664,7 @@ BEGIN
 					EXECUTE stmt1;
 					DEALLOCATE PREPARE stmt1;
 
-					SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_RateTableRate_ vr on vr.Code = tmp.Code set ', @ColumnName , ' =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.RateTableID = ', @RateTableID , ' ;');
+					SET @stm2 = CONCAT('UPDATE `tmp_final_compare` tmp  INNER JOIN tmp_RateTableRate_ vr on vr.Code = tmp.Code and vr.Description = tmp.Description  set ', @ColumnName , ' =  IFNULL(concat(vr.Rate,"<br>",vr.EffectiveDate),"") WHERE vr.RateTableID = ', @RateTableID , ' ;');
 
 					PREPARE stmt2 FROM @stm2;
 					EXECUTE stmt2;
@@ -675,7 +676,7 @@ BEGIN
 					 EXECUTE stmt2;
 					 DEALLOCATE PREPARE stmt2;
 
-					INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , 'RateTable' ,  @RateTableID );
+					INSERT INTO tmp_dynamic_columns_  values ( @ColumnName , '(RT)' ,  @RateTableID );
 
 				-- END IF;
 
@@ -747,7 +748,7 @@ BEGIN
 
      	ELSE
 
-          SET @stm2 = CONCAT('select concat( Code , " : " , Description ) as Destination , ', @ColumnNames,' from tmp_final_compare order by Code');
+          SET @stm2 = CONCAT('select distinct concat( Code , " : " , Description ) as Destination , ', @ColumnNames,' from tmp_final_compare order by Code');
           PREPARE stmt2 FROM @stm2;
           EXECUTE stmt2;
           DEALLOCATE PREPARE stmt2;

@@ -31,7 +31,7 @@
                         </div>
                     </div>
 
-                    <div class="panel-body">
+                    <div class="panel-body" id="rate-compare-filter-panel-body">
                         <div class="form-group">
 
                             <label for="field-1" class="col-sm-1 control-label">Code</label>
@@ -67,10 +67,11 @@
                             </div>
 
                             <label for="field-1" class="col-sm-1 control-label">Effective
-                                <span data-loading-text="..." data-html="true" data-trigger="hover" data-toggle="popover"  data-placement="bottom" data-content="<b>Current:</b> System will use Current Rates for comparison<br><b>Future:</b> System will use maximum future rates for comparison<br><b>Selected:</b> System will use rate where effective date is equal to selected effective date<br>" data-original-title="Effective" class="label label-info popover-primary">?</span>
+
                             </label>
                             <div class="col-sm-2">
                                 {{Form::select('Effective', ["Now"=>"Current", "Future" => "Future", "Selected" => "Selected"], 'Now' ,array("class"=>"form-control select2"))}}
+                                <span data-loading-text="..." data-html="true" data-trigger="hover" data-toggle="popover" data-placement="right" data-content="<b>Current:</b> System will use Current Rates for comparison<br><b>Future:</b> System will use maximum future rates for comparison<br><b>Selected:</b> System will use rate where effective date is equal to selected effective date<br>" data-original-title="Effective" class="label label-info popover-primary">?</span>
                             </div>
                             <div class="SelectedEffectiveDate_Class hidden">
                                 <label for="field-1" class="col-sm-1 control-label">Date</label>
@@ -323,11 +324,11 @@
                                     _class = "destination";
                                     destination_column_index.push(k);
                                 }
-                                if (col.indexOf("CustomerRate") >= 0) {
+                                if (col.indexOf("(CR)") >= 0) {
                                     customerrate_column_index.push(k);
-                                }else if (col.indexOf("VendorRate") >= 0) {
+                                }else if (col.indexOf("(VR)") >= 0) {
                                     vendorrate_column_index.push(k);
-                                }else if (col.indexOf("RateTable") >= 0) {
+                                }else if (col.indexOf("(RT)") >= 0) {
                                     ratetable_column_index.push(k);
                                 }else if (col.indexOf("ColumnIDS") >= 0) {
                                     columnIDs_column_index.push(k);
@@ -391,8 +392,6 @@
 
                                         if (_class == 'source' || _class == 'destination') {
 
-
-
                                             if ($.inArray(i, customerrate_column_index) != -1) {
                                                 _type = "customer_rate";
                                             } else if ($.inArray(i, vendorrate_column_index) != -1) {
@@ -405,7 +404,6 @@
                                             var ColumnIDS = row[row.length-1].split(',');
                                             var _typeID = ColumnIDS[_ColumnIDS_index];
 
-                                            //action += '<input type = "hidden"  name = "SourceDestination" value = "' + _class + '" / >';
                                             action += '<input type = "hidden"  name = "Type" value = "' + _type + '" / >';
                                             action += '<input type = "hidden"  name = "TypeID" value = "' + _typeID + '" / >';
                                             action += '<input type = "hidden"  name = "GroupBy" value = "' + GroupBy + '" / >';
@@ -445,7 +443,8 @@
                                             str += _edit;
 
                                         }
-                                    }
+
+                                    } 
                                     if (i < (row.length -1) ){ // skip ColumnIDS
                                         html += '<td class="'+ _class +'">' + str + '</td>';
                                     }
@@ -562,7 +561,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Rate</label>
-                                    <input type="text" id="Rate" name="Rate" class="form-control" id="field-5" placeholder="">
+                                    <input type="text" id="Rate" name="Rate" class="form-control"  data-mask="fdecimal" data-min="1" maxlength ="8" id="field-5" placeholder="">
                                 </div>
                                 <div class="form-group hide_if_groupby_description">
                                     <label for="field-5" class="control-label">Effective Date</label>
