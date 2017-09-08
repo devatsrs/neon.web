@@ -2659,7 +2659,7 @@ class InvoicesController extends \BaseController {
         if(!empty($invoiceIds)) {
 
             $Invoices = Invoice::find($invoiceIds);
-            $temp_path = CompanyConfiguration::get('TEMP_PATH'). "/";
+            $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH'). "/";
             $isAmazon = is_amazon();
             foreach ($Invoices as $invoice) {
                 $path = AmazonS3::preSignedUrl($invoice->PDF);
@@ -2668,7 +2668,7 @@ class InvoicesController extends \BaseController {
                     $zipfiles[$invoice->InvoiceID]=$path;
                 }else if($isAmazon == true){
 
-                    $filepath = $temp_path . basename($invoice->PDF);
+                    $filepath = $UPLOAD_PATH . basename($invoice->PDF);
                     $content = @file_get_contents($path);
                     if($content != false){
                         file_put_contents( $filepath, $content);
@@ -2687,7 +2687,7 @@ class InvoicesController extends \BaseController {
                 } else {
 
                     $filename='invoice' . date("dmYHis") . '.zip';
-                    $local_zip_file = $temp_path . $filename;
+                    $local_zip_file = $UPLOAD_PATH . $filename;
 
                     Zipper::make($local_zip_file)->add($zipfiles)->close();
 
