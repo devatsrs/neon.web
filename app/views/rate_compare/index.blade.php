@@ -570,7 +570,7 @@
         .dataTable thead th , .dataTable  tbody td:first-child {
             background: #d7ef87 !important;
             font-weight: bold;
-            color: #000;
+            color: #000 !important;
         }
 
     </style>
