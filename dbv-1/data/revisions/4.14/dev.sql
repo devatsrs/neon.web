@@ -1,5 +1,8 @@
 Use Ratemanagement3;
 
+INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1306, 'RateCompare.All', 1, 5);
+INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'RateCompare.*', 'RateCompareController.*', 1, 'Sumera Saeed', NULL, '2017-08-31 17:16:34.000', '2017-08-31 17:16:34.000', 1306);
+
 DELIMITER  //
 CREATE PROCEDURE `prc_RateCompare`(
 	IN `p_companyid` INT,
@@ -917,15 +920,6 @@ CONTAINS SQL
 	      END IF;
 
 	    END IF;
-
-
-
-
-					  	END IF;
-
-
-					  END IF;
-
 
 
     select ROW_COUNT() as rows_update ;
