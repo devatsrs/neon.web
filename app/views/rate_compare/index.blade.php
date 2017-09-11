@@ -530,6 +530,9 @@
                     $("#add-edit-ratecompare-form [name='"+hidden_list_fields[i]+"']").val(field_value);
 
                 }
+
+
+                $("#add-edit-ratecompare-form [name='NewDescription']").val($("#add-edit-ratecompare-form [name='Description']").val());
                 $("#add-edit-ratecompare-form [name='TrunkID']").val(Trunk);
                 $("#add-edit-ratecompare-form [name='Effective']").val(Effective);
                 $("#add-edit-ratecompare-form [name='SelectedEffectiveDate']").val(SelectedEffectiveDate);
@@ -593,7 +596,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Description</label>
-                                    <input type="text" readonly="readonly" id="Description" name="Description" class="form-control" id="field-5" placeholder="">
+                                    <input type="text" id="NewDescription" name="NewDescription" class="form-control" id="field-5" placeholder="">
                                 </div>
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Rate</label>
@@ -612,6 +615,7 @@
                         <input type="hidden" name="TypeID"  value="">
                         <input type="hidden" name="TrunkID"  value="">
                         <input type="hidden" name="Effective"  value="">
+                        <input type="hidden" name="Description"  value="">
                         <input type="hidden" name="SelectedEffectiveDate"  value="">
                         <input type="hidden" name="Action"  value="">
                         <button type="submit" id="ratecompare-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
