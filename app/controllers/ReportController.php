@@ -24,7 +24,9 @@ class ReportController extends \BaseController {
         $Columns = Report::$dimension['summary']+Report::$measures['summary'];
         $report_settings =array();
         $report_settings['Cube'] = 'summary';
-        $report_settings['filter_settings'] = '{"date":{"wildcard_match_val":"","start_date":"2017-07-16","end_date":"2017-07-22","condition":"none","top":"none"}}';
+        $original_startdate = date('Y-m-d', strtotime('-1 week'));
+        $original_enddate = date('Y-m-d');
+        $report_settings['filter_settings'] = '{"date":{"wildcard_match_val":"","start_date":"'.$original_startdate.'","end_date":"'.$original_enddate.'","condition":"none","top":"none"}}';
 
         return View::make('report.create', compact('dimensions','measures','Columns','report_settings'));
     }
