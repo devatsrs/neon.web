@@ -716,4 +716,24 @@ class TicketsController extends \BaseController {
 	    $TicketData = TicketsTable::find($id);
         return View::make('tickets.ticketslog', compact('TicketData','id'));    
 	}	
+
+	function BulkPickup()
+	{
+		$data = Input::all();
+
+		if(isset($data["SelectedIDs"]))
+		{
+			$Userid = User::get_userID();
+			$arrTickets = TicketsTable::join('tblTicketGroupAgents', 'tblTickets.Group', '=', 'tblTicketGroupAgents.GroupID')
+						->whereIn('TicketID', explode(",", $data["SelectedIDs"]))
+						->where("tblTickets.Group", "!=", 0)
+						->where("tblTicketGroupAgents.UserID", $Userid)
+						->where("tblTickets.Agent", "!=", $Userid)
+						->get();
+
+			TicketsTable::update(["Agent"=>$Userid]);
+			return Response::json(array("status" => "success", "message" => "Bulk Pickup Successfully"));
+		}
+		return Response::json(array("status" => "failed", "message" => "Problem Bulk Pickup"));
+	}
 }
