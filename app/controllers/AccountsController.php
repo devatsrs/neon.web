@@ -135,10 +135,13 @@ class AccountsController extends \BaseController {
             $account_owners = User::getOwnerUsersbyRole();
             $countries = $this->countries;
 
+            $company_id = User::get_companyID();
+            $company = Company::find($company_id);
+
             $currencies = Currency::getCurrencyDropdownIDList();
             $timezones = TimeZone::getTimeZoneDropdownList();
             $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
-            $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+            $BillingClass = BillingClass::getDropdownIDList($company_id);
             $BillingStartDate=date('Y-m-d');
             $LastAccountNo =  '';
             $doc_status = Account::$doc_status;
@@ -146,7 +149,7 @@ class AccountsController extends \BaseController {
                 unset($doc_status[Account::VERIFIED]);
             }
             $dynamicfields = Account::getDynamicfields('account',0);
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields'));
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company'));
     }
 
     /**
@@ -183,7 +186,7 @@ class AccountsController extends \BaseController {
             //when account varification is off in company setting then varified the account by default.
             $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
 
-            if ($AccountVerification == CompanySetting::ACCOUT_VARIFICATION_OFF && $AccountVerification != 'Invalid Key') {
+            if ( $AccountVerification != CompanySetting::ACCOUT_VARIFICATION_ON ) {
                 $data['VerificationStatus'] = Account::VERIFIED;
             }
 
@@ -200,17 +203,6 @@ class AccountsController extends \BaseController {
                 $data['Number'] = Account::getLastAccountNo();
             }
             $data['Number'] = trim($data['Number']);
-
-            if(empty($data['CurrencyId']) || empty($data['Country']))
-            {
-                $company = Company::find($companyID);
-                if (empty($data['CurrencyId'])) {
-                    $data['CurrencyId'] =$company->CurrencyId;
-                }
-                if (empty($data['Country'])) {
-                    $data['Country'] =$company->Country;
-                }
-            }
 
         unset($data['DataTables_Table_0_length']);
         $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;

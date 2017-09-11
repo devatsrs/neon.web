@@ -227,8 +227,8 @@
             $('#modal-edit-new-rate-table').trigger("reset");
             $("#modal-edit-new-rate-table [name='RateTableId']").val($(this).attr('data-id'));
             $("#modal-edit-new-rate-table [name='RateTableName']").val($(this).attr('data-ratetablename'));
-            $("#modal-edit-new-rate-table [name='TrunkID']").val($(this).attr('data-TrunkID')).select2();
-            $("#modal-edit-new-rate-table [name='CurrencyID']").val($(this).attr('data-CurrencyID')).select2();
+            $("#modal-edit-new-rate-table [name='TrunkID']").select2('val', $(this).attr('data-TrunkID'));
+            $("#modal-edit-new-rate-table [name='CurrencyID']").select2('val', $(this).attr('data-CurrencyID'));
             $('#modal-edit-new-rate-table').modal('show');
         });
         $("#ratetable_filter").submit(function(e) {

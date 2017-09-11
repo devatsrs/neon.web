@@ -957,7 +957,7 @@
                 console.log(InvoiceIDs);
 
                 if (InvoiceIDs.length) {
-                    if (!confirm('Are you sure you want to Print selected invoices?')) {
+                    if (!confirm('Are you sure you want to download selected invoices?')) {
                         return;
                     }
                     $.ajax({
