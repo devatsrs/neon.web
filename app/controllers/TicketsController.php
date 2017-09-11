@@ -721,7 +721,7 @@ class TicketsController extends \BaseController {
 	{
 		$data = Input::all();
 
-		if(empty($data["SelectedIDs"]))
+		if(!empty($data["SelectedIDs"]))
 		{
 			$Userid = User::get_userID();
 			$arrTickets = TicketsTable::join('tblTicketGroupAgents', 'tblTickets.Group', '=', 'tblTicketGroupAgents.GroupID')
