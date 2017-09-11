@@ -73,6 +73,7 @@
                     <li> <a id="bulk-close" href="javascript:;" title="Shift+Close to skip notification mail" data-placement="top" data-toggle="tooltip"> Close </a> </li>
                     <li> <a id="bulk-delete" href="javascript:;"> Delete </a> </li>
                     <li> <a id="bulk-action" href="javascript:;"> Bulk Actions </a> </li>
+                    <li> <a id="bulk-pickup" href="javascript:;"> Bulk Pickup </a> </li>
                 </ul>
             @endif
             <form id="clear-bulk-rate-form">
@@ -365,14 +366,33 @@ $(document).ready(function(e) {
 			$('#BulkAction-form').submit();
 			 }
 			return false;
-        }else if($(this).prop('id')=='bulk-delete'){
+        }else if($(this).prop('id')=='bulk-delete') {
+            var SelectedIDs = getselectedIDs();
+            if (SelectedIDs.length == 0) {
+                toastr.error('Please select at least one Ticket.', "Error", toastr_opts);
+                return false;
+            } else {
+                if (confirm("Are you sure you want to delete selected tickets?")) {
+                    var url = baseurl + '/tickets/bulkdelete';
+                    $.post(url, {"SelectedIDs": SelectedIDs.join(",")}, function (response) {
+                        if (response.status == 'success') {
+                            $('#tickets_filter').submit();
+                            toastr.success(response.message, "Success", toastr_opts);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    });
+                }
+            }
+            return true;
+        }else if($(this).prop('id')=='bulk-pickup') {
             var SelectedIDs = getselectedIDs();
             if (SelectedIDs.length == 0) {
                 toastr.error('Please select at least one Ticket.', "Error", toastr_opts);
                 return false;
             }else {
-                if(confirm("Are you sure you want to delete selected tickets?")) {
-                    var url = baseurl + '/tickets/bulkdelete';
+                if(confirm("Are you sure you want to Pickup selected tickets?")) {
+                    var url = baseurl + '/tickets/bulkpickup';
                     $.post(url, {"SelectedIDs": SelectedIDs.join(",")}, function (response) {
                         if (response.status == 'success') {
                             $('#tickets_filter').submit();
