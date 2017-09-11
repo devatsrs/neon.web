@@ -71,6 +71,7 @@
                                     <tr>
                                         <th >Name</th>
                                         <th >Currency</th>
+                                        <th >Trunk</th>
                                         <th >Codedeck</th>
                                         <th >Last Updated</th>
                                          <th >Action</th>
@@ -118,6 +119,7 @@
                         {},
                         {},
                         {},
+                        {},
                         {
                             mRender: function(id, type, full) {
                                 var action, view_, delete_;
@@ -128,7 +130,7 @@
                                 delete_ = delete_.replace('{id}', id);
 
                                 action = '<a title="View" href="' + view_ + '" class="btn btn-default btn-sm"><i class="fa fa-eye"></i></a>&nbsp;';
-                                action += '<a title="Edit" data-id="'+  id +'" data-rateTableName="'+full[0]+'" data-TrunkID="'+full[5]+'" data-CurrencyID="'+full[6]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
+                                action += '<a title="Edit" data-id="'+  id +'" data-rateTableName="'+full[0]+'" data-TrunkID="'+full[6]+'" data-CurrencyID="'+full[7]+'" class="edit-ratetable btn btn-default btn-sm"><i class="entypo-pencil"></i></a>&nbsp;';
 
                                 <?php if(User::checkCategoryPermission('RateTables','Delete') ) { ?>
                                     action += ' <a title="Delete" href="' + delete_ + '" data-redirect="{{URL::to("/rate_tables")}}"  class="btn btn-default delete btn-danger btn-sm" data-loading-text="Loading..."><i class="entypo-trash"></i></a>';
