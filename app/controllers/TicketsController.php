@@ -721,17 +721,23 @@ class TicketsController extends \BaseController {
 	{
 		$data = Input::all();
 
-		if(isset($data["SelectedIDs"]))
+		if(empty($data["SelectedIDs"]))
 		{
 			$Userid = User::get_userID();
 			$arrTickets = TicketsTable::join('tblTicketGroupAgents', 'tblTickets.Group', '=', 'tblTicketGroupAgents.GroupID')
-						->whereIn('TicketID', explode(",", $data["SelectedIDs"]))
-						->where("tblTickets.Group", "!=", 0)
-						->where("tblTicketGroupAgents.UserID", $Userid)
-						->where("tblTickets.Agent", "!=", $Userid)
-						->get();
+				->whereIn('TicketID', explode(",", $data["SelectedIDs"]))
+				->where("tblTickets.Group", "!=", 0)
+				->where("tblTicketGroupAgents.UserID", $Userid)
+				->where("tblTickets.Agent", "!=", $Userid)
+				->select(DB::raw('group_concat(TicketID) as TicketIDs'))
+				->first();
 
-			TicketsTable::update(["Agent"=>$Userid]);
+			if(!empty($arrTickets->TicketIDs))
+			{
+				TicketsTable::whereIn("TicketID",explode(",", $arrTickets->TicketIDs))
+							->update(["Agent"=>$Userid]);
+			}
+
 			return Response::json(array("status" => "success", "message" => "Bulk Pickup Successfully"));
 		}
 		return Response::json(array("status" => "failed", "message" => "Problem Bulk Pickup"));
