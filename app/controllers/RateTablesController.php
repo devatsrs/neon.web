@@ -675,7 +675,6 @@ class RateTablesController extends \BaseController {
 
         $rules = array(
             'RateTableName' => 'required|unique:tblRateTable,RateTableName,'.$id.',RateTableId,CompanyID,'.$data['CompanyID'],
-            'TrunkID' => 'required',
             'CurrencyID' => 'required',
             'CompanyID' => 'required',
         );
