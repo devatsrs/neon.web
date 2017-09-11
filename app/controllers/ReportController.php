@@ -97,6 +97,9 @@ class ReportController extends \BaseController {
         $data['row'] = array_values($data['row']);
         $all_data_list['CompanyGateway'] = CompanyGateway::getCompanyGatewayIdList();
         $all_data_list['Country'] = Country::getCountryDropdownIDList();
+        $all_data_list['Currency'] = Currency::getCurrencyDropdownIDList();
+        $all_data_list['Tax'] = TaxRate::getTaxRateDropdownIDList();
+        $all_data_list['Product'] = Product::getProductDropdownList();
         $all_data_list['Account'] = Account::getAccountIDList();
         $all_data_list['AccountIP'] = GatewayAccount::getAccountIPList($CompanyID);
         $all_data_list['AccountCLI'] = GatewayAccount::getAccountCLIList($CompanyID);

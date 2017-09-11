@@ -14,6 +14,9 @@ class Report extends \Eloquent {
 
     public static $cube = array(
         'summary'=>'Customer CDR',
+        'vsummary'=>'Vendor CDR',
+        'invoice' => 'Invoice',
+        'payment' => 'Payment'
     );
 
     public static $dimension = array(
@@ -32,6 +35,46 @@ class Report extends \Eloquent {
             'GatewayAccountPKID' => 'Customer IP/CLI',
             'GatewayVAccountPKID' => 'Vendor IP/CLI'
         ),
+        'vsummary'=>array(
+            'year' => 'Year',
+            'quarter_of_year' => 'Quarter' ,
+            'month' => 'Month',
+            'week_of_year' => 'Week',
+            'date' => 'Day',
+            'AccountID' =>'Customer',
+            'VAccountID' =>'Vendor',
+            'CompanyGatewayID' =>'Gateway',
+            'Trunk' => 'Trunk',
+            'CountryID' => 'Country',
+            'AreaPrefix' => 'Prefix',
+            'GatewayAccountPKID' => 'Customer IP/CLI',
+            'GatewayVAccountPKID' => 'Vendor IP/CLI'
+        ),
+        'invoice'=>array(
+            'year' => 'Year',
+            'quarter_of_year' => 'Quarter' ,
+            'month' => 'Month',
+            'week_of_year' => 'Week',
+            'date' => 'Day',
+            'AccountID' =>'Account',
+            'CurrencyID' =>'Currency',
+            'InvoiceType' =>'Invoice Type',
+            'InvoiceStatus' =>'Invoice Status',
+            'TaxRateID' => 'Tax',
+            'ProductType'=> 'Item/Subscription/Usage/Oneoffcharge',
+            'ProductID' => 'Item',
+        ),
+        'payment'=>array(
+            'year' => 'Year',
+            'quarter_of_year' => 'Quarter' ,
+            'month' => 'Month',
+            'week_of_year' => 'Week',
+            'date' => 'Day',
+            'AccountID' =>'Account',
+            'CurrencyID' =>'Currency',
+            'PaymentType'=>'Payment Type',
+            'PaymentMethod'=>'Payment Method'
+        ),
     );
 
     public static $measures = array(
@@ -40,6 +83,22 @@ class Report extends \Eloquent {
             'TotalBilledDuration' => 'Duration',
             'NoOfCalls' => 'No Of Calls',
             'NoOfFailCalls' => 'No Of Failed Calls'
+        ),
+        'vsummary'=>array(
+            'TotalCharges' => 'Cost',
+            'TotalSales' => 'Sales',
+            'TotalBilledDuration' => 'Duration',
+            'NoOfCalls' => 'No Of Calls',
+            'NoOfFailCalls' => 'No Of Failed Calls'
+        ),
+        'invoice'=>array(
+            'GrandTotal' => 'Total/Item Total',
+            'PaidTotal' => 'Payment',
+            'OutStanding' => 'OutStanding',
+            'TotalTax' => 'Tax Total',
+        ),
+        'payment'=>array(
+            'Amount' => 'Total',
         ),
     );
 
@@ -75,59 +134,23 @@ class Report extends \Eloquent {
         $response = '';
         switch ($cube) {
             case 'summary':
-                $response = self::generateSummaryQuery($CompanyID,$data,$filters);
+                $response = ReportCustomerCDR::generateSummaryQuery($CompanyID,$data,$filters);
                 break;
-            case 'payment':
+            case 'vsummary':
+                $response = ReportVendorCDR::generateSummaryQuery($CompanyID,$data,$filters);
                 break;
             case 'invoice':
+                $response = ReportInvoice::generateQuery($CompanyID,$data,$filters);
+                break;
+            case 'payment':
+                $response = ReportPayment::generateQuery($CompanyID,$data,$filters);
                 break;
 
         }
         return $response;
     }
 
-    public static function generateSummaryQuery($CompanyID,$data,$filters){
 
-        if(count($data['row'])) {
-            $query_distinct = self::commonCDRQuery($CompanyID,$data,$filters);
-            foreach ($data['row'] as $column) {
-                $query_distinct->orderby($column);
-            }
-            $query_distinct = $query_distinct->distinct();
-            $columns = $query_distinct->get($data['row']);
-            $columns = json_decode(json_encode($columns), true);
-
-            //$response['column'] = self::generateColumnNames($columns);
-            $response['distinct_row'] = $columns;
-            $response['distinct_row'] = array_map('custom_implode',$response['distinct_row']);
-        }
-
-        $final_query = self::commonCDRQuery($CompanyID,$data,$filters);
-        foreach ($data['column'] as $column) {
-            $final_query->groupby($column);
-        }
-        foreach ($data['row'] as $column) {
-            $final_query->groupby($column);
-        }
-
-        $data['row'] = array_merge($data['row'],$data['column']);
-        foreach($data['sum'] as $colname) {
-            $data['row'][] = DB::Raw("SUM(tblUsageSummaryDay.".$colname.") as ".$colname);
-        }
-        /*if(!empty($select_columns)){
-            $data['row'][] = DB::Raw($select_columns);
-        }*/
-        //print_r($data['row']);exit;
-        if(!empty($data['row'])) {
-            $response['data'] = $final_query->get($data['row']);
-            $response['data'] = json_decode(json_encode($response['data']),true);
-        }else{
-            $response['data'] = array();
-        }
-
-
-        return $response;
-    }
 
 
     public static function getName($PKColumnName,$ID,$all_data){
@@ -183,49 +206,83 @@ class Report extends \Eloquent {
                     $name = '';
                 }
                 break;
+            case 'InvoiceStatus':
+                $invoice_status = Invoice::get_invoice_status();
+                if(!empty($ID) && isset($invoice_status[$ID])){
+                    $name = $invoice_status[$ID];
+                }else if(!empty($ID)){
+                    $name = $ID;
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'InvoiceType':
+                $invoice_type = Invoice::$invoice_type;
+                if(!empty($ID) && isset($invoice_type[$ID])){
+                    $name = $invoice_type[$ID];
+                }else if(!empty($ID)){
+                    $name = $ID;
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'CurrencyID':
+                if($ID > 0 && isset($all_data['Currency'][$ID])) {
+                    $name = $all_data['Currency'][$ID];
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'TaxRateID':
+                if($ID > 0 && isset($all_data['Tax'][$ID])) {
+                    $name = $all_data['Tax'][$ID];
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'ProductID':
+                if($ID > 0 && isset($all_data['Product'][$ID])) {
+                    $name = $all_data['Product'][$ID];
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'ProductType':
+                $invoice_type = Product::$AllProductTypes;
+                if(!empty($ID) && isset($invoice_type[$ID])){
+                    $name = $invoice_type[$ID];
+                }else if(!empty($ID)){
+                    $name = $ID;
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'PaymentMethod':
+                $method = Payment::$method;
+                if(!empty($ID) && isset($method[$ID])){
+                    $name = $method[$ID];
+                }else if(!empty($ID)){
+                    $name = $ID;
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'PaymentType':
+                $action = Payment::$action;
+                if(!empty($ID) && isset($action[$ID])){
+                    $name = $action[$ID];
+                }else if(!empty($ID)){
+                    $name = $ID;
+                }else{
+                    $name = '';
+                }
+                break;
 
         }
         return $name;
     }
 
-    public static function commonCDRQuery($CompanyID,$data,$filters){
-        $query_common = DB::connection('neon_report')
-            ->table('tblHeader')
-            ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
-            ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
-            ->where(['CompanyID' => $CompanyID]);
 
-        foreach($filters as $key => $filter){
-            if(!empty($filter[$key]) && is_array($filter[$key]) && !in_array($key,array('GatewayAccountPKID','GatewayVAccountPKID'))){
-                $query_common->whereIn($key,$filter[$key]);
-            }else if(!empty($filter[$key]) && is_array($filter[$key]) && in_array($key,array('GatewayAccountPKID','GatewayVAccountPKID'))){
-                $data_in_array = GatewayAccount::where(array('CompanyID'=>$CompanyID))
-                    ->where(function($where)use($filter,$key){
-                        $where->where('AccountIP','like',$filter[$key]);
-                        $where->orwhere('AccountCLI','like',$filter[$key]);
-                    })
-                    ->lists('GatewayAccountPKID');
-                if(!empty($data_in_array)) {
-                    $query_common->whereIn($key, $data_in_array);
-                }
-            }else if(!empty($filter['wildcard_match_val']) && in_array($key,array('Trunk','AreaPrefix'))){
-                $query_common->where($key,'like',str_replace('*','%',$filter['wildcard_match_val']));
-            }else if(!empty($filter['wildcard_match_val'])){
-                $data_in_array = Report::getDataInArray($CompanyID,$key,$filter['wildcard_match_val']);
-                if(!empty($data_in_array)) {
-                    $query_common->whereIn($key, $data_in_array);
-                }
-            }else if($key == 'date'){
-                if(!empty($filter['start_date'])){
-                    $query_common->where('date','>=',str_replace('*','%',$filter['start_date']));
-                }
-                if(!empty($filter['end_date'])){
-                    $query_common->where('date','<=',str_replace('*','%',$filter['end_date']));
-                }
-            }
-        }
-        return $query_common;
-    }
 
     public static function getDataInArray($CompanyID,$PKColumnName,$search){
         $data_in_array = array();
