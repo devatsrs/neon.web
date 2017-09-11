@@ -530,8 +530,8 @@
                             contentType: "application/json",
                             dataType: 'json',
                             success: function (response){
+                                loading("#add-edit-role-form", 0);
                                 if(response.status =='success'){
-                                    loading("#add-edit-role-form", 0);
                                     if(response.result) {
                                         userpermission = response.result;
                                         var table = righttable;

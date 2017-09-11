@@ -264,10 +264,11 @@ class RoleController extends \BaseController {
                     {
                         Role::find($role->RoleID)->delete();
                         return Response::json(array("status" => "success", "message" => "Role Successfully Deleted"));
-                    }else{
-                        return Response::json(array("status" => "failed", "message" => "Role is in Use, You cant delete this Role."));
                     }
                 }
+
+                return Response::json(array("status" => "failed", "message" => "Role is in Use, You cant delete this Role."));
+
             }else{
                 return Response::json(array("status" => "failed", "message" => "Problem Deleting Role."));
             }
