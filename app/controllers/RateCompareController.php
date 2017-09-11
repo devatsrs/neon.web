@@ -83,57 +83,105 @@ class RateCompareController extends \BaseController {
 
         $data['CompanyID'] =  User::get_companyID();
 
-        if(isset($data["GroupBy"]) && $data["GroupBy"] == 'code'){
+        if(isset($data["Action"]) && $data["Action"] == 'edit') {
 
-            $rules = array(
-                'GroupBy' => 'required',
-                'Type' => 'required',
-                'TypeID' => 'required',
-                'Code' => 'required',
-                'Description' => 'required',
-                'Rate' => 'required',
-                'EffectiveDate' => 'required',
-                'TrunkID' => 'required',
-                'Effective' => 'required',
-            );
-        } else {
+            if (isset($data["GroupBy"]) && $data["GroupBy"] == 'code') {
 
-            $rules = array(
-                'GroupBy' => 'required',
-                'Type' => 'required',
-                'TypeID' => 'required',
-                'Description' => 'required',
-                'Rate' => 'required',
-                'TrunkID' => 'required',
-                'Effective' => 'required',
-            );
+                $rules = array(
+                    'GroupBy' => 'required',
+                    'Type' => 'required',
+                    'TypeID' => 'required',
+                    'Code' => 'required',
+                    'Description' => 'required',
+                    'Rate' => 'required',
+                    'EffectiveDate' => 'required',
+                    'TrunkID' => 'required',
+                    'Effective' => 'required',
+                );
+            } else {
 
+                $rules = array(
+                    'GroupBy' => 'required',
+                    'Type' => 'required',
+                    'TypeID' => 'required',
+                    'Description' => 'required',
+                    'Rate' => 'required',
+                    'TrunkID' => 'required',
+                    'Effective' => 'required',
+                );
+
+
+            }
+
+
+            $validator = Validator::make($data, $rules);
+
+            if (!isset($data['SelectedEffectiveDate']) || empty($data['SelectedEffectiveDate'])) {
+                $data['SelectedEffectiveDate'] = date('Y-m-d');
+            }
+            if ($validator->fails()) {
+
+                return json_validator_response($validator);
+            }
+
+
+        }else if(isset($data["Action"]) && $data["Action"] == 'add') {
+
+            //@TODO Add is yet to be done.
+
+            if (isset($data["GroupBy"]) && $data["GroupBy"] == 'code') {
+
+                $rules = array(
+                    'GroupBy' => 'required',
+                    'Type' => 'required',
+                    'TypeID' => 'required',
+                    'Code' => 'required',
+                    'Description' => 'required',
+                    'Rate' => 'required',
+                    'EffectiveDate' => 'required',
+                    'TrunkID' => 'required',
+                    'Effective' => 'required',
+                );
+            } else {
+
+                $rules = array(
+                    'GroupBy' => 'required',
+                    'Type' => 'required',
+                    'TypeID' => 'required',
+                    'Description' => 'required',
+                    'Rate' => 'required',
+                    'EffectiveDate' => 'required',
+                    'TrunkID' => 'required',
+                    'Effective' => 'required',
+                );
+            }
+
+            $validator = Validator::make($data, $rules);
+
+            if (!isset($data['SelectedEffectiveDate']) || empty($data['SelectedEffectiveDate'])) {
+                $data['SelectedEffectiveDate'] = date('Y-m-d');
+            }
+            if ($validator->fails()) {
+
+                return json_validator_response($validator);
+            }
 
         }
 
-        $validator = Validator::make($data, $rules);
 
-        if(!isset($data['SelectedEffectiveDate']) || empty($data['SelectedEffectiveDate'])){
-            $data['SelectedEffectiveDate'] = date('Y-m-d');
-        }
-        if ($validator->fails()) {
+        $query = "call prc_RateCompareRateUpdate (" . $data['CompanyID'] . ",'" . $data['GroupBy'] . "','" . $data['Type'] . "','" . $data['TypeID'] . "','" . $data['Rate'] . "','" . $data['Code'] . "','" . $data['Description'] . "','" . $data['EffectiveDate'] . "','" . $data['TrunkID'] . "','" . $data['Effective'] . "','" . $data['SelectedEffectiveDate'] . "' );";
+        \Illuminate\Support\Facades\Log::info($query);
 
-            return json_validator_response($validator);
-        }
+        $result = DB::select($query);
+        $result_array = json_decode(json_encode($result), true);
 
-        $query = "call prc_RateCompareRateUpdate (" . $data['CompanyID'] . ",'".$data['GroupBy']."','".$data['Type']."','".$data['TypeID']."','".$data['Rate']."','".$data['Code']."','" .$data['Description']."','".$data['EffectiveDate']."','".$data['TrunkID']."','".$data['Effective']."','".$data['SelectedEffectiveDate']."' );";
-       // \Illuminate\Support\Facades\Log::info($query);
-
-        $result  = DB::select($query);
-        $result_array = json_decode(json_encode($result),true);
-
-        if(count($result_array) > 0 ){
-            if (isset($result_array[0]["rows_update"]) ) {
+        if (count($result_array) > 0) {
+            if (isset($result_array[0]["rows_update"])) {
                 $rows_update = $result_array[0]["rows_update"];
-                if($rows_update > 0) {
+                if ($rows_update > 0) {
                     $message = "Rate Updated.";
-                    if($rows_update > 1) {
-                        $message .= '<br>'. $rows_update . " Records updated.";
+                    if ($rows_update > 1) {
+                        $message .= '<br>' . $rows_update . " Records updated.";
                     }
                     return Response::json(array("status" => "success", "message" => $message));
                 }
