@@ -2640,4 +2640,41 @@ class InvoicesController extends \BaseController {
         echo "<center>Payment declined, Go back and try again later.</center>";
 
     }
+
+    public function invoice_sagepayexport(){
+        $data = Input::all();
+        $MarkPaid = $data['MarkPaid'];
+        if(!empty($data['criteria'])){
+            $invoiceid = $this->getInvoicesIdByCriteria($data);
+            $invoiceid = rtrim($invoiceid,',');
+            $data['InvoiceIDs'] = $invoiceid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }
+        $CompanyID = User::get_companyID();
+        $InvoiceIDs = array_filter(explode(',', $data['InvoiceIDs']), 'intval');
+        if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
+            $SageData = array();
+            $SageData['CompanyID'] = $CompanyID;
+            $SageData['Invoices'] = $InvoiceIDs;
+            $SageData['MarkPaid'] = $MarkPaid;
+
+            $SageDirectDebit = new SagePayDirectDebit();
+            $Response = $SageDirectDebit->sagebatchfileexport($SageData);
+            log::info('Response');
+            log::info($Response);
+            if(!empty($Response['file_path'])){
+                $FilePath = $Response['file_path'];
+                if(file_exists($FilePath)){
+                    download_file($FilePath);
+                }else{
+                    header('Location: '.$FilePath);
+                }
+                exit;
+            }
+        }
+        exit;
+    }
 }

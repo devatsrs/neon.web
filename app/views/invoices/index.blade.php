@@ -118,6 +118,9 @@
             <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Post </a> </li>
             @endif
             <li> <a class="create" id="sage-export" href="javascript:;"> Sage Export </a> </li>
+            @if(is_SagePayDirectDebit())
+            <li> <a class="sagepost create" id="sage-post" href="javascript:;"> Sage Pay Direct Debit Export </a> </li>
+            @endif
           </ul>
           @endif
           <form id="clear-bulk-rate-form">
@@ -1265,6 +1268,35 @@
                 });
                 if (InvoiceIDs.length) {
                     submit_ajax(baseurl + '/invoice/invoice_quickbookpost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria)
+                }
+            });
+
+            $("#sage-post").click(function (ev) {
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+                var MarkPaid = '0';
+                if (confirm('Do you want to change the status of selected invoices to Paid?\n\nexport only invoice which account sage pay setup')) {
+                    MarkPaid = '1';
+                }
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                if (InvoiceIDs.length) {
+                    var url = baseurl + '/invoice/invoice_sagepayexport';
+                    var data = '?InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&MarkPaid=' + MarkPaid;
+
+                    window.location.href = url + data;
+                    setTimeout(function () {
+                        data_table.fnFilter('', 0);
+                    }, 1000);
+                    //submit_ajax(baseurl + '/invoice/invoice_sagepayexport', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&MarkPaid=' + MarkPaid)
                 }
             });
 

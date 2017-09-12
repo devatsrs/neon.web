@@ -51,6 +51,8 @@ class AccountsPaymentProfileController extends \BaseController {
             $PaymentGatewayID = $data['PaymentGatewayID'];
             if($data['PaymentGatewayID']==PaymentGateway::StripeACH){
                 return AccountPaymentProfile::createBankProfile($CompanyID, $CustomerID,$PaymentGatewayID);
+            }elseif($data['PaymentGatewayID']==PaymentGateway::SagePayDirectDebit){
+                return AccountPaymentProfile::createSagePayProfile($CompanyID, $CustomerID,$PaymentGatewayID);
             }
             return AccountPaymentProfile::createProfile($CompanyID, $CustomerID,$PaymentGatewayID);
         }
