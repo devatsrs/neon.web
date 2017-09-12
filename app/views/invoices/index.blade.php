@@ -1332,7 +1332,7 @@
                 var InvoiceIDs = [];
                 var i = 0;
                 var MarkPaid = '0';
-                if (confirm('Do you want to change the status of selected invoices to Paid?\n\nexport only invoice which account sage pay setup')) {
+                if (confirm('Do you want to change the status of selected invoices to Paid?\n\nAccounts where Sage Pay Bank Account Details are not setup will not be exported.')) {
                     MarkPaid = '1';
                 }
                 $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
