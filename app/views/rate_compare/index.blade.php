@@ -36,7 +36,7 @@
 
                             <label for="field-1" class="col-sm-1 control-label">Code</label>
                             <div class="col-sm-2">
-                                <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="" />
+                                <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="91" />
                             </div>
 
                             <label for="field-1" class="col-sm-1 control-label">Description</label>
@@ -83,7 +83,7 @@
                         <div class="form-group">
                             <label for="field-1" class="col-sm-1 control-label">Vendors</label>
                             <div class="col-sm-2">
-                                {{Form::select('SourceVendors[]', $all_vendors, array() ,array("class"=>"form-control select2",'multiple'))}}
+                                {{Form::select('SourceVendors[]', $all_vendors, array(197) ,array("class"=>"form-control select2",'multiple'))}}
                             </div>
 
                             <label for="field-1" class="col-sm-1 control-label">Customers</label>
@@ -325,13 +325,15 @@
                                 }
 
                                 if(col == 'Destination') {
-                                    col = '';
+                                    col_text = '';
+                                } else {
+                                    col_text = col +  ' <span class="float-right"><input type="text" name="margin"  placeholder="Margin" data-col-index="' + k + '" class="margin form-control"  data-min="1" maxlength ="4" value=""></span>';
                                 }
 
                                 column_name.push(col);
                                 if (col.indexOf("ColumnIDS") == -1 ) {  // if not columnid no need to add column id in display
 
-                                    str = '<th class="'+ _class +'">' + col + '</th>';
+                                    str = '<th class="'+ _class +'">' + col_text + '</th>';
                                     $(str).appendTo("#table-4"+'>thead>tr');
                                 }
 
@@ -418,13 +420,15 @@
 
                                         if (i > 0 ) {
                                             var rate_array = str.split('<br>');
+                                            var _rate = '', _effective_date = '';
                                             $.each(rate_array, function(index, value) {
                                                 if(index == 0){
-                                                    //rate = value;
+                                                    _rate = value;
+
                                                     action += '<input type = "hidden"  name = "Rate" value = "' + value + '" / >';
 
                                                 } else if(index == 1){
-                                                    //_effective_date = value;
+                                                    _effective_date = value;
                                                     action += '<input type = "hidden"  name = "EffectiveDate" value = "' + value + '" / >';
                                                 }
                                             });
@@ -432,6 +436,9 @@
 
 
                                             _edit = ' <span class="float-right"><a href="#" class="edit-ratecompare btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>'+action+'</span>';
+                                            str = '<span class="_column_rate">'+_rate +'</span><br>';
+                                            str += '<span class="_column_effectiveDate">'+_effective_date+'</span>';
+                                            str += '<span class="_column_rate_orig">'+_rate +'</span><br>';
                                             str += _edit;
 
                                         }
@@ -475,6 +482,48 @@
                 replaceCheckboxes();
             });
 
+
+            $('table thead').on('change', '.margin', function (ev) {
+
+                var _margin = $(this).val();
+                var _index = $(this).attr("data-col-index")*1 + 1 ;
+
+                $('table tbody tr').each( function ( index ) {
+
+                    var _selected_column  = $(this).find("td:nth-child(" +_index+ ")");
+                    var _rate = _selected_column.find("span._column_rate_orig").text();
+                    var _column_rate_el = _selected_column.find("span._column_rate");
+
+                    if (_rate == '' || _column_rate_el.text() == '') {
+                        return;
+                    }else if (_margin == '') {
+                        _column_rate_el.text(_rate);
+                        _selected_column.find(".hiddenRowData").find("input[name=Rate]").val(_rate);
+                    }else if ( _column_rate_el.text() != '') {
+
+                        _rate = parseFloat(_rate);
+
+                        if (_margin.indexOf("p") > 0) {
+
+                            var _numeric_margin_ = parseFloat(_margin.replace("p", ''));
+
+                            _new_rate = parseFloat(_rate + ( _rate * _numeric_margin_ / 100 ));
+
+                        } else {
+
+                            _new_rate = parseFloat(_rate + parseFloat(_margin));
+
+                        }
+                        _new_rate = _new_rate.toFixed(6);
+                        _column_rate_el.text(_new_rate);
+                        _selected_column.find(".hiddenRowData").find("input[name=Rate]").val(_new_rate);
+                    }
+
+                });
+
+
+
+            });
 
             $('table tbody').on('click', '.add-ratecompare', function (ev) {
                 ev.preventDefault();
@@ -575,7 +624,9 @@
             font-weight: bold;
             color: #000 !important;
         }
-
+        .dataTable input.margin.form-control {
+            width: 70px;
+        }
     </style>
 
     <div class="modal fade" id="add-edit-modal-ratecompare">
