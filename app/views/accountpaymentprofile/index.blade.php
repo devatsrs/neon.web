@@ -5,14 +5,15 @@
                     </p>
 
             </div>
+            @if($PaymentGatewayID!='' && $PaymentMethod!='SagePayDirectDebit')
             <div class="col-md-6 text-right">
-                @if($PaymentGatewayID!='')
+
                 <p>
                      <a  id="add-new-card" data-id="{{$PaymentGatewayID}}" data-name="{{$PaymentMethod}}" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
                 </p>
-                @endif
             </div>
-
+            @endif
+            <div class="clear"></div>
             <table class="table table-bordered datatable" id="ajxtable-4">
                 <thead>
                 <tr>
@@ -73,8 +74,9 @@
                                              action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                          }
                                          action += '</div>';
-
-                                        action += '<button class="btn paynow btn-success btn-sm " data-loading-text="Loading...">Pay Now </button>';
+                                        if(full[3]!='SagePayDirectDebit') {
+                                            action += '<button class="btn paynow btn-success btn-sm " data-loading-text="Loading...">Pay Now </button>';
+                                        }
                                         return action;
                                     }
                                 }
