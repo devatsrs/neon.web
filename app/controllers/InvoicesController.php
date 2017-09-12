@@ -2641,7 +2641,74 @@ class InvoicesController extends \BaseController {
 
     }
 
-    public function invoice_sagepayexport(){
+
+    public function bulk_print_invoice(){
+        $zipfiles = array();
+        $data = Input::all();
+        if(!empty($data['criteria'])){
+            $invoiceid = $this->getInvoicesIdByCriteria($data);
+            $invoiceid = rtrim($invoiceid,',');
+            $data['InvoiceIDs'] = $invoiceid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }
+
+        $invoiceIds=array_map('intval', explode(',', $data['InvoiceIDs']));
+
+        if(!empty($invoiceIds)) {
+
+            $Invoices = Invoice::find($invoiceIds);
+            $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH'). "/";
+            $isAmazon = is_amazon();
+            foreach ($Invoices as $invoice) {
+                $path = AmazonS3::preSignedUrl($invoice->PDF);
+
+                if ( file_exists($path) ){
+                    $zipfiles[$invoice->InvoiceID]=$path;
+                }else if($isAmazon == true){
+
+                    $filepath = $UPLOAD_PATH . basename($invoice->PDF);
+                    $content = @file_get_contents($path);
+                    if($content != false){
+                        file_put_contents( $filepath, $content);
+                        $zipfiles[$invoice->InvoiceID] = $filepath;
+                    }
+                }
+            }
+
+            if (!empty($zipfiles)) {
+
+                if (count($zipfiles) == 1) {
+
+                    $downloadInvoiceid = array_keys($zipfiles)[0];
+                    return Response::json(array("status" => "success", "message" => " Download Starting ", "invoiceId" => $downloadInvoiceid, "filePath" => ""));
+
+                } else {
+
+                    $filename='invoice' . date("dmYHis") . '.zip';
+                    $local_zip_file = $UPLOAD_PATH . $filename;
+
+                    Zipper::make($local_zip_file)->add($zipfiles)->close();
+
+                    if (file_exists($local_zip_file)) {
+                        return Response::json(array("status" => "success", "message" => " Download Starting ", "invoiceId" => "", "filePath" => base64_encode($filename)));
+                    }
+                    else {
+                        return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
+                    }
+                }
+
+            }
+        }
+        else {
+            return Response::json(array("status" => "error", "message" => "Please Select Invoice"));
+        }
+        exit;
+    }
+
+	public function invoice_sagepayexport(){
         $data = Input::all();
         $MarkPaid = $data['MarkPaid'];
         if(!empty($data['criteria'])){

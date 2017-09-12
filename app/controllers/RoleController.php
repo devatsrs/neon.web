@@ -86,9 +86,9 @@ class RoleController extends \BaseController {
 
         $data['ModifiedBy'] = User::get_user_full_name();
         if ($tblRole->update($data)) {
-            return Response::json(array("status" => "success", "message" => "Rate Table Name Successfully Updated"));
+            return Response::json(array("status" => "success", "message" => "Role Name Successfully Updated"));
         } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Rate Table Name."));
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Role Name."));
         }
     }
 
@@ -247,26 +247,28 @@ class RoleController extends \BaseController {
         if( intval($id) > 0){
             $role = Role::find($id);
             if(count($role)) {
-                $deleteRoles=true;
+                $CompanyID = User::get_companyID();
 
-                if(count(RolePermission::where(['roleID'=>$role->RoleID])->get()))
+                $countPermission=RolePermission::join("tblResourceCategories", "tblRolePermission.resourceID", "=", "tblResourceCategories.ResourceCategoryID")
+                    ->where(['tblRolePermission.CompanyID' => $CompanyID, 'roleID'=>$role->RoleID])->get()->count();
+
+                if($countPermission==0)
                 {
-                    $deleteRoles=false;
+                    $countUserRole=UserRole::join("tblUser", "tblUser.UserID", "=", "tblUserRole.UserID")
+                        ->where(['tblUser.CompanyID' => $CompanyID, 'tblUserRole.roleID'=>$role->RoleID])
+                        ->where("AdminUser", "!=", 1)
+                        ->whereNotNull("AdminUser")
+                        ->get()->count();
+
+                    if($countUserRole==0)
+                    {
+                        Role::find($role->RoleID)->delete();
+                        return Response::json(array("status" => "success", "message" => "Role Successfully Deleted"));
+                    }
                 }
 
-                if(count(UserRole::where(['roleID'=>$role->RoleID])->get()))
-                {
-                    $deleteRoles=false;
-                }
-                if($deleteRoles)
-                {
-                    Role::find($role->RoleID)->delete();
-                    return Response::json(array("status" => "success", "message" => "Role Successfully Deleted"));
-                }
-                else
-                {
-                    return Response::json(array("status" => "failed", "message" => "Role is in Use, You cant delete this Role."));
-                }
+                return Response::json(array("status" => "failed", "message" => "Role is in Use, You cant delete this Role."));
+
             }else{
                 return Response::json(array("status" => "failed", "message" => "Problem Deleting Role."));
             }
