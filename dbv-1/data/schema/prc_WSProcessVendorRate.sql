@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `prc_WSProcessVendorRate`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessVendorRate`(
 	IN `p_accountId` INT,
 	IN `p_trunkId` INT,
 	IN `p_replaceAllRates` INT,
@@ -29,7 +29,7 @@ BEGIN
         Message longtext
     );
     
-    -- create table for splite vendor rates and data insert in prc_SplitVendorRate and use in prc_checkDialstringAndDupliacteCode
+    
     
     DROP TEMPORARY TABLE IF EXISTS tmp_split_VendorRate_;
     CREATE TEMPORARY TABLE tmp_split_VendorRate_ (
@@ -46,6 +46,7 @@ BEGIN
 			`Interval1` int,
 			`IntervalN` int,
 			`Forbidden` varchar(100) ,
+			`DialStringPrefix` varchar(500) ,
 			INDEX tmp_EffectiveDate (`EffectiveDate`),
 			INDEX tmp_Code (`Code`),
             INDEX tmp_CC (`Code`,`Change`),
@@ -66,13 +67,14 @@ BEGIN
 			`Interval1` int,
 			`IntervalN` int,
 			`Forbidden` varchar(100) ,
+			`DialStringPrefix` varchar(500) ,
 			INDEX tmp_EffectiveDate (`EffectiveDate`),
 			INDEX tmp_Code (`Code`),
             INDEX tmp_CC (`Code`,`Change`),
 			INDEX tmp_Change (`Change`)
     );
     
-    -- tmp_Delete_VendorRate use for delete vendor rates and it use in prc_InsertDiscontinuedVendorRate(procedure)
+    
     
     DROP TEMPORARY TABLE IF EXISTS tmp_Delete_VendorRate;
 	CREATE TEMPORARY TABLE tmp_Delete_VendorRate (
@@ -91,12 +93,12 @@ BEGIN
         INDEX tmp_VendorRateDiscontinued_VendorRateID (`VendorRateID`)
 	);
 
-    --  dial string mapping and code duplicate 
+    
     		CALL  prc_checkDialstringAndDupliacteCode(p_companyId,p_processId,p_dialstringid,p_effectiveImmediately,p_dialcodeSeparator);
     		
     		SELECT COUNT(*) AS COUNT INTO newstringcode from tmp_JobLog_; 
 	
-	 -- IF Dialstring have no error	
+	
     IF newstringcode = 0
     THEN
    		
@@ -117,7 +119,7 @@ BEGIN
                         vc.Code,
                         vc.Description,
                         'WindowsService',
-                       -- c.CountryID,
+                       
                        fnGetCountryIdByCodeAndCountry (vc.Code ,vc.Description) AS CountryID,
                         CodeDeckId,
                         Interval1,
@@ -219,19 +221,9 @@ BEGIN
 
             END IF;
             				
-				/*
-            DELETE tblVendorRate
-                FROM tblVendorRate
-                JOIN tblRate
-                    ON tblRate.RateID = tblVendorRate.RateId
-                    AND tblRate.CompanyID = p_companyId
-                    JOIN tmp_TempVendorRate_ as tblTempVendorRate
-                        ON tblRate.Code = tblTempVendorRate.Code
-            WHERE tblVendorRate.AccountId = p_accountId
-                AND tblVendorRate.TrunkId = p_trunkId
-                AND tblTempVendorRate.Change IN ('Delete', 'R', 'D', 'Blocked', 'Block'); */
+				
        
-		 -- data insert and create temp table for tblVendorRateDiscontinued.
+		 
 		          
             	INSERT INTO tmp_Delete_VendorRate(
 			 	VendorRateID,
@@ -269,7 +261,7 @@ BEGIN
                 AND tblVendorRate.TrunkId = p_trunkId
                 AND tblTempVendorRate.Change IN ('Delete', 'R', 'D', 'Blocked', 'Block');    
            
-           -- it is user for insert data into discontinued table before delete vendor rate
+           
 			  	CALL prc_InsertDiscontinuedVendorRate(p_accountId,p_trunkId); 
 
             UPDATE tblVendorRate
@@ -288,7 +280,7 @@ BEGIN
 					WHERE tblVendorRate.AccountId = p_accountId
 			            AND tblVendorRate.TrunkId = p_trunkId ;
 			    
-				 -- VENDOR UNBLOCK AND BLOCK
+				 
             IF  p_forbidden = 1 OR p_dialstringid > 0
 				THEN
 					
@@ -338,7 +330,7 @@ BEGIN
 				END IF;
 				
 				
-				-- VENDOR PREFRENCE ADD-UPDATE-DELETE
+				
 				IF  p_preference = 1
 				THEN
 				
@@ -484,13 +476,13 @@ BEGIN
             SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS(); 
 
 	 
- END IF;	 -- over if of dialstring mapping error
+ END IF;	 
 	 
 	 					 INSERT INTO tmp_JobLog_ (Message)
 	 	SELECT CONCAT(v_AffectedRecords_ , ' Records Uploaded \n\r ' );
 	 
  	 SELECT * FROM tmp_JobLog_;
-    --  DELETE  FROM tblTempVendorRate WHERE  ProcessId = p_processId; 
+    -- DELETE  FROM tblTempVendorRate WHERE  ProcessId = p_processId; 
 	 
 	 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

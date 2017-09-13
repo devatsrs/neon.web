@@ -29,14 +29,14 @@
 				foreach($attachments as $key => $attachments_data)
 				{
 					//
-					 if(is_amazon() == true)
+					/* if(is_amazon() == true)
 					{
 						$Attachmenturl =  AmazonS3::preSignedUrl($attachments_data['filepath']);
 					}
 					else
 					{
 						$Attachmenturl = Config::get('app.upload_path')."/".$attachments_data['filepath'];
-					}
+					}*/
                     $Attachmenturl = URL::to('emails/'.$response->AccountEmailLogID.'/getattachment/'.$key);
 					if($key==(count($attachments)-1)){
 						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br><br>";

@@ -3,16 +3,30 @@
 class LCRController extends \BaseController {
 
     public function search_ajax_datagrid($type) {
+
         ini_set ( 'max_execution_time', 90);
         $companyID = User::get_companyID();
         $data = Input::all();
+        $AccountIDs = empty($data['Accounts'])?'':$data['Accounts'];
+        if($AccountIDs=='null'){
+            $AccountIDs='';
+        }
         $data['Use_Preference'] = $data['Use_Preference'] == 'true' ? 1:0;
         $data['iDisplayStart'] +=1;
 
+        $LCRPosition = Invoice::getCookie('LCRPosition');
+        if($data['LCRPosition'] != $LCRPosition){
+            NeonCookie::setCookie('LCRPosition',$data['LCRPosition'],60);
+        }
+
         if( $data['Policy'] == LCR::LCR ) {
-            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."'";
+
+            //log::info("call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."',0)");
+            $query = "call prc_GetLCR (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."'";
         } else {
-              $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."'";
+
+            //log::info("call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."',0)");
+            $query = "call prc_GetLCRwithPrefix (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$AccountIDs."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."','".intval($data['Use_Preference'])."','".intval($data['LCRPosition'])."'";
 
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
@@ -54,9 +68,17 @@ class LCRController extends \BaseController {
             $codedecklist = BaseCodeDeck::getCodedeckIDList();
             $currencies = Currency::getCurrencyDropdownIDList();
             $CurrencyID = Company::where("CompanyID",User::get_companyID())->pluck("CurrencyId");
-            return View::make('lcr.index', compact('trunks', 'currencies','CurrencyID','codedecklist','trunk_keys'));
+            $LCRPosition = NeonCookie::getCookie('LCRPosition',5);
+            $data=array();
+            $data['IsVendor']=1;
+            $all_accounts = Account::getAccountIDList($data);
+            if(!empty($all_accounts[''])){
+                unset($all_accounts['']);
+            }
+            return View::make('lcr.index', compact('trunks', 'currencies','CurrencyID','codedecklist','trunk_keys','LCRPosition','all_accounts'));
     }
 
+    //not using
     public function exports(){
 
 

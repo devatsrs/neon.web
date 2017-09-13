@@ -508,14 +508,18 @@ function get_image_data($path){
 }
 
 
-function getFileContent($file_name,$data){
+function getFileContent($file_name, $data){
     $columns = [];
     $grid = [];
     $flag = 0;
 
+    if(isset($data["start_row"]) && isset($data["end_row"])){
+        NeonExcelIO::$start_row=$data["start_row"];
+        NeonExcelIO::$end_row=$data["end_row"];
+    }
+
     $NeonExcel = new NeonExcelIO($file_name, $data);
     $results = $NeonExcel->read(10);
-
     /*
     if (!empty($data['Delimiter'])) {
         Config::set('excel::csv.delimiter', $data['Delimiter']);
@@ -547,10 +551,19 @@ function getFileContent($file_name,$data){
         if (isset($data['Firstrow']) && $data['Firstrow'] == 'data') {
             $columns[$counter] = 'Col' . $counter;
         } else {
-            $columns[$index] = $index;
+            if(!is_null($index))
+            {
+                $columns[$index] = $index;
+            }
+            else
+            {
+                $columns[""]="";
+            }
+
         }
         $counter++;
     }
+
     foreach ($results as $outindex => $datarow) {
         //$datarow = array_filter($datarow);
         //$results[$outindex] =  array_filter($datarow);
@@ -1583,6 +1596,9 @@ function is_Stripe(){
 }
 function is_StripeACH(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeACHSlug);
+}
+function is_SagePayDirectDebit(){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$SagePayDirectDebitSlug);
 }
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {

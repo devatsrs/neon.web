@@ -50,6 +50,8 @@ class ChartDashboardController extends BaseController {
             $query = "call prc_getGatewayReportAll ";
         }elseif($data['chart_type'] == 'account') {
             $query = "call prc_getAccountReportAll ";
+        }elseif($data['chart_type'] == 'description') {
+            $query = "call prc_getDescReportAll ";
         }
         $query .= "('" . $companyID . "','0','" . intval($data['AccountID']) ."','0','".date('Y-m-d 00:00:00') . "','".date('Y-m-d 23:59:59') . "' ,'','','0','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'','',2)";
         $TopReports = DataTableSql::of($query, 'neon_report')->getProcResult(array('CallCount','CallCost','CallMinutes'));
@@ -66,7 +68,8 @@ class ChartDashboardController extends BaseController {
             $alldata['call_count_asr'][$indexcount] = $CallCount->ASR;
             $indexcount++;
         }
-        $alldata['call_count_html'] = View::make('dashboard.grid', compact('alldata','data','customer'))->render();
+        $param_array = array_diff_key($data,array('map_url'=>0,'pageSize'=>0,'UserID'=>0,'Admin'=>0,'chart_type'=>0,'TimeZone'=>0,'CountryID'=>0));
+        $alldata['call_count_html'] = View::make('dashboard.grid', compact('alldata','data','customer','param_array'))->render();
 
 
         $indexcount = 0;
@@ -78,7 +81,7 @@ class ChartDashboardController extends BaseController {
             $alldata['call_cost_asr'][$indexcount] = $CallCost->ASR;
             $indexcount++;
         }
-        $alldata['call_cost_html'] = View::make('dashboard.grid', compact('alldata','data','customer'))->render();
+        $alldata['call_cost_html'] = View::make('dashboard.grid', compact('alldata','data','customer','param_array'))->render();
 
 
         $indexcount = 0;
@@ -91,7 +94,7 @@ class ChartDashboardController extends BaseController {
             $alldata['call_minutes_asr'][$indexcount] = $CallMinutes->ASR;
             $indexcount++;
         }
-        $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data','customer'))->render();
+        $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data','customer','param_array'))->render();
         return chart_reponse($alldata);
     }
     public function getWorldMap(){

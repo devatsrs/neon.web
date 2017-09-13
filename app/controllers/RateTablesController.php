@@ -7,7 +7,8 @@ class RateTablesController extends \BaseController {
         $rate_tables = RateTable::
         Join('tblCurrency','tblCurrency.CurrencyId','=','tblRateTable.CurrencyId')
             ->join('tblCodeDeck','tblCodeDeck.CodeDeckId','=','tblRateTable.CodeDeckId')
-            ->select(['tblRateTable.RateTableName','tblCurrency.Code','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId'])
+            ->join('tblTrunk','tblTrunk.TrunkID','=','tblRateTable.TrunkID')
+            ->select(['tblRateTable.RateTableName','tblCurrency.Code', 'tblTrunk.Trunk as trunkName','tblCodeDeck.CodeDeckName','tblRateTable.updated_at','tblRateTable.RateTableId', 'tblRateTable.TrunkID', 'tblRateTable.CurrencyID'])
             ->where("tblRateTable.CompanyId",$CompanyID);
         //$rate_tables = RateTable::join('tblCurrency', 'tblCurrency.CurrencyId', '=', 'tblRateTable.CurrencyId')->where(["tblRateTable.CompanyId" => $CompanyID])->select(["tblRateTable.RateTableName","Code","tblRateTable.updated_at", "tblRateTable.RateTableId"]);
         $data = Input::all();
@@ -671,5 +672,29 @@ class RateTablesController extends \BaseController {
 
 
         return $rateids;
+    }
+
+    public function edit($id){
+        $data = Input::all();
+        $rateTableId = RateTable::findOrFail($id);
+        $data['CompanyID'] = User::get_companyID();
+
+        $rules = array(
+            'RateTableName' => 'required|unique:tblRateTable,RateTableName,'.$id.',RateTableId,CompanyID,'.$data['CompanyID'],
+            'CurrencyID' => 'required',
+            'CompanyID' => 'required',
+        );
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        $data['ModifiedBy'] = User::get_user_full_name();
+        if ($rateTableId->update($data)) {
+            return Response::json(array("status" => "success", "message" => "Rate Table Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Rate Table."));
+        }
     }
 }

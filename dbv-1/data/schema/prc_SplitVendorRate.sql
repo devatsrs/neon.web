@@ -1,4 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_SplitVendorRate`(IN `p_processId` VARCHAR(200), IN `p_dialcodeSeparator` VARCHAR(50))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_SplitVendorRate`(
+	IN `p_processId` VARCHAR(200),
+	IN `p_dialcodeSeparator` VARCHAR(50)
+)
 BEGIN
 
 	DECLARE i INTEGER;
@@ -11,9 +14,9 @@ BEGIN
 	IF p_dialcodeSeparator !='null'
 	THEN
 	
-	-- procedure is use for first data splite  with ';' into new rows.
 	
-	-- multiple codes replace into rows
+	
+	
 	
 	DROP TEMPORARY TABLE IF EXISTS `my_splits`;
 	CREATE TEMPORARY TABLE `my_splits` (
@@ -34,7 +37,7 @@ BEGIN
   UPDATE my_splits SET Code = trim(Code);
   
 	
-  -- after splite with ';' now we create temp table of where data with '-'
+  
   
   DROP TEMPORARY TABLE IF EXISTS tmp_newvendor_splite_;
 	CREATE TEMPORARY TABLE tmp_newvendor_splite_  (
@@ -51,7 +54,7 @@ BEGIN
 	WHERE Code like '%-%'
 		AND TempVendorRateID IS NOT NULL;
 
-  -- date split with '-' and data insert into my_splits with range
+  
   
 	SET v_pointer_ = 1;
 	SET v_rowCount_ = (SELECT COUNT(*)FROM tmp_newvendor_splite_);
@@ -66,7 +69,7 @@ BEGIN
 	SET v_pointer_ = v_pointer_ + 1;
 	END WHILE;
 	
-	-- delete '-' data after data split
+	
 	
 	DELETE FROM my_splits
 		WHERE Code like '%-%'
@@ -74,7 +77,7 @@ BEGIN
 
 	
 
-	-- tmp_split_VendorRate_ table crated in prc_WSProcessVendorRate and use in prc_checkDialstringAndDupliacteCode
+	
 	
 	 INSERT INTO tmp_split_VendorRate_
 	SELECT DISTINCT
@@ -90,7 +93,8 @@ BEGIN
 			`ConnectionFee`,
 			`Interval1`,
 			`IntervalN`,
-			`Forbidden`
+			`Forbidden`,
+			`DialStringPrefix`
 		 FROM my_splits
 		   INNER JOIN tblTempVendorRate 
 				ON my_splits.TempVendorRateID = tblTempVendorRate.TempVendorRateID
@@ -115,7 +119,8 @@ BEGIN
 				`ConnectionFee`,
 				`Interval1`,
 				`IntervalN`,
-				`Forbidden`
+				`Forbidden`,
+				`DialStringPrefix`
 			 FROM tblTempVendorRate
 			  WHERE ProcessId = p_processId;	
 	

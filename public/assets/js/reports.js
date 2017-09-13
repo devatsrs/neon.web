@@ -295,9 +295,15 @@ function loadTable(table_id,pageSize,$searchFilter){
                     delete $searchFilter.AccountID;
                     chart_type_param = 'AccountID='+full[6]+'&';
                 }
-                if($searchFilter.chart_type != 'destination') {
+                if($searchFilter.chart_type != 'destination' && $searchFilter.chart_type != 'description') {
+                    jQuery.each($searchFilter, function(index, item) {
+                        var cdr_query_parama = ['prefix','StartDate','EndDate','AccountID','CompanyGatewayID','Prefix','TrunkID','CurrencyID'];
+                        if(jQuery.inArray(index, cdr_query_parama) !== -1){
+                            chart_type_param += index+'='+item+'&'
+                        }
+                    });
                     output = '<a href="{url}" target="_blank" >{name}</a>';
-                    output = output.replace("{url}", cdr_url + '?' + chart_type_param + $.param($searchFilter));
+                    output = output.replace("{url}", cdr_url + '?' + chart_type_param.slice(0, -1) );
                     output = output.replace("{name}", id);
                 }else{
                     output = id;

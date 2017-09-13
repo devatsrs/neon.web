@@ -23,6 +23,8 @@
             $NameFormat = GatewayConfig::$CallShop_NameFormat;
         }else if($GatewayName == 'Streamco'){
             $NameFormat = GatewayConfig::$Streamco_NameFormat;
+        }else if($GatewayName == 'FusionPBX'){
+            $NameFormat = GatewayConfig::$FusionPBX_NameFormat;
         }
     ?>
     @if($count%2 == 0)
@@ -49,6 +51,12 @@
                 <p class="make-switch switch-small">
                     <input id="RateCDR"  type="checkbox"   @if($selectd_val == 1) checked=""  @endif name="RateCDR" value="1">
                 </p>
+                </div>
+            @elseif($configkey == 'AutoAddIP')
+                <div class="clear col-md-13">
+                    <p class="make-switch switch-small">
+                        <input id="AutoAddIP"  type="checkbox"   @if($selectd_val == 1) checked=""  @endif name="AutoAddIP" value="1">
+                    </p>
                 </div>
             @elseif($configkey == 'RateFormat')
                 <?php

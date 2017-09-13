@@ -44,11 +44,17 @@
         </thead>
         <tbody>
         </tbody>
+        <tfoot>
+        <tr>
+        </tr>
+        </tfoot>
     </table>
     <script type="text/javascript">
         /**
          * JQuery Plugin for dataTable
          * */
+        var TotalPayments = 0,TotalConsumption = 0,Total = 0,Balance = 0;
+
         jQuery(document).ready(function ($) {
             
             //public_vars.$body = $("body");
@@ -109,6 +115,34 @@
                         $(".dataTables_wrapper select").select2({
                             minimumResultsForSearch: -1
                         });
+                    },
+                    "fnServerData": function ( sSource, aoData, fnCallback ) {
+                        /* Add some extra data to the sender */
+                        $.getJSON( sSource, aoData, function (json) {
+                            /* Do whatever additional processing you want on the callback, then tell DataTables */
+                            TotalPayments = json.Total.TotalPayment;
+                            TotalConsumption = json.Total.TotalCharge;
+                            Total = json.Total.Total;
+                            Balance = json.Total.Balance;
+                            fnCallback(json)
+                        });
+                    },
+                    "fnFooterCallback": function ( row, data, start, end, display ) {
+                        if (end > 0) {
+                            $(row).html('');
+                            for (var i = 0; i < 5; i++) {
+                                var a = document.createElement('td');
+                                $(a).html('');
+                                $(row).append(a);
+                            }
+                            $($(row).children().get(0)).html('<strong>Total</strong>')
+                            $($(row).children().get(1)).html('<strong>'+TotalPayments+'</strong>');
+                            $($(row).children().get(2)).html('<strong>'+TotalConsumption+'</strong>');
+                            $($(row).children().get(3)).html('<strong>' + Total + '</strong>');
+                            $($(row).children().get(4)).html('<strong>' + Balance + '</strong>');
+                        }else{
+                            $("#table-list").find('tfoot').find('tr').html('');
+                        }
                     }
 
                 });

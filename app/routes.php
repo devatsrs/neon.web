@@ -46,6 +46,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/customer/PaymentMethodProfiles/update', 'PaymentProfileCustomerController@update');
     Route::any('/customer/PaymentMethodProfiles/ajax_datagrid', 'PaymentProfileCustomerController@ajax_datagrid');
     Route::any('/customer/PaymentMethodProfiles/{id}/set_default', 'PaymentProfileCustomerController@set_default');
+    Route::any('/customer/PaymentMethodProfiles/verify_bankaccount', 'PaymentProfileCustomerController@verify_bankaccount');
     Route::any('/customer/PaymentMethodProfiles/{id}/card_status/{active_deactive}', array('as' => 'payment_rules', 'uses' => 'PaymentProfileCustomerController@card_active_deactive'))->where('active_deactive', '(active|deactive)');
 
 	//notice board
@@ -606,6 +607,7 @@ Route::group(array('before' => 'auth'), function () {
 	
     Route::post('tickets/bulkactions', 'TicketsController@BulkAction');
     Route::post('tickets/bulkdelete', 'TicketsController@BulkDelete');
+	Route::post('tickets/bulkpickup', 'TicketsController@BulkPickup');
 
     Route::get('ticket_dashboard/summarywidgets', 'TicketDashboardController@ticketSummaryWidget');
     Route::get('ticket_dashboard/timelinewidgets/{limit}', 'TicketDashboardController@ticketTimeLineWidget');
@@ -662,6 +664,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rate_tables/ajax_datagrid', 'RateTablesController@ajax_datagrid');
 	Route::any('/rate_tables/{id}/edit_ajax_datagrid', 'RateTablesController@edit_ajax_datagrid');
 	Route::any('/rate_tables/store', 'RateTablesController@store');
+	Route::any('/rate_tables/edit/{id}', 'RateTablesController@edit');
 	Route::any('/rate_tables/{id}/delete', 'RateTablesController@delete');
 	Route::any('/rate_tables/{id}/view', 'RateTablesController@view');
     Route::any('/rate_tables/{id}/add_newrate', 'RateTablesController@add_newrate');
@@ -921,6 +924,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/create', 'InvoicesController@create');
 	Route::any('/invoice/store', 'InvoicesController@store');
 	Route::any('/invoice/bulk_send_invoice_mail', 'InvoicesController@bulk_send_invoice_mail');
+	Route::any('/invoice/bulk_print_invoice', 'InvoicesController@bulk_print_invoice');
     Route::any('/invoice/invoice_regen', 'InvoicesController@invoice_regen');
 	Route::any('/invoice/{id}/edit', 'InvoicesController@edit');
 	Route::any('/invoice/{id}/delete', 'InvoicesController@delete');
@@ -956,6 +960,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/invoice_quickbookpost', 'InvoicesController@invoice_quickbookpost');
 	Route::any('/get_unbill_report/{id}', 'InvoicesController@get_unbill_report');
 	Route::any('/generate_manual_invoice', 'InvoicesController@generate_manual_invoice');
+	Route::any('/invoice/invoice_sagepayexport', 'InvoicesController@invoice_sagepayexport');
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');
@@ -1265,6 +1270,13 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/get_mor_updates', 'NoticeBoardController@get_mor_updates');
 	Route::any('/save_post', 'NoticeBoardController@store');
 	Route::any('/delete_post/{id}', 'NoticeBoardController@delete');
+
+
+	//RateCompare
+	Route::any('/rate_compare', 'RateCompareController@index');
+	Route::any('/rate_compare/search_ajax_datagrid/{type}', 'RateCompareController@search_ajax_datagrid');
+	Route::any('/rate_compare/rate_update', 'RateCompareController@rate_update');
+	Route::any('/rate_compare/load_account_dropdown', 'RateCompareController@load_account_dropdown');
 });
 
 Route::group(array('before' => 'global_admin'), function () {

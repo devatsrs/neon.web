@@ -29,6 +29,7 @@ if( typeof neon_summernote_options == 'undefined') {
 var dropdown_text =  {
 
   leadoptions:{
+    AccountName:"AccountName",
     FirstName:"FirstName",
     LastName:"LastName",
     Email:"Email",
@@ -143,6 +144,7 @@ var dropdown_text =  {
     User:"User"
   },
   Crm:{
+    AccountName:"AccountName",
     FirstName:"FirstName",
     LastName:"LastName",
     Email:"Email",
@@ -235,6 +237,7 @@ var dropdown_text =  {
     InvoiceOutstanding:"InvoiceOutstanding",
   },
     ratetemplateoptions:{
+        AccountName:"AccountName",
         FirstName:"FirstName",
         LastName:"LastName",
         Email:"Email",
@@ -251,7 +254,8 @@ var dropdown_text =  {
         OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
         OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
         BalanceThreshold:"BalanceThreshold",
-        TrunkPrefix:"TrunkPrefix"
+        TrunkPrefix:"TrunkPrefix",
+        TrunkName:"TrunkName"
 
     },
 };
@@ -260,6 +264,7 @@ var dropdown_text =  {
 var neon_summernote_dropdown_tpl = {
     "leadoptions": function () {
       return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+          "<li><a data-value='{{AccountName}}'>" + dropdown_text.leadoptions.AccountName + "</a></li>" +
           "<li><a data-value='{{FirstName}}'>" + dropdown_text.leadoptions.FirstName + "</a></li>" +
           "<li><a data-value='{{LastName}}'>" + dropdown_text.leadoptions.LastName + "</a></li>" +
           "<li><a data-value='{{Email}}'>" + dropdown_text.leadoptions.Email + "</a></li>" +
@@ -290,6 +295,7 @@ var neon_summernote_dropdown_tpl = {
     },
     "ratetemplateoptions": function () {
         return "<li class='unclick'><a ><b>Account Fields</b></a></li>" +
+            "<li><a data-value='{{AccountName}}'>" + dropdown_text.ratetemplateoptions.AccountName + "</a></li>" +
             "<li><a data-value='{{FirstName}}'>" + dropdown_text.ratetemplateoptions.FirstName + "</a></li>" +
             "<li><a data-value='{{LastName}}'>" + dropdown_text.ratetemplateoptions.LastName + "</a></li>" +
             "<li><a data-value='{{Email}}'>" + dropdown_text.ratetemplateoptions.Email + "</a></li>" +
@@ -317,6 +323,7 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{Logo}}'>" + dropdown_text.Company.Logo + "</a></li>" +
             "<li class='unclick'><a ><b>RateSheet Fields</b></a></li>" +
             "<li><a data-value='{{TrunkPrefix}}'>" + dropdown_text.ratetemplateoptions.TrunkPrefix + "</a></li>"+
+            "<li><a data-value='{{TrunkName}}'>" + dropdown_text.ratetemplateoptions.TrunkName + "</a></li>"+
             "<li class='unclick'><a ><b>Others</b></a></li>" +
             "<li><a data-value='{{Signature}}'>" + dropdown_text.ratetemplateoptions.Signature + "</a></li>";
     },
@@ -495,7 +502,8 @@ var neon_summernote_dropdown_tpl = {
 
     },
     "Crm": function () {
-      return "<li><a data-value='{{FirstName}}'>" + dropdown_text.Crm.FirstName + "</a></li>" +
+      return "<li><a data-value='{{AccountName}}'>" + dropdown_text.Crm.AccountName + "</a></li>" +
+          "<li><a data-value='{{FirstName}}'>" + dropdown_text.Crm.FirstName + "</a></li>" +
           "<li><a data-value='{{LastName}}'>" + dropdown_text.Crm.LastName + "</a></li>" +
           "<li><a data-value='{{Email}}'>" + dropdown_text.Crm.Email + "</a></li>" +
           "<li><a data-value='{{Address1}}'>" + dropdown_text.Crm.Address1 + "</a></li>" +

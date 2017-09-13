@@ -841,6 +841,12 @@ class InvoicesController extends \BaseController {
 			$result   			=	DataTableSql::of($query,'sqlsrv2')->getProcResult(array('result'));			
 			$payment_log		= 	array("total"=>$result['data']['result'][0]->total_grand,"paid_amount"=>$result['data']['result'][0]->paid_amount,"due_amount"=>$result['data']['result'][0]->due_amount);
             */
+            $PaymentMethod = '';
+            $ShowAllPaymentMethod = $Account->ShowAllPaymentMethod;
+            if(empty($ShowAllPaymentMethod)){
+                $PaymentMethod = $Account->PaymentMethod;
+            }
+
             $StripeACHGatewayID = PaymentGateway::StripeACH;
             $StripeACHCount=0;
             $AccountPaymentProfile = AccountPaymentProfile::where(['PaymentGatewayID'=> $StripeACHGatewayID,'AccountID'=>$Account->AccountID,'Status'=>1])->count();
@@ -887,7 +893,7 @@ class InvoicesController extends \BaseController {
 
             }
 
-            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log','paypal_button','sagepay_button','StripeACHCount'));
+            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log','paypal_button','sagepay_button','StripeACHCount','ShowAllPaymentMethod','PaymentMethod'));
         }
     }
 
@@ -1119,6 +1125,7 @@ class InvoicesController extends \BaseController {
             $InvoiceDetailData['TotalMinutes'] = $data['TotalMinutes'];
             $InvoiceDetailData['Price'] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceDetailData['Qty'] = 1;
+            $InvoiceDetailData['ProductType'] = Product::INVOICE_PERIOD;
             $InvoiceDetailData['LineTotal'] = floatval(str_replace(",","",$data["GrandTotal"]));
             $InvoiceDetailData["created_at"] = date("Y-m-d H:i:s");
             $InvoiceDetailData['Description'] = 'Invoice In';
@@ -1228,7 +1235,14 @@ class InvoicesController extends \BaseController {
             download_file($DocumentFile);
         }else{
             $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
-            header('Location: '.$FilePath);
+            if(file_exists($FilePath))
+            {
+                download_file($FilePath);
+            }
+            elseif(is_amazon() == true)
+            {
+                header('Location: '.$FilePath);
+            }
         }
         exit;
     }
@@ -1520,10 +1534,10 @@ class InvoicesController extends \BaseController {
         //if( User::checkPermission('Job') && intval($id) > 0 ) {
         $OutputFilePath = Invoice::where("InvoiceID", $id)->pluck("UsagePath");
         $FilePath =  AmazonS3::preSignedUrl($OutputFilePath);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
@@ -1577,11 +1591,7 @@ class InvoicesController extends \BaseController {
     public static function display_invoice($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
         $PDFurl = '';
-        if(is_amazon() == true){
-            $PDFurl =  AmazonS3::preSignedUrl($Invoice->PDF);
-        }else{
-            $PDFurl = CompanyConfiguration::get('UPLOAD_PATH')."/".$Invoice->PDF;
-        }
+        $PDFurl =  AmazonS3::preSignedUrl($Invoice->PDF);
         header('Content-type: application/pdf');
         header('Content-Disposition: inline; filename="'.basename($PDFurl).'"');
         echo file_get_contents($PDFurl);
@@ -1590,20 +1600,20 @@ class InvoicesController extends \BaseController {
     public static function download_invoice($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
         $FilePath =  AmazonS3::preSignedUrl($Invoice->PDF);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
     public static function download_attachment($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
         $FilePath =  AmazonS3::preSignedUrl($Invoice->Attachment);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
@@ -1629,20 +1639,22 @@ class InvoicesController extends \BaseController {
                     ->get();
                 if(!empty($data) && count($data)){
                     foreach($data as $profile){
-                        $stripedata=array();
-                        $stripedata['AccountPaymentProfileID'] = $profile->AccountPaymentProfileID;
-                        $stripedata['Title'] = $profile->Title;
-                        $stripedata['PaymentMethod'] = $type;
-                        $stripedata['isDefault'] = $profile->isDefault;
-                        $stripedata['created_at'] = $profile->created_at;
                         $Options = json_decode($profile->Options);
-                        $CustomerProfileID = $Options->CustomerProfileID;
-                        $verifystatus = $Options->VerifyStatus;
-                        $BankAccountID = $Options->BankAccountID;
-                        $stripedata['CustomerProfileID'] = $CustomerProfileID;
-                        $stripedata['BankAccountID'] = $BankAccountID;
-                        $stripedata['verifystatus'] = $verifystatus;
-                        $stripeachprofiles[]=$stripedata;
+                        if(!empty($Options->VerifyStatus) && $Options->VerifyStatus=='verified'){
+                            $stripedata=array();
+                            $stripedata['AccountPaymentProfileID'] = $profile->AccountPaymentProfileID;
+                            $stripedata['Title'] = $profile->Title;
+                            $stripedata['PaymentMethod'] = $type;
+                            $stripedata['isDefault'] = $profile->isDefault;
+                            $stripedata['created_at'] = $profile->created_at;
+                            $CustomerProfileID = $Options->CustomerProfileID;
+                            $verifystatus = $Options->VerifyStatus;
+                            $BankAccountID = $Options->BankAccountID;
+                            $stripedata['CustomerProfileID'] = $CustomerProfileID;
+                            $stripedata['BankAccountID'] = $BankAccountID;
+                            $stripedata['verifystatus'] = $verifystatus;
+                            $stripeachprofiles[]=$stripedata;
+                        }
                     }
                 }
             }
@@ -2627,5 +2639,109 @@ class InvoicesController extends \BaseController {
 
         echo "<center>Payment declined, Go back and try again later.</center>";
 
+    }
+
+
+    public function bulk_print_invoice(){
+        $zipfiles = array();
+        $data = Input::all();
+        if(!empty($data['criteria'])){
+            $invoiceid = $this->getInvoicesIdByCriteria($data);
+            $invoiceid = rtrim($invoiceid,',');
+            $data['InvoiceIDs'] = $invoiceid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }
+
+        $invoiceIds=array_map('intval', explode(',', $data['InvoiceIDs']));
+
+        if(!empty($invoiceIds)) {
+
+            $Invoices = Invoice::find($invoiceIds);
+            $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH'). "/";
+            $isAmazon = is_amazon();
+            foreach ($Invoices as $invoice) {
+                $path = AmazonS3::preSignedUrl($invoice->PDF);
+
+                if ( file_exists($path) ){
+                    $zipfiles[$invoice->InvoiceID]=$path;
+                }else if($isAmazon == true){
+
+                    $filepath = $UPLOAD_PATH . basename($invoice->PDF);
+                    $content = @file_get_contents($path);
+                    if($content != false){
+                        file_put_contents( $filepath, $content);
+                        $zipfiles[$invoice->InvoiceID] = $filepath;
+                    }
+                }
+            }
+
+            if (!empty($zipfiles)) {
+
+                if (count($zipfiles) == 1) {
+
+                    $downloadInvoiceid = array_keys($zipfiles)[0];
+                    return Response::json(array("status" => "success", "message" => " Download Starting ", "invoiceId" => $downloadInvoiceid, "filePath" => ""));
+
+                } else {
+
+                    $filename='invoice' . date("dmYHis") . '.zip';
+                    $local_zip_file = $UPLOAD_PATH . $filename;
+
+                    Zipper::make($local_zip_file)->add($zipfiles)->close();
+
+                    if (file_exists($local_zip_file)) {
+                        return Response::json(array("status" => "success", "message" => " Download Starting ", "invoiceId" => "", "filePath" => base64_encode($filename)));
+                    }
+                    else {
+                        return Response::json(array("status" => "error", "message" => "Something wrong Please Try Again"));
+                    }
+                }
+
+            }
+        }
+        else {
+            return Response::json(array("status" => "error", "message" => "Please Select Invoice"));
+        }
+        exit;
+    }
+
+	public function invoice_sagepayexport(){
+        $data = Input::all();
+        $MarkPaid = $data['MarkPaid'];
+        if(!empty($data['criteria'])){
+            $invoiceid = $this->getInvoicesIdByCriteria($data);
+            $invoiceid = rtrim($invoiceid,',');
+            $data['InvoiceIDs'] = $invoiceid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }
+        $CompanyID = User::get_companyID();
+        $InvoiceIDs = array_filter(explode(',', $data['InvoiceIDs']), 'intval');
+        if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
+            $SageData = array();
+            $SageData['CompanyID'] = $CompanyID;
+            $SageData['Invoices'] = $InvoiceIDs;
+            $SageData['MarkPaid'] = $MarkPaid;
+
+            $SageDirectDebit = new SagePayDirectDebit();
+            $Response = $SageDirectDebit->sagebatchfileexport($SageData);
+            log::info('Response');
+            log::info($Response);
+            if(!empty($Response['file_path'])){
+                $FilePath = $Response['file_path'];
+                if(file_exists($FilePath)){
+                    download_file($FilePath);
+                }else{
+                    header('Location: '.$FilePath);
+                }
+                exit;
+            }
+        }
+        exit;
     }
 }

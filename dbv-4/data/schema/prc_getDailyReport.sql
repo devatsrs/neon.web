@@ -12,6 +12,7 @@ BEGIN
 	DECLARE v_Round_ int;
 	SET sql_mode = 'ALLOW_INVALID_DATES';
 	SET @PreviosBalance := 0;
+	SET @TotalPreviosBalance := 0;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
@@ -37,6 +38,8 @@ BEGIN
 	WHERE CompanyID = p_CompanyID
 		AND AccountID = p_AccountID
 		AND date < p_StartDate);
+	
+	SET @TotalPreviosBalance := @PreviosBalance;
 
 	END IF;
 
@@ -96,8 +99,23 @@ BEGIN
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 
 		SELECT
-			COUNT(*) AS totalcount
-		FROM tmp_dates_;
+			COUNT(DISTINCT Dates) AS totalcount,
+			ROUND(COALESCE(SUM(Amount),0),v_Round_) AS TotalPayment,
+			ROUND(COALESCE(SUM(TotalCharges),0),v_Round_) AS TotalCharge,
+			ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_) AS Total,
+			ROUND(@TotalPreviosBalance,v_Round_)+ ROUND(COALESCE(SUM(Amount),0)-COALESCE(SUM(TotalCharges),0),v_Round_) AS Balance 
+		FROM tmp_dates_
+		LEFT JOIN NeonBillingDev.tblPayment 
+			ON date(PaymentDate) = Dates 
+			AND tblPayment.AccountID = p_AccountID
+			AND Status = 'Approved'
+			AND Recall =0
+			AND PaymentType = 'Payment In'
+		LEFT JOIN tblDimDate 
+			ON date = Dates
+		LEFT JOIN tblHeader 
+			ON tblDimDate.DateID = tblHeader.DateID 
+			AND tblHeader.AccountID = p_AccountID;
 
 	END IF;
 

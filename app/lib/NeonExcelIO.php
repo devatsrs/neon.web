@@ -29,6 +29,8 @@ class NeonExcelIO
     var $Escape;
     var $csvoption;
     public static $COLUMN_NAMES 	= 	0 ;
+    public static $start_row 	= 	0 ;
+    public static $end_row 	= 	0 ;
     public static $DATA    			= 	1;
     public static $EXCEL   			= 	'xlsx'; // Excel file
     public static $EXCELs  			= 	'xls'; // Excel file
@@ -41,10 +43,12 @@ class NeonExcelIO
         $this->sheet = 0;
         $this->first_row = self::$COLUMN_NAMES;
         $this->file_type = self::$CSV;
-
         $this->set_file_type();
         $this->get_file_settings($csvoption);
-
+        if(self::$start_row>0)
+        {
+            self::$start_row--;
+        }
     }
 
 
@@ -157,6 +161,7 @@ class NeonExcelIO
         $writer->openToFile($this->file); // write data to a file or to a PHP stream
 
         if(isset($rows[0]) && count($rows[0]) > 0 ) {
+
             $columns = array_keys($rows[0]);
             $writer->addRow($columns); // add a row at a time
             $writer->addRows($rows); // add multiple rows at a time
@@ -189,21 +194,38 @@ class NeonExcelIO
      * @throws \Box\Spout\Common\Exception\UnsupportedTypeException
      */
     public function read_csv($filepath,$limit=0) {
+        if(self::$start_row>0)
+        {
+            if($limit>0)
+            {
+                $limit++;
+            }
+        }
 
         $result = array();
         $this->reader = ReaderFactory::create(Type::CSV); // for XLSX files
         $this->set_file_settings();
         $this->reader->open($filepath);
-
         foreach($this->reader->getSheetIterator() as $key  => $sheet) {
 
             // For First Sheet only.
             if($key == 1) {
+                    foreach ($sheet->getRowIterator() as $row) {
 
-                foreach ($sheet->getRowIterator() as $row) {
+                    if(self::$start_row>= ($this->row_cnt+1))
+                    {
+                        $this->row_cnt++;
+                        if($limit>0)
+                        {
+                            $limit++;
+                        }
+                        continue;
+                    }
 
-                    if($limit > 0 && $limit == $this->row_cnt) {
-                        break;
+                    if($limit > 0 && $limit <= $this->row_cnt) {
+//                        break;
+                        $this->row_cnt++;
+                        continue;
                     }
 
                     if ($this->row_cnt == 0 && $this->first_row == self::$COLUMN_NAMES) {
@@ -215,6 +237,13 @@ class NeonExcelIO
                         }
                         continue;
                     }
+                    else if( self::$start_row>0 && $this->row_cnt == self::$start_row && $this->first_row == self::$COLUMN_NAMES)
+                    {
+                        $first_row = $row;
+                        $this->set_columns($first_row);
+                        $this->row_cnt++;
+                        continue;
+                    }
 
                     $result[] = $this->set_row($row);
 
@@ -223,6 +252,19 @@ class NeonExcelIO
                 }
             }
 
+        }
+
+        if(self::$end_row)
+        {
+            $requiredRow = abs($this->row_cnt - self::$end_row - self::$start_row-1);
+            $totatRow = count($result);
+            if($requiredRow<$limit || $limit==0)
+            {
+                for($i=$requiredRow ; $i < $totatRow; $i++)
+                {
+                    unset($result[$i]);
+                }
+            }
         }
 
         $this->reader->close();
@@ -237,6 +279,13 @@ class NeonExcelIO
 
     public function read_excel($filepath,$limit=0){
 
+        if(self::$start_row>0)
+        {
+            if($limit>0)
+            {
+                $limit++;
+            }
+        }
 
         $this->reader = ReaderFactory::create(Type::XLSX); // for XLSX files
         $this->reader->open($filepath);
@@ -249,8 +298,19 @@ class NeonExcelIO
 
                 foreach ($sheet->getRowIterator() as $row) {
 
-                    if($limit > 0 && $limit == $this->row_cnt) {
-                        break;
+                    if(self::$start_row > ($this->row_cnt))
+                    {
+                        $this->row_cnt++;
+                        if($limit>0) {
+                            $limit++;
+                        }
+                        continue;
+                    }
+
+                    if($limit > 0 && $limit <= $this->row_cnt) {
+//                        break;
+                        $this->row_cnt++;
+                        continue;
                     }
 
                     if ($this->row_cnt == 0 && $this->first_row == self::$COLUMN_NAMES) {
@@ -262,13 +322,32 @@ class NeonExcelIO
                         }
                         continue;
                     }
+                    else if(self::$start_row>0 && $this->row_cnt == self::$start_row && $this->first_row == self::$COLUMN_NAMES) {
+                            $first_row = $row;
+                            $this->set_columns($first_row);
+                            $this->row_cnt++;
+                            continue;
+                        }
 
                     $result[] = $this->set_row($row);
                     $this->row_cnt++;
 
                 }
             }
+        }
 
+
+        if(self::$end_row)
+        {
+            $requiredRow = abs($this->row_cnt - self::$end_row - self::$start_row);
+            $totatRow = count($result);
+            if($requiredRow<$limit || $limit==0)
+            {
+                for($i=$requiredRow ; $i < $totatRow; $i++)
+                {
+                    unset($result[$i]);
+                }
+            }
         }
         $this->reader->close();
 
@@ -279,7 +358,12 @@ class NeonExcelIO
 		Read xls file
 	*/
 	////////
-	 public function read_xls_excel($filepath,$limit=0){
+    /**
+     * @param $filepath
+     * @param int $limit
+     * @return mixed
+     */
+    public function read_xls_excel($filepath, $limit=0){
 		  $result = array();
 		  $flag   = 0;			 
 		   if (!empty($data['Delimiter'])) {
@@ -301,14 +385,47 @@ class NeonExcelIO
 				}
 			}
 			$isExcel = in_array(pathinfo($filepath, PATHINFO_EXTENSION),['xls','xlsx'])?true:false;
-			$results = Excel::selectSheetsByIndex(0)->load($filepath, function ($reader) use ($flag,$isExcel) {
+            $totalRow=0;
+            if($limit>0)
+            {
+                $limit++;
+            }
+
+			$results = Excel::selectSheetsByIndex(0)->load($filepath, function ($reader) use ($flag,$isExcel,&$totalRow) {
+                if(self::$start_row>0)
+                {
+                    $reader->skip(self::$start_row-1);
+                }
+                $totalRow=$reader->getTotalRowsOfFile();
 				if ($flag == 1) {
 					$reader->noHeading();
 				}
 			})->take($limit)->toArray();
-			
-			return $results;
-				 
+
+            if(self::$start_row>0)
+            {
+                $tmp_results=array();
+                $column=array_values($results[0]);
+                unset($results[0]);
+                foreach ($results as $row)
+                {
+                        $tmp_results[] = array_combine($column, array_values($row));
+                }
+                $results=$tmp_results;
+            }
+
+
+             if(self::$end_row && $totalRow>0)
+             {
+                 $requiredRow = $totalRow - self::$end_row - self::$start_row;
+                 $countRow =count($results);
+                for($i=$requiredRow-1 ; $i < $countRow; $i++)
+                {
+                    unset($results[$i]);
+                }
+             }
+
+         return $results;
 	 }
 	///////////
 

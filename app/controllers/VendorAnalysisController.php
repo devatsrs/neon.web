@@ -48,6 +48,8 @@ class VendorAnalysisController extends BaseController {
             $query = "call prc_getVendorGatewayReportAll ";
         }elseif($data['chart_type'] == 'account') {
             $query = "call prc_getVendorAccountReportAll ";
+        }elseif($data['chart_type'] == 'description') {
+            $query = "call prc_getVendorDescReportAll ";
         }
         if(!empty($data['TimeZone'])) {
             $CompanyTimezone = Config::get('app.timezone');
@@ -70,7 +72,8 @@ class VendorAnalysisController extends BaseController {
             $alldata['call_count_asr'][$indexcount] = $CallCount->ASR;
             $indexcount++;
         }
-        $alldata['call_count_html'] = View::make('dashboard.grid', compact('alldata','data'))->render();
+        $param_array = array_diff_key($data,array('map_url'=>0,'pageSize'=>0,'UserID'=>0,'Admin'=>0,'chart_type'=>0,'TimeZone'=>0,'CountryID'=>0));
+        $alldata['call_count_html'] = View::make('dashboard.grid', compact('alldata','data','param_array'))->render();
 
 
         $indexcount = 0;
@@ -82,7 +85,7 @@ class VendorAnalysisController extends BaseController {
             $alldata['call_cost_asr'][$indexcount] = $CallCost->ASR;
             $indexcount++;
         }
-        $alldata['call_cost_html'] = View::make('dashboard.grid', compact('alldata','data'))->render();
+        $alldata['call_cost_html'] = View::make('dashboard.grid', compact('alldata','data','param_array'))->render();
 
 
         $indexcount = 0;
@@ -96,7 +99,7 @@ class VendorAnalysisController extends BaseController {
 
             $indexcount++;
         }
-        $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data'))->render();
+        $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data','param_array'))->render();
         return chart_reponse($alldata);
     }
     public function getAnalysisBarData(){
@@ -165,6 +168,9 @@ class VendorAnalysisController extends BaseController {
         }elseif($data['chart_type'] == 'account') {
             $columns = array('AccountName','CallCount','TotalMinutes','TotalCost','ACD','ASR');
             $query = "call prc_getVendorAccountReportAll ";
+        }elseif($data['chart_type'] == 'description') {
+            $columns = array('Description','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $query = "call prc_getVendorDescReportAll ";
         }
         if(!empty($data['TimeZone'])) {
             $CompanyTimezone = Config::get('app.timezone');

@@ -69,7 +69,7 @@ class AccountsController extends \BaseController {
         if(!empty($PaymentGatewayID)){
             $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
         }*/
-        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID");
+        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID","tblAccountPaymentProfile.Options");
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
             ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID]);
@@ -135,10 +135,13 @@ class AccountsController extends \BaseController {
             $account_owners = User::getOwnerUsersbyRole();
             $countries = $this->countries;
 
+            $company_id = User::get_companyID();
+            $company = Company::find($company_id);
+
             $currencies = Currency::getCurrencyDropdownIDList();
             $timezones = TimeZone::getTimeZoneDropdownList();
             $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
-            $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+            $BillingClass = BillingClass::getDropdownIDList($company_id);
             $BillingStartDate=date('Y-m-d');
             $LastAccountNo =  '';
             $doc_status = Account::$doc_status;
@@ -146,7 +149,7 @@ class AccountsController extends \BaseController {
                 unset($doc_status[Account::VERIFIED]);
             }
             $dynamicfields = Account::getDynamicfields('account',0);
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields'));
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company'));
     }
 
     /**
@@ -180,6 +183,13 @@ class AccountsController extends \BaseController {
                 $VendorName = '';
             }
 
+            //when account varification is off in company setting then varified the account by default.
+            $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
+
+            if ( $AccountVerification != CompanySetting::ACCOUT_VARIFICATION_ON ) {
+                $data['VerificationStatus'] = Account::VERIFIED;
+            }
+
 
             if (isset($data['TaxRateId'])) {
                 $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
@@ -193,6 +203,7 @@ class AccountsController extends \BaseController {
                 $data['Number'] = Account::getLastAccountNo();
             }
             $data['Number'] = trim($data['Number']);
+
         unset($data['DataTables_Table_0_length']);
         $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
@@ -509,6 +520,7 @@ class AccountsController extends \BaseController {
         $data['Billing'] = isset($data['Billing']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
 		$data['AccountName'] = trim($data['AccountName']);
+		$data['ShowAllPaymentMethod'] = isset($data['ShowAllPaymentMethod']) ? 1 : 0;
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],
@@ -778,20 +790,20 @@ class AccountsController extends \BaseController {
     public function  download_doc($id){
         $FileName = AccountApprovalList::where(["AccountApprovalListID"=>$id])->pluck('FileName');
         $FilePath =  AmazonS3::preSignedUrl($FileName);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
     public function  download_doc_file($id){
         $DocumentFile = AccountApproval::where(["AccountApprovalID"=>$id])->pluck('DocumentFile');
         $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
@@ -799,11 +811,7 @@ class AccountsController extends \BaseController {
         $AccountApprovalList = AccountApprovalList::find($id);
         $filename = $AccountApprovalList->FileName;
         if($AccountApprovalList->delete()){
-            if(file_exists($filename)){
-                @unlink($filename);
-            }else{
-                AmazonS3::delete($filename);
-            }
+            AmazonS3::delete($filename);
             echo json_encode(array("status" => "success", "message" => "Document deleted successfully"));
         }else{
             echo json_encode(array("status" => "failed", "message" => "Problem Deleting Document"));
@@ -1584,11 +1592,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
         if(!empty($data['BulkActionCriteria'])){
             $criteria = json_decode($data['BulkActionCriteria'], true);
             $BulkselectedIDs = $this->getAccountsByCriteria($criteria);
-            $selectedIDs = explode(',',$BulkselectedIDs);
+            $selectedIDs = array_filter(explode(',',$BulkselectedIDs));
             \Illuminate\Support\Facades\Log::info('--criteria-- '.$BulkselectedIDs);
         }else{
             \Illuminate\Support\Facades\Log::info('--ids-- '.$data['BulkselectedIDs']);
-            $selectedIDs = explode(',',$data['BulkselectedIDs']);
+            $selectedIDs = array_filter(explode(',',$data['BulkselectedIDs']));
         }
 
         //$selectedIDs = explode(',',$data['BulkselectedIDs']);

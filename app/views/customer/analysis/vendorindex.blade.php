@@ -84,8 +84,10 @@
                 <div class="clear"></div>
                 </div>
                 @include('analysis.map')
+                @include('analysis.chartreport')
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
+                    <li ><a href="#description" data-toggle="tab">Destination Break</a></li>
                     <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
                     <li ><a href="#trunk" data-toggle="tab">Trunk</a></li>
                 </ul>
@@ -93,6 +95,10 @@
                     <div class="tab-pane active" id="destination" >
                         @include('vendoranalysis.destination')
                         @include('vendoranalysis.destination_grid')
+                    </div>
+                    <div class="tab-pane" id="description" >
+                        @include('vendoranalysis.desc')
+                        @include('vendoranalysis.desc_grid')
                     </div>
                     <div class="tab-pane" id="prefix" >
                         @include('vendoranalysis.prefix')

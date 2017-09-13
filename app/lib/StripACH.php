@@ -102,6 +102,7 @@ class StripeACH {
 		$response = array();
 		$token = array();
 		$customer = array();
+
 		/**
 		 * Need to Create token with bank detail
 		 * with token after that create customer
@@ -148,6 +149,8 @@ class StripeACH {
 
 			Log::info(print_r($customer,true));
 			if(!empty($customer['id'])){
+				$response['status'] = 'Success';
+				$response['VerifyStatus'] = '';
 				$response['CustomerProfileID'] = $customer['id'];
 				$response['BankAccountID'] = $customer['default_source'];
 			}
@@ -158,27 +161,7 @@ class StripeACH {
 			$response['error'] = $e->getMessage();
 			return $response;
 		}
-		Log::info('customer creation start');
-		$customerId = $customer['id'];
-		$bankAccountId = $customer['default_source'];
-		try{
-			/**
-			 * Need to add to micro payment
-			 * for test purpose just add 32,45
-			*/
-			//$varify = Stripe::BankAccounts()->verify($customerId,$bankAccountId,array(32, 45));
-			$varify = Stripe::BankAccounts()->verify($customerId,$bankAccountId,array(1, 1));
-			Log::info(print_r($varify,true));
-			if(!empty($varify['id'])){
-				$response['status'] = 'Success';
-				$response['VerifyStatus'] = $varify['status'];
-			}
-		} catch (Exception $e) {
-			Log::error($e);
-			$response['status'] = 'fail';
-			$response['error'] = $e->getMessage();
-			return $response;
-		}
+		Log::info('customer creation end');
 
 		return $response;
 
@@ -245,12 +228,39 @@ class StripeACH {
 		return $response;
 
 	}
+	public static function verifyBankAccount($data){
+		$response = array();
+		$customerId = $data['CustomerProfileID'];
+		$bankAccountId = $data['BankAccountID'];
+		$MicroDeposit1 = $data['MicroDeposit1'];
+		$MicroDeposit2 = $data['MicroDeposit2'];
+		try{
+			/**
+			 * Need to add to micro payment
+			 * for test purpose just add 32,45
+			 */
+			//$varify = Stripe::BankAccounts()->verify($customerId,$bankAccountId,array(32, 45));
+			$varify = Stripe::BankAccounts()->verify($customerId,$bankAccountId,array($MicroDeposit1, $MicroDeposit2));
+			Log::info(print_r($varify,true));
+			if(!empty($varify['id'])){
+				$response['status'] = 'Success';
+				$response['VerifyStatus'] = $varify['status'];
+			}
+		} catch (Exception $e) {
+			Log::error($e);
+			$response['status'] = 'fail';
+			$response['error'] = $e->getMessage();
+			return $response;
+		}
 
+		return $response;
+	}
 	public static function create_customer_bank(){
 		$response = array();
 		$token = array();
 		$customer = array();
 		Log::error('start');
+
 
 		/*
 		$token = Stripe::BankAccounts()->verify('cus_9wMcHZMnNqUQAR','ba_1AgvccCLEhHAk25KqUgkBI1Q',array(32, 45));

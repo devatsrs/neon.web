@@ -150,7 +150,7 @@
                         <label class="col-md-2 control-label">Currency</label>
                         <div class="col-md-4">
                                 <!--{Form::select('CurrencyId', $currencies, '' ,array("class"=>"form-control select2"))}}-->
-                                {{Form::SelectControl('currency',0,'',0,'CurrencyId')}}
+                                {{Form::SelectControl('currency',0,$company->CurrencyId,0,'CurrencyId')}}
                         </div>
 
                         <label for="field-1" class="col-md-2 control-label">Timezone</label>
@@ -243,7 +243,7 @@
                                     <label for=" field-1" class="col-md-2 control-label">*Country</label>
                                     <div class="col-md-4">
 
-                                        {{Form::select('Country', $countries, Input::old('Country') ,array("class"=>"form-control select2"))}}
+                                        {{Form::select('Country', $countries,Input::old('Country', $company->Country),array("class"=>"form-control select2"))}}
 
                                     </div>
                                 </div>

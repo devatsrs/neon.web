@@ -32,7 +32,7 @@
     </ol>
 
     <h3>Roles</h3>
-    <div class="tab-content">
+    <div class="tab-content loading">
         <form id="add-edit-role-form" method="post">
         <br>
     @if( User::is_admin() or User::is('BillingManager'))
@@ -67,7 +67,7 @@
                                                     <input type="checkbox" name="checkbox[]" class="selectall">
                                                 </div>
                                             </th>
-                                            <th width="90%">Users</th>
+                                            <th width="80%">Users</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -80,6 +80,9 @@
                                                         </div>
                                                     </td>
                                                     <td>{{$user}}</td>
+                                                    <td align="right">
+                                                            <a title="Edit" href="{{URL::to('users/edit/'. $index )}}" target="_blank" class="btn small_icons btn-default btn-xs"><i class="entypo-pencil"></i></a>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         @endif
@@ -100,7 +103,7 @@
                                                         <input type="checkbox" name="checkbox[]" class="selectall">
                                                     </div>
                                                 </th>
-                                                <th width="90%">Roles</th>
+                                                <th width="70%">Roles</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -113,6 +116,10 @@
                                                             </div>
                                                         </td>
                                                         <td>{{$role}}</td>
+                                                        <td>
+                                                            <a title="Edit" data-id="{{$index}}}}" onclick="editroles(this);" data-roles="{{$role}}"  class="edit-roles btn btn-default  btn-xs small_icons"><i class="entypo-pencil"></i></a>
+                                                            <a title="Delete" data-id="{{$index}}" onclick="deleteroles(this);" class="delete-roles btn btn-default delete btn-danger btn-xs small_icons"><i class="entypo-trash"></i></a>
+                                                        </td>
                                                     </tr>
                                                 @endforeach
                                             @endif
@@ -143,7 +150,7 @@
                                                     <input type="checkbox" name="checkbox[]" class="selectall">
                                                 </div>
                                             </th>
-                                            <th width="90%">Users</th>
+                                            <th width="80%">Users</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -156,6 +163,9 @@
                                                         </div>
                                                     </td>
                                                     <td>{{$user}}</td>
+                                                    <td>
+                                                        <a title="Edit" href="{{URL::to('users/edit/'. $index )}}" target="_blank"  class="btn small_icons btn-default btn-xs"><i class="entypo-pencil"></i></a>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         @endif
@@ -176,7 +186,7 @@
                                                         <input type="checkbox" name="checkbox[]" class="selectall">
                                                     </div>
                                                 </th>
-                                                <th width="90%">Roles</th>
+                                                <th width="70%">Roles</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -189,6 +199,10 @@
                                                             </div>
                                                         </td>
                                                         <td>{{$role}}</td>
+                                                        <td>
+                                                            <a title="Edit" data-id="{{$index}}" onclick="editroles(this);" data-roles="{{$role}}"  class="edit-roles btn btn-default  btn-xs small_icons"><i class="entypo-pencil"></i></a>
+                                                            <a title="Delete" data-id="{{$index}}" onclick="deleteroles(this);" class="delete-roles btn btn-default delete btn-danger  btn-xs small_icons"><i class="entypo-trash"></i></a>
+                                                        </td>
                                                     </tr>
                                                 @endforeach
                                             @endif
@@ -249,8 +263,42 @@
             <script type="text/javascript">
                 var userpermission;
 				  var groupsearch;
+                function deleteroles(ele)
+                {
+                    result = confirm("Are you Sure?");
+                    if(result){
+                        var id  = $(ele).attr("data-id");
+                        $(ele).button('loading');
+                        submit_ajaxbtn(baseurl + "/roles/"+id+"/delete",'','',$(ele),1);
+                    }
+                    return false;
+                }
+                function editroles(ele)
+                {
+                    $("#edit-role-form [name='roleId']").val($(ele).attr('data-id'));
+                    $("#edit-role-form [name='RoleName']").val($(ele).attr('data-roles'));
+
+                    $('#edit-modal-role').modal('show');
+                }
+                function loading(table,bit){
+                    var panel = jQuery(table).closest('.loading');
+                    if(bit==1){
+                        blockUI(panel);
+                        panel.addClass('reloading');
+                    }else{
+                        unblockUI(panel);
+                        panel.removeClass('reloading');
+                    }
+                }
                 jQuery(document).ready(function ($) {
                     disable();
+
+                    $("#edit-role-form").submit(function(ev){
+                        ev.preventDefault();
+                        var rolesId = $("#edit-role-form [name='roleId']").val();
+                        update_new_url = baseurl + '/roles/edit/'+rolesId;
+                        submit_ajaxbtn(update_new_url,$("#edit-role-form").serialize(),'',$(".save"),1);
+                    });
                     $('#add-new-role,#add-new-permission').on('click',function(e){
                         e.preventDefault();
                         var self = $(this);
@@ -475,12 +523,14 @@
                         if(leftdata.length==0){
                             return false;
                         }
+                        loading("#add-edit-role-form", 1);
                         $.ajax({
                             url: url,  //Server script to process data
                             type: 'POST',
                             contentType: "application/json",
                             dataType: 'json',
                             success: function (response){
+                                loading("#add-edit-role-form", 0);
                                 if(response.status =='success'){
                                     if(response.result) {
                                         userpermission = response.result;
@@ -522,6 +572,16 @@
                                             newRow += '    </div>';
                                             newRow += '  </td>';
                                             newRow += '  <td>' + name + '</td>';
+                                            if (righttype == 'RoleIds') {
+                                                newRow += '<td>';
+                                                newRow += '     <a title="Edit" data-id="' + id + '"  onclick="editroles(this);" data-roles="' + name + '"  class="edit-roles btn btn-default  btn-xs small_icons"><i class="entypo-pencil"></i></a>';
+                                                newRow += '     <a title="Delete" data-id="' + id + '" onclick="deleteroles(this);" class="delete-roles btn btn-default delete btn-danger  btn-xs small_icons"><i class="entypo-trash"></i></a>';
+                                                newRow += '</td>';
+                                            } else if (righttype == 'UserIds') {
+                                                newRow += '<td>';
+                                                newRow += '     <a title="Edit" href="' + baseurl + '/users/edit/' + id + '" target="_blank"  class="btn small_icons btn-default btn-xs"><i class="entypo-pencil"></i></a>';
+                                                newRow += '</td>';
+                                            }
                                             newRow += '  </tr>';
                                             $(table).find('tbody>tr:last').after(newRow);
 											if(righttype=='ResourceIds'){$('#groupsearch').trigger('change'); }
@@ -789,6 +849,39 @@
                         <button type="submit" id="role-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="edit-modal-role">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="edit-role-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Edit New Role</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row role">
+                            <div class="col-md-12">
+                                <label class="col-sm-3 control-label">Role Name</label>
+                                <div class="col-sm-5">
+                                    <input class="form-control" name="RoleName" type="text" >
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="roleId" value="role" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="edit-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Upate
                         </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>

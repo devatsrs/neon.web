@@ -94,6 +94,7 @@
     <ul class="nav nav-tabs refresh_tab">
         @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
         <li class="active"><a href="#destination" data-toggle="tab">Destination</a></li>
+        <li ><a href="#description" data-toggle="tab">Destination Break</a></li>
         <li ><a href="#prefix" data-toggle="tab">Prefix</a></li>
         <li ><a href="#trunk" data-toggle="tab">Trunk</a></li>
         <li ><a href="#account" data-toggle="tab">Account</a></li>
@@ -110,6 +111,10 @@
         <div class="tab-pane active" id="destination" >
             @include('analysis.destination')
             @include('analysis.destination_grid')
+        </div>
+        <div class="tab-pane" id="description" >
+            @include('analysis.desc')
+            @include('analysis.desc_grid')
         </div>
         <div class="tab-pane" id="prefix" >
             @include('analysis.prefix')

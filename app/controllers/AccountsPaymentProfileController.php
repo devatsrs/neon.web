@@ -15,7 +15,7 @@ class AccountsPaymentProfileController extends \BaseController {
             $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
         }
 
-        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID");
+        $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID","tblAccountPaymentProfile.Options");
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
             ->where(["tblAccountPaymentProfile.PaymentGatewayID"=>$PaymentGatewayID]);
@@ -51,6 +51,8 @@ class AccountsPaymentProfileController extends \BaseController {
             $PaymentGatewayID = $data['PaymentGatewayID'];
             if($data['PaymentGatewayID']==PaymentGateway::StripeACH){
                 return AccountPaymentProfile::createBankProfile($CompanyID, $CustomerID,$PaymentGatewayID);
+            }elseif($data['PaymentGatewayID']==PaymentGateway::SagePayDirectDebit){
+                return AccountPaymentProfile::createSagePayProfile($CompanyID, $CustomerID,$PaymentGatewayID);
             }
             return AccountPaymentProfile::createProfile($CompanyID, $CustomerID,$PaymentGatewayID);
         }

@@ -1,4 +1,10 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_checkDialstringAndDupliacteCode`(IN `p_companyId` INT, IN `p_processId` VARCHAR(200) , IN `p_dialStringId` INT, IN `p_effectiveImmediately` INT, IN `p_dialcodeSeparator` VARCHAR(50))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_checkDialstringAndDupliacteCode`(
+	IN `p_companyId` INT,
+	IN `p_processId` VARCHAR(200) ,
+	IN `p_dialStringId` INT,
+	IN `p_effectiveImmediately` INT,
+	IN `p_dialcodeSeparator` VARCHAR(50)
+)
 BEGIN
 	
     DECLARE totaldialstringcode INT(11) DEFAULT 0;	 
@@ -21,13 +27,13 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
 						`ConnectionFee` decimal(18, 6),
 						`Interval1` int,
 						`IntervalN` int,
-						`Forbidden` varchar(100) 
+						`Forbidden` varchar(100) ,
+						`DialStringPrefix` varchar(500)
 					);
 		
-		-- vendor code split with ';' and insert codes in tmp_split_VendorRate_
 		
-		CALL prc_SplitVendorRate(p_processId,p_dialcodeSeparator);					
 		
+		CALL prc_SplitVendorRate(p_processId,p_dialcodeSeparator);							
 		
 		DROP TEMPORARY TABLE IF EXISTS tmp_split_VendorRate_2;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_split_VendorRate_2 as (SELECT * FROM tmp_split_VendorRate_);
@@ -51,7 +57,8 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
 									`ConnectionFee`,
 									`Interval1`,
 									`IntervalN`,
-									`Forbidden`
+									`Forbidden`,
+									`DialStringPrefix`
 						 FROM tmp_split_VendorRate_
 						 	 WHERE tmp_split_VendorRate_.ProcessId = p_processId;
 			
@@ -111,7 +118,7 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
 			IF  p_effectiveImmediately = 1
             THEN
             
-            	-- DELETE n1 FROM tmp_TempVendorRate_ n1, tmp_TempVendorRate2_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate AND n1.Code = n2.Code;
+            	
             
                 UPDATE tmp_TempVendorRate_
            	     SET EffectiveDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
@@ -119,31 +126,31 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
 
             END IF;
 			
-			-- check duplicate code record	
+			
 			SELECT count(*) INTO totalduplicatecode FROM(
-				SELECT count(code) as c,code FROM tmp_TempVendorRate_  GROUP BY Code,EffectiveDate HAVING c>1) AS tbl;
+				SELECT count(code) as c,code FROM tmp_TempVendorRate_  GROUP BY Code,EffectiveDate,DialStringPrefix HAVING c>1) AS tbl;
 				
-			-- for duplicate code record	
+			
 			IF  totalduplicatecode > 0
 			THEN	
 			
 			
 				SELECT GROUP_CONCAT(code) into errormessage FROM(
 					SELECT DISTINCT code, 1 as a FROM(
-						SELECT   count(code) as c,code FROM tmp_TempVendorRate_  GROUP BY Code,EffectiveDate HAVING c>1) AS tbl) as tbl2 GROUP by a;				
+						SELECT   count(code) as c,code FROM tmp_TempVendorRate_  GROUP BY Code,EffectiveDate,DialStringPrefix HAVING c>1) AS tbl) as tbl2 GROUP by a;				
 				
 				INSERT INTO tmp_JobLog_ (Message)
 				  SELECT DISTINCT 
 				  CONCAT(code , ' DUPLICATE CODE')
 				  	FROM(
-						SELECT   count(code) as c,code FROM tmp_TempVendorRate_  GROUP BY Code,EffectiveDate HAVING c>1) AS tbl;				
+						SELECT   count(code) as c,code FROM tmp_TempVendorRate_  GROUP BY Code,EffectiveDate,DialStringPrefix HAVING c>1) AS tbl;				
 					
 			END IF;
 							
    IF	totalduplicatecode = 0
    THEN
 						
-	 -- IF dial string mapping 
+	 
     IF p_dialstringid >0
     THEN
     		
@@ -167,12 +174,12 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
 				`Forbidden`
 			FROM tblDialStringCode
 				WHERE DialStringID = p_dialstringid;
-				
-         -- mapping code with dialstring charcode
+         
          SELECT  COUNT(*) as count INTO totaldialstringcode
 			FROM tmp_TempVendorRate_ vr
 				LEFT JOIN tmp_DialString_ ds
-					ON vr.Code = ds.ChargeCode 
+					ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  )) 
+					-- ON vr.Code = ds.ChargeCode 
 				WHERE vr.ProcessId = p_processId 
 					AND ds.DialStringID IS NULL
 					AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
@@ -181,10 +188,11 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
          THEN
          
 				INSERT INTO tmp_JobLog_ (Message)
-				  SELECT DISTINCT CONCAT(Code , ' No PREFIX FOUND')
+				  SELECT DISTINCT CONCAT(Code ,' ', vr.DialStringPrefix , ' No PREFIX FOUND')
 				  	FROM tmp_TempVendorRate_ vr
 						LEFT JOIN tmp_DialString_ ds
-							ON vr.Code = ds.ChargeCode
+							-- ON vr.Code = ds.ChargeCode
+							ON ((vr.Code = ds.ChargeCode and vr.DialStringPrefix = '') OR (vr.DialStringPrefix != '' and vr.DialStringPrefix =  ds.DialString and vr.Code = ds.ChargeCode  )) 
 						WHERE vr.ProcessId = p_processId
 							AND ds.DialStringID IS NULL				
 							AND vr.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
@@ -213,13 +221,27 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
 							`ConnectionFee`,
 							`Interval1`,
 							`IntervalN`,
-							tblTempVendorRate.Forbidden as Forbidden 
+							tblTempVendorRate.Forbidden as Forbidden ,
+							tblTempVendorRate.DialStringPrefix as DialStringPrefix
 					   FROM tmp_TempVendorRate_ as tblTempVendorRate
 							INNER JOIN tmp_DialString_ ds
-							  	ON tblTempVendorRate.Code = ds.ChargeCode
+							  --	 ON tblTempVendorRate.Code = ds.ChargeCode
+							  	ON ( (tblTempVendorRate.Code = ds.ChargeCode AND tblTempVendorRate.DialStringPrefix = '') OR (tblTempVendorRate.DialStringPrefix != '' AND tblTempVendorRate.DialStringPrefix =  ds.DialString AND tblTempVendorRate.Code = ds.ChargeCode  ))
+							  -- on (tblTempVendorRate.DialStringPrefix != '' and tblTempVendorRate.DialStringPrefix =  ds.DialString and tblTempVendorRate.Code = ds.ChargeCode  )
 						 WHERE tblTempVendorRate.ProcessId = p_processId
 							AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');							
-											
+		
+						
+					DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_2;
+					CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRateDialString_2 as (SELECT * FROM tmp_VendorRateDialString_);
+					
+					DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_3;
+					CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRateDialString_3 as (					
+					 SELECT vrs1.* from tmp_VendorRateDialString_2 vrs1
+					 LEFT JOIN tmp_VendorRateDialString_ vrs2 ON vrs1.Code=vrs2.Code AND vrs1.CodeDeckId=vrs2.CodeDeckId AND vrs1.Description=vrs2.Description AND vrs1.EffectiveDate=vrs2.EffectiveDate AND vrs1.DialStringPrefix != vrs2.DialStringPrefix
+					 WHERE ((vrs1.DialStringPrefix ='' AND vrs2.Code IS NULL) OR (vrs1.DialStringPrefix!='' AND vrs2.Code IS NOT NULL))						 
+					);
+					
 					
 					DELETE  FROM tmp_TempVendorRate_ WHERE  ProcessId = p_processId; 
 					
@@ -235,7 +257,8 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
 							ConnectionFee,
 							Interval1,
 							IntervalN,
-							Forbidden
+							Forbidden,
+							DialStringPrefix
 						)
 					SELECT DISTINCT 
 						`CodeDeckId`,
@@ -249,28 +272,32 @@ DROP TEMPORARY TABLE IF EXISTS tmp_VendorRateDialString_ ;
 						`ConnectionFee`,
 						`Interval1`,
 						`IntervalN`,
-						`Forbidden` 
-					 FROM tmp_VendorRateDialString_;
+						`Forbidden`,
+						DialStringPrefix 
+					 FROM tmp_VendorRateDialString_3;
 					   
 				  	UPDATE tmp_TempVendorRate_ as tblTempVendorRate
 					JOIN tmp_DialString_ ds
-						ON tblTempVendorRate.Code = ds.DialString
+					-- ON tblTempVendorRate.Code = ds.DialString
+					  ON ( (tblTempVendorRate.Code = ds.ChargeCode and tblTempVendorRate.DialStringPrefix = '') OR (tblTempVendorRate.DialStringPrefix != '' and tblTempVendorRate.DialStringPrefix =  ds.DialString and tblTempVendorRate.Code = ds.ChargeCode  )) 
 							AND tblTempVendorRate.ProcessId = p_processId
 							AND ds.Forbidden = 1
 					SET tblTempVendorRate.Forbidden = 'B';
 					
 					UPDATE tmp_TempVendorRate_ as  tblTempVendorRate
 					JOIN tmp_DialString_ ds
-						ON tblTempVendorRate.Code = ds.DialString
+						-- ON tblTempVendorRate.Code = ds.DialString
+						ON ( (tblTempVendorRate.Code = ds.ChargeCode and tblTempVendorRate.DialStringPrefix = '') OR (tblTempVendorRate.DialStringPrefix != '' and tblTempVendorRate.DialStringPrefix =  ds.DialString and tblTempVendorRate.Code = ds.ChargeCode  ))
 							AND tblTempVendorRate.ProcessId = p_processId
 							AND ds.Forbidden = 0
 					SET tblTempVendorRate.Forbidden = 'UB';
-					
+					        
 			END IF;	  
-        
-    END IF;	-- dialstring over		
+
+    END IF;	
    
-END IF; -- duplicate code over 
+END IF; 
+
  	
 
 END

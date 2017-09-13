@@ -67,8 +67,10 @@
                                              action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                          }
                                          action += '</div>';
+                                        if(full[3]!='SagePayDirectDebit'){
+                                            action += '<button class="btn paynow btn-success btn-sm " data-loading-text="Loading...">Pay Now </button>';
+                                        }
 
-                                        action += '<button class="btn paynow btn-success btn-sm " data-loading-text="Loading...">Pay Now </button>';
                                         return action;
                                     }
                                 }

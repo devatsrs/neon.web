@@ -25,6 +25,11 @@
             @include('customer.paymentprofile.bankpaymentGrid')
         @endif
     @endif
+    @if( $account->PaymentMethod == 'SagePayDirectDebit')
+        @if(is_SagePayDirectDebit())
+            @include('customer.paymentprofile.sagepaydirectdebitGrid')
+        @endif
+    @endif
 @stop
 
 @section('footer_ext')

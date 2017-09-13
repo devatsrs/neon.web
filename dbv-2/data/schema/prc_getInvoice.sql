@@ -80,8 +80,8 @@ BEGIN
 			ac.NominalAnalysisNominalAccountNumber
 			FROM tblInvoice inv
 			INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
-			LEFT JOIN tblInvoiceDetail invd ON invd.InvoiceID = inv.InvoiceID AND (invd.ProductType = 2 OR inv.InvoiceType = 2) 
-			LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId 
+			LEFT JOIN tblInvoiceDetail invd ON invd.InvoiceID = inv.InvoiceID AND (invd.ProductType = 5 OR inv.InvoiceType = 2)
+			LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId
 			WHERE ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
 			AND (p_InvoiceNumber = '' OR (inv.FullInvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
@@ -92,11 +92,11 @@ BEGIN
 			AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
 			AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
 			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));
-	
+
 	IF p_isExport = 0 and p_sageExport = 0
 	THEN
 
-		SELECT 
+		SELECT
 			InvoiceType ,
 			AccountName,
 			InvoiceNumber,
@@ -113,8 +113,8 @@ BEGIN
 			ItemInvoice,
 			BillingEmail,
 			GrandTotal
-		FROM tmp_Invoices_ 
-		WHERE (p_IsOverdue = 0 
+		FROM tmp_Invoices_
+		WHERE (p_IsOverdue = 0
 					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
@@ -155,9 +155,9 @@ BEGIN
 				END ASC
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 
-		SELECT COUNT(*) INTO v_TotalCount 
+		SELECT COUNT(*) INTO v_TotalCount
 		FROM tmp_Invoices_
-		WHERE (p_IsOverdue = 0 
+		WHERE (p_IsOverdue = 0
 					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
@@ -167,12 +167,12 @@ BEGIN
 		SELECT
 			v_TotalCount AS totalcount,
 			ROUND(sum(GrandTotal),v_Round_) as total_grand,
-			ROUND(sum(TotalPayment),v_Round_) as `TotalPayment`, 
+			ROUND(sum(TotalPayment),v_Round_) as `TotalPayment`,
 			ROUND(sum(PendingAmount),v_Round_) as `TotalPendingAmount`,
 			v_CurrencyCode_ as currency_symbol
-		FROM tmp_Invoices_ 
+		FROM tmp_Invoices_
 			WHERE ((InvoiceStatus IS NULL) OR (InvoiceStatus NOT IN('draft','Cancel')))
-			AND (p_IsOverdue = 0 
+			AND (p_IsOverdue = 0
 					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
@@ -183,7 +183,7 @@ BEGIN
 	IF p_isExport = 1
 	THEN
 
-		SELECT 
+		SELECT
 			AccountName ,
 			InvoiceNumber,
 			IssueDate,
@@ -195,7 +195,7 @@ BEGIN
 			ItemInvoice
 		FROM tmp_Invoices_
 		WHERE
-				(p_IsOverdue = 0 
+				(p_IsOverdue = 0
 					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
@@ -207,7 +207,7 @@ BEGIN
 
 		-- just extra field InvoiceID
 
-		SELECT 
+		SELECT
 			AccountName ,
 			InvoiceNumber,
 			IssueDate,
@@ -220,7 +220,7 @@ BEGIN
 			InvoiceID
 		FROM tmp_Invoices_
 		WHERE
-				(p_IsOverdue = 0 
+				(p_IsOverdue = 0
 					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
@@ -234,7 +234,7 @@ BEGIN
 			-- mark as paid invoice that are sage export
 
 		IF p_sageExport = 2
-		THEN 
+		THEN
 			UPDATE tblInvoice  inv
 			INNER JOIN NeonRMDev.tblAccount ac
 				ON ac.AccountID = inv.AccountID
@@ -244,7 +244,7 @@ BEGIN
 				ON ab.BillingClassID = b.BillingClassID
 			INNER JOIN NeonRMDev.tblCurrency c
 				ON c.CurrencyId = ac.CurrencyId
-			SET InvoiceStatus = 'paid' 
+			SET InvoiceStatus = 'paid'
 			WHERE ac.CompanyID = p_CompanyID
 				AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
 				AND (p_InvoiceNumber = '' OR (inv.FullInvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
@@ -254,14 +254,14 @@ BEGIN
 				AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus) ))
 				AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
 				AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
-				AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID)) 
-				AND (p_IsOverdue = 0 
+				AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID))
+				AND (p_IsOverdue = 0
 					OR ((To_days(NOW()) - To_days(IssueDate)) > IFNULL(b.PaymentDueInDays,0)
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND((inv.GrandTotal -  (select IFNULL(sum(p.Amount),0) from tblPayment p where p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) )>0)
 						)
 				);
-		END IF; 
+		END IF;
 		SELECT
 			AccountNumber,
 			DATE_FORMAT(DATE_ADD(IssueDate,INTERVAL PaymentDueInDays DAY), '%Y-%m-%d') AS DueDate,
@@ -285,7 +285,7 @@ BEGIN
 			TotalTax as   `TaxAnalysisTaxOnGoodsValue/1`
 		FROM tmp_Invoices_
 		WHERE
-				(p_IsOverdue = 0 
+				(p_IsOverdue = 0
 					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
