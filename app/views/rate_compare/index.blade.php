@@ -36,7 +36,7 @@
 
                             <label for="field-1" class="col-sm-1 control-label">Code</label>
                             <div class="col-sm-2">
-                                <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="91" />
+                                <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="" />
                             </div>
 
                             <label for="field-1" class="col-sm-1 control-label">Description</label>
@@ -83,7 +83,7 @@
                         <div class="form-group">
                             <label for="field-1" class="col-sm-1 control-label">Vendors</label>
                             <div class="col-sm-2">
-                                {{Form::select('SourceVendors[]', $all_vendors, array(197) ,array("class"=>"form-control select2",'multiple'))}}
+                                {{Form::select('SourceVendors[]', $all_vendors, array() ,array("class"=>"form-control select2",'multiple'))}}
                             </div>
 
                             <label for="field-1" class="col-sm-1 control-label">Customers</label>
@@ -111,7 +111,7 @@
 
                             <label for="field-1" class="col-sm-1 control-label">Rate Tables</label>
                             <div class="col-sm-2">
-                                {{Form::select('DestinationRateTables[]', $rate_table, array(137) ,array("class"=>"form-control select2",'multiple'))}}
+                                {{Form::select('DestinationRateTables[]', $rate_table, array() ,array("class"=>"form-control select2",'multiple'))}}
                             </div>
                         </div>
                         <p style="text-align: right;">
