@@ -327,7 +327,7 @@
                                 if(col == 'Destination') {
                                     col_text = '';
                                 } else {
-                                    col_text = col +  ' <span class="float-right"><input type="text" name="margin"  placeholder="Margin" data-col-index="' + k + '" class="margin form-control"  data-min="1" maxlength ="4" value=""></span>';
+                                    col_text = col +  ' <span class="float-right"><input type="text" name="margin"  placeholder="Margin" data-col-index="' + k + '" class="margin form-control popover-primary"  data-min="1" value="" data-trigger="hover" data-toggle="popover" data-placement="right" data-content="Margin: Add \'p\' for percentage ie. 10p." data-original-title="Margin" ></span>';
                                 }
 
                                 column_name.push(col);
@@ -438,7 +438,7 @@
                                             _edit = ' <span class="float-right"><a href="#" class="edit-ratecompare btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>'+action+'</span>';
                                             str = '<span class="_column_rate">'+_rate +'</span><br>';
                                             str += '<span class="_column_effectiveDate">'+_effective_date+'</span>';
-                                            str += '<span class="_column_rate_orig">'+_rate +'</span><br>';
+                                            str += '<span class="_column_rate_orig hidden">'+_rate +'</span><br>';
                                             str += _edit;
 
                                         }

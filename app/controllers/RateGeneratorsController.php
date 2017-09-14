@@ -241,7 +241,8 @@ class RateGeneratorsController extends \BaseController {
 
             $data ['ModifiedBy'] = User::get_user_full_name();
             $rules = array(
-                'Code' => 'required|unique:tblRateRule,Code,' . $RateRuleID . ',RateRuleID,RateGeneratorId,'.$id,
+                'Code' => 'required_without_all:Description|unique:tblRateRule,Code,' . $RateRuleID . ',RateRuleID,RateGeneratorId,'.$id,
+                'Description' => 'required_without_all:Code|unique:tblRateRule,Description,' . $RateRuleID . ',RateRuleID,RateGeneratorId,'.$id,
                 'ModifiedBy' => 'required'
             );
 
@@ -272,12 +273,12 @@ class RateGeneratorsController extends \BaseController {
             $data ['CreatedBy'] = User::get_user_full_name();
             $data ['RateGeneratorId'] = $id;
             $rules = array(
-                'Code' => 'required|unique:tblRateRule,Code,NULL,RateGeneratorId,RateGeneratorId,'.$data['RateGeneratorId'],
+                'Code' => 'required_without_all:Description|unique:tblRateRule,Code,NULL,RateRuleID,RateGeneratorId,'.$data['RateGeneratorId'],
+                'Description' => 'required_without_all:Code|unique:tblRateRule,Description,NULL,RateRuleID,RateGeneratorId,'.$data['RateGeneratorId'],
                 'RateGeneratorId' => 'required',
                 'CreatedBy' => 'required'
             );
-            $messages = [ "Code.required" => "Please Insert Name"];
-            $validator = Validator::make($data, $rules, $messages);
+            $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
                 return Redirect::back()->withErrors($validator)->withInput($data);
