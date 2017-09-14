@@ -1597,6 +1597,9 @@ function is_Stripe(){
 function is_StripeACH(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeACHSlug);
 }
+function is_SagePayDirectDebit(){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$SagePayDirectDebitSlug);
+}
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
         date_default_timezone_set($billing_timezone);

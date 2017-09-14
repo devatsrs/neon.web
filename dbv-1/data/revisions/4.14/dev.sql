@@ -780,6 +780,7 @@ CREATE PROCEDURE `prc_RateCompareRateUpdate`(
 	IN `p_Rate` DOUBLE,
 	IN `p_Code` VARCHAR(50),
 	IN `p_Description` VARCHAR(200),
+	IN `p_NewDescription` VARCHAR(200),
 	IN `p_EffectiveDate` VARCHAR(50),
 	IN `p_TrunkID` INT,
 	IN `p_Effective` VARCHAR(50),
@@ -790,144 +791,222 @@ NOT DETERMINISTIC
 CONTAINS SQL
   SQL SECURITY DEFINER
   COMMENT ''
-  BEGIN
+	BEGIN
 
-    SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+		DECLARE v_RateUpdate_ VARCHAR(200);
+		-- DECLARE v_DesciptionUpdate_ INT;
 
-	    -- Vendor Rate
-	    IF ( p_Type = 'vendor_rate') THEN
-
-	      IF ( p_GroupBy = 'description') THEN
-
-	        -- Vendor Rate group by description
-	        Update
-	        tblVendorRate v
-	        inner join tblRate r on r.RateID = v.RateId
-	        SET Rate = p_Rate
-	        where r.CompanyID = p_CompanyID AND
-	              r.Description = p_Description AND
-	              v.AccountId = p_TypeID AND
-	              v.TrunkID = p_TrunkID
-	              AND
-	              (
-	                ( p_Effective = 'Now' AND v.EffectiveDate <= NOW() )
-	                OR
-	                ( p_Effective = 'Future' AND v.EffectiveDate > NOW())
-	                OR
-	                ( p_Effective = 'Selected' AND v.EffectiveDate <= DATE(p_SelectedEffectiveDate) )
-	              );
-
-
-	      ELSE
-	        -- Vendor Rate by code and EffectiveDate
-	        Update
-	            tblVendorRate v
-	            inner join tblRate r on r.RateID = v.RateId
-	        SET Rate = p_Rate
-	        where r.CompanyID = p_CompanyID AND
-	              r.Code = p_Code AND
-	              r.Description = p_Description AND
-	              v.AccountId = p_TypeID AND
-	              v.TrunkID = p_TrunkID AND
-	              v.EffectiveDate = p_EffectiveDate;
-
-	      END IF;
-
-
-	    END IF;
-
-	    -- Rate Table
-	    IF ( p_Type = 'rate_table') THEN
-
-	      IF ( p_GroupBy = 'description') THEN
-
-	        -- Rate Table group by description
-	        update
-	            tblRateTableRate rtr
-	            inner join tblRate r on r.RateID = rtr.RateId
-	        SET Rate = p_Rate
-	        where r.CompanyID = p_CompanyID AND
-	              r.Description = p_Description AND
-	              rtr.RateTableId = p_TypeID
-	              AND
-	              (
-	                ( p_Effective = 'Now' AND rtr.EffectiveDate <= NOW() )
-	                OR
-	                ( p_Effective = 'Future' AND rtr.EffectiveDate > NOW())
-	                OR
-	                ( p_Effective = 'Selected' AND rtr.EffectiveDate <= DATE(p_SelectedEffectiveDate) )
-	              );
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 
 
-	      ELSE
+		IF ( p_Type = 'vendor_rate') THEN
 
-	        -- Rate Table by code and EffectiveDate
-	        update
-	            tblRateTableRate rtr
-	            inner join tblRate r on r.RateID = rtr.RateId
-	        SET Rate = p_Rate
-	        where r.CompanyID = p_CompanyID AND
-	              r.Code = p_Code AND
-	              r.Description = p_Description AND
-	              rtr.RateTableId = p_TypeID AND
-	              rtr.EffectiveDate = p_EffectiveDate;
+			IF ( p_GroupBy = 'description' ) THEN
 
+				Update
+						tblVendorRate v
+						inner join tblRate r on r.RateID = v.RateId
+				SET Rate = p_Rate
+				where r.CompanyID = p_CompanyID AND
+							r.Description = p_Description AND
+							v.AccountId = p_TypeID AND
+							v.TrunkID = p_TrunkID
+							AND
+							(
+								( p_Effective = 'Now' AND v.EffectiveDate <= NOW() )
+								OR
+								( p_Effective = 'Future' AND v.EffectiveDate > NOW())
+								OR
+								( p_Effective = 'Selected' AND v.EffectiveDate <= DATE(p_SelectedEffectiveDate) )
+							);
 
-	      END IF;
+				SELECT concat ( ROW_COUNT() , ' Records updated' ) INTO v_RateUpdate_;
 
+				IF ( p_Description != p_NewDescription ) THEN
 
-	    END IF;
+					UPDATE tblRate
+					SET 	Description = p_NewDescription
+					WHERE  CompanyID = p_CompanyID AND
+								 CodeDeckId = ( SELECT CodeDeckId from tblVendorTrunk WHERE CompanyID = p_CompanyID AND AccountID = p_TypeID AND TrunkID = p_TrunkID ) AND
+								 Description = p_Description;
 
-	    -- Customer Rate
-	    IF ( p_Type = 'customer_rate') THEN
-
-	      IF ( p_GroupBy = 'description') THEN
-
-	        -- Customer Rate group by description
-	        update
-	            tblCustomerRate c
-	            inner join tblRate r on r.RateID = c.RateId
-	        SET Rate = p_Rate
-	        where r.CompanyID = p_CompanyID AND
-	              r.Description = p_Description AND
-	              c.CustomerID = p_TypeID AND
-	              c.TrunkID = p_TrunkID
-	              AND
-	              (
-	                ( p_Effective = 'Now' AND c.EffectiveDate <= NOW() )
-	                OR
-	                ( p_Effective = 'Future' AND c.EffectiveDate > NOW())
-	                OR (
-	                  p_Effective = 'Selected' AND c.EffectiveDate <= DATE(p_SelectedEffectiveDate)
-	                )
-	              );
-
-	      ELSE
-
-	        -- Customer Rate by Code and EffectiveDate
-	        update
-	            tblCustomerRate c
-	            inner join tblRate r on r.RateID = c.RateId
-	        SET Rate = p_Rate
-	        where r.CompanyID = p_CompanyID AND
-	              r.Code = p_Code AND
-	              r.Description = p_Description AND
-	              c.CustomerID = p_TypeID AND
-	              c.TrunkID = p_TrunkID AND
-	              c.EffectiveDate = p_EffectiveDate;
-
-	      END IF;
-
-	    END IF;
+				END IF;
 
 
-    select ROW_COUNT() as rows_update ;
+			ELSE
 
-    SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+				Update
+						tblVendorRate v
+						inner join tblRate r on r.RateID = v.RateId
+				SET Rate = p_Rate
+				where r.CompanyID = p_CompanyID AND
+							r.Code = p_Code AND
+							r.Description = p_Description AND
+							v.AccountId = p_TypeID AND
+							v.TrunkID = p_TrunkID AND
+							v.EffectiveDate = p_EffectiveDate;
+
+				SELECT concat ( ROW_COUNT() , ' Records updated' ) INTO v_RateUpdate_;
+
+				IF ( p_Description != p_NewDescription ) THEN
+
+					UPDATE tblRate
+					SET 	Description = p_NewDescription
+					WHERE  CompanyID = p_CompanyID AND
+								 CodeDeckId = ( SELECT CodeDeckId from tblVendorTrunk WHERE CompanyID = p_CompanyID AND AccountID = p_TypeID AND TrunkID = p_TrunkID ) AND
+								 -- Description = p_Description AND
+								 `Code` 			= p_Code ;
+
+				END IF;
 
 
-  END//
+			END IF;
+
+
+		END IF;
+
+
+		IF ( p_Type = 'rate_table') THEN
+
+			IF ( p_GroupBy = 'description') THEN
+
+				update
+						tblRateTableRate rtr
+						inner join tblRate r on r.RateID = rtr.RateId
+				SET Rate = p_Rate
+				where r.CompanyID = p_CompanyID AND
+							r.Description = p_Description AND
+							rtr.RateTableId = p_TypeID
+							AND
+							(
+								( p_Effective = 'Now' AND rtr.EffectiveDate <= NOW() )
+								OR
+								( p_Effective = 'Future' AND rtr.EffectiveDate > NOW())
+								OR
+								( p_Effective = 'Selected' AND rtr.EffectiveDate <= DATE(p_SelectedEffectiveDate) )
+							);
+
+					SELECT concat ( ROW_COUNT() , ' Records updated' ) INTO v_RateUpdate_;
+
+					IF ( p_Description != p_NewDescription ) THEN
+
+							UPDATE tblRate
+							SET 	Description = p_NewDescription
+							WHERE  CompanyID = p_CompanyID AND
+										 CodeDeckId = ( SELECT CodeDeckId from tblRateTable WHERE  RateTableId = p_TypeID ) AND
+										 Description = p_Description;
+
+					END IF;
+
+
+
+				ELSE
+
+				update
+						tblRateTableRate rtr
+						inner join tblRate r on r.RateID = rtr.RateId
+				SET Rate = p_Rate
+				where r.CompanyID = p_CompanyID AND
+							r.Code = p_Code AND
+							r.Description = p_Description AND
+							rtr.RateTableId = p_TypeID AND
+							rtr.EffectiveDate = p_EffectiveDate;
+
+				SELECT concat ( ROW_COUNT() , ' Records updated' ) INTO v_RateUpdate_;
+
+					IF ( p_Description != p_NewDescription ) THEN
+
+						UPDATE tblRate
+						SET 	Description = p_NewDescription
+						WHERE  CompanyID = p_CompanyID AND
+									 CodeDeckId = ( SELECT CodeDeckId from tblRateTable WHERE  RateTableId = p_TypeID ) AND
+									 -- Description = p_Description AND
+									 `Code` 			= p_Code ;
+
+					END IF;
+
+
+			END IF;
+
+
+		END IF;
+
+		IF ( p_Type = 'customer_rate') THEN
+
+			IF ( p_GroupBy = 'description') THEN
+
+				update
+						tblCustomerRate c
+						inner join tblRate r on r.RateID = c.RateId
+				SET Rate = p_Rate
+				where r.CompanyID = p_CompanyID AND
+							r.Description = p_Description AND
+							c.CustomerID = p_TypeID AND
+							c.TrunkID = p_TrunkID
+							AND
+							(
+								( p_Effective = 'Now' AND c.EffectiveDate <= NOW() )
+								OR
+								( p_Effective = 'Future' AND c.EffectiveDate > NOW())
+								OR (
+									p_Effective = 'Selected' AND c.EffectiveDate <= DATE(p_SelectedEffectiveDate)
+								)
+							);
+
+				SELECT concat ( ROW_COUNT() , ' Records updated' ) INTO v_RateUpdate_;
+
+				IF ( p_Description != p_NewDescription ) THEN
+
+					UPDATE tblRate
+					SET 	Description = p_NewDescription
+					WHERE  CompanyID = p_CompanyID AND
+								 CodeDeckId = ( SELECT CodeDeckId from tblCustomerTrunk WHERE CompanyID = p_CompanyID AND AccountID = p_TypeID AND TrunkID = p_TrunkID ) AND
+								 Description = p_Description;
+
+				END IF;
+
+
+			ELSE
+
+				update
+						tblCustomerRate c
+						inner join tblRate r on r.RateID = c.RateId
+				SET Rate = p_Rate
+				where r.CompanyID = p_CompanyID AND
+							r.Code = p_Code AND
+							r.Description = p_Description AND
+							c.CustomerID = p_TypeID AND
+							c.TrunkID = p_TrunkID AND
+							c.EffectiveDate = p_EffectiveDate;
+
+				SELECT concat ( ROW_COUNT() , ' Records updated' ) INTO v_RateUpdate_;
+
+				IF ( p_Description != p_NewDescription ) THEN
+
+					UPDATE tblRate
+					SET 	Description = p_NewDescription
+					WHERE  CompanyID = p_CompanyID AND
+								 CodeDeckId = ( SELECT CodeDeckId from tblCustomerTrunk WHERE CompanyID = p_CompanyID AND AccountID = p_TypeID AND TrunkID = p_TrunkID ) AND
+								 -- Description = p_Description AND
+								 `Code` 			= p_Code ;
+
+				END IF;
+
+
+
+
+			END IF;
+
+		END IF;
+
+
+		select v_RateUpdate_ as rows_update ;
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+
+	END//
 DELIMITER ;
 
 

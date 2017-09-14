@@ -612,6 +612,10 @@
 
                         <ul class="icheck-list">
                             <li>
+                                <input class="icheck-11" type="radio" id="minimal-radio-8-11" name="PaymentMethod" value="SagePayDirectDebit" @if( $account->PaymentMethod == 'SagePayDirectDebit' ) checked="" @endif />
+                                <label for="minimal-radio-8-11">SagePay Direct Debit</label>
+                            </li>
+                            <li>
                                 <input class="icheck-11" type="radio" id="minimal-radio-7-11" name="PaymentMethod" value="SagePay" @if( $account->PaymentMethod == 'SagePay' ) checked="" @endif />
                                 <label for="minimal-radio-7-11">SagePay</label>
                             </li>
@@ -650,6 +654,11 @@
                         @if( $account->PaymentMethod == 'StripeACH')
                             @if(is_StripeACH())
                                 @include('customer.paymentprofile.bankpaymentGrid')
+                            @endif
+                        @endif
+                        @if( $account->PaymentMethod == 'SagePayDirectDebit')
+                            @if(is_SagePayDirectDebit())
+                                @include('customer.paymentprofile.sagepaydirectdebitGrid')
                             @endif
                         @endif
                     </div>

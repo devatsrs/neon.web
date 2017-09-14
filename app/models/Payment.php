@@ -25,6 +25,12 @@ class Payment extends \Eloquent {
         'individual'=>'individual',
         'company'=>'company',
     );
+    public static $account_holder_sagepay_type = array(
+        '1'=>'Current / Checking',
+        '2'=>'Savings',
+        '3'=>'Transmission',
+        '4'=>'Bond',
+    );
 
     public static $importpaymentrules = array(
         'selection.AccountName' => 'required',

@@ -93,6 +93,7 @@ class RateCompareController extends \BaseController {
                     'TypeID' => 'required',
                     'Code' => 'required',
                     'Description' => 'required',
+                    'NewDescription' => 'required',
                     'Rate' => 'required',
                     'EffectiveDate' => 'required',
                     'TrunkID' => 'required',
@@ -105,11 +106,11 @@ class RateCompareController extends \BaseController {
                     'Type' => 'required',
                     'TypeID' => 'required',
                     'Description' => 'required',
+                    'NewDescription' => 'required',
                     'Rate' => 'required',
                     'TrunkID' => 'required',
                     'Effective' => 'required',
                 );
-
 
             }
 
@@ -128,7 +129,8 @@ class RateCompareController extends \BaseController {
         }else if(isset($data["Action"]) && $data["Action"] == 'add') {
 
             //@TODO Add is yet to be done.
-
+            /*
+             *
             if (isset($data["GroupBy"]) && $data["GroupBy"] == 'code') {
 
                 $rules = array(
@@ -166,10 +168,11 @@ class RateCompareController extends \BaseController {
                 return json_validator_response($validator);
             }
 
+            */
         }
 
 
-        $query = "call prc_RateCompareRateUpdate (" . $data['CompanyID'] . ",'" . $data['GroupBy'] . "','" . $data['Type'] . "','" . $data['TypeID'] . "','" . $data['Rate'] . "','" . $data['Code'] . "','" . $data['Description'] . "','" . $data['EffectiveDate'] . "','" . $data['TrunkID'] . "','" . $data['Effective'] . "','" . $data['SelectedEffectiveDate'] . "' );";
+        $query = "call prc_RateCompareRateUpdate (" . $data['CompanyID'] . ",'" . $data['GroupBy'] . "','" . $data['Type'] . "','" . $data['TypeID'] . "','" . $data['Rate'] . "','" . $data['Code'] . "','" . $data['Description'] . "','" . $data['NewDescription'] . "','" . $data['EffectiveDate'] . "','" . $data['TrunkID'] . "','" . $data['Effective'] . "','" . $data['SelectedEffectiveDate'] . "' );";
         \Illuminate\Support\Facades\Log::info($query);
 
         $result = DB::select($query);
@@ -177,14 +180,8 @@ class RateCompareController extends \BaseController {
 
         if (count($result_array) > 0) {
             if (isset($result_array[0]["rows_update"])) {
-                $rows_update = $result_array[0]["rows_update"];
-                if ($rows_update > 0) {
-                    $message = "Rate Updated.";
-                    if ($rows_update > 1) {
-                        $message .= '<br>' . $rows_update . " Records updated.";
-                    }
-                    return Response::json(array("status" => "success", "message" => $message));
-                }
+                $message = $result_array[0]["rows_update"];
+                 return Response::json(array("status" => "success", "message" => $message));
             }
         }
         return Response::json(array("status" => "success", "message" => "No Records updated."));
@@ -200,7 +197,7 @@ class RateCompareController extends \BaseController {
 
         $customers_array = Account::getAccountDropdownWithTrunk($data);
 
-        $select2_customer = array_map(function($customers_array){
+        $select2_customer = array_map(function($customers_array) {
             return array("id" => $customers_array["AccountID"],"text" => $customers_array["AccountName"]);
         },$customers_array);
 

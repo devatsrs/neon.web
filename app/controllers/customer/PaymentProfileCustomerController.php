@@ -63,6 +63,8 @@ class PaymentProfileCustomerController extends \BaseController {
             $PaymentGatewayID=$data['PaymentGatewayID'];
             if($data['PaymentGatewayID']==PaymentGateway::StripeACH){
                 return AccountPaymentProfile::createBankProfile($CompanyID, $CustomerID,$PaymentGatewayID);
+            }elseif($data['PaymentGatewayID']==PaymentGateway::SagePayDirectDebit){
+                return AccountPaymentProfile::createSagePayProfile($CompanyID, $CustomerID,$PaymentGatewayID);
             }
             return AccountPaymentProfile::createProfile($CompanyID, $CustomerID,$PaymentGatewayID);
         }
@@ -136,6 +138,9 @@ class PaymentProfileCustomerController extends \BaseController {
                 if($PaymentGatewayID==PaymentGateway::StripeACH){
                     $ProfileResponse = AccountPaymentProfile::deleteStripeACHProfile($CompanyID, $AccountID,$id);
                 }
+                if($PaymentGatewayID==PaymentGateway::SagePayDirectDebit){
+                    $ProfileResponse = AccountPaymentProfile::deleteSagePayDirectDebitProfile($CompanyID, $AccountID,$id);
+                }
 
             }else{
                 return Response::json(array("status" => "failed", "message" => "Payment Gateway not setup"));
@@ -191,6 +196,9 @@ class PaymentProfileCustomerController extends \BaseController {
     public function verify_bankaccount(){
         $data = Input::all();
         $cardID = $data['cardID'];
+        if(!empty($data['Sage']) && $data['Sage']==1){
+            return $this->verify_sagebankaccount($cardID);
+        }
         if(empty($data['MicroDeposit1']) || empty($data['MicroDeposit2'])){
             return Response::json(array("status" => "failed", "message" => "Both MicroDeposit Required."));
         }
@@ -225,6 +233,35 @@ class PaymentProfileCustomerController extends \BaseController {
 
         }else{
             return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
+        }
+    }
+    public function verify_sagebankaccount($cardID){
+        $AccountPaymentProfile = AccountPaymentProfile::find($cardID);
+        $options = json_decode($AccountPaymentProfile->Options,true);
+        $sagedata = array();
+        $sagepayment = new SagePayDirectDebit();
+        if(empty($sagepayment->status)){
+            return Response::json(array("status" => "failed", "message" => "Sage Direct Debit not setup correctly"));
+        }
+
+        $sagedata['AccountNumber']=Crypt::decrypt($options['AccountNumber']);
+        $sagedata['BranchCode']=Crypt::decrypt($options['BranchCode']);
+        $sagedata['AccountType']=$options['AccountHolderType'];
+
+        $SageResponse = $sagepayment->verifyBankAccount($sagedata);
+        if($SageResponse['status']=='Success'){
+            if($SageResponse['VerifyStatus']=='verified'){
+                unset($options['VerifyStatus']);
+                $options['VerifyStatus'] = $SageResponse['VerifyStatus'];
+                $AccountPaymentProfile->update(array('Options' => json_encode($options)));
+
+                return Response::json(array("status" => "success", "message" => "verification status is ".$SageResponse['VerifyStatus']));
+            }else{
+                return Response::json(array("status" => "failed", "message" => "verification status is ".$SageResponse['VerifyStatus']));
+            }
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => $SageResponse['error']));
         }
     }
 }
