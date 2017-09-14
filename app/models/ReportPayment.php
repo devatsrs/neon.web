@@ -80,7 +80,9 @@ class ReportPayment extends \Eloquent{
                 }else{
                     $query_common->whereIn($key, $filter[$key]);
                 }
-            } else if (!empty($filter['wildcard_match_val'])) {
+            } else if (!empty($filter['wildcard_match_val']) && in_array($key, array('PaymentType', 'PaymentMethod'))) {
+                $query_common->where($key, 'like', str_replace('*', '%', $filter['wildcard_match_val']));
+            } else if (!empty($filter['wildcard_match_val']) && !in_array($key, array('year', 'quarter_of_year','month','week_of_year')) ) {
                 $data_in_array = Report::getDataInArray($CompanyID, $key, $filter['wildcard_match_val']);
                 if (!empty($data_in_array)) {
                     $query_common->whereIn($key, $data_in_array);
@@ -92,6 +94,8 @@ class ReportPayment extends \Eloquent{
                 if (!empty($filter['end_date'])) {
                     $query_common->where('PaymentDate', '<=', str_replace('*', '%', $filter['end_date']));
                 }
+            }else if (!empty($filter['wildcard_match_val']) && in_array($key, array('year', 'quarter_of_year','month','week_of_year'))) {
+                $query_common->whereRaw(self::$database_columns[$key].' like "'.str_replace('*', '%', $filter['wildcard_match_val']).'"');
             }
         }
         return $query_common;

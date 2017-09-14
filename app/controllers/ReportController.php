@@ -118,6 +118,9 @@ class ReportController extends \BaseController {
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
         $ColName = $data['filter_col_name'];
+        if(in_array($ColName,array('InvoiceType','InvoiceStatus','ProductType','PaymentMethod','PaymentType'))){
+            return generate_manual_datatable_response($ColName);
+        }
         $search = $data['sSearch'];
         $query = "CALL prc_getDistinctList('".$CompanyID."','".$ColName."','".$search."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].")";
         return DataTableSql::of($query,'neon_report')->make();

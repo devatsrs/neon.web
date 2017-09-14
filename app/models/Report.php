@@ -23,7 +23,7 @@ class Report extends \Eloquent {
         'summary'=>array(
             'year' => 'Year',
             'quarter_of_year' => 'Quarter' ,
-            'month' => 'Month',
+            'month_of_year' => 'Month',
             'week_of_year' => 'Week',
             'date' => 'Day',
             'AccountID' =>'Customer',
@@ -38,7 +38,7 @@ class Report extends \Eloquent {
         'vsummary'=>array(
             'year' => 'Year',
             'quarter_of_year' => 'Quarter' ,
-            'month' => 'Month',
+            'month_of_year' => 'Month',
             'week_of_year' => 'Week',
             'date' => 'Day',
             'AccountID' =>'Customer',
@@ -313,6 +313,15 @@ class Report extends \Eloquent {
                     $where->where('AccountIP','like',str_replace('*','%',$search));
                     $where->orwhere('AccountCLI','like',str_replace('*','%',$search));
                 })->lists('GatewayAccountPKID');
+                break;
+            case 'CurrencyID':
+                $data_in_array = Currency::where(array('CompanyId'=>$CompanyID,'Status'=>1))->where('Code','like',str_replace('*','%',$search))->lists('CurrencyID');
+                break;
+            case 'TaxRateID':
+                $data_in_array = TaxRate::where(array('CompanyId'=>$CompanyID,'Status'=>1))->where('Title','like',str_replace('*','%',$search))->lists('TaxRateId');
+                break;
+            case 'ProductID':
+                $data_in_array = Product::where(array('CompanyId'=>$CompanyID,'Active'=>1))->where('Name','like',str_replace('*','%',$search))->lists('ProductID');
                 break;
 
         }

@@ -65,7 +65,7 @@ class ReportVendorCDR extends \Eloquent{
                 if (!empty($data_in_array)) {
                     $query_common->whereIn($key, $data_in_array);
                 }
-            } else if (!empty($filter['wildcard_match_val']) && in_array($key, array('Trunk', 'AreaPrefix'))) {
+            } else if (!empty($filter['wildcard_match_val']) && in_array($key, array('Trunk', 'AreaPrefix','year','quarter_of_year','month_of_year','week_of_year'))) {
                 $query_common->where($key, 'like', str_replace('*', '%', $filter['wildcard_match_val']));
             } else if (!empty($filter['wildcard_match_val'])) {
                 $data_in_array = Report::getDataInArray($CompanyID, $key, $filter['wildcard_match_val']);

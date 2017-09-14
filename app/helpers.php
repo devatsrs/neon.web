@@ -2282,3 +2282,51 @@ function get_client_ip() {
     return $ipaddress;
 
 }
+
+function generate_manual_datatable_response($ColName){
+    $response_data = array();
+    switch ($ColName) {
+        case 'InvoiceType':
+            foreach (Invoice::$invoice_type as $row_key => $row_title) {
+                if (!empty($row_key) && $row_key != 'All') {
+                    $response_data[] = array($row_key, $row_title);
+                }
+            }
+            break;
+        case 'InvoiceStatus':
+            $invoice_status = Invoice::get_invoice_status();
+            foreach ($invoice_status as $row_key => $row_title) {
+                if (!empty($row_key) && $row_key != 'All') {
+                    $response_data[] = array($row_key, $row_title);
+                }
+            }
+            break;
+        case 'ProductType':
+            $product_type = Product::$AllProductTypes;
+            foreach ($product_type as $row_key => $row_title) {
+                if (!empty($row_key) && $row_key != 'All') {
+                    $response_data[] = array($row_key, $row_title);
+                }
+            }
+            break;
+        case 'PaymentMethod':
+            $method = Payment::$method;
+            foreach ($method as $row_key => $row_title) {
+                if (!empty($row_key) && $row_key != 'All') {
+                    $response_data[] = array($row_key, $row_title);
+                }
+            }
+            break;
+        case 'PaymentType':
+            $action = Payment::$action;
+            foreach ($action as $row_key => $row_title) {
+                if (!empty($row_key) && $row_key != 'All') {
+                    $response_data[] = array($row_key, $row_title);
+                }
+            }
+            break;
+    }
+    $manual_response = '{"sEcho":1,"iTotalRecords":'.count($response_data).',"iTotalDisplayRecords":'.count($response_data).',"aaData":'.json_encode($response_data).',"sColumns":["value","name"],"Total":{"totalcount":'.count($response_data).'}}';
+    return $manual_response;
+
+}
