@@ -607,7 +607,7 @@ Route::group(array('before' => 'auth'), function () {
 	
     Route::post('tickets/bulkactions', 'TicketsController@BulkAction');
     Route::post('tickets/bulkdelete', 'TicketsController@BulkDelete');
-	Route::post('tickets/bulkpickup', 'TicketsController@BulkPickup');
+	Route::post('tickets/bulkassignme', 'TicketsController@BulkAssignMe');
 
     Route::get('ticket_dashboard/summarywidgets', 'TicketDashboardController@ticketSummaryWidget');
     Route::get('ticket_dashboard/timelinewidgets/{limit}', 'TicketDashboardController@ticketTimeLineWidget');
@@ -960,6 +960,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/invoice_quickbookpost', 'InvoicesController@invoice_quickbookpost');
 	Route::any('/get_unbill_report/{id}', 'InvoicesController@get_unbill_report');
 	Route::any('/generate_manual_invoice', 'InvoicesController@generate_manual_invoice');
+	Route::any('/invoice/invoice_sagepayexport', 'InvoicesController@invoice_sagepayexport');
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');

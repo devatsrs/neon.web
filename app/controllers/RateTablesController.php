@@ -30,7 +30,9 @@ class RateTablesController extends \BaseController {
         $columns = array('RateTableRateID','Code','Description','Interval1','IntervalN','ConnectionFee','Rate','EffectiveDate','updated_at','ModifiedBy','RateTableRateID');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
+        $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
+
+        $query = "call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',".$view.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
 
 
         return DataTableSql::of($query)->make();
@@ -181,8 +183,8 @@ class RateTablesController extends \BaseController {
     }
 
     public function clear_rate($id) {
-        if ($id > 0) {
-            if (RateTableRate::find($id)->delete()) {
+        if ($id != null) {
+            if (RateTableRate::whereRaw('FIND_IN_SET(RateTableRateID,"'.$id.'")')->delete()) {
                 return Response::json(array("status" => "success", "message" => "Rate Successfully Deleted"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Deleting Rate."));
@@ -235,7 +237,7 @@ class RateTablesController extends \BaseController {
     // update single rate table rate
     public function update_rate_table_rate($id, $RateTableRateID = 0) {
 
-        if ($id > 0 && $RateTableRateID > 0) {
+        if ($id > 0 && $RateTableRateID != 0) {
 
             $data = Input::all();
 
@@ -436,31 +438,34 @@ class RateTablesController extends \BaseController {
     }
     
     public function rate_exports($id,$type) {
-            $companyID = User::get_companyID();
-            $data = Input::all();
-            $RateTableName = RateTable::find($id)->RateTableName;
-            $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',null,null,null,null,1)";
+        $companyID = User::get_companyID();
+        $data = Input::all();
+        $RateTableName = RateTable::find($id)->RateTableName;
 
-            DB::setFetchMode( PDO::FETCH_ASSOC );
-            $rate_table_rates  = DB::select($query);
-            DB::setFetchMode( Config::get('database.fetch'));
+        $view = isset($data['view']) && $data['view'] == 2 ? $data['view'] : 1;
 
-            $RateTableName = str_replace( '\/','-',$RateTableName);
+        $query = " call prc_GetRateTableRate (".$companyID.",".$id.",".$data['TrunkID'].",'".$data['Country']."','".$data['Code']."','".$data['Description']."','".$data['Effective']."',".$view.",null,null,null,null,1)";
 
-            if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.csv';
-                $NeonExcel = new NeonExcelIO($file_path);
-                $NeonExcel->download_csv($rate_table_rates);
-            }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xls';
-                $NeonExcel = new NeonExcelIO($file_path);
-                $NeonExcel->download_excel($rate_table_rates);
-            }
-            /*Excel::create($RateTableName . ' - Rates Table', function ($excel) use ($rate_table_rates) {
-                $excel->sheet('Rates Table', function ($sheet) use ($rate_table_rates) {
-                    $sheet->fromArray($rate_table_rates);
-                });
-            })->download('xls');*/
+        DB::setFetchMode( PDO::FETCH_ASSOC );
+        $rate_table_rates  = DB::select($query);
+        DB::setFetchMode( Config::get('database.fetch'));
+
+        $RateTableName = str_replace( '\/','-',$RateTableName);
+
+        if($type=='csv'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($rate_table_rates);
+        }elseif($type=='xlsx'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/'.$RateTableName . ' - Rates Table Customer Rates.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($rate_table_rates);
+        }
+        /*Excel::create($RateTableName . ' - Rates Table', function ($excel) use ($rate_table_rates) {
+            $excel->sheet('Rates Table', function ($sheet) use ($rate_table_rates) {
+                $sheet->fromArray($rate_table_rates);
+            });
+        })->download('xls');*/
     }
     public static function add_newrate($id){
         $data = Input::all();
