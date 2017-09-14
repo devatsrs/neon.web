@@ -717,7 +717,7 @@ class TicketsController extends \BaseController {
         return View::make('tickets.ticketslog', compact('TicketData','id'));    
 	}	
 
-	function BulkAssign()
+	function BulkAssignMe()
 	{
 		$data = Input::all();
 
@@ -738,8 +738,8 @@ class TicketsController extends \BaseController {
 							->update(["Agent"=>$Userid]);
 			}
 
-			return Response::json(array("status" => "success", "message" => "Bulk Assign Successfully"));
+			return Response::json(array("status" => "success", "message" => "Assign Successfully"));
 		}
-		return Response::json(array("status" => "failed", "message" => "Problem in Bulk Assign"));
+		return Response::json(array("status" => "failed", "message" => "Problem in Assigning"));
 	}
 }

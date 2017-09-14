@@ -607,7 +607,7 @@ Route::group(array('before' => 'auth'), function () {
 	
     Route::post('tickets/bulkactions', 'TicketsController@BulkAction');
     Route::post('tickets/bulkdelete', 'TicketsController@BulkDelete');
-	Route::post('tickets/bulkassign', 'TicketsController@BulkAssign');
+	Route::post('tickets/bulkassignme', 'TicketsController@BulkAssignMe');
 
     Route::get('ticket_dashboard/summarywidgets', 'TicketDashboardController@ticketSummaryWidget');
     Route::get('ticket_dashboard/timelinewidgets/{limit}', 'TicketDashboardController@ticketTimeLineWidget');
