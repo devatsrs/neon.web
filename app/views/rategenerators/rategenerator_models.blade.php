@@ -123,6 +123,12 @@
                                 <input type="text" name="Code" class="form-control"  value="" />
 
                             </div>
+                            <div class="form-group">
+                                <label for="field-4" class="control-label">Description</label>
+
+                                <input type="text" name="Description" class="form-control"  value="" />
+
+                            </div>
 
                         </div>
 
@@ -142,3 +148,22 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    jQuery(document).ready(function($) {
+        $("#insert-rate-generator-rule-form").submit(function(e) {
+
+            var Code = $("#insert-rate-generator-rule-form input[name='Code']").val();
+            var Description = $("#insert-rate-generator-rule-form input[name='Description']").val();
+
+            if((typeof Code  == 'undefined' || Code.trim() == '' ) && (typeof Description  == 'undefined' || Description.trim() == '' )){
+
+                setTimeout(function(){$('.btn').button('reset');},10);
+                toastr.error("Please Enter a Code Or Description", "Error", toastr_opts);
+                return false;
+
+            }
+
+        });
+    });
+</script>

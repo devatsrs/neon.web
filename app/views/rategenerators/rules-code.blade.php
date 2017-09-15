@@ -55,9 +55,15 @@
                     @if(count($rategenerator_rules))
                     @foreach($rategenerator_rules as $rategenerator_rule)
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Name</label>
+                        <label for="field-1" class="col-sm-2 control-label">Code</label>
                         <div class="col-sm-4">
-                            <input type="text" class="form-control" name="Code" data-validate="required" data-message-required="." id="field-1" placeholder="" value="{{$rategenerator_rule->Code}}" />
+                            <input type="text" class="form-control" name="Code"  id="field-1" placeholder="" value="{{$rategenerator_rule->Code}}" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Description</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="Description" id="field-2" placeholder="" value="{{$rategenerator_rule->Description}}" />
                         </div>
                     </div>
                     @endforeach
@@ -72,7 +78,21 @@
 <script type="text/javascript">
     jQuery(document).ready(function($) {
         $(".save.btn").click(function(ev) {
-            $("#rategenerator-from").submit();
+
+            var Code = $("#rategenerator-from input[name='Code']").val();
+            var Description = $("#rategenerator-from input[name='Description']").val();
+
+            if((typeof Code  == 'undefined' || Code.trim() == '' ) && (typeof Description  == 'undefined' || Description.trim() == '' )){
+
+                setTimeout(function(){$('.btn').button('reset');},10);
+                toastr.error("Please Enter a Code Or Description", "Error", toastr_opts);
+                return false;
+
+            } else {
+
+                $("#rategenerator-from").submit();
+            }
+
         });
     });
 </script>
