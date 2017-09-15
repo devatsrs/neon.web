@@ -222,6 +222,11 @@ class AccountsController extends \BaseController {
             Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,' . $data['CompanyID'].',AccountType,1';
             Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID,CompanyID,' . $data['CompanyID'];
 
+            if($data['IsVendor'] == 1) {
+                Account::$rules['vendorname'] = 'required';
+                Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
+            }
+
             $validator = Validator::make($data, Account::$rules, Account::$messages);
 
             if ($validator->fails()) {
@@ -573,6 +578,11 @@ class AccountsController extends \BaseController {
 
         Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'].',AccountType,1';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'];
+
+        if($data['IsVendor'] == 1) {
+            Account::$rules['vendorname'] = 'required';
+            Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
+        }
 
         $validator = Validator::make($data, Account::$rules,Account::$messages);
 
