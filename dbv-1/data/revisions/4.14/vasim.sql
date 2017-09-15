@@ -61,7 +61,7 @@ BEGIN
         LEFT JOIN
             tblDynamicFields AS df ON df.DynamicFieldsID=dfv.DynamicFieldsID
         WHERE
-            df.FieldName='Gateway' AND find_in_set(p_GatewayID,dfv.FieldValue) > 0 AND tah.Type='account' AND tah.Date>=DATE(v_last_time) AND tah.Date<=DATE(v_last_time + INTERVAL 1 DAY) AND tad.created_at>v_last_time;
+            df.FieldName='Gateway' AND find_in_set(p_GatewayID,dfv.FieldValue) > 0 AND tah.Type='account' AND tah.Date>=DATE(v_last_time) AND tah.Date<=DATE(v_cur_date) AND tad.created_at>v_last_time;
 
         IF ((v_start_time IS NOT NULL AND v_start_time != '') AND (v_end_time IS NOT NULL AND v_end_time != ''))
         THEN
@@ -79,7 +79,7 @@ BEGIN
         LEFT JOIN
             tblDynamicFields AS df ON df.DynamicFieldsID=dfv.DynamicFieldsID
         WHERE
-            df.FieldName='Gateway' AND find_in_set(p_GatewayID,dfv.FieldValue) > 0 AND tah.Type='account' AND tah.Date>=DATE(v_last_time) AND tah.Date<=DATE(v_last_time + INTERVAL 1 DAY) AND tad.created_at>v_last_time;
+            df.FieldName='Gateway' AND find_in_set(p_GatewayID,dfv.FieldValue) > 0 AND tah.Type='account' AND tah.Date>=DATE(v_last_time) AND tah.Date<=DATE(v_cur_date) AND tad.created_at>v_last_time;
 
     ELSE
         SELECT
@@ -160,7 +160,7 @@ BEGIN
 		LEFT JOIN
 			tblDynamicFields AS df ON df.DynamicFieldsID=dfv.DynamicFieldsID
 		WHERE
-			df.FieldName='Gateway' AND find_in_set(p_GatewayID,dfv.FieldValue) > 0 AND tah.Type='accountip' AND tah.Date>=DATE(v_last_time) AND tah.Date<=DATE(v_last_time + INTERVAL 1 DAY) AND tad.created_at>v_last_time;
+			df.FieldName='Gateway' AND find_in_set(p_GatewayID,dfv.FieldValue) > 0 AND tah.Type='accountip' AND tah.Date>=DATE(v_last_time) AND tah.Date<=DATE(v_cur_date) AND tad.created_at>v_last_time;
 
 		IF ((v_start_time IS NOT NULL AND v_start_time != '') AND (v_end_time IS NOT NULL AND v_end_time != ''))
      	THEN
@@ -184,7 +184,7 @@ BEGIN
 		LEFT JOIN
 			tblDynamicFields AS df ON df.DynamicFieldsID=dfv.DynamicFieldsID
 		WHERE
-			df.FieldName='Gateway' AND find_in_set(p_GatewayID,dfv.FieldValue) > 0 AND tah.Type='accountip' AND tah.Date>=DATE(v_last_time) AND tah.Date<=DATE(v_last_time + INTERVAL 1 DAY) AND tad.created_at>v_last_time;
+			df.FieldName='Gateway' AND find_in_set(p_GatewayID,dfv.FieldValue) > 0 AND tah.Type='accountip' AND tah.Date>=DATE(v_last_time) AND tah.Date<=DATE(v_cur_date) AND tad.created_at>v_last_time;
 
 	ELSE
 		SELECT
