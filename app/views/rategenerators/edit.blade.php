@@ -201,7 +201,7 @@
                                                 <i class="entypo-pencil"></i>
                                             </a>
 
-                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/delete' )}}" class="btn delete btn-danger btn-sm">
+                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/delete' )}}" class="btn delete btn-danger btn-sm" data-redirect="{{Request::url()}}">
                                                 <i class="entypo-trash"></i>
                                             </a>
                                         </td>
