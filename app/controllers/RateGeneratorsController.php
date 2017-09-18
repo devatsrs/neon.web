@@ -183,45 +183,6 @@ class RateGeneratorsController extends \BaseController {
             }
     }
 
-    // Delet eCode
-    public function delete_rule($id, $RateRuleID) {
-        if ($id > 0 && $RateRuleID > 0) {
-            if (RateRule::find($RateRuleID)->delete()) {
-                // return Redirect::back()->with('success_message', "RateGenerator Rule Successfully Deleted");
-                return json_encode([
-                    "status" => "success",
-                    "message" => "RateGenerator Rule Successfully Deleted"
-                        ]);
-            } else {
-                return json_encode([
-                    "status" => "failed",
-                    "message" => "Problem Deleting RateGenerator Rule"
-                        ]);
-                // return Redirect::back()->with('error_message', "Problem Deleting RateGenerator Rule.");
-            }
-        }
-    }
-
-
-
-    // Edit Source
-    public function edit_rule_source($id, $RateRuleID) {
-            if ($id > 0 && $RateRuleID > 0) {
-                $companyID = User::get_companyID();
-                $rategenerator_sources = RateRuleSource::
-                where(["RateRuleID" => $RateRuleID])->lists('AccountID', 'AccountId');
-                $rategenerator = RateGenerator::find($id);
-
-                $vendors = Account::select([
-                    "AccountName",
-                    "AccountID",
-                    "IsVendor"
-                ])->where(["Status" => 1, "IsVendor" => 1, "AccountType" => 1, "CompanyID" => $companyID /*'CodeDeckId'=>$rategenerator->CodeDeckId*/])->get();
-
-                return View::make('rategenerators.edit-rules-source', compact('id', 'RateRuleID', 'rategenerator_sources', 'vendors', 'rategenerator'));
-            }
-
-    }
 
     public function delete($id) {
         if ($id) {

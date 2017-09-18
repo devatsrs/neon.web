@@ -340,4 +340,14 @@ class RateGeneratorRuleController extends \BaseController {
         }
     }
 
+    // Delet eCode
+    public function delete_rule($id, $RateRuleID) {
+        if ($id > 0 && $RateRuleID > 0) {
+            if (RateRule::find($RateRuleID)->delete()) {
+                return Redirect::back()->with('success_message', "RateGenerator Rule Successfully Deleted");
+            } else {
+                return Redirect::back()->with('error_message', "Problem Deleting RateGenerator Rule.");
+            }
+        }
+    }
 }
