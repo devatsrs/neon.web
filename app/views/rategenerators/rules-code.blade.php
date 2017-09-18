@@ -31,13 +31,22 @@
 
 <div class="row">
     <div class="col-md-12">
+
         <ul class="nav nav-tabs bordered" >
+
+{{--
             <li class="active"><a href="{{URL::to('rategenerators/rules/'.$id.'/edit/'.$RateRuleID)}}">Code</a></li>
             <li  ><a href="{{URL::to('rategenerators/rules/'.$id.'/edit_source/'.$RateRuleID)}}">Sources</a></li>
             <li ><a href="{{URL::to('rategenerators/rules/'.$id.'/edit_margin/'.$RateRuleID)}}">Margin</a></li>
-        </ul>
+--}}
 
-        <div class="panel panel-primary" data-collapsed="0">
+            <li class="active"><a data-toggle="tab" href="#tab-code_description">Code</a></li>
+            <li  ><a data-toggle="tab" href="#tab-source">Sources</a></li>
+            <li ><a data-toggle="tab" href="#tab-margin">Margin</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="tab-code_description">
+                <div  class="panel panel-primary" data-collapsed="0">
             <div class="panel-heading">
                 <div class="panel-title">
                     Rate Generator Rule Information
@@ -69,6 +78,14 @@
                     @endforeach
                     @endif
                 </form>
+            </div>
+        </div>
+            </div>
+            <div class="tab-pane" id="tab-source">
+                <p>Fulfilled direction use continual set him propriety continued. Saw met applauded favourite deficient engrossed concealed and her. Concluded boy perpetual old supposing. Farther related bed and passage comfort civilly. Dashwoods see frankness objection abilities the. As hastened oh produced prospect formerly up am. Placing forming nay looking old married few has. Margaret disposed add screened rendered six say his striking confined. </p>
+            </div>
+            <div class="tab-pane" id="tab-margin">
+                <p>When be draw drew ye. Defective in do recommend suffering. House it seven in spoil tiled court. Sister others marked fat missed did out use. Alteration possession dispatched collecting instrument travelling he or on. Snug give made at spot or late that mr. </p>
             </div>
         </div>
 

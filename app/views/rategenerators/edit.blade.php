@@ -148,20 +148,11 @@
 
             <div class="panel-body">
 
-
-
-                
-
-                    
-                        
-                            
-                            
-                            
                             <div class="pull-right">
-                                <button type="submit"  class="btn addnew btn-primary btn-sm btn-icon icon-left" >
+                                <a  href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/rule/add" class="btn addnew btn-primary btn-sm btn-icon icon-left" >
                                     <i class="entypo-floppy"></i>
                                     Add New
-                                </button>
+                                </a>
                                 <br><br>
                             </div>
 
@@ -231,9 +222,9 @@
 
 <script type="text/javascript">
     jQuery(document).ready(function($) {
-        $(".btn.addnew").click(function(ev) {
+        /*$(".btn.addnew").click(function(ev) {
             jQuery('#modal-rate-generator-rule').modal('show', {backdrop: 'static'});
-        });
+        });*/
 
         $(".update_form.btn").click(function(ev) {
             $("#rategenerator-from").submit();

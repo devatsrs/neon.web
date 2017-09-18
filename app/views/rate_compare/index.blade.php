@@ -36,12 +36,13 @@
 
                             <label for="field-1" class="col-sm-1 control-label">Code</label>
                             <div class="col-sm-2">
-                                <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="" />
+                                <input type="text" class="form-control popover-primary" name="Code"  id="field-1" placeholder="" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Enter either Code Or Description. Use * for all codes or description. For wildcard search use  e.g. 92* or india*." data-original-title="Code/Description" />
+
                             </div>
 
                             <label for="field-1" class="col-sm-1 control-label">Description</label>
                             <div class="col-sm-2">
-                                <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="" />
+                                <input type="text" class="form-control popover-primary" name="Description"  id="field-1" placeholder="" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Enter either Code Or Description. Use * for all codes or description. For wildcard search use  e.g. 92* or india*." data-original-title="Code/Description" />
                             </div>
 
                             <label for="field-1" class="col-sm-1 control-label">Trunk</label>
