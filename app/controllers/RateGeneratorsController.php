@@ -183,17 +183,6 @@ class RateGeneratorsController extends \BaseController {
             }
     }
 
-    // Edit Code
-    public function edit_rule($id, $RateRuleID) {
-            if ($id > 0 && $RateRuleID > 0) {
-                // $companyID = User::get_companyID();
-                $rategenerator_rules = RateRule::where([
-                    "RateRuleID" => $RateRuleID
-                ])->get();
-                return View::make('rategenerators.rules-code', compact('id', 'RateRuleID', 'rategenerator_rules'));
-            }
-    }
-
     // Delet eCode
     public function delete_rule($id, $RateRuleID) {
         if ($id > 0 && $RateRuleID > 0) {
