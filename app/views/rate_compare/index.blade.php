@@ -148,6 +148,7 @@
             //var data_table;
             var Code, Description, Currency,CodeDeck,Trunk,GroupBy,Effective,SelectedEffectiveDate, SourceVendors,SourceCustomers,SourceRateTables,DestinationVendors,DestinationCustomers,DestinationRateTables;
             var _customers_json, _vendors_json;
+            var _margins_array = new Array();
 
 
             $('select[name="Trunk"]').on( "change",function(e) {
@@ -189,6 +190,8 @@
 
 
             $("#rate-compare-search-form").submit(function(e) {
+
+                var _margins_array = new Array(); // reset
 
                 Trunk = $("#rate-compare-search-form select[name='Trunk']").val();
                 CodeDeck = $("#rate-compare-search-form select[name='CodeDeckId']").val();
@@ -327,8 +330,12 @@
 
                                 if(col == 'Destination') {
                                     col_text = '';
-                                } else {
-                                    col_text = col +  ' <span class="float-right"><input type="text" name="margin"  placeholder="Margin" data-col-index="' + k + '" class="margin form-control popover-primary"  data-min="1" value="" data-trigger="hover" data-toggle="popover" data-placement="right" data-content="Margin: Add \'p\' for percentage ie. 10p." data-original-title="Margin" ></span>';
+                                } else if(col != 'ColumnIDS') {
+                                    var _margin = '';
+                                    if(typeof _margins_array[k] != 'undefined' && _margins_array[k]  != '' ) {
+                                        _margin = _margins_array[k];
+                                    }
+                                    col_text = col +  ' <span class="float-right"><input type="text" name="margin" value="' + _margin + '"  placeholder="Margin" data-col-index="' + k + '" class="margin form-control popover-primary"  data-min="1" data-trigger="hover" data-toggle="popover" data-placement="right" data-content="Margin: Add \'p\' for percentage ie. 10p." data-original-title="Margin" ></span>';
                                 }
 
                                 column_name.push(col);
@@ -421,12 +428,16 @@
 
                                         if (i > 0 ) {
                                             var rate_array = str.split('<br>');
-                                            var _rate = '', _effective_date = '';
+                                            var _rate = '', _rate_orig = '', _effective_date = '';
                                             $.each(rate_array, function(index, value) {
                                                 if(index == 0){
-                                                    _rate = value;
+                                                    _rate_orig = _rate = value;
 
-                                                    action += '<input type = "hidden"  name = "Rate" value = "' + value + '" / >';
+                                                    if(typeof _margins_array[i] != 'undefined' && _margins_array[i]  != '' ) {
+                                                        _rate = add_margin(_margins_array[i],_rate);
+                                                    }
+
+                                                    action += '<input type = "hidden"  name = "Rate" value = "' + _rate + '" / >';
 
                                                 } else if(index == 1){
                                                     _effective_date = value;
@@ -439,7 +450,7 @@
                                             _edit = ' <span class="float-right"><a href="#" class="edit-ratecompare btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>'+action+'</span>';
                                             str = '<span class="_column_rate">'+_rate +'</span><br>';
                                             str += '<span class="_column_effectiveDate">'+_effective_date+'</span>';
-                                            str += '<span class="_column_rate_orig hidden">'+_rate +'</span><br>';
+                                            str += '<span class="_column_rate_orig hidden">'+_rate_orig +'</span><br>';
                                             str += _edit;
 
                                         }
@@ -483,11 +494,32 @@
                 replaceCheckboxes();
             });
 
+            function add_margin(_margin , _rate ) {
+
+                _rate = parseFloat(_rate);
+
+                if (_margin.indexOf("p") > 0) {
+
+                    var _numeric_margin_ = parseFloat(_margin.replace("p", ''));
+
+                    _new_rate = parseFloat(_rate + ( _rate * _numeric_margin_ / 100 ));
+
+                } else {
+
+                    _new_rate = parseFloat(_rate + parseFloat(_margin));
+
+                }
+
+                return _new_rate.toFixed(6);
+
+            }
 
             $('table thead').on('change', '.margin', function (ev) {
 
                 var _margin = $(this).val();
                 var _index = $(this).attr("data-col-index")*1 + 1 ;
+
+                _margins_array[_index-1] = _margin;
 
                 $('table tbody tr').each( function ( index ) {
 
@@ -502,19 +534,7 @@
                         _selected_column.find(".hiddenRowData").find("input[name=Rate]").val(_rate);
                     }else if ( _column_rate_el.text() != '') {
 
-                        _rate = parseFloat(_rate);
-
-                        if (_margin.indexOf("p") > 0) {
-
-                            var _numeric_margin_ = parseFloat(_margin.replace("p", ''));
-
-                            _new_rate = parseFloat(_rate + ( _rate * _numeric_margin_ / 100 ));
-
-                        } else {
-
-                            _new_rate = parseFloat(_rate + parseFloat(_margin));
-
-                        }
+                        _new_rate =  parseFloat(add_margin(_margin, _rate));
                         _new_rate = _new_rate.toFixed(6);
                         _column_rate_el.text(_new_rate);
                         _selected_column.find(".hiddenRowData").find("input[name=Rate]").val(_new_rate);
