@@ -142,4 +142,134 @@ left JOIN mor.currencies on currencies.id = users.currency_id
 
     }
 
+    public static function getMovementReport($addparams=array()){
+
+        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
+            try{
+                $query = "select * from users where username='".$addparams['username']."' limit 1 "; // and userfield like '%outbound%'  removed for inbound calls
+                //$response = DB::connection('pbxmysql')->select($query);
+                $results = DB::connection('pbxmysql')->select($query);
+                if(count($results)>0){
+                    if(!empty($addparams['StartDate'])){
+                        $previous_bal_query =  'select (select COALESCE(SUM(amount),0) from payments  where user_id = '.$results[0]->id.' and date_added<"'.$addparams['StartDate'].'") - (select COALESCE(SUM(user_price),0) from calls  where user_id = '.$results[0]->id.' and calldate<"'.$addparams['StartDate'].'") as previous_bal';
+                        $previous_bal_result = DB::connection('pbxmysql')->select($previous_bal_query);
+                    }
+                    $payments = DB::connection('pbxmysql')->table('payments')->where('user_id',$results[0]->id);
+                    if (!empty($addparams['StartDate'])) {
+                        $payments->whereRaw('DATE(date_added) >="' .$addparams['StartDate'].'"');
+                    }
+                    if (!empty($addparams['EndDate'])) {
+                        $payments->whereRaw('DATE(date_added) <="'. $addparams['EndDate'].'"');
+                    }
+                    $payments->select(DB::Raw("DATE(date_added) as date"));
+
+
+                    $calls = DB::connection('pbxmysql')->table('calls')->where('user_id',$results[0]->id);
+                    if (!empty($addparams['StartDate'])) {
+                        $calls->where('date', '>=', $addparams['StartDate']);
+                    }
+                    if (!empty($addparams['EndDate'])) {
+                        $calls->where('date', '<=', $addparams['EndDate']);
+                    }
+
+                    $calls->union($payments);
+                    $calls->select(DB::Raw("date"));
+
+                    $response['datatable'] = $calls;
+                    if(!empty($previous_bal_result) && count($previous_bal_result)){
+                        $response['previous_bal'] = $previous_bal_result[0]->previous_bal;
+                    }else{
+                        $response['previous_bal'] = 0;
+                    }
+
+                    /** get only day wise total */
+                    $payments_total = DB::connection('pbxmysql')->table('payments')->where('user_id',$results[0]->id);
+                    if (!empty($addparams['StartDate'])) {
+                        $payments_total->whereRaw('DATE(date_added) >="' .$addparams['StartDate'].'"');
+                    }
+                    if (!empty($addparams['EndDate'])) {
+                        $payments_total->whereRaw('DATE(date_added) <="'. $addparams['EndDate'].'"');
+                    }
+                    $payments_total_result = $payments_total->groupby('date')->orderby('date','desc')->select(DB::Raw("DATE(date_added) as date,sum(amount) as payment"))->get();
+                    foreach($payments_total_result as $payments_total_result_row){
+                        $response['payment'][$payments_total_result_row->date] = number_format($payments_total_result_row->payment,get_round_decimal_places(),'.','');
+                    }
+
+                    $calls_total = DB::connection('pbxmysql')->table('calls')->where('user_id',$results[0]->id);
+                    if (!empty($addparams['StartDate'])) {
+                        $calls_total->where('date', '>=', $addparams['StartDate']);
+                    }
+                    if (!empty($addparams['EndDate'])) {
+                        $calls_total->where('date', '<=', $addparams['EndDate']);
+                    }
+                    $calls_total_result = $calls_total->groupby('date')->orderby('date','desc')->select(DB::Raw("date,sum(user_price) as payment"))->get();
+                    foreach($calls_total_result as $calls_total_result_row){
+                        $response['calls'][$calls_total_result_row->date] = number_format($calls_total_result_row->payment,get_round_decimal_places(),'.','');
+                    }
+                }
+            }catch(Exception $e){
+                $response['faultString'] =  $e->getMessage();
+                $response['faultCode'] =  $e->getCode();
+                Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $e->getCode(). ", Reason: " . $e->getMessage());
+                //throw new Exception($e->getMessage());
+            }
+        }
+        return $response;
+
+    }
+
+    public static function getMovementReportTotal($addparams=array()){
+
+        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
+            try{
+                $query = "select * from users where username='".$addparams['username']."' limit 1 "; // and userfield like '%outbound%'  removed for inbound calls
+                //$response = DB::connection('pbxmysql')->select($query);
+                $results = DB::connection('pbxmysql')->select($query);
+                if(count($results)>0){
+                    if(!empty($addparams['StartDate'])){
+                        $previous_bal_query =  'select (select COALESCE(SUM(amount),0) from payments  where user_id = '.$results[0]->id.' and date_added<"'.$addparams['StartDate'].'") - (select COALESCE(SUM(user_price),0) from calls  where user_id = '.$results[0]->id.' and calldate<"'.$addparams['StartDate'].'") as previous_bal';
+                        $previous_bal_result = DB::connection('pbxmysql')->select($previous_bal_query);
+                    }
+                    $payments = DB::connection('pbxmysql')->table('payments')->where('user_id',$results[0]->id);
+                    if (!empty($addparams['StartDate'])) {
+                        $payments->whereRaw('DATE(date_added) >="' .$addparams['StartDate'].'"');
+                    }
+                    if (!empty($addparams['EndDate'])) {
+                        $payments->whereRaw('DATE(date_added) <="'. $addparams['EndDate'].'"');
+                    }
+                    $response['TotalPayment'] = number_format($payments->sum('amount'),get_round_decimal_places(),'.','');
+
+
+                    $calls = DB::connection('pbxmysql')->table('calls')->where('user_id',$results[0]->id);
+                    if (!empty($addparams['StartDate'])) {
+                        $calls->where('date', '>=', $addparams['StartDate']);
+                    }
+                    if (!empty($addparams['EndDate'])) {
+                        $calls->where('date', '<=', $addparams['EndDate']);
+                    }
+                    $response['TotalCharge'] = number_format($calls->sum('user_price'),get_round_decimal_places(),'.','');
+
+
+
+                    if(!empty($previous_bal_result) && count($previous_bal_result)){
+                        $response['previous_bal'] = $previous_bal_result[0]->previous_bal;
+                    }else{
+                        $response['previous_bal'] = 0;
+                    }
+
+                    $response['Total'] = number_format($response['TotalPayment'] - $response['TotalCharge'],get_round_decimal_places(),'.','');
+                    $response['Balance'] = number_format($response['previous_bal'] + $response['TotalPayment'] - $response['TotalCharge'],get_round_decimal_places(),'.','');
+
+                }
+            }catch(Exception $e){
+                $response['faultString'] =  $e->getMessage();
+                $response['faultCode'] =  $e->getCode();
+                Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $e->getCode(). ", Reason: " . $e->getMessage());
+                //throw new Exception($e->getMessage());
+            }
+        }
+        return $response;
+
+    }
+
 }
