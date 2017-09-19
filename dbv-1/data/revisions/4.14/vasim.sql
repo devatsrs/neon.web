@@ -21,9 +21,9 @@ ALTER TABLE `tblUser`
 
 
 INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 3, 'Rate Export To Vos', 'rateexporttovos', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2017-09-07 12:57:02', 'RateManagementSystem');
-INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (3, 'SSH Password', 'sshpassword', 1, '2017-09-11 11:10:00', 'RateManagementSystem', NULL, NULL);
-INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (3, 'SSH Username', 'sshusername', 1, '2017-09-11 11:10:00', 'RateManagementSystem', NULL, NULL);
 INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (3, 'SSH Host', 'sshhost', 1, '2017-09-11 11:10:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (3, 'SSH Username', 'sshusername', 1, '2017-09-11 11:10:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (3, 'SSH Password', 'sshpassword', 1, '2017-09-11 11:10:00', 'RateManagementSystem', NULL, NULL);
 
 UPDATE `tblCronJobCommand` SET `GatewayID`=NULL WHERE Command='vendorratefileexport' AND `GatewayID`=10;
 UPDATE `tblCronJobCommand` SET `GatewayID`=NULL WHERE Command='customerratefileexport' AND `GatewayID`=10;
@@ -663,6 +663,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ ;
 	
 END|
+DELIMITER ;
 
 
 
