@@ -172,10 +172,6 @@
                                     <tr class="odd gradeX">
                                         <td>
                                             {{$rategenerator_rule->Code}}
-                                            @if(!empty($rategenerator_rule->Code) && !empty($rategenerator_rule->Description) )
-                                            :
-                                            @endif
-                                            {{$rategenerator_rule->Description}}
                                         </td>
                                         <td>
                                             @if(count($rategenerator_rule['RateRuleSource']))

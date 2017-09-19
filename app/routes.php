@@ -201,6 +201,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/store', array('as' => 'accounts_store', 'uses' => 'AccountsController@store'));
 	Route::any('/accounts/update/{id}', array('as' => 'accounts_update', 'uses' => 'AccountsController@update'));	
 	Route::any('/accounts/{id}/show', array('uses' => 'AccountsController@show'));
+	Route::any('/accounts/{id}/log', array('uses' => 'AccountsController@log'));
+	Route::any('accounts/{id}/ajax_datagrid_account_logs', 'AccountsController@ajax_datagrid_account_logs');
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
 	Route::post('/accounts/{id}/ajax_conversations', 'AccountsController@AjaxConversations');
@@ -608,7 +610,7 @@ Route::group(array('before' => 'auth'), function () {
 	
     Route::post('tickets/bulkactions', 'TicketsController@BulkAction');
     Route::post('tickets/bulkdelete', 'TicketsController@BulkDelete');
-	Route::post('tickets/bulkassignme', 'TicketsController@BulkAssignMe');
+	Route::post('tickets/bulkpickup', 'TicketsController@BulkPickup');
 
     Route::get('ticket_dashboard/summarywidgets', 'TicketDashboardController@ticketSummaryWidget');
     Route::get('ticket_dashboard/timelinewidgets/{limit}', 'TicketDashboardController@ticketTimeLineWidget');
@@ -1316,7 +1318,7 @@ Route::group(array('before' => 'guest'), function () {
     Route::get('/super_admin', "HomeController@home");
 	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
 	
-    Route::get('/l/{id}', function($id){
+    /*Route::get('/l/{id}', function($id){
 		$user = User::find($id);
 		$redirect_to = URL::to('/process_redirect');
 		if(!empty($user) ){
@@ -1324,6 +1326,7 @@ Route::group(array('before' => 'guest'), function () {
 		Auth::login($user);
 		if(NeonAPI::login_by_id($id)) {
 			User::setUserPermission();
+			User::where('UserID', $id)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
 			Session::set("admin", 1);
 			return Redirect::to($redirect_to);
 		}else{
@@ -1334,7 +1337,7 @@ Route::group(array('before' => 'guest'), function () {
 		}
 	}
 	exit;
-    });
+    });*/
     Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
     //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');
     Route::any('/invoice/{id}/cdownload_usage', 'InvoicesController@cdownloadUsageFile');

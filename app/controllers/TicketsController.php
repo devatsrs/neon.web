@@ -717,7 +717,7 @@ class TicketsController extends \BaseController {
         return View::make('tickets.ticketslog', compact('TicketData','id'));    
 	}	
 
-	function BulkAssignMe()
+	function BulkPickup()
 	{
 		$data = Input::all();
 
@@ -738,8 +738,8 @@ class TicketsController extends \BaseController {
 							->update(["Agent"=>$Userid]);
 			}
 
-			return Response::json(array("status" => "success", "message" => "Assign Successfully"));
+			return Response::json(array("status" => "success", "message" => "Bulk Pickup Successfully"));
 		}
-		return Response::json(array("status" => "failed", "message" => "Problem in Assigning"));
+		return Response::json(array("status" => "failed", "message" => "Problem Bulk Pickup"));
 	}
 }

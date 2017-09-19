@@ -3,11 +3,6 @@ Use Ratemanagement3;
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1306, 'RateCompare.All', 1, 5);
 INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'RateCompare.*', 'RateCompareController.*', 1, 'Sumera Saeed', NULL, '2017-08-31 17:16:34.000', '2017-08-31 17:16:34.000', 1306);
 
--- Rate Generator
-ALTER TABLE `tblRateRule` ADD COLUMN `Description` VARCHAR(200) NULL AFTER `Code`;
-ALTER TABLE `tblRateRule` ALTER `Code` DROP DEFAULT;
-ALTER TABLE `tblRateRule` CHANGE COLUMN `Code` `Code` VARCHAR(100) NULL COLLATE 'utf8_unicode_ci' AFTER `RateGeneratorId`;
-
 DELIMITER  //
 CREATE PROCEDURE `prc_RateCompare`(
 	IN `p_companyid` INT,
@@ -1175,9 +1170,6 @@ CONTAINS SQL
 
   END//
 DELIMITER ;
-
-
-
 -- Rate geneator
 
 DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTable`;
