@@ -104,6 +104,9 @@
                   @if($account->IsCustomer==1 || $account->IsVendor==1)
                      <a class="btn btn-default btn-xs redirect_link" title="Authentication Rule" href="{{ URL::to('accounts/authenticate/'.$account->AccountID)}}"><i class="entypo-lock"></i></a>
                   @endif
+
+                  <button type="button" data-id="{{$account->AccountID}}" title="View Account Logs" redirecto="{{ URL::to('accounts/'.$account->AccountID.'/log')}}" class="btn btn-default btn-xs"> <i class="fa fa-file-text-o"></i></button>
+
                   @if($leadOrAccountCheck=='account')
                   @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED)
                      <a class="btn-warning btn btn-default btn-xs" href="{{ URL::to('customers_rates/'.$account->AccountID)}}"><i class="entypo-user"></i></a>

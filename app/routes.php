@@ -200,6 +200,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/store', array('as' => 'accounts_store', 'uses' => 'AccountsController@store'));
 	Route::any('/accounts/update/{id}', array('as' => 'accounts_update', 'uses' => 'AccountsController@update'));	
 	Route::any('/accounts/{id}/show', array('uses' => 'AccountsController@show'));
+	Route::any('/accounts/{id}/log', array('uses' => 'AccountsController@log'));
+	Route::any('accounts/{id}/ajax_datagrid_account_logs', 'AccountsController@ajax_datagrid_account_logs');
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
 	Route::post('/accounts/{id}/ajax_conversations', 'AccountsController@AjaxConversations');
@@ -1318,6 +1320,7 @@ Route::group(array('before' => 'guest'), function () {
 		Auth::login($user);
 		if(NeonAPI::login_by_id($id)) {
 			User::setUserPermission();
+			User::where('UserID', $id)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
 			Session::set("admin", 1);
 			return Redirect::to($redirect_to);
 		}else{

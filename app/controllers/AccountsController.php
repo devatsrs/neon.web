@@ -77,6 +77,23 @@ class AccountsController extends \BaseController {
         return Datatables::of($carddetail)->make();
     }
 
+    public function ajax_datagrid_account_logs($AccountID) {
+        $CompanyID = User::get_companyID();
+        $data = Input::all();
+        $data['iDisplayStart'] +=1;
+        $userID = 0;
+        if (User::is('AccountManager')) { // Account Manager
+            $userID = $userID = User::get_userID();
+        }elseif(User::is_admin() && isset($data['account_owners'])  && trim($data['account_owners']) > 0) {
+            $userID = (int)$data['account_owners'];
+        }
+        $columns = array('AccountName','ColumnName','OldValue','NewValue','created_at','created_by');
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "call prc_GetAccountLogs (".$CompanyID.",".$userID.",".$AccountID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."')";
+
+        return DataTableSql::of($query)->make();
+    }
+
     public function ajax_template($id){
         $user = User::get_currentUser();
         return array('EmailFooter'=>($user->EmailFooter?$user->EmailFooter:''),'EmailTemplate'=>EmailTemplate::findOrfail($id));
@@ -396,8 +413,14 @@ class AccountsController extends \BaseController {
 			 
 	        return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets','FromEmails')); 	
 		}
-	
-	
+
+
+    public function log($id) {
+        $account = Account::find($id);
+        $accounts = Account::getAccountIDList();
+        return View::make('accounts.accounts_audit_logs', compact('account','accounts'));
+    }
+
 
     /**
      * Show the form for editing the specified resource.
