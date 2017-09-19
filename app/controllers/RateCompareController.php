@@ -44,16 +44,37 @@ class RateCompareController extends \BaseController {
         $query = "call prc_RateCompare (".$companyID.",".$data['Trunk'].",".$data['CodeDeck'].",'".$data['Currency']."','".$data['Code']."','".$data['Description']."','".$data['GroupBy']."','".$data['SourceVendors']."','".$data['SourceCustomers']."','".$data['SourceRateTables']."','".$data['DestinationVendors']."','".$data['DestinationCustomers']."','".$data['DestinationRateTables']."','".$data['Effective']."','".$data['SelectedEffectiveDate']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$data['sSortDir_0']."'";
 
         if(isset($data['Export']) && $data['Export'] == 1) {
+
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
             foreach($excel_data as $rowno => $rows){
-                foreach($rows as $colno => $colval){
-                    unset($excel_data[$rowno][$colno]);
-                    if($colno =='Destination'){
-                        $colno = "";
+                $column_no = 0;
+                foreach($rows as $col_name => $colval){
+                    unset($excel_data[$rowno][$col_name]);
+                    if($col_name =='Destination'){
+                        $col_name = "";
                     }
-                    $colno = str_replace( "<br>" , "\n" ,$colno );
-                    $excel_data[$rowno][$colno] = str_replace( "<br>" , "\n" ,$colval );
+                    $col_name = str_replace( "<br>" , "\n" ,$col_name );
+
+
+                    // Add margin
+                    $colum_margin = "margin_".$column_no++;
+                    if(isset($data[$colum_margin]) && !empty($data[$colum_margin])){
+                        $margin =  $data[$colum_margin];
+                        $colval_array = explode( "<br>" , $colval );
+                        if(isset($colval_array[0])) {
+                            $Rate = $colval_array[0];
+                            $EffectiveDate = $colval_array[1];
+                            $Rate = $this->add_margin($margin, $Rate);
+                            $excel_data[$rowno][$col_name] = $Rate . " \n " . $EffectiveDate;
+                        }
+                        //
+                    }else {
+                        $excel_data[$rowno][$col_name] = str_replace( "<br>" , "\n" ,$colval );
+                    }
+
+
+
                 }
             }
 
@@ -205,5 +226,22 @@ class RateCompareController extends \BaseController {
 
     }
 
+    public function add_margin($margin, $rate) {
+
+        if ( strpos("p",$margin)  !== FALSE ) {
+
+            $numeric_margin = str_replace("p","",$margin);
+
+            $new_rate = ($rate + ( $rate * $numeric_margin / 100 ));
+
+        } else {
+
+            $new_rate = $rate + $margin;
+
+        }
+
+        return number_format(doubleval($new_rate),6);
+
+    }
 
 }

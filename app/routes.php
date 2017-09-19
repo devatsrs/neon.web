@@ -15,6 +15,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/invoice_expense_total_widget', 'DashboardCustomerController@invoice_expense_total_widget');
 	Route::any('customer/daily_report', 'DashboardCustomerController@daily_report');
 	Route::any('customer/daily_report/ajax_datagrid/{type}', 'DashboardCustomerController@daily_report_ajax_datagrid');
+	Route::any('customer/daily_report/ajax_datagrid_total', 'DashboardCustomerController@daily_report_ajax_datagrid_total');
     //Invoice
     Route::any('customer/invoice', 'InvoicesCustomerController@index');
     Route::any('customer/invoice/ajax_datagrid/{type}', 'InvoicesCustomerController@ajax_datagrid');
@@ -633,30 +634,35 @@ Route::group(array('before' => 'auth'), function () {
 	//RateGenerator
 	Route::any('/rategenerators', array('as' => 'rategenerator_list', 'uses' => 'RateGeneratorsController@index'));
 	Route::any('/rategenerators/ajax_datagrid', array('as' => 'rategenerator_ajax_datagrid', 'uses' => 'RateGeneratorsController@ajax_datagrid'));
-	Route::any('/rategenerators/ajax_margin_datagrid', array('as' => 'rategenerator_ajax_margin_datagrid', 'uses' => 'RateGeneratorsController@ajax_margin_datagrid'));
 	Route::any('/rategenerators/{id}/delete', array('as' => 'rategenerator_delete', 'uses' => 'RateGeneratorsController@delete'));
 	Route::any('/rategenerators/create', array('as' => 'rategenerator_create', 'uses' => 'RateGeneratorsController@create'));
 	Route::any('/rategenerators/store', array('as' => 'rategenerator_store', 'uses' => 'RateGeneratorsController@store'));
 	Route::any('/rategenerators/{id}/update', array('as' => 'rategenerator_update', 'uses' => 'RateGeneratorsController@update'));
 	Route::any('/rategenerators/{id}/edit', array('as' => 'rategenerator_edit', 'uses' => 'RateGeneratorsController@edit'));
-	Route::any('/rategenerators/{id}/store_rule', array('as' => 'rategenerator_store_rule', 'uses' => 'RateGeneratorsController@store_rule'));
 	Route::any('/rategenerators/rules/{id}', array('as' => 'rategenerator_rules', 'uses' => 'RateGeneratorsController@rules'));
 	Route::any('/rategenerators/{id}/generate_rate_table/{create_update}', array('as' => 'rategenerator_rules', 'uses' => 'RateGeneratorsController@generate_rate_table'))->where('create_update', '(create|update)');
-	Route::any('/rategenerators/rules/{id}/edit/{ruleID}', 'RateGeneratorsController@edit_rule')->where('ruleID', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/delete/{rule_id}', 'RateGeneratorsController@delete_rule')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/edit_source/{rule_id}', 'RateGeneratorsController@edit_rule_source')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/edit_margin/{rule_id}', 'RateGeneratorsController@edit_rule_margin')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/update_margin/{rule_id}', 'RateGeneratorsController@update_rule_margin')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/add_margin/{rule_id}', 'RateGeneratorsController@add_rule_margin')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{rule_id}/delete_margin/{id}', 'RateGeneratorsController@delete_rule_margin')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/update_source/{rule_id}', 'RateGeneratorsController@update_rule_source')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/update/{rule_id}', 'RateGeneratorsController@update_rule')->where('rule_id', '(.[09]*)+');
+	//Route::any('/rategenerators/rules/{id}/edit/{ruleID}', 'RateGeneratorsController@edit_rule')->where('ruleID', '(.[09]*)+');
+	//Route::any('/rategenerators/rules/{id}/edit_source/{rule_id}', 'RateGeneratorsController@edit_rule_source')->where('rule_id', '(.[09]*)+');
 	Route::any('/rategenerators/{id}/change_status/{status}', 'RateGeneratorsController@change_status')->where('status', '(.[09]*)+');
 	Route::any('/rategenerators/exports/{type}', 'RateGeneratorsController@exports');
 	Route::any('/rategenerators/ajax_load_rate_table_dropdown', 'RateGeneratorsController@ajax_load_rate_table_dropdown');
     Route::any('/rategenerators/{id}/ajax_existing_rategenerator_cronjob', 'RateGeneratorsController@ajax_existing_rategenerator_cronjob');
     Route::any('/rategenerators/{id}/deletecronjob', 'RateGeneratorsController@deleteCronJob');
     Route::any('/rategenerators/{id}/delete', 'RateGeneratorsController@delete');
+
+	Route::any('/rategenerators/ajax_margin_datagrid', 'RateGeneratorRuleController@ajax_margin_datagrid');
+	Route::any('/rategenerators/{id}/rule/{rule_id}/delete', 'RateGeneratorRuleController@delete_rule')->where('rule_id', '(.[09]*)+');
+
+	Route::any('rategenerators/{id}/rule/add', 'RateGeneratorRuleController@add');
+	Route::any('/rategenerators/{id}/rule/store_code', 'RateGeneratorRuleController@store_code');
+	Route::any('rategenerators/{id}/rule/{ruleID}/edit', 'RateGeneratorRuleController@edit')->where('ruleID', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/update/{rule_id}', 'RateGeneratorRuleController@update_rule')->where('rule_id', '(.[09]*)+');
+
+	Route::any('/rategenerators/rules/{id}/update_source/{rule_id}', 'RateGeneratorRuleController@update_rule_source')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/update_margin/{rule_id}', 'RateGeneratorRuleController@update_rule_margin')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/add_margin/{rule_id}', 'RateGeneratorRuleController@add_rule_margin')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{rule_id}/delete_margin/{id}', 'RateGeneratorRuleController@delete_rule_margin')->where('rule_id', '(.[09]*)+');
+
 	Route::resource('rategenerators', 'RateGeneratorsController');
 	Route::controller('rategenerators', 'RateGeneratorsController');
 
