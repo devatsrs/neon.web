@@ -191,7 +191,7 @@
 
             $("#rate-compare-search-form").submit(function(e) {
 
-                var _margins_array = new Array(); // reset
+                _margins_array = new Array(); // reset
 
                 Trunk = $("#rate-compare-search-form select[name='Trunk']").val();
                 CodeDeck = $("#rate-compare-search-form select[name='CodeDeckId']").val();
@@ -263,9 +263,7 @@
                     "sAjaxSource": baseurl + "/rate_compare/search_ajax_datagrid/json",
                     "fnServerParams": function(aoData) {
                         aoData.push({ "name" : "Code"  , "value" : Code },{ "name" : "Description"  , "value" : Description },{ "name" : "Currency"  , "value" : Currency },{ "name" : "CodeDeck"  , "value" : CodeDeck },{ "name" : "Trunk"  , "value" : Trunk },{ "name" : "GroupBy"  , "value" : GroupBy },{ "name" : "Effective"  , "value" : Effective },{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{ "name" : "SourceVendors"  , "value" : SourceVendors },{ "name" : "SourceCustomers"  , "value" : SourceCustomers },{ "name" : "SourceRateTables"  , "value" : SourceRateTables },{ "name" : "DestinationVendors"  , "value" : DestinationVendors },{ "name" : "DestinationCustomers"  , "value" : DestinationCustomers },{ "name" : "DestinationRateTables"  , "value" : DestinationRateTables });
-
                         data_table_extra_params.length = 0;
-
                         data_table_extra_params.push({ "name" : "Code"  , "value" : Code },{ "name" : "Description"  , "value" : Description },{ "name" : "Currency"  , "value" : Currency },{ "name" : "CodeDeck"  , "value" : CodeDeck },{ "name" : "Trunk"  , "value" : Trunk },{ "name" : "GroupBy"  , "value" : GroupBy },{ "name" : "Effective"  , "value" : Effective },{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{ "name" : "SourceVendors"  , "value" : SourceVendors },{ "name" : "SourceCustomers"  , "value" : SourceCustomers },{ "name" : "SourceRateTables"  , "value" : SourceRateTables },{ "name" : "DestinationVendors"  , "value" : DestinationVendors },{ "name" : "DestinationCustomers"  , "value" : DestinationCustomers },{ "name" : "DestinationRateTables"  , "value" : DestinationRateTables },{"name":"Export","value":1});
                     },
                     "iDisplayLength": 10,
@@ -488,7 +486,6 @@
                 return false;
             });
 
-
             // Replace Checboxes
             $(".pagination a").click(function(ev) {
                 replaceCheckboxes();
@@ -520,6 +517,23 @@
                 var _index = $(this).attr("data-col-index")*1 + 1 ;
 
                 _margins_array[_index-1] = _margin;
+
+
+                // Add/update data_table_extra_params on margin change
+                var param_name = "margin_" + (_index-1);
+                var _param_exists = false;
+                for (var i = 0; i < data_table_extra_params.length; i++)
+                {
+
+                    if(data_table_extra_params[i].name == param_name ) {
+                        data_table_extra_params[i].value =_margin;
+                        _param_exists = true;
+                    }
+                }
+                if(!_param_exists) {
+                    data_table_extra_params.push( { "name" : param_name , "value" : _margin } );
+                }
+                //------------------
 
                 $('table tbody tr').each( function ( index ) {
 
