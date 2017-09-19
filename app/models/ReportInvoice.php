@@ -11,9 +11,17 @@ class ReportInvoice extends \Eloquent{
         'week_of_year' => 'WEEK(IssueDate)',
         'date' => 'DATE(IssueDate)',
     );
+    public static $database_payment_columns = array(
+        'year' => 'YEAR(PaymentDate)',
+        'quarter_of_year' => 'QUARTER(PaymentDate)',
+        'month' => 'MONTH(PaymentDate)',
+        'week_of_year' => 'WEEK(PaymentDate)',
+        'date' => 'DATE(PaymentDate)',
+    );
 
     public static $InvoiceDetailJoin = false;
     public static $InvoiceTaxRateJoin = false;
+    public static $dateFilterString = array();
 
     public static function generateQuery($CompanyID, $data, $filters){
         $select_columns = array();
@@ -67,9 +75,11 @@ class ReportInvoice extends \Eloquent{
             }else if($colname == 'GrandTotal' && self::$InvoiceDetailJoin == true){
                 $select_columns[] = DB::Raw("SUM(tblInvoiceDetail.LineTotal) as " . $colname);
             }else if($colname == 'PaidTotal'){
-                $select_columns[] = DB::Raw(" SUM(Amount) as " . $colname);
+                $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
+                $select_columns[] = DB::Raw(" (SELECT SUM(Amount) FROM tblPayment WHERE (FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 AND ".$extra_query.") ) AND tblPayment.AccountID = tblInvoice.AccountID AND Status='Approved' AND Recall = '0') as " . $colname);
             }else if($colname == 'OutStanding'){
-                $select_columns[] = DB::Raw("(SUM(tblInvoice.GrandTotal) - SUM(Amount) as " . $colname);
+                $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
+                $select_columns[] = DB::Raw("(SUM(tblInvoice.GrandTotal) - (SELECT SUM(Amount) FROM tblPayment WHERE ( FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 AND ".$extra_query.")) AND tblPayment.AccountID = tblInvoice.AccountID AND Status='Approved' AND Recall = '0')) as " . $colname);
             }else if(self::$InvoiceTaxRateJoin == false && in_array($colname,array('TotalTax'))){
                 $select_columns[] = DB::Raw("SUM(tblInvoice." . $colname . ") as " . $colname);
             }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){
@@ -106,16 +116,7 @@ class ReportInvoice extends \Eloquent{
             self::$InvoiceDetailJoin = true;
         }
 
-        if(in_array('PaidTotal',$data['sum']) || in_array('OutStanding',$data['sum'])){
-            $query_common->leftjoin('tblPayment', function($join)
-            {
-                $join->on('tblInvoice.InvoiceID', '=', 'tblPayment.InvoiceID');
-                $join->on('tblInvoice.AccountID', '=', 'tblPayment.AccountID');
-                $join->on('tblInvoice.Status', '=', 'Approved');
-                $join->on('tblInvoice.Recall', '=', '0');
 
-            });
-        }
 
 
 
@@ -133,6 +134,9 @@ class ReportInvoice extends \Eloquent{
             if (!empty($filter[$key]) && is_array($filter[$key])) {
                 if(isset(self::$database_columns[$key])) {
                     $query_common->whereRaw(self::$database_columns[$key].' in ('.implode(',',$filter[$key]).')');
+                    if(in_array($key, array('year', 'quarter_of_year','month','week_of_year'))) {
+                        self::$dateFilterString[] = self::$database_payment_columns[$key].' in ('.implode(',',$filter[$key]).')';
+                    }
                 }else{
                     $query_common->whereIn($key, $filter[$key]);
                 }
@@ -146,12 +150,15 @@ class ReportInvoice extends \Eloquent{
             } else if ($key == 'date') {
                 if (!empty($filter['start_date'])) {
                     $query_common->where('IssueDate', '>=', str_replace('*', '%', $filter['start_date']));
+                    self::$dateFilterString[] = 'PaymentDate >= "'. str_replace('*', '%', $filter['start_date']).'"';
                 }
                 if (!empty($filter['end_date'])) {
                     $query_common->where('IssueDate', '<=', str_replace('*', '%', $filter['end_date']));
+                    self::$dateFilterString[] = 'PaymentDate <= "'. str_replace('*', '%', $filter['end_date']).'"';
                 }
             }else if (!empty($filter['wildcard_match_val']) && in_array($key, array('year', 'quarter_of_year','month','week_of_year'))) {
                 $query_common->whereRaw(self::$database_columns[$key].' like "'.str_replace('*', '%', $filter['wildcard_match_val']).'"');
+                self::$dateFilterString[] = self::$database_payment_columns[$key].' like "'.str_replace('*', '%', $filter['wildcard_match_val']).'"';
             }
         }
         return $query_common;
