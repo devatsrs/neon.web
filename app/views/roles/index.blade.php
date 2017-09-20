@@ -48,7 +48,6 @@
         </p>
     @endif
             <div class="row">
-                <div id="loaning_process" class="dataTables_processing" style="display:none">Processing...</div>
                 <div class="col-md-6 leftsection">
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#lefttab1" data-toggle="tab">Users</a></li>
@@ -284,10 +283,10 @@
                 function loading(table,bit){
                     var panel = jQuery(table).closest('.loading');
                     if(bit==1){
-                        $("#loaning_process").show();
+                        blockUI(panel);
                         panel.addClass('reloading');
                     }else{
-                        $("#loaning_process").hide();
+                        unblockUI(panel);
                         panel.removeClass('reloading');
                     }
                 }

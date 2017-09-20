@@ -3,11 +3,6 @@ Use Ratemanagement3;
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1306, 'RateCompare.All', 1, 5);
 INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'RateCompare.*', 'RateCompareController.*', 1, 'Sumera Saeed', NULL, '2017-08-31 17:16:34.000', '2017-08-31 17:16:34.000', 1306);
 
--- Rate Generator
-ALTER TABLE `tblRateRule` ADD COLUMN `Description` VARCHAR(200) NULL AFTER `Code`;
-ALTER TABLE `tblRateRule` ALTER `Code` DROP DEFAULT;
-ALTER TABLE `tblRateRule` CHANGE COLUMN `Code` `Code` VARCHAR(100) NULL COLLATE 'utf8_unicode_ci' AFTER `RateGeneratorId`;
-
 DELIMITER  //
 CREATE PROCEDURE `prc_RateCompare`(
 	IN `p_companyid` INT,
@@ -1175,13 +1170,11 @@ CONTAINS SQL
 
   END//
 DELIMITER ;
-
-
-
 -- Rate geneator
 
-DELIMITER  //
-CREATE PROCEDURE `prc_WSGenerateRateTable`(
+DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTable`;
+DELIMITER //
+CREATE  PROCEDURE `prc_WSGenerateRateTable`(
 	IN `p_jobId` INT,
 	IN `p_RateGeneratorId` INT,
 	IN `p_RateTableId` INT,
@@ -1189,12 +1182,10 @@ CREATE PROCEDURE `prc_WSGenerateRateTable`(
 	IN `p_EffectiveDate` VARCHAR(10),
 	IN `p_delete_exiting_rate` INT,
 	IN `p_EffectiveRate` VARCHAR(50)
+
+
+
 )
-LANGUAGE SQL
-NOT DETERMINISTIC
-CONTAINS SQL
-	SQL SECURITY DEFINER
-	COMMENT ''
 		GenerateRateTable:BEGIN
 
 
@@ -1471,11 +1462,11 @@ CONTAINS SQL
 		insert into tmp_code_
 			SELECT  DISTINCT LEFT(f.Code, x.RowNo) as loopCode
 			FROM (
-					SELECT @RowNo  := @RowNo + 1 as RowNo
-					FROM mysql.help_category
-						,(SELECT @RowNo := 0 ) x
-					limit 15
-				) x
+						 SELECT @RowNo  := @RowNo + 1 as RowNo
+						 FROM mysql.help_category
+							 ,(SELECT @RowNo := 0 ) x
+						 limit 15
+					 ) x
 				INNER JOIN
 				(SELECT
 					 distinct
@@ -1505,26 +1496,26 @@ CONTAINS SQL
 			Select DISTINCT AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference
 			FROM (
 						 SELECT  tblVendorRate.AccountId,tblAccount.AccountName, tblRate.Code, tblRate.Description,
-							CASE WHEN  tblAccount.CurrencyId = v_CurrencyID_
-								THEN
-									tblVendorRate.Rate
-							WHEN  v_CompanyCurrencyID_ = v_CurrencyID_
-								THEN
-									(
-										( tblVendorRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ) )
-									)
-							ELSE
-								(
+																																				CASE WHEN  tblAccount.CurrencyId = v_CurrencyID_
+																																					THEN
+																																						tblVendorRate.Rate
+																																				WHEN  v_CompanyCurrencyID_ = v_CurrencyID_
+																																					THEN
+																																						(
+																																							( tblVendorRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ) )
+																																						)
+																																				ELSE
+																																					(
 
-									(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = v_CurrencyID_ and  CompanyID = v_CompanyId_ )
-									* (tblVendorRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ))
-								)
-							END
-							as  Rate,
+																																						(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = v_CurrencyID_ and  CompanyID = v_CompanyId_ )
+																																						* (tblVendorRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ))
+																																					)
+																																				END
+																																																																																																																																														as  Rate,
 							 ConnectionFee,
-							DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') AS EffectiveDate,
+																																				DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') AS EffectiveDate,
 							 tblVendorRate.TrunkID, tblRate.CountryID, tblRate.RateID,IFNULL(vp.Preference, 5) AS Preference,
-							@row_num := IF(@prev_AccountId = tblVendorRate.AccountID AND @prev_TrunkID = tblVendorRate.TrunkID AND @prev_RateId = tblVendorRate.RateID AND @prev_EffectiveDate >= tblVendorRate.EffectiveDate, @row_num + 1, 1) AS RowID,
+																																				@row_num := IF(@prev_AccountId = tblVendorRate.AccountID AND @prev_TrunkID = tblVendorRate.TrunkID AND @prev_RateId = tblVendorRate.RateID AND @prev_EffectiveDate >= tblVendorRate.EffectiveDate, @row_num + 1, 1) AS RowID,
 							 @prev_AccountId := tblVendorRate.AccountID,
 							 @prev_TrunkID := tblVendorRate.TrunkID,
 							 @prev_RateId := tblVendorRate.RateID,
@@ -1615,11 +1606,11 @@ CONTAINS SQL
 						 from (
 										SELECT distinct f.Code as RowCode, LEFT(f.Code, x.RowNo) as loopCode
 										FROM (
-												SELECT @RowNo  := @RowNo + 1 as RowNo
-												FROM mysql.help_category
-													,(SELECT @RowNo := 0 ) x
-												limit 15
-											) x
+													 SELECT @RowNo  := @RowNo + 1 as RowNo
+													 FROM mysql.help_category
+														 ,(SELECT @RowNo := 0 ) x
+													 limit 15
+												 ) x
 											INNER JOIN
 											(
 												select distinct Code from
@@ -1767,9 +1758,11 @@ CONTAINS SQL
 										 from tmp_VendorRate_  tmpvr
 											 inner JOIN tmp_Raterules_ rr ON rr.RateRuleId = v_rateRuleId_ and
 																											 -- tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%'))
-																												( rr.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%')) )
-																												OR
-																												( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
+																											 (
+																												 ( rr.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%')) )
+																												 OR
+																												 ( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
+																											 )
 											 inner JOIN tblRateRuleSource rrs ON  rrs.RateRuleId = rr.rateruleid  and rrs.AccountId = tmpvr.AccountId
 									 ) vr
 								,(SELECT @rank := 0 , @prev_RowCode := '' , @prev_Rate := 0  ) x
@@ -1816,9 +1809,11 @@ CONTAINS SQL
 										 from tmp_VendorRate_  tmpvr
 											 inner JOIN tmp_Raterules_ rr ON rr.RateRuleId = v_rateRuleId_ and
 																											 -- tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%'))
-																											 ( rr.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%')) )
-																											 OR
-																											 ( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
+																											 (
+																												 ( rr.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%')) )
+																												 OR
+																												 ( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
+																											 )
 											 inner JOIN tblRateRuleSource rrs ON  rrs.RateRuleId = rr.rateruleid  and rrs.AccountId = tmpvr.AccountId
 									 ) vr
 
@@ -2044,11 +2039,9 @@ CONTAINS SQL
 	END//
 DELIMITER ;
 
-
-
-
-DELIMITER  //
-CREATE PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
+DROP PROCEDURE IF EXISTS `prc_WSGenerateRateTableWithPrefix`;
+DELIMITER //
+CREATE  PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
 	IN `p_jobId` INT,
 	IN `p_RateGeneratorId` INT,
 	IN `p_RateTableId` INT,
@@ -2060,11 +2053,6 @@ CREATE PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
 
 
 )
-LANGUAGE SQL
-NOT DETERMINISTIC
-CONTAINS SQL
-	SQL SECURITY DEFINER
-	COMMENT ''
 		GenerateRateTable:BEGIN
 
 
@@ -2347,6 +2335,7 @@ CONTAINS SQL
 					ON ( rr.code != '' AND tblRate.Code LIKE (REPLACE(rr.code,'*', '%%')) )
 						 OR
 						 ( rr.description != '' AND tblRate.Description LIKE (REPLACE(rr.description,'*', '%%')) )
+
 			Order by tblRate.code ;
 
 
@@ -2366,22 +2355,22 @@ CONTAINS SQL
 			Select DISTINCT AccountId,AccountName,Code,Description, Rate,ConnectionFee,EffectiveDate,TrunkID,CountryID,RateID,Preference
 			FROM (
 						 SELECT  tblVendorRate.AccountId,tblAccount.AccountName, tblRate.Code, tblRate.Description,
-								CASE WHEN  tblAccount.CurrencyId = v_CurrencyID_
-									THEN
-										tblVendorRate.Rate
-								WHEN  v_CompanyCurrencyID_ = v_CurrencyID_
-									THEN
-										(
-											( tblVendorRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ) )
-										)
-								ELSE
-									(
+																																				CASE WHEN  tblAccount.CurrencyId = v_CurrencyID_
+																																					THEN
+																																						tblVendorRate.Rate
+																																				WHEN  v_CompanyCurrencyID_ = v_CurrencyID_
+																																					THEN
+																																						(
+																																							( tblVendorRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ) )
+																																						)
+																																				ELSE
+																																					(
 
-										(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = v_CurrencyID_ and  CompanyID = v_CompanyId_ )
-										* (tblVendorRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ))
-									)
-								END
-								as  Rate,
+																																						(Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = v_CurrencyID_ and  CompanyID = v_CompanyId_ )
+																																						* (tblVendorRate.rate  / (Select Value from tblCurrencyConversion where tblCurrencyConversion.CurrencyId = tblAccount.CurrencyId and  CompanyID = v_CompanyId_ ))
+																																					)
+																																				END
+																																																																																																																																														as  Rate,
 							 ConnectionFee,
 																																				DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') AS EffectiveDate,
 							 tblVendorRate.TrunkID, tblRate.CountryID, tblRate.RateID,IFNULL(vp.Preference, 5) AS Preference,
@@ -2565,9 +2554,11 @@ CONTAINS SQL
 										 from tmp_VendorRate_  tmpvr
 											 inner JOIN tmp_Raterules_ rr ON rr.RateRuleId = v_rateRuleId_ and
 																											 -- tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%'))
-																											 ( rr.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%')) )
-																											 OR
-																											 ( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
+																											 (
+																												 ( rr.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%')) )
+																												 OR
+																												 ( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
+																											 )
 											 inner JOIN tblRateRuleSource rrs ON  rrs.RateRuleId = rr.rateruleid  and rrs.AccountId = tmpvr.AccountId
 									 ) vr
 								,(SELECT @rank := 0 , @prev_RowCode := '' , @prev_Rate := 0  ) x
@@ -2614,9 +2605,11 @@ CONTAINS SQL
 										 from tmp_VendorRate_  tmpvr
 											 inner JOIN tmp_Raterules_ rr ON rr.RateRuleId = v_rateRuleId_ and
 																											 -- tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%'))
-																											 ( rr.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%')) )
-																											 OR
-																											 ( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
+																											 (
+																												 ( rr.code != '' AND tmpvr.RowCode LIKE (REPLACE(rr.code,'*', '%%')) )
+																												 OR
+																												 ( rr.description != '' AND tmpvr.Description LIKE (REPLACE(rr.description,'*', '%%')) )
+																											 )
 											 inner JOIN tblRateRuleSource rrs ON  rrs.RateRuleId = rr.rateruleid  and rrs.AccountId = tmpvr.AccountId
 									 ) vr
 
