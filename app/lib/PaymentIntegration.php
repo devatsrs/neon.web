@@ -110,6 +110,8 @@ class PaymentIntegration {
 				/**  Update Invoice as Paid */
 				if (in_array($Invoiceid->InvoiceID, explode(',', $data['InvoiceIDs']))) {
 					$transactionResponse['Amount'] = $Invoiceid->RemaingAmount;
+					$transactionResponse['InvoiceID'] = $Invoiceid->InvoiceID;
+					$transactionResponse['AccountID'] = $data['AccountID'];
 					Payment::paymentSuccess($transactionResponse);
 				}
 			}
@@ -118,6 +120,8 @@ class PaymentIntegration {
 			foreach ($unPaidInvoices as $Invoiceid) {
 				if (in_array($Invoiceid->InvoiceID, explode(',', $data['InvoiceIDs']))) {
 					$transactionResponse['Amount'] = $Invoiceid->RemaingAmount;
+					$transactionResponse['InvoiceID'] = $Invoiceid->InvoiceID;
+					$transactionResponse['AccountID'] = $data['AccountID'];
 					Payment::paymentFail($transactionResponse);
 				}
 			}
