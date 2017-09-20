@@ -184,7 +184,7 @@
 
                                     action = '<div class="hiddenRowData"><input type="hidden" value="'+full[0]+'" name="MinRate"><input type="hidden" value="'+full[1]+'" name="MaxRate"><input type="hidden" value="'+full[2]+'" name="AddMargin"><input type="hidden" value="'+full[3]+'" name="RateRuleMarginId"></div>';
                                     action += ' <a title="Edit" class="edit btn btn-primary btn-sm" id="add-new-margin" href="#"><i class="entypo-pencil"></i>&nbsp;</a>';
-                                    action += ' <a title="Delete" class="btn btn-danger btn-sm"  href="'+delete_+'"><i class="entypo-trash"></i></a>';
+                                    action += ' <a title="Delete" class="btn delete btn-danger btn-sm"  href="'+delete_+'"><i class="entypo-trash"></i></a>';
 
                                     return action;
                                 }
