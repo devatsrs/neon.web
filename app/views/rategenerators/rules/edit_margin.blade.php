@@ -215,6 +215,19 @@
                 submit_ajax_withfile(_url,formData);
             });
             $("#add-margin-form").submit(function(e){
+
+
+                var MinRate = $("#add-margin-form input[name='MinRate']").val();
+                var MaxRate = $("#add-margin-form input[name='MaxRate']").val();
+
+                if((typeof MinRate  == 'undefined' || MinRate.trim() == '' ) && (typeof MaxRate  == 'undefined' || MaxRate.trim() == '' )){
+
+                    setTimeout(function(){$('.btn').button('reset');},10);
+                    toastr.error("Please Enter a Min Rate or Max Rate", "Error", toastr_opts);
+                    return false;
+
+                }
+
                 e.preventDefault();
                 var _url = $(this).attr("action");
                 var formData = new FormData($('#add-margin-form')[0]);
