@@ -512,6 +512,8 @@ class AuthorizeNet {
         $transactionResponse['PaymentMethod'] = 'CREDIT CARD';
         $transactionResponse['failed_reason'] =$transaction->response_reason_text!='' ? $transaction->response_reason_text : $Notes;
         $transactionResponse['transaction_id'] = $transaction->transaction_id;
+        $transactionResponse['Response'] = $transaction;
+
         $transactiondata = array();
         $transactiondata['CompanyID'] = $account->CompanyId;
         $transactiondata['AccountID'] = $account->AccountID;

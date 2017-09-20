@@ -491,6 +491,8 @@ class StripeACH {
 		if(!empty($transaction['id'])) {
 			$transactionResponse['transaction_id'] = $transaction['id'];
 		}
+		$transactionResponse['Response'] = $transaction;
+
 		$transactiondata = array();
 		$transactiondata['CompanyID'] = $account->CompanyId;
 		$transactiondata['AccountID'] = $account->AccountID;
