@@ -142,6 +142,8 @@ class HomeController extends BaseController {
             //if Normal User
             if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && NeonAPI::login()) {
                 User::setUserPermission();
+                Log::info("Current Login Date : ".date('Y-m-d H:i:s'));
+                User::find(Auth::user()->UserID)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
 				create_site_configration_cache();
 				$query_data =  parse_url($_SERVER['HTTP_REFERER']);
 				if(isset($query_data['query'])){parse_str($query_data['query']);}
@@ -266,6 +268,7 @@ class HomeController extends BaseController {
 
         if(!empty($user) ){
             Auth::login($user);
+            NeonAPI::login();
             User::setUserPermission();
             echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
             return;

@@ -398,6 +398,7 @@
                                 action='';
                                 edit_ = "{{ URL::to('accounts/{id}/edit')}}";
                                 show_ = "{{ URL::to('accounts/{id}/show')}}";
+                                log_ = "{{ URL::to('accounts/{id}/log')}}";
                                 chart_ = "{{ URL::to('accounts/activity/{id}')}}";
                                 credit_ = "{{ URL::to('account/get_credit/{id}')}}";
                                 customer_rate_ = "{{Url::to('/customers_rates/{id}')}}";
@@ -407,6 +408,7 @@
 
                                 edit_ = edit_.replace( '{id}', full[0] );
                                 show_ = show_.replace( '{id}', full[0] );
+                                log_ = log_.replace( '{id}', full[0] );
                                 chart_ = chart_.replace( '{id}', full[0] );
                                 credit_ = credit_.replace( '{id}', full[0] );
                                 customer_rate_ = customer_rate_.replace( '{id}', full[0] );
@@ -441,6 +443,7 @@
                                 action +='&nbsp;<button redirecto="'+edit_+'" class="btn small_icons btn-default btn-xs" title="Edit" data-id="'+full[0]+'" type="button"> <i class="entypo-pencil"></i></button>';
                                 <?php } ?>
                                 action +='&nbsp;<button redirecto="'+show_+'" class="btn small_icons btn-default btn-xs" title="View" data-id="'+full[0]+'" type="button"> <i class="fa fa-eye"></i></button>';//entypo-info
+                                action +='&nbsp;<button redirecto="'+log_+'" class="btn small_icons btn-default btn-xs" title="View Account Logs" data-id="'+full[0]+'" type="button"> <i class="fa fa-file-text-o"></i></button>';//entypo-info
                                 /*full[6] == Customer verified
                                  full[7] == Vendor verified */
                                 varification_url =  '{{ URL::to('accounts/{id}/change_verifiaction_status')}}/';

@@ -348,11 +348,16 @@ class UsersController extends BaseController {
             }
         }*/
         $permissions = ["All User"];  //Config::get('app.permissions');
-        foreach ($permissions as $permission) {
-            $users_ = DB::table('tblUser')->where(['CompanyID' => $companyID, 'Status' => 1])->get();
-
+        $roles = Role::get();
+        $admins_ = DB::table('tblUser')->where(['CompanyID' => $companyID, 'Status' => 1, 'AdminUser' => 1])->get();
+        foreach ($admins_ as $admin) {
+            $users['Admin'][$admin->UserID] = $admin->EmailAddress;
+        }
+        $users_ = DB::table('tblUser')->where(['CompanyID' => $companyID, 'Status' => 1])->get();
+        foreach ($roles as $role) {
             foreach ($users_ as $user) {
-                $users[ucfirst($permission)][$user->UserID] = $user->EmailAddress;
+                if(UserRole::where(['UserID'=>$user->UserID, 'RoleID'=>$role->RoleID])->count() > 0)
+                    $users[ucfirst($role->RoleName)][$user->UserID] = $user->EmailAddress;
             }
         }
         return View::make('user.users_dropdown', compact('users'));
