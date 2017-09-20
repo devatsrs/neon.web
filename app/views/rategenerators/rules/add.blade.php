@@ -27,7 +27,7 @@
     <div class="row">
         <div class="col-md-12">
             <ul class="nav nav-tabs bordered" >
-                <li class="active"><a data-toggle="tab" href="#tab-code_description">Code</a></li>
+                <li class="active"><a data-toggle="tab" href="#tab-code_description">Destination</a></li>
                 <li><a class="disabled" href="#">Sources</a></li>
                 <li><a class="disabled" href="#">Margin</a></li>
             </ul>

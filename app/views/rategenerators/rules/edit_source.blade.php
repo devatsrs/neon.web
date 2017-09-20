@@ -1,7 +1,7 @@
 <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Rate Generator Rule Source Information
+
                     </div>
 
                     <div class="panel-options">
@@ -56,13 +56,13 @@
                                 </div>
                             </div>
                         </div>
-                        <p style="text-align: right;"><br></p>
+                        {{--<p style="text-align: right;"><br></p>
                         <p style="text-align: right;">
                             <button type="submit"  class="save source btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                                 <i class="entypo-floppy"></i>
                                 Save
                             </button>
-                        </p>
+                        </p>--}}
                     </form>
 
 
@@ -126,14 +126,14 @@
 
 
 
-            $("#rategenerator-source-from").submit(function(e){
+            /*$("#rategenerator-source-from").submit(function(e){
                 e.preventDefault();
                 var _url = $(this).attr("action");
                 var formData = new FormData($('#rategenerator-source-from')[0]);
                 submit_ajax_withfile(_url,formData);
 
                 return false;
-            });
+            });*/
 
         });
     </script>

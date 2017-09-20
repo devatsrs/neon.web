@@ -1,19 +1,46 @@
 <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
-            Rate Generator Rule Source Information
         </div>
         <div class="panel-options">
             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
         </div>
     </div>
     <div class="panel-body">
-        <div class="float-right">
-        <button type="button"  class="add btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-            <i class="entypo-floppy"></i>
-            Add New
-        </button>
-        </div>
+
+        <form id="add-margin-form" method="post" action="{{URL::to('rategenerators/rules/'.$id.'/add_margin/'.$RateRuleID)}}">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="field-4" class="control-label">Min Rate</label>
+                            <input type="text" name="MinRate" class="form-control" id="field-5" placeholder="">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">Max Rate</label>
+                            <input type="text" name="MaxRate" class="form-control" id="field-5" placeholder="">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="field-5" class="control-label">Add Margin <span class="label label-info popover-primary" data-original-title="Example" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span></label>
+                            <input type="text" name="AddMargin" class="form-control" id="field-5" placeholder="">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <br>
+                            <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                                <i class="entypo-floppy"></i>
+                                Add New
+                            </button>
+                        </div>
+                    </div>
+                </div>
+        </form>
+
+
         <div class="clear clearfix"><br></div>
         <div class="clear clearfix"><br></div>
 
@@ -55,9 +82,7 @@
             jQuery('#modal-RateGenerator').modal('show', {backdrop: 'static'});
         });
 
-        $(".add.btn").click(function(ev) {
-            jQuery('#modal-RateGenerator-add-margin').modal('show', {backdrop: 'static'});
-        });
+
 
 
 
@@ -124,61 +149,6 @@
         </div>
     </div>
     <!--Add New Rate Rule Margin-->
-    <div class="modal fade" id="modal-RateGenerator-add-margin">
-        <div class="modal-dialog">
-            <div class="modal-content">
-
-                <form id="add-margin-form" method="post" action="{{URL::to('rategenerators/rules/'.$id.'/add_margin/'.$RateRuleID)}}">
-
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="Javascript: $('.add.btn').button('reset');">&times;</button>
-                        <h4 class="modal-title">Add Rate Generator Rule Margin</h4>
-                    </div>
-
-                    <div class="modal-body">
-
-                        <div class="row">
-                            <div class="col-md-4">
-
-                                <div class="form-group">
-                                    <label for="field-4" class="control-label">Min Rate</label>
-                                    <input type="text" name="MinRate" class="form-control" id="field-5" placeholder="">
-                                </div>
-
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Max Rate</label>
-                                    <input type="text" name="MaxRate" class="form-control" id="field-5" placeholder="">
-                                </div>
-
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">Add Margin <span class="label label-info popover-primary" data-original-title="Example" data-content="If you want to add percentage value enter i.e. 10p for 10% percentage value" data-placement="bottom" data-trigger="hover" data-toggle="popover">?</span></label>
-                                    <input type="text" name="AddMargin" class="form-control" id="field-5" placeholder="">
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="submit"  class="save  btn btn-primary btn-sm btn-icon icon-left"  >
-                            <i class="entypo-floppy"></i>
-                            Save
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal" onclick="Javascript: $('.add.btn').button('reset');">
-                            <i class="entypo-cancel"></i>
-                            Close
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
     <script>
 
         jQuery(document).ready(function ($) {
@@ -249,7 +219,6 @@
                 var _url = $(this).attr("action");
                 var formData = new FormData($('#add-margin-form')[0]);
                 submit_ajax_withfile(_url,formData);
-
                 return false;
             });
         });

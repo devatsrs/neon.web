@@ -112,12 +112,12 @@ class RateGeneratorRuleController extends \BaseController {
             if ($rategenerator_rules->update($data)) {
                 return Response::json(array(
                     "status" => "success",
-                    "message" => "RateGenerator Rule Successfully Updated"
+                    "message" => "RateGenerator Rule Destination Successfully Updated"
                 ));
             } else {
                 return Response::json(array(
                     "status" => "failed",
-                    "message" => "Problem Updating RateGenerator Rule."
+                    "message" => "Problem Updating RateGenerator Rule Destination."
                 ));
             }
         }
