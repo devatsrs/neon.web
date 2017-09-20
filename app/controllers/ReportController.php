@@ -29,8 +29,6 @@ class ReportController extends \BaseController {
         $dimensions['invoice']['Customer'] = $Accountschema;
         $dimensions['payment']['Customer'] = $Accountschema;
 
-        $dimensions['summary']['Vendor'] = $Accountschema;
-        $dimensions['vsummary']['Vendor'] = $Accountschema;
 
         $Columns = Report::$dimension['summary']+Report::$measures['summary'];
         $report_settings =array();
