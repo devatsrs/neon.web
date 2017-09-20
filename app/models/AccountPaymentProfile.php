@@ -256,6 +256,7 @@ class AccountPaymentProfile extends \Eloquent
 
     }
 
+    // not using
     public static function createAuthorizeProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data){
 
         $ProfileID = "";
@@ -333,6 +334,7 @@ class AccountPaymentProfile extends \Eloquent
 
     }
 
+    // not using
     public static function createStripeProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data)
     {
         $stripepayment = new StripeBilling();
@@ -395,6 +397,7 @@ class AccountPaymentProfile extends \Eloquent
         }
     }
 
+    // not using
     public static function deleteAuthorizeProfile($CompanyID,$AccountID,$AccountPaymentProfileID){
         //If using Authorize.net
         $isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
@@ -443,6 +446,7 @@ class AccountPaymentProfile extends \Eloquent
         }
     }
 
+    // not using
     public static function deleteStripeProfile($CompanyID,$AccountID,$AccountPaymentProfileID){
 
         $stripepayment = new StripeBilling();
@@ -479,6 +483,7 @@ class AccountPaymentProfile extends \Eloquent
         }
     }
 
+    // not using
     public static function createStripeACHProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data)
     {
         $stripepayment = new StripeACH();
@@ -543,6 +548,7 @@ class AccountPaymentProfile extends \Eloquent
         }
     }
 
+    // not using
     public static function deleteStripeACHProfile($CompanyID,$AccountID,$AccountPaymentProfileID){
 
         $stripepayment = new StripeACH();
@@ -579,6 +585,7 @@ class AccountPaymentProfile extends \Eloquent
         }
     }
 
+    // not using
     public static function createSagePayProfile($CompanyID, $CustomerID,$PaymentGatewayID)
     {
         $data = Input::all();
@@ -654,6 +661,7 @@ class AccountPaymentProfile extends \Eloquent
 
     }
 
+    //not using
     public static function deleteSagePayDirectDebitProfile($CompanyID,$AccountID,$AccountPaymentProfileID)
     {
         $count = AccountPaymentProfile::where(["CompanyID"=>$CompanyID])->where(["AccountID"=>$AccountID])->count();

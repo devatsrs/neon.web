@@ -603,9 +603,6 @@
 
                 </div>
                 <div class="form-group">
-                    <script>
-                        var ajax_url = baseurl + "/accounts/{{$account->AccountID}}/ajax_datagrid_PaymentProfiles";
-                    </script>
                     <div class="col-md-3">
 
                         <h4>Preferred Payment Method</h4>
@@ -646,21 +643,7 @@
                         </ul>
                     </div>
                     <div class="col-md-9">
-                        @if( $account->PaymentMethod == 'Stripe'  || $account->PaymentMethod == 'AuthorizeNet')
-                            @if (is_authorize() || is_Stripe())
-                                @include('customer.paymentprofile.paymentGrid')
-                            @endif
-                        @endif
-                        @if( $account->PaymentMethod == 'StripeACH')
-                            @if(is_StripeACH())
-                                @include('customer.paymentprofile.bankpaymentGrid')
-                            @endif
-                        @endif
-                        @if( $account->PaymentMethod == 'SagePayDirectDebit')
-                            @if(is_SagePayDirectDebit())
-                                @include('customer.paymentprofile.sagepaydirectdebitGrid')
-                            @endif
-                        @endif
+                        @include('customer.paymentprofile.mainpaymentGrid')
                     </div>
                 </div>
             </div>
@@ -715,11 +698,7 @@
             return false;
         });
 		//account status end
-		
-		
-		
-        $('#add-credit-card-form').find("[name=AccountID]").val('{{$account->AccountID}}');
-        $('#add-bankaccount-form').find("[name=AccountID]").val('{{$account->AccountID}}');
+
         $("#save_account").click(function (ev) {
             ev.preventDefault();
             //Subscription , Additional charge filter fields should not in account save.

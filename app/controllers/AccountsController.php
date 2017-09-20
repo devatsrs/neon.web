@@ -949,6 +949,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     }
 
+    // not using
     public function get_outstanding_amount($id) {
 
             $data = Input::all();
@@ -960,6 +961,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $outstandingtext = $currency.$outstanding;
             echo json_encode(array("status" => "success", "message" => "", "outstanding" => $outstanding, "outstadingtext" => $outstandingtext));
     }
+
+    // not using
     public function paynow($id){
             $data = Input::all();
             $CompanyID = User::get_companyID();
