@@ -135,13 +135,13 @@
 
         function  makedraggable(){
             // Let the Dimension items be draggable
-            $( "li", $Dimension ).draggable({
+            $( "li.ui-draggable", $Dimension ).draggable({
                 helper: "clone",
                 cursor: "move"
             });
 
             // Let the Measures items be draggable
-            $( "li", $Measures ).draggable({
+            $( "li.ui-draggable", $Measures ).draggable({
                 helper: "clone",
                 cursor: "move"
             });
@@ -158,6 +158,20 @@
             $( "li", $Row ).draggable({
                 helper: "clone"
             });
+
+            $('.tree li:has(ul)').addClass('parent_li').find(' > span').attr('title', 'Collapse this branch');
+            $('.tree li.parent_li > span').on('click', function (e) {
+                var children = $(this).parent('li.parent_li').find(' > ul > li');
+                if (children.is(":visible")) {
+                    children.hide('fast');
+                    $(this).attr('title', 'Expand this branch').find(' > i').addClass('icon-plus-sign').removeClass('icon-minus-sign');
+                } else {
+                    children.show('fast');
+                    $(this).attr('title', 'Collapse this branch').find(' > i').addClass('icon-minus-sign').removeClass('icon-plus-sign');
+                }
+                e.stopPropagation();
+            });
+            $('.tree li.parent_li > span').trigger('click');
         }
 
         $("[name='Cube']").on('change', function () {
@@ -167,10 +181,19 @@
             var dimesions_html = '';
             var measures_html = '';
             $.each(current_dimesions, function(index, value) {
-                dimesions_html += '<li class="dd-item select2-search-choice dimension ui-draggable" data-cube="'+cube+'" data-val="'+index+'"><div class="dd-handle">'+value+'</div></li>';
+                if(typeof value == 'object'){
+                    dimesions_html += '<li><span><i class="fa fa-folder-open-o"></i> '+index+'</span><ul>';
+                    $.each(value, function(index2, value2) {
+                        dimesions_html += '<li class="dimension ui-draggable" data-cube="' + cube + '" data-val="' + index2 + '"><span><i class="fa fa-arrows"></i> ' + value2 + '</span></li>';
+                    });
+                    dimesions_html += '</ul></li>';
+                }else{
+                    dimesions_html += '<li class="dimension ui-draggable" data-cube="'+cube+'" data-val="'+index+'"><span><i class="fa fa-arrows"></i> ' + value + '</span></li>';
+                }
+
             });
             $.each(current_measures, function(index, value) {
-                measures_html += '<li class="dd-item select2-search-choice measures ui-draggable" data-cube="'+cube+'" data-val="'+index+'"><div class="dd-handle">'+value+'</div></li>';
+                measures_html += '<li class="measures ui-draggable" data-cube="'+cube+'" data-val="'+index+'"><span><i class="fa fa-arrows"></i> ' + value + '</span></li>';
             });
             $("#Dimension").html(dimesions_html);
             $("#Measures").html(measures_html);

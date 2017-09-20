@@ -21,6 +21,17 @@ class ReportController extends \BaseController {
         $dimensions = Report::$dimension;
         $measures = Report::$measures;
 
+        $Accountschema = Schema::getColumnListing('tblAccount');
+        $Accountschema = array_combine($Accountschema,$Accountschema);
+
+        $dimensions['summary']['Customer'] = $Accountschema;
+        $dimensions['vsummary']['Customer'] = $Accountschema;
+        $dimensions['invoice']['Customer'] = $Accountschema;
+        $dimensions['payment']['Customer'] = $Accountschema;
+
+        $dimensions['summary']['Vendor'] = $Accountschema;
+        $dimensions['vsummary']['Vendor'] = $Accountschema;
+
         $Columns = Report::$dimension['summary']+Report::$measures['summary'];
         $report_settings =array();
         $report_settings['Cube'] = 'summary';

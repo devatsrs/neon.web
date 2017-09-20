@@ -8,6 +8,7 @@ class ReportPayment extends \Eloquent{
         'week_of_year' => 'WEEK(PaymentDate)',
         'date' => 'DATE(PaymentDate)',
     );
+    public static $AccountJoin = false;
 
     public static function generateQuery($CompanyID, $data, $filters){
         $select_columns = array();
@@ -19,8 +20,9 @@ class ReportPayment extends \Eloquent{
                     $query_distinct->orderby($column);
                     $select_columns[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
                 }else{
-                    $query_distinct->orderby($column);
-                    $select_columns[] = $column;
+                    $columnname = report_col_name($column);
+                    $query_distinct->orderby($columnname);
+                    $select_columns[] = $columnname;
                 }
             }
             $query_distinct = $query_distinct->distinct();
@@ -38,8 +40,9 @@ class ReportPayment extends \Eloquent{
                 $final_query->groupby($column);
                 $select_columns[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
             }else{
-                $final_query->groupby($column);
-                $select_columns[] = $column;
+                $columnname = report_col_name($column);
+                $final_query->groupby($columnname);
+                $select_columns[] = $columnname;
             }
         }
 
@@ -47,7 +50,8 @@ class ReportPayment extends \Eloquent{
             if(isset(self::$database_columns[$column])){
                 $final_query->groupby($column);
             }else{
-                $final_query->groupby($column);
+                $columnname = report_col_name($column);
+                $final_query->groupby($columnname);
             }
         }
 
@@ -71,7 +75,13 @@ class ReportPayment extends \Eloquent{
     }
 
     public static function commonQuery($CompanyID, $data, $filters){
-        $query_common = Payment::where(['CompanyID' => $CompanyID,'Status'=>'Approved','Recall'=>'0']);
+        $query_common = Payment::where(['tblPayment.CompanyID' => $CompanyID,'tblPayment.Status'=>'Approved','Recall'=>'0']);
+
+        $RMDB = Config::get('database.connections.sqlsrv.database');
+        if(report_join($data)){
+            $query_common->join($RMDB.'.tblAccount', 'tblPayment.AccountID', '=', 'tblAccount.AccountID');
+            self::$AccountJoin = true;
+        }
 
         foreach ($filters as $key => $filter) {
             if (!empty($filter[$key]) && is_array($filter[$key])) {

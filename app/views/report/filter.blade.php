@@ -9,14 +9,26 @@
             Filter
         </h2>
         <div class="filter-group" id="group-1">
-            <div id="Filter_Drop" class="col-sm-12 ui-widget-content ui-state-default select2-container select2-container-multi">
+            <div id="Filter_Drop" class="col-sm-12 tree ui-widget-content ui-state-default select2-container select2-container-multi">
                 <ul class=" select2-choices ui-helper-reset">
                     @if(isset($report_settings['filter_settings']) && $selectedColumns = array_filter(json_decode($report_settings['filter_settings'],true)))
                         @foreach($selectedColumns as $selectedColumn => $extraarray)
-                            <li class="dd-item select2-search-choice {{isset($dimensions[$report_settings['Cube']][$selectedColumn])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
-                                <div class="dd-handle">
-                                    {{$dimensions[$report_settings['Cube']][$selectedColumn] or $measures[$report_settings['Cube']][$selectedColumn]}}
-                                </div>
+                            <li class="{{isset($dimensions[$report_settings['Cube']][$selectedColumn])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
+                                <span><i class="fa fa-arrows"></i>
+                                    <?php
+                                    $filter = '';
+                                        if(isset($measures[$report_settings['Cube']][$selectedColumn])){
+                                            $filter = $measures[$report_settings['Cube']][$selectedColumn];
+                                        } else if(isset($dimensions[$report_settings['Cube']][$selectedColumn]) && !is_array($dimensions[$report_settings['Cube']][$selectedColumn])){
+                                            $filter = $dimensions[$report_settings['Cube']][$selectedColumn];
+                                        } else if(isset($dimensions[$report_settings['Cube']]['date'][$selectedColumn])){
+                                            $filter = $dimensions[$report_settings['Cube']]['date'][$selectedColumn];
+                                        } else if(isset($dimensions[$report_settings['Cube']]['Customer'][$selectedColumn])){
+                                            $filter = $dimensions[$report_settings['Cube']]['Customer'][$selectedColumn];
+                                        }
+                                    ?>
+                                    {{$filter}}
+                                </span>
                             </li>
                         @endforeach
                     @endif

@@ -21,6 +21,7 @@ class ReportInvoice extends \Eloquent{
 
     public static $InvoiceDetailJoin = false;
     public static $InvoiceTaxRateJoin = false;
+    public static $AccountJoin = false;
     public static $dateFilterString = array();
 
     public static function generateQuery($CompanyID, $data, $filters){
@@ -34,8 +35,9 @@ class ReportInvoice extends \Eloquent{
                     $query_distinct->orderby($column);
                     $select_columns[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
                 }else{
-                    $query_distinct->orderby($column);
-                    $select_columns[] = $column;
+                    $columnname = report_col_name($column);
+                    $query_distinct->orderby($columnname);
+                    $select_columns[] = $columnname;
                 }
 
             }
@@ -56,15 +58,17 @@ class ReportInvoice extends \Eloquent{
                 $final_query->groupby($column);
                 $select_columns[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
             }else{
-                $final_query->groupby($column);
-                $select_columns[] = $column;
+                $columnname = report_col_name($column);
+                $final_query->groupby($columnname);
+                $select_columns[] = $columnname;
             }
         }
         foreach ($data['row'] as $column) {
             if(isset(self::$database_columns[$column])){
                 $final_query->groupby($column);
             }else{
-                $final_query->groupby($column);
+                $columnname = report_col_name($column);
+                $final_query->groupby($columnname);
             }
         }
 
@@ -114,6 +118,11 @@ class ReportInvoice extends \Eloquent{
         if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('ProductType',$data['column']) || in_array('ProductType',$data['row'])){
             $query_common->join('tblInvoiceDetail', 'tblInvoice.InvoiceID', '=', 'tblInvoiceDetail.InvoiceID');
             self::$InvoiceDetailJoin = true;
+        }
+        $RMDB = Config::get('database.connections.sqlsrv.database');
+        if(report_join($data)){
+            $query_common->join($RMDB.'.tblAccount', 'tblInvoice.AccountID', '=', 'tblAccount.AccountID');
+            self::$AccountJoin = true;
         }
 
 

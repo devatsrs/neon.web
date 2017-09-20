@@ -43,28 +43,29 @@
                                 <input type="hidden" id="hidden_filter_col" name="filter_col_name" value="{{$report_settings['filter_col_name'] or ''}}">
                                 <input type="hidden" id="hidden_setting" name="filter_settings" value='{{$report_settings['filter_settings'] or ''}}'>
                                 <label for="field-5" class="control-label">Columns</label>
-                                <div id="Columns_Drop" class="form-control ui-widget-content ui-state-default select2-container select2-container-multi">
+                                <div id="Columns_Drop" class="form-control tree ui-widget-content ui-state-default select2-container select2-container-multi">
+
                                     <ul class=" select2-choices ui-helper-reset">
                                         @if(isset($report_settings['column']) && $selectedColumns = array_filter(explode(',',$report_settings['column'])))
                                         @foreach($selectedColumns as $selectedColumn)
-                                            <li class="dd-item select2-search-choice {{isset($dimensions[$report_settings['Cube']][$selectedColumn])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
-                                                <div class="dd-handle">
+                                            <li class="{{isset($dimensions[$report_settings['Cube']][$selectedColumn])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
+                                                <span><i class="fa fa-arrows"></i>
                                                     {{$dimensions[$report_settings['Cube']][$selectedColumn] or $measures[$report_settings['Cube']][$selectedColumn]}}
-                                                </div>
+                                                </span>
                                             </li>
                                         @endforeach
                                         @endif
                                     </ul>
                                 </div>
                                 <label for="field-5" class="control-label">Row</label>
-                                <div id="Row_Drop" class="form-control ui-widget-content ui-state-default select2-container select2-container-multi">
+                                <div id="Row_Drop" class="form-control tree ui-widget-content ui-state-default select2-container select2-container-multi">
                                     <ul class=" select2-choices ui-helper-reset">
                                         @if(isset($report_settings['row']) && $selectedRows = array_filter(explode(',',$report_settings['row'])))
                                         @foreach($selectedRows as $selectedRow)
-                                            <li class="dd-item select2-search-choice {{isset($dimensions[$report_settings['Cube']][$selectedRow])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedRow}}">
-                                                <div class="dd-handle">
+                                            <li class="{{isset($dimensions[$report_settings['Cube']][$selectedRow])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedRow}}">
+                                                <span><i class="fa fa-arrows"></i>
                                                     {{$dimensions[$report_settings['Cube']][$selectedRow] or $measures[$report_settings['Cube']][$selectedRow]}}
-                                                </div>
+                                                </span>
                                             </li>
                                         @endforeach
                                         @endif
@@ -80,7 +81,8 @@
                                         <label for="field-5" class="control-label">Dimension</label>
                                     </div>
                                     <div   class="col-sm-12 vertical-border border_bottom" style="margin-top: 15px;padding-top: 15px">
-                                        <div class="nested-list dd with-margins">
+                                        <div class="nested-list with-margins tree">
+
                                             <ul id="Dimension" class=" ui-helper-reset ui-helper-clearfix">
 
                                             </ul>
@@ -91,7 +93,7 @@
                                         <label for="field-5" class="control-label">Measures</label>
                                     </div>
                                     <div class="col-sm-12 vertical-border" style="margin-top: 15px;padding-top: 15px">
-                                        <div id="list-1" class="nested-list dd with-margins">
+                                        <div id="list-1" class="nested-list tree with-margins">
                                             <ul id="Measures" class="dd-list">
 
                                             </ul>
@@ -114,6 +116,68 @@
         </div>
     </div>
     <style>
+        .tree {
+            min-height:20px;
+            padding:19px;
+            margin-bottom:20px;
+            -webkit-border-radius:4px;
+            -moz-border-radius:4px;
+            border-radius:4px;
+            -webkit-box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
+            -moz-box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
+            box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05)
+        }
+        .tree li {
+            list-style-type:none;
+            margin:0;
+            padding:10px 5px 0 5px;
+            position:relative
+        }
+        .ui-widget-content li {
+            padding:10px 5px;
+        }
+        .tree li::before, .tree li::after {
+            content:'';
+            left:-20px;
+            position:absolute;
+            right:auto
+        }
+        .tree li::before {
+            border-left:1px solid #999;
+            bottom:50px;
+            height:100%;
+            top:0;
+            width:1px
+        }
+        .tree li::after {
+            border-top:1px solid #999;
+            height:20px;
+            top:25px;
+            width:25px
+        }
+        .tree li span {
+            -moz-border-radius:5px;
+            -webkit-border-radius:5px;
+            border:1px solid #999;
+            border-radius:5px;
+            display:inline-block;
+            padding:3px 8px;
+            text-decoration:none
+        }
+        .tree li.parent_li>span {
+            cursor:pointer
+        }
+        .tree>ul>li::before, .tree>ul>li::after {
+            border:0
+        }
+        .tree li:last-child::before {
+            height:30px
+        }
+        .tree li.parent_li>span:hover, .tree li.parent_li>span:hover+ul li span {
+            background:#eee;
+            border:1px solid #94a0b4;
+            color:#000
+        }
 
         .select2-container-multi .select2-choices .select2-search-choice{
             padding: 0px;

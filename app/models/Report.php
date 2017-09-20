@@ -21,13 +21,13 @@ class Report extends \Eloquent {
 
     public static $dimension = array(
         'summary'=>array(
-            'year' => 'Year',
-            'quarter_of_year' => 'Quarter' ,
-            'month_of_year' => 'Month',
-            'week_of_year' => 'Week',
-            'date' => 'Day',
-            'AccountID' =>'Customer',
-            'VAccountID' =>'Vendor',
+            'date'=>array(
+                'year' => 'Year',
+                'quarter_of_year' => 'Quarter' ,
+                'month_of_year' => 'Month',
+                'week_of_year' => 'Week',
+                'date' => 'Day',
+            ),
             'CompanyGatewayID' =>'Gateway',
             'Trunk' => 'Trunk',
             'CountryID' => 'Country',
@@ -36,13 +36,13 @@ class Report extends \Eloquent {
             'GatewayVAccountPKID' => 'Vendor IP/CLI'
         ),
         'vsummary'=>array(
-            'year' => 'Year',
-            'quarter_of_year' => 'Quarter' ,
-            'month_of_year' => 'Month',
-            'week_of_year' => 'Week',
-            'date' => 'Day',
-            'AccountID' =>'Customer',
-            'VAccountID' =>'Vendor',
+            'date'=>array(
+                'year' => 'Year',
+                'quarter_of_year' => 'Quarter' ,
+                'month_of_year' => 'Month',
+                'week_of_year' => 'Week',
+                'date' => 'Day',
+            ),
             'CompanyGatewayID' =>'Gateway',
             'Trunk' => 'Trunk',
             'CountryID' => 'Country',
@@ -51,12 +51,13 @@ class Report extends \Eloquent {
             'GatewayVAccountPKID' => 'Vendor IP/CLI'
         ),
         'invoice'=>array(
-            'year' => 'Year',
-            'quarter_of_year' => 'Quarter' ,
-            'month' => 'Month',
-            'week_of_year' => 'Week',
-            'date' => 'Day',
-            'AccountID' =>'Account',
+            'date'=>array(
+                'year' => 'Year',
+                'quarter_of_year' => 'Quarter' ,
+                'month_of_year' => 'Month',
+                'week_of_year' => 'Week',
+                'date' => 'Day',
+            ),
             'CurrencyID' =>'Currency',
             'InvoiceType' =>'Invoice Type',
             'InvoiceStatus' =>'Invoice Status',
@@ -65,12 +66,13 @@ class Report extends \Eloquent {
             'ProductID' => 'Item',
         ),
         'payment'=>array(
-            'year' => 'Year',
-            'quarter_of_year' => 'Quarter' ,
-            'month' => 'Month',
-            'week_of_year' => 'Week',
-            'date' => 'Day',
-            'AccountID' =>'Account',
+            'date'=>array(
+                'year' => 'Year',
+                'quarter_of_year' => 'Quarter' ,
+                'month_of_year' => 'Month',
+                'week_of_year' => 'Week',
+                'date' => 'Day',
+            ),
             'CurrencyID' =>'Currency',
             'PaymentType'=>'Payment Type',
             'PaymentMethod'=>'Payment Method'

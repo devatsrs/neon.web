@@ -2330,3 +2330,28 @@ function generate_manual_datatable_response($ColName){
     return $manual_response;
 
 }
+
+function report_col_name($column){
+    $Accountschema = Schema::getColumnListing('tblAccount');
+    if(in_array($column,$Accountschema)){
+        $column = 'tblAccount.'.$column;
+    }
+    return $column;
+}
+
+function report_join($data){
+    $account_join = false;
+    $Accountschema = Schema::getColumnListing('tblAccount');
+    foreach ($data['column'] as $column) {
+        if (in_array($column, $Accountschema)) {
+            $account_join = true;
+        }
+    }
+    foreach ($data['row'] as $column) {
+        if (in_array($column, $Accountschema)) {
+            $account_join = true;
+        }
+    }
+
+    return $account_join;
+}
