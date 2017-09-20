@@ -66,7 +66,7 @@
                     return false;
 
                 }
-                if($("#rategenerator-source-from input[name='AccountIds[]']").length == 0 ) {
+                if($("#rategenerator-source-from input[name='AccountIds[]']:checked").length == 0 ) {
 
                     setTimeout(function(){$('.btn').button('reset');},10);
                     toastr.error("Please a Source", "Error", toastr_opts);
