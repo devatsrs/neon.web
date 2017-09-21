@@ -51,7 +51,8 @@ class Report extends \Eloquent {
             'CountryID' => 'Country',
             'AreaPrefix' => 'Prefix',
             'GatewayAccountPKID' => 'Customer IP/CLI',
-            'GatewayVAccountPKID' => 'Vendor IP/CLI'
+            'GatewayVAccountPKID' => 'Vendor IP/CLI',
+            'ServiceID' => 'Service',
         ),
         'vsummary'=>array(
             'date'=>array(
@@ -84,7 +85,8 @@ class Report extends \Eloquent {
             'CountryID' => 'Country',
             'AreaPrefix' => 'Prefix',
             'GatewayAccountPKID' => 'Customer IP/CLI',
-            'GatewayVAccountPKID' => 'Vendor IP/CLI'
+            'GatewayVAccountPKID' => 'Vendor IP/CLI',
+            'ServiceID' => 'Service',
         ),
         'invoice'=>array(
             'date'=>array(
@@ -117,6 +119,7 @@ class Report extends \Eloquent {
             'TaxRateID' => 'Tax',
             'ProductType'=> 'Item/Subscription/Usage/Oneoffcharge',
             'ProductID' => 'Item',
+            'ServiceID' => 'Service',
         ),
         'payment'=>array(
             'date'=>array(
@@ -349,6 +352,13 @@ class Report extends \Eloquent {
                     $name = '';
                 }
                 break;
+            case 'ServiceID':
+                if($ID > 0 && isset($all_data['Service'][$ID])) {
+                    $name = $all_data['Service'][$ID];
+                }else{
+                    $name = '';
+                }
+                break;
 
         }
         return $name;
@@ -394,6 +404,9 @@ class Report extends \Eloquent {
                 break;
             case 'ProductID':
                 $data_in_array = Product::where(array('CompanyId'=>$CompanyID,'Active'=>1))->where('Name','like',str_replace('*','%',$search))->lists('ProductID');
+                break;
+            case 'ServiceID':
+                $data_in_array = Service::where(array('CompanyID'=>$CompanyID,'Active'=>1))->where('ServiceName','like',str_replace('*','%',$search))->lists('ServiceID');
                 break;
 
         }
