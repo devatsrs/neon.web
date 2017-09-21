@@ -2332,8 +2332,8 @@ function generate_manual_datatable_response($ColName){
 }
 
 function report_col_name($column){
-    $Accountschema = Schema::getColumnListing('tblAccount');
-    if(in_array($column,$Accountschema)){
+    $Accountschema = Report::$dimension['summary']['Customer'];
+    if(in_array($column,$Accountschema) && $column != 'AccountID'){
         $column = 'tblAccount.'.$column;
     }
     return $column;
@@ -2341,14 +2341,14 @@ function report_col_name($column){
 
 function report_join($data){
     $account_join = false;
-    $Accountschema = Schema::getColumnListing('tblAccount');
+    $Accountschema = Report::$dimension['summary']['Customer'];
     foreach ($data['column'] as $column) {
-        if (in_array($column, $Accountschema)) {
+        if (in_array($column, $Accountschema) && $column != 'AccountID') {
             $account_join = true;
         }
     }
     foreach ($data['row'] as $column) {
-        if (in_array($column, $Accountschema)) {
+        if (in_array($column, $Accountschema) && $column != 'AccountID' ) {
             $account_join = true;
         }
     }

@@ -20,14 +20,6 @@ class ReportController extends \BaseController {
 
         $dimensions = Report::$dimension;
         $measures = Report::$measures;
-
-        $Accountschema = Schema::getColumnListing('tblAccount');
-        $Accountschema = array_combine($Accountschema,$Accountschema);
-
-        $dimensions['summary']['Customer'] = $Accountschema;
-        $dimensions['vsummary']['Customer'] = $Accountschema;
-        $dimensions['invoice']['Customer'] = $Accountschema;
-        $dimensions['payment']['Customer'] = $Accountschema;
         $disable= '';
 
         $Columns = $dimensions['summary']+Report::$measures['summary'];
@@ -45,13 +37,7 @@ class ReportController extends \BaseController {
 
         $dimensions = Report::$dimension;
         $measures = Report::$measures;
-        $Accountschema = Schema::getColumnListing('tblAccount');
-        $Accountschema = array_combine($Accountschema,$Accountschema);
 
-        $dimensions['summary']['Customer'] = $Accountschema;
-        $dimensions['vsummary']['Customer'] = $Accountschema;
-        $dimensions['invoice']['Customer'] = $Accountschema;
-        $dimensions['payment']['Customer'] = $Accountschema;
         $disable= 'disabled';
         $Columns = $dimensions['summary']+Report::$measures['summary'];
         return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report','disable'));
@@ -138,8 +124,8 @@ class ReportController extends \BaseController {
         if(in_array($ColName,array('InvoiceType','InvoiceStatus','ProductType','PaymentMethod','PaymentType'))){
             return generate_manual_datatable_response($ColName);
         }
-        $Accountschema = Schema::getColumnListing('tblAccount');
-        if(in_array($ColName,$Accountschema)){
+        $Accountschema = Report::$dimension['summary']['Customer'];
+        if(in_array($ColName,$Accountschema) && $ColName != 'AccountID'){
             $accounts = Account::where(["AccountType" => 1, "CompanyID" => $CompanyID, "Status" => 1])
                 ->select(array($ColName.' as 2',$ColName))
                 ->distinct()
