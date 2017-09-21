@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_DeleteDuplicateUniqueID2`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteDuplicateUniqueID2`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_ProcessID` VARCHAR(200),

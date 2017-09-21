@@ -146,25 +146,68 @@ class InvoicesCustomerController extends \BaseController {
         }
     }
 
-    public function pay_now(){
+    public function pay_now($id){
         $data = Input::all();
-        $id = User::get_userID();
+        //$id = User::get_userID();
         $account = Account::find($id);
         $CompanyID = User::get_companyID();
         $CreatedBy = User::get_user_full_name();
         $Invoiceids = $data['InvoiceIDs'];
         $AccountPaymentProfileID = $data['AccountPaymentProfileID'];
-        return AccountPaymentProfile::paynow($CompanyID,$id,$Invoiceids,$CreatedBy,$AccountPaymentProfileID);
+        $PaymentData = array();
+        $PaymentData['AccountID'] = $id;
+        $PaymentData['CompanyID'] = $CompanyID;
+        $PaymentData['CreatedBy'] = $CreatedBy;
+        $PaymentData['AccountPaymentProfileID'] = $AccountPaymentProfileID;
+        $PaymentData['InvoiceIDs'] = $Invoiceids;
+        $CustomerProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
+
+        $outstanginamount = Account::getOutstandingInvoiceAmount($CompanyID,$account->AccountID,$Invoiceids, get_round_decimal_places($account->AccountID));
+        if ($outstanginamount > 0 ) {
+            if (!empty($CustomerProfile)) {
+
+                $Invoices = explode(',', $Invoiceids);
+                $fullnumber = '';
+                if(count($Invoices)>0){
+                    foreach($Invoices as $inv){
+                        $AllInvoice = Invoice::find($inv);
+                        $fullnumber.= $AllInvoice->FullInvoiceNumber.',';
+                    }
+                }
+                if($fullnumber!=''){
+                    $fullnumber = rtrim($fullnumber,',');
+                }
+
+                $PaymentData['InvoiceNumber'] = $fullnumber;
+                $PaymentGateway = PaymentGateway::getName($CustomerProfile->PaymentGatewayID);
+                $PaymentData['PaymentGateway'] = $PaymentGateway;
+                $PaymentData['outstanginamount'] = $outstanginamount;
+                $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($CustomerProfile->PaymentGatewayID);
+                $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $CompanyID);
+                $PaymentResponse = $PaymentIntegration->paymentWithProfile($PaymentData);
+                return json_encode($PaymentResponse);
+            }else{
+                return json_encode(array("status" => "failed", "message" => "Account Profile not set"));
+            }
+
+        }else{
+            return json_encode(array("status" => "failed", "message" => "Total outstanding is less or equal to zero"));
+        }
+
+
+
+
+        //return AccountPaymentProfile::paynow($CompanyID,$id,$Invoiceids,$CreatedBy,$AccountPaymentProfileID);
 
     }
 
     public function  download_invoice_file($id){
         $DocumentFile = Invoice::where(["InvoiceID"=>$id])->pluck('Attachment');
         $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }else if(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
         /*$DocumentFile = CompanyConfiguration::get('UPLOAD_PATH') . '/'.$DocumentFile;
@@ -235,4 +278,5 @@ class InvoicesCustomerController extends \BaseController {
         return Response::json(array('InvoiceDetailID' => $result['InvoiceDetailID'], 'StartDate' => $result['StartDate'],'EndDate'=>$result['EndDate'],'Description'=>$result['Description'],'StartTime'=>$result['StartTime'],'EndTime'=>$result['EndTime']));
 
     }
+
 }

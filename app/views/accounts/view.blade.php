@@ -104,6 +104,9 @@
                   @if($account->IsCustomer==1 || $account->IsVendor==1)
                      <a class="btn btn-default btn-xs redirect_link" title="Authentication Rule" href="{{ URL::to('accounts/authenticate/'.$account->AccountID)}}"><i class="entypo-lock"></i></a>
                   @endif
+
+                  <button type="button" data-id="{{$account->AccountID}}" title="View Account Logs" redirecto="{{ URL::to('accounts/'.$account->AccountID.'/log')}}" class="btn btn-default btn-xs"> <i class="fa fa-file-text-o"></i></button>
+
                   @if($leadOrAccountCheck=='account')
                   @if($account->IsCustomer==1 && $account->VerificationStatus==Account::VERIFIED)
                      <a class="btn-warning btn btn-default btn-xs" href="{{ URL::to('customers_rates/'.$account->AccountID)}}"><i class="entypo-user"></i></a>
@@ -415,14 +418,14 @@
 				foreach($attachments as $key_acttachment => $attachments_data)
 				{
 					//
-					 if(is_amazon() == true)
-					{
-						$Attachmenturl =  AmazonS3::preSignedUrl($attachments_data['filepath']);
-					}
-					else
-					{
-						$Attachmenturl = CompanyConfiguration::get('UPLOAD_PATH')."/".$attachments_data['filepath'];
-					}
+//					if(is_amazon() == true)
+//					{
+//						$Attachmenturl =  AmazonS3::preSignedUrl($attachments_data['filepath']);
+//					}
+//					else
+//					{
+//						$Attachmenturl = CompanyConfiguration::get('UPLOAD_PATH')."/".$attachments_data['filepath'];
+//					}
                     $Attachmenturl = URL::to('emails/'.$rows['AccountEmailLogID'].'/getattachment/'.$key_acttachment);
 					if($key_acttachment==(count($attachments)-1)){
 						echo "<a target='_blank' href=".$Attachmenturl.">".$attachments_data['filename']."</a><br><br>";

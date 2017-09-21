@@ -148,20 +148,11 @@
 
             <div class="panel-body">
 
-
-
-                
-
-                    
-                        
-                            
-                            
-                            
                             <div class="pull-right">
-                                <button type="submit"  class="btn addnew btn-primary btn-sm btn-icon icon-left" >
+                                <a  href="{{URL::to('/rategenerators')}}/{{$rategenerators->RateGeneratorId}}/rule/add" class="btn addnew btn-primary btn-sm btn-icon icon-left" >
                                     <i class="entypo-floppy"></i>
                                     Add New
-                                </button>
+                                </a>
                                 <br><br>
                             </div>
 
@@ -202,11 +193,11 @@
 
                                         </td>
                                         <td>
-                                            <a href="{{URL::to('/rategenerators/rules/'.$id. '/edit/' . $rategenerator_rule->RateRuleId )}}" id="add-new-margin" class="update btn btn-primary btn-sm">
+                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/edit' )}}" id="add-new-margin" class="update btn btn-primary btn-sm">
                                                 <i class="entypo-pencil"></i>
                                             </a>
 
-                                            <a href="{{URL::to('/rategenerators/rules/'.$id.'/delete/'. $rategenerator_rule->RateRuleId)}}" class="btn delete btn-danger btn-sm">
+                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/delete' )}}" class="btn delete btn-danger btn-sm" data-redirect="{{Request::url()}}">
                                                 <i class="entypo-trash"></i>
                                             </a>
                                         </td>
@@ -227,9 +218,9 @@
 
 <script type="text/javascript">
     jQuery(document).ready(function($) {
-        $(".btn.addnew").click(function(ev) {
+        /*$(".btn.addnew").click(function(ev) {
             jQuery('#modal-rate-generator-rule').modal('show', {backdrop: 'static'});
-        });
+        });*/
 
         $(".update_form.btn").click(function(ev) {
             $("#rategenerator-from").submit();

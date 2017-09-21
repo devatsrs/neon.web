@@ -125,14 +125,14 @@
                             }else{
                                 ShowToastr("error",response.message);
                             }
-                            $("#table-4_processing").hide();
+                            $('#table-4_processing').css('visibility','hidden');
                         }
                         //onDelete Click
                         FnDeleteCard = function(e){
                             result = confirm("Are you Sure?");
                             if(result){
                                 var id  = $(this).attr("data-id");
-                                $("#table-4_processing").show();
+                                $('#table-4_processing').css('visibility','visible');
                                 var url = deletePaymentMethodProfile_url;
                                 url = url.replace('{id}', id);
                                 showAjaxScript( url ,"",FnDeleteCardSuccess );
@@ -160,6 +160,7 @@
                     if (!confirm('Are you sure you want to '+ text +' the Card?')) {
                         return;
                     }
+                    $('#table-4_processing').css('visibility','visible');
                     ajax_Add_update(self.attr("href"));
                     return false;
                 });
@@ -170,6 +171,7 @@
                     if (!confirm('Are you sure you want to set Default this Card?')) {
                         return;
                     }
+                    $('#table-4_processing').css('visibility','visible');
                     ajax_Add_update(self.attr("href"));
                     return false;
                 });
@@ -183,36 +185,22 @@
                     $("#add-credit-card-form [name='ExpirationMonth']").val('').trigger("change");
                     $("#add-credit-card-form [name='ExpirationYear']").val('').trigger("change");
                     $("#add-credit-card-form").find('input[name="PaymentGatewayID"]').val(pgid);
+					$("#add-credit-card-form").find('input[name="AccountID"]').val('{{$account->AccountID}}');
+					$("#add-credit-card-form").find('input[name="CompanyID"]').val('{{$account->CompanyId}}');
                     $('#add-modal-card').modal('show');
                 });
 
                 $('#add-credit-card-form').submit(function(e){
                     e.preventDefault();
-                    $("#table-4_processing").show();
+                    $('#table-4_processing').css('visibility','visible');
                     var cardID = $("#add-credit-card-form").find('[name="cardID"]').val();
                     if(cardID!=""){
                         update_new_url = baseurl + '/customer/PaymentMethodProfiles/update';
                     }else{
-                        update_new_url = baseurl + '/paymentprofile/create';
-                        if(customer[0].customer==1){
-                            update_new_url = baseurl + '/customer/PaymentMethodProfiles/create';
-                        }
+                        update_new_url = baseurl + '/customer/PaymentMethodProfiles/create';
                     }
                     ajax_Add_update(update_new_url);
                 });
-
-                $('table tbody').on('click','.edit-card',function(ev){
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    $("#add-credit-card-form")[0].reset();
-                    $("#add-credit-card-form [name='ExpirationMonth']").val('').trigger("change");
-                    $("#add-credit-card-form [name='ExpirationYear']").val('').trigger("change");
-                    cardID = $(this).prev("div.hiddenRowData").find("input[name='cardID']").val();
-                    Title = $(this).prev("div.hiddenRowData").find("input[name='Title']").val();
-                    $("#add-credit-card-form").find('[name="cardID"]').val(cardID);
-                    $("#add-credit-card-form").find('[name="Title"]').val(Title);
-                    $('#add-modal-card').modal('show');
-                })
 
             });
 
@@ -238,7 +226,7 @@
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }
-                        $("#table-4_processing").hide();
+                        $('#table-4_processing').css('visibility','hidden');
                         $('.btn.upload').button('reset');
                     },
                     data: data,
@@ -300,6 +288,7 @@
                                     <input type="text" name="CardNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="cardID" />
                                     <input type="hidden" name="AccountID" />
+                                    <input type="hidden" name="CompanyID" />
                                     <input type="hidden" name="PaymentGatewayID" />
                                 </div>
                             </div>

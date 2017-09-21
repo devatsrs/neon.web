@@ -119,13 +119,7 @@ $(document).ready(function() {
         $('#add-credit-card-form').find('[type="submit"]').attr('disabled', true);
         var update_new_url;
         var type = '{{$type}}';
-
-        if(type == 'AuthorizeNet'){
-            update_new_url = '{{URL::to('/')}}/pay_invoice';
-        }
-        if(type == 'Stripe'){
-            update_new_url = '{{URL::to('/')}}/stripe_payment';
-        }
+        update_new_url = '{{URL::to('/')}}/payinvoice_withcard/'+type;
         $.ajax({
                 url: update_new_url,  //Server script to process data
                 type: 'POST',

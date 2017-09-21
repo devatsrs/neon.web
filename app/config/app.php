@@ -153,6 +153,9 @@ return array(
         //Stripe
         'Cartalyst\Stripe\Laravel\StripeServiceProvider',
 
+        //zip
+        'Chumper\Zipper\ZipperServiceProvider'
+
     ),
 
     /*
@@ -228,6 +231,7 @@ return array(
         'CreditCard'      => 'Inacho\CreditCard',
         'Agent' => 'Jenssegers\Agent\Facades\Agent',
         'Stripe' => 'Cartalyst\Stripe\Laravel\Facades\Stripe',
+        'Zipper' => 'Chumper\Zipper\Zipper'
     )
 
 

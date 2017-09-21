@@ -35,11 +35,12 @@ class CompaniesController extends \BaseController {
         }
 
         $UseInBilling = CompanySetting::getKeyVal('UseInBilling');
+        $AccountVerification = CompanySetting::getKeyVal('AccountVerification');
         $DefaultDashboard = CompanySetting::getKeyVal('DefaultDashboard') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('DefaultDashboard');
         //$PincodeWidget = CompanySetting::getKeyVal('PincodeWidget') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('PincodeWidget');
         $LastPrefixNo = LastPrefixNo::getLastPrefix();
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
-        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile'));
+        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification'));
 
     }
 
@@ -57,6 +58,7 @@ class CompaniesController extends \BaseController {
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
         $data['UseInBilling'] = isset($data['UseInBilling']) ? 1 : 0;
+        $data['AccountVerification'] = isset($data['AccountVerification']) ? CompanySetting::ACCOUT_VARIFICATION_ON : CompanySetting::ACCOUT_VARIFICATION_OFF;
         //$data['PincodeWidget'] = isset($data['PincodeWidget']) ? 1 : 0;
         $data['updated_by'] = User::get_user_full_name();
         $rules = array(
@@ -103,6 +105,9 @@ class CompaniesController extends \BaseController {
         }
         CompanySetting::setKeyVal('UseInBilling',$data['UseInBilling']);
         unset($data['UseInBilling']);
+        CompanySetting::setKeyVal('AccountVerification',$data['AccountVerification']);
+        unset($data['AccountVerification']);
+
         CompanySetting::setKeyVal('DefaultDashboard',$data['DefaultDashboard']);//Added by Abubakar
         unset($data['DefaultDashboard']);
         CompanySetting::setKeyVal('RoundChargesAmount',$data['RoundChargesAmount']);

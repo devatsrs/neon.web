@@ -100,13 +100,16 @@
             <li> <a class="generate_rate create" id="bulk-invoice-send" href="javascript:;"
                                            style="width:100%"> Send Invoice </a> </li>
             @endif
+
+            <li> <a class="quickbookpost create" id="print_invoice" href="javascript:;"> Download Invoice </a> </li>
+
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;"> Change Status </a> </li>
             @endif
             @if(User::checkCategoryPermission('Invoice','Generate'))
             <li> <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;"> Regenerate </a> </li>
             @endif
-            @if(is_authorize() || is_Stripe())
+            @if(is_authorize() || is_Stripe() || is_StripeACH())
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="pay_now create" id="pay_now" href="javascript:;"> Pay Now </a> </li>
             @endif
@@ -117,7 +120,11 @@
             @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook))
             <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Post </a> </li>
             @endif
+
             <li> <a class="create" id="sage-export" href="javascript:;"> Sage Export </a> </li>
+            @if(is_SagePayDirectDebit())
+            <li> <a class="sagepost create" id="sage-post" href="javascript:;"> Sage Pay Direct Debit Export </a> </li>
+            @endif
           </ul>
           @endif
           <form id="clear-bulk-rate-form">
@@ -830,7 +837,8 @@
                     $('#add-bankaccount-form').find("[name=AccountID]").val(accoutid);
                     //$('#add-credit-card-form').find("[name=PaymentGatewayID]").val(pgid);
 
-                    paynow_url = '/paymentprofile/' + accoutid;
+                    paynow_url = '/customer/PaymentMethodProfiles/paynow/' + accoutid;
+                    //paynow_url = '/paymentprofile/' + accoutid;
                     showAjaxModal(paynow_url, 'pay_now_modal');
                     $('#pay_now_modal').modal('show');
 
@@ -936,7 +944,56 @@
                 submit_ajax(_url, post_data);
 				
             });
+            $("#print_invoice").click(function (ev) {
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    //console.log($(this).val());
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                console.log(InvoiceIDs);
 
+                if (InvoiceIDs.length) {
+                    if (!confirm('Are you sure you want to download selected invoices?')) {
+                        return;
+                    }
+                    $.ajax({
+                        url: baseurl + '/invoice/bulk_print_invoice',
+                        data: 'InvoiceIDs=' + InvoiceIDs + '&criteria=' + criteria,
+                        error: function () {
+                            toastr.error("error", "Error", toastr_opts);
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.status == 'success') {
+                                if(response.filePath!=""){
+                                    document.location =baseurl + "/download_file?file="+response.filePath;
+                                }else if(response.invoiceId){
+                                    document.location =baseurl + "/invoice/download_invoice/"+response.invoiceId;
+                                }else{
+                                    toastr.error("Something Worng Please try again.", "Error", toastr_opts);
+                                }
+
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        },
+                        type: 'POST'
+                    });
+                }
+                else
+                {
+                    toastr.error("Please Select One", "Error", toastr_opts);
+                }
+
+            });
             $("#bulk-invoice-send").click(function (ev) {
                 var criteria = '';
                 if ($('#selectallbutton').is(':checked')) {
@@ -1265,6 +1322,35 @@
                 });
                 if (InvoiceIDs.length) {
                     submit_ajax(baseurl + '/invoice/invoice_quickbookpost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria)
+                }
+            });
+
+            $("#sage-post").click(function (ev) {
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+                var MarkPaid = '0';
+                if (confirm('Do you want to change the status of selected invoices to Paid?\n\nAccounts where Sage Pay Bank Account Details are not setup will not be exported.')) {
+                    MarkPaid = '1';
+                }
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                if (InvoiceIDs.length) {
+                    var url = baseurl + '/invoice/invoice_sagepayexport';
+                    var data = '?InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&MarkPaid=' + MarkPaid;
+
+                    window.location.href = url + data;
+                    setTimeout(function () {
+                        data_table.fnFilter('', 0);
+                    }, 1000);
+                    //submit_ajax(baseurl + '/invoice/invoice_sagepayexport', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&MarkPaid=' + MarkPaid)
                 }
             });
 

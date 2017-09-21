@@ -93,9 +93,13 @@
         @if(User::checkCategoryPermission('RateGenerator','View'))
         <li> <a href="{{URL::to('/rategenerators')}}">  <span>Rate Generator</span> </a> </li>
         @endif
+        @if(User::checkCategoryPermission('RateCompare','All'))
+          <li> <a href="{{URL::to('/rate_compare')}}">  <span>Rate Analysis</span> </a> </li>
+        @endif
         @if(User::checkCategoryPermission('VendorProfiling','All'))
         <li> <a href="{{URL::to('/vendor_profiling')}}">  <span>Vendor Profiling</span> </a> </li>
         @endif
+
       </ul>
     </li>
     @endif

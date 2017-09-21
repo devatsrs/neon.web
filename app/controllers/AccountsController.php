@@ -77,6 +77,23 @@ class AccountsController extends \BaseController {
         return Datatables::of($carddetail)->make();
     }
 
+    public function ajax_datagrid_account_logs($AccountID) {
+        $CompanyID = User::get_companyID();
+        $data = Input::all();
+        $data['iDisplayStart'] +=1;
+        $userID = 0;
+        if (User::is('AccountManager')) { // Account Manager
+            $userID = $userID = User::get_userID();
+        }elseif(User::is_admin() && isset($data['account_owners'])  && trim($data['account_owners']) > 0) {
+            $userID = (int)$data['account_owners'];
+        }
+        $columns = array('AccountName','ColumnName','OldValue','NewValue','created_at','created_by');
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "call prc_GetAccountLogs (".$CompanyID.",".$userID.",".$AccountID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."')";
+
+        return DataTableSql::of($query)->make();
+    }
+
     public function ajax_template($id){
         $user = User::get_currentUser();
         return array('EmailFooter'=>($user->EmailFooter?$user->EmailFooter:''),'EmailTemplate'=>EmailTemplate::findOrfail($id));
@@ -135,10 +152,13 @@ class AccountsController extends \BaseController {
             $account_owners = User::getOwnerUsersbyRole();
             $countries = $this->countries;
 
+            $company_id = User::get_companyID();
+            $company = Company::find($company_id);
+
             $currencies = Currency::getCurrencyDropdownIDList();
             $timezones = TimeZone::getTimeZoneDropdownList();
             $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
-            $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+            $BillingClass = BillingClass::getDropdownIDList($company_id);
             $BillingStartDate=date('Y-m-d');
             $LastAccountNo =  '';
             $doc_status = Account::$doc_status;
@@ -146,7 +166,7 @@ class AccountsController extends \BaseController {
                 unset($doc_status[Account::VERIFIED]);
             }
             $dynamicfields = Account::getDynamicfields('account',0);
-            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields'));
+            return View::make('accounts.create', compact('account_owners', 'countries','LastAccountNo','doc_status','currencies','timezones','InvoiceTemplates','BillingStartDate','BillingClass','dynamicfields','company'));
     }
 
     /**
@@ -180,6 +200,13 @@ class AccountsController extends \BaseController {
                 $VendorName = '';
             }
 
+            //when account varification is off in company setting then varified the account by default.
+            $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
+
+            if ( $AccountVerification != CompanySetting::ACCOUT_VARIFICATION_ON ) {
+                $data['VerificationStatus'] = Account::VERIFIED;
+            }
+
 
             if (isset($data['TaxRateId'])) {
                 $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
@@ -193,6 +220,7 @@ class AccountsController extends \BaseController {
                 $data['Number'] = Account::getLastAccountNo();
             }
             $data['Number'] = trim($data['Number']);
+
         unset($data['DataTables_Table_0_length']);
         $ManualBilling = isset($data['BillingCycleType']) && $data['BillingCycleType'] == 'manual'?1:0;
         if(Company::isBillingLicence() && $data['Billing'] == 1) {
@@ -210,6 +238,11 @@ class AccountsController extends \BaseController {
 
             Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,' . $data['CompanyID'].',AccountType,1';
             Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID,CompanyID,' . $data['CompanyID'];
+
+            if($data['IsVendor'] == 1) {
+                Account::$rules['vendorname'] = 'required';
+                Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
+            }
 
             $validator = Validator::make($data, Account::$rules, Account::$messages);
 
@@ -380,8 +413,14 @@ class AccountsController extends \BaseController {
 			 
 	        return View::make('accounts.view', compact('response_timeline','account', 'contacts', 'verificationflag', 'outstanding','response','message','current_user_title','per_scroll','Account_card','account_owners','Board','emailTemplates','response_extensions','random_token','users','max_file_size','leadOrAccount','leadOrAccountCheck','opportunitytags','leadOrAccountID','accounts','boards','data','ShowTickets','SystemTickets','FromEmails')); 	
 		}
-	
-	
+
+
+    public function log($id) {
+        $account = Account::find($id);
+        $accounts = Account::getAccountIDList();
+        return View::make('accounts.accounts_audit_logs', compact('account','accounts'));
+    }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -562,6 +601,11 @@ class AccountsController extends \BaseController {
 
         Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'].',AccountType,1';
         Account::$rules['Number'] = 'required|unique:tblAccount,Number,' . $account->AccountID . ',AccountID,CompanyID,'.$data['CompanyID'];
+
+        if($data['IsVendor'] == 1) {
+            Account::$rules['vendorname'] = 'required';
+            Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
+        }
 
         $validator = Validator::make($data, Account::$rules,Account::$messages);
 
@@ -779,20 +823,20 @@ class AccountsController extends \BaseController {
     public function  download_doc($id){
         $FileName = AccountApprovalList::where(["AccountApprovalListID"=>$id])->pluck('FileName');
         $FilePath =  AmazonS3::preSignedUrl($FileName);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
     public function  download_doc_file($id){
         $DocumentFile = AccountApproval::where(["AccountApprovalID"=>$id])->pluck('DocumentFile');
         $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
-        if(is_amazon() == true){
-            header('Location: '.$FilePath);
-        }else if(file_exists($FilePath)){
+        if(file_exists($FilePath)){
             download_file($FilePath);
+        }elseif(is_amazon() == true){
+            header('Location: '.$FilePath);
         }
         exit;
     }
@@ -800,11 +844,7 @@ class AccountsController extends \BaseController {
         $AccountApprovalList = AccountApprovalList::find($id);
         $filename = $AccountApprovalList->FileName;
         if($AccountApprovalList->delete()){
-            if(file_exists($filename)){
-                @unlink($filename);
-            }else{
-                AmazonS3::delete($filename);
-            }
+            AmazonS3::delete($filename);
             echo json_encode(array("status" => "success", "message" => "Document deleted successfully"));
         }else{
             echo json_encode(array("status" => "failed", "message" => "Problem Deleting Document"));
@@ -942,6 +982,7 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
     }
 
+    // not using
     public function get_outstanding_amount($id) {
 
             $data = Input::all();
@@ -953,6 +994,8 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
             $outstandingtext = $currency.$outstanding;
             echo json_encode(array("status" => "success", "message" => "", "outstanding" => $outstanding, "outstadingtext" => $outstandingtext));
     }
+
+    // not using
     public function paynow($id){
             $data = Input::all();
             $CompanyID = User::get_companyID();
