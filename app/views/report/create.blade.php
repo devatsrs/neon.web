@@ -34,7 +34,11 @@
                         <div class="form-group {{Input::get('report')=='run'?'hidden':''}}" >
                             <div class="col-sm-3">
                                 <label for="field-5" class="control-label">Cube</label>
-                                {{Form::select('Cube',Report::$cube,(isset($report_settings['Cube'])?$report_settings['Cube']:''),array("class"=>"select2 small"))}}
+                                {{Form::select('Cube',Report::$cube,(isset($report_settings['Cube'])?$report_settings['Cube']:''),array("class"=>"select2 small",$disable))}}
+
+                                @if(!empty($report))
+                                    <input type="hidden" id="hidden_cube" name="Cube" value="{{$report_settings['Cube'] or ''}}">
+                                @endif
                             </div>
                             <div class="col-sm-9 vertical-border border_left ">
                                 <input type="hidden" id="hidden_row" name="row" value="{{$report_settings['row'] or ''}}">
@@ -50,7 +54,20 @@
                                         @foreach($selectedColumns as $selectedColumn)
                                             <li class="{{isset($dimensions[$report_settings['Cube']][$selectedColumn])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
                                                 <span><i class="fa fa-arrows"></i>
-                                                    {{$dimensions[$report_settings['Cube']][$selectedColumn] or $measures[$report_settings['Cube']][$selectedColumn]}}
+                                                    <?php
+                                                    $selected_dimension = '';
+                                                    if(isset($measures[$report_settings['Cube']][$selectedColumn])){
+                                                        $selected_dimension = $measures[$report_settings['Cube']][$selectedColumn];
+                                                    } else if(isset($dimensions[$report_settings['Cube']][$selectedColumn]) && !is_array($dimensions[$report_settings['Cube']][$selectedColumn])){
+                                                        $selected_dimension = $dimensions[$report_settings['Cube']][$selectedColumn];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['date'][$selectedColumn])){
+                                                        $selected_dimension = $dimensions[$report_settings['Cube']]['date'][$selectedColumn];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['Customer'][$selectedColumn])){
+                                                        $selected_dimension = $dimensions[$report_settings['Cube']]['Customer'][$selectedColumn];
+                                                    }
+                                                    ?>
+                                                    {{$selected_dimension}}
+
                                                 </span>
                                             </li>
                                         @endforeach
@@ -64,7 +81,20 @@
                                         @foreach($selectedRows as $selectedRow)
                                             <li class="{{isset($dimensions[$report_settings['Cube']][$selectedRow])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedRow}}">
                                                 <span><i class="fa fa-arrows"></i>
-                                                    {{$dimensions[$report_settings['Cube']][$selectedRow] or $measures[$report_settings['Cube']][$selectedRow]}}
+                                                    <?php
+                                                    $selected_measures = '';
+                                                    if(isset($measures[$report_settings['Cube']][$selectedRow])){
+                                                        $selected_measures = $measures[$report_settings['Cube']][$selectedRow];
+                                                    } else if(isset($dimensions[$report_settings['Cube']][$selectedRow]) && !is_array($dimensions[$report_settings['Cube']][$selectedRow])){
+                                                        $selected_measures = $dimensions[$report_settings['Cube']][$selectedRow];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['date'][$selectedRow])){
+                                                        $selected_measures = $dimensions[$report_settings['Cube']]['date'][$selectedRow];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['Customer'][$selectedRow])){
+                                                        $selected_measures = $dimensions[$report_settings['Cube']]['Customer'][$selectedRow];
+                                                        $selected_measures = $dimensions[$report_settings['Cube']]['Customer'][$selectedRow];
+                                                    }
+                                                    ?>
+                                                    {{$selected_measures}}
                                                 </span>
                                             </li>
                                         @endforeach

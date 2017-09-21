@@ -28,16 +28,16 @@ class ReportController extends \BaseController {
         $dimensions['vsummary']['Customer'] = $Accountschema;
         $dimensions['invoice']['Customer'] = $Accountschema;
         $dimensions['payment']['Customer'] = $Accountschema;
+        $disable= '';
 
-
-        $Columns = Report::$dimension['summary']+Report::$measures['summary'];
+        $Columns = $dimensions['summary']+Report::$measures['summary'];
         $report_settings =array();
         $report_settings['Cube'] = 'summary';
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
         $report_settings['filter_settings'] = '{"date":{"wildcard_match_val":"","start_date":"'.$original_startdate.'","end_date":"'.$original_enddate.'","condition":"none","top":"none"}}';
 
-        return View::make('report.create', compact('dimensions','measures','Columns','report_settings'));
+        return View::make('report.create', compact('dimensions','measures','Columns','report_settings','disable'));
     }
     public function edit($id){
         $report = Report::find($id);
@@ -45,9 +45,16 @@ class ReportController extends \BaseController {
 
         $dimensions = Report::$dimension;
         $measures = Report::$measures;
+        $Accountschema = Schema::getColumnListing('tblAccount');
+        $Accountschema = array_combine($Accountschema,$Accountschema);
 
-        $Columns = Report::$dimension['summary']+Report::$measures['summary'];
-        return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report'));
+        $dimensions['summary']['Customer'] = $Accountschema;
+        $dimensions['vsummary']['Customer'] = $Accountschema;
+        $dimensions['invoice']['Customer'] = $Accountschema;
+        $dimensions['payment']['Customer'] = $Accountschema;
+        $disable= 'disabled';
+        $Columns = $dimensions['summary']+Report::$measures['summary'];
+        return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report','disable'));
     }
 
     public function report_store(){
@@ -127,10 +134,21 @@ class ReportController extends \BaseController {
         $CompanyID = User::get_companyID();
         $data['iDisplayStart'] +=1;
         $ColName = $data['filter_col_name'];
+        $search = $data['sSearch'];
         if(in_array($ColName,array('InvoiceType','InvoiceStatus','ProductType','PaymentMethod','PaymentType'))){
             return generate_manual_datatable_response($ColName);
         }
-        $search = $data['sSearch'];
+        $Accountschema = Schema::getColumnListing('tblAccount');
+        if(in_array($ColName,$Accountschema)){
+            $accounts = Account::where(["AccountType" => 1, "CompanyID" => $CompanyID, "Status" => 1])
+                ->select(array($ColName.' as 2',$ColName))
+                ->distinct()
+                ->orderBy($ColName);
+            if(!empty($search)){
+                $accounts->where($ColName,'like','%'.$search.'%');
+            }
+            return Datatables::of($accounts)->make();
+        }
         $query = "CALL prc_getDistinctList('".$CompanyID."','".$ColName."','".$search."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].")";
         return DataTableSql::of($query,'neon_report')->make();
     }
