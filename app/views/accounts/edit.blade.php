@@ -548,7 +548,7 @@
                      <div class="col-md-4">
                          {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'after_admin_review' ),array("class"=>"form-control select2"))}}
                      </div>
-                     <label for="field-1" class="col-md-2 control-label">Auto Invoice Pay</label>
+                     <label for="field-1" class="col-md-2 control-label">Auto Pay</label>
                      <div class="col-md-4">
                          {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, ( isset($AccountBilling->AutoPaymentSetting)?$AccountBilling->AutoPaymentSetting:'never' ),array("class"=>"form-control select2 small"))}}
                      </div>
