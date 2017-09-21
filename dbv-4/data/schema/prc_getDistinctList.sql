@@ -68,6 +68,25 @@ BEGIN
 
 	END IF;
 	
+	IF p_ColName = 'ServiceID'
+	THEN
+
+		SELECT 
+			ServiceID,
+			ServiceName 
+		FROM NeonRMDev.tblService 
+		WHERE CompanyID = p_CompanyID
+		AND ServiceName LIKE CONCAT(p_Search,'%')
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+		
+		SELECT
+			COUNT(*) AS totalcount
+		FROM NeonRMDev.tblService 
+		WHERE CompanyID = p_CompanyID
+		AND ServiceName LIKE CONCAT(p_Search,'%');
+
+	END IF;
+	
 	
 	IF p_ColName = 'Trunk'
 	THEN
@@ -86,6 +105,66 @@ BEGIN
 		FROM tblRTrunk
 		WHERE CompanyID = p_CompanyID
 		AND Trunk LIKE CONCAT(p_Search,'%');
+
+	END IF;
+	
+	IF p_ColName = 'CurrencyID'
+	THEN
+
+		SELECT 
+			DISTINCT
+			CurrencyId as CurrencyID,
+			Code
+		FROM NeonRMDev.tblCurrency
+		WHERE CompanyID = p_CompanyID
+		AND Code LIKE CONCAT(p_Search,'%')
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+		
+		SELECT
+			COUNT(*) AS totalcount
+		FROM NeonRMDev.tblCurrency
+		WHERE CompanyID = p_CompanyID
+		AND Code LIKE CONCAT(p_Search,'%');
+
+	END IF;
+	
+	IF p_ColName = 'TaxRateID'
+	THEN
+
+		SELECT 
+			DISTINCT
+			TaxRateId as CurrencyID,
+			Title
+		FROM NeonRMDev.tblTaxRate
+		WHERE CompanyID = p_CompanyID
+		AND Title LIKE CONCAT(p_Search,'%')
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+		
+		SELECT
+			COUNT(*) AS totalcount
+		FROM NeonRMDev.tblTaxRate
+		WHERE CompanyID = p_CompanyID
+		AND Title LIKE CONCAT(p_Search,'%');
+
+	END IF;
+	
+	IF p_ColName = 'ProductID'
+	THEN
+
+		SELECT 
+			DISTINCT
+			ProductID as ProductID,
+			Name
+		FROM NeonBillingDev.tblProduct
+		WHERE CompanyID = p_CompanyID
+		AND Name LIKE CONCAT(p_Search,'%')
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+		
+		SELECT
+			COUNT(*) AS totalcount
+		FROM NeonBillingDev.tblProduct
+		WHERE CompanyID = p_CompanyID
+		AND Name LIKE CONCAT(p_Search,'%');
 
 	END IF;
 	
@@ -176,9 +255,8 @@ BEGIN
 
 		SELECT 
 			DISTINCT
-			tblDimDate.month as month1,
-			tblDimDate.month,
-			tblDimDate.month_of_year
+			tblDimDate.month_of_year as month1,
+			tblDimDate.month
 		FROM tblHeader
 		INNER JOIN tblDimDate
 			ON tblDimDate.DateID = tblHeader.DateID

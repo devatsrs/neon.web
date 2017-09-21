@@ -211,14 +211,14 @@ BEGIN
 
 	COMMIT;
 	
-	SET @stmt = CONCAT('DELETE FROM tmp_tblUsageDetailsReport_',p_UniqueID,';');
+	SET @stmt = CONCAT('TRUNCATE TABLE tmp_tblUsageDetailsReport_',p_UniqueID,';');
 
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
 	
 	
-	SET @stmt = CONCAT('DELETE FROM tblTempCallDetail_1_',p_UniqueID,';');
+	SET @stmt = CONCAT('TRUNCATE TABLE tblTempCallDetail_1_',p_UniqueID,';');
 
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;

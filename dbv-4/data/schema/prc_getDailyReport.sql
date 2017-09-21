@@ -96,6 +96,7 @@ BEGIN
 			ON tblDimDate.DateID = tblHeader.DateID 
 			AND tblHeader.AccountID = p_AccountID
 		GROUP BY Dates 
+		ORDER BY Dates DESC
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 
 		SELECT
@@ -140,7 +141,8 @@ BEGIN
 		LEFT JOIN tblHeader 
 			ON tblDimDate.DateID = tblHeader.DateID 
 			AND tblHeader.AccountID = p_AccountID
-		GROUP BY Dates;
+		GROUP BY Dates
+		ORDER BY Dates DESC;
 
 	END IF;
 

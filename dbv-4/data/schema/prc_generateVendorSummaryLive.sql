@@ -209,6 +209,6 @@ BEGIN
 		AND us.VAccountID = sh.VAccountID
 	WHERE us.CompanyID = p_CompanyID;
 
-	COMMIT;
+	COMMIT;	
 	
 END

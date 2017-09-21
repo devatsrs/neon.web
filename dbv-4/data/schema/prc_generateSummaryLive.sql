@@ -207,6 +207,6 @@ BEGIN
 		AND us.AccountID = sh.AccountID
 	WHERE us.CompanyID = p_CompanyID;
 
-	COMMIT;
+	COMMIT;	 
 	
 END
