@@ -1739,7 +1739,7 @@ class InvoicesController extends \BaseController {
                 $transactiondata['updated_at'] = date('Y-m-d H:i:s');
                 $transactiondata['CreatedBy'] = 'customer';
                 $transactiondata['ModifyBy'] = 'customer';
-                $transactiondata['Reposnse'] = json_encode($response);
+                $transactiondata['Response'] = json_encode($response);
                 TransactionLog::insert($transactiondata);
                 $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
                 $paymentdata['EmailTemplate'] 		= 	EmailTemplate::where(["SystemType"=>EmailTemplate::InvoicePaidNotificationTemplate])->first();
@@ -1760,7 +1760,7 @@ class InvoicesController extends \BaseController {
                 $transactiondata['updated_at'] = date('Y-m-d H:i:s');
                 $transactiondata['CreatedBy'] = 'customer';
                 $transactiondata['ModifyBy'] = 'customer';
-                $transactiondata['Reposnse'] = json_encode($response);
+                $transactiondata['Response'] = json_encode($response);
                 TransactionLog::insert($transactiondata);
                 return Response::json(array("status" => "failed", "message" => $response->response_reason_text));
             }
@@ -2068,93 +2068,32 @@ class InvoicesController extends \BaseController {
     public function post_payment_process($AccountID,$InvoiceID,$data){
 
         $Invoice = Invoice::where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
-        $Account = Account::where(['AccountID' => $AccountID])->first();
+        $transactionResponse = array();
+
+        $transactionResponse['CreatedBy'] = 'Customer';
+        $transactionResponse['InvoiceID'] = $InvoiceID;
+        $transactionResponse['AccountID'] = $AccountID;
+        $transactionResponse['transaction_notes'] = $data["Notes"];
+        $transactionResponse['Response'] = $data["PaymentGatewayResponse"];
+        $transactionResponse['Transaction'] = $data["Transaction"];
+        $transactionResponse['PaymentMethod'] = $data["PaymentMethod"];
 
         if (isset($data["Success"]) && count($Invoice) > 0) {
 
             $PaymentCount = Payment::where('Notes',$data["Notes"])->count();//@TODO: need to check this
             if($PaymentCount == 0) {
-                $Invoice = Invoice::find($Invoice->InvoiceID);
+                $transactionResponse['Amount'] = $data["Amount"];
+                Payment::paymentSuccess($transactionResponse);
 
-                // Add Payment
-                $paymentdata = array();
-                $paymentdata['CompanyID'] = $Invoice->CompanyID;
-                $paymentdata['AccountID'] = $Invoice->AccountID;
-                $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
-                $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
-                $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
-                $paymentdata['PaymentMethod'] = $data["PaymentMethod"];// 'PAYPAL_IPN';
-                $paymentdata['CurrencyID'] = $Account->CurrencyId;
-                $paymentdata['PaymentType'] = 'Payment In';
-                $paymentdata['Notes'] = $data["Notes"]; //$Notes;
-                $paymentdata['Amount'] = floatval($data["Amount"]); //floatval($paypal->get_response_var('mc_gross'));
-                $paymentdata['Status'] = 'Approved';
-                $paymentdata['CreatedBy'] = 'Customer';
-                $paymentdata['ModifyBy'] = 'Customer';
-                $paymentdata['created_at'] = date('Y-m-d H:i:s');
-                $paymentdata['updated_at'] = date('Y-m-d H:i:s');
-                Payment::insert($paymentdata);
-
-                \Illuminate\Support\Facades\Log::info("Payment done.");
-                \Illuminate\Support\Facades\Log::info($paymentdata);
-
-                // Add transaction
-                $transactiondata = array();
-                $transactiondata['CompanyID'] = $Account->CompanyId;
-                $transactiondata['AccountID'] = $AccountID;
-                $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
-                $transactiondata['Transaction'] = $data["Transaction"]; //$paypal->get_response_var('txn_id');
-                $transactiondata['Notes'] = $data["Notes"];//$Notes;
-                $transactiondata['Amount'] = floatval($data["Amount"]); //floatval($paypal->get_response_var('mc_gross'));
-                $transactiondata['Status'] = TransactionLog::SUCCESS;
-                $transactiondata['created_at'] = date('Y-m-d H:i:s');
-                $transactiondata['updated_at'] = date('Y-m-d H:i:s');
-                $transactiondata['CreatedBy'] = 'Customer';
-                $transactiondata['ModifyBy'] = 'Customer';
-                $transactiondata['Response'] = json_encode($data["PaymentGatewayResponse"]); // json_encode($paypal->get_full_response());
-
-                TransactionLog::insert($transactiondata);
-
-                $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
-
-                \Illuminate\Support\Facades\Log::info("Transaction done.");
-                \Illuminate\Support\Facades\Log::info($transactiondata);
-
-                //$paypal->log();
-                $EmailTemplate = EmailTemplate::where(["CompanyID" => $paymentdata['CompanyID'], "SystemType" => EmailTemplate::InvoicePaidNotificationTemplate , "Status" => 1 ])->first();
-                if(!empty($EmailTemplate) && isset($EmailTemplate->Status) && $EmailTemplate->Status == 1 ){
-                    $paymentdata['EmailTemplate'] = $EmailTemplate;
-                    $paymentdata['CompanyName'] = Company::getName($paymentdata['CompanyID']);
-                    $paymentdata['Invoice'] = $Invoice;
-                    Notification::sendEmailNotification(Notification::InvoicePaidByCustomer, $paymentdata);
-                }
                 return Response::json(array("status" => "success", "message" => "Invoice paid successfully"));
             }else{
                 \Illuminate\Support\Facades\Log::info("Invoice Already paid successfully.");
                 return Response::json(array("status" => "success", "message" => "Invoice Already paid successfully"));
             }
-
-
         } else {
-
-
-            $transactiondata = array();
-            $transactiondata['CompanyID'] = $Invoice->CompanyID;
-            $transactiondata['AccountID'] = $AccountID;
-            $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
-            $transactiondata['Transaction'] = $data["Transaction"]; //$paypal->get_response_var('txn_id');
-            $transactiondata['Notes'] = $data["Notes"];//$Notes;
-            $transactiondata['Amount'] = floatval($Invoice->RemaingAmount);
-            $transactiondata['Status'] = TransactionLog::FAILED;
-            $transactiondata['created_at'] = date('Y-m-d H:i:s');
-            $transactiondata['updated_at'] = date('Y-m-d H:i:s');
-            $transactiondata['CreatedBy'] = 'customer';
-            $transactiondata['ModifyBy'] = 'customer';
-            $transactiondata['Response'] = json_encode($data["PaymentGatewayResponse"]); // json_encode($paypal->get_full_response());
-            TransactionLog::insert($transactiondata);
-
+            $transactionResponse['Amount'] = floatval($Invoice->RemaingAmount);
+            Payment::paymentFail($transactionResponse);
             //$paypal->log();
-
             return Response::json(array("status" => "failed", "message" => "Failed to payment."));
         }
 
@@ -2743,5 +2682,98 @@ class InvoicesController extends \BaseController {
             }
         }
         exit;
+    }
+
+    public function payinvoice_withcard($type){
+        $data = Input::all();
+        $InvoiceID = $data['InvoiceID'];
+        $AccountID = $data['AccountID'];
+        $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
+        if(!empty($Invoice)) {
+
+            $payment_log = Payment::getPaymentByInvoice($Invoice->InvoiceID);
+
+            $data['GrandTotal'] = $payment_log['final_payment'];
+            $data['InvoiceNumber'] = $Invoice->FullInvoiceNumber;
+            $data['CompanyID'] = $Invoice->CompanyID;
+
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
+            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+
+            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $Invoice->CompanyID);
+            $PaymentResponse = $PaymentIntegration->paymentWithCreditCard($data);
+            return json_encode($PaymentResponse);
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Invoice not found"));
+        }
+    }
+
+    // not using
+    public function payinvoice_withbank($type){
+        $data = Input::all();
+        $InvoiceID = $data['InvoiceID'];
+        $AccountID = $data['AccountID'];
+        $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
+        if(!empty($Invoice)) {
+            $Invoice = Invoice::find($Invoice->InvoiceID);
+
+            $payment_log = Payment::getPaymentByInvoice($Invoice->InvoiceID);
+
+            $data['GrandTotal'] = $payment_log['final_payment'];
+            $data['InvoiceNumber'] = $Invoice->FullInvoiceNumber;
+            $data['CompanyID'] = $Invoice->CompanyID;
+
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
+            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+
+            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $Invoice->CompanyID);
+            $PaymentResponse = $PaymentIntegration->paymentWithBankDetail($data);
+            return json_encode($PaymentResponse);
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Invoice not found"));
+        }
+    }
+
+    /**
+     * Only for guest auth wih profile
+     * like stripeach from invoice page
+    */
+    public function payinvoice_withprofile($type){
+        $data = Input::all();
+        $InvoiceID = $data['InvoiceID'];
+        $AccountID = $data['AccountID'];
+        $Invoice = Invoice::where('InvoiceStatus','!=',Invoice::PAID)->where(["InvoiceID" => $InvoiceID, "AccountID" => $AccountID])->first();
+        if(!empty($Invoice)) {
+            $Invoice = Invoice::find($Invoice->InvoiceID);
+            $payment_log = Payment::getPaymentByInvoice($Invoice->InvoiceID);
+            $CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
+            if (!empty($CustomerProfile)) {
+                $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($type);
+                $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+
+                $PaymentData = array();
+                $PaymentData['AccountID'] = $AccountID;
+                $PaymentData['CompanyID'] = $Invoice->CompanyID;
+                $PaymentData['CreatedBy'] = 'customer';
+                $PaymentData['AccountPaymentProfileID'] = $data['AccountPaymentProfileID'];
+                $PaymentData['InvoiceIDs'] = $InvoiceID;
+                $PaymentData['InvoiceNumber'] = $Invoice->FullInvoiceNumber;
+                $PaymentGateway = PaymentGateway::getName($CustomerProfile->PaymentGatewayID);
+                $PaymentData['PaymentGateway'] = $PaymentGateway;
+                $PaymentData['outstanginamount'] = $payment_log['final_payment'];
+
+                $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass, $Invoice->CompanyID);
+                $PaymentResponse = $PaymentIntegration->paymentWithProfile($PaymentData);
+                return json_encode($PaymentResponse);
+
+            }else{
+                return json_encode(array("status" => "failed", "message" => "Account Profile not set"));
+            }
+
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Invoice not found"));
+        }
     }
 }

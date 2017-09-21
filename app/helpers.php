@@ -1844,3 +1844,10 @@ function get_client_ip() {
     return $ipaddress;
 
 }
+
+function getInvoicePayments(){
+    if(is_authorize() || is_Stripe() || is_StripeACH() || is_paypal() || is_sagepay()){
+        return true;
+    }
+    return false;
+}
