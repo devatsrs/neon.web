@@ -109,6 +109,38 @@
             });
 
 
+            $(".btn.delete").click(function (e) {
+
+                response = confirm('Are you sure?');
+
+                if (response) {
+
+                    $.ajax({
+                        url: $(this).attr("href"),
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function (response) {
+                            $(".btn.delete").button('reset');
+                            if (response.status == 'success') {
+                                if( typeof data_table !=  'undefined'){
+                                    data_table.fnFilter('', 0);
+                                }
+                                toastr.success(response.message, "Success", toastr_opts);
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        },
+                        // Form data
+                        //data: {},
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                }
+                return false;
+
+            });
+
         });
     </script>
 @stop
