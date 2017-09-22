@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user-bhavin`@`117.247.87.156` PROCEDURE `prc_ProcessCDRAccount`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcessCDRAccount`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_processId` INT,

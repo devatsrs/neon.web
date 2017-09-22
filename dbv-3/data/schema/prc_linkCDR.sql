@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_linkCDR`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_linkCDR`(
 	IN `p_ProcessID` INT,
 	IN `p_UniqueID` VARCHAR(50)
 )
