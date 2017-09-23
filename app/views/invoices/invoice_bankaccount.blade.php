@@ -53,7 +53,7 @@
 						var type = '{{$type}}';
 
 						if(type == 'StripeACH'){
-							update_new_url = '{{URL::to('/')}}/stripeach_payment';
+							update_new_url = '{{URL::to('/')}}/payinvoice_withprofile/'+type;
 						}
 						$.ajax({
 							url: update_new_url,  //Server script to process data

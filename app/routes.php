@@ -11,7 +11,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/invoice_expense_total', 'DashboardCustomerController@invoice_expense_total');
 	Route::any('customer/subscriptions', 'DashboardCustomerController@subscriptions');	
 	Route::any('customer/subscription/ajax_datagrid', 'DashboardCustomerController@subscriptions_ajax_datagrid');	
-    Route::any('customer/getoutstandingamount', 'ProfileController@get_outstanding_amount');
+    Route::any('customer/getoutstandingamount/{id}', 'ProfileController@get_outstanding_amount');
     Route::any('customer/invoice_expense_total_widget', 'DashboardCustomerController@invoice_expense_total_widget');
 	Route::any('customer/daily_report', 'DashboardCustomerController@daily_report');
 	Route::any('customer/daily_report/ajax_datagrid/{type}', 'DashboardCustomerController@daily_report_ajax_datagrid');
@@ -21,7 +21,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/invoice/ajax_datagrid/{type}', 'InvoicesCustomerController@ajax_datagrid');
     //Route::any('customer/invoice/{id}/print_preview', 'InvoicesCustomerController@print_preview'); Not in use.
     //Route::any('customer/invoice/{id}/print', 'InvoicesCustomerController@pdf_view');
-    Route::any('customer/invoice/pay_now', 'InvoicesCustomerController@pay_now');
+    Route::any('customer/invoice/pay_now/{id}', 'InvoicesCustomerController@pay_now');
     Route::any('customer/invoice/download_invoice_file/{id}', 'InvoicesCustomerController@download_invoice_file');
 	Route::any('customer/invoice/ajax_datagrid_total', 'InvoicesCustomerController@ajax_datagrid_total');
 	Route::any('customer/invoice/getInvoiceDetail', 'InvoicesCustomerController@getInvoiceDetail');
@@ -40,12 +40,12 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/account_statement/exports/{type}', 'AccountStatementCustomerController@exports');
 
     //credit card
-    Route::any('customer/PaymentMethodProfiles/paynow', 'PaymentProfileCustomerController@paynow');
+    Route::any('customer/PaymentMethodProfiles/paynow/{id}', 'PaymentProfileCustomerController@paynow');
     Route::any('/customer/PaymentMethodProfiles', 'PaymentProfileCustomerController@index');
     Route::any('/customer/PaymentMethodProfiles/create', 'PaymentProfileCustomerController@create');
     Route::any('/customer/PaymentMethodProfiles/{id}/delete', 'PaymentProfileCustomerController@delete');
     Route::any('/customer/PaymentMethodProfiles/update', 'PaymentProfileCustomerController@update');
-    Route::any('/customer/PaymentMethodProfiles/ajax_datagrid', 'PaymentProfileCustomerController@ajax_datagrid');
+    Route::any('/customer/PaymentMethodProfiles/ajax_datagrid/{id}', 'PaymentProfileCustomerController@ajax_datagrid');
     Route::any('/customer/PaymentMethodProfiles/{id}/set_default', 'PaymentProfileCustomerController@set_default');
     Route::any('/customer/PaymentMethodProfiles/verify_bankaccount', 'PaymentProfileCustomerController@verify_bankaccount');
     Route::any('/customer/PaymentMethodProfiles/{id}/card_status/{active_deactive}', array('as' => 'payment_rules', 'uses' => 'PaymentProfileCustomerController@card_active_deactive'))->where('active_deactive', '(active|deactive)');
@@ -1344,6 +1344,8 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/invoice/display_invoice/{id}', 'InvoicesController@display_invoice');
     Route::any('/invoice/download_invoice/{id}', 'InvoicesController@download_invoice');
 	Route::any('/invoice_payment/{id}/{type}', 'InvoicesController@invoice_payment'); //Customer payment View
+    Route::any('/payinvoice_withcard/{type}', 'InvoicesController@payinvoice_withcard'); //Customer payment pay with credit card
+    Route::any('/payinvoice_withprofile/{type}', 'InvoicesController@payinvoice_withprofile'); //Customer payment pay with credit card
     Route::any('/pay_invoice', 'InvoicesController@pay_invoice'); //Customer payment pay
 	Route::any('/stripe_payment', 'InvoicesController@stripe_payment'); //Customer payment with stripe
 	Route::any('/stripeach_payment', 'InvoicesController@stripeach_payment'); //Customer payment with stripe

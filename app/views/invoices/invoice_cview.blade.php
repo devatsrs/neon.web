@@ -52,9 +52,7 @@
 
             ?>
               <div class="pull-right"> &nbsp;</div>
-              @if(empty($ShowAllPaymentMethod) && empty($PaymentMethod))
-              @else
-                  @if($Invoice->InvoiceStatus != Invoice::PAID)
+                  @if($Invoice->InvoiceStatus != Invoice::PAID && (getInvoicePayments()))
                   <div class="input-group-btn pull-right" style="width: 70px;">
                       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="padding:4px 10px;"> Pay Now <span class="caret"></span></button>
                       <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
@@ -95,7 +93,7 @@
                   </div>
                   <div class="pull-right"> &nbsp;</div>
                   @endif
-          @endif
+
           @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> Downlod Usage </a>
           <div class="pull-right"> &nbsp;</div>
           @endif <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a>

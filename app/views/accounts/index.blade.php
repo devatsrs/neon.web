@@ -1520,7 +1520,7 @@
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <input type="checkbox" name="BulkAutoPaymentSettingCheck" class="bulkbillinghide">
-                            <span>Auto Invoice Pay</span></label><br>
+                            <span>Auto Pay</span></label><br>
                         {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, 'never' ,array("class"=>'form-control select2 small'))}}
                     </div>
                 </div>

@@ -168,8 +168,6 @@ class SagePay
                   <input type="hidden" name="cancel_url" value="' . $cancel_url  .  '">
                   <input type="hidden" name="notify_url" value="' . $notify_url  .  '">
 
-
-                  <button name="submit"  type="submit" class="pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print" style="display:none;"> <i class="entypo-credit-card"></i> Pay with SagePay</button>
                 </form>';
 
         return $form;

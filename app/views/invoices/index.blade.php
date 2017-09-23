@@ -98,7 +98,7 @@
             @if(User::checkCategoryPermission('Invoice','Generate'))
             <li> <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;"> Regenerate </a> </li>
             @endif
-            @if(is_authorize() || is_Stripe())
+            @if(is_authorize() || is_Stripe() || is_StripeACH())
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="pay_now create" id="pay_now" href="javascript:;"> Pay Now </a> </li>
             @endif
@@ -849,7 +849,8 @@
                     $('#add-bankaccount-form').find("[name=AccountID]").val(accoutid);
                     //$('#add-credit-card-form').find("[name=PaymentGatewayID]").val(pgid);
 
-                    paynow_url = '/paymentprofile/' + accoutid;
+                    paynow_url = '/customer/PaymentMethodProfiles/paynow/' + accoutid;
+                    //paynow_url = '/paymentprofile/' + accoutid;
                     showAjaxModal(paynow_url, 'pay_now_modal');
                     $('#pay_now_modal').modal('show');
 

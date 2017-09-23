@@ -16,6 +16,10 @@
     </ol>
     <h3>Add Rate Generator Rule</h3>
     <div class="float-right">
+        <button type="button"  class="saveall btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+            <i class="entypo-floppy"></i>
+            Save
+        </button>
         <a href="{{URL::to('rategenerators/'.$id.'')}}" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>
             Close
@@ -27,7 +31,7 @@
     <div class="row">
         <div class="col-md-12">
             <ul class="nav nav-tabs bordered" >
-                <li class="active"><a data-toggle="tab" href="#tab-code_description">Code</a></li>
+                <li class="active"><a data-toggle="tab" href="#tab-code_description">Destination</a></li>
                 <li><a class="disabled" href="#">Sources</a></li>
                 <li><a class="disabled" href="#">Margin</a></li>
             </ul>
@@ -39,4 +43,30 @@
 
         </div>
     </div>
+
+<script type="text/javascript">
+        jQuery(document).ready(function($) {
+
+            $(".saveall.btn").click(function(e){
+
+
+                var Code = $("#rategenerator-code-from input[name='Code']").val();
+                var Description = $("#rategenerator-code-from input[name='Description']").val();
+
+                if((typeof Code  == 'undefined' || Code.trim() == '' ) && (typeof Description  == 'undefined' || Description.trim() == '' )) {
+
+                    setTimeout(function(){$('.btn').button('reset');},10);
+                    toastr.error("Please Enter a Code Or Description", "Error", toastr_opts);
+                    return false;
+
+                }
+
+                var _url = $("#rategenerator-code-from").attr("action");
+                submit_ajax(_url,$("#rategenerator-code-from").serialize());
+
+                return false;
+           });
+
+        });
+    </script>
 @stop

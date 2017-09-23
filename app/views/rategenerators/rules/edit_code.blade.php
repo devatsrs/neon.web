@@ -1,7 +1,7 @@
 <div  class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
-            Rate Generator Rule Information
+
         </div>
 
         <div class="panel-options">
@@ -21,39 +21,12 @@
                         </div>
                     </div>
                     <div class="clear clearfix"><br></div>
-                    <p style="text-align: right;">
+                   {{-- <p style="text-align: right;">
                         <button type="submit" class="save code btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="glyphicon glyphicon-circle-arrow-up"></i>
                             Save
                         </button>
-                    </p>
+                    </p>--}}
         </form>
     </div>
 </div>
-<script type="text/javascript">
-    jQuery(document).ready(function($) {
-
-        $("#rategenerator-code-from").submit(function(e){
-            e.preventDefault();
-
-            var Code = $("#rategenerator-code-from input[name='Code']").val();
-            var Description = $("#rategenerator-code-from input[name='Description']").val();
-
-            if((typeof Code  == 'undefined' || Code.trim() == '' ) && (typeof Description  == 'undefined' || Description.trim() == '' )){
-
-                setTimeout(function(){$('.btn').button('reset');},10);
-                toastr.error("Please Enter a Code Or Description", "Error", toastr_opts);
-                return false;
-
-            }
-
-            var _url = $(this).attr("action");
-            var formData = new FormData($('#rategenerator-code-from')[0]);
-            submit_ajax_withfile(_url,formData);
-
-            return false;
-        });
-
-
-    });
-</script>
