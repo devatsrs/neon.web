@@ -1,5 +1,47 @@
 @extends('layout.main')
 
+@section('filter-button')
+    <li>
+        <a href="javascript:void(0);" data-toggle="datatable-filter" class="btn btn-default btn-xs" data-animate="1" data-collapse-sidebar="1"><i class="fa fa-filter"></i></a>
+    </li>
+@stop
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="service_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Name</label>
+                    {{ Form::text('ServiceName', '', array("class"=>"form-control")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Gateway</label>
+                    {{ Form::select('CompanyGatewayID',CompanyGateway::getCompanyGatewayIdList(),'', array("class"=>"select2 small")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Status</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="ServiceStatus" name="ServiceStatus" type="checkbox" checked>
+                        <input id="ServiceRefresh" type="hidden" value="1">
+                    </p>
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 
 <ol class="breadcrumb bc-3">
@@ -19,39 +61,6 @@
     </a>
 @endif
 </p>
-<div class="row">
-    <div class="col-md-12">
-        <form id="service_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
-            <div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title"> Filter </div>
-                    <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
-                </div>
-
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Name</label>
-                        <div class="col-sm-2"> {{ Form::text('ServiceName', '', array("class"=>"form-control")) }} </div>
-
-                        <label for="field-1" class="col-sm-1 control-label">Gateway</label>
-                        <div class="col-sm-2">{{ Form::select('CompanyGatewayID',CompanyGateway::getCompanyGatewayIdList(),'', array("class"=>"select2 small")) }}</div>
-
-                        <label for="field-1" class="col-sm-1 control-label">Status</label>
-                        <div class="col-sm-2">
-                            <p class="make-switch switch-small">
-                                <input id="ServiceStatus" name="ServiceStatus" type="checkbox" checked>
-                                <input id="ServiceRefresh" type="hidden" value="1">
-                            </p>
-                        </div>
-                    </div>
-                    <p style="text-align: right;">
-                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
-                    </p>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
 
 <table class="table table-bordered datatable" id="table-4">
     <thead>

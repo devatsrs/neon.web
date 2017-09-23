@@ -1,4 +1,50 @@
 @extends('layout.main')
+
+@section('filter-button')
+    <li>
+        <a href="javascript:void(0);" data-toggle="datatable-filter" class="btn btn-default btn-xs" data-animate="1" data-collapse-sidebar="1"><i class="fa fa-filter"></i></a>
+    </li>
+@stop
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="table_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for=" field-1" class="control-label">Country</label>
+                    {{Form::select('CountryID', $countries,'',array("class"=>"form-control select2"))}}
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Code</label>
+                    <input type="text" class="form-control" name="FilterCode">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Description</label>
+                    <input type="text" class="form-control" name="FilterDescription">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Show Applied Code</label>
+                    <input class="icheck" name="Selected" type="checkbox" value="1" >
+                </div>
+                <input type="hidden" name="DestinationGroupID" value="{{$DestinationGroupID}}" >
+                <input type="hidden" name="DestinationGroupSetID" value="{{$DestinationGroupSetID}}">
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
     <ol class="breadcrumb bc-3">
         <li>
@@ -29,52 +75,6 @@
     </p>
     @include('includes.errors')
     @include('includes.success')
-    <div class="row">
-        <div class="col-md-12">
-            <form id="table_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
-                <div class="panel panel-primary" data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Filter
-                        </div>
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <label for=" field-1" class="col-sm-1 control-label">
-                                Country
-                            </label>
-                            <div class="col-sm-2">
-                                {{Form::select('CountryID', $countries,'',array("class"=>"form-control select2"))}}
-                            </div>
-                            <label class="col-sm-1 control-label">Code</label>
-                            <div class="col-sm-2">
-                                <input type="text" class="form-control" name="FilterCode">
-                            </div>
-                            <label class="col-sm-1 control-label">Description</label>
-                            <div class="col-sm-2">
-                                <input type="text" class="form-control" name="FilterDescription">
-                            </div>
-                            <label class="col-sm-2 control-label">Show Applied Code</label>
-                            <div class="col-sm-1">
-                                <input class="icheck" name="Selected" type="checkbox" value="1" >
-                            </div>
-                        </div>
-                        <input type="hidden" name="DestinationGroupID" value="{{$DestinationGroupID}}" >
-                        <input type="hidden" name="DestinationGroupSetID" value="{{$DestinationGroupSetID}}">
-                        <p style="text-align: right;">
-                            <button type="submit" id="search_code" class="btn btn-primary btn-sm btn-icon icon-left" style="visibility: visible;">
-                                <i class="entypo-search"></i>
-                                Search
-                            </button>
-                        </p>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
 
 
     <form id="modal-form">

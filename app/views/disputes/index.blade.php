@@ -1,4 +1,56 @@
 @extends('layout.main')
+
+@section('filter-button')
+    <li>
+        <a href="javascript:void(0);" data-toggle="datatable-filter" class="btn btn-default btn-xs" data-animate="1" data-collapse-sidebar="1"><i class="fa fa-filter"></i></a>
+    </li>
+@stop
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form role="form" id="dispute-table-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Account</label>
+                    {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label small_label" for="DisputeDate_StartDate">Date From</label>
+                    <input autocomplete="off" type="text" name="DisputeDate_StartDate" id="DisputeDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d',strtotime("-1 week"))}}" data-enddate="{{date('Y-m-d')}}" />
+                </div>
+                <div class="form-group">
+                    <label  class="control-label" for="DisputeDate_EndDate">Date To</label>
+                    <input autocomplete="off" type="text" name="DisputeDate_EndDate" id="DisputeDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Invoice Type</label>
+                    {{Form::select('InvoiceType',Invoice::$invoice_type,'',array("class"=>"select2 small"))}}
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Invoice No</label>
+                    <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label small_label">Status</label>
+                    {{ Form::select('Status', Dispute::$Status, Dispute::PENDING, array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -7,52 +59,6 @@
 <h3>Disputes</h3>
 <div class="tab-content">
   <div class="tab-pane active" id="customer_rate_tab_content">
-    <div class="row">
-      <div class="col-md-12">
-        <form role="form" id="dispute-table-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
-          <div class="panel panel-primary" data-collapsed="0">
-          <div class="panel-heading">
-            <div class="panel-title"> Filter </div>
-            <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
-          </div>
-          <div class="panel-body">
-              <div class="form-group">
-                  <label for="field-1" class="col-sm-1 control-label">Account</label>
-                  <div class="col-sm-2 "> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
-                  <label class="col-sm-1 control-label small_label" for="DisputeDate_StartDate">Date From</label>
-                  <div class="col-sm-2 ">
-                      <input autocomplete="off" type="text" name="DisputeDate_StartDate" id="DisputeDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d',strtotime("-1 week"))}}" data-enddate="{{date('Y-m-d')}}" />
-                  </div>
-                  <label  class="col-sm-1 control-label" for="DisputeDate_EndDate">Date To</label>
-                  <div class="col-sm-2 ">
-                      <input autocomplete="off" type="text" name="DisputeDate_EndDate" id="DisputeDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}" />
-                  </div>
-              </div>
-
-            <div class="form-group">
-
-
-                <label class="col-sm-1 control-label">Invoice Type</label>
-              <div class="col-sm-2">
-                  {{Form::select('InvoiceType',Invoice::$invoice_type,'',array("class"=>"select2 small"))}}
-              </div>
-                <label class="col-sm-1 control-label">Invoice No</label>
-              <div class="col-sm-2">
-                <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
-              </div>
-              <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-              <div class="col-sm-2 "> {{ Form::select('Status', Dispute::$Status, Dispute::PENDING, array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
-            </div>
- 
-
-            <p style="text-align: right;">
-              <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
-            </p>
-          </div>
-          </div>
-        </form>
-      </div>
-    </div>
     <div class="clear"></div>
 
       @if(User::checkCategoryPermission('Disputes','Add'))
@@ -82,24 +88,25 @@
      <script type="text/javascript">
 	
 	 var currency_signs = {{$currency_ids}};
-     var list_fields  = ['InvoiceType','AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','ShortNotes','DisputeID','Attachment','AccountID','Notes'];
 
      var $searchFilter = {};
-     $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
-     $searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
-     $searchFilter.DisputeDate_EndDate   = $("#dispute-table-search input[name='DisputeDate_EndDate']").val();
-     $searchFilter.InvoiceType   = $("#dispute-table-search select[name='InvoiceType']").val();
-     $searchFilter.AccountID   = $("#dispute-table-search select[name='AccountID']").val();
-     $searchFilter.InvoiceNo   = $("#dispute-table-search input[name='InvoiceNo']").val();
-     $searchFilter.Status   = $("#dispute-table-search select[name='Status']").val();
-
      var update_new_url;
      var postdata;
-     var dispute_status = {{json_encode(Dispute::$Status);}};
      var toFixed = '{{get_round_decimal_places()}}';
 
      jQuery(document).ready(function ($) {
-                    data_table = $("#table-4").dataTable({
+         var dispute_status = {{json_encode(Dispute::$Status);}};
+         var list_fields  = ['InvoiceType','AccountName','InvoiceNo','DisputeAmount','Status','created_at', 'CreatedBy','ShortNotes','DisputeID','Attachment','AccountID','Notes'];
+
+         $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
+         $searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
+         $searchFilter.DisputeDate_EndDate   = $("#dispute-table-search input[name='DisputeDate_EndDate']").val();
+         $searchFilter.InvoiceType   = $("#dispute-table-search select[name='InvoiceType']").val();
+         $searchFilter.AccountID   = $("#dispute-table-search select[name='AccountID']").val();
+         $searchFilter.InvoiceNo   = $("#dispute-table-search input[name='InvoiceNo']").val();
+         $searchFilter.Status   = $("#dispute-table-search select[name='Status']").val();
+
+         data_table = $("#table-4").dataTable({
                         "bDestroy": true,
                         "bProcessing": true,
                         "bServerSide": true,
@@ -267,15 +274,15 @@
                         ev.stopPropagation();
                         $('#view-modal-dispute').trigger("reset");
                         var cur_obj = $(this).prev("div.hiddenRowData");
-                        for(var i = 0 ; i< list_fields.length; i++){							
+                        for(var i = 0 ; i< list_fields.length; i++){
                             if(list_fields[i] == 'Amount'){
                                 $("#view-modal-dispute [name='" + list_fields[i] + "']").text(cur_obj.find("input[name='AmountWithSymbol']").val());
-                            }else if(list_fields[i] == 'Currency'){ 							
+                            }else if(list_fields[i] == 'Currency'){
 							var currency_sign_show = currency_signs[cur_obj.find("input[name='" + list_fields[i] + "']").val()];
-								if(currency_sign_show!='Select a Currency'){								
-									$("#view-modal-dispute [name='" + list_fields[i] + "']").text(currency_sign_show);	
+								if(currency_sign_show!='Select a Currency'){
+									$("#view-modal-dispute [name='" + list_fields[i] + "']").text(currency_sign_show);
 								 }else{
-									 $("#view-modal-dispute [name='" + list_fields[i] + "']").text("Currency Not Found");	
+									 $("#view-modal-dispute [name='" + list_fields[i] + "']").text("Currency Not Found");
 									 }
 							}else {
                                 $("#view-modal-dispute [name='" + list_fields[i] + "']").text(cur_obj.find("input[name='" + list_fields[i] + "']").val());
@@ -321,7 +328,7 @@
 
                     });
 
-                     
+
                     $("#dispute-status-form").submit(function(e){
                         e.preventDefault();
                         submit_ajax($(this).find("input[name='URL']").val(),$(this).serialize());
@@ -409,22 +416,21 @@
 
                     });
 
-                });
+                     $("#dispute-table-search").submit(function(e) {
+                         e.preventDefault();
 
-                $("#dispute-table-search").submit(function(e) {
-                    e.preventDefault();
-
-                    //show_loading_bar(40);
-                    $searchFilter.AccountID = $("#dispute-table-search select[name='AccountID']").val();
-                    $searchFilter.InvoiceNo = $("#dispute-table-search [name='InvoiceNo']").val();
-                    $searchFilter.InvoiceType = $("#dispute-table-search [name='InvoiceType']").val();
-                    $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
-                    $searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
-					$searchFilter.DisputeDate_EndDate   = $("#dispute-table-search input[name='DisputeDate_EndDate']").val();
+                         //show_loading_bar(40);
+                         $searchFilter.AccountID = $("#dispute-table-search select[name='AccountID']").val();
+                         $searchFilter.InvoiceNo = $("#dispute-table-search [name='InvoiceNo']").val();
+                         $searchFilter.InvoiceType = $("#dispute-table-search [name='InvoiceType']").val();
+                         $searchFilter.Status = $("#dispute-table-search select[name='Status']").val();
+                         $searchFilter.DisputeDate_StartDate = $("#dispute-table-search input[name='DisputeDate_StartDate']").val();
+                         $searchFilter.DisputeDate_EndDate   = $("#dispute-table-search input[name='DisputeDate_EndDate']").val();
 
 
-                    data_table.fnFilter('', 0);
-                    return false;
+                         data_table.fnFilter('', 0);
+                         return false;
+                     });
                 });
 
                  // Replace Checboxes

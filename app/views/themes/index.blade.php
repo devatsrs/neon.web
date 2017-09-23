@@ -1,5 +1,40 @@
 @extends('layout.main')
 
+@section('filter-button')
+    <li>
+        <a href="javascript:void(0);" data-toggle="datatable-filter" class="btn btn-default btn-xs" data-animate="1" data-collapse-sidebar="1"><i class="fa fa-filter"></i></a>
+    </li>
+@stop
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="themes_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Search</label>
+                    {{ Form::text('searchText', '', array("class"=>"form-control")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Status</label>
+                    {{ Form::select('ThemeStatus', Themes::get_theme_status(), '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -8,37 +43,10 @@
 <h3>Themes</h3>
 @include('includes.errors')
 @include('includes.success')
-<p style="text-align: right;"> @if(User::checkCategoryPermission('themes','Add')) <a href="{{URL::to("themes/create")}}" id="add-new-themes" class="btn btn-primary "> <i class="entypo-plus"></i> Add New</a> @endif
 
-</p>
-<div class="row">
-  <div class="col-md-12">
-    <form id="themes_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
-      <div class="panel panel-primary" data-collapsed="0">
-        <div class="panel-heading">
-          <div class="panel-title"> Filter </div>
-          <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
-        </div>
-        <div class="panel-body">
-           <div class="form-group">
-            <label for="field-1" class="col-sm-2 control-label">Search</label>
-            <div class="col-sm-2"> {{ Form::text('searchText', '', array("class"=>"form-control")) }} </div>
-            <label for="field-1" class="col-sm-2 control-label">Status</label>
-            <div class="col-sm-2"> {{ Form::select('ThemeStatus', Themes::get_theme_status(), '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
-          </div>
-            <p style="text-align: right;">
-            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
-          </p>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
 <div class="row">
   <div  class="col-md-12">
-    <div class="input-group-btn pull-right" style="width:70px;"> 
-      
-     
+    <div class="input-group-btn pull-right" style="width:70px; margin-left: 10px;">
       @if( User::checkCategoryPermission('themes','Edit'))
       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
       <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">       
@@ -49,6 +57,10 @@
         <input type="hidden" name="CustomerRateIDs" value="">
       </form>
     </div>
+
+      @if(User::checkCategoryPermission('themes','Add'))
+          <a href="{{URL::to("themes/create")}}" id="add-new-themes" class="btn btn-primary pull-right"> <i class="entypo-plus"></i> Add New</a>
+      @endif
     <!-- /btn-group --> 
   </div>
   <div class="clear"></div>

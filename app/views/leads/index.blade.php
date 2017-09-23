@@ -1,8 +1,59 @@
 @extends('layout.main')
 
+@section('filter-button')
+    <li>
+        <a href="javascript:void(0);" data-toggle="datatable-filter" class="btn btn-default btn-xs" data-animate="1" data-collapse-sidebar="1"><i class="fa fa-filter"></i></a>
+    </li>
+@stop
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="lead_filter" method="get"  action="{{URL::to('leads/ajax_datagrid')}}" class="form-horizontal form-groups-bordered validate" novalidate>
+
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Company</label>
+                    <input class="form-control" name="account_name"  type="text" >
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Contact Name</label>
+                    <input class="form-control" name="contact_name" type="text" >
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Tag</label>
+                    <input class="form-control leadTags" name="tag" type="text" >
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Active</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="account_active" name="account_active" type="checkbox" value="1" checked="checked">
+                    </p>
+                </div>
+                <div class="form-group">
+                    @if(User::is_admin())
+                        <label for="field-1" class="control-label">Owner</label>
+                        {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
+                    @endif
+                </div>
+
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
-
-
 <ol class="breadcrumb bc-3">
     <li>
         <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a>
@@ -16,73 +67,11 @@
 @include('includes.errors')
 @include('includes.success')
 
-<p style="text-align: right;">
-@if(User::checkCategoryPermission('Leads','Add'))
-    <a href="{{URL::to('leads/create')}}" class="btn btn-primary ">
-        <i class="entypo-plus"></i>
-        Add New
-    </a>
-@endif    
-</p>
-
-<div class="row">
-    <div class="col-md-12">
-        <form id="lead_filter" method="get"  action="{{URL::to('leads/ajax_datagrid')}}" class="form-horizontal form-groups-bordered validate" novalidate>
-            <div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Filter
-                    </div>
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Company</label>
-                        <div class="col-sm-2">
-                            <input class="form-control" name="account_name"  type="text" >
-                        </div>            
-                        <label class="col-sm-2 control-label">Contact Name</label>
-                        <div class="col-sm-2">
-                            <input class="form-control" name="contact_name" type="text" >
-                        </div>
-                        <label class="col-sm-1 control-label">Tag</label>
-                        <div class="col-sm-2">
-                            <input class="form-control leadTags" name="tag" type="text" >
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-1 control-label">Active</label>
-                        <div class="col-sm-1">
-                            <p class="make-switch switch-small">
-                                <input id="account_active" name="account_active" type="checkbox" value="1" checked="checked">
-                            </p>
-                        </div>
-                        @if(User::is_admin())
-                            <label for="field-1" class="col-sm-1 control-label">Owner</label>
-                            <div class="col-sm-2">
-                                {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
-                            </div>
-                        @endif
-                    </div>
-                    <p style="text-align: right;">
-                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
-                            <i class="entypo-search"></i>
-                            Search
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
 <div class="clear"></div>
 @if(User::checkCategoryPermission('Leads','Email,Edit'))
-<div class="row hidden dropdown">
+<div class="row">
     <div  class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:70px;">
+        <div class="input-group-btn pull-right hidden dropdown" style="width:70px; margin-left:10px;">
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                 @if(User::checkCategoryPermission('Leads','Email'))
@@ -109,6 +98,13 @@
                 </li>
             </ul>
         </div><!-- /btn-group -->
+
+        @if(User::checkCategoryPermission('Leads','Add'))
+            <a href="{{URL::to('leads/create')}}" class="btn btn-primary pull-right">
+                <i class="entypo-plus"></i>
+                Add New
+            </a>
+        @endif
     </div>
     <div class="clear"></div>
 </div>
@@ -751,7 +747,7 @@
     .dataTables_wrapper .export-data{
         right: 30px !important;
     }
-    #selectcheckbox{
+    #selectcheckbox,#datatable-filter-btn-box{
         padding: 15px 10px;
     }
 </style>

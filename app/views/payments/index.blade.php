@@ -1,5 +1,86 @@
 @extends('layout.main')
 
+@section('filter-button')
+    <li>
+        <a href="javascript:void(0);" data-toggle="datatable-filter" class="btn btn-default btn-xs" data-animate="1" data-collapse-sidebar="1"><i class="fa fa-filter"></i></a>
+    </li>
+@stop
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form role="form" id="payment-table-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label small_label">Account</label>
+                    {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label small_label">Invoice No</label>
+                    <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label small_label">Status</label>
+                    {{ Form::select('Status', Payment::$status, (!empty(Input::get('Status'))?Input::get('Status'):'Pending Approval'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label small_label">Action</label>
+                    {{ Form::select('type', Payment::$action, Input::get('Type'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Recalled</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="Recall_on_off" name="recall_on_off" type="checkbox" value="1">
+                    </p>
+                </div>
+                <!--payment date start -->
+                <div class="form-group">
+                    <label class="control-label small_label" for="PaymentDate_StartDate">Date From</label>
+                    <div class="row">
+                        <div class="col-sm-6" >
+                            <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')}}" data-enddate="{{date('Y-m-d')}}" />
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="control-label small_label" for="PaymentDate_EndDate">End Date</label>
+                    <div class="row">
+                        <div class="col-sm-6" >
+                            <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')}}" data-enddate="{{date('Y-m-d')}}" />
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" name="PaymentDate_EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" placeholder="00:00:00" data-template="dropdown" class="form-control timepicker">
+                        </div>
+                    </div>
+                </div>
+                <!--payment date end -->
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Payment Method</label>
+                    {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Currency</label>
+                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2 small"))}}
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 <style>
 .small_fld{width:80.6667%;}
@@ -15,70 +96,6 @@
   <li class="active"> <a href="javascript:void(0)">Payments</a> </li>
 </ol>
 <h3>Payments</h3>
-<p style="text-align: right;"> <a href="javascript:;" id="upload-payments" class="btn upload btn-primary "> <i class="entypo-upload"></i> Upload </a> </p>
-    <div class="row">
-      <div class="col-md-12">
-        <form role="form" id="payment-table-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
-          <div class="panel panel-primary" data-collapsed="0">
-          <div class="panel-heading">
-            <div class="panel-title"> Filter </div>
-            <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
-          </div>
-          <div class="panel-body" id="paymentsearch">
-            <div class="form-group">
-              <label for="field-1" class="col-sm-1 control-label small_label">Account</label>
-              <div class="col-sm-2 col-sm-e2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
-              <label class="col-sm-1 control-label small_label">Invoice No</label>
-              <div class="col-sm-2 col-sm-e2">
-                <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
-              </div>
-              <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-              <div class="col-sm-2 "> {{ Form::select('Status', Payment::$status, (!empty(Input::get('Status'))?Input::get('Status'):'Pending Approval'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
-              <label for="field-1" class="col-sm-1 control-label small_label">Action</label>
-              <div class="col-sm-2 col-sm-e2"> {{ Form::select('type', Payment::$action, Input::get('Type'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
-                     <label class="col-sm-1 control-label">Recalled</label>
-              <div class="col-sm-1">
-                <p class="make-switch switch-small">
-                  <input id="Recall_on_off" name="recall_on_off" type="checkbox" value="1">
-                </p>
-              </div>
-            </div>
- 
-            <!--payment date start -->
-            <div class="form-group">
-              <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Date From</label>
-              <div class="col-sm-2 small-date-input" >
-                <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')}}" data-enddate="{{date('Y-m-d')}}" />
-              </div>
-              <div class="col-sm-2  small-date-input">
-                <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
-              </div>
-              <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">End Date</label>
-              <div class="col-sm-2  small-date-input">
-                <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')}}" data-enddate="{{date('Y-m-d')}}" />
-              </div>
-
-              <div class="col-sm-2  small-date-input">
-                <input type="text" name="PaymentDate_EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="23:59:59" data-show-seconds="true" placeholder="00:00:00" data-template="dropdown" class="form-control timepicker">
-              </div>
-           
-            <!--payment date end -->
-                       
-              <label for="field-1" class="col-sm-1 control-label" style="width: 6%;">Payment Method</label>
-              <div class="col-sm-2"> {{ Form::select('paymentmethod', Payment::$method, Input::get('paymentmethod') , array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }} </div>
-              
-              <label for="field-1" class="col-sm-2 control-label" style="width: 7%;">Currency</label>
-            <div class="col-sm-2" style="padding:0; width: 14%;"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2 small"))}} </div>
-       
-            </div> 
-            <p style="text-align: right;">
-              <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
-            </p>
-          </div>
-          </div>
-        </form>
-      </div>
-    </div>
     <div class="clear"></div>
     <div class="row hidden" id="add-template">
       <div class="col-md-12">
@@ -194,10 +211,10 @@
       </div>
     </div>
     <br>
-    @if(User::can('Payments','Recall') || User::can('Payments','Add'))
       <div class="row dropdown">
           <div  class="col-md-12">
-              <div class="input-group-btn pull-right" style="width:70px;">
+              @if(User::can('Payments','Recall') || User::can('Payments','Add'))
+              <div class="input-group-btn pull-right" style="width:70px; margin-left:10px;">
                   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
                   <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       @if(User::can('Payments','Add'))
@@ -218,11 +235,13 @@
                       @endif
                   </ul>
               </div><!-- /btn-group -->
+              @endif
+
+              <a href="javascript:;" id="upload-payments" class="btn upload btn-primary pull-right"> <i class="entypo-upload"></i> Upload </a>
           </div>
           <div class="clear"></div>
       </div>
-      <br>
-    @endif
+<br>
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
@@ -811,7 +830,7 @@
                         }
                         ajax_Add_update(update_new_url);
                     });
-                    $("#payment-table-search").submit();
+                    //$("#payment-table-search").submit();
 
                     $("#form-upload").submit(function (e) {
                         e.preventDefault();
@@ -977,29 +996,29 @@
                         });
                     });
 
-                });
+                    $("#payment-table-search").submit(function(e) {
+                        e.preventDefault();
+                        public_vars.$body = $("body");
+                        //show_loading_bar(40);
+                        $searchFilter.AccountID = $("#payment-table-search select[name='AccountID']").val();
+                        $searchFilter.InvoiceNo = $("#payment-table-search [name='InvoiceNo']").val();
+                        $searchFilter.Status = $("#payment-table-search select[name='Status']").val();
+                        $searchFilter.type = $("#payment-table-search select[name='type']").val();
+                        $searchFilter.paymentmethod = $("#payment-table-search select[name='paymentmethod']").val();
+                        $searchFilter.PaymentDate_StartDate = $("#payment-table-search input[name='PaymentDate_StartDate']").val();
+                        $searchFilter.PaymentDate_StartTime = $("#payment-table-search input[name='PaymentDate_StartTime']").val();
+                        $searchFilter.PaymentDate_EndDate   = $("#payment-table-search input[name='PaymentDate_EndDate']").val();
+                        $searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();
+                        $searchFilter.CurrencyID 			= $("#payment-table-search select[name='CurrencyID']").val();
+                        if($("#payment-table-search select[name='recall_on_off']")) {
+                            $searchFilter.recall_on_off = $("#payment-table-search [name='recall_on_off']").prop("checked");
+                        }else{
+                            $searchFilter.recall_on_off = 0;
+                        }
+                        data_table.fnFilter('', 0);
+                        return false;
+                    });
 
-                $("#payment-table-search").submit(function(e) {
-                    e.preventDefault();
-                    public_vars.$body = $("body");
-                    //show_loading_bar(40);
-                    $searchFilter.AccountID = $("#payment-table-search select[name='AccountID']").val();
-                    $searchFilter.InvoiceNo = $("#payment-table-search [name='InvoiceNo']").val();
-                    $searchFilter.Status = $("#payment-table-search select[name='Status']").val();
-                    $searchFilter.type = $("#payment-table-search select[name='type']").val();
-                    $searchFilter.paymentmethod = $("#payment-table-search select[name='paymentmethod']").val();
-					$searchFilter.PaymentDate_StartDate = $("#payment-table-search input[name='PaymentDate_StartDate']").val();
-					$searchFilter.PaymentDate_StartTime = $("#payment-table-search input[name='PaymentDate_StartTime']").val();
-					$searchFilter.PaymentDate_EndDate   = $("#payment-table-search input[name='PaymentDate_EndDate']").val();
-					$searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();					
-					$searchFilter.CurrencyID 			= $("#payment-table-search select[name='CurrencyID']").val();
-                    if($("#payment-table-search select[name='recall_on_off']")) {
-                        $searchFilter.recall_on_off = $("#payment-table-search [name='recall_on_off']").prop("checked");
-                    }else{
-                        $searchFilter.recall_on_off = 0;
-                    }
-                    data_table.fnFilter('', 0);
-                    return false;
                 });
 
                 function ajax_Add_update(fullurl){

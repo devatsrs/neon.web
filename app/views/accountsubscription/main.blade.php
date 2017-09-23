@@ -1,4 +1,50 @@
 @extends('layout.main')
+
+@section('filter-button')
+    <li>
+        <a href="javascript:void(0);" data-toggle="datatable-filter" class="btn btn-default btn-xs" data-animate="1" data-collapse-sidebar="1"><i class="fa fa-filter"></i></a>
+    </li>
+@stop
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="subscription_filter" method="get" action="#" class="form-horizontal form-groups-bordered validate" >
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Account</label>
+                    {{ Form::select('AccountID', $accounts, $SelectedAccount->AccountID, array("id"=>"filter_AccountID", "class"=>"select2 filter_AccountID","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Service</label>
+                    {{ Form::select('ServiceID', $services,'', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Service")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Name</label>
+                    <input type="text" name="SubscriptionName" class="form-control" value="" />
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Active</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="Active" name="Active" type="checkbox" value="1" checked="checked" >
+                    </p>
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="subscription_submit">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>  
@@ -7,40 +53,6 @@
 <h3>Account Subscriptions</h3>
 @include('includes.errors')
 @include('includes.success')
-<div class="row">
-  <div class="col-md-12">
-    <form id="subscription_filter" method="get" action="#" class="form-horizontal form-groups-bordered validate" >
-      <div class="panel panel-primary" data-collapsed="0">
-        <div class="panel-heading">
-          <div class="panel-title"> Filter </div>
-          <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
-        </div>
-        <div class="panel-body">
-          <div class="form-group">
-          <label for="field-1" class="col-sm-1 control-label">Account</label>
-          <div class="col-sm-2">{{ Form::select('AccountID', $accounts, $SelectedAccount->AccountID, array("id"=>"filter_AccountID", "class"=>"select2 filter_AccountID","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}</div>
-          <label for="field-1" class="col-sm-1 control-label">Service</label>
-          <div class="col-sm-2">{{ Form::select('ServiceID', $services,'', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Service")) }}</div>
-          
-            <label for="field-1" class="col-sm-1 control-label">Name</label>
-            <div class="col-sm-2">
-              <input type="text" name="SubscriptionName" class="form-control" value="" />
-            </div>            
-            <label for="field-1" class="col-sm-1 control-label">Active</label>
-            <div class="col-sm-1">
-              <p class="make-switch switch-small">
-                <input id="Active" name="Active" type="checkbox" value="1" checked="checked" >
-              </p>
-            </div>            
-          </div>
-              <p style="text-align: right">
-                <button class="btn btn-primary btn-sm btn-icon icon-left" id="subscription_submit"> <i class="entypo-search"></i> Search </button>
-              </p>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
 <div class="clear"></div>
 <div class="text-right"> <a  id="add-subscription" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
   <div class="clear clearfix"><br>
@@ -76,7 +88,7 @@
           //  var list_fields_activity  = ['SubscriptionName','InvoiceDescription','StartDate','EndDate'];      
             $("#subscription_filter").find('[name="SubscriptionName"]').val('');
             var data_table_subscription;
-            var account_id=$("#subscription_filter").find('[name="AccountID"]').val(); 
+            var account_id=$("#subscription_filter").find('[name="AccountID"]').val();
             var update_new_url;
             var postdata;
 

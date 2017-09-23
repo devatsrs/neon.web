@@ -1,5 +1,97 @@
 @extends('layout.main')
 
+@section('filter-button')
+    <li>
+        <a href="javascript:void(0);" data-toggle="datatable-filter" class="btn btn-default btn-xs" data-animate="1" data-collapse-sidebar="1"><i class="fa fa-filter"></i></a>
+    </li>
+@stop
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="cdr_filter">
+                <div class="form-group">
+                    <label class="control-label small_label" for="field-1">Start Date</label>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <input type="text" name="StartDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?substr(Input::get('StartDate'),0,10):'' }}" data-enddate="{{date('Y-m-d')}}" />
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" value="{{Input::get('StartDate')!=null && strlen(Input::get('StartDate'))> 10 && substr(Input::get('StartDate'),11,8) != '00:00:00' ?substr(Input::get('StartDate'),11,8):'00:00:00'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-1 control-label small_label" for="field-1" style="padding-left: 0px;">End Date</label>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')!=null?substr(Input::get('EndDate'),0,10):'' }}" data-enddate="{{date('Y-m-d')}}" />
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="{{Input::get('EndDate')!=null && strlen(Input::get('EndDate'))> 10?substr(Input::get('EndDate'),11,2).':59:59':'23:59:59'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Currency</label>
+                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2 small"))}}
+                </div>
+                <div class="form-group">
+                    <label class="control-label small_label" for="field-1">Type</label>
+                    {{ Form::select('CDRType',array(''=>'Both','inbound' => "Inbound", 'outbound' => "Outbound" ),'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Gateway</label>
+                    {{ Form::select('CompanyGatewayID',$gateway,Input::get('CompanyGatewayID'), array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Account</label>
+                    {{ Form::select('AccountID',$accounts,Input::get('AccountID'), array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="field-1">CLI</label>
+                    <input type="text" name="CLI" class="form-control mid_fld "  value=""  />
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="field-1">CLD</label>
+                    <input type="text" name="CLD" class="form-control mid_fld  "  value=""  />
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Show</label>
+                    <?php $options = [0=>'All',1=>'Zero Cost',2=>'Non Zero Cost'] ?>
+                    {{ Form::select('zerovaluecost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Prefix</label>
+                    <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
+                </div>
+                <div class="form-group">
+                    <?php
+                    $trunk = Input::get('trunk');
+                    if((int)Input::get('TrunkID') > 0){
+                        $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
+                    }
+                    ?>
+                    <label class="control-label" for="field-1">Trunk</label>
+                    {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 
 <ol class="breadcrumb bc-3">
@@ -14,6 +106,14 @@
     </li>
 </ol>
 <h3>Customer CDR</h3>
+
+@if(User::checkCategoryPermission('CDR','Delete') )
+    <button id="delete-customer-cdr" class="btn btn-danger btn-sm btn-icon icon-left pull-right" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete</button>
+@endif
+<form id="delete-customer-cdr-form" >
+    <input type="hidden" name="UsageDetailIDs" />
+    <input type="hidden" name="criteria" />
+</form>
 
 @include('includes.errors')
 @include('includes.success')
@@ -60,110 +160,6 @@
 </ul>
 <div class="tab-content" style="padding:0;">
     <div class="tab-pane active">
-        <div class="row">
-            <div class="col-md-12">
-                <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="cdr_filter">
-                    <div id="cdrfilter" data-collapsed="0" class="panel panel-primary filter">
-                        <div class="panel-heading">
-                            <div class="panel-title">
-                                Filter
-                            </div>
-                            <div class="panel-options">
-                                <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <div class="form-group">
-
-                                <label class="col-md-1 control-label small_label" style="width: 9%;" for="field-1">Start Date</label>
-                                <div class="col-md-2" style="padding-left:0; padding-right:0; width:10%;">
-                                    <input type="text" name="StartDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?substr(Input::get('StartDate'),0,10):'' }}" data-enddate="{{date('Y-m-d')}}" />
-                                </div>
-                                <div class="col-md-1" style="padding: 0px; width: 9%;">
-                                    <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" value="{{Input::get('StartDate')!=null && strlen(Input::get('StartDate'))> 10 && substr(Input::get('StartDate'),11,8) != '00:00:00' ?substr(Input::get('StartDate'),11,8):'00:00:00'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
-                                </div>
-
-                                <label class="col-md-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">End Date</label>
-                                <div class="col-md-2" style="padding-right: 0px; padding-left: 0px; width: 10%;">
-                                    <input type="text" name="EndDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')!=null?substr(Input::get('EndDate'),0,10):'' }}" data-enddate="{{date('Y-m-d')}}" />
-                                </div>
-                                <div class="col-md-1" style="padding: 0px; width: 9%;">
-                                    <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="{{Input::get('EndDate')!=null && strlen(Input::get('EndDate'))> 10?substr(Input::get('EndDate'),11,2).':59:59':'23:59:59'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
-                                </div>
-                                <label for="field-1" class="col-md-2 control-label" style="width: 6%;">Currency</label>
-                                <div class="col-md-2">
-                                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(Input::get('CurrencyID')>0?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2 small"))}}
-                                </div>
-                                <label class="col-md-1 control-label small_label" for="field-1">Type</label>
-                                <div class="col-md-2" style="padding-right: 0px; width: 14%;">
-                                    {{ Form::select('CDRType',array(''=>'Both','inbound' => "Inbound", 'outbound' => "Outbound" ),'', array("class"=>"select2 small small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                                </div>
-             
-                            </div>
-                            <div class="form-group">
-                                <label class="col-md-1 control-label" for="field-1">Gateway</label>
-                                <div class="col-md-2">
-                                    {{ Form::select('CompanyGatewayID',$gateway,Input::get('CompanyGatewayID'), array("class"=>"select2","id"=>"bluk_CompanyGatewayID")) }}
-                                </div>
-                                <label class="col-md-1 control-label" for="field-1">Account</label>
-                                <div class="col-md-2">
-                                    {{ Form::select('AccountID',$accounts,Input::get('AccountID'), array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                                </div>
-
-                                         
-                            
-                               <label class="col-md-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 4%;">CLI</label>
-                               <div class="col-md-1 col-md-e1" style="width: 10%;">
-                                    <input type="text" name="CLI" class="form-control mid_fld "  value=""  />
-                                </div>
-                                 <label class="col-md-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">CLD</label>
-                               <div class="col-md-1 col-md-e1" style="width: 10%;">
-                                    <input type="text" name="CLD" class="form-control mid_fld  "  value=""  />
-                                </div>
-
-                                <label for="field-1" class="col-md-1 control-label" style="width: 4%;">Show</label>
-                                <div class="col-md-2">
-                                    <?php $options = [0=>'All',1=>'Zero Cost',2=>'Non Zero Cost'] ?>
-                                    {{ Form::select('zerovaluecost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                                </div>
-                </div>
-                            <div class="form-group">
-                                <label class="col-md-1 control-label" for="field-1">Prefix</label>
-                                <div class="col-md-2">
-                                    <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
-                                </div>
-                                <?php
-                                    $trunk = Input::get('trunk');
-                                    if((int)Input::get('TrunkID') > 0){
-                                        $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
-                                    }
-                                ?>
-                                <label class="col-md-1 control-label" for="field-1">Trunk</label>
-                                <div class="col-md-2">
-                                    {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
-                                </div>
-
-                            </div>
-                            <p style="text-align: right;">
-                                <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
-                                    <i class="entypo-search"></i>
-                                    Search
-                                </button>
-                            </p>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <p style="text-align: right;">
-            @if(User::checkCategoryPermission('CDR','Delete') )
-                <button id="delete-customer-cdr" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete</button>
-            @endif
-            <form id="delete-customer-cdr-form" >
-                <input type="hidden" name="UsageDetailIDs" />
-                <input type="hidden" name="criteria" />
-            </form>
-        </p>
         <div class="row">
             <div class="col-md-12">
                 <table class="table table-bordered datatable" id="table-4">
