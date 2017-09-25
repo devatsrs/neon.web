@@ -2,6 +2,26 @@
 
 <script>
     $( function() {
+        $('[data-toggle="datatable-filter"]').each(function(i, el)
+        {
+            var $this = $(el),
+                    placement = attrDefault($this, 'placement', 'right'),
+                    trigger = attrDefault($this, 'trigger', 'click'),
+                    popover_class = $this.hasClass('popover-secondary') ? 'popover-secondary' : ($this.hasClass('popover-primary') ? 'popover-primary' : ($this.hasClass('popover-default') ? 'popover-default' : ''));
+
+            $this.popover({
+                placement: placement,
+                trigger: trigger
+            });
+
+            $this.on('shown.bs.popover', function(ev)
+            {
+                var $popover = $this.next();
+
+                $popover.addClass(popover_class);
+            });
+        });
+
         var FilterVisible = getCookie('FilterVisible');
         if(FilterVisible == 1) {
             $('.page-container').addClass('filter-visible');

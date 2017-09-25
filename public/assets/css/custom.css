@@ -2820,9 +2820,15 @@ a:focus,a:hover{text-decoration:none !important}
 .new_filter .filter-inner .form-group .make-switch,.new_filter .filter-inner .form-group .has-switch{
     background-color: #fff;
 }
+.input-group .form-control:last-child, .input-group-addon:last-child, .input-group-btn:first-child>.btn-group:not(:first-child)>.btn, .input-group-btn:first-child>.btn:not(:first-child), .input-group-btn:last-child>.btn, .input-group-btn:last-child>.btn-group>.btn, .input-group-btn:last-child>.dropdown-toggle {
+    border-radius: 3px;
+}
+.input-group .form-control:first-child, .input-group-addon:first-child, .input-group-btn:first-child>.btn, .input-group-btn:first-child>.btn-group>.btn, .input-group-btn:first-child>.dropdown-toggle, .input-group-btn:last-child>.btn-group:not(:last-child)>.btn, .input-group-btn:last-child>.btn:not(:last-child):not(.dropdown-toggle) {
+    border-radius: 3px;
+}
 .new_filter .filter-header {
-    font-size: 16px;
-    color: #7f8186;
+    font-size: 20px;
+    color: #fff;
     padding: 30px 35px;
     line-height: 1;
     margin: 0;

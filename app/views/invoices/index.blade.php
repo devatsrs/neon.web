@@ -1,10 +1,5 @@
 @extends('layout.main')
 
-@section('filter-button')
-    <li>
-        <a href="javascript:void(0);" data-toggle="datatable-filter" class="btn btn-default btn-xs" data-animate="1" data-collapse-sidebar="1"><i class="fa fa-filter"></i></a>
-    </li>
-@stop
 @section('filter')
     <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
         <div class="filter-inner">
@@ -177,6 +172,9 @@
         var postdata;
 	    var editor_options 	  =  		{};
         jQuery(document).ready(function ($) {
+
+            $('#filter-button-toggle').show();
+
             public_vars.$body = $("body");
             //show_loading_bar(40);
             var invoicestatus = {{$invoice_status_json}};

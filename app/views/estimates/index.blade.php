@@ -1,10 +1,5 @@
 @extends('layout.main')
 
-@section('filter-button')
-    <li>
-        <a href="javascript:void(0);" data-toggle="datatable-filter" class="btn btn-default btn-xs" data-animate="1" data-collapse-sidebar="1"><i class="fa fa-filter"></i></a>
-    </li>
-@stop
 @section('filter')
     <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
         <div class="filter-inner">
@@ -113,8 +108,10 @@ var checked			=	'';
 var update_new_url;
 var postdata;
     jQuery(document).ready(function ($) {
-		
-		jQuery(document).on( 'click', '.delete_link', function(event){			
+
+        $('#filter-button-toggle').show();
+
+        jQuery(document).on( 'click', '.delete_link', function(event){
 			event.preventDefault();
 			var url_del = jQuery(this).attr('href');
 			

@@ -1,10 +1,5 @@
 @extends('layout.main')
 
-@section('filter-button')
-    <li>
-        <a href="javascript:void(0);" data-toggle="datatable-filter" class="btn btn-default btn-xs" data-animate="1" data-collapse-sidebar="1"><i class="fa fa-filter"></i></a>
-    </li>
-@stop
 @section('filter')
     <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
         <div class="filter-inner">
@@ -142,6 +137,9 @@
         view = 2;
     }
     jQuery(document).ready(function ($) {
+
+        $('#filter-button-toggle').show();
+
         $searchFilter.account_name = $("#lead_filter [name='account_name']").val();
         $searchFilter.account_number = $("#lead_filter [name='account_number']").val();
         $searchFilter.contact_name = $("#lead_filter [name='contact_name']").val();

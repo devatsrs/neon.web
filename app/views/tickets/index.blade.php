@@ -1,10 +1,5 @@
 @extends('layout.main')
 
-@section('filter-button')
-    <li>
-        <a href="javascript:void(0);" data-toggle="datatable-filter" class="btn btn-default btn-xs" data-animate="1" data-collapse-sidebar="1"><i class="fa fa-filter"></i></a>
-    </li>
-@stop
 @section('filter')
     <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
         <div class="filter-inner">
@@ -147,9 +142,11 @@
 </style>
 <script type="text/javascript">
 	
-$(document).ready(function(e) {	
-	
-	var currentpage 	= 	-1;
+$(document).ready(function(e) {
+
+    $('#filter-button-toggle').show();
+
+    var currentpage 	= 	-1;
 	var next_enable 	= 	1;
 	var back_enable 	= 	1;
 	var per_page 		= 	{{$iDisplayLength}}
