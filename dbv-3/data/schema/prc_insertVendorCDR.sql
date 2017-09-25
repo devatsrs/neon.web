@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_insertVendorCDR`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertVendorCDR`(
 	IN `p_processId` VARCHAR(200),
 	IN `p_tbltempusagedetail_name` VARCHAR(50)
 )

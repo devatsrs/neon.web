@@ -1,4 +1,9 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteDuplicateUniqueID`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_ProcessID` VARCHAR(200), IN `p_tbltempusagedetail_name` VARCHAR(200))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_DeleteDuplicateUniqueID`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_ProcessID` VARCHAR(200),
+	IN `p_tbltempusagedetail_name` VARCHAR(200)
+)
 BEGIN
  	
  	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
