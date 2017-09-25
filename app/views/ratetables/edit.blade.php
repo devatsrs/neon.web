@@ -1,4 +1,58 @@
-@extends('layout.main') @section('content')
+@extends('layout.main')
+
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                View Rate Table Filter
+            </h2>
+            <form role="form" id="rate-table-search" action="javascript:void(0);"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Code</label>
+                    <input type="text" name="Code" class="form-control" id="field-1" placeholder="" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Description</label>
+                    <input type="text" name="Description" class="form-control" id="field-1" placeholder="" />
+                    <input type="hidden" name="TrunkID" value="{{$trunkID}}" >
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Country</label>
+                    {{ Form::select('Country', $countries, Input::old('Country') , array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Effective</label>
+                    <select name="Effective" class="select2" data-allow-clear="true" data-placeholder="Select Effective">
+                        <option value="Now">Now</option>
+                        <option value="Future">Future</option>
+                        <option value="All">All</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Group By</label>
+                    <select class="select2" name="GroupBy" id="GroupBy">
+                        <option value="GroupByCode">Code</option>
+                        <option value="GroupByDesc">Description</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
+@section('content')
 
 <ol class="breadcrumb bc-3">
     <li><a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a></li>
@@ -9,12 +63,33 @@
     <li class="active"><strong>{{$rateTable->RateTableName}}</strong></li>
 </ol>
 <h3>View Rate Table</h3>
-<div class="float-right" >
-    <a href="{{URL::to('/rate_tables')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
-        <i class="entypo-floppy"></i>
-        Back
-    </a>
+
+<div class="row">
+    <div  class="col-md-12">
+        <div class="float-right" style="margin-left:10px;" >
+            <a href="{{URL::to('/rate_tables')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
+                <i class="entypo-floppy"></i>
+                Back
+            </a>
+        </div>
+
+        @if(User::checkCategoryPermission('RateTables','Delete') )
+            <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left pull-right" style="margin-left:10px;" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete Selected </button>
+        @endif
+        @if(User::checkCategoryPermission('RateTables','Edit') )
+            <a  id="change-bulk-rate" class="btn btn-primary btn-sm btn-icon icon-left pull-right" style="margin-left:10px;" href="javascript:;"> <i class="entypo-floppy"></i>
+                Change Selected
+            </a>
+        @endif
+        @if($isBandTable)
+            @if(User::checkCategoryPermission('RateTables','Add') )
+                <button id="add-new-rate" class="btn btn-primary btn-sm btn-icon icon-left pull-right" data-loading-text="Loading..."> <i class="entypo-plus"></i> Add New</button>
+            @endif
+        @endif
+    </div>
 </div>
+<form id="clear-bulk-rate-form" ><input type="hidden" name="RateTableRateID" /><input type="hidden" name="criteria" /></form>
+
 <div class="row">
     <div class="col-md-12">
         <ul class="nav nav-tabs bordered">
@@ -29,84 +104,6 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-12">
-        <form role="form" id="rate-table-search" action="javascript:void(0);"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
-            <div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">Search</div>
-
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-
-                <div class="panel-body">
-
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Code</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="Code" class="form-control" id="field-1" placeholder="" />
-                        </div>
-
-                        <label class="col-sm-2 control-label">Description</label>
-                        <div class="col-sm-4">
-                            <input type="text" name="Description" class="form-control" id="field-1" placeholder="" />
-                            <input type="hidden" name="TrunkID" value="{{$trunkID}}" >
-
-                        </div>
-
-                    </div>
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Country</label>
-                        <div class="col-sm-4">{{ Form::select('Country', $countries, Input::old('Country') , array("class"=>"select2")) }}</div>
-                        <label for="field-1" class="col-sm-2 control-label">Effective</label>
-                        <div class="col-sm-4">
-                            <select name="Effective" class="select2" data-allow-clear="true" data-placeholder="Select Effective">
-                                <option value="Now">Now</option>
-                                <option value="Future">Future</option>
-                                <option value="All">All</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-2 control-label">Group By</label>
-                        <div class="col-sm-4">
-                            <select class="select2" name="GroupBy" id="GroupBy">
-                                <option value="GroupByCode">Code</option>
-                                <option value="GroupByDesc">Description</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <p style="text-align: right;">
-                        <button type="submit"  class="btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-search"></i> Search
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-
-<p style="text-align: right;">
-    @if($isBandTable)
-        @if(User::checkCategoryPermission('RateTables','Add') )
-            <button id="add-new-rate" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-plus"></i> Add New</button>
-        @endif    
-    @endif
-    @if(User::checkCategoryPermission('RateTables','Edit') )
-        <a  id="change-bulk-rate" class="btn btn-primary btn-sm btn-icon icon-left" href="javascript:;"> <i class="entypo-floppy"></i>
-            Change Selected
-        </a>
-    @endif
-    @if(User::checkCategoryPermission('RateTables','Delete') )
-        <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete Selected </button>
-    @endif    
-<form id="clear-bulk-rate-form" ><input type="hidden" name="RateTableRateID" /><input type="hidden" name="criteria" /></form>
-</p>
 
 <table class="table table-bordered datatable" id="table-4">
     <thead>
@@ -142,6 +139,9 @@
     var codedeckid = '{{$id}}';
     var list_fields  = ['ID','Code','Description','Interval1','IntervalN','ConnectionFee','Rate','EffectiveDate','updated_at','ModifiedBy','RateTableRateID','RateID'];
     jQuery(document).ready(function($) {
+
+        $('#filter-button-toggle').show();
+
         var view = 1;
         var ratetableview = getCookie('ratetableview');
         if(ratetableview=='GroupByDesc'){

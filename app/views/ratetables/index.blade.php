@@ -1,4 +1,35 @@
 @extends('layout.main')
+
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form novalidate class="form-horizontal form-groups-bordered validate" method="get" id="ratetable_filter">
+                <div class="form-group">
+                    <label for="Search" class="control-label">Search</label>
+                    <input class="form-control" name="Search" id="Search"  type="text" >
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Trunk</label>
+                    {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 <ol class="breadcrumb bc-3">
     <li>
@@ -17,40 +48,7 @@
     </a>
 @endif
 </p>
-<div class="row">
-    <div class="col-md-12">
-        <form novalidate class="form-horizontal form-groups-bordered validate" method="get" id="ratetable_filter">
-            <div data-collapsed="0" class="panel panel-primary">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Filter
-                    </div>
-                    <div class="panel-options">
-                        <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group">
-                    <label for="Search" class="col-sm-1 control-label">Search</label>
-                        <div class="col-sm-2">
-                          <input class="form-control" name="Search" id="Search"  type="text" >
-                        </div>
-                        <label class="col-sm-1 control-label" for="field-1">Trunk</label>
-                        <div class="col-sm-3">
-                            {{ Form::select('TrunkID', $trunks, '', array("class"=>"select2","data-type"=>"trunk")) }}
-                        </div>
-                    </div>
-                    <p style="text-align: right;">
-                        <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
-                            <i class="entypo-search"></i>
-                            Search
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
+
 <div class="cler row">
     <div class="col-md-12">
         <form role="form" id="form1" method="post" class="form-horizontal form-groups-bordered validate" novalidate>
@@ -90,7 +88,10 @@
     </div>
 </div>
 <script type="text/javascript">
-    jQuery(document).ready(function($) {
+jQuery(document).ready(function($) {
+
+    $('#filter-button-toggle').show();
+
     var $searchFilter = {};
     var update_new_url;
         $searchFilter.TrunkID = $("#ratetable_filter [name='TrunkID']").val();

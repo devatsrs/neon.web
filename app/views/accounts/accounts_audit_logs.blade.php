@@ -5,7 +5,8 @@
         <li> <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
         <li> <a href="{{URL::to('accounts')}}">Accounts</a> </li>
         <li>
-            <a><span>{{customer_dropbox($account->AccountID)}}</span></a>
+            {{--<a><span>{{customer_dropbox($account->AccountID)}}</span></a>--}}
+            <a><span>{{customer_leads_dropbox($account->AccountID)}}</span></a>
         </li>
         <li class="active"> <strong>Account Logs</strong> </li>
     </ol>
@@ -25,12 +26,12 @@
     <table class="table table-bordered datatable" id="table-4">
         <thead>
             <tr>
-                <th>Account Name</th>
+                {{--<th>Account Name</th>--}}
                 <th>Field Name</th>
                 <th>Old Value</th>
                 <th>New Value</th>
-                <th>Modidied At</th>
-                <th>Modidied By</th>
+                <th>Modified At</th>
+                <th>Modified By</th>
             </tr>
         </thead>
         <tbody>
@@ -55,7 +56,7 @@
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                "aaSorting"   : [[0, 'asc']],
+                "aaSorting"   : [[3, 'desc']],
                 "fnServerParams": function(aoData) {
                     aoData.push();
                     data_table_extra_params.length = 0;
@@ -63,12 +64,12 @@
                 },
                 "aoColumns":
                         [
-                            { "bSortable": true}, //AccountName
+                            /*{ "bSortable": true}, //AccountName*/
                             { "bSortable": true}, //Field Name
                             { "bSortable": false}, //Old Value
                             { "bSortable": false}, //New Value
-                            { "bSortable": true}, //Modified By
                             { "bSortable": true}, //Modified At
+                            { "bSortable": true}, //Modified By
                         ],
                 "oTableTools": {
                     "aButtons": []

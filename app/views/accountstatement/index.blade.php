@@ -1,5 +1,40 @@
 @extends('layout.main')
 
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form role="form" id="account-statement-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Account</label>
+                    {{ Form::select('AccountID', $accounts, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Date From</label>
+                    <input type="text" name="StartDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date("Y-m-d",strtotime("-7 days"))}}" >
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Date To</label>
+                    <input type="text" name="EndDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date("Y-m-d")}}">
+                </div>
+
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 <style>
     table.table th {
@@ -23,48 +58,6 @@
     <h3>Statement of Account</h3>
     <div class="tab-content">
         <div class="tab-pane active" id="customer_rate_tab_content">
-            <div class="row">
-                <div class="col-md-12">
-                    <form role="form" id="account-statement-search" method="post"  action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
-                        <div class="panel panel-primary" data-collapsed="0">
-                            <div class="panel-heading">
-                                <div class="panel-title">
-                                    Search
-                                </div>
-
-                                <div class="panel-options">
-                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                                </div>
-                            </div>
-
-                            <div class="panel-body">
-                                <div class="form-group">
-                                    <label for="field-1" class="col-sm-1 control-label">Account</label>
-                                    <div class="col-sm-2">
-                                        {{ Form::select('AccountID', $accounts, '', array("class"=>"select2")) }}
-                                    </div>
-                                    <label class="col-sm-1 control-label">Date From</label>
-                                    <div class="col-sm-2">
-                                        <input type="text" name="StartDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date("Y-m-d",strtotime("-7 days"))}}" >
-                                    </div>
-
-                                    <label class="col-sm-1 control-label">Date To</label>
-                                    <div class="col-sm-2">
-                                        <input type="text" name="EndDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date("Y-m-d")}}">
-                                    </div>
-                                </div>
-
-                                <p style="text-align: right;">
-                                    <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
-                                        <i class="entypo-search"></i>
-                                        Search
-                                    </button>
-                                </p>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
             <div class="clear"></div>
 
             <div class="row">
@@ -120,6 +113,9 @@
             </iframe>
             <script type="text/javascript">
                 $(document).ready(function($){
+
+                    $('#filter-button-toggle').show();
+
                     $('#account-statement-search').submit(function(e){
                         e.preventDefault();
                         var AccountID = $('#account-statement-search [name="AccountID"]').val();
