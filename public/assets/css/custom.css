@@ -2777,6 +2777,7 @@ a:focus,a:hover{text-decoration:none !important}
     overflow-y: scroll;
     width: 280px;
     position: fixed;
+    padding-bottom: 10%;
 }
 .new_filter .filter-inner .form-group {
     width: 100%;
