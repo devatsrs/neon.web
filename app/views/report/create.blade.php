@@ -52,7 +52,7 @@
                                     <ul class=" select2-choices ui-helper-reset">
                                         @if(isset($report_settings['column']) && $selectedColumns = array_filter(explode(',',$report_settings['column'])))
                                         @foreach($selectedColumns as $selectedColumn)
-                                            <li class="{{isset($dimensions[$report_settings['Cube']][$selectedColumn])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
+                                            <li class="{{isset($measures[$report_settings['Cube']][$selectedColumn])?'measures':'dimension'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
                                                 <span><i class="fa fa-arrows"></i>
                                                     <?php
                                                     $selected_dimension = '';
@@ -79,7 +79,7 @@
                                     <ul class=" select2-choices ui-helper-reset">
                                         @if(isset($report_settings['row']) && $selectedRows = array_filter(explode(',',$report_settings['row'])))
                                         @foreach($selectedRows as $selectedRow)
-                                            <li class="{{isset($dimensions[$report_settings['Cube']][$selectedRow])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedRow}}">
+                                            <li class="{{isset($measures[$report_settings['Cube']][$selectedRow])?'measures':'dimension'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedRow}}">
                                                 <span><i class="fa fa-arrows"></i>
                                                     <?php
                                                     $selected_measures = '';

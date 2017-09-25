@@ -13,7 +13,7 @@
                 <ul class=" select2-choices ui-helper-reset">
                     @if(isset($report_settings['filter_settings']) && $selectedColumns = array_filter(json_decode($report_settings['filter_settings'],true)))
                         @foreach($selectedColumns as $selectedColumn => $extraarray)
-                            <li class="{{isset($dimensions[$report_settings['Cube']][$selectedColumn])?'dimension':'measures'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
+                            <li class="{{isset($measures[$report_settings['Cube']][$selectedColumn])?'measures':'dimension'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
                                 <span><i class="fa fa-arrows"></i>
                                     <?php
                                     $filter = '';
