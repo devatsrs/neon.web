@@ -64,11 +64,11 @@ class ReportController extends \BaseController {
     public function ajax_datagrid() {
 
         $CompanyID = User::get_companyID();
-        $currencies = Report::
-        select('Name','ReportID')
+        $reports = Report::
+        select('Name','ReportID','Type')
             ->where("CompanyID", $CompanyID);
 
-        return Datatables::of($currencies)->make();
+        return Datatables::of($reports)->make();
     }
 
     public function getdatagrid(){

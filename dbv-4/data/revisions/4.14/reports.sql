@@ -7,14 +7,15 @@ CREATE TABLE `tblRRate` (
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `tblReport` (
-  `ReportID` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `CompanyID` int(11) DEFAULT NULL,
-  `Name` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Settings` longtext COLLATE utf8_unicode_ci,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  `UpdatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ReportID` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `CompanyID` INT(11) NULL DEFAULT NULL,
+  `Name` VARCHAR(50) NULL DEFAULT NULL COLLATE utf8_unicode_ci,
+  `Settings` LONGTEXT NULL COLLATE utf8_unicode_ci,
+  `Type` TINYINT(4) NULL DEFAULT '0',
+  `created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `CreatedBy` VARCHAR(50) NULL DEFAULT NULL COLLATE utf8_unicode_ci,
+  `updated_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedBy` VARCHAR(50) NULL DEFAULT NULL COLLATE utf8_unicode_ci,
   PRIMARY KEY (`ReportID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

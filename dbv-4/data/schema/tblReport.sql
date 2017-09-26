@@ -3,6 +3,7 @@ CREATE TABLE `tblReport` (
   `CompanyID` int(11) DEFAULT NULL,
   `Name` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Settings` longtext COLLATE utf8_unicode_ci,
+  `Type` tinyint(4) DEFAULT '0',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
