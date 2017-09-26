@@ -186,10 +186,6 @@
             width:25px
         }
         .tree li span {
-            -moz-border-radius:5px;
-            -webkit-border-radius:5px;
-            border:1px solid #999;
-            border-radius:5px;
             display:inline-block;
             padding:3px 8px;
             text-decoration:none
@@ -205,7 +201,6 @@
         }
         .tree li.parent_li>span:hover, .tree li.parent_li>span:hover+ul li span {
             background:#eee;
-            border:1px solid #94a0b4;
             color:#000
         }
 
