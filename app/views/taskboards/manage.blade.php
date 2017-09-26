@@ -1,5 +1,71 @@
 @extends('layout.main')
 
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="search-task-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Subject</label>
+                    <input class="form-control" name="taskName"  type="text" >
+                </div>
+                @if(User::is_admin())
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">Assign To</label>
+                        {{Form::select('AccountOwner',$account_owners,User::get_userID(),array("class"=>"select2"))}}
+                    </div>
+                @endif
+                <div class="form-group">
+                    <label class="control-label">Priority</label><br/>
+                    <p class="make-switch switch-small">
+                        <input name="Priority" type="checkbox" value="1" >
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Status</label>
+                    {{Form::select('TaskStatus',[''=>'Select a Status']+$taskStatus,'',array("class"=>"select2 small"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Company</label>
+                    {{Form::select('AccountIDs',$leadOrAccount,'',array("class"=>"select2"))}}
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Close</label><br/>
+                    <p class="make-switch switch-small">
+                        <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Due Date</label>
+                    {{Form::select('DueDateFilter',Task::$tasks,'',array("class"=>"select2 small"))}}
+                </div>
+                <div class="form-group">
+                    <div class="hidden tohidden">
+                        <input autocomplete="off" id="DueDateFrom" placeholder="From" type="text" name="DueDateFrom" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="hidden tohidden">
+                        <input autocomplete="off" id="DueDateTo" placeholder="To" type="text" name="DueDateTo" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 <style>
 
@@ -42,92 +108,21 @@
         <div class="col-md-12 clearfix">
         </div>
     </div>
-    <p style="text-align: right;">
-        @if(User::checkCategoryPermission('TaskBoard','Configure'))
-        <a href="{{URL::to('task/'.$Board[0]->BoardID.'/configure')}}" class="btn btn-primary">
-            <i class="entypo-cog"></i>
-            Configure Board
-        </a>
-        @endif
-    </p>
-
-    <div class="row">
-            <div class="col-md-12">
-                <form id="search-task-filter" method="get"  action="" class="form-horizontal form-groups-bordered validate" novalidate>
-                    <div class="panel panel-primary" data-collapsed="0">
-                        <div class="panel-heading">
-                            <div class="panel-title">
-                                Filter
-                            </div>
-                            <div class="panel-options">
-                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <div class="form-group">
-                                <label for="field-1" class="col-sm-1 control-label">Subject</label>
-                                <div class="col-sm-2">
-                                    <input class="form-control" name="taskName"  type="text" >
-                                </div>
-                                @if(User::is_admin())
-                                    <label for="field-1" class="col-sm-1 control-label">Assign To</label>
-                                    <div class="col-sm-2">
-                                        {{Form::select('AccountOwner',$account_owners,User::get_userID(),array("class"=>"select2"))}}
-                                    </div>
-                                @endif
-                                <label class="col-sm-1 control-label">Priority</label>
-                                <div class="col-sm-1">
-                                    <p class="make-switch switch-small">
-                                        <input name="Priority" type="checkbox" value="1" >
-                                    </p>
-                                </div>
-                                <label for="field-1" class="col-sm-1 control-label">Status</label>
-                                <div class="col-sm-3">
-                                    {{Form::select('TaskStatus',[''=>'Select a Status']+$taskStatus,'',array("class"=>"select2 small"))}}
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="field-1" class="col-sm-1 control-label">Company</label>
-                                <div class="col-sm-2">
-                                    {{Form::select('AccountIDs',$leadOrAccount,'',array("class"=>"select2"))}}
-                                </div>
-                                <label class="col-sm-1 control-label">Close</label>
-                                <div class="col-sm-1">
-                                    <p class="make-switch switch-small">
-                                        <input name="taskClosed" type="checkbox" value="{{Task::Close}}">
-                                    </p>
-                                </div>
-                                <label for="field-1" class="col-sm-1 control-label">Due Date</label>
-                                <div class="col-sm-2">
-                                    {{Form::select('DueDateFilter',Task::$tasks,'',array("class"=>"select2 small"))}}
-                                </div>
-                                <div class="col-sm-2 hidden tohidden">
-                                    <input autocomplete="off" id="DueDateFrom" placeholder="From" type="text" name="DueDateFrom" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" />
-                                </div>
-                                <div class="col-sm-2 hidden tohidden">
-                                    <input autocomplete="off" id="DueDateTo" placeholder="To" type="text" name="DueDateTo" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="" />
-                                </div>
-                            </div>
-                            <p style="text-align: right;">
-                                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
-                                    <i class="entypo-search"></i>
-                                    Search
-                                </button>
-                            </p>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
 
         <p id="tools">
             <a class="btn btn-primary toggle grid active" title="Grid View" href="javascript:void(0)"><i class="entypo-book-open"></i></a>
             <a class="btn btn-primary toggle list" title="List View" href="javascript:void(0)"><i class="entypo-list"></i></a>
             @if(User::checkCategoryPermission('Task','Add'))
-            <a href="javascript:void(0)" class="btn btn-primary pull-right task">
-                <i class="entypo-plus"></i>
-                Add Task
-            </a>
+                <a href="javascript:void(0)" class="btn btn-primary pull-right task" style="margin-left: 10px;">
+                    <i class="entypo-plus"></i>
+                    Add Task
+                </a>
+            @endif
+            @if(User::checkCategoryPermission('TaskBoard','Configure'))
+                <a href="{{URL::to('task/'.$Board[0]->BoardID.'/configure')}}" class="btn btn-primary pull-right">
+                    <i class="entypo-cog"></i>
+                    Configure Board
+                </a>
             @endif
         </p>
 
@@ -159,6 +154,9 @@
         var currentDrageable = '';
         var fixedHeader = false;
         $(document).ready(function(){
+
+            $('#filter-button-toggle').show();
+
             var task = [
                 'BoardColumnID',
                 'BoardColumnName',

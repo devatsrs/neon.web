@@ -1,4 +1,88 @@
 @extends('layout.main')
+
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form role="form" id="rate-compare-search-form" method="post" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Code</label>
+                    <input type="text" class="form-control popover-primary" name="Code"  id="field-1" placeholder="" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Enter either Code Or Description. Use * for all codes or description. For wildcard search use  e.g. 92* or india*." data-original-title="Code/Description" />
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Description</label>
+                    <input type="text" class="form-control popover-primary" name="Description"  id="field-1" placeholder="" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Enter either Code Or Description. Use * for all codes or description. For wildcard search use  e.g. 92* or india*." data-original-title="Code/Description" />
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Trunk</label>
+                    {{ Form::select('Trunk', $trunks, $default_trunk, array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">CodeDeck</label>
+                    {{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Currency</label>
+                    {{Form::select('Currency', $currencies, $CurrencyID ,array("class"=>"form-control select2"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Group By</label>
+                    {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Effective</label>
+                    {{Form::select('Effective', ["Now"=>"Current", "Future" => "Future", "Selected" => "Selected"], 'Now' ,array("class"=>"form-control select2"))}}
+                    <span data-loading-text="..." data-html="true" data-trigger="hover" data-toggle="popover" data-placement="right" data-content="<b>Current:</b> System will use Current Rates for comparison<br><b>Future:</b> System will use maximum future rates for comparison<br><b>Selected:</b> System will use rate where effective date is equal to selected effective date<br>" data-original-title="Effective" class="hidden label label-info popover-primary">?</span>
+                </div>
+                <div class="form-group">
+                    <div class="SelectedEffectiveDate_Class hidden">
+                        <label for="field-1" class="control-label">Date</label>
+                        {{Form::text('SelectedEffectiveDate', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-start-date"=>date('Y-m-d',strtotime(" today")) ,"data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Vendors</label>
+                    {{Form::select('SourceVendors[]', $all_vendors, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Customers</label>
+                    {{Form::select('SourceCustomers[]', $all_customers, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Rate Tables</label>
+                    {{Form::select('SourceRateTables[]', $rate_table, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+
+                <div class="form-group hidden">
+                    <label for="field-1" class="control-label"></label>
+                    <label for="field-1" class="control-label">Vendors</label>
+                    {{Form::select('DestinationVendors[]', $all_vendors, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+                <div class="form-group hidden">
+                    <label for="field-1" class="control-label">Customers</label>
+                    {{Form::select('DestinationCustomers[]', $all_customers, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+                <div class="form-group hidden">
+                    <label for="field-1" class="control-label">Rate Tables</label>
+                    {{Form::select('DestinationRateTables[]', $rate_table, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
     <style>
         .lowest_rate{
@@ -17,115 +101,6 @@
     <h3>Rate Analysis</h3>
 
     <br>
-    <div class="row">
-        <div class="col-md-12">
-            <form role="form" id="rate-compare-search-form" method="post" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                <div class="panel panel-primary" data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Filter
-                        </div>
-
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        </div>
-                    </div>
-
-                    <div class="panel-body" id="rate-compare-filter-panel-body">
-                        <div class="form-group">
-
-                            <label for="field-1" class="col-sm-1 control-label">Code</label>
-                            <div class="col-sm-2">
-                                <input type="text" class="form-control popover-primary" name="Code"  id="field-1" placeholder="" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Enter either Code Or Description. Use * for all codes or description. For wildcard search use  e.g. 92* or india*." data-original-title="Code/Description" />
-
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Description</label>
-                            <div class="col-sm-2">
-                                <input type="text" class="form-control popover-primary" name="Description"  id="field-1" placeholder="" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Enter either Code Or Description. Use * for all codes or description. For wildcard search use  e.g. 92* or india*." data-original-title="Code/Description" />
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Trunk</label>
-                            <div class="col-sm-2">
-                                {{ Form::select('Trunk', $trunks, $default_trunk, array("class"=>"select2")) }}
-
-                            </div>
-                            <label for="field-1" class="col-sm-1 control-label">CodeDeck</label>
-                            <div class="col-sm-2">
-                                {{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}
-
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="field-1" class="col-sm-1 control-label">Currency</label>
-                            <div class="col-sm-2">
-                                {{Form::select('Currency', $currencies, $CurrencyID ,array("class"=>"form-control select2"))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Group By</label>
-                            <div class="col-sm-2">
-                                {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Effective
-
-                            </label>
-                            <div class="col-sm-2">
-                                {{Form::select('Effective', ["Now"=>"Current", "Future" => "Future", "Selected" => "Selected"], 'Now' ,array("class"=>"form-control select2"))}}
-                                <span data-loading-text="..." data-html="true" data-trigger="hover" data-toggle="popover" data-placement="right" data-content="<b>Current:</b> System will use Current Rates for comparison<br><b>Future:</b> System will use maximum future rates for comparison<br><b>Selected:</b> System will use rate where effective date is equal to selected effective date<br>" data-original-title="Effective" class="hidden label label-info popover-primary">?</span>
-                            </div>
-                            <div class="SelectedEffectiveDate_Class hidden">
-                                <label for="field-1" class="col-sm-1 control-label">Date</label>
-                                <div class="col-sm-2">
-                                    {{Form::text('SelectedEffectiveDate', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-start-date"=>date('Y-m-d',strtotime(" today")) ,"data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="field-1" class="col-sm-1 control-label">Vendors</label>
-                            <div class="col-sm-2">
-                                {{Form::select('SourceVendors[]', $all_vendors, array() ,array("class"=>"form-control select2",'multiple'))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Customers</label>
-                            <div class="col-sm-2">
-                                {{Form::select('SourceCustomers[]', $all_customers, array() ,array("class"=>"form-control select2",'multiple'))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Rate Tables</label>
-                            <div class="col-sm-2">
-                                {{Form::select('SourceRateTables[]', $rate_table, array() ,array("class"=>"form-control select2",'multiple'))}}
-                            </div>
-                        </div>
-
-                        <div class="form-group hidden">
-                            <label for="field-1" class="col-sm-1 control-label"></label>
-                            <label for="field-1" class="col-sm-1 control-label">Vendors</label>
-                            <div class="col-sm-2">
-                                {{Form::select('DestinationVendors[]', $all_vendors, array() ,array("class"=>"form-control select2",'multiple'))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Customers</label>
-                            <div class="col-sm-2">
-                                {{Form::select('DestinationCustomers[]', $all_customers, array() ,array("class"=>"form-control select2",'multiple'))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Rate Tables</label>
-                            <div class="col-sm-2">
-                                {{Form::select('DestinationRateTables[]', $rate_table, array() ,array("class"=>"form-control select2",'multiple'))}}
-                            </div>
-                        </div>
-                        <p style="text-align: right;">
-                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                                <i class="glyphicon glyphicon-circle-arrow-up"></i>
-                                Search
-                            </button>
-                        </p>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <table class="table table-bordered datatable" id="table-4">
         <thead>
@@ -145,6 +120,9 @@
 
     <script type="text/javascript">
         jQuery(document).ready(function($) {
+
+            $('#filter-button-toggle').show();
+
             //var data_table;
             var Code, Description, Currency,CodeDeck,Trunk,GroupBy,Effective,SelectedEffectiveDate, SourceVendors,SourceCustomers,SourceRateTables,DestinationVendors,DestinationCustomers,DestinationRateTables;
             var _customers_json, _vendors_json;

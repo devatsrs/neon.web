@@ -87,7 +87,7 @@ class AccountsController extends \BaseController {
         }elseif(User::is_admin() && isset($data['account_owners'])  && trim($data['account_owners']) > 0) {
             $userID = (int)$data['account_owners'];
         }
-        $columns = array('AccountName','ColumnName','OldValue','NewValue','created_at','created_by');
+        $columns = array('ColumnName','OldValue','NewValue','created_at','created_by');
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_GetAccountLogs (".$CompanyID.",".$userID.",".$AccountID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."')";
 
