@@ -45,7 +45,7 @@
                 @include('includes.footer')
 
             </div>
-            
+
 
             @include('layout.filter')
 
