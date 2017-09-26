@@ -4,6 +4,9 @@ INSERT INTO `tblIntegration` (`IntegrationID`, `CompanyId`, `Title`, `Slug`, `Pa
 
 ALTER TABLE `tblAccountPaymentProfile`
 	CHANGE COLUMN `Options` `Options` TEXT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci';
+
+ALTER TABLE `tblDialStringCode`
+	CHANGE COLUMN `ChargeCode` `ChargeCode` VARCHAR(250) NOT NULL COLLATE 'utf8_unicode_ci';	
 	
 DROP PROCEDURE IF EXISTS `prc_WSProcessDialString`;
 DELIMITER |
