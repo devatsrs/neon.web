@@ -268,10 +268,16 @@ class HomeController extends BaseController {
 
         if(!empty($user) ){
             Auth::login($user);
-            NeonAPI::login();
-            User::setUserPermission();
-            echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
-            return;
+            if(NeonAPI::login_by_id($user_ID)) {
+                User::setUserPermission();
+                echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
+                return;
+            } else {
+                Session::flush();
+                Auth::logout();
+                echo json_encode(array("login_status" => "invalid"));
+                return;
+            }
         } else {
             echo json_encode(array("login_status" => "invalid"));
             return;
