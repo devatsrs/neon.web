@@ -7,6 +7,55 @@
  */
 ?>
 @extends('layout.main')
+
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="cronjob_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Search</label>
+                    <input class="form-control" name="Title"  type="text" />
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Status</label>
+                    {{ Form::select('Status', [""=>"All",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive","running"=>"Running"], CronJob::ACTIVE, array("class"=>"form-control select2 small")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Auto Refresh</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="" name="AutoRefresh" type="checkbox" checked value="1">
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Cron Tab Status</label>
+                    @if($crontab_status)
+                        <button type="button" data-loading-text="..." data-original-title="Cron Tab is running" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="btn btn-green btn-sm popover-primary">&nbsp;</button>
+                    @else
+                        <button type="button" data-loading-text="..." data-original-title="Cron Tab is stopped" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="start_crontab btn btn-red btn-sm popover-primary">&nbsp;</button>
+                    @endif
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Type</label>
+                    {{ Form::select('CronJobCommandID', $commands, '', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
     <ol class="breadcrumb bc-3">
         <li>
@@ -25,71 +74,6 @@
             </a>
         @endif
     </p>
-
-
-    <div class="row">
-        <div class="col-md-12">
-            <form id="cronjob_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
-                <div class="panel panel-primary" data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Filter
-                        </div>
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <label for="field-1" class="col-sm-1 control-label">Search</label>
-                            <div class="col-sm-2">
-                                <input class="form-control" name="Title"  type="text" />
-                            </div>
-                            <label for="field-1" class="col-sm-1 control-label">Status</label>
-                            <div class="col-sm-2">
-
-                                 {{ Form::select('Status', [""=>"All",CronJob::ACTIVE=>"Active",CronJob::INACTIVE=>"Inactive","running"=>"Running"], CronJob::ACTIVE, array("class"=>"form-control select2 small")) }}
-
-                            </div>
-                            <label for="field-1" class="col-sm-1 control-label">Auto Refresh</label>
-                            <div class="col-sm-2">
-
-                                <p class="make-switch switch-small">
-                                    <input id="" name="AutoRefresh" type="checkbox" checked value="1">
-                                </p>
-                            </div>
-                            <label for="field-1" class="col-sm-1 control-label">Cron Tab Status</label>
-                            <div class="col-sm-2">
-
-                                    @if($crontab_status)
-                                        <button type="button" data-loading-text="..." data-original-title="Cron Tab is running" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="btn btn-green btn-sm popover-primary">&nbsp;</button>
-                                    @else
-                                        <button type="button" data-loading-text="..." data-original-title="Cron Tab is stopped" data-content="What is Cron Tab? Cron Tab is a linux utility that allows tasks to be automatically run in the background at regular intervals by the cron daemon." data-placement="top" data-trigger="hover" data-toggle="popover" class="start_crontab btn btn-red btn-sm popover-primary">&nbsp;</button>
-                                    @endif
-
-
-                            </div>
-
-                        </div>
-                        <div class="form-group">
-                            <label for="field-1" class="col-sm-1 control-label">Type</label>
-                            <div class="col-sm-2">
-                                {{ Form::select('CronJobCommandID', $commands, '', array("class"=>"select2")) }}
-                            </div>
-                        </div>
-
-                        <p style="text-align: right;">
-                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
-                                <i class="entypo-search"></i>
-                                Search
-                            </button>
-                        </p>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
 
 
     <div class="clear-fix clear"></div>
@@ -117,6 +101,9 @@
         var postdata;
         var auto_refresh=true;
         jQuery(document).ready(function ($) {
+
+            $('#filter-button-toggle').show();
+
             public_vars.$body = $("body");
             var list_fields  = ['Active','PID','JobTitle','RunningTime','LastRunTime','NextRunTime','CronJobID','Status',"CronJobCommandID"] /* Settings, CronJobStatus */;
             var $searchFilter = {};

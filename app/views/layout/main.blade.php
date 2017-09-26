@@ -47,6 +47,8 @@
             </div>
             @yield('filter')
 
+            @include('layout.filter')
+
         </div>
 
             @yield('footer_ext')
