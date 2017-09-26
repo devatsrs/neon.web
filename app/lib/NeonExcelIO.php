@@ -461,7 +461,7 @@ class NeonExcelIO
             // for dat value only
             if( method_exists($row_value , "format") ) {
 
-                $col_row[$col_key] = $row_value->format("H:i:s")!='00:00:00'?$row_value->format("Y-m-d H:i:s"):$row_value->format("Y-m-d");
+                $col_row[$col_index] = $row_value->format("H:i:s")!='00:00:00'?$row_value->format("Y-m-d H:i:s"):$row_value->format("Y-m-d");
 
             }else{
 

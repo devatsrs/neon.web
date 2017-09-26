@@ -143,6 +143,14 @@ function customer_dropbox($id=0,$data=array()){
     return Form::select('customers', $all_customers, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
+function customer_leads_dropbox($id=0,$data=array()){
+    $accounts = Account::getAccountIDList($data);
+    $leads = Lead::getLeadList($data);
+    unset($leads['']);
+    $all_customers = $accounts+$leads;
+    return Form::select('customers', $all_customers, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
 function opportunites_dropbox($id=0,$data=array()){
     $all_opportunites = CRMBoard::getBoards(CRMBoard::OpportunityBoard,-1);
     return Form::select('crmboard', $all_opportunites, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
@@ -1843,4 +1851,11 @@ function get_client_ip() {
         $ipaddress = 'UNKNOWN';
     return $ipaddress;
 
+}
+
+function getInvoicePayments(){
+    if(is_authorize() || is_Stripe() || is_StripeACH() || is_paypal() || is_sagepay()){
+        return true;
+    }
+    return false;
 }

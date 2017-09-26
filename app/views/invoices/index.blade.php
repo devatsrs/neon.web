@@ -1,5 +1,67 @@
 @extends('layout.main')
 
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="invoice_filter" method="get" class="form-horizontal form-groups-bordered validate">
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Type</label>
+                    {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"select2 small"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Account</label>
+                    {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Status</label>
+                    {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Hide Zero Value</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" @if($InvoiceHideZeroValue == 1) checked @endif>
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Invoice Number</label>
+                    {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Issue Date Start</label>
+                    {{ Form::text('IssueDateStart', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Issue Date End</label>
+                    {{ Form::text('IssueDateEnd', !empty(Input::get('EndDate'))?Input::get('EndDate'):$data['IssueDateEndDefault'], array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Currency</label>
+                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Overdue</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="Overdue" name="Overdue" type="checkbox">
+                    </p>
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -7,91 +69,13 @@
 </ol>
 <h3>Invoice</h3>
 @include('includes.errors')
-    @include('includes.success')
-<div class="col-md-12" style="padding-bottom: 5px;">
-    @if(User::checkCategoryPermission('Invoice','Generate'))
-    <div class="pull-right"> &nbsp;</div>
-    <div class="input-group-btn pull-right" style="width: 115px;">
-        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
-        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
-            <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li>
+@include('includes.success')
 
-        </ul>
-    </div>
-    @endif
-    @if(User::checkCategoryPermission('Invoice','Add'))
-    <div class="pull-right"> &nbsp;</div>
-    <div class="input-group-btn pull-right" style="width: 100px;">
-        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
-        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff </a> </li>
-                <li> <a id="invoice-in" href="javascript:;"> Received</a> </li>
-        </ul>
-    </div>
-    @endif
-    @if(User::checkCategoryPermission('RecurringProfile','View'))
-    <div class="pull-right"> &nbsp;</div>
-    <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </a>
-    @endif
-</div>
 <div class="tab-content">
   <div class="tab-pane active">
     <div class="row">
       <div class="col-md-12">
-        <form id="invoice_filter" method="get" class="form-horizontal form-groups-bordered validate"
-                          novalidate>
-          <div class="panel panel-primary" data-collapsed="0">
-            <div class="panel-heading">
-              <div class="panel-title"> Filter </div>
-              <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
-            </div>
-            <div class="panel-body">
-              <div class="form-group">
-                <label for="field-1" class="col-sm-1 control-label">Type</label>
-                <div class="col-sm-2"> {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"select2 small"))}} </div>
-                <label for="field-1" class="col-sm-1 control-label">Account</label>
-                <div class="col-sm-2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
-                <label for="field-1" class="col-sm-1 control-label">Status</label>
-                <div class="col-sm-2"> {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
-                <label for="field-1" class="col-sm-1 control-label">Hide Zero Value</label>
-                <div class="col-sm-2">
-                  <p class="make-switch switch-small">
-                    <input id="zerovalueinvoice" name="zerovalueinvoice"
-                                                   type="checkbox" @if($InvoiceHideZeroValue == 1) checked @endif>
-                  </p>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="field-1" class="col-sm-1 control-label">Invoice Number</label>
-                <div class="col-sm-2"> {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }} </div>
-                <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
-                <div class="col-sm-2"> {{ Form::text('IssueDateStart', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar --> 
-                </div>
-                <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
-                <div class="col-sm-2"> {{ Form::text('IssueDateEnd', !empty(Input::get('EndDate'))?Input::get('EndDate'):$data['IssueDateEndDefault'], array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }} </div>
-                <label for="field-1" class="col-sm-1 control-label">Currency</label>
-                <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}} </div>
-              </div>
-              <div class="form-group">
-                <label for="field-1" class="col-sm-1 control-label">Overdue</label>
-                <div class="col-sm-2">
-                  <p class="make-switch switch-small">
-                    <input id="Overdue" name="Overdue" type="checkbox">
-                  </p>
-                </div>
-              </div>
-              <p style="text-align: right;">
-                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
-              </p>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
+        <div class="input-group-btn pull-right" style="width:70px; margin-left: 10px;"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
           <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
                                     aria-expanded="false">Action <span class="caret"></span></button>
           <ul class="dropdown-menu dropdown-menu-left" role="menu"
@@ -109,7 +93,7 @@
             @if(User::checkCategoryPermission('Invoice','Generate'))
             <li> <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;"> Regenerate </a> </li>
             @endif
-            @if(is_authorize() || is_Stripe())
+            @if(is_authorize() || is_Stripe() || is_StripeACH())
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="pay_now create" id="pay_now" href="javascript:;"> Pay Now </a> </li>
             @endif
@@ -131,6 +115,29 @@
             <input type="hidden" name="CustomerRateIDs" value="">
           </form>
         </div>
+
+          @if(User::checkCategoryPermission('Invoice','Generate'))
+              <div class="input-group-btn pull-right" style="width: 115px; margin-left: 10px; margin-right: 15px;">
+                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                      <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
+                      <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li>
+
+                  </ul>
+              </div>
+          @endif
+          @if(User::checkCategoryPermission('Invoice','Add'))
+              <div class="input-group-btn pull-right" style="width: 100px; margin-left: 10px;">
+                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                      <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff </a> </li>
+                      <li> <a id="invoice-in" href="javascript:;"> Received</a> </li>
+                  </ul>
+              </div>
+          @endif
+          @if(User::checkCategoryPermission('RecurringProfile','View'))
+              <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </a>
+          @endif
         <!-- /btn-group -->
         <div class="clear"><br>
         </div>
@@ -165,6 +172,9 @@
         var postdata;
 	    var editor_options 	  =  		{};
         jQuery(document).ready(function ($) {
+
+            $('#filter-button-toggle').show();
+
             public_vars.$body = $("body");
             //show_loading_bar(40);
             var invoicestatus = {{$invoice_status_json}};
@@ -837,7 +847,8 @@
                     $('#add-bankaccount-form').find("[name=AccountID]").val(accoutid);
                     //$('#add-credit-card-form').find("[name=PaymentGatewayID]").val(pgid);
 
-                    paynow_url = '/paymentprofile/' + accoutid;
+                    paynow_url = '/customer/PaymentMethodProfiles/paynow/' + accoutid;
+                    //paynow_url = '/paymentprofile/' + accoutid;
                     showAjaxModal(paynow_url, 'pay_now_modal');
                     $('#pay_now_modal').modal('show');
 

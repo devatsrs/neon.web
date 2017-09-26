@@ -17,8 +17,12 @@ ALTER TABLE `tblAccountAuditExportLog`
   
 ALTER TABLE `tblUser`
 	ADD COLUMN `LastLoginDate` DATETIME NULL AFTER `JobNotification`;
-  
 
+ALTER TABLE `tblTempVendorRate`
+	CHANGE COLUMN `Code` `Code` TEXT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci' AFTER `CountryCode`;
+	
+ALTER TABLE `tblTempVendorRate`
+	ADD COLUMN `CountryCode` VARCHAR(500) NULL AFTER `CodeDeckId`;
 
 INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 3, 'Rate Export To Vos', 'rateexporttovos', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2017-09-07 12:57:02', 'RateManagementSystem');
 INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (3, 'SSH Host', 'sshhost', 1, '2017-09-11 11:10:00', 'RateManagementSystem', NULL, NULL);
@@ -688,94 +692,184 @@ BEGIN
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
-	SELECT
-		a.AccountName,
-		d.ColumnName,
-		CASE
-			WHEN (d.ColumnName='accountgateway') THEN
-				GROUP_CONCAT(DISTINCT cgo.Title)
-			WHEN (d.ColumnName='IsCustomer' AND d.OldValue=0) THEN
-				'NO'
-			WHEN (d.ColumnName='IsCustomer' AND d.OldValue=1) THEN
-				'YES'
-			WHEN (d.ColumnName='IsVendor' AND d.OldValue=0) THEN
-				'NO'
-			WHEN (d.ColumnName='IsVendor' AND d.OldValue=1) THEN
-				'YES'
-			ELSE
-				d.OldValue
-		END AS OldValue,
-		CASE
-			WHEN (d.ColumnName='accountgateway') THEN
-				GROUP_CONCAT(DISTINCT cgn.Title)
-			WHEN (d.ColumnName='IsCustomer' AND d.NewValue=0) THEN
-				'NO'
-			WHEN (d.ColumnName='IsCustomer' AND d.NewValue=1) THEN
-				'YES'
-			WHEN (d.ColumnName='IsVendor' AND d.NewValue=0) THEN
-				'NO'
-			WHEN (d.ColumnName='IsVendor' AND d.NewValue=1) THEN
-				'YES'
-			ELSE
-				d.NewValue
-		END AS NewValue,
-		d.created_at,
-		d.created_by
-	FROM tblAuditDetails AS d
-	LEFT JOIN tblAuditHeader AS h
-		ON h.AuditHeaderID = d.AuditHeaderID
-	LEFT JOIN tblAccount AS a
-		ON h.ParentColumnID = a.AccountID
-	LEFT JOIN tblCompanyGateway AS cgo
-		ON FIND_IN_SET(cgo.CompanyGatewayID,d.OldValue)
-	LEFT JOIN tblCompanyGateway AS cgn
-		ON FIND_IN_SET(cgn.CompanyGatewayID,d.NewValue)
-	WHERE   
-		h.Type = 'account' AND 
-		h.ParentColumnName = 'AccountID' AND 
-		h.ParentColumnID = p_AccountID AND 
-		a.AccountID = p_AccountID
-	GROUP BY
-		d.AuditDetailID,d.OldValue,d.NewValue
+	SELECT * FROM
+	(
+		(
+			SELECT
+				d.ColumnName,
+				CASE
+					WHEN (d.ColumnName='accountgateway') THEN
+						GROUP_CONCAT(DISTINCT cgo.Title)
+					WHEN (d.ColumnName='IsCustomer' AND d.OldValue=0) THEN
+						'NO'
+					WHEN (d.ColumnName='IsCustomer' AND d.OldValue=1) THEN
+						'YES'
+					WHEN (d.ColumnName='IsVendor' AND d.OldValue=0) THEN
+						'NO'
+					WHEN (d.ColumnName='IsVendor' AND d.OldValue=1) THEN
+						'YES'
+					ELSE
+						d.OldValue
+				END AS OldValue,
+				CASE
+					WHEN (d.ColumnName='accountgateway') THEN
+						GROUP_CONCAT(DISTINCT cgn.Title)
+					WHEN (d.ColumnName='IsCustomer' AND d.NewValue=0) THEN
+						'NO'
+					WHEN (d.ColumnName='IsCustomer' AND d.NewValue=1) THEN
+						'YES'
+					WHEN (d.ColumnName='IsVendor' AND d.NewValue=0) THEN
+						'NO'
+					WHEN (d.ColumnName='IsVendor' AND d.NewValue=1) THEN
+						'YES'
+					ELSE
+						d.NewValue
+				END AS NewValue,
+				d.created_at,
+				d.created_by
+			FROM tblAuditDetails AS d
+			LEFT JOIN tblAuditHeader AS h
+				ON h.AuditHeaderID = d.AuditHeaderID
+			LEFT JOIN tblAccount AS a
+				ON h.ParentColumnID = a.AccountID
+			LEFT JOIN tblCompanyGateway AS cgo
+				ON FIND_IN_SET(cgo.CompanyGatewayID,d.OldValue)
+			LEFT JOIN tblCompanyGateway AS cgn
+				ON FIND_IN_SET(cgn.CompanyGatewayID,d.NewValue)
+			WHERE   
+				h.Type = 'account' AND 
+				h.ParentColumnName = 'AccountID' AND 
+				h.ParentColumnID = p_AccountID AND 
+				a.AccountID = p_AccountID
+			GROUP BY
+				d.AuditDetailID,d.OldValue,d.NewValue
+		)
+		
+		UNION
+		
+		(
+			SELECT
+				IF(d2.ColumnName="CustomerAuthValue","Customer IP","Vendor IP"),
+				d2.OldValue AS OldValue,
+				d2.NewValue AS NewValue,
+				d2.created_at,
+				d2.created_by
+			FROM tblAuditDetails AS d2
+			LEFT JOIN tblAuditHeader AS h2
+				ON h2.AuditHeaderID = d2.AuditHeaderID
+			LEFT JOIN tblAccountAuthenticate AS aa
+				ON aa.AccountAuthenticateID=h2.ParentColumnID
+			LEFT JOIN tblAccount AS a2
+				ON aa.AccountID = a2.AccountID
+			WHERE   
+				h2.Type = 'accountip' AND 
+				h2.ParentColumnName = 'AccountAuthenticateID' AND 
+				a2.AccountID = p_AccountID
+			GROUP BY
+				d2.AuditDetailID,d2.OldValue,d2.NewValue
+		)
+	) mix
+
 	ORDER BY
 		CASE
-			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN a.AccountName
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ColumnNameDESC') THEN mix.ColumnName
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ColumnNameASC') THEN mix.ColumnName
 		END ASC,
 		CASE
-			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN a.AccountName
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN mix.created_at
 		END DESC,
 		CASE
-			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ColumnNameDESC') THEN d.ColumnName
-		END DESC,
-		CASE
-			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ColumnNameASC') THEN d.ColumnName
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN mix.created_at
 		END ASC,
 		CASE
-			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN d.created_at
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_byDESC') THEN mix.created_by
 		END DESC,
 		CASE
-			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN d.created_at
-		END ASC,
-		CASE
-			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_byDESC') THEN d.created_by
-		END DESC,
-		CASE
-			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_byASC') THEN d.created_by
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_byASC') THEN mix.created_by
 		END ASC
 	LIMIT p_RowspPage OFFSET v_OffSet_;
 
-	SELECT
-		COUNT(a.AccountID) AS totalcount
-	FROM tblAuditDetails AS d
-	LEFT JOIN tblAuditHeader AS h
-		ON h.AuditHeaderID = d.AuditHeaderID
-	LEFT JOIN tblAccount AS a
-		ON h.ParentColumnID = a.AccountID
-	WHERE   
-		h.Type = 'account' AND 
-		h.ParentColumnName = 'AccountID' AND 
-		h.ParentColumnID = p_AccountID AND 
-		a.AccountID = p_AccountID;
+	SELECT 
+		COUNT(*) AS totalcount
+	FROM
+	(
+		(
+			SELECT
+				d.ColumnName,
+				CASE
+					WHEN (d.ColumnName='accountgateway') THEN
+						GROUP_CONCAT(DISTINCT cgo.Title)
+					WHEN (d.ColumnName='IsCustomer' AND d.OldValue=0) THEN
+						'NO'
+					WHEN (d.ColumnName='IsCustomer' AND d.OldValue=1) THEN
+						'YES'
+					WHEN (d.ColumnName='IsVendor' AND d.OldValue=0) THEN
+						'NO'
+					WHEN (d.ColumnName='IsVendor' AND d.OldValue=1) THEN
+						'YES'
+					ELSE
+						d.OldValue
+				END AS OldValue,
+				CASE
+					WHEN (d.ColumnName='accountgateway') THEN
+						GROUP_CONCAT(DISTINCT cgn.Title)
+					WHEN (d.ColumnName='IsCustomer' AND d.NewValue=0) THEN
+						'NO'
+					WHEN (d.ColumnName='IsCustomer' AND d.NewValue=1) THEN
+						'YES'
+					WHEN (d.ColumnName='IsVendor' AND d.NewValue=0) THEN
+						'NO'
+					WHEN (d.ColumnName='IsVendor' AND d.NewValue=1) THEN
+						'YES'
+					ELSE
+						d.NewValue
+				END AS NewValue,
+				d.created_at,
+				d.created_by
+			FROM tblAuditDetails AS d
+			LEFT JOIN tblAuditHeader AS h
+				ON h.AuditHeaderID = d.AuditHeaderID
+			LEFT JOIN tblAccount AS a
+				ON h.ParentColumnID = a.AccountID
+			LEFT JOIN tblCompanyGateway AS cgo
+				ON FIND_IN_SET(cgo.CompanyGatewayID,d.OldValue)
+			LEFT JOIN tblCompanyGateway AS cgn
+				ON FIND_IN_SET(cgn.CompanyGatewayID,d.NewValue)
+			WHERE   
+				h.Type = 'account' AND 
+				h.ParentColumnName = 'AccountID' AND 
+				h.ParentColumnID = p_AccountID AND 
+				a.AccountID = p_AccountID
+			GROUP BY
+				d.AuditDetailID,d.OldValue,d.NewValue
+		)
+		
+		UNION
+		
+		(
+			SELECT
+				d2.ColumnName,
+				d2.OldValue AS OldValue,
+				d2.NewValue AS NewValue,
+				d2.created_at,
+				d2.created_by
+			FROM tblAuditDetails AS d2
+			LEFT JOIN tblAuditHeader AS h2
+				ON h2.AuditHeaderID = d2.AuditHeaderID
+			LEFT JOIN tblAccountAuthenticate AS aa
+				ON aa.AccountAuthenticateID=h2.ParentColumnID
+			LEFT JOIN tblAccount AS a2
+				ON aa.AccountID = a2.AccountID
+			WHERE   
+				h2.Type = 'accountip' AND 
+				h2.ParentColumnName = 'AccountAuthenticateID' AND 
+				a2.AccountID = p_AccountID
+			GROUP BY
+				d2.AuditDetailID,d2.OldValue,d2.NewValue
+		)
+	) totalcount;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END|
@@ -958,5 +1052,178 @@ BEGIN
 
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
+END|
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_SplitVendorRate`;
+DELIMITER |
+CREATE PROCEDURE `prc_SplitVendorRate`(
+	IN `p_processId` VARCHAR(200),
+	IN `p_dialcodeSeparator` VARCHAR(50)
+)
+BEGIN
+	DECLARE i INTEGER;
+	DECLARE v_rowCount_ INT;
+	DECLARE v_pointer_ INT;	
+	DECLARE v_TempVendorRateID_ INT;
+	DECLARE v_Code_ TEXT;
+	DECLARE v_CountryCode_ VARCHAR(500);	
+	DECLARE newcodecount INT(11) DEFAULT 0;
+	
+	IF p_dialcodeSeparator !='null'
+	THEN
+	
+	DROP TEMPORARY TABLE IF EXISTS `my_splits`;
+	CREATE TEMPORARY TABLE `my_splits` (
+		`TempVendorRateID` INT(11) NULL DEFAULT NULL,
+		`Code` Text NULL DEFAULT NULL,
+		`CountryCode` Text NULL DEFAULT NULL
+	);
+    
+  SET i = 1;
+  REPEAT
+    INSERT INTO my_splits (TempVendorRateID, Code, CountryCode)
+      SELECT TempVendorRateID , FnStringSplit(Code, p_dialcodeSeparator, i), CountryCode  FROM tblTempVendorRate
+      WHERE FnStringSplit(Code, p_dialcodeSeparator , i) IS NOT NULL
+			 AND ProcessId = p_processId;
+    SET i = i + 1;
+    UNTIL ROW_COUNT() = 0
+  END REPEAT;
+  
+  UPDATE my_splits SET Code = trim(Code);
+  
+	-- UPDATE my_splits SET Code = trim(SUBSTR(Code, LOCATE(' ', Code)));
+  
+
+  DROP TEMPORARY TABLE IF EXISTS tmp_newvendor_splite_;
+	CREATE TEMPORARY TABLE tmp_newvendor_splite_  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		TempVendorRateID INT(11) NULL DEFAULT NULL,
+		Code VARCHAR(500) NULL DEFAULT NULL,
+		CountryCode VARCHAR(500) NULL DEFAULT NULL
+	);
+	
+	INSERT INTO tmp_newvendor_splite_(TempVendorRateID,Code,CountryCode)
+	SELECT 
+		TempVendorRateID,
+		Code,
+		CountryCode
+	FROM my_splits
+	WHERE Code like '%-%'
+		AND TempVendorRateID IS NOT NULL;
+
+  	
+  
+	SET v_pointer_ = 1;
+	SET v_rowCount_ = (SELECT COUNT(*)FROM tmp_newvendor_splite_);
+	
+	WHILE v_pointer_ <= v_rowCount_
+	DO
+		SET v_TempVendorRateID_ = (SELECT TempVendorRateID FROM tmp_newvendor_splite_ t WHERE t.RowID = v_pointer_); 
+		SET v_Code_ = (SELECT Code FROM tmp_newvendor_splite_ t WHERE t.RowID = v_pointer_);
+		SET v_CountryCode_ = (SELECT CountryCode FROM tmp_newvendor_splite_ t WHERE t.RowID = v_pointer_);
+		
+		Call prc_SplitAndInsertVendorRate(v_TempVendorRateID_,v_Code_,v_CountryCode_);
+		
+	SET v_pointer_ = v_pointer_ + 1;
+	END WHILE;
+	
+	
+	DELETE FROM my_splits
+		WHERE Code like '%-%'
+			AND TempVendorRateID IS NOT NULL;
+
+	DELETE FROM my_splits
+		WHERE Code = '';
+			
+	 INSERT INTO tmp_split_VendorRate_
+	SELECT DISTINCT
+		   my_splits.TempVendorRateID as `TempVendorRateID`,
+		   `CodeDeckId`,
+		   CONCAT(IFNULL(my_splits.CountryCode,''),my_splits.Code) as Code,
+		   `Description`,
+			`Rate`,
+			`EffectiveDate`,
+			`Change`,
+			`ProcessId`,
+			`Preference`,
+			`ConnectionFee`,
+			`Interval1`,
+			`IntervalN`,
+			`Forbidden`,
+			`DialStringPrefix`
+		 FROM my_splits
+		   INNER JOIN tblTempVendorRate 
+				ON my_splits.TempVendorRateID = tblTempVendorRate.TempVendorRateID
+		  WHERE	tblTempVendorRate.ProcessId = p_processId;	
+		  
+	END IF;
+	
+  	-- select * from tmp_split_VendorRate_;
+	-- LEAVE ThisSP;
+  
+	IF p_dialcodeSeparator = 'null'
+	THEN
+	
+		INSERT INTO tmp_split_VendorRate_
+		SELECT DISTINCT
+			  `TempVendorRateID`,
+			  `CodeDeckId`,
+			   `Code`,
+			   `Description`,
+				`Rate`,
+				`EffectiveDate`,
+				`Change`,
+				`ProcessId`,
+				`Preference`,
+				`ConnectionFee`,
+				`Interval1`,
+				`IntervalN`,
+				`Forbidden`,
+				`DialStringPrefix`
+			 FROM tblTempVendorRate
+			  WHERE ProcessId = p_processId;	
+	
+	END IF;	
+		
+END|
+DELIMITER ;
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_SplitAndInsertVendorRate`;
+DELIMITER |
+CREATE PROCEDURE `prc_SplitAndInsertVendorRate`(
+	IN `TempVendorRateID` INT,
+	IN `Code` VARCHAR(500),
+	IN `p_countryCode` VARCHAR(50)
+)
+BEGIN
+
+	DECLARE v_First_ INT;
+	DECLARE v_Last_ INT;	
+		
+	SELECT  REPLACE(SUBSTRING(SUBSTRING_INDEX(Code, '-', 1)
+                 , LENGTH(SUBSTRING_INDEX(Code, '-', 0)) + 1)
+                 , '-'
+                 , '') INTO v_First_;
+                 
+	 SELECT REPLACE(SUBSTRING(SUBSTRING_INDEX(Code, '-', 2)
+                 , LENGTH(SUBSTRING_INDEX(Code, '-', 1)) + 1)
+                 , '-'
+                 , '') INTO v_Last_;                 
+	
+	
+   WHILE v_Last_ >= v_First_
+	DO
+   	 INSERT my_splits (TempVendorRateID,Code,CountryCode) VALUES (TempVendorRateID,CONCAT(IFNULL(p_countryCode,''),v_Last_),p_countryCode);
+	    SET v_Last_ = v_Last_ - 1;
+  END WHILE;
+	
 END|
 DELIMITER ;

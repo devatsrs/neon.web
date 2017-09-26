@@ -1,5 +1,42 @@
 @extends('layout.main')
 
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="codedesk_filter">
+                <div class="form-group">
+                    <label class="control-label hide_country" for="field-1">Country</label>
+                    <div class="hide_country">
+                        {{ Form::select('ft_country', $countries, Input::get('Country') , array("class"=>"select2")) }}
+                        <input name="ft_codedeckid" value="{{$id}}" type="hidden" >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Code</label>
+                    <input type="text" name="ft_code" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Description</label>
+                    <input type="text" name="ft_description" class="form-control">
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 
 <ol class="breadcrumb bc-3">
@@ -24,60 +61,21 @@
 
 <!--<script src="{{URL::to('/')}}/assets/js/neon-fileupload.js" type="text/javascript"></script>-->
 
-<p style="text-align: right;">
+<div style="text-align: right;padding:10px 0 ">
+
     @if( User::checkCategoryPermission('CodeDecks','Upload') )
-    <a href="javascript:;" id="upload-codedeck" class="btn upload btn-primary ">
-        <i class="entypo-upload"></i>
-        Upload
-    </a>
+        <a href="javascript:;" id="upload-codedeck" class="btn btn-sm upload btn-primary ">
+            <i class="entypo-upload"></i>
+            Upload
+        </a>
     @endif
     @if(User::checkCategoryPermission('CodeDecks','Add') )
-    <a href="javascript:;" id="add-new-code" class="btn btn-primary ">
-        <i class="entypo-plus"></i>
-        Add New
-    </a>    
+        <a href="javascript:;" id="add-new-code" class="btn btn-sm btn-primary ">
+            <i class="entypo-plus"></i>
+            Add New
+        </a>
     @endif
-</p>
-<div class="row">
-    <div class="col-md-12">
-        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="codedesk_filter">
-            <div data-collapsed="0" class="panel panel-primary">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Filter
-                    </div>
-                    <div class="panel-options">
-                        <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label class="col-sm-1 control-label hide_country" for="field-1">Country</label>
-                        <div class="col-sm-2 hide_country">
-                            {{ Form::select('ft_country', $countries, Input::get('Country') , array("class"=>"select2")) }}
-                            <input name="ft_codedeckid" value="{{$id}}" type="hidden" >
-                        </div>
-                        <label class="col-sm-1 control-label" for="field-1">Code</label>
-                        <div class="col-sm-2">
-                            <input type="text" name="ft_code" class="form-control">
-                        </div>
-                        <label class="col-sm-1 control-label">Description</label>
-                        <div class="col-sm-2">
-                            <input type="text" name="ft_description" class="form-control">
-                        </div>
-                    </div>
-                    <p style="text-align: right;">
-                        <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
-                            <i class="entypo-search"></i>
-                            Search
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-<div style="text-align: right;padding:10px 0 ">
+
     @if( User::checkCategoryPermission('CodeDecks','Edit'))
     <a href="javascript:;"  id="changeSelectedCodedeck" class="btn btn-primary btn-sm btn-icon icon-left" onclick="jQuery('#modal-6').modal('show', {backdrop: 'static'});" href="javascript:;">
         <i class="entypo-floppy"></i>
@@ -94,6 +92,7 @@
             Delete All Codedeck
     </button>-->
     @endif
+
 </div>
 <table class="table table-bordered datatable" id="table-4">
     <thead>
@@ -122,6 +121,9 @@ var update_new_url;
 var checked='';
 var postdata;
     jQuery(document).ready(function ($) {
+
+        $('#filter-button-toggle').show();
+
         public_vars.$body = $("body");
         //show_loading_bar(40);
         $("#codedesk_filter").submit(function(e) {

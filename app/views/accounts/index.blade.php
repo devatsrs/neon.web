@@ -1,7 +1,81 @@
 @extends('layout.main')
 
-@section('content')
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="account_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Name</label>
+                    <input class="form-control" name="account_name"  type="text" >
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Number</label>
+                    <input class="form-control" name="account_number" type="text"  >
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Contact Name</label>
+                    <input class="form-control" name="contact_name" type="text" >
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Tag</label>
+                    <input class="form-control tags" name="tag" type="text" >
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Low Balance</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="low_balance" name="low_balance" type="checkbox" value="1">
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label class="control-label"  >Customer</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="Customer_on_off" name="customer_on_off" type="checkbox" value="1" >
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label class="control-label"  >Vendor</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="Vendor_on_off" name="vendor_on_off" type="checkbox" value="1">
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label class="control-label"  >Active</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="account_active" name="account_active" type="checkbox" value="1" checked="checked">
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Status</label>
+                    {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"select2 small"))}}
+                </div>
+                <div class="form-group">
+                    @if(User::is_admin())
+                        <label for="field-1" class="control-label">Owner</label>
+                        {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
+                    @endif
+                </div>
+                <div class="form-group">
+                    <label for="field-5" class="control-label">IP/CLI</label>
+                    <input type="text" name="IPCLIText" class="form-control">
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
 
+@section('content')
 
 <ol class="breadcrumb bc-3">
     <li>
@@ -16,104 +90,11 @@
 @include('includes.errors')
 @include('includes.success')
 
-<p style="text-align: right;">
-@if(User::checkCategoryPermission('Account','Add'))
-    <a href="{{URL::to('accounts/create')}}" class="btn btn-primary ">
-        <i class="entypo-plus"></i>
-        Add New
-    </a>
-@endif    
-</p>
-<div class="row">
-    <div class="col-md-12">
-        <form id="account_filter" method=""  action="" class="form-horizontal form-groups-bordered validate" novalidate>
-            <div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Filter
-                    </div>
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Name</label>
-                        <div class="col-sm-2">
-                            <input class="form-control" name="account_name"  type="text" >
-                        </div>
-                        <label for="field-1" class="col-sm-1 control-label">Number</label>
-                        <div class="col-sm-1">
-                            <input class="form-control" name="account_number" type="text"  >
-                        </div>
-                        <label class="col-sm-1 control-label">Contact Name</label>
-                        <div class="col-sm-1">
-                            <input class="form-control" name="contact_name" type="text" >
-                        </div>
-                        <label class="col-sm-1 control-label">Tag</label>
-                        <div class="col-sm-1">
-                            <input class="form-control tags" name="tag" type="text" >
-                        </div>
-                        <label class="col-sm-1 control-label">Low Balance</label>
-                        <div class="col-sm-1">
-                            <p class="make-switch switch-small">
-                                <input id="low_balance" name="low_balance" type="checkbox" value="1">
-                            </p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-1 control-label"  >Customer</label>
-                        <div class="col-sm-1">
-                            <p class="make-switch switch-small">
-                                <input id="Customer_on_off" name="customer_on_off" type="checkbox" value="1" >
-                            </p>
-                        </div>
-                        <label class="col-sm-1 control-label"  >Vendor</label>
-                        <div class="col-sm-1">
-                            <p class="make-switch switch-small">
-                                <input id="Vendor_on_off" name="vendor_on_off" type="checkbox" value="1">
-                            </p>
-                        </div>
-                        <label class="col-sm-1 control-label"  >Active</label>
-                        <div class="col-sm-1">
-                            <p class="make-switch switch-small">
-                                <input id="account_active" name="account_active" type="checkbox" value="1" checked="checked">
-                            </p>
-                        </div>
-
-                        <label class="col-sm-1 control-label">Status</label>
-                        <div class="col-sm-2">
-                            {{Form::select('verification_status',Account::$doc_status,Account::VERIFIED,array("class"=>"select2 small"))}}
-                        </div>
-                        @if(User::is_admin())
-                         <label for="field-1" class="col-sm-1 control-label">Owner</label>
-                        <div class="col-sm-2">
-                            {{Form::select('account_owners',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
-                        </div>
-                        @endif
-                    </div>
-                    <div class="form-group">
-                        <label for="field-5" class="control-label col-md-1">IP/CLI</label>
-                        <div class="col-md-2">
-                            <input type="text" name="IPCLIText" class="form-control">
-                        </div>
-                    </div>
-                    <p style="text-align: right;">
-                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
-                            <i class="entypo-search"></i>
-                            Search
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
 <div class="clear"></div>
 @if(User::checkCategoryPermission('Account','Email,Edit'))
-<div class="row hidden dropdown">
+<div class="row">
     <div  class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:70px;">
+        <div class="input-group-btn pull-right hidden dropdown" style="width:70px; margin-left:10px;">
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                 @if(User::checkCategoryPermission('Account','Email'))
@@ -174,6 +155,13 @@
                 @endif
             </ul>
         </div><!-- /btn-group -->
+
+        @if(User::checkCategoryPermission('Account','Add'))
+            <a href="{{URL::to('accounts/create')}}" class="btn btn-primary pull-right">
+                <i class="entypo-plus"></i>
+                Add New
+            </a>
+        @endif
     </div>
     <div class="clear"></div>
 </div>
@@ -184,8 +172,8 @@
         <i class="entypo-check"></i>
         <span>Select all found Accounts</span>
     </a>
-</p>-->
-<br />
+</p>
+<br />-->
 <table class="table table-bordered datatable hidden" id="table-4">
     <thead>
     <tr>
@@ -220,7 +208,9 @@
     var readonly = ['Company','Phone','Email','ContactName'];
     var editor_options 	  =  		{"leadoptions":true};
     jQuery(document).ready(function ($) {
-		
+
+        $('#filter-button-toggle').show();
+
 		function check_status(){
             var selected_active_type =  $("#account_filter [name='account_active']").prop("checked");
 			if(selected_active_type){
@@ -1527,7 +1517,7 @@
                     <div class="form-group">
                         <label for="field-3" class="control-label">
                             <input type="checkbox" name="BulkAutoPaymentSettingCheck" class="bulkbillinghide">
-                            <span>Auto Invoice Pay</span></label><br>
+                            <span>Auto Pay</span></label><br>
                         {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, 'never' ,array("class"=>'form-control select2 small'))}}
                     </div>
                 </div>

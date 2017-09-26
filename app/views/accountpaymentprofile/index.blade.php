@@ -6,12 +6,14 @@
 
             </div>
             @if($PaymentGatewayID!='' && $PaymentMethod!='SagePayDirectDebit')
+                {{--
             <div class="col-md-6 text-right">
 
                 <p>
                      <a  id="add-new-card" data-id="{{$PaymentGatewayID}}" data-name="{{$PaymentMethod}}" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
                 </p>
             </div>
+            --}}
             @endif
             <div class="clear"></div>
             <table class="table table-bordered datatable" id="ajxtable-4">

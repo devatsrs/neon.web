@@ -1,4 +1,13 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessDialString`(
+Use Ratemanagement3;
+
+INSERT INTO `tblIntegration` (`IntegrationID`, `CompanyId`, `Title`, `Slug`, `ParentID`, `MultiOption`) VALUES (21, 1, 'SagePay Direct Debit', 'sagepaydirectdebit', 4, 'N');
+
+ALTER TABLE `tblAccountPaymentProfile`
+	CHANGE COLUMN `Options` `Options` TEXT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci';
+	
+DROP PROCEDURE IF EXISTS `prc_WSProcessDialString`;
+DELIMITER |
+CREATE PROCEDURE `prc_WSProcessDialString`(
 	IN `p_processId` VARCHAR(200) ,
 	IN `p_dialStringId` INT
 )
@@ -127,4 +136,5 @@ THEN
 	      
 		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
     
-END
+END|
+DELIMITER ;	

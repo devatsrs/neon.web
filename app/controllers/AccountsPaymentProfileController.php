@@ -2,6 +2,7 @@
 
 class AccountsPaymentProfileController extends \BaseController {
 
+    // not using
     public function ajax_datagrid($AccountID){
 
         $CompanyID = User::get_companyID();
@@ -28,6 +29,7 @@ class AccountsPaymentProfileController extends \BaseController {
      * Call from Invoice Pay now button
      *
     */
+    // not using
     public function index($AccountID)
     {
 
@@ -42,6 +44,7 @@ class AccountsPaymentProfileController extends \BaseController {
 
         return View::make('accountpaymentprofile.index',compact('AccountID','PaymentGatewayID','PaymentMethod'));
     }
+    // not using
     public function create()
     {
         $data = Input::all();
