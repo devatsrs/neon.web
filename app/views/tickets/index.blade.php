@@ -67,7 +67,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:70px; margin-left:10px;">
+        <div class="input-group-btn pull-right" style="width:70px;">
             @if( User::checkCategoryPermission('Tickets','Edit'))
                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
                         aria-expanded="false">Action <span class="caret"></span></button>

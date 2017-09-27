@@ -75,7 +75,7 @@
   <div class="tab-pane active">
     <div class="row">
       <div class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:70px; margin-left: 10px;"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
+        <div class="input-group-btn pull-right" style="width:70px; margin-left: 6px;"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
           <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
                                     aria-expanded="false">Action <span class="caret"></span></button>
           <ul class="dropdown-menu dropdown-menu-left" role="menu"
@@ -117,7 +117,7 @@
         </div>
 
           @if(User::checkCategoryPermission('Invoice','Generate'))
-              <div class="input-group-btn pull-right" style="width: 115px; margin-left: 10px; margin-right: 15px;">
+              <div class="input-group-btn pull-right" style="width: 115px; margin-left: 6px; margin-right: 15px;">
                   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
                   <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
@@ -127,7 +127,7 @@
               </div>
           @endif
           @if(User::checkCategoryPermission('Invoice','Add'))
-              <div class="input-group-btn pull-right" style="width: 100px; margin-left: 10px;">
+              <div class="input-group-btn pull-right" style="width: 100px; margin-left: 1px;">
                   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
                   <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff </a> </li>

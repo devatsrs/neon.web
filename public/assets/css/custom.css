@@ -2899,6 +2899,32 @@ a:focus,a:hover{text-decoration:none !important}
     width: 100%;
 }
 
+#filter-toggle-button {
+    background-color: transparent;
+    border: none;
+}
+
+.page-body.gray .page-container .main-content, .page-body.gray .page-container {
+    background: #fdfdfc;
+}
+
+.page-container .main-content {
+    padding: 15px;
+}
+
+.breadcrumb{
+    margin-bottom: 0;
+}
+
+.breadcrumb h3, h3{
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+.col-md-12 .btn, .col-md-12 .input-group-btn, p .btn {
+    margin-left: 2px;
+}
+
  /* Relatively-Small screen */
 @media (max-width: 767px) {
     .filter-visible .new_filter,

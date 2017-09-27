@@ -209,7 +209,7 @@
       <div class="row dropdown">
           <div  class="col-md-12">
               @if(User::can('Payments','Recall') || User::can('Payments','Add'))
-              <div class="input-group-btn pull-right" style="width:70px; margin-left:10px;">
+              <div class="input-group-btn pull-right" style="width:70px;">
                   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
                   <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       @if(User::can('Payments','Add'))

@@ -131,7 +131,7 @@
          <li class="sep"></li>-->
 
         <li id="filter-button-toggle" style="display: none;">
-            <button type="button" data-toggle="datatable-filter" class="btn btn-default btn-xs popover-primary" data-animate="1" data-collapse-sidebar="1" data-original-title="DataTable Filter" data-content="You can toggle(show/hide) DataTable Filter Sidebar by clicking here." data-placement="bottom" data-trigger="hover" ><i class="fa fa-filter"></i></button>
+            <button id="filter-toggle-button" type="button" data-toggle="tooltip" class="btn btn-default btn-xs popover-primary" data-title="Filter" data-placement="left"><i class="fa fa-filter"></i></button>
         </li>
 
         <li>
