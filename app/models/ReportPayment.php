@@ -7,6 +7,7 @@ class ReportPayment extends \Eloquent{
         'month' => 'MONTH(PaymentDate)',
         'week_of_year' => 'WEEK(PaymentDate)',
         'date' => 'DATE(PaymentDate)',
+        'PaymentMethod' => 'tblPayment.PaymentMethod',
     );
     public static $AccountJoin = false;
 
