@@ -10,6 +10,7 @@ class ReportInvoice extends \Eloquent{
         'month' => 'MONTH(IssueDate)',
         'week_of_year' => 'WEEK(IssueDate)',
         'date' => 'DATE(IssueDate)',
+        'AccountID' => 'tblInvoice.AccountID',
     );
     public static $database_payment_columns = array(
         'year' => 'YEAR(PaymentDate)',

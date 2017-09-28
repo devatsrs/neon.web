@@ -1,6 +1,9 @@
 <?php
 class ReportCustomerCDR extends \Eloquent{
 
+    public static $database_columns = array(
+        'AccountID' => 'tblHeader.AccountID',
+    );
     public static  $AccountJoin = false;
 
     public static function generateSummaryQuery($CompanyID, $data, $filters){
@@ -8,9 +11,14 @@ class ReportCustomerCDR extends \Eloquent{
         if (count($data['row'])) {
             $query_distinct = self::commonCDRQuery($CompanyID, $data, $filters);
             foreach ($data['row'] as $column) {
-                $columnname = report_col_name($column);
-                $query_distinct->orderby($columnname);
-                $select_columns[] = $columnname;
+                if(isset(self::$database_columns[$column])){
+                    $query_distinct->orderby($column);
+                    $select_columns[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
+                }else {
+                    $columnname = report_col_name($column);
+                    $query_distinct->orderby($columnname);
+                    $select_columns[] = $columnname;
+                }
             }
             $query_distinct = $query_distinct->distinct();
             $columns = $query_distinct->get($select_columns);
@@ -22,13 +30,22 @@ class ReportCustomerCDR extends \Eloquent{
 
         $final_query = self::commonCDRQuery($CompanyID, $data, $filters);
         foreach ($data['column'] as $column) {
-            $columnname = report_col_name($column);
-            $final_query->groupby($columnname);
-            $select_columns[] = $columnname;
+            if(isset(self::$database_columns[$column])){
+                $final_query->groupby($column);
+                $select_columns[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
+            }else {
+                $columnname = report_col_name($column);
+                $final_query->groupby($columnname);
+                $select_columns[] = $columnname;
+            }
         }
         foreach ($data['row'] as $column) {
-            $columnname = report_col_name($column);
-            $final_query->groupby($columnname);
+            if(isset(self::$database_columns[$column])){
+                $final_query->groupby($column);
+            }else {
+                $columnname = report_col_name($column);
+                $final_query->groupby($columnname);
+            }
         }
 
         //$data['row'] = array_merge($data['row'], $data['column']);
@@ -65,7 +82,11 @@ class ReportCustomerCDR extends \Eloquent{
 
         foreach ($filters as $key => $filter) {
             if (!empty($filter[$key]) && is_array($filter[$key]) && !in_array($key, array('GatewayAccountPKID', 'GatewayVAccountPKID'))) {
-                $query_common->whereIn($key, $filter[$key]);
+                if(isset(self::$database_columns[$key])) {
+                    $query_common->whereRaw(self::$database_columns[$key].' in ('.implode(',',$filter[$key]).')');
+                }else{
+                    $query_common->whereIn($key, $filter[$key]);
+                }
             } else if (!empty($filter[$key]) && is_array($filter[$key]) && in_array($key, array('GatewayAccountPKID', 'GatewayVAccountPKID'))) {
                 $data_in_array = GatewayAccount::where(array('CompanyID' => $CompanyID))
                     ->where(function ($where) use ($filter, $key) {
