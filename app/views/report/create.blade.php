@@ -64,6 +64,8 @@
                                                         $selected_dimension = $dimensions[$report_settings['Cube']]['date'][$selectedColumn];
                                                     } else if(isset($dimensions[$report_settings['Cube']]['Customer'][$selectedColumn])){
                                                         $selected_dimension = $dimensions[$report_settings['Cube']]['Customer'][$selectedColumn];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['Product'][$selectedColumn])){
+                                                        $selected_dimension = $dimensions[$report_settings['Cube']]['Product'][$selectedColumn];
                                                     }
                                                     ?>
                                                     {{$selected_dimension}}
@@ -91,7 +93,8 @@
                                                         $selected_measures = $dimensions[$report_settings['Cube']]['date'][$selectedRow];
                                                     } else if(isset($dimensions[$report_settings['Cube']]['Customer'][$selectedRow])){
                                                         $selected_measures = $dimensions[$report_settings['Cube']]['Customer'][$selectedRow];
-                                                        $selected_measures = $dimensions[$report_settings['Cube']]['Customer'][$selectedRow];
+                                                    }else if(isset($dimensions[$report_settings['Cube']]['Product'][$selectedRow])){
+                                                        $selected_measures = $dimensions[$report_settings['Cube']]['Product'][$selectedRow];
                                                     }
                                                     ?>
                                                     {{$selected_measures}}

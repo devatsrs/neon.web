@@ -11,6 +11,8 @@ class ReportInvoice extends \Eloquent{
         'week_of_year' => 'WEEK(IssueDate)',
         'date' => 'DATE(IssueDate)',
         'AccountID' => 'tblInvoice.AccountID',
+        'SubscriptionID' => 'tblInvoiceDetail.ProductID',
+        'Code' => 'tblProduct.Code',
     );
     public static $database_payment_columns = array(
         'year' => 'YEAR(PaymentDate)',
@@ -23,6 +25,7 @@ class ReportInvoice extends \Eloquent{
     public static $InvoiceDetailJoin = false;
     public static $InvoiceTaxRateJoin = false;
     public static $AccountJoin = false;
+    public static $ProductJoin = false;
     public static $dateFilterString = array();
 
     public static function generateQuery($CompanyID, $data, $filters){
@@ -116,9 +119,16 @@ class ReportInvoice extends \Eloquent{
             $query_common->join('tblInvoiceTaxRate', 'tblInvoice.InvoiceID', '=', 'tblInvoiceTaxRate.InvoiceID');
             self::$InvoiceTaxRateJoin = true;
         }
-        if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('ProductType',$data['column']) || in_array('ProductType',$data['row'])){
+        if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('ProductType',$data['column']) || in_array('ProductType',$data['row']) || in_array('SubscriptionID',$data['column']) || in_array('SubscriptionID',$data['row']) || in_array('Code',$data['column']) || in_array('Code',$data['row'])){
             $query_common->join('tblInvoiceDetail', 'tblInvoice.InvoiceID', '=', 'tblInvoiceDetail.InvoiceID');
             self::$InvoiceDetailJoin = true;
+            if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('Code',$data['column']) || in_array('Code',$data['row'])){
+                $query_common->whereRaw(' ( tblInvoiceDetail.ProductType = '.Product::ITEM .' OR tblInvoiceDetail.ProductType ='.Product::ONEOFFCHARGE.')');
+                $query_common->join('tblProduct', 'tblProduct.ProductID', '=', 'tblInvoiceDetail.ProductID');
+                self::$ProductJoin = true;
+            }else if(in_array('SubscriptionID',$data['column']) || in_array('SubscriptionID',$data['row'])){
+                $query_common->whereRaw(' ( tblInvoiceDetail.ProductType = '.Product::SUBSCRIPTION.')');
+            }
         }
         $RMDB = Config::get('database.connections.sqlsrv.database');
         if(report_join($data)){
@@ -143,7 +153,8 @@ class ReportInvoice extends \Eloquent{
 
             if (!empty($filter[$key]) && is_array($filter[$key])) {
                 if(isset(self::$database_columns[$key])) {
-                    $query_common->whereRaw(self::$database_columns[$key].' in ('.implode(',',$filter[$key]).')');
+                    $_words = '"'.implode('","', $filter[$key]).'"';
+                    $query_common->whereRaw(self::$database_columns[$key].' in ('.$_words.')');
                     if(in_array($key, array('year', 'quarter_of_year','month','week_of_year'))) {
                         self::$dateFilterString[] = self::$database_payment_columns[$key].' in ('.implode(',',$filter[$key]).')';
                     }

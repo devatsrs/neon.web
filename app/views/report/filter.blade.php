@@ -25,6 +25,8 @@
                                             $filter = $dimensions[$report_settings['Cube']]['date'][$selectedColumn];
                                         } else if(isset($dimensions[$report_settings['Cube']]['Customer'][$selectedColumn])){
                                             $filter = $dimensions[$report_settings['Cube']]['Customer'][$selectedColumn];
+                                        } else if(isset($dimensions[$report_settings['Cube']]['Product'][$selectedColumn])){
+                                            $filter = $dimensions[$report_settings['Cube']]['Product'][$selectedColumn];
                                         }
                                     ?>
                                     {{$filter}}

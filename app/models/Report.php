@@ -115,7 +115,11 @@ class Report extends \Eloquent {
             'InvoiceStatus' =>'Invoice Status',
             'TaxRateID' => 'Tax',
             'ProductType'=> 'Item/Subscription/Usage/Oneoffcharge',
-            'ProductID' => 'Item',
+            'Product' => array(
+                'ProductID'=>'Product Name',
+                'Code'=>'Product Code',
+            ),
+            'SubscriptionID' => 'Subscription',
             'ServiceID' => 'Service',
         ),
         'payment'=>array(
@@ -163,7 +167,7 @@ class Report extends \Eloquent {
             'NoOfFailCalls' => 'No Of Failed Calls'
         ),
         'invoice'=>array(
-            'GrandTotal' => 'Total/Item Total',
+            'GrandTotal' => 'Total',
             'PaidTotal' => 'Payment',
             'OutStanding' => 'OutStanding',
             'TotalTax' => 'Tax Total',
@@ -355,6 +359,13 @@ class Report extends \Eloquent {
                     $name = '';
                 }
                 break;
+            case 'SubscriptionID':
+                if($ID > 0 && isset($all_data['Subscription'][$ID])) {
+                    $name = $all_data['Subscription'][$ID];
+                }else{
+                    $name = '';
+                }
+                break;
 
         }
         return $name;
@@ -403,6 +414,9 @@ class Report extends \Eloquent {
                 break;
             case 'ServiceID':
                 $data_in_array = Service::where(array('CompanyID'=>$CompanyID,'Active'=>1))->where('ServiceName','like',str_replace('*','%',$search))->lists('ServiceID');
+                break;
+            case 'SubscriptionID':
+                $data_in_array = BillingSubscription::where(array('CompanyId'=>$CompanyID))->where('Name','like',str_replace('*','%',$search))->lists('SubscriptionID');
                 break;
 
         }

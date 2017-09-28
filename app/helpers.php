@@ -2086,10 +2086,12 @@ function table_html($data,$table_data){
         $key_index= 0;
         $table_single_row = $table_col_row = '';
         foreach ($row as $col_name => $col_val) {
-            if(isset($table_data['table_footer_sum'][$col_name])){
-                $table_data['table_footer_sum'][$col_name] += $col_val;
-            }else{
-                $table_data['table_footer_sum'][$col_name] = $col_val;
+            if(in_array($col_name,$data['sum'])) {
+                if (isset($table_data['table_footer_sum'][$col_name])) {
+                    $table_data['table_footer_sum'][$col_name] += $col_val;
+                } else {
+                    $table_data['table_footer_sum'][$col_name] = $col_val;
+                }
             }
             $explode_array = explode('##', $col_name);
             array_pop($explode_array);

@@ -108,6 +108,7 @@ class ReportController extends \BaseController {
         $all_data_list['AccountIP'] = GatewayAccount::getAccountIPList($CompanyID);
         $all_data_list['AccountCLI'] = GatewayAccount::getAccountCLIList($CompanyID);
         $all_data_list['Service'] = Service::getDropdownIDList($CompanyID);
+        $all_data_list['Subscription'] = BillingSubscription::getSubscriptionsList();
 
         $CompanyID = User::get_companyID();
         if(count($data['sum'])) {
