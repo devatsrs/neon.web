@@ -90,7 +90,7 @@ class Report extends \Eloquent {
             'date'=>array(
                 'year' => 'Year',
                 'quarter_of_year' => 'Quarter' ,
-                'month_of_year' => 'Month',
+                'month' => 'Month',
                 'week_of_year' => 'Week',
                 'date' => 'Day',
             ),
@@ -122,7 +122,7 @@ class Report extends \Eloquent {
             'date'=>array(
                 'year' => 'Year',
                 'quarter_of_year' => 'Quarter' ,
-                'month_of_year' => 'Month',
+                'month' => 'Month',
                 'week_of_year' => 'Week',
                 'date' => 'Day',
             ),
