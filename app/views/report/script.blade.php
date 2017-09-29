@@ -188,7 +188,11 @@
                     });
                     dimesions_html += '</ul></li>';
                 }else{
-                    dimesions_html += '<li class="dimension ui-draggable" data-cube="'+cube+'" data-val="'+index+'"><span><i class="fa fa-arrows"></i> ' + value + '</span></li>';
+                    if(index == 'ProductType'){
+                        dimesions_html += '<li class="dimension ui-draggable tooltip-primary" data-toggle="tooltip" data-original-title="Item / Subscriptions / Additional Charges / Invoice Received" data-cube="'+cube+'" data-val="'+index+'"><span><i class="fa fa-arrows"></i> ' + value + '</span></li>';
+                    }else{
+                        dimesions_html += '<li class="dimension ui-draggable" data-cube="'+cube+'" data-val="'+index+'"><span><i class="fa fa-arrows"></i> ' + value + '</span></li>';
+                    }
                 }
 
             });
