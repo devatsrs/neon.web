@@ -79,7 +79,7 @@
 
         var sidebar_default_is_open = ! $(".page-container").hasClass('sidebar-collapsed');
         // Filter Toggle
-        $("body").on('click', '[data-toggle="datatable-filter"]', function(ev)
+        $("body").on('click', '#filter-toggle-button', function(ev)
         {
             ev.preventDefault();
 

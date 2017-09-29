@@ -113,7 +113,7 @@
             <a class="btn btn-primary toggle grid active" title="Grid View" href="javascript:void(0)"><i class="entypo-book-open"></i></a>
             <a class="btn btn-primary toggle list" title="List View" href="javascript:void(0)"><i class="entypo-list"></i></a>
             @if(User::checkCategoryPermission('Task','Add'))
-                <a href="javascript:void(0)" class="btn btn-primary pull-right task" style="margin-left: 10px;">
+                <a href="javascript:void(0)" class="btn btn-primary pull-right task">
                     <i class="entypo-plus"></i>
                     Add Task
                 </a>

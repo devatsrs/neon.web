@@ -57,13 +57,13 @@
 <h3>Dial Strings</h3>
 
 @if( User::checkCategoryPermission('DialStrings','Delete'))
-    <button type="submit" id="delete-bulk-code" class="btn btn-danger btn-sm btn-icon icon-left pull-right" style="margin-left: 10px;">
+    <button type="submit" id="delete-bulk-code" class="btn btn-danger btn-sm btn-icon icon-left pull-right" style="margin-left: 2px;">
         <i class="entypo-trash"></i>
         Delete Selected
     </button>
 @endif
 @if( User::checkCategoryPermission('DialStrings','Edit'))
-    <a href="javascript:;"  id="changeSelectedCode" class="btn btn-primary btn-sm btn-icon icon-left pull-right" onclick="jQuery('#modal-6').modal('show', {backdrop: 'static'});" href="javascript:;" style="margin-left: 10px;">
+    <a href="javascript:;"  id="changeSelectedCode" class="btn btn-primary btn-sm btn-icon icon-left pull-right" style="margin-left: 2px;" onclick="jQuery('#modal-6').modal('show', {backdrop: 'static'});" href="javascript:;" style="margin-left: 10px;">
         <i class="entypo-floppy"></i>
         Change Selected
     </a>
