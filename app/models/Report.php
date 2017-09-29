@@ -21,7 +21,7 @@ class Report extends \Eloquent {
 
     public static $dimension = array(
         'summary'=>array(
-            'date'=>array(
+            'Date'=>array(
                 'year' => 'Year',
                 'quarter_of_year' => 'Quarter' ,
                 'month_of_year' => 'Month',
@@ -51,10 +51,10 @@ class Report extends \Eloquent {
             'AreaPrefix' => 'Prefix',
             'GatewayAccountPKID' => 'Customer IP/CLI',
             'GatewayVAccountPKID' => 'Vendor IP/CLI',
-            'ServiceID' => 'Service',
+            'ServiceID' => 'Service Name',
         ),
         'vsummary'=>array(
-            'date'=>array(
+            'Date'=>array(
                 'year' => 'Year',
                 'quarter_of_year' => 'Quarter' ,
                 'month_of_year' => 'Month',
@@ -84,10 +84,10 @@ class Report extends \Eloquent {
             'AreaPrefix' => 'Prefix',
             'GatewayAccountPKID' => 'Customer IP/CLI',
             'GatewayVAccountPKID' => 'Vendor IP/CLI',
-            'ServiceID' => 'Service',
+            'ServiceID' => 'Service Name',
         ),
         'invoice'=>array(
-            'date'=>array(
+            'Date'=>array(
                 'year' => 'Year',
                 'quarter_of_year' => 'Quarter' ,
                 'month' => 'Month',
@@ -110,20 +110,20 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
             ),
-            'CurrencyID' =>'Currency',
+            'CurrencyID' =>'Currency Code',
             'InvoiceType' =>'Invoice Type',
             'InvoiceStatus' =>'Invoice Status',
-            'TaxRateID' => 'Tax',
-            'ProductType'=> 'Item/Subscription/Usage/Oneoffcharge',
+            'TaxRateID' => 'Tax Type',
+            'ProductType'=> 'Charge Type',
             'Product' => array(
                 'ProductID'=>'Product Name',
                 'Code'=>'Product Code',
             ),
-            'SubscriptionID' => 'Subscription',
-            'ServiceID' => 'Service',
+            'SubscriptionID' => 'Subscription Name',
+            'ServiceID' => 'Service Name',
         ),
         'payment'=>array(
-            'date'=>array(
+            'Date'=>array(
                 'year' => 'Year',
                 'quarter_of_year' => 'Quarter' ,
                 'month' => 'Month',
@@ -146,7 +146,7 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
             ),
-            'CurrencyID' =>'Currency',
+            'CurrencyID' =>'Currency Code',
             'PaymentType'=>'Payment Type',
             'PaymentMethod'=>'Payment Method'
         ),
@@ -168,8 +168,8 @@ class Report extends \Eloquent {
         ),
         'invoice'=>array(
             'GrandTotal' => 'Total',
-            'PaidTotal' => 'Payment',
-            'OutStanding' => 'OutStanding',
+            'PaidTotal' => 'Payment Amount',
+            'OutStanding' => 'OutStanding Amount',
             'TotalTax' => 'Tax Total',
         ),
         'payment'=>array(

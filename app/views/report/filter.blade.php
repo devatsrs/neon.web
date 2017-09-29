@@ -21,8 +21,8 @@
                                             $filter = $measures[$report_settings['Cube']][$selectedColumn];
                                         } else if(isset($dimensions[$report_settings['Cube']][$selectedColumn]) && !is_array($dimensions[$report_settings['Cube']][$selectedColumn])){
                                             $filter = $dimensions[$report_settings['Cube']][$selectedColumn];
-                                        } else if(isset($dimensions[$report_settings['Cube']]['date'][$selectedColumn])){
-                                            $filter = $dimensions[$report_settings['Cube']]['date'][$selectedColumn];
+                                        } else if(isset($dimensions[$report_settings['Cube']]['Date'][$selectedColumn])){
+                                            $filter = $dimensions[$report_settings['Cube']]['Date'][$selectedColumn];
                                         } else if(isset($dimensions[$report_settings['Cube']]['Customer'][$selectedColumn])){
                                             $filter = $dimensions[$report_settings['Cube']]['Customer'][$selectedColumn];
                                         } else if(isset($dimensions[$report_settings['Cube']]['Product'][$selectedColumn])){

@@ -2086,13 +2086,12 @@ function table_html($data,$table_data){
         $key_index= 0;
         $table_single_row = $table_col_row = '';
         foreach ($row as $col_name => $col_val) {
-            if(in_array($col_name,$data['sum'])) {
-                if (isset($table_data['table_footer_sum'][$col_name])) {
-                    $table_data['table_footer_sum'][$col_name] += $col_val;
-                } else {
-                    $table_data['table_footer_sum'][$col_name] = $col_val;
-                }
+            if (isset($table_data['table_footer_sum'][$col_name])) {
+                $table_data['table_footer_sum'][$col_name] += $col_val;
+            } else {
+                $table_data['table_footer_sum'][$col_name] = $col_val;
             }
+
             $explode_array = explode('##', $col_name);
             array_pop($explode_array);
             //$explode_array = array_filter(explode('##', $col_name));
@@ -2125,8 +2124,17 @@ function table_html($data,$table_data){
         foreach ($data['row'] as $rowkey => $blankrow_name) {
             $table_footer .= '<td rowspan="1" style="background-color: #66a9bd"></td>';
         }
+        if(empty($data['column']) && count($data['column']) == 0){
+            $row_col_count = count($data['row']);
+        }else{
+            $row_col_count = 0;
+        }
+        $footer_col_count = 0;
         foreach ($table_data['table_footer_sum'] as $foot_col_name => $foot_col_val) {
-            $table_footer .= '<td class="col" style="background-color: #91c5d4">' . $foot_col_val . '</td>';
+            if($footer_col_count >= $row_col_count) {
+                $table_footer .= '<td class="col" style="background-color: #91c5d4">' .$foot_col_val . '</td>';
+            }
+            $footer_col_count++;
         }
         $table_footer .= '</tr>';
     }

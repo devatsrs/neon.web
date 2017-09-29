@@ -60,8 +60,8 @@
                                                         $selected_dimension = $measures[$report_settings['Cube']][$selectedColumn];
                                                     } else if(isset($dimensions[$report_settings['Cube']][$selectedColumn]) && !is_array($dimensions[$report_settings['Cube']][$selectedColumn])){
                                                         $selected_dimension = $dimensions[$report_settings['Cube']][$selectedColumn];
-                                                    } else if(isset($dimensions[$report_settings['Cube']]['date'][$selectedColumn])){
-                                                        $selected_dimension = $dimensions[$report_settings['Cube']]['date'][$selectedColumn];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['Date'][$selectedColumn])){
+                                                        $selected_dimension = $dimensions[$report_settings['Cube']]['Date'][$selectedColumn];
                                                     } else if(isset($dimensions[$report_settings['Cube']]['Customer'][$selectedColumn])){
                                                         $selected_dimension = $dimensions[$report_settings['Cube']]['Customer'][$selectedColumn];
                                                     } else if(isset($dimensions[$report_settings['Cube']]['Product'][$selectedColumn])){
@@ -89,8 +89,8 @@
                                                         $selected_measures = $measures[$report_settings['Cube']][$selectedRow];
                                                     } else if(isset($dimensions[$report_settings['Cube']][$selectedRow]) && !is_array($dimensions[$report_settings['Cube']][$selectedRow])){
                                                         $selected_measures = $dimensions[$report_settings['Cube']][$selectedRow];
-                                                    } else if(isset($dimensions[$report_settings['Cube']]['date'][$selectedRow])){
-                                                        $selected_measures = $dimensions[$report_settings['Cube']]['date'][$selectedRow];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['Date'][$selectedRow])){
+                                                        $selected_measures = $dimensions[$report_settings['Cube']]['Date'][$selectedRow];
                                                     } else if(isset($dimensions[$report_settings['Cube']]['Customer'][$selectedRow])){
                                                         $selected_measures = $dimensions[$report_settings['Cube']]['Customer'][$selectedRow];
                                                     }else if(isset($dimensions[$report_settings['Cube']]['Product'][$selectedRow])){

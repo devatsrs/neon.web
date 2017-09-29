@@ -12,6 +12,7 @@ class ReportInvoice extends \Eloquent{
         'date' => 'DATE(IssueDate)',
         'AccountID' => 'tblInvoice.AccountID',
         'SubscriptionID' => 'tblInvoiceDetail.ProductID',
+        'ServiceID' => 'tblInvoice.ServiceID',
         'Code' => 'tblProduct.Code',
     );
     public static $database_payment_columns = array(
