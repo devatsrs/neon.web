@@ -210,7 +210,7 @@
 
     @if(!empty($LicenceApiResponse['Type']) && $LicenceApiResponse['Type'] == Company::LICENCE_BILLING || $LicenceApiResponse['Type'] == Company::LICENCE_ALL)
       @if( User::checkCategoryPermission('Report','All'))
-        <li> <a href="{{Url::to('/report')}}"> <i class="fa fa-bar-chart"></i> <span>Report</span> </a> </li>
+        <li> <a href="{{Url::to('/report')}}"> <i class="fa fa-line-chart"></i> <span>Report</span> </a> </li>
       @endif
     @endif
     @if(User::checkCategoryPermission('Users','All') || User::checkCategoryPermission('Trunk','View') ||

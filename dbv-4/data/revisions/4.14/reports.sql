@@ -3315,7 +3315,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_updateUnbilledAmount`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateUnbilledAmount`(
+CREATE PROCEDURE `prc_updateUnbilledAmount`(
 	IN `p_CompanyID` INT,
 	IN `p_Today` DATETIME
 )
@@ -3392,7 +3392,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_updateVendorUnbilledAmount`;
 DELIMITER |
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_updateVendorUnbilledAmount`(
+CREATE PROCEDURE `prc_updateVendorUnbilledAmount`(
 	IN `p_CompanyID` INT,
 	IN `p_Today` DATETIME
 )
@@ -3464,6 +3464,1579 @@ BEGIN
 	ON TBL.AccountID = tblAccountBalance.AccountID
 	SET VendorUnbilledAmount = 0;	
 
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getAccountReportAll`;
+DELIMITER |
+CREATE PROCEDURE `prc_getAccountReportAll`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_Round_ int;
+	DECLARE v_OffSet_ int;
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+
+	
+	/* grid display*/
+	IF p_isExport = 0
+	THEN
+	
+	/* account by call count */	
+	SELECT AccountName ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,MAX(AccountID) as AccountID
+	FROM tmp_tblUsageSummary_ us
+	GROUP BY AccountName   
+	ORDER BY
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountASC') THEN SUM(NoOfCalls)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesDESC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesASC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN AccountName
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDDESC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END ASC
+	LIMIT p_RowspPage OFFSET v_OffSet_;
+	
+	SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,ROUND(SUM(TotalSeconds)/60,0) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM (
+		SELECT AccountName ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		GROUP BY AccountName
+	)tbl;
+
+	
+	END IF;
+	
+	/* export data*/
+	IF p_isExport = 1
+	THEN
+		SELECT   AccountName  as Name ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		GROUP BY AccountName;
+	END IF;
+	
+	
+	/* chart display*/
+	IF p_isExport = 2
+	THEN
+	
+		/* top 10 account by call count */	
+		SELECT AccountName as ChartVal ,SUM(NoOfCalls) AS CallCount,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		GROUP BY AccountName HAVING SUM(NoOfCalls) > 0 ORDER BY CallCount DESC LIMIT 10;
+		
+		/* top 10 account by call cost */	
+		SELECT AccountName as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		GROUP BY AccountName HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+		
+		/* top 10 account by call minutes */	
+		SELECT AccountName as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		GROUP BY AccountName HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+	
+	END IF;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getDescReportAll`;
+DELIMITER |
+CREATE PROCEDURE `prc_getDescReportAll`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_Round_ INT;
+	DECLARE v_OffSet_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+
+	CALL fngetDefaultCodes(p_CompanyID);
+
+	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+
+	/* grid display*/
+	IF p_isExport = 0
+	THEN
+
+		/* Description by call count */	
+		SELECT IFNULL(Description,'Other') AS Description ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) AS TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) AS TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) AS ACD , IF(SUM(NoOfCalls)>0,ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_),0) AS ASR
+		FROM tmp_tblUsageSummary_ us
+		LEFT JOIN tmp_codes_ c ON c.Code = us.AreaPrefix
+		GROUP BY c.Description
+		ORDER BY
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountASC') THEN SUM(NoOfCalls)
+		END ASC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesDESC') THEN COALESCE(SUM(TotalBilledDuration),0)
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesASC') THEN COALESCE(SUM(TotalBilledDuration),0)
+		END ASC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN Description
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
+		END ASC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+		END ASC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDDESC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+		END ASC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+		END ASC
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,ROUND(SUM(TotalSeconds)/60,0) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM(
+			SELECT IFNULL(Description,'Other') AS Description ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) AS TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) AS TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) AS ACD , IF(SUM(NoOfCalls)>0,ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_),0) AS ASR
+			FROM tmp_tblUsageSummary_ us
+			LEFT JOIN tmp_codes_ c ON c.Code = us.AreaPrefix
+			GROUP BY c.Description
+		)tbl;
+
+	END IF;
+
+	/* export data*/
+	IF p_isExport = 1
+	THEN
+
+		SELECT SQL_CALC_FOUND_ROWS IFNULL(Description,'Other') AS Description ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) AS TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) AS TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) AS ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) AS ASR
+		FROM tmp_tblUsageSummary_ us
+		LEFT JOIN tmp_codes_ c ON c.Code = us.AreaPrefix
+		GROUP BY Description;
+
+	END IF;
+
+	/* chart display*/
+	IF p_isExport = 2
+	THEN
+
+		/* top 10 Description by call count */
+		SELECT Description AS ChartVal ,SUM(NoOfCalls) AS CallCount,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) AS ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) AS ASR
+		FROM tmp_tblUsageSummary_ us
+		INNER JOIN tmp_codes_ c ON c.Code = us.AreaPrefix
+		GROUP BY Description HAVING SUM(NoOfCalls) > 0 ORDER BY CallCount DESC LIMIT 10;
+
+		/* top 10 Description by call cost */
+		SELECT Description AS ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) AS TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) AS ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) AS ASR
+		FROM tmp_tblUsageSummary_ us
+		INNER JOIN tmp_codes_ c ON c.Code = us.AreaPrefix
+		GROUP BY Description HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+
+		/* top 10 Description by call minutes */
+		SELECT Description AS ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) AS TotalMinutes,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) AS ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) AS ASR
+		FROM tmp_tblUsageSummary_ us
+		INNER JOIN tmp_codes_ c ON c.Code = us.AreaPrefix
+		GROUP BY Description HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getDestinationReportAll`;
+DELIMITER |
+CREATE PROCEDURE `prc_getDestinationReportAll`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_Round_ int;
+	DECLARE v_OffSet_ int;
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnGetCountry();
+		 
+	
+	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+
+	
+	/* grid display*/
+	IF p_isExport = 0
+	THEN
+	
+	/* country by call count */	
+	SELECT IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , IF(SUM(NoOfCalls)>0,ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_),0) as ASR
+	FROM tmp_tblUsageSummary_ us
+	LEFT JOIN temptblCountry c ON c.CountryID = us.CountryID
+	WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+	GROUP BY c.Country   
+	ORDER BY
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountASC') THEN SUM(NoOfCalls)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesDESC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesASC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryDESC') THEN Country
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryASC') THEN Country
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDDESC') THEN IF(SUM(NoOfCalls)>0,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN IF(SUM(NoOfCalls)>0,(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END ASC
+	LIMIT p_RowspPage OFFSET v_OffSet_;
+	
+
+	SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,ROUND(SUM(TotalSeconds)/60,0) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM(
+		SELECT IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , IF(SUM(NoOfCalls)>0,ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_),0) as ASR
+		FROM tmp_tblUsageSummary_ us
+		LEFT JOIN temptblCountry c ON c.CountryID = us.CountryID
+		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+		GROUP BY c.Country
+	)tbl;
+
+	
+	END IF;
+	
+	/* export data*/
+	IF p_isExport = 1
+	THEN
+		SELECT SQL_CALC_FOUND_ROWS IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		LEFT JOIN temptblCountry c ON c.CountryID = us.CountryID
+		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+		GROUP BY Country;
+	END IF;
+	
+	
+	/* chart display*/
+	IF p_isExport = 2
+	THEN
+	
+		/* top 10 country by call count */	
+		SELECT Country as ChartVal ,SUM(NoOfCalls) AS CallCount,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		INNER JOIN temptblCountry c ON c.CountryID = us.CountryID
+		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+		GROUP BY Country HAVING SUM(NoOfCalls) > 0 ORDER BY CallCount DESC LIMIT 10;
+		
+		/* top 10 country by call cost */	
+		SELECT Country as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		INNER JOIN temptblCountry c ON c.CountryID = us.CountryID
+		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+		GROUP BY Country HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+		
+		/* top 10 country by call minutes */	
+		SELECT Country as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		INNER JOIN temptblCountry c ON c.CountryID = us.CountryID
+		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+		GROUP BY Country HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+	
+	END IF;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getGatewayReportAll`;
+DELIMITER |
+CREATE PROCEDURE `prc_getGatewayReportAll`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_Round_ int;
+	DECLARE v_OffSet_ int;
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+
+	
+	/* grid display*/
+	IF p_isExport = 0
+	THEN
+	
+	/* CompanyGatewayID by call count */	
+	SELECT fnGetCompanyGatewayName(CompanyGatewayID) ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,CompanyGatewayID
+	FROM tmp_tblUsageSummary_ us
+	GROUP BY CompanyGatewayID   
+	ORDER BY
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountASC') THEN SUM(NoOfCalls)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesDESC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesASC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GatewayDESC') THEN fnGetCompanyGatewayName(CompanyGatewayID)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GatewayASC') THEN fnGetCompanyGatewayName(CompanyGatewayID)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDDESC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END ASC
+	LIMIT p_RowspPage OFFSET v_OffSet_;
+	
+	SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,ROUND(SUM(TotalSeconds)/60,0) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM (
+		SELECT fnGetCompanyGatewayName(CompanyGatewayID) ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		GROUP BY CompanyGatewayID
+	)tbl;
+
+	
+	END IF;
+	
+	/* export data*/
+	IF p_isExport = 1
+	THEN
+		SELECT   fnGetCompanyGatewayName(CompanyGatewayID)  as Name ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		GROUP BY CompanyGatewayID;
+	END IF;
+	
+	
+	/* chart display*/
+	IF p_isExport = 2
+	THEN
+	
+		/* top 10 CompanyGatewayID by call count */	
+		SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal ,SUM(NoOfCalls) AS CallCount,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		WHERE us.CompanyGatewayID != 'Other'
+		GROUP BY CompanyGatewayID HAVING SUM(NoOfCalls) > 0 ORDER BY CallCount DESC LIMIT 10;
+		
+		/* top 10 CompanyGatewayID by call cost */	
+		SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		WHERE us.CompanyGatewayID != 'Other'
+		GROUP BY CompanyGatewayID HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+		
+		/* top 10 CompanyGatewayID by call minutes */	
+		SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		WHERE us.CompanyGatewayID != 'Other'
+		GROUP BY CompanyGatewayID HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+	
+	END IF;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getPrefixReportAll`;
+DELIMITER |
+CREATE PROCEDURE `prc_getPrefixReportAll`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_Round_ int;
+	DECLARE v_OffSet_ int;
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+
+	
+	/* grid display*/
+	IF p_isExport = 0
+	THEN
+	
+	/* AreaPrefix by call count */	
+	SELECT AreaPrefix ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+	FROM tmp_tblUsageSummary_ us
+	GROUP BY AreaPrefix   
+	ORDER BY
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountASC') THEN SUM(NoOfCalls)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesDESC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesASC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AreaPrefixDESC') THEN AreaPrefix
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AreaPrefixASC') THEN AreaPrefix
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDDESC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END ASC
+	LIMIT p_RowspPage OFFSET v_OffSet_;
+	
+	SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,ROUND(SUM(TotalSeconds)/60,0) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM (
+		SELECT AreaPrefix ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		GROUP BY AreaPrefix
+	)tbl;
+
+	
+	END IF;
+	
+	/* export data*/
+	IF p_isExport = 1
+	THEN
+		SELECT   AreaPrefix ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		GROUP BY AreaPrefix;
+	END IF;
+	
+	
+	/* chart display*/
+	IF p_isExport = 2
+	THEN
+	
+		/* top 10 AreaPrefix by call count */	
+		SELECT AreaPrefix as ChartVal ,SUM(NoOfCalls) AS CallCount,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		WHERE us.AreaPrefix != 'Other'
+		GROUP BY AreaPrefix HAVING SUM(NoOfCalls) > 0 ORDER BY CallCount DESC LIMIT 10;
+		
+		/* top 10 AreaPrefix by call cost */	
+		SELECT AreaPrefix as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		WHERE us.AreaPrefix != 'Other'
+		GROUP BY AreaPrefix HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+		
+		/* top 10 AreaPrefix by call minutes */	
+		SELECT AreaPrefix as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		WHERE us.AreaPrefix != 'Other'
+		GROUP BY AreaPrefix HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+	
+	END IF;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getTrunkReportAll`;
+DELIMITER |
+CREATE PROCEDURE `prc_getTrunkReportAll`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_Round_ int;
+	DECLARE v_OffSet_ int;
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+
+	
+	/* grid display*/
+	IF p_isExport = 0
+	THEN
+	
+	/* Trunk by call count */	
+	SELECT Trunk ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+	FROM tmp_tblUsageSummary_ us
+	GROUP BY Trunk   
+	ORDER BY
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountASC') THEN SUM(NoOfCalls)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesDESC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesASC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TrunkDESC') THEN Trunk
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TrunkASC') THEN Trunk
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDDESC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END ASC
+	LIMIT p_RowspPage OFFSET v_OffSet_;
+	
+	SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,ROUND(SUM(TotalSeconds)/60,0) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM (
+		SELECT Trunk ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		GROUP BY Trunk
+	)tbl;
+
+	
+	END IF;
+	
+	/* export data*/
+	IF p_isExport = 1
+	THEN
+		SELECT   Trunk ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		GROUP BY Trunk;
+	END IF;
+	
+	
+	/* chart display*/
+	IF p_isExport = 2
+	THEN
+	
+		/* top 10 Trunk by call count */	
+		SELECT Trunk as ChartVal ,SUM(NoOfCalls) AS CallCount,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		WHERE us.Trunk != 'Other'
+		GROUP BY Trunk HAVING SUM(NoOfCalls) > 0 ORDER BY CallCount DESC LIMIT 10;
+		
+		/* top 10 Trunk by call cost */	
+		SELECT Trunk as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		WHERE us.Trunk != 'Other'
+		GROUP BY Trunk HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+		
+		/* top 10 Trunk by call minutes */	
+		SELECT Trunk as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageSummary_ us
+		WHERE us.Trunk != 'Other'
+		GROUP BY Trunk HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+	
+	END IF;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getVendorAccountReportAll`;
+DELIMITER |
+CREATE PROCEDURE `prc_getVendorAccountReportAll`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_Round_ int;
+	DECLARE v_OffSet_ int;
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnUsageVendorSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+
+	
+	/* grid display*/
+	IF p_isExport = 0
+	THEN
+	
+	/* account by call count */	
+	SELECT AccountName ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,MAX(AccountID) as AccountID
+	FROM tmp_tblUsageVendorSummary_ us
+	GROUP BY AccountName   
+	ORDER BY
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountASC') THEN SUM(NoOfCalls)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesDESC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesASC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN AccountName
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDDESC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END ASC
+	LIMIT p_RowspPage OFFSET v_OffSet_;
+	
+	SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,ROUND(SUM(TotalSeconds)/60,0) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM (
+		SELECT AccountName ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY AccountName
+	)tbl;
+
+	
+	END IF;
+	
+	/* export data*/
+	IF p_isExport = 1
+	THEN
+		SELECT   AccountName  as Name ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY AccountName;
+	END IF;
+	
+	
+	/* chart display*/
+	IF p_isExport = 2
+	THEN
+	
+		/* top 10 account by call count */	
+		SELECT AccountName as ChartVal ,SUM(NoOfCalls) AS CallCount,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY AccountName HAVING SUM(NoOfCalls) > 0 ORDER BY CallCount DESC LIMIT 10;
+		
+		/* top 10 account by call cost */	
+		SELECT AccountName as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY AccountName HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+		
+		/* top 10 account by call minutes */	
+		SELECT AccountName as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY AccountName HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+	
+	END IF;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getVendorDescReportAll`;
+DELIMITER |
+CREATE PROCEDURE `prc_getVendorDescReportAll`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_Round_ INT;
+	DECLARE v_OffSet_ INT;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+
+	CALL fngetDefaultCodes(p_CompanyID);
+
+	CALL fnUsageVendorSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+
+	/* grid display*/
+	IF p_isExport = 0
+	THEN
+
+		/* Description by call count */	
+		SELECT IFNULL(Description,'Other') AS Description ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) AS TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) AS TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) AS ACD , IF(SUM(NoOfCalls)>0,ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_),0) AS ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		LEFT JOIN tmp_codes_ c ON c.Code = us.AreaPrefix
+		GROUP BY c.Description   
+		ORDER BY
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountASC') THEN SUM(NoOfCalls)
+		END ASC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesDESC') THEN COALESCE(SUM(TotalBilledDuration),0)
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesASC') THEN COALESCE(SUM(TotalBilledDuration),0)
+		END ASC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionDESC') THEN Description
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'DescriptionASC') THEN Description
+		END ASC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+		END ASC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDDESC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+		END ASC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+		END DESC,
+		CASE
+			WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+		END ASC
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,ROUND(SUM(TotalSeconds)/60,0) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM (
+			SELECT IFNULL(Description,'Other') AS Description ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) AS TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) AS TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) AS ACD , IF(SUM(NoOfCalls)>0,ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_),0) AS ASR
+			FROM tmp_tblUsageVendorSummary_ us
+			LEFT JOIN tmp_codes_ c ON c.Code = us.AreaPrefix
+			GROUP BY c.Description
+		)tbl;
+
+	END IF;
+
+	/* export data*/
+	IF p_isExport = 1
+	THEN
+
+		SELECT SQL_CALC_FOUND_ROWS IFNULL(Description,'Other') AS Description ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) AS TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) AS TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) AS ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) AS ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		LEFT JOIN tmp_codes_ c ON c.Code = us.AreaPrefix
+		GROUP BY Description;
+
+	END IF;
+
+	/* chart display*/
+	IF p_isExport = 2
+	THEN
+
+		/* top 10 Description by call count */
+		SELECT Description AS ChartVal ,SUM(NoOfCalls) AS CallCount,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) AS ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) AS ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		INNER JOIN tmp_codes_ c ON c.Code = us.AreaPrefix
+		GROUP BY Description HAVING SUM(NoOfCalls) > 0 ORDER BY CallCount DESC LIMIT 10;
+
+		/* top 10 Description by call cost */
+		SELECT Description AS ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) AS TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) AS ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) AS ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		INNER JOIN tmp_codes_ c ON c.Code = us.AreaPrefix
+		GROUP BY Description HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+
+		/* top 10 Description by call minutes */
+		SELECT Description AS ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) AS TotalMinutes,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) AS ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) AS ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		INNER JOIN tmp_codes_ c ON c.Code = us.AreaPrefix
+		GROUP BY Description HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+
+	END IF;
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getVendorDestinationReportAll`;
+DELIMITER |
+CREATE PROCEDURE `prc_getVendorDestinationReportAll`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_Round_ int;
+	DECLARE v_OffSet_ int;
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnGetCountry();
+		 
+	
+	CALL fnUsageVendorSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+
+	
+	/* grid display*/
+	IF p_isExport = 0
+	THEN
+	
+	/* country by call count */	
+	SELECT IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , IF(SUM(NoOfCalls)>0,ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_),0) as ASR
+	FROM tmp_tblUsageVendorSummary_ us
+	LEFT JOIN temptblCountry c ON c.CountryID = us.CountryID
+	WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+	GROUP BY c.Country   
+	ORDER BY
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountASC') THEN SUM(NoOfCalls)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesDESC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesASC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryDESC') THEN Country
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CountryASC') THEN Country
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDDESC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END ASC
+	LIMIT p_RowspPage OFFSET v_OffSet_;
+	
+	SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,ROUND(SUM(TotalSeconds)/60,0) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM (
+		SELECT IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , IF(SUM(NoOfCalls)>0,ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_),0) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		LEFT JOIN temptblCountry c ON c.CountryID = us.CountryID
+		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+		GROUP BY c.Country
+	)tbl;
+
+	
+	END IF;
+	
+	/* export data*/
+	IF p_isExport = 1
+	THEN
+		SELECT SQL_CALC_FOUND_ROWS IFNULL(Country,'Other') as Country ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		LEFT JOIN temptblCountry c ON c.CountryID = us.CountryID
+		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+		GROUP BY Country;
+	END IF;
+	
+	
+	/* chart display*/
+	IF p_isExport = 2
+	THEN
+	
+		/* top 10 country by call count */	
+		SELECT Country as ChartVal ,SUM(NoOfCalls) AS CallCount,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		INNER JOIN temptblCountry c ON c.CountryID = us.CountryID
+		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+		GROUP BY Country HAVING SUM(NoOfCalls) > 0 ORDER BY CallCount DESC LIMIT 10;
+		
+		/* top 10 country by call cost */	
+		SELECT Country as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		INNER JOIN temptblCountry c ON c.CountryID = us.CountryID
+		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+		GROUP BY Country HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+		
+		/* top 10 country by call minutes */	
+		SELECT Country as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		INNER JOIN temptblCountry c ON c.CountryID = us.CountryID
+		WHERE (p_CountryID = 0 OR c.CountryID = p_CountryID)
+		GROUP BY Country HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+	
+	END IF;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getVendorGatewayReportAll`;
+DELIMITER |
+CREATE PROCEDURE `prc_getVendorGatewayReportAll`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_Round_ int;
+	DECLARE v_OffSet_ int;
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnUsageVendorSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+
+	
+	/* grid display*/
+	IF p_isExport = 0
+	THEN
+	
+	/* CompanyGatewayID by call count */	
+	SELECT fnGetCompanyGatewayName(CompanyGatewayID) ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,CompanyGatewayID
+	FROM tmp_tblUsageVendorSummary_ us
+	GROUP BY CompanyGatewayID   
+	ORDER BY
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountASC') THEN SUM(NoOfCalls)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesDESC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesASC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GatewayDESC') THEN fnGetCompanyGatewayName(CompanyGatewayID)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GatewayASC') THEN fnGetCompanyGatewayName(CompanyGatewayID)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDDESC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END ASC
+	LIMIT p_RowspPage OFFSET v_OffSet_;
+	
+	SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,ROUND(SUM(TotalSeconds)/60,0) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM (
+		SELECT fnGetCompanyGatewayName(CompanyGatewayID) ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY CompanyGatewayID
+	)tbl;
+
+	
+	END IF;
+	
+	/* export data*/
+	IF p_isExport = 1
+	THEN
+		SELECT   fnGetCompanyGatewayName(CompanyGatewayID)  as Name ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY CompanyGatewayID;
+	END IF;
+	
+	
+	/* chart display*/
+	IF p_isExport = 2
+	THEN
+	
+		/* top 10 CompanyGatewayID by call count */	
+		SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal ,SUM(NoOfCalls) AS CallCount,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		WHERE us.CompanyGatewayID != 'Other'
+		GROUP BY CompanyGatewayID HAVING SUM(NoOfCalls) > 0 ORDER BY CallCount DESC LIMIT 10;
+		
+		/* top 10 CompanyGatewayID by call cost */	
+		SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		WHERE us.CompanyGatewayID != 'Other'
+		GROUP BY CompanyGatewayID HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+		
+		/* top 10 CompanyGatewayID by call minutes */	
+		SELECT fnGetCompanyGatewayName(CompanyGatewayID) as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		WHERE us.CompanyGatewayID != 'Other'
+		GROUP BY CompanyGatewayID HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+	
+	END IF;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getVendorPrefixReportAll`;
+DELIMITER |
+CREATE PROCEDURE `prc_getVendorPrefixReportAll`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_Round_ int;
+	DECLARE v_OffSet_ int;
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnUsageVendorSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+
+	
+	/* grid display*/
+	IF p_isExport = 0
+	THEN
+	
+	/* AreaPrefix by call count */	
+	SELECT AreaPrefix ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+	FROM tmp_tblUsageVendorSummary_ us
+	GROUP BY AreaPrefix   
+	ORDER BY
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountASC') THEN SUM(NoOfCalls)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesDESC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesASC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AreaPrefixDESC') THEN AreaPrefix
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AreaPrefixASC') THEN AreaPrefix
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDDESC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END ASC
+	LIMIT p_RowspPage OFFSET v_OffSet_;
+	
+	SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,ROUND(SUM(TotalSeconds)/60,0) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM (
+		SELECT AreaPrefix ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY AreaPrefix
+	)tbl;
+
+	
+	END IF;
+	
+	/* export data*/
+	IF p_isExport = 1
+	THEN
+		SELECT   AreaPrefix ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY AreaPrefix;
+	END IF;
+	
+	
+	/* chart display*/
+	IF p_isExport = 2
+	THEN
+	
+		/* top 10 AreaPrefix by call count */	
+		SELECT AreaPrefix as ChartVal ,SUM(NoOfCalls) AS CallCount,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		WHERE us.AreaPrefix != 'Other'
+		GROUP BY AreaPrefix HAVING SUM(NoOfCalls) > 0 ORDER BY CallCount DESC LIMIT 10;
+		
+		/* top 10 AreaPrefix by call cost */	
+		SELECT AreaPrefix as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		WHERE us.AreaPrefix != 'Other'
+		GROUP BY AreaPrefix HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+		
+		/* top 10 AreaPrefix by call minutes */	
+		SELECT AreaPrefix as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		WHERE us.AreaPrefix != 'Other'
+		GROUP BY AreaPrefix HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+	
+	END IF;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END|
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_getVendorTrunkReportAll`;
+DELIMITER |
+CREATE PROCEDURE `prc_getVendorTrunkReportAll`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_AccountID` INT,
+	IN `p_CurrencyID` INT,
+	IN `p_StartDate` DATETIME,
+	IN `p_EndDate` DATETIME,
+	IN `p_AreaPrefix` VARCHAR(50),
+	IN `p_Trunk` VARCHAR(50),
+	IN `p_CountryID` INT,
+	IN `p_UserID` INT,
+	IN `p_isAdmin` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT
+)
+BEGIN
+
+	DECLARE v_Round_ int;
+	DECLARE v_OffSet_ int;
+		
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+	
+	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
+	
+	CALL fnUsageVendorSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+
+	
+	/* grid display*/
+	IF p_isExport = 0
+	THEN
+	
+	/* Trunk by call count */	
+	SELECT Trunk ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+	FROM tmp_tblUsageVendorSummary_ us
+	GROUP BY Trunk   
+	ORDER BY
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountDESC') THEN SUM(NoOfCalls)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CallCountASC') THEN SUM(NoOfCalls)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesDESC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMinutesASC') THEN COALESCE(SUM(TotalBilledDuration),0)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TrunkDESC') THEN Trunk
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TrunkASC') THEN Trunk
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN ROUND(COALESCE(SUM(TotalCharges),0), v_Round_)
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDDESC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ACDASC') THEN (COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls))
+	END ASC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRDESC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END DESC,
+	CASE
+		WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'ASRASC') THEN SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100
+	END ASC
+	LIMIT p_RowspPage OFFSET v_OffSet_;
+	
+	SELECT COUNT(*) AS totalcount,SUM(CallCount) AS TotalCall,ROUND(SUM(TotalSeconds)/60,0) AS TotalDuration,SUM(TotalCost) AS TotalCost FROM (
+		SELECT Trunk ,SUM(NoOfCalls) AS CallCount,COALESCE(SUM(TotalBilledDuration),0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY Trunk
+	)tbl;
+
+	
+	END IF;
+	
+	/* export data*/
+	IF p_isExport = 1
+	THEN
+		SELECT   Trunk ,SUM(NoOfCalls) AS CallCount,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalSeconds,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		GROUP BY Trunk;
+	END IF;
+	
+	
+	/* chart display*/
+	IF p_isExport = 2
+	THEN
+	
+		/* top 10 Trunk by call count */	
+		SELECT Trunk as ChartVal ,SUM(NoOfCalls) AS CallCount,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		WHERE us.Trunk != 'Other'
+		GROUP BY Trunk HAVING SUM(NoOfCalls) > 0 ORDER BY CallCount DESC LIMIT 10;
+		
+		/* top 10 Trunk by call cost */	
+		SELECT Trunk as ChartVal,ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		WHERE us.Trunk != 'Other'
+		GROUP BY Trunk HAVING SUM(TotalCharges) > 0 ORDER BY TotalCost DESC LIMIT 10;
+		
+		/* top 10 Trunk by call minutes */	
+		SELECT Trunk as ChartVal,ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD , ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR
+		FROM tmp_tblUsageVendorSummary_ us
+		WHERE us.Trunk != 'Other'
+		GROUP BY Trunk HAVING SUM(TotalBilledDuration) > 0  ORDER BY TotalMinutes DESC LIMIT 10;
+	
+	END IF;
+	
+	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 END|
