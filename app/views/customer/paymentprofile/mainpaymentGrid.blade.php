@@ -1,8 +1,8 @@
 <script>
 	var ajax_url = baseurl + "/accounts/{{$account->AccountID}}/ajax_datagrid_PaymentProfiles";	
 </script>
-@if( $account->PaymentMethod == 'Stripe'  || $account->PaymentMethod == 'AuthorizeNet')
-	@if (is_authorize() || is_Stripe())
+@if( $account->PaymentMethod == 'Stripe'  || $account->PaymentMethod == 'AuthorizeNet' || $account->PaymentMethod == 'FideliPay')
+	@if (is_authorize() || is_Stripe() || is_FideliPay())
 		@include('customer.paymentprofile.paymentGrid')
 	@endif
 @endif

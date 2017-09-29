@@ -63,6 +63,9 @@
                               @if(($PaymentMethod == 'Stripe') && (is_Stripe()  ) )
                                   <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Stripe');}}" id="pay_Stripe" href="javascript:;"> Stripe </a> </li>
                               @endif
+                              @if(is_FideliPay())
+                                  <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/FideliPay');}}" id="pay_FideliPay" href="javascript:;"> FideliPay </a> </li>
+                              @endif
                               @if(($PaymentMethod == 'StripeACH') && (is_StripeACH() && $StripeACHCount==1 ) )
                                   <li> <a class="generate_rate create"  href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/StripeACH');}}" id="pay_StripeACH" href="javascript:;"> StripeACH </a> </li>
                               @endif
@@ -78,6 +81,9 @@
                               @endif
                               @if(is_Stripe())
                               <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Stripe');}}" id="pay_Stripe" href="javascript:;"> Stripe </a> </li>
+                              @endif
+                              @if(is_FideliPay())
+                              <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/FideliPay');}}" id="pay_FideliPay" href="javascript:;"> FideliPay </a> </li>
                               @endif
                               @if(is_StripeACH() && $StripeACHCount==1)
                               <li> <a class="generate_rate create"  href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/StripeACH');}}" id="pay_StripeACH" href="javascript:;"> StripeACH </a> </li>
