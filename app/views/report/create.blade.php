@@ -17,22 +17,27 @@
     @include('includes.success')
     <div class="row">
         <div class="col-md-12">
+            <button type="submit" id="save_report" class="btn btn-primary pull-right">
+                <i class="entypo-floppy"></i>
+                Save
+            </button>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-12">
             <div class="panel panel-primary" data-collapsed="0">
                 <!-- panel head -->
                 <div class="panel-heading">
                     <div class="panel-title">Report</div>
-                    <div class="panel-options">
-                        <a href="#" data-toggle="report_filter" data-collapse-sidebar="1">
-                            <i class="fa fa-filter"></i>
-                        </a>
-                    </div>
 
                 </div>
                 <!-- panel body -->
                 <div class="panel-body">
                     <form role="form" class="form-horizontal form-groups-bordered" id="report-row-col">
-                        <div class="form-group {{Input::get('report')=='run'?'hidden':''}}" >
-                            <div class="col-sm-3">
+                        <div class="form-group " >
+                            <div class="col-sm-3 {{Input::get('report')=='run'?'hidden':''}}">
                                 <label for="field-5" class="control-label">Cube</label>
                                 {{Form::select('Cube',Report::$cube,(isset($report_settings['Cube'])?$report_settings['Cube']:''),array("class"=>"select2 small",$disable))}}
 
@@ -40,14 +45,14 @@
                                     <input type="hidden" id="hidden_cube" name="Cube" value="{{$report_settings['Cube'] or ''}}">
                                 @endif
                             </div>
-                            <div class="col-sm-9 vertical-border border_left ">
+                            <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-9'}}  vertical-border border_left ">
                                 <input type="hidden" id="hidden_row" name="row" value="{{$report_settings['row'] or ''}}">
                                 <input type="hidden" id="hidden_columns" name="column" value="{{$report_settings['column'] or ''}}">
                                 <input type="hidden" id="hidden_filter" name="filter" value="{{$report_settings['filter'] or ''}}">
                                 <input type="hidden" id="hidden_filter_col" name="filter_col_name" value="{{$report_settings['filter_col_name'] or ''}}">
                                 <input type="hidden" id="hidden_setting" name="filter_settings" value='{{$report_settings['filter_settings'] or ''}}'>
                                 <label for="field-5" class="control-label">Columns</label>
-                                <div id="Columns_Drop" class="form-control tree ui-widget-content ui-state-default select2-container select2-container-multi">
+                                <div id="Columns_Drop" class="form-control {{Input::get('report')=='run'?'hidden':''}} tree ui-widget-content ui-state-default select2-container select2-container-multi">
 
                                     <ul class=" select2-choices ui-helper-reset">
                                         @if(isset($report_settings['column']) && $selectedColumns = array_filter(explode(',',$report_settings['column'])))
@@ -77,7 +82,7 @@
                                     </ul>
                                 </div>
                                 <label for="field-5" class="control-label">Row</label>
-                                <div id="Row_Drop" class="form-control tree ui-widget-content ui-state-default select2-container select2-container-multi">
+                                <div id="Row_Drop" class="form-control {{Input::get('report')=='run'?'hidden':''}} tree ui-widget-content ui-state-default select2-container select2-container-multi">
                                     <ul class=" select2-choices ui-helper-reset">
                                         @if(isset($report_settings['row']) && $selectedRows = array_filter(explode(',',$report_settings['row'])))
                                         @foreach($selectedRows as $selectedRow)
@@ -101,6 +106,34 @@
                                                 </span>
                                             </li>
                                         @endforeach
+                                        @endif
+                                    </ul>
+                                </div>
+                                <label for="field-5" class="control-label">Filter</label>
+                                <div id="Filter_Drop" class="form-control tree ui-widget-content ui-state-default select2-container select2-container-multi">
+                                    <ul class=" select2-choices ui-helper-reset">
+                                        @if(isset($report_settings['filter_settings']) && $selectedColumns = array_filter(json_decode($report_settings['filter_settings'],true)))
+                                            @foreach($selectedColumns as $selectedColumn => $extraarray)
+                                                <li class="{{isset($measures[$report_settings['Cube']][$selectedColumn])?'measures':'dimension'}} ui-draggable" data-cube="{{$report_settings['Cube']}}" data-val="{{$selectedColumn}}">
+                                <span><i class="fa fa-arrows"></i>
+                                    <?php
+                                    $filter = '';
+                                    if(isset($measures[$report_settings['Cube']][$selectedColumn])){
+                                        $filter = $measures[$report_settings['Cube']][$selectedColumn];
+                                    } else if(isset($dimensions[$report_settings['Cube']][$selectedColumn]) && !is_array($dimensions[$report_settings['Cube']][$selectedColumn])){
+                                        $filter = $dimensions[$report_settings['Cube']][$selectedColumn];
+                                    } else if(isset($dimensions[$report_settings['Cube']]['Date'][$selectedColumn])){
+                                        $filter = $dimensions[$report_settings['Cube']]['Date'][$selectedColumn];
+                                    } else if(isset($dimensions[$report_settings['Cube']]['Customer'][$selectedColumn])){
+                                        $filter = $dimensions[$report_settings['Cube']]['Customer'][$selectedColumn];
+                                    } else if(isset($dimensions[$report_settings['Cube']]['Product'][$selectedColumn])){
+                                        $filter = $dimensions[$report_settings['Cube']]['Product'][$selectedColumn];
+                                    }
+                                    ?>
+                                    {{$filter}}
+                                </span>
+                                                </li>
+                                            @endforeach
                                         @endif
                                     </ul>
                                 </div>
@@ -153,12 +186,6 @@
             min-height:20px;
             padding:19px;
             margin-bottom:20px;
-            -webkit-border-radius:4px;
-            -moz-border-radius:4px;
-            border-radius:4px;
-            -webkit-box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
-            -moz-box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05);
-            box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.05)
         }
         .tree li {
             list-style-type:none;
@@ -234,5 +261,216 @@
 
     </style>
 @include('report.script')
-@include('report.filter')
+@stop
+@section('footer_ext')
+    @parent
+    <div class="modal fade" id="add-new-modal-filter">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="add-new-filter-form" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Add New Filter</h4>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="nav nav-tabs refresh_tab">
+                            <li class="active filter_data_table"><a href="#general" data-toggle="tab">General</a></li>
+                            <li class="filter_data_wildcard"><a href="#wildcard" data-toggle="tab" >Wildcard</a></li>
+                            <li class="date_filters"><a href="#date_filter" data-toggle="tab" >Date Filter</a></li>
+                            {{--<li ><a href="#condition" data-toggle="tab">Condition</a></li>
+                            <li ><a href="#top" data-toggle="tab">Top</a></li>--}}
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="general" >
+                                <div class="row margin-top filter_data_table">
+                                    <div class="col-md-12">
+                                        <table class="table table-bordered datatable" id="table-filter-list">
+                                            <thead>
+                                            <tr>
+                                                <th><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+                                                <th>Name</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="tab-pane " id="wildcard" >
+                                <div class="row margin-top filter_data_wildcard">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="field-5" class="control-label">Match Value</label>
+                                            <input type="text"  name="wildcard_match_val" class="form-control" id="field-5" placeholder="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="date_filter" >
+                                <div class="row margin-top">
+                                    <div class="col-md-6 clear">
+                                        <div class="form-group ">
+                                            <label for="field-5" class="control-label">Start Date</label>
+                                            <input type="text"  name="start_date" class="form-control datepicker" id="field-5" placeholder="" data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                            <label for="field-5" class="control-label">End Date</label>
+                                            <input type="text"  name="end_date" class="form-control datepicker" id="field-5" placeholder="" data-date-format="yyyy-mm-dd" value="" data-enddate="{{date('Y-m-d')}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane" id="condition"  >
+                                <div class="row margin-top">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio"  value="none" checked name="condition" class="condition_filter condition_filter_none" id="field-5" placeholder="">None
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="condition" value="condition_active" class="condition_filter" id="field-5" placeholder="">
+                                                    By Field
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 clear">
+                                        <div class="form-group">
+                                            {{Form::select('condition_col',$Columns,'',array("class"=>"select2 small condition_filter_data"))}}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            {{Form::select('condition_agg',Report::$aggregator,'',array("class"=>"select2 small condition_filter_data"))}}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 clear">
+                                        <div class="form-group">
+                                            {{Form::select('Condition_sign',Report::$condition,'',array("class"=>"select2 small condition_filter_data"))}}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input type="text" name="condition_agg_val" value="" class="form-control condition_filter_data" id="field-5" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 clear">
+                                        <div class="form-group">
+                                            <label for="field-5" class="control-label">Range Min</label>
+                                            <input type="text" name="condition_agg_range_min" value="" class="form-control condition_filter_data" id="field-5" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="field-5" class="control-label">Range Max</label>
+                                            <input type="text" name="condition_agg_range_max" value="" class="form-control condition_filter_data" id="field-5" placeholder="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="top" >
+                                <div class="row margin-top">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio"  value="none" checked name="top" class="top_filter top_filter_none" id="field-5" placeholder="">
+                                                    None
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="top" value="top_active" class="top_filter" id="field-5" placeholder="">
+                                                    By Field
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 clear">
+                                        <div class="form-group">
+                                            {{Form::select('top_agg_con',Report::$top,'',array("class"=>"select2 small top_filter_data"))}}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <input type="text" name="top_agg" value="" class="form-control top_filter_data" id="field-5" placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 clear">
+                                        <div class="form-group">
+                                            {{Form::select('condition_col',$Columns,'',array("class"=>"select2 small top_filter_data"))}}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            {{Form::select('condition_agg',Report::$aggregator,'',array("class"=>"select2 small top_filter_data"))}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="report-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="fa fa-filter"></i>
+                            Filter
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<div class="modal fade" id="add-new-modal-report">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="add-new-report-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">{{!isset($report->ReportID)?'Add New':'Edit'}} Report</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row margin-top">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Name</label>
+                                <input type="text"  name="Name" class="form-control" id="field-5" placeholder="" value="{{$report->Name or ''}}">
+                                <input type="hidden"  name="ReportID" value="{{$report->ReportID or ''}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="report-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                        <i class="entypo-cancel"></i>
+                        Close
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @stop
