@@ -1431,8 +1431,8 @@ CREATE  PROCEDURE `prc_WSGenerateRateTable`(
 		INSERT INTO tmp_Raterules_
 			SELECT
 				rateruleid,
-				tblRateRule.code,
-				tblRateRule.description,
+				tblRateRule.Code,
+				tblRateRule.Description,
 				@row_num := @row_num+1 AS RowID
 			FROM tblRateRule,(SELECT @row_num := 0) x
 			WHERE rategeneratorid = p_RateGeneratorId
@@ -2142,6 +2142,7 @@ CREATE  PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
 		CREATE TEMPORARY TABLE tmp_Raterules_  (
 			rateruleid INT,
 			code VARCHAR(50) COLLATE utf8_unicode_ci,
+			description VARCHAR(50) COLLATE utf8_unicode_ci,
 			RowNo INT,
 			INDEX tmp_Raterules_code (`code`),
 			INDEX tmp_Raterules_rateruleid (`rateruleid`),
@@ -2296,7 +2297,8 @@ CREATE  PROCEDURE `prc_WSGenerateRateTableWithPrefix`(
 		INSERT INTO tmp_Raterules_
 			SELECT
 				rateruleid,
-				tblRateRule.code,
+				tblRateRule.Code,
+				tblRateRule.Description,
 				@row_num := @row_num+1 AS RowID
 			FROM tblRateRule,(SELECT @row_num := 0) x
 			WHERE rategeneratorid = p_RateGeneratorId
