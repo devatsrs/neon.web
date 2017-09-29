@@ -77,7 +77,7 @@ class PaymentIntegration {
 			return array("status" => "success", "message" => "Invoice paid successfully");
 		}else{
 			Payment::paymentFail($transactionResponse);
-			return array("status" => "failed", "message" => $transactionResponse['Notes']);
+			return array("status" => "failed", "message" => $transactionResponse['transaction_notes']);
 		}
 	}
 	
