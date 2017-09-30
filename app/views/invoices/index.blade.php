@@ -93,7 +93,7 @@
             @if(User::checkCategoryPermission('Invoice','Generate'))
             <li> <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;"> Regenerate </a> </li>
             @endif
-            @if(is_authorize() || is_Stripe() || is_StripeACH())
+            @if(is_PayNowInvoice())
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="pay_now create" id="pay_now" href="javascript:;"> Pay Now </a> </li>
             @endif

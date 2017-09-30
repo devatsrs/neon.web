@@ -1607,6 +1607,8 @@ function is_StripeACH(){
 }
 function is_SagePayDirectDebit(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$SagePayDirectDebitSlug);
+}function is_FideliPay(){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$FideliPaySlug);
 }
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
@@ -1854,7 +1856,14 @@ function get_client_ip() {
 }
 
 function getInvoicePayments(){
-    if(is_authorize() || is_Stripe() || is_StripeACH() || is_paypal() || is_sagepay()){
+    if(is_authorize() || is_Stripe() || is_StripeACH() || is_paypal() || is_sagepay() || is_FideliPay()){
+        return true;
+    }
+    return false;
+}
+
+function is_PayNowInvoice(){
+    if(is_authorize() || is_Stripe() || is_StripeACH() || is_FideliPay()){
         return true;
     }
     return false;

@@ -369,6 +369,48 @@ class IntegrationController extends \BaseController
 				}
 				return Response::json(array("status" => "success", "message" => "SagePay Direct Debit Settings Successfully Updated"));
 			}
+
+			if($data['secondcategory']=='FideliPay')
+			{
+				$rules = array(
+					'SourceKey'	 => 'required',
+					'Pin'	 => 'required'
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['Status'] 		= 	isset($data['Status'])?1:0;
+
+				/*
+				if($data['Status']==1){ //disable all other payment subcategories
+					$status =	array("Status"=>0);
+					IntegrationConfiguration::where(array('ParentIntegrationID'=>$data['firstcategoryid']))->update($status);
+				}*/
+
+				$FideliPayData = array(
+					"SourceKey"=>$data['SourceKey'],
+					"Pin"=>$data['Pin']
+				);
+
+				$FideliPayDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+
+				if(count($FideliPayDbData)>0)
+				{
+					$SaveData = array("Settings"=>json_encode($FideliPayData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$FideliPayDbData->IntegrationConfigurationID))->update($SaveData);
+
+				}
+				else
+				{
+					$SaveData = array("Settings"=>json_encode($FideliPayData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "FideliPay Settings Successfully Updated"));
+			}
 		}
 		
 		if($data['firstcategory']=='email') {
