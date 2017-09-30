@@ -157,6 +157,8 @@
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
           <th width="10%">Invoice Status</th>
+          <th width="10%">Due Date</th>
+          <th width="10%">Due Days</th>
           <th width="20%">Action</th>
         </tr>
       </thead>
@@ -179,7 +181,7 @@
             //show_loading_bar(40);
             var invoicestatus = {{$invoice_status_json}};
             var Invoice_Status_Url = "{{ URL::to('invoice/invoice_change_Status')}}";
-            var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
+            var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate',  'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
             $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
             $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
             $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ? $("#invoice_filter select[name='InvoiceStatus']").val() : '';
@@ -286,6 +288,8 @@
                         }
 
                     },  // 7 InvoiceStatus
+                    {"bSortable": true},  // 8 DueDate
+                    {"bSortable": false},  // 9 DueDays
                     {
                         "bSortable": false,
                         mRender: function (id, type, full) {
