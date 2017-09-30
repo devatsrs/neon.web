@@ -2764,7 +2764,7 @@ a:focus,a:hover{text-decoration:none !important}
     right: 0;
     top: 0;
     bottom: 0;
-    width: 280px;
+    width: 250px;
     background: #222;
     z-index: 5;
     display: none;
@@ -2775,7 +2775,7 @@ a:focus,a:hover{text-decoration:none !important}
 .new_filter .filter-inner {
     height: 100%;
     overflow-y: scroll;
-    width: 280px;
+    width: 250px;
     position: fixed;
     padding-bottom: 10%;
 }
