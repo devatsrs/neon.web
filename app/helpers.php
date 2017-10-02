@@ -2103,9 +2103,9 @@ function table_html($data,$table_data){
             }
             if ($explode_row_count == $row_count && $explode_count >= $col_count) {
                 if($key_index > 0 && $col_count == 0){
-                    $table_single_row .= '<td class="col">' . $col_val . '</td>';
+                    $table_single_row .= '<td class="col">' . number_format($col_val,get_round_decimal_places()) . '</td>';
                 }else if($col_count > 0){
-                    $table_single_row .= '<td class="col">' . $col_val . '</td>';
+                    $table_single_row .= '<td class="col">' . number_format($col_val,get_round_decimal_places()) . '</td>';
                 }
 
             }
@@ -2132,7 +2132,7 @@ function table_html($data,$table_data){
         $footer_col_count = 0;
         foreach ($table_data['table_footer_sum'] as $foot_col_name => $foot_col_val) {
             if($footer_col_count >= $row_col_count) {
-                $table_footer .= '<td class="col" style="background-color: #91c5d4">' .$foot_col_val . '</td>';
+                $table_footer .= '<td class="col" style="background-color: #91c5d4">' .number_format($foot_col_val,get_round_decimal_places()) . '</td>';
             }
             $footer_col_count++;
         }

@@ -37,21 +37,23 @@
                 <div class="panel-body">
                     <form role="form" class="form-horizontal form-groups-bordered" id="report-row-col">
                         <div class="form-group " >
-                            <div class="col-sm-3 {{Input::get('report')=='run'?'hidden':''}}">
-                                <label for="field-5" class="control-label">Cube</label>
+                            <div class="col-sm-2 {{Input::get('report')=='run'?'hidden':''}}">
+                                <label for="field-5" class="control-label">Cube <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Cube is a logical schema which contains measures and dimensions." data-original-title="Cube">?</span></label>
+                                <br>
+                                <br>
                                 {{Form::select('Cube',Report::$cube,(isset($report_settings['Cube'])?$report_settings['Cube']:''),array("class"=>"select2 small",$disable))}}
 
                                 @if(!empty($report))
                                     <input type="hidden" id="hidden_cube" name="Cube" value="{{$report_settings['Cube'] or ''}}">
                                 @endif
                             </div>
-                            <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-9'}}  vertical-border border_left ">
+                            <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-10'}}  vertical-border border_left ">
                                 <input type="hidden" id="hidden_row" name="row" value="{{$report_settings['row'] or ''}}">
                                 <input type="hidden" id="hidden_columns" name="column" value="{{$report_settings['column'] or ''}}">
                                 <input type="hidden" id="hidden_filter" name="filter" value="{{$report_settings['filter'] or ''}}">
                                 <input type="hidden" id="hidden_filter_col" name="filter_col_name" value="{{$report_settings['filter_col_name'] or ''}}">
                                 <input type="hidden" id="hidden_setting" name="filter_settings" value='{{$report_settings['filter_settings'] or ''}}'>
-                                <label for="field-5" class="control-label">Columns</label>
+                                <label for="field-5" class="control-label {{Input::get('report')=='run'?'hidden':''}}">Columns</label>
                                 <div id="Columns_Drop" class="form-control {{Input::get('report')=='run'?'hidden':''}} tree ui-widget-content ui-state-default select2-container select2-container-multi">
 
                                     <ul class=" select2-choices ui-helper-reset">
@@ -81,7 +83,7 @@
                                         @endif
                                     </ul>
                                 </div>
-                                <label for="field-5" class="control-label">Row</label>
+                                <label for="field-5" class="control-label {{Input::get('report')=='run'?'hidden':''}}">Row</label>
                                 <div id="Row_Drop" class="form-control {{Input::get('report')=='run'?'hidden':''}} tree ui-widget-content ui-state-default select2-container select2-container-multi">
                                     <ul class=" select2-choices ui-helper-reset">
                                         @if(isset($report_settings['row']) && $selectedRows = array_filter(explode(',',$report_settings['row'])))
@@ -141,10 +143,10 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-sm-3 vertical-border border_right {{Input::get('report')=='run'?'hidden':''}}">
+                            <div class="col-sm-2 vertical-border border_right {{Input::get('report')=='run'?'hidden':''}}">
                                 <div class="row">
                                     <div class="col-sm-12 vertical-border border_bottom">
-                                        <label for="field-5" class="control-label">Dimension</label>
+                                        <label for="field-5" class="control-label">Dimension <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Dimensions are qualitative and do not total a sum. For example, sales region, employee, location, or date are dimensions." data-original-title="Dimensions">?</span></label>
                                     </div>
                                     <div   class="col-sm-12 vertical-border border_bottom" style="margin-top: 15px;padding-top: 15px">
                                         <div class="nested-list with-margins tree">
@@ -156,7 +158,7 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-12 vertical-border border_bottom" style="margin-top: 15px;padding-top: 15px">
-                                        <label for="field-5" class="control-label">Measures</label>
+                                        <label for="field-5" class="control-label">Measures <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Measures are numerical values that mathematical functions work on. For example, a sales revenue column is a measure because you can find out a total the data." data-original-title="Measures">?</span></label>
                                     </div>
                                     <div class="col-sm-12 vertical-border" style="margin-top: 15px;padding-top: 15px">
                                         <div id="list-1" class="nested-list tree with-margins">
@@ -167,7 +169,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-9'}} table_report_overflow loading">
+                            <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-10'}} table_report_overflow loading">
 
 
                             </div>
@@ -184,8 +186,8 @@
     <style>
         .tree {
             min-height:20px;
-            padding:19px;
-            margin-bottom:20px;
+            /*padding:19px;
+            margin-bottom:20px;*/
         }
         .tree li {
             list-style-type:none;
@@ -255,7 +257,7 @@
        @if(Input::get('report') == 'run')
             width: 99%;
        @else
-            width: 74%;
+            width: 82%;
        @endif
         }
 
