@@ -158,7 +158,7 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-12 vertical-border border_bottom" style="margin-top: 15px;padding-top: 15px">
-                                        <label for="field-5" class="control-label">Measures <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Measures are numerical values that mathematical functions work on. For example, a sales revenue column is a measure because you can find out a total the data." data-original-title="Measures">?</span></label>
+                                        <label for="field-5" class="control-label">Measures <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Measures are numerical values that mathematical functions work on. For example, a sales revenue column is a measure because you can find out a total the data.Measures you can drop only in Columns." data-original-title="Measures">?</span></label>
                                     </div>
                                     <div class="col-sm-12 vertical-border" style="margin-top: 15px;padding-top: 15px">
                                         <div id="list-1" class="nested-list tree with-margins">
