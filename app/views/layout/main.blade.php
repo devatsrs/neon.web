@@ -46,6 +46,7 @@
 
             </div>
 
+
             @include('layout.filter')
 
         </div>

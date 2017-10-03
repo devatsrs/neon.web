@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user-abubakar`@`%` PROCEDURE `prc_unsetCDRUsageAccount`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_unsetCDRUsageAccount`(
 	IN `p_CompanyID` INT,
 	IN `p_IPs` LONGTEXT,
 	IN `p_StartDate` VARCHAR(100),

@@ -1,4 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAccountExpense`(IN `p_CompanyID` INT, IN `p_AccountID` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getAccountExpense`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT
+)
 BEGIN
 	DECLARE v_Round_ int;
 	DECLARE v_DateID_ int;
@@ -49,12 +52,12 @@ BEGIN
 		sh.DateID,
 		sh.CompanyID,
 		sh.AccountID,
-		sh.AreaPrefix,
+		us.AreaPrefix,
 		us.TotalCharges,
 		1 as Customer
-	FROM tblSummaryHeader sh
-	INNER JOIN tblUsageSummary us
-		ON us.SummaryHeaderID = sh.SummaryHeaderID 
+	FROM tblHeader sh
+	INNER JOIN tblUsageSummaryDay us
+		ON us.HeaderID = sh.HeaderID 
 	WHERE  sh.CompanyID = p_CompanyID
 	AND sh.AccountID = p_AccountID;
 	
@@ -63,12 +66,12 @@ BEGIN
 		sh.DateID,
 		sh.CompanyID,
 		sh.AccountID,
-		sh.AreaPrefix,
+		us.AreaPrefix,
 		us.TotalCharges,
 		1 as Customer
-	FROM tblSummaryHeader sh
-	INNER JOIN tblUsageSummaryLive us
-		ON us.SummaryHeaderID = sh.SummaryHeaderID 
+	FROM tblHeader sh
+	INNER JOIN tblUsageSummaryDayLive us
+		ON us.HeaderID = sh.HeaderID 
 	WHERE  sh.CompanyID = p_CompanyID
 	AND sh.AccountID = p_AccountID;
 	
@@ -77,29 +80,29 @@ BEGIN
 	SELECT
 		sh.DateID,
 		sh.CompanyID,
-		sh.AccountID,
-		sh.AreaPrefix,
+		sh.VAccountID,
+		us.AreaPrefix,
 		us.TotalCharges,
 		2 as Vendor
-	FROM tblSummaryVendorHeader sh
-	INNER JOIN tblUsageVendorSummary us
-		ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
+	FROM tblHeaderV sh
+	INNER JOIN tblVendorSummaryDay us
+		ON us.HeaderVID = sh.HeaderVID 
 	WHERE  sh.CompanyID = p_CompanyID
-	AND sh.AccountID = p_AccountID;
+	AND sh.VAccountID = p_AccountID;
 	
 	INSERT INTO tmp_tblUsageSummary_
 	SELECT
 		sh.DateID,
 		sh.CompanyID,
-		sh.AccountID,
-		sh.AreaPrefix,
+		sh.VAccountID,
+		us.AreaPrefix,
 		us.TotalCharges,
 		2 as Vendor
-	FROM tblSummaryVendorHeader sh
-	INNER JOIN tblUsageVendorSummaryLive us
-		ON us.SummaryVendorHeaderID = sh.SummaryVendorHeaderID 
+	FROM tblHeaderV sh
+	INNER JOIN tblVendorSummaryDayLive us
+		ON us.HeaderVID = sh.HeaderVID 
 	WHERE  sh.CompanyID = p_CompanyID
-	AND sh.AccountID = p_AccountID;
+	AND sh.VAccountID = p_AccountID;
 	
 	INSERT INTO tmp_tblUsageSummary2_
 	SELECT * FROM tmp_tblUsageSummary_;

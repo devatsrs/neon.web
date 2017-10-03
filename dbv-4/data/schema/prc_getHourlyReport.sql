@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getHourlyReport`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getHourlyReport`(
 	IN `p_CompanyID` INT,
 	IN `p_UserID` INT,
 	IN `p_isAdmin` INT,
