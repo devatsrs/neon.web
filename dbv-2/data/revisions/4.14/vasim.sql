@@ -111,8 +111,8 @@ BEGIN
 			CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal2,
 			CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `PendingAmount`,
 			InvoiceStatus,
-			DATE(DATE_ADD(IssueDate, INTERVAL PaymentDueInDays DAY)) AS DueDate,
-			IF(InvoiceStatus IN ('send','awaiting'), IF(DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL PaymentDueInDays DAY))) > 0,DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL PaymentDueInDays DAY))),''), '') AS DueDays,
+			DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY)) AS DueDate,
+			IF(InvoiceStatus IN ('send','awaiting'), IF(DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))) > 0,DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))),''), '') AS DueDays,
 			InvoiceID,
 			Description,
 			Attachment,
@@ -213,7 +213,7 @@ BEGIN
 	IF p_isExport = 2
 	THEN
 
-		
+
 
 		SELECT
 			AccountName ,
@@ -239,7 +239,7 @@ BEGIN
 
 	IF p_sageExport =1 OR p_sageExport =2
 	THEN
-			
+
 
 		IF p_sageExport = 2
 		THEN
@@ -281,7 +281,7 @@ BEGIN
 			InvoiceNumber AS TransactionReference,
 			'' AS SecondReference,
 			'' AS Source,
-			4 AS SYSTraderTranType, 
+			4 AS SYSTraderTranType,
 			DATE_FORMAT(PaymentDate ,'%Y-%m-%d') AS TransactionDate,
 			TotalTax AS TaxValue,
 			SubTotal AS `NominalAnalysisTransactionValue/1`,
