@@ -1,5 +1,9 @@
 USE `RMBilling3`;
 
+UPDATE tblInvoice INNER JOIN tblInvoiceDetail ON tblInvoice.InvoiceID =tblInvoiceDetail.InvoiceID 
+SET ProductType = 5
+WHERE ProductType IS NULL   AND InvoiceType =2;
+
 DROP PROCEDURE IF EXISTS `prc_ProcessCDRAccount`;
 DELIMITER |
 CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcessCDRAccount`(

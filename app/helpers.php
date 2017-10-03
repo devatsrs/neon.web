@@ -2047,7 +2047,7 @@ function table_html($data,$table_data){
                     
                     $table_header_colgroup .= '<colgroup span="' . $row_val['colspan'] . '" style="background-color:' . $color. '"></colgroup>';
                 }
-                $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup">' . $row_val['name'] . '</th>';
+                $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup"><strong>' . $row_val['name'] . '</strong></th>';
                 $index_col++;
             }
 
@@ -2132,7 +2132,7 @@ function table_html($data,$table_data){
         $footer_col_count = 0;
         foreach ($table_data['table_footer_sum'] as $foot_col_name => $foot_col_val) {
             if($footer_col_count >= $row_col_count) {
-                $table_footer .= '<td class="col" style="background-color: #91c5d4">' . (is_numeric($foot_col_val)?number_format($foot_col_val,get_round_decimal_places()):$foot_col_val) . '</td>';
+                $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong>' . (is_numeric($foot_col_val)?number_format($foot_col_val,get_round_decimal_places()):$foot_col_val) . '</strong></td>';
             }
             $footer_col_count++;
         }
