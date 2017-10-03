@@ -1,4 +1,4 @@
-use NeonBillingDev;
+use RMBilling3;
 
 
 
@@ -32,7 +32,7 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	SET  sql_mode='ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
-	SELECT cr.Symbol INTO v_CurrencyCode_ from NeonRMDev.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
+	SELECT cr.Symbol INTO v_CurrencyCode_ from Ratemanagement3.tblCurrency cr where cr.CurrencyId =p_CurrencyID;
 	SELECT fnGetRoundingPoint(p_CompanyID) INTO v_Round_;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_Invoices_;
@@ -79,15 +79,18 @@ BEGIN
 			inv.ItemInvoice,
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
-			(SELECT IFNULL(b.PaymentDueInDays,0) FROM NeonRMDev.tblAccountBilling ab INNER JOIN NeonRMDev.tblBillingClass b ON b.BillingClassID =ab.BillingClassID WHERE ab.AccountID = ac.AccountID AND ab.ServiceID = inv.ServiceID LIMIT 1) as PaymentDueInDays,
+			if (inv.BillingClassID > 0,
+				 (SELECT IFNULL(b.PaymentDueInDays,0) FROM Ratemanagement3.tblBillingClass b where  b.BillingClassID =inv.BillingClassID),
+				 (SELECT IFNULL(b.PaymentDueInDays,0) FROM Ratemanagement3.tblAccountBilling ab INNER JOIN Ratemanagement3.tblBillingClass b ON b.BillingClassID =ab.BillingClassID WHERE ab.AccountID = ac.AccountID AND ab.ServiceID = inv.ServiceID LIMIT 1)
+			) as PaymentDueInDays,
 			(SELECT PaymentDate FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID ORDER BY PaymentID DESC LIMIT 1) AS PaymentDate,
 			inv.SubTotal,
 			inv.TotalTax,
 			ac.NominalAnalysisNominalAccountNumber
 			FROM tblInvoice inv
-			INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
+			INNER JOIN Ratemanagement3.tblAccount ac ON ac.AccountID = inv.AccountID
 			LEFT JOIN tblInvoiceDetail invd ON invd.InvoiceID = inv.InvoiceID AND (invd.ProductType = 5 OR inv.InvoiceType = 2)
-			LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId
+			LEFT JOIN Ratemanagement3.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId
 			WHERE ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
 			AND (p_InvoiceNumber = '' OR (inv.FullInvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
@@ -111,8 +114,8 @@ BEGIN
 			CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal2,
 			CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `PendingAmount`,
 			InvoiceStatus,
-			DATE(DATE_ADD(IssueDate, INTERVAL PaymentDueInDays DAY)) AS DueDate,
-			IF(InvoiceStatus IN ('send','awaiting'), IF(DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL PaymentDueInDays DAY))) > 0,DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL PaymentDueInDays DAY))),''), '') AS DueDays,
+			DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY)) AS DueDate,
+			IF(InvoiceStatus IN ('send','awaiting'), IF(DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))) > 0,DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))),''), '') AS DueDays,
 			InvoiceID,
 			Description,
 			Attachment,
@@ -213,7 +216,7 @@ BEGIN
 	IF p_isExport = 2
 	THEN
 
-		
+
 
 		SELECT
 			AccountName ,
@@ -239,18 +242,18 @@ BEGIN
 
 	IF p_sageExport =1 OR p_sageExport =2
 	THEN
-			
+
 
 		IF p_sageExport = 2
 		THEN
 			UPDATE tblInvoice  inv
-			INNER JOIN NeonRMDev.tblAccount ac
+			INNER JOIN Ratemanagement3.tblAccount ac
 				ON ac.AccountID = inv.AccountID
-			INNER JOIN NeonRMDev.tblAccountBilling ab
+			INNER JOIN Ratemanagement3.tblAccountBilling ab
 				ON ab.AccountID = ac.AccountID AND ab.ServiceID = inv.ServiceID
-			INNER JOIN NeonRMDev.tblBillingClass b
+			INNER JOIN Ratemanagement3.tblBillingClass b
 				ON ab.BillingClassID = b.BillingClassID
-			INNER JOIN NeonRMDev.tblCurrency c
+			INNER JOIN Ratemanagement3.tblCurrency c
 				ON c.CurrencyId = ac.CurrencyId
 			SET InvoiceStatus = 'paid'
 			WHERE ac.CompanyID = p_CompanyID
@@ -281,7 +284,7 @@ BEGIN
 			InvoiceNumber AS TransactionReference,
 			'' AS SecondReference,
 			'' AS Source,
-			4 AS SYSTraderTranType, 
+			4 AS SYSTraderTranType,
 			DATE_FORMAT(PaymentDate ,'%Y-%m-%d') AS TransactionDate,
 			TotalTax AS TaxValue,
 			SubTotal AS `NominalAnalysisTransactionValue/1`,
