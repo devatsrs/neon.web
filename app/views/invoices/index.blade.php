@@ -150,15 +150,15 @@
               <input type="checkbox" id="selectall" name="checkbox[]" class=""/>
             </div>
           </th>
-          <th width="15%">Account Name</th>
+          <th width="15%">Account</th>
           <th width="10%">Invoice Number</th>
           <th width="10%">Issue Date</th>
-          <th width="13%">Invoice Period</th>
+          <th width="13%">Period</th>
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
-          <th width="10%">Invoice Status</th>
+          <th width="10%">Status</th>
           <th width="10%">Due Date</th>
-          <th width="10%">Due Days</th>
+          {{--<th width="10%">Due Days</th>--}}
           <th width="20%">Action</th>
         </tr>
       </thead>
@@ -288,8 +288,18 @@
                         }
 
                     },  // 7 InvoiceStatus
-                    {"bSortable": true},  // 8 DueDate
-                    {"bSortable": false},  // 9 DueDays
+                    {
+                        "bSortable": true,
+                        mRender: function (id, type, full) {
+                            var output;
+                            if(full[9] != '' && full[9] != null)
+                                output = full[8] + '<br/> (' + full[9] + ' Days)';
+                            else
+                                output = full[8];
+                            return output;
+                        }
+                    },  // 8 DueDate and DueDays
+                    //{"bSortable": false},  // 9 DueDays
                     {
                         "bSortable": false,
                         mRender: function (id, type, full) {
