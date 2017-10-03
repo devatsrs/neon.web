@@ -2764,7 +2764,7 @@ a:focus,a:hover{text-decoration:none !important}
     right: 0;
     top: 0;
     bottom: 0;
-    width: 280px;
+    width: 250px;
     background: #222;
     z-index: 5;
     display: none;
@@ -2775,7 +2775,7 @@ a:focus,a:hover{text-decoration:none !important}
 .new_filter .filter-inner {
     height: 100%;
     overflow-y: scroll;
-    width: 280px;
+    width: 250px;
     position: fixed;
     padding-bottom: 10%;
 }
@@ -2896,6 +2896,77 @@ a:focus,a:hover{text-decoration:none !important}
 .new_filter .filter-group {
     margin-top: 30px;
     display: table;
+    width: 100%;
+}
+
+#filter-toggle-button {
+    background-color: transparent;
+    border: none;
+}
+
+.page-body.gray .page-container .main-content, .page-body.gray .page-container {
+    background: #fdfdfc;
+}
+
+.page-container .main-content {
+    padding: 15px;
+}
+
+.breadcrumb{
+    margin-bottom: 0;
+}
+
+.breadcrumb h3, h3{
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+.col-md-12 .btn, .col-md-12 .input-group-btn, p .btn {
+    margin-left: 2px;
+}
+
+.two-links {
+    min-height: 41px;
+}
+.two-links a, .two-links > span.last{
+    height: 40px;
+}
+.two-links > span.last {
+    padding: 10px 20px 18px;
+    cursor: pointer;
+}
+.two-links > span.last:hover {
+    background-color: #1f1f1f;
+}
+.two-links > a.last:hover i, .two-links > span.last:hover i{
+    color: #5cb85c !important;
+}
+.two-links a i, .two-links > span.last i{
+    height: 22px;
+}
+.two-links > a.first{
+    float: left;
+    width: 80%;
+}
+.two-links > a.last, .two-links > span.last{
+    float: right;
+    width: 20%;
+    padding-left: 18px !important;
+    text-align: center;
+}
+.page-container .sidebar-menu #main-menu li.has-sub > a:before {
+    content: '' !important;
+}
+.two-links > a.last:before, .two-links > span.last:before{
+    content: '' !important;
+}
+.two-links ul{
+    padding-left: 1px !important;
+}
+.page-container.sidebar-collapsed .sidebar-menu #main-menu > li > a.last, .page-container.sidebar-collapsed .sidebar-menu #main-menu > li > span.last {
+    display: none;
+}
+.page-container.sidebar-collapsed .sidebar-menu #main-menu > li > a.first {
     width: 100%;
 }
 

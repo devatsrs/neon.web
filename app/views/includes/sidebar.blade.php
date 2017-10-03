@@ -40,18 +40,33 @@
     </li>
     @endif
     @if(User::checkCategoryPermission('Leads','View'))
-    <li> <a href="{{Url::to('/leads')}}"> <i class="fa fa-building" aria-hidden="true"></i> <span>&nbsp;Leads</span> </a> </li>
+      @if(User::checkCategoryPermission('Leads','Add'))
+        <li class="two-links"> <a href="{{Url::to('/leads')}}" class="first"> <i class="fa fa-building" aria-hidden="true"></i> <span>&nbsp;Leads</span> </a> <a href="{{URL::to('leads/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
+      @else
+        <li> <a href="{{Url::to('/leads')}}"> <i class="fa fa-building" aria-hidden="true"></i> <span>&nbsp;Leads</span> </a></li>
+      @endif
     @endif
     @if( User::checkCategoryPermission('Contacts','View'))
-    <li> <a href="{{Url::to('/contacts')}}"> <i class="entypo-users"></i><span>Contacts</span></a></li>
+      @if( User::checkCategoryPermission('Contacts','Add'))
+        <li class="two-links"> <a href="{{Url::to('/contacts')}}" class="first"> <i class="entypo-users"></i><span>Contacts</span></a> <a href="{{URL::to('contacts/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
+      @else
+        <li> <a href="{{Url::to('/contacts')}}"> <i class="entypo-users"></i><span>Contacts</span></a></li>
+      @endif
     @endif
     @if( User::checkCategoryPermission('Account','View'))
-    <li> <a href="{{URL::to('/accounts')}}"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a> </li>
-    @endif  
-    
-       <!--tickets start -->    
+      @if( User::checkCategoryPermission('Account','Add'))
+        <li class="two-links"> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a> <a href="{{URL::to('accounts/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
+      @else
+        <li> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a></li>
+      @endif
+    @endif
+
+         <!--tickets start -->
     @if(Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','View'))
-    <li class="{{check_uri('tickets')}}"><a href="#"><i class="fa fa-ticket"></i><span>Ticket Management</span></a>
+    <li class="{{check_uri('tickets')}} {{ Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','Add') ? "two-links" : "" }}"><a href="#" class="first"><i class="fa fa-ticket"></i><span>Ticket Management</span></a>
+      @if(Tickets::CheckTicketLicense() && User::checkCategoryPermission('Tickets','Add'))
+        <span onclick="location.href=$(this).attr('href');" href="{{URL::to('tickets/add')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></span>
+      @endif
       <ul>
           @if(User::checkCategoryPermission('TicketDashboard','View'))
               <li> <a href="{{URL::to('/ticketdashboard')}}">  <span>Dashboard</span> </a> </li>

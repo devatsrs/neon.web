@@ -75,7 +75,7 @@
   <div class="tab-pane active">
     <div class="row">
       <div class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:70px; margin-left: 10px;"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
+        <div class="input-group-btn pull-right" style="width:70px; margin-left: 6px;"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
           <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
                                     aria-expanded="false">Action <span class="caret"></span></button>
           <ul class="dropdown-menu dropdown-menu-left" role="menu"
@@ -93,7 +93,7 @@
             @if(User::checkCategoryPermission('Invoice','Generate'))
             <li> <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;"> Regenerate </a> </li>
             @endif
-            @if(is_authorize() || is_Stripe() || is_StripeACH())
+            @if(is_PayNowInvoice())
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="pay_now create" id="pay_now" href="javascript:;"> Pay Now </a> </li>
             @endif
@@ -117,7 +117,7 @@
         </div>
 
           @if(User::checkCategoryPermission('Invoice','Generate'))
-              <div class="input-group-btn pull-right" style="width: 115px; margin-left: 10px; margin-right: 15px;">
+              <div class="input-group-btn pull-right" style="width: 115px; margin-left: 6px; margin-right: 15px;">
                   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
                   <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
@@ -127,7 +127,7 @@
               </div>
           @endif
           @if(User::checkCategoryPermission('Invoice','Add'))
-              <div class="input-group-btn pull-right" style="width: 100px; margin-left: 10px;">
+              <div class="input-group-btn pull-right" style="width: 100px; margin-left: 1px;">
                   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
                   <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff </a> </li>
@@ -157,6 +157,8 @@
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
           <th width="10%">Invoice Status</th>
+          <th width="10%">Due Date</th>
+          <th width="10%">Due Days</th>
           <th width="20%">Action</th>
         </tr>
       </thead>
@@ -179,7 +181,7 @@
             //show_loading_bar(40);
             var invoicestatus = {{$invoice_status_json}};
             var Invoice_Status_Url = "{{ URL::to('invoice/invoice_change_Status')}}";
-            var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
+            var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate',  'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
             $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
             $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
             $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ? $("#invoice_filter select[name='InvoiceStatus']").val() : '';
@@ -286,6 +288,8 @@
                         }
 
                     },  // 7 InvoiceStatus
+                    {"bSortable": true},  // 8 DueDate
+                    {"bSortable": false},  // 9 DueDays
                     {
                         "bSortable": false,
                         mRender: function (id, type, full) {

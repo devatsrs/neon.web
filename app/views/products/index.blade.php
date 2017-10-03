@@ -53,7 +53,7 @@
                 <div class="row">
                     <div  class="col-md-12">
                         @if(User::checkCategoryPermission('Products','Edit'))
-                        <div class="input-group-btn pull-right hidden dropdown" style="width:70px; margin-left: 10px;">
+                        <div class="input-group-btn pull-right hidden dropdown" style="width:70px;">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                                 @if(User::checkCategoryPermission('Products','Edit'))
@@ -76,7 +76,7 @@
 
                         @if( User::is_admin() || User::is('BillingAdmin'))
                             @if(User::checkCategoryPermission('Products','Add'))
-                                <a href="{{ URL::to('products/upload') }}" class="btn btn-primary pull-right" style="margin-left: 10px;">
+                                <a href="{{ URL::to('products/upload') }}" class="btn btn-primary pull-right" style="margin-left: 4px;">
                                     <i class="entypo-upload"></i>
                                     Upload
                                 </a>

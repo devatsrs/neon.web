@@ -6,7 +6,7 @@
             <h2 class="filter-header">
                 <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
                 <i class="fa fa-filter"></i>
-                View Rate Table Filter
+                Filter
             </h2>
             <form role="form" id="rate-table-search" action="javascript:void(0);"  method="post" class="form-horizontal form-groups-bordered validate" novalidate>
                 <div class="form-group">
@@ -66,7 +66,7 @@
 
 <div class="row">
     <div  class="col-md-12">
-        <div class="float-right" style="margin-left:10px;" >
+        <div class="float-right" >
             <a href="{{URL::to('/rate_tables')}}"  class="btn btn-primary btn-sm btn-icon icon-left" >
                 <i class="entypo-floppy"></i>
                 Back
@@ -74,10 +74,10 @@
         </div>
 
         @if(User::checkCategoryPermission('RateTables','Delete') )
-            <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left pull-right" style="margin-left:10px;" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete Selected </button>
+            <button id="clear-bulk-rate" class="btn btn-danger btn-sm btn-icon icon-left pull-right" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete Selected </button>
         @endif
         @if(User::checkCategoryPermission('RateTables','Edit') )
-            <a  id="change-bulk-rate" class="btn btn-primary btn-sm btn-icon icon-left pull-right" style="margin-left:10px;" href="javascript:;"> <i class="entypo-floppy"></i>
+            <a  id="change-bulk-rate" class="btn btn-primary btn-sm btn-icon icon-left pull-right" href="javascript:;"> <i class="entypo-floppy"></i>
                 Change Selected
             </a>
         @endif

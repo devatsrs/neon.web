@@ -1,6 +1,9 @@
 Use Ratemanagement3;
 
 INSERT INTO `tblIntegration` (`IntegrationID`, `CompanyId`, `Title`, `Slug`, `ParentID`, `MultiOption`) VALUES (21, 1, 'SagePay Direct Debit', 'sagepaydirectdebit', 4, 'N');
+INSERT INTO `tblIntegration` (`IntegrationID`, `CompanyId`, `Title`, `Slug`, `ParentID`, `MultiOption`) VALUES (22, 1, 'FideliPay', 'fidelipay', 4, 'N');
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'FIDELIPAY_WSDL_URL', 'https://usaepay.com/soap/gate/STG4PDAE/usaepay.wsdl');
+
 
 ALTER TABLE `tblAccountPaymentProfile`
 	CHANGE COLUMN `Options` `Options` TEXT NULL DEFAULT NULL COLLATE 'utf8_unicode_ci';

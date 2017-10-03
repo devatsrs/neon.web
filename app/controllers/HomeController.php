@@ -270,6 +270,7 @@ class HomeController extends BaseController {
             Auth::login($user);
             if(NeonAPI::login_by_id($user_ID)) {
                 User::setUserPermission();
+                create_site_configration_cache();
                 echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
                 return;
             } else {
