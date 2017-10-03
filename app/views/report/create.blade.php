@@ -25,7 +25,7 @@
                     @if(User::checkCategoryPermission('Report','Update') )
                     <div class="panel-options">
                             <a type="submit" id="save_report"  data-original-title="Save" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-floppy"></i></a>
-                            <a href="{{URL::to('report)}}"  data-original-title="Back" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-times"></i></a>
+                            <a href="{{URL::to('report')}}"  data-original-title="Back" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-times"></i></a>
                         @if(empty(Input::get('report')) && !empty($report))
                             <a href="{{URL::to('report/edit/'.$report->ReportID)}}?report=run"  data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-play"></i>&nbsp;</a>
                         @endif
