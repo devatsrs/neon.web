@@ -212,7 +212,7 @@ ALTER TABLE `tmp_SummaryHeader`
 	DROP COLUMN `created_at`,
 	DROP COLUMN `ServiceID`;
 
-CREATE INDEX `Unique_key` ON `tmp_SummaryHeader`(`DateID`, `CompanyID`, `AccountID`);
+CREATE INDEX `SH1_Unique_key` ON `tmp_SummaryHeader`(`DateID`, `CompanyID`, `AccountID`);
 
 ALTER TABLE `tmp_SummaryHeaderLive`
 	CHANGE COLUMN `SummaryHeaderID` `HeaderID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT FIRST,
@@ -224,7 +224,7 @@ ALTER TABLE `tmp_SummaryHeaderLive`
 	DROP COLUMN `created_at`,
 	DROP COLUMN `ServiceID`;
 
-CREATE INDEX `Unique_key` ON `tmp_SummaryHeaderLive`(`DateID`, `CompanyID`, `AccountID`);
+CREATE INDEX `SH2_Unique_key` ON `tmp_SummaryHeaderLive`(`DateID`, `CompanyID`, `AccountID`);
 
 ALTER TABLE `tmp_SummaryVendorHeader`
 	CHANGE COLUMN `SummaryVendorHeaderID` `HeaderVID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT FIRST,
@@ -237,7 +237,7 @@ ALTER TABLE `tmp_SummaryVendorHeader`
 	DROP COLUMN `created_at`,
 	DROP COLUMN `ServiceID`;
 	
-CREATE INDEX `Unique_key` ON `tmp_SummaryVendorHeader`(`DateID`, `CompanyID`, `VAccountID`);
+CREATE INDEX `SH3_Unique_key` ON `tmp_SummaryVendorHeader`(`DateID`, `CompanyID`, `VAccountID`);
 
 
 ALTER TABLE `tmp_SummaryVendorHeaderLive`
@@ -251,7 +251,7 @@ ALTER TABLE `tmp_SummaryVendorHeaderLive`
 	DROP COLUMN `created_at`,
 	DROP COLUMN `ServiceID`;
 	
-CREATE INDEX `Unique_key` ON `tmp_SummaryVendorHeaderLive`(`DateID`, `CompanyID`, `VAccountID`);
+CREATE INDEX `SH4_Unique_key` ON `tmp_SummaryVendorHeaderLive`(`DateID`, `CompanyID`, `VAccountID`);
 
 DROP INDEX `Unique_key` ON `tmp_UsageSummary`;
 
@@ -312,7 +312,7 @@ ALTER TABLE `tmp_tblVendorUsageDetailsReportLive`
   , MODIFY COLUMN `ServiceID` int(11) NULL DEFAULT '0';
 
   
-DROP PROCEDURE `fnDistinctList`;
+DROP PROCEDURE IF EXISTS `fnDistinctList`;
   
 DELIMITER |
 CREATE PROCEDURE `fnDistinctList`(
@@ -357,7 +357,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnGetUsageForSummary`;
+DROP PROCEDURE IF EXISTS `fnGetUsageForSummary`;
 
 DELIMITER |
 CREATE PROCEDURE `fnGetUsageForSummary`(
@@ -480,7 +480,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnGetVendorUsageForSummary`;
+DROP PROCEDURE IF EXISTS `fnGetVendorUsageForSummary`;
 
 DELIMITER |
 CREATE PROCEDURE `fnGetVendorUsageForSummary`(
@@ -590,7 +590,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnUpdateCustomerLink`;
+DROP PROCEDURE IF EXISTS `fnUpdateCustomerLink`;
 
 DELIMITER |
 CREATE PROCEDURE `fnUpdateCustomerLink`(
@@ -632,7 +632,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnUpdateVendorLink`;
+DROP PROCEDURE IF EXISTS `fnUpdateVendorLink`;
 
 DELIMITER |
 CREATE PROCEDURE `fnUpdateVendorLink`(
@@ -674,7 +674,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnUsageSummary`;
+DROP PROCEDURE IF EXISTS `fnUsageSummary`;
 
 DELIMITER |
 CREATE PROCEDURE `fnUsageSummary`(
@@ -884,7 +884,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnUsageSummaryDetail`;
+DROP PROCEDURE IF EXISTS `fnUsageSummaryDetail`;
 
 DELIMITER |
 CREATE PROCEDURE `fnUsageSummaryDetail`(
@@ -1022,7 +1022,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnUsageVendorSummary`;
+DROP PROCEDURE IF EXISTS `fnUsageVendorSummary`;
 
 DELIMITER |
 CREATE PROCEDURE `fnUsageVendorSummary`(
@@ -1231,7 +1231,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnUsageVendorSummaryDetail`;
+DROP PROCEDURE IF EXISTS `fnUsageVendorSummaryDetail`;
 
 DELIMITER |
 CREATE PROCEDURE `fnUsageVendorSummaryDetail`(
@@ -1369,7 +1369,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_generateSummary`;
+DROP PROCEDURE IF EXISTS `prc_generateSummary`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_generateSummary`(
@@ -1603,7 +1603,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_generateSummaryLive`;
+DROP PROCEDURE IF EXISTS `prc_generateSummaryLive`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_generateSummaryLive`(
@@ -1820,7 +1820,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_generateVendorSummary`;
+DROP PROCEDURE IF EXISTS `prc_generateVendorSummary`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_generateVendorSummary`(
@@ -2057,7 +2057,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_generateVendorSummaryLive`;
+DROP PROCEDURE IF EXISTS `prc_generateVendorSummaryLive`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_generateVendorSummaryLive`(
@@ -2276,7 +2276,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_getAccountExpense`;
+DROP PROCEDURE IF EXISTS `prc_getAccountExpense`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_getAccountExpense`(
@@ -2486,7 +2486,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_getDashboardPayableReceivable`;
+DROP PROCEDURE IF EXISTS `prc_getDashboardPayableReceivable`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_getDashboardPayableReceivable`(
@@ -2788,7 +2788,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_getDistinctList`;
+DROP PROCEDURE IF EXISTS `prc_getDistinctList`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_getDistinctList`(
@@ -3135,7 +3135,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_getUnbilledReport`;
+DROP PROCEDURE IF EXISTS `prc_getUnbilledReport`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_getUnbilledReport`(
@@ -3194,7 +3194,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_getVendorUnbilledReport`;
+DROP PROCEDURE IF EXISTS `prc_getVendorUnbilledReport`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_getVendorUnbilledReport`(
@@ -3253,7 +3253,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_updateLiveTables`;
+DROP PROCEDURE IF EXISTS `prc_updateLiveTables`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_updateLiveTables`(
@@ -5110,10 +5110,10 @@ SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
   RENAME TABLE `tblUsageSummaryLive` TO `tblUsageSummaryLive_delete`;
   
   RENAME TABLE `tblUsageSummary` TO `tblUsageSummary_delete`;
-  RENAME TABLE `tblUsageSummaryDetail` TO `tblUsageSummaryDetail`;
+  RENAME TABLE `tblUsageSummaryDetail` TO `tblUsageSummaryDetail_delete`;
   
   RENAME TABLE `tblUsageVendorSummary` TO `tblUsageVendorSummary_delete`;
-  RENAME TABLE `tblUsageVendorSummaryDetail` TO `tblUsageVendorSummaryDetail`;  
+  RENAME TABLE `tblUsageVendorSummaryDetail` TO `tblUsageVendorSummaryDetail_delete`;  
 
   RENAME TABLE `tblUsageVendorSummaryLive` TO `tblUsageVendorSummaryLive_delete`;
   RENAME TABLE `tblUsageVendorSummaryDetailLive` TO `tblUsageVendorSummaryDetailLive_delete`;
