@@ -1,4 +1,9 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_invoice_in_reconcile`(IN `p_CompanyID` INT, IN `p_AccountID` INT, IN `StartTime` DATETIME, IN `EndTime` DATETIME)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_invoice_in_reconcile`(
+	IN `p_CompanyID` INT,
+	IN `p_AccountID` INT,
+	IN `StartTime` DATETIME,
+	IN `EndTime` DATETIME
+)
 BEGIN
 
 

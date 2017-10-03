@@ -52,4 +52,12 @@ class GatewayAccount extends \Eloquent {
         }
         return $row;
     }
+
+    public static function getAccountIPList($CompanyID){
+        return GatewayAccount::where(array('CompanyID' => $CompanyID))->lists('AccountIP', 'GatewayAccountPKID');
+    }
+
+    public static function getAccountCLIList($CompanyID){
+        return GatewayAccount::where(array('CompanyID' => $CompanyID))->lists('AccountCLI', 'GatewayAccountPKID');
+    }
 }

@@ -1278,7 +1278,17 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/get_mor_updates', 'NoticeBoardController@get_mor_updates');
 	Route::any('/save_post', 'NoticeBoardController@store');
 	Route::any('/delete_post/{id}', 'NoticeBoardController@delete');
-
+	
+	// report
+    Route::any('/report','ReportController@index');
+    Route::any('/report/ajax_datagrid/{type}','ReportController@ajax_datagrid');
+    Route::any('/report/create','ReportController@create');
+    Route::any('/report/edit/{id}','ReportController@edit');
+    Route::any('/report/store','ReportController@report_store');
+    Route::any('/report/update/{id}','ReportController@report_update');
+    Route::any('/report/delete/{id}','ReportController@report_delete');
+    Route::any('/report/getdatagrid','ReportController@getdatagrid');
+    Route::any('/report/getdatalist','ReportController@getdatalist');
 
 	//RateCompare
 	Route::any('/rate_compare', 'RateCompareController@index');
