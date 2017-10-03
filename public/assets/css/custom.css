@@ -2924,6 +2924,23 @@ a:focus,a:hover{text-decoration:none !important}
 .col-md-12 .btn, .col-md-12 .input-group-btn, p .btn {
     margin-left: 2px;
 }
+.action-buttons .input-group-btn {
+    width: 100%;
+}
+.action-buttons .input-group-btn ul.dropdown-menu {
+    right: 0;
+    left: auto;
+}
+@-moz-document url-prefix() {
+    .action-buttons .input-group-btn a {
+        margin-right: 0 !important;
+    }
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    .action-buttons .input-group-btn a {
+        margin-right: 1px !important;
+    }
+}
 
 .two-links {
     min-height: 41px;
