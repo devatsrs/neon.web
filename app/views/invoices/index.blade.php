@@ -187,7 +187,7 @@
             //show_loading_bar(40);
             var invoicestatus = {{$invoice_status_json}};
             var Invoice_Status_Url = "{{ URL::to('invoice/invoice_change_Status')}}";
-            var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate',  'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
+            var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate', 'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
             $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
             $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
             $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ? $("#invoice_filter select[name='InvoiceStatus']").val() : '';
@@ -254,11 +254,11 @@
                         mRender: function (id, type, full) {
                             var output, account_url;
                             output = '<a href="{url}" target="_blank" >{account_name}';
-                            if (full[14] == '') {
+                            if (full[16] == '') {
                                 output += '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
                             }
                             output += '</a>';
-                            account_url = baseurl + "/accounts/" + full[11] + "/show";
+                            account_url = baseurl + "/accounts/" + full[13] + "/show";
                             output = output.replace("{url}", account_url);
                             output = output.replace("{account_name}", id);
                             return output;
@@ -273,7 +273,7 @@
                             var output, account_url;
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                 output = '<a href="{url}" target="_blank"> ' + id + '</a>';
-                                account_url = baseurl + "/invoice/" + full[8] + "/invoice_preview";
+                                account_url = baseurl + "/invoice/" + full[10] + "/invoice_preview";
                                 output = output.replace("{url}", account_url);
                                 output = output.replace("{account_name}", id);
                             } else {
@@ -310,7 +310,7 @@
                         "bSortable": false,
                         mRender: function (id, type, full) {
                             var action, edit_, show_, delete_, view_url, edit_url, download_url, invoice_preview, invoice_log;
-                            id = full[8];
+                            id = full[10];
                             action = '<div class = "hiddenRowData" >';
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                 edit_url = (baseurl + "/invoice/{id}/edit").replace("{id}", id);
@@ -335,7 +335,7 @@
                                     //action += ' <li><a class="view-invoice-in icon-left"><i class="entypo-pencil"></i>Print </a></li>';
                                     action += '</ul>';
                                     action += '</div>';
-                                    if (full[10]) {
+                                    if (full[12]) {
                                         action += ' <a class="btn btn-success btn-sm btn-icon icon-left download" href="' + (baseurl + "/invoice/download_atatchment/{id}").replace("{id}", id) + '"><i class="entypo-down"></i>Download</a>'
                                     }
                                 }
@@ -344,7 +344,7 @@
                                 action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                                 action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
-                                if (full[13] == '{{Invoice::ITEM_INVOICE}}') {
+                                if (full[15] == '{{Invoice::ITEM_INVOICE}}') {
                                     if ('{{User::checkCategoryPermission('Invoice','Edit')}}') {
                                         action += ' <li><a class="icon-left"  href="' + (baseurl + "/invoice/{id}/edit").replace("{id}", id) + '"><i class="entypo-pencil"></i>Edit </a></li>';
                                     }
