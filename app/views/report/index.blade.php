@@ -101,7 +101,7 @@
                             @endif
 
                             @if(User::checkCategoryPermission('Report','Update'))
-                                action += ' <a href="' + report_edit_url.replace("{id}", id) + '?report=run" class="btn btn-default btn-sm tooltip-primary" data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i>&nbsp;</a>';
+                                action += ' <a href="' + report_edit_url.replace("{id}", id) + '?report=run" class="btn btn-default btn-sm tooltip-primary" data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-play"></i>&nbsp;</a>';
                             @endif
                                     @if(User::checkCategoryPermission('Report','Delete'))
                             if(full[2] == 0) {
