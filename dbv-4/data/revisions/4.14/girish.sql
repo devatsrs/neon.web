@@ -1,3 +1,5 @@
+USE `StagingReport`;
+
 DROP PROCEDURE IF EXISTS `prc_getDailyReport`;
 DELIMITER |
 CREATE PROCEDURE `prc_getDailyReport`(

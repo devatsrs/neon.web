@@ -1,3 +1,5 @@
+USE `StagingReport`;
+
 CREATE TABLE `tblRRate` (
   `RRateID` int(11) NOT NULL auto_increment,
   `CountryID` int(11) NULL,
@@ -5061,3 +5063,64 @@ BEGIN
 
 END|
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `report_mig`;
+DELIMITER |
+CREATE PROCEDURE `report_mig`()
+BEGIN
+
+SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+  INSERT INTO tblUsageSummaryDay (HeaderID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,GatewayAccountPKID)
+	SELECT 
+    HeaderID,tblUsageSummary.TotalCharges,tblUsageSummary.TotalBilledDuration,tblUsageSummary.TotalDuration,tblUsageSummary.NoOfCalls,tblUsageSummary.NoOfFailCalls,tblSummaryHeader.CompanyGatewayID,tblSummaryHeader.ServiceID,Trunk,AreaPrefix,CountryID,GatewayAccountPKID
+  FROM tblUsageSummary 
+  INNER JOIN tblSummaryHeader ON tblSummaryHeader.SummaryHeaderID = tblUsageSummary.SummaryHeaderID
+  INNER JOIN tblHeader ON tblHeader.DateID = tblSummaryHeader.DateID and tblHeader.CompanyID = tblSummaryHeader.CompanyID AND tblHeader.AccountID = tblSummaryHeader.AccountID
+  LEFT JOIN RMBilling3.tblGatewayAccount ON tblGatewayAccount.GatewayAccountID = tblSummaryHeader.GatewayAccountID AND tblGatewayAccount.CompanyGatewayID = tblSummaryHeader.CompanyGatewayID;
+  
+  INSERT INTO tblVendorSummaryDay (HeaderVID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,GatewayAccountPKID)
+	SELECT 
+    HeaderVID,tblUsageVendorSummary.TotalCharges,tblUsageVendorSummary.TotalSales,tblUsageVendorSummary.TotalBilledDuration,tblUsageVendorSummary.TotalDuration,tblUsageVendorSummary.NoOfCalls,tblUsageVendorSummary.NoOfFailCalls,tblSummaryVendorHeader.CompanyGatewayID,tblSummaryVendorHeader.ServiceID,Trunk,AreaPrefix,CountryID,GatewayAccountPKID
+  FROM tblUsageVendorSummary 
+  INNER JOIN tblSummaryVendorHeader ON tblSummaryVendorHeader.SummaryVendorHeaderID = tblUsageVendorSummary.SummaryVendorHeaderID
+  INNER JOIN tblHeaderV ON tblHeaderV.DateID = tblSummaryVendorHeader.DateID and tblHeaderV.CompanyID = tblSummaryVendorHeader.CompanyID AND tblHeaderV.VAccountID = tblSummaryVendorHeader.AccountID
+  LEFT JOIN RMBilling3.tblGatewayAccount ON tblGatewayAccount.GatewayAccountID = tblSummaryVendorHeader.GatewayAccountID AND tblGatewayAccount.CompanyGatewayID = tblSummaryVendorHeader.CompanyGatewayID;
+
+	INSERT INTO tblUsageSummaryHour (HeaderID,TimeID,TotalCharges,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,GatewayAccountPKID)
+	SELECT 
+    HeaderID,TimeID,tblUsageSummaryDetail.TotalCharges,tblUsageSummaryDetail.TotalBilledDuration,tblUsageSummaryDetail.TotalDuration,tblUsageSummaryDetail.NoOfCalls,tblUsageSummaryDetail.NoOfFailCalls,tblSummaryHeader.CompanyGatewayID,tblSummaryHeader.ServiceID,Trunk,AreaPrefix,CountryID,GatewayAccountPKID
+  FROM tblUsageSummaryDetail 
+  INNER JOIN tblSummaryHeader ON tblSummaryHeader.SummaryHeaderID = tblUsageSummaryDetail.SummaryHeaderID
+  INNER JOIN tblHeader ON tblHeader.DateID = tblSummaryHeader.DateID and tblHeader.CompanyID = tblSummaryHeader.CompanyID AND tblHeader.AccountID = tblSummaryHeader.AccountID
+  LEFT JOIN RMBilling3.tblGatewayAccount ON tblGatewayAccount.GatewayAccountID = tblSummaryHeader.GatewayAccountID AND tblGatewayAccount.CompanyGatewayID = tblSummaryHeader.CompanyGatewayID;
+  
+  INSERT INTO tblVendorSummaryHour (HeaderVID,TimeID,TotalCharges,TotalSales,TotalBilledDuration,TotalDuration,NoOfCalls,NoOfFailCalls,CompanyGatewayID,ServiceID,Trunk,AreaPrefix,CountryID,GatewayAccountPKID)
+  SELECT 
+    HeaderVID,TimeID,tblUsageVendorSummaryDetail.TotalCharges,tblUsageVendorSummaryDetail.TotalSales,tblUsageVendorSummaryDetail.TotalBilledDuration,tblUsageVendorSummaryDetail.TotalDuration,tblUsageVendorSummaryDetail.NoOfCalls,tblUsageVendorSummaryDetail.NoOfFailCalls,tblSummaryVendorHeader.CompanyGatewayID,tblSummaryVendorHeader.ServiceID,Trunk,AreaPrefix,CountryID,GatewayAccountPKID
+  FROM tblUsageVendorSummaryDetail 
+  INNER JOIN tblSummaryVendorHeader ON tblSummaryVendorHeader.SummaryVendorHeaderID = tblUsageVendorSummaryDetail.SummaryVendorHeaderID
+  INNER JOIN tblHeaderV ON tblHeaderV.DateID = tblSummaryVendorHeader.DateID and tblHeaderV.CompanyID = tblSummaryVendorHeader.CompanyID AND tblHeaderV.VAccountID = tblSummaryVendorHeader.AccountID
+  LEFT JOIN RMBilling3.tblGatewayAccount ON tblGatewayAccount.GatewayAccountID = tblSummaryVendorHeader.GatewayAccountID AND tblGatewayAccount.CompanyGatewayID = tblSummaryVendorHeader.CompanyGatewayID;
+  
+  
+  RENAME TABLE `tblSummaryHeader` TO `tblSummaryHeader_delete`;
+  RENAME TABLE `tblSummaryVendorHeader` TO `tblSummaryVendorHeader_delete`;
+  
+  RENAME TABLE `tblUsageSummaryDetailLive` TO `tblUsageSummaryDetailLive_delete`;  
+  RENAME TABLE `tblUsageSummaryLive` TO `tblUsageSummaryLive_delete`;
+  
+  RENAME TABLE `tblUsageSummary` TO `tblUsageSummary_delete`;
+  RENAME TABLE `tblUsageSummaryDetail` TO `tblUsageSummaryDetail`;
+  
+  RENAME TABLE `tblUsageVendorSummary` TO `tblUsageVendorSummary_delete`;
+  RENAME TABLE `tblUsageVendorSummaryDetail` TO `tblUsageVendorSummaryDetail`;  
+
+  RENAME TABLE `tblUsageVendorSummaryLive` TO `tblUsageVendorSummaryLive_delete`;
+  RENAME TABLE `tblUsageVendorSummaryDetailLive` TO `tblUsageVendorSummaryDetailLive_delete`;
+  
+
+END|
+DELIMITER ;
+
+
+CALL report_mig();
