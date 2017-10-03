@@ -22,10 +22,10 @@
                 <!-- panel head -->
                 <div class="panel-heading">
                     <div class="panel-title">{{Input::get('report')=='run'?'<strong>'.$report->Name.'</strong>':'Report'}}</div>
-                    @if(User::checkCategoryPermission('Report','Update') && !empty($report))
+                    @if(User::checkCategoryPermission('Report','Update') )
                     <div class="panel-options">
                             <a type="submit" id="save_report"  data-original-title="Save" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-floppy"></i></a>
-                        @if(empty(Input::get('report')))
+                        @if(empty(Input::get('report')) && !empty($report))
                             <a href="{{URL::to('report/edit'.$report->ReportID)}}?report=run"  data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i>&nbsp;</a>
                         @endif
                     </div>
