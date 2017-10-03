@@ -168,6 +168,26 @@ BEGIN
 
 	END IF;
 	
+	IF p_ColName = 'Code'
+	THEN
+
+		SELECT 
+			DISTINCT
+			ProductID as ProductID,
+			Code
+		FROM NeonBillingDev.tblProduct
+		WHERE CompanyID = p_CompanyID
+		AND Code LIKE CONCAT(p_Search,'%')
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+		
+		SELECT
+			COUNT(*) AS totalcount
+		FROM NeonBillingDev.tblProduct
+		WHERE CompanyID = p_CompanyID
+		AND Code LIKE CONCAT(p_Search,'%');
+
+	END IF;
+	
 	IF p_ColName = 'AreaPrefix'
 	THEN
 
