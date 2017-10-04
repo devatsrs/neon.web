@@ -22,16 +22,7 @@
                 Filter
             </h2>
             <form id="report_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
-                <div class="panel panel-primary" data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Filter
-                        </div>
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
+ 
                         <div class="form-group">
                             <label for="field-1" class="control-label">Name</label>
                             <input class="form-control" name="Name" type="text" >
@@ -44,8 +35,7 @@
                             </button>
                         </div>
 
-                    </div>
-                </div>
+
             </form>
 
         </div>
@@ -78,7 +68,7 @@
         var report_datagrid_url = baseurl + "/report/ajax_datagrid/type";
         jQuery(document).ready(function ($) {
             $('#filter-button-toggle').show();
-            
+
             data_table_char = $("#table-4").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
