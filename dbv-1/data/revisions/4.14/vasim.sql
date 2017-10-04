@@ -32,7 +32,7 @@ INSERT INTO `tblGatewayConfig` (`GatewayID`, `Title`, `Name`, `Status`, `Created
 UPDATE `tblCronJobCommand` SET `GatewayID`=NULL WHERE Command='vendorratefileexport' AND `GatewayID`=10;
 UPDATE `tblCronJobCommand` SET `GatewayID`=NULL WHERE Command='customerratefileexport' AND `GatewayID`=10;
 
-
+UPDATE `tblGlobalAdmin` SET `EmailAddress`='globaladmin@neon-soft.com' , `password`='$2y$10$2sqYQFuptjEC5sD2eIi.l.YhByUmd8AATV/Qly8AofkaJpddBAojq' WHERE `GlobalAdminID`=1;
 
 
 DROP PROCEDURE IF EXISTS `prc_getAccountAuditExportLog`;
