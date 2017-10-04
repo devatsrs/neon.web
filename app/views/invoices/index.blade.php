@@ -241,7 +241,7 @@
                                 invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Received"><i class="entypo-right-bold"></i>RCV</a>';
                             }
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
-                                action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="' + full[8] + '" name="InvoiceID[]"></div>';
+                                action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="' + full[10] + '" name="InvoiceID[]"></div>';
                             }
                             action += invoiceType;
                             return action;
