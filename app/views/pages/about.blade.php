@@ -13,14 +13,48 @@
 </ol>
 
 <div class="jumbotron">
-    <h1>NEON - 4.13</h1>
+    <h1>NEON - 4.14</h1>
 
 
     <p>
         <br />
-    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.13</strong></div>
+    <div class="btn btn-primary btn-lg">Current Version: <strong>v4.14</strong></div>
 </p>
 </div>
+
+<h2>
+    <span class="label label-success">4.14</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>05-10-2017</h4>
+                    01. Added Integration with SagePay Direct Debit(.co.za).<br>
+                    02. Added Integration with FideliPay.<br>
+                    03. Added Rate Analysis option under Rate Management.<br>
+                    04. Added option to Setup rules by description in Rate Generator.<br>
+                    05. Fixed issues in Ticket section.<br>
+                    06. Added Group By option in Rate Table.<br>
+                    07. Added Account Log.<br>
+                    08. Added option to delete or Edit roles.<br>
+                    09. Redesigned Filter Section <br>
+                    10. Added option to Bulk Download Invoices.<br>
+                    11. Added option to Skip no of header and Footer lines when uploading files.<br>
+                    12. Added Bulk Pickup option under Ticket.<br>
+                    13. Added option to Auto Add IP against Accounts if information is provided in CDRs also added Notification for Auto Add IP. <br>
+                    14. Added Integration with Fusion PBX.<br>
+                    15. Added Report module. Drag and Drop and create reports.<br>
+                    16. Added option under Company to setup your Customer Rate Sheet Templates.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
 
 <h2>
     <span class="label label-success">4.13</span> &nbsp; Version Highlights
