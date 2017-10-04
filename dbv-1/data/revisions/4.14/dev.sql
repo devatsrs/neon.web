@@ -2924,8 +2924,9 @@ CREATE PROCEDURE `prc_CheckTicketsSlaVoilation`(
 			WHERE
 				T.CompanyID = p_CompanyID
 				AND TST.PriorityID = T.Priority
+				AND T.Group > 0
 				AND (P_Status = '' OR find_in_set(T.`Status`,P_Status))
-				AND ( ( AgentRepliedDate is NULL AND T.RespondSlaPolicyVoilationEmailStatus = 0 ) OR  ( find_in_set(T.`Status`,v_ClosedResolvedStatus) > 0 AND  T.ResolveSlaPolicyVoilationEmailStatus = 0 ) )
+				AND ( ( AgentRepliedDate is NULL AND T.RespondSlaPolicyVoilationEmailStatus = 0 ) OR  ( find_in_set(T.`Status`,v_ClosedResolvedStatus) = 0 AND  T.ResolveSlaPolicyVoilationEmailStatus = 0 ) )
 				AND T.TicketSlaID>0;
 
 

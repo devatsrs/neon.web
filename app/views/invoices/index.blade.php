@@ -74,8 +74,36 @@
 <div class="tab-content">
   <div class="tab-pane active">
     <div class="row">
-      <div class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:70px; margin-left: 6px;"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
+      <div class="col-md-12 action-buttons">
+
+          @if(User::checkCategoryPermission('RecurringProfile','View'))
+              <div class="input-group-btn">
+                  <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </a>
+              </div>
+          @endif
+
+          @if(User::checkCategoryPermission('Invoice','Add'))
+              <div class="input-group-btn">
+                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                      <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff </a> </li>
+                      <li> <a id="invoice-in" href="javascript:;"> Received</a> </li>
+                  </ul>
+              </div>
+          @endif
+
+          @if(User::checkCategoryPermission('Invoice','Generate'))
+              <div class="input-group-btn">
+                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                      <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
+                      <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li>
+
+                  </ul>
+              </div>
+          @endif
+
+        <div class="input-group-btn"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
           <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
                                     aria-expanded="false">Action <span class="caret"></span></button>
           <ul class="dropdown-menu dropdown-menu-left" role="menu"
@@ -116,28 +144,6 @@
           </form>
         </div>
 
-          @if(User::checkCategoryPermission('Invoice','Generate'))
-              <div class="input-group-btn pull-right" style="width: 115px; margin-left: 6px; margin-right: 15px;">
-                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
-                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                      <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
-                      <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li>
-
-                  </ul>
-              </div>
-          @endif
-          @if(User::checkCategoryPermission('Invoice','Add'))
-              <div class="input-group-btn pull-right" style="width: 100px; margin-left: 1px;">
-                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
-                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                      <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff </a> </li>
-                      <li> <a id="invoice-in" href="javascript:;"> Received</a> </li>
-                  </ul>
-              </div>
-          @endif
-          @if(User::checkCategoryPermission('RecurringProfile','View'))
-              <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </a>
-          @endif
         <!-- /btn-group -->
         <div class="clear"><br>
         </div>
@@ -150,15 +156,15 @@
               <input type="checkbox" id="selectall" name="checkbox[]" class=""/>
             </div>
           </th>
-          <th width="15%">Account Name</th>
+          <th width="15%">Account</th>
           <th width="10%">Invoice Number</th>
           <th width="10%">Issue Date</th>
-          <th width="13%">Invoice Period</th>
+          <th width="13%">Period</th>
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
-          <th width="10%">Invoice Status</th>
+          <th width="10%">Status</th>
           <th width="10%">Due Date</th>
-          <th width="10%">Due Days</th>
+          {{--<th width="10%">Due Days</th>--}}
           <th width="20%">Action</th>
         </tr>
       </thead>
@@ -181,7 +187,7 @@
             //show_loading_bar(40);
             var invoicestatus = {{$invoice_status_json}};
             var Invoice_Status_Url = "{{ URL::to('invoice/invoice_change_Status')}}";
-            var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate',  'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
+            var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate', 'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
             $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
             $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
             $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ? $("#invoice_filter select[name='InvoiceStatus']").val() : '';
@@ -248,11 +254,11 @@
                         mRender: function (id, type, full) {
                             var output, account_url;
                             output = '<a href="{url}" target="_blank" >{account_name}';
-                            if (full[14] == '') {
+                            if (full[16] == '') {
                                 output += '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
                             }
                             output += '</a>';
-                            account_url = baseurl + "/accounts/" + full[11] + "/show";
+                            account_url = baseurl + "/accounts/" + full[13] + "/show";
                             output = output.replace("{url}", account_url);
                             output = output.replace("{account_name}", id);
                             return output;
@@ -267,7 +273,7 @@
                             var output, account_url;
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                 output = '<a href="{url}" target="_blank"> ' + id + '</a>';
-                                account_url = baseurl + "/invoice/" + full[8] + "/invoice_preview";
+                                account_url = baseurl + "/invoice/" + full[10] + "/invoice_preview";
                                 output = output.replace("{url}", account_url);
                                 output = output.replace("{account_name}", id);
                             } else {
@@ -288,13 +294,23 @@
                         }
 
                     },  // 7 InvoiceStatus
-                    {"bSortable": true},  // 8 DueDate
-                    {"bSortable": false},  // 9 DueDays
+                    {
+                        "bSortable": true,
+                        mRender: function (id, type, full) {
+                            var output;
+                            if(full[9] != '' && full[9] != null)
+                                output = full[8] + '<br/> <span style="color:red">(' + full[9] + ' Days)</span>';
+                            else
+                                output = full[8];
+                            return output;
+                        }
+                    },  // 8 DueDate and DueDays
+                    //{"bSortable": false},  // 9 DueDays
                     {
                         "bSortable": false,
                         mRender: function (id, type, full) {
                             var action, edit_, show_, delete_, view_url, edit_url, download_url, invoice_preview, invoice_log;
-                            id = full[8];
+                            id = full[10];
                             action = '<div class = "hiddenRowData" >';
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                 edit_url = (baseurl + "/invoice/{id}/edit").replace("{id}", id);
@@ -319,7 +335,7 @@
                                     //action += ' <li><a class="view-invoice-in icon-left"><i class="entypo-pencil"></i>Print </a></li>';
                                     action += '</ul>';
                                     action += '</div>';
-                                    if (full[10]) {
+                                    if (full[12]) {
                                         action += ' <a class="btn btn-success btn-sm btn-icon icon-left download" href="' + (baseurl + "/invoice/download_atatchment/{id}").replace("{id}", id) + '"><i class="entypo-down"></i>Download</a>'
                                     }
                                 }
@@ -328,7 +344,7 @@
                                 action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                                 action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
-                                if (full[13] == '{{Invoice::ITEM_INVOICE}}') {
+                                if (full[15] == '{{Invoice::ITEM_INVOICE}}') {
                                     if ('{{User::checkCategoryPermission('Invoice','Edit')}}') {
                                         action += ' <li><a class="icon-left"  href="' + (baseurl + "/invoice/{id}/edit").replace("{id}", id) + '"><i class="entypo-pencil"></i>Edit </a></li>';
                                     }

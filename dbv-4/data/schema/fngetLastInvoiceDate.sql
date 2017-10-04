@@ -17,8 +17,8 @@ BEGIN
 			END 
 		END
 		INTO v_LastInvoiceDate_ 
-	FROM NeonRM.tblAccount
-	LEFT JOIN NeonRM.tblAccountBilling 
+	FROM NeonRMDev.tblAccount
+	LEFT JOIN NeonRMDev.tblAccountBilling 
 		ON tblAccountBilling.AccountID = tblAccount.AccountID AND tblAccountBilling.ServiceID = 0
 	WHERE tblAccount.AccountID = p_AccountID
 	LIMIT 1;

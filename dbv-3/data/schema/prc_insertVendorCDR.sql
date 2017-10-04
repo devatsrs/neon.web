@@ -1,10 +1,12 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_insertVendorCDR`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertVendorCDR`(
 	IN `p_processId` VARCHAR(200),
 	IN `p_tbltempusagedetail_name` VARCHAR(50)
 )
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+	SET SESSION innodb_lock_wait_timeout = 180;
 
 	SET @stm2 = CONCAT('
 	INSERT INTO   tblVendorCDRHeader (CompanyID,CompanyGatewayID,GatewayAccountPKID,GatewayAccountID,AccountID,StartDate,created_at,ServiceID)

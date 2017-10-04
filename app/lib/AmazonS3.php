@@ -146,10 +146,8 @@ class AmazonS3 {
         try {
             $resource = fopen($file, 'r');
             $s3->upload($bucket, $dir.basename($file), $resource, 'public-read');
-//            @unlink($file); // check first file in local
-
-
-                return true;
+            @unlink($file); // delete from local
+            return true;
         } catch (S3Exception $e) {
             return false ; //"There was an error uploading the file.\n";
         }
