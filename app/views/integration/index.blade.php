@@ -212,7 +212,13 @@
 			  if(File::exists(public_path().'/assets/images/'.$subcategoriesData['Slug'].'.png')){	?>
                 <img class="integrationimage" src="<?php  URL::to('/'); ?>assets/images/{{$subcategoriesData['Slug']}}.png" />
                 <?php } ?>
-                <a><b>{{$subcategoriesData['Title']}}</b></a>
+                <a><b>
+                    @if($subcategoriesData['Title']=='SagePay Direct Debit')
+                        Direct Debit
+                    @else
+                        {{$subcategoriesData['Title']}}
+                    @endif
+                </b></a>
               </label>
             </div>
             <?php 
