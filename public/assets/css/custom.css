@@ -2910,6 +2910,7 @@ a:focus,a:hover{text-decoration:none !important}
 
 .page-container .main-content {
     padding: 15px;
+    overflow-x: hidden;
 }
 
 .breadcrumb{
