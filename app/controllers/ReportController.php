@@ -67,6 +67,10 @@ class ReportController extends \BaseController {
         $reports = Report::
         select('Name','ReportID','Type')
             ->where("CompanyID", $CompanyID);
+        $data = Input::all();
+        if(trim($data['Name']) != '') {
+            $reports->where('Name', 'like','%'.trim($data['Name']).'%');
+        }
 
         return Datatables::of($reports)->make();
     }
