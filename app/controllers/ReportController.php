@@ -61,12 +61,29 @@ class ReportController extends \BaseController {
         $response =  NeonAPI::request('report/update/'.$id,$postdata,'put',false,false);
         return json_response_api($response);
     }
-    public function ajax_datagrid() {
+    public function ajax_datagrid($type) {
 
         $CompanyID = User::get_companyID();
         $reports = Report::
         select('Name','ReportID','Type')
             ->where("CompanyID", $CompanyID);
+        $data = Input::all();
+        if(trim($data['Name']) != '') {
+            $reports->where('Name', 'like','%'.trim($data['Name']).'%');
+        }
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = $reports->get();
+            $excel_data = json_decode(json_encode($excel_data),true);
+            if($type=='csv'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Reports.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Reports.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
 
         return Datatables::of($reports)->make();
     }
