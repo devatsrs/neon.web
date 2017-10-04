@@ -239,7 +239,7 @@ class AccountsController extends \BaseController {
             Account::$rules['AccountName'] = 'required|unique:tblAccount,AccountName,NULL,CompanyID,CompanyID,' . $data['CompanyID'].',AccountType,1';
             Account::$rules['Number'] = 'required|unique:tblAccount,Number,NULL,CompanyID,CompanyID,' . $data['CompanyID'];
 
-            if($data['IsVendor'] == 1) {
+            if(DynamicFields::where(['CompanyID' => $companyID, 'Type' => 'account', 'FieldSlug' => 'vendorname', 'Status' => 1])->count() > 0 && $data['IsVendor'] == 1) {
                 Account::$rules['vendorname'] = 'required';
                 Account::$messages['vendorname.required'] = 'The Vendor Name field is required.';
             }
