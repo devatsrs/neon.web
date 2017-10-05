@@ -158,7 +158,7 @@
         @if(User::checkCategoryPermission('BillingDashboard','All'))
           <li> <a href="{{Url::to('/billingdashboard')}}"><span>Analysis</span> </a> </li>
         @endif
-        @if(User::checkCategoryPermission('Invoice','View'))
+        @if(User::checkCategoryPermission('Estimate','View'))
         <li> <a href="{{URL::to('/estimates')}}">  <span>Estimates</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('Invoice','View'))
