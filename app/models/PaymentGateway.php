@@ -8,7 +8,15 @@ class PaymentGateway extends \Eloquent {
     const  AuthorizeNet	= 	1;
     const  Stripe		=	2;
     const  StripeACH	=	3;
-    public static $paymentgateway_name = array(''=>'' ,self::AuthorizeNet => 'AuthorizeNet',self::Stripe=>'Stripe',self::StripeACH=>'StripeACH');
+    const  SagePayDirectDebit	=	4;
+    const  FideliPay	=	5;
+    public static $paymentgateway_name = array(''=>'' ,
+        self::AuthorizeNet => 'AuthorizeNet',
+        self::Stripe=>'Stripe',
+        self::StripeACH=>'StripeACH',
+        self::SagePayDirectDebit=>'SagePayDirectDebit',
+        self::FideliPay=>'FideliPay'
+    );
 
     public static function getName($PaymentGatewayID)
     {
@@ -17,6 +25,7 @@ class PaymentGateway extends \Eloquent {
         //return PaymentGateway::where(array('PaymentGatewayID' => $PaymentGatewayID))->pluck('Title');
     }
 
+    // not using
     public static function addTransaction($PaymentGateway,$amount,$options,$account,$AccountPaymentProfileID,$CreatedBy)
     {
         switch($PaymentGateway) {
@@ -194,5 +203,12 @@ class PaymentGateway extends \Eloquent {
             $PaymentGatewayName = $Account->PaymentMethod;
         }
         return $PaymentGatewayName;
+    }
+
+    public static function getPaymentGatewayClass($PaymentGatewayID){
+        if($PaymentGatewayID=='2'){
+            return 'StripeBilling';
+        }
+        return PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
     }
 }

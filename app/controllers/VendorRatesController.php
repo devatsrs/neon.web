@@ -611,6 +611,10 @@ class VendorRatesController extends \BaseController
     function ajaxfilegrid(){
         try {
             $data = Input::all();
+            $data['Delimiter'] = $data['option']['Delimiter'];
+            $data['Enclosure'] = $data['option']['Enclosure'];
+            $data['Escape'] = $data['option']['Escape'];
+            $data['Firstrow'] = $data['option']['Firstrow'];
             $file_name = $data['TempFileName'];
             $grid = getFileContent($file_name, $data);
             $grid['filename'] = $data['TemplateFile'];

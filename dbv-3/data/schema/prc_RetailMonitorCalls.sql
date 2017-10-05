@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_RetailMonitorCalls`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_RetailMonitorCalls`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
 	IN `p_StartDate` DATETIME,

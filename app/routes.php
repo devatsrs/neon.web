@@ -11,7 +11,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/invoice_expense_total', 'DashboardCustomerController@invoice_expense_total');
 	Route::any('customer/subscriptions', 'DashboardCustomerController@subscriptions');	
 	Route::any('customer/subscription/ajax_datagrid', 'DashboardCustomerController@subscriptions_ajax_datagrid');	
-    Route::any('customer/getoutstandingamount', 'ProfileController@get_outstanding_amount');
+    Route::any('customer/getoutstandingamount/{id}', 'ProfileController@get_outstanding_amount');
     Route::any('customer/invoice_expense_total_widget', 'DashboardCustomerController@invoice_expense_total_widget');
 	Route::any('customer/daily_report', 'DashboardCustomerController@daily_report');
 	Route::any('customer/daily_report/ajax_datagrid/{type}', 'DashboardCustomerController@daily_report_ajax_datagrid');
@@ -21,7 +21,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/invoice/ajax_datagrid/{type}', 'InvoicesCustomerController@ajax_datagrid');
     //Route::any('customer/invoice/{id}/print_preview', 'InvoicesCustomerController@print_preview'); Not in use.
     //Route::any('customer/invoice/{id}/print', 'InvoicesCustomerController@pdf_view');
-    Route::any('customer/invoice/pay_now', 'InvoicesCustomerController@pay_now');
+    Route::any('customer/invoice/pay_now/{id}', 'InvoicesCustomerController@pay_now');
     Route::any('customer/invoice/download_invoice_file/{id}', 'InvoicesCustomerController@download_invoice_file');
 	Route::any('customer/invoice/ajax_datagrid_total', 'InvoicesCustomerController@ajax_datagrid_total');
 	Route::any('customer/invoice/getInvoiceDetail', 'InvoicesCustomerController@getInvoiceDetail');
@@ -40,12 +40,12 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('customer/account_statement/exports/{type}', 'AccountStatementCustomerController@exports');
 
     //credit card
-    Route::any('customer/PaymentMethodProfiles/paynow', 'PaymentProfileCustomerController@paynow');
+    Route::any('customer/PaymentMethodProfiles/paynow/{id}', 'PaymentProfileCustomerController@paynow');
     Route::any('/customer/PaymentMethodProfiles', 'PaymentProfileCustomerController@index');
     Route::any('/customer/PaymentMethodProfiles/create', 'PaymentProfileCustomerController@create');
     Route::any('/customer/PaymentMethodProfiles/{id}/delete', 'PaymentProfileCustomerController@delete');
     Route::any('/customer/PaymentMethodProfiles/update', 'PaymentProfileCustomerController@update');
-    Route::any('/customer/PaymentMethodProfiles/ajax_datagrid', 'PaymentProfileCustomerController@ajax_datagrid');
+    Route::any('/customer/PaymentMethodProfiles/ajax_datagrid/{id}', 'PaymentProfileCustomerController@ajax_datagrid');
     Route::any('/customer/PaymentMethodProfiles/{id}/set_default', 'PaymentProfileCustomerController@set_default');
     Route::any('/customer/PaymentMethodProfiles/verify_bankaccount', 'PaymentProfileCustomerController@verify_bankaccount');
     Route::any('/customer/PaymentMethodProfiles/{id}/card_status/{active_deactive}', array('as' => 'payment_rules', 'uses' => 'PaymentProfileCustomerController@card_active_deactive'))->where('active_deactive', '(active|deactive)');
@@ -201,6 +201,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/accounts/store', array('as' => 'accounts_store', 'uses' => 'AccountsController@store'));
 	Route::any('/accounts/update/{id}', array('as' => 'accounts_update', 'uses' => 'AccountsController@update'));	
 	Route::any('/accounts/{id}/show', array('uses' => 'AccountsController@show'));
+	Route::any('/accounts/{id}/log', array('uses' => 'AccountsController@log'));
+	Route::any('accounts/{id}/ajax_datagrid_account_logs', 'AccountsController@ajax_datagrid_account_logs');
 	Route::post('/accounts/{id}/GetTimeLineSrollData/{scroll}', array('as' => 'GetTimeLineSrollData', 'uses' => 'AccountsController@GetTimeLineSrollData'));
 	Route::any('/task/create', 'TaskController@create');
 	Route::post('/accounts/{id}/ajax_conversations', 'AccountsController@AjaxConversations');
@@ -608,6 +610,7 @@ Route::group(array('before' => 'auth'), function () {
 	
     Route::post('tickets/bulkactions', 'TicketsController@BulkAction');
     Route::post('tickets/bulkdelete', 'TicketsController@BulkDelete');
+	Route::post('tickets/bulkpickup', 'TicketsController@BulkPickup');
 
     Route::get('ticket_dashboard/summarywidgets', 'TicketDashboardController@ticketSummaryWidget');
     Route::get('ticket_dashboard/timelinewidgets/{limit}', 'TicketDashboardController@ticketTimeLineWidget');
@@ -631,30 +634,35 @@ Route::group(array('before' => 'auth'), function () {
 	//RateGenerator
 	Route::any('/rategenerators', array('as' => 'rategenerator_list', 'uses' => 'RateGeneratorsController@index'));
 	Route::any('/rategenerators/ajax_datagrid', array('as' => 'rategenerator_ajax_datagrid', 'uses' => 'RateGeneratorsController@ajax_datagrid'));
-	Route::any('/rategenerators/ajax_margin_datagrid', array('as' => 'rategenerator_ajax_margin_datagrid', 'uses' => 'RateGeneratorsController@ajax_margin_datagrid'));
 	Route::any('/rategenerators/{id}/delete', array('as' => 'rategenerator_delete', 'uses' => 'RateGeneratorsController@delete'));
 	Route::any('/rategenerators/create', array('as' => 'rategenerator_create', 'uses' => 'RateGeneratorsController@create'));
 	Route::any('/rategenerators/store', array('as' => 'rategenerator_store', 'uses' => 'RateGeneratorsController@store'));
 	Route::any('/rategenerators/{id}/update', array('as' => 'rategenerator_update', 'uses' => 'RateGeneratorsController@update'));
 	Route::any('/rategenerators/{id}/edit', array('as' => 'rategenerator_edit', 'uses' => 'RateGeneratorsController@edit'));
-	Route::any('/rategenerators/{id}/store_rule', array('as' => 'rategenerator_store_rule', 'uses' => 'RateGeneratorsController@store_rule'));
 	Route::any('/rategenerators/rules/{id}', array('as' => 'rategenerator_rules', 'uses' => 'RateGeneratorsController@rules'));
 	Route::any('/rategenerators/{id}/generate_rate_table/{create_update}', array('as' => 'rategenerator_rules', 'uses' => 'RateGeneratorsController@generate_rate_table'))->where('create_update', '(create|update)');
-	Route::any('/rategenerators/rules/{id}/edit/{ruleID}', 'RateGeneratorsController@edit_rule')->where('ruleID', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/delete/{rule_id}', 'RateGeneratorsController@delete_rule')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/edit_source/{rule_id}', 'RateGeneratorsController@edit_rule_source')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/edit_margin/{rule_id}', 'RateGeneratorsController@edit_rule_margin')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/update_margin/{rule_id}', 'RateGeneratorsController@update_rule_margin')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/add_margin/{rule_id}', 'RateGeneratorsController@add_rule_margin')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{rule_id}/delete_margin/{id}', 'RateGeneratorsController@delete_rule_margin')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/update_source/{rule_id}', 'RateGeneratorsController@update_rule_source')->where('rule_id', '(.[09]*)+');
-	Route::any('/rategenerators/rules/{id}/update/{rule_id}', 'RateGeneratorsController@update_rule')->where('rule_id', '(.[09]*)+');
+	//Route::any('/rategenerators/rules/{id}/edit/{ruleID}', 'RateGeneratorsController@edit_rule')->where('ruleID', '(.[09]*)+');
+	//Route::any('/rategenerators/rules/{id}/edit_source/{rule_id}', 'RateGeneratorsController@edit_rule_source')->where('rule_id', '(.[09]*)+');
 	Route::any('/rategenerators/{id}/change_status/{status}', 'RateGeneratorsController@change_status')->where('status', '(.[09]*)+');
 	Route::any('/rategenerators/exports/{type}', 'RateGeneratorsController@exports');
 	Route::any('/rategenerators/ajax_load_rate_table_dropdown', 'RateGeneratorsController@ajax_load_rate_table_dropdown');
     Route::any('/rategenerators/{id}/ajax_existing_rategenerator_cronjob', 'RateGeneratorsController@ajax_existing_rategenerator_cronjob');
     Route::any('/rategenerators/{id}/deletecronjob', 'RateGeneratorsController@deleteCronJob');
     Route::any('/rategenerators/{id}/delete', 'RateGeneratorsController@delete');
+
+	Route::any('/rategenerators/ajax_margin_datagrid', 'RateGeneratorRuleController@ajax_margin_datagrid');
+	Route::any('/rategenerators/{id}/rule/{rule_id}/delete', 'RateGeneratorRuleController@delete_rule')->where('rule_id', '(.[09]*)+');
+
+	Route::any('rategenerators/{id}/rule/add', 'RateGeneratorRuleController@add');
+	Route::any('/rategenerators/{id}/rule/store_code', 'RateGeneratorRuleController@store_code');
+	Route::any('rategenerators/{id}/rule/{ruleID}/edit', 'RateGeneratorRuleController@edit')->where('ruleID', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/update/{rule_id}', 'RateGeneratorRuleController@update_rule')->where('rule_id', '(.[09]*)+');
+
+	Route::any('/rategenerators/rules/{id}/update_source/{rule_id}', 'RateGeneratorRuleController@update_rule_source')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/update_margin/{rule_id}', 'RateGeneratorRuleController@update_rule_margin')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{id}/add_margin/{rule_id}', 'RateGeneratorRuleController@add_rule_margin')->where('rule_id', '(.[09]*)+');
+	Route::any('/rategenerators/rules/{rule_id}/delete_margin/{id}', 'RateGeneratorRuleController@delete_rule_margin')->where('rule_id', '(.[09]*)+');
+
 	Route::resource('rategenerators', 'RateGeneratorsController');
 	Route::controller('rategenerators', 'RateGeneratorsController');
 
@@ -924,6 +932,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/create', 'InvoicesController@create');
 	Route::any('/invoice/store', 'InvoicesController@store');
 	Route::any('/invoice/bulk_send_invoice_mail', 'InvoicesController@bulk_send_invoice_mail');
+	Route::any('/invoice/bulk_print_invoice', 'InvoicesController@bulk_print_invoice');
     Route::any('/invoice/invoice_regen', 'InvoicesController@invoice_regen');
 	Route::any('/invoice/{id}/edit', 'InvoicesController@edit');
 	Route::any('/invoice/{id}/delete', 'InvoicesController@delete');
@@ -959,6 +968,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/invoice_quickbookpost', 'InvoicesController@invoice_quickbookpost');
 	Route::any('/get_unbill_report/{id}', 'InvoicesController@get_unbill_report');
 	Route::any('/generate_manual_invoice', 'InvoicesController@generate_manual_invoice');
+	Route::any('/invoice/invoice_sagepayexport', 'InvoicesController@invoice_sagepayexport');
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');
@@ -1268,7 +1278,17 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/get_mor_updates', 'NoticeBoardController@get_mor_updates');
 	Route::any('/save_post', 'NoticeBoardController@store');
 	Route::any('/delete_post/{id}', 'NoticeBoardController@delete');
-
+	
+	// report
+    Route::any('/report','ReportController@index');
+    Route::any('/report/ajax_datagrid/{type}','ReportController@ajax_datagrid');
+    Route::any('/report/create','ReportController@create');
+    Route::any('/report/edit/{id}','ReportController@edit');
+    Route::any('/report/store','ReportController@report_store');
+    Route::any('/report/update/{id}','ReportController@report_update');
+    Route::any('/report/delete/{id}','ReportController@report_delete');
+    Route::any('/report/getdatagrid','ReportController@getdatagrid');
+    Route::any('/report/getdatalist','ReportController@getdatalist');
 
 	//RateCompare
 	Route::any('/rate_compare', 'RateCompareController@index');
@@ -1308,7 +1328,7 @@ Route::group(array('before' => 'guest'), function () {
     Route::get('/super_admin', "HomeController@home");
 	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
 	
-    Route::get('/l/{id}', function($id){
+    /*Route::get('/l/{id}', function($id){
 		$user = User::find($id);
 		$redirect_to = URL::to('/process_redirect');
 		if(!empty($user) ){
@@ -1316,6 +1336,7 @@ Route::group(array('before' => 'guest'), function () {
 		Auth::login($user);
 		if(NeonAPI::login_by_id($id)) {
 			User::setUserPermission();
+			User::where('UserID', $id)->update(['LastLoginDate' => date('Y-m-d H:i:s')]);
 			Session::set("admin", 1);
 			return Redirect::to($redirect_to);
 		}else{
@@ -1326,13 +1347,15 @@ Route::group(array('before' => 'guest'), function () {
 		}
 	}
 	exit;
-    });
+    });*/
     Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
     //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');
     Route::any('/invoice/{id}/cdownload_usage', 'InvoicesController@cdownloadUsageFile');
     Route::any('/invoice/display_invoice/{id}', 'InvoicesController@display_invoice');
     Route::any('/invoice/download_invoice/{id}', 'InvoicesController@download_invoice');
 	Route::any('/invoice_payment/{id}/{type}', 'InvoicesController@invoice_payment'); //Customer payment View
+    Route::any('/payinvoice_withcard/{type}', 'InvoicesController@payinvoice_withcard'); //Customer payment pay with credit card
+    Route::any('/payinvoice_withprofile/{type}', 'InvoicesController@payinvoice_withprofile'); //Customer payment pay with credit card
     Route::any('/pay_invoice', 'InvoicesController@pay_invoice'); //Customer payment pay
 	Route::any('/stripe_payment', 'InvoicesController@stripe_payment'); //Customer payment with stripe
 	Route::any('/stripeach_payment', 'InvoicesController@stripeach_payment'); //Customer payment with stripe

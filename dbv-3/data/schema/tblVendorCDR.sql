@@ -16,6 +16,8 @@ CREATE TABLE `tblVendorCDR` (
   `ProcessID` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
   `billed_second` int(11) DEFAULT NULL,
   PRIMARY KEY (`VendorCDRID`),
-  KEY `IX_VendorCDRHeaderID` (`VendorCDRHeaderID`),
-  KEY `IX_ProcessID` (`ProcessID`)
+  KEY `IX_ProcessID` (`ProcessID`),
+  KEY `IX_VendorCDRHeaderID` (`VendorCDRHeaderID`,`connect_time`,`disconnect_time`),
+  KEY `Index 4` (`connect_time`),
+  KEY `IX_ID` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

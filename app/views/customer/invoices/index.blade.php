@@ -50,7 +50,7 @@
 </div>
 <div class="row">
   <div  class="col-md-12">
-    <div class="text-right"> @if(is_authorize() || is_Stripe())
+    <div class="text-right"> @if(is_PayNowInvoice())
       <button type="button"  id="pay_now" class="pay_now create btn btn-primary" >Pay Now</button>
       @endif </div>
     <div class="input-group-btn pull-right" style="width:70px;">
@@ -66,7 +66,7 @@
 <table class="table table-bordered datatable" id="table-4">
   <thead>
     <tr>
-      <th width="10%"> @if(is_authorize() || is_Stripe())
+      <th width="10%"> @if(is_PayNowInvoice())
         <div class="pull-left">
           <input type="checkbox" id="selectall" name="checkbox[]" class="" />
         </div>
@@ -127,7 +127,7 @@ var postdata;
                                      invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Sent"><i class="entypo-right-bold"></i>SNT</a>';
                                  }
                                  if (full[0] != '{{Invoice::INVOICE_IN}}'){
-                                     if('{{is_authorize()}}' || '{{is_Stripe()}}'){
+                                     if('{{is_PayNowInvoice()}}'){
                                         action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="'+full[7]+'" name="InvoiceID[]"></div>';
                                      }
                                  }
@@ -337,7 +337,7 @@ var postdata;
                 }
                 //console.log(InvoiceIDs);
 
-                paynow_url = '/customer/PaymentMethodProfiles/paynow';
+                paynow_url = '/customer/PaymentMethodProfiles/paynow/' + accoutid;
                 showAjaxModal( paynow_url ,'pay_now_modal');
                 $('#pay_now_modal').modal('show');
 

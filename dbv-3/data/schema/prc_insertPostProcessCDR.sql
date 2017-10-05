@@ -1,4 +1,6 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertPostProcessCDR`(IN `p_ProcessID` VarCHAR(200))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_insertPostProcessCDR`(
+	IN `p_ProcessID` VarCHAR(200)
+)
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;

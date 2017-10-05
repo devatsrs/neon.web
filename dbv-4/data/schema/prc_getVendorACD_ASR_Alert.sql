@@ -8,7 +8,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorACD_ASR_Alert`(
 	IN `p_AreaPrefix` TEXT,
 	IN `p_Trunk` TEXT,
 	IN `p_CountryID` TEXT
-
 )
 BEGIN
 	

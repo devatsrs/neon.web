@@ -103,6 +103,58 @@
     .secondstep{padding-left:0px !important; padding-bottom:19px !important; padding-top:19px !important; }
     .integrationimage{height:40px !important;}
     #quickbook-connect{display: none;}
+    .selectbatchupload{
+        border-color: #ebebeb !important;
+        background: #fff;
+        background-clip: border-box;
+        -moz-box-shadow: none;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        -webkit-background-clip: padding-box;
+        -moz-background-clip: padding;
+        background-clip: padding-box;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+        height: 21px;
+        line-height: 20px;
+        outline: none;
+        outline: none;
+    }
+    .styled-select {
+        /*background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 96% 0;*/
+        border-color: #ebebeb !important;
+        color:#555555;
+        background: #fff;
+        height: 25px;
+        overflow: hidden;
+        width: 240px;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+    }
+
+    .styled-select select {
+        background: transparent;
+        border: none;
+        font-size: 11px;
+        height: 29px;
+        padding: 5px; /* If you add too much padding here, the options won't show in IE */
+        width: 268px;
+    }
+
+    .styled-select.slate {
+        background: url(http://i62.tinypic.com/2e3ybe1.jpg) no-repeat right center;
+        height: 30px;
+        width: 240px;
+    }
+
+    .styled-select.slate select {
+        border: 1px solid #ebebeb;
+        font-size: 14px;
+        height: 34px;
+        width: 268px;
+    }
 </style>
 <div class="panel">
 <form id="rootwizard-2" method="post" action="" class="form-wizard validate form-horizontal form-groups-bordered" enctype="multipart/form-data">
@@ -160,7 +212,13 @@
 			  if(File::exists(public_path().'/assets/images/'.$subcategoriesData['Slug'].'.png')){	?>
                 <img class="integrationimage" src="<?php  URL::to('/'); ?>assets/images/{{$subcategoriesData['Slug']}}.png" />
                 <?php } ?>
-                <a><b>{{$subcategoriesData['Title']}}</b></a>
+                <a><b>
+                    @if($subcategoriesData['Title']=='SagePay Direct Debit')
+                        Direct Debit
+                    @else
+                        {{$subcategoriesData['Title']}}
+                    @endif
+                </b></a>
               </label>
             </div>
             <?php 
@@ -438,6 +496,83 @@
             </div>
         </div>
       <!-- SagePay end -->
+      <!-- SagePay Direct Debit start -->
+      <?php
+      $SagePayDirectDebitDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$SagePayDirectDebitSlug);
+      $SagePayDirectDebitData   = isset($SagePayDirectDebitDbData->Settings)?json_decode($SagePayDirectDebitDbData->Settings):"";
+      ?>
+      <div class="subcategorycontent" id="subcategorycontent{{$SagePayDirectDebitDbData->Slug}}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Service Key:</label>
+                        <input type="text"  class="form-control" name="SGDD_ServiceKey" value="{{isset($SagePayDirectDebitData->ServiceKey)?$SagePayDirectDebitData->ServiceKey:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Software Vendor Key:</label>
+                        <input type="text"  class="form-control" name="SGDD_SoftwareVendorKey" value="{{isset($SagePayDirectDebitData->SoftwareVendorKey)?$SagePayDirectDebitData->SoftwareVendorKey:''}}" placeholder="94cdf2e6-f2e7-4c91-ad34-da5684bfbd6f" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Batch Upload:
+                            <span data-toggle="popover" data-trigger="hover" data-placement="top" data-content="SameDay  – Sameday debit order batch upload,TwoDay  – Dated debit order batch upload" data-original-title="Batch Upload" class="label label-info popover-primary">?</span>
+                        </label>
+                        <div class="styled-select slate">
+                        {{Form::select('SGDD_BatchUpload',array(''=>'Select','SameDay'=>'SameDay','TwoDay'=>'TwoDay'),isset($SagePayDirectDebitData->BatchUpload)?$SagePayDirectDebitData->BatchUpload:'',array("class"=>""))}}
+                         </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Active:</label>
+                        <div id="SGDD_StatusDiv">
+                            <input id="SGDD_Status" class="subcatstatus" Divid="SGDD_StatusDiv" name="SGDD_Status" type="checkbox" value="1" <?php if(isset($SagePayDirectDebitDbData->Status) && $SagePayDirectDebitDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+      </div>
+      <!-- SagePay Direct Debit end -->
+      <!-- FideliPay Start -->
+        <?php
+        $FideliPayDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$FideliPaySlug);
+        $FideliPayData   = isset($FideliPayDbData->Settings)?json_decode($FideliPayDbData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$FideliPayDbData->Slug}}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Source Key:</label>
+                        <input type="text"  class="form-control" name="SourceKey" value="{{isset($FideliPayData->SourceKey)?$FideliPayData->SourceKey:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Pin:</label>
+                        <input type="text"  class="form-control" name="Pin" value="{{isset($FideliPayData->Pin)?$FideliPayData->Pin:''}}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Active:</label>
+                        <div id="FideliPayStatusDiv">
+                            <input id="FideliPayStatus" class="subcatstatus" Divid="FideliPayStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($FideliPayDbData->Status) && $FideliPayDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+      <!-- FideliPay End -->
+
       <!-- Mandril start -->
        <?php 
 	   		$ManrdilDbData   = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$mandrillSlug);

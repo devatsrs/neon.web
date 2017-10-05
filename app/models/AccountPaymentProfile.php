@@ -6,12 +6,15 @@ class AccountPaymentProfile extends \Eloquent
     protected $table = 'tblAccountPaymentProfile';
     protected $primaryKey = "AccountPaymentProfileID";
 
-    public static function getActiveProfile($AccountID)
+    public static function getActiveProfile($AccountID,$PaymentGatewayID)
     {
-        $AccountPaymentProfile = array();
-        if (Account::where(array('AccountID' => $AccountID))->pluck('Autopay') == 1) {
-            $AccountPaymentProfile = AccountPaymentProfile::where(array('AccountID' => $AccountID, 'Status' => 1, 'Blocked' => 0, 'isDefault' => 1))->first();
-        }
+        $AccountPaymentProfile = AccountPaymentProfile::where(array('AccountID' => $AccountID,'PaymentGatewayID'=>$PaymentGatewayID,'Status' => 1, 'isDefault' => 1))
+            ->Where(function($query)
+            {
+                $query->where("Blocked",'<>',1)
+                    ->orwhereNull("Blocked");
+            })
+            ->first();
         return $AccountPaymentProfile;
     }
 
@@ -253,6 +256,7 @@ class AccountPaymentProfile extends \Eloquent
 
     }
 
+    // not using
     public static function createAuthorizeProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data){
 
         $ProfileID = "";
@@ -330,6 +334,7 @@ class AccountPaymentProfile extends \Eloquent
 
     }
 
+    // not using
     public static function createStripeProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data)
     {
         $stripepayment = new StripeBilling();
@@ -392,6 +397,7 @@ class AccountPaymentProfile extends \Eloquent
         }
     }
 
+    // not using
     public static function deleteAuthorizeProfile($CompanyID,$AccountID,$AccountPaymentProfileID){
         //If using Authorize.net
         $isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
@@ -440,6 +446,7 @@ class AccountPaymentProfile extends \Eloquent
         }
     }
 
+    // not using
     public static function deleteStripeProfile($CompanyID,$AccountID,$AccountPaymentProfileID){
 
         $stripepayment = new StripeBilling();
@@ -476,6 +483,7 @@ class AccountPaymentProfile extends \Eloquent
         }
     }
 
+    // not using
     public static function createStripeACHProfile($CompanyID, $CustomerID,$PaymentGatewayID,$data)
     {
         $stripepayment = new StripeACH();
@@ -540,6 +548,7 @@ class AccountPaymentProfile extends \Eloquent
         }
     }
 
+    // not using
     public static function deleteStripeACHProfile($CompanyID,$AccountID,$AccountPaymentProfileID){
 
         $stripepayment = new StripeACH();
@@ -574,5 +583,105 @@ class AccountPaymentProfile extends \Eloquent
         }else{
             return Response::json(array("status" => "failed", "message" => $result['error']));
         }
+    }
+
+    // not using
+    public static function createSagePayProfile($CompanyID, $CustomerID,$PaymentGatewayID)
+    {
+        $data = Input::all();
+
+        if(empty($PaymentGatewayID)){
+            return Response::json(array("status" => "failed", "message" => "Please Select Payment Gateway"));
+        }
+        $rules = array(
+            'Title' => 'required',
+            'AccountName' => 'required',
+            'BankAccountName' => 'required',
+            'AccountNumber' => 'required|digits_between:2,11',
+            'BranchCode' => 'required|digits:6',
+            'AccountHolderType' => 'required',
+        );
+
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            return json_validator_response($validator);
+        }
+
+        $isDefault = 1;
+
+        $count = AccountPaymentProfile::where(['AccountID' => $CustomerID])
+            ->where(['CompanyID' => $CompanyID])
+            ->where(['PaymentGatewayID' => $PaymentGatewayID])
+            ->where(['isDefault' => 1])
+            ->count();
+
+        if($count>0){
+            $isDefault = 0;
+        }
+
+        $varifydata = array(
+            'AccountNumber'   => $data['AccountNumber'],
+            'BranchCode'        => $data['BranchCode'],
+            'AccountType' => $data['AccountHolderType']
+        );
+
+        $SagePayDirectDebit = new SagePayDirectDebit();
+        $verify_response = $SagePayDirectDebit->verifyBankAccount($varifydata);
+
+        if(!empty($verify_response) && $verify_response['status']=='Success'){
+
+            $option = array(
+                'AccountName' => $data['AccountName'],
+                'BankAccountName'   => Crypt::encrypt($data['BankAccountName']),
+                'AccountNumber'   => Crypt::encrypt($data['AccountNumber']),
+                'BranchCode'        => Crypt::encrypt($data['BranchCode']),
+                'AccountHolderType' => $data['AccountHolderType'],
+                'VerifyStatus'      => 'verified',
+            );
+            $BankDetail = array('Title' => $data['Title'],
+                'Options' => json_encode($option),
+                'Status' => 1,
+                'isDefault' => $isDefault,
+                'created_by' => Customer::get_accountName(),
+                'CompanyID' => $CompanyID,
+                'AccountID' => $CustomerID,
+                'PaymentGatewayID' => $PaymentGatewayID);
+
+            if (AccountPaymentProfile::create($BankDetail)) {
+                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
+            }
+
+        }elseif(!empty($verify_response) && $verify_response['status']=='fail'){
+            return Response::json(array("status" => "failed", "message" => $verify_response['error']));
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Payment Method Profile Successfully Created"));
+        }
+
+    }
+
+    //not using
+    public static function deleteSagePayDirectDebitProfile($CompanyID,$AccountID,$AccountPaymentProfileID)
+    {
+        $count = AccountPaymentProfile::where(["CompanyID"=>$CompanyID])->where(["AccountID"=>$AccountID])->count();
+        $PaymentProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
+        if(!empty($PaymentProfile)){
+            $isDefault = $PaymentProfile->isDefault;
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+        }
+        if($isDefault==1){
+            if($count!=1){
+                return Response::json(array("status" => "failed", "message" => "You can not delete default profile. Please set as default an other profile first."));
+            }
+        }
+
+        if($PaymentProfile->delete()) {
+            return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+        }
+
     }
 }

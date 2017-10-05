@@ -32,7 +32,7 @@
     </ol>
 
     <h3>Roles</h3>
-    <div class="tab-content">
+    <div class="tab-content loading">
         <form id="add-edit-role-form" method="post">
         <br>
     @if( User::is_admin() or User::is('BillingManager'))
@@ -68,7 +68,6 @@
                                                 </div>
                                             </th>
                                             <th width="80%">Users</th>
-                                            <th width="10%">Actions</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -82,7 +81,7 @@
                                                     </td>
                                                     <td>{{$user}}</td>
                                                     <td align="right">
-                                                            <a title="Edit" href="{{URL::to('users/edit/'. $index )}}" target="_blank" class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
+                                                            <a title="Edit" href="{{URL::to('users/edit/'. $index )}}" target="_blank" class="btn small_icons btn-default btn-xs"><i class="entypo-pencil"></i></a>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -105,7 +104,6 @@
                                                     </div>
                                                 </th>
                                                 <th width="70%">Roles</th>
-                                                <th width="20%">Actions</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -119,8 +117,8 @@
                                                         </td>
                                                         <td>{{$role}}</td>
                                                         <td>
-                                                            <a title="Edit" data-id="{{$index}}}}" onclick="editroles(this);" data-roles="{{$role}}"  class="edit-roles btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
-                                                            <a title="Delete" data-id="{{$index}}" onclick="deleteroles(this);" class="delete-roles btn btn-default delete btn-danger btn-sm"><i class="entypo-trash"></i></a>
+                                                            <a title="Edit" data-id="{{$index}}}}" onclick="editroles(this);" data-roles="{{$role}}"  class="edit-roles btn btn-default  btn-xs small_icons"><i class="entypo-pencil"></i></a>
+                                                            <a title="Delete" data-id="{{$index}}" onclick="deleteroles(this);" class="delete-roles btn btn-default delete btn-danger btn-xs small_icons"><i class="entypo-trash"></i></a>
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -153,7 +151,6 @@
                                                 </div>
                                             </th>
                                             <th width="80%">Users</th>
-                                            <th width="10%">Actions</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -167,7 +164,7 @@
                                                     </td>
                                                     <td>{{$user}}</td>
                                                     <td>
-                                                        <a title="Edit" href="{{URL::to('users/edit/'. $index )}}" target="_blank"  class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
+                                                        <a title="Edit" href="{{URL::to('users/edit/'. $index )}}" target="_blank"  class="btn small_icons btn-default btn-xs"><i class="entypo-pencil"></i></a>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -190,7 +187,6 @@
                                                     </div>
                                                 </th>
                                                 <th width="70%">Roles</th>
-                                                <th width="20%">Actions</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -204,8 +200,8 @@
                                                         </td>
                                                         <td>{{$role}}</td>
                                                         <td>
-                                                            <a title="Edit" data-id="{{$index}}" onclick="editroles(this);" data-roles="{{$role}}"  class="edit-roles btn btn-default btn-sm"><i class="entypo-pencil"></i></a>
-                                                            <a title="Delete" data-id="{{$index}}" onclick="deleteroles(this);" class="delete-roles btn btn-default delete btn-danger btn-sm"><i class="entypo-trash"></i></a>
+                                                            <a title="Edit" data-id="{{$index}}" onclick="editroles(this);" data-roles="{{$role}}"  class="edit-roles btn btn-default  btn-xs small_icons"><i class="entypo-pencil"></i></a>
+                                                            <a title="Delete" data-id="{{$index}}" onclick="deleteroles(this);" class="delete-roles btn btn-default delete btn-danger  btn-xs small_icons"><i class="entypo-trash"></i></a>
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -283,6 +279,16 @@
                     $("#edit-role-form [name='RoleName']").val($(ele).attr('data-roles'));
 
                     $('#edit-modal-role').modal('show');
+                }
+                function loading(table,bit){
+                    var panel = jQuery(table).closest('.loading');
+                    if(bit==1){
+                        blockUI(panel);
+                        panel.addClass('reloading');
+                    }else{
+                        unblockUI(panel);
+                        panel.removeClass('reloading');
+                    }
                 }
                 jQuery(document).ready(function ($) {
                     disable();
@@ -517,12 +523,14 @@
                         if(leftdata.length==0){
                             return false;
                         }
+                        loading("#add-edit-role-form", 1);
                         $.ajax({
                             url: url,  //Server script to process data
                             type: 'POST',
                             contentType: "application/json",
                             dataType: 'json',
                             success: function (response){
+                                loading("#add-edit-role-form", 0);
                                 if(response.status =='success'){
                                     if(response.result) {
                                         userpermission = response.result;
@@ -566,12 +574,12 @@
                                             newRow += '  <td>' + name + '</td>';
                                             if (righttype == 'RoleIds') {
                                                 newRow += '<td>';
-                                                newRow += '     <a title="Edit" data-id="' + id + '"  onclick="editroles(this);" data-roles="' + name + '"  class="edit-roles btn btn-default btn-sm"><i class="entypo-pencil"></i></a>';
-                                                newRow += '     <a title="Delete" data-id="' + id + '" onclick="deleteroles(this);" class="delete-roles btn btn-default delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
+                                                newRow += '     <a title="Edit" data-id="' + id + '"  onclick="editroles(this);" data-roles="' + name + '"  class="edit-roles btn btn-default  btn-xs small_icons"><i class="entypo-pencil"></i></a>';
+                                                newRow += '     <a title="Delete" data-id="' + id + '" onclick="deleteroles(this);" class="delete-roles btn btn-default delete btn-danger  btn-xs small_icons"><i class="entypo-trash"></i></a>';
                                                 newRow += '</td>';
                                             } else if (righttype == 'UserIds') {
                                                 newRow += '<td>';
-                                                newRow += '     <a title="Edit" href="' + baseurl + '/users/edit/' + id + '" target="_blank"  class="btn btn-default btn-sm"><i class="entypo-pencil"></i></a>';
+                                                newRow += '     <a title="Edit" href="' + baseurl + '/users/edit/' + id + '" target="_blank"  class="btn small_icons btn-default btn-xs"><i class="entypo-pencil"></i></a>';
                                                 newRow += '</td>';
                                             }
                                             newRow += '  </tr>';

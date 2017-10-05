@@ -1,5 +1,46 @@
 @extends('layout.main')
 
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="dialstring_filter">
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Prefix</label>
+                    <input type="text" name="ft_dialstring" class="form-control">
+                    <input name="ft_dialstringid" value="{{$id}}" type="hidden" >
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Charge Code</label>
+                    <input type="text" name="ft_chargecode" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Description</label>
+                    <input type="text" name="ft_description" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Forbidden</label><br/>
+                    <p class="make-switch switch-small">
+                        <input name="ft_forbidden" type="checkbox" value="1">
+                    </p>
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 
 <ol class="breadcrumb bc-3">
@@ -15,17 +56,27 @@
 </ol>
 <h3>Dial Strings</h3>
 
+@if( User::checkCategoryPermission('DialStrings','Delete'))
+    <button type="submit" id="delete-bulk-code" class="btn btn-danger btn-sm btn-icon icon-left pull-right" style="margin-left: 2px;">
+        <i class="entypo-trash"></i>
+        Delete Selected
+    </button>
+@endif
+@if( User::checkCategoryPermission('DialStrings','Edit'))
+    <a href="javascript:;"  id="changeSelectedCode" class="btn btn-primary btn-sm btn-icon icon-left pull-right" style="margin-left: 2px;" onclick="jQuery('#modal-6').modal('show', {backdrop: 'static'});" href="javascript:;" style="margin-left: 10px;">
+        <i class="entypo-floppy"></i>
+        Change Selected
+    </a>
+@endif
+@if( User::checkCategoryPermission('DialStrings','Add') )
+    <a href="javascript:;" id="add-new-code" class="btn btn-sm upload btn-primary btn-icon icon-left pull-right">
+        <i class="entypo-plus"></i>
+        Add New
+    </a>
+@endif
+
 @include('includes.errors')
 @include('includes.success')
-
-<div style="float: right;">
-    @if( User::checkCategoryPermission('DialStrings','Add') )
-        <a href="javascript:;" id="add-new-code" class="btn upload btn-primary ">
-            <i class="entypo-plus"></i>
-            Add New
-        </a>
-    @endif
-</div>
 
 <ul class="nav nav-tabs bordered">
     <!-- available classes "bordered", "right-aligned" -->
@@ -41,65 +92,7 @@
     @endif
 </ul>
 
-<div class="row">
-    <div class="col-md-12">
-        <form novalidate="novalidate" class="form-horizontal form-groups-bordered validate" method="post" id="dialstring_filter">
-            <div data-collapsed="0" class="panel panel-primary">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Filter
-                    </div>
-                    <div class="panel-options">
-                        <a data-rel="collapse" href="#"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label class="col-sm-1 control-label" for="field-1">Prefix</label>
-                        <div class="col-sm-2">
-                            <input type="text" name="ft_dialstring" class="form-control">
-                            <input name="ft_dialstringid" value="{{$id}}" type="hidden" >
-                        </div>
-                        <label class="col-sm-1 control-label">Charge Code</label>
-                        <div class="col-sm-2">
-                            <input type="text" name="ft_chargecode" class="form-control">
-                        </div>
-                        <label class="col-sm-1 control-label">Description</label>
-                        <div class="col-sm-2">
-                            <input type="text" name="ft_description" class="form-control">
-                        </div>
-                        <label class="col-sm-1 control-label">Forbidden</label>
-                        <div class="col-sm-1">
-                            <p class="make-switch switch-small">
-                                <input name="ft_forbidden" type="checkbox" value="1">
-                            </p>
-                        </div>
-                    </div>
-                    <p style="text-align: right;">
-                        <button class="btn btn-primary btn-sm btn-icon icon-left" type="submit">
-                            <i class="entypo-search"></i>
-                            Search
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-<div style="text-align: right;padding:10px 0 ">
-    @if( User::checkCategoryPermission('DialStrings','Edit'))
-    <a href="javascript:;"  id="changeSelectedCode" class="btn btn-primary btn-sm btn-icon icon-left" onclick="jQuery('#modal-6').modal('show', {backdrop: 'static'});" href="javascript:;">
-        <i class="entypo-floppy"></i>
-        Change Selected
-    </a>
-    @endif
-    @if( User::checkCategoryPermission('DialStrings','Delete'))
-    <button type="submit" id="delete-bulk-code" class="btn btn-danger btn-sm btn-icon icon-left">
-        <i class="entypo-trash"></i>
-        Delete Selected
-    </button>
-    @endif
-</div>
+
 <table class="table table-bordered datatable" id="table-4">
     <thead>
     <tr>
@@ -125,6 +118,9 @@ var update_new_url;
 var checked='';
 var postdata;
     jQuery(document).ready(function ($) {
+
+        $('#filter-button-toggle').show();
+
         public_vars.$body = $("body");
         //show_loading_bar(40);
 
