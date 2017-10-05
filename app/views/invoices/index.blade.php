@@ -78,13 +78,13 @@
 
           @if(User::checkCategoryPermission('RecurringProfile','View'))
               <div class="input-group-btn">
-                  <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </a>
+                  <button href="{{URL::to('/recurringprofiles')}}" onclick="location.href=$(this).attr('href');" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </button>
               </div>
           @endif
 
           @if(User::checkCategoryPermission('Invoice','Add'))
               <div class="input-group-btn">
-                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
+                  <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
                   <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff </a> </li>
                       <li> <a id="invoice-in" href="javascript:;"> Received</a> </li>
@@ -94,7 +94,7 @@
 
           @if(User::checkCategoryPermission('Invoice','Generate'))
               <div class="input-group-btn">
-                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
+                  <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
                   <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                       <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
                       <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li>
@@ -104,7 +104,7 @@
           @endif
 
         <div class="input-group-btn"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
-          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+          <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown"
                                     aria-expanded="false">Action <span class="caret"></span></button>
           <ul class="dropdown-menu dropdown-menu-left" role="menu"
                                 style="background-color: #000; border-color: #000; margin-top:0px;">
