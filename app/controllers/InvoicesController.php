@@ -20,6 +20,11 @@ class InvoicesController extends \BaseController {
         $data['InvoiceStatus'] = is_array($data['InvoiceStatus'])?implode(',',$data['InvoiceStatus']):$data['InvoiceStatus'];
         $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
         $InvoiceHideZeroValue = Invoice::getCookie('InvoiceHideZeroValue');
+        // Account Manager Condition
+        $userID = 0;
+        if(User::is('AccountManager')) { // Account Manager
+            $userID = User::get_userID();
+        }
         //set Cookie
         if($data['zerovalueinvoice'] != $InvoiceHideZeroValue){
             if($data['zerovalueinvoice'] == 0){
@@ -33,11 +38,11 @@ class InvoicesController extends \BaseController {
 		{
             if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1)
 			{
-                $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,1,"")');
+                $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,1,"",'.$userID.')');
             }
 			else
 			{
-                $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"")');
+                $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"",'.$userID.')');
             }
 			
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -52,11 +57,11 @@ class InvoicesController extends \BaseController {
 		
         if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1)
 		{
-            $query = $query.',0,0,1,"")';
+            $query = $query.',0,0,1,"",'.$userID.')';
         }
 		else
 		{
-            $query .=',0,0,0,"")';
+            $query .=',0,0,0,"",'.$userID.')';
         }
     	
 		$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
@@ -81,12 +86,19 @@ class InvoicesController extends \BaseController {
         $data['CurrencyID'] = empty($data['CurrencyID'])?'0':$data['CurrencyID'];
         $data['Overdue'] = $data['Overdue']== 'true'?1:0;
         $sort_column = $columns[$data['iSortCol_0']];
+
+        // Account Manager Condition
+        $userID = 0;
+        if(User::is('AccountManager')) { // Account Manager
+            $userID = User::get_userID();
+        }
+
         $query = "call prc_getInvoice (".$companyID.",".intval($data['AccountID']).",'".$data['InvoiceNumber']."','".$data['IssueDateStart']."','".$data['IssueDateEnd']."',".intval($data['InvoiceType']).",'".$data['InvoiceStatus']."',".$data['Overdue'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".intval($data['CurrencyID'])."";
         if(isset($data['Export']) && $data['Export'] == 1) {
             if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
-                $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,1,"")');
+                $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,1,"",'.$userID.')');
             }else{
-                $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"")');
+                $excel_data  = DB::connection('sqlsrv2')->select($query.',1,0,0,"",'.$userID.')');
             }
             $excel_data = json_decode(json_encode($excel_data),true);
 
@@ -107,9 +119,9 @@ class InvoicesController extends \BaseController {
             })->download('xls');*/
         }
         if(isset($data['zerovalueinvoice']) && $data['zerovalueinvoice'] == 1){
-            $query = $query.',0,0,1,"")';
+            $query = $query.',0,0,1,"",'.$userID.')';
         }else{
-            $query .=',0,0,0,"")';
+            $query .=',0,0,0,"",'.$userID.')';
         }
         //echo $query;exit;
         return DataTableSql::of($query,'sqlsrv2')->make();
@@ -1827,6 +1839,13 @@ class InvoicesController extends \BaseController {
         $criteria = json_decode($data['criteria'],true);
         $criteria['Overdue'] = $criteria['Overdue']== 'true'?1:0;
         $criteria['InvoiceStatus'] = is_array($criteria['InvoiceStatus'])?implode(',',$criteria['InvoiceStatus']):$criteria['InvoiceStatus'];
+
+        // Account Manager Condition
+        $userID = 0;
+        if(User::is('AccountManager')) { // Account Manager
+            $userID = User::get_userID();
+        }
+
         $query = "call prc_getInvoice (".$companyID.",'".$criteria['AccountID']."','".$criteria['InvoiceNumber']."','".$criteria['IssueDateStart']."','".$criteria['IssueDateEnd']."','".$criteria['InvoiceType']."','".$criteria['InvoiceStatus']."',".$criteria['Overdue'].",'' ,'','','','".$criteria['CurrencyID']."' ";
 
         if(!empty($criteria['zerovalueinvoice'])){
@@ -1834,7 +1853,7 @@ class InvoicesController extends \BaseController {
         }else{
             $query = $query.',2,0,0';
         }
-        $query .= ",'')";
+        $query .= ",'',".$userID.")";
         $exceldatas  = DB::connection('sqlsrv2')->select($query);
         $exceldatas = json_decode(json_encode($exceldatas),true);
         $invoiceid='';
@@ -1846,6 +1865,11 @@ class InvoicesController extends \BaseController {
 
     public function sageExport(){
         $data = Input::all();
+        // Account Manager Condition
+        $userID = 0;
+        if(User::is('AccountManager')) { // Account Manager
+            $userID = User::get_userID();
+        }
         $companyID = User::get_companyID();
         if(!empty($data['InvoiceIDs'])){
             $query = "call prc_getInvoice (".$companyID.",0,'','0000-00-00 00:00:00','0000-00-00 00:00:00',0,'',0,1 ,".count($data['InvoiceIDs']).",'','',''";
@@ -1855,7 +1879,7 @@ class InvoicesController extends \BaseController {
                 $query = $query.',0,1,0';
             }
             if(!empty($data['InvoiceIDs'])){
-                $query = $query.",'".$data['InvoiceIDs']."')";
+                $query = $query.",'".$data['InvoiceIDs']."',".$userID.")";
             }
 			else			
             $query .= ")";
@@ -1893,7 +1917,7 @@ class InvoicesController extends \BaseController {
             }else{
                 $query = $query.',0';
             }
-            $query .= ",'')";
+            $query .= ",'',".$userID.")";
             $excel_data  = DB::connection('sqlsrv2')->select($query);
             $excel_data = json_decode(json_encode($excel_data),true);
 

@@ -15,7 +15,12 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPayments`(
 	IN `p_isCustomer` INT ,
 	IN `p_paymentStartDate` DATETIME,
 	IN `p_paymentEndDate` DATETIME,
-	IN `p_isExport` INT
+	IN `p_isExport` INT 
+
+
+
+,
+	IN `p_userID` INT
 )
 BEGIN
 		
@@ -61,6 +66,7 @@ BEGIN
 		WHERE tblPayment.CompanyID = p_CompanyID
 			AND(p_RecallOnOff = -1 OR tblPayment.Recall = p_RecallOnOff)
 			AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
+			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo like Concat('%',p_InvoiceNo,'%')))
 			AND((p_FullInvoiceNumber = '' OR tblPayment.InvoiceNo = p_FullInvoiceNumber))
 			AND((p_Status IS NULL OR tblPayment.Status = p_Status))
@@ -122,6 +128,7 @@ BEGIN
 		WHERE tblPayment.CompanyID = p_CompanyID
 			AND(p_RecallOnOff = -1 OR tblPayment.Recall = p_RecallOnOff)
 			AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
+			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo like Concat('%',p_InvoiceNo,'%')))
 			AND((p_FullInvoiceNumber = '' OR tblPayment.InvoiceNo = p_FullInvoiceNumber))
 			AND((p_Status IS NULL OR tblPayment.Status = p_Status))
@@ -154,6 +161,7 @@ BEGIN
 		WHERE tblPayment.CompanyID = p_CompanyID
 			AND(p_RecallOnOff = -1 OR tblPayment.Recall = p_RecallOnOff)
 			AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
+			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo like Concat('%',p_InvoiceNo,'%')))
 			AND((p_FullInvoiceNumber = '' OR tblPayment.InvoiceNo = p_FullInvoiceNumber))
 			AND((p_Status IS NULL OR tblPayment.Status = p_Status))
@@ -164,7 +172,7 @@ BEGIN
 			AND (p_CurrencyID = 0 OR tblPayment.CurrencyId = p_CurrencyID);
 	END IF;
 	
-	-- export data for customer panel
+	
 	IF p_isExport = 2
 	THEN
 
@@ -186,6 +194,7 @@ BEGIN
 		WHERE tblPayment.CompanyID = p_CompanyID
 			AND(tblPayment.Recall = p_RecallOnOff)
 			AND(p_accountID = 0 OR tblPayment.AccountID = p_accountID)
+			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND((p_InvoiceNo IS NULL OR tblPayment.InvoiceNo = p_InvoiceNo))
 			AND((p_FullInvoiceNumber = '' OR tblPayment.InvoiceNo = p_FullInvoiceNumber))
 			AND((p_Status IS NULL OR tblPayment.Status = p_Status))
