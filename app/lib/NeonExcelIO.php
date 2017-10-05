@@ -43,7 +43,6 @@ class NeonExcelIO
         $this->sheet = 0;
         $this->first_row = self::$COLUMN_NAMES;
         $this->file_type = self::$CSV;
-
         $this->set_file_type();
         $this->get_file_settings($csvoption);
         if(self::$start_row>0)
@@ -162,6 +161,7 @@ class NeonExcelIO
         $writer->openToFile($this->file); // write data to a file or to a PHP stream
 
         if(isset($rows[0]) && count($rows[0]) > 0 ) {
+
             $columns = array_keys($rows[0]);
             $writer->addRow($columns); // add a row at a time
             $writer->addRows($rows); // add multiple rows at a time
@@ -206,7 +206,6 @@ class NeonExcelIO
         $this->reader = ReaderFactory::create(Type::CSV); // for XLSX files
         $this->set_file_settings();
         $this->reader->open($filepath);
-
         foreach($this->reader->getSheetIterator() as $key  => $sheet) {
 
             // For First Sheet only.
@@ -462,7 +461,7 @@ class NeonExcelIO
             // for dat value only
             if( method_exists($row_value , "format") ) {
 
-                $col_row[$col_key] = $row_value->format("H:i:s")!='00:00:00'?$row_value->format("Y-m-d H:i:s"):$row_value->format("Y-m-d");
+                $col_row[$col_index] = $row_value->format("H:i:s")!='00:00:00'?$row_value->format("Y-m-d H:i:s"):$row_value->format("Y-m-d");
 
             }else{
 

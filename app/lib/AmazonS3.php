@@ -9,6 +9,7 @@ use Aws\S3\S3Client;
 
 class AmazonS3 {
 
+    public static $isAmazonS3;
     public static $dir = array(
         'CODEDECK_UPLOAD' =>  'CodedecksUploads',
         'VENDOR_UPLOAD' =>  'VendorUploads',
@@ -50,8 +51,10 @@ class AmazonS3 {
 	 	$AmazonData		=	SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$AmazoneSlug);
 		
 		if(!$AmazonData){
+            self::$isAmazonS3='NoAmazon';
             return 'NoAmazon';
 		}else{
+            self::$isAmazonS3='Amazon';
 			return $s3Client = S3Client::factory(array(
 				'region' => $AmazonData->AmazonAwsRegion,
 				'credentials' => array(
@@ -143,7 +146,7 @@ class AmazonS3 {
         try {
             $resource = fopen($file, 'r');
             $s3->upload($bucket, $dir.basename($file), $resource, 'public-read');
-            @unlink($file);
+            @unlink($file); // delete from local
             return true;
         } catch (S3Exception $e) {
             return false ; //"There was an error uploading the file.\n";
@@ -155,56 +158,56 @@ class AmazonS3 {
         $s3 = self::getS3Client();
 
         //When no amazon ;
-        if($s3 == 'NoAmazon'){
+
             $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH')."/".$key;
             if ( file_exists($Uploadpath) ) {
                 return $Uploadpath;
-            } else {
+            }
+            elseif(self::$isAmazonS3=='Amazon')
+            {
+                $AmazonSettings = self::getAmazonSettings();
+                $bucket = $AmazonSettings['AWS_BUCKET'];
+
+                // Get a command object from the client and pass in any options
+                // available in the GetObject command (e.g. ResponseContentDisposition)
+                $command = $s3->getCommand('GetObject', array(
+                    'Bucket' => $bucket,
+                    'Key' => $key,
+                    'ResponseContentDisposition' => 'attachment; filename="' . basename($key) . '"'
+                ));
+
+                // Create a signed URL from the command object that will last for
+                // 10 minutes from the current time
+                return $command->createPresignedUrl('+10 minutes');
+            }
+            else
+            {
                 return "";
             }
-        }
-
-
-        $AmazonSettings  = self::getAmazonSettings();		
-        $bucket 		 = $AmazonSettings['AWS_BUCKET'];
-
-        // Get a command object from the client and pass in any options
-        // available in the GetObject command (e.g. ResponseContentDisposition)
-        $command = $s3->getCommand('GetObject', array(
-            'Bucket' => $bucket,
-            'Key' => $key,
-            'ResponseContentDisposition' => 'attachment; filename="'. basename($key) . '"'
-        ));
-
-        // Create a signed URL from the command object that will last for
-        // 10 minutes from the current time
-        $signedUrl = $command->createPresignedUrl('+10 minutes');
-        return $signedUrl;
-
     }
 
     static function unSignedUrl($key=''){
 
-        $s3 = self::getS3Client();
+//        $s3 = self::getS3Client();
 
         //When no amazon ;
-        if($s3 == 'NoAmazon'){
+//        if($s3 == 'NoAmazon'){
             return  self::preSignedUrl($key);
-        }
+//        }
 
-        $AmazonSettings  = self::getAmazonSettings();		
+        /*$AmazonSettings  = self::getAmazonSettings();
         $bucket 		 = $AmazonSettings['AWS_BUCKET'];
         $unsignedUrl = '';
         if(!empty($key)){
            $unsignedUrl = $s3->getObjectUrl($bucket, $key);
         }
-        return $unsignedUrl;
+        return $unsignedUrl;*/
 
     }
 
     static function unSignedImageUrl($key=''){
 
-        $s3 = self::getS3Client();
+        /*$s3 = self::getS3Client();
 
         //When no amazon ;
         if($s3 == 'NoAmazon'){
@@ -215,38 +218,54 @@ class AmazonS3 {
                 return get_image_data("http://placehold.it/250x100");
             }
         }
-        return self::unSignedUrl($key);
+        return self::unSignedUrl($key);*/
+
+        $imagepath=self::preSignedUrl($key);
+        if(file_exists($imagepath)){
+            return  get_image_data($imagepath);
+        }
+        elseif (self::$isAmazonS3=="Amazon") {
+            return  $imagepath;
+        }
+        else{
+            return get_image_data("http://placehold.it/250x100");
+        }
+
     }
 
     static function delete($file){
-
+        $return=false;
         if(strlen($file)>0) {
             // Instantiate an S3 client
             $s3 = self::getS3Client();
 
             //When no amazon ;
-            if($s3 == 'NoAmazon'){
+
                 $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH') . "/"."".$file;
                 if ( file_exists($Uploadpath) ) {
                     @unlink($Uploadpath);
-                    return true;
-                } else {
-                    return false;
+                    if(self::$isAmazonS3=="NoAmazon")
+                    {
+                        $return=true;
+                    }
+                }
+
+            if(self::$isAmazonS3=="Amazon")
+            {
+                 $AmazonSettings  = self::getAmazonSettings();
+                 $bucket 		 = $AmazonSettings['AWS_BUCKET'];
+                // Upload a publicly accessible file. The file size, file type, and MD5 hash
+                // are automatically calculated by the SDK.
+                try {
+                    $result = $s3->deleteObject(array('Bucket' => $bucket, 'Key' => $file));
+                    $return=true;
+                } catch (S3Exception $e) {
+                    $return=false; //"There was an error uploading the file.\n";
                 }
             }
-
-             $AmazonSettings  = self::getAmazonSettings();		
-       		 $bucket 		 = $AmazonSettings['AWS_BUCKET'];
-            // Upload a publicly accessible file. The file size, file type, and MD5 hash
-            // are automatically calculated by the SDK.
-            try {
-                $result = $s3->deleteObject(array('Bucket' => $bucket, 'Key' => $file));
-                return true;
-            } catch (S3Exception $e) {
-                return false; //"There was an error uploading the file.\n";
-            }
         }else{
-            return false;
+            $return=false;
         }
+        return $return;
     }
 }

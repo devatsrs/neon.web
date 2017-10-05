@@ -1,64 +1,68 @@
 @extends('layout.main')
+
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form role="form" id="tickets_filter" method="post" action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label small_label">Search</label>
+                    {{ Form::text('search', '', array("class"=>"form-control")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label small_label">Status</label>
+                    {{Form::select('status[]', $status, (Input::get('status')?explode(',',Input::get('status')):$OpenTicketStatus) ,array("class"=>"select2","multiple"=>"multiple"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label small_label">Priority</label>
+                    {{Form::select('priority[]', $Priority, '' ,array("class"=>"select2","multiple"=>"multiple"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label small_label">Group</label>
+                    {{Form::select('group[]', $Groups, '' ,array("class"=>"select2","multiple"=>"multiple"))}}
+                </div>
+
+                <div class="form-group">
+                    @if(User::is_admin())
+                        <label for="field-1" class="control-label small_label">Agent</label>
+                        {{Form::select('agent[]', $Agents, (Input::get('agent')?0:'') ,array("class"=>"select2","multiple"=>"multiple"))}}
+                    @else
+                        @if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)
+                            <input type="hidden" name="agent" value="{{user::get_userID()}}" >
+                        @else
+                            <input type="hidden" name="agent" value="" >
+                        @endif
+                    @endif
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label small_label">Due by</label>
+                    {{Form::select('overdue[]', TicketsTable::$DueFilter, $overdueVal ,array("class"=>"select2","multiple"=>"multiple"))}}
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{ URL::to('/dashboard') }}"><i class="entypo-home"></i>Home</a> </li>
   <li class="active"> <strong>Tickets</strong> </li>
 </ol>
 <h3>Tickets</h3>
-@if( User::checkCategoryPermission('Tickets','Add'))
-<p class="text-right">
-<div class="btn-group pull-right">
-  <button href="#" class="btn  btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Add New&nbsp;&nbsp;<span class="caret"></span></button>
-  <ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px;" role="menu">
-    <li><a href="{{URL::to('/tickets/add')}}">Ticket</a></li>
-    <li><a href="{{URL::to('/tickets/compose_email')}}">Email</a></li>
-  </ul>
-</div>
-</p>
-@endif
+
 <div class="clear clearfix"><br>
-</div>
-<div class="row">
-  <div class="col-md-12">
-    <form role="form" id="tickets_filter" method="post" action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
-      <div class="panel panel-primary" data-collapsed="0">
-        <div class="panel-heading">
-          <div class="panel-title"> Filter </div>
-          <div class="panel-options"> <a class="filter_minimize_btn" href="#" data-rel="collapse"><i class=" entypo-down-open"></i></a> </div>
-        </div>
-        <div class="panel-body" id="paymentsearch">
-          <div class="form-group">
-            <label for="field-1" class="col-sm-1 control-label small_label">Search</label>
-            <div class="col-sm-2"> {{ Form::text('search', '', array("class"=>"form-control")) }} </div>
-            <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
-            <div class="col-sm-2"> {{Form::select('status[]', $status, (Input::get('status')?explode(',',Input::get('status')):$OpenTicketStatus) ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-            <label for="field-1" class="col-sm-1 control-label small_label">Priority</label>
-            <div class="col-sm-2"> {{Form::select('priority[]', $Priority, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-            <label for="field-1" class="col-sm-1 control-label small_label">Group</label>
-            <div class="col-sm-2"> {{Form::select('group[]', $Groups, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-          </div>
-         
-          <div class="form-group">
-           @if(User::is_admin())
-            <label for="field-1" class="col-sm-1 control-label small_label">Agent</label>
-            <div class="col-sm-2"> {{Form::select('agent[]', $Agents, (Input::get('agent')?0:'') ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-            @else			
-          	@if( TicketsTable::GetTicketAccessPermission() == TicketsTable::TICKETRESTRICTEDACCESS)
-          		<input type="hidden" name="agent" value="{{user::get_userID()}}" >
-          	@else
-          		<input type="hidden" name="agent" value="" >
-          	@endif
-       		@endif		  
-				<label for="field-1" class="col-sm-1 control-label small_label">Due by</label>
-				<div class="col-sm-2"> {{Form::select('overdue[]', TicketsTable::$DueFilter, $overdueVal ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-			</div>
-          <p style="text-align: right;">
-            <button type="submit" class="btn btn-primary btn_form_submit btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
-          </p>
-        </div>
-      </div>
-    </form>
-  </div>
 </div>
 
 <div class="row">
@@ -73,15 +77,26 @@
                     <li> <a id="bulk-close" href="javascript:;" title="Shift+Close to skip notification mail" data-placement="top" data-toggle="tooltip"> Close </a> </li>
                     <li> <a id="bulk-delete" href="javascript:;"> Delete </a> </li>
                     <li> <a id="bulk-action" href="javascript:;"> Bulk Actions </a> </li>
+                    <li> <a id="bulk-pickup" href="javascript:;"> Bulk Pickup </a> </li>
                 </ul>
             @endif
             <form id="clear-bulk-rate-form">
                 <input type="hidden" name="CustomerRateIDs" value="">
             </form>
         </div>
+
+        @if( User::checkCategoryPermission('Tickets','Add'))
+            <div class="btn-group pull-right">
+                <button href="#" class="btn  btn-primary btn-md  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Add New&nbsp;&nbsp;<span class="caret"></span></button>
+                <ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px;" role="menu">
+                    <li><a href="{{URL::to('/tickets/add')}}">Ticket</a></li>
+                    <li><a href="{{URL::to('/tickets/compose_email')}}">Email</a></li>
+                </ul>
+            </div>
+        @endif
+
         <!-- /btn-group -->
-        <div class="clear"><br>
-        </div>
+        <div class="clear"><br></div>
     </div>
 </div>
 
@@ -127,9 +142,11 @@
 </style>
 <script type="text/javascript">
 	
-$(document).ready(function(e) {	
-	
-	var currentpage 	= 	-1;
+$(document).ready(function(e) {
+
+    $('#filter-button-toggle').show();
+
+    var currentpage 	= 	-1;
 	var next_enable 	= 	1;
 	var back_enable 	= 	1;
 	var per_page 		= 	{{$iDisplayLength}}
@@ -365,14 +382,33 @@ $(document).ready(function(e) {
 			$('#BulkAction-form').submit();
 			 }
 			return false;
-        }else if($(this).prop('id')=='bulk-delete'){
+        }else if($(this).prop('id')=='bulk-delete') {
+            var SelectedIDs = getselectedIDs();
+            if (SelectedIDs.length == 0) {
+                toastr.error('Please select at least one Ticket.', "Error", toastr_opts);
+                return false;
+            } else {
+                if (confirm("Are you sure you want to delete selected tickets?")) {
+                    var url = baseurl + '/tickets/bulkdelete';
+                    $.post(url, {"SelectedIDs": SelectedIDs.join(",")}, function (response) {
+                        if (response.status == 'success') {
+                            $('#tickets_filter').submit();
+                            toastr.success(response.message, "Success", toastr_opts);
+                        } else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                        }
+                    });
+                }
+            }
+            return true;
+        }else if($(this).prop('id')=='bulk-pickup') {
             var SelectedIDs = getselectedIDs();
             if (SelectedIDs.length == 0) {
                 toastr.error('Please select at least one Ticket.', "Error", toastr_opts);
                 return false;
             }else {
-                if(confirm("Are you sure you want to delete selected tickets?")) {
-                    var url = baseurl + '/tickets/bulkdelete';
+                if(confirm("Are you sure you want to Pickup selected tickets?")) {
+                    var url = baseurl + '/tickets/bulkpickup';
                     $.post(url, {"SelectedIDs": SelectedIDs.join(",")}, function (response) {
                         if (response.status == 'success') {
                             $('#tickets_filter').submit();

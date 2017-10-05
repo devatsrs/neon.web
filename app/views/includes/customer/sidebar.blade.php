@@ -81,7 +81,7 @@
                         <span>Account Statement</span>
                     </a>
                 </li>
-                @if (is_authorize() || is_Stripe())
+                @if (is_PayNowInvoice())
                 <li>
                     <a href="{{URL::to('customer/PaymentMethodProfiles')}}">
                         <span>Payment Method Profiles</span>

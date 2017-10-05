@@ -98,9 +98,9 @@ class ProfileController extends \BaseController {
         }
     }
 
-    public function get_outstanding_amount() {
+    public function get_outstanding_amount($id) {
         $data = Input::all();
-        $id = User::get_userID();
+        //$id = User::get_userID();
         $account = Account::find($id);
         $companyID = User::get_companyID();
         $Invoiceids = $data['InvoiceIDs'];

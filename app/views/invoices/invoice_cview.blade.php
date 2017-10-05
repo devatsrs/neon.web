@@ -13,7 +13,7 @@
     $PDFurl = "";
     $unsignPDFurl = "";
     if(!empty($Invoice->PDF)){
-        if(is_amazon() == false){
+        /*if(is_amazon() == false){
             $unsignPDFurl = URL::to('/invoice/display_invoice/'.$Invoice->InvoiceID);
             $PDFurl = URL::to('/invoice/download_invoice/'.$Invoice->InvoiceID);
             $cdownload_usage =  URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cdownload_usage');
@@ -23,7 +23,11 @@
             if(!empty($Invoice->UsagePath)){
                 $cdownload_usage =  AmazonS3::preSignedUrl($Invoice->UsagePath);
             }
-        }
+        }*/
+
+        $unsignPDFurl = URL::to('/invoice/display_invoice/'.$Invoice->InvoiceID);
+        $PDFurl = URL::to('/invoice/download_invoice/'.$Invoice->InvoiceID);
+        $cdownload_usage =  URL::to('/invoice/'.$Invoice->AccountID.'-'.$Invoice->InvoiceID.'/cdownload_usage');
     }
     ?>
 <header class="x-title">
@@ -48,9 +52,7 @@
 
             ?>
               <div class="pull-right"> &nbsp;</div>
-              @if(empty($ShowAllPaymentMethod) && empty($PaymentMethod))
-              @else
-                  @if($Invoice->InvoiceStatus != Invoice::PAID)
+                  @if($Invoice->InvoiceStatus != Invoice::PAID && (getInvoicePayments()))
                   <div class="input-group-btn pull-right" style="width: 70px;">
                       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="padding:4px 10px;"> Pay Now <span class="caret"></span></button>
                       <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
@@ -60,6 +62,9 @@
                               @endif
                               @if(($PaymentMethod == 'Stripe') && (is_Stripe()  ) )
                                   <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Stripe');}}" id="pay_Stripe" href="javascript:;"> Stripe </a> </li>
+                              @endif
+                              @if(is_FideliPay())
+                                  <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/FideliPay');}}" id="pay_FideliPay" href="javascript:;"> FideliPay </a> </li>
                               @endif
                               @if(($PaymentMethod == 'StripeACH') && (is_StripeACH() && $StripeACHCount==1 ) )
                                   <li> <a class="generate_rate create"  href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/StripeACH');}}" id="pay_StripeACH" href="javascript:;"> StripeACH </a> </li>
@@ -77,6 +82,9 @@
                               @if(is_Stripe())
                               <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Stripe');}}" id="pay_Stripe" href="javascript:;"> Stripe </a> </li>
                               @endif
+                              @if(is_FideliPay())
+                              <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/FideliPay');}}" id="pay_FideliPay" href="javascript:;"> FideliPay </a> </li>
+                              @endif
                               @if(is_StripeACH() && $StripeACHCount==1)
                               <li> <a class="generate_rate create"  href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/StripeACH');}}" id="pay_StripeACH" href="javascript:;"> StripeACH </a> </li>
                               @endif
@@ -91,7 +99,7 @@
                   </div>
                   <div class="pull-right"> &nbsp;</div>
                   @endif
-          @endif
+
           @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> Downlod Usage </a>
           <div class="pull-right"> &nbsp;</div>
           @endif <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a>

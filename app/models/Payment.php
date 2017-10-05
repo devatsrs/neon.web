@@ -25,6 +25,12 @@ class Payment extends \Eloquent {
         'individual'=>'individual',
         'company'=>'company',
     );
+    public static $account_holder_sagepay_type = array(
+        '1'=>'Current / Checking',
+        '2'=>'Savings',
+        '3'=>'Transmission',
+        '4'=>'Bond',
+    );
 
     public static $importpaymentrules = array(
         'selection.AccountName' => 'required',
@@ -335,4 +341,69 @@ class Payment extends \Eloquent {
         return $final_log;
     }
 
+    public static function paymentSuccess($data){
+        $Invoice = Invoice::find($data['InvoiceID']);
+        $account = Account::find($data['AccountID']);
+
+        $paymentdata = array();
+        $paymentdata['CompanyID'] = $Invoice->CompanyID;
+        $paymentdata['AccountID'] = $Invoice->AccountID;
+        $paymentdata['InvoiceNo'] = $Invoice->FullInvoiceNumber;
+        $paymentdata['InvoiceID'] = (int)$Invoice->InvoiceID;
+        $paymentdata['PaymentDate'] = date('Y-m-d H:i:s');
+        $paymentdata['PaymentMethod'] = $data['PaymentMethod'];
+        $paymentdata['CurrencyID'] = $account->CurrencyId;
+        $paymentdata['PaymentType'] = 'Payment In';
+        $paymentdata['Notes'] = $data['transaction_notes'];
+        $paymentdata['Amount'] = floatval($data['Amount']);
+        $paymentdata['Status'] = 'Approved';
+        $paymentdata['CreatedBy'] = $data['CreatedBy'];
+        $paymentdata['ModifyBy'] = $data['CreatedBy'];
+        $paymentdata['created_at'] = date('Y-m-d H:i:s');
+        $paymentdata['updated_at'] = date('Y-m-d H:i:s');
+        Payment::insert($paymentdata);
+        $transactiondata = array();
+        $transactiondata['CompanyID'] = $Invoice->CompanyID;
+        $transactiondata['AccountID'] = $Invoice->AccountID;
+        $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
+        $transactiondata['Transaction'] = $data['Transaction'];
+        $transactiondata['Notes'] = $data['transaction_notes'];
+        $transactiondata['Amount'] = floatval($data['Amount']);
+        $transactiondata['Status'] = TransactionLog::SUCCESS;
+        $transactiondata['created_at'] = date('Y-m-d H:i:s');
+        $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+        $transactiondata['CreatedBy'] = $data['CreatedBy'];
+        $transactiondata['ModifyBy'] = $data['CreatedBy'];
+        $transactiondata['Response'] = json_encode($data['Response']);
+        TransactionLog::insert($transactiondata);
+        $Invoice->update(array('InvoiceStatus' => Invoice::PAID));
+
+        $EmailTemplate = EmailTemplate::where(["CompanyID" => $paymentdata['CompanyID'], "SystemType" => EmailTemplate::InvoicePaidNotificationTemplate , "Status" => 1 ])->first();
+        if(!empty($EmailTemplate) && isset($EmailTemplate->Status) && $EmailTemplate->Status == 1 ){
+            $paymentdata['EmailTemplate'] = $EmailTemplate;
+            $paymentdata['CompanyName'] 		= 	Company::getName($paymentdata['CompanyID']);
+            $paymentdata['Invoice'] = $Invoice;
+            Notification::sendEmailNotification(Notification::InvoicePaidByCustomer,$paymentdata);
+        }
+    }
+
+    public static function paymentFail($data){
+
+        $Invoice = Invoice::find($data['InvoiceID']);
+
+        $transactiondata = array();
+        $transactiondata['CompanyID'] = $Invoice->CompanyID;
+        $transactiondata['AccountID'] = $Invoice->AccountID;
+        $transactiondata['InvoiceID'] = $Invoice->InvoiceID;
+        $transactiondata['Transaction'] = '';
+        $transactiondata['Notes'] = $data['transaction_notes'];
+        $transactiondata['Amount'] = floatval(0);
+        $transactiondata['Status'] = TransactionLog::FAILED;
+        $transactiondata['created_at'] = date('Y-m-d H:i:s');
+        $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+        $transactiondata['CreatedBy'] = $data['CreatedBy'];
+        $transactiondata['ModifyBy'] = $data['CreatedBy'];
+        $transactiondata['Response'] = $data['Response'];
+        TransactionLog::insert($transactiondata);
+    }
 }

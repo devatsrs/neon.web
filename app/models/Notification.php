@@ -15,6 +15,7 @@ class Notification extends \Eloquent {
     const RetentionDiskSpaceEmail=6;
     const BlockAccount=7;
     const InvoicePaidByCustomer=8;
+    const AutoAddIP=9;
 
     public static $type = [ Notification::InvoiceCopy=>'Invoice Copy',
         Notification::ReRate=>'CDR Rate Log',
@@ -22,7 +23,8 @@ class Notification extends \Eloquent {
         Notification::PendingApprovalPayment=>'Pending Approval Payment',
         Notification::RetentionDiskSpaceEmail=>'Retention Disk Space Email',
         Notification::BlockAccount=>'Block Account',
-        Notification::InvoicePaidByCustomer=>'Invoice Paid'
+        Notification::InvoicePaidByCustomer=>'Invoice Paid',
+        Notification::AutoAddIP=>'Auto Add IP'
     ];
 
     public static function getNotificationMail($type){

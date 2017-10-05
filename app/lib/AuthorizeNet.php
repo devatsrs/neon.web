@@ -38,7 +38,7 @@ class AuthorizeNet {
         $this->request = new AuthorizeNetCIM();
     }
 
-    function CreateProfile($data){
+    public function CreateAuthorizeCustomerProfile($data){
         try{
             $customerProfile = new AuthorizeNetCustomer();
             $customerProfile->description = htmlspecialchars($data["description"]);
@@ -96,7 +96,7 @@ class AuthorizeNet {
         }
     }
 
-    function deleteProfile($ProfileID){
+    public function deleteAuthorizeProfile($ProfileID){
         try{
             $response = $this->request->deleteCustomerProfile($ProfileID);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
@@ -116,7 +116,7 @@ class AuthorizeNet {
         }
     }
 
-    function CreatePaymentProfile($customerProfileId,$data){ 
+    public function CreatePaymentProfile($customerProfileId,$data){
         try{
             $data["ExpirationDate"] = $data["ExpirationYear"]."-".$data["ExpirationMonth"];
             $paymentProfile = new AuthorizeNetPaymentProfile;
@@ -168,7 +168,7 @@ class AuthorizeNet {
         }
     }
 
-    function deletePaymentProfile($customerProfileId,$paymentProfileId){
+    public function deletePaymentProfile($customerProfileId,$paymentProfileId){
         try{
             $response = $this->request->deleteCustomerPaymentProfile($customerProfileId,$paymentProfileId);
             if (($response != null) && ($response->getResultCode() == "Ok") ) {
@@ -191,7 +191,7 @@ class AuthorizeNet {
         }
     }
 
-    function CreatShippingAddress($customerProfileId,$data){
+    public function CreatShippingAddress($customerProfileId,$data){
         try{
             $address = new AuthorizeNetAddress;
             $address->firstName = $data['firstName'];
@@ -281,7 +281,7 @@ class AuthorizeNet {
             return $result;
         }
     }
-	public static function addAuthorizeNetTransaction($amount, $options)
+	public function addAuthorizeNetTransaction($amount, $options)
     {
         $transaction = new \AuthorizeNetTransaction();
         $request = new \AuthorizeNetCIM();
@@ -332,5 +332,232 @@ class AuthorizeNet {
             return $response->getCustomerProfileId();
         }
         return false;
+    }
+
+    public function doValidation($data){
+        $ValidationResponse = array();
+        $rules = array(
+            'CardNumber' => 'required|digits_between:13,19',
+            'ExpirationMonth' => 'required',
+            'ExpirationYear' => 'required',
+            'NameOnCard' => 'required',
+            'CVVNumber' => 'required',
+            //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
+        );
+
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            $errors = "";
+            foreach ($validator->messages()->all() as $error){
+                $errors .= $error."<br>";
+            }
+
+            $ValidationResponse['status'] = 'failed';
+            $ValidationResponse['message'] = $errors;
+            return $ValidationResponse;
+        }
+        if (date("Y") == $data['ExpirationYear'] && date("m") > $data['ExpirationMonth']) {
+
+            $ValidationResponse['status'] = 'failed';
+            $ValidationResponse['message'] = "Month must be after " . date("F");
+            return $ValidationResponse;
+        }
+        $card = CreditCard::validCreditCard($data['CardNumber']);
+        if ($card['valid'] == 0) {
+            $ValidationResponse['status'] = 'failed';
+            $ValidationResponse['message'] = "Please enter valid card number";
+            return $ValidationResponse;
+        }
+
+        $ValidationResponse['status'] = 'success';
+        return $ValidationResponse;
+    }
+
+    public function createProfile($data){
+        $ProfileID = "";
+        $ShippingProfileID = "";
+        $first = 0;
+
+        $CustomerID = $data['AccountID'];
+        $CompanyID = $data['CompanyID'];
+        $PaymentGatewayID=$data['PaymentGatewayID'];
+
+        $PaymentProfile = AccountPaymentProfile::where(['AccountID' => $CustomerID])
+            ->where(['CompanyID' => $CompanyID])
+            ->where(['PaymentGatewayID' => $PaymentGatewayID])
+            ->first();
+        if (!empty($PaymentProfile)) {
+            $options = json_decode($PaymentProfile->Options);
+            $ProfileID = $options->ProfileID;
+            $ShippingProfileID = $options->ShippingProfileID;
+        }
+        $account = Account::where(array('AccountID' => $CustomerID))->first();
+
+        $response = $this->getCustomerProfile($ProfileID);
+        if(empty($ProfileID)){
+            $first = 1;
+        }
+        if ($response == false || empty($ProfileID)) {
+            $profile = array('CustomerId' => $CustomerID, 'email' => $account->BillingEmail, 'description' => $account->AccountName);
+            $result = $this->CreateAuthorizeCustomerProfile($profile);
+            if ($result["status"] == "success") {
+                $ProfileID = $result["ID"];
+                //$ProfileID = json_decode(json_encode($ProfileID), true)[0];
+                $shipping = array('firstName' => $account->FirstName,
+                    'lastName' => $account->LastName,
+                    'address' => $account->Address1,
+                    'city' => $account->City,
+                    'state' => $account->state,
+                    'zip' => $account->PostCode,
+                    'country' => $account->Country,
+                    'phoneNumber' => $account->Mobile);
+                $result = $this->CreatShippingAddress($ProfileID, $shipping);
+                $ShippingProfileID = $result["ID"];
+            } else {
+                return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
+            }
+        }
+        $title = $data['Title'];
+        $result = $this->CreatePaymentProfile($ProfileID, $data);
+        if ($result["status"] == "success") {
+            $PaymentProfileID = $result["ID"];
+            /**  @TODO save this field NameOnCard and CCV */
+            $option = array(
+                'ProfileID' => $ProfileID,
+                'ShippingProfileID' => $ShippingProfileID,
+                'PaymentProfileID' => $PaymentProfileID
+            );
+            $CardDetail = array('Title' => $title,
+                'Options' => json_encode($option),
+                'Status' => 1,
+                'isDefault' => $first,
+                'created_by' => Customer::get_accountName(),
+                'CompanyID' => $CompanyID,
+                'AccountID' => $CustomerID,
+                'PaymentGatewayID' => $PaymentGatewayID);
+            if (AccountPaymentProfile::create($CardDetail)) {
+                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
+            }
+        } else {
+            return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
+        }
+    }
+
+    public function deleteProfile($data){
+        $AccountID = $data['AccountID'];
+        $CompanyID = $data['CompanyID'];
+        $AccountPaymentProfileID=$data['AccountPaymentProfileID'];
+
+        $count = AccountPaymentProfile::where(["CompanyID"=>$CompanyID])->where(["AccountID"=>$AccountID])->count();
+        $PaymentProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
+        if(!empty($PaymentProfile)){
+            $options = json_decode($PaymentProfile->Options);
+            $ProfileID = $options->ProfileID;
+            $PaymentProfileID = $options->PaymentProfileID;
+            $isDefault = $PaymentProfile->isDefault;
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+        }
+        if($isDefault==1){
+            if($count!=1){
+                return Response::json(array("status" => "failed", "message" => "You can not delete default profile. Please set as default an other profile first."));
+            }
+        }
+        $result = $this->DeletePaymentProfile($ProfileID,$PaymentProfileID);
+        if($result["status"]=="success"){
+            if ($PaymentProfile->delete()) {
+                if($count==1){
+                    $result =  $this->deleteAuthorizeProfile($ProfileID);
+                    if($result["status"]=="success"){
+                        return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
+                    }
+                }else{
+                    return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted"));
+                }
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+            }
+        }elseif($result["code"]=='E00040'){
+            if ($PaymentProfile->delete()) {
+                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted"));
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+            }
+        }else{
+            return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
+        }
+    }
+
+    public function paymentWithProfile($data){
+        $account = Account::find($data['AccountID']);
+        $AccountPaymentProfileID = $data['AccountPaymentProfileID'];
+        $CustomerProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
+        $StripeObj = json_decode($CustomerProfile->Options);
+        $StripeObj->InvoiceNumber = $data['InvoiceNumber'];
+
+        $transaction = $this->addAuthorizeNetTransaction($data['outstanginamount'],$StripeObj);
+        $Notes = '';
+        if($transaction->response_code == 1) {
+            $Notes = 'AuthorizeNet transaction_id ' . $transaction->transaction_id;
+            $Status = TransactionLog::SUCCESS;
+        }else{
+            $Status = TransactionLog::FAILED;
+            $Notes = isset($transaction->real_response->xml->messages->message->text) && $transaction->real_response->xml->messages->message->text != '' ? $transaction->real_response->xml->messages->message->text : $transaction->error_message ;
+            AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
+        }
+        $transactionResponse['transaction_notes'] =$Notes;
+        $transactionResponse['response_code'] = $transaction->response_code;
+        $transactionResponse['PaymentMethod'] = 'CREDIT CARD';
+        $transactionResponse['failed_reason'] =$transaction->response_reason_text!='' ? $transaction->response_reason_text : $Notes;
+        $transactionResponse['transaction_id'] = $transaction->transaction_id;
+        $transactionResponse['Response'] = $transaction;
+
+        $transactiondata = array();
+        $transactiondata['CompanyID'] = $account->CompanyId;
+        $transactiondata['AccountID'] = $account->AccountID;
+        $transactiondata['Transaction'] = $transaction->transaction_id;
+        $transactiondata['Notes'] = $Notes;
+        $transactiondata['Amount'] = floatval($transaction->amount);
+        $transactiondata['Status'] = $Status;
+        $transactiondata['created_at'] = date('Y-m-d H:i:s');
+        $transactiondata['updated_at'] = date('Y-m-d H:i:s');
+        $transactiondata['CreatedBy'] = $data['CreatedBy'];
+        $transactiondata['ModifyBy'] = $data['CreatedBy'];
+        $transactiondata['Response'] = json_encode($transaction);
+        TransactionLog::insert($transactiondata);
+        return $transactionResponse;
+
+    }
+
+    public function paymentValidateWithCreditCard($data){
+        return $this->doValidation($data);
+    }
+
+    public function paymentWithCreditCard($data){
+        $AuthorizeResponse = $this->pay_invoice($data);
+        $Notes = '';
+        if($AuthorizeResponse->response_code == 1) {
+            $Notes = 'AuthorizeNet transaction_id ' . $AuthorizeResponse->transaction_id;
+        }else{
+            $Notes = isset($AuthorizeResponse->response->xml->messages->message->text) && $AuthorizeResponse->response->xml->messages->message->text != '' ? $AuthorizeResponse->response->xml->messages->message->text : $AuthorizeResponse->response_reason_text ;
+        }
+
+        $Response = array();
+
+        if($AuthorizeResponse->approved) {
+            $Response['PaymentMethod'] = $AuthorizeResponse->method;;
+            $Response['transaction_notes'] = $Notes;
+            $Response['Amount'] = floatval($AuthorizeResponse->amount);
+            $Response['Transaction'] = $AuthorizeResponse->transaction_id;
+            $Response['Response'] = $AuthorizeResponse;
+            $Response['status'] = 'success';
+        }else{
+            $Response['transaction_notes'] = $Notes;
+            $Response['status'] = 'failed';
+            $Response['Response']=json_encode($AuthorizeResponse);
+        }
+        return $Response;
     }
 }
