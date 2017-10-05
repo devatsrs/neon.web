@@ -13,37 +13,34 @@
     <h3>Report</h3>
     @include('includes.errors')
     @include('includes.success')
-
-    <div class="row">
-        <div class="col-md-12">
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
             <form id="report_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
-                <div class="panel panel-primary" data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Filter
-                        </div>
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
+ 
                         <div class="form-group">
-                            <label for="field-1" class="col-sm-1 control-label">Name</label>
-                            <div class="col-sm-3">
-                                <input class="form-control" name="Name" type="text" >
-                            </div>
+                            <label for="field-1" class="control-label">Name</label>
+                            <input class="form-control" name="Name" type="text" >
                         </div>
-                        <p style="text-align: right;">
-                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" id="report_submit">
+                        <div class="form-group">
+                            <br/>
+                            <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="report_submit">
                                 <i class="entypo-search"></i>
                                 Search
                             </button>
-                        </p>
-                    </div>
-                </div>
+                        </div>
+
+
             </form>
+
         </div>
     </div>
+@stop
     @if(User::checkCategoryPermission('Report','Add'))
         <p style="text-align: right;">
             <a href="{{URL::to('report/create')}}" class=" btn btn-primary btn-sm btn-icon icon-left" id="add-report">
@@ -70,6 +67,8 @@
         var report_delete_url = baseurl + "/report/delete/{id}";
         var report_datagrid_url = baseurl + "/report/ajax_datagrid/type";
         jQuery(document).ready(function ($) {
+            $('#filter-button-toggle').show();
+
             data_table_char = $("#table-4").dataTable({
                 "bDestroy": true,
                 "bProcessing": true,
@@ -101,7 +100,7 @@
                             @endif
 
                             @if(User::checkCategoryPermission('Report','Update'))
-                                action += ' <a href="' + report_edit_url.replace("{id}", id) + '?report=run" class="btn btn-default btn-sm tooltip-primary" data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i>&nbsp;</a>';
+                                action += ' <a href="' + report_edit_url.replace("{id}", id) + '?report=run" class="btn btn-default btn-sm tooltip-primary" data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-play"></i>&nbsp;</a>';
                             @endif
                                     @if(User::checkCategoryPermission('Report','Delete'))
                             if(full[2] == 0) {

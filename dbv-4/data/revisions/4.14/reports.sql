@@ -212,7 +212,7 @@ ALTER TABLE `tmp_SummaryHeader`
 	DROP COLUMN `created_at`,
 	DROP COLUMN `ServiceID`;
 
-CREATE INDEX `Unique_key` ON `tmp_SummaryHeader`(`DateID`, `CompanyID`, `AccountID`);
+CREATE INDEX `SH1_Unique_key` ON `tmp_SummaryHeader`(`DateID`, `CompanyID`, `AccountID`);
 
 ALTER TABLE `tmp_SummaryHeaderLive`
 	CHANGE COLUMN `SummaryHeaderID` `HeaderID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT FIRST,
@@ -224,7 +224,7 @@ ALTER TABLE `tmp_SummaryHeaderLive`
 	DROP COLUMN `created_at`,
 	DROP COLUMN `ServiceID`;
 
-CREATE INDEX `Unique_key` ON `tmp_SummaryHeaderLive`(`DateID`, `CompanyID`, `AccountID`);
+CREATE INDEX `SH2_Unique_key` ON `tmp_SummaryHeaderLive`(`DateID`, `CompanyID`, `AccountID`);
 
 ALTER TABLE `tmp_SummaryVendorHeader`
 	CHANGE COLUMN `SummaryVendorHeaderID` `HeaderVID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT FIRST,
@@ -237,7 +237,7 @@ ALTER TABLE `tmp_SummaryVendorHeader`
 	DROP COLUMN `created_at`,
 	DROP COLUMN `ServiceID`;
 	
-CREATE INDEX `Unique_key` ON `tmp_SummaryVendorHeader`(`DateID`, `CompanyID`, `VAccountID`);
+CREATE INDEX `SH3_Unique_key` ON `tmp_SummaryVendorHeader`(`DateID`, `CompanyID`, `VAccountID`);
 
 
 ALTER TABLE `tmp_SummaryVendorHeaderLive`
@@ -251,7 +251,7 @@ ALTER TABLE `tmp_SummaryVendorHeaderLive`
 	DROP COLUMN `created_at`,
 	DROP COLUMN `ServiceID`;
 	
-CREATE INDEX `Unique_key` ON `tmp_SummaryVendorHeaderLive`(`DateID`, `CompanyID`, `VAccountID`);
+CREATE INDEX `SH4_Unique_key` ON `tmp_SummaryVendorHeaderLive`(`DateID`, `CompanyID`, `VAccountID`);
 
 DROP INDEX `Unique_key` ON `tmp_UsageSummary`;
 
@@ -312,7 +312,7 @@ ALTER TABLE `tmp_tblVendorUsageDetailsReportLive`
   , MODIFY COLUMN `ServiceID` int(11) NULL DEFAULT '0';
 
   
-DROP PROCEDURE `fnDistinctList`;
+DROP PROCEDURE IF EXISTS `fnDistinctList`;
   
 DELIMITER |
 CREATE PROCEDURE `fnDistinctList`(
@@ -357,7 +357,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnGetUsageForSummary`;
+DROP PROCEDURE IF EXISTS `fnGetUsageForSummary`;
 
 DELIMITER |
 CREATE PROCEDURE `fnGetUsageForSummary`(
@@ -410,8 +410,8 @@ BEGIN
 		userfield,
 		pincode,
 		extension
-	FROM NeonCDRDev.tblUsageDetails  ud
-	INNER JOIN NeonCDRDev.tblUsageHeader uh
+	FROM RMCDR3.tblUsageDetails  ud
+	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
@@ -464,8 +464,8 @@ BEGIN
 		userfield,
 		pincode,
 		extension
-	FROM NeonCDRDev.tblUsageDetailFailedCall  ud
-	INNER JOIN NeonCDRDev.tblUsageHeader uh
+	FROM RMCDR3.tblUsageDetailFailedCall  ud
+	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
@@ -480,7 +480,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnGetVendorUsageForSummary`;
+DROP PROCEDURE IF EXISTS `fnGetVendorUsageForSummary`;
 
 DELIMITER |
 CREATE PROCEDURE `fnGetVendorUsageForSummary`(
@@ -527,8 +527,8 @@ BEGIN
 		trunk,
 		area_prefix,		
 		1 AS call_status
-	FROM NeonCDRDev.tblVendorCDR  ud
-	INNER JOIN NeonCDRDev.tblVendorCDRHeader uh
+	FROM RMCDR3.tblVendorCDR  ud
+	INNER JOIN RMCDR3.tblVendorCDRHeader uh
 		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
@@ -574,8 +574,8 @@ BEGIN
 		trunk,
 		area_prefix,		
 		2 AS call_status
-	FROM NeonCDRDev.tblVendorCDRFailed  ud
-	INNER JOIN NeonCDRDev.tblVendorCDRHeader uh
+	FROM RMCDR3.tblVendorCDRFailed  ud
+	INNER JOIN RMCDR3.tblVendorCDRHeader uh
 		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
@@ -590,7 +590,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnUpdateCustomerLink`;
+DROP PROCEDURE IF EXISTS `fnUpdateCustomerLink`;
 
 DELIMITER |
 CREATE PROCEDURE `fnUpdateCustomerLink`(
@@ -605,8 +605,8 @@ BEGIN
 
 	SET @stmt = CONCAT('
 	INSERT IGNORE INTO tblTempCallDetail_1_' , p_UniqueID , '
-	SELECT cd.* FROM NeonCDRDev.tblCallDetail cd
-	INNER JOIN NeonCDRDev.tblUsageHeader uh
+	SELECT cd.* FROM RMCDR3.tblCallDetail cd
+	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = cd.UsageHeaderID
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
@@ -632,7 +632,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnUpdateVendorLink`;
+DROP PROCEDURE IF EXISTS `fnUpdateVendorLink`;
 
 DELIMITER |
 CREATE PROCEDURE `fnUpdateVendorLink`(
@@ -647,8 +647,8 @@ BEGIN
 
 	SET @stmt = CONCAT('
 	INSERT IGNORE INTO tblTempCallDetail_2_' , p_UniqueID , '
-	SELECT cd.* FROM NeonCDRDev.tblCallDetail cd
-	INNER JOIN NeonCDRDev.tblVendorCDRHeader uh
+	SELECT cd.* FROM RMCDR3.tblCallDetail cd
+	INNER JOIN RMCDR3.tblVendorCDRHeader uh
 		ON uh.VendorCDRHeaderID = cd.VendorCDRHeaderID
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
@@ -674,7 +674,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnUsageSummary`;
+DROP PROCEDURE IF EXISTS `fnUsageSummary`;
 
 DELIMITER |
 CREATE PROCEDURE `fnUsageSummary`(
@@ -739,7 +739,7 @@ BEGIN
 			ON us.HeaderID = sh.HeaderID
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.AccountID = a.AccountID
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
@@ -771,7 +771,7 @@ BEGIN
 			ON us.HeaderID = sh.HeaderID
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.AccountID = a.AccountID
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
@@ -830,7 +830,7 @@ BEGIN
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
 			ON dt.TimeID = usd.TimeID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.AccountID = a.AccountID
 		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
@@ -866,7 +866,7 @@ BEGIN
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
 			ON dt.TimeID = usd.TimeID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.AccountID = a.AccountID
 		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
@@ -884,7 +884,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnUsageSummaryDetail`;
+DROP PROCEDURE IF EXISTS `fnUsageSummaryDetail`;
 
 DELIMITER |
 CREATE PROCEDURE `fnUsageSummaryDetail`(
@@ -932,7 +932,7 @@ BEGIN
 	SET i = 1;
 	REPEAT
 		INSERT INTO tmp_AreaPrefix_ ( Code)
-		SELECT NeonRMDev.FnStringSplit(p_AreaPrefix, ',', i) FROM tblDimDate WHERE NeonRMDev.FnStringSplit(p_AreaPrefix, ',', i) IS NOT NULL LIMIT 1;
+		SELECT Ratemanagement3.FnStringSplit(p_AreaPrefix, ',', i) FROM tblDimDate WHERE Ratemanagement3.FnStringSplit(p_AreaPrefix, ',', i) IS NOT NULL LIMIT 1;
 		SET i = i + 1;
 		UNTIL ROW_COUNT() = 0
 	END REPEAT;
@@ -961,9 +961,9 @@ BEGIN
 		ON dd.DateID = sh.DateID
 	INNER JOIN tblDimTime dt
 		ON dt.TimeID = usd.TimeID
-	INNER JOIN NeonRMDev.tblAccount a
+	INNER JOIN Ratemanagement3.tblAccount a
 		ON sh.AccountID = a.AccountID
-	LEFT JOIN NeonRMDev.tblTrunk t
+	LEFT JOIN Ratemanagement3.tblTrunk t
 		ON t.Trunk = usd.Trunk
 	LEFT JOIN tmp_AreaPrefix_ ap 
 		ON usd.AreaPrefix LIKE REPLACE(ap.Code, '*', '%')
@@ -1002,9 +1002,9 @@ BEGIN
 		ON dd.DateID = sh.DateID
 	INNER JOIN tblDimTime dt
 		ON dt.TimeID = usd.TimeID
-	INNER JOIN NeonRMDev.tblAccount a
+	INNER JOIN Ratemanagement3.tblAccount a
 		ON sh.AccountID = a.AccountID
-	LEFT JOIN NeonRMDev.tblTrunk t
+	LEFT JOIN Ratemanagement3.tblTrunk t
 		ON t.Trunk = usd.Trunk
 	LEFT JOIN tmp_AreaPrefix_ ap 
 		ON (p_AreaPrefix = '' OR usd.AreaPrefix LIKE REPLACE(ap.Code, '*', '%') )
@@ -1022,7 +1022,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnUsageVendorSummary`;
+DROP PROCEDURE IF EXISTS `fnUsageVendorSummary`;
 
 DELIMITER |
 CREATE PROCEDURE `fnUsageVendorSummary`(
@@ -1087,7 +1087,7 @@ BEGIN
 			ON us.HeaderVID = sh.HeaderVID 
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.VAccountID = a.AccountID
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
@@ -1119,7 +1119,7 @@ BEGIN
 			ON us.HeaderVID = sh.HeaderVID 
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.VAccountID = a.AccountID
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
@@ -1178,7 +1178,7 @@ BEGIN
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
 			ON dt.TimeID = usd.TimeID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.VAccountID = a.AccountID
 		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
@@ -1214,7 +1214,7 @@ BEGIN
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
 			ON dt.TimeID = usd.TimeID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.VAccountID = a.AccountID
 		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
@@ -1231,7 +1231,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `fnUsageVendorSummaryDetail`;
+DROP PROCEDURE IF EXISTS `fnUsageVendorSummaryDetail`;
 
 DELIMITER |
 CREATE PROCEDURE `fnUsageVendorSummaryDetail`(
@@ -1279,7 +1279,7 @@ BEGIN
 	SET i = 1;
 	REPEAT
 		INSERT INTO tmp_AreaPrefix_ ( Code)
-		SELECT NeonRMDev.FnStringSplit(p_AreaPrefix, ',', i) FROM tblDimDate WHERE NeonRMDev.FnStringSplit(p_AreaPrefix, ',', i) IS NOT NULL LIMIT 1;
+		SELECT Ratemanagement3.FnStringSplit(p_AreaPrefix, ',', i) FROM tblDimDate WHERE Ratemanagement3.FnStringSplit(p_AreaPrefix, ',', i) IS NOT NULL LIMIT 1;
 		SET i = i + 1;
 		UNTIL ROW_COUNT() = 0
 	END REPEAT;
@@ -1308,9 +1308,9 @@ BEGIN
 		ON dd.DateID = sh.DateID
 	INNER JOIN tblDimTime dt
 		ON dt.TimeID = usd.TimeID
-	INNER JOIN NeonRMDev.tblAccount a
+	INNER JOIN Ratemanagement3.tblAccount a
 		ON sh.VAccountID = a.AccountID
-	LEFT JOIN NeonRMDev.tblTrunk t
+	LEFT JOIN Ratemanagement3.tblTrunk t
 		ON t.Trunk = usd.Trunk
 	LEFT JOIN tmp_AreaPrefix_ ap
 		ON usd.AreaPrefix LIKE REPLACE(ap.Code, '*', '%')
@@ -1349,9 +1349,9 @@ BEGIN
 		ON dd.DateID = sh.DateID
 	INNER JOIN tblDimTime dt
 		ON dt.TimeID = usd.TimeID
-	INNER JOIN NeonRMDev.tblAccount a
+	INNER JOIN Ratemanagement3.tblAccount a
 		ON sh.VAccountID = a.AccountID
-	LEFT JOIN NeonRMDev.tblTrunk t
+	LEFT JOIN Ratemanagement3.tblTrunk t
 		ON t.Trunk = usd.Trunk
 	LEFT JOIN tmp_AreaPrefix_ ap
 		ON usd.AreaPrefix LIKE REPLACE(ap.Code, '*', '%')
@@ -1369,7 +1369,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_generateSummary`;
+DROP PROCEDURE IF EXISTS `prc_generateSummary`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_generateSummary`(
@@ -1603,7 +1603,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_generateSummaryLive`;
+DROP PROCEDURE IF EXISTS `prc_generateSummaryLive`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_generateSummaryLive`(
@@ -1820,7 +1820,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_generateVendorSummary`;
+DROP PROCEDURE IF EXISTS `prc_generateVendorSummary`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_generateVendorSummary`(
@@ -2057,7 +2057,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_generateVendorSummaryLive`;
+DROP PROCEDURE IF EXISTS `prc_generateVendorSummaryLive`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_generateVendorSummaryLive`(
@@ -2276,7 +2276,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_getAccountExpense`;
+DROP PROCEDURE IF EXISTS `prc_getAccountExpense`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_getAccountExpense`(
@@ -2486,7 +2486,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_getDashboardPayableReceivable`;
+DROP PROCEDURE IF EXISTS `prc_getDashboardPayableReceivable`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_getDashboardPayableReceivable`(
@@ -2567,12 +2567,12 @@ BEGIN
 		);
 
 		INSERT INTO tmp_Account_ (AccountID)
-		SELECT DISTINCT tblHeader.AccountID  FROM tblHeader INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblHeader.AccountID WHERE tblHeader.CompanyID = 1;
+		SELECT DISTINCT tblHeader.AccountID  FROM tblHeader INNER JOIN Ratemanagement3.tblAccount ON tblAccount.AccountID = tblHeader.AccountID WHERE tblHeader.CompanyID = 1;
 
 		UPDATE tmp_Account_ SET LastInvoiceDate = fngetLastInvoiceDate(AccountID);
 
 		INSERT INTO tmp_Account2_ (AccountID)
-		SELECT DISTINCT tblHeaderV.VAccountID  FROM tblHeaderV INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblHeaderV.VAccountID WHERE tblHeaderV.CompanyID = p_CompanyID;
+		SELECT DISTINCT tblHeaderV.VAccountID  FROM tblHeaderV INNER JOIN Ratemanagement3.tblAccount ON tblAccount.AccountID = tblHeaderV.VAccountID WHERE tblHeaderV.CompanyID = p_CompanyID;
 
 		UPDATE tmp_Account2_ SET LastInvoiceDate = fngetLastVendorInvoiceDate(AccountID);
 
@@ -2634,7 +2634,7 @@ BEGIN
 	INTO 
 		prev_TotalInvoiceOut,
 		prev_TotalInvoiceIn
-	FROM NeonBillingDev.tblInvoice 
+	FROM RMBilling3.tblInvoice 
 	WHERE 
 		CompanyID = p_CompanyID
 		AND CurrencyID = p_CurrencyID
@@ -2648,8 +2648,8 @@ BEGIN
 	INTO 
 		prev_TotalPaymentIn,
 		prev_TotalPaymentOut
-	FROM NeonBillingDev.tblPayment p 
-	INNER JOIN NeonRMDev.tblAccount ac 
+	FROM RMBilling3.tblPayment p 
+	INNER JOIN Ratemanagement3.tblAccount ac 
 		ON ac.AccountID = p.AccountID
 	WHERE 
 		p.CompanyID = p_CompanyID
@@ -2693,7 +2693,7 @@ BEGIN
 				SUM(IF(InvoiceType=1,GrandTotal,0)) AS TotalInvoiceOut,
 				SUM(IF(InvoiceType=2,GrandTotal,0)) AS TotalInvoiceIn,
 				DATE(tblInvoice.IssueDate) AS  IssueDate 
-			FROM NeonBillingDev.tblInvoice 
+			FROM RMBilling3.tblInvoice 
 			WHERE 
 				CompanyID = p_CompanyID
 				AND CurrencyID = p_CurrencyID
@@ -2708,8 +2708,8 @@ BEGIN
 				SUM(IF(PaymentType='Payment In',p.Amount,0)) AS TotalPaymentIn ,
 				SUM(IF(PaymentType='Payment Out',p.Amount,0)) AS TotalPaymentOut,
 				DATE(p.PaymentDate) AS PaymentDate
-			FROM NeonBillingDev.tblPayment p
-			INNER JOIN NeonRMDev.tblAccount ac
+			FROM RMBilling3.tblPayment p
+			INNER JOIN Ratemanagement3.tblAccount ac
 				ON ac.AccountID = p.AccountID
 			WHERE
 				p.CompanyID = p_CompanyID
@@ -2788,7 +2788,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_getDistinctList`;
+DROP PROCEDURE IF EXISTS `prc_getDistinctList`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_getDistinctList`(
@@ -2812,14 +2812,14 @@ BEGIN
 		SELECT 
 			CompanyGatewayID,
 			Title 
-		FROM NeonRMDev.tblCompanyGateway 
+		FROM Ratemanagement3.tblCompanyGateway 
 		WHERE CompanyID = p_CompanyID
 		AND Title LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
-		FROM NeonRMDev.tblCompanyGateway 
+		FROM Ratemanagement3.tblCompanyGateway 
 		WHERE CompanyID = p_CompanyID
 		AND Title LIKE CONCAT(p_Search,'%');
 
@@ -2831,13 +2831,13 @@ BEGIN
 		SELECT 
 			CountryID,
 			Country 
-		FROM NeonRMDev.tblCountry
+		FROM Ratemanagement3.tblCountry
 		WHERE Country LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
-		FROM NeonRMDev.tblCountry
+		FROM Ratemanagement3.tblCountry
 		WHERE Country LIKE CONCAT(p_Search,'%');
 
 	END IF;
@@ -2848,14 +2848,14 @@ BEGIN
 		SELECT 
 			AccountID,
 			AccountName 
-		FROM NeonRMDev.tblAccount
+		FROM Ratemanagement3.tblAccount
 		WHERE CompanyID = p_CompanyID
 		AND AccountName LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
-		FROM NeonRMDev.tblAccount
+		FROM Ratemanagement3.tblAccount
 		WHERE CompanyID = p_CompanyID
 		AND AccountName LIKE CONCAT(p_Search,'%');
 
@@ -2867,14 +2867,14 @@ BEGIN
 		SELECT 
 			ServiceID,
 			ServiceName 
-		FROM NeonRMDev.tblService 
+		FROM Ratemanagement3.tblService 
 		WHERE CompanyID = p_CompanyID
 		AND ServiceName LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
-		FROM NeonRMDev.tblService 
+		FROM Ratemanagement3.tblService 
 		WHERE CompanyID = p_CompanyID
 		AND ServiceName LIKE CONCAT(p_Search,'%');
 
@@ -2908,14 +2908,14 @@ BEGIN
 			DISTINCT
 			CurrencyId as CurrencyID,
 			Code
-		FROM NeonRMDev.tblCurrency
+		FROM Ratemanagement3.tblCurrency
 		WHERE CompanyID = p_CompanyID
 		AND Code LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
-		FROM NeonRMDev.tblCurrency
+		FROM Ratemanagement3.tblCurrency
 		WHERE CompanyID = p_CompanyID
 		AND Code LIKE CONCAT(p_Search,'%');
 
@@ -2928,14 +2928,14 @@ BEGIN
 			DISTINCT
 			TaxRateId as CurrencyID,
 			Title
-		FROM NeonRMDev.tblTaxRate
+		FROM Ratemanagement3.tblTaxRate
 		WHERE CompanyID = p_CompanyID
 		AND Title LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
-		FROM NeonRMDev.tblTaxRate
+		FROM Ratemanagement3.tblTaxRate
 		WHERE CompanyID = p_CompanyID
 		AND Title LIKE CONCAT(p_Search,'%');
 
@@ -2948,14 +2948,14 @@ BEGIN
 			DISTINCT
 			ProductID as ProductID,
 			Name
-		FROM NeonBillingDev.tblProduct
+		FROM RMBilling3.tblProduct
 		WHERE CompanyID = p_CompanyID
 		AND Name LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
-		FROM NeonBillingDev.tblProduct
+		FROM RMBilling3.tblProduct
 		WHERE CompanyID = p_CompanyID
 		AND Name LIKE CONCAT(p_Search,'%');
 
@@ -2968,14 +2968,14 @@ BEGIN
 			DISTINCT
 			ProductID as ProductID,
 			Code
-		FROM NeonBillingDev.tblProduct
+		FROM RMBilling3.tblProduct
 		WHERE CompanyID = p_CompanyID
 		AND Code LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 		
 		SELECT
 			COUNT(*) AS totalcount
-		FROM NeonBillingDev.tblProduct
+		FROM RMBilling3.tblProduct
 		WHERE CompanyID = p_CompanyID
 		AND Code LIKE CONCAT(p_Search,'%');
 
@@ -3018,7 +3018,7 @@ BEGIN
 			ELSE
 				AccountCLI
 			END as AccountIP1 
-		FROM NeonBillingDev.tblGatewayAccount 
+		FROM RMBilling3.tblGatewayAccount 
 		WHERE CompanyID = p_CompanyID
 		AND (AccountIP <> '' OR AccountCLI <> '')
 		AND ( AccountIP LIKE CONCAT(p_Search,'%') OR AccountCLI LIKE CONCAT(p_Search,'%'))
@@ -3033,7 +3033,7 @@ BEGIN
 			ELSE
 				AccountCLI
 			END) AS totalcount
-		FROM NeonBillingDev.tblGatewayAccount 
+		FROM RMBilling3.tblGatewayAccount 
 		WHERE CompanyID = p_CompanyID
 		AND (AccountIP <> '' OR AccountCLI <> '')
 		AND ( AccountIP LIKE CONCAT(p_Search,'%') OR AccountCLI LIKE CONCAT(p_Search,'%'));
@@ -3135,7 +3135,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_getUnbilledReport`;
+DROP PROCEDURE IF EXISTS `prc_getUnbilledReport`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_getUnbilledReport`(
@@ -3194,7 +3194,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_getVendorUnbilledReport`;
+DROP PROCEDURE IF EXISTS `prc_getVendorUnbilledReport`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_getVendorUnbilledReport`(
@@ -3253,7 +3253,7 @@ BEGIN
 END|
 DELIMITER ;
 
-DROP PROCEDURE `prc_updateLiveTables`;
+DROP PROCEDURE IF EXISTS `prc_updateLiveTables`;
 
 DELIMITER |
 CREATE PROCEDURE `prc_updateLiveTables`(
@@ -3271,7 +3271,7 @@ BEGIN
 	THEN
 		SET @stmt = CONCAT('
 		UPDATE tmp_tblUsageDetailsReport_',p_UniqueID,' uh
-		INNER JOIN NeonBillingDev.tblGatewayAccount ga
+		INNER JOIN RMBilling3.tblGatewayAccount ga
 			ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
 		SET uh.AccountID = ga.AccountID
 		WHERE uh.AccountID IS NULL
@@ -3285,7 +3285,7 @@ BEGIN
 		
 		SET @stmt = CONCAT('
 		UPDATE tblTempCallDetail_1_',p_UniqueID,' uh
-		INNER JOIN NeonBillingDev.tblGatewayAccount ga
+		INNER JOIN RMBilling3.tblGatewayAccount ga
 			ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
 		SET uh.AccountID = ga.AccountID
 		WHERE uh.AccountID IS NULL
@@ -3303,7 +3303,7 @@ BEGIN
 
 		SET @stmt = CONCAT('
 		UPDATE tmp_tblVendorUsageDetailsReport_',p_UniqueID,' uh
-		INNER JOIN NeonBillingDev.tblGatewayAccount ga
+		INNER JOIN RMBilling3.tblGatewayAccount ga
 			ON  uh.GatewayVAccountPKID = ga.GatewayAccountPKID
 		SET uh.VAccountID = ga.AccountID
 		WHERE uh.VAccountID IS NULL
@@ -3317,7 +3317,7 @@ BEGIN
 		
 		SET @stmt = CONCAT('
 		UPDATE tblTempCallDetail_2_',p_UniqueID,' uh
-		INNER JOIN NeonBillingDev.tblGatewayAccount ga
+		INNER JOIN RMBilling3.tblGatewayAccount ga
 			ON  uh.GatewayVAccountPKID = ga.GatewayAccountPKID
 		SET uh.VAccountID = ga.AccountID
 		WHERE uh.VAccountID IS NULL
@@ -3362,7 +3362,7 @@ BEGIN
 	);
 	
 	INSERT INTO tmp_Account_ (AccountID)
-	SELECT DISTINCT tblHeader.AccountID  FROM tblHeader INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblHeader.AccountID WHERE tblHeader.CompanyID = p_CompanyID;
+	SELECT DISTINCT tblHeader.AccountID  FROM tblHeader INNER JOIN Ratemanagement3.tblAccount ON tblAccount.AccountID = tblHeader.AccountID WHERE tblHeader.CompanyID = p_CompanyID;
 	
 	UPDATE tmp_Account_ SET LastInvoiceDate = fngetLastInvoiceDate(AccountID);
 	
@@ -3378,11 +3378,11 @@ BEGIN
 		
 		SELECT FinalAmount INTO v_FinalAmount_ FROM tmp_FinalAmount_;
 		
-		IF (SELECT COUNT(*) FROM NeonRMDev.tblAccountBalance WHERE AccountID = v_AccountID_) > 0
+		IF (SELECT COUNT(*) FROM Ratemanagement3.tblAccountBalance WHERE AccountID = v_AccountID_) > 0
 		THEN
-			UPDATE NeonRMDev.tblAccountBalance SET UnbilledAmount = v_FinalAmount_ WHERE AccountID = v_AccountID_;
+			UPDATE Ratemanagement3.tblAccountBalance SET UnbilledAmount = v_FinalAmount_ WHERE AccountID = v_AccountID_;
 		ELSE
-			INSERT INTO NeonRMDev.tblAccountBalance (AccountID,UnbilledAmount,BalanceAmount)
+			INSERT INTO Ratemanagement3.tblAccountBalance (AccountID,UnbilledAmount,BalanceAmount)
 			SELECT v_AccountID_,v_FinalAmount_,v_FinalAmount_;
 		END IF;
 		
@@ -3391,12 +3391,12 @@ BEGIN
 	END WHILE;
 	
 	UPDATE 
-		NeonRMDev.tblAccountBalance 
+		Ratemanagement3.tblAccountBalance 
 	INNER JOIN
 		(
 			SELECT 
 				DISTINCT tblAccount.AccountID 
-			FROM NeonRMDev.tblAccount  
+			FROM Ratemanagement3.tblAccount  
 			LEFT JOIN tmp_Account_ 
 				ON tblAccount.AccountID = tmp_Account_.AccountID
 			WHERE tmp_Account_.AccountID IS NULL AND tblAccount.CompanyID = p_CompanyID
@@ -3439,7 +3439,7 @@ BEGIN
 	);
 	
 	INSERT INTO tmp_Account_ (AccountID)
-	SELECT DISTINCT tblHeaderV.VAccountID  FROM tblHeaderV INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblHeaderV.VAccountID WHERE tblHeaderV.CompanyID = p_CompanyID;
+	SELECT DISTINCT tblHeaderV.VAccountID  FROM tblHeaderV INNER JOIN Ratemanagement3.tblAccount ON tblAccount.AccountID = tblHeaderV.VAccountID WHERE tblHeaderV.CompanyID = p_CompanyID;
 	
 	UPDATE tmp_Account_ SET LastInvoiceDate = fngetLastVendorInvoiceDate(AccountID);
 	
@@ -3458,11 +3458,11 @@ BEGIN
 			
 			SELECT FinalAmount INTO v_FinalAmount_ FROM tmp_FinalAmount_;
 			
-			IF (SELECT COUNT(*) FROM NeonRMDev.tblAccountBalance WHERE AccountID = v_AccountID_) > 0
+			IF (SELECT COUNT(*) FROM Ratemanagement3.tblAccountBalance WHERE AccountID = v_AccountID_) > 0
 			THEN
-				UPDATE NeonRMDev.tblAccountBalance SET VendorUnbilledAmount = v_FinalAmount_ WHERE AccountID = v_AccountID_;
+				UPDATE Ratemanagement3.tblAccountBalance SET VendorUnbilledAmount = v_FinalAmount_ WHERE AccountID = v_AccountID_;
 			ELSE
-				INSERT INTO NeonRMDev.tblAccountBalance (AccountID,VendorUnbilledAmount,BalanceAmount)
+				INSERT INTO Ratemanagement3.tblAccountBalance (AccountID,VendorUnbilledAmount,BalanceAmount)
 				SELECT v_AccountID_,v_FinalAmount_,v_FinalAmount_;
 			END IF;
 			
@@ -3473,12 +3473,12 @@ BEGIN
 	END WHILE;	
 	
 	UPDATE 
-		NeonRMDev.tblAccountBalance 
+		Ratemanagement3.tblAccountBalance 
 	INNER JOIN
 		(
 			SELECT 
 				DISTINCT tblAccount.AccountID 
-			FROM NeonRMDev.tblAccount  
+			FROM Ratemanagement3.tblAccount  
 			LEFT JOIN tmp_Account_ 
 				ON tblAccount.AccountID = tmp_Account_.AccountID
 			WHERE tmp_Account_.AccountID IS NULL AND tblAccount.CompanyID = p_CompanyID
@@ -5110,10 +5110,10 @@ SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
   RENAME TABLE `tblUsageSummaryLive` TO `tblUsageSummaryLive_delete`;
   
   RENAME TABLE `tblUsageSummary` TO `tblUsageSummary_delete`;
-  RENAME TABLE `tblUsageSummaryDetail` TO `tblUsageSummaryDetail`;
+  RENAME TABLE `tblUsageSummaryDetail` TO `tblUsageSummaryDetail_delete`;
   
   RENAME TABLE `tblUsageVendorSummary` TO `tblUsageVendorSummary_delete`;
-  RENAME TABLE `tblUsageVendorSummaryDetail` TO `tblUsageVendorSummaryDetail`;  
+  RENAME TABLE `tblUsageVendorSummaryDetail` TO `tblUsageVendorSummaryDetail_delete`;  
 
   RENAME TABLE `tblUsageVendorSummaryLive` TO `tblUsageVendorSummaryLive_delete`;
   RENAME TABLE `tblUsageVendorSummaryDetailLive` TO `tblUsageVendorSummaryDetailLive_delete`;
@@ -5124,3 +5124,8 @@ DELIMITER ;
 
 
 CALL report_mig();
+
+INSERT INTO `tblReport` (`ReportID`, `CompanyID`, `Name`, `Settings`, `Type`, `created_at`, `CreatedBy`, `updated_at`, `UpdatedBy`) VALUES (1, 1, 'Monthly Revenue Report', '{"Cube":"invoice","row":"year,month","column":"GrandTotal,ProductType","filter":"date","filter_col_name":"date","filter_settings":"{\\"date\\":{\\"table-filter-list_length\\":\\"10\\",\\"TaxRateID\\":[\\"3\\"],\\"wildcard_match_val\\":\\"\\",\\"start_date\\":\\"2017-01-01\\",\\"end_date\\":\\"2017-10-02\\",\\"condition\\":\\"none\\",\\"top\\":\\"none\\"}}","wildcard_match_val":"","start_date":"","end_date":"","condition":"none","top":"none","Name":"Monthly Revenue Report","ReportID":"1"}', 1, '2017-10-02 16:31:56', 'System', '2017-10-03 11:25:43', 'System');
+INSERT INTO `tblReport` (`ReportID`, `CompanyID`, `Name`, `Settings`, `Type`, `created_at`, `CreatedBy`, `updated_at`, `UpdatedBy`) VALUES (2, 1, 'Monthly Tax Report', '{"Cube":"invoice","row":"year,month","column":"TotalTax,TaxRateID","filter":"","filter_col_name":"date","filter_settings":"{\\"date\\":{\\"wildcard_match_val\\":\\"\\",\\"start_date\\":\\"2017-01-01\\",\\"end_date\\":\\"2017-10-02\\",\\"condition\\":\\"none\\",\\"top\\":\\"none\\"}}","wildcard_match_val":"","start_date":"2017-01-01","end_date":"2017-10-02","condition":"none","top":"none","Name":"Monthly Tax Report","ReportID":""}', 1, '2017-10-02 16:41:49', 'System', '2017-10-02 16:41:49', 'System');
+INSERT INTO `tblReport` (`ReportID`, `CompanyID`, `Name`, `Settings`, `Type`, `created_at`, `CreatedBy`, `updated_at`, `UpdatedBy`) VALUES (3, 1, 'Monthly Invoice  Report', '{"Cube":"invoice","row":"year,month","column":"GrandTotal,InvoiceType","filter":"","filter_col_name":"date","filter_settings":"{\\"date\\":{\\"wildcard_match_val\\":\\"\\",\\"start_date\\":\\"2017-01-01\\",\\"end_date\\":\\"2017-10-02\\",\\"condition\\":\\"none\\",\\"top\\":\\"none\\"}}","wildcard_match_val":"","start_date":"","end_date":"","condition":"none","top":"none","Name":"Monthly Invoice  Report","ReportID":"3"}', 1, '2017-10-02 16:43:06', 'System', '2017-10-02 16:43:48', 'System');
+INSERT INTO `tblReport` (`ReportID`, `CompanyID`, `Name`, `Settings`, `Type`, `created_at`, `CreatedBy`, `updated_at`, `UpdatedBy`) VALUES (4, 1, 'Cross Analysis Report', '{"Cube":"summary","row":"VAccountID","column":"TotalCharges,NoOfCalls,AccountID","filter":"AreaPrefix","filter_col_name":"AreaPrefix","filter_settings":"{\\"date\\":{\\"wildcard_match_val\\":\\"\\",\\"start_date\\":\\"2017-07-01\\",\\"end_date\\":\\"2017-10-02\\",\\"condition\\":\\"none\\",\\"top\\":\\"none\\"},\\"AreaPrefix\\":{\\"table-filter-list_length\\":\\"10\\",\\"AreaPrefix\\":[\\"8801\\"],\\"wildcard_match_val\\":\\"\\",\\"start_date\\":\\"2017-07-01\\",\\"end_date\\":\\"2017-10-02\\",\\"condition\\":\\"none\\",\\"top\\":\\"none\\"}}","table-filter-list_length":"10","AreaPrefix":["8801"],"wildcard_match_val":"","start_date":"2017-07-01","end_date":"2017-10-02","condition":"none","top":"none","Name":"Cross Analysis Report","ReportID":""}', 1, '2017-10-02 17:16:49', 'System', '2017-10-02 17:16:49', 'System');

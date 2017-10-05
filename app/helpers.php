@@ -1028,7 +1028,7 @@ function create_site_configration_cache(){
         $cache['Title']				=	'Neon';
         $cache['FooterText']		=	'&copy; '.date('Y').' Code Desk';
         $cache['FooterUrl']			=	'http://www.code-desk.com';
-        $cache['LoginMessage']		=	'Dear user, log in to access RM!';
+        $cache['LoginMessage']		=	'Dear user, Please login below!';
         $cache['CustomCss']			=	'';
     }
 

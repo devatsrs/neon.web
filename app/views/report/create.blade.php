@@ -25,8 +25,9 @@
                     @if(User::checkCategoryPermission('Report','Update') )
                     <div class="panel-options">
                             <a type="submit" id="save_report"  data-original-title="Save" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-floppy"></i></a>
+                            <a href="{{URL::to('report')}}"  data-original-title="Back" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-times"></i></a>
                         @if(empty(Input::get('report')) && !empty($report))
-                            <a href="{{URL::to('report/edit/'.$report->ReportID)}}?report=run"  data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i>&nbsp;</a>
+                            <a href="{{URL::to('report/edit/'.$report->ReportID)}}?report=run"  data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-play"></i>&nbsp;</a>
                         @endif
                     </div>
 
@@ -38,7 +39,7 @@
                     <form role="form" class="form-horizontal form-groups-bordered" id="report-row-col">
                         <div class="form-group " >
                             <div class="col-sm-2 {{Input::get('report')=='run'?'hidden':''}}">
-                                <label for="field-5" class="control-label">Cube <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Cube is a logical schema which contains measures and dimensions.For Example Customer CDR,Payment,Invoice" data-original-title="Cube">?</span></label>
+                                <label for="field-5" class="control-label popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Cube is a logical schema which contains measures and dimensions.For Example Customer CDR,Payment,Invoice" data-original-title="Cube">Cube</label>
                                 <br>
                                 <br>
                                 {{Form::select('Cube',Report::$cube,(isset($report_settings['Cube'])?$report_settings['Cube']:''),array("class"=>"select2 small",$disable))}}
@@ -53,7 +54,7 @@
                                 <input type="hidden" id="hidden_filter" name="filter" value="{{$report_settings['filter'] or ''}}">
                                 <input type="hidden" id="hidden_filter_col" name="filter_col_name" value="{{$report_settings['filter_col_name'] or ''}}">
                                 <input type="hidden" id="hidden_setting" name="filter_settings" value='{{$report_settings['filter_settings'] or ''}}'>
-                                <label for="field-5" class="control-label {{Input::get('report')=='run'?'hidden':''}}">Columns <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="You can drop dimension or measures here which you want to see in columns. For example year or grand total you can select as column" data-original-title="Column">?</span></label>
+                                <label for="field-5" class="control-label popover-primary {{Input::get('report')=='run'?'hidden':''}}" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="You can drop dimension or measures here which you want to see in columns. For example year or grand total you can select as column" data-original-title="Column">Columns</label>
                                 <div id="Columns_Drop" class="form-control {{Input::get('report')=='run'?'hidden':''}} tree ui-widget-content ui-state-default select2-container select2-container-multi">
 
                                     <ul class=" select2-choices ui-helper-reset">
@@ -83,7 +84,7 @@
                                         @endif
                                     </ul>
                                 </div>
-                                <label for="field-5" class="control-label {{Input::get('report')=='run'?'hidden':''}}">Row <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="You can drop dimension here which you want to see in row. For example year you can select as row " data-original-title="Row">?</span></label>
+                                <label for="field-5" class="control-label popover-primary {{Input::get('report')=='run'?'hidden':''}}" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="You can drop dimension here which you want to see in row. For example year you can select as row " data-original-title="Row">Row</label>
                                 <div id="Row_Drop" class="form-control {{Input::get('report')=='run'?'hidden':''}} tree ui-widget-content ui-state-default select2-container select2-container-multi">
                                     <ul class=" select2-choices ui-helper-reset">
                                         @if(isset($report_settings['row']) && $selectedRows = array_filter(explode(',',$report_settings['row'])))
@@ -111,7 +112,7 @@
                                         @endif
                                     </ul>
                                 </div>
-                                <label for="field-5" class="control-label">Filter <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="You can apply filter by dropping dimension here. For example date you can select start date and end date filter" data-original-title="Filter">?</span></label>
+                                <label for="field-5" class="control-label popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="You can apply filter by dropping dimension here. For example date you can select start date and end date filter" data-original-title="Filter">Filter</label>
                                 <div id="Filter_Drop" class="form-control tree ui-widget-content ui-state-default select2-container select2-container-multi">
                                     <ul class=" select2-choices ui-helper-reset">
                                         @if(isset($report_settings['filter_settings']) && $selectedColumns = array_filter(json_decode($report_settings['filter_settings'],true)))
@@ -146,7 +147,7 @@
                             <div class="col-sm-2 vertical-border border_right {{Input::get('report')=='run'?'hidden':''}}">
                                 <div class="row">
                                     <div class="col-sm-12 vertical-border border_bottom">
-                                        <label for="field-5" class="control-label">Dimension <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Dimensions are qualitative and do not total a sum. For example, account, currency, account ip , or date are dimensions.Dimensions you can drop in Columns,Row,Filter" data-original-title="Dimensions">?</span></label>
+                                        <label for="field-5" class="control-label  popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Dimensions are qualitative and do not total a sum. For example, account, currency, account ip , or date are dimensions.Dimensions you can drop in Columns,Row,Filter" data-original-title="Dimensions">Dimension</label>
                                     </div>
                                     <div   class="col-sm-12 vertical-border border_bottom" style="margin-top: 15px;padding-top: 15px">
                                         <div class="nested-list with-margins tree">
@@ -158,7 +159,7 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-12 vertical-border border_bottom" style="margin-top: 15px;padding-top: 15px">
-                                        <label for="field-5" class="control-label">Measures <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Measures are numerical values that mathematical functions work on. For example, a grand total column is a measure because you can find out a total the data.Measures you can drop only in Columns." data-original-title="Measures">?</span></label>
+                                        <label for="field-5" class="control-label popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Measures are numerical values that mathematical functions work on. For example, a grand total column is a measure because you can find out a total the data.Measures you can drop only in Columns." data-original-title="Measures">Measures</label>
                                     </div>
                                     <div class="col-sm-12 vertical-border" style="margin-top: 15px;padding-top: 15px">
                                         <div id="list-1" class="nested-list tree with-margins">
