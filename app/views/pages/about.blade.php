@@ -19,8 +19,9 @@
     <div class="btn btn-primary btn-lg">Current Version: <strong>v4.14</strong></div>
 </p>
 </div>-->
+<br>
 <div class="btn btn-primary btn-lg">Current Version: <strong>v4.14</strong></div>
-
+<br>
 <h2>
     <span class="label label-success">4.14</span> &nbsp; Version Highlights
 </h2>
