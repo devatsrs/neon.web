@@ -71,7 +71,7 @@ class SagePayDirectDebit
                 Log::info(print_r($soapresponse,true));
                 $result = $soapresponse->ValidateBankAccountResult;
                 if($result==0){
-                    $response['status'] = 'Success';
+                    $response['status'] = 'success';
                     $response['VerifyStatus'] = 'verified';
                 }elseif($result==1){
                     $response['status'] = 'fail';
@@ -272,7 +272,7 @@ class SagePayDirectDebit
                     $response['status'] = 'fail';
                     $response['error'] = 'General code exception';
                 }else{
-                    $response['status'] = 'Success';
+                    $response['status'] = 'success';
                     $response['response'] = $result;
                 }
 
@@ -296,4 +296,145 @@ class SagePayDirectDebit
         return $response;
     }
 
+    public function doValidation($data){
+        $ValidationResponse = array();
+        $rules = array(
+            'Title' => 'required',
+            'AccountName' => 'required',
+            'BankAccountName' => 'required',
+            'AccountNumber' => 'required|digits_between:2,11',
+            'BranchCode' => 'required|digits:6',
+            'AccountHolderType' => 'required',
+        );
+
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            $errors = "";
+            foreach ($validator->messages()->all() as $error){
+                $errors .= $error."<br>";
+            }
+
+            $ValidationResponse['status'] = 'failed';
+            $ValidationResponse['message'] = $errors;
+            return $ValidationResponse;
+        }
+
+        $varifydata = array(
+            'AccountNumber'   => $data['AccountNumber'],
+            'BranchCode'        => $data['BranchCode'],
+            'AccountType' => $data['AccountHolderType']
+        );
+
+        $verify_response = $this->verifyBankAccount($varifydata);
+
+        if(!empty($verify_response) && $verify_response['status']=='success'){
+            $ValidationResponse['status'] = 'success';
+        }elseif(!empty($verify_response) && $verify_response['status']=='fail'){
+            $ValidationResponse['status'] = 'failed';
+            $ValidationResponse['message'] = $verify_response['error'];
+        }else{
+            $ValidationResponse['status'] = 'failed';
+            $ValidationResponse['message'] = "Problem creating in verify";
+        }
+        return $ValidationResponse;
+
+    }
+
+    public function createProfile($data){
+        $isDefault = 1;
+
+        $CustomerID = $data['AccountID'];
+        $CompanyID = $data['CompanyID'];
+        $PaymentGatewayID=$data['PaymentGatewayID'];
+
+        $count = AccountPaymentProfile::where(['AccountID' => $CustomerID])
+            ->where(['CompanyID' => $CompanyID])
+            ->where(['PaymentGatewayID' => $PaymentGatewayID])
+            ->where(['isDefault' => 1])
+            ->count();
+
+        if($count>0){
+            $isDefault = 0;
+        }
+
+        $option = array(
+            'AccountName' => $data['AccountName'],
+            'BankAccountName'   => Crypt::encrypt($data['BankAccountName']),
+            'AccountNumber'   => Crypt::encrypt($data['AccountNumber']),
+            'BranchCode'        => Crypt::encrypt($data['BranchCode']),
+            'AccountHolderType' => $data['AccountHolderType'],
+            'VerifyStatus'      => 'verified',
+        );
+        $BankDetail = array('Title' => $data['Title'],
+            'Options' => json_encode($option),
+            'Status' => 1,
+            'isDefault' => $isDefault,
+            'created_by' => Customer::get_accountName(),
+            'CompanyID' => $CompanyID,
+            'AccountID' => $CustomerID,
+            'PaymentGatewayID' => $PaymentGatewayID);
+
+        if (AccountPaymentProfile::create($BankDetail)) {
+            return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
+        }
+    }
+
+    public function deleteProfile($data){
+        $AccountID = $data['AccountID'];
+        $CompanyID = $data['CompanyID'];
+        $AccountPaymentProfileID=$data['AccountPaymentProfileID'];
+
+        $count = AccountPaymentProfile::where(["CompanyID"=>$CompanyID])->where(["AccountID"=>$AccountID])->count();
+        $PaymentProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
+        if(!empty($PaymentProfile)){
+            $isDefault = $PaymentProfile->isDefault;
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+        }
+        if($isDefault==1){
+            if($count!=1){
+                return Response::json(array("status" => "failed", "message" => "You can not delete default profile. Please set as default an other profile first."));
+            }
+        }
+
+        if($PaymentProfile->delete()) {
+            return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+        }
+
+    }
+
+    public function doVerify($data){
+        $cardID = $data['cardID'];
+        $AccountPaymentProfile = AccountPaymentProfile::find($cardID);
+        $options = json_decode($AccountPaymentProfile->Options,true);
+        $sagedata = array();
+        $sagepayment = new SagePayDirectDebit();
+        if(empty($sagepayment->status)){
+            return Response::json(array("status" => "failed", "message" => "Sage Direct Debit not setup correctly"));
+        }
+
+        $sagedata['AccountNumber']=Crypt::decrypt($options['AccountNumber']);
+        $sagedata['BranchCode']=Crypt::decrypt($options['BranchCode']);
+        $sagedata['AccountType']=$options['AccountHolderType'];
+
+        $SageResponse = $sagepayment->verifyBankAccount($sagedata);
+        if($SageResponse['status']=='Success'){
+            if($SageResponse['VerifyStatus']=='verified'){
+                unset($options['VerifyStatus']);
+                $options['VerifyStatus'] = $SageResponse['VerifyStatus'];
+                $AccountPaymentProfile->update(array('Options' => json_encode($options)));
+
+                return Response::json(array("status" => "success", "message" => "verification status is ".$SageResponse['VerifyStatus']));
+            }else{
+                return Response::json(array("status" => "failed", "message" => "verification status is ".$SageResponse['VerifyStatus']));
+            }
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => $SageResponse['error']));
+        }
+    }
 }

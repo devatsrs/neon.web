@@ -117,8 +117,11 @@ class Invoice extends \Eloquent {
             @chmod($logo,0777);
 
             $InvoiceTemplate->DateFormat = invoice_date_fomat($InvoiceTemplate->DateFormat);
-            $file_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.pdf';
-            $htmlfile_name = 'Invoice--' .$Account->AccountName.'-' .date($InvoiceTemplate->DateFormat) . '.html';
+
+            $common_name = Str::slug($Account->AccountName.'-'.$Invoice->FullInvoiceNumber.'-'.date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate)).'-'.$InvoiceID);
+
+            $file_name = 'Invoice--' .$common_name . '.pdf';
+            $htmlfile_name = 'Invoice--' .$common_name . '.html';
 
 			$print_type = 'Invoice';
             $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates'))->render();
@@ -137,19 +140,18 @@ class Invoice extends \Eloquent {
                 mkdir($destination_dir, 0777, true);
             } 
             RemoteSSH::run("chmod -R 777 " . $destination_dir);
-            $file_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $file_name;
-            $htmlfile_name = \Nathanmac\GUID\Facades\GUID::generate() .'-'. $htmlfile_name;
+
             $local_file = $destination_dir .  $file_name; 
 
             $local_htmlfile = $destination_dir .  $htmlfile_name; 
             file_put_contents($local_htmlfile,$body);
             @chmod($local_htmlfile,0777);
-            $footer_name = 'footer-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
+            $footer_name = 'footer-'. $common_name .'.html';
             $footer_html = $destination_dir.$footer_name;
             file_put_contents($footer_html,$footer);
             @chmod($footer_html,0777);
 
-            $header_name = 'header-'. \Nathanmac\GUID\Facades\GUID::generate() .'.html';
+            $header_name = 'header-'. $common_name .'.html';
             $header_html = $destination_dir.$header_name;
             file_put_contents($header_html,$header);
             @chmod($footer_html,0777);

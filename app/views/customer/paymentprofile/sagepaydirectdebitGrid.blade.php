@@ -148,14 +148,14 @@
                             }else{
                                 ShowToastr("error",response.message);
                             }
-                            $("#table-4_processing").hide();
+                            $('#table-4_processing').css('visibility','hidden');
                         }
                         //onDelete Click
                         FnDeleteBankAccount = function(e){
                             result = confirm("Are you Sure?");
                             if(result){
                                 var id  = $(this).attr("data-id");
-                                $("#table-4_processing").show();
+                                $('#table-4_processing').css('visibility','visible');
                                 var url = deletePaymentMethodProfile_url;
                                 url = url.replace('{id}', id);
                                 showAjaxScript( url ,"",FnDeleteBankAccountSuccess );
@@ -183,6 +183,7 @@
                     if (!confirm('Are you sure you want to '+ text +' the Card?')) {
                         return;
                     }
+                    $('#table-4_processing').css('visibility','visible');
                     ajax_Add_update(self.attr("href"));
                     return false;
                 });
@@ -193,6 +194,7 @@
                     if (!confirm('Are you sure you want to set Default this Card?')) {
                         return;
                     }
+                    $('#table-4_processing').css('visibility','visible');
                     ajax_Add_update(self.attr("href"));
                     return false;
                 });
@@ -201,6 +203,7 @@
                     e.preventDefault();
                     var self = $(this);
                     var cardID = self.attr("data-id");
+                    $('#table-4_processing').css('visibility','visible');
                     $.ajax({
                         url: baseurl + '/customer/PaymentMethodProfiles/verify_bankaccount',
                         data: 'cardID=' + cardID +'&Sage=1',
@@ -208,6 +211,7 @@
                         success: function (response) {
                             $("#bankaccount-update").button('reset');
                             $(".btn").button('reset');
+                            $('#table-4_processing').css('visibility','hidden');
                             if (response.status == 'success') {
                                 $('#add-modal-bankaccount').modal('hide');
                                 toastr.success(response.message, "Success", toastr_opts);
@@ -218,7 +222,6 @@
                             } else {
                                 toastr.error(response.message, "Error", toastr_opts);
                             }
-                            $("#table-4_processing").hide();
                             $('.btn.upload').button('reset');
                         },
                         type: 'POST'
@@ -232,36 +235,22 @@
                     $("#add-bankaccount-form")[0].reset();
                     $("#add-bankaccount-form").find('input[name="cardID"]').val('');                    
                     $("#add-bankaccount-form").find('input[name="PaymentGatewayID"]').val(pgid);
+                    $("#add-bankaccount-form").find('input[name="AccountID"]').val('{{$account->AccountID}}');
+                    $("#add-bankaccount-form").find('input[name="CompanyID"]').val('{{$account->CompanyId}}');
                     $('#add-modal-bankaccount').modal('show');
                 });
 
                 $('#add-bankaccount-form').submit(function(e){
                     e.preventDefault();
-                    $("#table-4_processing").show();
+                    $('#table-4_processing').css('visibility','visible');
                     var cardID = $("#add-bankaccount-form").find('[name="cardID"]').val();
                     if(cardID!=""){
                         update_new_url = baseurl + '/customer/PaymentMethodProfiles/update';
                     }else{
-                        update_new_url = baseurl + '/paymentprofile/create';
-                        if(customer[0].customer==1){
-                            update_new_url = baseurl + '/customer/PaymentMethodProfiles/create';
-                        }
+                        update_new_url = baseurl + '/customer/PaymentMethodProfiles/create';
                     }
                     ajax_Add_update(update_new_url);
                 });
-
-                $('table tbody').on('click','.edit-bankaccount',function(ev){
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    $("#add-bankaccount-form")[0].reset();                    
-                    cardID = $(this).prev("div.hiddenRowData").find("input[name='cardID']").val();
-                    Title = $(this).prev("div.hiddenRowData").find("input[name='Title']").val();
-                    $("#add-bankaccount-form").find('[name="cardID"]').val(cardID);
-                    $("#add-bankaccount-form").find('[name="Title"]').val(Title);
-                    $('#add-modal-bankaccount').modal('show');
-                })
-
-
             });
 
 
@@ -276,6 +265,7 @@
                     success: function(response) {
                         $("#bankaccount-update").button('reset');
                         $(".btn").button('reset');
+                        $('#table-4_processing').css('visibility','hidden');
                         if (response.status == 'success') {
                             $('#add-modal-bankaccount').modal('hide');
                             toastr.success(response.message, "Success", toastr_opts);
@@ -286,7 +276,6 @@
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }
-                        $("#table-4_processing").hide();
                         $('.btn.upload').button('reset');
                     },
                     data: data,
@@ -354,6 +343,7 @@
                                     <input type="text" name="AccountNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="cardID" />
                                     <input type="hidden" name="AccountID" />
+                                    <input type="hidden" name="CompanyID" />
                                     <input type="hidden" name="PaymentGatewayID" />
                                 </div>
                             </div>

@@ -38,7 +38,7 @@ BEGIN
 	EXECUTE stmt3;
 	DEALLOCATE PREPARE stmt3;
 
-	SET @stm4 = CONCAT('    
+	SET @stm4 = CONCAT('
 	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '"  AND billed_duration = 0 AND cost = 0 AND ( disposition <> "ANSWERED" OR disposition IS NULL);
 	');
 
@@ -46,7 +46,7 @@ BEGIN
 	EXECUTE stmt4;
 	DEALLOCATE PREPARE stmt4;
 
-	SET @stm5 = CONCAT(' 
+	SET @stm5 = CONCAT('
 	INSERT INTO tblUsageDetails (UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition,userfield)
 	SELECT UsageHeaderID,connect_time,disconnect_time,billed_duration,billed_second,area_prefix,pincode,extension,cli,cld,cost,remote_ip,duration,trunk,ProcessID,ID,is_inbound,disposition,userfield
 	FROM  `' , p_tbltempusagedetail_name , '` d
@@ -60,7 +60,7 @@ BEGIN
 	EXECUTE stmt5;
 	DEALLOCATE PREPARE stmt5;
 
-	SET @stm6 = CONCAT(' 
+	SET @stm6 = CONCAT('
 	DELETE FROM `' , p_tbltempusagedetail_name , '` WHERE processid = "' , p_processId , '" ;
 	');
 

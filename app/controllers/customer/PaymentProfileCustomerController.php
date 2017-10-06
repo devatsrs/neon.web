@@ -2,10 +2,10 @@
 class PaymentProfileCustomerController extends \BaseController {
 
 
-    public function ajax_datagrid() {
+    public function ajax_datagrid($AccountID) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $AccountID = User::get_userID();
+        //$AccountID = User::get_userID();
 
         $PaymentGatewayName = '';
         $PaymentGatewayID='';
@@ -43,9 +43,18 @@ class PaymentProfileCustomerController extends \BaseController {
         return View::make('customer.paymentprofile.index',compact('currentmonth','currentyear','account'));
 	}
 
-    public function paynow()
+    public function paynow($AccountID)
     {
-        return View::make('customer.paymentprofile.paynow',compact('currentmonth','currentyear'));
+
+        \Debugbar::disable();
+        $PaymentGatewayID = '';
+        $Account = Account::find($AccountID);
+        $PaymentMethod = '';
+        if(!empty($Account->PaymentMethod)){
+            $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($Account->PaymentMethod);
+            $PaymentMethod = $Account->PaymentMethod;
+        }
+        return View::make('customer.paymentprofile.paynow',compact('AccountID','PaymentGatewayID','PaymentMethod'));
     }
 
 	/**
@@ -57,16 +66,25 @@ class PaymentProfileCustomerController extends \BaseController {
     public function create()
     {
         $data = Input::all();
-        $CompanyID = Customer::get_companyID();
-        $CustomerID = Customer::get_accountID();
+        $ProfileResponse = array();
+        //$CompanyID = Customer::get_companyID();
+        //$CustomerID = Customer::get_accountID();
+        $CustomerID = $data['AccountID'];
         if($CustomerID > 0) {
-            $PaymentGatewayID=$data['PaymentGatewayID'];
-            if($data['PaymentGatewayID']==PaymentGateway::StripeACH){
-                return AccountPaymentProfile::createBankProfile($CompanyID, $CustomerID,$PaymentGatewayID);
-            }elseif($data['PaymentGatewayID']==PaymentGateway::SagePayDirectDebit){
-                return AccountPaymentProfile::createSagePayProfile($CompanyID, $CustomerID,$PaymentGatewayID);
+            if(empty($data['PaymentGatewayID']) || empty($data['CompanyID'])){
+                return Response::json(array("status" => "failed", "message" => "Please Select Payment Gateway"));
             }
-            return AccountPaymentProfile::createProfile($CompanyID, $CustomerID,$PaymentGatewayID);
+            $CompanyID = $data['CompanyID'];
+            $PaymentGatewayID=$data['PaymentGatewayID'];
+            $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+            $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass,$CompanyID);
+            $Response = $PaymentIntegration->doValidation($data);
+            if($Response['status']=='failed'){
+                return  Response::json(array("status" => "failed", "message" => $Response['message']));
+            }elseif($Response['status']=='success'){
+                $ProfileResponse = $PaymentIntegration->createProfile($data);
+            }
+            return $ProfileResponse;
         }
     }
 
@@ -128,19 +146,12 @@ class PaymentProfileCustomerController extends \BaseController {
         if(!empty($PaymentProfile)){
             $PaymentGatewayID = $PaymentProfile->PaymentGatewayID;
             if(!empty($PaymentGatewayID)){
-
-                if($PaymentGatewayID==PaymentGateway::AuthorizeNet){
-                    $ProfileResponse = AccountPaymentProfile::deleteAuthorizeProfile($CompanyID, $AccountID,$id);
-                }
-                if($PaymentGatewayID==PaymentGateway::Stripe){
-                    $ProfileResponse = AccountPaymentProfile::deleteStripeProfile($CompanyID, $AccountID,$id);
-                }
-                if($PaymentGatewayID==PaymentGateway::StripeACH){
-                    $ProfileResponse = AccountPaymentProfile::deleteStripeACHProfile($CompanyID, $AccountID,$id);
-                }
-                if($PaymentGatewayID==PaymentGateway::SagePayDirectDebit){
-                    $ProfileResponse = AccountPaymentProfile::deleteSagePayDirectDebitProfile($CompanyID, $AccountID,$id);
-                }
+                $data['AccountPaymentProfileID'] = $id;
+                $data['CompanyID'] = $CompanyID;
+                $data['AccountID'] = $AccountID;
+                $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+                $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass,$CompanyID);
+                $ProfileResponse = $PaymentIntegration->deleteProfile($data);
 
             }else{
                 return Response::json(array("status" => "failed", "message" => "Payment Gateway not setup"));
@@ -158,17 +169,20 @@ class PaymentProfileCustomerController extends \BaseController {
     {
         if ($id) {
             $data = Input::all();
-            $card = AccountPaymentProfile::findOrFail($id);
+            $card = AccountPaymentProfile::find($id);
             if($card->update(['isDefault'=>1])){
+                /*
                 if(!empty($data['AccountID'])){
                     $AccountID =$data['AccountID'];
                     $CompanyID = User::get_companyID();
                 }else{
                     $CompanyID = Customer::get_companyID();
                     $AccountID = Customer::get_accountID();
-                }
+                }*/
                 $PaymentGatewayID = $card->PaymentGatewayID;
-                AccountPaymentProfile::where(["CompanyID"=>$CompanyID,"PaymentGatewayID"=>$PaymentGatewayID])->where(["AccountID"=>$AccountID])->where('AccountPaymentProfileID','<>',$id)->update(['isDefault'=>'0']);
+                $CompanyID = $card->CompanyID;
+                $AccountID = $card->AccountID;
+                AccountPaymentProfile::where(["CompanyID"=>$CompanyID,"PaymentGatewayID"=>$PaymentGatewayID])->where(["AccountID"=>$AccountID])->where('AccountPaymentProfileID','<>',$id)->update(['isDefault'=>0]);
                 return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Updated"));
             } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating Payment Method Profile."));
@@ -196,6 +210,25 @@ class PaymentProfileCustomerController extends \BaseController {
     public function verify_bankaccount(){
         $data = Input::all();
         $cardID = $data['cardID'];
+        $CompanyID = Customer::get_companyID();
+        $AccountPaymentProfile = AccountPaymentProfile::find($cardID);
+        if(!empty($AccountPaymentProfile)){
+            $PaymentGatewayID = $AccountPaymentProfile->PaymentGatewayID;
+            if(!empty($PaymentGatewayID)){
+                $PaymentGatewayClass = PaymentGateway::getPaymentGatewayClass($PaymentGatewayID);
+                $PaymentIntegration = new PaymentIntegration($PaymentGatewayClass,$CompanyID);
+                $ProfileResponse = $PaymentIntegration->doVerify($data);
+
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Payment Gateway not setup"));
+            }
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+        }
+
+        return $ProfileResponse;
+        /*
         if(!empty($data['Sage']) && $data['Sage']==1){
             return $this->verify_sagebankaccount($cardID);
         }
@@ -234,7 +267,10 @@ class PaymentProfileCustomerController extends \BaseController {
         }else{
             return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
         }
+        */
     }
+
+    // not using
     public function verify_sagebankaccount($cardID){
         $AccountPaymentProfile = AccountPaymentProfile::find($cardID);
         $options = json_decode($AccountPaymentProfile->Options,true);

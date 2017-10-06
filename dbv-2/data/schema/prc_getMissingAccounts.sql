@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`104.47.140.143` PROCEDURE `prc_getMissingAccounts`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getMissingAccounts`(
 	IN `p_CompanyID` int,
 	IN `p_CompanyGatewayID` INT
 )
@@ -29,6 +29,7 @@ BEGIN
 	INNER JOIN NeonRMDev.tblCompanyGateway cg ON ga.CompanyGatewayID = cg.CompanyGatewayID
 	WHERE ga.GatewayAccountID IS NOT NULL and ga.CompanyID =p_CompanyID AND ga.AccountID IS NULL AND cg.`Status` =1
 	AND (p_CompanyGatewayID = 0 OR ga.CompanyGatewayID = p_CompanyGatewayID )
+	AND ga.AccountIP IS NOT NULL AND ga.AccountName IS NOT NULL
 	ORDER BY ga.CompanyGatewayID,ga.AccountName;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

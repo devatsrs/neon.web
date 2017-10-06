@@ -212,7 +212,13 @@
 			  if(File::exists(public_path().'/assets/images/'.$subcategoriesData['Slug'].'.png')){	?>
                 <img class="integrationimage" src="<?php  URL::to('/'); ?>assets/images/{{$subcategoriesData['Slug']}}.png" />
                 <?php } ?>
-                <a><b>{{$subcategoriesData['Title']}}</b></a>
+                <a><b>
+                    @if($subcategoriesData['Title']=='SagePay Direct Debit')
+                        Direct Debit
+                    @else
+                        {{$subcategoriesData['Title']}}
+                    @endif
+                </b></a>
               </label>
             </div>
             <?php 
@@ -533,6 +539,39 @@
             </div>
       </div>
       <!-- SagePay Direct Debit end -->
+      <!-- FideliPay Start -->
+        <?php
+        $FideliPayDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$FideliPaySlug);
+        $FideliPayData   = isset($FideliPayDbData->Settings)?json_decode($FideliPayDbData->Settings):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$FideliPayDbData->Slug}}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Source Key:</label>
+                        <input type="text"  class="form-control" name="SourceKey" value="{{isset($FideliPayData->SourceKey)?$FideliPayData->SourceKey:''}}" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="field-1" class="control-label">* Pin:</label>
+                        <input type="text"  class="form-control" name="Pin" value="{{isset($FideliPayData->Pin)?$FideliPayData->Pin:''}}" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label">Active:</label>
+                        <div id="FideliPayStatusDiv">
+                            <input id="FideliPayStatus" class="subcatstatus" Divid="FideliPayStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($FideliPayDbData->Status) && $FideliPayDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+      <!-- FideliPay End -->
 
       <!-- Mandril start -->
        <?php 

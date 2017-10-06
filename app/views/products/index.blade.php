@@ -1,5 +1,40 @@
 @extends('layout.main')
 
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="product_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Name</label>
+                    {{ Form::text('Name', '', array("class"=>"form-control")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Code</label>
+                    {{ Form::text('Code', '', array("class"=>"form-control")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Active</label>
+                        <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
+                    {{ Form::select('Active', $active, '', array("class"=>"form-control select2 small")) }}
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 
     <ol class="breadcrumb bc-3">
@@ -15,65 +50,10 @@
     <div class="tab-content">
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="clear"></div>
-            <br>
-            @if( User::is_admin() || User::is('BillingAdmin'))
-                <p style="text-align: right;">
-                    @if(User::checkCategoryPermission('Products','Add'))
-                    <a href="{{ URL::to('products/upload') }}" class="btn btn-primary ">
-                        <i class="entypo-upload"></i>
-                        Upload
-                    </a>
-                    <a href="#" data-action="showAddModal" data-type="item" data-modal="add-edit-modal-product" class="btn btn-primary ">
-                        <i class="entypo-plus"></i>
-                        Add New
-                    </a>
-                    @endif
-                </p>
-            @endif
-            <div class="row">
-                <div class="col-md-12">
-                    <form id="product_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
-                        <div class="panel panel-primary" data-collapsed="0">
-                            <div class="panel-heading">
-                                <div class="panel-title">
-                                    Filter
-                                </div>
-                                <div class="panel-options">
-                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                                </div>
-                            </div>
-                            <div class="panel-body">
-                                <div class="form-group">
-                                    <label for="field-1" class="col-sm-2 control-label">Name</label>
-                                    <div class="col-sm-2">
-                                        {{ Form::text('Name', '', array("class"=>"form-control")) }}
-                                    </div>
-                                    <label for="field-1" class="col-sm-2 control-label">Code</label>
-                                     <div class="col-sm-2">
-                                           {{ Form::text('Code', '', array("class"=>"form-control")) }}
-                                    </div>
-                                    <label for="field-1" class="col-sm-2 control-label">Active</label>
-                                    <div class="col-sm-2">
-                                           <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
-                                          {{ Form::select('Active', $active, '', array("class"=>"form-control select2 small")) }}
-                                    </div>
-                                </div>
-                                <p style="text-align: right;">
-                                    <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
-                                        <i class="entypo-search"></i>
-                                        Search
-                                    </button>
-                                </p>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="clear"></div>
-            @if(User::checkCategoryPermission('Products','Edit'))
-                <div class="row hidden dropdown">
+                <div class="row">
                     <div  class="col-md-12">
-                        <div class="input-group-btn pull-right" style="width:70px;">
+                        @if(User::checkCategoryPermission('Products','Edit'))
+                        <div class="input-group-btn pull-right hidden dropdown" style="width:70px;">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                                 @if(User::checkCategoryPermission('Products','Edit'))
@@ -92,10 +72,24 @@
                                 @endif
                             </ul>
                         </div><!-- /btn-group -->
+                        @endif
+
+                        @if( User::is_admin() || User::is('BillingAdmin'))
+                            @if(User::checkCategoryPermission('Products','Add'))
+                                <a href="{{ URL::to('products/upload') }}" class="btn btn-primary pull-right" style="margin-left: 4px;">
+                                    <i class="entypo-upload"></i>
+                                    Upload
+                                </a>
+                                <a href="#" data-action="showAddModal" data-type="item" data-modal="add-edit-modal-product" class="btn btn-primary pull-right">
+                                    <i class="entypo-plus"></i>
+                                    Add New
+                                </a>
+                            @endif
+                        @endif
+
                     </div>
                     <div class="clear"></div>
                 </div>
-            @endif
             <br>
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
@@ -119,6 +113,9 @@
                 var update_new_url;
                 var postdata;
                 jQuery(document).ready(function ($) {
+
+                    $('#filter-button-toggle').show();
+
                     public_vars.$body = $("body");
                     $searchFilter.Name = $("#product_filter [name='Name']").val();
                     $searchFilter.Code = $("#product_filter [name='Code']").val();

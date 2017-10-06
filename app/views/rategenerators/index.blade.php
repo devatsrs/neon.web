@@ -1,5 +1,40 @@
 @extends('layout.main')
 
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="rategenerator_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
+                <div class="form-group">
+                    <label for="Search" class="control-label">Name</label>
+                    <input class="form-control" name="Search" id="Search"  type="text" >
+                </div>
+                <div class="form-group">
+                    <label for="Active" class="control-label">Trunk</label>
+                    {{ Form::select('Trunk', $Trunks, 1, array("class"=>"form-control select2 small","id"=>"Trunk")) }}
+                </div>
+                <div class="form-group">
+                    <label for="Active" class="control-label">Active</label>
+                    <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
+                    {{ Form::select('Active', $active, 1, array("class"=>"form-control select2 small","id"=>"Active")) }}
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{URL::to('/dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -9,38 +44,6 @@
 <div class="float-right"> @if(User::checkCategoryPermission('RateGenerator','Add')) <a href="{{URL::to('rategenerators/create')}}" class="btn add btn-primary btn-sm btn-icon icon-left"> <i class="entypo-floppy"></i> Add New </a> @endif </div>
 <br>
 <br>
-<div class="row">
-  <div class="col-md-12">
-    <form id="rategenerator_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
-      <div class="panel panel-primary" data-collapsed="0">
-        <div class="panel-heading">
-          <div class="panel-title"> Filter </div>
-          <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
-        </div>
-        <div class="panel-body">
-          <div class="form-group">
-            <label for="Search" class="col-sm-1 control-label">Name</label>
-            <div class="col-sm-2">
-              <input class="form-control" name="Search" id="Search"  type="text" >
-            </div>  
-            <label for="Active" class="col-sm-1 control-label">Trunk</label>
-            <div class="col-sm-2">
-              {{ Form::select('Trunk', $Trunks, 1, array("class"=>"form-control select2 small","id"=>"Trunk")) }}
-               </div>            
-            <label for="Active" class="col-sm-1 control-label">Active</label>
-            <div class="col-sm-2">
-              <?php $active = [""=>"Both","1"=>"Active","0"=>"Inactive"]; ?>
-              {{ Form::select('Active', $active, 1, array("class"=>"form-control select2 small","id"=>"Active")) }}
-               </div>
-          </div>
-          <p style="text-align: right;">
-            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
-          </p>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
 <br>
 <div class=" clear row">
   <div class="col-md-12">
@@ -63,6 +66,9 @@
     var $searchFilter = {};
     var data_table = '';
     jQuery(document).ready(function($) {
+
+        $('#filter-button-toggle').show();
+
         var update_rate_table_url;
         $('#rategenerator_filter').submit(function(e) {
             e.preventDefault();

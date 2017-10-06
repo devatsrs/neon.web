@@ -50,7 +50,10 @@ class UploadFile{
 			$dirpath 		=  dirname($FileNewPath);			
 			
 			if (!file_exists($dirpath)){
-                    mkdir($dirpath, 0777, true);
+                RemoteSSH::run("mkdir -p " . $dirpath);
+                RemoteSSH::run("chmod -R 777 " . $dirpath);
+                @mkdir($dirpath, 0777, TRUE);
+                    //mkdir($dirpath, 0777, true);
              }			
 
 			$Attachmenturl  =  AmazonS3::unSignedUrl($file['filepath']);  

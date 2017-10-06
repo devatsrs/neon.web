@@ -548,7 +548,7 @@
                      <div class="col-md-4">
                          {{Form::select('SendInvoiceSetting', BillingClass::$SendInvoiceSetting, ( isset($AccountBilling->SendInvoiceSetting)?$AccountBilling->SendInvoiceSetting:'after_admin_review' ),array("class"=>"form-control select2"))}}
                      </div>
-                     <label for="field-1" class="col-md-2 control-label">Auto Invoice Pay</label>
+                     <label for="field-1" class="col-md-2 control-label">Auto Pay</label>
                      <div class="col-md-4">
                          {{Form::select('AutoPaymentSetting', BillingClass::$AutoPaymentSetting, ( isset($AccountBilling->AutoPaymentSetting)?$AccountBilling->AutoPaymentSetting:'never' ),array("class"=>"form-control select2 small"))}}
                      </div>
@@ -603,9 +603,6 @@
 
                 </div>
                 <div class="form-group">
-                    <script>
-                        var ajax_url = baseurl + "/accounts/{{$account->AccountID}}/ajax_datagrid_PaymentProfiles";
-                    </script>
                     <div class="col-md-3">
 
                         <h4>Preferred Payment Method</h4>
@@ -640,27 +637,17 @@
                                 <label for="minimal-radio-6-11">Stripe ACH</label>
                             </li>
                             <li>
+                                <input type="radio" class="icheck-11" id="minimal-radio-9-11" name="PaymentMethod" value="FideliPay" @if( $account->PaymentMethod == 'FideliPay' ) checked="" @endif />
+                                <label for="minimal-radio-9-11">FideliPay</label>
+                            </li>
+                            <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />
                                 <label for="minimal-radio-5-11">Other</label>
                             </li>
                         </ul>
                     </div>
                     <div class="col-md-9">
-                        @if( $account->PaymentMethod == 'Stripe'  || $account->PaymentMethod == 'AuthorizeNet')
-                            @if (is_authorize() || is_Stripe())
-                                @include('customer.paymentprofile.paymentGrid')
-                            @endif
-                        @endif
-                        @if( $account->PaymentMethod == 'StripeACH')
-                            @if(is_StripeACH())
-                                @include('customer.paymentprofile.bankpaymentGrid')
-                            @endif
-                        @endif
-                        @if( $account->PaymentMethod == 'SagePayDirectDebit')
-                            @if(is_SagePayDirectDebit())
-                                @include('customer.paymentprofile.sagepaydirectdebitGrid')
-                            @endif
-                        @endif
+                        @include('customer.paymentprofile.mainpaymentGrid')
                     </div>
                 </div>
             </div>
@@ -715,11 +702,7 @@
             return false;
         });
 		//account status end
-		
-		
-		
-        $('#add-credit-card-form').find("[name=AccountID]").val('{{$account->AccountID}}');
-        $('#add-bankaccount-form').find("[name=AccountID]").val('{{$account->AccountID}}');
+
         $("#save_account").click(function (ev) {
             ev.preventDefault();
             //Subscription , Additional charge filter fields should not in account save.

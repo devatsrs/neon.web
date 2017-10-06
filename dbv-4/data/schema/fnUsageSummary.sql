@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `fnUsageSummary`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageSummary`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_AccountID` INT,
@@ -11,27 +11,23 @@ CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `fnUsageSummary`(
 	IN `p_UserID` INT ,
 	IN `p_isAdmin` INT,
 	IN `p_Detail` INT
-
-
-
 )
 BEGIN
 	DECLARE v_TimeId_ INT;
-	
+
 	IF DATEDIFF(p_EndDate,p_StartDate) > 31 AND p_Detail = 2
 	THEN
 		SET p_Detail = 1;
 	END IF;
-	
+
 	IF p_Detail = 1 
 	THEN
-	
+
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageSummary_;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageSummary_(
 				`DateID` BIGINT(20) NOT NULL,
 				`CompanyID` INT(11) NOT NULL,
 				`AccountID` INT(11) NOT NULL,
-				`GatewayAccountID` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`CompanyGatewayID` INT(11) NOT NULL,
 				`Trunk` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
@@ -49,20 +45,19 @@ BEGIN
 			sh.DateID,
 			sh.CompanyID,
 			sh.AccountID,
-			sh.GatewayAccountID,
-			sh.CompanyGatewayID,
-			sh.Trunk,
-			sh.AreaPrefix,
-			sh.CountryID,
+			us.CompanyGatewayID,
+			us.Trunk,
+			us.AreaPrefix,
+			us.CountryID,
 			us.TotalCharges,
 			us.TotalBilledDuration,
 			us.TotalDuration,
 			us.NoOfCalls,
 			us.NoOfFailCalls,
 			a.AccountName
-		FROM tblSummaryHeader sh
-		INNER JOIN tblUsageSummary us
-			ON us.SummaryHeaderID = sh.SummaryHeaderID 
+		FROM tblHeader sh
+		INNER JOIN tblUsageSummaryDay  us
+			ON us.HeaderID = sh.HeaderID
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
 		INNER JOIN NeonRMDev.tblAccount a
@@ -70,32 +65,31 @@ BEGIN
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
-		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
+		AND (p_CompanyGatewayID = 0 OR us.CompanyGatewayID = p_CompanyGatewayID)
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
-		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
-		AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
+		AND (p_Trunk = '' OR us.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
+		AND (p_AreaPrefix = '' OR us.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
+		AND (p_CountryID = 0 OR us.CountryID = p_CountryID)
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
-		
+
 		INSERT INTO tmp_tblUsageSummary_
 		SELECT
 			sh.DateID,
 			sh.CompanyID,
 			sh.AccountID,
-			sh.GatewayAccountID,
-			sh.CompanyGatewayID,
-			sh.Trunk,
-			sh.AreaPrefix,
-			sh.CountryID,
+			us.CompanyGatewayID,
+			us.Trunk,
+			us.AreaPrefix,
+			us.CountryID,
 			us.TotalCharges,
 			us.TotalBilledDuration,
 			us.TotalDuration,
 			us.NoOfCalls,
 			us.NoOfFailCalls,
 			a.AccountName
-		FROM tblSummaryHeader sh
-		INNER JOIN tblUsageSummaryLive us
-			ON us.SummaryHeaderID = sh.SummaryHeaderID 
+		FROM tblHeader sh
+		INNER JOIN tblUsageSummaryDayLive  us
+			ON us.HeaderID = sh.HeaderID
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
 		INNER JOIN NeonRMDev.tblAccount a
@@ -103,27 +97,24 @@ BEGIN
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
-		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
+		AND (p_CompanyGatewayID = 0 OR us.CompanyGatewayID = p_CompanyGatewayID)
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
-		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
-		AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
+		AND (p_Trunk = '' OR us.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
+		AND (p_AreaPrefix = '' OR us.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
+		AND (p_CountryID = 0 OR us.CountryID = p_CountryID)
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
-		
-		
-		
+
 	END IF;
-	
+
 	IF p_Detail = 2
 	THEN
-	
+
 		DROP TEMPORARY TABLE IF EXISTS tmp_tblUsageSummary_;
 		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblUsageSummary_(
 				`DateID` BIGINT(20) NOT NULL,
 				`TimeID` INT(11) NOT NULL,
 				`CompanyID` INT(11) NOT NULL,
 				`AccountID` INT(11) NOT NULL,
-				`GatewayAccountID` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`CompanyGatewayID` INT(11) NOT NULL,
 				`Trunk` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
@@ -136,27 +127,26 @@ BEGIN
 				`AccountName` varchar(100),
 				INDEX `tblUsageSummary_dim_date` (`DateID`)
 		);
-		
+
 		INSERT INTO tmp_tblUsageSummary_
 		SELECT
 			sh.DateID,
 			dt.TimeID,
 			sh.CompanyID,
 			sh.AccountID,
-			sh.GatewayAccountID,
-			sh.CompanyGatewayID,
-			sh.Trunk,
-			sh.AreaPrefix,
-			sh.CountryID,
+			usd.CompanyGatewayID,
+			usd.Trunk,
+			usd.AreaPrefix,
+			usd.CountryID,
 			usd.TotalCharges,
 			usd.TotalBilledDuration,
 			usd.TotalDuration,
 			usd.NoOfCalls,
 			usd.NoOfFailCalls,
 			a.AccountName
-		FROM tblSummaryHeader sh
-		INNER JOIN tblUsageSummaryDetail usd
-			ON usd.SummaryHeaderID = sh.SummaryHeaderID 
+		FROM tblHeader sh
+		INNER JOIN tblUsageSummaryHour  usd
+			ON usd.HeaderID = sh.HeaderID
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
@@ -167,33 +157,32 @@ BEGIN
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
-		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
+		AND (p_CompanyGatewayID = 0 OR usd.CompanyGatewayID = p_CompanyGatewayID)
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
-		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
-		AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
+		AND (p_Trunk = '' OR usd.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
+		AND (p_AreaPrefix = '' OR usd.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
+		AND (p_CountryID = 0 OR usd.CountryID = p_CountryID)
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
-		
+
 		INSERT INTO tmp_tblUsageSummary_
 		SELECT
 			sh.DateID,
 			dt.TimeID,
 			sh.CompanyID,
 			sh.AccountID,
-			sh.GatewayAccountID,
-			sh.CompanyGatewayID,
-			sh.Trunk,
-			sh.AreaPrefix,
-			sh.CountryID,
+			usd.CompanyGatewayID,
+			usd.Trunk,
+			usd.AreaPrefix,
+			usd.CountryID,
 			usd.TotalCharges,
 			usd.TotalBilledDuration,
 			usd.TotalDuration,
 			usd.NoOfCalls,
 			usd.NoOfFailCalls,
 			a.AccountName
-		FROM tblSummaryHeader sh
-		INNER JOIN tblUsageSummaryDetailLive usd
-			ON usd.SummaryHeaderID = sh.SummaryHeaderID 
+		FROM tblHeader sh
+		INNER JOIN tblUsageSummaryHourLive  usd
+			ON usd.HeaderID = sh.HeaderID
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
@@ -204,13 +193,13 @@ BEGIN
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
 		AND (p_AccountID = 0 OR sh.AccountID = p_AccountID)
-		AND (p_CompanyGatewayID = 0 OR sh.CompanyGatewayID = p_CompanyGatewayID)
+		AND (p_CompanyGatewayID = 0 OR usd.CompanyGatewayID = p_CompanyGatewayID)
 		AND (p_isAdmin = 1 OR (p_isAdmin= 0 AND a.Owner = p_UserID))
-		AND (p_Trunk = '' OR sh.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
-		AND (p_AreaPrefix = '' OR sh.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
-		AND (p_CountryID = 0 OR sh.CountryID = p_CountryID)
-		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);			
-		
+		AND (p_Trunk = '' OR usd.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
+		AND (p_AreaPrefix = '' OR usd.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
+		AND (p_CountryID = 0 OR usd.CountryID = p_CountryID)
+		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
+
 	END IF;
 
 END

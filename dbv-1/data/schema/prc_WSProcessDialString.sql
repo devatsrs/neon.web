@@ -1,4 +1,7 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessDialString`(IN `p_processId` VARCHAR(200) , IN `p_dialStringId` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessDialString`(
+	IN `p_processId` VARCHAR(200) ,
+	IN `p_dialStringId` INT
+)
 BEGIN
 
     DECLARE v_AffectedRecords_ INT DEFAULT 0;         
@@ -12,26 +15,28 @@ BEGIN
     CREATE TEMPORARY TABLE tmp_JobLog_  ( 
         Message longtext   
     );
-    
       
-    -- delete duplicate   entry
-    DELETE n1 FROM tblTempDialString n1, tblTempDialString n2 WHERE n1.TempDialStringID < n2.TempDialStringID 
-	 	AND n1.DialString = n2.DialString
-		AND  n1.ChargeCode = n2.ChargeCode
-		AND  n1.DialStringID = n2.DialStringID
-		AND  n1.ProcessId = n2.ProcessId
- 		AND  n1.DialStringID = p_dialStringId and n2.DialStringID = p_dialStringId
- 		AND  n1.ProcessId = p_processId and n2.ProcessId = p_processId;
- 		
- 	-- check duplicate code record	
+     -- check duplicate code record    
+      
+    	DELETE n1 
+	 FROM tblTempDialString n1 
+	 INNER JOIN (
+	 	SELECT MAX(TempDialStringID) as TempDialStringID FROM tblTempDialString WHERE ProcessId = p_processId 
+		GROUP BY DialString,ChargeCode
+		HAVING COUNT(*)>1
+	) n2 
+	 	ON n1.TempDialStringID = n2.TempDialStringID
+	WHERE n1.ProcessId = p_processId;  		 		
+ 	
 			SELECT COUNT(*) INTO totalduplicatecode FROM(
 				SELECT COUNT(DialString) as c,DialString 
 					FROM tblTempDialString 
 						WHERE DialStringID = p_dialStringId
 							 AND ProcessId = p_processId
 					   GROUP BY DialString HAVING c>1) AS tbl;
-				
-			-- for duplicate code record	
+	
+    -- for duplicate code record    			
+			
 			IF  totalduplicatecode > 0
 			THEN	
 				
@@ -50,7 +55,8 @@ BEGIN
 IF  totalduplicatecode = 0 	
 THEN	
  
-    -- check and delete from tblDialStringCode where action is delete
+   -- check and delete from tblDialStringCode where action is delete
+    
 	IF ( SELECT COUNT(*)
                  FROM   tblTempDialString
                  WHERE  tblTempDialString.ProcessId = p_processId
@@ -69,7 +75,7 @@ THEN
 		
 		SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
 	  
-		-- update description and forbidden 
+      -- update description and forbidden 
 		      
 		UPDATE  tblDialStringCode
 		JOIN tblTempDialString ON tblDialStringCode.DialString = tblTempDialString.DialString
@@ -85,7 +91,7 @@ THEN
 		SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
       
 	  
-		-- insert new record
+       -- insert new record
 		
             INSERT  INTO tblDialStringCode
                     ( DialStringID ,
@@ -103,7 +109,7 @@ THEN
                     FROM    tblTempDialString left join tblDialStringCode
 						on(tblDialStringCode.DialStringID = tblTempDialString.DialStringID
 							AND  tblDialStringCode.DialString = tblTempDialString.DialString)
-							-- AND tblDialStringCode.ChargeCode = tblTempDialString.ChargeCode)
+							
                     WHERE  tblDialStringCode.DialStringCodeID is null
                             AND tblTempDialString.ProcessId = p_processId
 							AND tblTempDialString.DialStringID = p_dialStringId
@@ -112,10 +118,11 @@ THEN
 		SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
 		
  END IF;   
+ 
 		INSERT INTO tmp_JobLog_ (Message)
 		SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );
 	 
-	-- 	DELETE  FROM tblTempDialString WHERE   tblTempDialString.ProcessId = p_processId;
+	 	DELETE  FROM tblTempDialString WHERE   tblTempDialString.ProcessId = p_processId;
 		SELECT * from tmp_JobLog_; 
 	      
 		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

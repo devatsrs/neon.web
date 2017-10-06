@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_getDashboardProfitLoss`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDashboardProfitLoss`(
 	IN `p_CompanyID` INT,
 	IN `p_CurrencyID` INT,
 	IN `p_AccountID` INT,

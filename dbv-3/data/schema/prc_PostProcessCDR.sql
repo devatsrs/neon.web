@@ -15,7 +15,7 @@ BEGIN
 	);
 	
 	INSERT INTO tmp_ProcessIDS(TempUsageDownloadLogID,ProcessID)
-	SELECT TempUsageDownloadLogID,ProcessID FROM  NeonBillingDev.tblTempUsageDownloadLog WHERE CompanyID = p_CompanyID AND PostProcessStatus=0 LIMIT 10;
+	SELECT TempUsageDownloadLogID,ProcessID FROM  NeonBillingDev.tblTempUsageDownloadLog WHERE CompanyID = p_CompanyID AND PostProcessStatus=0 LIMIT 50;
 	
 	DELETE FROM tblCDRPostProcess WHERE CompanyID = p_CompanyID;
 	DELETE FROM tblVCDRPostProcess WHERE CompanyID = p_CompanyID;
