@@ -81,11 +81,12 @@ class VendorRatesController extends \BaseController
             $trunks = VendorTrunk::getTrunkDropdownIDList($id);
             $trunk_keys = getDefaultTrunk($trunks);
             $dialstring = DialString::getDialStringIDList();
+            $currencies = Currency::getCurrencyDropdownIDList();
             if(count($trunks) == 0){
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
             }
             $rate_sheet_formates = $this->rate_sheet_formates;
-            return View::make('vendorrates.upload', compact('id', 'trunks', 'trunk_keys','rate_sheet_formates','Account','uploadtemplate','dialstring'));
+            return View::make('vendorrates.upload', compact('id', 'trunks', 'trunk_keys','rate_sheet_formates','Account','uploadtemplate','dialstring','currencies'));
     }
     
     public function process_upload($id) {
@@ -645,6 +646,34 @@ class VendorRatesController extends \BaseController
 
         if ($validator->fails()) {
             return json_validator_response($validator);
+        }
+        if(isset($data['selection']['FromCurrency']) && !empty($data['selection']['FromCurrency'])) {
+            $CompanyCurrency = Company::find($CompanyID)->CurrencyId;
+
+            $error = array();
+            if(!($CompanyCurrency && !empty($CompanyCurrency))) {
+                $error['status'] = "failed";
+                $error['message'] = "You have not setup your base currency, please select it under company page if you want to convert rates.<br/>";
+            } else {
+                $baseConversionRate = CurrencyConversion::where(['CurrencyID' => $CompanyCurrency, 'CompanyID' => $CompanyID])->count();
+                $fromConversionRate = CurrencyConversion::where(['CurrencyID' => $data['selection']['FromCurrency'], 'CompanyID' => $CompanyID])->count();
+
+                $error['message'] = "";
+                if(!($baseConversionRate && $baseConversionRate > 0)) {
+                    $CurrencyCode = Currency::find($CompanyCurrency)->Code;
+                    $error['status'] = "failed";
+                    $error['message'] .= "You have not setup your base currency (".$CurrencyCode.") conversion rate, please set it up under setting -> exchange rate.<br/><br/>";
+                }
+                if(!($fromConversionRate && $fromConversionRate > 0)) {
+                    $CurrencyCode = Currency::find($data['selection']['FromCurrency'])->Code;
+                    $error['status'] = "failed";
+                    $error['message'] .= "You have not setup your currency (".$CurrencyCode.") conversion rate, please set it up under setting -> exchange rate.<br/>";
+                }
+            }
+
+            if(isset($error['status']) && $error['status'] == 'failed') {
+                return json_encode($error);
+            }
         }
         $data['codedeckid'] = VendorTrunk::where(["AccountID" => $id, 'TrunkID' => $data['Trunk']])->pluck("CodeDeckId");
         if (!isset($data['codedeckid']) || empty($data['codedeckid'])) {
