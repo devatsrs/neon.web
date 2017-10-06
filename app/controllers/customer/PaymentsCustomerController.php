@@ -42,11 +42,14 @@ class PaymentsCustomerController extends \BaseController {
         $CurrencyId                  = $account->CurrencyId;
         $accountCurrencyID 		     = empty($CurrencyId)?'0':$CurrencyId;
 
+        // AccountManager Condition
+        $userID = 0;
+
         $columns = array('InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy');
         $sort_column = $columns[$data['iSortCol_0']];
         $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'','".$data['Status']."',".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$accountCurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1,".$data['p_paymentstart'].",".$data['p_paymentend']."";
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $excel_data  = DB::connection('sqlsrv2')->select($query.',2)');
+            $excel_data  = DB::connection('sqlsrv2')->select($query.',2,'.$userID.')');
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
@@ -64,7 +67,7 @@ class PaymentsCustomerController extends \BaseController {
                 });
             })->download('xls');*/
         }
-        $query .=',0)';
+        $query .=',0,'.$userID.')';
         return DataTableSql::of($query,'sqlsrv2')->make();
     }
 	/**
@@ -168,7 +171,7 @@ class PaymentsCustomerController extends \BaseController {
         $sort_column = $columns[$data['iSortCol_0']];
 		$data['p_paymentstart']			 =		'null';		
 		$data['p_paymentend']			 =		'null';
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",0,".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".$data['p_paymentstart'].",".$data['p_paymentend'].",1)";
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'',".$data['Status'].",".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",0,".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',".$data['p_paymentstart'].",".$data['p_paymentend'].",1,0)";
 
         $excel_data  = DB::connection('sqlsrv2')->select($query);
         $excel_data = json_decode(json_encode($excel_data),true);
@@ -223,7 +226,11 @@ class PaymentsCustomerController extends \BaseController {
 
         $columns = array('InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy');
         $sort_column = $columns[$data['iSortCol_0']];
-        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'','".$data['Status']."',".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$accountCurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1,".$data['p_paymentstart'].",".$data['p_paymentend'].",0)";
+
+        //AccountManager Condition
+        $userID = 0;
+
+        $query = "call prc_getPayments (".$CompanyID.",".$data['AccountID'].",".$data['InvoiceNo'].",'','".$data['Status']."',".$data['type'].",".$data['paymentmethod'].",".$data['recall_on_off'].",".$accountCurrencyID.",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1,".$data['p_paymentstart'].",".$data['p_paymentend'].",0,".$userID.")";
 
         $result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
         $result2  = $result['data']['Total_grand_field'][0]->total_grand;

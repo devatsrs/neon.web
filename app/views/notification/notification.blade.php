@@ -1,33 +1,3 @@
-<div class="row">
-    <div class="col-md-12">
-        <form id="notification_filter" method="get"    class="form-horizontal form-groups-bordered validate" novalidate>
-            <div class="panel panel-primary" data-collapsed="0">
-                <div class="panel-heading">
-                    <div class="panel-title">
-                        Filter
-                    </div>
-                    <div class="panel-options">
-                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label for="field-1" class="col-sm-1 control-label">Type</label>
-                        <div class="col-sm-3">
-                            {{Form::select('NotificationType',$notificationType,'',array("class"=>"select2 Notification_Type_dropdown"))}}
-                        </div>
-                    </div>
-                    <p style="text-align: right;">
-                        <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" id="notification_submit">
-                            <i class="entypo-search"></i>
-                            Search
-                        </button>
-                    </p>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
 @if(User::checkCategoryPermission('Notification','Add'))
     <p style="text-align: right;">
         <a href="{{URL::to('notification/create')}}" class=" btn btn-primary btn-sm btn-icon icon-left" id="add-notification">
