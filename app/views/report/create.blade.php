@@ -39,7 +39,7 @@
                     <form role="form" class="form-horizontal form-groups-bordered" id="report-row-col">
                         <div class="form-group " >
                             <div class="col-sm-2 {{Input::get('report')=='run'?'hidden':''}}">
-                                <label for="field-5" class="control-label popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Cube is a logical schema which contains measures and dimensions.For Example Customer CDR,Payment,Invoice" data-original-title="Cube">Cube</label>
+                                <label for="field-5" class="control-label popover-primary" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="Cube is a logical schema which contains measures and dimensions.For Example Customer CDR,Payment,Invoice" data-original-title="Cube">Cube</label>
                                 <br>
                                 <br>
                                 {{Form::select('Cube',Report::$cube,(isset($report_settings['Cube'])?$report_settings['Cube']:''),array("class"=>"select2 small",$disable))}}
@@ -147,7 +147,7 @@
                             <div class="col-sm-2 vertical-border border_right {{Input::get('report')=='run'?'hidden':''}}">
                                 <div class="row">
                                     <div class="col-sm-12 vertical-border border_bottom">
-                                        <label for="field-5" class="control-label  popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Dimensions are qualitative and do not total a sum. For example, account, currency, account ip , or date are dimensions.Dimensions you can drop in Columns,Row,Filter" data-original-title="Dimensions">Dimension</label>
+                                        <label for="field-5" class="control-label  popover-primary" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="Dimensions are qualitative and do not total a sum. For example, account, currency, account ip , or date are dimensions.Dimensions you can drop in Columns,Row,Filter" data-original-title="Dimensions">Dimension</label>
                                     </div>
                                     <div   class="col-sm-12 vertical-border border_bottom" style="margin-top: 15px;padding-top: 15px">
                                         <div class="nested-list with-margins tree">
@@ -159,7 +159,7 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-12 vertical-border border_bottom" style="margin-top: 15px;padding-top: 15px">
-                                        <label for="field-5" class="control-label popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Measures are numerical values that mathematical functions work on. For example, a grand total column is a measure because you can find out a total the data.Measures you can drop only in Columns." data-original-title="Measures">Measures</label>
+                                        <label for="field-5" class="control-label popover-primary" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="Measures are numerical values that mathematical functions work on. For example, a grand total column is a measure because you can find out a total the data.Measures you can drop only in Columns." data-original-title="Measures">Measures</label>
                                     </div>
                                     <div class="col-sm-12 vertical-border" style="margin-top: 15px;padding-top: 15px">
                                         <div id="list-1" class="nested-list tree with-margins">
