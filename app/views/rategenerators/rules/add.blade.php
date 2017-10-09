@@ -20,7 +20,7 @@
             <i class="entypo-floppy"></i>
             Save
         </button>
-        <a href="{{URL::to('rategenerators/'.$id.'')}}" class="btn btn-danger btn-sm btn-icon icon-left">
+        <a href="{{URL::to('rategenerators/'.$id.'/edit')}}" class="btn btn-danger btn-sm btn-icon icon-left">
             <i class="entypo-cancel"></i>
             Close
         </a>
