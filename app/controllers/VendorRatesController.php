@@ -655,20 +655,32 @@ class VendorRatesController extends \BaseController
                 $error['status'] = "failed";
                 $error['message'] = "You have not setup your base currency, please select it under company page if you want to convert rates.<br/>";
             } else {
-                $baseConversionRate = CurrencyConversion::where(['CurrencyID' => $CompanyCurrency, 'CompanyID' => $CompanyID])->count();
-                $fromConversionRate = CurrencyConversion::where(['CurrencyID' => $data['selection']['FromCurrency'], 'CompanyID' => $CompanyID])->count();
+                $ACID = Account::find($id)->CurrencyId;
+                $CompanyConversionRate = CurrencyConversion::where(['CurrencyID' => $CompanyCurrency, 'CompanyID' => $CompanyID])->count();
+                $FileConversionRate = CurrencyConversion::where(['CurrencyID' => $data['selection']['FromCurrency'], 'CompanyID' => $CompanyID])->count();
+                $AccountConversionRate = CurrencyConversion::where(['CurrencyID' => $ACID, 'CompanyID' => $CompanyID])->count();
 
                 $error['message'] = "";
-                if(!($baseConversionRate && $baseConversionRate > 0)) {
-                    $CurrencyCode = Currency::find($CompanyCurrency)->Code;
-                    $error['status'] = "failed";
-                    $error['message'] .= "You have not setup your base currency (".$CurrencyCode.") conversion rate, please set it up under setting -> exchange rate.<br/><br/>";
+                $CurrencyCode = array();
+                if(empty($CompanyConversionRate)) {
+                    $CurrencyCode[] = Currency::find($CompanyCurrency)->Code;
                 }
-                if(!($fromConversionRate && $fromConversionRate > 0)) {
-                    $CurrencyCode = Currency::find($data['selection']['FromCurrency'])->Code;
-                    $error['status'] = "failed";
-                    $error['message'] .= "You have not setup your currency (".$CurrencyCode.") conversion rate, please set it up under setting -> exchange rate.<br/>";
+                if(empty($FileConversionRate)) {
+                    $CurrencyCode[] = Currency::find($data['selection']['FromCurrency'])->Code;
                 }
+                if(empty($AccountConversionRate)) {
+                    $CurrencyCode[] = Currency::find($ACID)->Code;
+                }
+
+                if(count($CurrencyCode) > 0) {
+                    $CurrencyCode = array_unique($CurrencyCode);
+                    $error['status'] = "failed";
+
+                    foreach ($CurrencyCode as $Code) {
+                        $error['message'] .= "You have not setup your currency (".$Code.") conversion rate, please set it up under setting -> exchange rate.<br/>";
+                    }
+                }
+
             }
 
             if(isset($error['status']) && $error['status'] == 'failed') {
