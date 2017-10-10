@@ -294,8 +294,7 @@ class DashboardCustomerController extends BaseController {
         }
         $CustomerRate = DB::table('tblGatewayCustomerRate')
             ->where("CustomerID", $CustomerID)
-            ->select('Code','Description',  'Interval1','IntervalN','ConnectionFee', 'Rate','EffectiveDate')
-            ->distinct();
+            ->select('Code','Description',  'Interval1','IntervalN','ConnectionFee', 'Rate','EffectiveDate');
         return Datatables::of($CustomerRate)->make();
     }
 
