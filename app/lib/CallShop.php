@@ -133,6 +133,7 @@ class CallShop{
         $response['TotalPayment'] = $response['TotalCharge'] = $response['Total'] = $response['Balance'] = 0;
         if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
             try{
+                DB::purge('pbxmysql');
                 $mor_rates = DB::connection('pbxmysql')->table('usuarios')
                     ->join('tarifas','tarifas_id','=','tarifas.id')
                     ->join('importes','importes.tarifas_id','=','usuarios.tarifas_id')
