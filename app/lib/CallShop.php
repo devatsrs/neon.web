@@ -127,4 +127,53 @@ class CallShop{
 
     }
 
+
+    public static function getRates($addparams=array()){
+        $response = array();
+        $response['TotalPayment'] = $response['TotalCharge'] = $response['Total'] = $response['Balance'] = 0;
+        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
+            try{
+                DB::purge('pbxmysql');
+                $mor_rates = DB::connection('pbxmysql')->table('usuarios')
+                    ->join('tarifas','tarifas_id','=','tarifas.id')
+                    ->join('importes','importes.tarifas_id','=','usuarios.tarifas_id')
+                    ->select('destino','prefijo','importe')
+                    ->where("usuario", $addparams['username']);
+                if(trim($addparams['Prefix']) != '') {
+                    $mor_rates->where('prefijo', 'like',str_replace('*','%',trim($addparams['Prefix'])));
+                }
+                $mor_rates = $mor_rates->get();
+                $mor_rates = json_decode(json_encode($mor_rates), true);
+                $data_count = 0;
+                $insertLimit= 1000;
+                $InsertData = array();
+                foreach($mor_rates as $mor_rate){
+                    $GatewayCustomerRate = array();
+                    $GatewayCustomerRate['CustomerID'] = $addparams['CustomerID'];
+                    $GatewayCustomerRate['Description'] = $mor_rate['destino'];
+                    $GatewayCustomerRate['Code'] = $mor_rate['prefijo'];
+                    $GatewayCustomerRate['Rate'] = $mor_rate['importe'];
+                    $GatewayCustomerRate['Interval1'] = 1;
+                    $GatewayCustomerRate['IntervalN'] = 1;
+                    $GatewayCustomerRate['ConnectionFee'] = 0;
+                    $data_count++;
+                    $InsertData[] = $GatewayCustomerRate;
+                    if($data_count > $insertLimit &&  !empty($InsertData)){
+                        DB::table('tblGatewayCustomerRate')->insert($InsertData);
+                        $InsertData = array();
+                        $data_count = 0;
+                    }
+                }
+
+            }catch(Exception $e){
+                $response['faultString'] =  $e->getMessage();
+                $response['faultCode'] =  $e->getCode();
+                Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $e->getCode(). ", Reason: " . $e->getMessage());
+                //throw new Exception($e->getMessage());
+            }
+        }
+        return $response;
+
+    }
+
 }
