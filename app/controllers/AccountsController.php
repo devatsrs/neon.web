@@ -193,12 +193,6 @@ class AccountsController extends \BaseController {
             }else{
                 $AccountGateway = '';
             }
-            if(isset($data['vendorname'])){
-                $VendorName = $data['vendorname'];
-                unset($data['vendorname']);
-            }else{
-                $VendorName = '';
-            }
 
             //when account varification is off in company setting then varified the account by default.
             $AccountVerification =  CompanySetting::getKeyVal('AccountVerification');
@@ -250,6 +244,12 @@ class AccountsController extends \BaseController {
                 return json_validator_response($validator);
             }
 
+            if(isset($data['vendorname'])){
+                $VendorName = $data['vendorname'];
+                unset($data['vendorname']);
+            }else{
+                $VendorName = '';
+            }
 
             if ($account = Account::create($data)) {
 

@@ -718,22 +718,42 @@ CONTAINS SQL
 
 			IF p_groupby = 'description' THEN
 
-				SET @stm2 = CONCAT('select max(Description) as Destination , ',@maxColumnNames ,'  , "',@ColumnIDS ,'" as ColumnIDS   from tmp_final_compare Group by  Description  order by Description LIMIT  ', p_RowspPage , ' OFFSET ' , v_OffSet_ , '');
+				IF @maxColumnNames is not null THEN
 
-				PREPARE stmt2 FROM @stm2;
-				EXECUTE stmt2;
-				DEALLOCATE PREPARE stmt2;
+					SET @stm2 = CONCAT('select max(Description) as Destination , ',@maxColumnNames ,'  , "',@ColumnIDS ,'" as ColumnIDS   from tmp_final_compare Group by  Description  order by Description LIMIT  ', p_RowspPage , ' OFFSET ' , v_OffSet_ , '');
 
-				SELECT count(*) as totalcount from  (select count(Description) FROM tmp_final_compare Group by Description)tmp;
+					PREPARE stmt2 FROM @stm2;
+					EXECUTE stmt2;
+					DEALLOCATE PREPARE stmt2;
+
+					SELECT count(*) as totalcount from  (select count(Description) FROM tmp_final_compare Group by Description)tmp;
+				ELSE
+
+					select '' as 	Destination, '' as ColumnIDS;
+					select 0 as  totalcount;
+
+				END IF;
 
 			ELSE
 
-				SET @stm2 = CONCAT('select concat( Code , " : " , Description ) as Destination , ', @ColumnNames,' , "', @ColumnIDS ,'" as ColumnIDS from tmp_final_compare order by Code LIMIT  ', p_RowspPage , ' OFFSET ' , v_OffSet_ , '');
-				PREPARE stmt2 FROM @stm2;
-				EXECUTE stmt2;
-				DEALLOCATE PREPARE stmt2;
 
-				select count(*) as totalcount from tmp_final_compare;
+				IF @ColumnNames is not null THEN
+
+					SET @stm2 = CONCAT('select concat( Code , " : " , Description ) as Destination , ', @ColumnNames,' , "', @ColumnIDS ,'" as ColumnIDS from tmp_final_compare order by Code LIMIT  ', p_RowspPage , ' OFFSET ' , v_OffSet_ , '');
+					PREPARE stmt2 FROM @stm2;
+					EXECUTE stmt2;
+					DEALLOCATE PREPARE stmt2;
+
+					select count(*) as totalcount from tmp_final_compare;
+
+				ELSE
+
+					select '' as 	Destination,   '' as ColumnIDS;
+					select 0 as  totalcount;
+
+				END IF;
+
+
 
 
 			END IF;

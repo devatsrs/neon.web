@@ -266,6 +266,22 @@
 
                     $('#filter-button-toggle').show();
 
+                    $searchFilter.AccountID = $("#payment-table-search select[name='AccountID']").val();
+                    $searchFilter.InvoiceNo = $("#payment-table-search [name='InvoiceNo']").val();
+                    $searchFilter.Status = $("#payment-table-search select[name='Status']").val();
+                    $searchFilter.type = $("#payment-table-search select[name='type']").val();
+                    $searchFilter.paymentmethod = $("#payment-table-search select[name='paymentmethod']").val();
+                    $searchFilter.PaymentDate_StartDate = $("#payment-table-search input[name='PaymentDate_StartDate']").val();
+                    $searchFilter.PaymentDate_StartTime = $("#payment-table-search input[name='PaymentDate_StartTime']").val();
+                    $searchFilter.PaymentDate_EndDate   = $("#payment-table-search input[name='PaymentDate_EndDate']").val();
+                    $searchFilter.PaymentDate_EndTime   = $("#payment-table-search input[name='PaymentDate_EndTime']").val();
+                    $searchFilter.CurrencyID 			= $("#payment-table-search select[name='CurrencyID']").val();
+                    if($("#payment-table-search select[name='recall_on_off']")) {
+                        $searchFilter.recall_on_off = $("#payment-table-search [name='recall_on_off']").prop("checked");
+                    }else{
+                        $searchFilter.recall_on_off = 0;
+                    }
+
                     data_table = $("#table-4").dataTable({
                         "bDestroy": true,
                         "bProcessing": true,

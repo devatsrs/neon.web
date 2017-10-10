@@ -187,22 +187,19 @@ class AmazonS3 {
     }
 
     static function unSignedUrl($key=''){
+        $s3 = self::getS3Client();
+        $Uploadpath = CompanyConfiguration::get('UPLOAD_PATH') . '/' .$key;
 
-//        $s3 = self::getS3Client();
-
-        //When no amazon ;
-//        if($s3 == 'NoAmazon'){
-            return  self::preSignedUrl($key);
-//        }
-
-        /*$AmazonSettings  = self::getAmazonSettings();
-        $bucket 		 = $AmazonSettings['AWS_BUCKET'];
-        $unsignedUrl = '';
-        if(!empty($key)){
-           $unsignedUrl = $s3->getObjectUrl($bucket, $key);
+        if ( file_exists($Uploadpath) ) {
+            return $Uploadpath;
+        } elseif(self::$isAmazonS3=='Amazon') {
+            $AmazonSettings = self::getAmazonSettings();
+            $bucket = $AmazonSettings['AWS_BUCKET'];
+            $unsignedUrl = $s3->getObjectUrl($bucket, $key);
+            return $unsignedUrl;
+        } else {
+            return "";
         }
-        return $unsignedUrl;*/
-
     }
 
     static function unSignedImageUrl($key=''){
