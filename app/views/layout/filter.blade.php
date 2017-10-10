@@ -30,7 +30,7 @@
         }
 
         var SidebarVisible = getCookie('SidebarVisible');
-        if(SidebarVisible == 0) {
+        if(SidebarVisible == 1) {
             $('.page-container').addClass('sidebar-collapsed');
         } else {
             $('.page-container').removeClass('sidebar-collapsed');
@@ -38,9 +38,9 @@
 
         $("body").on('click', '.sidebar-collapse', function(ev) {
             if($('.page-container').hasClass('sidebar-collapsed')) {
-                setCookie('SidebarVisible',1,'30');
-            } else {
                 setCookie('SidebarVisible',0,'30');
+            } else {
+                setCookie('SidebarVisible',1,'30');
             }
         });
 
