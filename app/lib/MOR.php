@@ -283,6 +283,7 @@ left JOIN mor.currencies on currencies.id = users.currency_id
         $response['TotalPayment'] = $response['TotalCharge'] = $response['Total'] = $response['Balance'] = 0;
         if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
             try{
+                DB::purge('pbxmysql');
                 $mor_rates = DB::connection('pbxmysql')->table('users')
                     ->join('tariffs','tariff_id','=','tariffs.id')
                     ->join('rates','rates.tariff_id','=','tariffs.id')
