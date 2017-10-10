@@ -119,7 +119,7 @@
                 </a>
             </li>
         @endif
-        @if(CompanyConfiguration::get('CUSTOMER_COMMERCIAL_DISPLAY') == 1)
+        @if(CompanyConfiguration::get('CUSTOMER_COMMERCIAL_DISPLAY') == 1 && Customer::get_currentUser()->DisplayRates == 1)
         <li>
             <a href="{{URL::to('customer/customers_rates')}}">
                 <i class="fa fa-table"></i>

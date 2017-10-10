@@ -73,7 +73,7 @@
                     "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-12'l>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                    "aaSorting": [[1, 'asc']],
+                    "aaSorting": [[0, 'asc']],
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "Prefix", "value": $search.Prefix}
