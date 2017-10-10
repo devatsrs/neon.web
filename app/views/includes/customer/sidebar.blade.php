@@ -127,6 +127,14 @@
             </a>
         </li>
         @endif
+        @if(CompanyConfiguration::get('CUSTOMER_RATE_DISPLAY') == 1 && Customer::get_currentUser()->DisplayRates == 1)
+            <li>
+                <a href="{{URL::to('customer/rates')}}">
+                    <i class="fa fa-table"></i>
+                    <span>Rates</span>
+                </a>
+            </li>
+        @endif
         @if(CompanyConfiguration::get('CUSTOMER_ANALYSIS_DISPLAY') == 1)
         <li>
             <a href="{{(Customer::get_currentUser()->IsVendor == 1 && Customer::get_currentUser()->IsCustomer == 0 ) ? Url::to('customer/vendor_analysis') : Url::to('customer/analysis')}}">

@@ -549,6 +549,7 @@ class AccountsController extends \BaseController {
         $data['updated_by'] = User::get_user_full_name();
 		$data['AccountName'] = trim($data['AccountName']);
 		$data['ShowAllPaymentMethod'] = isset($data['ShowAllPaymentMethod']) ? 1 : 0;
+		$data['DisplayRates'] = isset($data['DisplayRates']) ? 1 : 0;
 
         $shipping = array('firstName'=>$account['FirstName'],
             'lastName'=>$account['LastName'],

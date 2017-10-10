@@ -240,7 +240,7 @@ class DashboardCustomerController extends BaseController {
                 $payment =  isset($response['payment'][$data->date])?$response['payment'][$data->date]:0;
                 $consumption =  isset($response['calls'][$data->date])?$response['calls'][$data->date]:0;
                 $previous_bal = $previous_bal+$payment-$consumption;
-                return $previous_bal;
+                return number_format($previous_bal,get_round_decimal_places(),'.','');
             })
             ->make();
 
@@ -257,6 +257,46 @@ class DashboardCustomerController extends BaseController {
         $response = $mor->getMovementReportTotal(array('username'=>$account_number,'StartDate'=>$data['StartDate'],'EndDate'=>$data['EndDate']));
 
         return json_encode($response,JSON_NUMERIC_CHECK);
+    }
+
+    public function customer_rates(){
+        $CompanyID = User::get_companyID();
+        $data = Input::all();
+        $CustomerID = Customer::get_accountID();
+        $account_number = Account::where('AccountID',$CustomerID)->pluck('Number');
+        $GatewayID = Gateway::getGatewayID('MOR');
+        $CompanyGatewayID = CompanyGateway::getCompanyGatewayID($GatewayID);
+        $mor = new MOR($CompanyGatewayID);
+        return View::make('customer.rates', compact('DefaultCurrencyID', 'original_startdate', 'original_enddate'));
+    }
+
+    public function customer_rates_grid($type){
+        $data = Input::all();
+        $CustomerID = Customer::get_accountID();
+        $account_number = Account::where('AccountID',$CustomerID)->pluck('Number');
+
+        DB::table('tblGatewayCustomerRate')->where('CustomerID',$CustomerID)->delete();
+        $companygateways = CompanyGateway::where(array('Status'=>1,'CompanyID'=>User::get_companyID()))->get();
+        $param['username'] = $account_number;
+        $param['CustomerID'] = $CustomerID;
+        $param['Prefix'] = $data['Prefix'];
+        if(count($companygateways)>0){
+            foreach($companygateways as $companygateway) {
+                try{
+                    $GatewayName = Gateway::getGatewayName($companygateway['GatewayID']);
+                    if($GatewayName == 'MOR' || $GatewayName == 'CallShop') {
+                        GatewayAPI::GatewayMethod($GatewayName, $companygateway['CompanyGatewayID'], 'getRates',$param);
+                    }
+                }catch(Exception $e){
+                    Log::error($e);
+                }
+            }
+        }
+        $CustomerRate = DB::table('tblGatewayCustomerRate')
+            ->where("CustomerID", $CustomerID)
+            ->select('Code','Description',  'Interval1','IntervalN','ConnectionFee', 'Rate','EffectiveDate')
+            ->distinct();
+        return Datatables::of($CustomerRate)->make();
     }
 
 }
