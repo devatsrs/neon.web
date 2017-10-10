@@ -38,3 +38,7 @@ INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES ( 1, 
 ( 1, 'CUSTOMER_PROFILE_DISPLAY', '1');
 
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'CUSTOMER_RATE_DISPLAY', '1');
+
+
+ALTER TABLE `tblAccount`
+	ADD COLUMN `DisplayRates` INT NULL ;
