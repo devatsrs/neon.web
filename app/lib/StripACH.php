@@ -98,7 +98,7 @@ class StripeACH {
 
 	}
 
-	public static function create_customer($data){
+	public function create_customer($data){
 		$response = array();
 		$token = array();
 		$customer = array();
@@ -149,7 +149,7 @@ class StripeACH {
 
 			Log::info(print_r($customer,true));
 			if(!empty($customer['id'])){
-				$response['status'] = 'Success';
+				$response['status'] = 'success';
 				$response['VerifyStatus'] = '';
 				$response['CustomerProfileID'] = $customer['id'];
 				$response['BankAccountID'] = $customer['default_source'];
@@ -167,7 +167,7 @@ class StripeACH {
 
 	}
 
-	public static function deleteCustomer($CustomerProfileID){
+	public function deleteCustomer($CustomerProfileID){
 		$response = array();
 		try {
 			$customer = Stripe::customers()->delete($CustomerProfileID);
@@ -187,7 +187,7 @@ class StripeACH {
 		return $response;
 	}
 
-	public static function createchargebycustomer($data)
+	public function createchargebycustomer($data)
 	{
 		$response = array();
 		$token = array();
@@ -228,7 +228,7 @@ class StripeACH {
 		return $response;
 
 	}
-	public static function verifyBankAccount($data){
+	public function verifyBankAccount($data){
 		$response = array();
 		$customerId = $data['CustomerProfileID'];
 		$bankAccountId = $data['BankAccountID'];
@@ -255,67 +255,266 @@ class StripeACH {
 
 		return $response;
 	}
-	public static function create_customer_bank(){
-		$response = array();
-		$token = array();
-		$customer = array();
-		Log::error('start');
 
+	public function doValidation($data){
+		$ValidationResponse = array();
+		$rules = array(
+			'AccountNumber' => 'required|digits_between:6,19',
+			'RoutingNumber' => 'required',
+			'AccountHolderType' => 'required',
+			'AccountHolderName' => 'required',
+			//'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
+		);
 
-		/*
-		$token = Stripe::BankAccounts()->verify('cus_9wMcHZMnNqUQAR','ba_1AgvccCLEhHAk25KqUgkBI1Q',array(32, 45));
+		$validator = Validator::make($data, $rules);
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error){
+				$errors .= $error."<br>";
+			}
 
-		Log::info(print_r($token,true));
+			$ValidationResponse['status'] = 'failed';
+			$ValidationResponse['message'] = $errors;
+			return $ValidationResponse;
+		}
+		$CustomerID = $data['AccountID'];
+		$account = Account::find($CustomerID);
+		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
+		if(empty($CurrencyCode)){
+			$ValidationResponse['status'] = 'failed';
+			$ValidationResponse['message'] = "No account currency available";
+			return $ValidationResponse;
+		}
+		$data['currency'] = strtolower($CurrencyCode);
+		$Country = $account->Country;
+		if(!empty($Country)){
+			$CountryCode = Country::where(['Country'=>$Country])->pluck('ISO2');
+		}else{
+			$CountryCode = '';
+		}
+		if(empty($CountryCode)){
+			$ValidationResponse['status'] = 'failed';
+			$ValidationResponse['message'] = "No account country available";
+			return $ValidationResponse;
+		}
+		$ValidationResponse['status'] = 'success';
+		return $ValidationResponse;
+	}
 
-		exit;
+	public function createProfile($data){
+		$CustomerID = $data['AccountID'];
+		$CompanyID = $data['CompanyID'];
+		$PaymentGatewayID=$data['PaymentGatewayID'];
 
-		$token = Stripe::BankAccounts()->find('cus_9wMcHZMnNqUQAR','ba_1AgvccCLEhHAk25KqUgkBI1Q');
+		$account = Account::where(array('AccountID' => $CustomerID))->first();
+		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
+		$data['currency'] = strtolower($CurrencyCode);
+		$Country = $account->Country;
+		$CountryCode = Country::where(['Country'=>$Country])->pluck('ISO2');
 
-		Log::info(print_r($token,true));
+		$data['currency'] = strtolower($CurrencyCode);
+		$data['country'] = strtolower($CountryCode);
 
-		exit;
+		$isDefault = 1;
 
-		$token = Stripe::BankAccounts()->create('cus_9wMcHZMnNqUQAR',[
-			'account_number'  => '000123456789',
-			'country'    => 'us',
-			'currency' => 'usd',
-			'routing_number'       => '110000000',
-			'account_holder_name'  => 'Jenny Rosen',
-			'account_holder_type' => 'individual'
-		]);
+		$count = AccountPaymentProfile::where(['AccountID' => $CustomerID])
+			->where(['CompanyID' => $CompanyID])
+			->where(['PaymentGatewayID' => $PaymentGatewayID])
+			->where(['isDefault' => 1])
+			->count();
 
-		Log::info(print_r($token,true));
-
-		exit;
-
-		try{
-			$token = Stripe::tokens()->create([
-				'bank_account' => [
-					'country'    => 'us',
-					'currency' => 'usd',
-					'routing_number'       => '110000000',
-					'account_number'  => '000123456789',
-					'account_holder_name'  => 'Jenny Rosen',
-					'account_holder_type' => 'individual'
-				],
-			]);
-			Log::info(print_r($token,true));
-
-		} catch (Exception $e) {
-			Log::error($e);
-			//return ["return_var"=>$e->getMessage()];
-			$response['status'] = 'fail';
-			$response['error'] = $e->getMessage();
-			Log::error(print_r($response,true));
+		if($count>0){
+			$isDefault = 0;
 		}
 
-		if(empty($token) || $token['id'] == ''){
-			Log::error(print_r($response,true));
-			exit;
-			//return $response;
-		}
-		*/
+		$email = empty($account->BillingEmail)?'':$account->BillingEmail;
+		$accountname = empty($account->AccountName)?'':$account->AccountName;
 
+
+		$StripeResponse = array();
+		$stripedata['account_holder_name'] = $data['AccountHolderName'];
+		$stripedata['account_number'] = $data['AccountNumber'];
+		$stripedata['routing_number'] = $data['RoutingNumber'];
+		$stripedata['account_holder_type'] = $data['AccountHolderType'];
+		$stripedata['country'] = $data['country'];
+		$stripedata['currency'] =  $data['currency'];
+		$stripedata['email'] = $email;
+		$stripedata['account'] = $accountname;
+
+		$StripeResponse = $this->create_customer($stripedata);
+
+		if ($StripeResponse["status"] == "success") {
+			$option = array(
+				'CustomerProfileID' => $StripeResponse['CustomerProfileID'],
+				'BankAccountID' => $StripeResponse['BankAccountID'],
+				'VerifyStatus' => '',
+			);
+			$CardDetail = array('Title' => $data['Title'],
+				'Options' => json_encode($option),
+				'Status' => 1,
+				'isDefault' => $isDefault,
+				'created_by' => Customer::get_accountName(),
+				'CompanyID' => $CompanyID,
+				'AccountID' => $CustomerID,
+				'PaymentGatewayID' => $PaymentGatewayID);
+			if (AccountPaymentProfile::create($CardDetail)) {
+				return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
+			} else {
+				return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
+			}
+		}else{
+			return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
+		}
+
+	}
+
+	public function deleteProfile($data){
+		$AccountID = $data['AccountID'];
+		$CompanyID = $data['CompanyID'];
+		$AccountPaymentProfileID=$data['AccountPaymentProfileID'];
+
+		$count = AccountPaymentProfile::where(["CompanyID"=>$CompanyID])->where(["AccountID"=>$AccountID])->count();
+		$PaymentProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
+		if(!empty($PaymentProfile)){
+			$options = json_decode($PaymentProfile->Options);
+			$CustomerProfileID = $options->CustomerProfileID;
+			$isDefault = $PaymentProfile->isDefault;
+		}else{
+			return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+		}
+		if($isDefault==1){
+			if($count!=1){
+				return Response::json(array("status" => "failed", "message" => "You can not delete default profile. Please set as default an other profile first."));
+			}
+		}
+
+		$result = $this->deleteCustomer($CustomerProfileID);
+
+		if($result["status"]=="Success"){
+			if($PaymentProfile->delete()) {
+				return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
+			} else {
+				return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+			}
+		}else{
+			return Response::json(array("status" => "failed", "message" => $result['error']));
+		}
+
+	}
+
+	public function doVerify($data){
+		if(empty($data['MicroDeposit1']) || empty($data['MicroDeposit2'])){
+			return Response::json(array("status" => "failed", "message" => "Both MicroDeposit Required."));
+		}
+		$cardID = $data['cardID'];
+		$AccountPaymentProfile = AccountPaymentProfile::find($cardID);
+		$options = json_decode($AccountPaymentProfile->Options,true);
+		$CustomerProfileID = $options['CustomerProfileID'];
+		$BankAccountID = $options['BankAccountID'];
+		$stripedata = array();
+		$stripedata['CustomerProfileID'] = $CustomerProfileID;
+		$stripedata['BankAccountID'] = $BankAccountID;
+		$stripedata['MicroDeposit1'] = $data['MicroDeposit1'];
+		$stripedata['MicroDeposit2'] = $data['MicroDeposit2'];
+
+		$StripeResponse = $this->verifyBankAccount($stripedata);
+		if($StripeResponse['status']=='Success'){
+			if($StripeResponse['VerifyStatus']=='verified'){
+				$option = array(
+					'CustomerProfileID' => $CustomerProfileID,
+					'BankAccountID' => $BankAccountID,
+					'VerifyStatus' => $StripeResponse['VerifyStatus']
+				);
+				$AccountPaymentProfile->update(array('Options' => json_encode($option)));
+
+				return Response::json(array("status" => "success", "message" => "verification status is ".$StripeResponse['VerifyStatus']));
+			}else{
+				return Response::json(array("status" => "failed", "message" => "verification status is ".$StripeResponse['VerifyStatus']));
+			}
+
+		}else{
+			return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
+		}
+	}
+
+	public function paymentValidateWithProfile($data){
+		$Response = array();
+		$Response['status']='success';
+		$account = Account::find($data['AccountID']);
+		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
+		if(empty($CurrencyCode)){
+			$Response['status']='failed';
+			$Response['message']='No account currency available';
+		}
+		$CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
+		$StripeObj = json_decode($CustomerProfile->Options);
+		if(empty($StripeObj->VerifyStatus) || $StripeObj->VerifyStatus!=='verified'){
+			$Response['status']='failed';
+			$Response['message']='Bank Account not verified.';
+		}
+
+		return $Response;
+	}
+
+	public function paymentWithProfile($data){
+		$account = Account::find($data['AccountID']);
+
+		$CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
+		$StripeObj = json_decode($CustomerProfile->Options);
+
+		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
+		$stripedata = array();
+		$stripedata['currency'] = strtolower($CurrencyCode);
+		$stripedata['amount'] = $data['outstanginamount'];
+		$stripedata['description'] = $data['InvoiceNumber'].' (Invoice) Payment';
+		$stripedata['customerid'] = $StripeObj->CustomerProfileID;
+
+		$transactionResponse = array();
+
+		$transaction = $this->createchargebycustomer($stripedata);
+
+		$Notes = '';
+		if(!empty($transaction['response_code']) && $transaction['response_code'] == 1) {
+			$Notes = 'Stripe ACH transaction_id ' . $transaction['id'];
+			$Status = TransactionLog::SUCCESS;
+		}else{
+			$Status = TransactionLog::FAILED;
+			$Notes = empty($transaction['error']) ? '' : $transaction['error'];
+			//AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
+		}
+		$transactionResponse['transaction_notes'] =$Notes;
+		if(!empty($transaction['response_code'])) {
+			$transactionResponse['response_code'] = $transaction['response_code'];
+		}
+		$transactionResponse['PaymentMethod'] = 'BANK TRANSFER';
+		$transactionResponse['failed_reason'] = $Notes;
+		if(!empty($transaction['id'])) {
+			$transactionResponse['transaction_id'] = $transaction['id'];
+		}
+		$transactionResponse['Response'] = $transaction;
+
+		$transactiondata = array();
+		$transactiondata['CompanyID'] = $account->CompanyId;
+		$transactiondata['AccountID'] = $account->AccountID;
+		if(!empty($transaction['id'])) {
+			$transactiondata['Transaction'] = $transaction['id'];
+		}
+		$transactiondata['Notes'] = $Notes;
+		if(!empty($transaction['amount'])) {
+			$transactiondata['Amount'] = floatval($transaction['amount']);
+		}
+		$transactiondata['Status'] = $Status;
+		$transactiondata['created_at'] = date('Y-m-d H:i:s');
+		$transactiondata['updated_at'] = date('Y-m-d H:i:s');
+		$transactiondata['CreatedBy'] = $data['CreatedBy'];
+		$transactiondata['ModifyBy'] = $data['CreatedBy'];
+		$transactiondata['Response'] = json_encode($transaction);
+		TransactionLog::insert($transactiondata);
+		return $transactionResponse;
+
+	}
+
+	public function paymentValidateWithBankDetail($data){
 
 	}
 }

@@ -34,7 +34,8 @@
         "Barryvdh\\DomPDF\\ServiceProvider",
         "Intervention\\Image\\ImageServiceProvider",
         "Jenssegers\\Agent\\AgentServiceProvider",
-        "Cartalyst\\Stripe\\Laravel\\StripeServiceProvider"
+        "Cartalyst\\Stripe\\Laravel\\StripeServiceProvider",
+        "Chumper\\Zipper\\ZipperServiceProvider"
     ],
     "eager": [
         "Illuminate\\Cookie\\CookieServiceProvider",
@@ -51,7 +52,8 @@
         "Nathanmac\\GUID\\GUIDServiceProvider",
         "Intervention\\Image\\ImageServiceProvider",
         "Jenssegers\\Agent\\AgentServiceProvider",
-        "Cartalyst\\Stripe\\Laravel\\StripeServiceProvider"
+        "Cartalyst\\Stripe\\Laravel\\StripeServiceProvider",
+        "Chumper\\Zipper\\ZipperServiceProvider"
     ],
     "deferred": {
         "artisan": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",

@@ -5,7 +5,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(
 	IN `p_IssueDateStart` DATETIME,
 	IN `p_IssueDateEnd` DATETIME,
 	IN `p_InvoiceType` INT,
-	IN `p_InvoiceStatus` VARCHAR(50),
+	IN `p_InvoiceStatus` LONGTEXT,
 	IN `p_IsOverdue` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,
@@ -15,7 +15,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(
 	IN `p_isExport` INT,
 	IN `p_sageExport` INT,
 	IN `p_zerovalueinvoice` INT,
-	IN `p_InvoiceID` LONGTEXT
+	IN `p_InvoiceID` LONGTEXT,
+	IN `p_userID` INT
 )
 BEGIN
 	DECLARE v_OffSet_ int;
@@ -73,7 +74,10 @@ BEGIN
 			inv.ItemInvoice,
 			IFNULL(ac.BillingEmail,'') as BillingEmail,
 			ac.Number,
-			(SELECT IFNULL(b.PaymentDueInDays,0) FROM NeonRMDev.tblAccountBilling ab INNER JOIN NeonRMDev.tblBillingClass b ON b.BillingClassID =ab.BillingClassID WHERE ab.AccountID = ac.AccountID AND ab.ServiceID = inv.ServiceID LIMIT 1) as PaymentDueInDays,
+			if (inv.BillingClassID > 0,
+				 (SELECT IFNULL(b.PaymentDueInDays,0) FROM NeonRMDev.tblBillingClass b where  b.BillingClassID =inv.BillingClassID),
+				 (SELECT IFNULL(b.PaymentDueInDays,0) FROM NeonRMDev.tblAccountBilling ab INNER JOIN NeonRMDev.tblBillingClass b ON b.BillingClassID =ab.BillingClassID WHERE ab.AccountID = ac.AccountID AND ab.ServiceID = inv.ServiceID LIMIT 1)
+			) as PaymentDueInDays,
 			(SELECT PaymentDate FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID ORDER BY PaymentID DESC LIMIT 1) AS PaymentDate,
 			inv.SubTotal,
 			inv.TotalTax,
@@ -84,6 +88,7 @@ BEGIN
 			LEFT JOIN NeonRMDev.tblCurrency cr ON inv.CurrencyID   = cr.CurrencyId
 			WHERE ac.CompanyID = p_CompanyID
 			AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
+			AND (p_userID = 0 OR ac.Owner = p_userID)
 			AND (p_InvoiceNumber = '' OR (inv.FullInvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
 			AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
 			AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
@@ -105,6 +110,8 @@ BEGIN
 			CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal2,
 			CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `PendingAmount`,
 			InvoiceStatus,
+			DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY)) AS DueDate,
+			IF(InvoiceStatus NOT IN ('paid','cancel','draft'), IF(DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))) > 0,DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))),''), '') AS DueDays,
 			InvoiceID,
 			Description,
 			Attachment,
@@ -205,7 +212,7 @@ BEGIN
 	IF p_isExport = 2
 	THEN
 
-		-- just extra field InvoiceID
+		
 
 		SELECT
 			AccountName ,
@@ -231,7 +238,7 @@ BEGIN
 
 	IF p_sageExport =1 OR p_sageExport =2
 	THEN
-			-- mark as paid invoice that are sage export
+			
 
 		IF p_sageExport = 2
 		THEN
@@ -247,6 +254,7 @@ BEGIN
 			SET InvoiceStatus = 'paid'
 			WHERE ac.CompanyID = p_CompanyID
 				AND (p_AccountID = 0 OR ( p_AccountID != 0 AND inv.AccountID = p_AccountID))
+				AND (p_userID = 0 OR ac.Owner = p_userID)
 				AND (p_InvoiceNumber = '' OR (inv.FullInvoiceNumber like Concat('%',p_InvoiceNumber,'%')))
 				AND (p_IssueDateStart = '0000-00-00 00:00:00' OR ( p_IssueDateStart != '0000-00-00 00:00:00' AND inv.IssueDate >= p_IssueDateStart))
 				AND (p_IssueDateEnd = '0000-00-00 00:00:00' OR ( p_IssueDateEnd != '0000-00-00 00:00:00' AND inv.IssueDate <= p_IssueDateEnd))
@@ -273,7 +281,7 @@ BEGIN
 			InvoiceNumber AS TransactionReference,
 			'' AS SecondReference,
 			'' AS Source,
-			4 AS SYSTraderTranType, -- 4 - Sales invoice (SI)
+			4 AS SYSTraderTranType, 
 			DATE_FORMAT(PaymentDate ,'%Y-%m-%d') AS TransactionDate,
 			TotalTax AS TaxValue,
 			SubTotal AS `NominalAnalysisTransactionValue/1`,

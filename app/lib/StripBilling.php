@@ -35,7 +35,7 @@ class StripeBilling {
 	/**
 	 * Invoice Payment with stripe
 	*/
-	public static function create_charge($data)
+	public function create_charge($data)
 	{
 		$response = array();
 		$token = array();
@@ -98,7 +98,7 @@ class StripeBilling {
 
 	}
 
-	public static function create_customer($data){
+	public function create_customer($data){
 		$response = array();
 		$token = array();
 		$customer = array();
@@ -134,7 +134,7 @@ class StripeBilling {
 			//Log::info(print_r($customer,true));
 
 			if(!empty($customer['id'])){
-				$response['status'] = 'Success';
+				$response['status'] = 'success';
 				$response['CustomerProfileID'] = $customer['id'];
 				$response['CardID'] = $customer['default_source'];
 				$response['response'] = $customer;
@@ -155,7 +155,7 @@ class StripeBilling {
 
 	}
 
-	public static function deleteCustomer($CustomerProfileID){
+	public function deleteCustomer($CustomerProfileID){
 		$response = array();
 		try {
 			$customer = Stripe::customers()->delete($CustomerProfileID);
@@ -175,7 +175,7 @@ class StripeBilling {
 		return $response;
 	}
 
-	public static function createchargebycustomer($data)
+	public function createchargebycustomer($data)
 	{
 		$response = array();
 		$token = array();
@@ -214,6 +214,263 @@ class StripeBilling {
 		}
 
 		return $response;
+
+	}
+	public function doValidation($data){
+		$ValidationResponse = array();
+		$rules = array(
+			'CardNumber' => 'required|digits_between:14,19',
+			'ExpirationMonth' => 'required',
+			'ExpirationYear' => 'required',
+			'NameOnCard' => 'required',
+			'CVVNumber' => 'required',
+			//'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
+		);
+
+		$validator = Validator::make($data, $rules);
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error){
+				$errors .= $error."<br>";
+			}
+
+			$ValidationResponse['status'] = 'failed';
+			$ValidationResponse['message'] = $errors;
+			return $ValidationResponse;
+		}
+		if (date("Y") == $data['ExpirationYear'] && date("m") > $data['ExpirationMonth']) {
+
+			$ValidationResponse['status'] = 'failed';
+			$ValidationResponse['message'] = "Month must be after " . date("F");
+			return $ValidationResponse;
+		}
+		$card = CreditCard::validCreditCard($data['CardNumber']);
+		if ($card['valid'] == 0) {
+			$ValidationResponse['status'] = 'failed';
+			$ValidationResponse['message'] = "Please enter valid card number";
+			return $ValidationResponse;
+		}
+
+		$ValidationResponse['status'] = 'success';
+		return $ValidationResponse;
+	}
+
+	public function createProfile($data){
+
+		$CustomerID = $data['AccountID'];
+		$CompanyID = $data['CompanyID'];
+		$PaymentGatewayID=$data['PaymentGatewayID'];
+
+		$stripedata = array();
+
+		$account = Account::where(array('AccountID' => $CustomerID))->first();
+		$isDefault = 1;
+		$count = AccountPaymentProfile::where(['AccountID' => $CustomerID])
+			->where(['CompanyID' => $CompanyID])
+			->where(['PaymentGatewayID' => $PaymentGatewayID])
+			->where(['isDefault' => 1])
+			->count();
+
+		if($count>0){
+			$isDefault = 0;
+		}
+
+		$email = empty($account->BillingEmail)?'':$account->BillingEmail;
+		$accountname = empty($account->AccountName)?'':$account->AccountName;
+
+		$StripeResponse = array();
+		$stripedata['number'] = $data['CardNumber'];
+		$stripedata['exp_month'] = $data['ExpirationMonth'];
+		$stripedata['cvc'] = $data['CVVNumber'];
+		$stripedata['exp_year'] = $data['ExpirationYear'];
+		$stripedata['name'] = $data['NameOnCard'];
+		$stripedata['email'] = $email;
+		$stripedata['account'] = $accountname;
+
+		$StripeResponse = $this->create_customer($stripedata);
+
+		if ($StripeResponse["status"] == "success") {
+			$option = array(
+				'CustomerProfileID' => $StripeResponse['CustomerProfileID'],
+				'CardID' => $StripeResponse['CardID']
+			);
+			$CardDetail = array('Title' => $data['Title'],
+				'Options' => json_encode($option),
+				'Status' => 1,
+				'isDefault' => $isDefault,
+				'created_by' => Customer::get_accountName(),
+				'CompanyID' => $CompanyID,
+				'AccountID' => $CustomerID,
+				'PaymentGatewayID' => $PaymentGatewayID);
+			if (AccountPaymentProfile::create($CardDetail)) {
+				return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
+			} else {
+				return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
+			}
+		}else{
+			return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
+		}
+
+	}
+
+	public function deleteProfile($data){
+		$AccountID = $data['AccountID'];
+		$CompanyID = $data['CompanyID'];
+		$AccountPaymentProfileID=$data['AccountPaymentProfileID'];
+
+		$count = AccountPaymentProfile::where(["CompanyID"=>$CompanyID])->where(["AccountID"=>$AccountID])->count();
+		$PaymentProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
+		if(!empty($PaymentProfile)){
+			$options = json_decode($PaymentProfile->Options);
+			$CustomerProfileID = $options->CustomerProfileID;
+			$isDefault = $PaymentProfile->isDefault;
+		}else{
+			return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+		}
+		if($isDefault==1){
+			if($count!=1){
+				return Response::json(array("status" => "failed", "message" => "You can not delete default profile. Please set as default an other profile first."));
+			}
+		}
+
+		$result = $this->deleteCustomer($CustomerProfileID);
+
+		if($result["status"]=="Success"){
+			if($PaymentProfile->delete()) {
+				return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully deleted. Profile deleted too."));
+			} else {
+				return Response::json(array("status" => "failed", "message" => "Problem deleting Payment Method Profile."));
+			}
+		}else{
+			return Response::json(array("status" => "failed", "message" => $result['error']));
+		}
+	}
+
+	public function paymentValidateWithProfile($data){
+		$Response = array();
+		$Response['status']='success';
+		$account = Account::find($data['AccountID']);
+		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
+		if(empty($CurrencyCode)){
+			$Response['status']='failed';
+			$Response['message']='No account currency available';
+		}
+		return $Response;
+	}
+
+	public function paymentWithProfile($data){
+
+		$account = Account::find($data['AccountID']);
+
+		$CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
+		$StripeObj = json_decode($CustomerProfile->Options);
+
+		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
+		$stripedata = array();
+		$stripedata['currency'] = strtolower($CurrencyCode);
+		$stripedata['amount'] = $data['outstanginamount'];
+		$stripedata['description'] = $data['InvoiceNumber'].' (Invoice) Payment';
+		$stripedata['customerid'] = $StripeObj->CustomerProfileID;
+
+		$transactionResponse = array();
+
+		$transaction = $this->createchargebycustomer($stripedata);
+
+		$Notes = '';
+		if(!empty($transaction['response_code']) && $transaction['response_code'] == 1) {
+			$Notes = 'Stripe transaction_id ' . $transaction['id'];
+			$Status = TransactionLog::SUCCESS;
+		}else{
+			$Status = TransactionLog::FAILED;
+			$Notes = empty($transaction['error']) ? '' : $transaction['error'];
+			//AccountPaymentProfile::setProfileBlock($AccountPaymentProfileID);
+		}
+		$transactionResponse['transaction_notes'] =$Notes;
+		if(!empty($transaction['response_code'])) {
+			$transactionResponse['response_code'] = $transaction['response_code'];
+		}
+		$transactionResponse['PaymentMethod'] = 'CREDIT CARD';
+		$transactionResponse['failed_reason'] = $Notes;
+		if(!empty($transaction['id'])) {
+			$transactionResponse['transaction_id'] = $transaction['id'];
+		}
+		$transactionResponse['Response'] = $transaction;
+
+		$transactiondata = array();
+		$transactiondata['CompanyID'] = $account->CompanyId;
+		$transactiondata['AccountID'] = $account->AccountID;
+		if(!empty($transaction['id'])) {
+			$transactiondata['Transaction'] = $transaction['id'];
+		}
+		$transactiondata['Notes'] = $Notes;
+		if(!empty($transaction['amount'])) {
+			$transactiondata['Amount'] = floatval($transaction['amount']);
+		}
+		$transactiondata['Status'] = $Status;
+		$transactiondata['created_at'] = date('Y-m-d H:i:s');
+		$transactiondata['updated_at'] = date('Y-m-d H:i:s');
+		$transactiondata['CreatedBy'] = $data['CreatedBy'];
+		$transactiondata['ModifyBy'] = $data['CreatedBy'];
+		$transactiondata['Response'] = json_encode($transaction);
+		TransactionLog::insert($transactiondata);
+		return $transactionResponse;
+	}
+
+	public function paymentValidateWithCreditCard($data){
+		$Response = array();
+		$Response['status']='success';
+
+		$ValidateResonse = $this->doValidation($data);
+		if($ValidateResonse['status']=='failed'){
+			return $ValidateResonse;
+		}
+
+		$account = Account::find($data['AccountID']);
+		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
+		if(empty($CurrencyCode)){
+			$Response['status']='failed';
+			$Response['message']='No account currency available';
+		}
+		return $Response;
+	}
+
+	public function paymentWithCreditCard($data){
+		$account = Account::find($data['AccountID']);
+		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
+
+		$stripedata = array();
+		$stripedata['number'] = $data['CardNumber'];
+		$stripedata['exp_month'] = $data['ExpirationMonth'];
+		$stripedata['cvc'] = $data['CVVNumber'];
+		$stripedata['exp_year'] = $data['ExpirationYear'];
+		$stripedata['name'] = $data['NameOnCard'];
+
+		$stripedata['amount'] = $data['GrandTotal'];
+		$stripedata['currency'] = strtolower($CurrencyCode);
+		$stripedata['description'] = $data['InvoiceNumber'].' (Invoice) Payment';
+
+		$Invoice = Invoice::where(["InvoiceID" => $data['InvoiceID'], "AccountID" => $data['AccountID']])->first();
+		$stripedata['CurrencyCode'] = Currency::getCurrency($Invoice->CurrencyID);
+
+		log::info('Payment with card start');
+		$StripeResponse = $this->create_charge($stripedata);
+		log::info('Payment with card end');
+		$Response = array();
+
+		if ($StripeResponse['status'] == 'Success') {
+			$Response['PaymentMethod'] = 'CREDIT CARD';
+			$Response['transaction_notes'] = $StripeResponse['note'];
+			$Response['Amount'] = $StripeResponse['amount'];
+			$Response['Transaction'] = $StripeResponse['id'];
+			$Response['Response']=$StripeResponse['response'];
+			$Response['status'] = 'success';
+		}else{
+			$Response['transaction_notes'] = $StripeResponse['error'];
+			$Response['status'] = 'failed';
+			$Response['Response']='';
+		}
+
+		return $Response;
 
 	}
 }

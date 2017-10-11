@@ -4,8 +4,10 @@ CREATE TABLE `tmp_VendorUsageSummaryLive` (
   `TimeID` int(11) NOT NULL,
   `CompanyID` int(11) NOT NULL,
   `CompanyGatewayID` int(11) NOT NULL,
-  `GatewayAccountID` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `AccountID` int(11) NOT NULL,
+  `GatewayAccountPKID` int(11) DEFAULT NULL,
+  `GatewayVAccountPKID` int(11) DEFAULT NULL,
+  `AccountID` int(11) DEFAULT NULL,
+  `VAccountID` int(11) NOT NULL,
   `Trunk` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `AreaPrefix` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `TotalCharges` double DEFAULT NULL,
@@ -20,6 +22,6 @@ CREATE TABLE `tmp_VendorUsageSummaryLive` (
   PRIMARY KEY (`VendorUsageSummaryLiveID`),
   KEY `tmp_VendorUsageSummary_AreaPrefix` (`AreaPrefix`),
   KEY `tmp_VendorUsageSummary_dim_date` (`DateID`),
-  KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`,`GatewayAccountID`,`CompanyGatewayID`,`Trunk`,`AreaPrefix`),
-  KEY `IX_CompanyID` (`CompanyID`)
+  KEY `IX_CompanyID` (`CompanyID`),
+  KEY `Unique_key` (`DateID`,`CompanyID`,`AccountID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

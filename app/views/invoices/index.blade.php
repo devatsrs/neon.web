@@ -1,5 +1,67 @@
 @extends('layout.main')
 
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form id="invoice_filter" method="get" class="form-horizontal form-groups-bordered validate">
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Type</label>
+                    {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"select2 small"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Account</label>
+                    {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Status</label>
+                    {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Hide Zero Value</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="zerovalueinvoice" name="zerovalueinvoice" type="checkbox" @if($InvoiceHideZeroValue == 1) checked @endif>
+                    </p>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Invoice Number</label>
+                    {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Issue Date Start</label>
+                    {{ Form::text('IssueDateStart', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar -->
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Issue Date End</label>
+                    {{ Form::text('IssueDateEnd', !empty(Input::get('EndDate'))?Input::get('EndDate'):$data['IssueDateEndDefault'], array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Currency</label>
+                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Overdue</label><br/>
+                    <p class="make-switch switch-small">
+                        <input id="Overdue" name="Overdue" type="checkbox">
+                    </p>
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{URL::to('dashboard')}}"><i class="entypo-home"></i>Home</a> </li>
@@ -7,92 +69,42 @@
 </ol>
 <h3>Invoice</h3>
 @include('includes.errors')
-    @include('includes.success')
-<div class="col-md-12" style="padding-bottom: 5px;">
-    @if(User::checkCategoryPermission('Invoice','Generate'))
-    <div class="pull-right"> &nbsp;</div>
-    <div class="input-group-btn pull-right" style="width: 115px;">
-        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
-        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
-            <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li>
+@include('includes.success')
 
-        </ul>
-    </div>
-    @endif
-    @if(User::checkCategoryPermission('Invoice','Add'))
-    <div class="pull-right"> &nbsp;</div>
-    <div class="input-group-btn pull-right" style="width: 100px;">
-        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
-        <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-                <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff </a> </li>
-                <li> <a id="invoice-in" href="javascript:;"> Received</a> </li>
-        </ul>
-    </div>
-    @endif
-    @if(User::checkCategoryPermission('RecurringProfile','View'))
-    <div class="pull-right"> &nbsp;</div>
-    <a href="{{URL::to('/recurringprofiles')}}" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </a>
-    @endif
-</div>
 <div class="tab-content">
   <div class="tab-pane active">
     <div class="row">
-      <div class="col-md-12">
-        <form id="invoice_filter" method="get" class="form-horizontal form-groups-bordered validate"
-                          novalidate>
-          <div class="panel panel-primary" data-collapsed="0">
-            <div class="panel-heading">
-              <div class="panel-title"> Filter </div>
-              <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
-            </div>
-            <div class="panel-body">
-              <div class="form-group">
-                <label for="field-1" class="col-sm-1 control-label">Type</label>
-                <div class="col-sm-2"> {{Form::select('InvoiceType',Invoice::$invoice_type,Input::get('InvoiceType'),array("class"=>"select2 small"))}} </div>
-                <label for="field-1" class="col-sm-1 control-label">Account</label>
-                <div class="col-sm-2"> {{ Form::select('AccountID', $accounts, '', array("class"=>"select2","data-allow-clear"=>"true","data-placeholder"=>"Select Account")) }} </div>
-                <label for="field-1" class="col-sm-1 control-label">Status</label>
-                <div class="col-sm-2"> {{ Form::select('InvoiceStatus', Invoice::get_invoice_status(), (!empty(Input::get('InvoiceStatus'))?explode(',',Input::get('InvoiceStatus')):[]), array("class"=>"select2","multiple","data-allow-clear"=>"true","data-placeholder"=>"Select Status")) }} </div>
-                <label for="field-1" class="col-sm-1 control-label">Hide Zero Value</label>
-                <div class="col-sm-2">
-                  <p class="make-switch switch-small">
-                    <input id="zerovalueinvoice" name="zerovalueinvoice"
-                                                   type="checkbox" @if($InvoiceHideZeroValue == 1) checked @endif>
-                  </p>
-                </div>
+      <div class="col-md-12 action-buttons">
+
+          @if(User::checkCategoryPermission('RecurringProfile','View'))
+              <div class="input-group-btn">
+                  <button href="{{URL::to('/recurringprofiles')}}" onclick="location.href=$(this).attr('href');" class="btn btn-primary tooltip-primary pull-right" data-original-title="Recurring Profile" title="" data-placement="top" data-toggle="tooltip" > Recurring Profiles </button>
               </div>
-              <div class="form-group">
-                <label for="field-1" class="col-sm-1 control-label">Invoice Number</label>
-                <div class="col-sm-2"> {{ Form::text('InvoiceNumber', '', array("class"=>"form-control")) }} </div>
-                <label for="field-1" class="col-sm-1 control-label">Issue Date Start</label>
-                <div class="col-sm-2"> {{ Form::text('IssueDateStart', !empty(Input::get('StartDate'))?Input::get('StartDate'):$data['StartDateDefault'], array("class"=>"form-control small-date-input datepicker", "data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }}<!-- Time formate Updated by Abubakar --> 
-                </div>
-                <label for="field-1" class="col-sm-1 control-label">Issue Date End</label>
-                <div class="col-sm-2"> {{ Form::text('IssueDateEnd', !empty(Input::get('EndDate'))?Input::get('EndDate'):$data['IssueDateEndDefault'], array("class"=>"form-control small-date-input datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }} </div>
-                <label for="field-1" class="col-sm-1 control-label">Currency</label>
-                <div class="col-sm-2"> {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),(!empty(Input::get('CurrencyID'))?Input::get('CurrencyID'):$DefaultCurrencyID),array("class"=>"select2"))}} </div>
+          @endif
+
+          @if(User::checkCategoryPermission('Invoice','Add'))
+              <div class="input-group-btn">
+                  <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" aria-expanded="false"> Add Invoice <span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                      <li> <a id="add-new-invoice" href="{{URL::to("invoice/create")}}" style="width:100%"> Oneoff </a> </li>
+                      <li> <a id="invoice-in" href="javascript:;"> Received</a> </li>
+                  </ul>
               </div>
-              <div class="form-group">
-                <label for="field-1" class="col-sm-1 control-label">Overdue</label>
-                <div class="col-sm-2">
-                  <p class="make-switch switch-small">
-                    <input id="Overdue" name="Overdue" type="checkbox">
-                  </p>
-                </div>
+          @endif
+
+          @if(User::checkCategoryPermission('Invoice','Generate'))
+              <div class="input-group-btn">
+                  <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown" aria-expanded="false">Generate Invoice <span class="caret"></span></button>
+                  <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
+                      <li> <a id="generate-new-invoice" href="javascript:;">Automatically</a> </li>
+                      <li> <a id="manual_billing" class="manual_billing" href="javascript:;"style="width:100%">Manually </a> </li>
+
+                  </ul>
               </div>
-              <p style="text-align: right;">
-                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
-              </p>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
-          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+          @endif
+
+        <div class="input-group-btn"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
+          <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown"
                                     aria-expanded="false">Action <span class="caret"></span></button>
           <ul class="dropdown-menu dropdown-menu-left" role="menu"
                                 style="background-color: #000; border-color: #000; margin-top:0px;">
@@ -100,13 +112,16 @@
             <li> <a class="generate_rate create" id="bulk-invoice-send" href="javascript:;"
                                            style="width:100%"> Send Invoice </a> </li>
             @endif
+
+            <li> <a class="quickbookpost create" id="print_invoice" href="javascript:;"> Download Invoice </a> </li>
+
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="generate_rate create" id="changeSelectedInvoice" href="javascript:;"> Change Status </a> </li>
             @endif
             @if(User::checkCategoryPermission('Invoice','Generate'))
             <li> <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;"> Regenerate </a> </li>
             @endif
-            @if(is_authorize() || is_Stripe())
+            @if(is_PayNowInvoice())
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="pay_now create" id="pay_now" href="javascript:;"> Pay Now </a> </li>
             @endif
@@ -117,13 +132,18 @@
             @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook))
             <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Post </a> </li>
             @endif
+
             <li> <a class="create" id="sage-export" href="javascript:;"> Sage Export </a> </li>
+            @if(is_SagePayDirectDebit())
+            <li> <a class="sagepost create" id="sage-post" href="javascript:;"> Sage Pay Direct Debit Export </a> </li>
+            @endif
           </ul>
           @endif
           <form id="clear-bulk-rate-form">
             <input type="hidden" name="CustomerRateIDs" value="">
           </form>
         </div>
+
         <!-- /btn-group -->
         <div class="clear"><br>
         </div>
@@ -136,13 +156,15 @@
               <input type="checkbox" id="selectall" name="checkbox[]" class=""/>
             </div>
           </th>
-          <th width="15%">Account Name</th>
+          <th width="15%">Account</th>
           <th width="10%">Invoice Number</th>
           <th width="10%">Issue Date</th>
-          <th width="13%">Invoice Period</th>
+          <th width="13%">Period</th>
           <th width="6%">Grand Total</th>
           <th width="6%">Paid/OS</th>
-          <th width="10%">Invoice Status</th>
+          <th width="10%">Status</th>
+          <th width="10%">Due Date</th>
+          {{--<th width="10%">Due Days</th>--}}
           <th width="20%">Action</th>
         </tr>
       </thead>
@@ -158,11 +180,14 @@
         var postdata;
 	    var editor_options 	  =  		{};
         jQuery(document).ready(function ($) {
+
+            $('#filter-button-toggle').show();
+
             public_vars.$body = $("body");
             //show_loading_bar(40);
             var invoicestatus = {{$invoice_status_json}};
             var Invoice_Status_Url = "{{ URL::to('invoice/invoice_change_Status')}}";
-            var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
+            var list_fields = ['InvoiceType', 'AccountName ', 'InvoiceNumber', 'IssueDate', 'InvoicePeriod', 'GrandTotal2', 'PendingAmount', 'InvoiceStatus', 'DueDate', 'DueDays', 'InvoiceID', 'Description', 'Attachment', 'AccountID', 'OutstandingAmount', 'ItemInvoice', 'BillingEmail', 'GrandTotal'];
             $searchFilter.InvoiceType = $("#invoice_filter [name='InvoiceType']").val();
             $searchFilter.AccountID = $("#invoice_filter select[name='AccountID']").val();
             $searchFilter.InvoiceStatus = $("#invoice_filter select[name='InvoiceStatus']").val() != null ? $("#invoice_filter select[name='InvoiceStatus']").val() : '';
@@ -216,7 +241,7 @@
                                 invoiceType = ' <button class=" btn btn-primary pull-right" title="Invoice Received"><i class="entypo-right-bold"></i>RCV</a>';
                             }
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
-                                action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="' + full[8] + '" name="InvoiceID[]"></div>';
+                                action += '<div class="pull-left"><input type="checkbox" class="checkbox rowcheckbox" value="' + full[10] + '" name="InvoiceID[]"></div>';
                             }
                             action += invoiceType;
                             return action;
@@ -229,11 +254,11 @@
                         mRender: function (id, type, full) {
                             var output, account_url;
                             output = '<a href="{url}" target="_blank" >{account_name}';
-                            if (full[14] == '') {
+                            if (full[16] == '') {
                                 output += '<br> <span class="text-danger"><small>(Email not setup)</small></span>';
                             }
                             output += '</a>';
-                            account_url = baseurl + "/accounts/" + full[11] + "/show";
+                            account_url = baseurl + "/accounts/" + full[13] + "/show";
                             output = output.replace("{url}", account_url);
                             output = output.replace("{account_name}", id);
                             return output;
@@ -248,7 +273,7 @@
                             var output, account_url;
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                 output = '<a href="{url}" target="_blank"> ' + id + '</a>';
-                                account_url = baseurl + "/invoice/" + full[8] + "/invoice_preview";
+                                account_url = baseurl + "/invoice/" + full[10] + "/invoice_preview";
                                 output = output.replace("{url}", account_url);
                                 output = output.replace("{account_name}", id);
                             } else {
@@ -270,10 +295,22 @@
 
                     },  // 7 InvoiceStatus
                     {
+                        "bSortable": true,
+                        mRender: function (id, type, full) {
+                            var output;
+                            if(full[9] != '' && full[9] != null)
+                                output = full[8] + '<br/> <span style="color:red">(' + full[9] + ' Days)</span>';
+                            else
+                                output = full[8];
+                            return output;
+                        }
+                    },  // 8 DueDate and DueDays
+                    //{"bSortable": false},  // 9 DueDays
+                    {
                         "bSortable": false,
                         mRender: function (id, type, full) {
                             var action, edit_, show_, delete_, view_url, edit_url, download_url, invoice_preview, invoice_log;
-                            id = full[8];
+                            id = full[10];
                             action = '<div class = "hiddenRowData" >';
                             if (full[0] != '{{Invoice::INVOICE_IN}}') {
                                 edit_url = (baseurl + "/invoice/{id}/edit").replace("{id}", id);
@@ -298,7 +335,7 @@
                                     //action += ' <li><a class="view-invoice-in icon-left"><i class="entypo-pencil"></i>Print </a></li>';
                                     action += '</ul>';
                                     action += '</div>';
-                                    if (full[10]) {
+                                    if (full[12]) {
                                         action += ' <a class="btn btn-success btn-sm btn-icon icon-left download" href="' + (baseurl + "/invoice/download_atatchment/{id}").replace("{id}", id) + '"><i class="entypo-down"></i>Download</a>'
                                     }
                                 }
@@ -307,7 +344,7 @@
                                 action += '<a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                                 action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
-                                if (full[13] == '{{Invoice::ITEM_INVOICE}}') {
+                                if (full[15] == '{{Invoice::ITEM_INVOICE}}') {
                                     if ('{{User::checkCategoryPermission('Invoice','Edit')}}') {
                                         action += ' <li><a class="icon-left"  href="' + (baseurl + "/invoice/{id}/edit").replace("{id}", id) + '"><i class="entypo-pencil"></i>Edit </a></li>';
                                     }
@@ -830,7 +867,8 @@
                     $('#add-bankaccount-form').find("[name=AccountID]").val(accoutid);
                     //$('#add-credit-card-form').find("[name=PaymentGatewayID]").val(pgid);
 
-                    paynow_url = '/paymentprofile/' + accoutid;
+                    paynow_url = '/customer/PaymentMethodProfiles/paynow/' + accoutid;
+                    //paynow_url = '/paymentprofile/' + accoutid;
                     showAjaxModal(paynow_url, 'pay_now_modal');
                     $('#pay_now_modal').modal('show');
 
@@ -936,7 +974,56 @@
                 submit_ajax(_url, post_data);
 				
             });
+            $("#print_invoice").click(function (ev) {
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    //console.log($(this).val());
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                console.log(InvoiceIDs);
 
+                if (InvoiceIDs.length) {
+                    if (!confirm('Are you sure you want to download selected invoices?')) {
+                        return;
+                    }
+                    $.ajax({
+                        url: baseurl + '/invoice/bulk_print_invoice',
+                        data: 'InvoiceIDs=' + InvoiceIDs + '&criteria=' + criteria,
+                        error: function () {
+                            toastr.error("error", "Error", toastr_opts);
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            if (response.status == 'success') {
+                                if(response.filePath!=""){
+                                    document.location =baseurl + "/download_file?file="+response.filePath;
+                                }else if(response.invoiceId){
+                                    document.location =baseurl + "/invoice/download_invoice/"+response.invoiceId;
+                                }else{
+                                    toastr.error("Something Worng Please try again.", "Error", toastr_opts);
+                                }
+
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        },
+                        type: 'POST'
+                    });
+                }
+                else
+                {
+                    toastr.error("Please Select One", "Error", toastr_opts);
+                }
+
+            });
             $("#bulk-invoice-send").click(function (ev) {
                 var criteria = '';
                 if ($('#selectallbutton').is(':checked')) {
@@ -1265,6 +1352,35 @@
                 });
                 if (InvoiceIDs.length) {
                     submit_ajax(baseurl + '/invoice/invoice_quickbookpost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria)
+                }
+            });
+
+            $("#sage-post").click(function (ev) {
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+                var MarkPaid = '0';
+                if (confirm('Do you want to change the status of selected invoices to Paid?\n\nAccounts where Sage Pay Bank Account Details are not setup will not be exported.')) {
+                    MarkPaid = '1';
+                }
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                if (InvoiceIDs.length) {
+                    var url = baseurl + '/invoice/invoice_sagepayexport';
+                    var data = '?InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&MarkPaid=' + MarkPaid;
+
+                    window.location.href = url + data;
+                    setTimeout(function () {
+                        data_table.fnFilter('', 0);
+                    }, 1000);
+                    //submit_ajax(baseurl + '/invoice/invoice_sagepayexport', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&MarkPaid=' + MarkPaid)
                 }
             });
 

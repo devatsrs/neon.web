@@ -76,12 +76,12 @@ BEGIN
 		);
 
 		INSERT INTO tmp_Account_ (AccountID)
-		SELECT DISTINCT tblSummaryHeader.AccountID  FROM tblSummaryHeader INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblSummaryHeader.AccountID WHERE tblSummaryHeader.CompanyID = 1;
+		SELECT DISTINCT tblHeader.AccountID  FROM tblHeader INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblHeader.AccountID WHERE tblHeader.CompanyID = 1;
 
 		UPDATE tmp_Account_ SET LastInvoiceDate = fngetLastInvoiceDate(AccountID);
 
 		INSERT INTO tmp_Account2_ (AccountID)
-		SELECT DISTINCT tblSummaryVendorHeader.AccountID  FROM tblSummaryVendorHeader INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblSummaryVendorHeader.AccountID WHERE tblSummaryVendorHeader.CompanyID = p_CompanyID;
+		SELECT DISTINCT tblHeaderV.VAccountID  FROM tblHeaderV INNER JOIN NeonRMDev.tblAccount ON tblAccount.AccountID = tblHeaderV.VAccountID WHERE tblHeaderV.CompanyID = p_CompanyID;
 
 		UPDATE tmp_Account2_ SET LastInvoiceDate = fngetLastVendorInvoiceDate(AccountID);
 

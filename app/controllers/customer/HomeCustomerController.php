@@ -8,7 +8,11 @@ class HomeCustomerController extends BaseController {
     public function home() {
 
         if(Auth::check()){
-            return Redirect::to('customer/monitor');
+            if(CompanyConfiguration::get('CUSTOMER_DASHBOARD_DISPLAY') == 0 && CompanyConfiguration::get('CUSTOMER_NOTICEBOARD_DISPLAY') == 1) {
+                return Redirect::to('customer/noticeboard');
+            } else {
+                return Redirect::to('customer/monitor');
+            }
         }else{
             $loginpath='customer/dologin';
             create_site_configration_cache();
@@ -22,7 +26,9 @@ class HomeCustomerController extends BaseController {
             $data = Input::all();
             if (User::user_login($data) && NeonAPI::login("customer")) {
                 $redirect_to = URL::to("/customer/monitor");
-                if(isset($data['redirect_to'])){
+                if (CompanyConfiguration::get('CUSTOMER_DASHBOARD_DISPLAY') == 0 && CompanyConfiguration::get('CUSTOMER_NOTICEBOARD_DISPLAY') == 1){
+                    $redirect_to =  URL::to('customer/noticeboard');
+                }else if(isset($data['redirect_to'])){
                     $redirect_to = $data['redirect_to'];
                 }
                 echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));

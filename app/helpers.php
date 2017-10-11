@@ -143,6 +143,14 @@ function customer_dropbox($id=0,$data=array()){
     return Form::select('customers', $all_customers, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
 
+function customer_leads_dropbox($id=0,$data=array()){
+    $accounts = Account::getAccountIDList($data);
+    $leads = Lead::getLeadList($data);
+    unset($leads['']);
+    $all_customers = $accounts+$leads;
+    return Form::select('customers', $all_customers, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
+
 function opportunites_dropbox($id=0,$data=array()){
     $all_opportunites = CRMBoard::getBoards(CRMBoard::OpportunityBoard,-1);
     return Form::select('crmboard', $all_opportunites, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
@@ -512,13 +520,14 @@ function getFileContent($file_name, $data){
     $columns = [];
     $grid = [];
     $flag = 0;
+
     if(isset($data["start_row"]) && isset($data["end_row"])){
         NeonExcelIO::$start_row=$data["start_row"];
         NeonExcelIO::$end_row=$data["end_row"];
     }
+
     $NeonExcel = new NeonExcelIO($file_name, $data);
     $results = $NeonExcel->read(10);
-
     /*
     if (!empty($data['Delimiter'])) {
         Config::set('excel::csv.delimiter', $data['Delimiter']);
@@ -1019,7 +1028,7 @@ function create_site_configration_cache(){
         $cache['Title']				=	'Neon';
         $cache['FooterText']		=	'&copy; '.date('Y').' Code Desk';
         $cache['FooterUrl']			=	'http://www.code-desk.com';
-        $cache['LoginMessage']		=	'Dear user, log in to access RM!';
+        $cache['LoginMessage']		=	'Dear user, Please login below!';
         $cache['CustomCss']			=	'';
     }
 
@@ -1596,6 +1605,11 @@ function is_Stripe(){
 function is_StripeACH(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeACHSlug);
 }
+function is_SagePayDirectDebit(){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$SagePayDirectDebitSlug);
+}function is_FideliPay(){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$FideliPaySlug);
+}
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
         date_default_timezone_set($billing_timezone);
@@ -1709,6 +1723,458 @@ function getQuickBookAccountant(){
     $data =  AccountEmailLog::insertGetId($logData);
     return $data;
 }
+function generateGroupConcat($data,$columns){
+    $query_row = '';
+    if(count($columns)) {
+        foreach ($columns as $key => $single_columns) {
+            $column_name = $query_condition = '';
+
+            foreach ($single_columns as $col_name => $col_val) {
+                $query_condition .= " $col_name = '" . $col_val . "'";
+                $query_condition .= " AND ";
+                $column_name .= $col_val . "###";
+            }
+            $query_condition = rtrim($query_condition, ' AND ');
+            foreach ($data['sum'] as $col_sum) {
+                $query_row .= "SUM(IF( " . $query_condition . ", " . $col_sum . ", 0)) AS '" . $column_name . $col_sum . "'";
+                $query_row .= ",";
+            }
+        }
+    }else{
+        foreach ($data['sum'] as $col_sum) {
+            $query_row .= "SUM(" . $col_sum . ") AS '" . $col_sum . "'";
+            $query_row .= ",";
+        }
+    }
+    $query_row = rtrim($query_row,',');
+    return $query_row;
+}
+
+function generateReportTable($data,$response)
+{
+    $row_count = count($data['row']);
+
+    if(!empty($response['data'])) {
+        $table = '<table class="table table-bordered">';
+
+        $header_array = array_slice(array_keys($response['data'][0]), $row_count, count(array_keys($response['data'][0])));
+
+        $table .= header_array_html($header_array, $data, $response);
+
+        $table .= row_array_html($data, $response);
+    }else{
+        $table = 'No Data Found Or Select at least one Measure';
+    }
+
+    return $table;
+}
+
+
+
+function header_array_html($main_header,$data,$response){
+    $index_col = 0;
+    $row_count = count($data['row']);
+    $table_header = $table_header_colgroup = '';
+    $chartColor = array('#C5CAE9','#BBDEFB','#B3E5FC','#B2EBF2','#C8E6C9','#DCEDC8','#F0F4C3','#FFCCBC','#D7CCC8','#F5F5F5','#CFD8DC','#050FFF','#0000FF');
+    if($row_count) {
+        $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
+    }
+    $header_html = array();
+    foreach ($main_header as $headers) {
+        $headerrow = explode('###',$headers);
+        $key_comb = '';
+        if(count($headerrow)>1) {
+            foreach ($headerrow as $key => $header) {
+                $key_comb .= $header.'!';
+                if (empty(${'count_' . $key_comb})) {
+                    ${'count_' . $key_comb} = 0;
+                }
+                if (isset($data['column'][$key])) {
+                    $col_name = $data['column'][$key];
+                    $header_name = '';
+                    if (isset($response['column']['names'][$col_name][$header])) {
+                        $header_name = $response['column']['names'][$col_name][$header];
+                    }
+                    ${'count_' . $key_comb}++;
+                    if (!isset($header_html[$key][$key_comb])) {
+                        $header_html[$key][$key_comb]['name'] = $header_name;
+                    }
+                    $header_html[$key][$key_comb]['colspan'] = ${'count_' . $key_comb};
+                }
+            }
+        }
+    }
+    //print_r($header_html);exit;
+    if(count($data['column'])) {
+        foreach ($data['column'] as $key => $col_name) {
+            $table_header .= '<tr>';
+            if ($key == 0) {
+                foreach ($data['row'] as $rowkey => $blankrow_name) {
+                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '"></td>';
+                }
+            }
+            foreach ($header_html[$key] as $row_val) {
+                $color = '#FFF';
+                if ($key == 0) {
+                    if(isset($chartColor[$index_col + 1])) {
+                        $color = $chartColor[$index_col + 1];
+                    }
+                    $table_header_colgroup .= '<colgroup span="' . $row_val['colspan'] . '" style="background-color:' . $color. '"></colgroup>';
+                }
+                $table_header .= '<th colspan="' . $row_val['colspan'] . '" scope="colgroup">' . $row_val['name'] . '</th>';
+                $index_col++;
+            }
+            $table_header .= '</tr>';
+        }
+    }
+
+
+    /** header columns */
+    $i_count = 0;
+    $table_header .= '<tr>';
+    if(count($data['column']) == 0) {
+        foreach ($data['row'] as $rowkey => $blankrow_name) {
+            $table_header .= '<th scope="col"></th>';
+        }
+    }
+    foreach ($response['data'] as $row) {
+        foreach ($row as $col_name => $col_val) {
+            $rowarray = explode('###', $col_name);
+            if($row_count <= $i_count) {
+                $table_header .= '<th scope="col">' . end($rowarray) . '</th>';
+            }
+            $i_count++;
+        }
+        break;
+    }
+    $table_header .= '</tr>';
+
+
+    return $table_header_colgroup.$table_header;
+
+}
+function row_array_html($data,$response){
+    /** display row and it's data */
+    $table_data = '';
+    $row_count = count($data['row']);
+    $header_html = array();
+    foreach ($response['data'] as $tablerow) {
+        $key_comb = '';
+        $key_index= 0;
+        foreach ($tablerow as $col_name => $col_val) {
+            $rowarray = explode('###', $col_name);
+            if (count($rowarray) < 2) {
+                $key_comb .= $col_val.'#';
+                if (empty(${'count_' . $key_comb})) {
+                    ${'count_' . $key_comb} = 0;
+                }
+                $header_name = Report::getName($col_name,$col_val);
+                if (!isset($header_html[$key_index][$key_comb])) {
+                    $header_html[$key_index][$key_comb]['name'] = $header_name;
+                }
+                ${'count_' . $key_comb}++;
+                $header_html[$key_index][$key_comb]['rowspan'] = ${'count_' . $key_comb};
+                $key_index++;
+            }
+
+        }
+    }
+    //print_r($header_html);exit;
+
+
+    foreach ($response['data'] as $row) {
+        $table_data .= '<tr>';
+        $key_comb = '';
+        $key_index= 0;
+        $table_row = $table_col_row = '';
+        foreach ($row as $col_name => $col_val) {
+            if ($row_count <= $key_index) {
+                $table_row .= '<td>' . $col_val . '</td>';
+            } else {
+                $key_comb .= $col_val.'#';
+                if (empty(${'count_new_' . $key_comb})) {
+                    ${'count_new_' . $key_comb} = $header_html[$key_index][$key_comb]['rowspan'];
+                }
+                if (${'count_new_' . $key_comb} == $header_html[$key_index][$key_comb]['rowspan']) {
+                    $table_col_row .= '<td rowspan="' . $header_html[$key_index][$key_comb]['rowspan'] . '">' . $header_html[$key_index][$key_comb]['name'] . '</td>';
+                }
+                ${'count_new_' . $key_comb}--;
+            }
+            $key_index++;
+        }
+        $table_row = $table_col_row . $table_row;
+        $table_data .= $table_row;
+        $table_data .= '</tr>';
+    }
+    $table_data .= '</table>';
+
+    return $table_data;
+
+}
+function table_array($data,$response,$all_data_list){
+    $table_data = array();
+    $col_seprator = '##';
+    $row_seprator = '!!';
+
+    if(count($data['row'])) {
+
+        foreach ($response['distinct_row'] as $col_key => $data_key) {
+            //$data_key_array = array_filter(explode($row_seprator,$data_key));
+            $data_key_array = explode($row_seprator, $data_key);
+            array_pop($data_key_array);
+            for ($i = 1; $i <= count($data['row']); $i++) {
+                $fincalcol_key = implode($row_seprator,array_slice($data_key_array,0,$i));
+                if (empty(${'new_count_rowspan_' . $fincalcol_key . $row_seprator})) {
+                    ${'new_count_rowspan_' . $fincalcol_key . $row_seprator} = 0;
+                }
+                ${'new_count_rowspan_' . $fincalcol_key . $row_seprator}++;
+                //echo ${'new_count_rowspan_' . $fincalcol_key.$row_seprator}.PHP_EOL;
+                //echo ' key ============'.$fincalcol_key.$row_seprator.'========'.PHP_EOL;
+                $table_data['row'][$i-1][$fincalcol_key . $row_seprator]['rowspan'] = ${'new_count_rowspan_' . $fincalcol_key . $row_seprator};
+                $table_data['data'][$fincalcol_key . $row_seprator] = array();
+            }
+        }
+        ksort($table_data['row']);
+        //print_r($table_data);exit;
+
+    }
+
+    foreach ($response['data'] as $row){
+        $key_col_comb = $key_row_comb = '';
+        $key_col_index = $key_row_index = 0;
+        foreach ($row as $col_name => $col_val) {
+            if(empty($response['name'][$col_name][$col_val])){
+                $response['name'][$col_name][$col_val] = Report::getName($col_name,$col_val,$all_data_list);
+            }
+
+            if(in_array($col_name,$data['column'])){
+                $key_col_comb .= $col_val.$col_seprator;
+                if (empty(${'count_colspan_' . $key_col_comb})) {
+                    ${'count_colspan_' . $key_col_comb} = 0;
+                }
+                $table_data['columns'][$key_col_index][$key_col_comb]['name'] =  $response['name'][$col_name][$col_val];//$col_name.'@'.$col_val
+                ${'count_colspan_' . $key_col_comb}++;
+                $table_data['columns'][$key_col_index][$key_col_comb]['colspan'] = ${'count_colspan_' . $key_col_comb};
+                $key_col_index++;
+            }
+
+            if(in_array($col_name,$data['row'])){
+                $key_row_comb .= $col_val.$row_seprator;
+                if (empty(${'count_rowspan_' . $key_row_comb})) {
+                    ${'count_rowspan_' . $key_row_comb} = 0;
+                }
+                $table_data['row'][$key_row_index][$key_row_comb]['name'] = $response['name'][$col_name][$col_val]; //$col_name.'@'.$col_val
+                ${'count_rowspan_' . $key_row_comb}++;
+                if(!isset($table_data['row'][$key_row_index][$key_row_comb]['rowspan'])) {
+                    $table_data['row'][$key_row_index][$key_row_comb]['rowspan'] = ${'count_rowspan_' . $key_row_comb};
+                }
+                $key_row_index++;
+            }
+
+            if(in_array($col_name,$data['sum'])){
+                if(empty($table_data['columns'][$key_col_index][$key_col_comb]['name']) || !in_array($col_name,$table_data['columns'][$key_col_index][$key_col_comb]['name'])) {
+                    $table_data['columns'][$key_col_index][$key_col_comb]['name'][] = $col_name;
+                }
+                $table_data['columns'][$key_col_index][$key_col_comb]['colspan'] = 1;
+            }
+            $key_val_comb = $key_col_comb.$col_name;
+            $table_data['data'][$key_row_comb][$key_val_comb] = $col_val;
+        }
+    }
+
+    if(count($data['column'])) {
+        foreach ($table_data['columns'][count($table_data['columns']) - 1] as $col_key => $column) {
+            $fincalcol_key = $col_key;
+            for ($i = count($table_data['columns']) - 2; $i >= 0; $i--) {
+                $fincalcol_key = str_lreplace($col_seprator, '', $fincalcol_key);
+                if (empty(${'new_count_colspan_' . $fincalcol_key . $col_seprator})) {
+                    ${'new_count_colspan_' . $fincalcol_key . $col_seprator} = 0;
+                }
+                ${'new_count_colspan_' . $fincalcol_key . $col_seprator} = ${'new_count_colspan_' . $fincalcol_key . $col_seprator} + count($column['name']);
+                //echo ${'new_count_colspan_' . $fincalcol_key.$col_seprator}.PHP_EOL;
+                //echo ' key ============'.$fincalcol_key.$col_seprator.'========'.PHP_EOL;
+                $table_data['columns'][$i][$fincalcol_key . $col_seprator]['colspan'] = ${'new_count_colspan_' . $fincalcol_key . $col_seprator};
+            }
+        }
+        $columns_keys = array_keys($table_data['columns'][count($table_data['columns']) - 2]);
+
+        foreach ($table_data['data'] as $key => $table_row){
+            $table_new_row = array();
+            foreach ($columns_keys as $columns_key) {
+                foreach ($data['sum'] as $sum_col) {
+                    if (!isset($table_row[$columns_key.$sum_col])) {
+                        $table_new_row[$columns_key.$sum_col] = '';
+                    } else {
+                        $table_new_row[$columns_key.$sum_col] = $table_row[$columns_key.$sum_col];
+                    }
+                }
+            }
+            $table_data['data'][$key] = $table_new_row;
+        }
+    }
+
+
+    //echo '<pre>';print_r($table_data);exit;
+    return $table_data;
+}
+function table_html($data,$table_data){
+    $index_col = 1;
+    $cube = $data['Cube'];
+    $row_count = count($data['row']);
+    $col_count = count($data['column']);
+    $table_header = $table_header_colgroup = $table_row = $table_footer = '';
+    $table_data['table_footer_sum'] = array();
+    $chartColor = array('#C5CAE9','#BBDEFB','#B3E5FC','#B2EBF2','#C8E6C9','#DCEDC8','#F0F4C3','#FFCCBC','#D7CCC8','#F5F5F5','#CFD8DC');
+    if($row_count) {
+        $table_header_colgroup .= '<colgroup span="' . $row_count . '" style="background-color:' . $chartColor[0] . '"></colgroup>';
+    }
+    if(count($data['column'])) {
+        foreach ($data['column'] as $key => $col_name) {
+            $table_header .= '<tr>';
+            if ($key == 0) {
+                foreach ($data['row'] as $rowkey => $blankrow_name) {
+                    $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '"></td>';
+                }
+            }
+
+            foreach ($table_data['columns'][$key] as $row_val) {
+                $color = '#FFF';
+                if ($key == 0) {
+                    if(!isset($chartColor[$index_col])) {
+                        $index_col = 1;
+                    }
+                    if(isset($chartColor[$index_col])) {
+                        $color = $chartColor[$index_col];
+                    }
+                    
+                    $table_header_colgroup .= '<colgroup span="' . $row_val['colspan'] . '" style="background-color:' . $color. '"></colgroup>';
+                }
+                $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup"><strong>' . $row_val['name'] . '</strong></th>';
+                $index_col++;
+            }
+
+            $table_header .= '</tr>';
+        }
+    }
+    if(count($data['sum'])) {
+        $table_header .= '<tr>';
+        if (count($data['column']) == 0) {
+            foreach ($data['row'] as $rowkey => $blankrow_name) {
+                $table_header .= '<td rowspan="' . (count($data['column']) + 1) . '"></td>';
+            }
+        }
+        $key_count = count($data['column']);
+        foreach ($table_data['columns'][$key_count] as $row_val) {
+            foreach ($row_val['name'] as $row_name) {
+                if(array_key_exists($row_name,Report::$measures[$cube])){
+                    $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . Report::$measures[$cube][$row_name] . '</th>';
+                }else{
+                    $table_header .= '<th colspan="' . 1 . '" scope="colgroup">' . $row_name . '</th>';
+                }
+            }
+        }
+        $table_header .= '</tr>';
+    }
+    $table_header = $table_header_colgroup.$table_header;
+    $table_td = '';
+    //echo '<pre>';print_r($table_data);exit;
+    foreach ($table_data['data'] as $datakey => $row) {
+        $explode_row_array = explode('!!', $datakey);
+        array_pop($explode_row_array);
+        //$explode_row_array = array_filter(explode('!!', $datakey));
+        $explode_row_count = count($explode_row_array);
+
+
+        $key_index= 0;
+        $table_single_row = $table_col_row = '';
+        foreach ($row as $col_name => $col_val) {
+            if (isset($table_data['table_footer_sum'][$col_name])) {
+                $table_data['table_footer_sum'][$col_name] += $col_val;
+            } else {
+                $table_data['table_footer_sum'][$col_name] = $col_val;
+            }
+
+            $explode_array = explode('##', $col_name);
+            array_pop($explode_array);
+            //$explode_array = array_filter(explode('##', $col_name));
+            $explode_count = count($explode_array);
+
+
+            if ($row_count > 0 && $row_count >= $explode_row_count && $key_index == 0) {
+                $table_col_row .= '<td rowspan="' . $table_data['row'][$explode_row_count-1][$datakey]['rowspan'] . '">' . $table_data['row'][$explode_row_count-1][$datakey]['name'] . '</td>';
+            }
+            if ($explode_row_count == $row_count && $explode_count >= $col_count) {
+                if($key_index > 0 && $col_count == 0){
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val)?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                }else if($col_count > 0){
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val)?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                }
+
+            }
+            $key_index++;
+        }
+        $table_single_row = $table_col_row . $table_single_row;
+        $table_td .= $table_single_row;
+        if($explode_row_count == $row_count) {
+            $table_row .='<tr>'.$table_td. '</tr>';
+            $table_td = '';
+        }
+
+    }
+    if(count($data['row'])) {
+        $table_footer = '<tr>';
+        foreach ($data['row'] as $rowkey => $blankrow_name) {
+            $table_footer .= '<td rowspan="1" style="background-color: #66a9bd"></td>';
+        }
+        if(empty($data['column']) && count($data['column']) == 0){
+            $row_col_count = count($data['row']);
+        }else{
+            $row_col_count = 0;
+        }
+        $footer_col_count = 0;
+        foreach ($table_data['table_footer_sum'] as $foot_col_name => $foot_col_val) {
+            if($footer_col_count >= $row_col_count) {
+                $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong>' . (is_numeric($foot_col_val)?number_format($foot_col_val,get_round_decimal_places()):$foot_col_val) . '</strong></td>';
+            }
+            $footer_col_count++;
+        }
+        $table_footer .= '</tr>';
+    }
+    return $table_header.$table_row.$table_footer;
+}
+function generateReportTable2($data,$response,$all_data_list)
+{
+    if(!empty($response['data'])) {
+        $table = '<table class="table table-bordered">';
+
+        $table_data =  table_array($data,$response,$all_data_list);
+
+        $table .=  table_html($data,$table_data);
+
+        $table .= '</table>';
+    }else{
+        $table = 'No Data Found Or Select at least one Measure';
+    }
+
+    return $table;
+}
+
+function str_lreplace($search, $replace, $subject)
+{
+    $pos = strrpos($subject, $search);
+
+    if($pos !== false)
+    {
+        $subject = substr_replace($subject, $replace, $pos, strlen($subject));
+    }
+
+    return $subject;
+}
+
+function custom_implode($array){
+    return implode('!!',$array).'!!';
+}
+
 function get_ticket_status_date_array($result_data) {
 
     $sla_timer = true;
@@ -1839,4 +2305,90 @@ function get_client_ip() {
         $ipaddress = 'UNKNOWN';
     return $ipaddress;
 
+}
+
+function generate_manual_datatable_response($ColName){
+    $response_data = array();
+    switch ($ColName) {
+        case 'InvoiceType':
+            foreach (Invoice::$invoice_type as $row_key => $row_title) {
+                if (!empty($row_key) && $row_key != 'All') {
+                    $response_data[] = array($row_key, $row_title);
+                }
+            }
+            break;
+        case 'InvoiceStatus':
+            $invoice_status = Invoice::get_invoice_status();
+            foreach ($invoice_status as $row_key => $row_title) {
+                if (!empty($row_key) && $row_key != 'All') {
+                    $response_data[] = array($row_key, $row_title);
+                }
+            }
+            break;
+        case 'ProductType':
+            $product_type = Product::$AllProductTypes;
+            foreach ($product_type as $row_key => $row_title) {
+                if (!empty($row_key) && $row_key != 'All') {
+                    $response_data[] = array($row_key, $row_title);
+                }
+            }
+            break;
+        case 'PaymentMethod':
+            $method = Payment::$method;
+            foreach ($method as $row_key => $row_title) {
+                if (!empty($row_key) && $row_key != 'All') {
+                    $response_data[] = array($row_key, $row_title);
+                }
+            }
+            break;
+        case 'PaymentType':
+            $action = Payment::$action;
+            foreach ($action as $row_key => $row_title) {
+                if (!empty($row_key) && $row_key != 'All') {
+                    $response_data[] = array($row_key, $row_title);
+                }
+            }
+            break;
+    }
+    $manual_response = '{"sEcho":1,"iTotalRecords":'.count($response_data).',"iTotalDisplayRecords":'.count($response_data).',"aaData":'.json_encode($response_data).',"sColumns":["value","name"],"Total":{"totalcount":'.count($response_data).'}}';
+    return $manual_response;
+
+}
+
+function report_col_name($column){
+    $Accountschema = Report::$dimension['summary']['Customer'];
+    if(in_array($column,$Accountschema) && $column != 'AccountID'){
+        $column = 'tblAccount.'.$column;
+    }
+    return $column;
+}
+
+function report_join($data){
+    $account_join = false;
+    $Accountschema = Report::$dimension['summary']['Customer'];
+    foreach ($data['column'] as $column) {
+        if (in_array($column, $Accountschema) && $column != 'AccountID') {
+            $account_join = true;
+        }
+    }
+    foreach ($data['row'] as $column) {
+        if (in_array($column, $Accountschema) && $column != 'AccountID' ) {
+            $account_join = true;
+        }
+    }
+
+    return $account_join;
+}
+function getInvoicePayments(){
+    if(is_authorize() || is_Stripe() || is_StripeACH() || is_paypal() || is_sagepay() || is_FideliPay()){
+        return true;
+    }
+    return false;
+}
+
+function is_PayNowInvoice(){
+    if(is_authorize() || is_Stripe() || is_StripeACH() || is_FideliPay()){
+        return true;
+    }
+    return false;
 }

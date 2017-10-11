@@ -46,6 +46,9 @@
 
             </div>
 
+
+            @include('layout.filter')
+
         </div>
 
             @yield('footer_ext')

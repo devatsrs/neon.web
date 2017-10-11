@@ -17,10 +17,10 @@
             <div class="panel-body">
                 <div class="form-group">
                     <label for="field-1" class="col-sm-1 control-label">Start Date</label>
-					<div class="col-sm-2"> {{ Form::text('StartDate', Input::get('StartDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }} </div>
+					<div class="col-sm-2"> {{ Form::text('StartDate', $original_startdate, array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }} </div>
                   
                     <label for="field-5" class="col-sm-1 control-label">End Date</label>
-                    <div class="col-sm-2"> {{ Form::text('EndDate', Input::get('EndDate'), array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }} </div>
+                    <div class="col-sm-2"> {{ Form::text('EndDate', $original_enddate, array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }} </div>
                 </div>
                 <p style="text-align: right;">
                     <button class="btn btn-primary btn-sm btn-icon icon-left" id="filter_submit" type="submit">
@@ -72,8 +72,8 @@
                     "sAjaxSource": datagrid_url,
                     "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
-                    "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                    "aaSorting": [[0, 'asc']],
+                    "sDom": "<'row'<'col-xs-12'l>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+                    "aaSorting": [[0, 'desc']],
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "StartDate", "value": $search.StartDate},
@@ -112,42 +112,37 @@
                         ]
                     },
                     "fnDrawCallback": function() {
+                        get_total_grand(); //get result total
                         $(".dataTables_wrapper select").select2({
                             minimumResultsForSearch: -1
                         });
                     },
-                    "fnServerData": function ( sSource, aoData, fnCallback ) {
-                        /* Add some extra data to the sender */
-                        $.getJSON( sSource, aoData, function (json) {
-                            /* Do whatever additional processing you want on the callback, then tell DataTables */
-                            TotalPayments = json.Total.TotalPayment;
-                            TotalConsumption = json.Total.TotalCharge;
-                            Total = json.Total.Total;
-                            Balance = json.Total.Balance;
-                            fnCallback(json)
-                        });
-                    },
-                    "fnFooterCallback": function ( row, data, start, end, display ) {
-                        if (end > 0) {
-                            $(row).html('');
-                            for (var i = 0; i < 5; i++) {
-                                var a = document.createElement('td');
-                                $(a).html('');
-                                $(row).append(a);
-                            }
-                            $($(row).children().get(0)).html('<strong>Total</strong>')
-                            $($(row).children().get(1)).html('<strong>'+TotalPayments+'</strong>');
-                            $($(row).children().get(2)).html('<strong>'+TotalConsumption+'</strong>');
-                            $($(row).children().get(3)).html('<strong>' + Total + '</strong>');
-                            $($(row).children().get(4)).html('<strong>' + Balance + '</strong>');
-                        }else{
-                            $("#table-list").find('tfoot').find('tr').html('');
-                        }
-                    }
+
 
                 });
             });
             $('#filter_submit').trigger('click');
+
+            function get_total_grand() {
+                $.ajax({
+                    url: baseurl + "/customer/daily_report/ajax_datagrid_total",
+                    type: 'GET',
+                    dataType: 'json',
+                    data: {
+                        "StartDate": $("[name='StartDate']").val(),
+                        "EndDate":$("[name='EndDate']").val()
+                    },
+                    success: function (response1) {
+                        //console.log("sum of result"+response1);
+                        if (response1.Balance != null) {
+                            $('.result_row').remove();
+                            $('.result_row').hide();
+                            $('#table-list tbody').append('<tr class="result_row"><td><strong>Total</strong></td><td><strong>' + response1.TotalPayment + '</strong></td><td><strong>' + response1.TotalCharge + '</strong></td><td><strong>' + response1.Total + '</strong></td><td><strong>' + response1.Balance + '</strong></td></tr>');
+                        }
+                    }
+                });
+            }
+
         });
     </script>
 @stop

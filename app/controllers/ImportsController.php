@@ -201,6 +201,10 @@ class ImportsController extends \BaseController {
                 $param['ImportDate'] = date('Y-m-d H:i:s.000');
                 $streamco = new Streamco($CompanyGatewayID);
                 $response1 = $streamco->getAccountsDetail($param);
+            }elseif($gateway == 'FusionPBX'){
+                $param['ImportDate'] = date('Y-m-d H:i:s.000');
+                $FusionPBX = new FusionPBX($CompanyGatewayID);
+                $response1 = $FusionPBX->getAccountsDetail($param);
             }
             //$pbx = new PBX($CompanyGatewayID);
 

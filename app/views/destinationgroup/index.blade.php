@@ -1,4 +1,34 @@
 @extends('layout.main')
+
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <div id="table_filter" method="get" action="#" >
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Name</label>
+                    <input type="text" name="Name" class="form-control" value="" />
+                </div>
+                <div class="form-group">
+                    <label for="field-5" class="control-label">Codedeck</label>
+                    {{ Form::select('CodedeckID', $CodedeckList , '' , array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left" id="filter_submit">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
     <ol class="breadcrumb bc-3">
         <li>
@@ -17,39 +47,6 @@
         <a  id="add-button" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
     </p>
     @endif
-
-
-    <div id="table_filter" method="get" action="#" >
-        <div class="panel panel-primary" data-collapsed="0">
-            <div class="panel-heading">
-                <div class="panel-title">
-                    Filter
-                </div>
-                <div class="panel-options">
-                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                </div>
-            </div>
-            <div class="panel-body">
-                <div class="form-group">
-                    <label for="field-1" class="col-sm-1 control-label">Name</label>
-                    <div class="col-sm-2">
-                        <input type="text" name="Name" class="form-control" value="" />
-                    </div>
-                    <label for="field-5" class="col-sm-1 control-label">Codedeck</label>
-                    <div class="col-sm-2">
-
-                        {{ Form::select('CodedeckID', $CodedeckList , '' , array("class"=>"select2")) }}
-                    </div>
-                </div>
-                <p style="text-align: right;">
-                    <button class="btn btn-primary btn-sm btn-icon icon-left" id="filter_submit" type="submit">
-                        <i class="entypo-search"></i>
-                        Search
-                    </button>
-                </p>
-            </div>
-        </div>
-    </div>
 
     <table id="table-list" class="table table-bordered datatable">
         <thead>
@@ -73,6 +70,9 @@
         var postdata;
 
         jQuery(document).ready(function ($) {
+
+            $('#filter-button-toggle').show();
+
             var list_fields  = ["Name","CodeDeckName","CreatedBy","created_at","DestinationGroupSetID","CodedeckID","CompanyID"];
             //public_vars.$body = $("body");
             var $search = {};

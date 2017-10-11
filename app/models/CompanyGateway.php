@@ -341,6 +341,21 @@ class CompanyGateway extends \Eloquent {
                 log::info('--Streamco Rate File Export Import CRONJOB END--');
 
                 CompanyGateway::createSummaryCronJobs(0);
+            }elseif(isset($GatewayName) && $GatewayName == 'FusionPBX'){
+                log::info($GatewayName);
+                log::info('--FusionPBX CRONJOB START--');
+
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('fusionpbxaccountusage');
+                $setting = CompanyConfiguration::get('FUSION_PBX_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--FusionPBX CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(0);
             }
         }else{
             log::info('--Other CRONJOB START--');

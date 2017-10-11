@@ -175,7 +175,7 @@ class DashboardCustomerController extends BaseController {
         return View::make('customer.daily_report', compact('DefaultCurrencyID', 'original_startdate', 'original_enddate'));
 
     }
-    public function daily_report_ajax_datagrid($type){
+    /*public function daily_report_ajax_datagrid($type){
         $CompanyID = User::get_companyID();
         $data = Input::all();
         $CustomerID = Customer::get_accountID();
@@ -206,6 +206,96 @@ class DashboardCustomerController extends BaseController {
 
         return DataTableSql::of($query,'neon_report')->make();
 
+    }*/
+
+    public function daily_report_ajax_datagrid($type){
+        $CompanyID = User::get_companyID();
+        $data = Input::all();
+        $CustomerID = Customer::get_accountID();
+        $data['iDisplayStart'] += 1;
+        $account_number = Account::where('AccountID',$CustomerID)->pluck('Number');
+        $GatewayID = Gateway::getGatewayID('MOR');
+        $CompanyGatewayID = CompanyGateway::getCompanyGatewayID($GatewayID);
+        $mor = new MOR($CompanyGatewayID);
+        $response = $mor->getMovementReport(array('username'=>$account_number,'StartDate'=>$data['StartDate'],'EndDate'=>$data['EndDate']));
+
+        $previous_bal = $response['previous_bal'];
+
+        return Datatables::of($response['datatable'])
+            ->add_column('Payments', function($data)use($response){ return isset($response['payment'][$data->date])?$response['payment'][$data->date]:0;})
+            ->add_column('Consumption', function($data)use($response){ return isset($response['calls'][$data->date])?$response['calls'][$data->date]:0;})
+            ->add_column('Total', function($data)use($response){
+                if (isset($response['calls'][$data->date]) && isset($response['payment'][$data->date])) {
+                    return $response['payment'][$data->date] - $response['calls'][$data->date];
+                } elseif (isset($response['payment'][$data->date])) {
+                    return $response['payment'][$data->date];
+                } elseif (isset($response['calls'][$data->date])) {
+                    return -$response['calls'][$data->date];
+                } else {
+                    return 0;
+                }
+            })
+            ->add_column('Balance', function($data)use(&$previous_bal,$response){
+
+                $payment =  isset($response['payment'][$data->date])?$response['payment'][$data->date]:0;
+                $consumption =  isset($response['calls'][$data->date])?$response['calls'][$data->date]:0;
+                $previous_bal = $previous_bal+$payment-$consumption;
+                return number_format($previous_bal,get_round_decimal_places(),'.','');
+            })
+            ->make();
+
+    }
+
+    public function daily_report_ajax_datagrid_total(){
+        $CompanyID = User::get_companyID();
+        $data = Input::all();
+        $CustomerID = Customer::get_accountID();
+        $account_number = Account::where('AccountID',$CustomerID)->pluck('Number');
+        $GatewayID = Gateway::getGatewayID('MOR');
+        $CompanyGatewayID = CompanyGateway::getCompanyGatewayID($GatewayID);
+        $mor = new MOR($CompanyGatewayID);
+        $response = $mor->getMovementReportTotal(array('username'=>$account_number,'StartDate'=>$data['StartDate'],'EndDate'=>$data['EndDate']));
+
+        return json_encode($response,JSON_NUMERIC_CHECK);
+    }
+
+    public function customer_rates(){
+        $CompanyID = User::get_companyID();
+        $data = Input::all();
+        $CustomerID = Customer::get_accountID();
+        $account_number = Account::where('AccountID',$CustomerID)->pluck('Number');
+        $GatewayID = Gateway::getGatewayID('MOR');
+        $CompanyGatewayID = CompanyGateway::getCompanyGatewayID($GatewayID);
+        $mor = new MOR($CompanyGatewayID);
+        return View::make('customer.rates', compact('DefaultCurrencyID', 'original_startdate', 'original_enddate'));
+    }
+
+    public function customer_rates_grid($type){
+        $data = Input::all();
+        $CustomerID = Customer::get_accountID();
+        $account_number = Account::where('AccountID',$CustomerID)->pluck('Number');
+
+        DB::table('tblGatewayCustomerRate')->where('CustomerID',$CustomerID)->delete();
+        $companygateways = CompanyGateway::where(array('Status'=>1,'CompanyID'=>User::get_companyID()))->get();
+        $param['username'] = $account_number;
+        $param['CustomerID'] = $CustomerID;
+        $param['Prefix'] = $data['Prefix'];
+        if(count($companygateways)>0){
+            foreach($companygateways as $companygateway) {
+                try{
+                    $GatewayName = Gateway::getGatewayName($companygateway['GatewayID']);
+                    if($GatewayName == 'MOR' || $GatewayName == 'CallShop') {
+                        GatewayAPI::GatewayMethod($GatewayName, $companygateway['CompanyGatewayID'], 'getRates',$param);
+                    }
+                }catch(Exception $e){
+                    Log::error($e);
+                }
+            }
+        }
+        $CustomerRate = DB::table('tblGatewayCustomerRate')
+            ->where("CustomerID", $CustomerID)
+            ->select('Code','Description',  'Interval1','IntervalN','ConnectionFee', 'Rate','EffectiveDate');
+        return Datatables::of($CustomerRate)->make();
     }
 
 }

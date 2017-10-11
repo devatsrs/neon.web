@@ -1,4 +1,88 @@
 @extends('layout.main')
+
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form role="form" id="rate-compare-search-form" method="post" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Code</label>
+                    <input type="text" class="form-control popover-primary" name="Code"  id="field-1" placeholder="" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Enter either Code Or Description. Use * for all codes or description. For wildcard search use  e.g. 92* or india*." data-original-title="Code/Description" />
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Description</label>
+                    <input type="text" class="form-control popover-primary" name="Description"  id="field-1" placeholder="" value="" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Enter either Code Or Description. Use * for all codes or description. For wildcard search use  e.g. 92* or india*." data-original-title="Code/Description" />
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Trunk</label>
+                    {{ Form::select('Trunk', $trunks, $default_trunk, array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">CodeDeck</label>
+                    {{ Form::select('CodeDeckId', $codedecklist, $DefaultCodedeck , array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Currency</label>
+                    {{Form::select('Currency', $currencies, $CurrencyID ,array("class"=>"form-control select2"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Group By</label>
+                    {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Effective</label>
+                    {{Form::select('Effective', ["Now"=>"Current", "Future" => "Future", "Selected" => "Selected"], 'Now' ,array("class"=>"form-control select2"))}}
+                    <span data-loading-text="..." data-html="true" data-trigger="hover" data-toggle="popover" data-placement="right" data-content="<b>Current:</b> System will use Current Rates for comparison<br><b>Future:</b> System will use maximum future rates for comparison<br><b>Selected:</b> System will use rate where effective date is equal to selected effective date<br>" data-original-title="Effective" class="hidden label label-info popover-primary">?</span>
+                </div>
+                <div class="form-group">
+                    <div class="SelectedEffectiveDate_Class hidden">
+                        <label for="field-1" class="control-label">Date</label>
+                        {{Form::text('SelectedEffectiveDate', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-start-date"=>date('Y-m-d',strtotime(" today")) ,"data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Vendors</label>
+                    {{Form::select('SourceVendors[]', $all_vendors, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Customers</label>
+                    {{Form::select('SourceCustomers[]', $all_customers, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Rate Tables</label>
+                    {{Form::select('SourceRateTables[]', $rate_table, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+
+                <div class="form-group hidden">
+                    <label for="field-1" class="control-label"></label>
+                    <label for="field-1" class="control-label">Vendors</label>
+                    {{Form::select('DestinationVendors[]', $all_vendors, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+                <div class="form-group hidden">
+                    <label for="field-1" class="control-label">Customers</label>
+                    {{Form::select('DestinationCustomers[]', $all_customers, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+                <div class="form-group hidden">
+                    <label for="field-1" class="control-label">Rate Tables</label>
+                    {{Form::select('DestinationRateTables[]', $rate_table, array() ,array("class"=>"form-control select2",'multiple'))}}
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
     <style>
         .lowest_rate{
@@ -11,118 +95,12 @@
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li class="active">
-            <strong>Rate Compare</strong>
+            <strong>Rate Analysis</strong>
         </li>
     </ol>
-    <h3>Rate Compare</h3>
+    <h3>Rate Analysis</h3>
 
     <br>
-    <div class="row">
-        <div class="col-md-12">
-            <form role="form" id="rate-compare-search-form" method="post" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                <div class="panel panel-primary" data-collapsed="0">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Filter
-                        </div>
-
-                        <div class="panel-options">
-                            <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                        </div>
-                    </div>
-
-                    <div class="panel-body">
-                        <div class="form-group">
-
-                            <label for="field-1" class="col-sm-1 control-label">Code</label>
-                            <div class="col-sm-2">
-                                <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="911*" />
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Description</label>
-                            <div class="col-sm-2">
-                                <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="" />
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Trunk</label>
-                            <div class="col-sm-2">
-                                {{ Form::select('Trunk', $trunks, $default_trunk, array("class"=>"select2")) }}
-
-                            </div>
-                            <label for="field-1" class="col-sm-1 control-label">CodeDeck</label>
-                            <div class="col-sm-2">
-                                {{ Form::select('CodeDeckId', $codedecklist, '' , array("class"=>"select2")) }}
-
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="field-1" class="col-sm-1 control-label">Currency</label>
-                            <div class="col-sm-2">
-                                {{Form::select('Currency', $currencies, $CurrencyID ,array("class"=>"form-control select2"))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Group By</label>
-                            <div class="col-sm-2">
-                                {{Form::select('GroupBy', ["code"=>"Code", "description" => "Description"], $GroupBy ,array("class"=>"form-control select2"))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Effective</label>
-                            <div class="col-sm-2">
-                                {{Form::select('Effective', ["Now"=>"Current", "Future" => "Future", "Selected" => "Selected"], 'Now' ,array("class"=>"form-control select2"))}}
-                            </div>
-                            <div class="SelectedEffectiveDate_Class hidden">
-                                <label for="field-1" class="col-sm-1 control-label">Date</label>
-                                <div class="col-sm-2">
-                                    {{Form::text('SelectedEffectiveDate', date('Y-m-d') ,array("class"=>"form-control datepicker","Placeholder"=>"Effective Date" , "data-start-date"=>date('Y-m-d',strtotime(" today")) ,"data-date-format"=>"yyyy-mm-dd" ,  "data-start-view"=>"2"))}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="field-1" class="col-sm-1 control-label">Source</label>
-                            <label for="field-1" class="col-sm-1 control-label">Vendors</label>
-                            <div class="col-sm-2">
-                                {{Form::select('SourceVendors[]', $all_vendors, array() ,array("class"=>"form-control select2",'multiple'))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Customers</label>
-                            <div class="col-sm-2">
-                                {{Form::select('SourceCustomers[]', $all_customers, array() ,array("class"=>"form-control select2",'multiple'))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Rate Tables</label>
-                            <div class="col-sm-2">
-                                {{Form::select('SourceRateTables[]', $rate_table, array() ,array("class"=>"form-control select2",'multiple'))}}
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="field-1" class="col-sm-1 control-label">Destination</label>
-                            <label for="field-1" class="col-sm-1 control-label">Vendors</label>
-                            <div class="col-sm-2">
-                                {{Form::select('DestinationVendors[]', $all_vendors, array() ,array("class"=>"form-control select2",'multiple'))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Customers</label>
-                            <div class="col-sm-2">
-                                {{Form::select('DestinationCustomers[]', $all_customers, array() ,array("class"=>"form-control select2",'multiple'))}}
-                            </div>
-
-                            <label for="field-1" class="col-sm-1 control-label">Rate Tables</label>
-                            <div class="col-sm-2">
-                                {{Form::select('DestinationRateTables[]', $rate_table, array(137) ,array("class"=>"form-control select2",'multiple'))}}
-                            </div>
-                        </div>
-                        <p style="text-align: right;">
-                            <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
-                                <i class="glyphicon glyphicon-circle-arrow-up"></i>
-                                Search
-                            </button>
-                        </p>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <table class="table table-bordered datatable" id="table-4">
         <thead>
@@ -142,8 +120,35 @@
 
     <script type="text/javascript">
         jQuery(document).ready(function($) {
+
+            $('#filter-button-toggle').show();
+
             //var data_table;
             var Code, Description, Currency,CodeDeck,Trunk,GroupBy,Effective,SelectedEffectiveDate, SourceVendors,SourceCustomers,SourceRateTables,DestinationVendors,DestinationCustomers,DestinationRateTables;
+            var _customers_json, _vendors_json;
+            var _margins_array = new Array();
+
+
+            $('select[name="Trunk"]').on( "change",function(e) {
+
+                TrunkID = $(this).val();
+
+                $.post( baseurl + '/rate_compare/load_account_dropdown', {"TrunkID":TrunkID,"IsCustomer":1 }, function(response) {
+                    //var data = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }];
+                    _customers_json = response.data;
+                    rebuildSelect2($("#rate-compare-search-form select[name='SourceCustomers[]']"),_customers_json,'');
+
+                 }, "json" );
+
+                $.post( baseurl + '/rate_compare/load_account_dropdown', {"TrunkID":TrunkID,"IsVendor":1 }, function(response) {
+                    //var data = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }];
+
+                    _vendors_json = response.data;
+                    rebuildSelect2($("#rate-compare-search-form select[name='SourceVendors[]']"),_vendors_json,'');
+
+                 }, "json" );
+
+            });
 
             $('select[name="Effective"]').on( "change",function(e) {
                 var selection = $(this).val();
@@ -163,6 +168,8 @@
 
 
             $("#rate-compare-search-form").submit(function(e) {
+
+                _margins_array = new Array(); // reset
 
                 Trunk = $("#rate-compare-search-form select[name='Trunk']").val();
                 CodeDeck = $("#rate-compare-search-form select[name='CodeDeckId']").val();
@@ -212,7 +219,7 @@
                     setTimeout(function(){
                         $('.btn').button('reset');
                     },10);
-                    toastr.error("Please select a Source or a Destination", "Error", toastr_opts);
+                    toastr.error("Please select a Vendor or a Customer or a Rate Table", "Error", toastr_opts);
                     return false;
                 }
 
@@ -234,9 +241,7 @@
                     "sAjaxSource": baseurl + "/rate_compare/search_ajax_datagrid/json",
                     "fnServerParams": function(aoData) {
                         aoData.push({ "name" : "Code"  , "value" : Code },{ "name" : "Description"  , "value" : Description },{ "name" : "Currency"  , "value" : Currency },{ "name" : "CodeDeck"  , "value" : CodeDeck },{ "name" : "Trunk"  , "value" : Trunk },{ "name" : "GroupBy"  , "value" : GroupBy },{ "name" : "Effective"  , "value" : Effective },{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{ "name" : "SourceVendors"  , "value" : SourceVendors },{ "name" : "SourceCustomers"  , "value" : SourceCustomers },{ "name" : "SourceRateTables"  , "value" : SourceRateTables },{ "name" : "DestinationVendors"  , "value" : DestinationVendors },{ "name" : "DestinationCustomers"  , "value" : DestinationCustomers },{ "name" : "DestinationRateTables"  , "value" : DestinationRateTables });
-
                         data_table_extra_params.length = 0;
-
                         data_table_extra_params.push({ "name" : "Code"  , "value" : Code },{ "name" : "Description"  , "value" : Description },{ "name" : "Currency"  , "value" : Currency },{ "name" : "CodeDeck"  , "value" : CodeDeck },{ "name" : "Trunk"  , "value" : Trunk },{ "name" : "GroupBy"  , "value" : GroupBy },{ "name" : "Effective"  , "value" : Effective },{ "name" : "SelectedEffectiveDate"  , "value" : SelectedEffectiveDate },{ "name" : "SourceVendors"  , "value" : SourceVendors },{ "name" : "SourceCustomers"  , "value" : SourceCustomers },{ "name" : "SourceRateTables"  , "value" : SourceRateTables },{ "name" : "DestinationVendors"  , "value" : DestinationVendors },{ "name" : "DestinationCustomers"  , "value" : DestinationCustomers },{ "name" : "DestinationRateTables"  , "value" : DestinationRateTables },{"name":"Export","value":1});
                     },
                     "iDisplayLength": 10,
@@ -272,6 +277,7 @@
                         var vendorrate_column_index = [];
                         var ratetable_column_index = [];
                         var columnIDs_column_index = [];
+                        var column_name = [];
 
                         if( typeof results.jqXHR.responseJSON.sColumns != 'undefined') {
 
@@ -280,7 +286,7 @@
                                 console.log(k + col);
                                 var _class = "";
 
-                                if (col.indexOf("Source") >= 0) {
+                                if (col.indexOf("Source") >= 0) { // this is not in use
                                     _class = "source";
                                     source_column_index.push(k);
 
@@ -288,23 +294,30 @@
                                     _class = "destination";
                                     destination_column_index.push(k);
                                 }
-                                if (col.indexOf("CustomerRate") >= 0) {
+                                if (col.indexOf("(CR)") >= 0) {
                                     customerrate_column_index.push(k);
-                                }else if (col.indexOf("VendorRate") >= 0) {
+                                }else if (col.indexOf("(VR)") >= 0) {
                                     vendorrate_column_index.push(k);
-                                }else if (col.indexOf("RateTable") >= 0) {
+                                }else if (col.indexOf("(RT)") >= 0) {
                                     ratetable_column_index.push(k);
                                 }else if (col.indexOf("ColumnIDS") >= 0) {
                                     columnIDs_column_index.push(k);
                                 }
 
                                 if(col == 'Destination') {
-                                    col = '';
+                                    col_text = '';
+                                } else if(col != 'ColumnIDS') {
+                                    var _margin = '';
+                                    if(typeof _margins_array[k] != 'undefined' && _margins_array[k]  != '' ) {
+                                        _margin = _margins_array[k];
+                                    }
+                                    col_text = col +  ' <span class="float-right"><input type="text" name="margin" value="' + _margin + '"  placeholder="Margin" data-col-index="' + k + '" class="margin form-control popover-primary"  data-min="1" data-trigger="hover" data-toggle="popover" data-placement="right" data-content="Margin: Add \'p\' for percentage ie. 10p." data-original-title="Margin" ></span>';
                                 }
 
+                                column_name.push(col);
                                 if (col.indexOf("ColumnIDS") == -1 ) {  // if not columnid no need to add column id in display
 
-                                    str = '<th class="'+ _class +'">' + col + '</th>';
+                                    str = '<th class="'+ _class +'">' + col_text + '</th>';
                                     $(str).appendTo("#table-4"+'>thead>tr');
                                 }
 
@@ -334,8 +347,12 @@
                                     var str = _class = "";
                                     var _edit;
                                     var _type = '';
+                                    var _column_name = '';
 
                                     str = row[i] ;
+                                    if(typeof  column_name[i] != 'undefind' ){
+                                        _column_name = column_name[i];
+                                    }
                                     if($.inArray( i, source_column_index ) != -1 ){
                                         _class = "source";
                                     }else if($.inArray( i, destination_column_index ) != -1 ){
@@ -345,65 +362,83 @@
                                     if(i == 0) {
                                         _code_description = str;
                                     }
+
+                                    /////////
+                                    var action = '<span class = "hiddenRowData" >';
+
+                                    if ($.inArray(i, customerrate_column_index) != -1) {
+                                        _type = "customer_rate";
+                                    } else if ($.inArray(i, vendorrate_column_index) != -1) {
+                                        _type = "vendor_rate";
+                                    } else if ($.inArray(i, ratetable_column_index) != -1) {
+                                        _type = "rate_table";
+                                    }
+
+                                    var _ColumnIDS_index = i - 1;
+                                    var ColumnIDS = row[row.length-1].split(',');
+                                    var _typeID = ColumnIDS[_ColumnIDS_index];
+
+                                    action += '<input type = "hidden"  name = "Type" value = "' + _type + '" / >';
+                                    action += '<input type = "hidden"  name = "TypeID" value = "' + _typeID + '" / >';
+                                    action += '<input type = "hidden"  name = "GroupBy" value = "' + GroupBy + '" / >';
+                                    action += '<input type = "hidden"  name = "ColumnName" value = "' + _column_name + '" / >';
+
+                                    if (GroupBy == 'description'){
+                                        action += '<input type = "hidden"  name = "Code" value = "" / >';
+                                        action += '<input type = "hidden"  name = "Description" value = "' + _code_description.trim() + '" / >';
+                                    } else {
+
+                                        var code_array = _code_description.split(':');
+
+                                        $.each(code_array, function(index, value) {
+                                            if(index == 0){
+                                                action += '<input type = "hidden"  name = "Code" value = "' + value.trim() + '" / >';
+                                            } else if(index == 1){
+                                                action += '<input type = "hidden"  name = "Description" value = "' + value.trim() + '" / >';
+                                            }
+                                        });
+                                    }
+                                    ///////////
                                     if (str.trim() != '') {
 
-                                        var action = '<span class = "hiddenRowData" >';
 
-                                        if (_class == 'source' || _class == 'destination') {
-
-
-
-                                            if ($.inArray(i, customerrate_column_index) != -1) {
-                                                _type = "customer_rate";
-                                            } else if ($.inArray(i, vendorrate_column_index) != -1) {
-                                                _type = "vendor_rate";
-                                            } else if ($.inArray(i, ratetable_column_index) != -1) {
-                                                _type = "rate_table";
-                                            }
-
-                                            var _ColumnIDS_index = i - 1;
-                                            var ColumnIDS = row[row.length-1].split(',');
-                                            var _typeID = ColumnIDS[_ColumnIDS_index];
-
-                                            //action += '<input type = "hidden"  name = "SourceDestination" value = "' + _class + '" / >';
-                                            action += '<input type = "hidden"  name = "Type" value = "' + _type + '" / >';
-                                            action += '<input type = "hidden"  name = "TypeID" value = "' + _typeID + '" / >';
-                                            action += '<input type = "hidden"  name = "GroupBy" value = "' + GroupBy + '" / >';
-
-                                            if (GroupBy == 'description'){
-                                                action += '<input type = "hidden"  name = "Code" value = "" / >';
-                                                action += '<input type = "hidden"  name = "Description" value = "' + _code_description.trim() + '" / >';
-                                            } else {
-
-                                                var code_array = _code_description.split(':');
-
-                                                $.each(code_array, function(index, value) {
-                                                    if(index == 0){
-                                                        action += '<input type = "hidden"  name = "Code" value = "' + value.trim() + '" / >';
-                                                    } else if(index == 1){
-                                                        action += '<input type = "hidden"  name = "Description" value = "' + value.trim() + '" / >';
-                                                    }
-                                                });
-                                            }
-
+                                        if (i > 0 ) {
                                             var rate_array = str.split('<br>');
+                                            var _rate = '', _rate_orig = '', _effective_date = '';
                                             $.each(rate_array, function(index, value) {
                                                 if(index == 0){
-                                                    //rate = value;
-                                                    action += '<input type = "hidden"  name = "Rate" value = "' + value + '" / >';
+                                                    _rate_orig = _rate = value;
+
+                                                    if(typeof _margins_array[i] != 'undefined' && _margins_array[i]  != '' ) {
+                                                        _rate = add_margin(_margins_array[i],_rate);
+                                                    }
+
+                                                    action += '<input type = "hidden"  name = "Rate" value = "' + _rate + '" / >';
 
                                                 } else if(index == 1){
-                                                    //_effective_date = value;
+                                                    _effective_date = value;
                                                     action += '<input type = "hidden"  name = "EffectiveDate" value = "' + value + '" / >';
                                                 }
                                             });
                                             action += '</span>';
 
 
-                                            _edit = ' <span class="float-right"><a href="#" class="edit-ratecompare btn btn-default btn-sm"><i class="entypo-pencil"></i> &nbsp;</a>'+action+'</span>';
+                                            _edit = ' <span class="float-right"><a href="#" class="edit-ratecompare btn btn-default btn-xs"><i class="entypo-pencil"></i>&nbsp;</a>'+action+'</span>';
+                                            str = '<span class="_column_rate">'+_rate +'</span><br>';
+                                            str += '<span class="_column_effectiveDate">'+_effective_date+'</span>';
+                                            str += '<span class="_column_rate_orig hidden">'+_rate_orig +'</span><br>';
                                             str += _edit;
 
                                         }
+
+                                    } else {
+
+                                        /*if (i > 0 ) {
+
+                                            action += '</span>';
+                                            var _add = ' <span class="float-right"><a href="#" class="add-ratecompare btn btn-default btn-xs"><i class="entypo-plus"></i>&nbsp;</a>' + action + '</span>';
+                                            str += _add;
+                                        }*/
                                     }
                                     if (i < (row.length -1) ){ // skip ColumnIDS
                                         html += '<td class="'+ _class +'">' + str + '</td>';
@@ -429,12 +464,114 @@
                 return false;
             });
 
-
             // Replace Checboxes
             $(".pagination a").click(function(ev) {
                 replaceCheckboxes();
             });
 
+            function add_margin(_margin , _rate ) {
+
+                _rate = parseFloat(_rate);
+
+                if (_margin.indexOf("p") > 0) {
+
+                    var _numeric_margin_ = parseFloat(_margin.replace("p", ''));
+
+                    _new_rate = parseFloat(_rate + ( _rate * _numeric_margin_ / 100 ));
+
+                } else {
+
+                    _new_rate = parseFloat(_rate + parseFloat(_margin));
+
+                }
+
+                return _new_rate.toFixed(6);
+
+            }
+
+            $('table thead').on('change', '.margin', function (ev) {
+
+                var _margin = $(this).val();
+                var _index = $(this).attr("data-col-index")*1 + 1 ;
+
+                _margins_array[_index-1] = _margin;
+
+
+                // Add/update data_table_extra_params on margin change
+                var param_name = "margin_" + (_index-1);
+                var _param_exists = false;
+                for (var i = 0; i < data_table_extra_params.length; i++)
+                {
+
+                    if(data_table_extra_params[i].name == param_name ) {
+                        data_table_extra_params[i].value =_margin;
+                        _param_exists = true;
+                    }
+                }
+                if(!_param_exists) {
+                    data_table_extra_params.push( { "name" : param_name , "value" : _margin } );
+                }
+                //------------------
+
+                $('table tbody tr').each( function ( index ) {
+
+                    var _selected_column  = $(this).find("td:nth-child(" +_index+ ")");
+                    var _rate = _selected_column.find("span._column_rate_orig").text();
+                    var _column_rate_el = _selected_column.find("span._column_rate");
+
+                    if (_rate == '' || _column_rate_el.text() == '') {
+                        return;
+                    }else if (_margin == '') {
+                        _column_rate_el.text(_rate);
+                        _selected_column.find(".hiddenRowData").find("input[name=Rate]").val(_rate);
+                    }else if ( _column_rate_el.text() != '') {
+
+                        _new_rate =  parseFloat(add_margin(_margin, _rate));
+                        _new_rate = _new_rate.toFixed(6);
+                        _column_rate_el.text(_new_rate);
+                        _selected_column.find(".hiddenRowData").find("input[name=Rate]").val(_new_rate);
+                    }
+
+                });
+
+
+
+            });
+
+            $('table tbody').on('click', '.add-ratecompare', function (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                $('#add-edit-ratecompare-form').find("input, textarea, select").val("");
+
+                var cur_obj = $(this).parent().find(".hiddenRowData");
+
+                var hidden_list_fields = ["GroupBy","Code","Description","Type","TypeID"];
+
+                for(var i = 0 ; i< hidden_list_fields.length; i++){
+
+                    var field_value = cur_obj.find("input[name='"+hidden_list_fields[i]+"']").val();
+                    $("#add-edit-ratecompare-form [name='"+hidden_list_fields[i]+"']").val(field_value);
+
+                }
+                $("#add-edit-ratecompare-form [name='TrunkID']").val(Trunk);
+                $("#add-edit-ratecompare-form [name='Effective']").val(Effective);
+                $("#add-edit-ratecompare-form [name='SelectedEffectiveDate']").val(SelectedEffectiveDate);
+                $("#add-edit-ratecompare-form [name='Action']").val("add");
+
+
+                var edit_title = 'Add ' + cur_obj.find("input[name='ColumnName']").val().replace("<br>",' - ') ;
+
+                $('#add-edit-modal-ratecompare h4').html(edit_title);
+                $('#add-edit-modal-ratecompare').modal('show');
+
+                if($("#add-edit-ratecompare-form [name='GroupBy']").val() == 'description' ){
+                    $('#add-edit-modal-ratecompare .hide_if_groupby_description').addClass("hidden");
+                }else {
+                    $('#add-edit-modal-ratecompare .hide_if_groupby_description').removeClass("hidden");
+                }
+
+            });
 
             $('table tbody').on('click', '.edit-ratecompare', function (ev) {
 
@@ -455,12 +592,17 @@
                     $("#add-edit-ratecompare-form [name='"+hidden_list_fields[i]+"']").val(field_value);
 
                 }
+
+
+                $("#add-edit-ratecompare-form [name='NewDescription']").val($("#add-edit-ratecompare-form [name='Description']").val());
                 $("#add-edit-ratecompare-form [name='TrunkID']").val(Trunk);
                 $("#add-edit-ratecompare-form [name='Effective']").val(Effective);
                 $("#add-edit-ratecompare-form [name='SelectedEffectiveDate']").val(SelectedEffectiveDate);
+                $("#add-edit-ratecompare-form [name='Action']").val("edit");
 
+                var edit_title = 'Edit ' + cur_obj.find("input[name='ColumnName']").val().replace("<br>",' - ') ;
 
-                $('#add-edit-modal-ratecompare h4').html('Edit');
+                $('#add-edit-modal-ratecompare h4').html(edit_title);
                 $('#add-edit-modal-ratecompare').modal('show');
 
                 if($("#add-edit-ratecompare-form [name='GroupBy']").val() == 'description' ){
@@ -486,15 +628,17 @@
         .dataTables_filter label{
             display:none !important;
         }
-        .dataTables_wrapper .export-data{
+        .dataTables_wrapper .export-data {
             right: 30px !important;
-        }
-        .dataTable th.source , .dataTable td.source {
-            background: #d7ef87 !important;
-        }
 
-        .dataTable th.destination , .dataTable td.destination {
-            background: #ffc8c8  !important;
+        }
+        .dataTable thead th , .dataTable  tbody td:first-child {
+            background: #d7ef87 !important;
+            font-weight: bold;
+            color: #000 !important;
+        }
+        .dataTable input.margin.form-control {
+            width: 70px;
         }
     </style>
 
@@ -516,11 +660,11 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Description</label>
-                                    <input type="text" readonly="readonly" id="Description" name="Description" class="form-control" id="field-5" placeholder="">
+                                    <input type="text" id="NewDescription" name="NewDescription" class="form-control" id="field-5" placeholder="">
                                 </div>
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Rate</label>
-                                    <input type="text" id="Rate" name="Rate" class="form-control" id="field-5" placeholder="">
+                                    <input type="text" id="Rate" name="Rate" class="form-control"  data-mask="fdecimal" data-min="1" maxlength ="8" id="field-5" placeholder="">
                                 </div>
                                 <div class="form-group hide_if_groupby_description">
                                     <label for="field-5" class="control-label">Effective Date</label>
@@ -535,7 +679,9 @@
                         <input type="hidden" name="TypeID"  value="">
                         <input type="hidden" name="TrunkID"  value="">
                         <input type="hidden" name="Effective"  value="">
+                        <input type="hidden" name="Description"  value="">
                         <input type="hidden" name="SelectedEffectiveDate"  value="">
+                        <input type="hidden" name="Action"  value="">
                         <button type="submit" id="ratecompare-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                     </div>

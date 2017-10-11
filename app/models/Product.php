@@ -16,6 +16,7 @@ class Product extends \Eloquent {
     const INVOICE_PERIOD = 5;
     public static $ProductTypes = ["item"=>self::ITEM, "usage"=>self::USAGE,"subscription"=>self::SUBSCRIPTION];
     public static $TypetoProducts = [self::ITEM => "item", self::USAGE => "usage", self::SUBSCRIPTION =>"subscription"];
+    public static $AllProductTypes = [self::ITEM => "Item", self::USAGE => "Usage", self::SUBSCRIPTION =>"Subscription",self::ONEOFFCHARGE=>'Oneoffcharge',self::INVOICE_PERIOD=>'InvoiceReceived'];
 
     const DYNAMIC_TYPE = 'product';
 

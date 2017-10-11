@@ -5,6 +5,7 @@ CREATE TABLE `tblHeaderV` (
   `VAccountID` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `TotalCharges` double DEFAULT NULL,
+  `TotalSales` double DEFAULT NULL,
   `TotalBilledDuration` int(11) DEFAULT NULL,
   `TotalDuration` int(11) DEFAULT NULL,
   `NoOfCalls` int(11) DEFAULT NULL,

@@ -32,7 +32,7 @@
                             "bDestroy": true,
                             "bProcessing": true,
                             "bServerSide": true,
-                            "sAjaxSource": baseurl + "/customer/PaymentMethodProfiles/ajax_datagrid",
+                            "sAjaxSource": baseurl + "/customer/PaymentMethodProfiles/ajax_datagrid/{{$AccountID}}",
                             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                             "sPaginationType": "bootstrap",
                             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -67,8 +67,10 @@
                                              action += '<input type = "hidden"  name = "' + list_fields[i] + '"       value = "' + (full[i] != null?full[i]:'')+ '" / >';
                                          }
                                          action += '</div>';
+                                        if(full[3]!='SagePayDirectDebit'){
+                                            action += '<button class="btn paynow btn-success btn-sm " data-loading-text="Loading...">Pay Now </button>';
+                                        }
 
-                                        action += '<button class="btn paynow btn-success btn-sm " data-loading-text="Loading...">Pay Now </button>';
                                         return action;
                                     }
                                 }
@@ -133,7 +135,7 @@
                         paymentInvoiceIDs[k++] = InvoiceID;
                     });
                     $.ajax({
-                        url:baseurl+'/customer/getoutstandingamount', //Server script to process data
+                        url:baseurl+'/customer/getoutstandingamount/{{$AccountID}}', //Server script to process data
                         type: 'POST',
                         dataType: 'json',
                         data:'InvoiceIDs='+paymentInvoiceIDs.join(","),
@@ -209,12 +211,13 @@
                         InvoiceIDs[i++] = InvoiceID;
                     });
                     if(AccountPaymentProfileID > 0 && InvoiceIDs.length){
+                    $('#ajxtable-4_processing').css('visibility','visible');
                     $.ajax({
-                        url:baseurl+'/customer/invoice/pay_now', //Server script to process data
+                        url:baseurl+'/customer/invoice/pay_now/{{$AccountID}}', //Server script to process data
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
-
+                            $('#ajxtable-4_processing').css('visibility','hidden');
                             if (response.status == 'success') {
                                 toastr.success(response.message, "Success", toastr_opts);
                                 if( typeof data_table !=  'undefined'){

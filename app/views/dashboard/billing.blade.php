@@ -1,51 +1,49 @@
 @extends('layout.main')
+
+@section('filter')
+    <div id="datatable-filter" class="fixed new_filter" data-current-user="Art Ramadani" data-order-by-status="1" data-max-chat-history="25">
+        <div class="filter-inner">
+            <h2 class="filter-header">
+                <a href="#" class="filter-close" data-animate="1"><i class="entypo-cancel"></i></a>
+                <i class="fa fa-filter"></i>
+                Filter
+            </h2>
+            <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="billing_filter">
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Currency</label>
+                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}}
+                </div>
+                <div class="form-group">
+                    <label for="field-1" class="control-label">Date</label>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            {{ Form::select('date-span', array(6=>'6 Months',12=>'12 Months',0=>'Custome Date'), 1, array('id'=>'date-span','class'=>'select2 small')) }}
+                        </div>
+                        <div class="col-sm-12 tobehidden hidden" style="margin-top: 10px;">
+                            <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"
+                                   data-format="YYYY-MM-DD" name="Closingdate" class="form-control daterange">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <br/>
+                    <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
+                        <i class="entypo-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@stop
+
+
 @section('content')
     <?php
     $url = URL::to('invoice');
     //http_build_query(['StartDate'=>isset($data['StartDate'])?$data['StartDate']:date('Y-m-d'),'EndDate'=>isset($data['EndDate'])?$data['EndDate']:date('Y-m-d')])
     ?>
     <br/>
-    <div class="row">
-        <div class="col-sm-12">
-            <form novalidate class="form-horizontal form-groups-bordered validate" method="post" id="billing_filter">
-                <div data-collapsed="0" class="panel panel-primary">
-                    <div class="panel-heading">
-                        <div class="panel-title">
-                            Filter
-                        </div>
-                        <div class="panel-options">
-                            <a data-rel="collapse" href="#">
-                                <i class="entypo-down-open"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="form-group">  
- 
-                                <label for="field-1" class="col-sm-1 control-label">Currency</label>
-                                <div class="col-md-2">
-                                    {{Form::select('CurrencyID',Currency::getCurrencyDropdownIDList(),$DefaultCurrencyID,array("class"=>"select2"))}}
-                                </div>
-                                <label for="field-1" class="col-sm-1 control-label">Date</label>
-                                <div class="col-md-2">
-                                    {{ Form::select('date-span', array(6=>'6 Months',12=>'12 Months',0=>'Custome Date'), 1, array('id'=>'date-span','class'=>'select2 small')) }}
-                                </div>
-                            <div class="col-md-2 tobehidden hidden">
-                                <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Closingdate"
-                                       data-format="YYYY-MM-DD" name="Closingdate" class="form-control daterange">
-                            </div>
-                        </div>
-                        <p style="text-align: right;">
-                            <button class="btn search btn-primary btn-sm btn-icon icon-left" type="submit"
-                                    data-loading-text="Loading...">
-                                <i class="entypo-search"></i>Search
-                            </button>
-                        </p>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
     <?php if(User::checkCategoryPermission('BillingDashboardSummaryWidgets','View')){ ?>
         <div class="row">
         <div class="col-md-12">
@@ -375,6 +373,9 @@
     <script type="text/javascript">
 
         jQuery(document).ready(function ($) {
+
+            $('#filter-button-toggle').show();
+
             var $searchFilter = {};
             var invoicestatus = {{$invoice_status_json}};
             $searchFilter.PaymentDate_StartDate = $('[name="Startdate"]').val();
