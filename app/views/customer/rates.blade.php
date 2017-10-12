@@ -18,6 +18,8 @@
                 <div class="form-group">
                     <label for="field-1" class="col-sm-1 control-label">Prefix</label>
                     <div class="col-sm-2"> {{ Form::text('Prefix', '', array("class"=>"form-control")) }} </div>
+                    <label for="field-1" class="col-sm-1 control-label">Description</label>
+                    <div class="col-sm-2"> {{ Form::text('Description', '', array("class"=>"form-control")) }} </div>
                 </div>
                 <p style="text-align: right;">
                     <button class="btn btn-primary btn-sm btn-icon icon-left" id="filter_submit" type="submit">
@@ -64,6 +66,7 @@
                 e.preventDefault();
 
                 $search.Prefix = $("#table_filter").find('[name="Prefix"]').val();
+                $search.Description = $("#table_filter").find('[name="Description"]').val();
 
                 data_table = $("#table-list").dataTable({
                     "bDestroy": true,
@@ -73,16 +76,18 @@
                     "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-12'l>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                    "aaSorting": [[0, 'asc']],
+                    "aaSorting": [[1, 'asc']],
                     "fnServerParams": function (aoData) {
                         aoData.push(
-                                {"name": "Prefix", "value": $search.Prefix}
+                                {"name": "Prefix", "value": $search.Prefix},
+                                {"name": "Description", "value": $search.Description}
 
 
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name": "Prefix", "value": $search.Prefix},
+                                {"name": "Description", "value": $search.Description},
                                 {"name": "Export", "value": 1}
                         );
 

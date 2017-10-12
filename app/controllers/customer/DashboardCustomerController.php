@@ -280,6 +280,7 @@ class DashboardCustomerController extends BaseController {
         $param['username'] = $account_number;
         $param['CustomerID'] = $CustomerID;
         $param['Prefix'] = $data['Prefix'];
+        $param['Description'] = $data['Description'];
         if(count($companygateways)>0){
             foreach($companygateways as $companygateway) {
                 try{
