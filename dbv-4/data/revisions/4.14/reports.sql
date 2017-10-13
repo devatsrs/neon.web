@@ -322,37 +322,21 @@ BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
-	INSERT INTO tblRRate(Code,CompanyID,CountryID)
-	SELECT tbl.AreaPrefix,tbl.CompanyID,tbl.CountryID FROM (SELECT DISTINCT AreaPrefix,CountryID,CompanyID FROM tmp_UsageSummary)tbl
-	LEFT JOIN tblRRate
-		ON	tbl.AreaPrefix = tblRRate.Code
-		AND tbl.CompanyID = tblRRate.CompanyID
-	WHERE tblRRate.CompanyID = p_CompanyID
-	AND tbl.AreaPrefix IS NULL;
+	INSERT IGNORE INTO tblRRate(Code,CountryID,CompanyID)
+	SELECT DISTINCT AreaPrefix,CountryID,CompanyID FROM tmp_UsageSummary
+	WHERE tmp_UsageSummary.CompanyID = p_CompanyID;
 	
-	INSERT INTO tblRTrunk(Trunk,CompanyID)
-	SELECT tbl.Trunk,tbl.CompanyID FROM (SELECT DISTINCT Trunk,CompanyID FROM tmp_UsageSummary)tbl
-	LEFT JOIN tblRTrunk
-		ON	tbl.Trunk = tblRTrunk.Trunk
-		AND tbl.CompanyID = tblRTrunk.CompanyID
-	WHERE tblRTrunk.CompanyID = p_CompanyID
-	AND tbl.Trunk IS NULL;
+	INSERT IGNORE INTO tblRTrunk(Trunk,CompanyID)
+	SELECT DISTINCT Trunk,CompanyID FROM tmp_UsageSummary
+	WHERE tmp_UsageSummary.CompanyID = p_CompanyID;
 	
-	INSERT INTO tblRRate(Code,CompanyID,CountryID)
-	SELECT tbl.AreaPrefix,tbl.CompanyID,tbl.CountryID FROM (SELECT DISTINCT AreaPrefix,CountryID,CompanyID FROM tmp_VendorUsageSummary)tbl
-	LEFT JOIN tblRRate
-		ON	tbl.AreaPrefix = tblRRate.Code
-		AND tbl.CompanyID = tblRRate.CompanyID
-	WHERE tblRRate.CompanyID = p_CompanyID
-	AND tbl.AreaPrefix IS NULL;
+	INSERT IGNORE INTO tblRRate(Code,CountryID,CompanyID)
+	SELECT DISTINCT AreaPrefix,CountryID,CompanyID FROM tmp_VendorUsageSummary
+	WHERE tmp_VendorUsageSummary.CompanyID = p_CompanyID;
 	
-	INSERT INTO tblRTrunk(Trunk,CompanyID)
-	SELECT tbl.Trunk,tbl.CompanyID FROM (SELECT DISTINCT Trunk,CompanyID FROM tmp_VendorUsageSummary)tbl
-	LEFT JOIN tblRTrunk
-		ON	tbl.Trunk = tblRTrunk.Trunk
-		AND tbl.CompanyID = tblRTrunk.CompanyID
-	WHERE tblRTrunk.CompanyID = p_CompanyID
-	AND tbl.Trunk IS NULL;
+	INSERT IGNORE INTO tblRTrunk(Trunk,CompanyID)
+	SELECT DISTINCT Trunk,CompanyID FROM tmp_VendorUsageSummary
+	WHERE tmp_VendorUsageSummary.CompanyID = p_CompanyID;
 
 END|
 DELIMITER ;
@@ -5129,3 +5113,10 @@ INSERT INTO `tblReport` (`ReportID`, `CompanyID`, `Name`, `Settings`, `Type`, `c
 INSERT INTO `tblReport` (`ReportID`, `CompanyID`, `Name`, `Settings`, `Type`, `created_at`, `CreatedBy`, `updated_at`, `UpdatedBy`) VALUES (2, 1, 'Monthly Tax Report', '{"Cube":"invoice","row":"year,month","column":"TotalTax,TaxRateID","filter":"","filter_col_name":"date","filter_settings":"{\\"date\\":{\\"wildcard_match_val\\":\\"\\",\\"start_date\\":\\"2017-01-01\\",\\"end_date\\":\\"2017-10-02\\",\\"condition\\":\\"none\\",\\"top\\":\\"none\\"}}","wildcard_match_val":"","start_date":"2017-01-01","end_date":"2017-10-02","condition":"none","top":"none","Name":"Monthly Tax Report","ReportID":""}', 1, '2017-10-02 16:41:49', 'System', '2017-10-02 16:41:49', 'System');
 INSERT INTO `tblReport` (`ReportID`, `CompanyID`, `Name`, `Settings`, `Type`, `created_at`, `CreatedBy`, `updated_at`, `UpdatedBy`) VALUES (3, 1, 'Monthly Invoice  Report', '{"Cube":"invoice","row":"year,month","column":"GrandTotal,InvoiceType","filter":"","filter_col_name":"date","filter_settings":"{\\"date\\":{\\"wildcard_match_val\\":\\"\\",\\"start_date\\":\\"2017-01-01\\",\\"end_date\\":\\"2017-10-02\\",\\"condition\\":\\"none\\",\\"top\\":\\"none\\"}}","wildcard_match_val":"","start_date":"","end_date":"","condition":"none","top":"none","Name":"Monthly Invoice  Report","ReportID":"3"}', 1, '2017-10-02 16:43:06', 'System', '2017-10-02 16:43:48', 'System');
 INSERT INTO `tblReport` (`ReportID`, `CompanyID`, `Name`, `Settings`, `Type`, `created_at`, `CreatedBy`, `updated_at`, `UpdatedBy`) VALUES (4, 1, 'Cross Analysis Report', '{"Cube":"summary","row":"VAccountID","column":"TotalCharges,NoOfCalls,AccountID","filter":"AreaPrefix","filter_col_name":"AreaPrefix","filter_settings":"{\\"date\\":{\\"wildcard_match_val\\":\\"\\",\\"start_date\\":\\"2017-07-01\\",\\"end_date\\":\\"2017-10-02\\",\\"condition\\":\\"none\\",\\"top\\":\\"none\\"},\\"AreaPrefix\\":{\\"table-filter-list_length\\":\\"10\\",\\"AreaPrefix\\":[\\"8801\\"],\\"wildcard_match_val\\":\\"\\",\\"start_date\\":\\"2017-07-01\\",\\"end_date\\":\\"2017-10-02\\",\\"condition\\":\\"none\\",\\"top\\":\\"none\\"}}","table-filter-list_length":"10","AreaPrefix":["8801"],"wildcard_match_val":"","start_date":"2017-07-01","end_date":"2017-10-02","condition":"none","top":"none","Name":"Cross Analysis Report","ReportID":""}', 1, '2017-10-02 17:16:49', 'System', '2017-10-02 17:16:49', 'System');
+
+
+ALTER TABLE `tblRTrunk`
+	ADD UNIQUE INDEX `UK` (`CompanyID`, `Trunk`);
+	
+ALTER TABLE `tblRRate`
+	ADD UNIQUE INDEX `UK` (`CompanyID`, `Code`);

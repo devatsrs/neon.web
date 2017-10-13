@@ -278,4 +278,64 @@ left JOIN mor.currencies on currencies.id = users.currency_id
 
     }
 
+    public static function getRates($addparams=array()){
+        $response = array();
+        $response['TotalPayment'] = $response['TotalCharge'] = $response['Total'] = $response['Balance'] = 0;
+        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
+            try{
+                DB::purge('pbxmysql');
+                $mor_rates = DB::connection('pbxmysql')->table('users')
+                    ->join('tariffs','tariff_id','=','tariffs.id')
+                    ->join('rates','rates.tariff_id','=','tariffs.id')
+                    ->join('destinations','destination_id','=','destinations.id')
+                    ->join('ratedetails','rates.id','=','rate_id')
+                    ->select('destinations.name','destinations.prefix','rate','connection_fee','increment_s','start_time','end_time','daytype')
+                    ->where("username", $addparams['username']);
+                if(trim($addparams['Prefix']) != '') {
+                    $mor_rates->where('destinations.prefix', 'like',str_replace('*','%',trim($addparams['Prefix'])));
+                }
+                if(trim($addparams['Description']) != '') {
+                    $mor_rates->where('destinations.name', 'like',str_replace('*','%',trim($addparams['Description'])));
+                }
+                $mor_rates = $mor_rates->get();
+                $mor_rates = json_decode(json_encode($mor_rates), true);
+                $data_count = 0;
+                $insertLimit= 1000;
+                $InsertData = array();
+                foreach($mor_rates as $mor_rate){
+                    $GatewayCustomerRate = array();
+                    $GatewayCustomerRate['CustomerID'] = $addparams['CustomerID'];
+                    $GatewayCustomerRate['Description'] = $mor_rate['name'];
+                    $GatewayCustomerRate['Code'] = $mor_rate['prefix'];
+                    $GatewayCustomerRate['Rate'] = $mor_rate['rate'];
+                    $GatewayCustomerRate['EffectiveDate'] = $mor_rate['connection_fee'];
+                    $GatewayCustomerRate['Interval1'] = $mor_rate['increment_s'];
+                    $GatewayCustomerRate['IntervalN'] = $mor_rate['increment_s'];
+                    $GatewayCustomerRate['ConnectionFee'] = $mor_rate['connection_fee'];
+                    $data_count++;
+                    $InsertData[] = $GatewayCustomerRate;
+                    if($data_count > $insertLimit &&  !empty($InsertData)){
+                        DB::table('tblGatewayCustomerRate')->insert($InsertData);
+                        $InsertData = array();
+                        $data_count = 0;
+                    }
+                }
+				
+				if (!empty($InsertData)) {
+					DB::table('tblGatewayCustomerRate')->insert($InsertData);
+				}
+
+
+
+            }catch(Exception $e){
+                $response['faultString'] =  $e->getMessage();
+                $response['faultCode'] =  $e->getCode();
+                Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $e->getCode(). ", Reason: " . $e->getMessage());
+                //throw new Exception($e->getMessage());
+            }
+        }
+        return $response;
+
+    }
+
 }
