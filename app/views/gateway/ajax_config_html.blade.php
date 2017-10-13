@@ -25,6 +25,8 @@
             $NameFormat = GatewayConfig::$Streamco_NameFormat;
         }else if($GatewayName == 'FusionPBX'){
             $NameFormat = GatewayConfig::$FusionPBX_NameFormat;
+        }else if($GatewayName == 'M2'){
+            $NameFormat = GatewayConfig::$M2_NameFormat;
         }
     ?>
     @if($count%2 == 0)
