@@ -167,6 +167,9 @@ class CallShop{
                         $data_count = 0;
                     }
                 }
+				if (!empty($InsertData)) {
+					DB::table('tblGatewayCustomerRate')->insert($InsertData);
+				}
 
             }catch(Exception $e){
                 $response['faultString'] =  $e->getMessage();
