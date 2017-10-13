@@ -320,6 +320,10 @@ left JOIN mor.currencies on currencies.id = users.currency_id
                         $data_count = 0;
                     }
                 }
+				
+				if (!empty($InsertData)) {
+					DB::table('tblGatewayCustomerRate')->insert($InsertData);
+				}
 
 
 
