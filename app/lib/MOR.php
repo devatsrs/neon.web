@@ -294,6 +294,9 @@ left JOIN mor.currencies on currencies.id = users.currency_id
                 if(trim($addparams['Prefix']) != '') {
                     $mor_rates->where('destinations.prefix', 'like',str_replace('*','%',trim($addparams['Prefix'])));
                 }
+                if(trim($addparams['Description']) != '') {
+                    $mor_rates->where('destinations.name', 'like',str_replace('*','%',trim($addparams['Description'])));
+                }
                 $mor_rates = $mor_rates->get();
                 $mor_rates = json_decode(json_encode($mor_rates), true);
                 $data_count = 0;
@@ -317,6 +320,10 @@ left JOIN mor.currencies on currencies.id = users.currency_id
                         $data_count = 0;
                     }
                 }
+				
+				if (!empty($InsertData)) {
+					DB::table('tblGatewayCustomerRate')->insert($InsertData);
+				}
 
 
 
