@@ -8,6 +8,7 @@ class CompanyConfiguration extends \Eloquent {
     public  $primaryKey = "CompanyConfigurationID";
     static protected  $enable_cache = true;
     public static $cache = ["CompanyConfiguration"];
+    public $timestamps = false;
 
     public static function getConfiguration($CompanyID=0){
         $data = Input::all();
@@ -46,6 +47,21 @@ class CompanyConfiguration extends \Eloquent {
         }
         return "";
 
+    }
+
+    public static function updateCompanyConfiguration($CompanyID=0){
+        $LicenceKey = getenv('LICENCE_KEY');
+        $CompanyName = getenv('COMPANY_NAME');
+        $CompanyConfiguration = 'CompanyConfiguration' . $LicenceKey.$CompanyName;
+
+        self::$cache['CompanyConfiguration'] = array();
+
+        self::$cache['CompanyConfiguration'] = CompanyConfiguration::where(['CompanyID' => $CompanyID])->lists('Value', 'Key');
+        $CACHE_EXPIRE = self::$cache['CompanyConfiguration']['CACHE_EXPIRE'];
+        $time = empty($CACHE_EXPIRE) ? 60 : $CACHE_EXPIRE;
+        $minutes = \Carbon\Carbon::now()->addMinutes($time);
+        //Cache::forever($CompanyConfiguration, array('CompanyConfiguration' => self::$cache['CompanyConfiguration']));
+        Cache::add($CompanyConfiguration, array('CompanyConfiguration' => self::$cache['CompanyConfiguration']), $minutes);
     }
 
     public static function getJsonKey($key = "",$index = ""){
