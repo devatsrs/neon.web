@@ -60,7 +60,7 @@ class M2{
                             $count = DB::table('tblAccount')->where(["AccountName" => $temp_row->username, "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
                             if($count==0){
                                 $tempItemData['AccountName'] = $temp_row->username;
-                                $tempItemData['Number'] = $temp_row->username;
+                                $tempItemData['Number'] = "";
                                 $tempItemData['FirstName'] = $temp_row->first_name;
                                 $tempItemData['LastName'] = $temp_row->last_name;
                                 $tempItemData['VatNumber'] = $temp_row->vat_number;
