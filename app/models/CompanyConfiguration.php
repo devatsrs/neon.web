@@ -60,7 +60,7 @@ class CompanyConfiguration extends \Eloquent {
         $CACHE_EXPIRE = self::$cache['CompanyConfiguration']['CACHE_EXPIRE'];
         $time = empty($CACHE_EXPIRE) ? 60 : $CACHE_EXPIRE;
         $minutes = \Carbon\Carbon::now()->addMinutes($time);
-        //Cache::forever($CompanyConfiguration, array('CompanyConfiguration' => self::$cache['CompanyConfiguration']));
+        Cache::forget($CompanyConfiguration);
         Cache::add($CompanyConfiguration, array('CompanyConfiguration' => self::$cache['CompanyConfiguration']), $minutes);
     }
 
