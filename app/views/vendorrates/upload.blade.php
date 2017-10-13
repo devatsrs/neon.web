@@ -367,6 +367,10 @@
                         <div class="col-sm-4">
                             {{Form::select('selection[DialStringPrefix]', array(),'',array("class"=>"select2 small"))}}
                         </div>
+                        <label for=" field-1" class="col-sm-2 control-label">Currency Conversion <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Select currency to convert rates to your base currency" data-original-title="Currency Conversion">?</span></label>
+                        <div class="col-sm-4">
+                            {{Form::select('selection[FromCurrency]', $currencies ,'',array("class"=>"select2 small"))}}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -606,7 +610,7 @@ jQuery(document).ready(function ($) {
             body.append(tr);
         });
         $("#mapping select").each(function(i, el){
-            if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]'){
+            if(el.name !='selection[DateFormat]' && el.name !='selection[DialString]' && el.name != 'selection[DialCodeSeparator]' && el.name != 'selection[FromCurrency]'){
                 var self = $('#add-template-form [name="'+el.name+'"]');
                 rebuildSelect2(self,data.columns,'Skip loading');
             }

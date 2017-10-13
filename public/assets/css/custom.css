@@ -2764,7 +2764,7 @@ a:focus,a:hover{text-decoration:none !important}
     right: 0;
     top: 0;
     bottom: 0;
-    width: 250px;
+    width: 200px;
     background: #222;
     z-index: 5;
     display: none;
@@ -2775,7 +2775,8 @@ a:focus,a:hover{text-decoration:none !important}
 .new_filter .filter-inner {
     height: 100%;
     overflow-y: scroll;
-    width: 250px;
+    overflow-x: hidden;
+    width: 200px;
     position: fixed;
     padding-bottom: 10%;
 }
@@ -3028,6 +3029,45 @@ a:focus,a:hover{text-decoration:none !important}
     .boxed-layout .new_filter {
         position: fixed;
     }
+}
+.new_filter .filter-inner ul.nav.nav-tabs{
+    border-bottom: none;
+}
+.new_filter .filter-inner ul.nav.nav-tabs > li:first-child, .new_filter .filter-inner ul.nav.nav-tabs > li:last-child {
+    width: 40%;
+}
+.new_filter .filter-inner ul.nav.nav-tabs > li:first-child+li {
+    width: 20%;
+}
+.new_filter .filter-inner ul.nav.nav-tabs li a{
+    background: transparent;
+    color: #fff;
+    border-bottom: none;
+    margin: 0;
+    padding: 12px;
+}
+.new_filter .filter-inner ul.nav.nav-tabs li{
+    background: transparent;
+    color: #fff;
+    border-bottom: 1px solid #ddd;
+    border-radius: 0;
+}
+.new_filter .filter-inner ul.nav.nav-tabs li.active a{
+    background: transparent;
+    color: #fff;
+    border: none;
+    margin: 0;
+    padding: 12px;
+}
+.new_filter .filter-inner ul.nav.nav-tabs li.active {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px 4px 0 0;
+    border-bottom: none;
+}
+.new_filter .form-group input{
+    height: 25px;
 }
 .table_report_overflow {
     overflow-x: auto;

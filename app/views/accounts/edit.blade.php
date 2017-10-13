@@ -258,7 +258,13 @@
                     <div class="col-md-4">
         <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="Enter Password" value="" />
                             <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="Enter Password" value="" />
-                    </div>  
+                    </div>
+                                <label class="col-md-2 control-label">Display Rate</label>
+                    <div class="col-md-4">
+                        <div class="make-switch switch-small">
+                            <input type="checkbox" @if($account->DisplayRates == 1 )checked="" @endif name="DisplayRates" value="1">
+                        </div>
+                    </div>
                     </div>
             </div>
         </div>

@@ -43,7 +43,7 @@
             <label class="col-sm-3 control-label">Status</label>
             <div class="col-sm-9">
               <p class="make-switch switch-small">
-                <input type="checkbox"   name="RuleStatus" class"rulestatus"  value="1"> </p>
+                <input type="checkbox"   name="Status" class"rulestatus"  value="1"> </p>
             </div>
           </div>
         </div>

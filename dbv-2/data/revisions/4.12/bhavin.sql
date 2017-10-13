@@ -9,7 +9,7 @@ CREATE PROCEDURE `prc_getInvoice`(
 	IN `p_IssueDateStart` DATETIME,
 	IN `p_IssueDateEnd` DATETIME,
 	IN `p_InvoiceType` INT,
-	IN `p_InvoiceStatus` VARCHAR(50),
+	IN `p_InvoiceStatus` LONGTEXT,
 	IN `p_IsOverdue` INT,
 	IN `p_PageNumber` INT,
 	IN `p_RowspPage` INT,

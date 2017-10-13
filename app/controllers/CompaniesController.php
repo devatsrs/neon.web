@@ -40,7 +40,20 @@ class CompaniesController extends \BaseController {
         //$PincodeWidget = CompanySetting::getKeyVal('PincodeWidget') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('PincodeWidget');
         $LastPrefixNo = LastPrefixNo::getLastPrefix();
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
-        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification'));
+
+        $COMPANY_SSH_VISIBLE = CompanyConfiguration::get('COMPANY_SSH_VISIBLE');
+        if(!empty(CompanyConfiguration::get('SSH'))) {
+            $SSHCONF = (array) json_decode(CompanyConfiguration::get('SSH'));
+            $SSH['host']     = isset($SSHCONF['host']) ? $SSHCONF['host'] : '';
+            $SSH['username'] = isset($SSHCONF['username']) ? $SSHCONF['username'] : '';
+            $SSH['password'] = isset($SSHCONF['password']) ? $SSHCONF['password'] : '';
+        } else {
+            $SSH['host']     = '';
+            $SSH['username'] = '';
+            $SSH['password'] = '';
+        }
+
+        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE'));
 
     }
 
@@ -140,6 +153,34 @@ class CompaniesController extends \BaseController {
         }
 		
 		$data['IsSSL'] = isset($data['IsSSL'])?1:0;
+
+        $COMPANY_SSH_VISIBLE = CompanyConfiguration::get('COMPANY_SSH_VISIBLE');
+        if(isset($COMPANY_SSH_VISIBLE) && $COMPANY_SSH_VISIBLE == 1) {
+            if (!empty(CompanyConfiguration::get('SSH'))) {
+                $SSHCONF = (array)json_decode(CompanyConfiguration::get('SSH'));
+                $SSH['host'] = isset($SSHCONF['host']) ? $SSHCONF['host'] : '';
+                $SSH['username'] = isset($SSHCONF['username']) ? $SSHCONF['username'] : '';
+                $SSH['password'] = isset($SSHCONF['password']) ? $SSHCONF['password'] : '';
+
+                if(isset($data['SSH']['host']) && !empty($data['SSH']['host'])) {
+                    $SSH['host'] = $data['SSH']['host'];
+                }
+                if(isset($data['SSH']['username']) && !empty($data['SSH']['username'])) {
+                    $SSH['username'] = $data['SSH']['username'];
+                }
+                if(isset($data['SSH']['password']) && !empty($data['SSH']['password'])) {
+                    $SSH['password'] = $data['SSH']['password'];
+                }
+                unset($data['SSH']);
+                $SSH = json_encode($SSH);
+                CompanyConfiguration::where('Key', 'SSH')->update(['Value'=>$SSH]);
+                CompanyConfiguration::updateCompanyConfiguration($companyID);
+            } else {
+                $SSH['host'] = '';
+                $SSH['username'] = '';
+                $SSH['password'] = '';
+            }
+        }
 		
         if ($company->update($data)) {
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));

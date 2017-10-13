@@ -76,6 +76,11 @@ class ReportInvoice extends \Eloquent{
                 $final_query->groupby($columnname);
             }
         }
+        if(in_array('AccountID',$data['column']) || in_array('AccountID',$data['row'])){
+            $extra_query_2 = 'tblPayment.AccountID = tblInvoice.AccountID';
+        }else{
+            $extra_query_2 = 'tblPayment.CompanyID = '.$CompanyID;
+        }
 
         //$data['row'] = array_merge($data['row'], $data['column']);
         foreach ($data['sum'] as $colname) {
@@ -85,10 +90,10 @@ class ReportInvoice extends \Eloquent{
                 $select_columns[] = DB::Raw("SUM(tblInvoiceDetail.LineTotal) as " . $colname);
             }else if($colname == 'PaidTotal'){
                 $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
-                $select_columns[] = DB::Raw(" (SELECT SUM(Amount) FROM tblPayment WHERE (FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 AND ".$extra_query.") ) AND tblPayment.AccountID = tblInvoice.AccountID AND Status='Approved' AND Recall = '0') as " . $colname);
+                $select_columns[] = DB::Raw(" (SELECT SUM(Amount) FROM tblPayment WHERE (FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 AND ".$extra_query.") ) AND $extra_query_2 AND Status='Approved' AND Recall = '0') as " . $colname);
             }else if($colname == 'OutStanding'){
                 $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
-                $select_columns[] = DB::Raw("(SUM(tblInvoice.GrandTotal) - (SELECT SUM(Amount) FROM tblPayment WHERE ( FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 AND ".$extra_query.")) AND tblPayment.AccountID = tblInvoice.AccountID AND Status='Approved' AND Recall = '0')) as " . $colname);
+                $select_columns[] = DB::Raw("(SUM(tblInvoice.GrandTotal) - (SELECT SUM(Amount) FROM tblPayment WHERE ( FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 AND ".$extra_query.")) AND $extra_query_2 AND Status='Approved' AND Recall = '0')) as " . $colname);
             }else if(self::$InvoiceTaxRateJoin == false && in_array($colname,array('TotalTax'))){
                 $select_columns[] = DB::Raw("SUM(tblInvoice." . $colname . ") as " . $colname);
             }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){
@@ -112,6 +117,7 @@ class ReportInvoice extends \Eloquent{
     }
 
     public static function commonQuery($CompanyID, $data, $filters){
+        self::$dateFilterString = array();
         $query_common = DB::connection('sqlsrv2')
             ->table('tblInvoice')
             ->where(['tblInvoice.CompanyID' => $CompanyID]);

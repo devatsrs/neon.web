@@ -61,13 +61,13 @@
 </p>
 <div class="row">
   <div  class="col-md-12">
-    <div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('Invoice','Edit,Send,Generate,Email'))
+    <div class="input-group-btn pull-right" style="width:70px;"> @if( User::checkCategoryPermission('Estimate','Edit'))
       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
       <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
-        @if(User::checkCategoryPermission('Invoice','Edit'))
+        @if(User::checkCategoryPermission('Estimate','Edit'))
         <li> <a class="delete_bulk" id="delete_bulk" href="javascript:;" > Delete </a> </li>
         @endif       
-        @if(User::checkCategoryPermission('Invoice','Edit'))
+        @if(User::checkCategoryPermission('Estimate','Edit'))
         <li> <a class="convert_invoice" id="convert_invoice" href="javascript:;" >Accept and generate invoice</a> </li>
         @endif
       </ul>
@@ -77,7 +77,7 @@
       </form>
     </div>
 
-      @if(User::checkCategoryPermission('Invoice','Add'))
+      @if(User::checkCategoryPermission('Estimate','Add'))
           <a href="{{URL::to("estimate/create")}}" id="add-new-estimate" class="btn btn-primary pull-right"> <i class="entypo-plus"></i> Add New</a>
       @endif
     <!-- /btn-group --> 
@@ -254,7 +254,7 @@ var postdata;
                             action += ' <a id="dLabel" role="button" data-toggle="dropdown" class="btn btn-primary" data-target="#" href="#">Action<span class="caret"></span></a>';
                             action += '<ul class="dropdown-menu multi-level dropdown-menu-left" role="menu" aria-labelledby="dropdownMenu">';
 
-                                if('{{User::checkCategoryPermission('Invoice','Edit')}}')
+                                if('{{User::checkCategoryPermission('Estimate','Edit')}}')
 								{
 									//if(full[4] != 'accepted')
 									{
@@ -271,7 +271,7 @@ var postdata;
 
                             action += ' <li><a class="icon-left"  href="' + (baseurl + "/estimate/estimatelog/{id}").replace("{id}",full[5]) +'"><i class="entypo-list"></i>Log </a></li>';
 
-							if ('{{User::checkCategoryPermission('Invoice','Edit')}}' && delete_url)
+							if ('{{User::checkCategoryPermission('Estimate','Edit')}}' && delete_url)
 							{     
 								//if(full[4] != 'accepted')
 								{                           
