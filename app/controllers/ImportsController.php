@@ -208,6 +208,10 @@ class ImportsController extends \BaseController {
             }elseif($gateway == 'M2'){
                 $m2 = new M2($CompanyGatewayID);
                 $response1 = $m2->getAccountsDetail($param);
+            }elseif($gateway == 'SippySFTP'){
+                //$sippy = new Sippy($CompanyGatewayID);
+                $response1 = SippyImporter::getAccountsDetail($param);
+                echo "<pre>";print_r($response1,true);exit();
             }
             //$pbx = new PBX($CompanyGatewayID);
 
