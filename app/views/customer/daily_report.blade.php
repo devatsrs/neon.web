@@ -1,4 +1,4 @@
-@extends('layout.customer.main')
+@extends($extends)
 @section('content')
     <ol class="breadcrumb bc-3">
         <li> <a href="#"><i class="entypo-home"></i>Movement Report</a> </li>
