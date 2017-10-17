@@ -165,14 +165,15 @@ class DashboardCustomerController extends BaseController {
         return DataTableSql::of($query,'sqlsrv2')->make();
     }
 
-    public function daily_report(){
+    public function daily_report($id=0){
 
         $companyID = User::get_companyID();
         $DefaultCurrencyID = Company::where("CompanyID", $companyID)->pluck("CurrencyId");
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
 
-        return View::make('customer.daily_report', compact('DefaultCurrencyID', 'original_startdate', 'original_enddate'));
+        $AccountID = !empty($id)?$id:Customer::get_accountID();
+        return View::make('customer.daily_report', compact('DefaultCurrencyID', 'original_startdate', 'original_enddate','AccountID'));
 
     }
     /*public function daily_report_ajax_datagrid($type){
@@ -211,7 +212,7 @@ class DashboardCustomerController extends BaseController {
     public function daily_report_ajax_datagrid($type){
         $CompanyID = User::get_companyID();
         $data = Input::all();
-        $CustomerID = Customer::get_accountID();
+        $CustomerID = $data['AccountID'];
         $data['iDisplayStart'] += 1;
         $account_number = Account::where('AccountID',$CustomerID)->pluck('Number');
         $GatewayID = Gateway::getGatewayID('MOR');
@@ -249,7 +250,7 @@ class DashboardCustomerController extends BaseController {
     public function daily_report_ajax_datagrid_total(){
         $CompanyID = User::get_companyID();
         $data = Input::all();
-        $CustomerID = Customer::get_accountID();
+        $CustomerID = $data['AccountID'];
         $account_number = Account::where('AccountID',$CustomerID)->pluck('Number');
         $GatewayID = Gateway::getGatewayID('MOR');
         $CompanyGatewayID = CompanyGateway::getCompanyGatewayID($GatewayID);

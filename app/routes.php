@@ -13,7 +13,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/subscription/ajax_datagrid', 'DashboardCustomerController@subscriptions_ajax_datagrid');	
     Route::any('customer/getoutstandingamount/{id}', 'ProfileController@get_outstanding_amount');
     Route::any('customer/invoice_expense_total_widget', 'DashboardCustomerController@invoice_expense_total_widget');
-	Route::any('customer/daily_report', 'DashboardCustomerController@daily_report');
+	Route::any('customer/daily_report/{id}', 'DashboardCustomerController@daily_report');
 	Route::any('customer/daily_report/ajax_datagrid/{type}', 'DashboardCustomerController@daily_report_ajax_datagrid');
 	Route::any('customer/daily_report/ajax_datagrid_total', 'DashboardCustomerController@daily_report_ajax_datagrid_total');
 	Route::any('customer/rates', 'DashboardCustomerController@customer_rates');

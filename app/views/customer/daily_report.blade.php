@@ -21,6 +21,7 @@
                   
                     <label for="field-5" class="col-sm-1 control-label">End Date</label>
                     <div class="col-sm-2"> {{ Form::text('EndDate', $original_enddate, array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }} </div>
+                    <input type="hidden" name="AccountID" value="{{$AccountID}}">
                 </div>
                 <p style="text-align: right;">
                     <button class="btn btn-primary btn-sm btn-icon icon-left" id="filter_submit" type="submit">
@@ -65,6 +66,7 @@
 
                 $search.StartDate = $("#table_filter").find('[name="StartDate"]').val();
                 $search.EndDate = $("#table_filter").find('[name="EndDate"]').val();
+                $search.AccountID = $("#table_filter").find('[name="AccountID"]').val();
                 data_table = $("#table-list").dataTable({
                     "bDestroy": true,
                     "bProcessing":true,
@@ -77,13 +79,15 @@
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "StartDate", "value": $search.StartDate},
-                                {"name": "EndDate", "value": $search.EndDate}
+                                {"name": "EndDate", "value": $search.EndDate},
+                                {"name": "AccountID", "value": $search.AccountID}
 
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name": "StartDate", "value": $search.StartDate},
                                 {"name": "EndDate", "value": $search.EndDate},
+                                {"name": "AccountID", "value": $search.AccountID},
                                 {"name": "Export", "value": 1}
                         );
 
