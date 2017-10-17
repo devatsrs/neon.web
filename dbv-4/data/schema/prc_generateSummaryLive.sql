@@ -77,6 +77,16 @@ BEGIN
 
 	START TRANSACTION;
 	
+	DELETE us FROM tblUsageSummaryDayLive us 
+	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
+	DELETE usd FROM tblUsageSummaryHourLive usd
+	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
 	DELETE h FROM tblHeader h 
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)u
 		ON h.DateID = u.DateID 
@@ -118,16 +128,6 @@ BEGIN
 	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
 	WHERE sh.CompanyID =  p_CompanyID ;
 
-	DELETE us FROM tblUsageSummaryDayLive us 
-	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
-	DELETE usd FROM tblUsageSummaryHourLive usd
-	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
 	INSERT INTO tblUsageSummaryDayLive (
 		HeaderID,
 		CompanyGatewayID,
