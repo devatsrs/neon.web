@@ -173,8 +173,8 @@ class DashboardCustomerController extends BaseController {
         $original_enddate = date('Y-m-d');
 
         $AccountID = !empty($id)?$id:Customer::get_accountID();
-        $AccountID = !empty($id)?'layout.main':'layout.customer.main';
-        return View::make('customer.daily_report', compact('DefaultCurrencyID', 'original_startdate', 'original_enddate','AccountID'));
+        $extends = !empty($id)?'layout.main':'layout.customer.main';
+        return View::make('customer.daily_report', compact('DefaultCurrencyID', 'original_startdate', 'original_enddate','AccountID','extends'));
 
     }
     /*public function daily_report_ajax_datagrid($type){
