@@ -222,6 +222,9 @@ class DashboardCustomerController extends BaseController {
         $response = $mor->getMovementReport(array('username'=>$account_number,'StartDate'=>$data['StartDate'],'EndDate'=>$data['EndDate']));
 
         $previous_bal = $response['previous_bal'];
+		$today_total = 0;
+
+        $row_count = 0;
 
         return Datatables::of($response['datatable'])
             ->add_column('Payments', function($data)use($response){ return isset($response['payment'][$data->date])?$response['payment'][$data->date]:0;})
@@ -237,11 +240,17 @@ class DashboardCustomerController extends BaseController {
                     return 0;
                 }
             })
-            ->add_column('Balance', function($data)use(&$previous_bal,$response){
+            ->add_column('Balance', function($data)use(&$previous_bal,&$row_count,&$today_total,$response){
 
                 $payment =  isset($response['payment'][$data->date])?$response['payment'][$data->date]:0;
                 $consumption =  isset($response['calls'][$data->date])?$response['calls'][$data->date]:0;
-                $previous_bal = $previous_bal+$payment-$consumption;
+                if($row_count > 0){
+                    $previous_bal = $previous_bal+$today_total+$payment-$consumption;
+					$today_total = 0;
+                }else{
+					$today_total = $payment-$consumption;
+				}
+                $row_count++;
                 return number_format($previous_bal,get_round_decimal_places(),'.','');
             })
             ->make();
