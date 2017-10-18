@@ -14,6 +14,7 @@ class RateSheetFormate extends \Eloquent {
     const  RATESHEET_FORMAT_RATESHEET = 'Rate Sheet';
     const  RATESHEET_FORMAT_SIPPY = 'Sippy';
     const  RATESHEET_FORMAT_PORTA = 'Porta';
+    const  RATESHEET_FORMAT_MOR = 'Mor';
 
     public static $cache = array(
         "rsformates_dropdown_customer_cache", //Customer  // Trunk => Trunk 
