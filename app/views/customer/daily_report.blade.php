@@ -134,7 +134,8 @@
                     dataType: 'json',
                     data: {
                         "StartDate": $("[name='StartDate']").val(),
-                        "EndDate":$("[name='EndDate']").val()
+                        "EndDate":$("[name='EndDate']").val(),
+                        "AccountID":$("[name='AccountID']").val()
                     },
                     success: function (response1) {
                         //console.log("sum of result"+response1);
