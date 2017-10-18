@@ -1435,6 +1435,16 @@ BEGIN
 
 	START TRANSACTION;
 	
+	DELETE us FROM tblUsageSummaryDay us 
+	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
+	DELETE usd FROM tblUsageSummaryHour usd
+	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
 	DELETE h FROM tblHeader h 
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummary)u
 		ON h.DateID = u.DateID 
@@ -1475,16 +1485,6 @@ BEGIN
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummary)TBL
 	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
 	WHERE sh.CompanyID =  p_CompanyID ;
-
-	DELETE us FROM tblUsageSummaryDay us 
-	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
-	DELETE usd FROM tblUsageSummaryHour usd
-	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
 	
 	INSERT INTO tblUsageSummaryDay (
 		HeaderID,
@@ -1669,6 +1669,16 @@ BEGIN
 
 	START TRANSACTION;
 	
+	DELETE us FROM tblUsageSummaryDayLive us 
+	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
+	DELETE usd FROM tblUsageSummaryHourLive usd
+	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
 	DELETE h FROM tblHeader h 
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)u
 		ON h.DateID = u.DateID 
@@ -1710,16 +1720,6 @@ BEGIN
 	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
 	WHERE sh.CompanyID =  p_CompanyID ;
 
-	DELETE us FROM tblUsageSummaryDayLive us 
-	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
-	DELETE usd FROM tblUsageSummaryHourLive usd
-	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
 	INSERT INTO tblUsageSummaryDayLive (
 		HeaderID,
 		CompanyGatewayID,
@@ -1888,6 +1888,16 @@ BEGIN
 
 	START TRANSACTION;
 	
+	DELETE us FROM tblVendorSummaryDay us 
+	INNER JOIN tblHeaderV sh ON us.HeaderVID = sh.HeaderVID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
+	DELETE usd FROM tblVendorSummaryHour usd
+	INNER JOIN tblHeaderV sh ON usd.HeaderVID = sh.HeaderVID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
 	DELETE h FROM tblHeaderV h 
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummary)u
 		ON h.DateID = u.DateID 
@@ -1929,16 +1939,6 @@ BEGIN
 	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
 	WHERE sh.CompanyID =  p_CompanyID ;
 
-	DELETE us FROM tblVendorSummaryDay us 
-	INNER JOIN tblHeaderV sh ON us.HeaderVID = sh.HeaderVID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
-	DELETE usd FROM tblVendorSummaryHour usd
-	INNER JOIN tblHeaderV sh ON usd.HeaderVID = sh.HeaderVID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
 	INSERT INTO tblVendorSummaryDay (
 		HeaderVID,
 		CompanyGatewayID,
@@ -2125,6 +2125,16 @@ BEGIN
 
 	START TRANSACTION;
 	
+	DELETE us FROM tblVendorSummaryDayLive us 
+	INNER JOIN tblHeaderV sh ON us.HeaderVID = sh.HeaderVID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
+	DELETE usd FROM tblVendorSummaryHourLive usd
+	INNER JOIN tblHeaderV sh ON usd.HeaderVID = sh.HeaderVID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
 	DELETE h FROM tblHeaderV h 
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummaryLive)u
 		ON h.DateID = u.DateID 
@@ -2166,15 +2176,7 @@ BEGIN
 	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
 	WHERE sh.CompanyID =  p_CompanyID ;
 
-	DELETE us FROM tblVendorSummaryDayLive us 
-	INNER JOIN tblHeaderV sh ON us.HeaderVID = sh.HeaderVID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
 	
-	DELETE usd FROM tblVendorSummaryHourLive usd
-	INNER JOIN tblHeaderV sh ON usd.HeaderVID = sh.HeaderVID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
 	
 	INSERT INTO tblVendorSummaryDayLive (
 		HeaderVID,

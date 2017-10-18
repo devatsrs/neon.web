@@ -402,6 +402,7 @@
                                 log_ = log_.replace( '{id}', full[0] );
                                 chart_ = chart_.replace( '{id}', full[0] );
                                 credit_ = credit_.replace( '{id}', full[0] );
+                                customer_rate_ = customer_rate_.replace( '{id}', full[0] );
                                 movement_report = movement_report.replace( '{id}', full[0] );
                                 vendor_blocking_ = vendor_blocking_.replace( '{id}', full[0] );
 								subscriptions_ = subscriptions_.replace( '{id}', full[0] );
