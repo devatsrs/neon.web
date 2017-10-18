@@ -1,4 +1,4 @@
-@extends('layout.customer.main')
+@extends($extends)
 @section('content')
     <ol class="breadcrumb bc-3">
         <li> <a href="#"><i class="entypo-home"></i>Movement Report</a> </li>
@@ -93,11 +93,11 @@
 
                     },
                     "aoColumns": [
-                        {  "bSortable": true },  // 0 Date
-                        {  "bSortable": true },  // 0 Payments
-                        {  "bSortable": true },  // 0 Consumption
-                        {  "bSortable": true },  // 0 Total
-                        {  "bSortable": true }  // 0 Balance
+                        {  "bSortable": false },  // 0 Date
+                        {  "bSortable": false },  // 0 Payments
+                        {  "bSortable": false },  // 0 Consumption
+                        {  "bSortable": false },  // 0 Total
+                        {  "bSortable": false }  // 0 Balance
                     ],
                     "oTableTools": {
                         "aButtons": [
