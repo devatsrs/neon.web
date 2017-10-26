@@ -1951,6 +1951,9 @@ ThisSP:BEGIN
 
             SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
 
+            SELECT CurrencyID into v_AccountCurrencyID_ FROM tblCurrency WHERE CurrencyID=(SELECT CurrencyId FROM tblAccount WHERE AccountID=p_accountId);
+            SELECT CurrencyID into v_CompanyCurrencyID_ FROM tblCurrency WHERE CurrencyID=(SELECT CurrencyId FROM tblCompany WHERE CompanyID=p_companyId);
+
             UPDATE tmp_TempVendorRate_ as tblTempVendorRate
             JOIN tblRate
                 ON tblRate.Code = tblTempVendorRate.Code
@@ -1960,15 +1963,30 @@ ThisSP:BEGIN
                 ON tblVendorRate.RateId = tblRate.RateId
                     AND tblVendorRate.AccountId = p_accountId
                     AND tblVendorRate.TrunkId = p_trunkId
-				    SET tblVendorRate.Rate = tblTempVendorRate.Rate
+				    SET tblVendorRate.Rate = IF (
+                    p_CurrencyID > 0,
+                    CASE WHEN p_CurrencyID = v_AccountCurrencyID_
+                    THEN
+                       tblTempVendorRate.Rate
+                    WHEN  p_CurrencyID = v_CompanyCurrencyID_
+                    THEN
+                    (
+                        ( tblTempVendorRate.Rate  * (SELECT Value from tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_AccountCurrencyID_ and CompanyID = p_companyId ) )
+                    )
+                    ELSE
+                    (
+                        (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = v_AccountCurrencyID_ AND CompanyID = p_companyId )
+                            *
+                        (tblTempVendorRate.Rate  / (SELECT Value FROM tblCurrencyConversion WHERE tblCurrencyConversion.CurrencyId = p_CurrencyID AND CompanyID = p_companyId ))
+                    )
+                    END ,
+                    tblTempVendorRate.Rate
+                )
             WHERE tblTempVendorRate.Rate <> tblVendorRate.Rate
                 AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
                 AND DATE_FORMAT (tblVendorRate.EffectiveDate, '%Y-%m-%d') = DATE_FORMAT (tblTempVendorRate.EffectiveDate, '%Y-%m-%d');
 
             SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
-
-            SELECT CurrencyID into v_AccountCurrencyID_ FROM tblCurrency WHERE CurrencyID=(SELECT CurrencyId FROM tblAccount WHERE AccountID=p_accountId);
-            SELECT CurrencyID into v_CompanyCurrencyID_ FROM tblCurrency WHERE CurrencyID=(SELECT CurrencyId FROM tblCompany WHERE CompanyID=p_companyId);
 
             INSERT INTO tblVendorRate (
                 AccountId,
