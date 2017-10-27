@@ -60,7 +60,7 @@
             
             //public_vars.$body = $("body");
             var $search = {};
-            var datagrid_url = baseurl + "/customer/daily_report/ajax_datagrid/type";
+            var datagrid_url = baseurl + "/customer/daily_report_ajax_datagrid/type";
             $("#filter_submit").click(function(e) {
                 e.preventDefault();
 
@@ -104,13 +104,13 @@
                             {
                                 "sExtends": "download",
                                 "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/customer/daily_report/ajax_datagrid/xlsx", //baseurl + "/generate_xls.php",
+                                "sUrl": baseurl + "/customer/daily_report_ajax_datagrid/xlsx", //baseurl + "/generate_xls.php",
                                 sButtonClass: "save-collection btn-sm"
                             },
                             {
                                 "sExtends": "download",
                                 "sButtonText": "CSV",
-                                "sUrl": baseurl + "/customer/daily_report/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                                "sUrl": baseurl + "/customer/daily_report_ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                                 sButtonClass: "save-collection btn-sm"
                             }
                         ]
@@ -129,12 +129,13 @@
 
             function get_total_grand() {
                 $.ajax({
-                    url: baseurl + "/customer/daily_report/ajax_datagrid_total",
+                    url: baseurl + "/customer/daily_report_ajax_datagrid_total",
                     type: 'GET',
                     dataType: 'json',
                     data: {
                         "StartDate": $("[name='StartDate']").val(),
-                        "EndDate":$("[name='EndDate']").val()
+                        "EndDate":$("[name='EndDate']").val(),
+                        "AccountID":$("[name='AccountID']").val()
                     },
                     success: function (response1) {
                         //console.log("sum of result"+response1);

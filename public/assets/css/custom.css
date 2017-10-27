@@ -3110,3 +3110,29 @@ button.btn.btn-xs.small_icons{
 .mail-body table td {
     box-sizing: content-box;
 }
+
+/* Ticket labels */
+.ticket-label{
+
+}
+.ticket-label.ticket-agent-replied{
+    background-color: #2549ff;
+}
+.ticket-label.ticket-agent-replied{
+    background-color: #2549ff;
+}
+.ticket-label.ticket-customer-replied{
+    background-color: #ff5c0c;
+}
+.ticket-label.ticket-overdue{
+    background-color: #ff0404;
+}
+.ticket-label.ticket-closed, .ticket-label.ticket-resolved{
+    background-color: #028006;
+}
+.ticket-label.ticket-new{
+    background-color: #000000;
+}
+.ticket-label.ticket-sla-off{
+
+}

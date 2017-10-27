@@ -2,7 +2,9 @@ Use Ratemanagement3;
 
 INSERT INTO `tblResourceCategories` (`ResourceCategoryID`, `ResourceCategoryName`, `CompanyID`, `CategoryGroupID`) VALUES (1306, 'RateCompare.All', 1, 5);
 INSERT INTO `tblResource` ( `ResourceName`, `ResourceValue`, `CompanyID`, `CreatedBy`, `ModifiedBy`, `created_at`, `updated_at`, `CategoryID`) VALUES ( 'RateCompare.*', 'RateCompareController.*', 1, 'Sumera Saeed', NULL, '2017-08-31 17:16:34.000', '2017-08-31 17:16:34.000', 1306);
+ALTER TABLE `tblRateRule` ADD COLUMN `Description` VARCHAR(200) NULL AFTER `Code`;
 
+DROP PROCEDURE IF EXISTS `prc_RateCompare`;
 DELIMITER  //
 CREATE PROCEDURE `prc_RateCompare`(
 	IN `p_companyid` INT,
@@ -791,6 +793,7 @@ CONTAINS SQL
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS `prc_RateCompareRateUpdate`;
 DELIMITER  //
 CREATE PROCEDURE `prc_RateCompareRateUpdate`(
 	IN `p_CompanyID` INT,
@@ -1029,7 +1032,7 @@ CONTAINS SQL
 	END//
 DELIMITER ;
 
-
+DROP PROCEDURE IF EXISTS `prc_RateCompareRateAdd`;
 DELIMITER  //
 CREATE PROCEDURE `prc_RateCompareRateAdd`(
 
