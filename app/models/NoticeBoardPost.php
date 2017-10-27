@@ -8,4 +8,9 @@ class NoticeBoardPost extends \Eloquent {
 
     protected  $primaryKey = "NoticeBoardPostID";
 
+    /** add columns here to save in table  */
+    protected $fillable = array(
+        'Title','Detail','Type','CompanyID'
+    );
+
 }

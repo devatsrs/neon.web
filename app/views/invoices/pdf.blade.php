@@ -21,6 +21,17 @@
     }
 }
 .page_break{page-break-after: always;}
+tr {
+  page-break-inside: avoid;
+}
+
+thead {
+  display: table-row-group
+}
+
+tfoot {
+  display: table-row-group
+}
 </style>
 
 <?php
