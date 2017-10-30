@@ -42,8 +42,9 @@ class CompaniesController extends \BaseController {
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
 
         $COMPANY_SSH_VISIBLE = CompanyConfiguration::get('COMPANY_SSH_VISIBLE');
-        if(!empty(CompanyConfiguration::get('SSH'))) {
-            $SSHCONF = (array) json_decode(CompanyConfiguration::get('SSH'));
+		$SSHCONF = CompanyConfiguration::get('SSH');
+        if(!empty($SSHCONF)) {
+            $SSHCONF = (array) json_decode($SSHCONF);
             $SSH['host']     = isset($SSHCONF['host']) ? $SSHCONF['host'] : '';
             $SSH['username'] = isset($SSHCONF['username']) ? $SSHCONF['username'] : '';
             $SSH['password'] = isset($SSHCONF['password']) ? $SSHCONF['password'] : '';
@@ -161,8 +162,9 @@ class CompaniesController extends \BaseController {
 
         $COMPANY_SSH_VISIBLE = CompanyConfiguration::get('COMPANY_SSH_VISIBLE');
         if(isset($COMPANY_SSH_VISIBLE) && $COMPANY_SSH_VISIBLE == 1) {
-            if (!empty(CompanyConfiguration::get('SSH'))) {
-                $SSHCONF = (array)json_decode(CompanyConfiguration::get('SSH'));
+            $SSHCONF = CompanyConfiguration::get('SSH');
+			if(!empty($SSHCONF)) {
+				$SSHCONF = (array) json_decode($SSHCONF);
                 $SSH['host'] = isset($SSHCONF['host']) ? $SSHCONF['host'] : '';
                 $SSH['username'] = isset($SSHCONF['username']) ? $SSHCONF['username'] : '';
                 $SSH['password'] = isset($SSHCONF['password']) ? $SSHCONF['password'] : '';
