@@ -22,8 +22,80 @@ CREATE TABLE IF NOT EXISTS `tblJunkTicketEmail` (
 	PRIMARY KEY (`JunkTicketEmailID`)
 )
 COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB;
+
+CREATE TABLE `AccountEmailLogDeletedLog` (
+	`AccountEmailLogID` INT(11) NULL DEFAULT NULL,
+	`CompanyID` INT(11) NULL DEFAULT NULL,
+	`AccountID` INT(11) NULL DEFAULT NULL,
+	`ContactID` INT(11) NULL DEFAULT NULL,
+	`UserType` TINYINT(4) NULL DEFAULT '0' COMMENT '0 for account,1 for contact',
+	`UserID` INT(11) NULL DEFAULT NULL,
+	`JobId` INT(11) NULL DEFAULT NULL,
+	`ProcessID` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`CreatedBy` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`ModifiedBy` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`created_at` DATETIME NULL DEFAULT NULL,
+	`updated_at` DATETIME NULL DEFAULT NULL,
+	`Emailfrom` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`EmailfromName` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`EmailTo` VARCHAR(500) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`Subject` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`Message` LONGTEXT NULL COLLATE 'utf8_unicode_ci',
+	`Cc` VARCHAR(500) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`Bcc` VARCHAR(500) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`AttachmentPaths` LONGTEXT NULL COLLATE 'utf8_unicode_ci',
+	`EmailType` INT(11) NULL DEFAULT '0',
+	`MessageID` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`EmailParent` INT(11) NOT NULL DEFAULT '0',
+	`EmailID` INT(11) NOT NULL DEFAULT '0',
+	`EmailCall` INT(11) NOT NULL DEFAULT '0' COMMENT '0 for sent,1 for received, 2 for draft',
+	`TicketID` INT(11) NOT NULL DEFAULT '0',
+	INDEX `AccountEmailLogID` (`AccountEmailLogID`)
+)
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB;
+
+CREATE TABLE `tblTicketsDeletedLog` (
+	`TicketID` INT(11) NOT NULL,
+	`CompanyID` INT(11) NOT NULL DEFAULT '0',
+	`Requester` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`RequesterName` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`RequesterCC` VARCHAR(300) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`RequesterBCC` VARCHAR(300) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`AccountID` INT(11) NOT NULL DEFAULT '0',
+	`ContactID` INT(11) NOT NULL DEFAULT '0',
+	`UserID` INT(11) NOT NULL DEFAULT '0',
+	`Subject` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`Type` INT(11) NOT NULL DEFAULT '0',
+	`Status` INT(11) NOT NULL DEFAULT '0',
+	`Priority` INT(11) NOT NULL DEFAULT '0',
+	`Group` INT(11) NOT NULL DEFAULT '0',
+	`Agent` INT(11) NOT NULL DEFAULT '0',
+	`Description` LONGTEXT NOT NULL COLLATE 'utf8_unicode_ci',
+	`AttachmentPaths` LONGTEXT NULL COLLATE 'utf8_unicode_ci',
+	`TicketType` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0 for ticket , 1 for email',
+	`AccountEmailLogID` INT(11) NOT NULL DEFAULT '0',
+	`Read` TINYINT(4) NOT NULL DEFAULT '0',
+	`EscalationEmail` TINYINT(4) NOT NULL DEFAULT '0',
+	`TicketSlaID` INT(11) NULL DEFAULT NULL,
+	`RespondSlaPolicyVoilationEmailStatus` TINYINT(4) NULL DEFAULT '0',
+	`ResolveSlaPolicyVoilationEmailStatus` TINYINT(4) NULL DEFAULT '0',
+	`DueDate` DATETIME NULL DEFAULT NULL,
+	`CustomDueDate` TINYINT(1) NOT NULL DEFAULT '0',
+	`AgentRepliedDate` DATETIME NULL DEFAULT NULL,
+	`CustomerRepliedDate` DATETIME NULL DEFAULT NULL,
+	`created_at` DATETIME NULL DEFAULT NULL,
+	`created_by` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	`updated_at` DATETIME NULL DEFAULT NULL,
+	`updated_by` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+	INDEX `TicketID` (`TicketID`)
+)
+COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB
 ;
+
+
 
 DROP PROCEDURE IF EXISTS `prc_GetSystemTicket`;
 DELIMITER //
