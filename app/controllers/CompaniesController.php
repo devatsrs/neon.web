@@ -95,14 +95,19 @@ class CompaniesController extends \BaseController {
         }
 
         if (Input::hasFile('RateSheetTemplateFile')) {
-            $upload_path = CompanyConfiguration::get('TEMP_PATH');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $excel = Input::file('RateSheetTemplateFile');
             $ext = $excel->getClientOriginalExtension();
             if (in_array($ext, array("xls", "xlsx"))) {
                 $file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
-                $excel->move($upload_path, $file_name);
-                $file_name = $upload_path . '/' . $file_name;
-                $RateSheetTemplateData['Excel'] = $file_name;
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['RATESHEET_TEMPLATE']);
+                $destinationPath = $upload_path . '/' . $amazonPath;
+                $excel->move($destinationPath, $file_name);
+                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                }
+                $fullPath = $amazonPath . $file_name;
+                $RateSheetTemplateData['Excel'] = $fullPath;
                 $RateSheetTemplateData['HeaderSize'] = $data['RateSheetTemplate']['HeaderSize'];
                 $RateSheetTemplateData['FooterSize'] = $data['RateSheetTemplate']['FooterSize'];
                 $RateSheetTemplateData = json_encode($RateSheetTemplateData);
@@ -194,8 +199,13 @@ class CompaniesController extends \BaseController {
         $fileTemplate =  CompanySetting::getKeyVal('RateSheetTemplate');
         if($fileTemplate != 'Invalid Key') {
             $fileTemplate = json_decode($fileTemplate);
-            $filePath = $fileTemplate->Excel;
-            download_file($filePath);
+            $FilePath = $fileTemplate->Excel;
+            $FilePath = AmazonS3::preSignedUrl($FilePath);
+            if(file_exists($FilePath)){
+                download_file($FilePath);
+            }else{
+                header('Location: '.$FilePath);
+            }
         }
     }
 
