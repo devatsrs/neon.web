@@ -202,12 +202,13 @@ class CompaniesController extends \BaseController {
         if($fileTemplate != 'Invalid Key') {
             $fileTemplate = json_decode($fileTemplate);
             $FilePath = $fileTemplate->Excel;
-            $FilePath = AmazonS3::preSignedUrl($FilePath);
+            $FilePath =  AmazonS3::preSignedUrl($FilePath);
             if(file_exists($FilePath)){
                 download_file($FilePath);
-            }else{
+            }elseif(is_amazon() == true){
                 header('Location: '.$FilePath);
             }
+            exit;
         }
     }
 
