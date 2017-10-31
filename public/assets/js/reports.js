@@ -202,7 +202,7 @@ function reloadCharts(table_id,pageSize,$searchFilter){
     /* get data by time in bar chart*/
     loadBarChart($searchFilter.chart_type,$searchFilter);
 
-    if(typeof hidecallmonitor == 'undefined' && $searchFilter.chart_type != 'tab6' && $searchFilter.chart_type != 'tab7' && $searchFilter.chart_type != 'tab8') {
+    if(typeof hidecallmonitor == 'undefined' && $searchFilter.chart_type != 'mdn' && $searchFilter.chart_type != 'ldc' && $searchFilter.chart_type != 'mec') {
         /* get destination data for today and display in pie three chart*/
         getAnalysisData($searchFilter.chart_type, $searchFilter);
 
@@ -216,15 +216,15 @@ function reloadCharts(table_id,pageSize,$searchFilter){
     if(typeof retailmonitor != 'undefined' && retailmonitor == 1){
 
 
-        if($searchFilter.chart_type == 'tab6') {
+        if($searchFilter.chart_type == 'mdn') {
             /* get calls reports for retail*/
             getMostDailedCall($searchFilter);
         }
-        if($searchFilter.chart_type == 'tab7') {
+        if($searchFilter.chart_type == 'ldc') {
             /* get calls reports for retail*/
             getLogestDurationCall($searchFilter);
         }
-        if($searchFilter.chart_type == 'tab8') {
+        if($searchFilter.chart_type == 'mec') {
             /* get calls reports for retail*/
             getMostExpensiveCall($searchFilter);
         }

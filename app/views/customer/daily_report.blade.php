@@ -1,4 +1,4 @@
-@extends('layout.customer.main')
+@extends($extends)
 @section('content')
     <ol class="breadcrumb bc-3">
         <li> <a href="#"><i class="entypo-home"></i>Movement Report</a> </li>
@@ -21,6 +21,7 @@
                   
                     <label for="field-5" class="col-sm-1 control-label">End Date</label>
                     <div class="col-sm-2"> {{ Form::text('EndDate', $original_enddate, array("class"=>"form-control datepicker","data-date-format"=>"yyyy-mm-dd" ,"data-enddate"=>date('Y-m-d'))) }} </div>
+                    <input type="hidden" name="AccountID" value="{{$AccountID}}">
                 </div>
                 <p style="text-align: right;">
                     <button class="btn btn-primary btn-sm btn-icon icon-left" id="filter_submit" type="submit">
@@ -59,12 +60,13 @@
             
             //public_vars.$body = $("body");
             var $search = {};
-            var datagrid_url = baseurl + "/customer/daily_report/ajax_datagrid/type";
+            var datagrid_url = baseurl + "/customer/daily_report_ajax_datagrid/type";
             $("#filter_submit").click(function(e) {
                 e.preventDefault();
 
                 $search.StartDate = $("#table_filter").find('[name="StartDate"]').val();
                 $search.EndDate = $("#table_filter").find('[name="EndDate"]').val();
+                $search.AccountID = $("#table_filter").find('[name="AccountID"]').val();
                 data_table = $("#table-list").dataTable({
                     "bDestroy": true,
                     "bProcessing":true,
@@ -77,36 +79,38 @@
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "StartDate", "value": $search.StartDate},
-                                {"name": "EndDate", "value": $search.EndDate}
+                                {"name": "EndDate", "value": $search.EndDate},
+                                {"name": "AccountID", "value": $search.AccountID}
 
                         );
                         data_table_extra_params.length = 0;
                         data_table_extra_params.push(
                                 {"name": "StartDate", "value": $search.StartDate},
                                 {"name": "EndDate", "value": $search.EndDate},
+                                {"name": "AccountID", "value": $search.AccountID},
                                 {"name": "Export", "value": 1}
                         );
 
                     },
                     "aoColumns": [
-                        {  "bSortable": true },  // 0 Date
-                        {  "bSortable": true },  // 0 Payments
-                        {  "bSortable": true },  // 0 Consumption
-                        {  "bSortable": true },  // 0 Total
-                        {  "bSortable": true }  // 0 Balance
+                        {  "bSortable": false },  // 0 Date
+                        {  "bSortable": false },  // 0 Payments
+                        {  "bSortable": false },  // 0 Consumption
+                        {  "bSortable": false },  // 0 Total
+                        {  "bSortable": false }  // 0 Balance
                     ],
                     "oTableTools": {
                         "aButtons": [
                             {
                                 "sExtends": "download",
                                 "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/customer/daily_report/ajax_datagrid/xlsx", //baseurl + "/generate_xls.php",
+                                "sUrl": baseurl + "/customer/daily_report_ajax_datagrid/xlsx", //baseurl + "/generate_xls.php",
                                 sButtonClass: "save-collection btn-sm"
                             },
                             {
                                 "sExtends": "download",
                                 "sButtonText": "CSV",
-                                "sUrl": baseurl + "/customer/daily_report/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
+                                "sUrl": baseurl + "/customer/daily_report_ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                                 sButtonClass: "save-collection btn-sm"
                             }
                         ]
@@ -125,12 +129,13 @@
 
             function get_total_grand() {
                 $.ajax({
-                    url: baseurl + "/customer/daily_report/ajax_datagrid_total",
+                    url: baseurl + "/customer/daily_report_ajax_datagrid_total",
                     type: 'GET',
                     dataType: 'json',
                     data: {
                         "StartDate": $("[name='StartDate']").val(),
-                        "EndDate":$("[name='EndDate']").val()
+                        "EndDate":$("[name='EndDate']").val(),
+                        "AccountID":$("[name='AccountID']").val()
                     },
                     success: function (response1) {
                         //console.log("sum of result"+response1);

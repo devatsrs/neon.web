@@ -142,6 +142,9 @@ class CallShop{
                 if(trim($addparams['Prefix']) != '') {
                     $mor_rates->where('prefijo', 'like',str_replace('*','%',trim($addparams['Prefix'])));
                 }
+                if(trim($addparams['Description']) != '') {
+                    $mor_rates->where('destino', 'like',str_replace('*','%',trim($addparams['Description'])));
+                }
                 $mor_rates = $mor_rates->get();
                 $mor_rates = json_decode(json_encode($mor_rates), true);
                 $data_count = 0;
@@ -164,6 +167,9 @@ class CallShop{
                         $data_count = 0;
                     }
                 }
+				if (!empty($InsertData)) {
+					DB::table('tblGatewayCustomerRate')->insert($InsertData);
+				}
 
             }catch(Exception $e){
                 $response['faultString'] =  $e->getMessage();
