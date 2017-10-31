@@ -43,6 +43,7 @@ class AmazonS3 {
         'IP_UPLOAD'=>'IPUpload',
         'RECURRING_INVOICE_UPLOAD'=>'RecurringInvoice',
         'ITEM_UPLOAD'=>'ITEMUPload',
+        'RATESHEET_TEMPLATE'=>'RatesheetTemplate',
     );
 
     // Instantiate an S3 client

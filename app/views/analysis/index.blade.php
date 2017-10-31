@@ -101,9 +101,9 @@
         <li ><a href="#gateway" data-toggle="tab">Gateway</a></li>
         @endif
         @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
-            <li class="{{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#tab6" data-toggle="tab">Most Dialled Number</a></li>
-            <li ><a href="#tab7" data-toggle="tab">Longest Durations Calls</a></li>
-            <li ><a href="#tab8" data-toggle="tab">Most Expensive Calls</a></li>
+            <li class="{{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#mdn" data-toggle="tab">Most Dialled Number</a></li>
+            <li ><a href="#ldc" data-toggle="tab">Longest Durations Calls</a></li>
+            <li ><a href="#mec" data-toggle="tab">Most Expensive Calls</a></li>
         @endif
     </ul>
     <div class="tab-content">

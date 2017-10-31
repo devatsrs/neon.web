@@ -2764,7 +2764,7 @@ a:focus,a:hover{text-decoration:none !important}
     right: 0;
     top: 0;
     bottom: 0;
-    width: 250px;
+    width: 200px;
     background: #222;
     z-index: 5;
     display: none;
@@ -2776,7 +2776,7 @@ a:focus,a:hover{text-decoration:none !important}
     height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
-    width: 250px;
+    width: 200px;
     position: fixed;
     padding-bottom: 10%;
 }
@@ -2923,7 +2923,7 @@ a:focus,a:hover{text-decoration:none !important}
     margin-bottom: 0;
 }
 
-.col-md-12 .btn, .col-md-12 .input-group-btn, p .btn {
+.col-md-12 .btn, .col-md-12 .input-group-btn, p .btn, .mar-left-2 {
     margin-left: 2px;
 }
 .action-buttons .input-group-btn {
@@ -3059,12 +3059,15 @@ a:focus,a:hover{text-decoration:none !important}
     margin: 0;
     padding: 12px;
 }
-.new_filter .filter-inner ul.nav.nav-tabs li.active{
+.new_filter .filter-inner ul.nav.nav-tabs li.active {
     background: transparent;
     color: #fff;
     border: 1px solid #ddd;
     border-radius: 4px 4px 0 0;
     border-bottom: none;
+}
+.new_filter .form-group input{
+    height: 25px;
 }
 .table_report_overflow {
     overflow-x: auto;
@@ -3106,4 +3109,27 @@ button.btn.btn-xs.small_icons{
 
 .mail-body table td {
     box-sizing: content-box;
+}
+
+/* Ticket labels */
+.ticket-label{
+
+}
+.ticket-label.ticket-agent-replied{
+    background-color: #2549ff;
+}
+.ticket-label.ticket-customer-replied{
+    background-color: #ff5c0c;
+}
+.ticket-label.ticket-overdue{
+    background-color: #d42020;
+}
+.ticket-label.ticket-closed, .ticket-label.ticket-resolved{
+    background-color: #00a651;
+}
+.ticket-label.ticket-new{
+    background-color: #000000;
+}
+.ticket-label.ticket-sla-off{
+
 }
