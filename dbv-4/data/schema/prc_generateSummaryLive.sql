@@ -35,6 +35,7 @@ BEGIN
 		VAccountID,
 		Trunk,
 		AreaPrefix,
+		userfield,
 		TotalCharges,
 		TotalBilledDuration,
 		TotalDuration,
@@ -53,6 +54,7 @@ BEGIN
 		ud.VAccountID,
 		ud.trunk,
 		ud.area_prefix,
+		ud.userfield,
 		COALESCE(SUM(ud.cost),0)  AS TotalCharges ,
 		COALESCE(SUM(ud.billed_duration),0) AS TotalBilledDuration ,
 		COALESCE(SUM(ud.duration),0) AS TotalDuration,
@@ -62,7 +64,7 @@ BEGIN
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	WHERE ud.CompanyID = ',p_CompanyID,'
-	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk;
+	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk,ud.userfield;
 	');
 
 
@@ -76,6 +78,16 @@ BEGIN
 	WHERE tmp_UsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
 
 	START TRANSACTION;
+	
+	DELETE us FROM tblUsageSummaryDayLive us 
+	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
+	DELETE usd FROM tblUsageSummaryHourLive usd
+	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
 	
 	DELETE h FROM tblHeader h 
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)u
@@ -118,16 +130,6 @@ BEGIN
 	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
 	WHERE sh.CompanyID =  p_CompanyID ;
 
-	DELETE us FROM tblUsageSummaryDayLive us 
-	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
-	DELETE usd FROM tblUsageSummaryHourLive usd
-	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
 	INSERT INTO tblUsageSummaryDayLive (
 		HeaderID,
 		CompanyGatewayID,
@@ -137,6 +139,7 @@ BEGIN
 		VAccountID,
 		Trunk,
 		AreaPrefix,
+		userfield,
 		CountryID,
 		TotalCharges,
 		TotalBilledDuration,
@@ -153,6 +156,7 @@ BEGIN
 		VAccountID,
 		Trunk,
 		AreaPrefix,
+		userfield,
 		CountryID,
 		SUM(us.TotalCharges),
 		SUM(us.TotalBilledDuration),
@@ -165,7 +169,7 @@ BEGIN
 		AND us.CompanyID = sh.CompanyID
 		AND us.AccountID = sh.AccountID
 	WHERE us.CompanyID = p_CompanyID
-	GROUP BY us.DateID,us.CompanyID,us.CompanyGatewayID,us.ServiceID,us.GatewayAccountPKID,us.GatewayVAccountPKID,us.AccountID,us.VAccountID,us.AreaPrefix,us.Trunk,us.CountryID,sh.HeaderID;
+	GROUP BY us.DateID,us.CompanyID,us.CompanyGatewayID,us.ServiceID,us.GatewayAccountPKID,us.GatewayVAccountPKID,us.AccountID,us.VAccountID,us.AreaPrefix,us.Trunk,us.CountryID,sh.HeaderID,us.userfield;
 	
 	INSERT INTO tblUsageSummaryHourLive (
 		HeaderID,
@@ -177,6 +181,7 @@ BEGIN
 		VAccountID,
 		Trunk,
 		AreaPrefix,
+		userfield,
 		CountryID,
 		TotalCharges,
 		TotalBilledDuration,
@@ -194,6 +199,7 @@ BEGIN
 		VAccountID,
 		Trunk,
 		AreaPrefix,
+		userfield,
 		CountryID,
 		us.TotalCharges,
 		us.TotalBilledDuration,
