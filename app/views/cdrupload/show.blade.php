@@ -103,7 +103,7 @@
 <h3>Customer CDR</h3>
 
 @if(User::checkCategoryPermission('CDR','Delete') )
-    <button id="delete-customer-cdr" class="btn btn-danger btn-sm btn-icon icon-left pull-right" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete</button>
+    <button id="delete-customer-cdr" class="btn btn-danger btn-sm btn-icon icon-left pull-right mar-left-2" data-loading-text="Loading..."> <i class="entypo-trash"></i> Delete</button>
 @endif
 <form id="delete-customer-cdr-form" >
     <input type="hidden" name="UsageDetailIDs" />
@@ -112,12 +112,11 @@
 
 @include('includes.errors')
 @include('includes.success')
-<p style="text-align: right;">
-    <a href="javascript:void(0)" id="cdr_rerate" class="btn btn-primary hidden">
+
+    <a href="javascript:void(0)" id="cdr_rerate" class="btn btn-primary btn-sm btn-icon icon-left pull-right hidden">
         <i class="entypo-check"></i>
         <span>CDR Rerate</span>
     </a>
-</p>
 <style>
 .small_fld{width:80.6667%;}
 .small_label{width:5.0%;}

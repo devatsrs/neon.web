@@ -42,8 +42,9 @@ class CompaniesController extends \BaseController {
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
 
         $COMPANY_SSH_VISIBLE = CompanyConfiguration::get('COMPANY_SSH_VISIBLE');
-        if(!empty(CompanyConfiguration::get('SSH'))) {
-            $SSHCONF = (array) json_decode(CompanyConfiguration::get('SSH'));
+		$SSHCONF = CompanyConfiguration::get('SSH');
+        if(!empty($SSHCONF)) {
+            $SSHCONF = (array) json_decode($SSHCONF);
             $SSH['host']     = isset($SSHCONF['host']) ? $SSHCONF['host'] : '';
             $SSH['username'] = isset($SSHCONF['username']) ? $SSHCONF['username'] : '';
             $SSH['password'] = isset($SSHCONF['password']) ? $SSHCONF['password'] : '';
@@ -95,14 +96,19 @@ class CompaniesController extends \BaseController {
         }
 
         if (Input::hasFile('RateSheetTemplateFile')) {
-            $upload_path = CompanyConfiguration::get('TEMP_PATH');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $excel = Input::file('RateSheetTemplateFile');
             $ext = $excel->getClientOriginalExtension();
             if (in_array($ext, array("xls", "xlsx"))) {
                 $file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
-                $excel->move($upload_path, $file_name);
-                $file_name = $upload_path . '/' . $file_name;
-                $RateSheetTemplateData['Excel'] = $file_name;
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['RATESHEET_TEMPLATE']);
+                $destinationPath = $upload_path . '/' . $amazonPath;
+                $excel->move($destinationPath, $file_name);
+                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                }
+                $fullPath = $amazonPath . $file_name;
+                $RateSheetTemplateData['Excel'] = $fullPath;
                 $RateSheetTemplateData['HeaderSize'] = $data['RateSheetTemplate']['HeaderSize'];
                 $RateSheetTemplateData['FooterSize'] = $data['RateSheetTemplate']['FooterSize'];
                 $RateSheetTemplateData = json_encode($RateSheetTemplateData);
@@ -156,8 +162,9 @@ class CompaniesController extends \BaseController {
 
         $COMPANY_SSH_VISIBLE = CompanyConfiguration::get('COMPANY_SSH_VISIBLE');
         if(isset($COMPANY_SSH_VISIBLE) && $COMPANY_SSH_VISIBLE == 1) {
-            if (!empty(CompanyConfiguration::get('SSH'))) {
-                $SSHCONF = (array)json_decode(CompanyConfiguration::get('SSH'));
+            $SSHCONF = CompanyConfiguration::get('SSH');
+			if(!empty($SSHCONF)) {
+				$SSHCONF = (array) json_decode($SSHCONF);
                 $SSH['host'] = isset($SSHCONF['host']) ? $SSHCONF['host'] : '';
                 $SSH['username'] = isset($SSHCONF['username']) ? $SSHCONF['username'] : '';
                 $SSH['password'] = isset($SSHCONF['password']) ? $SSHCONF['password'] : '';
@@ -194,8 +201,14 @@ class CompaniesController extends \BaseController {
         $fileTemplate =  CompanySetting::getKeyVal('RateSheetTemplate');
         if($fileTemplate != 'Invalid Key') {
             $fileTemplate = json_decode($fileTemplate);
-            $filePath = $fileTemplate->Excel;
-            download_file($filePath);
+            $FilePath = $fileTemplate->Excel;
+            $FilePath =  AmazonS3::preSignedUrl($FilePath);
+            if(file_exists($FilePath)){
+                download_file($FilePath);
+            }elseif(is_amazon() == true){
+                header('Location: '.$FilePath);
+            }
+            exit;
         }
     }
 

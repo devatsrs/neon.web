@@ -3,11 +3,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_generateSummary`(
 	IN `p_StartDate` DATE,
 	IN `p_EndDate` DATE,
 	IN `p_UniqueID` VARCHAR(50)
-
-
-
-
-
 )
 BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
@@ -134,7 +129,7 @@ BEGIN
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummary)TBL
 	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
 	WHERE sh.CompanyID =  p_CompanyID ;
-	
+
 	INSERT INTO tblUsageSummaryDay (
 		HeaderID,
 		CompanyGatewayID,

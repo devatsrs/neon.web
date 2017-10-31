@@ -25,6 +25,8 @@
             $NameFormat = GatewayConfig::$Streamco_NameFormat;
         }else if($GatewayName == 'FusionPBX'){
             $NameFormat = GatewayConfig::$FusionPBX_NameFormat;
+        }else if($GatewayName == 'M2'){
+            $NameFormat = GatewayConfig::$M2_NameFormat;
         }
     ?>
     @if($count%2 == 0)
@@ -71,11 +73,12 @@
 
             @else
 
-                <input @if($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword') type="password" @else type="text" @endif  value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && ($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword')){{''}}@elseif(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){{$gatewayconfigval->$configkey}}@endif" name="{{$configkey}}" class="form-control" id="field-5" placeholder="">
+                <input @if($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword' || $configkey == 'api_password') type="password" @else type="text" @endif  value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && ($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword' || $configkey == 'api_password')){{''}}@elseif(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){{$gatewayconfigval->$configkey}}@endif" name="{{$configkey}}" class="form-control" id="field-5" placeholder="">
 
                     @if($configkey == 'password')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'password'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
                     @if($configkey == 'dbpassword')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'dbpassword'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
                     @if($configkey == 'sshpassword')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'sshpassword'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
+                    @if($configkey == 'api_password')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'api_password'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
 
                 @endif
          </div>
