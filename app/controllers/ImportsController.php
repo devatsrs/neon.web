@@ -205,6 +205,13 @@ class ImportsController extends \BaseController {
                 $param['ImportDate'] = date('Y-m-d H:i:s.000');
                 $FusionPBX = new FusionPBX($CompanyGatewayID);
                 $response1 = $FusionPBX->getAccountsDetail($param);
+            }elseif($gateway == 'M2'){
+                $m2 = new M2($CompanyGatewayID);
+                $response1 = $m2->getAccountsDetail($param);
+            }elseif($gateway == 'SippySFTP'){
+                //$sippy = new Sippy($CompanyGatewayID);
+                $response1 = SippyImporter::getAccountsDetail($param);
+                echo "<pre>";print_r($response1,true);exit();
             }
             //$pbx = new PBX($CompanyGatewayID);
 

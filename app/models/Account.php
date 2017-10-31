@@ -43,7 +43,8 @@ class Account extends \Eloquent {
         'ConvertedBy', 'TimeZone', 'VerificationStatus','Subscription','SubscriptionQty',
         'created_at', 'created_by', 'updated_at','updated_by','password',
         'ResellerPassword', 'Picture', 'AutorizeProfileID','tags','Autopay',
-        'NominalAnalysisNominalAccountNumber', 'InboudRateTableID', 'Billing','ShowAllPaymentMethod'
+        'NominalAnalysisNominalAccountNumber', 'InboudRateTableID', 'Billing','ShowAllPaymentMethod',
+        'DisplayRates'
     );
 
     public static $messages = array(

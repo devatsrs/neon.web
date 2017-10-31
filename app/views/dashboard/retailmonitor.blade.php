@@ -1,4 +1,4 @@
-<div class="tab-pane {{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}" id="tab6" >
+<div class="tab-pane {{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}" id="mdn" >
     <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-default loading">
@@ -23,7 +23,7 @@
     </div>
 </div>
 
-<div class="tab-pane" id="tab7" >
+<div class="tab-pane" id="ldc" >
     <div class="row">
 
         <div class="col-sm-12">
@@ -47,7 +47,7 @@
     </div>
     </div>
 </div>
-<div class="tab-pane" id="tab8" >
+<div class="tab-pane" id="mec" >
     <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-default loading">

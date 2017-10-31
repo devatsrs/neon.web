@@ -1,4 +1,19 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCustomerRate`(IN `p_companyid` INT, IN `p_AccountID` INT, IN `p_trunkID` INT, IN `p_contryID` INT, IN `p_code` VARCHAR(50), IN `p_description` VARCHAR(50), IN `p_Effective` VARCHAR(50), IN `p_effectedRates` INT, IN `p_RoutinePlan` INT, IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_isExport` INT )
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetCustomerRate`(
+	IN `p_companyid` INT,
+	IN `p_AccountID` INT,
+	IN `p_trunkID` INT,
+	IN `p_contryID` INT,
+	IN `p_code` VARCHAR(50),
+	IN `p_description` VARCHAR(50),
+	IN `p_Effective` VARCHAR(50),
+	IN `p_effectedRates` INT,
+	IN `p_RoutinePlan` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_isExport` INT 
+)
 BEGIN
    DECLARE v_codedeckid_ INT;
    DECLARE v_ratetableid_ INT;
@@ -129,13 +144,7 @@ BEGIN
 		
                 
             
-    	/*SELECT case when v_RateTableAssignDate_ > MAX(EffectiveDate) THEN 1 ELSE 0  END INTO v_NewA2ZAssign_  FROM (
-	 	SELECT MAX(EffectiveDate) as EffectiveDate
-		FROM 
-		tblRateTableRate
-		WHERE RateTableId = v_ratetableid_ AND EffectiveDate <= NOW() 
-		ORDER BY tblRateTableRate.RateTableId,tblRateTableRate.RateID,tblRateTableRate.effectivedate DESC
-	 	)tbl;*/
+    	
 	 	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates4_;
 			CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates4_ as (select * from tmp_CustomerRates_);	        
 			DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate 
@@ -150,6 +159,14 @@ BEGIN
 	   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates3_ as (select * from tmp_CustomerRates_);
 	   DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates5_;
 	   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates5_ as (select * from tmp_CustomerRates_);
+	   
+	   ALTER TABLE tmp_CustomerRates2_ ADD  INDEX tmp_CustomerRatesRateID (`RateID`);
+	   ALTER TABLE tmp_CustomerRates3_ ADD  INDEX tmp_CustomerRatesRateID (`RateID`);
+	   ALTER TABLE tmp_CustomerRates5_ ADD  INDEX tmp_CustomerRatesRateID (`RateID`);
+	   
+	   ALTER TABLE tmp_CustomerRates2_ ADD  INDEX tmp_CustomerRatesEffectiveDate (`EffectiveDate`);
+	   ALTER TABLE tmp_CustomerRates3_ ADD  INDEX tmp_CustomerRatesEffectiveDate (`EffectiveDate`);
+	   ALTER TABLE tmp_CustomerRates5_ ADD  INDEX tmp_CustomerRatesEffectiveDate (`EffectiveDate`);
 
     INSERT INTO tmp_RateTableRate_
             SELECT
@@ -158,11 +175,7 @@ BEGIN
                 tblRateTableRate.IntervalN,
                 tblRateTableRate.Rate,
                 tblRateTableRate.ConnectionFee,
-                 /*  CASE WHEN v_NewA2ZAssign_ = 1   THEN
-		         	v_RateTableAssignDate_
-      		    ELSE
-         			tblRateTableRate.EffectiveDate
-		          END as EffectiveDate ,*/
+            	 
       			 tblRateTableRate.EffectiveDate,
                 NULL AS LastModifiedDate,
                 NULL AS LastModifiedBy,
@@ -309,16 +322,16 @@ BEGIN
                 (
                     p_Effective = 'Now' AND rtr.EffectiveDate <= NOW()
                     AND (
-                            (cr.RateID IS NULL) -- no data in C... *** SQLINES FOR EVALUATION USE ONLY *** 
+                            (cr.RateID IS NULL) 
                             OR
-                            (cr.RateID IS NOT NULL AND rtr.RateTableRateID IS NULL) -- Only CR Data
+                            (cr.RateID IS NOT NULL AND rtr.RateTableRateID IS NULL) 
                         )
 
                 )
                 OR
                 ( p_Effective = 'Future' AND rtr.EffectiveDate > NOW()
                     AND (
-                            (cr.RateID IS NULL) -- no data in C... *** SQLINES FOR EVALUATION USE ONLY *** 
+                            (cr.RateID IS NULL) 
                             OR
                             (
                                 cr.RateID IS NOT NULL AND rtr.EffectiveDate < (
