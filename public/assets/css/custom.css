@@ -2923,7 +2923,7 @@ a:focus,a:hover{text-decoration:none !important}
     margin-bottom: 0;
 }
 
-.col-md-12 .btn, .col-md-12 .input-group-btn, p .btn {
+.col-md-12 .btn, .col-md-12 .input-group-btn, p .btn, .mar-left-2 {
     margin-left: 2px;
 }
 .action-buttons .input-group-btn {

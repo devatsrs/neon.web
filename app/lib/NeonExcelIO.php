@@ -298,6 +298,10 @@ class NeonExcelIO
 
                 foreach ($sheet->getRowIterator() as $row) {
 
+                    if($limit > 0 && $this->row_cnt > $limit) {
+                        break;
+                    }
+
                     if(self::$start_row > ($this->row_cnt))
                     {
                         $this->row_cnt++;

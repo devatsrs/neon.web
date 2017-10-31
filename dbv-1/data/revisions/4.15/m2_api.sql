@@ -1,0 +1,19 @@
+use Ratemanagement3;
+
+INSERT INTO `tblGateway` (`GatewayID`, `Title`, `Name`, `Status`, `CreatedBy`, `created_at`, `ModifiedBy`, `updated_at`) VALUES (12, 'M2', 'M2', 1, 'RateManagementSystem', '2017-10-11 16:32:23', NULL, NULL);
+
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (131, 12, 'M2 Server', 'dbserver', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (132, 12, 'M2 Username', 'username', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (133, 12, 'M2 Password', 'password', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (134, 12, 'Authentication Rule', 'NameFormat', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (135, 12, 'CDR ReRate', 'RateCDR', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (136, 12, 'Rate Format', 'RateFormat', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (137, 12, 'CLI Translation Rule', 'CLITranslationRule', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (138, 12, 'CLD Translation Rule', 'CLDTranslationRule', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (139, 12, 'Allow Account Import', 'AllowAccountImport', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (140, 12, 'Prefix Translation Rule', 'PrefixTranslationRule', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (141, 12, 'Auto Add IP', 'AutoAddIP', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 12, 'Download M2 CDR', 'm2accountusage', '[[{"title":"M2 Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2017-10-11 16:56:13', 'RateManagementSystem');
+
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'M2_CRONJOB', '{"MaxInterval":"1440","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');

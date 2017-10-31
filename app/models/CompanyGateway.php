@@ -356,6 +356,21 @@ class CompanyGateway extends \Eloquent {
                 log::info('--FusionPBX CRONJOB END--');
 
                 CompanyGateway::createSummaryCronJobs(0);
+            } elseif(isset($GatewayName) && $GatewayName == 'M2') {
+                log::info($GatewayName);
+                log::info('--M2 CRONJOB START--');
+
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('m2accountusage');
+                $setting = CompanyConfiguration::get('M2_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--M2 CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(1);
             }
         }else{
             log::info('--Other CRONJOB START--');
