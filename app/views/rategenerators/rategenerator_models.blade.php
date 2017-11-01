@@ -39,6 +39,22 @@
               </div>
             </div>
           </div>
+            <div class="row when_update_rate_generator">
+                <div class="col-md-12">
+                    <div class="form-group" >
+                        <label for="field-4" class="control-label">Effective Date (Where Rate Increases) </label>
+                        <input type="text" name="IncreaseEffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}"  data-date-format="yyyy-mm-dd" value="" />
+                    </div>
+                </div>
+            </div>
+            <div class="row when_update_rate_generator">
+                <div class="col-md-12">
+                    <div class="form-group" >
+                        <label for="field-4" class="control-label">Effective Date (Where Rate Decreases) </label>
+                        <input type="text" name="DecreaseEffectiveDate" class="form-control datepicker" data-startdate="{{date('Y-m-d')}}"  data-date-format="yyyy-mm-dd" value="" />
+                    </div>
+                </div>
+            </div>
             <div class="row" id="RateTableReplaceRate">
                 <div class="col-md-12">
                     <div class="form-group" >
@@ -100,3 +116,31 @@
   </div>
 </div>
 <?php if(!isset($id)){$id=0;} ?>
+<script type="text/javascript">
+    jQuery(document).ready(function($) {
+
+        el_effective_date =$('#update-rate-generator-form input[name="EffectiveDate"]');
+        el_inc_effective_date =$('#update-rate-generator-form input[name="IncreaseEffectiveDate"]');
+        el_dec_effective_date =$('#update-rate-generator-form input[name="DecreaseEffectiveDate"]');
+
+        el_effective_date.change(function(e) {
+
+            if(el_effective_date.val().trim() != '' /*&& el_inc_effective_date.val().trim() == '' && el_dec_effective_date.val().trim() == '' */ ) {
+
+                var EffectiveDate = el_effective_date.val();
+
+
+                var EffectiveDate_Date = new Date(EffectiveDate);
+                var EffectiveDate_7Days = new Date(new Date(EffectiveDate_Date).setDate(EffectiveDate_Date.getDate()+7));
+                var EffectiveDate_7Days_str = EffectiveDate_7Days.getFullYear() + '-' + EffectiveDate_7Days.getMonth() + '-' +  ('0'+ EffectiveDate_7Days.getDate()).slice(-2);
+
+                el_dec_effective_date.val(EffectiveDate);
+                el_inc_effective_date.val(EffectiveDate_7Days_str);
+
+            }
+
+
+        });
+    });
+
+</script>
