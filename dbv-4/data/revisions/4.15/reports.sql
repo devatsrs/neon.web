@@ -1,5 +1,25 @@
 USE `StagingReport`;
 
+ALTER TABLE `tblUsageSummaryDay`
+	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT;
+
+
+ALTER TABLE `tblUsageSummaryDayLive`
+	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT;
+
+ALTER TABLE `tblUsageSummaryHour`
+	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT;
+
+ALTER TABLE `tblUsageSummaryHourLive`
+	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT;
+
+ALTER TABLE `tmp_UsageSummary`
+	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT;
+
+ALTER TABLE `tmp_UsageSummaryLive`
+	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT;
+
+
 DROP PROCEDURE IF EXISTS `fnUsageSummary`;
 DELIMITER //
 CREATE PROCEDURE `fnUsageSummary`(
