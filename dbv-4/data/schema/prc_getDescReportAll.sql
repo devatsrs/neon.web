@@ -8,6 +8,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getDescReportAll`(
 	IN `p_AreaPrefix` VARCHAR(50),
 	IN `p_Trunk` VARCHAR(50),
 	IN `p_CountryID` INT,
+	IN `p_CDRType` VARCHAR(50),
 	IN `p_UserID` INT,
 	IN `p_isAdmin` INT,
 	IN `p_PageNumber` INT,
@@ -29,7 +30,7 @@ BEGIN
 
 	CALL fngetDefaultCodes(p_CompanyID);
 
-	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
+	CALL fnUsageSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_CDRType,p_UserID,p_isAdmin,2);
 
 	/* grid display*/
 	IF p_isExport = 0
