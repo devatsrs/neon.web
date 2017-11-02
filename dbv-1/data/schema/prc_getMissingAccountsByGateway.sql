@@ -1,9 +1,21 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getMissingAccountsByGateway`(IN `p_CompanyID` INT, IN `p_CompanyGatewayID` INT, IN `p_ProcessID` VARCHAR(250), IN `p_PageNumber` INT, IN `p_RowspPage` INT, IN `p_lSortCol` VARCHAR(50), IN `p_SortOrder` VARCHAR(5), IN `p_Export` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getMissingAccountsByGateway`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_ProcessID` VARCHAR(250),
+	IN `p_AccountType` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_Export` INT
+)
 BEGIN
      DECLARE v_OffSet_ int;
+     
+     SET sql_mode = '';
      SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-
-	      
+     SET SESSION sql_mode='';
+	
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
 
 	if p_Export = 0
@@ -24,6 +36,11 @@ BEGIN
 				AND ta.CompanyGatewayID = p_CompanyGatewayID
 				AND ta.ProcessID = p_ProcessID
 				AND a.AccountID is null
+				AND (
+					(p_AccountType=0) OR
+					(p_AccountType=1 AND ta.IsCustomer=1) OR
+					(p_AccountType=2 AND ta.IsVendor=1)
+				)
 				group by ta.AccountName
 				ORDER BY				
 				CASE
@@ -64,6 +81,11 @@ BEGIN
 				AND ta.CompanyGatewayID = p_CompanyGatewayID
 				AND ta.ProcessID = p_ProcessID
 				AND a.AccountID is null
+				AND (
+					(p_AccountType=0) OR
+					(p_AccountType=1 AND ta.IsCustomer=1) OR
+					(p_AccountType=2 AND ta.IsVendor=1)
+				)
 				group by ta.AccountName)tbl;
 
 	ELSE
@@ -82,6 +104,11 @@ BEGIN
 				AND ta.CompanyGatewayID = p_CompanyGatewayID
 				AND ta.ProcessID = p_ProcessID
 				AND a.AccountID is null
+				AND (
+					(p_AccountType=0) OR
+					(p_AccountType=1 AND ta.IsCustomer=1) OR
+					(p_AccountType=2 AND ta.IsVendor=1)
+				)
 				group by ta.AccountName;
 
 	END IF;
