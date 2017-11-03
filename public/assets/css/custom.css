@@ -3110,6 +3110,31 @@ button.btn.btn-xs.small_icons{
 .mail-body table td {
     box-sizing: content-box;
 }
+.tile-sky{
+  background: #375E97;
+}
+.tile-sunset{
+    background: #FB6542;
+}
+.tile-grass{
+    background: #3F681C;
+}
+.tile-sunflower{
+    background:#FFBB00;
+}
+
+.tile-sunflower:hover{
+    background: #e6a800;
+}
+.tile-grass:hover{
+    background: #335417;
+}
+.tile-sky:hover{
+    background: #305284;
+}
+.tile-sunset:hover{
+    background: #fa5129;
+}
 
 /* Ticket labels */
 .ticket-label{

@@ -59,7 +59,7 @@ BEGIN
 			AND ct.UseInBilling = 1 AND cld LIKE CONCAT(ct.Prefix , "%")
 		INNER JOIN NeonRMDev.tblTrunk t 
 			ON t.TrunkID = ct.TrunkID  
-			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
+			SET ud.trunk = t.Trunk,ud.TrunkID =t.TrunkID,ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix,area_prefix = TRIM(LEADING ct.Prefix FROM area_prefix )
 		WHERE  ud.ProcessID = "' , p_processId , '" AND ud.is_inbound = 0 AND ud.TrunkID IS NULL;
 		');
 

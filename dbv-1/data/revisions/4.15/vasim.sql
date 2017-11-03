@@ -1,18 +1,100 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSProcessImportAccount`(
+use Ratemanagement3;
+
+INSERT INTO `tblGateway` (`GatewayID`, `Title`, `Name`, `Status`, `CreatedBy`, `created_at`, `ModifiedBy`, `updated_at`) VALUES (12, 'M2', 'M2', 1, 'RateManagementSystem', '2017-10-11 16:32:23', NULL, NULL);
+
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (131, 12, 'M2 Server', 'dbserver', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (132, 12, 'M2 Username', 'username', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (133, 12, 'M2 Password', 'password', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (134, 12, 'Authentication Rule', 'NameFormat', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (135, 12, 'CDR ReRate', 'RateCDR', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (136, 12, 'Rate Format', 'RateFormat', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (137, 12, 'CLI Translation Rule', 'CLITranslationRule', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (138, 12, 'CLD Translation Rule', 'CLDTranslationRule', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (139, 12, 'Allow Account Import', 'AllowAccountImport', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (140, 12, 'Prefix Translation Rule', 'PrefixTranslationRule', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (141, 12, 'Auto Add IP', 'AutoAddIP', 1, '2017-10-11 16:36:00', 'RateManagementSystem', NULL, NULL);
+
+
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (142, 6, 'Allow Account Import', 'AllowAccountImport', 1, '2017-10-13 11:19:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (143, 6, 'API Url', 'api_url', 1, '2017-10-13 17:00:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (144, 6, 'API User', 'api_username', 1, '2017-10-13 17:00:00', 'RateManagementSystem', NULL, NULL);
+INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (145, 6, 'API Password', 'api_password', 1, '2017-10-13 17:00:00', 'RateManagementSystem', NULL, NULL);
+
+
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 12, 'Download M2 CDR', 'm2accountusage', '[[{"title":"M2 Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2017-10-11 16:56:13', 'RateManagementSystem');
+
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'M2_CRONJOB', '{"MaxInterval":"1440","ThresholdTime":"30","SuccessEmail":"","ErrorEmail":"","JobTime":"MINUTE","JobInterval":"1","JobDay":["SUN","MON","TUE","WED","THU","FRI","SAT"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":""}');
+
+INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'COMPANY_SSH_VISIBLE', '1');
+
+CREATE TABLE `tblSippyPaymentImportLog` (
+	`SippyPaymentImportLogID` INT NOT NULL AUTO_INCREMENT,
+	`CompanyID` INT NOT NULL DEFAULT '0',
+	`LastImportStartDate` DATETIME NULL DEFAULT NULL,
+	`LastImportEndDate` DATETIME NULL DEFAULT NULL,
+	`LastImportDate` DATETIME NULL DEFAULT NULL,
+	`created_at` DATETIME NULL DEFAULT NULL,
+	`updated_at` DATETIME NULL DEFAULT NULL,
+	PRIMARY KEY (`SippyPaymentImportLogID`)
+)
+COLLATE='utf8_unicode_ci'
+ENGINE=InnoDB;
+
+
+
+
+
+DROP TABLE IF EXISTS `tblAccountSippy`;
+CREATE TABLE IF NOT EXISTS `tblAccountSippy` (
+  `AccountSippyID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) NOT NULL,
+  `AccountID` int(11) NOT NULL DEFAULT '0',
+  `i_account` int(11) NOT NULL DEFAULT '0',
+  `i_vendor` int(11) NOT NULL DEFAULT '0',
+  `AccountName` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `username` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CompanyGatewayID` int(11) NOT NULL DEFAULT '0',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`AccountSippyID`),
+  UNIQUE KEY `AccountID` (`AccountID`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+
+
+DROP TABLE IF EXISTS `tblTempAccountSippy`;
+CREATE TABLE IF NOT EXISTS `tblTempAccountSippy` (
+  `AccountSippyID` int(11) NOT NULL AUTO_INCREMENT,
+  `CompanyID` int(11) DEFAULT '0',
+  `TempAccountID` int(11) DEFAULT '0',
+  `i_account` int(11) NOT NULL DEFAULT '0',
+  `i_vendor` int(11) NOT NULL DEFAULT '0',
+  `AccountName` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `username` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CompanyGatewayID` int(11) NOT NULL DEFAULT '0',
+  `ProcessID` text COLLATE utf8_unicode_ci,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`AccountSippyID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_WSProcessImportAccount`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSProcessImportAccount`(
 	IN `p_processId` VARCHAR(200) ,
 	IN `p_companyId` INT,
 	IN `p_companygatewayid` INT,
 	IN `p_tempaccountid` TEXT,
-	IN `p_option` INT
-
-
-
-
-,
-	IN `p_importdate` DATETIME
-
-
-,
+	IN `p_option` INT,
+	IN `p_importdate` DATETIME,
 	IN `p_gateway` VARCHAR(50)
 )
 ThisSP:BEGIN
@@ -70,7 +152,7 @@ ThisSP:BEGIN
 				   IsCustomer INT
 				) ENGINE=InnoDB;
 
-   IF p_option = 0 
+   IF p_option = 0
    THEN
 
    SELECT DISTINCT(AccountType) INTO v_accounttype from tblTempAccount WHERE ProcessID=p_processId;
@@ -199,16 +281,16 @@ ThisSP:BEGIN
 	END IF;
 
 
-	IF p_option = 1 
+	IF p_option = 1
    THEN
 		DELETE tblTempAccount
 			FROM tblTempAccount
 			INNER JOIN(
-				SELECT 
+				SELECT
 					ta.tblTempAccountID
-				FROM 
-					tblTempAccount ta 
-				LEFT JOIN 
+				FROM
+					tblTempAccount ta
+				LEFT JOIN
 					tblAccount a ON ta.AccountName=a.AccountName AND ta.CompanyID=a.CompanyID
 				WHERE ta.ProcessID = p_processId AND ta.CompanyID = p_companyId AND ta.IsCustomer=1 AND ta.AccountName=a.AccountName AND ta.CompanyID=a.CompanyID
 			) aold ON aold.tblTempAccountID = tblTempAccount.tblTempAccountID;
@@ -216,11 +298,11 @@ ThisSP:BEGIN
 		DELETE tblTempAccountSippy
 			FROM tblTempAccountSippy
 			INNER JOIN(
-				SELECT 
+				SELECT
 					tas.AccountSippyID
-				FROM 
+				FROM
 					tblTempAccountSippy tas
-				LEFT JOIN 
+				LEFT JOIN
 					tblAccount a ON tas.AccountName=a.AccountName AND tas.CompanyID=a.CompanyID
 				WHERE tas.ProcessID = p_processId AND tas.CompanyID = p_companyId AND tas.i_account!=0 AND tas.AccountName=a.AccountName AND tas.CompanyID=a.CompanyID
 			) aold ON aold.AccountSippyID = tblTempAccountSippy.AccountSippyID;
@@ -424,7 +506,7 @@ ThisSP:BEGIN
 
 
 			SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
-			
+
 			INSERT INTO
 				tblAccountSippy
 				(
@@ -452,7 +534,7 @@ ThisSP:BEGIN
 				tblTempAccountSippy tas
 			LEFT JOIN
 				tmp_accountimport tai
-			ON 
+			ON
 				tas.AccountName = tai.AccountName
 			LEFT JOIN
 				tblAccount a
@@ -461,7 +543,7 @@ ThisSP:BEGIN
 			WHERE
 				tas.AccountName = tai.AccountName AND tas.AccountName = a.AccountName AND tas.i_account>0 AND tas.ProcessID = p_processId
 			GROUP BY tas.AccountName;
-			
+
 			-- if gateway="sippy" insert vendors or if exist turn on vendor
 			IF p_gateway = "sippy"
 			THEN
@@ -474,13 +556,13 @@ ThisSP:BEGIN
 					asu.AccountName=tas.AccountName AND asu.CompanyID=tas.CompanyID
 				LEFT JOIN
 					tblTempAccount ta
-				ON 
+				ON
 					tas.AccountName = ta.AccountName
 				LEFT JOIN
 					tblAccount a
-				ON 
-					ta.AccountName=a.AccountName AND 
-					ta.CompanyId = a.CompanyId AND 
+				ON
+					ta.AccountName=a.AccountName AND
+					ta.CompanyId = a.CompanyId AND
 					ta.AccountType = a.AccountType
 				SET
 					asu.i_vendor=tas.i_vendor,
@@ -495,10 +577,10 @@ ThisSP:BEGIN
 					AND (p_companygatewayid = 0 OR ( ta.CompanyGatewayID = p_companygatewayid))
 					AND ta.IsVendor=1
 					AND (a.IsVendor=0 OR a.IsVendor is null)
-					AND asu.AccountName=tas.AccountName 
+					AND asu.AccountName=tas.AccountName
 					AND asu.CompanyID=tas.CompanyID
 					AND tas.i_vendor > 0;
-				
+
 				INSERT INTO
 					tblAccountSippy
 					(
@@ -512,7 +594,7 @@ ThisSP:BEGIN
 						created_at,
 						updated_at
 					)
-				SELECT 
+				SELECT
 					tas.CompanyID,
 					a.AccountID,
 					tas.i_account,
@@ -530,13 +612,13 @@ ThisSP:BEGIN
 					asu.AccountName=tas.AccountName AND asu.CompanyID=tas.CompanyID
 				LEFT JOIN
 					tblTempAccount ta
-				ON 
+				ON
 					tas.AccountName = ta.AccountName
 				LEFT JOIN
 					tblAccount a
-				ON 
-					ta.AccountName=a.AccountName AND 
-					ta.CompanyId = a.CompanyId AND 
+				ON
+					ta.AccountName=a.AccountName AND
+					ta.CompanyId = a.CompanyId AND
 					ta.AccountType = a.AccountType
 				WHERE
 					tas.AccountName = ta.AccountName AND tas.AccountName = a.AccountName
@@ -554,11 +636,11 @@ ThisSP:BEGIN
 				-- update accounts (turn on vendor) if exist
 				UPDATE
 					tblAccount a
-				LEFT JOIN 
+				LEFT JOIN
 					tblTempAccount ta
 				ON
-					ta.AccountName=a.AccountName AND 
-					ta.CompanyId = a.CompanyId AND 
+					ta.AccountName=a.AccountName AND
+					ta.CompanyId = a.CompanyId AND
 					ta.AccountType = a.AccountType
 				SET
 					a.IsVendor=1
@@ -570,9 +652,9 @@ ThisSP:BEGIN
 					AND (p_companygatewayid = 0 OR ( ta.CompanyGatewayID = p_companygatewayid))
 					AND ta.IsVendor=1
 					AND (a.IsVendor=0 OR a.IsVendor is null);
-					
+
 				SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
-					
+
 				-- insert vendor account if not exist
 				truncate tmp_accountimport;
 				INSERT INTO tmp_accountimport
@@ -659,7 +741,7 @@ ThisSP:BEGIN
 					AND (p_companygatewayid = 0 OR ( ta.CompanyGatewayID = p_companygatewayid))
 					AND ta.IsVendor=1
 					group by ta.AccountName;
-	
+
 				INSERT  INTO tblAccount
 					  (	AccountType ,
 						CompanyId ,
@@ -734,9 +816,9 @@ ThisSP:BEGIN
 						IsCustomer,
 						IsVendor
 					from tmp_accountimport;
-	
+
 				SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
-				
+
 				INSERT INTO
 					tblAccountSippy
 					(
@@ -750,7 +832,7 @@ ThisSP:BEGIN
 						created_at,
 						updated_at
 					)
-				SELECT 
+				SELECT
 					tas.CompanyID,
 					a.AccountID,
 					tas.i_account,
@@ -764,7 +846,7 @@ ThisSP:BEGIN
 					tblTempAccountSippy tas
 				LEFT JOIN
 					tmp_accountimport tai
-				ON 
+				ON
 					tas.AccountName = tai.AccountName
 				LEFT JOIN
 					tblAccount a
@@ -778,7 +860,7 @@ ThisSP:BEGIN
 			INSERT INTO tmp_JobLog_ (Message)
 			SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );
 
-		
+
 
 	END IF;
 
@@ -788,4 +870,138 @@ ThisSP:BEGIN
 
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
-END
+END//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+DROP PROCEDURE IF EXISTS `prc_getMissingAccountsByGateway`;
+DELIMITER //
+CREATE PROCEDURE `prc_getMissingAccountsByGateway`(
+	IN `p_CompanyID` INT,
+	IN `p_CompanyGatewayID` INT,
+	IN `p_ProcessID` VARCHAR(250),
+	IN `p_AccountType` INT,
+	IN `p_PageNumber` INT,
+	IN `p_RowspPage` INT,
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
+	IN `p_Export` INT
+)
+BEGIN
+     DECLARE v_OffSet_ int;
+
+     SET sql_mode = '';
+     SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+     SET SESSION sql_mode='';
+
+	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
+
+	if p_Export = 0
+	THEN
+
+		SELECT DISTINCT
+				ta.tblTempAccountID,
+				ta.AccountName as AccountName,
+				ta.FirstName as FirstName,
+				ta.LastName as LastName,
+				ta.Email as Email
+				from tblTempAccount ta
+				left join tblAccount a on ta.AccountName=a.AccountName
+				 	AND ta.CompanyID = a.CompanyId
+				 	AND ta.AccountType = a.AccountType
+				where ta.CompanyID =p_CompanyID
+				AND ta.AccountType=1
+				AND ta.CompanyGatewayID = p_CompanyGatewayID
+				AND ta.ProcessID = p_ProcessID
+				AND a.AccountID is null
+				AND (
+					(p_AccountType=0) OR
+					(p_AccountType=1 AND ta.IsCustomer=1) OR
+					(p_AccountType=2 AND ta.IsVendor=1)
+				)
+				group by ta.AccountName
+				ORDER BY
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN ta.AccountName
+                END DESC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN ta.AccountName
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'FirstNameDESC') THEN ta.FirstName
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'FirstNameASC') THEN ta.FirstName
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastNameDESC') THEN ta.LastName
+                END DESC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'LastNameASC') THEN ta.LastName
+                END ASC,
+				CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EmailDESC') THEN ta.Email
+                END DESC,
+                CASE
+                    WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EmailASC') THEN ta.Email
+                END ASC
+				LIMIT p_RowspPage OFFSET v_OffSet_;
+
+			select count(*) as totalcount from(
+			SELECT
+				COUNT(ta.tblTempAccountID) as totalcount
+				from tblTempAccount ta
+				left join tblAccount a on ta.AccountName=a.AccountName
+					 AND ta.CompanyID = a.CompanyId
+					 AND ta.AccountType = a.AccountType
+				where ta.CompanyID =p_CompanyID
+				AND ta.AccountType=1
+				AND ta.CompanyGatewayID = p_CompanyGatewayID
+				AND ta.ProcessID = p_ProcessID
+				AND a.AccountID is null
+				AND (
+					(p_AccountType=0) OR
+					(p_AccountType=1 AND ta.IsCustomer=1) OR
+					(p_AccountType=2 AND ta.IsVendor=1)
+				)
+				group by ta.AccountName)tbl;
+
+	ELSE
+
+			SELECT DISTINCT
+				ta.AccountName as AccountName,
+				ta.FirstName as FirstName,
+				ta.LastName as LastName,
+				ta.Email as Email
+				from tblTempAccount ta
+				left join tblAccount a on ta.AccountName=a.AccountName
+					 AND ta.CompanyID = a.CompanyId
+					 AND ta.AccountType = a.AccountType
+				where ta.CompanyID =p_CompanyID
+				AND ta.AccountType=1
+				AND ta.CompanyGatewayID = p_CompanyGatewayID
+				AND ta.ProcessID = p_ProcessID
+				AND a.AccountID is null
+				AND (
+					(p_AccountType=0) OR
+					(p_AccountType=1 AND ta.IsCustomer=1) OR
+					(p_AccountType=2 AND ta.IsVendor=1)
+				)
+				group by ta.AccountName;
+
+	END IF;
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;

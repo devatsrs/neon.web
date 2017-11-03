@@ -8,7 +8,8 @@
  */
 //namespace App\Lib;
 
-use App\Lib\SippySFTP;
+//use App\Lib\SippySFTP;
+use \Illuminate\Support\Facades\DB;
 
 class SippyImporter
 {
@@ -38,6 +39,7 @@ class SippyImporter
 
         $TimeZone = 'GMT';
         date_default_timezone_set($TimeZone);
+        $current_datetime = date('Y-m-d H:i:s.000');
 
         //Log:info('AddParam '.print_r($addparam,true));
         try {
@@ -45,37 +47,39 @@ class SippyImporter
             $account_list = $sippy->listAccounts();
             if (!isset($account_list['faultCode'])) {
                 if (isset($account_list['accounts'])) {
-                    Log::info(print_r(count($account_list['accounts']), true));
+                    Log::info('customers : '.print_r(count($account_list['accounts']), true));
 
-                    $tempItemData = array();
-                    $batch_insert_array = array();
+                    $tempItemData = $tempSippyItemData = array();
+                    $batch_insert_array = $batch_insert_sippy_array = array();
                     if (count((array)$account_list['accounts']) > 0) {
                         $CompanyGatewayID = $addparams['CompanyGatewayID'];
                         $CompanyID = $addparams['CompanyID'];
                         $ProcessID = $addparams['ProcessID'];
                         foreach ((array)$account_list['accounts'] as $row_account) {
-                            $count = DB::table('tblAccount')->where(["AccountName" => $row_account['username'], "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
-                            if($count==0){
+                            $count1 = DB::table('tblAccount')->where(["AccountName" => $row_account['username'], "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
+                            $count2 = DB::table('tblAccountSippy')->where(["username" => $row_account['username'],"i_account" => $row_account['i_account'],"CompanyID"=>$CompanyID])->count();
+                            if($count1==0 && $count2==0){
                                 $params['i_account'] = $row_account['i_account'];
                                 $account_detail = $sippy->getAccountInfo($params);
 
                                 if (!isset($account_detail['faultCode'])) {
                                     if (isset($account_detail['username'])) {
                                         $tempItemData['AccountName'] = $account_detail['username'];
-                                        $tempItemData['Number'] = "";
+                                        //$tempItemData['Number'] = "";
                                         $tempItemData['FirstName'] = $account_detail['first_name'];
                                         $tempItemData['LastName'] = $account_detail['last_name'];
                                         $tempItemData['Address1'] = $account_detail['street_addr'];
                                         $tempItemData['City'] = $account_detail['city'];
-                                        $tempItemData['State'] = $account_detail['state'];
+                                        //$tempItemData['State'] = $account_detail['state'];
+                                        $account_detail['country'] = strtoupper($account_detail['country']) == 'UK' ? 'UNITED KINGDOM' : strtoupper($account_detail['country']);
                                         $tempItemData['Country'] = isset($country[$account_detail['country']]) && $account_detail['country'] != ''?$country[$account_detail['country']]:null;
-                                        $tempItemData['Currency'] = isset($currency[$account_detail['payment_currency']]) && $account_detail['payment_currency'] != ''?$currency[$account_detail['payment_currency']]:null;
-                                        $tempItemData['TimeZone'] = $account_detail['i_time_zone'];
-                                        $tempItemData['Blocked'] = $account_detail['blocked'];
-                                        $tempItemData['PaymentMethod'] = $account_detail['payment_method'];
-                                        $tempItemData['Company'] = $account_detail['company_name'];
+                                        $tempItemData['Currency'] = array_search($account_detail['base_currency'], $currency) && $account_detail['base_currency'] != ''?array_search($account_detail['base_currency'], $currency):null;
+                                        //$tempItemData['TimeZone'] = $account_detail['i_time_zone'];
+                                        //$tempItemData['Blocked'] = $account_detail['blocked'];
+                                        //$tempItemData['PaymentMethod'] = $account_detail['payment_method'];
+                                        //$tempItemData['Company'] = $account_detail['company_name'];
                                         $tempItemData['PostCode'] = $account_detail['postal_code'];
-                                        $tempItemData['Mobile'] = $account_detail['contact'];
+                                        $tempItemData['Mobile'] = $account_detail['i_contact'];
                                         $tempItemData['Phone'] = $account_detail['phone'];
                                         $tempItemData['Fax'] = $account_detail['fax'];
                                         $tempItemData['Email'] = $account_detail['email'];
@@ -84,13 +88,26 @@ class SippyImporter
                                         $tempItemData['AccountType'] = 1;
                                         $tempItemData['CompanyId'] = $CompanyID;
                                         $tempItemData['Status'] = 1;
+                                        $tempItemData['IsCustomer'] = 1;
                                         $tempItemData['LeadSource'] = 'Gateway import';
                                         $tempItemData['CompanyGatewayID'] = $CompanyGatewayID;
                                         $tempItemData['ProcessID'] = $ProcessID;
-                                        $tempItemData['created_at'] = date('Y-m-d H:i:s.000');
+                                        $tempItemData['created_at'] = $current_datetime;
                                         $tempItemData['created_by'] = 'Imported';
 
                                         $batch_insert_array[] = $tempItemData;
+
+                                        //sippy account log entry
+                                        $tempSippyItemData['i_account'] = $account_detail['i_account'];
+                                        $tempSippyItemData['AccountName'] = $account_detail['username'];
+                                        $tempSippyItemData['username'] = $account_detail['username'];
+                                        $tempSippyItemData['CompanyGatewayID'] = $CompanyGatewayID;
+                                        $tempSippyItemData['ProcessID'] = $ProcessID;
+                                        $tempSippyItemData['CompanyID'] = $CompanyID;
+                                        $tempSippyItemData['created_at'] = $current_datetime;
+                                        $tempSippyItemData['updated_at'] = $current_datetime;
+
+                                        $batch_insert_sippy_array[] = $tempSippyItemData;
                                     }
                                 }
                             }
@@ -99,7 +116,9 @@ class SippyImporter
                             //Log::info('insertion start');
                             try{
                                 if(DB::table('tblTempAccount')->insert($batch_insert_array)){
+                                    DB::table('tblTempAccountSippy')->insert($batch_insert_sippy_array);
                                     $response['result'] = 'OK';
+                                    $response['Gateway'] = 'Sippy';
                                 }
                             }catch(Exception $err){
                                 $response['faultString'] =  $err->getMessage();
@@ -113,12 +132,115 @@ class SippyImporter
                         }
                     }
                 }
-
-                return $batch_insert_array;
             }
         } catch (\Exception $e) {
             //Log::error($e);
         }
+        return $response;
+    }
+
+    public static function getVendorsDetail($addparams = array())
+    {
+        $response = array();
+        $currency = Currency::getCurrencyDropdownIDList();
+        $country = Country::getCountryDropdownList();
+
+        $TimeZone = 'GMT';
+        date_default_timezone_set($TimeZone);
+        $current_datetime = date('Y-m-d H:i:s.000');
+
+        //Log:info('AddParam '.print_r($addparam,true));
+        try {
+            $sippy = new SippySFTP($addparams['CompanyGatewayID']);
+            $vendor_list = $sippy->listVendors();
+            if (!isset($vendor_list['faultCode'])) {
+                if (isset($vendor_list['vendors'])) {
+                    Log::info('vendors : '.print_r(count($vendor_list['vendors']), true));
+
+                    $tempItemData = $tempSippyItemData = array();
+                    $batch_insert_array = $batch_insert_sippy_array = array();
+                    if (count((array)$vendor_list['vendors']) > 0) {
+                        $CompanyGatewayID = $addparams['CompanyGatewayID'];
+                        $CompanyID = $addparams['CompanyID'];
+                        $ProcessID = $addparams['ProcessID'];
+                        foreach ((array)$vendor_list['vendors'] as $row_vendor) {
+                            $count1 = DB::table('tblAccount')->where(["AccountName" => $row_vendor['name'], "AccountType" => 1,"CompanyId"=>$CompanyID])->count();
+                            $count2 = DB::table('tblAccountSippy')->where(["username" => $row_vendor['name'],"i_vendor" => $row_vendor['i_vendor'],"CompanyID"=>$CompanyID])->count();
+                            if($count1==0 && $count2==0){
+                                $params['i_vendor'] = $row_vendor['i_vendor'];
+                                $vendor_detail = $sippy->getVendorInfo($params);
+
+                                if (!isset($vendor_detail['faultCode'])) {
+                                    if (isset($vendor_detail['vendor'])) {
+                                        $vendor_detail = $vendor_detail['vendor'];
+                                        $tempItemData['AccountName'] = $vendor_detail['name'];
+                                        //$tempItemData['Number'] = "";
+                                        $tempItemData['FirstName'] = $vendor_detail['first_name'];
+                                        $tempItemData['LastName'] = $vendor_detail['last_name'];
+                                        $tempItemData['Address1'] = $vendor_detail['street_addr'];
+                                        $tempItemData['City'] = $vendor_detail['city'];
+                                        //$tempItemData['State'] = $vendor_detail['state'];
+                                        $vendor_detail['country'] = strtoupper($vendor_detail['country']) == 'UK' ? 'UNITED KINGDOM' : strtoupper($vendor_detail['country']);
+                                        $tempItemData['Country'] = isset($country[$vendor_detail['country']]) && $vendor_detail['country'] != ''?$country[$vendor_detail['country']]:null;
+                                        $tempItemData['Currency'] = array_search($vendor_detail['base_currency'], $currency) && $vendor_detail['base_currency'] != ''?array_search($vendor_detail['base_currency'], $currency):null;
+                                        $tempItemData['PostCode'] = $vendor_detail['postal_code'];
+                                        $tempItemData['Mobile'] = $vendor_detail['contact'];
+                                        $tempItemData['Phone'] = $vendor_detail['phone'];
+                                        $tempItemData['Fax'] = $vendor_detail['fax'];
+                                        $tempItemData['Email'] = $vendor_detail['email'];
+
+                                        $tempItemData['AccountType'] = 1;
+                                        $tempItemData['CompanyId'] = $CompanyID;
+                                        $tempItemData['Status'] = 1;
+                                        $tempItemData['IsVendor'] = 1;
+                                        $tempItemData['LeadSource'] = 'Gateway import';
+                                        $tempItemData['CompanyGatewayID'] = $CompanyGatewayID;
+                                        $tempItemData['ProcessID'] = $ProcessID;
+                                        $tempItemData['created_at'] = $current_datetime;
+                                        $tempItemData['created_by'] = 'Imported';
+
+                                        $batch_insert_array[] = $tempItemData;
+
+                                        //sippy vendor log entry
+                                        $tempSippyItemData['i_vendor'] = $vendor_detail['i_vendor'];
+                                        $tempSippyItemData['AccountName'] = $vendor_detail['name'];
+                                        $tempSippyItemData['username'] = $vendor_detail['name'];
+                                        $tempSippyItemData['CompanyGatewayID'] = $CompanyGatewayID;
+                                        $tempSippyItemData['ProcessID'] = $ProcessID;
+                                        $tempSippyItemData['CompanyID'] = $CompanyID;
+                                        $tempSippyItemData['created_at'] = $current_datetime;
+                                        $tempSippyItemData['updated_at'] = $current_datetime;
+
+                                        $batch_insert_sippy_array[] = $tempSippyItemData;
+                                    }
+                                }
+                            }
+                        }
+                        if (!empty($batch_insert_array)) {
+                            //Log::info('insertion start');
+                            try{
+                                if(DB::table('tblTempAccount')->insert($batch_insert_array)){
+                                    DB::table('tblTempAccountSippy')->insert($batch_insert_sippy_array);
+                                    $response['result'] = 'OK';
+                                    $response['Gateway'] = 'Sippy';
+                                }
+                            }catch(Exception $err){
+                                $response['faultString'] =  $err->getMessage();
+                                $response['faultCode'] =  $err->getCode();
+                                Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $err->getCode(). ", Reason: " . $err->getMessage());
+                                //throw new Exception($err->getMessage());
+                            }
+                            //Log::info('insertion end');
+                        }else{
+                            $response['result'] = 'OK';
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            //Log::error($e);
+        }
+        return $response;
     }
 
             /*public static function createAccount($account){
