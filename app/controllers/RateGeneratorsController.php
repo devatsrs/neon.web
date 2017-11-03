@@ -66,6 +66,7 @@ class RateGeneratorsController extends \BaseController {
             'codedeckid' => 'required',
             'CurrencyID' => 'required',
             'Policy' => 'required',
+            'GroupBy' => 'required',
         );
 
         $validator = Validator::make($data, $rules);
