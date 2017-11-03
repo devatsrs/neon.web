@@ -81,11 +81,12 @@ class VendorRatesController extends \BaseController
             $trunks = VendorTrunk::getTrunkDropdownIDList($id);
             $trunk_keys = getDefaultTrunk($trunks);
             $dialstring = DialString::getDialStringIDList();
+            $currencies = Currency::getCurrencyDropdownIDList();
             if(count($trunks) == 0){
                 return  Redirect::to('vendor_rates/'.$id.'/settings')->with('info_message', 'Please enable trunk against vendor to manage rates');
             }
             $rate_sheet_formates = $this->rate_sheet_formates;
-            return View::make('vendorrates.upload', compact('id', 'trunks', 'trunk_keys','rate_sheet_formates','Account','uploadtemplate','dialstring'));
+            return View::make('vendorrates.upload', compact('id', 'trunks', 'trunk_keys','rate_sheet_formates','Account','uploadtemplate','dialstring','currencies'));
     }
     
     public function process_upload($id) {
@@ -105,8 +106,7 @@ class VendorRatesController extends \BaseController
             $excel = Input::file('excel');
              // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
-
-            if (in_array($ext, array("csv", "xls", "xlsx"))) {
+            if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
                 $file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
                 $excel->move($destinationPath, $file_name);
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']) ;
@@ -646,6 +646,46 @@ class VendorRatesController extends \BaseController
         if ($validator->fails()) {
             return json_validator_response($validator);
         }
+        if(isset($data['selection']['FromCurrency']) && !empty($data['selection']['FromCurrency'])) {
+            $CompanyCurrency = Company::find($CompanyID)->CurrencyId;
+
+            $error = array();
+            if(!($CompanyCurrency && !empty($CompanyCurrency))) {
+                $error['status'] = "failed";
+                $error['message'] = "You have not setup your base currency, please select it under company page if you want to convert rates.<br/>";
+            } else {
+                $ACID = Account::find($id)->CurrencyId;
+                $CompanyConversionRate = CurrencyConversion::where(['CurrencyID' => $CompanyCurrency, 'CompanyID' => $CompanyID])->count();
+                $FileConversionRate = CurrencyConversion::where(['CurrencyID' => $data['selection']['FromCurrency'], 'CompanyID' => $CompanyID])->count();
+                $AccountConversionRate = CurrencyConversion::where(['CurrencyID' => $ACID, 'CompanyID' => $CompanyID])->count();
+
+                $error['message'] = "";
+                $CurrencyCode = array();
+                if(empty($CompanyConversionRate)) {
+                    $CurrencyCode[] = Currency::find($CompanyCurrency)->Code;
+                }
+                if(empty($FileConversionRate)) {
+                    $CurrencyCode[] = Currency::find($data['selection']['FromCurrency'])->Code;
+                }
+                if(empty($AccountConversionRate)) {
+                    $CurrencyCode[] = Currency::find($ACID)->Code;
+                }
+
+                if(count($CurrencyCode) > 0) {
+                    $CurrencyCode = array_unique($CurrencyCode);
+                    $error['status'] = "failed";
+
+                    foreach ($CurrencyCode as $Code) {
+                        $error['message'] .= "You have not setup your currency (".$Code.") conversion rate, please set it up under setting -> exchange rate.<br/>";
+                    }
+                }
+
+            }
+
+            if(isset($error['status']) && $error['status'] == 'failed') {
+                return json_encode($error);
+            }
+        }
         $data['codedeckid'] = VendorTrunk::where(["AccountID" => $id, 'TrunkID' => $data['Trunk']])->pluck("CodeDeckId");
         if (!isset($data['codedeckid']) || empty($data['codedeckid'])) {
             return json_encode(["status" => "failed", "message" => 'Please Update a Codedeck in Setting']);
@@ -719,7 +759,7 @@ class VendorRatesController extends \BaseController
                 $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
-                if (in_array($ext, array("csv", "xls", "xlsx"))) {
+                if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
                     $file_name_without_ext = GUID::generate();
                     $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
                     $excel->move($upload_path, $file_name);

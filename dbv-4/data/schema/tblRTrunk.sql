@@ -4,5 +4,6 @@ CREATE TABLE `tblRTrunk` (
   `CompanyID` int(11) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`RTrunkID`)
+  PRIMARY KEY (`RTrunkID`),
+  UNIQUE KEY `UK` (`CompanyID`,`Trunk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

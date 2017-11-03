@@ -205,11 +205,27 @@ class ImportsController extends \BaseController {
                 $param['ImportDate'] = date('Y-m-d H:i:s.000');
                 $FusionPBX = new FusionPBX($CompanyGatewayID);
                 $response1 = $FusionPBX->getAccountsDetail($param);
+            }elseif($gateway == 'M2'){
+                $m2 = new M2($CompanyGatewayID);
+                $response1 = $m2->getAccountsDetail($param);
+            }elseif($gateway == 'SippySFTP'){
+                $response1 = SippyImporter::getAccountsDetail($param);
+                $response2 = SippyImporter::getVendorsDetail($param);
             }
             //$pbx = new PBX($CompanyGatewayID);
 
             if(isset($response1['result']) && $response1['result'] =='OK'){
-                return Response::json(array("status" => "success", "message" => "Get Account successfully From Gateway", "processid" => $ProcessID));
+                if(isset($response1['Gateway']) && $response1['Gateway'] == 'Sippy') {
+                    if(isset($response2['result']) && $response2['result'] =='OK') {
+                        return Response::json(array("status" => "success", "message" => "Get Account successfully From Gateway", "processid" => $ProcessID, "Gateway" => "Sippy"));
+                    }else if(isset($response2['faultCode']) && isset($response2['faultString'])){
+                        return Response::json(array("status" => "failed", "message" => "Access Denied."));
+                    }else{
+                        return Response::json(array("status" => "failed", "message" => "Import Gateway Account."));
+                    }
+                } else {
+                    return Response::json(array("status" => "success", "message" => "Get Account successfully From Gateway", "processid" => $ProcessID));
+                }
             }else if(isset($response1['faultCode']) && isset($response1['faultString'])){
                 return Response::json(array("status" => "failed", "message" => "Access Denied."));
             }else{
@@ -235,8 +251,11 @@ class ImportsController extends \BaseController {
         $columns = ['tblTempAccountID','AccountName','FirstName','LastName','Email'];
         $sort_column = $columns[$data['iSortCol_0']];
         $CompanyGatewayID = $data['CompanyGatewayID'];
+        // 0="all account", 1="customers", 2="vendors"
+        $accounttype = isset($data['accounttype']) ? $data['accounttype'] : 0;
+        Log::info('accounttype : '.$accounttype);
         $cprocessid = $data['importprocessid'];
-        $query = "call prc_getMissingAccountsByGateway (".$CompanyID.", ".$CompanyGatewayID.",'".$cprocessid."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query = "call prc_getMissingAccountsByGateway (".$CompanyID.", ".$CompanyGatewayID.",'".$cprocessid."','".$accounttype."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);
@@ -247,7 +266,6 @@ class ImportsController extends \BaseController {
             })->download('xls');
         }
         $query .=',0)';
-
         //$query = "call prc_getMissingAccountsByGateway (".$CompanyID.",".$CompanyGatewayID.")";
 
         return DataTableSql::of($query)->make();
@@ -415,6 +433,20 @@ class ImportsController extends \BaseController {
         }
         $AccountIDs =array_filter(explode(',',$data['TempAccountIDs']),'intval');
         if (is_array($AccountIDs) && count($AccountIDs) || !empty($data['criteria'])) {
+
+            if(isset($data['NeonAccountNames'])) {
+                $NeonAccountNames = json_decode($data['NeonAccountNames']);
+                foreach ($NeonAccountNames as $id => $AccountName) {
+                    //update account name which is entered in text-box to tblTempAccountSippy (sippy account log table)
+                    DB::table('tblTempAccountSippy AS tas')
+                        ->leftjoin('tblTempAccount AS ta', 'tas.username', '=', 'ta.AccountName')
+                        ->where('ta.tblTempAccountID', $id)
+                        ->update(['tas.AccountName' => $AccountName]);
+                    //update account name which is entered in text-box to tblTempAccount
+                    DB::table('tblTempAccount')->where('tblTempAccountID', $id)->update(['AccountName' => $AccountName]);
+                }
+            }
+
             $jobType = JobType::where(["Code" => 'MGA'])->first(["JobTypeID", "Title"]);
             $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
             $jobdata["CompanyID"] = $CompanyID;

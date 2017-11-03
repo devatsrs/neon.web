@@ -341,6 +341,41 @@
                 </div>
             </div>
 
+            @if(isset($COMPANY_SSH_VISIBLE) && $COMPANY_SSH_VISIBLE == 1)
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        SSH Details
+                    </div>
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Host</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="SSH[host]" class="form-control" placeholder="Host" value="{{$SSH['host']}}" />
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Username</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="SSH[username]" class="form-control" placeholder="username" value="{{$SSH['username']}}" />
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Password</label>
+                        <div class="col-sm-10">
+                            <input type="password" name="SSH[password]" class="form-control" placeholder="password" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <div class="panel panel-primary" data-collapsed="0">
                   <div class="panel-heading">
                         <div class="panel-title">

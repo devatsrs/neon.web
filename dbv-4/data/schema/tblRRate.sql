@@ -3,5 +3,6 @@ CREATE TABLE `tblRRate` (
   `CountryID` int(11) DEFAULT NULL,
   `CompanyID` int(11) DEFAULT NULL,
   `Code` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`RRateID`)
+  PRIMARY KEY (`RRateID`),
+  UNIQUE KEY `UK` (`CompanyID`,`Code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

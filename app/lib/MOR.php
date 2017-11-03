@@ -156,7 +156,7 @@ left JOIN mor.currencies on currencies.id = users.currency_id
                 }
 
                 if(!empty($addparams['StartDate'])){
-                    $previous_bal_query =  'select (select COALESCE(SUM(amount),0) from payments  where user_id = '.$user_id.' and date_added<"'.$addparams['StartDate'].'") - (select COALESCE(SUM(user_price),0) from calls  where user_id = '.$user_id.' and calldate<"'.$addparams['StartDate'].'") as previous_bal';
+                    $previous_bal_query =  'select (select COALESCE(SUM(amount),0) from payments  where user_id = '.$user_id.') - (select COALESCE(SUM(user_price),0) from calls  where user_id = '.$user_id.') as previous_bal';
                     $previous_bal_result = DB::connection('pbxmysql')->select($previous_bal_query);
                 }
                 $payments = DB::connection('pbxmysql')->table('payments')->where('user_id',$user_id);
@@ -171,14 +171,14 @@ left JOIN mor.currencies on currencies.id = users.currency_id
 
                 $calls = DB::connection('pbxmysql')->table('calls')->where('user_id',$user_id);
                 if (!empty($addparams['StartDate'])) {
-                    $calls->where('date', '>=', $addparams['StartDate']);
-                }
-                if (!empty($addparams['EndDate'])) {
-                    $calls->where('date', '<=', $addparams['EndDate']);
-                }
+					$calls->whereRaw('DATE(calldate) >="'. $addparams['StartDate'].'"');
+				}
+				if (!empty($addparams['EndDate'])) {
+					$calls->whereRaw('DATE(calldate) <="'. $addparams['EndDate'].'"');
+				}
 
                 $calls->union($payments);
-                $calls->select(DB::Raw("date"));
+                $calls->select(DB::Raw("DATE(calldate) as date"))->orderby('date','desc');
 
                 $response['datatable'] = $calls;
                 if(!empty($previous_bal_result) && count($previous_bal_result)){
@@ -201,15 +201,15 @@ left JOIN mor.currencies on currencies.id = users.currency_id
                 }
 
                 $calls_total = DB::connection('pbxmysql')->table('calls')->where('user_id',$user_id);
-                if (!empty($addparams['StartDate'])) {
-                    $calls_total->where('date', '>=', $addparams['StartDate']);
-                }
-                if (!empty($addparams['EndDate'])) {
-                    $calls_total->where('date', '<=', $addparams['EndDate']);
-                }
-                $calls_total_result = $calls_total->groupby('date')->orderby('date','desc')->select(DB::Raw("date,sum(user_price) as payment"))->get();
+				if (!empty($addparams['StartDate'])) {
+					$calls_total->whereRaw('DATE(calldate) >="'. $addparams['StartDate'].'"');
+				}
+				if (!empty($addparams['EndDate'])) {
+					$calls_total->whereRaw('DATE(calldate) <="'. $addparams['EndDate'].'"');
+				}
+                $calls_total_result = $calls_total->groupby('calldate2')->orderby('calldate2','desc')->select(DB::Raw("DATE(calldate) as calldate2,sum(user_price) as payment"))->get();
                 foreach($calls_total_result as $calls_total_result_row){
-                    $response['calls'][$calls_total_result_row->date] = number_format($calls_total_result_row->payment,get_round_decimal_places(),'.','');
+                    $response['calls'][$calls_total_result_row->calldate2] = number_format($calls_total_result_row->payment,get_round_decimal_places(),'.','');
                 }
 
             }catch(Exception $e){
@@ -248,10 +248,10 @@ left JOIN mor.currencies on currencies.id = users.currency_id
 
                     $calls = DB::connection('pbxmysql')->table('calls')->where('user_id',$results[0]->id);
                     if (!empty($addparams['StartDate'])) {
-                        $calls->where('date', '>=', $addparams['StartDate']);
+                        $calls->whereRaw('DATE(calldate) >="'. $addparams['StartDate'].'"');
                     }
                     if (!empty($addparams['EndDate'])) {
-                        $calls->where('date', '<=', $addparams['EndDate']);
+                        $calls->whereRaw('DATE(calldate) <="'. $addparams['EndDate'].'"');
                     }
                     $response['TotalCharge'] = number_format($calls->sum('user_price'),get_round_decimal_places(),'.','');
 
@@ -267,6 +267,66 @@ left JOIN mor.currencies on currencies.id = users.currency_id
                     $response['Balance'] = number_format($response['previous_bal'] + $response['TotalPayment'] - $response['TotalCharge'],get_round_decimal_places(),'.','');
 
                 }
+            }catch(Exception $e){
+                $response['faultString'] =  $e->getMessage();
+                $response['faultCode'] =  $e->getCode();
+                Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $e->getCode(). ", Reason: " . $e->getMessage());
+                //throw new Exception($e->getMessage());
+            }
+        }
+        return $response;
+
+    }
+
+    public static function getRates($addparams=array()){
+        $response = array();
+        $response['TotalPayment'] = $response['TotalCharge'] = $response['Total'] = $response['Balance'] = 0;
+        if(count(self::$config) && isset(self::$config['dbserver']) && isset(self::$config['username']) && isset(self::$config['password'])){
+            try{
+                DB::purge('pbxmysql');
+                $mor_rates = DB::connection('pbxmysql')->table('users')
+                    ->join('tariffs','tariff_id','=','tariffs.id')
+                    ->join('rates','rates.tariff_id','=','tariffs.id')
+                    ->join('destinations','destination_id','=','destinations.id')
+                    ->join('ratedetails','rates.id','=','rate_id')
+                    ->select('destinations.name','destinations.prefix','rate','connection_fee','increment_s','start_time','end_time','daytype')
+                    ->where("username", $addparams['username']);
+                if(trim($addparams['Prefix']) != '') {
+                    $mor_rates->where('destinations.prefix', 'like','%' .trim($addparams['Prefix']). '%');
+                }
+                if(trim($addparams['Description']) != '') {
+                    $mor_rates->where('destinations.name', 'like','%' .trim($addparams['Description']). '%');
+                }
+                $mor_rates = $mor_rates->get();
+                $mor_rates = json_decode(json_encode($mor_rates), true);
+                $data_count = 0;
+                $insertLimit= 1000;
+                $InsertData = array();
+                foreach($mor_rates as $mor_rate){
+                    $GatewayCustomerRate = array();
+                    $GatewayCustomerRate['CustomerID'] = $addparams['CustomerID'];
+                    $GatewayCustomerRate['Description'] = $mor_rate['name'];
+                    $GatewayCustomerRate['Code'] = $mor_rate['prefix'];
+                    $GatewayCustomerRate['Rate'] = $mor_rate['rate'];
+                    $GatewayCustomerRate['EffectiveDate'] = $mor_rate['connection_fee'];
+                    $GatewayCustomerRate['Interval1'] = $mor_rate['increment_s'];
+                    $GatewayCustomerRate['IntervalN'] = $mor_rate['increment_s'];
+                    $GatewayCustomerRate['ConnectionFee'] = $mor_rate['connection_fee'];
+                    $data_count++;
+                    $InsertData[] = $GatewayCustomerRate;
+                    if($data_count > $insertLimit &&  !empty($InsertData)){
+                        DB::table('tblGatewayCustomerRate')->insert($InsertData);
+                        $InsertData = array();
+                        $data_count = 0;
+                    }
+                }
+				
+				if (!empty($InsertData)) {
+					DB::table('tblGatewayCustomerRate')->insert($InsertData);
+				}
+
+
+
             }catch(Exception $e){
                 $response['faultString'] =  $e->getMessage();
                 $response['faultCode'] =  $e->getCode();

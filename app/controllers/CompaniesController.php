@@ -40,7 +40,21 @@ class CompaniesController extends \BaseController {
         //$PincodeWidget = CompanySetting::getKeyVal('PincodeWidget') == 'Invalid Key' ? '' : CompanySetting::getKeyVal('PincodeWidget');
         $LastPrefixNo = LastPrefixNo::getLastPrefix();
         $dashboardlist = getDashBoards(); //Default Dashbaord functionality Added by Abubakar
-        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification'));
+
+        $COMPANY_SSH_VISIBLE = CompanyConfiguration::get('COMPANY_SSH_VISIBLE');
+		$SSHCONF = CompanyConfiguration::get('SSH');
+        if(!empty($SSHCONF)) {
+            $SSHCONF = (array) json_decode($SSHCONF);
+            $SSH['host']     = isset($SSHCONF['host']) ? $SSHCONF['host'] : '';
+            $SSH['username'] = isset($SSHCONF['username']) ? $SSHCONF['username'] : '';
+            $SSH['password'] = isset($SSHCONF['password']) ? $SSHCONF['password'] : '';
+        } else {
+            $SSH['host']     = '';
+            $SSH['username'] = '';
+            $SSH['password'] = '';
+        }
+
+        return View::make('companies.edit')->with(compact('company', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'UseInBilling', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE'));
 
     }
 
@@ -82,14 +96,19 @@ class CompaniesController extends \BaseController {
         }
 
         if (Input::hasFile('RateSheetTemplateFile')) {
-            $upload_path = CompanyConfiguration::get('TEMP_PATH');
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $excel = Input::file('RateSheetTemplateFile');
             $ext = $excel->getClientOriginalExtension();
             if (in_array($ext, array("xls", "xlsx"))) {
                 $file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
-                $excel->move($upload_path, $file_name);
-                $file_name = $upload_path . '/' . $file_name;
-                $RateSheetTemplateData['Excel'] = $file_name;
+                $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['RATESHEET_TEMPLATE']);
+                $destinationPath = $upload_path . '/' . $amazonPath;
+                $excel->move($destinationPath, $file_name);
+                if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
+                    return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+                }
+                $fullPath = $amazonPath . $file_name;
+                $RateSheetTemplateData['Excel'] = $fullPath;
                 $RateSheetTemplateData['HeaderSize'] = $data['RateSheetTemplate']['HeaderSize'];
                 $RateSheetTemplateData['FooterSize'] = $data['RateSheetTemplate']['FooterSize'];
                 $RateSheetTemplateData = json_encode($RateSheetTemplateData);
@@ -140,6 +159,35 @@ class CompaniesController extends \BaseController {
         }
 		
 		$data['IsSSL'] = isset($data['IsSSL'])?1:0;
+
+        $COMPANY_SSH_VISIBLE = CompanyConfiguration::get('COMPANY_SSH_VISIBLE');
+        if(isset($COMPANY_SSH_VISIBLE) && $COMPANY_SSH_VISIBLE == 1) {
+            $SSHCONF = CompanyConfiguration::get('SSH');
+			if(!empty($SSHCONF)) {
+				$SSHCONF = (array) json_decode($SSHCONF);
+                $SSH['host'] = isset($SSHCONF['host']) ? $SSHCONF['host'] : '';
+                $SSH['username'] = isset($SSHCONF['username']) ? $SSHCONF['username'] : '';
+                $SSH['password'] = isset($SSHCONF['password']) ? $SSHCONF['password'] : '';
+
+                if(isset($data['SSH']['host']) && !empty($data['SSH']['host'])) {
+                    $SSH['host'] = $data['SSH']['host'];
+                }
+                if(isset($data['SSH']['username']) && !empty($data['SSH']['username'])) {
+                    $SSH['username'] = $data['SSH']['username'];
+                }
+                if(isset($data['SSH']['password']) && !empty($data['SSH']['password'])) {
+                    $SSH['password'] = $data['SSH']['password'];
+                }
+                unset($data['SSH']);
+                $SSH = json_encode($SSH);
+                CompanyConfiguration::where('Key', 'SSH')->update(['Value'=>$SSH]);
+                CompanyConfiguration::updateCompanyConfiguration($companyID);
+            } else {
+                $SSH['host'] = '';
+                $SSH['username'] = '';
+                $SSH['password'] = '';
+            }
+        }
 		
         if ($company->update($data)) {
             return Response::json(array("status" => "success", "message" => "Company Successfully Updated"));
@@ -153,8 +201,14 @@ class CompaniesController extends \BaseController {
         $fileTemplate =  CompanySetting::getKeyVal('RateSheetTemplate');
         if($fileTemplate != 'Invalid Key') {
             $fileTemplate = json_decode($fileTemplate);
-            $filePath = $fileTemplate->Excel;
-            download_file($filePath);
+            $FilePath = $fileTemplate->Excel;
+            $FilePath =  AmazonS3::preSignedUrl($FilePath);
+            if(file_exists($FilePath)){
+                download_file($FilePath);
+            }elseif(is_amazon() == true){
+                header('Location: '.$FilePath);
+            }
+            exit;
         }
     }
 

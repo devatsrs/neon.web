@@ -258,7 +258,13 @@
                     <div class="col-md-4">
         <input type="password" class="form-control"    id="CustomerPassword_hide" autocomplete="off" placeholder="Enter Password" value="" />
                             <input type="password" class="form-control"   name="password" id="CustomerPassword" autocomplete="off" placeholder="Enter Password" value="" />
-                    </div>  
+                    </div>
+                                <label class="col-md-2 control-label">Display Rate</label>
+                    <div class="col-md-4">
+                        <div class="make-switch switch-small">
+                            <input type="checkbox" @if($account->DisplayRates == 1 )checked="" @endif name="DisplayRates" value="1">
+                        </div>
+                    </div>
                     </div>
             </div>
         </div>
@@ -445,7 +451,7 @@
                     ?>
                     <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
                     <div class="col-md-4">
-                        @if($billing_disable == '' || (isset($AccountBilling->BillingCycleType) && $AccountBilling->BillingCycleType != 'manual'))
+                        @if($billing_disable == '' || ($billing_disable == '' && isset($AccountBilling->BillingCycleType) && $AccountBilling->BillingCycleType != 'manual'))
                             {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         @else
                             {{Form::hidden('BillingStartDate', $BillingStartDate)}}

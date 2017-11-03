@@ -8,6 +8,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnUsageSummary`(
 	IN `p_AreaPrefix` VARCHAR(50),
 	IN `p_Trunk` VARCHAR(50),
 	IN `p_CountryID` INT,
+	IN `p_CDRType` VARCHAR(50),
 	IN `p_UserID` INT ,
 	IN `p_isAdmin` INT,
 	IN `p_Detail` INT
@@ -31,6 +32,7 @@ BEGIN
 				`CompanyGatewayID` INT(11) NOT NULL,
 				`Trunk` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+				`userfield` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',				
 				`CountryID` INT(11) NULL DEFAULT NULL,
 				`TotalCharges` DOUBLE NULL DEFAULT NULL,
 				`TotalBilledDuration` INT(11) NULL DEFAULT NULL,
@@ -48,6 +50,7 @@ BEGIN
 			us.CompanyGatewayID,
 			us.Trunk,
 			us.AreaPrefix,
+			us.userfield,
 			us.CountryID,
 			us.TotalCharges,
 			us.TotalBilledDuration,
@@ -70,6 +73,7 @@ BEGIN
 		AND (p_Trunk = '' OR us.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
 		AND (p_AreaPrefix = '' OR us.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
 		AND (p_CountryID = 0 OR us.CountryID = p_CountryID)
+		AND (p_CDRType = '' OR us.userfield LIKE REPLACE(p_CDRType, '*', '%'))
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
 
 		INSERT INTO tmp_tblUsageSummary_
@@ -80,6 +84,7 @@ BEGIN
 			us.CompanyGatewayID,
 			us.Trunk,
 			us.AreaPrefix,
+			us.userfield,
 			us.CountryID,
 			us.TotalCharges,
 			us.TotalBilledDuration,
@@ -102,6 +107,7 @@ BEGIN
 		AND (p_Trunk = '' OR us.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
 		AND (p_AreaPrefix = '' OR us.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
 		AND (p_CountryID = 0 OR us.CountryID = p_CountryID)
+		AND (p_CDRType = '' OR us.userfield LIKE REPLACE(p_CDRType, '*', '%'))
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
 
 	END IF;
@@ -118,6 +124,7 @@ BEGIN
 				`CompanyGatewayID` INT(11) NOT NULL,
 				`Trunk` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
 				`AreaPrefix` VARCHAR(100) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',
+				`userfield` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8_unicode_ci',				
 				`CountryID` INT(11) NULL DEFAULT NULL,
 				`TotalCharges` DOUBLE NULL DEFAULT NULL,
 				`TotalBilledDuration` INT(11) NULL DEFAULT NULL,
@@ -137,6 +144,7 @@ BEGIN
 			usd.CompanyGatewayID,
 			usd.Trunk,
 			usd.AreaPrefix,
+			usd.userfield,
 			usd.CountryID,
 			usd.TotalCharges,
 			usd.TotalBilledDuration,
@@ -162,6 +170,7 @@ BEGIN
 		AND (p_Trunk = '' OR usd.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
 		AND (p_AreaPrefix = '' OR usd.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
 		AND (p_CountryID = 0 OR usd.CountryID = p_CountryID)
+		AND (p_CDRType = '' OR usd.userfield LIKE REPLACE(p_CDRType, '*', '%'))
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
 
 		INSERT INTO tmp_tblUsageSummary_
@@ -173,6 +182,7 @@ BEGIN
 			usd.CompanyGatewayID,
 			usd.Trunk,
 			usd.AreaPrefix,
+			usd.userfield,
 			usd.CountryID,
 			usd.TotalCharges,
 			usd.TotalBilledDuration,
@@ -198,6 +208,7 @@ BEGIN
 		AND (p_Trunk = '' OR usd.Trunk LIKE REPLACE(p_Trunk, '*', '%'))
 		AND (p_AreaPrefix = '' OR usd.AreaPrefix LIKE REPLACE(p_AreaPrefix, '*', '%') )
 		AND (p_CountryID = 0 OR usd.CountryID = p_CountryID)
+		AND (p_CDRType = '' OR usd.userfield LIKE REPLACE(p_CDRType, '*', '%'))
 		AND (p_CurrencyID = 0 OR a.CurrencyId = p_CurrencyID);
 
 	END IF;
