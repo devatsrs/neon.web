@@ -2,7 +2,12 @@ function loadDashboard(){
     jQuery(document).ready(function ($) {
 
         /* get hourly data for today and display in first bar chart*/
-        getHourlyChart();
+        if(typeof inbound_monitor != 'undefined' && inbound_monitor == 1) {
+            getHourlyChart('inbound');
+            getHourlyChart('outbound');
+        }else{
+            getHourlyChart('');
+        }
 
         if(typeof hidecallmonitor =='undefined') {
             /* get destination data for today and display in pie three chart*/
@@ -104,21 +109,21 @@ function getReportData(chart_type){
         }
     });
 }
-function getHourlyChart(){
-    loading('.hourly-sales-cost',1);
-    loading('.hourly-sales-minutes',1);
+function getHourlyChart(type){
+    loading('.hourly-sales-cost-'+type,1);
+    loading('.hourly-sales-minutes-'+type,1);
 
     $.ajax({
         type: 'GET',
-        url: baseurl+'/getHourlyData',
+        url: baseurl+'/getHourlyData?CDRType='+type,
         dataType: 'json',
         data:$('#hidden_form').serialize(),
         aysync: true,
         success: function(data) {
-            loading('.hourly-sales-cost',0);
-            loading('.hourly-sales-minutes',0);
+            loading('.hourly-sales-cost-'+type,0);
+            loading('.hourly-sales-minutes-'+type,0);
             if(data.TotalCost > 0) {
-                $(".hourly-sales-cost").sparkline(data.TotalCostChart.split(','), {
+                $(".hourly-sales-cost-"+type).sparkline(data.TotalCostChart.split(','), {
                     type: 'bar',
                     barColor: '#ffa812',
                     height: '55px',
@@ -130,13 +135,13 @@ function getHourlyChart(){
                         names: data.costTitle.split(',')
                     }
                 });
-                $(".hourly-sales-cost").parent().find('h3').html('Sales '+data.TotalCost)
+                $(".hourly-sales-cost-"+type).parent().find('h3').html('Sales '+data.TotalCost)
             }else{
-                $(".hourly-sales-cost").html('<h3>No Data</h3>');
+                $(".hourly-sales-cost-"+type).html('<h3>No Data</h3>');
             }
 
             if(parseInt(data.TotalMinutes) > 0) {
-                $(".hourly-sales-minutes").sparkline(data.TotalMinutesChart.split(','), {
+                $(".hourly-sales-minutes-"+type).sparkline(data.TotalMinutesChart.split(','), {
                     type: 'bar',
                     barColor: '#ec3b83',
                     height: '55px',
@@ -148,9 +153,9 @@ function getHourlyChart(){
                         names: data.minutesTitle.split(',')
                     }
                 });
-                $(".hourly-sales-minutes").parent().find('h3').html('Minutes '+data.TotalMinutes)
+                $(".hourly-sales-minutes-"+type).parent().find('h3').html('Minutes '+data.TotalMinutes)
             }else{
-                $(".hourly-sales-minutes").html('<h3>No Data</h3>');
+                $(".hourly-sales-minutes-"+type).html('<h3>No Data</h3>');
             }
         }
     });
