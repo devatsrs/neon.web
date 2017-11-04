@@ -227,11 +227,11 @@ BEGIN
 	DEALLOCATE PREPARE stmt;
 	
 	
-	SET @stmt = CONCAT('TRUNCATE TABLE tblTempCallDetail_2_',p_UniqueID,';');
+	/*SET @stmt = CONCAT('TRUNCATE TABLE tblTempCallDetail_2_',p_UniqueID,';');
 
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
-	DEALLOCATE PREPARE stmt;
+	DEALLOCATE PREPARE stmt;*/
 	
 	DELETE FROM tmp_VendorUsageSummary WHERE CompanyID = p_CompanyID;
 	
