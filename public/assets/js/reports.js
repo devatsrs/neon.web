@@ -235,6 +235,7 @@ function loadTable(table_id,pageSize,$searchFilter){
     var TotalCall = 0;
     var TotalDuration = 0;
     var TotalCost = 0;
+    var TotalMargin = 0;
         data_table  = $(table_id).dataTable({
         "bDestroy": true,
         "bProcessing": true,
@@ -320,6 +321,7 @@ function loadTable(table_id,pageSize,$searchFilter){
         {  "bSortable": true },  // 3 StartDate
         {  "bSortable": true },  // 3 StartDate
         {  "bSortable": true },  // 3 StartDate
+        {  "bSortable": true }  // 3 StartDate
 
     ],
         "oTableTools": {
@@ -350,6 +352,7 @@ function loadTable(table_id,pageSize,$searchFilter){
             TotalCall = json.Total.TotalCall;
             TotalDuration = json.Total.TotalDuration;
             TotalCost = json.Total.TotalCost;
+            TotalMargin = json.Total.TotalMargin;
             fnCallback(json)
         });
     },
@@ -366,6 +369,9 @@ function loadTable(table_id,pageSize,$searchFilter){
             $($(row).children().get(2)).html('<strong>'+TotalDuration+'</strong>');
             if(TotalCost) {
                 $($(row).children().get(3)).html('<strong>' + TotalCost.toFixed(toFixed) + '</strong>');
+            }
+            if(TotalMargin) {
+                $($(row).children().get(6)).html('<strong>' + TotalMargin.toFixed(toFixed) + '</strong>');
             }
         }else{
             $(table_id).find('tfoot').find('tr').html('');

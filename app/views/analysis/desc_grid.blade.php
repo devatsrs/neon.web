@@ -5,10 +5,11 @@
         <tr>
             <th width="20%">Destination Break</th>
             <th width="20%">No. of Calls</th>
-            <th width="20%">Billed Duration (Min.)</th>
-            <th width="20%">Charged Amount</th>
-            <th width="20%">ACD (mm:ss)</th>
-            <th width="20%">ASR (%)</th>
+            <th width="15%">Billed Duration (Min.)</th>
+            <th width="15%">Charged Amount</th>
+            <th width="10%">ACD (mm:ss)</th>
+            <th width="10%">ASR (%)</th>
+            <th width="10%">Margin</th>
         </tr>
         </thead>
         <tbody>

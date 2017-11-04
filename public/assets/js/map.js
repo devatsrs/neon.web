@@ -25,7 +25,8 @@ function getWorldMap(submit_data){
                             '<b>Cost: </b>'+data.CountryChart[code].TotalCost+'</br>'+
                             '<b>Minutes: </b>'+data.CountryChart[code].TotalMinutes+'</br>'+
                             '<b>ACD: </b>'+data.CountryChart[code].ACD+'</br>'+
-                            '<b>ASR: </b>'+data.CountryChart[code].ASR+'%';
+                            '<b>ASR: </b>'+data.CountryChart[code].ASR+'%'+'</br>'+
+                            '<b>TotalMargin: </b>'+data.CountryChart[code].TotalMargin;
 
                         el.html(el.html() + label_html );
                     }

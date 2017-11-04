@@ -16,6 +16,7 @@ CREATE TABLE `tblUsageSummaryHourLive` (
   `AreaPrefix` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `CountryID` int(11) DEFAULT NULL,
   `userfield` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `TotalCost` double DEFAULT NULL,
   PRIMARY KEY (`UsageSummaryHourLiveID`),
   KEY `FK_tblUsageSummaryDetailNew_dim_time` (`TimeID`),
   KEY `FK_tblUsageSummaryDetailNew_tblSummaryHeader` (`HeaderID`)

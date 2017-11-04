@@ -7,6 +7,7 @@
             <th>Calls</th>
             <th>ACD (mm:ss)</th>
             <th>ASR (%)</th>
+            <th>Margin</th>
         </tr>
     </thead>
     <tbody>
@@ -34,6 +35,7 @@
                 <td>{{$alldata['call_count_val'][$indexcount]}}</td>
                 <td>{{$alldata['call_count_acd'][$indexcount]}}</td>
                 <td>{{$alldata['call_count_asr'][$indexcount]}}</td>
+                <td>{{$alldata['call_count_mar'][$indexcount]}}</td>
             </tr>
         @endforeach
     </tbody>
@@ -49,6 +51,7 @@
             <th>Cost</th>
             <th>ACD (mm:ss)</th>
             <th>ASR (%)</th>
+            <th>Margin</th>
         </tr>
         </thead>
         <tbody>
@@ -76,6 +79,7 @@
                 <td>{{$alldata['call_cost_val'][$indexcount]}}</td>
                 <td>{{$alldata['call_cost_acd'][$indexcount]}}</td>
                 <td>{{$alldata['call_cost_asr'][$indexcount]}}</td>
+                <td>{{$alldata['call_cost_mar'][$indexcount]}}</td>
             </tr>
         @endforeach
         </tbody>
@@ -91,6 +95,7 @@
             <th>Minutes</th>
             <th>ACD (mm:ss)</th>
             <th>ASR (%)</th>
+            <th>Margin</th>
         </tr>
         </thead>
         <tbody>
@@ -118,6 +123,7 @@
                 <td>{{$alldata['call_minutes_val'][$indexcount]}}</td>
                 <td>{{$alldata['call_minutes_acd'][$indexcount]}}</td>
                 <td>{{$alldata['call_minutes_asr'][$indexcount]}}</td>
+                <td>{{$alldata['call_minutes_mar'][$indexcount]}}</td>
             </tr>
         @endforeach
         </tbody>

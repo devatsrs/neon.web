@@ -18,6 +18,7 @@ BEGIN
 	
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 	CALL fnUpdateCustomerLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 
 	DELETE FROM tmp_UsageSummary WHERE CompanyID = p_CompanyID;
@@ -37,6 +38,7 @@ BEGIN
 		AreaPrefix,
 		userfield,
 		TotalCharges,
+		TotalCost,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -56,6 +58,7 @@ BEGIN
 		ud.area_prefix,
 		ud.userfield,
 		COALESCE(SUM(ud.cost),0)  AS TotalCharges ,
+		COALESCE(SUM(ud.buying_cost),0)  AS TotalCost ,
 		COALESCE(SUM(ud.billed_duration),0) AS TotalBilledDuration ,
 		COALESCE(SUM(ud.duration),0) AS TotalDuration,
 		SUM(IF(ud.call_status=1,1,0)) AS  NoOfCalls,
@@ -100,6 +103,7 @@ BEGIN
 		CompanyID,
 		AccountID,
 		TotalCharges,
+		TotalCost,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -110,6 +114,7 @@ BEGIN
 		CompanyID,
 		AccountID,
 		SUM(TotalCharges) as TotalCharges,
+		SUM(TotalCost) as TotalCost,
 		SUM(TotalBilledDuration) as TotalBilledDuration,
 		SUM(TotalDuration) as TotalDuration,
 		SUM(NoOfCalls) as NoOfCalls,
@@ -142,6 +147,7 @@ BEGIN
 		userfield,
 		CountryID,
 		TotalCharges,
+		TotalCost,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -159,6 +165,7 @@ BEGIN
 		userfield,
 		CountryID,
 		SUM(us.TotalCharges),
+		SUM(us.TotalCost),
 		SUM(us.TotalBilledDuration),
 		SUM(us.TotalDuration),
 		SUM(us.NoOfCalls),
@@ -184,6 +191,7 @@ BEGIN
 		userfield,
 		CountryID,
 		TotalCharges,
+		TotalCost,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -202,6 +210,7 @@ BEGIN
 		userfield,
 		CountryID,
 		us.TotalCharges,
+		us.TotalCost,
 		us.TotalBilledDuration,
 		us.TotalDuration,
 		us.NoOfCalls,
