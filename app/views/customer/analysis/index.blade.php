@@ -62,6 +62,10 @@
                                 <div class="col-sm-2 select_hour">
                                     {{ Form::select('TimeZone',$timezones,'', array("class"=>"select2")) }}
                                 </div>
+                                <label class="col-sm-1 control-label" for="field-1">Type</label>
+                                <div class="col-sm-2">
+                                    {{ Form::select('CDRType',array(''=>'Both','inbound' => "Inbound", 'outbound' => "Outbound" ),'', array("class"=>"select2")) }}
+                                </div>
                                 <input type="hidden" name="CurrencyID" value="{{$CurrencyID}}">
                                 <input type="hidden" name="AccountID" value="{{Customer::get_accountID()}}">
                                 <input type="hidden" name="CompanyGatewayID" value="0">

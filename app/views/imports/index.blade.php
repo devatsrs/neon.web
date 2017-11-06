@@ -862,9 +862,7 @@
 
         /*quickbook */ /* sippy gateway */
         $("#selectall1").click(function(ev) {
-            console.log('clicked');
             var is_checked = $(this).is(':checked');
-            console.log('isChecked:'+is_checked);
             $('#table-6 tbody tr').each(function(i, el) {
                 if($(this).find('.rowcheckbox').hasClass('rowcheckbox')){
                     if (is_checked) {
@@ -1006,9 +1004,7 @@
                         }
                     });
                     $("#selectall").click(function(ev) {
-                        console.log('clicked');
                         var is_checked = $(this).is(':checked');
-                        console.log('isChecked:'+is_checked);
                         $('#table-5 tbody tr').each(function(i, el) {
                             if($(this).find('.rowcheckbox').hasClass('rowcheckbox')){
                                 if (is_checked) {
@@ -1097,6 +1093,7 @@
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
+                    $('#table-5 tbody').off('click');
                     $('#table-5 tbody').on('click', 'tr', function() {
                         if (checked =='') {
                             if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
@@ -1199,6 +1196,7 @@
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
+                    $('#table-6 tbody').off('click');
                     $('#table-6 tbody').on('click', 'tr', function() {
                         if (checked =='') {
                             if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
@@ -1212,9 +1210,7 @@
                         }
                     });
                     $("#selectall1").click(function(ev) {
-                        console.log('clicked');
                         var is_checked = $(this).is(':checked');
-                        console.log('isChecked:'+is_checked);
                         $('#table-6 tbody tr').each(function(i, el) {
                             if($(this).find('.rowcheckbox').hasClass('rowcheckbox')){
                                 if (is_checked) {

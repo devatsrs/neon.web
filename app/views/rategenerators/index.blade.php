@@ -200,6 +200,7 @@
                         $('#RateTableNameid').show();
                         $('#RateTableReplaceRate').hide();
                         $('#RateTableEffectiveRate').show();
+                        $('.when_update_rate_generator').hide();
                         $('#modal-update-rate h4').html('Generate Rate Table');
                         update_rate_table_url = $(this).attr("href");
 
@@ -277,6 +278,7 @@
             $('#RateTableReplaceRate').show();
             $('#RateTableEffectiveRate').show();
             $('#RateTableNameid').hide();
+            $('.when_update_rate_generator').show();
             $('#modal-update-rate h4').html('Update Rate Table');
         });
 

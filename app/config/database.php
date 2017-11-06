@@ -53,10 +53,10 @@ return array(
 
 		'mysql' => array(
 			'driver'    => 'mysql',
-			'host'      => 'localhost',
-			'database'  => 'ratemanagement3',
-			'username'  => 'root',
-			'password'  => '',
+			'host'     => getenv('DB_HOST'),
+			'database' => getenv('DB_DATABASE'),
+			'username' => getenv('DB_USERNAME'),
+			'password' => substr(getenv('DB_PASSWORD'),5),
 			'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
