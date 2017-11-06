@@ -1,5 +1,8 @@
 Use Ratemanagement3;
 
+ALTER TABLE `tblRateGenerator`
+ ADD COLUMN `GroupBy` VARCHAR(50) NULL DEFAULT 'Code' AFTER `Sources`;
+
 UPDATE `tblCronJobCommand` SET `Settings`='[[{"title":"Effective Day","type":"text","value":"","name":"EffectiveDay"},{"title":"Increase Effective Day","type":"text","value":"","name":"IncreaseEffectiveDate"},{"title":"Decrease Effective Day","type":"text","value":"","name":"DecreaseEffectiveDate"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]' WHERE  `Command`='rategenerator';
 
 ALTER TABLE `tblTicketGroups`
