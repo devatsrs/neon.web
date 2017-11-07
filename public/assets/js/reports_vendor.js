@@ -318,6 +318,7 @@ function loadTable(table_id,pageSize,$searchFilter){
         ]
     },
     "fnDrawCallback": function () {
+        checkrmargindisplay(table_id);
         $(".dataTables_wrapper select").select2({
             minimumResultsForSearch: -1
         });
@@ -465,4 +466,15 @@ function getDates(submit_data,row,searchdates) {
     submit_data.EndDate = EndDate + end_time;
     console.log(' start date 2 ' + submit_data.StartDate);
     console.log(' end date 2 ' + submit_data.EndDate);
+}
+
+function checkrmargindisplay(table_id){
+    if(customer_login == 1){
+        $(table_id+" td:nth-child(7)").hide();
+        $(table_id+" td:nth-child(7)").addClass('hidden');
+        $(table_id+" th:nth-child(7)").hide();
+    }else{
+        $(table_id+" td:nth-child(7)").show();
+        $(table_id+" th:nth-child(7)").show();
+    }
 }

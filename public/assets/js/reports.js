@@ -344,6 +344,7 @@ function loadTable(table_id,pageSize,$searchFilter){
         $(".dataTables_wrapper select").select2({
             minimumResultsForSearch: -1
         });
+        checkrmargindisplay(table_id);
     },
     "fnServerData": function ( sSource, aoData, fnCallback ) {
         /* Add some extra data to the sender */
@@ -588,4 +589,15 @@ function getMostDailedCall(submitdata){
             $(".most-dialled-number").find('tbody').html(data.html);
         }
     });
+}
+
+function checkrmargindisplay(table_id){
+    if(customer_login == 1){
+        $(table_id+" td:nth-child(7)").hide();
+        $(table_id+" td:nth-child(7)").addClass('hidden');
+        $(table_id+" th:nth-child(7)").hide();
+    }else{
+        $(table_id+" td:nth-child(7)").show();
+        $(table_id+" th:nth-child(7)").show();
+    }
 }
