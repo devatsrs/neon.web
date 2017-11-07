@@ -27,6 +27,12 @@ INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, '
 
 INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'COMPANY_SSH_VISIBLE', '1');
 
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 8, 'Mor Customer Rate Import', 'morcustomerrateimport', '[[{"title":"MOR Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2017-11-02 16:56:13', 'RateManagementSystem');
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 9, 'Locutorios Customer Rate Import', 'callshopcustomerrateimport', '[[{"title":"Max Interval","type":"text","value":"","name":"MaxInterval"},{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2017-11-03 16:56:13', 'RateManagementSystem');
+
+
+
+DROP TABLE IF EXISTS `tblSippyPaymentImportLog`;
 CREATE TABLE `tblSippyPaymentImportLog` (
 	`SippyPaymentImportLogID` INT NOT NULL AUTO_INCREMENT,
 	`CompanyID` INT NOT NULL DEFAULT '0',
