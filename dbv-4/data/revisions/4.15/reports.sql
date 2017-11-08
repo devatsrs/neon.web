@@ -19,6 +19,21 @@ ALTER TABLE `tmp_UsageSummary`
 
 ALTER TABLE `tmp_UsageSummaryLive`
 	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT NULL;
+	
+ALTER TABLE `tblHeader`
+  ADD COLUMN `TotalCost` double NULL;
+
+ALTER TABLE `tblUsageSummaryDay`
+  ADD COLUMN `TotalCost` double NULL;
+
+ALTER TABLE `tblUsageSummaryDayLive`
+  ADD COLUMN `TotalCost` double NULL;
+
+ALTER TABLE `tblUsageSummaryHour`
+  ADD COLUMN `TotalCost` double NULL;
+
+ALTER TABLE `tblUsageSummaryHourLive`
+  ADD COLUMN `TotalCost` double NULL;
 
 
 DROP PROCEDURE IF EXISTS `prc_getHourlyReport`;
@@ -240,8 +255,8 @@ BEGIN
 		pincode,
 		extension,
 		ID
-	FROM NeonCDRDev.tblUsageDetails  ud
-	INNER JOIN NeonCDRDev.tblUsageHeader uh
+	FROM RMCDR3.tblUsageDetails  ud
+	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
@@ -296,8 +311,8 @@ BEGIN
 		pincode,
 		extension,
 		ID
-	FROM NeonCDRDev.tblUsageDetailFailedCall  ud
-	INNER JOIN NeonCDRDev.tblUsageHeader uh
+	FROM RMCDR3.tblUsageDetailFailedCall  ud
+	INNER JOIN RMCDR3.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
@@ -360,8 +375,8 @@ BEGIN
 		area_prefix,		
 		1 AS call_status,
 		ID
-	FROM NeonCDRDev.tblVendorCDR  ud
-	INNER JOIN NeonCDRDev.tblVendorCDRHeader uh
+	FROM RMCDR3.tblVendorCDR  ud
+	INNER JOIN RMCDR3.tblVendorCDRHeader uh
 		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
@@ -409,8 +424,8 @@ BEGIN
 		area_prefix,		
 		2 AS call_status,
 		ID
-	FROM NeonCDRDev.tblVendorCDRFailed  ud
-	INNER JOIN NeonCDRDev.tblVendorCDRHeader uh
+	FROM RMCDR3.tblVendorCDRFailed  ud
+	INNER JOIN RMCDR3.tblVendorCDRHeader uh
 		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
@@ -544,7 +559,7 @@ BEGIN
 			ON us.HeaderID = sh.HeaderID
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.AccountID = a.AccountID
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
@@ -579,7 +594,7 @@ BEGIN
 			ON us.HeaderID = sh.HeaderID
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.AccountID = a.AccountID
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
@@ -643,7 +658,7 @@ BEGIN
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
 			ON dt.TimeID = usd.TimeID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.AccountID = a.AccountID
 		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
@@ -682,7 +697,7 @@ BEGIN
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
 			ON dt.TimeID = usd.TimeID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.AccountID = a.AccountID
 		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
@@ -767,7 +782,7 @@ BEGIN
 			ON us.HeaderVID = sh.HeaderVID 
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.VAccountID = a.AccountID
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
@@ -800,7 +815,7 @@ BEGIN
 			ON us.HeaderVID = sh.HeaderVID 
 		INNER JOIN tblDimDate dd
 			ON dd.DateID = sh.DateID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.VAccountID = a.AccountID
 		WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 		AND sh.CompanyID = p_CompanyID
@@ -861,7 +876,7 @@ BEGIN
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
 			ON dt.TimeID = usd.TimeID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.VAccountID = a.AccountID
 		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
@@ -898,7 +913,7 @@ BEGIN
 			ON dd.DateID = sh.DateID
 		INNER JOIN tblDimTime dt
 			ON dt.TimeID = usd.TimeID
-		INNER JOIN NeonRMDev.tblAccount a
+		INNER JOIN Ratemanagement3.tblAccount a
 			ON sh.VAccountID = a.AccountID
 		WHERE dd.date BETWEEN DATE(p_StartDate) AND DATE(p_EndDate)
 		AND CONCAT(dd.date,' ',dt.fulltime) BETWEEN p_StartDate AND p_EndDate
@@ -3753,7 +3768,7 @@ BEGIN
 	THEN
 		SET @stmt = CONCAT('
 		UPDATE tmp_tblUsageDetailsReport_',p_UniqueID,' uh
-		INNER JOIN NeonBillingDev.tblGatewayAccount ga
+		INNER JOIN RMBilling3.tblGatewayAccount ga
 			ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
 		SET uh.AccountID = ga.AccountID
 		WHERE uh.AccountID IS NULL
@@ -3767,7 +3782,7 @@ BEGIN
 		
 		/*SET @stmt = CONCAT('
 		UPDATE tblTempCallDetail_1_',p_UniqueID,' uh
-		INNER JOIN NeonBillingDev.tblGatewayAccount ga
+		INNER JOIN RMBilling3.tblGatewayAccount ga
 			ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
 		SET uh.AccountID = ga.AccountID
 		WHERE uh.AccountID IS NULL
@@ -3785,7 +3800,7 @@ BEGIN
 
 		SET @stmt = CONCAT('
 		UPDATE tmp_tblVendorUsageDetailsReport_',p_UniqueID,' uh
-		INNER JOIN NeonBillingDev.tblGatewayAccount ga
+		INNER JOIN RMBilling3.tblGatewayAccount ga
 			ON  uh.GatewayVAccountPKID = ga.GatewayAccountPKID
 		SET uh.VAccountID = ga.AccountID
 		WHERE uh.VAccountID IS NULL
@@ -3799,7 +3814,7 @@ BEGIN
 		
 		/*SET @stmt = CONCAT('
 		UPDATE tblTempCallDetail_2_',p_UniqueID,' uh
-		INNER JOIN NeonBillingDev.tblGatewayAccount ga
+		INNER JOIN RMBilling3.tblGatewayAccount ga
 			ON  uh.GatewayVAccountPKID = ga.GatewayAccountPKID
 		SET uh.VAccountID = ga.AccountID
 		WHERE uh.VAccountID IS NULL
