@@ -3239,7 +3239,7 @@ BEGIN
 						    INNER JOIN tmp_Update_RateTable_ r
 							 	 ON  r.RateID = tr.RateID
 							 	 	AND r.RateTableRateID = tr.RateTableRateID
-										SET PreviousRate = tr.Rate ,  updated_at=NOW(),ModifiedBy="',p_ModifiedBy,'"',@stm,'
+										SET updated_at=NOW(),ModifiedBy="',p_ModifiedBy,'"',@stm,'
 								    WHERE  RateTableId = ',p_RateTableId,';
 						');
 
