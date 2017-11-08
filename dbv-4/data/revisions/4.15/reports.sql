@@ -1,5 +1,26 @@
 USE `StagingReport`;
 
+
+ALTER TABLE `tblUsageSummaryDay`
+	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT NULL;
+
+
+ALTER TABLE `tblUsageSummaryDayLive`
+	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT NULL;
+
+ALTER TABLE `tblUsageSummaryHour`
+	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT NULL;
+
+ALTER TABLE `tblUsageSummaryHourLive`
+	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT NULL;
+
+ALTER TABLE `tmp_UsageSummary`
+	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT NULL;
+
+ALTER TABLE `tmp_UsageSummaryLive`
+	ADD COLUMN `userfield` VARCHAR(255) NULL DEFAULT NULL;
+
+
 DROP PROCEDURE IF EXISTS `prc_getHourlyReport`;
 DELIMITER //
 CREATE PROCEDURE `prc_getHourlyReport`(
