@@ -34,6 +34,12 @@ ALTER TABLE `tblUsageSummaryHour`
 
 ALTER TABLE `tblUsageSummaryHourLive`
   ADD COLUMN `TotalCost` double NULL;
+  
+ALTER TABLE `tmp_UsageSummary`
+	ADD COLUMN `TotalCost` DOUBLE NULL DEFAULT NULL;
+	
+ALTER TABLE `tmp_UsageSummaryLive`
+	ADD COLUMN `TotalCost` DOUBLE NULL DEFAULT NULL;  
 
 
 DROP PROCEDURE IF EXISTS `prc_getHourlyReport`;
