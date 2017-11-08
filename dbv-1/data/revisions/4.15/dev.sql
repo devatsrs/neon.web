@@ -3201,6 +3201,30 @@ BEGIN
 			EXECUTE stmt;
 			DEALLOCATE PREPARE stmt;
 
+
+      -- update  previous rate with all latest recent entriy of previous effective date
+			UPDATE tblRateTableRate rtr
+			inner join
+			(
+				-- get all rates RowID = 1 to remove old to old effective date
+
+				select distinct rt1.* ,
+				@row_num := IF(@prev_RateId = rt1.RateID AND @prev_EffectiveDate >= rt1.EffectiveDate, @row_num + 1, 1) AS RowID,
+				@prev_RateId := rt1.RateID,
+				@prev_EffectiveDate := rt1.EffectiveDate
+				from tblRateTableRate rt1
+				inner join tmp_Update_RateTable_ rt2
+				on rt1.RateTableId = p_RateTableId and rt1.RateID = rt2.RateID
+				and rt1.EffectiveDate < rt2.EffectiveDate
+				where
+				rt1.RateTableID = p_RateTableId
+				order by rt1.RateID desc ,rt1.EffectiveDate desc
+
+			) old_rtr on  old_rtr.RateTableID = rtr.RateTableID  and old_rtr.RateID = rtr.RateID and old_rtr.EffectiveDate < rtr.EffectiveDate AND rtr.EffectiveDate =  p_EffectiveDate AND old_rtr.RowID = 1
+			SET rtr.PreviousRate = old_rtr.Rate
+			where
+			rtr.RateTableID = p_RateTableId;
+
 	END IF;
 
 
