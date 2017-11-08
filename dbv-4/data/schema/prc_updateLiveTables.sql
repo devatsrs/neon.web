@@ -25,7 +25,7 @@ BEGIN
 		EXECUTE stmt;
 		DEALLOCATE PREPARE stmt;
 		
-		SET @stmt = CONCAT('
+		/*SET @stmt = CONCAT('
 		UPDATE tblTempCallDetail_1_',p_UniqueID,' uh
 		INNER JOIN NeonBillingDev.tblGatewayAccount ga
 			ON  uh.GatewayAccountPKID = ga.GatewayAccountPKID
@@ -36,7 +36,7 @@ BEGIN
 
 		PREPARE stmt FROM @stmt;
 		EXECUTE stmt;
-		DEALLOCATE PREPARE stmt;
+		DEALLOCATE PREPARE stmt;*/
 
 	END IF;
 
@@ -57,7 +57,7 @@ BEGIN
 		EXECUTE stmt;
 		DEALLOCATE PREPARE stmt;
 		
-		SET @stmt = CONCAT('
+		/*SET @stmt = CONCAT('
 		UPDATE tblTempCallDetail_2_',p_UniqueID,' uh
 		INNER JOIN NeonBillingDev.tblGatewayAccount ga
 			ON  uh.GatewayVAccountPKID = ga.GatewayAccountPKID
@@ -68,7 +68,7 @@ BEGIN
 
 		PREPARE stmt FROM @stmt;
 		EXECUTE stmt;
-		DEALLOCATE PREPARE stmt;
+		DEALLOCATE PREPARE stmt;*/
 
 	END IF;
 

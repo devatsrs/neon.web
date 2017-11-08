@@ -19,6 +19,7 @@ CREATE TABLE `tmp_UsageSummary` (
   `CountryID` int(11) DEFAULT NULL,
   `ServiceID` int(11) DEFAULT NULL,
   `userfield` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `TotalCost` double DEFAULT NULL,
   PRIMARY KEY (`UsageSummaryID`),
   KEY `tblUsageSummary_dim_date` (`DateID`),
   KEY `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`),

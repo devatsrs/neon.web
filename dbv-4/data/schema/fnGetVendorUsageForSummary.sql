@@ -24,7 +24,8 @@ BEGIN
 		buying_cost,
 		trunk,
 		area_prefix,
-		call_status_v		
+		call_status_v,
+		ID
 	)
 	SELECT 
 		ud.VendorCDRID,
@@ -41,7 +42,8 @@ BEGIN
 		buying_cost,
 		trunk,
 		area_prefix,		
-		1 AS call_status
+		1 AS call_status,
+		ID
 	FROM NeonCDRDev.tblVendorCDR  ud
 	INNER JOIN NeonCDRDev.tblVendorCDRHeader uh
 		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
@@ -71,7 +73,8 @@ BEGIN
 		buying_cost,
 		trunk,
 		area_prefix,
-		call_status_v		
+		call_status_v,
+		ID
 	)
 	SELECT 
 		ud.VendorCDRFailedID,
@@ -88,7 +91,8 @@ BEGIN
 		buying_cost,
 		trunk,
 		area_prefix,		
-		2 AS call_status
+		2 AS call_status,
+		ID
 	FROM NeonCDRDev.tblVendorCDRFailed  ud
 	INNER JOIN NeonCDRDev.tblVendorCDRHeader uh
 		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 

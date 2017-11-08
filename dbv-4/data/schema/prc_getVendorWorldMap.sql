@@ -23,7 +23,7 @@ BEGIN
 
 	CALL fnUsageVendorSummary(p_CompanyID,p_CompanyGatewayID,p_AccountID,p_CurrencyID,p_StartDate,p_EndDate,p_AreaPrefix,p_Trunk,p_CountryID,p_UserID,p_isAdmin,2);
 
-	/* get all country call counts*/	
+	/* get all country call counts*/
 	SELECT 
 		Country,
 		SUM(NoOfCalls) AS CallCount,
@@ -31,6 +31,7 @@ BEGIN
 		ROUND(COALESCE(SUM(TotalBilledDuration),0)/ 60,0) as TotalMinutes,
 		IF(SUM(NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(TotalBilledDuration),0)/SUM(NoOfCalls)),0) as ACD,
 		ROUND(SUM(NoOfCalls)/(SUM(NoOfCalls)+SUM(NoOfFailCalls))*100,v_Round_) as ASR,
+		ROUND(COALESCE(SUM(TotalSales),0) - COALESCE(SUM(TotalCharges),0), v_Round_) as TotalMargin,
 		MAX(ISO2) AS ISO_Code,
 		tblCountry.CountryID
 	FROM tmp_tblUsageVendorSummary_ AS us

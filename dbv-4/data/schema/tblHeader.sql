@@ -9,6 +9,7 @@ CREATE TABLE `tblHeader` (
   `TotalDuration` int(11) DEFAULT NULL,
   `NoOfCalls` int(11) DEFAULT NULL,
   `NoOfFailCalls` int(11) DEFAULT NULL,
+  `TotalCost` double DEFAULT NULL,
   PRIMARY KEY (`HeaderID`),
   UNIQUE KEY `Unique_key` (`DateID`,`AccountID`),
   KEY `FK_tblSummaryHeaderNew_dim_date` (`DateID`),
