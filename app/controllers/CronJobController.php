@@ -168,7 +168,7 @@ class CronJobController extends \BaseController {
             }else if($CronJobCommand->Command == 'accountbalanceprocess'){
                 //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::ACCOUNT_TEMPLATE));
 				$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
-            }else if($CronJobCommand->Command == 'customerratefileexport' || $CronJobCommand->Command == 'customerratefilegeneration'){
+            }else if($CronJobCommand->Command == 'customerratefileexport' || $CronJobCommand->Command == 'customerratefilegeneration' || $CronJobCommand->Command == 'morcustomerrateimport' || $CronJobCommand->Command == 'callshopcustomerrateimport'){
                 $customers = Account::getCustomerIDList();
                 $customers = array_diff($customers, array('Select'));
             }else if($CronJobCommand->Command == 'vendorratefileexport' || $CronJobCommand->Command == 'vendorratefilegeneration'){
