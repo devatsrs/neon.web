@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_RerateOutboundTrunk`(
+CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_RerateOutboundTrunk`(
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
 	IN `p_RateCDR` INT,
@@ -14,6 +14,11 @@ BEGIN
 	DECLARE v_TrunkID_ INT;
 	DECLARE v_CDRUpload_ INT;
 	DECLARE v_cld_ VARCHAR(500);
+	DECLARE v_CustomerIDs_ TEXT DEFAULT '';
+	DECLARE v_CustomerIDs_Count_ INT DEFAULT 0;
+	
+	SELECT GROUP_CONCAT(AccountID) INTO v_CustomerIDs_ FROM tmp_Customers_ GROUP BY CompanyGatewayID;
+	SELECT COUNT(*) INTO v_CustomerIDs_Count_ FROM tmp_Customers_;
 
 	/* temp accounts and trunks*/
 	DROP TEMPORARY TABLE IF EXISTS tmp_AccountTrunkCdrUpload_;
@@ -86,7 +91,7 @@ BEGIN
 	END IF;
 	
 	/* if rerate on */
-	IF p_RateCDR = 1
+	IF p_RateCDR = 1 AND v_CustomerIDs_Count_ = 0
 	THEN
 
 		SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( AccountID IS NULL OR TrunkID IS NULL ) ') ;
@@ -94,7 +99,22 @@ BEGIN
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
 		DEALLOCATE PREPARE stmt;
+	
+	ELSEIF p_RateCDR = 1 AND v_CustomerIDs_Count_ > 0
+	THEN
+		
+		SET @stm = CONCAT('UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( FIND_IN_SET(AccountID,"',v_CustomerIDs_,'")>0 AND TrunkID IS NULL ) ') ;
 
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+		
+		SET @stm = CONCAT('UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET is_rerated=1  WHERE ProcessID = "',p_processId,'" AND ( FIND_IN_SET(AccountID,"',v_CustomerIDs_,'")=0) ') ;
+		
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+		
 	END IF;
 
 	/* temp accounts and trunks*/
@@ -115,7 +135,7 @@ BEGIN
 
 	SET v_pointer_ = 1;
 	SET v_rowCount_ = (SELECT COUNT(*)FROM tmp_AccountTrunk_);
-
+	
 	WHILE v_pointer_ <= v_rowCount_
 	DO
 
@@ -133,7 +153,7 @@ BEGIN
 		END IF;
 
 		/* outbound rerate process*/
-		IF p_RateCDR = 1
+		IF p_RateCDR = 1 AND (v_CustomerIDs_Count_=0 OR (v_CustomerIDs_Count_>0 AND FIND_IN_SET(v_AccountID_,v_CustomerIDs_)>0))
 		THEN
 			CALL prc_updateOutboundRate(v_AccountID_,v_TrunkID_, p_processId, p_tbltempusagedetail_name,0,p_RateMethod,p_SpecifyRate);
 		END IF;

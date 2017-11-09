@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcesssVCDR`(
+CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_ProcesssVCDR`(
 	IN `p_CompanyID` INT,
 	IN `p_CompanyGatewayID` INT,
 	IN `p_processId` INT,
@@ -6,6 +6,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_ProcesssVCDR`(
 	IN `p_RateCDR` INT,
 	IN `p_RateFormat` INT,
 	IN `p_NameFormat` VARCHAR(50)
+
+
 )
 BEGIN
 	DECLARE v_rowCount_ INT;
@@ -13,9 +15,28 @@ BEGIN
 	DECLARE v_AccountID_ INT;
 	DECLARE v_TrunkID_ INT;
 	DECLARE v_NewAccountIDCount_ INT;
+	DECLARE v_VendorIDs_ TEXT DEFAULT '';
+	DECLARE v_VendorIDs_Count_ INT DEFAULT 0;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 	
 	CALL prc_ProcessCDRService(p_CompanyID,p_processId,p_tbltempusagedetail_name);
+	
+	
+	DROP TEMPORARY TABLE IF EXISTS tmp_Vendors_;
+	CREATE TEMPORARY TABLE tmp_Vendors_  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		AccountID INT,
+		CompanyGatewayID INT
+	);
+	SET @sql1 = concat("insert into tmp_Vendors_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Vendors'), '[', ''), ']', ''),0)),'"','')) as AccountID from NeonRMDev.tblCompanyGateway WHERE CompanyGatewayID=p_CompanyGatewayID), ",", "'),('"),"');");
+	PREPARE stmt1 FROM @sql1;
+	EXECUTE stmt1;
+	DEALLOCATE PREPARE stmt1;
+	DELETE FROM tmp_Vendors_ WHERE AccountID=0;
+	UPDATE tmp_Vendors_ SET CompanyGatewayID=p_CompanyGatewayID WHERE 1;
+	
+	SELECT GROUP_CONCAT(AccountID) INTO v_VendorIDs_ FROM tmp_Vendors_ GROUP BY CompanyGatewayID;
+	SELECT COUNT(*) INTO v_VendorIDs_Count_ FROM tmp_Vendors_;
 	
 	/* check service enable at gateway*/
 	DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
@@ -178,14 +199,30 @@ BEGIN
 	END IF;
 
 	/* if rerate on */
-	IF p_RateCDR = 1
+	IF p_RateCDR = 1 AND v_VendorIDs_Count_ = 0
 	THEN
+	
 		SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET selling_cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( AccountID IS NULL OR TrunkID IS NULL ) ') ;
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
 		DEALLOCATE PREPARE stmt;
 
+	ELSEIF p_RateCDR = 1 AND v_VendorIDs_Count_ > 0
+	THEN
+		
+		SET @stm = CONCAT('UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET selling_cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( FIND_IN_SET(AccountID,"',v_VendorIDs_,'")>0 AND TrunkID IS NULL ) ') ;
+
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+		
+		SET @stm = CONCAT('UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET is_rerated=1  WHERE ProcessID = "',p_processId,'" AND ( FIND_IN_SET(AccountID,"',v_VendorIDs_,'")=0) ') ;
+
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+		
 	END IF;
 
 	/* temp accounts and trunks*/
@@ -225,7 +262,7 @@ BEGIN
 		
 		
 		/* outbound rerate process*/
-		IF p_RateCDR = 1
+		IF p_RateCDR = 1 AND (v_VendorIDs_Count_=0 OR (v_VendorIDs_Count_>0 AND FIND_IN_SET(v_AccountID_,v_VendorIDs_)>0))
 		THEN
 			CALL prc_updateVendorRate(v_AccountID_,v_TrunkID_, p_processId, p_tbltempusagedetail_name);
 		END IF;

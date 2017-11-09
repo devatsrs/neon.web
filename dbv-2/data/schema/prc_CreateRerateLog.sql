@@ -1,9 +1,14 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CreateRerateLog`(
+CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_CreateRerateLog`(
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
 	IN `p_RateCDR` INT
 )
 BEGIN
+	DECLARE v_CustomerIDs_ TEXT DEFAULT '';
+	DECLARE v_CustomerIDs_Count_ INT DEFAULT 0;
+
+	SELECT GROUP_CONCAT(AccountID) INTO v_CustomerIDs_ FROM tmp_Customers_ GROUP BY CompanyGatewayID;
+	SELECT COUNT(*) INTO v_CustomerIDs_Count_ FROM tmp_Customers_;
 
 	SET @stm = CONCAT('
 	INSERT INTO tmp_tblTempRateLog_ (CompanyID,CompanyGatewayID,MessageType,Message,RateDate)

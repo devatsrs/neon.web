@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_RerateInboundCalls`(
+CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_RerateInboundCalls`(
 	IN `p_CompanyID` INT,
 	IN `p_processId` INT,
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
@@ -14,14 +14,19 @@ BEGIN
 	DECLARE v_AccountID_ INT;
 	DECLARE v_ServiceID_ INT;
 	DECLARE v_cld_ VARCHAR(500);
+	DECLARE v_CustomerIDs_ TEXT DEFAULT '';
+	DECLARE v_CustomerIDs_Count_ INT DEFAULT 0;
+	
+	SELECT GROUP_CONCAT(AccountID) INTO v_CustomerIDs_ FROM tmp_Customers_ GROUP BY CompanyGatewayID;
+	SELECT COUNT(*) INTO v_CustomerIDs_Count_ FROM tmp_Customers_;
 
-	IF p_RateCDR = 1  
+	IF p_RateCDR = 1
 	THEN
 
 		IF (SELECT COUNT(*) FROM NeonRMDev.tblCLIRateTable WHERE CompanyID = p_CompanyID AND RateTableID > 0) > 0
 		THEN
 
-			/* temp accounts*/
+			
 			DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
 			CREATE TEMPORARY TABLE tmp_Account_  (
 				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -41,7 +46,7 @@ BEGIN
 		ELSEIF ( SELECT COUNT(*) FROM tmp_Service_ ) > 0
 		THEN
 
-			/* temp accounts*/
+			
 			DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
 			CREATE TEMPORARY TABLE tmp_Account_  (
 				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -60,7 +65,7 @@ BEGIN
 
 		ELSE
 
-			/* temp accounts*/
+			
 			DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
 			CREATE TEMPORARY TABLE tmp_Account_  (
 				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -83,8 +88,8 @@ BEGIN
 		SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_Account_);
 
 		IF p_InboundTableID > 0
-		THEN 
-			/* get inbound rate process*/
+		THEN
+			
 			CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
 		END IF;
 
@@ -95,20 +100,23 @@ BEGIN
 			SET v_ServiceID_ = (SELECT ServiceID FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
 			SET v_cld_ = (SELECT cld FROM tmp_Account_ t WHERE t.RowID = v_pointer_);
 
-			IF p_InboundTableID =  0
-			THEN 
-
-				SET p_InboundTableID = (SELECT RateTableID FROM NeonRMDev.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 2 LIMIT 1);
-				SET p_InboundTableID = IFNULL(p_InboundTableID,0);
-				/* get inbound rate process*/
-				CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
+			IF (v_CustomerIDs_Count_=0 OR (v_CustomerIDs_Count_>0 AND FIND_IN_SET(v_AccountID_,v_CustomerIDs_)>0))
+			THEN
+				IF p_InboundTableID =  0
+				THEN
+	
+					SET p_InboundTableID = (SELECT RateTableID FROM NeonRMDev.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 2 LIMIT 1);
+					SET p_InboundTableID = IFNULL(p_InboundTableID,0);
+					
+					CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
+				END IF;
+	
+				
+				CALL prc_updateInboundPrefix(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_);
+	
+				
+				CALL prc_updateInboundRate(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_,p_RateMethod,p_SpecifyRate);
 			END IF;
-
-			/* update prefix inbound process*/
-			CALL prc_updateInboundPrefix(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_);
-
-			/* inbound rerate process*/
-			CALL prc_updateInboundRate(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_,p_RateMethod,p_SpecifyRate);
 
 			SET v_pointer_ = v_pointer_ + 1;
 

@@ -1,5 +1,17 @@
 <?php $count = 1;?>
 <div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="control-label">CDR Rerate Customers</label>
+            {{Form::select('Customers[]', $Customers, isset($gatewayconfigval->Customers) ? $gatewayconfigval->Customers : [] ,array("class"=>"form-control select2", "multiple"=>"multiple"))}}
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="control-label">CDR Rerate Vendors</label>
+            {{Form::select('Vendors[]', $Vendors, isset($gatewayconfigval->Vendors) ? $gatewayconfigval->Vendors : [] ,array("class"=>"form-control select2", "multiple"=>"multiple"))}}
+        </div>
+    </div>
 @foreach($gatewayconfig as $configkey => $configtitle)
     <?php $selectd_val ='';
         if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){
