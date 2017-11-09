@@ -73,6 +73,7 @@ class AnalysisController extends BaseController {
             $alldata['call_count_val'][$indexcount] = $CallCount->CallCount;
             $alldata['call_count_acd'][$indexcount] = $CallCount->ACD;
             $alldata['call_count_asr'][$indexcount] = $CallCount->ASR;
+            $alldata['call_count_mar'][$indexcount] = $CallCount->TotalMargin;
             $indexcount++;
         }
         $param_array = array_diff_key($data,array('map_url'=>0,'pageSize'=>0,'UserID'=>0,'Admin'=>0,'chart_type'=>0,'TimeZone'=>0,'CountryID'=>0));
@@ -86,6 +87,7 @@ class AnalysisController extends BaseController {
             $alldata['call_cost_val'][$indexcount] = $CallCost->TotalCost;
             $alldata['call_cost_acd'][$indexcount] = $CallCost->ACD;
             $alldata['call_cost_asr'][$indexcount] = $CallCost->ASR;
+            $alldata['call_cost_mar'][$indexcount] = $CallCost->TotalMargin;
             $indexcount++;
         }
         $alldata['call_cost_html'] = View::make('dashboard.grid', compact('alldata','data','customer','param_array'))->render();
@@ -99,6 +101,7 @@ class AnalysisController extends BaseController {
             $alldata['call_minutes_val'][$indexcount] = $CallMinutes->TotalMinutes;
             $alldata['call_minutes_acd'][$indexcount] = $CallMinutes->ACD;
             $alldata['call_minutes_asr'][$indexcount] = $CallMinutes->ASR;
+            $alldata['call_minutes_mar'][$indexcount] = $CallMinutes->TotalMargin;
 
             $indexcount++;
         }
@@ -159,22 +162,22 @@ class AnalysisController extends BaseController {
         $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59'):$data['EndDate'];
         $query = '';
         if($data['chart_type'] == 'destination') {
-            $columns = array('Country','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $columns = array('Country','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin');
             $query = "call prc_getDestinationReportAll ";
         }elseif($data['chart_type'] == 'prefix') {
-            $columns = array('AreaPrefix','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $columns = array('AreaPrefix','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin');
             $query = "call prc_getPrefixReportAll ";
         }elseif($data['chart_type'] == 'trunk') {
-            $columns = array('Trunk','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $columns = array('Trunk','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin');
             $query = "call prc_getTrunkReportAll ";
         }elseif($data['chart_type'] == 'gateway') {
-            $columns = array('Gateway','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $columns = array('Gateway','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin');
             $query = "call prc_getGatewayReportAll ";
         }elseif($data['chart_type'] == 'account') {
-            $columns = array('AccountName','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $columns = array('AccountName','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin');
             $query = "call prc_getAccountReportAll ";
         }elseif($data['chart_type'] == 'description') {
-            $columns = array('Description','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $columns = array('Description','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin');
             $query = "call prc_getDescReportAll ";
         }
         if(!empty($data['TimeZone'])) {

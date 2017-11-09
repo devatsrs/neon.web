@@ -27,7 +27,8 @@ BEGIN
 		disposition,
 		userfield,
 		pincode,
-		extension
+		extension,
+		ID
 	)
 	SELECT 
 		ud.UsageDetailID,
@@ -47,7 +48,8 @@ BEGIN
 		disposition,
 		userfield,
 		pincode,
-		extension
+		extension,
+		ID
 	FROM NeonCDRDev.tblUsageDetails  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
@@ -81,7 +83,8 @@ BEGIN
 		disposition,
 		userfield,
 		pincode,
-		extension
+		extension,
+		ID
 	)
 	SELECT 
 		ud.UsageDetailFailedCallID,
@@ -101,7 +104,8 @@ BEGIN
 		disposition,
 		userfield,
 		pincode,
-		extension
+		extension,
+		ID
 	FROM NeonCDRDev.tblUsageDetailFailedCall  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
