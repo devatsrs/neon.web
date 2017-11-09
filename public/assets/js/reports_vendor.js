@@ -215,6 +215,7 @@ function loadTable(table_id,pageSize,$searchFilter){
     var TotalCall = 0;
     var TotalDuration = 0;
     var TotalCost = 0;
+    var TotalMargin = 0;
         data_table  = $(table_id).dataTable({
         "bDestroy": true,
         "bProcessing": true,
@@ -297,6 +298,7 @@ function loadTable(table_id,pageSize,$searchFilter){
         {  "bSortable": true },  // 3 StartDate
         {  "bSortable": true },  // 3 StartDate
         {  "bSortable": true },  // 3 StartDate
+        {  "bSortable": true }  // 3 StartDate
 
     ],
         "oTableTools": {
@@ -316,6 +318,7 @@ function loadTable(table_id,pageSize,$searchFilter){
         ]
     },
     "fnDrawCallback": function () {
+        checkrmargindisplay(table_id);
         $(".dataTables_wrapper select").select2({
             minimumResultsForSearch: -1
         });
@@ -327,6 +330,7 @@ function loadTable(table_id,pageSize,$searchFilter){
             TotalCall = json.Total.TotalCall;
             TotalDuration = json.Total.TotalDuration;
             TotalCost = json.Total.TotalCost;
+            TotalMargin = json.Total.TotalMargin;
             fnCallback(json)
         });
     },
@@ -344,6 +348,10 @@ function loadTable(table_id,pageSize,$searchFilter){
             if(TotalCost) {
                 $($(row).children().get(3)).html('<strong>' + TotalCost.toFixed(toFixed) + '</strong>');
             }
+            if(TotalMargin) {
+                $($(row).children().get(6)).html('<strong>' + TotalMargin.toFixed(toFixed) + '</strong>');
+            }
+
         }else{
             $(table_id).find('tfoot').find('tr').html('');
         }
@@ -458,4 +466,15 @@ function getDates(submit_data,row,searchdates) {
     submit_data.EndDate = EndDate + end_time;
     console.log(' start date 2 ' + submit_data.StartDate);
     console.log(' end date 2 ' + submit_data.EndDate);
+}
+
+function checkrmargindisplay(table_id){
+    if(customer_login == 1){
+        $(table_id+" td:nth-child(7)").hide();
+        $(table_id+" td:nth-child(7)").addClass('hidden');
+        $(table_id+" th:nth-child(7)").hide();
+    }else{
+        $(table_id+" td:nth-child(7)").show();
+        $(table_id+" th:nth-child(7)").show();
+    }
 }

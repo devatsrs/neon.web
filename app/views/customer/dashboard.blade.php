@@ -23,6 +23,7 @@
         $dashsearchFilter.TimeZone = '';
         $dashsearchFilter.CurrencyID = '0';
         var cdr_url = "{{URL::to('customer/cdr')}}";
+        var customer_login = 1;
         var toFixed = '{{get_round_decimal_places()}}';
         jQuery(document).ready(function ($) {
             setInterval(function(){

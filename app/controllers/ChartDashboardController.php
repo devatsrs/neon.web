@@ -67,6 +67,7 @@ class ChartDashboardController extends BaseController {
             $alldata['call_count_val'][$indexcount] = $CallCount->CallCount;
             $alldata['call_count_acd'][$indexcount] = $CallCount->ACD;
             $alldata['call_count_asr'][$indexcount] = $CallCount->ASR;
+            $alldata['call_count_mar'][$indexcount] = $CallCount->TotalMargin;
             $indexcount++;
         }
         $param_array = array_diff_key($data,array('map_url'=>0,'pageSize'=>0,'UserID'=>0,'Admin'=>0,'chart_type'=>0,'TimeZone'=>0,'CountryID'=>0));
@@ -80,6 +81,7 @@ class ChartDashboardController extends BaseController {
             $alldata['call_cost_val'][$indexcount] = $CallCost->TotalCost;
             $alldata['call_cost_acd'][$indexcount] = $CallCost->ACD;
             $alldata['call_cost_asr'][$indexcount] = $CallCost->ASR;
+            $alldata['call_cost_mar'][$indexcount] = $CallCost->TotalMargin;
             $indexcount++;
         }
         $alldata['call_cost_html'] = View::make('dashboard.grid', compact('alldata','data','customer','param_array'))->render();
@@ -93,6 +95,7 @@ class ChartDashboardController extends BaseController {
             $alldata['call_minutes_val'][$indexcount] = $CallMinutes->TotalMinutes;
             $alldata['call_minutes_acd'][$indexcount] = $CallMinutes->ACD;
             $alldata['call_minutes_asr'][$indexcount] = $CallMinutes->ASR;
+            $alldata['call_minutes_mar'][$indexcount] = $CallMinutes->TotalMargin;
             $indexcount++;
         }
         $alldata['call_minutes_html'] = View::make('dashboard.grid', compact('alldata','data','customer','param_array'))->render();
