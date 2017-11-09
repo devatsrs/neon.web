@@ -24,6 +24,7 @@
         $dashsearchFilter.TimeZone = '';
         $dashsearchFilter.CurrencyID = '0';
         var cdr_url = "{{URL::to('cdr_show')}}";
+        var customer_login = 0;
         var toFixed = '{{get_round_decimal_places()}}';
         @if(in_array('InboundMonitor',$MonitorDashboardSetting))
         var inbound_monitor =1;

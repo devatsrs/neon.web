@@ -128,6 +128,13 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="field-1" class="col-sm-2 control-label">Group By</label>
+                        <div class="col-sm-4">
+                            {{ Form::select('GroupBy', array('Code'=>'Code','Desc'=>'Description'), $rategenerators->GroupBy , array("class"=>"select2")) }}
+                        </div>
+                    </div>
+
                 </div>
             </div>
 

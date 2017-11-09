@@ -8,11 +8,14 @@
     var table_name = '#destination_table';
     var chart_type = '#destination';
     var cdr_url = "";
+    var customer_login ;
 
     @if(Session::get('customer') == 1)
-            cdr_url = "";
+        cdr_url = "";
+        customer_login = 1;
     @else
-            cdr_url = "{{URL::to('vendorcdr_show')}}";
+        cdr_url = "{{URL::to('vendorcdr_show')}}";
+        customer_login = 0;
     @endif
 
     $searchFilter.map_url = "{{URL::to('getVendorWorldMap')}}";

@@ -66,6 +66,7 @@ class RateGeneratorsController extends \BaseController {
             'codedeckid' => 'required',
             'CurrencyID' => 'required',
             'Policy' => 'required',
+            'GroupBy' => 'required',
         );
 
         $validator = Validator::make($data, $rules);
@@ -199,10 +200,20 @@ class RateGeneratorsController extends \BaseController {
             try {
                 DB::beginTransaction();
                 $RateGeneratorId = $id;
+
+
                 $data = compact("RateGeneratorId");
                 $data["EffectiveDate"] = Input::get('EffectiveDate');
                 $checkbox_replace_all = Input::get('checkbox_replace_all');
                 $data['EffectiveRate'] = Input::get('EffectiveRate');
+
+                if(!empty(Input::get('IncreaseEffectiveDate'))) {
+                    $data['IncreaseEffectiveDate']  =   Input::get('IncreaseEffectiveDate');
+                }
+                if(!empty(Input::get('DecreaseEffectiveDate'))) {
+                    $data['DecreaseEffectiveDate']  =   Input::get('DecreaseEffectiveDate');
+                }
+
                 if(empty($data['EffectiveRate'])){
                     $data['EffectiveRate']='now';
                 }

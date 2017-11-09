@@ -20,12 +20,15 @@ function getWorldMap(submit_data){
                 },
                 onRegionTipShow: function(e, el, code){
                     if(data.CountryChart[code]) {
-                        var label_html = '</br>'+
+                        var  label_html= '</br>'+
                             '<b>Calls: </b>'+data.CountryChart[code].CallCount+'</br>'+
                             '<b>Cost: </b>'+data.CountryChart[code].TotalCost+'</br>'+
                             '<b>Minutes: </b>'+data.CountryChart[code].TotalMinutes+'</br>'+
                             '<b>ACD: </b>'+data.CountryChart[code].ACD+'</br>'+
                             '<b>ASR: </b>'+data.CountryChart[code].ASR+'%';
+                            if(customer_login == 0) {
+                                label_html+='</br><b>TotalMargin: </b>' + data.CountryChart[code].TotalMargin;
+                            }
 
                         el.html(el.html() + label_html );
                     }

@@ -8,10 +8,13 @@
     var table_name = '#destination_table';
     var chart_type = '#destination';
     var cdr_url = "";
+    var customer_login ;
     @if(Session::get('customer') == 1)
         cdr_url = "{{URL::to('customer/cdr')}}";
+        customer_login = 1;
     @else
         cdr_url = "{{URL::to('cdr_show')}}";
+        customer_login = 0;
     @endif
     $searchFilter.map_url = "{{URL::to('getWorldMap')}}";
     $searchFilter.pageSize = '{{CompanyConfiguration::get('PAGE_SIZE')}}';
