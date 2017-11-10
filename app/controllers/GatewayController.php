@@ -87,8 +87,7 @@ class GatewayController extends \BaseController {
         if(count($data)>0){
             $data['Settings'] =  json_encode($data);
         }
-        unset($data['Customers']);
-        unset($data['Vendors']);
+        unset($data['Accounts']);
 
         if ($CompanyGateway = CompanyGateway::create($data)) {
             $CompanyGatewayID = $CompanyGateway->CompanyGatewayID;
@@ -201,8 +200,7 @@ class GatewayController extends \BaseController {
             if(count($data)>0){
                 $data['Settings'] =  json_encode($data);
             }
-            unset($data['Customers']);
-            unset($data['Vendors']);
+            unset($data['Accounts']);
 
             if ($CompanyGateway->update($data)) {
                 return Response::json(array("status" => "success", "message" => "Gateway Successfully Updated"));
@@ -254,11 +252,9 @@ class GatewayController extends \BaseController {
                 $gatewayconfigval = json_decode($CompanyGateway->Settings);
             }
             $GatewayName = Gateway::getGatewayName($data['GatewayID']);
-            $Customers   = Account::getCustomerIDList();
-            $Customers   = array_diff($Customers,array('Select'));
-            $Vendors     = Account::getVendorIDList();
-            $Vendors     = array_diff($Vendors,array('Select'));
-            return View::make('gateway.ajax_config_html', compact('gatewayconfig','gatewayconfigval','GatewayName','Customers','Vendors'));
+            $Accounts   = Account::getAccountIDList();
+            $Accounts   = array_diff($Accounts,array('Select'));
+            return View::make('gateway.ajax_config_html', compact('gatewayconfig','gatewayconfigval','GatewayName','Accounts'));
         }
         return '';
     }

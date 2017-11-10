@@ -8,6 +8,7 @@ CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_ProcesssVCDR`(
 	IN `p_NameFormat` VARCHAR(50)
 
 
+
 )
 BEGIN
 	DECLARE v_rowCount_ INT;
@@ -28,7 +29,7 @@ BEGIN
 		AccountID INT,
 		CompanyGatewayID INT
 	);
-	SET @sql1 = concat("insert into tmp_Vendors_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Vendors'), '[', ''), ']', ''),0)),'"','')) as AccountID from NeonRMDev.tblCompanyGateway WHERE CompanyGatewayID=p_CompanyGatewayID), ",", "'),('"),"');");
+	SET @sql1 = concat("insert into tmp_Vendors_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from NeonRMDev.tblCompanyGateway WHERE CompanyGatewayID=p_CompanyGatewayID), ",", "'),('"),"');");
 	PREPARE stmt1 FROM @sql1;
 	EXECUTE stmt1;
 	DEALLOCATE PREPARE stmt1;

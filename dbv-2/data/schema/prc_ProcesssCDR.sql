@@ -10,6 +10,7 @@ CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_ProcesssCDR`(
 	IN `p_SpecifyRate` DECIMAL(18,6),
 	IN `p_OutboundTableID` INT,
 	IN `p_InboundTableID` INT
+
 )
 BEGIN
 
@@ -26,7 +27,7 @@ BEGIN
 		AccountID INT,
 		CompanyGatewayID INT
 	);
-	SET @sql1 = concat("insert into tmp_Customers_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Customers'), '[', ''), ']', ''),0)),'"','')) as AccountID from NeonRMDev.tblCompanyGateway), ",", "'),('"),"');");
+	SET @sql1 = concat("insert into tmp_Customers_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from NeonRMDev.tblCompanyGateway), ",", "'),('"),"');");
 	PREPARE stmt1 FROM @sql1;
 	EXECUTE stmt1;
 	DEALLOCATE PREPARE stmt1;
