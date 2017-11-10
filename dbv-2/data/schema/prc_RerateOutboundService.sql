@@ -20,7 +20,7 @@ BEGIN
 	IF p_RateCDR = 1
 	THEN
 
-		
+
 		DROP TEMPORARY TABLE IF EXISTS tmp_AccountService2_;
 		CREATE TEMPORARY TABLE tmp_AccountService2_  (
 			RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -40,13 +40,13 @@ BEGIN
 		SET v_rowCount_ = (SELECT COUNT(*) FROM tmp_AccountService2_);
 		IF p_OutboundTableID > 0
 		THEN
-			
+
 			CALL NeonRMDev.prc_getCustomerCodeRate(v_AccountID_,0,p_RateCDR,p_RateMethod,p_SpecifyRate,p_OutboundTableID);
 		END IF;
-		
+
 		SELECT GROUP_CONCAT(AccountID) INTO v_CustomerIDs_ FROM tmp_Customers_ GROUP BY CompanyGatewayID;
 		SELECT COUNT(*) INTO v_CustomerIDs_Count_ FROM tmp_Customers_;
-		
+
 		WHILE v_pointer_ <= v_rowCount_
 		DO
 
@@ -57,19 +57,19 @@ BEGIN
 			IF p_OutboundTableID = 0
 			THEN
 				SET v_RateTableID_ = (SELECT RateTableID FROM NeonRMDev.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 1 LIMIT 1);
-				
+
 				CALL NeonRMDev.prc_getCustomerCodeRate(v_AccountID_,0,p_RateCDR,p_RateMethod,p_SpecifyRate,v_RateTableID_);
 			END IF;
 
 
-			
-			
+
+
 			IF p_RateFormat = 2
 			THEN
 				CALL prc_updatePrefix(v_AccountID_,0, p_processId, p_tbltempusagedetail_name,v_ServiceID_);
 			END IF;
 
-			
+
 			IF p_RateCDR = 1 AND (v_CustomerIDs_Count_=0 OR (v_CustomerIDs_Count_>0 AND FIND_IN_SET(v_AccountID_,v_CustomerIDs_)>0))
 			THEN
 				CALL prc_updateOutboundRate(v_AccountID_,0, p_processId, p_tbltempusagedetail_name,v_ServiceID_,p_RateMethod,p_SpecifyRate);

@@ -16,7 +16,7 @@ BEGIN
 	DECLARE v_cld_ VARCHAR(500);
 	DECLARE v_CustomerIDs_ TEXT DEFAULT '';
 	DECLARE v_CustomerIDs_Count_ INT DEFAULT 0;
-	
+
 	SELECT GROUP_CONCAT(AccountID) INTO v_CustomerIDs_ FROM tmp_Customers_ GROUP BY CompanyGatewayID;
 	SELECT COUNT(*) INTO v_CustomerIDs_Count_ FROM tmp_Customers_;
 
@@ -26,7 +26,7 @@ BEGIN
 		IF (SELECT COUNT(*) FROM NeonRMDev.tblCLIRateTable WHERE CompanyID = p_CompanyID AND RateTableID > 0) > 0
 		THEN
 
-			
+
 			DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
 			CREATE TEMPORARY TABLE tmp_Account_  (
 				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -46,7 +46,7 @@ BEGIN
 		ELSEIF ( SELECT COUNT(*) FROM tmp_Service_ ) > 0
 		THEN
 
-			
+
 			DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
 			CREATE TEMPORARY TABLE tmp_Account_  (
 				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -65,7 +65,7 @@ BEGIN
 
 		ELSE
 
-			
+
 			DROP TEMPORARY TABLE IF EXISTS tmp_Account_;
 			CREATE TEMPORARY TABLE tmp_Account_  (
 				RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -89,7 +89,7 @@ BEGIN
 
 		IF p_InboundTableID > 0
 		THEN
-			
+
 			CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
 		END IF;
 
@@ -104,17 +104,17 @@ BEGIN
 			THEN
 				IF p_InboundTableID =  0
 				THEN
-	
+
 					SET p_InboundTableID = (SELECT RateTableID FROM NeonRMDev.tblAccountTariff  WHERE AccountID = v_AccountID_ AND ServiceID = v_ServiceID_ AND Type = 2 LIMIT 1);
 					SET p_InboundTableID = IFNULL(p_InboundTableID,0);
-					
+
 					CALL NeonRMDev.prc_getCustomerInboundRate(v_AccountID_,p_RateCDR,p_RateMethod,p_SpecifyRate,v_cld_,p_InboundTableID);
 				END IF;
-	
-				
+
+
 				CALL prc_updateInboundPrefix(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_);
-	
-				
+
+
 				CALL prc_updateInboundRate(v_AccountID_, p_processId, p_tbltempusagedetail_name,v_cld_,v_ServiceID_,p_RateMethod,p_SpecifyRate);
 			END IF;
 

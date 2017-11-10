@@ -11,7 +11,8 @@ CREATE PROCEDURE `prc_ProcesssCDR`(
 	IN `p_RateMethod` VARCHAR(50),
 	IN `p_SpecifyRate` DECIMAL(18,6),
 	IN `p_OutboundTableID` INT,
-	IN `p_InboundTableID` INT
+	IN `p_InboundTableID` INT,
+	IN `p_RerateAccounts` INT
 )
 BEGIN
 
@@ -28,12 +29,16 @@ BEGIN
 		AccountID INT,
 		CompanyGatewayID INT
 	);
-	SET @sql1 = concat("insert into tmp_Customers_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from Ratemanagement3.tblCompanyGateway), ",", "'),('"),"');");
-	PREPARE stmt1 FROM @sql1;
-	EXECUTE stmt1;
-	DEALLOCATE PREPARE stmt1;
-	DELETE FROM tmp_Customers_ WHERE AccountID=0;
-	UPDATE tmp_Customers_ SET CompanyGatewayID=p_CompanyGatewayID WHERE 1;
+
+	IF p_RerateAccounts!=0
+	THEN
+      SET @sql1 = concat("insert into tmp_Customers_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from Ratemanagement3.tblCompanyGateway), ",", "'),('"),"');");
+      PREPARE stmt1 FROM @sql1;
+      EXECUTE stmt1;
+      DEALLOCATE PREPARE stmt1;
+      DELETE FROM tmp_Customers_ WHERE AccountID=0;
+      UPDATE tmp_Customers_ SET CompanyGatewayID=p_CompanyGatewayID WHERE 1;
+  END IF;
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_Service_;
 	CREATE TEMPORARY TABLE tmp_Service_  (
@@ -141,9 +146,8 @@ CREATE PROCEDURE `prc_ProcesssVCDR`(
 	IN `p_tbltempusagedetail_name` VARCHAR(200),
 	IN `p_RateCDR` INT,
 	IN `p_RateFormat` INT,
-	IN `p_NameFormat` VARCHAR(50)
-
-
+	IN `p_NameFormat` VARCHAR(50),
+	IN `p_RerateAccounts` INT
 )
 BEGIN
 	DECLARE v_rowCount_ INT;
@@ -164,12 +168,16 @@ BEGIN
 		AccountID INT,
 		CompanyGatewayID INT
 	);
-	SET @sql1 = concat("insert into tmp_Vendors_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from Ratemanagement3.tblCompanyGateway WHERE CompanyGatewayID=p_CompanyGatewayID), ",", "'),('"),"');");
-	PREPARE stmt1 FROM @sql1;
-	EXECUTE stmt1;
-	DEALLOCATE PREPARE stmt1;
-	DELETE FROM tmp_Vendors_ WHERE AccountID=0;
-	UPDATE tmp_Vendors_ SET CompanyGatewayID=p_CompanyGatewayID WHERE 1;
+
+	IF p_RerateAccounts!=0
+	THEN
+      SET @sql1 = concat("insert into tmp_Vendors_ (AccountID) values ('", replace(( select TRIM(REPLACE(group_concat(distinct IFNULL(REPLACE(REPLACE(json_extract(Settings, '$.Accounts'), '[', ''), ']', ''),0)),'"','')) as AccountID from Ratemanagement3.tblCompanyGateway WHERE CompanyGatewayID=p_CompanyGatewayID), ",", "'),('"),"');");
+      PREPARE stmt1 FROM @sql1;
+      EXECUTE stmt1;
+      DEALLOCATE PREPARE stmt1;
+      DELETE FROM tmp_Vendors_ WHERE AccountID=0;
+      UPDATE tmp_Vendors_ SET CompanyGatewayID=p_CompanyGatewayID WHERE 1;
+  END IF;
 
 	SELECT GROUP_CONCAT(AccountID) INTO v_VendorIDs_ FROM tmp_Vendors_ GROUP BY CompanyGatewayID;
 	SELECT COUNT(*) INTO v_VendorIDs_Count_ FROM tmp_Vendors_;
@@ -347,7 +355,7 @@ BEGIN
 	ELSEIF p_RateCDR = 1 AND v_VendorIDs_Count_ > 0
 	THEN
 
-		SET @stm = CONCAT('UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud SET selling_cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( FIND_IN_SET(AccountID,"',v_VendorIDs_,'")>0 AND TrunkID IS NULL ) ') ;
+		SET @stm = CONCAT('UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud SET selling_cost = 0,is_rerated=0, area_prefix="Other"  WHERE ProcessID = "',p_processId,'" AND ( FIND_IN_SET(AccountID,"',v_VendorIDs_,'")>0) ') ;
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
@@ -978,7 +986,7 @@ BEGIN
 	ELSEIF p_RateCDR = 1 AND v_CustomerIDs_Count_ > 0
 	THEN
 
-		SET @stm = CONCAT('UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( FIND_IN_SET(AccountID,"',v_CustomerIDs_,'")>0 AND TrunkID IS NULL ) ') ;
+		SET @stm = CONCAT('UPDATE RMCDR3.`' , p_tbltempusagedetail_name , '` ud SET cost = 0,is_rerated=0, area_prefix="Other"  WHERE ProcessID = "',p_processId,'" AND ( FIND_IN_SET(AccountID,"',v_CustomerIDs_,'")>0 ) ') ;
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
