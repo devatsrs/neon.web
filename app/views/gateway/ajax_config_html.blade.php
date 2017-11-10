@@ -1,5 +1,11 @@
 <?php $count = 1;?>
 <div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label class="control-label">CDR Rerate Accounts</label>
+            {{Form::select('Accounts[]', $Accounts, isset($gatewayconfigval->Accounts) ? $gatewayconfigval->Accounts : [] ,array("class"=>"form-control select2", "multiple"=>"multiple"))}}
+        </div>
+    </div>
 @foreach($gatewayconfig as $configkey => $configtitle)
     <?php $selectd_val ='';
         if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){
