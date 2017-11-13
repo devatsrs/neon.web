@@ -72,6 +72,8 @@ class TranslateController extends \BaseController {
 
 
         $request = Input::all();
+        $request["system_name"]=strtoupper($request["system_name"]);
+
         $data_langs = DB::table('tblLanguage')
             ->select("TranslationID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
             ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
@@ -96,6 +98,7 @@ class TranslateController extends \BaseController {
 
     function create_language_file($lang_folder, $data_array){
 
+        ksort($data_array);
         $arr_valid="\nreturn array(";
         foreach($data_array as $key=>$value){
             $arr_valid.="\n\t'".$key."'=>'".$value."',";

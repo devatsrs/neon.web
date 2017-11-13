@@ -87,9 +87,12 @@
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
-                            $("#new_system_name_from").find(".save.btn").button('reset');
+                            var $form=$("#new_system_name_from")
+                            $form.find(".save.btn").button('reset');
                             if (response.status == 'success') {
                                 rebindLanguageTable();
+                                $form.find("[name='system_name']").val("");
+                                $form.find("[name='en_word']").val("");
                                 toastr.success(response.message, "Success", toastr_opts);
                             } else {
                                 toastr.error(response.message, "Error", toastr_opts);
