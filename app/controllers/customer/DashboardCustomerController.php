@@ -245,7 +245,7 @@ class DashboardCustomerController extends BaseController {
                 $payment =  isset($response['payment'][$data->date])?$response['payment'][$data->date]:0;
                 $consumption =  isset($response['calls'][$data->date])?$response['calls'][$data->date]:0;
                 if($row_count > 0){
-                    $previous_bal = $previous_bal+$today_total+$payment-$consumption;
+                    $previous_bal = $previous_bal-$today_total-$payment+$consumption;
 					$today_total = 0;
                 }else{
 					$today_total = $payment-$consumption;
