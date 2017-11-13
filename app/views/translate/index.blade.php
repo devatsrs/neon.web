@@ -26,6 +26,12 @@
                                 @endforeach
                             </select>
                         </div>
+                         <div style="text-align: right;padding:10px 0 ">
+                            <a class="btn btn-primary btn-sm btn-icon icon-left" id="set_new_label" href="javascript:;" data-toggle="modal" data-target="#set_new_system_name_model">
+                                <i class="entypo-plus"></i>
+                                Add Label
+                            </a>
+                        </div>
 
                        {{-- <div style="text-align: right;padding:10px 0 ">
                             <a class="btn btn-primary btn-sm btn-icon icon-left" id="bulk_set_vendor_rate" href="javascript:;">
@@ -48,7 +54,7 @@
         <thead>
         <tr>
             <th>System Name</th>
-            <th>Keyword</th>
+            <th>English</th>
             <th>Translation</th>
         </tr>
         </thead>
@@ -67,12 +73,45 @@
             languageTableBind();
 
             $("#language").change(function(){
-                table.fnDestroy();
-                languageTableBind();
+                rebindLanguageTable();
+            });
+
+            $("#new_system_name_from").submit(function () {
+
+                var system_name = $(this).find("[name='system_name']").val();
+                var en_word= $(this).find("[name='en_word']").val();
+                if(system_name !="" && en_word!="" ){
+                    $(this).find(".save.btn").button('loading');
+                    $.ajax({
+                        url: $(this).attr("action"), //Server script to process data
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function(response) {
+                            $(this).find(".save.btn").button('reset');
+                            if (response.status == 'success') {
+                                rebindLanguageTable();
+                                toastr.success(response.message, "Success", toastr_opts);
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                        },
+                        data: $(this).serialize(),
+                        cache: false
+
+                    });
+                }else{
+                    toastr.error(response.message, "Error", "Fill All Data");
+                }
+
+                return false;
             });
 
 
         });
+        function rebindLanguageTable(){
+            table.fnDestroy();
+            languageTableBind();
+        }
         function languageTableBind(){
             $searchFilter.language = language = $("#language").val();
             table =$("#table-4").dataTable( {
@@ -164,5 +203,60 @@
 
 @section('footer_ext')
     @parent
+
+    <div class="modal fade" id="set_new_system_name_model">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <form id="new_system_name_from" method="post" action="{{URL::to('translate/new_system_name')}}">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Set New Label</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row">
+
+                            <div class="col-md-6">
+
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">System Name *</label>
+
+                                    <input type="text" name="system_name" class="form-control" placeholder="">
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">English Word *</label>
+
+                                    <input type="text" name="en_word" class="form-control" placeholder="">
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 @stop
 

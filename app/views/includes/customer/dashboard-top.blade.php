@@ -54,7 +54,7 @@
             </select>
         </li>
         <li style="line-height: 32px;" class="pull-right">
-            <a href="{{ URL::to('customer/logout') }}">Log Out <i class="entypo-logout right"></i>
+            <a href="{{ URL::to('customer/logout') }}">@lang('routes.HEAER_LOGOUT') <i class="entypo-logout right"></i>
             </a>
         </li>
     </ul>

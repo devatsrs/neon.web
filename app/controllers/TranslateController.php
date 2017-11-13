@@ -112,12 +112,7 @@ class TranslateController extends \BaseController {
 
     public function exports($languageCode,$type) {
 
-        $data_langs = DB::table('tblLanguage')
-            ->select("TranslationID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
-            ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
-            ->where(["tblLanguage.ISOCode"=>$languageCode])
-            ->first();
-
+        $data_langs = $this->getLanguage($languageCode);
         $translation_data = json_decode($data_langs->Translation, true);
         $json_file=array();
         foreach($translation_data as $key=>$value){
@@ -134,4 +129,32 @@ class TranslateController extends \BaseController {
             $NeonExcel->download_excel($json_file);
         }
     }
+
+    public function new_system_name(){
+        $request = Input::all();
+
+        $data_langs = $this->getLanguage();
+
+        $translation_data = json_decode($data_langs->Translation, true);
+
+        if(!array_key_exists($request["system_name"] ,$translation_data )){
+            $translation_data[$request["system_name"]]=$request["en_word"];
+
+            Translation::where('TranslationID', $data_langs->TranslationID)->update( array('Translation' => json_encode($translation_data) ));
+            $this->create_language_file($data_langs->ISOCode,$translation_data);
+            return json_encode(["status" => "success", "message" => "Add Successfully"]);
+        }else{
+            return json_encode(["status" => "fail", "message" => "Please Try Again"]);
+        }
+    }
+
+    function getLanguage($languageCode="en"){
+        $data_langs = DB::table('tblLanguage')
+            ->select("TranslationID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
+            ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
+            ->where(["tblLanguage.ISOCode"=>$languageCode])
+            ->first();
+        return $data_langs;
+    }
+
 }
