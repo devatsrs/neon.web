@@ -1118,7 +1118,6 @@ BEGIN
 			-- front end update , tmp_Update_RateTable_ table required
 
 			SET  @EffectiveDate = STR_TO_DATE(p_EffectiveDate , '%Y-%m-%d');
-			SELECT @EffectiveDate;
 
 
 			SET @row_num = 0;
@@ -1158,7 +1157,8 @@ BEGIN
 		DROP TEMPORARY TABLE IF EXISTS tmp_EffectiveDates_;
 			CREATE TEMPORARY TABLE tmp_EffectiveDates_ (
 				EffectiveDate  Date,
-				RowID int
+				RowID int,
+				INDEX (RowID)
 			);
 
 
@@ -3446,7 +3446,7 @@ BEGIN
 	 SELECT CONCAT(v_AffectedRecords_ , ' Records Uploaded \n\r ' );
 
  	 SELECT * from tmp_JobLog_;
---	 DELETE  FROM tblTempRateTableRate WHERE  ProcessId = p_processId;
+	 DELETE  FROM tblTempRateTableRate WHERE  ProcessId = p_processId;
 
 	 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
