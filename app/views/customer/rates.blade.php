@@ -34,10 +34,12 @@
     <table id="table-list" class="table table-bordered datatable">
         <thead>
         <tr>
+            <th width="5%"></th>
             <th width="15%">Prefix</th>
             <th width="20%">Name</th>
             <th width="10%">Interval 1</th>
             <th width="10%">Interval N</th>
+            <th width="5%"></th>
             <th width="10%">Connection Fee</th>
             <th width="15%">Rate</th>
             <th width="15%">Effective Date</th>
@@ -76,7 +78,7 @@
                     "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                     "sPaginationType": "bootstrap",
                     "sDom": "<'row'<'col-xs-12'l>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
-                    "aaSorting": [[1, 'asc']],
+                    "aaSorting": [[2, 'asc']],
                     "fnServerParams": function (aoData) {
                         aoData.push(
                                 {"name": "Prefix", "value": $search.Prefix},
@@ -93,13 +95,16 @@
 
                     },
                     "aoColumns": [
-                        {  "bSortable": true },  // 0 Date
-                        {  "bSortable": true },  // 0 Payments
-                        {  "bSortable": true },  // 0 Consumption
-                        {  "bSortable": true },  // 0 Total
-                        {  "bSortable": true },  // 0 Total
-                        {  "bSortable": true }, // 0 Balance
-                        {  "bSortable": true }  // 0 Balance
+                        {"bVisible": false
+                        }, //0Checkbox
+                        {}, //1 Code
+                        {}, //2 Description
+                        {}, //3 Interval1
+                        {}, //4 IntervalN
+                        {"bVisible": false}, //5 RoutinePlan
+                        {}, //6 ConnectionFee
+                        {}, //7 Rate
+                        {}  //8 Effective Date
                     ],
                     "oTableTools": {
                         "aButtons": [

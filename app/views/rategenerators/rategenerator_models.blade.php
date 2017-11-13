@@ -132,7 +132,7 @@
 
                 var EffectiveDate_Date = new Date(EffectiveDate);
                 var EffectiveDate_7Days = new Date(new Date(EffectiveDate_Date).setDate(EffectiveDate_Date.getDate()+7));
-                var EffectiveDate_7Days_str = EffectiveDate_7Days.getFullYear() + '-' + EffectiveDate_7Days.getMonth() + '-' +  ('0'+ EffectiveDate_7Days.getDate()).slice(-2);
+                var EffectiveDate_7Days_str = EffectiveDate_7Days.getFullYear() + '-' + (EffectiveDate_7Days.getMonth()+1) + '-' +  ('0'+ EffectiveDate_7Days.getDate()).slice(-2);
 
                 el_dec_effective_date.val(EffectiveDate);
                 el_inc_effective_date.val(EffectiveDate_7Days_str);
