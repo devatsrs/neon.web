@@ -81,13 +81,13 @@
                 var system_name = $(this).find("[name='system_name']").val();
                 var en_word= $(this).find("[name='en_word']").val();
                 if(system_name !="" && en_word!="" ){
-                    $(this).find(".save.btn").button('loading');
+                    $("#new_system_name_from").find(".save.btn").button('loading');
                     $.ajax({
                         url: $(this).attr("action"), //Server script to process data
                         type: 'POST',
                         dataType: 'json',
                         success: function(response) {
-                            $(this).find(".save.btn").button('reset');
+                            $("#new_system_name_from").find(".save.btn").button('reset');
                             if (response.status == 'success') {
                                 rebindLanguageTable();
                                 toastr.success(response.message, "Success", toastr_opts);

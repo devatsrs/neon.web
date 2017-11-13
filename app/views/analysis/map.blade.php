@@ -4,7 +4,7 @@
         <div class="panel loading panel-default" data-collapsed="0">
             <!-- to apply shadow add class "panel-shadow" --> <!-- panel head -->
             <div class="panel-heading">
-                <div class="panel-title">Traffic By Region</div>
+                <div class="panel-title">@lang('routes.PAGE_MONITOR_TRAFFIC_BY_REGION')Traffic By Region</div>
                 <div class="panel-options">
 
                 </div>
