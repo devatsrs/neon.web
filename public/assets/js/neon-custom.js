@@ -1546,6 +1546,18 @@ toastr_opts = {
             radioClass: 'iradio_minimal'
         });
 
+
+        $("#user_language").change(function(){
+            $.ajax({
+                url: baseurl + "/translate/change/"+$("#user_language").val(),
+                type: 'POST',
+                dataType: "json",
+                success:function(data) {
+                    location.reload();
+                },
+                cache: false
+            });
+        });
     });
 
 

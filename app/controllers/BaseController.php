@@ -9,6 +9,10 @@ class BaseController extends Controller {
      */
     protected function setupLayout()
     {
+        if(NeonCookie::getCookie('customer_language')){
+            App::setLocale(NeonCookie::getCookie('customer_language'));
+        }
+
         //Set Company Timezone
         if(Auth::check()) {
             $Timezone = Company::getCompanyTimeZone(0);

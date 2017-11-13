@@ -1182,6 +1182,13 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('serverinfo/{server_id}/update', 'ServerInfoController@update')->where('notification_id', '(.[09]*)+');
     Route::any('serverinfo/{server_id}/delete', 'ServerInfoController@delete')->where('notification_id', '(.[09]*)+');
 
+	//Translate Info
+	Route::any('translate', 'TranslateController@index');
+	Route::any('translate/change/{language}', 'TranslateController@changeLanguage');
+	Route::any('translate/search_ajax_datagrid', 'TranslateController@search_ajax_datagrid');
+	Route::any('translate/single_update', 'TranslateController@process_singleUpdate');
+	Route::any('/translate/{languageCode}/exports/{type}', 'TranslateController@exports');
+
 	//Retention
 	Route::any('/retention', "RetentionController@index");
 	Route::any('/retention/create', "RetentionController@create");
@@ -1330,7 +1337,7 @@ Route::group(array('before' => 'guest'), function () {
     Route::get('/super_admin', "HomeController@home");
 	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
 	
-    /*Route::get('/l/{id}', function($id){
+    Route::get('/l/{id}', function($id){
 		$user = User::find($id);
 		$redirect_to = URL::to('/process_redirect');
 		if(!empty($user) ){
@@ -1349,7 +1356,7 @@ Route::group(array('before' => 'guest'), function () {
 		}
 	}
 	exit;
-    });*/
+    });
     Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
     //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');
     Route::any('/invoice/{id}/cdownload_usage', 'InvoicesController@cdownloadUsageFile');

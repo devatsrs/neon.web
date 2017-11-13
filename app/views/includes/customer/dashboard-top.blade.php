@@ -31,10 +31,29 @@
 
 </div>
 <!-- Raw Links -->
-<div class="col-md-6 col-sm-4 clearfix hidden-xs">
+<div class="col-md-6 col-sm-4 clearfix hidden-xs text-right">
 
-    <ul class="list-inline links-list pull-right">
-        <li>
+    <ul class="list-inline links-list pull-right ">
+
+
+        <li style="min-width: 150px;">
+            <select class="select2" id="user_language">
+                @foreach(Translation::getLanguageDropdownList() as $value)
+
+                    <?php
+                    $selected="";
+                    ?>
+                    @if($value->ISOCode==NeonCookie::getCookie('customer_language'))
+                        <?php
+                        $selected="selected";
+                        ?>
+                    @endif
+                        <option value="{{$value->ISOCode}}" {{$selected}}>{{$value->Language}}</option>
+
+                @endforeach
+            </select>
+        </li>
+        <li style="line-height: 32px;" class="pull-right">
             <a href="{{ URL::to('customer/logout') }}">Log Out <i class="entypo-logout right"></i>
             </a>
         </li>
