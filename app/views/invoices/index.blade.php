@@ -134,7 +134,7 @@
             @endif
             @if(User::checkCategoryPermission('Invoice','Post') && is_Xero())
             <li> <a class="xeropost create" id="xero_post" href="javascript:;"> Xero Post </a> </li>
-            <!--<li> <a class="xerojournal create" id="xero_journal" href="javascript:;"> Xero Journal </a> </li>-->
+            <li> <a class="xerojournal create" id="xero_journal" href="javascript:;"> Xero Journal </a> </li>
             @endif
 
             <li> <a class="create" id="sage-export" href="javascript:;"> Sage Export </a> </li>

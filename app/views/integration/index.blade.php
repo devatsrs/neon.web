@@ -964,11 +964,11 @@
 
                 </div>
             </div>
-            <!--
+
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Chart of Accounts Mapping
+                        Chart of Accounts Mapping(Journal)
                     </div>
 
                     <div class="panel-options">
@@ -994,6 +994,7 @@
                         </div>
                     </div>
                     <div class="clear"></div>
+
                     <?php $count=0; ?>
                     @if(!empty($TaxLists)&& count($TaxLists)>0)
                         @foreach($TaxLists as $TaxList)
@@ -1011,8 +1012,9 @@
                             @endif
                         @endforeach
                     @endif
+
                 </div>
-            </div> -->
+            </div>
 
             <!-- Xero form end-->
         </div>
