@@ -904,6 +904,123 @@
             <!-- quickbook form end-->
         </div>
       <!-- Quick Book End-->
+
+        <!-- Xero -->
+        <?php
+        $XeroDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$XeroSlug);
+        $XeroData   = isset($XeroDbData->Settings)?json_decode($XeroDbData->Settings,true):"";
+        ?>
+        <div class="subcategorycontent" id="subcategorycontent{{$XeroDbData->Slug}}">
+            <!-- Xero form start-->
+
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Details
+                    </div>
+
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6  margin-top">
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-4 control-label">* Consumer Key:</label>
+                                <div class="col-sm-8">
+                                    <input type="text"  class="form-control" name="ConsumerKey" value="{{isset($XeroData['ConsumerKey'])?$XeroData['ConsumerKey']:''}}" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 margin-top">
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-4 control-label">* Secret:</label>
+                                <div class="col-sm-8">
+                                    <input type="text"  class="form-control" name="ConsumerSecret" value="{{isset($XeroData['ConsumerSecret'])?$XeroData['ConsumerSecret']:''}}" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clear"></div>
+                        <div class="col-md-12 margin-top">
+                            <div class="form-group">
+                                <label for="field-1" class="col-sm-4 control-label">* Upload certificate file (.pem):</label>
+                                <div class="col-sm-8">
+                                    <input name="XeroFile" type="file" class="form-control file2 inline btn btn-primary" data-label="<i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;Browse" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clear"></div>
+                        <div class="col-md-6  margin-top">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Active:</label>
+                                <div class="col-sm-8" id="XeroStatusDiv">
+                                    <input id="XeroStatus" class="subcatstatus" Divid="XeroStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($XeroDbData->Status) && $XeroDbData->Status==1){ ?>   checked="checked"<?php } ?> >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Chart of Accounts Mapping(Journal)
+                    </div>
+
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="col-md-6  margin-top">
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-4 control-label">Invoice:</label>
+                            <div class="col-sm-8">
+                                <input type="text"  class="form-control" name="InvoiceAccount" value="{{isset($XeroData['InvoiceAccount'])?$XeroData['InvoiceAccount']:""}}" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 margin-top">
+                        <div class="form-group">
+                            <label for="field-1" class="col-sm-4 control-label">Payment:</label>
+                            <div class="col-sm-8">
+                                <input type="text"  class="form-control" name="PaymentAccount" value="{{isset($XeroData['PaymentAccount'])?$XeroData['PaymentAccount']:""}}" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+
+                    <?php $count=0; ?>
+                    @if(!empty($TaxLists)&& count($TaxLists)>0)
+                        @foreach($TaxLists as $TaxList)
+                            <div class="col-md-6  margin-top">
+                                <div class="form-group">
+                                    <label for="field-1" class="col-sm-4 control-label">{{$TaxList->Title}}:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text"  class="form-control" name="Tax[{{$TaxList->TaxRateId}}]" value="{{isset($XeroData['Tax'][$TaxList->TaxRateId])?$XeroData['Tax'][$TaxList->TaxRateId]:""}}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <?php $count++; ?>
+                            @if($count%2 == 0)
+                                <div class="clear"></div>
+                            @endif
+                        @endforeach
+                    @endif
+
+                </div>
+            </div>
+
+            <!-- Xero form end-->
+        </div>
+        <!-- Xero End-->
+
+
     </div>
 
   <ul class="pager wizard">
@@ -1059,7 +1176,7 @@
 			var SubcatContent 	 = 	$('#'+SubCatID).html(); 				
 			var parent_slug   	 = 	$(this).attr('parent_Slug');
 			var ForeignID   	 = 	$(this).attr('ForeignID');
-					
+
 			$('#SubcategoryModalContent').html(SubcatContent);
 			$('#SubcategoryModal .modal-title').html(DataTitle);
 			
@@ -1070,7 +1187,11 @@
 
             if(parent_slug=='accounting'){
                 $('#SubcategoryModal .modal-dialog').addClass('modal-lg');
-                $('#quickbook-connect').show();
+                if(DataTitle=='QuickBook'){
+                    $('#quickbook-connect').show();
+                }else{
+                    $('#quickbook-connect').hide();
+                }
             }else{
                 $('#quickbook-connect').hide();
             }
