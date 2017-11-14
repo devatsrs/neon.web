@@ -2,14 +2,14 @@
 @section('content')
 <ol class="breadcrumb bc-3">
   <li> <a href="{{ URL::to('/dashboard') }}"><i class="entypo-home"></i>Home</a> </li>
-  <li class="active"> <strong>Tickets</strong> </li>
+  <li class="active"> <strong>@lang('routes.CUST_PANEL_PAGE_TICKETS_TITLE')</strong> </li>
 </ol>
-<h3>Tickets</h3>
+<h3>@lang('routes.CUST_PANEL_PAGE_TICKETS_TITLE')</h3>
 <p class="text-right"> 
 <div class="btn-group pull-right">
-<button href="#" class="btn  btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Add New&nbsp;&nbsp;<span class="caret"></span></button>
+<button href="#" class="btn  btn-primary btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">@lang('routes.BUTTON_ADD_CAPTION')&nbsp;&nbsp;<span class="caret"></span></button>
  <ul class="dropdown-menu" style="background-color: #000; border-color: #000; margin-top:0px;" role="menu">
-    <li><a href="{{URL::to('customer/tickets/add')}}">Ticket</a></li>    
+    <li><a href="{{URL::to('customer/tickets/add')}}">@lang('routes.CUST_PANEL_PAGE_TICKETS_ADD_TICKET')</a></li>
   </ul>
   </div>
    </p>
@@ -19,16 +19,16 @@
     <form role="form" id="tickets_filter" method="post" action="{{Request::url()}}" class="form-horizontal form-groups-bordered validate" novalidate>
       <div class="panel panel-primary" data-collapsed="0">
         <div class="panel-heading">
-          <div class="panel-title"> Filter </div>
+          <div class="panel-title"> @lang('routes.CUST_PANEL_FILTER_TITLE') </div>
           <div class="panel-options"> <a class="filter_minimize_btn" href="#" data-rel="collapse"><i class=" entypo-down-open"></i></a> </div>
         </div>
         <div class="panel-body" id="paymentsearch">
           <div class="form-group">
-            <label for="field-1" class="col-sm-1 control-label small_label">Search</label>
+            <label for="field-1" class="col-sm-1 control-label small_label">@lang('routes.CUST_PANEL_PAGE_TICKETS_FILTER_FIELD_SEARCH')</label>
             <div class="col-sm-2"> {{ Form::text('search', '', array("class"=>"form-control")) }} </div>
-            <label for="field-1" class="col-sm-1 control-label small_label">Status</label>
+            <label for="field-1" class="col-sm-1 control-label small_label">@lang('routes.CUST_PANEL_PAGE_TICKETS_FILTER_FIELD_STATUS')</label>
             <div class="col-sm-2"> {{Form::select('status[]', $status, $OpenTicketStatus ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
-            <label for="field-1" class="col-sm-1 control-label small_label">Priority</label>
+            <label for="field-1" class="col-sm-1 control-label small_label">@lang('routes.CUST_PANEL_PAGE_TICKETS_FILTER_FIELD_PRIORITY')</label>
             <div class="col-sm-2"> {{Form::select('priority[]', $Priority, '' ,array("class"=>"select2","multiple"=>"multiple"))}} </div>
           </div>
           @if(User::is_admin())
@@ -40,7 +40,7 @@
           <input type="hidden" name="agent" value="{{user::get_userID()}}" >
           @endif
           <p style="text-align: right;">
-            <button type="submit" class="btn btn-primary btn_form_submit btn-sm btn-icon icon-left"> <i class="entypo-search"></i> Search </button>
+            <button type="submit" class="btn btn-primary btn_form_submit btn-sm btn-icon icon-left"> <i class="entypo-search"></i> @lang('routes.BUTTON_SEARCH_CAPTION') </button>
           </p>
         </div>
       </div>
@@ -53,7 +53,7 @@
   <div class="mail-body"> 
     <!-- mail table -->
     <div class="inbox">
-        <div id="table-4_processing" class="dataTables_processing">Processing...</div>
+        <div id="table-4_processing" class="dataTables_processing">@lang('routes.DATATABLE_PROCESSING')</div>
     </div>
   </div>
   <!-- Mail Body end --> 

@@ -72,7 +72,6 @@ class TranslateController extends \BaseController {
 
 
         $request = Input::all();
-        $request["system_name"]=strtoupper($request["system_name"]);
 
         $data_langs = $this->get_language_translation($request["language"]);
 //        dd(DB::getQueryLog());
@@ -131,13 +130,15 @@ class TranslateController extends \BaseController {
 
     public function new_system_name(){
         $request = Input::all();
-
+        $request["system_name"]=strtoupper($request["system_name"]);
         $data_langs = $this->get_language_translation();
 
         $translation_data = json_decode($data_langs->Translation, true);
 
         if(!array_key_exists($request["system_name"] ,$translation_data )){
             $translation_data[$request["system_name"]]=$request["en_word"];
+
+            ksort($translation_data);
 
             Translation::where('TranslationID', $data_langs->TranslationID)->update( array('Translation' => json_encode($translation_data) ));
             $this->create_language_file($data_langs->ISOCode,$translation_data);
