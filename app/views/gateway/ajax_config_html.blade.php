@@ -2,7 +2,7 @@
 <div class="row">
     <div class="col-md-12" id="cdrrerateaccountsbox">
         <div class="form-group">
-            <label class="control-label">CDR Rerate Accounts</label>
+            <label class="control-label">CDR Rerate Accounts <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="ReRate Accounts" data-content="When CDR ReRate is on selected accounts's CDR will be ReRate and if no accounts is selected than all accounts's CDR will be ReRate.">?</span></label>
             {{Form::select('Accounts[]', $Accounts, isset($gatewayconfigval->Accounts) ? $gatewayconfigval->Accounts : [] ,array("class"=>"form-control select2", "multiple"=>"multiple"))}}
         </div>
     </div>
@@ -43,13 +43,13 @@
         @else
 
      <div class="col-md-6 " @if($configkey == 'RateFormat') id="rate_dropdown" @endif>
-        <div class="form-group">
             @if($configkey != 'AllowAccountImport')
-            <label for="field-5" class="control-label @if($configkey == 'RateCDR') col-md-13 @endif">{{$configtitle}}</label>
+        <div class="form-group" id="{{$configkey}}Box">
+            <label for="field-5" class="control-label @if($configkey == 'RateCDR') col-md-13 @endif">{{$configtitle}} @if($configkey=='AutoAddIP') <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="Auto Add IP" data-content="IP will be automatically added to authentication rule when account name match.">?</span> @endif</label>
             @endif
 
             @if($configkey == 'NameFormat')
-                {{Form::select($configkey,$NameFormat,$selectd_val,array( "class"=>"select2 small"))}}
+                {{Form::select($configkey,$NameFormat,$selectd_val,array( "class"=>"select2 small","id"=>$configkey))}}
             @elseif($configkey == 'CallType')
                 {{Form::select($configkey,GatewayConfig::$CallType,$selectd_val,array( "class"=>"select2 small"))}}
             @elseif($configkey == 'BillingTime')
@@ -109,4 +109,29 @@
         $this.selectBoxIt(opts);
     });
 }*/
+    $(document).ready(function() {
+        $('[data-toggle="popover"]').each(function(i, el)
+        {
+            var $this = $(el),
+                placement = attrDefault($this, 'placement', 'right'),
+                trigger = attrDefault($this, 'trigger', 'click'),
+                popover_class = $this.hasClass('popover-secondary') ? 'popover-secondary' : ($this.hasClass('popover-primary') ? 'popover-primary' : ($this.hasClass('popover-default') ? 'popover-default' : ''));
+
+            $this.popover({
+                placement: placement,
+                trigger: trigger
+            });
+
+            $this.on('shown.bs.popover', function(ev)
+            {
+                var $popover = $this.next();
+
+                $popover.addClass(popover_class);
+            });
+        });
+
+        $(document).on('change', 'select[name="NameFormat"]', function() {
+
+        });
+    });
 </script>
