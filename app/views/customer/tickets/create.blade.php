@@ -2,19 +2,19 @@
 
 @section('content')
 <ol class="breadcrumb bc-3">
-  <li><a href="{{ URL::to('/customer/tickets') }}">Tickets</a></li>
-  <li class="active"> <strong>New Ticket</strong> </li>
+  <li><a href="{{ URL::to('/customer/tickets') }}">@lang('routes.CUST_PANEL_PAGE_TICKETS_TITLE')</a></li>
+  <li class="active"> <strong>@lang('routes.CUST_PANEL_PAGE_NEW_TICKET_TITLE')</strong> </li>
 </ol>
-<h3>New Ticket</h3>
+<h3>@lang('routes.CUST_PANEL_PAGE_NEW_TICKET_TITLE')</h3>
 <p style="text-align: right;">
-  <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
-  <a href="{{URL::to('/customer/tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i> Close </a> </p>
+  <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> @lang('routes.BUTTON_SAVE_CAPTION') </button>
+  <a href="{{URL::to('/customer/tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i>  @lang('routes.BUTTON_CLOSE_CAPTION')  </a> </p>
 <br>
 <div class="row">
   <div class="col-md-12">
     <div class="panel panel-primary" data-collapsed="0">
       <div class="panel-heading">
-        <div class="panel-title"> Ticket Detail </div>
+        <div class="panel-title"> @lang('routes.CUST_PANEL_PAGE_NEW_TICKET_DETAIL_HEADER') </div>
         <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
       </div>
       <div class="panel-body">
@@ -22,6 +22,7 @@
           <?php  $required = array();
 			   foreach($Ticketfields as $TicketfieldsData)
 			   {
+				$TicketfieldsData->CustomerLabel = Lang::get('routes.CUST_PANEL_PAGE_TICKET_FIELDS_'.strtoupper($TicketfieldsData->FieldType) );
 				  $id		    =  'Ticket'.str_replace(" ","",$TicketfieldsData->FieldName);
 				 if($TicketfieldsData->FieldHtmlType == Ticketfields::FIELD_HTML_TEXT)
 				 {

@@ -1,7 +1,7 @@
 @extends('layout.customer.main')
 @section('content')
 <ol class="breadcrumb bc-3">
-  <li> <a href="{{ URL::to('/dashboard') }}"><i class="entypo-home"></i>Home</a> </li>
+  <li> <a href="{{ URL::to('/dashboard') }}"><i class="entypo-home"></i>@lang('routes.CUST_PANEL_BREADCRUMB_HOME')</a> </li>
   <li class="active"> <strong>@lang('routes.CUST_PANEL_PAGE_TICKETS_TITLE')</strong> </li>
 </ol>
 <h3>@lang('routes.CUST_PANEL_PAGE_TICKETS_TITLE')</h3>

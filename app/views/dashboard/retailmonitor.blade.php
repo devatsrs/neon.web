@@ -8,9 +8,9 @@
                         <thead>
                         <tr>
                             <th>#</th>
-                            <th>Number</th>
-                            <th>Number of Times Dialled</th>
-                            <th>Total Talk time (sec)</th>
+                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_DIALLED_NUMBER_TBL_COL2")</th>
+                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_DIALLED_NUMBER_TBL_COL3")</th>
+                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_DIALLED_NUMBER_TBL_COL4")</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -34,8 +34,8 @@
                     <thead>
                     <tr>
                         <th>#</th>
-                        <th>Number</th>
-                        <th>Duration(Sec)</th>
+                        <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_LONGEST_DURATIONS_CALLS_TBL_COL2")</th>
+                        <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_LONGEST_DURATIONS_CALLS_TBL_COL3")</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -56,9 +56,9 @@
                         <thead>
                         <tr>
                             <th>#</th>
-                            <th>Number</th>
-                            <th>Cost</th>
-                            <th>Duration(Sec)</th>
+                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_EXPENSIVE_CALLS_TBL_COL2")</th>
+                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_EXPENSIVE_CALLS_TBL_COL3")</th>
+                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_EXPENSIVE_CALLS_TBL_COL4")</th>
                         </tr>
                         </thead>
                         <tbody>

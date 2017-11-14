@@ -1049,7 +1049,7 @@ function chart_reponse($alldata){
     $response['ChartColors'] = implode(',',$chartColor);
 
     if(empty($alldata['call_count'])) {
-        $response['CallCountHtml'] = '<h4>No Data</h4>';
+        $response['CallCountHtml'] = '<h4>'.Lang::get('routes.DATA_NOT_AVAILABLE').'</h4>';
         $response['CallCount'] = '';
         $response['CallCountVal'] = '';
     }else{
@@ -1058,7 +1058,7 @@ function chart_reponse($alldata){
         $response['CallCountHtml'] =  $alldata['call_count_html'];
     }
     if(empty($alldata['call_cost'])) {
-        $response['CallCostHtml'] = '<h4>No Data</h4>';
+        $response['CallCostHtml'] = '<h4>'.Lang::get('routes.DATA_NOT_AVAILABLE').'</h4>';
         $response['CallCost'] = '';
         $response['CallCostVal'] = '';
     }else{
@@ -1067,7 +1067,7 @@ function chart_reponse($alldata){
         $response['CallCostHtml'] = $alldata['call_cost_html'];
     }
     if(empty($alldata['call_minutes'])) {
-        $response['CallMinutesHtml'] = '<h4>No Data</h4>';
+        $response['CallMinutesHtml'] = '<h4>'.Lang::get('routes.DATA_NOT_AVAILABLE').'</h4>';
         $response['CallMinutes'] = '';
         $response['CallMinutesVal'] = '';
     }else{

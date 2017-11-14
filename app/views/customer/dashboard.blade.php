@@ -45,7 +45,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="tile-stats tile-cyan stat-tile panel loading">
-                        <h3>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_SALES")</h3>
+                        <h3>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_SALES") <span></span></h3>
                         {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
                         <p>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_TODAY_SALES_BY_HOUR")</p>
                         <span class="hourly-sales-cost"></span>
@@ -54,9 +54,9 @@
 
                 <div class="col-md-12">
                     <div class="tile-stats tile-aqua stat-tile panel loading">
-                        <h3>Minutes 0</h3>
+                        <h3>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_TODAY_MINUTES") <span>0</span></h3>
                         {{--<div class="icon"><i class="fa fa-line-chart"></i></div>--}}
-                        <p>Today Minutes by hour</p>
+                        <p>@lang("routes.CUST_PANEL_PAGE_MONITOR_RIGHT_SIDE_TODAY_MINUTES_BY_HOUR")</p>
                         <span class="hourly-sales-minutes"></span>
                     </div>
                 </div>
