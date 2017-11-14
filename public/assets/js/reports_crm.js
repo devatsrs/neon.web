@@ -729,7 +729,7 @@ function GetSalesData(){
 	var UsersID  	= $("#crm_dashboard [name='UsersID[]']").val();
 	var CurrencyID  = $("#crm_dashboard [name='CurrencyID']").val();
 	var Duedate     = $("#crm_dashboard_Sales_Manager [name='Duedate']").val();
-	var ListType     = $("#crm_dashboard_Sales_Manager [name='ListType']").val();
+	var ListType     = $("#crm_dashboard_Sales_Manager [name='ListType']:checked").val();
     $.ajax({
         type: 'POST',
         url: baseurl+'/dashboard/CrmDashboardSalesRevenue',
@@ -854,7 +854,7 @@ function GetSalesData(){
  });
  
  function GetRevenuePopup(name_user,date_range,userid,duedate){
-	var ListType     = $("#crm_dashboard_Sales_Manager [name='ListType']").val();	
+	var ListType     = $("#crm_dashboard_Sales_Manager [name='ListType']:checked").val();
 	var CurrencyID	 = $("#crm_dashboard").find("[name='CurrencyID']").val();
 	 $.ajax({
         type: 'POST',
