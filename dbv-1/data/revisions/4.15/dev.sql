@@ -1172,6 +1172,7 @@ BEGIN
 		FROM tblRateTableRate a
 			,(SELECT @row_num := 0) x
 		WHERE  RateTableID = p_RateTableID
+		group by EffectiveDate
 		order by EffectiveDate asc;
 
 		SET v_pointer_ = 1;
@@ -2101,30 +2102,6 @@ GenerateRateTable:BEGIN
 						AND rate.rate != tblRateTableRate.Rate;
 
 
-			-- update  previous rate with all latest recent entriy of previous effective date
-			UPDATE tblRateTableRate rtr
-			inner join
-			(
-				-- get all rates RowID = 1 to remove old to old effective date
-
-				select distinct rt1.* ,
-				@row_num := IF(@prev_RateId = rt1.RateID AND @prev_EffectiveDate >= rt1.EffectiveDate, @row_num + 1, 1) AS RowID,
-				@prev_RateId := rt1.RateID,
-				@prev_EffectiveDate := rt1.EffectiveDate
-				from tblRateTableRate rt1
-				inner join tblRateTableRate rt2
-				on rt1.RateTableId = rt2.RateTableId and rt1.RateID = rt2.RateID
-				and rt1.EffectiveDate < rt2.EffectiveDate
-				where
-				rt1.RateTableID = p_RateTableId
-				order by rt1.RateID desc ,rt1.EffectiveDate desc
-
-			) old_rtr on  old_rtr.RateTableID = rtr.RateTableID  and old_rtr.RateID = rtr.RateID and old_rtr.EffectiveDate < rtr.EffectiveDate AND rtr.EffectiveDate =  p_EffectiveDate AND old_rtr.RowID = 1
-			SET rtr.PreviousRate = old_rtr.Rate
-			where
-			rtr.RateTableID = p_RateTableId;
-
-
 			-- Update previous rate
          call prc_RateTableRateUpdatePreviousRate(p_RateTableId,'');
 
@@ -2977,33 +2954,8 @@ GenerateRateTable:BEGIN
 			WHERE tblRate.CodeDeckId = v_codedeckid_
 						AND rate.rate != tblRateTableRate.Rate;
 
-			-- update  previous rate with all latest recent entriy of previous effective date
-			UPDATE tblRateTableRate rtr
-			inner join
-			(
-
-
-				-- get all rates RowID = 1 to remove old to old effective date
-
-				select distinct rt1.* ,
-				@row_num := IF(@prev_RateId = rt1.RateID AND @prev_EffectiveDate >= rt1.EffectiveDate, @row_num + 1, 1) AS RowID,
-				@prev_RateId := rt1.RateID,
-				@prev_EffectiveDate := rt1.EffectiveDate
-				from tblRateTableRate rt1
-				inner join tblRateTableRate rt2
-				on rt1.RateTableId = rt2.RateTableId and rt1.RateID = rt2.RateID
-				and rt1.EffectiveDate < rt2.EffectiveDate
-				where
-				rt1.RateTableID = p_RateTableId
-				order by rt1.RateID desc ,rt1.EffectiveDate desc
-
-			) old_rtr on  old_rtr.RateTableID = rtr.RateTableID  and old_rtr.RateID = rtr.RateID and old_rtr.EffectiveDate < rtr.EffectiveDate AND rtr.EffectiveDate =  p_EffectiveDate AND old_rtr.RowID = 1
-			SET rtr.PreviousRate = old_rtr.Rate
-			where
-			rtr.RateTableID = p_RateTableId;
-
 			-- Update previous rate
-         call prc_RateTableRateUpdatePreviousRate(p_RateTableId,'');
+      call prc_RateTableRateUpdatePreviousRate(p_RateTableId,'');
 
 
 			-- update increase decrease effective date
