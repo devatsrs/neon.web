@@ -36,7 +36,7 @@
         <li>
             <a href="{{Url::to('customer/monitor')}}">
                 <i class="entypo-monitor"></i>
-                <span>@lang('routes.SIDENAV_MENU_DASHBOARD')</span>
+                <span>@lang('routes.CUST_PANEL_SIDENAV_MENU_DASHBOARD')</span>
             </a>
         </li>
         @endif
@@ -44,15 +44,15 @@
         <li>
             <a href="{{Url::to('customer/noticeboard')}}">
                 <i class="entypo-gauge"></i>
-                <span>@lang('routes.SIDENAV_MENU_NOTICE_BOARD')</span>
+                <span>@lang('routes.CUST_PANEL_SIDENAV_MENU_NOTICE_BOARD')</span>
             </a>
         </li>
         @endif
         	   <!--tickets start -->    
     @if(Tickets::CheckTicketLicense() && CompanyConfiguration::get('CUSTOMER_TICKET_DISPLAY') == 1)
-    <li class="{{check_uri('tickets')}}"> <a href="#"> <i class="fa fa-ticket"></i> <span>&nbsp;@lang("routes.SIDENAV_MENU_TICKET_MANAGEMENT")</span> </a>
+    <li class="{{check_uri('tickets')}}"> <a href="#"> <i class="fa fa-ticket"></i> <span>&nbsp;@lang("routes.CUST_PANEL_SIDENAV_MENU_TICKET_MANAGEMENT")</span> </a>
       <ul>
-        <li> <a href="{{URL::to('customer/tickets')}}">  <span>@lang("routes.SIDENAV_MENU_TICKET_MANAGEMENT__TICKET")</span> </a> </li>
+        <li> <a href="{{URL::to('customer/tickets')}}">  <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_TICKET_MANAGEMENT__TICKET")</span> </a> </li>
       </ul>
     </li>
     @endif
@@ -61,28 +61,28 @@
         <li class="{{check_uri('Customer_billing')}}">
             <a href="#">
                 <i class="fa fa-credit-card"></i>
-                <span>@lang("routes.SIDENAV_MENU_BILLING")</span>
+                <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_BILLING")</span>
             </a>
 
             <ul>
                 @if(CompanyConfiguration::get('CUSTOMER_BANALYSIS_DISPLAY') == 1)
                 <li>
                     <a href="{{URL::to('customer/dashboard')}}">
-                        <span>@lang("routes.SIDENAV_MENU_BILLING__ANALYSIS")</span>
+                        <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_BILLING__ANALYSIS")</span>
                     </a>
                 </li>
                 @endif
                 @if(CompanyConfiguration::get('CUSTOMER_INVOICE_DISPLAY') == 1)
                 <li>
                     <a href="{{Url::to('customer/invoice')}}">
-                        <span>@lang("routes.SIDENAV_MENU_BILLING__INVOICES")</span>
+                        <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_BILLING__INVOICES")</span>
                     </a>
                 </li>
                 @endif
                 @if(CompanyConfiguration::get('CUSTOMER_PAYMENT_DISPLAY') == 1)
                 <li>
                     <a href="{{URL::to('customer/payments')}}">
-                        <span>@lang("routes.SIDENAV_MENU_BILLING__PAYMENTS")</span>
+                        <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_BILLING__PAYMENTS")</span>
                     </a>
                 </li>
 
@@ -90,21 +90,21 @@
                 @if(CompanyConfiguration::get('CUSTOMER_STATEMENT_DISPLAY') == 1)
                 <li>
                     <a href="{{URL::to('customer/account_statement')}}">
-                        <span>@lang("routes.SIDENAV_MENU_BILLING__ACCOUNT_STATEMENT")</span>
+                        <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_BILLING__ACCOUNT_STATEMENT")</span>
                     </a>
                 </li>
                 @endif
                 @if (is_PayNowInvoice() && CompanyConfiguration::get('CUSTOMER_PAYMENT_PROFILE_DISPLAY') == 1)
                 <li>
                     <a href="{{URL::to('customer/PaymentMethodProfiles')}}">
-                        <span>@lang("routes.SIDENAV_MENU_BILLING__PAYMENT_METHOD_PROFILES")</span>
+                        <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_BILLING__PAYMENT_METHOD_PROFILES")</span>
                     </a>
                 </li>
                 @endif
                 @if(CompanyConfiguration::get('CUSTOMER_CDR_DISPLAY') == 1)
                 <li>
                     <a href="{{URL::to('customer/cdr')}}">
-                        <span>@lang("routes.SIDENAV_MENU_BILLING__CRD")</span>
+                        <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_BILLING__CRD")</span>
                     </a>
                 </li>
                 @endif
@@ -115,7 +115,7 @@
             <li>
                 <a href="{{URL::to('customer/daily_report/0')}}">
                     <i class="fa fa-calendar-plus-o"></i>
-                    <span>@lang("routes.SIDENAV_MENU_MOVEMENT_REPORT")</span>
+                    <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_MOVEMENT_REPORT")</span>
                 </a>
             </li>
         @endif
@@ -123,7 +123,7 @@
         <li>
             <a href="{{URL::to('customer/customers_rates')}}">
                 <i class="fa fa-table"></i>
-                <span>@lang("routes.SIDENAV_MENU_COMMERCIAL")</span>
+                <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_COMMERCIAL")</span>
             </a>
         </li>
         @endif
@@ -131,7 +131,7 @@
             <li>
                 <a href="{{URL::to('customer/rates')}}">
                     <i class="fa fa-table"></i>
-                    <span>@lang("routes.SIDENAV_MENU_RATES")</span>
+                    <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_RATES")</span>
                 </a>
             </li>
         @endif
@@ -139,7 +139,7 @@
         <li>
             <a href="{{(Customer::get_currentUser()->IsVendor == 1 && Customer::get_currentUser()->IsCustomer == 0 ) ? Url::to('customer/vendor_analysis') : Url::to('customer/analysis')}}">
                 <i class="fa fa-bar-chart"></i>
-                <span>@lang("routes.SIDENAV_MENU_ANALYSIS")</span>
+                <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_ANALYSIS")</span>
             </a>
         </li>
         @endif
@@ -147,7 +147,7 @@
         <li>
             <a href="{{URL::to('customer/notification')}}">
                 <i class="fa fa-bullhorn"></i>
-                <span>@lang("routes.SIDENAV_MENU_NOTIFICATIONS")</span>
+                <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_NOTIFICATIONS")</span>
             </a>
         </li>
         @endif
@@ -155,7 +155,7 @@
         <li>
             <a href="{{URL::to('customer/profile')}}">
                 <i class="glyphicon glyphicon-user"></i>
-                <span>@lang("routes.SIDENAV_MENU_PROFILE")</span>
+                <span>@lang("routes.CUST_PANEL_SIDENAV_MENU_PROFILE")</span>
             </a>
         </li>
         @endif
