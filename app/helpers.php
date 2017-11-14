@@ -1607,8 +1607,12 @@ function is_StripeACH(){
 }
 function is_SagePayDirectDebit(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$SagePayDirectDebitSlug);
-}function is_FideliPay(){
+}
+function is_FideliPay(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$FideliPaySlug);
+}
+function is_Xero(){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$XeroSlug);
 }
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {

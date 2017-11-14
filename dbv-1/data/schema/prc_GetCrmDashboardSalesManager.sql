@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user-umer`@`122.129.78.153` PROCEDURE `prc_GetCrmDashboardSalesManager`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetCrmDashboardSalesManager`(
 	IN `p_CompanyID` INT,
 	IN `p_OwnerID` VARCHAR(500),
 	IN `p_CurrencyID` INT,
@@ -23,6 +23,8 @@ BEGIN
 		`Week` INT
 	);
 
+	CALL NeonReportDev.fnGetCRMUnBilledData(p_CompanyID,p_OwnerID,p_CurrencyID,p_ListType,p_Start,p_End);
+
 	INSERT INTO tmp_Dashboard_invoices_
 	SELECT
 		CONCAT(tu.FirstName,' ',tu.LastName) AS `AssignedUserText`,
@@ -38,7 +40,7 @@ BEGIN
 		ON tu.UserID = ac.Owner
 	WHERE
 		ac.`Status` = 1
-	AND tu.`Status` = 1 		
+	AND tu.`Status` = 1 
 	AND (p_CurrencyID = '' OR ( p_CurrencyID !=''  AND ac.CurrencyId = p_CurrencyID))
 	AND ac.CompanyID = p_CompanyID
 	AND (p_OwnerID = '' OR   FIND_IN_SET(tu.UserID,p_OwnerID))
@@ -51,11 +53,11 @@ BEGIN
 		,WEEK(inv.IssueDate)
 		,CONCAT(tu.FirstName,' ',tu.LastName)
 		,tu.UserID;
-			
+
 	IF p_ListType = 'Monthly'
 	THEN
 
-		SELECT	
+		SELECT
 			td.AssignedUserText AS AssignedUserText,
 			td.AssignedUserID AS AssignedUserID,
 			ROUND(sum(td.Revenue),v_Round_) AS Revenue,
@@ -73,7 +75,7 @@ BEGIN
 
 	IF p_ListType = 'Weekly'
 	THEN
-		SELECT	
+		SELECT
 			td.AssignedUserText AS AssignedUserText,
 			td.AssignedUserID,
 			ROUND(sum(td.Revenue),v_Round_) AS Revenue,
