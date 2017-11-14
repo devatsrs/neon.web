@@ -294,6 +294,11 @@ var postdata;
                         } else {
                             $('#cdrrerateaccountsbox').hide();
                         }
+                        if($('#NameFormat').val() == 'IP') {
+                            $('#AutoAddIPBox').show();
+                        } else {
+                            $('#AutoAddIPBox').hide();
+                        }
                     },
                     // Form data
                     data: "GatewayID="+$(this).val()+'&CompanyGatewayID='+$("#add-new-config-form [name='CompanyGatewayID']").val(),
@@ -489,6 +494,14 @@ var postdata;
                 $('#cdrrerateaccountsbox').slideDown();
             } else {
                 $('#cdrrerateaccountsbox').slideUp();
+            }
+        });
+
+        $(document).on('change', '#NameFormat', function() {
+            if($('#NameFormat').val() == 'IP') {
+                $('#AutoAddIPBox').slideDown();
+            } else {
+                $('#AutoAddIPBox').slideUp();
             }
         });
 
