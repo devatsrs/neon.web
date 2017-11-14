@@ -74,11 +74,7 @@ class TranslateController extends \BaseController {
         $request = Input::all();
         $request["system_name"]=strtoupper($request["system_name"]);
 
-        $data_langs = DB::table('tblLanguage')
-            ->select("TranslationID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
-            ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
-            ->where(["tblLanguage.ISOCode"=>$request["language"]])
-            ->first();
+        $data_langs = $this->get_language_translation($request["language"]);
 //        dd(DB::getQueryLog());
 
         $json_file = json_decode($data_langs->Translation, true);
@@ -115,7 +111,7 @@ class TranslateController extends \BaseController {
 
     public function exports($languageCode,$type) {
 
-        $data_langs = $this->getLanguage($languageCode);
+        $data_langs = $this->get_language_translation($languageCode);
         $translation_data = json_decode($data_langs->Translation, true);
         $json_file=array();
         foreach($translation_data as $key=>$value){
@@ -136,7 +132,7 @@ class TranslateController extends \BaseController {
     public function new_system_name(){
         $request = Input::all();
 
-        $data_langs = $this->getLanguage();
+        $data_langs = $this->get_language_translation();
 
         $translation_data = json_decode($data_langs->Translation, true);
 
@@ -151,7 +147,7 @@ class TranslateController extends \BaseController {
         }
     }
 
-    function getLanguage($languageCode="en"){
+    function get_language_translation($languageCode="en"){
         $data_langs = DB::table('tblLanguage')
             ->select("TranslationID", "tblTranslation.Language", "Translation", "tblLanguage.ISOCode")
             ->join('tblTranslation', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
