@@ -1,12 +1,15 @@
 Use `Ratemanagement3`;
 
+INSERT INTO `tblIntegration` (`CompanyId`, `Title`, `Slug`, `ParentID`, `MultiOption`) VALUES (1, 'Xero', 'xero', 15, 'N');
+
+
 INSERT INTO `tblRateSheetFormate` (`RateSheetFormateID`, `Title`, `Description`, `Customer`, `Vendor`, `Status`, `created_at`, `CreatedBy`, `updated_at`, `UpdatedBy`) VALUES (6, 'Mor', NULL, 1, 1, 1, NULL, NULL, NULL, NULL);
 INSERT INTO `tblRateSheetFormate` (`RateSheetFormateID`, `Title`, `Description`, `Customer`, `Vendor`, `Status`, `created_at`, `CreatedBy`, `updated_at`, `UpdatedBy`) VALUES (7, 'M2', NULL, 1, 1, 1, NULL, NULL, NULL, NULL);
 
 INSERT INTO `NeonRMDev`.`tblIntegration` (`CompanyId`, `Title`, `Slug`, `ParentID`) VALUES ('1', 'Xero', 'xero', '11');
 INSERT INTO `tblJobType` (`JobTypeID`, `Code`, `Title`, `Description`, `CreatedDate`, `CreatedBy`, `ModifiedDate`, `ModifiedBy`) VALUES (26, 'XIP', 'Xero Invoice Upload', NULL, '2017-11-07 00:00:00', 'System', NULL, NULL);
 
-INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, NULL, 'Xero Payment Import', 'xeropaymentimport', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Import Payment Days","type":"text","value":"","name":"ImportDays"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2017-11-13 12:00:00', 'RateManagementSystem');
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, NULL, 'Xero Payment Import', 'xeropaymentimport', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Import Payments Days","type":"text","value":"","name":"ImportDays"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2017-11-13 12:00:00', 'RateManagementSystem');
 
 DROP PROCEDURE IF EXISTS `prc_CronJobGenerateMorSheet`;
 DELIMITER //

@@ -968,7 +968,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Chart of Accounts Mapping(Journal)
+                        Chart of Accounts Mapping(For Journal Posting)
                     </div>
 
                     <div class="panel-options">
