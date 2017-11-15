@@ -2,7 +2,7 @@
 <div class="row">
     <div class="col-md-12" id="cdrrerateaccountsbox">
         <div class="form-group">
-            <label class="control-label">CDR Rerate Accounts <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="ReRate Accounts" data-content="When CDR ReRate is on selected accounts's CDR will be ReRate and if no accounts is selected than all accounts's CDR will be ReRate.">?</span></label>
+            <label class="control-label">CDR Rerate Accounts <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="ReRate Accounts" data-content="If blank all accounts CDRs will be rated. Otherwise only selected accounts CDRs will be rated.">?</span></label>
             {{Form::select('Accounts[]', $Accounts, isset($gatewayconfigval->Accounts) ? $gatewayconfigval->Accounts : [] ,array("class"=>"form-control select2", "multiple"=>"multiple"))}}
         </div>
     </div>
@@ -45,7 +45,7 @@
      <div class="col-md-6 " @if($configkey == 'RateFormat') id="rate_dropdown" @endif>
             @if($configkey != 'AllowAccountImport')
         <div class="form-group" id="{{$configkey}}Box">
-            <label for="field-5" class="control-label @if($configkey == 'RateCDR') col-md-13 @endif">{{$configtitle}} @if($configkey=='AutoAddIP') <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="Auto Add IP" data-content="IP will be automatically added to authentication rule when account name match.">?</span> @endif</label>
+            <label for="field-5" class="control-label @if($configkey == 'RateCDR') col-md-13 @endif">{{$configtitle}} @if($configkey=='AutoAddIP') <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="Auto Add IP" data-content="IP will be automatically added to the account if account name matches to the switch account name. Turn ON Auto Add IP notification from Admin > Notifications.">?</span> @endif</label>
             @endif
 
             @if($configkey == 'NameFormat')

@@ -298,6 +298,7 @@ function loadTable(table_id,pageSize,$searchFilter){
         {  "bSortable": true },  // 3 StartDate
         {  "bSortable": true },  // 3 StartDate
         {  "bSortable": true },  // 3 StartDate
+        {  "bSortable": true },  // 3 StartDate
         {  "bSortable": true }  // 3 StartDate
 
     ],
@@ -471,10 +472,13 @@ function getDates(submit_data,row,searchdates) {
 function checkrmargindisplay(table_id){
     if(customer_login == 1){
         $(table_id+" td:nth-child(7)").hide();
-        $(table_id+" td:nth-child(7)").addClass('hidden');
         $(table_id+" th:nth-child(7)").hide();
+        $(table_id+" td:nth-child(8)").hide();
+        $(table_id+" th:nth-child(8)").hide();
     }else{
         $(table_id+" td:nth-child(7)").show();
         $(table_id+" th:nth-child(7)").show();
+        $(table_id+" td:nth-child(8)").show();
+        $(table_id+" th:nth-child(8)").show();
     }
 }

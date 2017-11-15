@@ -681,7 +681,7 @@ function bulk_mail($type,$data){
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Template."));
             }
         } elseif ($data["template_option"] == 2) { // Update
-            if ($data['email_template'] > 0) {
+            if (!empty($data['email_template']) && $data['email_template'] > 0) {
                 $id = $data['email_template'];
                 $companyID = User::get_companyID();
                 $template = [];
