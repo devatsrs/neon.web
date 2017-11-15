@@ -28,6 +28,7 @@ function getWorldMap(submit_data){
                             '<b>ASR: </b>'+data.CountryChart[code].ASR+'%';
                             if(customer_login == 0) {
                                 label_html+='</br><b>TotalMargin: </b>' + data.CountryChart[code].TotalMargin;
+                                label_html+='</br><b>Margin(%): </b>' + data.CountryChart[code].MarginPercentage+'%';
                             }
 
                         el.html(el.html() + label_html );
