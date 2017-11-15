@@ -93,7 +93,7 @@ class PaymentsController extends \BaseController {
 		}
 
         $data['recall_on_off'] = isset($data['recall_on_off'])?($data['recall_on_off']== 'true'?1:0):0;
-        $columns = array('AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy','Notes');
+        $columns = array('PaymentID','AccountName','InvoiceNo','Amount','PaymentType','PaymentDate','Status','CreatedBy','Notes');
         $sort_column = $columns[$data['iSortCol_0']];
 
         // AccountManger Condition
