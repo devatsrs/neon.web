@@ -108,6 +108,7 @@
         <div class="form-group">
             <label for="field-5" class="control-label @if(isset($configtitle['timepicker'])) starttime2 @endif">{{$configtitle['title']}}
             @if($configtitle['name'] == 'ThresholdTime') <span data-original-title="What is Threshold Time?" data-content="Threshold Time is maximum running time. if time is more than threshold time then email will be sent to Error Email" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
+            @if($configtitle['name'] == 'ImportDays') <span data-original-title="Import Payments Day" data-content="if blank then system will import payments from last 7 days." data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             @if($configtitle['name'] == 'AlertEmailInterval') <span data-original-title="What is Alert Active Email Time?" data-content="It is interval time to send Email If any cron job is running out of its threshold time" data-placement="top" data-trigger="hover" data-toggle="popover" class="label label-info popover-primary">?</span> @endif
             </label>
             @if($configtitle['type'] == 'select' && isset($configtitle['multiple']) &&  $configtitle['multiple'] == 'multiple')

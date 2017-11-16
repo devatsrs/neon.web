@@ -67,6 +67,7 @@ BEGIN
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	WHERE ud.CompanyID = ',p_CompanyID,'
+		AND ud.AccountID IS NOT NULL
 	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk,ud.userfield;
 	');
 

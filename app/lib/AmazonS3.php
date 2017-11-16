@@ -44,6 +44,7 @@ class AmazonS3 {
         'RECURRING_INVOICE_UPLOAD'=>'RecurringInvoice',
         'ITEM_UPLOAD'=>'ITEMUPload',
         'RATESHEET_TEMPLATE'=>'RatesheetTemplate',
+        'XERO_UPLOAD'=>'XeroUpload',
     );
 
     // Instantiate an S3 client
