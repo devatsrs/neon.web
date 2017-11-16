@@ -236,7 +236,7 @@ if(User::checkCategoryPermission('CrmDashboardTasks','View')){ ?>
                 <div class="col-sm-3">
                     <div class="btn-group" data-toggle="buttons">
                         <label class="btn btn-white active">
-                            <input type="radio" name="ListType" value="Weekly">Weekly
+                            <input type="radio" name="ListType" value="Weekly" checked="checked">Weekly
                         </label>
                         <label class="btn btn-white">
                             <input type="radio" name="ListType" value="Monthly" >Monthly
