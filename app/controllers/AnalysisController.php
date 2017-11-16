@@ -59,7 +59,7 @@ class AnalysisController extends BaseController {
             $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
         }
 
-        $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
+        $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "' ,'".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','".$data['CDRType']."','" . $data['UserID'] . "','" . $data['Admin'] . "'".",0,0,'',''";
         $query .= ",2)";
         $TopReports = DataTableSql::of($query, 'neon_report')->getProcResult(array('CallCount','CallCost','CallMinutes'));
 
@@ -73,6 +73,8 @@ class AnalysisController extends BaseController {
             $alldata['call_count_val'][$indexcount] = $CallCount->CallCount;
             $alldata['call_count_acd'][$indexcount] = $CallCount->ACD;
             $alldata['call_count_asr'][$indexcount] = $CallCount->ASR;
+            $alldata['call_count_mar'][$indexcount] = $CallCount->TotalMargin;
+            $alldata['call_count_marp'][$indexcount] = $CallCount->MarginPercentage;
             $indexcount++;
         }
         $param_array = array_diff_key($data,array('map_url'=>0,'pageSize'=>0,'UserID'=>0,'Admin'=>0,'chart_type'=>0,'TimeZone'=>0,'CountryID'=>0));
@@ -86,6 +88,8 @@ class AnalysisController extends BaseController {
             $alldata['call_cost_val'][$indexcount] = $CallCost->TotalCost;
             $alldata['call_cost_acd'][$indexcount] = $CallCost->ACD;
             $alldata['call_cost_asr'][$indexcount] = $CallCost->ASR;
+            $alldata['call_cost_mar'][$indexcount] = $CallCost->TotalMargin;
+            $alldata['call_cost_marp'][$indexcount] = $CallCost->MarginPercentage;
             $indexcount++;
         }
         $alldata['call_cost_html'] = View::make('dashboard.grid', compact('alldata','data','customer','param_array'))->render();
@@ -99,6 +103,8 @@ class AnalysisController extends BaseController {
             $alldata['call_minutes_val'][$indexcount] = $CallMinutes->TotalMinutes;
             $alldata['call_minutes_acd'][$indexcount] = $CallMinutes->ACD;
             $alldata['call_minutes_asr'][$indexcount] = $CallMinutes->ASR;
+            $alldata['call_minutes_mar'][$indexcount] = $CallMinutes->TotalMargin;
+            $alldata['call_minutes_marp'][$indexcount] = $CallMinutes->MarginPercentage;
 
             $indexcount++;
         }
@@ -116,7 +122,7 @@ class AnalysisController extends BaseController {
             $data['EndDate'] = change_timezone($data['TimeZone'], $CompanyTimezone, $data['EndDate']);
         }
         $report_type = get_report_type($data['StartDate'],$data['EndDate']);
-        $query = "call prc_getReportByTime ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.")";
+        $query = "call prc_getReportByTime ('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','".$data['CDRType']."','" . $data['UserID'] . "','" . $data['Admin'] . "',".$report_type.")";
         $TopReports = DB::connection('neon_report')->select($query);
         $series = $category1 = $category2 = $category3 = array();
         $cat_index = 0;
@@ -159,22 +165,22 @@ class AnalysisController extends BaseController {
         $data['EndDate'] = empty($data['EndDate'])?date('Y-m-d 23:59:59'):$data['EndDate'];
         $query = '';
         if($data['chart_type'] == 'destination') {
-            $columns = array('Country','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $columns = array('Country','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin','MarginPercentage');
             $query = "call prc_getDestinationReportAll ";
         }elseif($data['chart_type'] == 'prefix') {
-            $columns = array('AreaPrefix','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $columns = array('AreaPrefix','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin','MarginPercentage');
             $query = "call prc_getPrefixReportAll ";
         }elseif($data['chart_type'] == 'trunk') {
-            $columns = array('Trunk','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $columns = array('Trunk','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin','MarginPercentage');
             $query = "call prc_getTrunkReportAll ";
         }elseif($data['chart_type'] == 'gateway') {
-            $columns = array('Gateway','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $columns = array('Gateway','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin','MarginPercentage');
             $query = "call prc_getGatewayReportAll ";
         }elseif($data['chart_type'] == 'account') {
-            $columns = array('AccountName','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $columns = array('AccountName','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin','MarginPercentage');
             $query = "call prc_getAccountReportAll ";
         }elseif($data['chart_type'] == 'description') {
-            $columns = array('Description','CallCount','TotalMinutes','TotalCost','ACD','ASR');
+            $columns = array('Description','CallCount','TotalMinutes','TotalCost','ACD','ASR','TotalMargin','MarginPercentage');
             $query = "call prc_getDescReportAll ";
         }
         if(!empty($data['TimeZone'])) {
@@ -184,7 +190,7 @@ class AnalysisController extends BaseController {
         }
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','" . $data['UserID'] . "','" . $data['Admin'] . "'".",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        $query .= "('" . $companyID . "','".intval($data['CompanyGatewayID']) . "','" . intval($data['AccountID']) ."','" . intval($data['CurrencyID']) ."','".$data['StartDate'] . "','".$data['EndDate'] . "','".$data['Prefix']."','".$Trunk."','".intval($data['CountryID']) . "','".$data['CDRType']."','" . $data['UserID'] . "','" . $data['Admin'] . "'".",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) ).",".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('neon_report')->select($query.',1)');
             $excel_data = json_decode(json_encode($excel_data),true);

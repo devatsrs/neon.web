@@ -93,6 +93,7 @@ function set_search_parameter(submit_form){
     $searchFilter.TrunkID = $(submit_form).find("[name='TrunkID']").val();
     $searchFilter.CurrencyID = $(submit_form).find("[name='CurrencyID']").val();
     $searchFilter.TimeZone = $(submit_form).find("[name='TimeZone']").val();
+    $searchFilter.CDRType = $(submit_form).find("[name='CDRType']").val();
 }
 function loadBarChart(chart_type,submit_data){
     loading(".bar_chart",1);
@@ -234,6 +235,7 @@ function loadTable(table_id,pageSize,$searchFilter){
     var TotalCall = 0;
     var TotalDuration = 0;
     var TotalCost = 0;
+    var TotalMargin = 0;
         data_table  = $(table_id).dataTable({
         "bDestroy": true,
         "bProcessing": true,
@@ -254,6 +256,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                 {"name": "Prefix","value": $searchFilter.Prefix},
                 {"name": "TrunkID","value": $searchFilter.TrunkID},
                 {"name": "TimeZone","value": $searchFilter.TimeZone},
+                {"name": "CDRType","value": $searchFilter.CDRType},
                 {"name": "CurrencyID","value": $searchFilter.CurrencyID}
 
 
@@ -271,6 +274,7 @@ function loadTable(table_id,pageSize,$searchFilter){
                 {"name": "Prefix","value": $searchFilter.Prefix},
                 {"name": "TrunkID","value": $searchFilter.TrunkID},
                 {"name": "TimeZone","value": $searchFilter.TimeZone},
+                {"name": "CDRType","value": $searchFilter.CDRType},
                 {"name": "CurrencyID","value": $searchFilter.CurrencyID},
                 {"name":"Export","value":1});
 
@@ -317,6 +321,8 @@ function loadTable(table_id,pageSize,$searchFilter){
         {  "bSortable": true },  // 3 StartDate
         {  "bSortable": true },  // 3 StartDate
         {  "bSortable": true },  // 3 StartDate
+        {  "bSortable": true },  // 3 StartDate
+        {  "bSortable": true }  // 3 StartDate
 
     ],
         "oTableTools": {
@@ -339,6 +345,7 @@ function loadTable(table_id,pageSize,$searchFilter){
         $(".dataTables_wrapper select").select2({
             minimumResultsForSearch: -1
         });
+        checkrmargindisplay(table_id);
     },
     "fnServerData": function ( sSource, aoData, fnCallback ) {
         /* Add some extra data to the sender */
@@ -347,6 +354,7 @@ function loadTable(table_id,pageSize,$searchFilter){
             TotalCall = json.Total.TotalCall;
             TotalDuration = json.Total.TotalDuration;
             TotalCost = json.Total.TotalCost;
+            TotalMargin = json.Total.TotalMargin;
             fnCallback(json)
         });
     },
@@ -363,6 +371,9 @@ function loadTable(table_id,pageSize,$searchFilter){
             $($(row).children().get(2)).html('<strong>'+TotalDuration+'</strong>');
             if(TotalCost) {
                 $($(row).children().get(3)).html('<strong>' + TotalCost.toFixed(toFixed) + '</strong>');
+            }
+            if(TotalMargin) {
+                $($(row).children().get(6)).html('<strong>' + TotalMargin.toFixed(toFixed) + '</strong>');
             }
         }else{
             $(table_id).find('tfoot').find('tr').html('');
@@ -579,4 +590,18 @@ function getMostDailedCall(submitdata){
             $(".most-dialled-number").find('tbody').html(data.html);
         }
     });
+}
+
+function checkrmargindisplay(table_id){
+    if(customer_login == 1){
+        $(table_id+" td:nth-child(7)").hide();
+        $(table_id+" th:nth-child(7)").hide();
+        $(table_id+" td:nth-child(8)").hide();
+        $(table_id+" th:nth-child(8)").hide();
+    }else{
+        $(table_id+" td:nth-child(7)").show();
+        $(table_id+" th:nth-child(7)").show();
+        $(table_id+" td:nth-child(8)").show();
+        $(table_id+" th:nth-child(8)").show();
+    }
 }

@@ -245,7 +245,7 @@ class DashboardCustomerController extends BaseController {
                 $payment =  isset($response['payment'][$data->date])?$response['payment'][$data->date]:0;
                 $consumption =  isset($response['calls'][$data->date])?$response['calls'][$data->date]:0;
                 if($row_count > 0){
-                    $previous_bal = $previous_bal+$today_total+$payment-$consumption;
+                    $previous_bal = $previous_bal-$today_total-$payment+$consumption;
 					$today_total = 0;
                 }else{
 					$today_total = $payment-$consumption;
@@ -282,32 +282,41 @@ class DashboardCustomerController extends BaseController {
     }
 
     public function customer_rates_grid($type){
-        $data = Input::all();
+        $data       = Input::all();
+        $CompanyID  = User::get_companyID();
         $CustomerID = Customer::get_accountID();
-        $account_number = Account::where('AccountID',$CustomerID)->pluck('Number');
+        $Trunks     = CustomerTrunk::getCustomerTrunk($CustomerID);
 
-        DB::table('tblGatewayCustomerRate')->where('CustomerID',$CustomerID)->delete();
-        $companygateways = CompanyGateway::where(array('Status'=>1,'CompanyID'=>User::get_companyID()))->get();
-        $param['username'] = $account_number;
-        $param['CustomerID'] = $CustomerID;
-        $param['Prefix'] = $data['Prefix'];
-        $param['Description'] = $data['Description'];
-        if(count($companygateways)>0){
-            foreach($companygateways as $companygateway) {
-                try{
-                    $GatewayName = Gateway::getGatewayName($companygateway['GatewayID']);
-                    if($GatewayName == 'MOR' || $GatewayName == 'CallShop') {
-                        GatewayAPI::GatewayMethod($GatewayName, $companygateway['CompanyGatewayID'], 'getRates',$param);
-                    }
-                }catch(Exception $e){
-                    Log::error($e);
-                }
+        $data['iDisplayStart']         += 1;
+        $data['Trunk']                  = $Trunks->count() > 0 ? $Trunks[0]->TrunkID : 0;
+        $data['Country']                = 'null';
+        $data['Code']                   = $data['Prefix'] != ''?"'".$data['Prefix']."'":'null';
+        $data['Description']            = $data['Description'] != ''?"'".$data['Description']."'":'null';
+        $data['Effective']              = "Now";
+        $data['Effected_Rates_on_off']  = 1;
+        $data['RoutinePlanFilter']      = "";
+
+        $columns = array('RateID','Code','Description','Interval1','IntervalN','ConnectionFee','RoutinePlan','Rate','EffectiveDate','LastModifiedDate','LastModifiedBy','CustomerRateId');
+        $sort_column = $columns[$data['iSortCol_0']];
+
+        $query = "call prc_GetCustomerRate (".$CompanyID.",".$CustomerID.",".$data['Trunk'].",".$data['Country'].",".$data['Code'].",".$data['Description'].",'".$data['Effective']."',".$data['Effected_Rates_on_off'].",'".intval($data['RoutinePlanFilter'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::select($query.',2)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+            if($type=='csv'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Outbound Rates.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Outbound Rates.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
             }
         }
-        $CustomerRate = DB::table('tblGatewayCustomerRate')
-            ->where("CustomerID", $CustomerID)
-            ->select('Code','Description',  'Interval1','IntervalN','ConnectionFee', 'Rate','EffectiveDate');
-        return Datatables::of($CustomerRate)->make();
+        $query .=',0)';
+
+        return DataTableSql::of($query)->make();
     }
 
 }

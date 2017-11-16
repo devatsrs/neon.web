@@ -24,6 +24,7 @@ class SiteIntegration{
  static    $SagePaySlug			=	'sagepay';
  static    $SagePayDirectDebitSlug=	'sagepaydirectdebit';
  static    $FideliPaySlug =	'fidelipay';
+ static    $XeroSlug =	'xero';
 
  	public function __construct(){
 	

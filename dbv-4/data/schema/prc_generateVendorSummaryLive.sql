@@ -16,7 +16,8 @@ BEGIN
 	END;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
-	CALL fngetDefaultCodes(p_CompanyID); 
+	CALL fngetDefaultCodes(p_CompanyID);
+	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID); 
 	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 	CALL fnUpdateVendorLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 
@@ -64,6 +65,7 @@ BEGIN
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	WHERE ud.CompanyID = ',p_CompanyID,'
+		AND ud.VAccountID IS NOT NULL
 	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk;	
 	');
 
@@ -100,6 +102,7 @@ BEGIN
 		CompanyID,
 		VAccountID,
 		TotalCharges,
+		TotalSales,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -110,6 +113,7 @@ BEGIN
 		CompanyID,
 		VAccountID,
 		SUM(TotalCharges) as TotalCharges,
+		SUM(TotalSales) as TotalSales,
 		SUM(TotalBilledDuration) as TotalBilledDuration,
 		SUM(TotalDuration) as TotalDuration,
 		SUM(NoOfCalls) as NoOfCalls,
@@ -141,6 +145,7 @@ BEGIN
 		AreaPrefix,
 		CountryID,
 		TotalCharges,
+		TotalSales,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -157,6 +162,7 @@ BEGIN
 		AreaPrefix,
 		CountryID,
 		SUM(us.TotalCharges),
+		SUM(us.TotalSales),		
 		SUM(us.TotalBilledDuration),
 		SUM(us.TotalDuration),
 		SUM(us.NoOfCalls),
@@ -181,6 +187,7 @@ BEGIN
 		AreaPrefix,
 		CountryID,
 		TotalCharges,
+		TotalSales,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -198,6 +205,7 @@ BEGIN
 		AreaPrefix,
 		CountryID,
 		us.TotalCharges,
+		us.TotalSales,
 		us.TotalBilledDuration,
 		us.TotalDuration,
 		us.NoOfCalls,

@@ -133,6 +133,38 @@ class SippySFTP {
         }
     }
 
+    public static function getVendorConnectionsList($addparams=array()){
+        if(count(self::$config)>0) {
+            $addparams['i_vendor'] = new xmlrpcval($addparams["i_vendor"], "int");
+            $params = array(new xmlrpcval($addparams,'struct'));
+            $msg = new xmlrpcmsg('getVendorConnectionsList', $params);
+            $r = self::$cli->send($msg, self::$timeout);
+            if ($r->faultCode()) {
+                //echo $r->faultCode();echo $r->faultString();exit;
+                error_log("Fault. Code: " . $r->faultCode() . ", Reason: " . $r->faultString());
+                Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $r->faultCode() . ", Reason: " . $r->faultString());
+                return array('faultCode'=>$r->faultCode(),'faultString'=>$r->faultString());
+            }
+            return $r->value();
+        }
+    }
+
+    public static function getVendorConnectionInfo($addparams=array()){
+        if(count(self::$config)>0) {
+            $addparams['i_connection'] = new xmlrpcval($addparams["i_connection"], "int");
+            $params = array(new xmlrpcval($addparams,'struct'));
+            $msg = new xmlrpcmsg('getVendorConnectionInfo', $params);
+            $r = self::$cli->send($msg, self::$timeout);
+            if ($r->faultCode()) {
+                //echo $r->faultCode();echo $r->faultString();exit;
+                error_log("Fault. Code: " . $r->faultCode() . ", Reason: " . $r->faultString());
+                Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $r->faultCode() . ", Reason: " . $r->faultString());
+                return array('faultCode'=>$r->faultCode(),'faultString'=>$r->faultString());
+            }
+            return $r->value();
+        }
+    }
+
     public static function listDestinationSets($addparams=array()){
         if(count(self::$config)>0) {
             if(isset($addparams['i_account'])){
@@ -256,6 +288,27 @@ class SippySFTP {
             }
             $params = array(new xmlrpcval($addparams,'struct'));
             $msg = new xmlrpcmsg('getAccountInfo', $params);
+            $r = self::$cli->send($msg, self::$timeout);
+            if ($r->faultCode()) {
+                //echo $r->faultCode();echo $r->faultString();exit;
+                error_log("Fault. Code: " . $r->faultCode() . ", Reason: " . $r->faultString());
+                Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $r->faultCode() . ", Reason: " . $r->faultString());
+                return array('faultCode'=>$r->faultCode(),'faultString'=>$r->faultString());
+            }
+            return $r->value();
+        }
+    }
+
+    public static function getVendorInfo($addparams=array()){
+        if(count(self::$config)>0) {
+            if(isset($addparams['i_vendor'])){
+                $addparams['i_vendor'] = new xmlrpcval($addparams["i_vendor"], "int");
+            }
+            if(isset($addparams['name'])){
+                $addparams['name'] = new xmlrpcval($addparams["name"], "string");
+            }
+            $params = array(new xmlrpcval($addparams,'struct'));
+            $msg = new xmlrpcmsg('getVendorInfo', $params);
             $r = self::$cli->send($msg, self::$timeout);
             if ($r->faultCode()) {
                 //echo $r->faultCode();echo $r->faultString();exit;

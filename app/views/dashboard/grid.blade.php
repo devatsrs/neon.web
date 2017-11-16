@@ -7,6 +7,11 @@
             <th>Calls</th>
             <th>ACD (mm:ss)</th>
             <th>ASR (%)</th>
+            @if((int)Session::get('customer') == 0)
+            <th>Margin</th>
+            <th>Margin (%)</th>
+            @endif
+
         </tr>
     </thead>
     <tbody>
@@ -34,6 +39,10 @@
                 <td>{{$alldata['call_count_val'][$indexcount]}}</td>
                 <td>{{$alldata['call_count_acd'][$indexcount]}}</td>
                 <td>{{$alldata['call_count_asr'][$indexcount]}}</td>
+                @if((int)Session::get('customer') == 0)
+                <td>{{$alldata['call_count_mar'][$indexcount]}}</td>
+                <td>{{$alldata['call_count_marp'][$indexcount]}}</td>
+                @endif
             </tr>
         @endforeach
     </tbody>
@@ -49,6 +58,10 @@
             <th>Cost</th>
             <th>ACD (mm:ss)</th>
             <th>ASR (%)</th>
+            @if((int)Session::get('customer') == 0)
+            <th>Margin</th>
+            <th>Margin (%)</th>
+            @endif
         </tr>
         </thead>
         <tbody>
@@ -76,6 +89,10 @@
                 <td>{{$alldata['call_cost_val'][$indexcount]}}</td>
                 <td>{{$alldata['call_cost_acd'][$indexcount]}}</td>
                 <td>{{$alldata['call_cost_asr'][$indexcount]}}</td>
+                @if((int)Session::get('customer') == 0)
+                <td>{{$alldata['call_cost_mar'][$indexcount]}}</td>
+                <td>{{$alldata['call_cost_marp'][$indexcount]}}</td>
+                @endif
             </tr>
         @endforeach
         </tbody>
@@ -91,6 +108,10 @@
             <th>Minutes</th>
             <th>ACD (mm:ss)</th>
             <th>ASR (%)</th>
+            @if((int)Session::get('customer') == 0)
+            <th>Margin</th>
+            <th>Margin (%)</th>
+            @endif
         </tr>
         </thead>
         <tbody>
@@ -118,6 +139,10 @@
                 <td>{{$alldata['call_minutes_val'][$indexcount]}}</td>
                 <td>{{$alldata['call_minutes_acd'][$indexcount]}}</td>
                 <td>{{$alldata['call_minutes_asr'][$indexcount]}}</td>
+                @if((int)Session::get('customer') == 0)
+                <td>{{$alldata['call_minutes_mar'][$indexcount]}}</td>
+                <td>{{$alldata['call_minutes_marp'][$indexcount]}}</td>
+                @endif
             </tr>
         @endforeach
         </tbody>
