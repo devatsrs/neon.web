@@ -971,6 +971,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/get_unbill_report/{id}', 'InvoicesController@get_unbill_report');
 	Route::any('/generate_manual_invoice', 'InvoicesController@generate_manual_invoice');
 	Route::any('/invoice/invoice_sagepayexport', 'InvoicesController@invoice_sagepayexport');
+	Route::any('/invoice/invoice_xeropost', 'InvoicesController@invoice_xeropost');
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');

@@ -685,6 +685,76 @@ class IntegrationController extends \BaseController
 				return Response::json(array("status" => "success", "message" => "QuickBook Settings Successfully Updated", "quickbookredirect" =>1));
 
 			}
+
+			if($data['secondcategory']=='Xero') {
+				$XeroDbData = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$data['secondcategoryid']))->first();
+				$rules = array(
+					'ConsumerKey'	  => 'required',
+					'ConsumerSecret' => 'required',
+					//'AppToken' => 'required',
+				);
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+
+				$data['Status'] 				= 	isset($data['Status'])?1:0;
+				$data['InvoiceAccount'] 	= 	isset($data['InvoiceAccount'])?$data['InvoiceAccount']:'';
+				$data['PaymentAccount'] 	= 	isset($data['PaymentAccount'])?$data['PaymentAccount']:'';
+
+				$fullPath = '';
+
+				if (Input::hasFile('XeroFile')) {
+					$upload_path = CompanyConfiguration::get('UPLOAD_PATH');
+					$excel = Input::file('XeroFile');
+					$ext = $excel->getClientOriginalExtension();
+					if (in_array($ext, array("pem"))) {
+						$file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
+						$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['XERO_UPLOAD']);
+						$destinationPath = $upload_path . '/' . $amazonPath;
+						$excel->move($destinationPath, $file_name);
+						if(!AmazonS3::upload($destinationPath.$file_name,$amazonPath)){
+							return Response::json(array("status" => "failed", "message" => "Failed to upload."));
+						}
+						$fullPath = $amazonPath . $file_name;
+						unset($data['XeroFile']);
+					} else {
+						return Response::json(array("status" => "failed", "message" => "Please select pem file."));
+					}
+				} else {
+					unset($data['XeroFile']);
+				}
+				if(empty($fullPath)){
+					if(count($XeroDbData)>0 && empty($XeroDbData['XeroFilePath'])){
+						$setting = json_decode($XeroDbData->Settings);
+						$fullPath = $setting->XeroFilePath;
+					}else{
+						return Response::json(array("status" => "failed", "message" => "Please select pem file."));
+					}
+				}
+
+				$data['XeroFilePath'] = $fullPath;
+				$XeroData = array();
+				$XeroData = $data;
+				unset($XeroData['firstcategory']);
+				unset($XeroData['secondcategory']);
+				unset($XeroData['firstcategoryid']);
+				unset($XeroData['secondcategoryid']);
+				unset($XeroData['Status']);
+
+				if(count($XeroDbData)>0) {
+					$SaveData = array("Settings"=>json_encode($XeroData),"updated_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID'=>$XeroDbData->IntegrationConfigurationID))->update($SaveData);
+
+				} else {
+					$SaveData = array("Settings"=>json_encode($XeroData),"IntegrationID"=>$data['secondcategoryid'],"CompanyId"=>$companyID,"created_by"=> User::get_user_full_name(),"Status"=>$data['Status'],'ParentIntegrationID'=>$data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "Xero Settings Successfully Updated"));
+
+			}
 		}
 	}
 	

@@ -289,7 +289,16 @@ var postdata;
                     success: function(response) {
                         $('#ajax_config_html').html(response);
                         initializeSelect2();
-
+                        if($('#RateCDR').is(':checked')) {
+                            $('#cdrrerateaccountsbox').show();
+                        } else {
+                            $('#cdrrerateaccountsbox').hide();
+                        }
+                        if($('#NameFormat').val() == 'IP') {
+                            $('#AutoAddIPBox').show();
+                        } else {
+                            $('#AutoAddIPBox').hide();
+                        }
                     },
                     // Form data
                     data: "GatewayID="+$(this).val()+'&CompanyGatewayID='+$("#add-new-config-form [name='CompanyGatewayID']").val(),
@@ -479,6 +488,22 @@ var postdata;
             });
             return SelectedIDs;
         }
+
+        $(document).on('change', '#RateCDR', function() {
+            if($('#RateCDR').is(':checked')) {
+                $('#cdrrerateaccountsbox').slideDown();
+            } else {
+                $('#cdrrerateaccountsbox').slideUp();
+            }
+        });
+
+        $(document).on('change', '#NameFormat', function() {
+            if($('#NameFormat').val() == 'IP') {
+                $('#AutoAddIPBox').slideDown();
+            } else {
+                $('#AutoAddIPBox').slideUp();
+            }
+        });
 
     });
 </script>

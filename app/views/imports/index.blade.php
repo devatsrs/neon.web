@@ -991,15 +991,16 @@
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
-                    $('#table-5 tbody tr').each(function(i, el) {
-                        if($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
-                            if (checked != '') {
-                                $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
-                                $(this).addClass('selected');
-                                $('#selectallbutton').prop("checked", true);
-                            } else {
-                                $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
-                                $(this).removeClass('selected');
+                    $('#table-5 tbody').off('click');
+                    $('#table-5 tbody').on('click', 'tr', function() {
+                        if (checked =='') {
+                            if ($(this).find('.rowcheckbox').hasClass('rowcheckbox')) {
+                                $(this).toggleClass('selected');
+                                if ($(this).hasClass('selected')) {
+                                    $(this).find('.rowcheckbox').prop("checked", true);
+                                } else {
+                                    $(this).find('.rowcheckbox').prop("checked", false);
+                                }
                             }
                         }
                     });
@@ -1252,7 +1253,7 @@
 
 
         // import account in system from gateway
-        $("#uploadaccount").click(function(ev) {
+        $(document).on('click', "#uploadaccount", function(ev) {
             var criteria = '';
             var AccountIDs = [];
             var gatewayid = $("#rootwizard-2 input[name='CompanyGatewayID']").val();

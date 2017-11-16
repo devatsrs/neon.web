@@ -681,7 +681,7 @@ function bulk_mail($type,$data){
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Template."));
             }
         } elseif ($data["template_option"] == 2) { // Update
-            if ($data['email_template'] > 0) {
+            if (!empty($data['email_template']) && $data['email_template'] > 0) {
                 $id = $data['email_template'];
                 $companyID = User::get_companyID();
                 $template = [];
@@ -1607,8 +1607,12 @@ function is_StripeACH(){
 }
 function is_SagePayDirectDebit(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$SagePayDirectDebitSlug);
-}function is_FideliPay(){
+}
+function is_FideliPay(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$FideliPaySlug);
+}
+function is_Xero(){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$XeroSlug);
 }
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {

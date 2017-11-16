@@ -49,7 +49,6 @@ BEGIN
 		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
-	AND uh.AccountID IS NOT NULL
 	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
 	');
 
@@ -98,7 +97,6 @@ BEGIN
 		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
-	AND uh.AccountID IS NOT NULL
 	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
 	');
 
