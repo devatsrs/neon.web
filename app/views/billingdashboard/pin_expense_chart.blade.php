@@ -4,7 +4,7 @@
     </div>
 @else
      <center>
-    No Data Found
+        @lang('routes.DATA_NOT_AVAILABLE')
     </center>
 @endif
 <script type="text/javascript">
