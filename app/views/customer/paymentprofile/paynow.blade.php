@@ -1,7 +1,7 @@
 
             <div class="col-md-12 text-left">
                     <p>
-                   Total Payment: <span id="outstanding_amount"></span>
+                        @lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_TOTAL_PAYMENT'): <span id="outstanding_amount"></span>
                     </p>
 
             </div>
@@ -10,12 +10,12 @@
             <table class="table table-bordered datatable" id="ajxtable-4">
                 <thead>
                 <tr>
-                    <th width="10%">Title</th>
-                    <th width="10%">Status</th>
-                    <th width="10%">Default</th>
-                    <th width="10%">Payment Method</th>
-                    <th width="20%">Created Date</th>
-                    <th width="40%">Action</th>
+                    <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_TBL_COL1')</th>
+                    <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_TBL_COL2')</th>
+                    <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_TBL_COL3')</th>
+                    <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_TBL_COL4')</th>
+                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_TBL_COL5')</th>
+                    <th width="40%">@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_TBL_COL6')</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -68,7 +68,7 @@
                                          }
                                          action += '</div>';
                                         if(full[3]!='SagePayDirectDebit'){
-                                            action += '<button class="btn paynow btn-success btn-sm " data-loading-text="Loading...">Pay Now </button>';
+                                            action += '<button class="btn paynow btn-success btn-sm " data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_PAY_NOW_CAPTION') </button>';
                                         }
 
                                         return action;
@@ -79,13 +79,13 @@
                                 "aButtons": [
                                     {
                                         "sExtends": "download",
-                                        "sButtonText": "EXCEL",
+                                        "sButtonText": "@lang('routes.BUTTON_EXPORT_EXCEL_CAPTION')",
                                         "sUrl": baseurl + "/payments/base_exports/xlsx", //baseurl + "/generate_xls.php",
                                         sButtonClass: "save-collection btn-sm"
                                     },
                                     {
                                         "sExtends": "download",
-                                        "sButtonText": "CSV",
+                                        "sButtonText": "@lang('routes.BUTTON_EXPORT_CSV_CAPTION')",
                                         "sUrl": baseurl + "/payments/base_exports/csv", //baseurl + "/generate_csv.php",
                                         sButtonClass: "save-collection btn-sm"
                                     }
@@ -107,8 +107,8 @@
                     $('table tbody').on('click', '.activecard , .disablecard', function (e) {
                         e.preventDefault();
                         var self = $(this);
-                        var text = (self.hasClass("activecard")?'Active':'Disable');
-                        if (!confirm('Are you sure you want to '+ text +' the Card?')) {
+                        var text = (self.hasClass("activecard")?"@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_ACTIVECARD_CONFIRM_MSG')":"@lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_DISABLECARD_CONFIRM_MSG')");
+                        if (!confirm(text)) {
                             return;
                         }
                         ajax_Add_update(self.attr("href"));
