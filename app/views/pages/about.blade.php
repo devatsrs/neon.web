@@ -20,8 +20,45 @@
 </p>
 </div>-->
 <br>
-<div class="btn btn-primary btn-lg">Current Version: <strong>v4.14</strong></div>
+<div class="btn btn-primary btn-lg">Current Version: <strong>v4.15</strong></div>
 <br>
+<h2>
+    <span class="label label-success">4.15</span> &nbsp; Version Highlights
+</h2>
+<div class="col-md-12">
+    <div class="row">
+        <ul class="version-highlights full-width">
+            <li>
+                <div class="notes full-width ">
+                    <h3>ChangeLog</h3>
+                    <h4>20-11-2017</h4>
+                    01. Added Integration with XERO.<br>
+                    02. Added Integration with M2.<br>
+                    03. Added M2 and MOR format in ratesheet download.<br>
+                    04. Improved Rate Table section to show previous rate and trend (rate increase or decrease).<br>
+                    05. Added stats by call type ( Outbound and inbound ).<br>
+                    06. Added Margin under Analysis.<br>
+                    07. Improved Sales By Revenue chart to include unbilled amount.<br>
+                    08. Auto rate import from MOR.<br>
+                    09. Auto rate import from Loctorious.<br>
+                    10. Added option to convert vendor rates to base currency when uploading rates.<br>
+                    11. Added option to rate CDRs for selected accounts.<br>
+                    12. Fixed issue with new ticket creation with same subject.<br>
+                    13. Improved Ticket section.<br>
+                    14. Added option in rate generator to set rate Increase and Decrease Date.<br>
+                    15. Storing Logs of deleted tickets.<br>
+                    16. Added ‘All’ option for Vos 3.2 format.<br>
+                    17. Fixed ‘Country Code Not Found’ error when uploading rate sheets.<br>
+                    18. Added option to import accounts from ‘Sippy’.<br>
+                    19. Improved Prefix Translation to check prefix setup against customer/vendor trunk.<br>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<div class="clear"></div>
+
 <h2>
     <span class="label label-success">4.14</span> &nbsp; Version Highlights
 </h2>
