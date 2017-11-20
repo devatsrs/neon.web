@@ -328,6 +328,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/ips_check_upload',  'ImportsController@ips_check_upload');
 	Route::any('/import/ips_ajaxfilegrid',  'ImportsController@ips_ajaxfilegrid');
 	Route::any('/import/ips_storeTemplate',  'ImportsController@ips_storeTemplate');
+	Route::any('/import/ips/getAccountIpFromGateway/{id}/{gateway}',  'ImportsController@getAccountIpFromGateway');
+	Route::any('/import/ips/ajax_get_missing_gatewayaccountsip',  'ImportsController@ajax_get_missing_gatewayaccountsip');
+	Route::any('/import/ips/add_missing_gatewayaccountsip',  'ImportsController@add_missing_gatewayaccountsip');
 
 	//import leads
 	Route::any('/import/leads',  'ImportsController@import_leads');

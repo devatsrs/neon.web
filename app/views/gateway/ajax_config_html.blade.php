@@ -38,13 +38,17 @@
     @if($count%2 == 0)
             <div class="clear"></div>
     @endif
+
+        @if($configkey == 'AllowAccountIPImport')
+            <input id="AllowAccountIPImport"  type="hidden" name="AllowAccountIPImport" value="1">
+        @endif
         @if($configkey == 'AllowAccountImport')
             <input id="AllowAccountImport"  type="hidden" name="AllowAccountImport" value="1">
         @else
 
      <div class="col-md-6 " @if($configkey == 'RateFormat') id="rate_dropdown" @endif>
-            @if($configkey != 'AllowAccountImport')
         <div class="form-group" id="{{$configkey}}Box">
+            @if($configkey != 'AllowAccountImport' && $configkey != 'AllowAccountIPImport')
             <label for="field-5" class="control-label @if($configkey == 'RateCDR') col-md-13 @endif">{{$configtitle}} @if($configkey=='AutoAddIP') <span type="button" class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-original-title="Auto Add IP" data-content="IP will be automatically added to the account if account name matches to the switch account name. Turn ON Auto Add IP notification from Admin > Notifications.">?</span> @endif</label>
             @endif
 
@@ -78,15 +82,16 @@
                 {{Form::select($configkey,Company::$rerate_format,$selectd_val,$options)}}
 
             @else
-
-                <input @if($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword' || $configkey == 'api_password') type="password" @else type="text" @endif  value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && ($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword' || $configkey == 'api_password')){{''}}@elseif(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){{$gatewayconfigval->$configkey}}@endif" name="{{$configkey}}" class="form-control" id="field-5" placeholder="">
-
-                    @if($configkey == 'password')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'password'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
-                    @if($configkey == 'dbpassword')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'dbpassword'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
-                    @if($configkey == 'sshpassword')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'sshpassword'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
-                    @if($configkey == 'api_password')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'api_password'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
-
+                @if($configkey != 'AllowAccountIPImport')
+                    <input @if($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword' || $configkey == 'api_password') type="password" @else type="text" @endif  value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && ($configkey == 'password' || $configkey == 'dbpassword' || $configkey == 'sshpassword' || $configkey == 'api_password')){{''}}@elseif(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey)){{$gatewayconfigval->$configkey}}@endif" name="{{$configkey}}" class="form-control" id="field-5" placeholder="">
                 @endif
+
+                @if($configkey == 'password')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'password'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
+                @if($configkey == 'dbpassword')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'dbpassword'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
+                @if($configkey == 'sshpassword')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'sshpassword'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
+                @if($configkey == 'api_password')<input type="hidden" disabled value="@if(isset($gatewayconfigval) && isset($gatewayconfigval->$configkey) && !empty($gatewayconfigval->$configkey) && $configkey == 'api_password'   ){{''}}@endif" name="{{$configkey}}_disabled" class="form-control" id="field-5" placeholder="">@endif
+
+            @endif
          </div>
     </div>
         @endif
