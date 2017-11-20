@@ -342,6 +342,12 @@ class Account extends \Eloquent {
 
             })->count();
     }
+    // all invoice with item invoice
+    public static function getAllInvoiceCount($AccountID){
+        return (int)Invoice::where(array('AccountID'=>$AccountID))
+            ->where('InvoiceStatus','!=',Invoice::CANCEL)
+            ->count();
+    }
 
     public static function getOutstandingAmount($CompanyID,$AccountID,$decimal_places = 2){
 

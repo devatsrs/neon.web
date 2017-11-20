@@ -17,8 +17,8 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
 	CALL fngetDefaultCodes(p_CompanyID);
-	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID); 
-	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+-- 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID); 
+-- 	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 	CALL fnUpdateVendorLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 
 	DELETE FROM tmp_VendorUsageSummary WHERE CompanyID = p_CompanyID;
@@ -65,6 +65,7 @@ BEGIN
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	WHERE ud.CompanyID = ',p_CompanyID,'
+		AND ud.VAccountID IS NOT NULL
 	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk;	
 	');
 
@@ -219,6 +220,12 @@ BEGIN
 	CALL fnDistinctList(p_CompanyID);
 
 	COMMIT;
+	
+	SET @stmt = CONCAT('TRUNCATE TABLE tmp_tblUsageDetailsReport_',p_UniqueID,';');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
 	
 	SET @stmt = CONCAT('TRUNCATE TABLE tmp_tblVendorUsageDetailsReport_',p_UniqueID,';');
 
