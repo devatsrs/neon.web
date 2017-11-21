@@ -22,7 +22,8 @@
 		"jenssegers/agent":"2.3.*",
 		"consolibyte/quickbooks": "^3.1",
 		"cartalyst/stripe-laravel": "1.0.*",
-		"chumper/zipper": "0.5.x"
+		"chumper/zipper": "0.5.x",
+		"calcinai/xero-php": "1.5.*"
 	},
 	"require-dev": {
 		"maatwebsite/excel": "~1.3.0",

@@ -266,7 +266,6 @@ BEGIN
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
-	AND uh.AccountID IS NOT NULL
 	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
 	');
 
@@ -322,7 +321,6 @@ BEGIN
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
-	AND uh.AccountID IS NOT NULL
 	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
 	');
 
@@ -386,7 +384,6 @@ BEGIN
 		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
-	AND uh.AccountID IS NOT NULL
 	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
 	');
 
@@ -435,7 +432,6 @@ BEGIN
 		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
-	AND uh.AccountID IS NOT NULL
 	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
 	');
 
@@ -460,8 +456,9 @@ BEGIN
 
 	SET @stmt = CONCAT('
 	UPDATE tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' vd 
-   INNER JOIN tmp_tblUsageDetailsReport_' , p_UniqueID , ' cd ON cd.CompanyGatewayID = vd.CompanyGatewayID AND cd.ID = vd.ID
-   	SET cd.VAccountID = vd.VAccountID,cd.GatewayVAccountPKID = vd.GatewayVAccountPKID,cd.call_status_v = vd.call_status_v,cd.buying_cost =vd.buying_cost;
+	INNER JOIN tmp_tblUsageDetailsReport_' , p_UniqueID , ' cd ON cd.CompanyGatewayID = vd.CompanyGatewayID AND cd.ID = vd.ID
+		SET cd.VAccountID = vd.VAccountID,cd.GatewayVAccountPKID = vd.GatewayVAccountPKID,cd.call_status_v = vd.call_status_v,cd.buying_cost =vd.buying_cost
+	WHERE vd.buying_cost <> 0;
 	');
 
 	PREPARE stmt FROM @stmt;
@@ -1007,6 +1004,7 @@ BEGIN
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	WHERE ud.CompanyID = ',p_CompanyID,'
+		AND ud.AccountID IS NOT NULL
 	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk,ud.userfield;
 	');
 
@@ -1242,6 +1240,7 @@ BEGIN
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	WHERE ud.CompanyID = ',p_CompanyID,'
+		AND ud.AccountID IS NOT NULL
 	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk,ud.userfield;
 	');
 
@@ -1471,6 +1470,7 @@ BEGIN
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	WHERE ud.CompanyID = ',p_CompanyID,'
+		AND ud.VAccountID IS NOT NULL
 	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk;	
 	');
 
@@ -1720,6 +1720,7 @@ BEGIN
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	WHERE ud.CompanyID = ',p_CompanyID,'
+		AND ud.VAccountID IS NOT NULL
 	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk;	
 	');
 

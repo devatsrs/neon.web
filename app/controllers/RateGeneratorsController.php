@@ -207,11 +207,15 @@ class RateGeneratorsController extends \BaseController {
                 $checkbox_replace_all = Input::get('checkbox_replace_all');
                 $data['EffectiveRate'] = Input::get('EffectiveRate');
 
-                if(!empty(Input::get('IncreaseEffectiveDate'))) {
-                    $data['IncreaseEffectiveDate']  =   Input::get('IncreaseEffectiveDate');
+                $IncreaseEffectiveDate = Input::get('IncreaseEffectiveDate');
+
+                if(!empty($IncreaseEffectiveDate)) {
+                    $data['IncreaseEffectiveDate']  =   $IncreaseEffectiveDate;
                 }
-                if(!empty(Input::get('DecreaseEffectiveDate'))) {
-                    $data['DecreaseEffectiveDate']  =   Input::get('DecreaseEffectiveDate');
+
+                $DecreaseEffectiveDate = Input::get('DecreaseEffectiveDate');
+                if(!empty($DecreaseEffectiveDate)) {
+                    $data['DecreaseEffectiveDate']  =   $DecreaseEffectiveDate;
                 }
 
                 if(empty($data['EffectiveRate'])){
