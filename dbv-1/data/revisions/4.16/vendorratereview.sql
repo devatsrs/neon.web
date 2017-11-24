@@ -1702,7 +1702,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `prc_WSReviewVendorRateUpdate`;
 DELIMITER //
-CREATE DEFINER=`neon-user`@`%` PROCEDURE `prc_WSReviewVendorRateUpdate`(
+CREATE PROCEDURE `prc_WSReviewVendorRateUpdate`(
 	IN `p_AccountId` INT,
 	IN `p_TrunkID` INT,
 	IN `p_RateIds` TEXT,
