@@ -9,6 +9,7 @@
             <th>ASR (%)</th>
             @if((int)Session::get('customer') == 0)
             <th>Margin</th>
+            <th>Margin (%)</th>
             @endif
 
         </tr>
@@ -40,6 +41,7 @@
                 <td>{{$alldata['call_count_asr'][$indexcount]}}</td>
                 @if((int)Session::get('customer') == 0)
                 <td>{{$alldata['call_count_mar'][$indexcount]}}</td>
+                <td>{{$alldata['call_count_marp'][$indexcount]}}</td>
                 @endif
             </tr>
         @endforeach
@@ -58,6 +60,7 @@
             <th>ASR (%)</th>
             @if((int)Session::get('customer') == 0)
             <th>Margin</th>
+            <th>Margin (%)</th>
             @endif
         </tr>
         </thead>
@@ -88,6 +91,7 @@
                 <td>{{$alldata['call_cost_asr'][$indexcount]}}</td>
                 @if((int)Session::get('customer') == 0)
                 <td>{{$alldata['call_cost_mar'][$indexcount]}}</td>
+                <td>{{$alldata['call_cost_marp'][$indexcount]}}</td>
                 @endif
             </tr>
         @endforeach
@@ -106,6 +110,7 @@
             <th>ASR (%)</th>
             @if((int)Session::get('customer') == 0)
             <th>Margin</th>
+            <th>Margin (%)</th>
             @endif
         </tr>
         </thead>
@@ -136,6 +141,7 @@
                 <td>{{$alldata['call_minutes_asr'][$indexcount]}}</td>
                 @if((int)Session::get('customer') == 0)
                 <td>{{$alldata['call_minutes_mar'][$indexcount]}}</td>
+                <td>{{$alldata['call_minutes_marp'][$indexcount]}}</td>
                 @endif
             </tr>
         @endforeach
