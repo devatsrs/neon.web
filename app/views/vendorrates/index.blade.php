@@ -160,6 +160,7 @@
         <th width="5%">Interval N</th>
         <th width="5%">Rate ({{$CurrencySymbol}})</th>
         <th width="10%">Effective Date</th>
+        <th width="10%">End Date</th>
         <th width="10%">Modified Date</th>
         <th width="10%">Modified By</th>
         <th width="20%">Action</th>
@@ -176,7 +177,7 @@ jQuery(document).ready(function($) {
     var Code, Description, Country,Trunk,Effective,update_new_url;
     var $searchFilter = {};
     var checked='';
-    var list_fields  = ['VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','EffectiveDate','updated_at','updated_by'];
+    var list_fields  = ['VendorRateID','Code','Description','ConnectionFee','Interval1','IntervalN','Rate','EffectiveDate','EndDate','updated_at','updated_by'];
     $("#vendor-rate-search").submit(function(e) {
         $searchFilter.Trunk = Trunk = $("#vendor-rate-search select[name='Trunk']").val();
         $searchFilter.Country = Country = $("#vendor-rate-search select[name='Country']").val();
@@ -211,15 +212,16 @@ jQuery(document).ready(function($) {
                             }
                         },
                         {}, //1 Code
-                        {}, //2Description
-                        {}, //3Interval1
-                        {}, //4IntervalN
-                        {}, //5Rate
-                        {}, //6Effective Date
-                        {}, //7 updated at
-                        {}, //8 updated by
-                        {}, //8 updated by
-                        {// 9 VendorRateId
+                        {}, //2 Description
+                        {}, //3 ConnectionFee
+                        {}, //4 Interval1
+                        {}, //5 IntervalN
+                        {}, //6 Rate
+                        {}, //7 EffectiveDate
+                        {}, //8 EndDate
+                        {}, //9 updated at
+                        {}, //10 updated by
+                        {// 11 Action
                             mRender: function(id, type, full) {
 
                                 var action, edit_, delete_,VendorRateID;
@@ -244,7 +246,7 @@ jQuery(document).ready(function($) {
                                 }
                                 return action;
                             }
-                        },
+                        }, // 11 Action
                     ],
                     "oTableTools":
                     {

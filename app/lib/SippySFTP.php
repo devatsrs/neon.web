@@ -165,6 +165,39 @@ class SippySFTP {
         }
     }
 
+    public static function listAuthRules($addparams=array()){
+        if(count(self::$config)>0) {
+            if(isset($addparams['i_account']))
+                $addparams['i_account'] = new xmlrpcval($addparams["i_account"], "int");
+            $params = array(new xmlrpcval($addparams,'struct'));
+            $msg = new xmlrpcmsg('listAuthRules', $params);
+            $r = self::$cli->send($msg, self::$timeout);
+            if ($r->faultCode()) {
+                //echo $r->faultCode();echo $r->faultString();exit;
+                error_log("Fault. Code: " . $r->faultCode() . ", Reason: " . $r->faultString());
+                Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $r->faultCode() . ", Reason: " . $r->faultString());
+                return array('faultCode'=>$r->faultCode(),'faultString'=>$r->faultString());
+            }
+            return $r->value();
+        }
+    }
+
+    public static function getAuthRuleInfo($addparams=array()){
+        if(count(self::$config)>0) {
+            $addparams['i_authentication'] = new xmlrpcval($addparams["i_authentication"], "int");
+            $params = array(new xmlrpcval($addparams,'struct'));
+            $msg = new xmlrpcmsg('getAuthRuleInfo', $params);
+            $r = self::$cli->send($msg, self::$timeout);
+            if ($r->faultCode()) {
+                //echo $r->faultCode();echo $r->faultString();exit;
+                error_log("Fault. Code: " . $r->faultCode() . ", Reason: " . $r->faultString());
+                Log::error("Class Name:".__CLASS__.",Method: ". __METHOD__.", Fault. Code: " . $r->faultCode() . ", Reason: " . $r->faultString());
+                return array('faultCode'=>$r->faultCode(),'faultString'=>$r->faultString());
+            }
+            return $r->value();
+        }
+    }
+
     public static function listDestinationSets($addparams=array()){
         if(count(self::$config)>0) {
             if(isset($addparams['i_account'])){
