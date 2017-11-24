@@ -474,6 +474,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_rates/bulk_update_preference/{id}', 'VendorRatesController@bulk_update_preference');
     Route::any('/vendor_rates/{id}/check_upload', 'VendorRatesController@check_upload');
     Route::any('/vendor_rates/{id}/ajaxfilegrid', 'VendorRatesController@ajaxfilegrid');
+    Route::any('/vendor_rates/{id}/review_rates', 'VendorRatesController@reviewRates');
+    Route::any('/vendor_rates/{id}/get_review_rates', 'VendorRatesController@getReviewRates');
+    Route::any('/vendor_rates/{id}/update_temp_vendor_rates', 'VendorRatesController@updateTempVendorRates');
     Route::any('/vendor_rates/{id}/storeTemplate', 'VendorRatesController@storeTemplate');
     Route::any('/vendor_rates/{id}/search_vendor_grid', 'VendorRatesController@search_vendor_grid');
 	Route::any('/vendor_rates/{id}/customerdownloadtype/{type}', 'VendorRatesController@vendordownloadtype');
