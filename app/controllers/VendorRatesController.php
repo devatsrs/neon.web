@@ -904,7 +904,7 @@ class VendorRatesController extends \BaseController
         $p_preference = 0;
         $DialStringId = 0;
         $dialcode_separator = 'null';
-        $TEMP_PATH = CompanyConfiguration::get($CompanyID,'TEMP_PATH').'/';
+        //$TEMP_PATH = CompanyConfiguration::get($CompanyID,'TEMP_PATH').'/';
 
         $rules['selection.Code'] = 'required';
         $rules['selection.Description'] = 'required';
@@ -1052,7 +1052,7 @@ class VendorRatesController extends \BaseController
             if ($fullPath) {
                 $path = AmazonS3::unSignedUrl($fullPath,$CompanyID);
                 if (strpos($path, "https://") !== false) {
-                    $file = $TEMP_PATH . basename($path);
+                    $file = $temp_path . basename($path);
                     file_put_contents($file, file_get_contents($path));
                     $FilePath = $file;
                 } else {
