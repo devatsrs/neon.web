@@ -135,12 +135,12 @@
                         </div>
                         <div class="checkbox ">
                             <input type="hidden" name="checkbox_review_rates" value="0" >
-                            <label><input type="checkbox" name="checkbox_review_rates" id="checkbox_review_rates" value="1"> Review Rates</label> <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If checked review screen will be displayed before processing" data-original-title="Review Rates">?</span>
+                            <label><input type="checkbox" name="checkbox_review_rates" id="checkbox_review_rates" value="1"> Review Rates</label> <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if checked, review screen will be displayed before processing" data-original-title="Review Rates">?</span>
                         </div>
                         <div class="radio ">
-                            <label><input type="radio" name="radio_list_option" value="1" checked>Complete File</label> <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If completed rates not exists in sheet will be removed" data-original-title="Completed List">?</span>
+                            <label><input type="radio" name="radio_list_option" value="1" checked>Complete File</label> <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if complete file, codes which are not in the file will be deleted." data-original-title="Completed List">?</span>
                             <br/>
-                            <label><input type="radio" name="radio_list_option" value="2">Partial File</label> <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If partial rates will only insert or update from file" data-original-title="Partial List">?</span>
+                            <label><input type="radio" name="radio_list_option" value="2">Partial File</label> <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if partial file, codes only in the file will be processed." data-original-title="Partial List">?</span>
                         </div>
                         <div style="margin-top:10px;">
                             <label for="field-1" class="col-sm-2 control-label" style="text-align: right;">Skips rows from Start</label>
@@ -433,6 +433,9 @@
     }
     .change-view-new,.change-view-deleted {
         padding: 14px;
+    }
+    #modal-reviewrates .modal-body {
+        overflow-y: auto;
     }
 </style>
 <script type="text/javascript">
@@ -889,7 +892,11 @@
     });
 
     function getReviewRates($ProcessID) {
-        $('#modal-reviewrates').modal('show');
+        //$('#modal-reviewrates').modal('show');
+        $('#modal-reviewrates').on('show.bs.modal', function () {
+            $('#modal-reviewrates .modal-body').css('height',$( window ).height()*0.6);
+        });
+        $('#modal-reviewrates').modal({backdrop: 'static', keyboard: false});
         $(".btn.save").button('reset');
 
         //new rates
@@ -1360,7 +1367,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                 <button id="save_template2" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                     <i class="entypo-floppy"></i>
                     Save
@@ -1398,13 +1405,10 @@
                 </div>
 
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                     <button type="submit" id="btn-change-selected-intervals"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
-                    </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
                     </button>
                 </div>
             </form>
@@ -1432,13 +1436,10 @@
                 </div>
 
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                     <button type="submit" id="btn-change-selected-enddate"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
-                    </button>
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                        <i class="entypo-cancel"></i>
-                        Close
                     </button>
                 </div>
             </form>
