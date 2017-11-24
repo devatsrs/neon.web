@@ -135,7 +135,7 @@
                         </div>
                         <div class="checkbox ">
                             <input type="hidden" name="checkbox_review_rates" value="0" >
-                            <label><input type="checkbox" name="checkbox_review_rates" id="checkbox_review_rates" value="1"> Review Rates</label>
+                            <label><input type="checkbox" name="checkbox_review_rates" id="checkbox_review_rates" value="1"> Review Rates</label> <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If checked review screen will be displayed before processing" data-original-title="Review Rates">?</span>
                         </div>
                         <div class="radio ">
                             <label><input type="radio" name="radio_list_option" value="1" checked>Complete File</label> <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="If completed rates not exists in sheet will be removed" data-original-title="Completed List">?</span>
