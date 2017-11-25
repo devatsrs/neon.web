@@ -1377,11 +1377,11 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                 <button id="save_template2" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                     <i class="entypo-floppy"></i>
                     Save
                 </button>
+                <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
             </div>
         </div>
     </div>
@@ -1415,11 +1415,11 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                     <button type="submit" id="btn-change-selected-intervals"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
                     </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                 </div>
             </form>
         </div>
@@ -1446,11 +1446,11 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                     <button type="submit" id="btn-change-selected-enddate"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
                     </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                 </div>
             </form>
         </div>
