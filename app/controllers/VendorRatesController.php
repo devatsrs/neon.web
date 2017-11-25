@@ -1243,11 +1243,11 @@ class VendorRatesController extends \BaseController
                     if($duplicatecode == 1){
                         $error = array_merge($prc_error,$error);
                         unset($error[0]);
-                        $jobdata['JobStatusMessage'] = implode(',\n\r',fix_jobstatus_meassage($error));
+                        $jobdata['message'] = implode(',\n\r',fix_jobstatus_meassage($error));
                         $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','F')->pluck('JobStatusID');
                     }else{
                         $error = array_merge($prc_error,$error);
-                        $jobdata['JobStatusMessage'] = implode(',\n\r',fix_jobstatus_meassage($error));
+                        $jobdata['message'] = implode(',\n\r',fix_jobstatus_meassage($error));
                         $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','PF')->pluck('JobStatusID');
                     }
                     $jobdata['status'] = "failed";
@@ -1255,14 +1255,15 @@ class VendorRatesController extends \BaseController
                 }elseif(empty($JobStatusMessage)){
                     $jobdata['status'] = "success";
                     $jobdata['ProcessID'] = (string) $ProcessID;
-                    $jobdata['JobStatusMessage'] = "Review Rates Successfully!";
+                    $jobdata['message'] = "Review Rates Successfully!";
                     $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','S')->pluck('JobStatusID');
                 }
 
             }catch ( Exception $err ){
                 DB::rollback();
                 $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code', 'F')->pluck('JobStatusID');
-                $jobdata['JobStatusMessage'] = 'Exception: ' . $err->getMessage();
+                $jobdata['message'] = 'Exception: ' . $err->getMessage();
+                $jobdata['status'] = "failed";
                 Log::error($err);
             }
         }
