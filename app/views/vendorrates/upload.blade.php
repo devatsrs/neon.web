@@ -580,7 +580,7 @@
                         $('.btn.save').button('loading');
                     },
                     success: function (response) {
-                        $("#save_template").button('reset');
+                        $('.btn.save').button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
                             getReviewRates(response.ProcessID);
@@ -734,9 +734,9 @@
                     },
                     dataType: 'json',
                     success: function (response) {
+                        $(".btn.save").button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
-                            $(".btn.save").button('reset');
                             $('#modal-change-selected-intervals').modal('hide');
                             checked_new = '';
                             $("#selectall-new").prop("checked", false).prop('disabled', false);
@@ -816,9 +816,9 @@
                     },
                     dataType: 'json',
                     success: function (response) {
+                        $(".btn.save").button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
-                            $(".btn.save").button('reset');
                             $('#modal-change-selected-enddate').modal('hide');
                             checked_deleted = '';
                             $("#selectall-deleted").prop("checked", false).prop('disabled', false);
