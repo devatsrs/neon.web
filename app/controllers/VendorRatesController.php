@@ -1077,13 +1077,24 @@ class VendorRatesController extends \BaseController
              
 
             $error = array();
-            $batch_insert_array = [];
+            $batch_insert_array = $batch_insert_array2 = [];
+
+            foreach ($attrselection as $key => $value) {
+                $attrselection->$key = str_replace("\r",'',$value);
+                $attrselection->$key = str_replace("\n",'',$attrselection->$key);
+            }
 
             foreach ($results as $index=>$temp_row) {
 
                 if ($csvoption->Firstrow == 'data') {
                     array_unshift($temp_row, null);
                     unset($temp_row[0]);
+                }
+
+                foreach ($temp_row as $key => $value) {
+                    $key = str_replace("\r",'',$key);
+                    $key = str_replace("\n",'',$key);
+                    $temp_row[$key] = $value;
                 }
 
                 $tempvendordata = array();
@@ -1112,15 +1123,6 @@ class VendorRatesController extends \BaseController
                     }else{
                         $error[] = 'Description is blank at line no:'.$lineno;
                     }
-                    if (isset($attrselection->Rate) && !empty($attrselection->Rate) && is_numeric(trim($temp_row[$attrselection->Rate]))  ) {
-                        if(is_numeric(trim($temp_row[$attrselection->Rate]))) {
-                            $tempvendordata['Rate'] = trim($temp_row[$attrselection->Rate]);
-                        }else{
-                            $error[] = 'Rate is not numeric at line no:'.$lineno;
-                        }
-                    }else{
-                        $error[] = 'Rate is blank at line no:'.$lineno;
-                    }
 					if (isset($attrselection->Action) && !empty($attrselection->Action)) {
                         if(empty($temp_row[$attrselection->Action])){
                             $tempvendordata['Change'] = 'I';
@@ -1140,7 +1142,16 @@ class VendorRatesController extends \BaseController
                     }else{
                         $tempvendordata['Change'] = 'I';
                     }
-					
+
+                    if (isset($attrselection->Rate) && !empty($attrselection->Rate) && is_numeric(trim($temp_row[$attrselection->Rate]))  ) {
+                        if (is_numeric(trim($temp_row[$attrselection->Rate]))) {
+                            $tempvendordata['Rate'] = trim($temp_row[$attrselection->Rate]);
+                        } else {
+                            $error[] = 'Rate is not numeric at line no:' . $lineno;
+                        }
+                    }elseif($tempvendordata['Change'] != 'D') {
+                        $error[] = 'Rate is blank at line no:'.$lineno;
+                    }
                     if (isset($attrselection->EffectiveDate) && !empty($attrselection->EffectiveDate) && !empty($temp_row[$attrselection->EffectiveDate])) {
                         try {
                             $tempvendordata['EffectiveDate'] = formatSmallDate(str_replace( '/','-',$temp_row[$attrselection->EffectiveDate]), $attrselection->DateFormat);
@@ -1192,7 +1203,11 @@ class VendorRatesController extends \BaseController
                         }
                     }
                     if(isset($tempvendordata['Code']) && isset($tempvendordata['Description']) && isset($tempvendordata['Rate']) && ( isset($tempvendordata['EffectiveDate']) || $tempvendordata['Change'] == 'D') ){
-                        $batch_insert_array[] = $tempvendordata;
+                        if(isset($tempvendordata['EndDate'])) {
+                            $batch_insert_array[] = $tempvendordata;
+                        } else {
+                            $batch_insert_array2[] = $tempvendordata;
+                        }
                         $counter++;
                     }
                 }
@@ -1202,19 +1217,22 @@ class VendorRatesController extends \BaseController
                     Log::info('global counter'.$lineno);
                     Log::info('insertion start');
                     TempVendorRate::insert($batch_insert_array);
+                    TempVendorRate::insert($batch_insert_array2);
                     Log::info('insertion end');
                     $batch_insert_array = [];
+                    $batch_insert_array2 = [];
                     $counter = 0;
                 }
                 $lineno++;
             } // loop over
 
-            if(!empty($batch_insert_array)){
+            if(!empty($batch_insert_array) || !empty($batch_insert_array)){
                 Log::info('Batch insert start');
                 Log::info('global counter'.$lineno);
                 Log::info('insertion start');
                 Log::info('last batch insert ' . count($batch_insert_array));
                 TempVendorRate::insert($batch_insert_array);
+                TempVendorRate::insert($batch_insert_array2);
                 Log::info('insertion end');
             }
 
@@ -1292,15 +1310,12 @@ class VendorRatesController extends \BaseController
 
     public function reviewRatesExports($id,$type) {
         $data = Input::all();
-        $data['iDisplayStart'] +=1;
 
+        //Log::info($data);exit;
         $data['Code'] = !empty($data['Code']) ? $data['Code'] : NULL;
         $data['Description'] = !empty($data['Description']) ? $data['Description'] : NULL;
 
-        $columns = array('Code','Description','Rate','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN');
-        $sort_column = $columns[$data['iSortCol_0']];
-
-        $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1)";
+        $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',0 ,0,'','',1)";
         Log::info($query);
 
         DB::setFetchMode( PDO::FETCH_ASSOC );
