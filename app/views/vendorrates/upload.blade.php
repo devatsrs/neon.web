@@ -133,7 +133,7 @@
                             <input type="hidden" name="checkbox_add_new_codes_to_code_decks" value="0" >
                             <label><input type="checkbox" id="rd-1" name="checkbox_add_new_codes_to_code_decks" value="1" checked> Add new codes from the file to code decks</label>
                         </div>
-                        <div class="checkbox ">
+                        <div class="checkbox review_vendor_rate">
                             <input type="hidden" name="checkbox_review_rates" value="0" >
                             <label><input type="checkbox" name="checkbox_review_rates" id="checkbox_review_rates" value="1"> Review Rates</label> <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if checked, review screen will be displayed before processing" data-original-title="Review Rates">?</span>
                         </div>
@@ -459,6 +459,15 @@
             $("#form-upload input[name=end_row]").val(end_row);
 
         });
+        $("#form-upload [name='checkbox_replace_all']").change(function(){
+            if($(this).prop("checked")){
+                $('.review_vendor_rate').hide();
+            }else{
+                $('.review_vendor_rate').show();
+            }
+
+        });
+        $("#form-upload [name='checkbox_replace_all']").trigger('change');
 
         $('.btn.upload').click(function(e){
             e.preventDefault();
@@ -487,7 +496,7 @@
                             pct: 100,
                             delay: 2
                         });
-
+                        $('.btn.upload').button('reset');
                         if (response.status == 'success') {
                             var data = response.data;
                             createGrid(data);
@@ -498,7 +507,7 @@
                             toastr.error(response.message, "Error", toastr_opts);
                         }
                         //alert(response.message);
-                        $('.btn.upload').button('reset');
+
                         if($('#checkbox_review_rates').is(':checked')) {
                             $('#save_template').addClass('reviewrates');
                         } else {
@@ -571,6 +580,7 @@
                         $('.btn.save').button('loading');
                     },
                     success: function (response) {
+                        $('.btn.save').button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
                             getReviewRates(response.ProcessID);
@@ -724,9 +734,9 @@
                     },
                     dataType: 'json',
                     success: function (response) {
+                        $(".btn.save").button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
-                            $(".btn.save").button('reset');
                             $('#modal-change-selected-intervals').modal('hide');
                             checked_new = '';
                             $("#selectall-new").prop("checked", false).prop('disabled', false);
@@ -806,9 +816,9 @@
                     },
                     dataType: 'json',
                     success: function (response) {
+                        $(".btn.save").button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
-                            $(".btn.save").button('reset');
                             $('#modal-change-selected-enddate').modal('hide');
                             checked_deleted = '';
                             $("#selectall-deleted").prop("checked", false).prop('disabled', false);
@@ -1367,11 +1377,11 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                 <button id="save_template2" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                     <i class="entypo-floppy"></i>
                     Save
                 </button>
+                <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
             </div>
         </div>
     </div>
@@ -1405,11 +1415,11 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                     <button type="submit" id="btn-change-selected-intervals"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
                     </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                 </div>
             </form>
         </div>
@@ -1436,11 +1446,11 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                     <button type="submit" id="btn-change-selected-enddate"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                         <i class="entypo-floppy"></i>
                         Save
                     </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
                 </div>
             </form>
         </div>

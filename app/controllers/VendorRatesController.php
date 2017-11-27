@@ -1065,15 +1065,16 @@ class VendorRatesController extends \BaseController
                 $skiptRows=$templateoptions->skipRows;
                 NeonExcelIO::$start_row=$skiptRows->start_row;
                 NeonExcelIO::$end_row=$skiptRows->end_row;
+                $lineno = 1+$skiptRows->start_row;
+            }else if ($csvoption->Firstrow == 'data') {
+                $lineno = 1;
+            }else{
+                $lineno = 2;
             }
 
             $NeonExcel = new NeonExcelIO($FilePath, (array) $csvoption);
             $results = $NeonExcel->read();
-            $lineno = 2;
-
-            if ($csvoption->Firstrow == 'data') {
-                $lineno = 1;
-            }
+             
 
             $error = array();
             $batch_insert_array = [];
@@ -1120,26 +1121,7 @@ class VendorRatesController extends \BaseController
                     }else{
                         $error[] = 'Rate is blank at line no:'.$lineno;
                     }
-                    if (isset($attrselection->EffectiveDate) && !empty($attrselection->EffectiveDate) && !empty($temp_row[$attrselection->EffectiveDate])) {
-                        try {
-                            $tempvendordata['EffectiveDate'] = formatSmallDate(str_replace( '/','-',$temp_row[$attrselection->EffectiveDate]), $attrselection->DateFormat);
-                        }catch (\Exception $e){
-                            $error[] = 'Date format is Wrong  at line no:'.$lineno;
-                        }
-                    }elseif(empty($attrselection->EffectiveDate)){
-                        $tempvendordata['EffectiveDate'] = date('Y-m-d');
-                    }else{
-                        $error[] = 'EffectiveDate is blank at line no:'.$lineno;
-                    }
-                    if (isset($attrselection->EndDate) && !empty($attrselection->EndDate) && !empty($temp_row[$attrselection->EndDate])) {
-                        try {
-                            $tempvendordata['EndDate'] = formatSmallDate(str_replace( '/','-',$temp_row[$attrselection->EndDate]), $attrselection->DateFormat);
-                        }catch (\Exception $e){
-                            $error[] = 'Date format is Wrong  at line no:'.$lineno;
-                        }
-                    }
-
-                    if (isset($attrselection->Action) && !empty($attrselection->Action)) {
+					if (isset($attrselection->Action) && !empty($attrselection->Action)) {
                         if(empty($temp_row[$attrselection->Action])){
                             $tempvendordata['Change'] = 'I';
                         }else{
@@ -1158,6 +1140,27 @@ class VendorRatesController extends \BaseController
                     }else{
                         $tempvendordata['Change'] = 'I';
                     }
+					
+                    if (isset($attrselection->EffectiveDate) && !empty($attrselection->EffectiveDate) && !empty($temp_row[$attrselection->EffectiveDate])) {
+                        try {
+                            $tempvendordata['EffectiveDate'] = formatSmallDate(str_replace( '/','-',$temp_row[$attrselection->EffectiveDate]), $attrselection->DateFormat);
+                        }catch (\Exception $e){
+                            $error[] = 'Date format is Wrong  at line no:'.$lineno;
+                        }
+                    }elseif(empty($attrselection->EffectiveDate)){
+                        $tempvendordata['EffectiveDate'] = date('Y-m-d');
+                    }elseif($tempvendordata['Change'] != 'D') {
+                        $error[] = 'EffectiveDate is blank at line no:'.$lineno;
+                    }
+                    if (isset($attrselection->EndDate) && !empty($attrselection->EndDate) && !empty($temp_row[$attrselection->EndDate])) {
+                        try {
+                            $tempvendordata['EndDate'] = formatSmallDate(str_replace( '/','-',$temp_row[$attrselection->EndDate]), $attrselection->DateFormat);
+                        }catch (\Exception $e){
+                            $error[] = 'Date format is Wrong  at line no:'.$lineno;
+                        }
+                    }
+
+                     
 
                     if (isset($attrselection->ConnectionFee) && !empty($attrselection->ConnectionFee)) {
                         $tempvendordata['ConnectionFee'] = trim($temp_row[$attrselection->ConnectionFee]);
@@ -1188,7 +1191,7 @@ class VendorRatesController extends \BaseController
                             $tempvendordata['DialStringPrefix'] = '';
                         }
                     }
-                    if(isset($tempvendordata['Code']) && isset($tempvendordata['Description']) && isset($tempvendordata['Rate']) && isset($tempvendordata['EffectiveDate'])){
+                    if(isset($tempvendordata['Code']) && isset($tempvendordata['Description']) && isset($tempvendordata['Rate']) && ( isset($tempvendordata['EffectiveDate']) || $tempvendordata['Change'] == 'D') ){
                         $batch_insert_array[] = $tempvendordata;
                         $counter++;
                     }
@@ -1243,11 +1246,11 @@ class VendorRatesController extends \BaseController
                     if($duplicatecode == 1){
                         $error = array_merge($prc_error,$error);
                         unset($error[0]);
-                        $jobdata['JobStatusMessage'] = implode(',\n\r',fix_jobstatus_meassage($error));
+                        $jobdata['message'] = implode('<br>',fix_jobstatus_meassage($error));
                         $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','F')->pluck('JobStatusID');
                     }else{
                         $error = array_merge($prc_error,$error);
-                        $jobdata['JobStatusMessage'] = implode(',\n\r',fix_jobstatus_meassage($error));
+                        $jobdata['message'] = implode('<br>',fix_jobstatus_meassage($error));
                         $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','PF')->pluck('JobStatusID');
                     }
                     $jobdata['status'] = "failed";
@@ -1255,14 +1258,15 @@ class VendorRatesController extends \BaseController
                 }elseif(empty($JobStatusMessage)){
                     $jobdata['status'] = "success";
                     $jobdata['ProcessID'] = (string) $ProcessID;
-                    $jobdata['JobStatusMessage'] = "Review Rates Successfully!";
+                    $jobdata['message'] = "Review Rates Successfully!";
                     $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','S')->pluck('JobStatusID');
                 }
 
             }catch ( Exception $err ){
                 DB::rollback();
                 $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code', 'F')->pluck('JobStatusID');
-                $jobdata['JobStatusMessage'] = 'Exception: ' . $err->getMessage();
+                $jobdata['message'] = 'Exception: ' . $err->getMessage();
+                $jobdata['status'] = "failed";
                 Log::error($err);
             }
         }
