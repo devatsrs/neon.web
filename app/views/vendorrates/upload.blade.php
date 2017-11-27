@@ -431,8 +431,11 @@
     #selectcheckbox-new,#selectcheckbox-deleted{
         padding: 15px 10px;
     }
-    .change-view-new,.change-view-deleted {
+    /*.change-view-new,.change-view-deleted {
         padding: 14px;
+    }*/
+    .change-selected {
+        margin-top: 11px;
     }
     #modal-reviewrates .modal-body {
         overflow-y: auto;
@@ -461,6 +464,7 @@
         });
         $("#form-upload [name='checkbox_replace_all']").change(function(){
             if($(this).prop("checked")){
+                $('#checkbox_review_rates').attr('checked', false);
                 $('.review_vendor_rate').hide();
             }else{
                 $('.review_vendor_rate').show();
@@ -583,7 +587,7 @@
                         $('.btn.save').button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
-                            getReviewRates(response.ProcessID);
+                            getReviewRates(response.ProcessID,{});
                             $('#ProcessID').val(response.ProcessID);
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
@@ -899,9 +903,34 @@
             $('#add-template-form').find('[name="TempFileName"]').val(data.tempfilename);
         }
 
+        $("#reviewrates-new-search,#reviewrates-increased-search,#reviewrates-decreased-search,#reviewrates-deleted-search").submit(function(e) {
+            e.preventDefault();
+            var $ProcessID = $('#ProcessID').val();
+            var Code, Description;
+            var $searchFilter = {};
+
+            if($(this).attr('id') == 'reviewrates-new-search') {
+                $searchFilter.Code = Code = $("#reviewrates-new-search input[name='Code']").val();
+                $searchFilter.Description = Description = $("#reviewrates-new-search input[name='Description']").val();
+                getNewRates($ProcessID, $searchFilter);
+            } else if($(this).attr('id') == 'reviewrates-increased-search') {
+                $searchFilter.Code = Code = $("#reviewrates-increased-search input[name='Code']").val();
+                $searchFilter.Description = Description = $("#reviewrates-increased-search input[name='Description']").val();
+                getIncreasedRates($ProcessID, $searchFilter);
+            } else if($(this).attr('id') == 'reviewrates-decreased-search') {
+                $searchFilter.Code = Code = $("#reviewrates-decreased-search input[name='Code']").val();
+                $searchFilter.Description = Description = $("#reviewrates-decreased-search input[name='Description']").val();
+                getDecreasedRates($ProcessID, $searchFilter);
+            } else if($(this).attr('id') == 'reviewrates-deleted-search') {
+                $searchFilter.Code = Code = $("#reviewrates-deleted-search input[name='Code']").val();
+                $searchFilter.Description = Description = $("#reviewrates-deleted-search input[name='Description']").val();
+                getDeleteRates($ProcessID, $searchFilter);
+            }
+        });
+
     });
 
-    function getReviewRates($ProcessID) {
+    function getReviewRates($ProcessID, $searchFilter) {
         //$('#modal-reviewrates').modal('show');
         $('#modal-reviewrates').on('show.bs.modal', function () {
             $('#modal-reviewrates .modal-body').css('height',$( window ).height()*0.6);
@@ -910,34 +939,61 @@
         $(".btn.save").button('reset');
 
         //new rates
-        getNewRates($ProcessID);
+        getNewRates($ProcessID,$searchFilter);
 
         //increased rates
-        getIncreasedRates($ProcessID);
+        getIncreasedRates($ProcessID,$searchFilter);
 
         //decreased rates
-        getDecreasedRates($ProcessID);
+        getDecreasedRates($ProcessID,$searchFilter);
 
         //delete rates
-        getDeleteRates($ProcessID);
+        getDeleteRates($ProcessID,$searchFilter);
     }
 
-    function getNewRates($ProcessID) {
+    function getNewRates($ProcessID,$searchFilter) {
         var checked_new = '';
+        var Code = '';
+        var Description = '';
 
-        data_table = $("#table-reviewrates-new").dataTable({
+        if($searchFilter.Code != 'undefined' && $searchFilter.Code != undefined) {
+            Code = $searchFilter.Code;
+        }
+        if($searchFilter.Description != 'undefined' && $searchFilter.Description != undefined) {
+            Description = $searchFilter.Description;
+        }
+
+        data_table_new = $("#table-reviewrates-new").dataTable({
             "bProcessing":true,
             "bDestroy": true,
             "bServerSide":true,
             "sAjaxSource": '{{URL::to('vendor_rates/'.$id.'/get_review_rates')}}',
-            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-new'>>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-new'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"});
+                aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description});
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"New"},{"name":"Code","value":Code},{"name":"Description","value":Description});
             },
             "sPaginationType": "bootstrap",
             "aaSorting"   : [[1, 'asc']],
-            "oTableTools": {},
+            "oTableTools":
+            {
+                "aButtons": [
+                    /*{
+                        "sExtends": "download",
+                        "sButtonText": "EXCEL",
+                        "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/xlsx')}}',
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/csv')}}',
+                        sButtonClass: "save-collection btn-sm"
+                    }*/
+                ]
+            },
             "aoColumns":
                     [
                         {
@@ -959,7 +1015,7 @@
                 $(".dataTables_wrapper select").select2({
                     minimumResultsForSearch: -1
                 });
-                var toggle = '<button class="btn btn-primary grid pull-right" id="change_intervals"><i class="entypo-pencil"></i> Change Selected</button>';
+                var toggle = '<button class="btn btn-primary grid pull-right change-selected" id="change_intervals" style="margin-right: 26%;"><i class="entypo-pencil"></i> Change Selected</button>';
                 $('.change-view-new').html(toggle);
 
                 $('#table-reviewrates-new tbody').off('click');
@@ -1011,20 +1067,47 @@
         });
     }
 
-    function getIncreasedRates($ProcessID) {
-        data_table = $("#table-reviewrates-increased").dataTable({
+    function getIncreasedRates($ProcessID,$searchFilter) {
+        var Code = '';
+        var Description = '';
+
+        if($searchFilter.Code != 'undefined' && $searchFilter.Code != undefined) {
+            Code = $searchFilter.Code;
+        }
+        if($searchFilter.Description != 'undefined' && $searchFilter.Description != undefined) {
+            Description = $searchFilter.Description;
+        }
+
+        data_table_increased = $("#table-reviewrates-increased").dataTable({
             "bProcessing":true,
             "bDestroy": true,
             "bServerSide":true,
             "sAjaxSource": '{{URL::to('vendor_rates/'.$id.'/get_review_rates')}}',
-            //"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"});
-            },
+                aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"},{"name":"Code","value":Code},{"name":"Description","value":Description});
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Increased"},{"name":"Code","value":Code},{"name":"Description","value":Description});            },
             "sPaginationType": "bootstrap",
             "aaSorting"   : [[1, 'asc']],
-            "oTableTools": {},
+            "oTableTools":
+            {
+                "aButtons": [
+                    /*{
+                        "sExtends": "download",
+                        "sButtonText": "EXCEL",
+                        "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/xlsx')}}',
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/csv')}}',
+                        sButtonClass: "save-collection btn-sm"
+                    }*/
+                ]
+            },
             "aoColumns":
                     [
                         { "bVisible": false },//0 TempVendorRateID
@@ -1045,20 +1128,49 @@
         });
     }
 
-    function getDecreasedRates($ProcessID) {
-        data_table = $("#table-reviewrates-decreased").dataTable({
+    function getDecreasedRates($ProcessID,$searchFilter) {
+        var Code = '';
+        var Description = '';
+
+        if($searchFilter.Code != 'undefined' && $searchFilter.Code != undefined) {
+            Code = $searchFilter.Code;
+        }
+        if($searchFilter.Description != 'undefined' && $searchFilter.Description != undefined) {
+            Description = $searchFilter.Description;
+        }
+
+
+        data_table_decreased = $("#table-reviewrates-decreased").dataTable({
             "bProcessing":true,
             "bDestroy": true,
             "bServerSide":true,
             "sAjaxSource": '{{URL::to('vendor_rates/'.$id.'/get_review_rates')}}',
-            //"sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change'><'export-data'T>>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"});
+                aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"},{"name":"Code","value":Code},{"name":"Description","value":Description});
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Decreased"},{"name":"Code","value":Code},{"name":"Description","value":Description});
             },
             "sPaginationType": "bootstrap",
             "aaSorting"   : [[1, 'asc']],
-            "oTableTools": {},
+            "oTableTools":
+            {
+                "aButtons": [
+                    /*{
+                        "sExtends": "download",
+                        "sButtonText": "EXCEL",
+                        "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/xlsx')}}',
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/csv')}}',
+                        sButtonClass: "save-collection btn-sm"
+                    }*/
+                ]
+            },
             "aoColumns":
                     [
                         { "bVisible": false },//0 TempVendorRateID
@@ -1079,22 +1191,49 @@
         });
     }
 
-    function getDeleteRates($ProcessID) {
+    function getDeleteRates($ProcessID,$searchFilter) {
         var checked_deleted='';
+        var Code = '';
+        var Description = '';
 
-        data_table = $("#table-reviewrates-deleted").dataTable({
+        if($searchFilter.Code != 'undefined' && $searchFilter.Code != undefined) {
+            Code = $searchFilter.Code;
+        }
+        if($searchFilter.Description != 'undefined' && $searchFilter.Description != undefined) {
+            Description = $searchFilter.Description;
+        }
+
+        data_table_deleted = $("#table-reviewrates-deleted").dataTable({
             "bProcessing":true,
             "bDestroy": true,
             "bServerSide":true,
             "sAjaxSource": '{{URL::to('vendor_rates/'.$id.'/get_review_rates')}}',
-            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-deleted.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-deleted'>>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-new'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
-                aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"deleted"});
+                aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description});
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description});
             },
             "sPaginationType": "bootstrap",
             "aaSorting"   : [[1, 'asc']],
-            "oTableTools": {},
+            "oTableTools":
+            {
+                "aButtons": [
+                    /*{
+                        "sExtends": "download",
+                        "sButtonText": "EXCEL",
+                        "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/xlsx')}}',
+                        sButtonClass: "save-collection btn-sm"
+                    },
+                    {
+                        "sExtends": "download",
+                        "sButtonText": "CSV",
+                        "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/csv')}}',
+                        sButtonClass: "save-collection btn-sm"
+                    }*/
+                ]
+            },
             "aoColumns":
                     [
                         {
@@ -1116,7 +1255,7 @@
                 $(".dataTables_wrapper select").select2({
                     minimumResultsForSearch: -1
                 });
-                var toggle = '<button class="btn btn-primary grid pull-right" id="change_enddate"><i class="entypo-pencil"></i> Change Selected</button>';
+                var toggle = '<button class="btn btn-primary grid pull-right change-selected" id="change_enddate" style="margin-right: 26%;"><i class="entypo-pencil"></i> Change Selected</button>';
                 $('.change-view-deleted').html(toggle);
 
                 $('#table-reviewrates-deleted tbody').off('click');
@@ -1284,6 +1423,42 @@
                     <div class="tab-pane fade in active" id="reviewrates-new">
                         <div class="row">
                             <div class="col-md-12">
+                                <form role="form" id="reviewrates-new-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                                    <div class="panel panel-primary" data-collapsed="0">
+                                        <div class="panel-heading">
+                                            <div class="panel-title">
+                                                Search
+                                            </div>
+
+                                            <div class="panel-options">
+                                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                            </div>
+                                        </div>
+
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="field-1" class="col-sm-1 control-label">Code</label>
+                                                <div class="col-sm-3">
+                                                    <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="" />
+                                                </div>
+                                                <label class="col-sm-1 control-label">Description</label>
+                                                <div class="col-sm-3">
+                                                    <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="" />
+                                                </div>
+                                            </div>
+                                            <p style="text-align: right; margin: 0;">
+                                                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
+                                                    <i class="entypo-search"></i>
+                                                    Search
+                                                </button>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
                                 <table class="table table-bordered datatable" id="table-reviewrates-new">
                                     <thead>
                                         <tr>
@@ -1305,6 +1480,42 @@
                         </div>
                     </div>
                     <div class="tab-pane fade in" id="reviewrates-increased">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <form role="form" id="reviewrates-increased-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                                    <div class="panel panel-primary" data-collapsed="0">
+                                        <div class="panel-heading">
+                                            <div class="panel-title">
+                                                Search
+                                            </div>
+
+                                            <div class="panel-options">
+                                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                            </div>
+                                        </div>
+
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="field-1" class="col-sm-1 control-label">Code</label>
+                                                <div class="col-sm-3">
+                                                    <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="" />
+                                                </div>
+                                                <label class="col-sm-1 control-label">Description</label>
+                                                <div class="col-sm-3">
+                                                    <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="" />
+                                                </div>
+                                            </div>
+                                            <p style="text-align: right; margin: 0;">
+                                                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
+                                                    <i class="entypo-search"></i>
+                                                    Search
+                                                </button>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <table class="table table-bordered datatable" id="table-reviewrates-increased">
@@ -1330,6 +1541,42 @@
                     <div class="tab-pane fade in" id="reviewrates-decreased">
                         <div class="row">
                             <div class="col-md-12">
+                                <form role="form" id="reviewrates-decreased-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                                    <div class="panel panel-primary" data-collapsed="0">
+                                        <div class="panel-heading">
+                                            <div class="panel-title">
+                                                Search
+                                            </div>
+
+                                            <div class="panel-options">
+                                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                            </div>
+                                        </div>
+
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="field-1" class="col-sm-1 control-label">Code</label>
+                                                <div class="col-sm-3">
+                                                    <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="" />
+                                                </div>
+                                                <label class="col-sm-1 control-label">Description</label>
+                                                <div class="col-sm-3">
+                                                    <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="" />
+                                                </div>
+                                            </div>
+                                            <p style="text-align: right; margin: 0;">
+                                                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
+                                                    <i class="entypo-search"></i>
+                                                    Search
+                                                </button>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
                                 <table class="table table-bordered datatable" id="table-reviewrates-decreased">
                                     <thead>
                                         <tr>
@@ -1351,6 +1598,42 @@
                         </div>
                     </div>
                     <div class="tab-pane fade in" id="reviewrates-deleted">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <form role="form" id="reviewrates-deleted-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
+                                    <div class="panel panel-primary" data-collapsed="0">
+                                        <div class="panel-heading">
+                                            <div class="panel-title">
+                                                Search
+                                            </div>
+
+                                            <div class="panel-options">
+                                                <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                            </div>
+                                        </div>
+
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="field-1" class="col-sm-1 control-label">Code</label>
+                                                <div class="col-sm-3">
+                                                    <input type="text" name="Code" class="form-control" id="field-1" placeholder="" value="" />
+                                                </div>
+                                                <label class="col-sm-1 control-label">Description</label>
+                                                <div class="col-sm-3">
+                                                    <input type="text" name="Description" class="form-control" id="field-1" placeholder="" value="" />
+                                                </div>
+                                            </div>
+                                            <p style="text-align: right; margin: 0;">
+                                                <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
+                                                    <i class="entypo-search"></i>
+                                                    Search
+                                                </button>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-12">
                                 <table class="table table-bordered datatable" id="table-reviewrates-deleted">

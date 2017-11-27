@@ -1281,10 +1281,47 @@ class VendorRatesController extends \BaseController
         $columns = array('Code','Description','Rate','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."')";
+        $data['Code'] = !empty($data['Code']) ? $data['Code'] : NULL;
+        $data['Description'] = !empty($data['Description']) ? $data['Description'] : NULL;
+
+        $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         Log::info($query);
 
         return DataTableSql::of($query)->make();
+    }
+
+    public function reviewRatesExports($id,$type) {
+        $data = Input::all();
+        $data['iDisplayStart'] +=1;
+
+        $data['Code'] = !empty($data['Code']) ? $data['Code'] : NULL;
+        $data['Description'] = !empty($data['Description']) ? $data['Description'] : NULL;
+
+        $columns = array('Code','Description','Rate','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN');
+        $sort_column = $columns[$data['iSortCol_0']];
+
+        $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',1)";
+        Log::info($query);
+
+        DB::setFetchMode( PDO::FETCH_ASSOC );
+        $review_vendor_rates = DB::select($query);
+        DB::setFetchMode( Config::get('database.fetch'));
+
+        if($type=='csv'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Review Vendor Rates.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($review_vendor_rates);
+        }elseif($type=='xlsx'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Review Vendor Rates.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($review_vendor_rates);
+        }
+
+        /*Excel::create('Vendor Rates', function ($excel) use ($vendor_rates) {
+            $excel->sheet('Vendor Rates', function ($sheet) use ($vendor_rates) {
+                $sheet->fromArray($vendor_rates);
+            });
+        })->download('xls');*/
     }
 
     public function updateTempVendorRates($AccountID) {
