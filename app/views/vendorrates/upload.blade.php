@@ -435,7 +435,8 @@
         padding: 14px;
     }*/
     .change-selected {
-        margin-top: 11px;
+        margin-top: 13px;
+        margin-right: 27px;
     }
     #modal-reviewrates .modal-body {
         overflow-y: auto;
@@ -980,18 +981,28 @@
             "oTableTools":
             {
                 "aButtons": [
-                    /*{
+                    {
                         "sExtends": "download",
                         "sButtonText": "EXCEL",
                         "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/xlsx')}}',
-                        sButtonClass: "save-collection btn-sm"
+                        sButtonClass: "save-collection btn-sm",
+                        "fnClick": function ( nButton, oConfig, oFlash ) {
+                            var Action = 'New';
+                            var URL = '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/xlsx')}}';
+                            exportReviewRates($ProcessID,Action,URL);
+                        }
                     },
                     {
                         "sExtends": "download",
                         "sButtonText": "CSV",
                         "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/csv')}}',
-                        sButtonClass: "save-collection btn-sm"
-                    }*/
+                        sButtonClass: "save-collection btn-sm",
+                        "fnClick": function ( nButton, oConfig, oFlash ) {
+                            var Action = 'New';
+                            var URL = '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/csv')}}';
+                            exportReviewRates($ProcessID,Action,URL);
+                        }
+                    }
                 ]
             },
             "aoColumns":
@@ -1015,7 +1026,7 @@
                 $(".dataTables_wrapper select").select2({
                     minimumResultsForSearch: -1
                 });
-                var toggle = '<button class="btn btn-primary grid pull-right change-selected" id="change_intervals" style="margin-right: 26%;"><i class="entypo-pencil"></i> Change Selected</button>';
+                var toggle = '<button class="btn btn-sm btn-primary grid pull-right change-selected" id="change_intervals" style="margin-right: 27%;"><i class="entypo-pencil"></i> Change Selected</button>';
                 $('.change-view-new').html(toggle);
 
                 $('#table-reviewrates-new tbody').off('click');
@@ -1094,18 +1105,28 @@
             "oTableTools":
             {
                 "aButtons": [
-                    /*{
+                    {
                         "sExtends": "download",
                         "sButtonText": "EXCEL",
                         "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/xlsx')}}',
-                        sButtonClass: "save-collection btn-sm"
+                        sButtonClass: "save-collection btn-sm",
+                        "fnClick": function ( nButton, oConfig, oFlash ) {
+                            var Action = 'Increased';
+                            var URL = '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/xlsx')}}';
+                            exportReviewRates($ProcessID,Action,URL);
+                        }
                     },
                     {
                         "sExtends": "download",
                         "sButtonText": "CSV",
                         "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/csv')}}',
-                        sButtonClass: "save-collection btn-sm"
-                    }*/
+                        sButtonClass: "save-collection btn-sm",
+                        "fnClick": function ( nButton, oConfig, oFlash ) {
+                            var Action = 'Increased';
+                            var URL = '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/csv')}}';
+                            exportReviewRates($ProcessID,Action,URL);
+                        }
+                    }
                 ]
             },
             "aoColumns":
@@ -1157,18 +1178,28 @@
             "oTableTools":
             {
                 "aButtons": [
-                    /*{
+                    {
                         "sExtends": "download",
                         "sButtonText": "EXCEL",
                         "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/xlsx')}}',
-                        sButtonClass: "save-collection btn-sm"
+                        sButtonClass: "save-collection btn-sm",
+                        "fnClick": function ( nButton, oConfig, oFlash ) {
+                            var Action = 'Decreased';
+                            var URL = '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/xlsx')}}';
+                            exportReviewRates($ProcessID,Action,URL);
+                        }
                     },
                     {
                         "sExtends": "download",
                         "sButtonText": "CSV",
                         "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/csv')}}',
-                        sButtonClass: "save-collection btn-sm"
-                    }*/
+                        sButtonClass: "save-collection btn-sm",
+                        "fnClick": function ( nButton, oConfig, oFlash ) {
+                            var Action = 'Decreased';
+                            var URL = '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/csv')}}';
+                            exportReviewRates($ProcessID,Action,URL);
+                        }
+                    }
                 ]
             },
             "aoColumns":
@@ -1220,18 +1251,28 @@
             "oTableTools":
             {
                 "aButtons": [
-                    /*{
+                    {
                         "sExtends": "download",
                         "sButtonText": "EXCEL",
                         "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/xlsx')}}',
-                        sButtonClass: "save-collection btn-sm"
+                        sButtonClass: "save-collection btn-sm",
+                        "fnClick": function ( nButton, oConfig, oFlash ) {
+                            var Action = 'Deleted';
+                            var URL = '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/xlsx')}}';
+                            exportReviewRates($ProcessID,Action,URL);
+                        }
                     },
                     {
                         "sExtends": "download",
                         "sButtonText": "CSV",
                         "sUrl": '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/csv')}}',
-                        sButtonClass: "save-collection btn-sm"
-                    }*/
+                        sButtonClass: "save-collection btn-sm",
+                        "fnClick": function ( nButton, oConfig, oFlash ) {
+                            var Action = 'Deleted';
+                            var URL = '{{URL::to('vendor_rates/'.$id.'/get_review_rates/exports/csv')}}';
+                            exportReviewRates($ProcessID,Action,URL);
+                        }
+                    }
                 ]
             },
             "aoColumns":
@@ -1255,7 +1296,7 @@
                 $(".dataTables_wrapper select").select2({
                     minimumResultsForSearch: -1
                 });
-                var toggle = '<button class="btn btn-primary grid pull-right change-selected" id="change_enddate" style="margin-right: 26%;"><i class="entypo-pencil"></i> Change Selected</button>';
+                var toggle = '<button class="btn btn-sm btn-primary grid pull-right change-selected" id="change_enddate" style="margin-right: 27%;"><i class="entypo-pencil"></i> Change Selected</button>';
                 $('.change-view-deleted').html(toggle);
 
                 $('#table-reviewrates-deleted tbody').off('click');
@@ -1305,6 +1346,52 @@
                 $("#selectcheckbox-deleted").html('<input type="checkbox" id="selectallbutton-deleted" name="checkboxselect[]" class="" title="Select All Found Records" />');
             }
         });
+    }
+
+    function exportReviewRates(ProcessID, Action, URL) {
+        var ActionID = Action.toLowerCase();
+        var Code = $('#reviewrates-'+ActionID+'-search input[name="Code"]').val();
+        var Description = $('#reviewrates-'+ActionID+'-search input[name="Description"]').val();
+
+        var aoPost = [
+            {"name": "ProcessID", "value": ProcessID},
+            {"name": "Action", "value": Action},
+            {"name": "Code", "value": Code},
+            {"name": "Description", "value": Description}
+        ];
+
+        /* Create an IFrame to do the request */
+        nIFrame = document.createElement('iframe');
+        nIFrame.setAttribute('id', 'RemotingIFrame');
+        nIFrame.style.border = '0px';
+        nIFrame.style.width = '0px';
+        nIFrame.style.height = '0px';
+
+        document.body.appendChild(nIFrame);
+        var nContentWindow = nIFrame.contentWindow;
+        nContentWindow.document.open();
+        nContentWindow.document.close();
+
+        var nForm = nContentWindow.document.createElement('form');
+        nForm.setAttribute('method', 'post');
+
+        /* Add POST data */
+        for (var i = 0; i < aoPost.length; i++)
+        {
+            nInput = nContentWindow.document.createElement('input');
+            nInput.setAttribute('name', aoPost[i].name);
+            nInput.setAttribute('type', 'text');
+            nInput.value = aoPost[i].value;
+            nForm.appendChild(nInput);
+        }
+
+        nForm.setAttribute('action', URL);
+
+        /* Add the form and the iframe */
+        nContentWindow.document.body.appendChild(nForm);
+
+        /* Send the request */
+        nForm.submit();
     }
 </script>
 @stop
