@@ -138,7 +138,7 @@ class CodeDecksController extends \BaseController {
 
     public function upload() {
 
-        \Debugbar::disable();
+
 
         //   $total_records = $this->import("I:\bk\www\projects\aamir\rm\laravel\rm\public\uploads\fxHv86yN\Snq4Obmf0XlJNFz2.csv");
         //   exit;
