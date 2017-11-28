@@ -23,8 +23,7 @@
 		"consolibyte/quickbooks": "^3.1",
 		"cartalyst/stripe-laravel": "1.0.*",
 		"chumper/zipper": "0.5.x",
-		"calcinai/xero-php": "1.5.*",
-		"webpatser/laravel-uuid": "1.*"
+		"calcinai/xero-php": "1.5.*"
 	},
 	"require-dev": {
 		"maatwebsite/excel": "~1.3.0",
