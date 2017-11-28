@@ -3,6 +3,7 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_putCustomerCodeRate`(
 	IN `p_TrunkID` INT,
 	IN `p_tbltemp_name` VARCHAR(200),
 	IN `p_ProcessID` VARCHAR(200)
+
 )
 BEGIN
 
@@ -18,7 +19,7 @@ BEGIN
 		AND tbl.TrunkID = cr.TrunkID
 		AND tbl.RateID = cr.RateID
 		AND tbl.EffectiveDate = cr.EffectiveDate
-	WHERE tbl.EffectiveDate IS NULL AND cr.EffectiveDate <= NOW() AND cr.ProcessID = "' , p_ProcessID , '";');
+	WHERE tbl.EffectiveDate IS NULL AND  cr.EffectiveDate <= NOW() AND cr.ProcessID = "' , p_ProcessID , '";');
 
 	PREPARE stm FROM @stm;
 	EXECUTE stm;
@@ -32,11 +33,11 @@ BEGIN
 	DELETE tblCustomerRate FROM tblCustomerRate
 	LEFT JOIN `' , p_tbltemp_name , '` temp 
 		ON tblCustomerRate.RateID = temp.RateID
-		AND tblCustomerRate.TrunkID = temp.TrunkID
 		AND CustomerID  = AccountID
+		AND tblCustomerRate.TrunkID = temp.TrunkID
 		AND tblCustomerRate.EffectiveDate = temp.EffectiveDate
 		AND ProcessID = "' , p_ProcessID , '"
-	WHERE TempRatesImportID IS NULL AND CustomerID = "' , p_AccountID , '" AND tblCustomerRate.TrunkID = "' , p_TrunkID , '";
+	WHERE TempRatesImportID IS NULL AND temp.RateID IS NOT NULL AND CustomerID = "' , p_AccountID , '" AND tblCustomerRate.TrunkID = "' , p_TrunkID , '";
 	');
 
 	PREPARE stm FROM @stm;
@@ -67,8 +68,8 @@ BEGIN
 
 	-- insert codes which are not exist in customer table
 	SET @stm = CONCAT('
-	INSERT INTO tblCustomerRate (RateID,CustomerID,TrunkID,LastModifiedDate,LastModifiedBy,Rate,EffectiveDate,Interval1,IntervalN,ConnectionFee)
-	SELECT temp.RateID,temp.AccountID,temp.TrunkID,now(),"SYSTEM IMPORTED",temp.Rate,temp.EffectiveDate,temp.Interval1,temp.IntervalN,temp.ConnectionFee FROM `' , p_tbltemp_name , '` temp
+	INSERT IGNORE INTO tblCustomerRate (RateID,CustomerID,TrunkID,LastModifiedDate,LastModifiedBy,Rate,EffectiveDate,Interval1,IntervalN,ConnectionFee)
+	SELECT DISTINCT temp.RateID,temp.AccountID,temp.TrunkID,now(),"SYSTEM IMPORTED",temp.Rate,temp.EffectiveDate,temp.Interval1,temp.IntervalN,temp.ConnectionFee FROM `' , p_tbltemp_name , '` temp
 	LEFT JOIN tblCustomerRate
 		ON tblCustomerRate.RateID = temp.RateID
 		AND tblCustomerRate.TrunkID = temp.TrunkID
