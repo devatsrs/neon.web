@@ -1,9 +1,5 @@
 <?php
 
-use Webpatser\Uuid\Uuid;
-use \App\Lib\TempVendorRate;
-use \App\Lib\VendorRateChangeLog;
-
 class VendorRatesController extends \BaseController
 {
     
@@ -897,7 +893,7 @@ class VendorRatesController extends \BaseController
     public function reviewRates($id) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $ProcessID = Uuid::generate();
+        $ProcessID = (string) GUID::generate();
         $bacth_insert_limit = 250;
         $counter = 0;
         $p_forbidden = 0;
@@ -1077,7 +1073,12 @@ class VendorRatesController extends \BaseController
              
 
             $error = array();
-            $batch_insert_array = [];
+            $batch_insert_array = $batch_insert_array2 = [];
+
+            foreach ($attrselection as $key => $value) {
+                $attrselection->$key = str_replace("\r",'',$value);
+                $attrselection->$key = str_replace("\n",'',$attrselection->$key);
+            }
 
             foreach ($results as $index=>$temp_row) {
 
@@ -1086,9 +1087,15 @@ class VendorRatesController extends \BaseController
                     unset($temp_row[0]);
                 }
 
+                foreach ($temp_row as $key => $value) {
+                    $key = str_replace("\r",'',$key);
+                    $key = str_replace("\n",'',$key);
+                    $temp_row[$key] = $value;
+                }
+
                 $tempvendordata = array();
                 $tempvendordata['codedeckid'] = $joboptions->codedeckid;
-                $tempvendordata['ProcessId'] = (string) $ProcessID;
+                $tempvendordata['ProcessId']  = $ProcessID;
 
                 //check empty row
                 $checkemptyrow = array_filter(array_values($temp_row));
@@ -1112,15 +1119,6 @@ class VendorRatesController extends \BaseController
                     }else{
                         $error[] = 'Description is blank at line no:'.$lineno;
                     }
-                    if (isset($attrselection->Rate) && !empty($attrselection->Rate) && is_numeric(trim($temp_row[$attrselection->Rate]))  ) {
-                        if(is_numeric(trim($temp_row[$attrselection->Rate]))) {
-                            $tempvendordata['Rate'] = trim($temp_row[$attrselection->Rate]);
-                        }else{
-                            $error[] = 'Rate is not numeric at line no:'.$lineno;
-                        }
-                    }else{
-                        $error[] = 'Rate is blank at line no:'.$lineno;
-                    }
 					if (isset($attrselection->Action) && !empty($attrselection->Action)) {
                         if(empty($temp_row[$attrselection->Action])){
                             $tempvendordata['Change'] = 'I';
@@ -1140,7 +1138,16 @@ class VendorRatesController extends \BaseController
                     }else{
                         $tempvendordata['Change'] = 'I';
                     }
-					
+
+                    if (isset($attrselection->Rate) && !empty($attrselection->Rate) && is_numeric(trim($temp_row[$attrselection->Rate]))  ) {
+                        if (is_numeric(trim($temp_row[$attrselection->Rate]))) {
+                            $tempvendordata['Rate'] = trim($temp_row[$attrselection->Rate]);
+                        } else {
+                            $error[] = 'Rate is not numeric at line no:' . $lineno;
+                        }
+                    }elseif($tempvendordata['Change'] != 'D') {
+                        $error[] = 'Rate is blank at line no:'.$lineno;
+                    }
                     if (isset($attrselection->EffectiveDate) && !empty($attrselection->EffectiveDate) && !empty($temp_row[$attrselection->EffectiveDate])) {
                         try {
                             $tempvendordata['EffectiveDate'] = formatSmallDate(str_replace( '/','-',$temp_row[$attrselection->EffectiveDate]), $attrselection->DateFormat);
@@ -1192,7 +1199,11 @@ class VendorRatesController extends \BaseController
                         }
                     }
                     if(isset($tempvendordata['Code']) && isset($tempvendordata['Description']) && isset($tempvendordata['Rate']) && ( isset($tempvendordata['EffectiveDate']) || $tempvendordata['Change'] == 'D') ){
-                        $batch_insert_array[] = $tempvendordata;
+                        if(isset($tempvendordata['EndDate'])) {
+                            $batch_insert_array[] = $tempvendordata;
+                        } else {
+                            $batch_insert_array2[] = $tempvendordata;
+                        }
                         $counter++;
                     }
                 }
@@ -1202,19 +1213,22 @@ class VendorRatesController extends \BaseController
                     Log::info('global counter'.$lineno);
                     Log::info('insertion start');
                     TempVendorRate::insert($batch_insert_array);
+                    TempVendorRate::insert($batch_insert_array2);
                     Log::info('insertion end');
                     $batch_insert_array = [];
+                    $batch_insert_array2 = [];
                     $counter = 0;
                 }
                 $lineno++;
             } // loop over
 
-            if(!empty($batch_insert_array)){
+            if(!empty($batch_insert_array) || !empty($batch_insert_array)){
                 Log::info('Batch insert start');
                 Log::info('global counter'.$lineno);
                 Log::info('insertion start');
                 Log::info('last batch insert ' . count($batch_insert_array));
                 TempVendorRate::insert($batch_insert_array);
+                TempVendorRate::insert($batch_insert_array2);
                 Log::info('insertion end');
             }
 
@@ -1257,7 +1271,7 @@ class VendorRatesController extends \BaseController
 
                 }elseif(empty($JobStatusMessage)){
                     $jobdata['status'] = "success";
-                    $jobdata['ProcessID'] = (string) $ProcessID;
+                    $jobdata['ProcessID'] = $ProcessID;
                     $jobdata['message'] = "Review Rates Successfully!";
                     $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','S')->pluck('JobStatusID');
                 }
@@ -1281,10 +1295,44 @@ class VendorRatesController extends \BaseController
         $columns = array('Code','Description','Rate','EffectiveDate','EndDate','ConnectionFee','Interval1','IntervalN');
         $sort_column = $columns[$data['iSortCol_0']];
 
-        $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."')";
+        $data['Code'] = !empty($data['Code']) ? $data['Code'] : NULL;
+        $data['Description'] = !empty($data['Description']) ? $data['Description'] : NULL;
+
+        $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."',0)";
         Log::info($query);
 
         return DataTableSql::of($query)->make();
+    }
+
+    public function reviewRatesExports($id,$type) {
+        $data = Input::all();
+
+        //Log::info($data);exit;
+        $data['Code'] = !empty($data['Code']) ? $data['Code'] : NULL;
+        $data['Description'] = !empty($data['Description']) ? $data['Description'] : NULL;
+
+        $query = "call prc_getReviewVendorRates ('".$data['ProcessID']."','".$data['Action']."','".$data['Code']."','".$data['Description']."',0 ,0,'','',1)";
+        Log::info($query);
+
+        DB::setFetchMode( PDO::FETCH_ASSOC );
+        $review_vendor_rates = DB::select($query);
+        DB::setFetchMode( Config::get('database.fetch'));
+
+        if($type=='csv'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Review Vendor Rates.csv';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_csv($review_vendor_rates);
+        }elseif($type=='xlsx'){
+            $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Review Vendor Rates.xls';
+            $NeonExcel = new NeonExcelIO($file_path);
+            $NeonExcel->download_excel($review_vendor_rates);
+        }
+
+        /*Excel::create('Vendor Rates', function ($excel) use ($vendor_rates) {
+            $excel->sheet('Vendor Rates', function ($sheet) use ($vendor_rates) {
+                $sheet->fromArray($vendor_rates);
+            });
+        })->download('xls');*/
     }
 
     public function updateTempVendorRates($AccountID) {
