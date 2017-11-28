@@ -1,9 +1,5 @@
 <?php
 
-use Webpatser\Uuid\Uuid;
-use \App\Lib\TempVendorRate;
-use \App\Lib\VendorRateChangeLog;
-
 class VendorRatesController extends \BaseController
 {
     
@@ -897,7 +893,7 @@ class VendorRatesController extends \BaseController
     public function reviewRates($id) {
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $ProcessID = Uuid::generate();
+        $ProcessID = (string) GUID::generate();
         $bacth_insert_limit = 250;
         $counter = 0;
         $p_forbidden = 0;
@@ -1099,7 +1095,7 @@ class VendorRatesController extends \BaseController
 
                 $tempvendordata = array();
                 $tempvendordata['codedeckid'] = $joboptions->codedeckid;
-                $tempvendordata['ProcessId'] = (string) $ProcessID;
+                $tempvendordata['ProcessId']  = $ProcessID;
 
                 //check empty row
                 $checkemptyrow = array_filter(array_values($temp_row));
@@ -1275,7 +1271,7 @@ class VendorRatesController extends \BaseController
 
                 }elseif(empty($JobStatusMessage)){
                     $jobdata['status'] = "success";
-                    $jobdata['ProcessID'] = (string) $ProcessID;
+                    $jobdata['ProcessID'] = $ProcessID;
                     $jobdata['message'] = "Review Rates Successfully!";
                     $jobdata['JobStatusID'] = DB::table('tblJobStatus')->where('Code','S')->pluck('JobStatusID');
                 }
