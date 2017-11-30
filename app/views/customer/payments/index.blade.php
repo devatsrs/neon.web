@@ -4,11 +4,11 @@
 
     <ol class="breadcrumb bc-3">
         <li>
-            <a href="#"><i class="entypo-home"></i>Payments</a>
+            <a href="#"><i class="entypo-home"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TITLE')</a>
         </li>
     </ol>
 
-    <h3>Payments</h3>
+    <h3>@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TITLE')</h3>
     <div class="tab-content">
         <div class="tab-pane active" id="customer_rate_tab_content">
             <div class="row">
@@ -17,7 +17,7 @@
                         <div class="panel panel-primary" data-collapsed="0">
                             <div class="panel-heading">
                                 <div class="panel-title">
-                                    Search
+                                    @lang('routes.CUST_PANEL_FILTER_TITLE')
                                 </div>
 
                                 <div class="panel-options">
@@ -28,17 +28,17 @@
                             <div class="panel-body">
                                 <div class="form-group">
 
-                                    <label class="col-sm-1 control-label">Invoice No</label>
+                                    <label class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_INVOICE_NO')</label>
                                     <div class="col-sm-2">
                                         <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
 
                                     </div>
-                                    <label for="field-1" class="col-sm-1 control-label">Action</label>
+                                    <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_ACTION')</label>
                                     <div class="col-sm-2">
                                         {{ Form::select('type', $action, Input::get('Type'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
 
-                                    <label for="field-1" class="col-sm-1 control-label">Payment Method</label>
+                                    <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_PAYMENT_METHOD')</label>
                                     <div class="col-sm-2">
                                         {{ Form::select('paymentmethod', $method, Input::get('paymentmethod') , array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
@@ -46,14 +46,14 @@
 
                                 <!--payment date start -->
                                 <div class="form-group">
-                                    <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">Start Date</label>
+                                    <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_START_DATE')</label>
                                     <div class="col-sm-2 col-sm-e2">
                                         <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')}}" data-enddate="{{date('Y-m-d')}}" />
                                     </div>
                                     <div class="col-sm-2 col-sm-e2">
                                         <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
                                     </div>
-                                    <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">End Date</label>
+                                    <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_END_DATE')</label>
                                     <div class="col-sm-2 col-sm-e2">
                                         <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')}}" data-enddate="{{date('Y-m-d')}}" />
                                     </div>
@@ -66,7 +66,7 @@
                                 <p style="text-align: right;">
                                     <button type="submit" class="btn btn-primary btn-sm btn-icon icon-left">
                                         <i class="entypo-search"></i>
-                                        Search
+                                        @lang('routes.BUTTON_SEARCH_CAPTION')
                                     </button>
                                 </p>
                             </div>
@@ -85,12 +85,12 @@
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
-                    <th width="15%">Invoice No</th>
-                    <th width="20%">Amount</th>
-                    <th width="15%">Type</th>
-                    <th width="20%">Payment Date</th>
-                    <th width="15%">Status</th>
-                    <th width="15%">Action</th>
+                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_COL1')</th>
+                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_COL2')</th>
+                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_COL3')</th>
+                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_COL4')</th>
+                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_COL5')</th>
+                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_COL6')</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -207,11 +207,16 @@
                                         action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
                                         <?php if(User::is('BillingAdmin')){?>
                                         if(full[7] != "Approved"){
-                                            action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="Loading...">Approve/Reject <span class="caret"></span></button>'
-                                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >Approve</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">Reject</a></li></ul></div>';
+                                            var Approve = "@lang('routes.BUTTON_APPROVE_CAPTION')";
+                                            var Reject = "@lang('routes.BUTTON_REJECT_CAPTION')";
+                                            var Loading = "@lang('routes.BUTTON_LOADING_CAPTION')";
+
+                                            action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="'+Loading+'">'+Approve+'/'+Reject+' <span class="caret"></span></button>'
+                                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >'+Approve+'</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">'+Reject+'</a></li></ul></div>';
                                         }
                                         if(full[9]!= null){
-                                            action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="{{URL::to('payments/download_doc')}}/'+full[0]+'" title="" ><i class="entypo-down"></i>Download</a></span>'
+                                            var Download = "@lang('routes.BUTTON_DOWNLOAD_CAPTION')";
+                                            action += '<span class="col-md-offset-1"><a class="btn btn-success btn-sm btn-icon icon-left"  href="{{URL::to('payments/download_doc')}}/'+full[0]+'" title="" ><i class="entypo-down"></i>'+Download+'</a></span>'
                                         }
                                         <?php } ?>
                                         return action;
@@ -222,13 +227,13 @@
                                 "aButtons": [
                                     {
                                         "sExtends": "download",
-                                        "sButtonText": "EXCEL",
+                                        "sButtonText": "@lang('routes.BUTTON_EXPORT_EXCEL_CAPTION')",
                                         "sUrl": baseurl + "/customer/payments/ajax_datagrid/xlsx", //baseurl + "/generate_xlsx.php",
                                         sButtonClass: "save-collection btn-sm"
                                     },
                                     {
                                         "sExtends": "download",
-                                        "sButtonText": "CSV",
+                                        "sButtonText": "@lang('routes.BUTTON_EXPORT_CSV_CAPTION')",
                                         "sUrl": baseurl + "/customer/payments/ajax_datagrid/csv", //baseurl + "/generate_csv.php",
                                         sButtonClass: "save-collection btn-sm"
                                     }
@@ -295,7 +300,7 @@
                         $("#add-edit-payment-form [name='PaymentMethod']").val('').trigger("change");
                         $("#add-edit-payment-form [name='PaymentType']").val('').trigger("change");
                         $("#add-edit-payment-form [name='PaymentID']").val('')
-                        $('#add-edit-modal-payment h4').html('Add New Payment');
+                        $('#add-edit-modal-payment h4').html("@lang('routes.BUTTON_APPROVE_CAPTION')"'Add New Payment');
                         $('#add-edit-modal-payment').modal('show');
                     });
 
