@@ -2396,3 +2396,10 @@ function is_PayNowInvoice(){
     }
     return false;
 }
+function fix_jobstatus_meassage($message){
+    if(count($message)>100) {
+        $message = array_slice($message, 0, 100);
+        $message[] = '...';
+    }
+    return $message;
+}
