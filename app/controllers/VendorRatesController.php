@@ -1073,6 +1073,8 @@ class VendorRatesController extends \BaseController
              
 
             $error = array();
+            // if EndDate is mapped than data will store in and insert from $batch_insert_array
+            // if EndDate is not mapped than data will store in and insert from $batch_insert_array2
             $batch_insert_array = $batch_insert_array2 = [];
 
             foreach ($attrselection as $key => $value) {
