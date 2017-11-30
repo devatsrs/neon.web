@@ -157,7 +157,7 @@ class ThemesController extends \BaseController {
 				$upload_path 	  = 	CompanyConfiguration::get('TEMP_PATH');
 				$Attachment		  = 	Input::file('Logo');
 				$ext 			  = 	$Attachment->getClientOriginalExtension();	
-				if (in_array($ext, array("jpg","png")))
+				if (in_array(strtolower($ext), array("jpg","png")))
 				{		
 					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
 					
@@ -204,7 +204,7 @@ class ThemesController extends \BaseController {
 				$Attachment		  = 	Input::file('Favicon');
 				$ext 			  = 	$Attachment->getClientOriginalExtension();	
 				
-				if (in_array($ext, array("ico")))
+				if (in_array(strtolower($ext), array("ico")))
 				{
 					list($width_fav,$height_fav) =  getimagesize($Attachment->getRealPath());
 					
@@ -312,7 +312,7 @@ class ThemesController extends \BaseController {
 				$Attachment		  = 	Input::file('Logo');
 				$ext 			  = 	$Attachment->getClientOriginalExtension();			
 				
-				if (in_array($ext, array("jpg","png")))
+				if (in_array(strtolower($ext), array("jpg","png")))
 				{
 					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
 					
@@ -361,7 +361,7 @@ class ThemesController extends \BaseController {
 				$Attachment		  = 	Input::file('Favicon');
 				$ext 			  = 	$Attachment->getClientOriginalExtension();			
 
-				if (in_array($ext, array("ico")))
+				if (in_array(strtolower($ext), array("ico")))
 				{
 					list($width_log,$height_log) =  getimagesize($Attachment->getRealPath());
 					
