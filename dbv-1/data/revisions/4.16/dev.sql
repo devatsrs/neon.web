@@ -1744,7 +1744,23 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ArchiveOldVendorRate`(
 
 
 		INSERT INTO tblVendorRateArchive
-			SELECT DISTINCT  vr.* , concat('Archived old rates @ ' , now() ) as `Notes`
+			SELECT DISTINCT  null , -- Primary Key column
+				vr.`VendorRateID`,
+				vr.`AccountId`,
+				vr.`TrunkID`,
+				vr.`RateId`,
+				vr.`Rate`,
+				vr.`EffectiveDate`,
+				IFNULL(vr.`EndDate`,date(now())) as EndDate,
+				vr.`updated_at`,
+				vr.`created_at`,
+				vr.`created_by`,
+				vr.`updated_by`,
+				vr.`Interval1`,
+				vr.`IntervalN`,
+				vr.`ConnectionFee`,
+				vr.`MinimumCost`,
+				concat('Archived old rates @ ' , now() ) as `Notes`
 			-- DELETE vr
 			FROM tblVendorRate vr
 				INNER JOIN tblVendorRate vr2
@@ -1799,7 +1815,25 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ArchiveOldVendorRate`(
 
 
 		INSERT INTO tblVendorRateArchive
-			SELECT DISTINCT  tblVendorRate.* , concat('Archived same rates records @ ' , now() ) as `Notes`
+			SELECT DISTINCT
+				--	null, tblVendorRate.*
+				null , -- Primary Key column
+				tblVendorRate.`VendorRateID`,
+				`AccountId`,
+				`TrunkID`,
+				`RateId`,
+				`Rate`,
+				`EffectiveDate`,
+				IFNULL(`EndDate`,date(now())) as EndDate,
+				`updated_at`,
+				`created_at`,
+				`created_by`,
+				`updated_by`,
+				`Interval1`,
+				`IntervalN`,
+				`ConnectionFee`,
+				`MinimumCost`,
+				concat('Archived same rates records @ ' , now() ) as `Notes`
 
 			-- DELETE tblVendorRate
 			FROM tblVendorRate
