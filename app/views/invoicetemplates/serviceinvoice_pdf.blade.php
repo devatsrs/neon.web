@@ -34,26 +34,67 @@
                 @endif
 			</div>
 		</div>
+        <?php $VisibleColumns = (array)json_decode($InvoiceTemplate->VisibleColumns); $colspan=0; ?>
 		<table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
 			<thead>
 			<tr>
-                @if($InvoiceTemplate->GroupByService==1)
-				<th class="desc"><b>Description</b></th>
+                @if($InvoiceTemplate->GroupByService==0)
+                    @if(isset($VisibleColumns['Description']) && $VisibleColumns['Description'] == 1)
+                        <?php $colspan++; ?>
+                        <th class="desc"><b>Description</b></th>
+                    @endif
+                    @if(isset($VisibleColumns['Usage']) && $VisibleColumns['Usage'] == 1)
+                        <?php $colspan++; ?>
+                        <th class="desc"><b>Usage</b></th>
+                    @endif
+                    @if(isset($VisibleColumns['Recurring']) && $VisibleColumns['Recurring'] == 1)
+                        <?php $colspan++; ?>
+                        <th class="desc"><b>Recurring</b></th>
+                    @endif
+                    @if(isset($VisibleColumns['Additional']) && $VisibleColumns['Additional'] == 1)
+                        <?php $colspan++; ?>
+                        <th class="desc"><b>Additional</b></th>
+                    @endif
+                    @if($colspan == 0)
+                        <th class="desc"></th>
+                    @endif
+                @else
+                    @if($InvoiceTemplate->GroupByService==1)
+                        <th class="desc"><b>Description</b></th>
+                    @endif
+                    <th class="desc"><b>Usage</b></th>
+                    <th class="desc"><b>Recurring</b></th>
+                    <th class="desc"><b>Additional</b></th>
                 @endif
-				<th class="desc"><b>Usage</b></th>
-				<th class="desc"><b>Recurring</b></th>
-				<th class="desc"><b>Additional</b></th>
-				<th class="total"><b>Total</b></th>
+                <th class="total"><b>Total</b></th>
 			</tr>
 			</thead>
 			<tbody>
 			<tr>
-                @if($InvoiceTemplate->GroupByService==1)
-				<td class="desc">Service - 1</td>
+                @if($InvoiceTemplate->GroupByService==0)
+                    @if(isset($VisibleColumns['Description']) && $VisibleColumns['Description'] == 1)
+                        <td class="desc">{{$InvoiceTemplate->ItemDescription}}</td>
+                    @endif
+                    @if(isset($VisibleColumns['Usage']) && $VisibleColumns['Usage'] == 1)
+                        <td class="desc">$1,200.00</td>
+                    @endif
+                    @if(isset($VisibleColumns['Recurring']) && $VisibleColumns['Recurring'] == 1)
+                        <td class="desc">$1,000.00</td>
+                    @endif
+                    @if(isset($VisibleColumns['Additional']) && $VisibleColumns['Additional'] == 1)
+                        <td class="desc">$1,000.00</td>
+                    @endif
+                    @if($colspan == 0)
+                        <td class="desc"></td>
+                    @endif
+                @else
+                    @if($InvoiceTemplate->GroupByService==1)
+                        <td class="desc">Service - 1</td>
+                    @endif
+                        <td class="desc">$1,200.00</td>
+                        <td class="desc">$1,000.00</td>
+                        <td class="desc">$1,000.00</td>
                 @endif
-                <td class="desc">$1,200.00</td>
-                <td class="desc">$1,000.00</td>
-                <td class="desc">$1,000.00</td>
 				<td class="total">$3,200.00</td>
 			</tr>
             @if($InvoiceTemplate->GroupByService==1)
@@ -74,42 +115,59 @@
             @endif
 			</tbody>
 			<tfoot>
-			<tr>
+            <?php $colspan--; ?>
+            <tr>
                 @if($InvoiceTemplate->GroupByService==1)
-				<td colspan="2"></td>
+				    <td colspan="3"></td>
+                @elseif($InvoiceTemplate->GroupByService==0)
+                    @if($colspan > 0)
+                        <td colspan="{{$colspan}}"></td>
+                    @endif
                 @else
-                <td></td>
+                    <td></td>
                 @endif
-				<td colspan="2">Sub Total</td>
+				<td>Sub Total</td>
 				<td class="subtotal">$5,200.00</td>
 			</tr>
 			<tr>
                 @if($InvoiceTemplate->GroupByService==1)
-                    <td colspan="2"></td>
+                    <td colspan="3"></td>
+                @elseif($InvoiceTemplate->GroupByService==0)
+                    @if($colspan > 0)
+                        <td colspan="{{$colspan}}"></td>
+                    @endif
                 @else
                     <td></td>
                 @endif
-				<td colspan="2">Tax 25%</td>
+				<td>Tax 25%</td>
 				<td class="subtotal">$1,300.00</td>
 			</tr>
             @if($InvoiceTemplate->ShowPrevBal)
                 <tr>
                     @if($InvoiceTemplate->GroupByService==1)
-                        <td colspan="2"></td>
+                        <td colspan="3"></td>
+                    @elseif($InvoiceTemplate->GroupByService==0)
+                        @if($colspan > 0)
+                            <td colspan="{{$colspan}}"></td>
+                        @endif
                     @else
                         <td></td>
                     @endif
-                    <td colspan="2">Brought Forward</td>
+                    <td>Brought Forward</td>
                     <td class="subtotal">$0.00</td>
                 </tr>
             @endif
 			<tr>
                 @if($InvoiceTemplate->GroupByService==1)
-                    <td colspan="2"></td>
+                    <td colspan="3"></td>
+                @elseif($InvoiceTemplate->GroupByService==0)
+                    @if($colspan > 0)
+                        <td colspan="{{$colspan}}"></td>
+                    @endif
                 @else
                     <td></td>
                 @endif
-				<td colspan="2"><b>Grand Total</b></td>
+				<td><b>Grand Total</b></td>
 				<td class="subtotal"><b>$6,500.00</b></td>
 			</tr>
 			</tfoot>
