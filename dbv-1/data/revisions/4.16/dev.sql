@@ -1742,6 +1742,31 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_ArchiveOldVendorRate`(
 	BEGIN
 		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
+		-- move end date
+
+		INSERT INTO tblVendorRateArchive
+			SELECT DISTINCT  null , -- Primary Key column
+				`VendorRateID`,
+				`AccountId`,
+				`TrunkID`,
+				`RateId`,
+				`Rate`,
+				`EffectiveDate`,
+				IFNULL(`EndDate`,date(now())) as EndDate,
+				`updated_at`,
+				`created_at`,
+				`created_by`,
+				`updated_by`,
+				`Interval1`,
+				`IntervalN`,
+				`ConnectionFee`,
+				`MinimumCost`,
+				concat('Ends Today rates @ ' , now() ) as `Notes`
+			FROM tblVendorRate
+			WHERE  FIND_IN_SET(AccountId,p_AccountIds) != 0 AND FIND_IN_SET(TrunkID,p_TrunkIds) != 0 AND EndDate <= NOW();
+
+
+
 
 		INSERT INTO tblVendorRateArchive
 			SELECT DISTINCT  null , -- Primary Key column
