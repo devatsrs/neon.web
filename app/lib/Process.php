@@ -100,7 +100,7 @@ class Process
     }
 
     public function check_crontab_status(){
-        $command = 'service crond status';
+        $command = 'sudo service crond status';
         $output = RemoteSSH::run([$command]);
         if(isset($output[0]) && strstr($output[0],"is running...") != FALSE ){
             return true;
@@ -111,9 +111,9 @@ class Process
     public function change_crontab_status($Status = 1){
 
         if($Status == 0 ){
-            $command = 'service crond stop';
+            $command = 'sudo service crond stop';
         }else {
-            $command = 'service crond start';
+            $command = 'sudo service crond start';
         }
 
         $output = RemoteSSH::run([$command]);

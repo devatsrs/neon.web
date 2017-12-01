@@ -33,7 +33,7 @@ class AccountsPaymentProfileController extends \BaseController {
     public function index($AccountID)
     {
 
-        \Debugbar::disable();
+        
         $PaymentGatewayID = '';
         $Account = Account::find($AccountID);
         $PaymentMethod = '';

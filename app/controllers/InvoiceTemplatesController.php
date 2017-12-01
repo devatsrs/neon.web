@@ -286,7 +286,7 @@ class InvoiceTemplatesController extends \BaseController {
 
     public function print_preview($id) {
 
-        \Debugbar::disable();
+
         $InvoiceTemplate = InvoiceTemplate::find($id);
         $logo = 'http://placehold.it/250x100';
         if(!empty($InvoiceTemplate->CompanyLogoAS3Key)){
@@ -308,7 +308,7 @@ class InvoiceTemplatesController extends \BaseController {
     }
 
     public function pdf_download($id) {
-        \Debugbar::disable();
+
         $pdf_path = $this->generate_pdf($id);
         return Response::download($pdf_path);
 

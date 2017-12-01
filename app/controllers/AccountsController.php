@@ -796,7 +796,7 @@ class AccountsController extends \BaseController {
             // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
 
-            if (in_array($ext, array("doc", "docx", 'xls','xlsx',"pdf",'png','jpg','gif'))) {
+            if (in_array(strtolower($ext), array("doc", "docx", 'xls','xlsx',"pdf",'png','jpg','gif'))) {
                 $filename = rename_upload_file($destinationPath,$excel->getClientOriginalName());
                 $excel->move($destinationPath, $filename);
                 if(!AmazonS3::upload($destinationPath.$filename,$amazonPath)){
