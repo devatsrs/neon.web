@@ -254,9 +254,9 @@ class NeonExcelIO
 
         }
 
-        $result = $this->remove_footer_bottom_rows($result);
+        //$result = $this->remove_footer_bottom_rows($result);
 
-        /*if(self::$end_row)
+        if(self::$end_row)
         {
             $requiredRow = abs($this->row_cnt - self::$end_row - self::$start_row-1);
             $totatRow = count($result);
@@ -267,7 +267,7 @@ class NeonExcelIO
                     unset($result[$i]);
                 }
             }
-        }*/
+        }
 
         $this->reader->close();
 
@@ -342,9 +342,9 @@ class NeonExcelIO
             }
         }
 
-        $result = $this->remove_footer_bottom_rows($result);
+        //$result = $this->remove_footer_bottom_rows($result);
 
-        /*if(self::$end_row)
+        if(self::$end_row)
         {
             $requiredRow = abs($this->row_cnt - self::$end_row - self::$start_row);
             $totatRow = count($result);
@@ -355,7 +355,7 @@ class NeonExcelIO
                     unset($result[$i]);
                 }
             }
-        }*/
+        }
         $this->reader->close();
 
         return $result;
@@ -421,9 +421,9 @@ class NeonExcelIO
                 $result=$tmp_results;
             }
 
-            $result = $this->remove_footer_bottom_rows($result);
+            //$result = $this->remove_footer_bottom_rows($result);
 
-            /* if(self::$end_row && $totalRow>0)
+            if(self::$end_row && $totalRow>0)
              {
                  $requiredRow = $totalRow - self::$end_row - self::$start_row;
                  $countRow =count($result);
@@ -431,7 +431,7 @@ class NeonExcelIO
                 {
                     unset($result[$i]);
                 }
-             }*/
+             }
 
          return $result;
 	 }
@@ -520,7 +520,7 @@ class NeonExcelIO
     }
 
 
-    /**
+    /** @TODO: need to this function on endrow logic
      * Remove footer bottom rows for vendor upload file - for file cleanup.
      * @param $result
      */
@@ -528,10 +528,10 @@ class NeonExcelIO
 
         if ( count($result) > 0 ) {
 
-//            Log::info("Before end row cleanup");
-//            Log::info("Total Result entries " . count($result));
-//            Log::info(print_r($result[0],true));
-//            Log::info(print_r($result[(count($result)-1)],true));
+            Log::info("Before end row cleanup");
+            Log::info("Total Result entries " . count($result));
+            Log::info(print_r($result[0],true));
+            Log::info(print_r($result[(count($result)-1)],true));
 
             $columns = array_keys($result);
 
@@ -554,10 +554,10 @@ class NeonExcelIO
                 }
             }
 
-//            Log::info("After end row cleanup");
-//            Log::info("Total Result entries " . count($result));
-//            Log::info(print_r($result[0],true));
-//            Log::info(print_r($result[(count($result)-1)],true));
+            Log::info("After end row cleanup");
+            Log::info("Total Result entries " . count($result));
+            Log::info(print_r($result[0],true));
+            Log::info(print_r($result[(count($result)-1)],true));
 
         }
         return $result;
