@@ -169,6 +169,11 @@ class InvoiceTemplatesController extends \BaseController {
             }
             unset($data['CompanyLogo']);
             unset($data['Status_name']);
+
+            if(isset($data['VisibleColumns'])) {
+                $data['VisibleColumns'] = json_encode($data['VisibleColumns']);
+            }
+
             if ($InvoiceTemplates->update($data)) {
                 return Response::json(array("status" => "success", "message" => "Invoice Template Successfully Updated",'LastID'=>$id));
             } else {
