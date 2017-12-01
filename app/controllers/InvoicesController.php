@@ -911,7 +911,7 @@ class InvoicesController extends \BaseController {
 
     // not in use
     public function pdf_view($id) {
-        \Debugbar::disable();
+
 
         // check if Invoice has usege or Subscription then download PDF directly.
         $hasUsageInInvoice =  InvoiceDetail::where("InvoiceID",$id)
