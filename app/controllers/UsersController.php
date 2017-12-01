@@ -3,7 +3,7 @@
 class UsersController extends BaseController {
 
     public function __construct() {
-        //\Debugbar::disable();
+        //
     }
 
     public function index() {
