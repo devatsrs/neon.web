@@ -161,7 +161,7 @@ class CodeDecksController extends \BaseController {
             $excel = Input::file('excel'); // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
 
-            if (in_array($ext, array("csv", "xls", "xlsx"))) {
+            if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
                 $file_name = "Codedeck_". GUID::generate() . '.' . $ext;
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['CODEDECK_UPLOAD']) ;
                 $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
