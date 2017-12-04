@@ -364,7 +364,7 @@
             var Terms = $('.message').val();
             var FooterTerm = $('.invoiceFooterTerm').val();
             var ServiceSplit =$("#ServiceSplit").prop("checked");
-            var ItemDescription = $('#desc_editable').text();
+            var ItemDescription = $('#desc_editable').html();
 
             var VisibleColumns = {};
             VisibleColumns['Description']   = $("input[name='VisibleColumns[Description]']").is(':checked') ? 1 : 0;
