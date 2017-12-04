@@ -63,7 +63,7 @@
     <ul class="nav nav-tabs">
         <li ><a href="{{ URL::to('/analysis') }}">Customer</a></li>
         <li ><a href="{{ URL::to('/vendor_analysis') }}">Vendor</a></li>
-        <li class="active"><a href="{{ URL::to('/analysis_manager') }}">Account Manager</a></li>
+        <li class="active"><a href="#">Account Manager</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="customer" >

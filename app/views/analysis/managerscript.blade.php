@@ -9,6 +9,7 @@
     var chart_type = '#destination';
     $searchFilter.pageSize = '{{CompanyConfiguration::get('PAGE_SIZE')}}';
     jQuery(document).ready(function ($) {
+        $('#filter-button-toggle').show();
 
         $("[name='UsersID[]']").change(function(e) {
             if($(this).val() != null) {
