@@ -82,10 +82,26 @@
                             $Additional = false;
                     }
                 ?>
-                <th class="desc"><b>Description</b>&nbsp;{{Form::checkbox('VisibleColumns[Description]', 1, $Description, array("class"=>""))}}</th>
-                <th class="desc"><b>Usage</b>&nbsp;{{Form::checkbox('VisibleColumns[Usage]', 1, $Usage, array("class"=>""))}}</th>
-                <th class="desc"><b>Recurring</b>&nbsp;{{Form::checkbox('VisibleColumns[Recurring]', 1, $Recurring, array("class"=>""))}}</th>
-                <th class="desc"><b>Additional</b>&nbsp;{{Form::checkbox('VisibleColumns[Additional]', 1, $Additional, array("class"=>""))}}</th>
+                <th class="desc">
+                    <b>Description</b>
+                    &nbsp;{{Form::checkbox('VisibleColumns[Description]', 1, $Description, array("class"=>""))}}
+                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if not ticked then this column will not appear on invoice." data-original-title="Description">?</span>
+                </th>
+                <th class="desc">
+                    <b>Usage</b>
+                    &nbsp;{{Form::checkbox('VisibleColumns[Usage]', 1, $Usage, array("class"=>""))}}
+                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if not ticked then this column will not appear on invoice." data-original-title="Usage">?</span>
+                </th>
+                <th class="desc">
+                    <b>Recurring</b>
+                    &nbsp;{{Form::checkbox('VisibleColumns[Recurring]', 1, $Recurring, array("class"=>""))}}
+                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if not ticked then this column will not appear on invoice." data-original-title="Recurring">?</span>
+                </th>
+                <th class="desc">
+                    <b>Additional</b>
+                    &nbsp;{{Form::checkbox('VisibleColumns[Additional]', 1, $Additional, array("class"=>""))}}
+                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if not ticked then this column will not appear on invoice." data-original-title="Additional">?</span>
+                </th>
             @else
                 @if($InvoiceTemplate->GroupByService==1)
                     <th class="desc"><b>Description</b></th>
@@ -304,6 +320,10 @@
 	    .editable-container.editable-inline{
 	        width: 100%;
 	    }
+
+        .popover-primary {
+            padding: .2em .6em .3em;
+        }
 
 
 	    .invoice-right .editable-inline .control-group.form-group{width: 100%;}
