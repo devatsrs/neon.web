@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_WSGenerateRateSheet`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_WSGenerateRateSheet`(
 	IN `p_CustomerID` INT,
 	IN `p_Trunk` VARCHAR(100)
 
@@ -28,7 +28,7 @@ BEGIN
         Interval1     INT,
         IntervalN     INT,
         Rate          DECIMAL(18, 6),
-        `level`         VARCHAR(10),
+        `level`         VARCHAR(50),
         `change`        VARCHAR(50),
         EffectiveDate  DATE,
 			  INDEX tmp_RateSheetRate_RateID (`RateID`)
@@ -104,13 +104,13 @@ BEGIN
          JOIN tblCustomerRate
            ON tblAccount.AccountID = tblCustomerRate.CustomerID
       WHERE  tblAccount.AccountID = p_CustomerID
-          -- AND tblCustomerRate.Rate > 0
+          
          AND tblCustomerRate.TrunkID = p_Trunk
          ORDER BY tblCustomerRate.CustomerID,tblCustomerRate.TrunkID,tblCustomerRate.RateID,tblCustomerRate.EffectiveDate DESC;
-	
+
 	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates4_;
 	DROP TEMPORARY TABLE IF EXISTS tmp_CustomerRates2_;
-	
+
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_CustomerRates4_ as (select * from tmp_CustomerRates_);
    DELETE n1 FROM tmp_CustomerRates_ n1, tmp_CustomerRates4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
    AND  n1.RateId = n2.RateId;
@@ -122,7 +122,7 @@ BEGIN
 			tblRateTableRate.RateID,
          tblRateTableRate.Interval1,
          tblRateTableRate.IntervalN,
-         tblRateTableRate.Rate,         
+         tblRateTableRate.Rate,
          tblRateTableRate.EffectiveDate,
          tblRateTableRate.updated_at
       FROM tblAccount
@@ -135,7 +135,7 @@ BEGIN
       LEFT JOIN tmp_CustomerRates_ trc1
             ON trc1.RateID = tblRateTableRate.RateID
       WHERE  tblAccount.AccountID = p_CustomerID
-         -- AND tblRateTableRate.Rate > 0
+         
          AND tblCustomerTrunk.TrunkID = p_Trunk
          AND (( tblRateTableRate.EffectiveDate <= Now()
              AND ( ( trc1.RateID IS NULL )
@@ -177,7 +177,7 @@ BEGIN
    DELETE n1 FROM tmp_RateSheetDetail_ n1, tmp_RateSheetDetail4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
    AND  n1.RateId = n2.RateId;
 
-      /* Create duplicate tmp_RateSheetDetail_*/
+      
       DROP TABLE IF EXISTS tmp_CloneRateSheetDetail_ ;
       CREATE TEMPORARY TABLE tmp_CloneRateSheetDetail_ LIKE tmp_RateSheetDetail_;
       INSERT tmp_CloneRateSheetDetail_ SELECT * FROM tmp_RateSheetDetail_;
@@ -195,7 +195,7 @@ BEGIN
              tbl.EffectiveDate
       FROM   (
 			SELECT
-				rt.RateID,				
+				rt.RateID,
 				rt.Interval1,
 				rt.IntervalN,
 				rt.Rate,
@@ -211,7 +211,7 @@ BEGIN
 			UNION
 
 			SELECT
-				trc2.RateID,            
+				trc2.RateID,
             trc2.Interval1,
             trc2.IntervalN,
             trc2.Rate,
@@ -395,8 +395,8 @@ BEGIN
                     ON TBL.RateID = tblRateSheetDetails.RateID
       WHERE  `change` != 'DELETE'
              AND TBL.RateID IS NULL ;
-	
-	DROP TEMPORARY TABLE IF EXISTS tmp_RateSheetRate4_;	
+
+	DROP TEMPORARY TABLE IF EXISTS tmp_RateSheetRate4_;
 	CREATE TEMPORARY TABLE IF NOT EXISTS tmp_RateSheetRate4_ as (select * from tmp_RateSheetRate_);
 	DELETE n1 FROM tmp_RateSheetRate_ n1, tmp_RateSheetRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
 	AND  n1.RateId = n2.RateId;
@@ -415,7 +415,7 @@ BEGIN
                  rsr.`change`,
                  rsr.EffectiveDate AS `effective date`
             FROM   tmp_RateSheetRate_ rsr
-            -- WHERE rsr.Rate > 0
+            
             ORDER BY rsr.Destination,rsr.Codes desc;
       ELSE
             SELECT rsr.RateID AS rateid ,
@@ -429,9 +429,9 @@ BEGIN
                            rsr.`change`,
                            rsr.EffectiveDate AS `effective date`
             FROM   tmp_RateSheetRate_ rsr
-            -- WHERE rsr.Rate > 0
+            
           	ORDER BY rsr.Destination,rsr.Codes DESC;
-        END IF; 
-        
+        END IF;
+
         SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END
