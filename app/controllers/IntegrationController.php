@@ -710,7 +710,7 @@ class IntegrationController extends \BaseController
 					$upload_path = CompanyConfiguration::get('UPLOAD_PATH');
 					$excel = Input::file('XeroFile');
 					$ext = $excel->getClientOriginalExtension();
-					if (in_array($ext, array("pem"))) {
+					if (in_array(strtolower($ext), array("pem"))) {
 						$file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
 						$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['XERO_UPLOAD']);
 						$destinationPath = $upload_path . '/' . $amazonPath;

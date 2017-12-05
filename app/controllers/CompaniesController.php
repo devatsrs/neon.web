@@ -99,7 +99,7 @@ class CompaniesController extends \BaseController {
             $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
             $excel = Input::file('RateSheetTemplateFile');
             $ext = $excel->getClientOriginalExtension();
-            if (in_array($ext, array("xls", "xlsx"))) {
+            if (in_array(strtolower($ext), array("xls", "xlsx"))) {
                 $file_name = GUID::generate() . '.' . $excel->getClientOriginalExtension();
                 $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['RATESHEET_TEMPLATE']);
                 $destinationPath = $upload_path . '/' . $amazonPath;

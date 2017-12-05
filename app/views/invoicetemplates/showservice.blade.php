@@ -67,12 +67,49 @@
     <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
         <thead>
         <tr>
-            @if($InvoiceTemplate->GroupByService==1)
-            <th class="desc"><b>Description</b></th>
+            @if($InvoiceTemplate->GroupByService==0)
+                <?php
+                    $VisibleColumns = (array)json_decode($InvoiceTemplate->VisibleColumns);
+                    $Description = $Usage = $Recurring = $Additional = true;
+                    if(!empty($VisibleColumns)) {
+                        if(!isset($VisibleColumns['Description']) || $VisibleColumns['Description'] != 1)
+                            $Description = false;
+                        if(!isset($VisibleColumns['Usage']) || $VisibleColumns['Usage'] != 1)
+                            $Usage = false;
+                        if(!isset($VisibleColumns['Recurring']) || $VisibleColumns['Recurring'] != 1)
+                            $Recurring = false;
+                        if(!isset($VisibleColumns['Additional']) || $VisibleColumns['Additional'] != 1)
+                            $Additional = false;
+                    }
+                ?>
+                <th class="desc">
+                    <b>Description</b>
+                    &nbsp;{{Form::checkbox('VisibleColumns[Description]', 1, $Description, array("class"=>""))}}
+                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if not ticked then this column will not appear on invoice." data-original-title="Description">?</span>
+                </th>
+                <th class="desc">
+                    <b>Usage</b>
+                    &nbsp;{{Form::checkbox('VisibleColumns[Usage]', 1, $Usage, array("class"=>""))}}
+                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if not ticked then this column will not appear on invoice." data-original-title="Usage">?</span>
+                </th>
+                <th class="desc">
+                    <b>Recurring</b>
+                    &nbsp;{{Form::checkbox('VisibleColumns[Recurring]', 1, $Recurring, array("class"=>""))}}
+                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if not ticked then this column will not appear on invoice." data-original-title="Recurring">?</span>
+                </th>
+                <th class="desc">
+                    <b>Additional</b>
+                    &nbsp;{{Form::checkbox('VisibleColumns[Additional]', 1, $Additional, array("class"=>""))}}
+                    <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="if not ticked then this column will not appear on invoice." data-original-title="Additional">?</span>
+                </th>
+            @else
+                @if($InvoiceTemplate->GroupByService==1)
+                    <th class="desc"><b>Description</b></th>
+                @endif
+                <th class="desc"><b>Usage</b></th>
+                <th class="desc"><b>Recurring</b></th>
+                <th class="desc"><b>Additional</b></th>
             @endif
-            <th class="desc"><b>Usage</b></th>
-            <th class="desc"><b>Recurring</b></th>
-            <th class="desc"><b>Additional</b></th>
             <th class="total"><b>Total</b></th>
         </tr>
         </thead>
@@ -80,6 +117,8 @@
         <tr>
             @if($InvoiceTemplate->GroupByService==1)
             <td class="desc">Service - 1</td>
+            @elseif($InvoiceTemplate->GroupByService==0)
+            <td class="desc" id="desc_editable">{{$InvoiceTemplate->ItemDescription}}</td>
             @endif
             <td class="desc">$1,200.00</td>
             <td class="desc">$1,000.00</td>
@@ -105,7 +144,7 @@
         </tbody>
         <tfoot>
         <tr>
-            @if($InvoiceTemplate->GroupByService==1)
+            @if($InvoiceTemplate->GroupByService==0 || $InvoiceTemplate->GroupByService==1)
                 <td colspan="2"></td>
             @else
                 <td></td>
@@ -114,7 +153,7 @@
             <td class="subtotal">$5,200.00</td>
         </tr>
         <tr>
-            @if($InvoiceTemplate->GroupByService==1)
+            @if($InvoiceTemplate->GroupByService==0 || $InvoiceTemplate->GroupByService==1)
                 <td colspan="2"></td>
             @else
                 <td></td>
@@ -124,7 +163,7 @@
         </tr>
         @if($InvoiceTemplate->ShowPrevBal)
             <tr>
-                @if($InvoiceTemplate->GroupByService==1)
+                @if($InvoiceTemplate->GroupByService==0 || $InvoiceTemplate->GroupByService==1)
                     <td colspan="2"></td>
                 @else
                     <td></td>
@@ -134,7 +173,7 @@
             </tr>
         @endif
         <tr>
-            @if($InvoiceTemplate->GroupByService==1)
+            @if($InvoiceTemplate->GroupByService==0 || $InvoiceTemplate->GroupByService==1)
                 <td colspan="2"></td>
             @else
                 <td></td>
@@ -282,6 +321,10 @@
 	        width: 100%;
 	    }
 
+        .popover-primary {
+            padding: .2em .6em .3em;
+        }
+
 
 	    .invoice-right .editable-inline .control-group.form-group{width: 100%;}
 	    .invoice-left .editable-inline .control-group.form-group{width: 90%;}
@@ -341,6 +384,13 @@
             var Terms = $('.message').val();
             var FooterTerm = $('.invoiceFooterTerm').val();
             var ServiceSplit =$("#ServiceSplit").prop("checked");
+            var ItemDescription = $('#desc_editable').html();
+
+            var VisibleColumns = {};
+            VisibleColumns['Description']   = $("input[name='VisibleColumns[Description]']").is(':checked') ? 1 : 0;
+            VisibleColumns['Usage']         = $("input[name='VisibleColumns[Usage]']").is(':checked') ? 1 : 0;
+            VisibleColumns['Recurring']     = $("input[name='VisibleColumns[Recurring]']").is(':checked') ? 1 : 0;
+            VisibleColumns['Additional']    = $("input[name='VisibleColumns[Additional]']").is(':checked') ? 1 : 0;
 
            $('.invoice-editable').editable('submit', {
                url: '<?php echo URL::to('/invoice_template/'.$InvoiceTemplate->InvoiceTemplateID .'/update'); ?>',
@@ -353,7 +403,9 @@
                          'Terms':Terms,
                          'FooterTerm':FooterTerm,
                          'ServicePage':1,
-                         'ServiceSplit':ServiceSplit
+                         'ServiceSplit':ServiceSplit,
+                         'ItemDescription':ItemDescription,
+                         'VisibleColumns':VisibleColumns
                         }
                },
 
@@ -428,6 +480,12 @@
             }
         });
 
+        $('#desc_editable').bind('click', function(){
+            $(this).attr('contentEditable',true);
+        });
+        $('#desc_editable').on('focusout', function(){
+            $('#desc_editable').attr('contentEditable',false);
+        });
     });
 	</script>
     <style>
