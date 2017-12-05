@@ -885,7 +885,7 @@ ThisSP:BEGIN
 	END IF;
 
 	SET @stm_and_desc = '';
-	IF p_Description != null AND p_Description != ''
+	IF p_Description != ''
 	THEN
 		SET @stm_and_desc = CONCAT(' AND ("',p_Description,'" IS NULL OR "',p_Description,'" = "" OR tvr.Description LIKE "',REPLACE(p_Description, "*", "%"),'")');
 	END IF;
