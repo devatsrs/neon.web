@@ -293,11 +293,11 @@ function loadTable(table_id,pageSize,$searchFilter){
                 }
                 if($searchFilter.chart_type == 'gateway'){
                     delete $searchFilter.CompanyGatewayID;
-                    chart_type_param = 'CompanyGatewayID='+full[6]+'&';
+                    chart_type_param = 'CompanyGatewayID='+full[8]+'&';
                 }
                 if($searchFilter.chart_type == 'account'){
                     delete $searchFilter.AccountID;
-                    chart_type_param = 'AccountID='+full[6]+'&';
+                    chart_type_param = 'AccountID='+full[8]+'&';
                 }
                 if($searchFilter.chart_type != 'destination' && $searchFilter.chart_type != 'description') {
                     jQuery.each($searchFilter, function(index, item) {

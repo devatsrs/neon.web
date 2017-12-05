@@ -227,32 +227,10 @@ class DashboardCustomerController extends BaseController {
         $row_count = 0;
 
         return Datatables::of($response['datatable'])
-            ->add_column('Payments', function($data)use($response){ return isset($response['payment'][$data->date])?$response['payment'][$data->date]:0;})
-            ->add_column('Consumption', function($data)use($response){ return isset($response['calls'][$data->date])?$response['calls'][$data->date]:0;})
-            ->add_column('Total', function($data)use($response){
-                if (isset($response['calls'][$data->date]) && isset($response['payment'][$data->date])) {
-                    return $response['payment'][$data->date] - $response['calls'][$data->date];
-                } elseif (isset($response['payment'][$data->date])) {
-                    return $response['payment'][$data->date];
-                } elseif (isset($response['calls'][$data->date])) {
-                    return -$response['calls'][$data->date];
-                } else {
-                    return 0;
-                }
-            })
-            ->add_column('Balance', function($data)use(&$previous_bal,&$row_count,&$today_total,$response){
-
-                $payment =  isset($response['payment'][$data->date])?$response['payment'][$data->date]:0;
-                $consumption =  isset($response['calls'][$data->date])?$response['calls'][$data->date]:0;
-                if($row_count > 0){
-                    $previous_bal = $previous_bal-$today_total-$payment+$consumption;
-					$today_total = 0;
-                }else{
-					$today_total = $payment-$consumption;
-				}
-                $row_count++;
-                return number_format($previous_bal,get_round_decimal_places(),'.','');
-            })
+            ->edit_column('Payments', function($data){ return number_format($data->Payments,get_round_decimal_places(),'.',''); })
+            ->edit_column('Consumption', function($data){ return number_format($data->Consumption,get_round_decimal_places(),'.',''); })
+            ->edit_column('Total', function($data)use($response){ return number_format($data->Payments - $data->Consumption,get_round_decimal_places(),'.',''); })
+            ->edit_column('Balance', function($data){ return number_format($data->Balance,get_round_decimal_places(),'.',''); })
             ->make();
 
     }
