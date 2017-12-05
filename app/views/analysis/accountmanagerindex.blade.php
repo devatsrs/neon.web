@@ -171,6 +171,11 @@
                                 <tbody>
 
                                 </tbody>
+                                <tfoot>
+                                <tr>
+
+                                </tr>
+                                </tfoot>
                             </table>
                             <div class="text-center">
                                 <div class="bar_chart_revenue hidden"></div>
@@ -224,6 +229,11 @@
                                 <tbody>
 
                                 </tbody>
+                                <tfoot>
+                                <tr>
+
+                                </tr>
+                                </tfoot>
                             </table>
                             <div class="text-center">
                                 <div class="bar_chart_margin hidden"></div>
@@ -270,6 +280,11 @@
                                 <tbody>
 
                                 </tbody>
+                                <tfoot>
+                                <tr>
+
+                                </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
