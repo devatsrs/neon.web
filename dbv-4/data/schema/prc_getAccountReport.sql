@@ -131,6 +131,15 @@ BEGIN
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MarginPercentageASC') THEN (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100
 			END ASC;
 
+		SELECT COUNT(*) AS totalcount,SUM(TotalMargin) AS TotalMargin,SUM(TotalCost) AS TotalCost
+		FROM (
+			SELECT
+				ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,
+				ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), v_Round_) as TotalMargin
+			FROM tmp_tblUsageSummary_ us
+			GROUP BY us.Date,us.AccountName
+		)tbl;
+
 	END IF;
 
 	IF p_ReportType = 'Weekly' AND p_isExport = 0
@@ -184,6 +193,16 @@ BEGIN
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MarginPercentageASC') THEN (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100
 			END ASC;
+
+		SELECT COUNT(*) AS totalcount,SUM(TotalMargin) AS TotalMargin,SUM(TotalCost) AS TotalCost
+		FROM (
+			SELECT
+				ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,
+				ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), v_Round_) as TotalMargin
+			FROM tmp_tblUsageSummary_ us
+			INNER JOIN tblDimDate dd ON dd.DateID = us.DateID
+			GROUP BY dd.year,dd.week_of_year,AccountName
+		)tbl;
 
 	END IF;
 
@@ -239,6 +258,16 @@ BEGIN
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MarginPercentageASC') THEN (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100
 			END ASC;
 
+		SELECT COUNT(*) AS totalcount,SUM(TotalMargin) AS TotalMargin,SUM(TotalCost) AS TotalCost
+		FROM (
+			SELECT
+				ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,
+				ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), v_Round_) as TotalMargin
+			FROM tmp_tblUsageSummary_ us
+			INNER JOIN tblDimDate dd ON dd.DateID = us.DateID
+			GROUP BY dd.year,dd.month_of_year,AccountName
+		)tbl;
+
 	END IF;
 
 	IF p_ReportType = 'Yearly' AND p_isExport = 0
@@ -292,6 +321,16 @@ BEGIN
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MarginPercentageASC') THEN (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100
 			END ASC;
+
+		SELECT COUNT(*) AS totalcount,SUM(TotalMargin) AS TotalMargin,SUM(TotalCost) AS TotalCost
+		FROM (
+			SELECT
+				ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,
+				ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), v_Round_) as TotalMargin
+			FROM tmp_tblUsageSummary_ us
+			INNER JOIN tblDimDate dd ON dd.DateID = us.DateID
+			GROUP BY dd.year,AccountName
+		)tbl;
 
 	END IF;
 

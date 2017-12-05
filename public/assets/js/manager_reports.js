@@ -173,7 +173,7 @@ function loadLeads(table_id,pageSize,$searchFilter){
     return data_table;
 }
 function loadAccountManagerRevenue(table_id,pageSize,$searchFilter){
-
+    var TotalCost = 0;
     data_table  = $(table_id).dataTable({
         "bDestroy": true,
         "bProcessing": true,
@@ -235,6 +235,30 @@ function loadAccountManagerRevenue(table_id,pageSize,$searchFilter){
                 minimumResultsForSearch: -1
             });
 
+        },
+        "fnServerData": function ( sSource, aoData, fnCallback ) {
+            /* Add some extra data to the sender */
+            $.getJSON( sSource, aoData, function (json) {
+                /* Do whatever additional processing you want on the callback, then tell DataTables */
+                TotalCost = json.Total.TotalCost;
+                fnCallback(json)
+            });
+        },
+        "fnFooterCallback": function ( row, data, start, end, display ) {
+            if (end > 0) {
+                $(row).html('');
+                for (var i = 0; i < 3; i++) {
+                    var a = document.createElement('td');
+                    $(a).html('');
+                    $(row).append(a);
+                }
+                $($(row).children().get(0)).html('<strong>Total</strong>')
+                if(TotalCost) {
+                    $($(row).children().get(2)).html('<strong>' + TotalCost.toFixed(toFixed) + '</strong>');
+                }
+            }else{
+                $(table_id).find('tfoot').find('tr').html('');
+            }
         }
     });
     return data_table;
@@ -242,6 +266,8 @@ function loadAccountManagerRevenue(table_id,pageSize,$searchFilter){
 }
 
 function loadAccountManagerMargin(table_id,pageSize,$searchFilter){
+    var TotalCost = 0;
+    var TotalMargin = 0;
     data_table  = $(table_id).dataTable({
         "bDestroy": true,
         "bProcessing": true,
@@ -304,11 +330,38 @@ function loadAccountManagerMargin(table_id,pageSize,$searchFilter){
                 minimumResultsForSearch: -1
             });
 
+        },
+        "fnServerData": function ( sSource, aoData, fnCallback ) {
+            /* Add some extra data to the sender */
+            $.getJSON( sSource, aoData, function (json) {
+                /* Do whatever additional processing you want on the callback, then tell DataTables */
+                TotalCost = json.Total.TotalCost;
+                TotalMargin = json.Total.TotalMargin;
+                fnCallback(json)
+            });
+        },
+        "fnFooterCallback": function ( row, data, start, end, display ) {
+            if (end > 0) {
+                $(row).html('');
+                for (var i = 0; i < 4; i++) {
+                    var a = document.createElement('td');
+                    $(a).html('');
+                    $(row).append(a);
+                }
+                $($(row).children().get(0)).html('<strong>Total</strong>')
+                if(TotalMargin) {
+                    $($(row).children().get(2)).html('<strong>' + TotalMargin.toFixed(toFixed) + '</strong>');
+                }
+            }else{
+                $(table_id).find('tfoot').find('tr').html('');
+            }
         }
     });
     return data_table;
 }
 function loadAccountRevenueMargin(table_id,pageSize,$searchFilter){
+    var TotalCost = 0;
+    var TotalMargin = 0;
     data_table  = $(table_id).dataTable({
         "bDestroy": true,
         "bProcessing": true,
@@ -372,6 +425,34 @@ function loadAccountRevenueMargin(table_id,pageSize,$searchFilter){
                 minimumResultsForSearch: -1
             });
 
+        },
+        "fnServerData": function ( sSource, aoData, fnCallback ) {
+            /* Add some extra data to the sender */
+            $.getJSON( sSource, aoData, function (json) {
+                /* Do whatever additional processing you want on the callback, then tell DataTables */
+                TotalCost = json.Total.TotalCost;
+                TotalMargin = json.Total.TotalMargin;
+                fnCallback(json)
+            });
+        },
+        "fnFooterCallback": function ( row, data, start, end, display ) {
+            if (end > 0) {
+                $(row).html('');
+                for (var i = 0; i < 6; i++) {
+                    var a = document.createElement('td');
+                    $(a).html('');
+                    $(row).append(a);
+                }
+                $($(row).children().get(0)).html('<strong>Total</strong>')
+                if(TotalCost) {
+                    $($(row).children().get(3)).html('<strong>' + TotalCost.toFixed(toFixed) + '</strong>');
+                }
+                if(TotalMargin) {
+                    $($(row).children().get(4)).html('<strong>' + TotalMargin.toFixed(toFixed) + '</strong>');
+                }
+            }else{
+                $(table_id).find('tfoot').find('tr').html('');
+            }
         }
     });
     return data_table;
