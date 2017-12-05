@@ -308,6 +308,9 @@ class AnalysisController extends BaseController {
         $account = Account::select('AccountName',DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as AccountManager"), 'tblAccount.created_at')
             ->leftjoin('tblUser','tblUser.UserID','=','tblAccount.Owner')
             ->where(["AccountType"=> 1,"tblAccount.CompanyID"=>$companyID]);
+        if(isset($data['Admin']) && isset($data['UserID']) && $data['Admin'] == '0' && $data['UserID'] > 0 && count(explode(',',$data['UserID'])) == 1){
+            $account->where(["tblAccount.Owner"=>$data['UserID']]);
+        }
         if(isset($data['ActiveAccount']) && $data['ActiveAccount'] == 'Yes'){
             $account->where(["tblAccount.Status"=>1,"VerificationStatus"=>Account::VERIFIED]);
         }else{
