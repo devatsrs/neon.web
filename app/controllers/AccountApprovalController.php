@@ -55,7 +55,7 @@ class AccountApprovalController extends \BaseController {
             $excel = Input::file('DocumentFiles');
             // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
-            if (in_array($ext, array("doc", "docx", 'xls','xlsx',"pdf",'png','jpg','gif'))) {
+            if (in_array(strtolower($ext), array("doc", "docx", 'xls','xlsx',"pdf",'png','jpg','gif'))) {
                 $filename = rename_upload_file($destinationPath,$excel->getClientOriginalName());
                 $fullPath = $destinationPath .$filename;
                 $excel->move($destinationPath,$filename);
@@ -139,7 +139,7 @@ class AccountApprovalController extends \BaseController {
                 $excel = Input::file('DocumentFiles');
                 // ->move($destinationPath);
                 $ext = $excel->getClientOriginalExtension();
-                if (in_array($ext, array("doc", "docx",'xls','xlsx', "pdf",'png','jpg','gif'))) {
+                if (in_array(strtolower($ext), array("doc", "docx",'xls','xlsx', "pdf",'png','jpg','gif'))) {
                     $filename = rename_upload_file($destinationPath,$excel->getClientOriginalName());
                     $fullPath = $destinationPath .$filename;
                     $excel->move($destinationPath,$filename);
