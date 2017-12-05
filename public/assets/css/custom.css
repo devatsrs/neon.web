@@ -497,6 +497,9 @@ em {
 .x-span4 h1 {    margin-top: 5px;
 }
 
+.x-span8 h1 {    margin-top: 5px;
+}
+
 .x-btn:first-child, .x-menu .c-btn:first-child {
 }
 .x-btn, .x-menu .c-btn {
@@ -3156,5 +3159,17 @@ button.btn.btn-xs.small_icons{
     background-color: #000000;
 }
 .ticket-label.ticket-sla-off{
+
+}
+.custom_btn_group .btn.btn-white{
+    font-size: 10px;
+    padding: 3px 12px;
+}
+.call_count_desc , .call_cost_desc ,.call_minutes_desc{
+    overflow-x: auto;
+}
+.panel > .panel-body.without-paging{
+    max-height: 500px;
+    overflow-y: auto;
 
 }

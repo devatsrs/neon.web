@@ -21,6 +21,7 @@ class VendorAnalysisController extends BaseController {
             $where['Owner'] = User::get_userID();
             $isAdmin = 0;
         }
+        $account_owners = User::getOwnerUsersbyRole();
         $gateway = CompanyGateway::getCompanyGatewayIdList();
         $Country = Country::getCountryDropdownIDList();
         $account = Account::getAccountIDList();
@@ -28,7 +29,7 @@ class VendorAnalysisController extends BaseController {
         $currency = Currency::getCurrencyDropdownIDList();
         $timezones = TimeZone::getTimeZoneDropdownList();
 
-        return View::make('vendoranalysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones'));
+        return View::make('vendoranalysis.index',compact('gateway','UserID','Country','account','DefaultCurrencyID','original_startdate','original_enddate','isAdmin','trunks','currency','timezones','account_owners'));
     }
     /* all tab report */
     public function getAnalysisData(){

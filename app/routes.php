@@ -1130,6 +1130,14 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/analysis/ajax_datagrid/{type}', "AnalysisController@ajax_datagrid");
 	Route::any('/analysis/getAnalysisData', "AnalysisController@getAnalysisData");
 	Route::any('/analysis/getAnalysisBarData', "AnalysisController@getAnalysisBarData");
+	Route::any('/analysis_manager', "AnalysisController@getAnalysisManager");
+	Route::any('/analysis/get_account/{type}', "AnalysisController@get_account");
+	Route::any('/analysis/get_leads/{type}', "AnalysisController@get_leads");
+	Route::any('/analysis/get_account_manager_revenue/{type}', "AnalysisController@get_account_manager_revenue");
+	Route::any('/analysis/get_account_manager_margin/{type}', "AnalysisController@get_account_manager_margin");
+	Route::any('/analysis/get_account_manager_revenue_report', "AnalysisController@get_account_manager_revenue_report");
+	Route::any('/analysis/get_account_manager_margin_report', "AnalysisController@get_account_manager_margin_report");
+	Route::any('/analysis/account_revenue_margin/{type}', "AnalysisController@account_revenue_margin");
 
 	//Vendor Analysis
 	Route::any('/vendor_analysis', "VendorAnalysisController@index");
