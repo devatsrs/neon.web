@@ -6,6 +6,8 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getAccountManager`(
 	IN `p_UserID` VARCHAR(50),
 	IN `p_isAdmin` INT,
 	IN `p_ReportType` VARCHAR(50),
+	IN `p_lSortCol` VARCHAR(50),
+	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
 )
 BEGIN
@@ -88,7 +90,38 @@ BEGIN
 			ROUND( (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100, v_Round_) as MarginPercentage,
 			CONCAT(us.Date,' ## ',us.Date) as DATERANGE
 		FROM tmp_tblUsageSummary_ us
-		GROUP BY us.Date,us.UserName;
+		GROUP BY us.Date,us.UserName
+		ORDER BY
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'UserNameDESC') THEN UserName
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'UserNameASC') THEN UserName
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TIMEVALDESC') THEN us.Date
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TIMEVALASC') THEN us.Date
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN COALESCE(SUM(TotalCharges),0)
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN COALESCE(SUM(TotalCharges),0)
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMarginDESC') THEN COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMarginASC') THEN COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MarginPercentageDESC') THEN (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MarginPercentageASC') THEN (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100
+			END ASC;
 
 	END IF;
 
@@ -104,7 +137,38 @@ BEGIN
 			CONCAT(MIN(us.Date),' ## ',MAX(us.Date)) as DATERANGE
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN tblDimDate dd ON dd.DateID = us.DateID
-		GROUP BY  dd.year,dd.week_of_year,UserName;
+		GROUP BY  dd.year,dd.week_of_year,UserName
+		ORDER BY
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'UserNameDESC') THEN UserName
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'UserNameASC') THEN UserName
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TIMEVALDESC') THEN CONCAT(dd.year,'-',dd.week_of_year)
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TIMEVALASC') THEN CONCAT(dd.year,'-',dd.week_of_year)
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN COALESCE(SUM(TotalCharges),0)
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN COALESCE(SUM(TotalCharges),0)
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMarginDESC') THEN COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMarginASC') THEN COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MarginPercentageDESC') THEN (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MarginPercentageASC') THEN (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100
+			END ASC;
 
 	END IF;
 
@@ -120,7 +184,38 @@ BEGIN
 			CONCAT(MIN(us.Date),' ## ',MAX(us.Date)) as DATERANGE
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN tblDimDate dd ON dd.DateID = us.DateID
-		GROUP BY  dd.year,dd.month_of_year,UserName;
+		GROUP BY  dd.year,dd.month_of_year,UserName
+		ORDER BY
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'UserNameDESC') THEN UserName
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'UserNameASC') THEN UserName
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TIMEVALDESC') THEN CONCAT(dd.year,'-',dd.month_of_year)
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TIMEVALASC') THEN CONCAT(dd.year,'-',dd.month_of_year)
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN COALESCE(SUM(TotalCharges),0)
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN COALESCE(SUM(TotalCharges),0)
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMarginDESC') THEN COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMarginASC') THEN COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MarginPercentageDESC') THEN (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MarginPercentageASC') THEN (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100
+			END ASC;
 
 	END IF;
 
@@ -129,14 +224,45 @@ BEGIN
 
 		SELECT 
 			UserName,
-			CONCAT(dd.year) as TIMEVAL,
+			dd.year as TIMEVAL,
 			ROUND(COALESCE(SUM(TotalCharges),0), 2) as TotalCost,
 			ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), 2) as TotalMargin,
 			ROUND( (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100, 2) as MarginPercentage,
 			CONCAT(MIN(us.Date),' ## ',MAX(us.Date)) as DATERANGE
 		FROM tmp_tblUsageSummary_ us
 		INNER JOIN tblDimDate dd ON dd.DateID = us.DateID
-		GROUP BY  dd.year,UserName;
+		GROUP BY  dd.year,UserName
+		ORDER BY
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'UserNameDESC') THEN UserName
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'UserNameASC') THEN UserName
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TIMEVALDESC') THEN dd.year
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TIMEVALASC') THEN dd.year
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostDESC') THEN COALESCE(SUM(TotalCharges),0)
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalCostASC') THEN COALESCE(SUM(TotalCharges),0)
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMarginDESC') THEN COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'TotalMarginASC') THEN COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MarginPercentageDESC') THEN (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MarginPercentageASC') THEN (COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0)) / SUM(TotalCharges)*100
+			END ASC;
 
 	END IF;
 

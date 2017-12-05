@@ -278,6 +278,9 @@ class AnalysisController extends BaseController {
         $account = Account::select('AccountName',DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as AccountManager"),'LeadStatus', 'tblAccount.created_at')
             ->leftjoin('tblUser','tblUser.UserID','=','tblAccount.Owner')
             ->where(["AccountType"=> 0,"tblAccount.CompanyID"=>$companyID]);
+        if(isset($data['Admin']) && isset($data['UserID']) && $data['Admin'] == '0' && $data['UserID'] > 0 ){
+            $account->whereIn("tblAccount.Owner",explode(',',$data['UserID']));
+        }
         if(isset($data['ActiveLead']) && $data['ActiveLead'] == 'Yes'){
             $account->where(["tblAccount.Status"=>1]);
         }else{
@@ -308,8 +311,8 @@ class AnalysisController extends BaseController {
         $account = Account::select('AccountName',DB::raw("concat(tblUser.FirstName,' ',tblUser.LastName) as AccountManager"), 'tblAccount.created_at')
             ->leftjoin('tblUser','tblUser.UserID','=','tblAccount.Owner')
             ->where(["AccountType"=> 1,"tblAccount.CompanyID"=>$companyID]);
-        if(isset($data['Admin']) && isset($data['UserID']) && $data['Admin'] == '0' && $data['UserID'] > 0 && count(explode(',',$data['UserID'])) == 1){
-            $account->where(["tblAccount.Owner"=>$data['UserID']]);
+        if(isset($data['Admin']) && isset($data['UserID']) && $data['Admin'] == '0' && $data['UserID'] > 0 ){
+            $account->whereIn("tblAccount.Owner",explode(',',$data['UserID']));
         }
         if(isset($data['ActiveAccount']) && $data['ActiveAccount'] == 'Yes'){
             $account->where(["tblAccount.Status"=>1,"VerificationStatus"=>Account::VERIFIED]);
@@ -339,8 +342,9 @@ class AnalysisController extends BaseController {
     public function get_account_manager_revenue($type){
         $companyID = User::get_companyID();
         $data = Input::all();
-
-        $query = "call prc_getAccountManager (" . $companyID . "," . intval($data['CurrencyID']) . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "','" . $data['UserID'] . "'," . $data['Admin'] . ",'" . $data['RevenueListType'] . "'";
+        $columns = array('UserName','TIMEVAL','TotalCost','TotalMargin','MarginPercentage');
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "call prc_getAccountManager (" . $companyID . "," . intval($data['CurrencyID']) . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "','" . $data['UserID'] . "'," . $data['Admin'] . ",'" . $data['RevenueListType'] . "','".$sort_column."','".$data['sSortDir_0']."'";
 
         if (isset($data['Export']) && $data['Export'] == 1) {
             $excel_data = DB::connection('neon_report')->select($query . ',1)');
@@ -362,8 +366,9 @@ class AnalysisController extends BaseController {
     public function get_account_manager_margin($type){
         $companyID = User::get_companyID();
         $data = Input::all();
-
-        $query = "call prc_getAccountManager (" . $companyID . "," . intval($data['CurrencyID']) . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "','" . $data['UserID'] . "'," . $data['Admin'] . ",'" . $data['MarginListType'] . "'";
+        $columns = array('UserName','TIMEVAL','TotalCost','TotalMargin','MarginPercentage');
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "call prc_getAccountManager (" . $companyID . "," . intval($data['CurrencyID']) . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "','" . $data['UserID'] . "'," . $data['Admin'] . ",'" . $data['MarginListType'] . "','".$sort_column."','".$data['sSortDir_0']."'";
 
         if (isset($data['Export']) && $data['Export'] == 1) {
             $excel_data = DB::connection('neon_report')->select($query . ',1)');
@@ -386,7 +391,7 @@ class AnalysisController extends BaseController {
         $companyID = User::get_companyID();
         $data = Input::all();
         $UserID = is_array($data['UserID'])?implode(',',$data['UserID']):intval($data['UserID']);
-        $query = "call prc_getAccountManager (" . $companyID . "," . intval($data['CurrencyID']) . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "','" . $UserID . "'," . $data['Admin'] . ",'" . $data['RevenueListType'] . "',0)";
+        $query = "call prc_getAccountManager (" . $companyID . "," . intval($data['CurrencyID']) . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "','" . $UserID . "'," . $data['Admin'] . ",'" . $data['RevenueListType'] . "','','',0)";
         $TopReports = DB::connection('neon_report')->select($query);
         $series = $category = array();
         foreach($TopReports as $TopReport){
@@ -411,7 +416,7 @@ class AnalysisController extends BaseController {
         $companyID = User::get_companyID();
         $data = Input::all();
         $UserID = is_array($data['UserID'])?implode(',',$data['UserID']):intval($data['UserID']);
-        $query = "call prc_getAccountManager (" . $companyID . "," . intval($data['CurrencyID']) . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "','" . $UserID . "'," . $data['Admin'] . ",'" . $data['MarginListType'] . "',0)";
+        $query = "call prc_getAccountManager (" . $companyID . "," . intval($data['CurrencyID']) . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "','" . $UserID . "'," . $data['Admin'] . ",'" . $data['MarginListType'] . "','','',0)";
         $TopReports = DB::connection('neon_report')->select($query);
         $series = $category = array();
         $cat_index = 0;
@@ -436,8 +441,9 @@ class AnalysisController extends BaseController {
     public function account_revenue_margin($type){
         $companyID = User::get_companyID();
         $data = Input::all();
-
-        $query = "call prc_getAccountReport (" . $companyID . "," . intval($data['CurrencyID']) . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "','" . $data['UserID'] . "'," . $data['Admin'] . ",'" . $data['AccountListType'] . "'";
+        $columns = array('UserName','AccountName','TIMEVAL','TotalCost','TotalMargin','MarginPercentage');
+        $sort_column = $columns[$data['iSortCol_0']];
+        $query = "call prc_getAccountReport (" . $companyID . "," . intval($data['CurrencyID']) . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "','" . $data['UserID'] . "'," . $data['Admin'] . ",'" . $data['AccountListType'] . "','".$sort_column."','".$data['sSortDir_0']."'";
 
         if (isset($data['Export']) && $data['Export'] == 1) {
             $excel_data = DB::connection('neon_report')->select($query . ',1)');

@@ -30,6 +30,8 @@ function set_search_parameter(submit_form){
 }
 
 function reloadCharts(table_id,pageSize,$searchFilter){
+    loadLeads('#leads',10,$searchFilter);
+    loadAccounts('#accounts',10,$searchFilter);
     loadAccountManagerRevenue('#AccountManagerRevenue',10,$searchFilter);
     loadAccountManagerMargin('#AccountManagerMargin',10,$searchFilter);
     loadRevenueChart($searchFilter);
@@ -407,6 +409,17 @@ function loadRevenueChart(submit_data){
                     tooltip: {
                         valueSuffix: ''
                     },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'top',
+                        x: -40,
+                        y: 80,
+                        floating: false,
+                        borderWidth: 1,
+                        backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                        shadow: false
+                    },
                     plotOptions: {
                         bar: {
                             dataLabels: {
@@ -467,6 +480,17 @@ function loadMarginChart(submit_data){
                     },
                     tooltip: {
                         valueSuffix: ''
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'top',
+                        x: -40,
+                        y: 80,
+                        floating: false,
+                        borderWidth: 1,
+                        backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                        shadow: false
                     },
                     plotOptions: {
                         bar: {
