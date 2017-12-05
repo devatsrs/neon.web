@@ -346,6 +346,7 @@ function loadAccountRevenueMargin(table_id,pageSize,$searchFilter){
             {  "bSortable": true },  // 3 StartDate
             {  "bSortable": true },  // 3 StartDate
             {  "bSortable": true },  // 3 StartDate
+            {  "bSortable": true },  // 3 StartDate
             {  "bSortable": true }  // 3 StartDate
         ],
         "oTableTools": {

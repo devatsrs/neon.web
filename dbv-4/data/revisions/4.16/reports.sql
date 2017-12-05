@@ -47,9 +47,9 @@ BEGIN
 		ON us.HeaderID = sh.HeaderID
 	INNER JOIN tblDimDate dd
 		ON dd.DateID = sh.DateID
-	INNER JOIN NeonRMDev.tblAccount a
+	INNER JOIN Ratemanagement3.tblAccount a
 		ON sh.AccountID = a.AccountID
-	INNER JOIN NeonRMDev.tblUser u
+	INNER JOIN Ratemanagement3.tblUser u
 		ON a.Owner = u.UserID
 	WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 	AND sh.CompanyID = p_CompanyID
@@ -71,9 +71,9 @@ BEGIN
 		ON us.HeaderID = sh.HeaderID
 	INNER JOIN tblDimDate dd
 		ON dd.DateID = sh.DateID
-	INNER JOIN NeonRMDev.tblAccount a
+	INNER JOIN Ratemanagement3.tblAccount a
 		ON sh.AccountID = a.AccountID
-	INNER JOIN NeonRMDev.tblUser u
+	INNER JOIN Ratemanagement3.tblUser u
 		ON a.Owner = u.UserID
 	WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 	AND sh.CompanyID = p_CompanyID
@@ -255,9 +255,9 @@ BEGIN
 		ON us.HeaderID = sh.HeaderID
 	INNER JOIN tblDimDate dd
 		ON dd.DateID = sh.DateID
-	INNER JOIN NeonRMDev.tblAccount a
+	INNER JOIN Ratemanagement3.tblAccount a
 		ON sh.AccountID = a.AccountID
-	INNER JOIN NeonRMDev.tblUser u
+	INNER JOIN Ratemanagement3.tblUser u
 		ON a.Owner = u.UserID
 	WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 	AND sh.CompanyID = p_CompanyID
@@ -279,9 +279,9 @@ BEGIN
 		ON us.HeaderID = sh.HeaderID
 	INNER JOIN tblDimDate dd
 		ON dd.DateID = sh.DateID
-	INNER JOIN NeonRMDev.tblAccount a
+	INNER JOIN Ratemanagement3.tblAccount a
 		ON sh.AccountID = a.AccountID
-	INNER JOIN NeonRMDev.tblUser u
+	INNER JOIN Ratemanagement3.tblUser u
 		ON a.Owner = u.UserID
 	WHERE dd.date BETWEEN p_StartDate AND p_EndDate
 	AND sh.CompanyID = p_CompanyID
@@ -294,6 +294,7 @@ BEGIN
 
 		SELECT 
 			AccountName,
+			MAX(UserName),
 			us.Date as TIMEVAL,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as TotalCost,
 			ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), v_Round_) as TotalMargin,
@@ -309,6 +310,7 @@ BEGIN
 
 		SELECT 
 			AccountName,
+			MAX(UserName),
 			CONCAT(dd.year,'-',dd.week_of_year) as TIMEVAL,
 			ROUND(COALESCE(SUM(TotalCharges),0), 2) as TotalCost,
 			ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), 2) as TotalMargin,
@@ -325,6 +327,7 @@ BEGIN
 
 		SELECT 
 			AccountName,
+			MAX(UserName),
 			CONCAT(dd.year,'-',dd.month_of_year) as TIMEVAL,
 			ROUND(COALESCE(SUM(TotalCharges),0), 2) as TotalCost,
 			ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), 2) as TotalMargin,
@@ -341,6 +344,7 @@ BEGIN
 
 		SELECT 
 			AccountName,
+			MAX(UserName),
 			CONCAT(dd.year) as TIMEVAL,
 			ROUND(COALESCE(SUM(TotalCharges),0), 2) as TotalCost,
 			ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), 2) as TotalMargin,
@@ -357,6 +361,7 @@ BEGIN
 
 		SELECT 
 			AccountName AS `Account`,
+			MAX(UserName) AS `Account Manager`,
 			us.Date as `Period`,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as `Revenue`,
 			ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), v_Round_) as `Margin`,
@@ -371,6 +376,7 @@ BEGIN
 
 		SELECT 
 			AccountName AS `Account`,
+			MAX(UserName) AS `Account Manager`,
 			CONCAT(dd.year,'-',dd.week_of_year) as `Period`,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as `Revenue`,
 			ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), v_Round_) as `Margin`,
@@ -386,6 +392,7 @@ BEGIN
 
 		SELECT 
 			AccountName AS `Account`,
+			MAX(UserName) AS `Account Manager`,
 			CONCAT(dd.year,'-',dd.month_of_year) as `Period`,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as `Revenue`,
 			ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), v_Round_) as `Margin`,
@@ -401,6 +408,7 @@ BEGIN
 
 		SELECT 
 			AccountName AS `Account`,
+			MAX(UserName) AS `Account Manager`,
 			CONCAT(dd.year) as `Period`,
 			ROUND(COALESCE(SUM(TotalCharges),0), v_Round_) as `Revenue`,
 			ROUND(COALESCE(SUM(TotalCharges),0) - COALESCE(SUM(TotalCost),0), v_Round_) as `Margin`,

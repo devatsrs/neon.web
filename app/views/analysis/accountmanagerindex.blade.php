@@ -267,6 +267,7 @@
                                 <thead>
                                 <tr>
                                     <th>Account</th>
+                                    <th>Account Manager</th>
                                     <th>Period</th>
                                     <th>Revenue</th>
                                     <th>Margin</th>
