@@ -26,6 +26,8 @@ function set_search_parameter(submit_form){
     $searchFilter.RevenueListType = $("[name='RevenueListType']:checked").val();
     $searchFilter.MarginListType = $("[name='MarginListType']:checked").val();
     $searchFilter.AccountListType = $("[name='AccountListType']:checked").val();
+    $searchFilter.ActiveAccount = $("[name='ActiveAccount']:checked").val();
+    $searchFilter.ActiveLead = $("[name='ActiveLead']:checked").val();
 
 }
 
