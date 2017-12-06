@@ -1341,7 +1341,9 @@ class VendorRatesController extends \BaseController
     public function updateTempVendorRates($AccountID) {
         $data = Input::all();
 
-        $ProcessID = $data['ProcessID'];
+        $ProcessID   = $data['ProcessID'];
+        $Code        = $data['Code'];
+        $Description = $data['Description'];
         $TrunkID   = 0;
 
         if($data['Action'] == 'New') {
@@ -1385,7 +1387,8 @@ class VendorRatesController extends \BaseController
             $TempRateIDs = implode(',',$TempRateIDs);
 
             try {
-                DB::statement("call prc_WSReviewVendorRateUpdate ('".$AccountID."','".$TrunkID."','".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."')");
+                Log::info("call prc_WSReviewVendorRateUpdate ('".$AccountID."','".$TrunkID."','".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')");
+                DB::statement("call prc_WSReviewVendorRateUpdate ('".$AccountID."','".$TrunkID."','".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')");
                 return json_encode(["status" => "success", "message" => "Rates successfully updated."]);
             } catch (Exception $e) {
                 return json_encode(array("status" => "failed", "message" => $e->getMessage()));

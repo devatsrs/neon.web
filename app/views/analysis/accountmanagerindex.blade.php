@@ -11,19 +11,12 @@
             <form novalidate="novalidate" class="form-horizontal form-groups-bordered filter validate" method="post" id="analysis_manager">
                 <div class="form-group">
                     <label class="control-label" for="field-1">Start Date</label>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <input type="text" name="StartDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}"/>
-                        </div>
-                    </div>
+                    <input type="text" name="StartDate"  class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d')}}"/>
                 </div>
                 <div class="form-group">
                     <label class="control-label" for="field-1">End Date</label>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d' )}}" />
-                        </div>
-                    </div>
+                    <input type="text" name="EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{date('Y-m-d')}}" data-enddate="{{date('Y-m-d' )}}" />
+
                 </div>
                 <div class="form-group">
                     <label class="control-label" for="field-1">Currency</label>
@@ -34,7 +27,7 @@
                 </div>
                 <div class="form-group">
                     @if(User::is_admin())
-                        <label class="control-label" for="field-1">User</label>
+                        <label class="control-label" for="field-1">Account Manager</label>
                         {{Form::select('UsersID[]', $users, '' ,array("class"=>"select2","multiple"=>"multiple"))}}
                     @else
                         <input type="hidden" name="UsersID[]" value="{{User::get_userID()}}">
@@ -72,7 +65,7 @@
                 <div class="col-sm-6">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <div class="panel-title">Accounts</div>
+                            <div class="panel-title"><strong>Accounts</strong></div>
                             <div class="panel-options">
                                 <div class="btn-group custom_btn_group" data-toggle="buttons">
                                     <label class="btn btn-white active">
@@ -104,7 +97,7 @@
                 <div class="col-sm-6">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <div class="panel-title">Leads</div>
+                            <div class="panel-title"><strong>Leads</strong></div>
                             <div class="panel-options">
                                 <div class="btn-group custom_btn_group" data-toggle="buttons">
                                     <label class="btn btn-white active">
@@ -139,7 +132,7 @@
                 <div class="col-sm-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <div class="panel-title">Revenue </div>
+                            <div class="panel-title"><strong>Revenue </strong> </div>
                             <div class="panel-options">
                                 <div class="btn-group custom_btn_group" data-toggle="buttons">
                                     <label class="btn  btn-white active">
@@ -178,6 +171,11 @@
                                 <tbody>
 
                                 </tbody>
+                                <tfoot>
+                                <tr>
+
+                                </tr>
+                                </tfoot>
                             </table>
                             <div class="text-center">
                                 <div class="bar_chart_revenue hidden"></div>
@@ -190,7 +188,7 @@
                 <div class="col-sm-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <div class="panel-title">Margin </div>
+                            <div class="panel-title"> <strong>Margin</strong></div>
                             <div class="panel-options">
                                 <div class="btn-group custom_btn_group" data-toggle="buttons">
                                     <label class="btn  btn-white active">
@@ -231,6 +229,11 @@
                                 <tbody>
 
                                 </tbody>
+                                <tfoot>
+                                <tr>
+
+                                </tr>
+                                </tfoot>
                             </table>
                             <div class="text-center">
                                 <div class="bar_chart_margin hidden"></div>
@@ -243,7 +246,7 @@
                 <div class="col-sm-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <div class="panel-title">Account Report</div>
+                            <div class="panel-title"> <strong>By Account</strong></div>
                             <div class="panel-options">
                                 <div class="btn-group custom_btn_group" data-toggle="buttons">
                                     <label class="btn  btn-white active">
@@ -266,8 +269,8 @@
                             <table class="table table-bordered table-responsive" id="AccountMargin" >
                                 <thead>
                                 <tr>
-                                    <th>Account</th>
                                     <th>Account Manager</th>
+                                    <th>Account</th>
                                     <th>Period</th>
                                     <th>Revenue</th>
                                     <th>Margin</th>
@@ -277,6 +280,11 @@
                                 <tbody>
 
                                 </tbody>
+                                <tfoot>
+                                <tr>
+
+                                </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
