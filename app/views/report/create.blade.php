@@ -170,9 +170,10 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-10'}} float-right">
+                                <div class="btn-group float-right" style="padding-bottom: 5px"><a class="btn btn-white save-report-data btn-sm">Export</a></div>
+                            </div>
                             <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-10'}} table_report_overflow loading">
-
-
                             </div>
                         </div>
                         <div class="form-group">
