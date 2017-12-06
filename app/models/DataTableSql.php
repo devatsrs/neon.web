@@ -12,9 +12,9 @@ class DataTableSql extends \Eloquent {
     
     
         public $query;
-        public $iTotalRecords;
-        public $iTotalDisplayRecords;
-        public $data;
+        public $iTotalRecords = 0;
+        public $iTotalDisplayRecords = 0;
+        public $data = [];
         public $Columns;
         public $result ;
         public $connection;

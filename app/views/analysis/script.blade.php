@@ -32,6 +32,13 @@
         chart_type = $(".refresh_tab li.active a").attr('href');
         table_name = $(".refresh_tab li.active a").attr('href')+'_table';
         $("#customer_analysis").find("input[name='chart_type']").val(chart_type.slice(1));
+        $("[name='UserID']").change(function(e) {
+            if($(this).val() > 0) {
+                $("#customer_analysis").find("input[name='Admin']").val(0);
+            }else{
+                $("#customer_analysis").find("input[name='Admin']").val($("#customer_analysis").find("input[name='Admin1']").val());
+            }
+        });
         $(".datepicker").change(function(e) {
             var start = new Date($("[name='StartDate']").val()),
                     end   = new Date($("[name='EndDate']").val()),
