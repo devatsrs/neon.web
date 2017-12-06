@@ -710,9 +710,13 @@ class VendorRatesController extends \BaseController
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
+
+            $isTemplateExist = VendorFileUploadTemplate::where(['Title'=>$data['TemplateName']]);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = VendorFileUploadTemplate::find($data['uploadtemplate']);
                 $template->update($save);
+            } else if($isTemplateExist->count() > 0) {
+                $template = $isTemplateExist->first();
             } else {
                 $template = VendorFileUploadTemplate::create($save);
             }
@@ -974,9 +978,13 @@ class VendorRatesController extends \BaseController
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
+
+            $isTemplateExist = VendorFileUploadTemplate::where(['Title'=>$data['TemplateName']]);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = VendorFileUploadTemplate::find($data['uploadtemplate']);
                 $template->update($save);
+            } else if($isTemplateExist->count() > 0) {
+                $template = $isTemplateExist->first();
             } else {
                 $template = VendorFileUploadTemplate::create($save);
             }
