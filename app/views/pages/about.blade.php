@@ -51,7 +51,7 @@
                     17. Fixed ‘Country Code Not Found’ error when uploading rate sheets.<br>
                     18. Added option to import accounts from ‘Sippy’.<br>
                     19. Improved Prefix Translation to check prefix setup against customer/vendor trunk.<br>
-                    20. Added Account Manager report.<br>
+                    20. Added Account Manager Reports under Analysis.<br>
                     21. Added Account Owner filter in Analysis .<br>
                     22. Added margin and revenue measures in reporting.<br>
                 </div>
