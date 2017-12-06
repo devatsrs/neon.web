@@ -427,12 +427,12 @@ class CompanyGateway extends \Eloquent {
         log::info('--CUSTOMER SUMMARY LIVE CRONJOB END--');
 
         if($type=='1'){
-            log::info('--VENDOR SUMMARY DAILY CRONJOB START--');
+           /* log::info('--VENDOR SUMMARY DAILY CRONJOB START--');
             $VendorSummaryDailyCommandID = CronJobCommand::getCronJobCommandIDByCommand('createvendorsummary');
             $VendorSummaryDailySetting = CompanyConfiguration::get('VENDOR_SUMMARYDAILY_CRONJOB');
             $VendorSummaryDailyJobTitle = 'Create Vendor Summary';
             log::info($VendorSummaryDailySetting);
-            CompanyGateway::createGatewayCronJob($CompanyGatewayID,$VendorSummaryDailyCommandID,$VendorSummaryDailySetting,$VendorSummaryDailyJobTitle);
+            CompanyGateway::createGatewayCronJob($CompanyGatewayID,$VendorSummaryDailyCommandID,$VendorSummaryDailySetting,$VendorSummaryDailyJobTitle);*/
 
             log::info('--VENDOR SUMMARY DAILY CRONJOB END--');
 

@@ -116,6 +116,12 @@ class CronJob extends \Eloquent {
         }elseif(isset($data['TemplateID'])&& trim($data['TemplateID']) == ''){
             $valid['message'] = Response::json(array("status" => "failed", "message" => "Please select Template"));
             return $valid;
+        }else if(isset($data['Setting']['StartDate']) &&  isset($data['Setting']['EndDate']) && trim($data['Setting']['StartDate']) == '' && trim($data['Setting']['EndDate']) != '' ) {
+            $valid['message'] = Response::json(array("status" => "failed", "message" => "Start date is required"));
+            return $valid;
+        }else if(isset($data['Setting']['StartDate']) &&  isset($data['Setting']['EndDate']) && trim($data['Setting']['StartDate']) != '' && trim($data['Setting']['EndDate']) == '' ) {
+            $valid['message'] = Response::json(array("status" => "failed", "message" => "End date is required"));
+            return $valid;
         }
 
         $today = date('Y-m-d');
