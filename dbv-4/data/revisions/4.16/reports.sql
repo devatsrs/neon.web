@@ -2813,3 +2813,770 @@ BEGIN
 
 END//
 DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `fnGetUsageForSummary`;
+DELIMITER //
+CREATE PROCEDURE `fnGetUsageForSummary`(
+	IN `p_CompanyID` INT,
+	IN `p_StartDate` DATE,
+	IN `p_EndDate` DATE,
+	IN `p_UniqueID` VARCHAR(50)
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET @stmt = CONCAT('
+	INSERT IGNORE INTO tmp_tblUsageDetailsReport_' , p_UniqueID , ' (
+		UsageDetailID,
+		AccountID,
+		CompanyID,
+		CompanyGatewayID,
+		GatewayAccountPKID,
+		connect_time,
+		connect_date,
+		billed_duration,
+		area_prefix,
+		cost,
+		duration,
+		trunk,
+		call_status,
+		ServiceID,
+		disposition,
+		userfield,
+		pincode,
+		extension,
+		ID
+	)
+	SELECT 
+		ud.UsageDetailID,
+		uh.AccountID,
+		uh.CompanyID,
+		uh.CompanyGatewayID,
+		uh.GatewayAccountPKID,
+		CONCAT(DATE_FORMAT(ud.connect_time,"%H"),":",IF(MINUTE(ud.connect_time)<30,"00","30"),":00"),
+		DATE_FORMAT(ud.connect_time,"%Y-%m-%d"),
+		billed_duration,
+		area_prefix,
+		cost,
+		duration,
+		trunk,
+		1 as call_status,
+		uh.ServiceID,
+		disposition,
+		userfield,
+		pincode,
+		extension,
+		ID
+	FROM RMCDR3.tblUsageDetails  ud
+	INNER JOIN RMCDR3.tblUsageHeader uh
+		ON uh.UsageHeaderID = ud.UsageHeaderID
+	WHERE
+		uh.CompanyID = ' , p_CompanyID , '
+	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
+	');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	SET @stmt = CONCAT('
+	INSERT IGNORE INTO tmp_tblUsageDetailsReport_' , p_UniqueID , ' (
+		UsageDetailID,
+		AccountID,
+		CompanyID,
+		CompanyGatewayID,
+		GatewayAccountPKID,
+		connect_time,
+		connect_date,
+		billed_duration,
+		area_prefix,
+		cost,
+		duration,
+		trunk,
+		call_status,
+		ServiceID,
+		disposition,
+		userfield,
+		pincode,
+		extension,
+		ID
+	)
+	SELECT 
+		ud.UsageDetailFailedCallID,
+		uh.AccountID,
+		uh.CompanyID,
+		uh.CompanyGatewayID,
+		uh.GatewayAccountPKID,
+		CONCAT(DATE_FORMAT(ud.connect_time,"%H"),":",IF(MINUTE(ud.connect_time)<30,"00","30"),":00"),
+		DATE_FORMAT(ud.connect_time,"%Y-%m-%d"),
+		billed_duration,
+		area_prefix,
+		cost,
+		duration,
+		trunk,
+		2 as call_status,
+		uh.ServiceID,
+		disposition,
+		userfield,
+		pincode,
+		extension,
+		ID
+	FROM RMCDR3.tblUsageDetailFailedCall  ud
+	INNER JOIN RMCDR3.tblUsageHeader uh
+		ON uh.UsageHeaderID = ud.UsageHeaderID
+	WHERE
+		uh.CompanyID = ' , p_CompanyID , '
+	AND uh.AccountID IS NOT NULL
+	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
+	');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `fnGetVendorUsageForSummary`;
+DELIMITER //
+CREATE PROCEDURE `fnGetVendorUsageForSummary`(
+	IN `p_CompanyID` INT,
+	IN `p_StartDate` DATE,
+	IN `p_EndDate` DATE,
+	IN `p_UniqueID` VARCHAR(50)
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET @stmt = CONCAT('
+	INSERT IGNORE INTO tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' (
+		VendorCDRID,
+		VAccountID,
+		CompanyID,
+		CompanyGatewayID,
+		GatewayVAccountPKID,
+		ServiceID,
+		connect_time,
+		connect_date,
+		billed_duration,
+		duration,
+		selling_cost,
+		buying_cost,
+		trunk,
+		area_prefix,
+		call_status_v,
+		ID
+	)
+	SELECT 
+		ud.VendorCDRID,
+		uh.AccountID,
+		uh.CompanyID,
+		uh.CompanyGatewayID,
+		uh.GatewayAccountPKID,
+		uh.ServiceID,
+		CONCAT(DATE_FORMAT(ud.connect_time,"%H"),":",IF(MINUTE(ud.connect_time)<30,"00","30"),":00"),
+		DATE_FORMAT(ud.connect_time,"%Y-%m-%d"),
+		billed_duration,
+		duration,
+		selling_cost,
+		buying_cost,
+		trunk,
+		area_prefix,
+		1 AS call_status,
+		ID
+	FROM RMCDR3.tblVendorCDR  ud
+	INNER JOIN RMCDR3.tblVendorCDRHeader uh
+		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
+	WHERE
+		uh.CompanyID = ' , p_CompanyID , '
+	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
+	');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	SET @stmt = CONCAT('
+	INSERT IGNORE INTO tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' (
+		VendorCDRID,
+		VAccountID,
+		CompanyID,
+		CompanyGatewayID,
+		GatewayVAccountPKID,
+		ServiceID,
+		connect_time,
+		connect_date,
+		billed_duration,
+		duration,
+		selling_cost,
+		buying_cost,
+		trunk,
+		area_prefix,
+		call_status_v,
+		ID
+	)
+	SELECT 
+		ud.VendorCDRFailedID,
+		uh.AccountID,
+		uh.CompanyID,
+		uh.CompanyGatewayID,
+		uh.GatewayAccountPKID,
+		uh.ServiceID,
+		CONCAT(DATE_FORMAT(ud.connect_time,"%H"),":",IF(MINUTE(ud.connect_time)<30,"00","30"),":00"),
+		DATE_FORMAT(ud.connect_time,"%Y-%m-%d"),
+		billed_duration,
+		duration,
+		selling_cost,
+		buying_cost,
+		trunk,
+		area_prefix,
+		2 AS call_status,
+		ID
+	FROM RMCDR3.tblVendorCDRFailed  ud
+	INNER JOIN RMCDR3.tblVendorCDRHeader uh
+		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
+	WHERE
+		uh.CompanyID = ' , p_CompanyID , '
+	AND uh.AccountID IS NOT NULL
+	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
+	');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `fnUpdateCustomerLink`;
+DELIMITER //
+CREATE PROCEDURE `fnUpdateCustomerLink`(
+	IN `p_CompanyID` INT,
+	IN `p_StartDate` DATE,
+	IN `p_EndDate` DATE,
+	IN `p_UniqueID` VARCHAR(50)
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET @stmt = CONCAT('
+	UPDATE tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' vd 
+	INNER JOIN tmp_tblUsageDetailsReport_' , p_UniqueID , ' cd ON cd.CompanyGatewayID = vd.CompanyGatewayID AND cd.ID = vd.ID
+		SET cd.VAccountID = vd.VAccountID,cd.GatewayVAccountPKID = vd.GatewayVAccountPKID,cd.call_status_v = vd.call_status_v;
+	');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+	
+	SET @stmt = CONCAT('
+	UPDATE tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' vd 
+	INNER JOIN tmp_tblUsageDetailsReport_' , p_UniqueID , ' cd ON cd.CompanyGatewayID = vd.CompanyGatewayID AND cd.ID = vd.ID
+		SET cd.VAccountID = vd.VAccountID,cd.GatewayVAccountPKID = vd.GatewayVAccountPKID,cd.call_status_v = vd.call_status_v,cd.buying_cost =vd.buying_cost
+	WHERE vd.buying_cost <> 0 AND cd.billed_duration <> 0;
+	');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `fnUpdateVendorLink`;
+DELIMITER //
+CREATE PROCEDURE `fnUpdateVendorLink`(
+	IN `p_CompanyID` INT,
+	IN `p_StartDate` DATE,
+	IN `p_EndDate` DATE,
+	IN `p_UniqueID` VARCHAR(50)
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	SET @stmt = CONCAT('
+	UPDATE tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' vd 
+	INNER JOIN tmp_tblUsageDetailsReport_' , p_UniqueID , ' cd ON cd.CompanyGatewayID = vd.CompanyGatewayID AND cd.ID = vd.ID
+		SET vd.AccountID = cd.AccountID,vd.GatewayAccountPKID = cd.GatewayAccountPKID,vd.call_status = cd.call_status;
+	');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+	
+	SET @stmt = CONCAT('
+	UPDATE tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' vd 
+	INNER JOIN tmp_tblUsageDetailsReport_' , p_UniqueID , ' cd ON cd.CompanyGatewayID = vd.CompanyGatewayID AND cd.ID = vd.ID
+		SET vd.AccountID = cd.AccountID,vd.GatewayAccountPKID = cd.GatewayAccountPKID,vd.call_status = cd.call_status,vd.selling_cost =cd.cost
+	WHERE cd.cost <> 0 AND vd.billed_duration <> 0;
+	');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_generateSummaryLive`;
+DELIMITER //
+CREATE PROCEDURE `prc_generateSummaryLive`(
+	IN `p_CompanyID` INT,
+	IN `p_StartDate` DATE,
+	IN `p_EndDate` DATE,
+	IN `p_UniqueID` VARCHAR(50)
+)
+BEGIN
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		
+		GET DIAGNOSTICS CONDITION 1
+		@p2 = MESSAGE_TEXT;
+	
+		SELECT @p2 as Message;
+		ROLLBACK;
+	END;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+	CALL fngetDefaultCodes(p_CompanyID); 
+	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+	CALL fnUpdateCustomerLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+	CALL fnUpdateVendorLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+
+	DELETE FROM tmp_UsageSummaryLive WHERE CompanyID = p_CompanyID;
+
+	SET @stmt = CONCAT('
+	INSERT INTO tmp_UsageSummaryLive(
+		DateID,
+		TimeID,
+		CompanyID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		AccountID,
+		VAccountID,
+		Trunk,
+		AreaPrefix,
+		userfield,
+		TotalCharges,
+		TotalCost,
+		TotalBilledDuration,
+		TotalDuration,
+		NoOfCalls,
+		NoOfFailCalls
+	)
+	SELECT 
+		d.DateID,
+		t.TimeID,
+		ud.CompanyID,
+		ud.CompanyGatewayID,
+		ud.ServiceID,
+		ud.GatewayAccountPKID,
+		ud.GatewayVAccountPKID,
+		ud.AccountID,
+		ud.VAccountID,
+		ud.trunk,
+		ud.area_prefix,
+		ud.userfield,
+		COALESCE(SUM(ud.cost),0)  AS TotalCharges ,
+		COALESCE(SUM(ud.buying_cost),0)  AS TotalCost ,
+		COALESCE(SUM(ud.billed_duration),0) AS TotalBilledDuration ,
+		COALESCE(SUM(ud.duration),0) AS TotalDuration,
+		SUM(IF(ud.call_status=1,1,0)) AS  NoOfCalls,
+		SUM(IF(ud.call_status=2,1,0)) AS  NoOfFailCalls
+	FROM tmp_tblUsageDetailsReport_',p_UniqueID,' ud  
+	INNER JOIN tblDimTime t ON t.fulltime = connect_time
+	INNER JOIN tblDimDate d ON d.date = connect_date
+	WHERE ud.CompanyID = ',p_CompanyID,'
+		AND ud.AccountID IS NOT NULL
+	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk,ud.userfield;
+	');
+
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	UPDATE tmp_UsageSummaryLive
+	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
+	SET tmp_UsageSummaryLive.CountryID =code.CountryID
+	WHERE tmp_UsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
+
+	START TRANSACTION;
+
+	DELETE us FROM tblUsageSummaryDayLive us 
+	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+
+	DELETE usd FROM tblUsageSummaryHourLive usd
+	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+
+	DELETE h FROM tblHeader h 
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)u
+		ON h.DateID = u.DateID 
+		AND h.CompanyID = u.CompanyID
+	WHERE u.CompanyID = p_CompanyID;
+
+	INSERT INTO tblHeader (
+		DateID,
+		CompanyID,
+		AccountID,
+		TotalCharges,
+		TotalCost,
+		TotalBilledDuration,
+		TotalDuration,
+		NoOfCalls,
+		NoOfFailCalls
+	)
+	SELECT 
+		DateID,
+		CompanyID,
+		AccountID,
+		SUM(TotalCharges) as TotalCharges,
+		SUM(TotalCost) as TotalCost,
+		SUM(TotalBilledDuration) as TotalBilledDuration,
+		SUM(TotalDuration) as TotalDuration,
+		SUM(NoOfCalls) as NoOfCalls,
+		SUM(NoOfFailCalls) as NoOfFailCalls
+	FROM tmp_UsageSummaryLive 
+	WHERE CompanyID = p_CompanyID
+	GROUP BY DateID,CompanyID,AccountID;
+
+	DELETE FROM tmp_SummaryHeaderLive WHERE CompanyID = p_CompanyID;
+	INSERT INTO tmp_SummaryHeaderLive (HeaderID,DateID,CompanyID,AccountID)
+	SELECT 
+		sh.HeaderID,
+		sh.DateID,
+		sh.CompanyID,
+		sh.AccountID
+	FROM tblHeader sh
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)TBL
+	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
+	WHERE sh.CompanyID =  p_CompanyID ;
+
+	INSERT INTO tblUsageSummaryDayLive (
+		HeaderID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		VAccountID,
+		Trunk,
+		AreaPrefix,
+		userfield,
+		CountryID,
+		TotalCharges,
+		TotalCost,
+		TotalBilledDuration,
+		TotalDuration,
+		NoOfCalls,
+		NoOfFailCalls
+	)
+	SELECT
+		sh.HeaderID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		VAccountID,
+		Trunk,
+		AreaPrefix,
+		userfield,
+		CountryID,
+		SUM(us.TotalCharges),
+		SUM(us.TotalCost),
+		SUM(us.TotalBilledDuration),
+		SUM(us.TotalDuration),
+		SUM(us.NoOfCalls),
+		SUM(us.NoOfFailCalls)
+	FROM tmp_SummaryHeaderLive sh
+	INNER JOIN tmp_UsageSummaryLive us FORCE INDEX (Unique_key)
+		ON  us.DateID = sh.DateID
+		AND us.CompanyID = sh.CompanyID
+		AND us.AccountID = sh.AccountID
+	WHERE us.CompanyID = p_CompanyID
+	GROUP BY us.DateID,us.CompanyID,us.CompanyGatewayID,us.ServiceID,us.GatewayAccountPKID,us.GatewayVAccountPKID,us.AccountID,us.VAccountID,us.AreaPrefix,us.Trunk,us.CountryID,sh.HeaderID,us.userfield;
+
+	INSERT INTO tblUsageSummaryHourLive (
+		HeaderID,
+		TimeID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		VAccountID,
+		Trunk,
+		AreaPrefix,
+		userfield,
+		CountryID,
+		TotalCharges,
+		TotalCost,
+		TotalBilledDuration,
+		TotalDuration,
+		NoOfCalls,
+		NoOfFailCalls
+	)
+	SELECT 
+		sh.HeaderID,
+		TimeID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		VAccountID,
+		Trunk,
+		AreaPrefix,
+		userfield,
+		CountryID,
+		us.TotalCharges,
+		us.TotalCost,
+		us.TotalBilledDuration,
+		us.TotalDuration,
+		us.NoOfCalls,
+		us.NoOfFailCalls
+	FROM tmp_SummaryHeaderLive sh
+	INNER JOIN tmp_UsageSummaryLive us FORCE INDEX (Unique_key)
+		ON  us.DateID = sh.DateID
+		AND us.CompanyID = sh.CompanyID
+		AND us.AccountID = sh.AccountID
+	WHERE us.CompanyID = p_CompanyID;
+
+	COMMIT;
+
+END//
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `prc_generateVendorSummaryLive`;
+DELIMITER //
+CREATE PROCEDURE `prc_generateVendorSummaryLive`(
+	IN `p_CompanyID` INT,
+	IN `p_StartDate` DATE,
+	IN `p_EndDate` DATE,
+	IN `p_UniqueID` VARCHAR(50)
+)
+BEGIN
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		
+		GET DIAGNOSTICS CONDITION 1
+		@p2 = MESSAGE_TEXT;
+	
+		SELECT @p2 as Message;
+		ROLLBACK;
+	END;
+	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+	
+	CALL fngetDefaultCodes(p_CompanyID);
+--	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID); 
+--	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+--	CALL fnUpdateVendorLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+
+	DELETE FROM tmp_VendorUsageSummaryLive WHERE CompanyID = p_CompanyID;
+
+	SET @stmt = CONCAT('
+	INSERT INTO tmp_VendorUsageSummaryLive(
+		DateID,
+		TimeID,
+		CompanyID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		AccountID,
+		VAccountID,
+		Trunk,
+		AreaPrefix,
+		TotalCharges,
+		TotalSales,
+		TotalBilledDuration,
+		TotalDuration,
+		NoOfCalls,
+		NoOfFailCalls
+	)
+	SELECT 
+		d.DateID,
+		t.TimeID,
+		ud.CompanyID,
+		ud.CompanyGatewayID,
+		ud.ServiceID,
+		ud.GatewayAccountPKID,
+		ud.GatewayVAccountPKID,
+		ud.AccountID,
+		ud.VAccountID,
+		ud.trunk,
+		ud.area_prefix,
+		COALESCE(SUM(ud.buying_cost),0)  AS TotalCharges ,
+		COALESCE(SUM(ud.selling_cost),0)  AS TotalSales ,
+		COALESCE(SUM(ud.billed_duration),0) AS TotalBilledDuration ,
+		COALESCE(SUM(ud.duration),0) AS TotalDuration,
+		SUM(IF(ud.call_status=1,1,0)) AS  NoOfCalls,
+		SUM(IF(ud.call_status=2,1,0)) AS  NoOfFailCalls
+	FROM tmp_tblVendorUsageDetailsReport_',p_UniqueID,' ud  
+	INNER JOIN tblDimTime t ON t.fulltime = connect_time
+	INNER JOIN tblDimDate d ON d.date = connect_date
+	WHERE ud.CompanyID = ',p_CompanyID,'
+		AND ud.VAccountID IS NOT NULL
+	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk;	
+	');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+
+	UPDATE tmp_VendorUsageSummaryLive 
+	INNER JOIN  tmp_codes_ as code ON AreaPrefix = code.code
+	SET tmp_VendorUsageSummaryLive.CountryID =code.CountryID
+	WHERE tmp_VendorUsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
+
+	START TRANSACTION;
+
+	DELETE us FROM tblVendorSummaryDayLive us 
+	INNER JOIN tblHeaderV sh ON us.HeaderVID = sh.HeaderVID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+
+	DELETE usd FROM tblVendorSummaryHourLive usd
+	INNER JOIN tblHeaderV sh ON usd.HeaderVID = sh.HeaderVID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+
+	DELETE h FROM tblHeaderV h 
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummaryLive)u
+		ON h.DateID = u.DateID 
+		AND h.CompanyID = u.CompanyID
+	WHERE u.CompanyID = p_CompanyID;
+
+	INSERT INTO tblHeaderV (
+		DateID,
+		CompanyID,
+		VAccountID,
+		TotalCharges,
+		TotalSales,
+		TotalBilledDuration,
+		TotalDuration,
+		NoOfCalls,
+		NoOfFailCalls
+	)
+	SELECT
+		DateID,
+		CompanyID,
+		VAccountID,
+		SUM(TotalCharges) as TotalCharges,
+		SUM(TotalSales) as TotalSales,
+		SUM(TotalBilledDuration) as TotalBilledDuration,
+		SUM(TotalDuration) as TotalDuration,
+		SUM(NoOfCalls) as NoOfCalls,
+		SUM(NoOfFailCalls) as NoOfFailCalls
+	FROM tmp_VendorUsageSummaryLive 
+	WHERE CompanyID = p_CompanyID
+	GROUP BY DateID,CompanyID,VAccountID;
+
+	DELETE FROM tmp_SummaryVendorHeaderLive WHERE CompanyID = p_CompanyID;
+	INSERT INTO tmp_SummaryVendorHeaderLive (HeaderVID,DateID,CompanyID,VAccountID)
+	SELECT 
+		sh.HeaderVID,
+		sh.DateID,
+		sh.CompanyID,
+		sh.VAccountID
+	FROM tblHeaderV sh
+	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummaryLive)TBL
+	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
+	WHERE sh.CompanyID =  p_CompanyID ;
+
+	INSERT INTO tblVendorSummaryDayLive (
+		HeaderVID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		AccountID,
+		Trunk,
+		AreaPrefix,
+		CountryID,
+		TotalCharges,
+		TotalSales,
+		TotalBilledDuration,
+		TotalDuration,
+		NoOfCalls,
+		NoOfFailCalls
+	)
+	SELECT
+		sh.HeaderVID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		AccountID,
+		Trunk,
+		AreaPrefix,
+		CountryID,
+		SUM(us.TotalCharges),
+		SUM(us.TotalSales),
+		SUM(us.TotalBilledDuration),
+		SUM(us.TotalDuration),
+		SUM(us.NoOfCalls),
+		SUM(us.NoOfFailCalls)
+	FROM tmp_SummaryVendorHeaderLive sh
+	INNER JOIN tmp_VendorUsageSummaryLive us FORCE INDEX (Unique_key)
+		ON  us.DateID = sh.DateID
+		AND us.CompanyID = sh.CompanyID
+		AND us.VAccountID = sh.VAccountID
+	WHERE us.CompanyID = p_CompanyID
+	GROUP BY us.DateID,us.CompanyID,us.CompanyGatewayID,us.ServiceID,us.GatewayAccountPKID,us.GatewayVAccountPKID,us.AccountID,us.VAccountID,us.AreaPrefix,us.Trunk,us.CountryID,sh.HeaderVID;
+
+	INSERT INTO tblVendorSummaryHourLive (
+		HeaderVID,
+		TimeID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		AccountID,
+		Trunk,
+		AreaPrefix,
+		CountryID,
+		TotalCharges,
+		TotalSales,
+		TotalBilledDuration,
+		TotalDuration,
+		NoOfCalls,
+		NoOfFailCalls
+	)
+	SELECT 
+		sh.HeaderVID,
+		TimeID,
+		CompanyGatewayID,
+		ServiceID,
+		GatewayAccountPKID,
+		GatewayVAccountPKID,
+		AccountID,
+		Trunk,
+		AreaPrefix,
+		CountryID,
+		us.TotalCharges,
+		us.TotalSales,
+		us.TotalBilledDuration,
+		us.TotalDuration,
+		us.NoOfCalls,
+		us.NoOfFailCalls
+	FROM tmp_SummaryVendorHeaderLive sh
+	INNER JOIN tmp_VendorUsageSummaryLive us FORCE INDEX (Unique_key)
+		ON  us.DateID = sh.DateID
+		AND us.CompanyID = sh.CompanyID
+		AND us.VAccountID = sh.VAccountID
+	WHERE us.CompanyID = p_CompanyID;
+
+	COMMIT;
+
+END//
+DELIMITER ;

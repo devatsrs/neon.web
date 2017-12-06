@@ -17,9 +17,9 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
 	CALL fngetDefaultCodes(p_CompanyID);
-	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID); 
-	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
-	CALL fnUpdateVendorLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+--	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID); 
+--	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+--	CALL fnUpdateVendorLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 
 	DELETE FROM tmp_VendorUsageSummaryLive WHERE CompanyID = p_CompanyID;
 
@@ -69,7 +69,6 @@ BEGIN
 	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk;	
 	');
 
-
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
@@ -80,23 +79,23 @@ BEGIN
 	WHERE tmp_VendorUsageSummaryLive.CompanyID = p_CompanyID AND code.CountryID > 0;
 
 	START TRANSACTION;
-	
+
 	DELETE us FROM tblVendorSummaryDayLive us 
 	INNER JOIN tblHeaderV sh ON us.HeaderVID = sh.HeaderVID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
+
 	DELETE usd FROM tblVendorSummaryHourLive usd
 	INNER JOIN tblHeaderV sh ON usd.HeaderVID = sh.HeaderVID
 	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
 	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
+
 	DELETE h FROM tblHeaderV h 
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummaryLive)u
 		ON h.DateID = u.DateID 
 		AND h.CompanyID = u.CompanyID
 	WHERE u.CompanyID = p_CompanyID;
-	
+
 	INSERT INTO tblHeaderV (
 		DateID,
 		CompanyID,
@@ -108,7 +107,7 @@ BEGIN
 		NoOfCalls,
 		NoOfFailCalls
 	)
-	SELECT 
+	SELECT
 		DateID,
 		CompanyID,
 		VAccountID,
@@ -121,7 +120,7 @@ BEGIN
 	FROM tmp_VendorUsageSummaryLive 
 	WHERE CompanyID = p_CompanyID
 	GROUP BY DateID,CompanyID,VAccountID;
-	
+
 	DELETE FROM tmp_SummaryVendorHeaderLive WHERE CompanyID = p_CompanyID;
 	INSERT INTO tmp_SummaryVendorHeaderLive (HeaderVID,DateID,CompanyID,VAccountID)
 	SELECT 
@@ -162,19 +161,19 @@ BEGIN
 		AreaPrefix,
 		CountryID,
 		SUM(us.TotalCharges),
-		SUM(us.TotalSales),		
+		SUM(us.TotalSales),
 		SUM(us.TotalBilledDuration),
 		SUM(us.TotalDuration),
 		SUM(us.NoOfCalls),
 		SUM(us.NoOfFailCalls)
 	FROM tmp_SummaryVendorHeaderLive sh
-	INNER JOIN tmp_VendorUsageSummaryLive us FORCE INDEX (Unique_key)	 
+	INNER JOIN tmp_VendorUsageSummaryLive us FORCE INDEX (Unique_key)
 		ON  us.DateID = sh.DateID
 		AND us.CompanyID = sh.CompanyID
 		AND us.VAccountID = sh.VAccountID
 	WHERE us.CompanyID = p_CompanyID
 	GROUP BY us.DateID,us.CompanyID,us.CompanyGatewayID,us.ServiceID,us.GatewayAccountPKID,us.GatewayVAccountPKID,us.AccountID,us.VAccountID,us.AreaPrefix,us.Trunk,us.CountryID,sh.HeaderVID;
-	
+
 	INSERT INTO tblVendorSummaryHourLive (
 		HeaderVID,
 		TimeID,
@@ -191,7 +190,7 @@ BEGIN
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
-		NoOfFailCalls	
+		NoOfFailCalls
 	)
 	SELECT 
 		sh.HeaderVID,
@@ -217,6 +216,6 @@ BEGIN
 		AND us.VAccountID = sh.VAccountID
 	WHERE us.CompanyID = p_CompanyID;
 
-	COMMIT;	
-	
+	COMMIT;
+
 END
