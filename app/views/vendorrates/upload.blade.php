@@ -1040,7 +1040,7 @@
                 $(".dataTables_wrapper select").select2({
                     minimumResultsForSearch: -1
                 });
-                var toggle = '<button class="btn btn-sm btn-primary grid pull-right change-selected" id="change_intervals" style="margin-right: 27%;"><i class="entypo-pencil"></i> Change Selected</button>';
+                var toggle = '<button class="btn btn-sm btn-primary grid pull-right change-selected" id="change_intervals" style="margin-right: 30%;"><i class="entypo-pencil"></i> Change Selected</button>';
                 $('.change-view-new').html(toggle);
 
                 $('#table-reviewrates-new tbody').off('click');
@@ -1310,7 +1310,7 @@
                 $(".dataTables_wrapper select").select2({
                     minimumResultsForSearch: -1
                 });
-                var toggle = '<button class="btn btn-sm btn-primary grid pull-right change-selected" id="change_enddate" style="margin-right: 27%;"><i class="entypo-pencil"></i> Change Selected</button>';
+                var toggle = '<button class="btn btn-sm btn-primary grid pull-right change-selected" id="change_enddate" style="margin-right: 30%;"><i class="entypo-pencil"></i> Change Selected</button>';
                 $('.change-view-deleted').html(toggle);
 
                 $('#table-reviewrates-deleted tbody').off('click');
@@ -1525,7 +1525,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <form role="form" id="reviewrates-new-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                                    <div class="panel panel-primary" data-collapsed="0">
+                                    <div class="panel panel-primary panel-collapse" data-collapsed="0">
                                         <div class="panel-heading">
                                             <div class="panel-title">
                                                 Search
@@ -1536,7 +1536,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="panel-body">
+                                        <div class="panel-body" style="display: none;">
                                             <div class="form-group">
                                                 <label for="field-1" class="col-sm-1 control-label">Code</label>
                                                 <div class="col-sm-3">
@@ -1584,7 +1584,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <form role="form" id="reviewrates-increased-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                                    <div class="panel panel-primary" data-collapsed="0">
+                                    <div class="panel panel-primary panel-collapse" data-collapsed="0">
                                         <div class="panel-heading">
                                             <div class="panel-title">
                                                 Search
@@ -1595,7 +1595,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="panel-body">
+                                        <div class="panel-body" style="display: none;">
                                             <div class="form-group">
                                                 <label for="field-1" class="col-sm-1 control-label">Code</label>
                                                 <div class="col-sm-3">
@@ -1643,7 +1643,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <form role="form" id="reviewrates-decreased-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                                    <div class="panel panel-primary" data-collapsed="0">
+                                    <div class="panel panel-primary panel-collapse" data-collapsed="0">
                                         <div class="panel-heading">
                                             <div class="panel-title">
                                                 Search
@@ -1654,7 +1654,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="panel-body">
+                                        <div class="panel-body" style="display: none;">
                                             <div class="form-group">
                                                 <label for="field-1" class="col-sm-1 control-label">Code</label>
                                                 <div class="col-sm-3">
@@ -1702,7 +1702,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <form role="form" id="reviewrates-deleted-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                                    <div class="panel panel-primary" data-collapsed="0">
+                                    <div class="panel panel-primary panel-collapse" data-collapsed="0">
                                         <div class="panel-heading">
                                             <div class="panel-title">
                                                 Search
@@ -1713,7 +1713,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="panel-body">
+                                        <div class="panel-body" style="display: none;">
                                             <div class="form-group">
                                                 <label for="field-1" class="col-sm-1 control-label">Code</label>
                                                 <div class="col-sm-3">
@@ -1763,7 +1763,7 @@
             <div class="modal-footer">
                 <button id="save_template2" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                     <i class="entypo-floppy"></i>
-                    Save
+                    Proceed
                 </button>
                 <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
             </div>
