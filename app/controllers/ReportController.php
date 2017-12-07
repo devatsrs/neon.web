@@ -131,6 +131,14 @@ class ReportController extends \BaseController {
         if(count($data['sum'])) {
             $response = Report::generateDynamicTable($CompanyID, $cube, $data,$filters);
         }
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $file="Report.xls";
+            $table=generateReportTable2($data,$response,$all_data_list);
+            header("Content-type: application/vnd.ms-excel");
+            header("Content-Disposition: attachment; filename=$file");
+            echo $table;
+            exit;
+        }
         return json_encode(generateReportTable2($data,$response,$all_data_list));
     }
 

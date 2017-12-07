@@ -1,4 +1,3 @@
-<script src="{{ URL::asset('assets/js/jquery.table2excel.min.js') }}"></script>
 <script>
     var checked = '';
     @if(!empty($report_settings['filter_settings']))
@@ -118,14 +117,14 @@
 
         $('.save-report-data').on('click', function (e) {
             var data = baseurl +'/report/getdatagrid?'+$("#report-row-col").serialize()+'&'+$("#add-new-filter-form").serialize()+'&Export=1';
-            //(this).attr('href',data);
-                $(".table_report_overflow").table2excel({
+            $(this).attr('href',data);
+                /*$(".table_report_overflow").table2excel({
                     exclude: ".noExl",
                     name: "Reports",
                     filename: "Reports",
                     fileext: ".xls",
 
-                });
+                });*/
         });
         function reload_table(){
             var data = $("#report-row-col").serialize()+'&'+$("#add-new-filter-form").serialize();
