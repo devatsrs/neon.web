@@ -1298,7 +1298,7 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/report/store','ReportController@report_store');
     Route::any('/report/update/{id}','ReportController@report_update');
     Route::any('/report/delete/{id}','ReportController@report_delete');
-    Route::any('/report/getdatagrid','ReportController@getdatagrid');
+    Route::any('/report/getdatagrid/{id}','ReportController@getdatagrid');
     Route::any('/report/getdatalist','ReportController@getdatalist');
 
 	//RateCompare

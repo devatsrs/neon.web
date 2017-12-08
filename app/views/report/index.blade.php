@@ -65,6 +65,7 @@
         var $search = {};
         var report_edit_url = baseurl + "/report/edit/{id}";
         var report_delete_url = baseurl + "/report/delete/{id}";
+        var report_export_url = baseurl + "/report/getdatagrid/{id}";
         var report_datagrid_url = baseurl + "/report/ajax_datagrid/type";
         jQuery(document).ready(function ($) {
             $('#filter-button-toggle').show();
@@ -101,6 +102,9 @@
 
                             @if(User::checkCategoryPermission('Report','Update'))
                                 action += ' <a href="' + report_edit_url.replace("{id}", id) + '?report=run" class="btn btn-default btn-sm tooltip-primary" data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-play"></i>&nbsp;</a>';
+                            @endif
+                            @if(User::checkCategoryPermission('Report','Update'))
+                                action += ' <a href="' + report_export_url.replace("{id}", id) + '" class="btn btn-default btn-sm tooltip-primary" data-original-title="Export" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-download"></i>&nbsp;</a>';
                             @endif
                                     @if(User::checkCategoryPermission('Report','Delete'))
                             if(full[2] == 0) {

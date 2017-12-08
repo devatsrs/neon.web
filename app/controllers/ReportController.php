@@ -88,8 +88,14 @@ class ReportController extends \BaseController {
         return Datatables::of($reports)->make();
     }
 
-    public function getdatagrid(){
+    public function getdatagrid($id=0){
         $data = Input::all();
+        if($id>0){
+            $report = Report::find($id);
+            $data = json_decode($report->Settings,true);
+            $data['Export'] =1;
+            $data['Name'] = $report->Name;
+        }
         $CompanyID = User::get_companyID();
         $cube = $data['Cube'];
         $filters = json_decode($data['filter_settings'],true);
@@ -132,10 +138,10 @@ class ReportController extends \BaseController {
             $response = Report::generateDynamicTable($CompanyID, $cube, $data,$filters);
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $file="Report.xls";
+            $file=isset($data['Name'])?($data['Name'].".xls"):"Report.xls";
             $table=generateReportTable2($data,$response,$all_data_list);
             header("Content-type: application/vnd.ms-excel");
-            header("Content-Disposition: attachment; filename=$file");
+            header("Content-Disposition: attachment; filename=\"".$file."\"");
             echo $table;
             exit;
         }

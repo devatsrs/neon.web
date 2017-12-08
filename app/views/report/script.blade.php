@@ -116,7 +116,7 @@
 
 
         $('.save-report-data').on('click', function (e) {
-            var data = baseurl +'/report/getdatagrid?'+$("#report-row-col").serialize()+'&'+$("#add-new-filter-form").serialize()+'&Export=1';
+            var data = baseurl +'/report/getdatagrid/0?'+$("#report-row-col").serialize()+'&'+$("#add-new-filter-form").serialize()+'&'+$("#add-new-report-form").serialize()+'&Export=1';
             $(this).attr('href',data);
                 /*$(".table_report_overflow").table2excel({
                     exclude: ".noExl",
@@ -130,7 +130,7 @@
             var data = $("#report-row-col").serialize()+'&'+$("#add-new-filter-form").serialize();
             loading_table('.table_report_overflow',1);
             $.ajax({
-                url:baseurl +'/report/getdatagrid', //Server script to process data
+                url:baseurl +'/report/getdatagrid/0', //Server script to process data
                 type: 'POST',
                 dataType: 'json',
                 success: function(response) {
