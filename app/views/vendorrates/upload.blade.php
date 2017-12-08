@@ -148,7 +148,8 @@
                                 <input name="start_row" type="number" class="form-control" data-label="
                                 <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Skips rows from Start" min="0" value="0">
                             </div>
-                            <label class="col-sm-2 control-label" style="text-align: right;">Skips rows from Bottom</label>
+                            <label class="col-sm-2 control-label" style="text-align: right;">Skips rows from Bottom </label>
+                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="For example if you have 10 rows at bottom of file, out of which 5 rows are empty enter 5 only." data-original-title="Skips rows from Bottom">?</span>
                             <div class="col-sm-3">
                                 <input name="end_row" type="number" class="form-control" data-label="
                                     <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="Skips rows from Bottom" min="0" value="0">
