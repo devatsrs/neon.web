@@ -1,4 +1,8 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getVendorCodeRate`(IN `p_AccountID` INT, IN `p_trunkID` INT, IN `p_RateCDR` INT)
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getVendorCodeRate`(
+	IN `p_AccountID` INT,
+	IN `p_trunkID` INT,
+	IN `p_RateCDR` INT
+)
 BEGIN
  
 	IF p_RateCDR = 0
@@ -57,7 +61,8 @@ BEGIN
 		WHERE 
 			 tblVendorRate.AccountId = p_AccountID
 		AND tblVendorRate.TrunkID = p_trunkID
-		AND tblVendorRate.EffectiveDate <= NOW();
+		AND tblVendorRate.EffectiveDate <= NOW()
+		AND (tblVendorRate.EndDate IS NULL OR tblVendorRate.EndDate >= NOW()) ;
 	
 	END IF;
 END
