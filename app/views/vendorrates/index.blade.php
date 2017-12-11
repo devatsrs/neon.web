@@ -96,6 +96,7 @@
                         <select name="Effective" class="select2" data-allow-clear="true" data-placeholder="Select Effective">
                             <option value="Now">Now</option>
                             <option value="Future">Future</option>
+                            <option value="All">All</option>
                         </select>
                     </div>
 

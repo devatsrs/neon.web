@@ -1,4 +1,19 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_GetVendorRates`(IN `p_companyid` INT , IN `p_AccountID` INT, IN `p_trunkID` INT, IN `p_contryID` INT , IN `p_code` VARCHAR(50) , IN `p_description` VARCHAR(50) , IN `p_effective` varchar(100), IN `p_PageNumber` INT , IN `p_RowspPage` INT , IN `p_lSortCol` VARCHAR(50) , IN `p_SortOrder` VARCHAR(5) , IN `p_isExport` INT )
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetVendorRates`(
+	IN `p_companyid` INT ,
+	IN `p_AccountID` INT,
+	IN `p_trunkID` INT,
+	IN `p_contryID` INT ,
+	IN `p_code` VARCHAR(50) ,
+	IN `p_description` VARCHAR(50) ,
+	IN `p_effective` varchar(100),
+	IN `p_PageNumber` INT ,
+	IN `p_RowspPage` INT ,
+	IN `p_lSortCol` VARCHAR(50) ,
+	IN `p_SortOrder` VARCHAR(5) ,
+	IN `p_isExport` INT 
+
+
+)
 BEGIN	
 		
  
@@ -22,6 +37,7 @@ BEGIN
 	        IntervalN INT,
 	        Rate DECIMAL(18, 6),
 	        EffectiveDate DATE,
+	        EndDate DATE,
 	        updated_at DATETIME,
 	        updated_by VARCHAR(50),
 	        INDEX tmp_VendorRate_RateID (`Code`)
@@ -43,6 +59,7 @@ BEGIN
 					END AS IntervalN ,
 					Rate,
 					EffectiveDate,
+					EndDate,
 					tblVendorRate.updated_at,
 					tblVendorRate.updated_by
 				FROM tblVendorRate
@@ -63,6 +80,8 @@ BEGIN
 					(p_effective = 'Now' AND EffectiveDate <= NOW() )
 					OR 
 					(p_effective = 'Future' AND EffectiveDate > NOW())
+					OR
+					p_effective = 'All'
 					);
 		IF p_effective = 'Now'
 		THEN
@@ -71,6 +90,13 @@ BEGIN
 		   AND  n1.Code = n2.Code;
 		END IF;        
         
+		IF p_effective = 'All'
+		THEN
+		   CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRate2_ as (select * from tmp_VendorRate_);	        
+         DELETE n1 FROM tmp_VendorRate_ n1, tmp_VendorRate2_ n2 WHERE n1.EffectiveDate <= NOW() AND n2.EffectiveDate <= NOW() AND n1.EffectiveDate < n2.EffectiveDate 
+		   AND  n1.Code = n2.Code;
+		END IF;        
+      
 		  
 		   IF p_isExport = 0
 			THEN
@@ -83,6 +109,7 @@ BEGIN
 					IntervalN,
 					Rate,
 					EffectiveDate,
+					EndDate,
 					updated_at,
 					updated_by
 					
@@ -130,6 +157,12 @@ BEGIN
 						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EffectiveDateASC') THEN EffectiveDate
 					END ASC,
 					CASE
+						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateDESC') THEN EndDate
+					END DESC,
+					CASE
+						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'EndDateASC') THEN EndDate
+					END ASC,
+					CASE
 						WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'updated_atDESC') THEN updated_at
 					END DESC,
 					CASE
@@ -161,16 +194,16 @@ BEGIN
        IF p_isExport = 1
 		THEN
 
-			SELECT DISTINCT
+			SELECT
 				Code,
 				Description,
 				Rate,
 				EffectiveDate,
+				EndDate,
 				updated_at AS `Modified Date`,
 				updated_by AS `Modified By`
 
 			FROM tmp_VendorRate_;
-
 		END IF;
 	
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
