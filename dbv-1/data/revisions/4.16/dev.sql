@@ -95,6 +95,8 @@ vwVendorVersion3VosSheet
 vwVendorCurrentRates
 vwVendorArchiveCurrentRates
 
+prc_WSCronJobDeleteOldVendorRate
+
 prc_VendorBulkRateDelete
 prc_VendorBulkRateUpdate
 
@@ -255,15 +257,15 @@ BEGIN
 			   AND  t.TrunkId = tt.TrunkId
             AND t.RateID = tt.RateID
             AND t.Rate = tt.Rate) aold on aold.VendorRateID = tblVendorRate.VendorRateID;
-    SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 	DELETE  vr 
 	FROM tblVendorRate vr
    inner join tblVendorRateArchive vra
    on vr.VendorRateID = vra.VendorRateID
 	WHERE  FIND_IN_SET(vr.AccountId,p_AccountIds) != 0 AND FIND_IN_SET(vr.TrunkID,p_TrunkIds) != 0;
-   
-		
+
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
 END//
 DELIMITER ;
 
@@ -7579,3 +7581,61 @@ WHERE (vendorRate.Rate > 0);
 END//
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `prc_WSCronJobDeleteOldVendorRate`;
+DELIMITER //
+CREATE PROCEDURE `prc_WSCronJobDeleteOldVendorRate`()
+	BEGIN
+
+		DECLARE v_pointer_ INT ;
+		DECLARE v_rowCount_ INT ;
+
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+
+
+		-- loop through effective date
+		DROP TEMPORARY TABLE IF EXISTS tmp_AccountIDs_;
+		CREATE TEMPORARY TABLE tmp_AccountIDs_ (
+			AccountID  int,
+			TrunkID  int,
+			RowID int,
+			INDEX (RowID)
+		);
+		INSERT INTO tmp_AccountIDs_
+			SELECT distinct
+				AccountID,
+				TrunkID,
+				@row_num := @row_num+1 AS RowID
+			FROM
+				( SELECT distinct AccountID,TrunkID from tblVendorRate ) tmp_vAccountID_
+				,(SELECT @row_num := 0) x;
+
+
+		SET v_pointer_ = 1;
+		SET v_rowCount_ = ( SELECT COUNT(*) FROM tmp_AccountIDs_ );
+
+		IF v_rowCount_ > 0 THEN
+
+			WHILE v_pointer_ <= v_rowCount_
+			DO
+
+				SET @AccountID = ( SELECT AccountID FROM tmp_AccountIDs_ WHERE RowID = v_pointer_ );
+				SET @TrunkID = ( SELECT TrunkID FROM tmp_AccountIDs_ WHERE RowID = v_pointer_ );
+
+				SET @row_num = 0;
+
+				CALL prc_ArchiveOldVendorRate(@AccountID,@TrunkID);
+
+				-- select @AccountID,@TrunkID;
+
+				SET v_pointer_ = v_pointer_ + 1;
+
+
+			END WHILE;
+
+		END IF;
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+	END//
+DELIMITER ;
