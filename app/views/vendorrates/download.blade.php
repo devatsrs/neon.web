@@ -154,7 +154,7 @@
 jQuery(document).ready(function ($) {
     $('#fileformat').change(function(e){
         if($(this).val()){
-            var url = baseurl +'/customers_rates/{{$id}}/customerdownloadtype/'+$(this).val();
+            var url = baseurl +'/vendor_rates/{{$id}}/customerdownloadtype/'+$(this).val();
             $.ajax({
                 url:  url,  //Server script to process data
                 type: 'POST',
