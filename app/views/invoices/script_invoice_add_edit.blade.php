@@ -66,7 +66,7 @@ $(document).ready(function(){
         var productID = $this.val();
         var AccountID = $('select[name=AccountID]').val();
         var InvoiceDetailID = $row.find('.InvoiceDetailID').val();
-        var  selected_product_type = optgroup.prop('label')==txtSUBSCRIPTION?SUBSCRIPTION:'';
+        var  selected_product_type = optgroup.prop('label')==txtSUBSCRIPTION?SUBSCRIPTION:optgroup.prop('label')==txtITEM?ITEM:'';
         //selected_product_type = ($(this.options[this.selectedIndex]).closest('optgroup').prop('label')).toLowerCase();
         //$row.find('.ProductType').val(product_types[selected_product_type]);
         if( productID != ''  && parseInt(AccountID) > 0 ) {
@@ -166,6 +166,7 @@ $(document).ready(function(){
                             decimal_places = response.decimal_places;
                             $row.find(".StartDate").attr("disabled",true);
                             $row.find(".EndDate").attr("disabled",true);
+                            $row.find(".ProductType").val(selected_product_type);
                             $('.Taxentity').trigger('change');
                             $("textarea.autogrow").autosize();
                             calculate_total();
