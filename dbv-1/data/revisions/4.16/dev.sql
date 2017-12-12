@@ -5997,7 +5997,7 @@ ThisSP:BEGIN
 			-- update end date on temp table 
 			 UPDATE tmp_TempVendorRate_ tblTempVendorRate 
           JOIN tblVendorRateChangeLog vrcl
-          		 ON  tblTempVendorRate.ProcessId = p_processId
+          		 ON  vrcl.ProcessId = p_processId
           		 AND vrcl.Code = tblTempVendorRate.Code
         			 -- AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
         	SET 		
@@ -6010,7 +6010,7 @@ ThisSP:BEGIN
 			-- update intervals.
 		   UPDATE tmp_TempVendorRate_ tblTempVendorRate 
           JOIN tblVendorRateChangeLog vrcl
-          		 ON  tblTempVendorRate.ProcessId = p_processId
+          		 ON  vrcl.ProcessId = p_processId
           		 AND vrcl.Code = tblTempVendorRate.Code
         			 -- AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
         	SET 		
@@ -6615,7 +6615,8 @@ ThisSP:BEGIN
 
 					SET @EffectiveDate = ( SELECT EffectiveDate FROM tmp_EffectiveDates_ WHERE RowID = v_pointer_ );
 					SET @row_num = 0;
-					 	
+					
+						 	
 					UPDATE  tblVendorRate vr1
 	         	inner join
 	         	(
@@ -6632,6 +6633,7 @@ ThisSP:BEGIN
 		                    JOIN tmp_TempVendorRate_ as tblTempVendorRate
 		                   		 ON tblTempVendorRate.Code = tblRate.Code
 		                   			 AND  tblTempVendorRate.ProcessId = p_processId
+		                   			 AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block') -- do not update end date of deleted records (end date may be overwritten)
 		                    WHERE vr2.AccountId = p_accountId
 		                   		 AND vr2.TrunkId = p_trunkId
 		            				AND vr2.EffectiveDate <  @EffectiveDate
@@ -6651,7 +6653,7 @@ ThisSP:BEGIN
 						AND vr1.TrunkID = p_trunkId
 						AND vr1.EffectiveDate < @EffectiveDate;
 
-         	
+         	 
 					
 				 
 						
@@ -6671,8 +6673,9 @@ ThisSP:BEGIN
 	call prc_ArchiveOldVendorRate(p_accountId,p_trunkId);
 		
 	
- 	 SELECT * FROM tmp_JobLog_;
+ 	SELECT * FROM tmp_JobLog_;
     DELETE  FROM tblTempVendorRate WHERE  ProcessId = p_processId;
+	DELETE  FROM tblVendorRateChangeLog WHERE ProcessID = p_processId;
 
 	 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
@@ -6967,23 +6970,16 @@ ThisSP:BEGIN
 												and vr1.RateID = vr2.RateID
 												AND vr2.EffectiveDate  = @EffectiveDate
 			                          where
-			                          vr1.AccountID = p_accountId AND vr1.TrunkID = 1
+			                          vr1.AccountID = p_accountId AND vr1.TrunkID = p_trunkId
 			                          and vr1.EffectiveDate < COALESCE(vr2.EffectiveDate,@EffectiveDate)   
 			                          order by vr1.RateID desc ,vr1.EffectiveDate desc
-			                          
-			                          
-                         
-                         	/*select distinct vr1.*
-                         	from tblVendorRate vr1
-                         	inner join tblVendorRate vr2
-                         	on vr1.AccountID = vr2.AccountID  and vr1.TrunkID = vr2.TrunkID and vr1.RateID = vr2.RateID
-                         	where
-                         	vr1.AccountID = p_accountId AND vr1.TrunkID = p_trunkId
-                         	and vr1.EffectiveDate < vr2.EffectiveDate   AND vr2.EffectiveDate  = @EffectiveDate
-                         	order by vr1.RateID desc ,vr1.EffectiveDate desc
-                         	*/
+			                        
                          	
-                         ) tmp
+                         ) tmp , 	  
+						( SELECT @row_num := 0 , @prev_RateId := 0 , @prev_EffectiveDate := '' ) x
+						order by RateID desc , EffectiveDate desc 
+
+
 
 
                          ) VendorRate
