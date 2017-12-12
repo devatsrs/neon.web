@@ -328,6 +328,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/ips_check_upload',  'ImportsController@ips_check_upload');
 	Route::any('/import/ips_ajaxfilegrid',  'ImportsController@ips_ajaxfilegrid');
 	Route::any('/import/ips_storeTemplate',  'ImportsController@ips_storeTemplate');
+	Route::any('/import/ips/getAccountIpFromGateway/{id}/{gateway}',  'ImportsController@getAccountIpFromGateway');
+	Route::any('/import/ips/ajax_get_missing_gatewayaccountsip',  'ImportsController@ajax_get_missing_gatewayaccountsip');
+	Route::any('/import/ips/add_missing_gatewayaccountsip',  'ImportsController@add_missing_gatewayaccountsip');
 
 	//import leads
 	Route::any('/import/leads',  'ImportsController@import_leads');
@@ -471,6 +474,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_rates/bulk_update_preference/{id}', 'VendorRatesController@bulk_update_preference');
     Route::any('/vendor_rates/{id}/check_upload', 'VendorRatesController@check_upload');
     Route::any('/vendor_rates/{id}/ajaxfilegrid', 'VendorRatesController@ajaxfilegrid');
+    Route::any('/vendor_rates/{id}/review_rates', 'VendorRatesController@reviewRates');
+    Route::any('/vendor_rates/{id}/get_review_rates', 'VendorRatesController@getReviewRates');
+	Route::any('/vendor_rates/{id}/get_review_rates/exports/{type}', 'VendorRatesController@reviewRatesExports');
+    Route::any('/vendor_rates/{id}/update_temp_vendor_rates', 'VendorRatesController@updateTempVendorRates');
     Route::any('/vendor_rates/{id}/storeTemplate', 'VendorRatesController@storeTemplate');
     Route::any('/vendor_rates/{id}/search_vendor_grid', 'VendorRatesController@search_vendor_grid');
 	Route::any('/vendor_rates/{id}/customerdownloadtype/{type}', 'VendorRatesController@vendordownloadtype');

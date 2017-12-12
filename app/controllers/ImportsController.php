@@ -36,7 +36,7 @@ class ImportsController extends \BaseController {
                 $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
-                if (in_array($ext, array("csv", "xls", "xlsx"))) {
+                if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
                     $file_name_without_ext = GUID::generate();
                     $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
                     $excel->move($upload_path, $file_name);
@@ -272,6 +272,142 @@ class ImportsController extends \BaseController {
 
     }
 
+    //import account ips from gateway and insert into temp table
+    public function getAccountIpFromGateway($id,$gateway){
+        try {
+            $data = Input::all();
+            ini_set('max_execution_time', 0);
+            $CompanyGateway =  CompanyGateway::find($id);
+            $response = array();
+            $response1 = array();
+            if(!empty($CompanyGateway)){
+                $getGatewayName = Gateway::getGatewayName($CompanyGateway->GatewayID);
+                $response =  GatewayAPI::GatewayMethod($getGatewayName,$CompanyGateway->CompanyGatewayID,'testConnection');
+            }
+            if(isset($response['result']) && $response['result'] =='OK'){
+                //$ProcessID = (string) GUID::generate();
+                $ProcessID = $data['ProcessID'];
+                $CompanyID = User::get_companyID();
+                $CompanyGatewayID = $id;
+                $param['CompanyGatewayID'] = $CompanyGatewayID; // change
+                $param['CompanyID'] = $CompanyID;
+                $param['ProcessID'] = $ProcessID;
+                if($gateway == 'SippySFTP'){
+                    $TimeZone = 'GMT';
+                    date_default_timezone_set($TimeZone);
+
+                    if(isset($data['type']) && $data['type']=='accounts') {
+                        $start_time = date('Y-m-d H:i:s');
+                        Log::info("start time getAccountsIPDetail : " . $start_time);
+                        $response1 = SippyImporter::getAccountsIPDetail($param);
+                        $end_time = date('Y-m-d H:i:s');
+                        Log::info("end time getAccountsIPDetail : " . $end_time);
+                        $execution_time = strtotime($end_time) - strtotime($start_time);
+                        Log::info("execution time getAccountsIPDetail : " . $execution_time . " seconds");
+                    } else if(isset($data['type']) && $data['type']=='vendors') {
+                        $start_time = date('Y-m-d H:i:s');
+                        Log::info("start time getVendorsIPDetail : " . $start_time);
+                        $response1 = SippyImporter::getVendorsIPDetail($param);
+                        $end_time = date('Y-m-d H:i:s');
+                        Log::info("end time getVendorsIPDetail : " . $end_time);
+                        $execution_time = strtotime($end_time) - strtotime($start_time);
+                        Log::info("execution time getVendorsIPDetail : " . $execution_time . " seconds");
+                    }
+                }
+
+                if(isset($response1['result']) && $response1['result'] =='OK'){
+                    if(isset($response1['Gateway']) && $response1['Gateway'] == 'Sippy') {
+                        return Response::json(array("status" => "success", "message" => "Get Account IP successfully From Gateway", "processid" => $ProcessID, "Gateway" => "Sippy"));
+                    } else {
+                        return Response::json(array("status" => "success", "message" => "Get Account IP successfully From Gateway", "processid" => $ProcessID));
+                    }
+                }else if(isset($response1['faultCode']) && isset($response1['faultString'])){
+                    return Response::json(array("status" => "failed", "message" => "Access Denied."));
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "Import Gateway Account IP."));
+                }
+            }else if(isset($response['faultCode']) && isset($response['faultString'])){
+                return Response::json(array("status" => "failed", "message" => "Failed to connect Gateway."));
+            }else{
+                return Response::json(array("status" => "failed", "message" => "Failed to connect Gateway."));
+            }
+
+        }catch(Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
+
+    // get missing gateway account ips
+    public function ajax_get_missing_gatewayaccountsip(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $data['iDisplayStart'] +=1;
+        $columns = ['tblTempAccountIPID','AccountName','IP'];
+        $sort_column = $columns[$data['iSortCol_0']];
+        $CompanyGatewayID = $data['CompanyGatewayID'];
+        // 0="all account", 1="customers", 2="vendors"
+        $accountiptype = isset($data['accountiptype']) ? $data['accountiptype'] : 0;
+        $cprocessid = $data['importprocessid'];
+        $query = "call prc_getMissingAccountsIPByGateway (".$CompanyID.", ".$CompanyGatewayID.",'".$cprocessid."','".$accountiptype."', ".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = DB::select($query.',1)');
+            $excel_data = json_decode(json_encode($excel_data),true);
+            Excel::create('Missing Gateway Account IPs', function ($excel) use ($excel_data) {
+                $excel->sheet('Missing Gateway Account IPs', function ($sheet) use ($excel_data) {
+                    $sheet->fromArray($excel_data);
+                });
+            })->download('xls');
+        }
+        $query .=',0)';
+
+        return DataTableSql::of($query)->make();
+    }
+
+    //set cronjob for insert missing gateway account ips from temp table
+    public function add_missing_gatewayaccountsip(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        if(empty($data['companygatewayid'])){
+            return json_encode(array("status" => "failed", "message" => "Please select gateway."));
+        }
+        $AccountIPIDs =array_filter(explode(',',$data['TempAccountIPIDs']),'intval');
+        if (is_array($AccountIPIDs) && count($AccountIPIDs) || !empty($data['criteria'])) {
+
+            if(isset($data['NeonAccountNames'])) {
+                $NeonAccountNames = json_decode($data['NeonAccountNames']);
+                foreach ($NeonAccountNames as $id => $AccountName) {
+                    //update account name which is entered in text-box to tblTempAccountIP
+                    DB::table('tblTempAccountIP')->where('tblTempAccountIPID', $id)->update(['AccountName' => $AccountName]);
+                }
+            }
+            $data['IPCLI'] = 'IP';
+
+            $jobType = JobType::where(["Code" => 'ICU'])->first(["JobTypeID", "Title"]);
+            $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
+            $jobdata["CompanyID"] = $CompanyID;
+            $jobdata["JobTypeID"] = $jobType->JobTypeID;
+            $jobdata["JobStatusID"] =  $jobStatus->JobStatusID;
+            $jobdata["JobLoggedUserID"] = User::get_userID();
+            $jobdata["Title"] =  $jobType->Title;
+            $jobdata["Description"] = $jobType->Title;
+            $jobdata["CreatedBy"] = User::get_user_full_name();
+            $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
+            $jobdata["updated_at"] = date('Y-m-d H:i:s');
+            $JobID = Job::insertGetId($jobdata);
+            if($JobID){
+                return json_encode(["status" => "success", "message" => "Import AccountIP Job Added in queue to process.You will be notified once job is completed."]);
+            }else{
+                return json_encode(array("status" => "failed", "message" => "Problem Creating in import AccountIP."));
+            }
+        }else{
+            return json_encode(array("status" => "failed", "message" => "Please select AccountIP."));
+        }
+    }
+
+
+
+
     //leads import
     public function import_leads() {
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_Leads);
@@ -288,7 +424,7 @@ class ImportsController extends \BaseController {
                 $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
-                if (in_array($ext, array("csv", "xls", "xlsx"))) {
+                if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
                     $file_name_without_ext = GUID::generate();
                     $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
                     $excel->move($upload_path, $file_name);
@@ -567,8 +703,11 @@ class ImportsController extends \BaseController {
 
     /*import ip section */
     public function import_ips() {
+        $customerslist  = Account::getCustomerIDList();
+        $vendorslist    = Account::getVendorIDList();
+        $gatewaylist    = CompanyGateway::importIPGatewayList();
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_IPS);
-        return View::make('imports.ips', compact('UploadTemplate'));
+        return View::make('imports.ips', compact('UploadTemplate','gatewaylist','customerslist','vendorslist'));
     }
 
     // download sample file of ip upload
@@ -586,7 +725,7 @@ class ImportsController extends \BaseController {
                 $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
-                if (in_array($ext, array("csv", "xls", "xlsx"))) {
+                if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
                     $file_name_without_ext = GUID::generate();
                     $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
                     $excel->move($upload_path, $file_name);

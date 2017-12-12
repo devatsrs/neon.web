@@ -5,7 +5,6 @@
 	"license": "MIT",
 	"require": {
 		"laravel/framework": "4.2.*",
-		"barryvdh/laravel-debugbar": "1.*",
 		"bllim/datatables": "*",
 		"nesbot/Carbon": "*",
 		"nathanmac/laravel-guid": "dev-master",

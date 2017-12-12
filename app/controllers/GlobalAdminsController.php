@@ -5,7 +5,7 @@ class GlobalAdminsController extends \BaseController {
     public function __construct()
     {
 
-        //\Debugbar::disable();
+        //
     }
     public function select_company()
 	{
