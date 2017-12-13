@@ -364,6 +364,14 @@ jQuery(document).ready(function($) {
                            }
                        }
                    });
+
+                   if(Effective == 'All') {
+                       $('#bulk_set_vendor_rate').hide();
+                       $('#changeSelectedVendorRates').hide();
+                   } else {
+                       $('#bulk_set_vendor_rate').show();
+                       $('#changeSelectedVendorRates').show();
+                   }
                }
 
 
