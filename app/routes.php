@@ -965,6 +965,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/calculate_total', 'InvoicesController@calculate_total');
 	Route::any('/invoice/get_account_info', 'InvoicesController@getAccountInfo');
 	Route::any('/invoice/get_billingclass_info', 'InvoicesController@getBillingclassInfo');
+	Route::any('/invoice/{id}/invoice_chart', 'InvoicesController@invoice_management_chart'); //Customer View
 	
 	Route::any('/invoice/bulk_invoice', 'InvoicesController@bulk_invoice');
 	Route::any('/invoice/add_invoice_in', 'InvoicesController@add_invoice_in');
