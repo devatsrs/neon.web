@@ -14,7 +14,7 @@
           <h1 class="text-center">Management Report</h1>
         </div>
         <div class="x-span4 pull-right" style="margin-top:5px;">
-          <a href="#" onclick="goBack()" class="btn pull-right btn-success btn-sm btn-icon icon-left"><i class="fa fa-long-arrow-left"></i>
+          <a href="#" onclick="goBack()" class="btn pull-right btn-success btn-sm btn-icon icon-left"><i class="entypo-left"></i>
             Go Back
           </a>
         </div>
