@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getInvoice`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
 	IN `p_InvoiceNumber` VARCHAR(50),
@@ -15,8 +15,22 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getInvoice`(
 	IN `p_isExport` INT,
 	IN `p_sageExport` INT,
 	IN `p_zerovalueinvoice` INT,
-	IN `p_InvoiceID` LONGTEXT,
+	IN `p_InvoiceID` LONGTEXT
+
+
+
+
+
+
+,
 	IN `p_userID` INT
+
+
+
+
+
+
+
 )
 BEGIN
 	DECLARE v_OffSet_ int;
@@ -38,6 +52,7 @@ BEGIN
 		IssueDate datetime,
 		InvoicePeriod varchar(100),
 		CurrencySymbol varchar(5),
+		Currency varchar(50),
 		GrandTotal decimal(18,6),
 		TotalPayment decimal(18,6),
 		PendingAmount decimal(18,6),
@@ -53,7 +68,8 @@ BEGIN
 		PaymentDate datetime,
 		SubTotal decimal(18,6),
 		TotalTax decimal(18,6),
-		NominalAnalysisNominalAccountNumber varchar(100)
+		NominalAnalysisNominalAccountNumber varchar(100),
+		TotalMinutes BIGINT(20)
 	);
 
 		INSERT INTO tmp_Invoices_
@@ -63,6 +79,7 @@ BEGIN
 			inv.IssueDate,
 			IF(invd.StartDate IS NULL ,'',CONCAT('From ',date(invd.StartDate) ,'<br> To ',date(invd.EndDate))) as InvoicePeriod,
 			IFNULL(cr.Symbol,'') as CurrencySymbol,
+			cr.Code AS Currency,
 			inv.GrandTotal as GrandTotal,
 			(SELECT IFNULL(sum(p.Amount),0) FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) as TotalPayment,
 			(inv.GrandTotal -  (SELECT IFNULL(sum(p.Amount),0) FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.AccountID = inv.AccountID AND p.Recall =0) ) as `PendingAmount`,
@@ -81,7 +98,8 @@ BEGIN
 			(SELECT PaymentDate FROM tblPayment p WHERE p.InvoiceID = inv.InvoiceID AND p.Status = 'Approved' AND p.Recall =0 AND p.AccountID = inv.AccountID ORDER BY PaymentID DESC LIMIT 1) AS PaymentDate,
 			inv.SubTotal,
 			inv.TotalTax,
-			ac.NominalAnalysisNominalAccountNumber
+			ac.NominalAnalysisNominalAccountNumber,
+			IFNULL((SELECT SUM(IFNULL(TotalMinutes,0)) FROM tblInvoiceDetail tid WHERE tid.InvoiceID=inv.InvoiceID GROUP BY tid.InvoiceID),0) AS TotalMinutes
 			FROM tblInvoice inv
 			INNER JOIN NeonRMDev.tblAccount ac ON ac.AccountID = inv.AccountID
 			LEFT JOIN tblInvoiceDetail invd ON invd.InvoiceID = inv.InvoiceID AND (invd.ProductType = 5 OR inv.InvoiceType = 2)
@@ -96,7 +114,7 @@ BEGIN
 			AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus) ))
 			AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
 			AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
-			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));
+			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));	
 
 	IF p_isExport = 0 and p_sageExport = 0
 	THEN
@@ -111,7 +129,7 @@ BEGIN
 			CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `PendingAmount`,
 			InvoiceStatus,
 			DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY)) AS DueDate,
-			IF(InvoiceStatus NOT IN ('paid','cancel','draft'), IF(DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))) > 0,DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))),''), '') AS DueDays,
+			IF(InvoiceStatus IN ('send','awaiting'), IF(DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))) > 0,DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))),''), '') AS DueDays,
 			InvoiceID,
 			Description,
 			Attachment,
@@ -228,6 +246,98 @@ BEGIN
 		FROM tmp_Invoices_
 		WHERE
 				(p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				);
+
+	END IF;
+	
+	IF p_isExport = 3 -- api
+	THEN
+
+		SELECT
+			InvoiceID,
+			AccountName,
+			InvoiceNumber,
+			IssueDate,
+			InvoicePeriod,
+			CONCAT(CurrencySymbol, ROUND(GrandTotal,v_Round_)) as GrandTotal2,
+			CONCAT(CurrencySymbol,ROUND(TotalPayment,v_Round_),'/',ROUND(PendingAmount,v_Round_)) as `PendingAmount`,
+			InvoiceStatus,
+			DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY)) AS DueDate,
+			IF(InvoiceStatus IN ('send','awaiting'), IF(DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))) > 0,DATEDIFF(CURDATE(),DATE(DATE_ADD(IssueDate, INTERVAL IFNULL(PaymentDueInDays,0) DAY))),''), '') AS DueDays,
+			Currency,
+			InvoiceID,
+			Description,
+			Attachment,
+			AccountID,
+			PendingAmount as OutstandingAmount,
+			ItemInvoice,
+			BillingEmail,
+			GrandTotal,
+			TotalMinutes
+		FROM tmp_Invoices_
+		WHERE (p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				)
+		ORDER BY
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameDESC') THEN AccountName
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'AccountNameASC') THEN AccountName
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceTypeDESC') THEN InvoiceType
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceTypeASC') THEN InvoiceType
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceStatusDESC') THEN InvoiceStatus
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceStatusASC') THEN InvoiceStatus
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNumberASC') THEN InvoiceNumber
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceNumberDESC') THEN InvoiceNumber
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateASC') THEN IssueDate
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'IssueDateDESC') THEN IssueDate
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoicePeriodASC') THEN InvoicePeriod
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoicePeriodDESC') THEN InvoicePeriod
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalDESC') THEN GrandTotal
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'GrandTotalASC') THEN GrandTotal
+				END ASC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDDESC') THEN InvoiceID
+				END DESC,
+			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDASC') THEN InvoiceID
+				END ASC
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+		
+		SELECT COUNT(*) INTO v_TotalCount
+		FROM tmp_Invoices_
+		WHERE (p_IsOverdue = 0
+					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
+							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
+							AND(PendingAmount>0)
+						)
+				);
+
+		SELECT
+			v_TotalCount AS totalcount,
+			ROUND(sum(GrandTotal),v_Round_) as total_grand,
+			ROUND(sum(TotalPayment),v_Round_) as `TotalPayment`,
+			ROUND(sum(PendingAmount),v_Round_) as `TotalPendingAmount`,
+			v_CurrencyCode_ as currency_symbol
+		FROM tmp_Invoices_
+			WHERE ((InvoiceStatus IS NULL) OR (InvoiceStatus NOT IN('draft','Cancel')))
+			AND (p_IsOverdue = 0
 					OR ((To_days(NOW()) - To_days(IssueDate)) > PaymentDueInDays
 							AND(InvoiceStatus NOT IN('awaiting','draft','Cancel'))
 							AND(PendingAmount>0)
