@@ -189,7 +189,7 @@
                 <div class="form-group">
                     <label class="col-md-2 control-label">Currency</label>
                     <div class="col-md-4">
-                            @if($invoice_count == 0)
+                            @if($all_invoice_count == 0)
                             {{Form::SelectControl('currency',0,$account->CurrencyId,0,'CurrencyId')}}
                             <!--{Form::select('CurrencyId', $currencies, $account->CurrencyId ,array("class"=>"form-control select2 small"))}}-->
                             @else
@@ -451,7 +451,7 @@
                     ?>
                     <label for="field-1" class="col-md-2 control-label">Billing Start Date*</label>
                     <div class="col-md-4">
-                        @if($billing_disable == '' || (isset($AccountBilling->BillingCycleType) && $AccountBilling->BillingCycleType != 'manual'))
+                        @if($billing_disable == '' || ($billing_disable == '' && isset($AccountBilling->BillingCycleType) && $AccountBilling->BillingCycleType != 'manual'))
                             {{Form::text('BillingStartDate', $BillingStartDate,array('class'=>'form-control datepicker billing_start_date',"data-date-format"=>"yyyy-mm-dd"))}}
                         @else
                             {{Form::hidden('BillingStartDate', $BillingStartDate)}}

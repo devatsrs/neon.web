@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPayments`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getPayments`(
 	IN `p_CompanyID` INT,
 	IN `p_accountID` INT,
 	IN `p_InvoiceNo` VARCHAR(30),
@@ -15,11 +15,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_getPayments`(
 	IN `p_isCustomer` INT ,
 	IN `p_paymentStartDate` DATETIME,
 	IN `p_paymentEndDate` DATETIME,
-	IN `p_isExport` INT 
-
-
-
-,
+	IN `p_isExport` INT,
 	IN `p_userID` INT
 )
 BEGIN
@@ -117,6 +113,12 @@ BEGIN
 			END DESC,
 			CASE
 				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'CreatedByASC') THEN tblPayment.CreatedBy
+			END ASC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NotesDESC') THEN tblPayment.Notes
+			END DESC,
+			CASE
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'NotesASC') THEN tblPayment.Notes
 			END ASC
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 

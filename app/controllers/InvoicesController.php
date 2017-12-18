@@ -911,7 +911,7 @@ class InvoicesController extends \BaseController {
 
     // not in use
     public function pdf_view($id) {
-        \Debugbar::disable();
+
 
         // check if Invoice has usege or Subscription then download PDF directly.
         $hasUsageInInvoice =  InvoiceDetail::where("InvoiceID",$id)
@@ -2801,6 +2801,45 @@ class InvoicesController extends \BaseController {
 
         }else{
             return Response::json(array("status" => "failed", "message" => "Invoice not found"));
+        }
+    }
+    /**
+     * Xero Post
+     *
+    */
+    public function invoice_xeropost(){
+        $data = Input::All();
+
+        if(!empty($data['criteria'])){
+            $invoiceid = $this->getInvoicesIdByCriteria($data);
+            $invoiceid = rtrim($invoiceid,',');
+            $data['InvoiceIDs'] = $invoiceid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }
+        $CompanyID = User::get_companyID();
+        $InvoiceIDs =array_filter(explode(',',$data['InvoiceIDs']),'intval');
+        if (is_array($InvoiceIDs) && count($InvoiceIDs)) {
+            $jobType = JobType::where(["Code" => 'XIP'])->first(["JobTypeID", "Title"]);
+            $jobStatus = JobStatus::where(["Code" => "P"])->first(["JobStatusID"]);
+            $jobdata["CompanyID"] = $CompanyID;
+            $jobdata["JobTypeID"] = $jobType->JobTypeID ;
+            $jobdata["JobStatusID"] =  $jobStatus->JobStatusID;
+            $jobdata["JobLoggedUserID"] = User::get_userID();
+            $jobdata["Title"] =  $jobType->Title;
+            $jobdata["Description"] = $jobType->Title ;
+            $jobdata["CreatedBy"] = User::get_user_full_name();
+            $jobdata["Options"] = json_encode($data);
+            $jobdata["created_at"] = date('Y-m-d H:i:s');
+            $jobdata["updated_at"] = date('Y-m-d H:i:s');
+            $JobID = Job::insertGetId($jobdata);
+            if($JobID){
+                return json_encode(["status" => "success", "message" => "Invoice Post in xero Job Added in queue to process.You will be notified once job is completed."]);
+            }else{
+                return json_encode(array("status" => "failed", "message" => "Problem Creating Invoice Post in Xero ."));
+            }
         }
     }
 }

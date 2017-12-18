@@ -154,17 +154,22 @@ class Report extends \Eloquent {
 
     public static $measures = array(
         'summary'=>array(
-            'TotalCharges' => 'Cost',
+            'TotalCharges' => 'Revenue',
+            'TotalCost' => 'Cost',
             'TotalBilledDuration' => 'Duration',
             'NoOfCalls' => 'No Of Calls',
-            'NoOfFailCalls' => 'No Of Failed Calls'
+            'NoOfFailCalls' => 'No Of Failed Calls',
+            'Margin' => 'Margin',
+            'MarginPercentage' => 'Margin %',
         ),
         'vsummary'=>array(
             'TotalCharges' => 'Cost',
             'TotalSales' => 'Sales',
             'TotalBilledDuration' => 'Duration',
             'NoOfCalls' => 'No Of Calls',
-            'NoOfFailCalls' => 'No Of Failed Calls'
+            'NoOfFailCalls' => 'No Of Failed Calls',
+            'Margin' => 'Margin',
+            'MarginPercentage' => 'Margin %',
         ),
         'invoice'=>array(
             'GrandTotal' => 'Total',

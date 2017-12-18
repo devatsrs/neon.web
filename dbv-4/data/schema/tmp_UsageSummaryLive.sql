@@ -18,6 +18,8 @@ CREATE TABLE `tmp_UsageSummaryLive` (
   `FinalStatus` int(11) DEFAULT '0',
   `CountryID` int(11) DEFAULT NULL,
   `ServiceID` int(11) DEFAULT NULL,
+  `userfield` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `TotalCost` double DEFAULT NULL,
   PRIMARY KEY (`UsageSummaryLiveID`),
   KEY `tblUsageSummary_dim_date` (`DateID`),
   KEY `tmp_UsageSummary_AreaPrefix` (`AreaPrefix`),

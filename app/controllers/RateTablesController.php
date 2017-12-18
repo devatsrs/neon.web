@@ -262,33 +262,6 @@ class RateTablesController extends \BaseController {
                 return Response::json(array("status" => "failed", "message" => "Problem Updating  Rate Table."));
             }
         }
-        /* not in use
-        else {
-
-            // Create RateTableRate
-
-            $data = Input::all();
-
-            $data["CreatedBy"] = User::get_user_full_name();
-            $data["ModifiedBy"] = User::get_user_full_name();
-            $data["RateTableId"] = $id;
-            $data["PreviousRate"] = 0;
-            unset($data['RateTableRateID']);
-
-            $rules = array('RateID' => 'required', 'RateTableId' => 'required', 'Rate' => 'required', 'EffectiveDate' => 'required', 'Interval1'=>'required','IntervalN'=>'required','PreviousRate' => 'required', 'CreatedBy' => 'required', 'ModifiedBy' => 'required');
-
-            $validator = Validator::make($data, $rules);
-
-            if ($validator->fails()) {
-                return json_validator_response($validator);
-            }
-            if (RateTableRate::insert($data)) {
-                RateTableRate::find(DB::getPdo()->lastInsertId())->touch();
-                return Response::json(array("status" => "success", "message" => "Rate Table Successfully Updated"));
-            } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Updating  Rate Table."));
-            }
-        }*/
     }
 
     // update bulk rate table rate
@@ -510,7 +483,7 @@ class RateTablesController extends \BaseController {
                 $upload_path = CompanyConfiguration::get('TEMP_PATH');
                 $excel = Input::file('excel');
                 $ext = $excel->getClientOriginalExtension();
-                if (in_array($ext, array("csv", "xls", "xlsx"))) {
+                if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
                     $file_name_without_ext = GUID::generate();
                     $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
                     $excel->move($upload_path, $file_name);

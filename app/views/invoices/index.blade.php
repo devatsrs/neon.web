@@ -132,6 +132,10 @@
             @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook))
             <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Post </a> </li>
             @endif
+            @if(User::checkCategoryPermission('Invoice','Post') && is_Xero())
+            <li> <a class="xeropost create" id="xero_post" href="javascript:;"> Xero Post </a> </li>
+            <li> <a class="xerojournal create" id="xero_journal" href="javascript:;"> Xero Journal </a> </li>
+            @endif
 
             <li> <a class="create" id="sage-export" href="javascript:;"> Sage Export </a> </li>
             @if(is_SagePayDirectDebit())
@@ -1352,6 +1356,48 @@
                 });
                 if (InvoiceIDs.length) {
                     submit_ajax(baseurl + '/invoice/invoice_quickbookpost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria)
+                }
+            });
+            $("#xero_post").click(function (ev) {
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+                if (!confirm('Are you sure you want to post in xero selected invoices?')) {
+                    return;
+                }
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                if (InvoiceIDs.length) {
+                    submit_ajax(baseurl + '/invoice/invoice_xeropost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&type=invoice')
+                }
+            });
+
+
+            $("#xero_journal").click(function (ev){
+                var criteria = '';
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                var InvoiceIDs = [];
+                var i = 0;
+                if (!confirm('Are you sure you want to post as journal in xero selected invoices?')) {
+                    return;
+                }
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+                if (InvoiceIDs.length) {
+                    submit_ajax(baseurl + '/invoice/invoice_xeropost', 'InvoiceIDs=' + InvoiceIDs.join(",") + '&criteria=' + criteria + '&type=journal')
                 }
             });
 

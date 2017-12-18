@@ -4,7 +4,7 @@ CREATE TABLE `tblRateSheet` (
   `RateSheet` longblob,
   `DateGenerated` datetime NOT NULL,
   `FileName` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Level` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `Level` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `GeneratedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`RateSheetID`),
   KEY `IX_tblRateSheet_CustomerID_Level_69B7F` (`CustomerID`,`Level`)

@@ -16,8 +16,9 @@ BEGIN
 	END;
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 	
-	CALL fngetDefaultCodes(p_CompanyID); 
-	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+	CALL fngetDefaultCodes(p_CompanyID);
+-- 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID); 
+-- 	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 	CALL fnUpdateVendorLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 
 	DELETE FROM tmp_VendorUsageSummary WHERE CompanyID = p_CompanyID;
@@ -64,6 +65,7 @@ BEGIN
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	WHERE ud.CompanyID = ',p_CompanyID,'
+		AND ud.VAccountID IS NOT NULL
 	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk;	
 	');
 
@@ -79,6 +81,16 @@ BEGIN
 
 	START TRANSACTION;
 	
+	DELETE us FROM tblVendorSummaryDay us 
+	INNER JOIN tblHeaderV sh ON us.HeaderVID = sh.HeaderVID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
+	DELETE usd FROM tblVendorSummaryHour usd
+	INNER JOIN tblHeaderV sh ON usd.HeaderVID = sh.HeaderVID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
 	DELETE h FROM tblHeaderV h 
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_VendorUsageSummary)u
 		ON h.DateID = u.DateID 
@@ -90,6 +102,7 @@ BEGIN
 		CompanyID,
 		VAccountID,
 		TotalCharges,
+		TotalSales,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -100,6 +113,7 @@ BEGIN
 		CompanyID,
 		VAccountID,
 		SUM(TotalCharges) as TotalCharges,
+		SUM(TotalSales) as TotalSales,		
 		SUM(TotalBilledDuration) as TotalBilledDuration,
 		SUM(TotalDuration) as TotalDuration,
 		SUM(NoOfCalls) as NoOfCalls,
@@ -120,16 +134,6 @@ BEGIN
 	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
 	WHERE sh.CompanyID =  p_CompanyID ;
 
-	DELETE us FROM tblVendorSummaryDay us 
-	INNER JOIN tblHeaderV sh ON us.HeaderVID = sh.HeaderVID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
-	DELETE usd FROM tblVendorSummaryHour usd
-	INNER JOIN tblHeaderV sh ON usd.HeaderVID = sh.HeaderVID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
 	INSERT INTO tblVendorSummaryDay (
 		HeaderVID,
 		CompanyGatewayID,
@@ -141,6 +145,7 @@ BEGIN
 		AreaPrefix,
 		CountryID,
 		TotalCharges,
+		TotalSales,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -157,6 +162,7 @@ BEGIN
 		AreaPrefix,
 		CountryID,
 		SUM(us.TotalCharges),
+		SUM(us.TotalSales),
 		SUM(us.TotalBilledDuration),
 		SUM(us.TotalDuration),
 		SUM(us.NoOfCalls),
@@ -181,6 +187,7 @@ BEGIN
 		AreaPrefix,
 		CountryID,
 		TotalCharges,
+		TotalSales,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -198,6 +205,7 @@ BEGIN
 		AreaPrefix,
 		CountryID,
 		us.TotalCharges,
+		us.TotalSales,
 		us.TotalBilledDuration,
 		us.TotalDuration,
 		us.NoOfCalls,
@@ -213,6 +221,12 @@ BEGIN
 
 	COMMIT;
 	
+	SET @stmt = CONCAT('TRUNCATE TABLE tmp_tblUsageDetailsReport_',p_UniqueID,';');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+	
 	SET @stmt = CONCAT('TRUNCATE TABLE tmp_tblVendorUsageDetailsReport_',p_UniqueID,';');
 
 	PREPARE stmt FROM @stmt;
@@ -220,11 +234,11 @@ BEGIN
 	DEALLOCATE PREPARE stmt;
 	
 	
-	SET @stmt = CONCAT('TRUNCATE TABLE tblTempCallDetail_2_',p_UniqueID,';');
+	/*SET @stmt = CONCAT('TRUNCATE TABLE tblTempCallDetail_2_',p_UniqueID,';');
 
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
-	DEALLOCATE PREPARE stmt;
+	DEALLOCATE PREPARE stmt;*/
 	
 	DELETE FROM tmp_VendorUsageSummary WHERE CompanyID = p_CompanyID;
 	

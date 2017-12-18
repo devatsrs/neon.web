@@ -37,7 +37,8 @@ class GatewayController extends \BaseController {
     {
         $gateway 			= 	Gateway::getGatewayListID();
         $timezones 			= 	TimeZone::getTimeZoneDropdownList();
-        $GatewayName       =   Gateway::getGatewayName($id);
+        $GatewayName        =   Gateway::getGatewayName($id);
+
        // $gateway['other'] 	= 	'other';
         return View::make('gateway.index', compact('gateway','GatewayName','timezones','id'));
     }
@@ -77,12 +78,17 @@ class GatewayController extends \BaseController {
         if(isset($data['sshpassword']) && !empty($data['sshpassword'])){
             $data['sshpassword'] = Crypt::encrypt($data['sshpassword']);
         }
+        if(isset($data['api_password']) && !empty($data['api_password'])){
+            $data['api_password'] = Crypt::encrypt($data['api_password']);
+        }
         $today = date('Y-m-d');
         $data['CreatedBy'] = User::get_user_full_name();
         $data['created_at'] =  $today;
         if(count($data)>0){
             $data['Settings'] =  json_encode($data);
         }
+        unset($data['Accounts']);
+
         if ($CompanyGateway = CompanyGateway::create($data)) {
             $CompanyGatewayID = $CompanyGateway->CompanyGatewayID;
             CompanyGateway::createCronJobsByCompanyGateway($CompanyGatewayID);
@@ -162,6 +168,14 @@ class GatewayController extends \BaseController {
                     $data['sshpassword'] = $settings["sshpassword"];
                 }
             }
+            if(isset($data['api_password']) && !empty($data['api_password'])){
+                $data['api_password'] = Crypt::encrypt($data['api_password']);
+            }else {
+                $settings = json_decode($CompanyGateway->Settings,true);
+                if(isset($settings["api_password"])&& !empty($settings["api_password"])){
+                    $data['api_password'] = $settings["api_password"];
+                }
+            }
             $validator = Validator::make($data, $rules);
 
             if ($validator->fails()) {
@@ -186,6 +200,8 @@ class GatewayController extends \BaseController {
             if(count($data)>0){
                 $data['Settings'] =  json_encode($data);
             }
+            unset($data['Accounts']);
+
             if ($CompanyGateway->update($data)) {
                 return Response::json(array("status" => "success", "message" => "Gateway Successfully Updated"));
             } else {
@@ -236,7 +252,9 @@ class GatewayController extends \BaseController {
                 $gatewayconfigval = json_decode($CompanyGateway->Settings);
             }
             $GatewayName = Gateway::getGatewayName($data['GatewayID']);
-            return View::make('gateway.ajax_config_html', compact('gatewayconfig','gatewayconfigval','GatewayName'));
+            $Accounts   = Account::getAccountIDList();
+            $Accounts   = array_diff($Accounts,array('Select'));
+            return View::make('gateway.ajax_config_html', compact('gatewayconfig','gatewayconfigval','GatewayName','Accounts'));
         }
         return '';
     }

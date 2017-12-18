@@ -1,4 +1,4 @@
-CREATE DEFINER=`neon-user-umer`@`122.129.78.153` PROCEDURE `prc_GetCrmDashboardSalesUser`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetCrmDashboardSalesUser`(
 	IN `p_CompanyID` INT,
 	IN `p_OwnerID` VARCHAR(500),
 	IN `p_CurrencyID` INT,
@@ -21,6 +21,8 @@ BEGIN
 		Revenue decimal(18,8)
 	);
 
+	CALL NeonReportDev.fnGetCRMUnBilledDataByAccount(p_CompanyID,p_OwnerID,p_CurrencyID,p_ListType,p_Start,p_End,p_WeekOrMonth,p_Year);
+
 	INSERT INTO tmp_Dashboard_user_invoices_
 	SELECT
 		ac.AccountName  AS `AssignedUserText`,
@@ -42,11 +44,12 @@ BEGIN
 	GROUP BY
 		ac.AccountName;
 
-	SELECT	
+	SELECT
 		td.AssignedUserText,
-		ROUND(td.Revenue,v_Round_) AS Revenue,
+		ROUND(SUM(td.Revenue),v_Round_) AS Revenue,
 		v_CurrencyCode_ AS CurrencyCode,
 		v_Round_ AS round_number
-	FROM  tmp_Dashboard_user_invoices_  td;
+	FROM  tmp_Dashboard_user_invoices_  td
+	GROUP BY AssignedUserText;
 
 END

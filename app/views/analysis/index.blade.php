@@ -50,8 +50,9 @@
                 <div class="form-group">
                     <label class="control-label" for="field-1">Currency</label>
                     {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}
-                    <input type="hidden" name="UserID" value="{{$UserID}}">
+
                     <input type="hidden" name="Admin" value="{{$isAdmin}}">
+                    <input type="hidden" name="Admin1" value="{{$isAdmin}}">
                     <input type="hidden" name="chart_type" value="destination">
                 </div>
                 <div class="form-group">
@@ -61,6 +62,18 @@
                 <div class="form-group select_hour">
                     <label class="control-label select_hour" for="field-1">TimeZone</label>
                     {{ Form::select('TimeZone',$timezones,'', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="field-1">Type</label>
+                    {{ Form::select('CDRType',array(''=>'Both','inbound' => "Inbound", 'outbound' => "Outbound" ),'', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    @if(User::is_admin())
+                        <label for="field-1" class="control-label">Owner</label>
+                        {{Form::select('UserID',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
+                    @else
+                        <input type="hidden" name="UserID" value="{{$UserID}}">
+                    @endif
                 </div>
                 <div class="form-group">
                     <br/>
@@ -85,6 +98,7 @@
     <ul class="nav nav-tabs">
         <li class="active"><a href="#">Customer</a></li>
         <li ><a href="{{ URL::to('/vendor_analysis') }}">Vendor</a></li>
+        <li ><a href="{{ URL::to('/analysis_manager') }}">Account Manager</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="customer" >

@@ -681,7 +681,7 @@ function bulk_mail($type,$data){
                 return Response::json(array("status" => "failed", "message" => "Problem Creating Template."));
             }
         } elseif ($data["template_option"] == 2) { // Update
-            if ($data['email_template'] > 0) {
+            if (!empty($data['email_template']) && $data['email_template'] > 0) {
                 $id = $data['email_template'];
                 $companyID = User::get_companyID();
                 $template = [];
@@ -1607,8 +1607,12 @@ function is_StripeACH(){
 }
 function is_SagePayDirectDebit(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$SagePayDirectDebitSlug);
-}function is_FideliPay(){
+}
+function is_FideliPay(){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$FideliPaySlug);
+}
+function is_Xero(){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$XeroSlug);
 }
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
@@ -2223,30 +2227,30 @@ function get_ticket_response_due_label($result_data) {
     $output = $overdue = "";
 
     if($result_data->Read==0) {
-        return '<div class="label label-primary">NEW</div>';
+        return '<div class="label label-primary ticket-label ticket-new ">NEW</div>';
 
     } else if (TicketfieldsValues::isClosed($result_data->Status)) {
-        return '<div class="label label-danger">'.strtoupper(TicketfieldsValues::$Status_Closed).'</div>';
+        return '<div class="label label-danger ticket-label ticket-closed ">'.strtoupper(TicketfieldsValues::$Status_Closed).'</div>';
 
     } else if (TicketfieldsValues::isResolved($result_data->Status)) {  //closed or resolved
-        return '<div class="label label-danger">'.strtoupper(TicketfieldsValues::$Status_Resolved).'</div>';
+        return '<div class="label label-danger ticket-label ticket-resolved ">'.strtoupper(TicketfieldsValues::$Status_Resolved).'</div>';
     }else {
 
         $TicketStatusOnHold = TicketsTable::getTicketStatusWithSLAOff();
 
         if (in_array($result_data->Status,array_keys($TicketStatusOnHold))) {  // SLATimer=off
-            $output = '<div class="label label-warning">'.strtoupper($TicketStatusOnHold[$result_data->Status]).'</div>';
+            $output = '<div class="label label-warning ticket-label ticket-sla-off ">'.strtoupper($TicketStatusOnHold[$result_data->Status]).'</div>';
         }else {
 
             if($result_data->CustomerResponse > $result_data->AgentResponse ){
-                $output = "<div class='label label-info'>CUSTOMER REPLIED</div>";
+                $output = "<div class='label label-info ticket-label ticket-customer-replied '>CUSTOMER REPLIED</div>";
 
             }else if( $result_data->CustomerResponse < $result_data->AgentResponse ){
-                $output = "<div class='label label-info'>AGENT REPLIED</div>";
+                $output = "<div class='label label-info ticket-label ticket-agent-replied'>AGENT REPLIED</div>";
 
             }
             if( \Carbon\Carbon::createFromTimeStamp(strtotime($result_data->DueDate))->isPast() ) {
-                $overdue = ' <div class="label label-danger">OVERDUE</div>';
+                $overdue = ' <div class="label label-danger ticket-label ticket-overdue ">OVERDUE</div>';
             }
         }
 
@@ -2391,4 +2395,11 @@ function is_PayNowInvoice(){
         return true;
     }
     return false;
+}
+function fix_jobstatus_meassage($message){
+    if(count($message)>100) {
+        $message = array_slice($message, 0, 100);
+        $message[] = '...';
+    }
+    return $message;
 }

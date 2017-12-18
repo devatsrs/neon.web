@@ -75,6 +75,27 @@ class CompanyGateway extends \Eloquent {
         return $gatewaylist;
     }
 
+    public static function importIPGatewayList(){
+        $row = array();
+        $gatewaylist = array();
+        $companygateways = CompanyGateway::where(array('Status'=>1,'CompanyID'=>User::get_companyID()))->get();
+        if(count($companygateways)>0){
+            foreach($companygateways as $companygateway){
+                if(!empty($companygateway['Settings'])){
+                    $option = json_decode($companygateway['Settings']);
+                    if(!empty($option->AllowAccountIPImport)){
+                        $GatewayName = Gateway::getGatewayName($companygateway['GatewayID']);
+                        $row['CompanyGatewayID'] = $companygateway['CompanyGatewayID'];
+                        $row['Title'] = $companygateway['Title'];
+                        $row['Gateway'] = $GatewayName;
+                        $gatewaylist[] = $row;
+                    }
+                }
+            }
+        }
+        return $gatewaylist;
+    }
+
     public static function getMissingCompanyGatewayIdList(){
         $row = array();
         $companygateways = CompanyGateway::where(array('Status'=>1,'CompanyID'=>User::get_companyID()))->get();
@@ -356,6 +377,21 @@ class CompanyGateway extends \Eloquent {
                 log::info('--FusionPBX CRONJOB END--');
 
                 CompanyGateway::createSummaryCronJobs(0);
+            } elseif(isset($GatewayName) && $GatewayName == 'M2') {
+                log::info($GatewayName);
+                log::info('--M2 CRONJOB START--');
+
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('m2accountusage');
+                $setting = CompanyConfiguration::get('M2_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--M2 CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(1);
             }
         }else{
             log::info('--Other CRONJOB START--');

@@ -154,7 +154,7 @@
 jQuery(document).ready(function ($) {
     $('#fileformat').change(function(e){
         if($(this).val()){
-            var url = baseurl +'/customers_rates/{{$id}}/customerdownloadtype/'+$(this).val();
+            var url = baseurl +'/vendor_rates/{{$id}}/customerdownloadtype/'+$(this).val();
             $.ajax({
                 url:  url,  //Server script to process data
                 type: 'POST',
@@ -169,7 +169,7 @@ jQuery(document).ready(function ($) {
                 cache: false
             });
 
-            if($(this).val()=='{{RateSheetFormate::RATESHEET_FORMAT_VOS32}}' || $(this).val()=='{{RateSheetFormate::RATESHEET_FORMAT_VOS20}}'){
+            if($(this).val()=='{{RateSheetFormate::RATESHEET_FORMAT_VOS20}}'){
                 $('#fileeffective').empty();
                 var html ='<option value="Now">Now</option><option value="Future">Future</option>';
                 $('#fileeffective').append(html);

@@ -9,25 +9,9 @@ BEGIN
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SET @stmt = CONCAT('
-	INSERT IGNORE INTO tblTempCallDetail_2_' , p_UniqueID , '
-	SELECT cd.* FROM NeonCDRDev.tblCallDetail cd
-	INNER JOIN NeonCDRDev.tblVendorCDRHeader uh
-		ON uh.VendorCDRHeaderID = cd.VendorCDRHeaderID
-	WHERE
-		uh.CompanyID = ' , p_CompanyID , '
-	AND uh.AccountID IS NOT NULL
-	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
-	');
-
-	PREPARE stmt FROM @stmt;
-	EXECUTE stmt;
-	DEALLOCATE PREPARE stmt;
-
-	SET @stmt = CONCAT('
-	UPDATE tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' ud
-	INNER JOIN tblTempCallDetail_2_' , p_UniqueID , ' cd on cd.VCID = ud.VendorCDRID
-	SET ud.AccountID = cd.AccountID,ud.GatewayAccountPKID = cd.GatewayAccountPKID,ud.call_status = cd.FailCall
-	WHERE ud.CompanyID = ' , p_CompanyID , ';
+	UPDATE tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' vd 
+   INNER JOIN tmp_tblUsageDetailsReport_' , p_UniqueID , ' cd ON cd.CompanyGatewayID = vd.CompanyGatewayID AND cd.ID = vd.ID
+   	SET vd.AccountID = cd.AccountID,vd.GatewayAccountPKID = cd.GatewayAccountPKID,vd.call_status = cd.call_status;
 	');
 
 	PREPARE stmt FROM @stmt;

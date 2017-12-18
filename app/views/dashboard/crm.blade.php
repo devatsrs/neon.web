@@ -233,7 +233,16 @@ if(User::checkCategoryPermission('CrmDashboardTasks','View')){ ?>
                 <div class="col-sm-8">
                  <label for="Closingdate" class="col-sm-1 control-label managerLabel ">Date</label>
                  <div class="col-sm-3"> <input value="{{$StartDateDefault}} - {{$DateEndDefault}}" type="text" id="Duedate"  data-format="YYYY-MM-DD"  name="Duedate" class="small-date-input daterange">   </div>               
-                <div class="col-sm-2"> {{ Form::select('ListType',array("Weekly"=>"Weekly","Monthly"=>"Monthly"),'Weekly',array("class"=>"select_gray","id"=>"ListType")) }} </div>
+                <div class="col-sm-3">
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-white active">
+                            <input type="radio" name="ListType" value="Weekly" checked="checked">Weekly
+                        </label>
+                        <label class="btn btn-white">
+                            <input type="radio" name="ListType" value="Monthly" >Monthly
+                        </label>
+                    </div>
+                </div>
                <div class="col-sm-1"> <button type="submit" id="submit_Sales" class="btn btn-sm btn-primary"><i class="entypo-search"></i></button></div>
                 </div>
               </div>

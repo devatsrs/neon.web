@@ -493,6 +493,7 @@ class AccountsController extends \BaseController {
         $doc_status = Account::$doc_status;
         $verificationflag = AccountApprovalList::isVerfiable($id);
         $invoice_count = Account::getInvoiceCount($id);
+        $all_invoice_count = Account::getAllInvoiceCount($id);
         if(!User::is_admin() &&   $verificationflag == false && $account->VerificationStatus != Account::VERIFIED){
             unset($doc_status[Account::VERIFIED]);
         }
@@ -521,7 +522,7 @@ class AccountsController extends \BaseController {
         }
 
         $dynamicfields = Account::getDynamicfields('account',$id);
-        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields'));
+        return View::make('accounts.edit', compact('account', 'account_owners', 'countries','AccountApproval','doc_status','currencies','timezones','taxrates','verificationflag','InvoiceTemplates','invoice_count','all_invoice_count','tags','products','taxes','opportunityTags','boards','accounts','leadOrAccountID','leadOrAccount','leadOrAccountCheck','opportunitytags','DiscountPlan','DiscountPlanID','InboundDiscountPlanID','AccountBilling','AccountNextBilling','BillingClass','decimal_places','rate_table','services','ServiceID','billing_disable','hiden_class','dynamicfields'));
     }
 
     /**
@@ -795,7 +796,7 @@ class AccountsController extends \BaseController {
             // ->move($destinationPath);
             $ext = $excel->getClientOriginalExtension();
 
-            if (in_array($ext, array("doc", "docx", 'xls','xlsx',"pdf",'png','jpg','gif'))) {
+            if (in_array(strtolower($ext), array("doc", "docx", 'xls','xlsx',"pdf",'png','jpg','gif'))) {
                 $filename = rename_upload_file($destinationPath,$excel->getClientOriginalName());
                 $excel->move($destinationPath, $filename);
                 if(!AmazonS3::upload($destinationPath.$filename,$amazonPath)){

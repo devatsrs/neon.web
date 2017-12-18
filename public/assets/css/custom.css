@@ -497,6 +497,9 @@ em {
 .x-span4 h1 {    margin-top: 5px;
 }
 
+.x-span8 h1 {    margin-top: 5px;
+}
+
 .x-btn:first-child, .x-menu .c-btn:first-child {
 }
 .x-btn, .x-menu .c-btn {
@@ -2923,7 +2926,7 @@ a:focus,a:hover{text-decoration:none !important}
     margin-bottom: 0;
 }
 
-.col-md-12 .btn, .col-md-12 .input-group-btn, p .btn {
+.col-md-12 .btn, .col-md-12 .input-group-btn, p .btn, .mar-left-2 {
     margin-left: 2px;
 }
 .action-buttons .input-group-btn {
@@ -3109,4 +3112,64 @@ button.btn.btn-xs.small_icons{
 
 .mail-body table td {
     box-sizing: content-box;
+}
+.tile-sky{
+  background: #375E97;
+}
+.tile-sunset{
+    background: #FB6542;
+}
+.tile-grass{
+    background: #3F681C;
+}
+.tile-sunflower{
+    background:#FFBB00;
+}
+
+.tile-sunflower:hover{
+    background: #e6a800;
+}
+.tile-grass:hover{
+    background: #335417;
+}
+.tile-sky:hover{
+    background: #305284;
+}
+.tile-sunset:hover{
+    background: #fa5129;
+}
+
+/* Ticket labels */
+.ticket-label{
+
+}
+.ticket-label.ticket-agent-replied{
+    background-color: #2549ff;
+}
+.ticket-label.ticket-customer-replied{
+    background-color: #ff5c0c;
+}
+.ticket-label.ticket-overdue{
+    background-color: #d42020;
+}
+.ticket-label.ticket-closed, .ticket-label.ticket-resolved{
+    background-color: #00a651;
+}
+.ticket-label.ticket-new{
+    background-color: #000000;
+}
+.ticket-label.ticket-sla-off{
+
+}
+.custom_btn_group .btn.btn-white{
+    font-size: 10px;
+    padding: 3px 12px;
+}
+.call_count_desc , .call_cost_desc ,.call_minutes_desc{
+    overflow-x: auto;
+}
+.panel > .panel-body.without-paging{
+    max-height: 500px;
+    overflow-y: auto;
+
 }

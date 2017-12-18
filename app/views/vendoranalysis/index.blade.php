@@ -51,8 +51,8 @@
                     <label class="control-label" for="field-1">Currency</label>
                     {{ Form::select('CurrencyID',$currency,$DefaultCurrencyID,array("class"=>"select2")) }}
 
-                    <input type="hidden" name="UserID" value="{{$UserID}}">
                     <input type="hidden" name="Admin" value="{{$isAdmin}}">
+                    <input type="hidden" name="Admin1" value="{{$isAdmin}}">
                     <input type="hidden" name="chart_type" value="destination">
                     <input type="hidden" name="Prefix" value="">
                     <input type="hidden" name="TrunkID" value="0">
@@ -64,6 +64,14 @@
                 <div class="form-group select_hour">
                     <label class="control-label select_hour" for="field-1">TimeZone</label>
                     {{ Form::select('TimeZone',$timezones,'', array("class"=>"select2")) }}
+                </div>
+                <div class="form-group">
+                    @if(User::is_admin())
+                        <label for="field-1" class="control-label">Owner</label>
+                        {{Form::select('UserID',$account_owners,Input::get('account_owners'),array("class"=>"select2"))}}
+                    @else
+                        <input type="hidden" name="UserID" value="{{$UserID}}">
+                    @endif
                 </div>
                 <div class="form-group">
                     <br/>
@@ -88,6 +96,7 @@
     <ul class="nav nav-tabs">
         <li ><a href="{{ URL::to('/analysis') }}">Customer</a></li>
         <li class="active"><a href="#">Vendor</a></li>
+        <li ><a href="{{ URL::to('/analysis_manager') }}">Account Manager</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="customer" >

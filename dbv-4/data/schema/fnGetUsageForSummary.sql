@@ -27,7 +27,8 @@ BEGIN
 		disposition,
 		userfield,
 		pincode,
-		extension
+		extension,
+		ID
 	)
 	SELECT 
 		ud.UsageDetailID,
@@ -47,13 +48,13 @@ BEGIN
 		disposition,
 		userfield,
 		pincode,
-		extension
+		extension,
+		ID
 	FROM NeonCDRDev.tblUsageDetails  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
-	AND uh.AccountID IS NOT NULL
 	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
 	');
 
@@ -81,7 +82,8 @@ BEGIN
 		disposition,
 		userfield,
 		pincode,
-		extension
+		extension,
+		ID
 	)
 	SELECT 
 		ud.UsageDetailFailedCallID,
@@ -101,13 +103,13 @@ BEGIN
 		disposition,
 		userfield,
 		pincode,
-		extension
+		extension,
+		ID
 	FROM NeonCDRDev.tblUsageDetailFailedCall  ud
 	INNER JOIN NeonCDRDev.tblUsageHeader uh
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
-	AND uh.AccountID IS NOT NULL
 	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
 	');
 

@@ -13,9 +13,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('customer/subscription/ajax_datagrid', 'DashboardCustomerController@subscriptions_ajax_datagrid');	
     Route::any('customer/getoutstandingamount/{id}', 'ProfileController@get_outstanding_amount');
     Route::any('customer/invoice_expense_total_widget', 'DashboardCustomerController@invoice_expense_total_widget');
-	Route::any('customer/daily_report', 'DashboardCustomerController@daily_report');
-	Route::any('customer/daily_report/ajax_datagrid/{type}', 'DashboardCustomerController@daily_report_ajax_datagrid');
-	Route::any('customer/daily_report/ajax_datagrid_total', 'DashboardCustomerController@daily_report_ajax_datagrid_total');
+	Route::any('customer/daily_report/{id}', 'DashboardCustomerController@daily_report');
+	Route::any('customer/daily_report_ajax_datagrid/{type}', 'DashboardCustomerController@daily_report_ajax_datagrid');
+	Route::any('customer/daily_report_ajax_datagrid_total', 'DashboardCustomerController@daily_report_ajax_datagrid_total');
 	Route::any('customer/rates', 'DashboardCustomerController@customer_rates');
 	Route::any('customer/rates_grid/{type}', 'DashboardCustomerController@customer_rates_grid');
     //Invoice
@@ -328,6 +328,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/ips_check_upload',  'ImportsController@ips_check_upload');
 	Route::any('/import/ips_ajaxfilegrid',  'ImportsController@ips_ajaxfilegrid');
 	Route::any('/import/ips_storeTemplate',  'ImportsController@ips_storeTemplate');
+	Route::any('/import/ips/getAccountIpFromGateway/{id}/{gateway}',  'ImportsController@getAccountIpFromGateway');
+	Route::any('/import/ips/ajax_get_missing_gatewayaccountsip',  'ImportsController@ajax_get_missing_gatewayaccountsip');
+	Route::any('/import/ips/add_missing_gatewayaccountsip',  'ImportsController@add_missing_gatewayaccountsip');
 
 	//import leads
 	Route::any('/import/leads',  'ImportsController@import_leads');
@@ -471,6 +474,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/vendor_rates/bulk_update_preference/{id}', 'VendorRatesController@bulk_update_preference');
     Route::any('/vendor_rates/{id}/check_upload', 'VendorRatesController@check_upload');
     Route::any('/vendor_rates/{id}/ajaxfilegrid', 'VendorRatesController@ajaxfilegrid');
+    Route::any('/vendor_rates/{id}/review_rates', 'VendorRatesController@reviewRates');
+    Route::any('/vendor_rates/{id}/get_review_rates', 'VendorRatesController@getReviewRates');
+	Route::any('/vendor_rates/{id}/get_review_rates/exports/{type}', 'VendorRatesController@reviewRatesExports');
+    Route::any('/vendor_rates/{id}/update_temp_vendor_rates', 'VendorRatesController@updateTempVendorRates');
     Route::any('/vendor_rates/{id}/storeTemplate', 'VendorRatesController@storeTemplate');
     Route::any('/vendor_rates/{id}/search_vendor_grid', 'VendorRatesController@search_vendor_grid');
 	Route::any('/vendor_rates/{id}/customerdownloadtype/{type}', 'VendorRatesController@vendordownloadtype');
@@ -971,6 +978,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/get_unbill_report/{id}', 'InvoicesController@get_unbill_report');
 	Route::any('/generate_manual_invoice', 'InvoicesController@generate_manual_invoice');
 	Route::any('/invoice/invoice_sagepayexport', 'InvoicesController@invoice_sagepayexport');
+	Route::any('/invoice/invoice_xeropost', 'InvoicesController@invoice_xeropost');
 	//Themes
 	Route::any('/themes', 'ThemesController@index');
 	Route::any('/themes/create', 'ThemesController@create');
@@ -1129,6 +1137,14 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/analysis/ajax_datagrid/{type}', "AnalysisController@ajax_datagrid");
 	Route::any('/analysis/getAnalysisData', "AnalysisController@getAnalysisData");
 	Route::any('/analysis/getAnalysisBarData', "AnalysisController@getAnalysisBarData");
+	Route::any('/analysis_manager', "AnalysisController@getAnalysisManager");
+	Route::any('/analysis/get_account/{type}', "AnalysisController@get_account");
+	Route::any('/analysis/get_leads/{type}', "AnalysisController@get_leads");
+	Route::any('/analysis/get_account_manager_revenue/{type}', "AnalysisController@get_account_manager_revenue");
+	Route::any('/analysis/get_account_manager_margin/{type}', "AnalysisController@get_account_manager_margin");
+	Route::any('/analysis/get_account_manager_revenue_report', "AnalysisController@get_account_manager_revenue_report");
+	Route::any('/analysis/get_account_manager_margin_report', "AnalysisController@get_account_manager_margin_report");
+	Route::any('/analysis/account_revenue_margin/{type}', "AnalysisController@account_revenue_margin");
 
 	//Vendor Analysis
 	Route::any('/vendor_analysis', "VendorAnalysisController@index");

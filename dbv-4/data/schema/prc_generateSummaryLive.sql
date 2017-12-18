@@ -18,6 +18,7 @@ BEGIN
 	
 	CALL fngetDefaultCodes(p_CompanyID); 
 	CALL fnGetUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
+	CALL fnGetVendorUsageForSummary(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 	CALL fnUpdateCustomerLink(p_CompanyID,p_StartDate,p_EndDate,p_UniqueID);
 
 	DELETE FROM tmp_UsageSummaryLive WHERE CompanyID = p_CompanyID;
@@ -35,7 +36,9 @@ BEGIN
 		VAccountID,
 		Trunk,
 		AreaPrefix,
+		userfield,
 		TotalCharges,
+		TotalCost,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -53,7 +56,9 @@ BEGIN
 		ud.VAccountID,
 		ud.trunk,
 		ud.area_prefix,
+		ud.userfield,
 		COALESCE(SUM(ud.cost),0)  AS TotalCharges ,
+		COALESCE(SUM(ud.buying_cost),0)  AS TotalCost ,
 		COALESCE(SUM(ud.billed_duration),0) AS TotalBilledDuration ,
 		COALESCE(SUM(ud.duration),0) AS TotalDuration,
 		SUM(IF(ud.call_status=1,1,0)) AS  NoOfCalls,
@@ -62,7 +67,8 @@ BEGIN
 	INNER JOIN tblDimTime t ON t.fulltime = connect_time
 	INNER JOIN tblDimDate d ON d.date = connect_date
 	WHERE ud.CompanyID = ',p_CompanyID,'
-	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk;
+		AND ud.AccountID IS NOT NULL
+	GROUP BY d.DateID,t.TimeID,ud.CompanyID,ud.CompanyGatewayID,ud.ServiceID,ud.GatewayAccountPKID,ud.GatewayVAccountPKID,ud.AccountID,ud.VAccountID,ud.area_prefix,ud.trunk,ud.userfield;
 	');
 
 
@@ -77,6 +83,16 @@ BEGIN
 
 	START TRANSACTION;
 	
+	DELETE us FROM tblUsageSummaryDayLive us 
+	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
+	DELETE usd FROM tblUsageSummaryHourLive usd
+	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
+	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
+	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
+	
 	DELETE h FROM tblHeader h 
 	INNER JOIN (SELECT DISTINCT DateID,CompanyID FROM tmp_UsageSummaryLive)u
 		ON h.DateID = u.DateID 
@@ -88,6 +104,7 @@ BEGIN
 		CompanyID,
 		AccountID,
 		TotalCharges,
+		TotalCost,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -98,6 +115,7 @@ BEGIN
 		CompanyID,
 		AccountID,
 		SUM(TotalCharges) as TotalCharges,
+		SUM(TotalCost) as TotalCost,
 		SUM(TotalBilledDuration) as TotalBilledDuration,
 		SUM(TotalDuration) as TotalDuration,
 		SUM(NoOfCalls) as NoOfCalls,
@@ -118,16 +136,6 @@ BEGIN
 	ON TBL.DateID = sh.DateID AND TBL.CompanyID = sh.CompanyID
 	WHERE sh.CompanyID =  p_CompanyID ;
 
-	DELETE us FROM tblUsageSummaryDayLive us 
-	INNER JOIN tblHeader sh ON us.HeaderID = sh.HeaderID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
-	DELETE usd FROM tblUsageSummaryHourLive usd
-	INNER JOIN tblHeader sh ON usd.HeaderID = sh.HeaderID
-	INNER JOIN tblDimDate d ON d.DateID = sh.DateID
-	WHERE date BETWEEN p_StartDate AND p_EndDate AND sh.CompanyID = p_CompanyID;
-	
 	INSERT INTO tblUsageSummaryDayLive (
 		HeaderID,
 		CompanyGatewayID,
@@ -137,8 +145,10 @@ BEGIN
 		VAccountID,
 		Trunk,
 		AreaPrefix,
+		userfield,
 		CountryID,
 		TotalCharges,
+		TotalCost,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -153,8 +163,10 @@ BEGIN
 		VAccountID,
 		Trunk,
 		AreaPrefix,
+		userfield,
 		CountryID,
 		SUM(us.TotalCharges),
+		SUM(us.TotalCost),
 		SUM(us.TotalBilledDuration),
 		SUM(us.TotalDuration),
 		SUM(us.NoOfCalls),
@@ -165,7 +177,7 @@ BEGIN
 		AND us.CompanyID = sh.CompanyID
 		AND us.AccountID = sh.AccountID
 	WHERE us.CompanyID = p_CompanyID
-	GROUP BY us.DateID,us.CompanyID,us.CompanyGatewayID,us.ServiceID,us.GatewayAccountPKID,us.GatewayVAccountPKID,us.AccountID,us.VAccountID,us.AreaPrefix,us.Trunk,us.CountryID,sh.HeaderID;
+	GROUP BY us.DateID,us.CompanyID,us.CompanyGatewayID,us.ServiceID,us.GatewayAccountPKID,us.GatewayVAccountPKID,us.AccountID,us.VAccountID,us.AreaPrefix,us.Trunk,us.CountryID,sh.HeaderID,us.userfield;
 	
 	INSERT INTO tblUsageSummaryHourLive (
 		HeaderID,
@@ -177,8 +189,10 @@ BEGIN
 		VAccountID,
 		Trunk,
 		AreaPrefix,
+		userfield,
 		CountryID,
 		TotalCharges,
+		TotalCost,
 		TotalBilledDuration,
 		TotalDuration,
 		NoOfCalls,
@@ -194,8 +208,10 @@ BEGIN
 		VAccountID,
 		Trunk,
 		AreaPrefix,
+		userfield,
 		CountryID,
 		us.TotalCharges,
+		us.TotalCost,
 		us.TotalBilledDuration,
 		us.TotalDuration,
 		us.NoOfCalls,

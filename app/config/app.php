@@ -127,7 +127,7 @@ return array(
         'Illuminate\Workbench\WorkbenchServiceProvider',
 
         //Added
-        'Barryvdh\Debugbar\ServiceProvider',
+        //'Barryvdh\Debugbar\ServiceProvider',
 
         //Fast Workflow in Laravel With Custom Generators
         'Way\Generators\GeneratorsServiceProvider',
@@ -222,7 +222,7 @@ return array(
         'URL'             => 'Illuminate\Support\Facades\URL',
         'Validator'       => 'Illuminate\Support\Facades\Validator',
         'View'            => 'Illuminate\Support\Facades\View',
-        'Debugbar' => 'Barryvdh\Debugbar\Facade',
+        //'Debugbar' => 'Barryvdh\Debugbar\Facade',
         'Excel' => 'Maatwebsite\Excel\Facades\Excel',
         'Datatables'      => 'Bllim\Datatables\Facade\Datatables',
         'Curl' => '\Curl\Curl',
