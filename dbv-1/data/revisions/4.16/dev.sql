@@ -5975,7 +5975,7 @@ ThisSP:BEGIN
 
  -- LEAVE ThisSP;
 
-   
+   	-- if no error
     IF newstringcode = 0
     THEN
 
@@ -6295,24 +6295,21 @@ ThisSP:BEGIN
 			  	  -- CALL prc_InsertDiscontinuedVendorRate(p_accountId,p_trunkId);
 			
 			
-			-- update Intervals which are not maching with tblVendorRate
+			-- Update Interval Changed for Action = "New"
+			-- update Intervals which are not maching with tblTempVendorRate
 			-- so as if intervals will not mapped next time it will be same as last file.
-    				UPDATE tblRate 
+    				UPDATE tblRate
                  JOIN tmp_TempVendorRate_ as tblTempVendorRate
 						ON 	  tblRate.CompanyID = p_companyId
-							 AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId 			 
-							 AND tblTempVendorRate.Code = tblRate.Code						
+							 AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
+							 AND tblTempVendorRate.Code = tblRate.Code
 							AND  tblTempVendorRate.ProcessId = p_processId
 							AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
-						JOIN  tblVendorRate
-							ON
-							tblRate.RateID = tblVendorRate.RateId 
-	         		 SET 
+	         		 SET
                     tblRate.Interval1 = tblTempVendorRate.Interval1,
                     tblRate.IntervalN = tblTempVendorRate.IntervalN
-				     WHERE tblVendorRate.AccountId = p_accountId
-                		 AND tblVendorRate.TrunkId = p_trunkId
-                		 AND tblTempVendorRate.Interval1 IS NOT NULL 
+				     WHERE
+                		     tblTempVendorRate.Interval1 IS NOT NULL
 							 AND tblTempVendorRate.IntervalN IS NOT NULL 
                 		 AND 
 							  (
