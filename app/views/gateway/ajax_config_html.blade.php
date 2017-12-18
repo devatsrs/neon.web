@@ -33,6 +33,8 @@
             $NameFormat = GatewayConfig::$FusionPBX_NameFormat;
         }else if($GatewayName == 'M2'){
             $NameFormat = GatewayConfig::$M2_NameFormat;
+        }else if($GatewayName == 'VoipNow'){
+            $NameFormat = GatewayConfig::$VoipNow_NameFormat;
         }
     ?>
     @if($count%2 == 0)
