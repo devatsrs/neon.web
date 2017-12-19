@@ -392,6 +392,21 @@ class CompanyGateway extends \Eloquent {
                 log::info('--M2 CRONJOB END--');
 
                 CompanyGateway::createSummaryCronJobs(1);
+            }elseif(isset($GatewayName) && $GatewayName == 'VoipNow'){
+                log::info($GatewayName);
+                log::info('--VOIPNOW CRONJOB START--');
+
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('voipnowaccountusage');
+                $setting = CompanyConfiguration::get('VIOPNOW_PBX_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--VOIPNOW CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(0);
             }
         }else{
             log::info('--Other CRONJOB START--');
