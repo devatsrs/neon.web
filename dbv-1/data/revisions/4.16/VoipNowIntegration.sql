@@ -2,7 +2,6 @@ Use Ratemanagement3;
 
 INSERT INTO `tblGateway` (`GatewayID`, `Title`, `Name`, `Status`, `CreatedBy`, `created_at`, `ModifiedBy`, `updated_at`) VALUES (13, 'VoipNow', 'VoipNow', 1, 'RateManagementSystem', '2017-12-15 16:25:34', NULL, NULL);
 
-INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (157, 13, 'Auto Add IP', 'AutoAddIP', 1, '2017-12-15 16:36:38', 'RateManagementSystem', NULL, NULL);
 INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (156, 13, 'Prefix Translation Rule', 'PrefixTranslationRule', 1, '2017-12-15 16:36:38', 'RateManagementSystem', NULL, NULL);
 INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (155, 13, 'Allow Account Import', 'AllowAccountImport', 1, '2017-12-15 16:36:38', 'RateManagementSystem', NULL, NULL);
 INSERT INTO `tblGatewayConfig` (`GatewayConfigID`, `GatewayID`, `Title`, `Name`, `Status`, `Created_at`, `CreatedBy`, `updated_at`, `ModifiedBy`) VALUES (154, 13, 'CLD Translation Rule', 'CLDTranslationRule', 1, '2017-12-15 16:36:38', 'RateManagementSystem', NULL, NULL);
