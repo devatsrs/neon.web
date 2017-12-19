@@ -236,6 +236,11 @@ class EstimatesController extends \BaseController {
 						{
                             $EstimateDetailData[$i][$field] = str_replace(",","",$value);
                         }
+                        else if($field == "ProductID")
+                        {
+                            $pid = explode('-',$value);
+                            $EstimateDetailData[$i][$field] = $pid[1];
+                        }
 						else
 						{
                             $EstimateDetailData[$i][$field] = $value;
@@ -440,6 +445,11 @@ Log::info(print_r($EstimateDetailData,true));
                                 if( in_array($field,["Price","Discount","TaxAmount","LineTotal"]))
 								{
                                     $EstimateDetailData[$i][$field] = str_replace(",","",$value);
+                                }
+                                else if($field == "ProductID")
+                                {
+                                    $pid = explode('-',$value);
+                                    $EstimateDetailData[$i][$field] = $pid[1];
                                 }
 								else
 								{

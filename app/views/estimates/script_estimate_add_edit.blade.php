@@ -68,7 +68,7 @@ $(document).ready(function(){
         var $this = $(this);
         var optgroup = $(this).find(":selected").parents('optgroup');
         var $row = $this.parents("tr");
-        var productID = $this.val(); 
+        var productID = $this.val().split('-')[1];
         var AccountID = $('select[name=AccountID]').val();		
         var EstimateDetailID = $row.find('.EstimateDetailID').val();
         //var  selected_product_type = optgroup.prop('label')==txtSUBSCRIPTION?SUBSCRIPTION:'';
@@ -171,6 +171,7 @@ $(document).ready(function(){
                             decimal_places = response.decimal_places;
                             $row.find(".StartDate").attr("disabled",true);
                             $row.find(".EndDate").attr("disabled",true);                            
+                            $row.find(".ProductType").val(selected_product_type);
 							$('.Taxentity').trigger('change');
 							$("textarea.autogrow").autosize();
 							calculate_total();
