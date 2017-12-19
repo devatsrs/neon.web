@@ -211,7 +211,10 @@ class ImportsController extends \BaseController {
             }elseif($gateway == 'SippySFTP'){
                 $response1 = SippyImporter::getAccountsDetail($param);
                 $response2 = SippyImporter::getVendorsDetail($param);
-            }
+            }elseif($gateway == 'VoipNow'){
+                $voipNow = new VoipNow($CompanyGatewayID);
+                $response1 = $voipNow->getAccountsDetail($param);
+			}
             //$pbx = new PBX($CompanyGatewayID);
 
             if(isset($response1['result']) && $response1['result'] =='OK'){
