@@ -55,6 +55,12 @@ class ReportVendorCDR extends \Eloquent{
                 $select_columns[] = DB::Raw("COALESCE(SUM(tblVendorSummaryDay.TotalSales),0) - COALESCE(SUM(tblVendorSummaryDay.TotalCharges),0) as " . $colname);
             }else if($colname == 'MarginPercentage'){
                 $select_columns[] = DB::Raw("(COALESCE(SUM(tblVendorSummaryDay.TotalSales),0) - COALESCE(SUM(tblVendorSummaryDay.TotalCharges),0)) / SUM(tblVendorSummaryDay.TotalSales)*100 as " . $colname);
+            }else if($colname == 'ACD'){
+                $select_columns[] = DB::Raw("IF(SUM(tblVendorSummaryDay.NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(tblVendorSummaryDay.TotalBilledDuration),0)/SUM(tblVendorSummaryDay.NoOfCalls)),0) as " . $colname);
+            }else if($colname == 'ASR'){
+                $select_columns[] = DB::Raw("SUM(tblVendorSummaryDay.NoOfCalls)/(SUM(tblVendorSummaryDay.NoOfCalls)+SUM(tblVendorSummaryDay.NoOfFailCalls))*100 as " . $colname);
+            }else if($colname == 'BilledDuration'){
+                $select_columns[] = DB::Raw("ROUND(COALESCE(SUM(tblVendorSummaryDay.TotalBilledDuration),0)/ 60,0) as " . $colname);
             }else{
                 $select_columns[] = DB::Raw("SUM(tblVendorSummaryDay." . $colname . ") as " . $colname);
             }

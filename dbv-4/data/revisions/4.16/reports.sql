@@ -1,5 +1,9 @@
 USE `StagingReport`;
 
+ALTER TABLE `tblReport`
+	ADD COLUMN `Schedule` INT NULL,
+	ADD COLUMN `ScheduleSettings` LONGTEXT NULL;
+
 DROP PROCEDURE IF EXISTS `prc_getAccountManager`;
 DELIMITER //
 CREATE PROCEDURE `prc_getAccountManager`(

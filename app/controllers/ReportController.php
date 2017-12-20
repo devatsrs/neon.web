@@ -61,11 +61,27 @@ class ReportController extends \BaseController {
         $response =  NeonAPI::request('report/update/'.$id,$postdata,'put',false,false);
         return json_response_api($response);
     }
+    public function update_schedule($id){
+        $postdata = Input::all();
+        $CompanyID = User::get_companyID();
+        $Schedule = isset($postdata['Schedule'])?1:0;
+        CronJob::create_system_report_alert_job($CompanyID,$Schedule);
+        $response =  NeonAPI::request('report/update_schedule/'.$id,$postdata,'put',false,false);
+        return json_response_api($response);
+    }
+    public function status_update($id){
+        $postdata = Input::all();
+        if (Report::where('ReportID',$id)->update(array('Schedule'=>$postdata['Schedule']))) {
+            return Response::json(array("status" => "success", "message" => "Report Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Report."));
+        }
+    }
     public function ajax_datagrid($type) {
 
         $CompanyID = User::get_companyID();
         $reports = Report::
-        select('Name','ReportID','Type')
+        select('Name','ReportID','Type','Schedule','ScheduleSettings')
             ->where("CompanyID", $CompanyID);
         $data = Input::all();
         if(trim($data['Name']) != '') {
@@ -93,7 +109,21 @@ class ReportController extends \BaseController {
         if($id>0){
             $report = Report::find($id);
             $data = json_decode($report->Settings,true);
-            $data['Export'] =1;
+            $filters = json_decode($data['filter_settings'],true);
+            if(!empty(Input::get('StartDate'))) {
+                if (isset($filters['date'])) {
+                    $filters['date']['start_date'] = Input::get('StartDate');
+                    $filters['date']['end_date'] = Input::get('EndDate');
+                } else {
+                    $filters['date']['wildcard_match_val'] = '';
+                    $filters['date']['start_date'] = Input::get('StartDate');
+                    $filters['date']['end_date'] = Input::get('EndDate');
+                    $filters['date']['condition'] = 'none';
+                    $filters['date']['top'] = 'none';
+                }
+            }
+            $data['filter_settings'] = json_encode($filters);
+            $data['Export'] = 1;
             $data['Name'] = $report->Name;
         }
         $CompanyID = User::get_companyID();
@@ -132,6 +162,7 @@ class ReportController extends \BaseController {
         $all_data_list['AccountCLI'] = GatewayAccount::getAccountCLIList($CompanyID);
         $all_data_list['Service'] = Service::getDropdownIDList($CompanyID);
         $all_data_list['Subscription'] = BillingSubscription::getSubscriptionsList();
+        $all_data_list['AccountManager'] = User::getOwnerUsersbyRole();
 
         $CompanyID = User::get_companyID();
         if(count($data['sum'])) {
@@ -154,7 +185,7 @@ class ReportController extends \BaseController {
         $data['iDisplayStart'] +=1;
         $ColName = $data['filter_col_name'];
         $search = $data['sSearch'];
-        if(in_array($ColName,array('InvoiceType','InvoiceStatus','ProductType','PaymentMethod','PaymentType'))){
+        if(in_array($ColName,array('InvoiceType','InvoiceStatus','ProductType','PaymentMethod','PaymentType','Owner'))){
             return generate_manual_datatable_response($ColName);
         }
         $Accountschema = Report::$dimension['summary']['Customer'];

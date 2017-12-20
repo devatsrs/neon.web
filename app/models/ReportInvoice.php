@@ -14,6 +14,7 @@ class ReportInvoice extends \Eloquent{
         'SubscriptionID' => 'tblInvoiceDetail.ProductID',
         'ServiceID' => 'tblInvoice.ServiceID',
         'Code' => 'tblProduct.Code',
+        'CurrencyID' => 'tblInvoice.CurrencyID',
     );
     public static $database_payment_columns = array(
         'year' => 'YEAR(PaymentDate)',
@@ -90,10 +91,10 @@ class ReportInvoice extends \Eloquent{
                 $select_columns[] = DB::Raw("SUM(tblInvoiceDetail.LineTotal) as " . $colname);
             }else if($colname == 'PaidTotal'){
                 $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
-                $select_columns[] = DB::Raw(" (SELECT SUM(Amount) FROM tblPayment WHERE (FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 AND ".$extra_query.") ) AND $extra_query_2 AND Status='Approved' AND Recall = '0') as " . $colname);
+                $select_columns[] = DB::Raw(" (SELECT SUM(Amount) FROM tblPayment WHERE (FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 AND tblPayment.CurrencyID = tblInvoice.CurrencyID AND ".$extra_query.") ) AND $extra_query_2 AND Status='Approved' AND Recall = '0') as " . $colname);
             }else if($colname == 'OutStanding'){
                 $extra_query = !empty(self::$dateFilterString)?implode(' AND ',self::$dateFilterString):' 1=1 ';
-                $select_columns[] = DB::Raw("(SUM(tblInvoice.GrandTotal) - (SELECT SUM(Amount) FROM tblPayment WHERE ( FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 AND ".$extra_query.")) AND $extra_query_2 AND Status='Approved' AND Recall = '0')) as " . $colname);
+                $select_columns[] = DB::Raw("(SUM(tblInvoice.GrandTotal) - (SELECT SUM(Amount) FROM tblPayment WHERE ( FIND_IN_SET(tblPayment.InvoiceID,group_concat(tblInvoice.InvoiceID)) OR (tblPayment.InvoiceID =0 AND tblPayment.CurrencyID = tblInvoice.CurrencyID AND ".$extra_query.")) AND $extra_query_2 AND Status='Approved' AND Recall = '0')) as " . $colname);
             }else if(self::$InvoiceTaxRateJoin == false && in_array($colname,array('TotalTax'))){
                 $select_columns[] = DB::Raw("SUM(tblInvoice." . $colname . ") as " . $colname);
             }else if(self::$InvoiceDetailJoin == false && in_array($colname,array('GrandTotal'))){

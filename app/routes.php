@@ -1308,6 +1308,8 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/report/delete/{id}','ReportController@report_delete');
     Route::any('/report/getdatagrid/{id}','ReportController@getdatagrid');
     Route::any('/report/getdatalist','ReportController@getdatalist');
+	Route::any('/report/status_update/{id}','ReportController@status_update');
+	Route::any('/report/schedule_update/{id}','ReportController@update_schedule');
 
 	//RateCompare
 	Route::any('/rate_compare', 'RateCompareController@index');
@@ -1346,6 +1348,7 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/doRegistration', "HomeController@doRegistration");
     Route::get('/super_admin', "HomeController@home");
 	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
+	Route::any('/report/export/{id}','ReportController@getdatagrid');
 	
     /*Route::get('/l/{id}', function($id){
 		$user = User::find($id);

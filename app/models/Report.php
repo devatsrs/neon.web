@@ -30,7 +30,7 @@ class Report extends \Eloquent {
             ),
             'Customer'=>array(
                 'AccountID'=>'AccountName',
-                'CurrencyId'=>'Currency',
+                'CurrencyID'=>'Currency',
                 'Number'=>'Number',
                 'Email'=>'Email',
                 'IsVendor'=>'IsVendor',
@@ -45,6 +45,7 @@ class Report extends \Eloquent {
                 'TimeZone'=>'TimeZone',
             ),
             'VAccountID' =>'Vendor',
+            'Owner'=>'Account Manager',
             'CompanyGatewayID' =>'Gateway',
             'Trunk' => 'Trunk',
             'CountryID' => 'Country',
@@ -63,7 +64,7 @@ class Report extends \Eloquent {
             ),
             'Customer'=>array(
                 'AccountID'=>'AccountName',
-                'CurrencyId'=>'Currency',
+                'CurrencyID'=>'Currency',
                 'Number'=>'Number',
                 'Email'=>'Email',
                 'IsVendor'=>'IsVendor',
@@ -78,6 +79,7 @@ class Report extends \Eloquent {
                 'TimeZone'=>'TimeZone',
             ),
             'VAccountID' =>'Vendor',
+            'Owner'=>'Account Manager',
             'CompanyGatewayID' =>'Gateway',
             'Trunk' => 'Trunk',
             'CountryID' => 'Country',
@@ -96,7 +98,6 @@ class Report extends \Eloquent {
             ),
             'Customer'=>array(
                 'AccountID'=>'AccountName',
-                'CurrencyId'=>'Currency',
                 'Number'=>'Number',
                 'Email'=>'Email',
                 'IsVendor'=>'IsVendor',
@@ -110,6 +111,7 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
             ),
+            'Owner'=>'Account Manager',
             'CurrencyID' =>'Currency Code',
             'InvoiceType' =>'Invoice Type',
             'InvoiceStatus' =>'Invoice Status',
@@ -132,7 +134,6 @@ class Report extends \Eloquent {
             ),
             'Customer'=>array(
                 'AccountID'=>'AccountName',
-                'CurrencyId'=>'Currency',
                 'Number'=>'Number',
                 'Email'=>'Email',
                 'IsVendor'=>'IsVendor',
@@ -146,6 +147,7 @@ class Report extends \Eloquent {
                 'VatNumber'=>'VatNumber',
                 'TimeZone'=>'TimeZone',
             ),
+            'Owner'=>'Account Manager',
             'CurrencyID' =>'Currency Code',
             'PaymentType'=>'Payment Type',
             'PaymentMethod'=>'Payment Method'
@@ -156,20 +158,26 @@ class Report extends \Eloquent {
         'summary'=>array(
             'TotalCharges' => 'Revenue',
             'TotalCost' => 'Cost',
-            'TotalBilledDuration' => 'Duration',
+            'TotalBilledDuration' => 'Duration(sec)',
+            'BilledDuration' => 'Duration(min)',
             'NoOfCalls' => 'No Of Calls',
             'NoOfFailCalls' => 'No Of Failed Calls',
             'Margin' => 'Margin',
             'MarginPercentage' => 'Margin %',
+            'ACD' => 'ACD',
+            'ASR' => 'ASR',
         ),
         'vsummary'=>array(
             'TotalCharges' => 'Cost',
             'TotalSales' => 'Sales',
-            'TotalBilledDuration' => 'Duration',
+            'TotalBilledDuration' => 'Duration(sec)',
+            'BilledDuration' => 'Duration(min)',
             'NoOfCalls' => 'No Of Calls',
             'NoOfFailCalls' => 'No Of Failed Calls',
             'Margin' => 'Margin',
             'MarginPercentage' => 'Margin %',
+            'ACD' => 'ACD',
+            'ASR' => 'ASR',
         ),
         'invoice'=>array(
             'GrandTotal' => 'Total',
@@ -309,6 +317,13 @@ class Report extends \Eloquent {
             case 'CurrencyID':
                 if($ID > 0 && isset($all_data['Currency'][$ID])) {
                     $name = $all_data['Currency'][$ID];
+                }else{
+                    $name = '';
+                }
+                break;
+            case 'Owner':
+                if($ID > 0 && isset($all_data['AccountManager'][$ID])) {
+                    $name = $all_data['AccountManager'][$ID];
                 }else{
                     $name = '';
                 }

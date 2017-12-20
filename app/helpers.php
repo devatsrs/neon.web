@@ -2109,9 +2109,11 @@ function table_html($data,$table_data){
             }
             if ($explode_row_count == $row_count && $explode_count >= $col_count) {
                 if($key_index > 0 && $col_count == 0){
-                    $table_single_row .= '<td class="col">' . (is_numeric($col_val)?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
-                }else if($col_count > 0){
-                    $table_single_row .= '<td class="col">' . (is_numeric($col_val)?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) && is_apply_number_format($col_name) ?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                } else if($key_index == 0 && $col_count == 0 && $row_count == 0 ){
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) && is_apply_number_format($col_name) ?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
+                } else if($col_count > 0){
+                    $table_single_row .= '<td class="col">' . (is_numeric($col_val) && is_apply_number_format($col_name) ?number_format($col_val,get_round_decimal_places()):$col_val) . '</td>';
                 }
 
             }
@@ -2138,7 +2140,11 @@ function table_html($data,$table_data){
         $footer_col_count = 0;
         foreach ($table_data['table_footer_sum'] as $foot_col_name => $foot_col_val) {
             if($footer_col_count >= $row_col_count) {
-                $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong>' . (is_numeric($foot_col_val)?number_format($foot_col_val,get_round_decimal_places()):$foot_col_val) . '</strong></td>';
+                if(is_apply_total($foot_col_name)){
+                    $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong></strong></td>';
+                }else{
+                    $table_footer .= '<td class="col" style="background-color: #91c5d4"><strong>' . (is_numeric($foot_col_val) && is_apply_number_format($foot_col_name)?number_format($foot_col_val,get_round_decimal_places()):$foot_col_val) . '</strong></td>';
+                }
             }
             $footer_col_count++;
         }
@@ -2353,6 +2359,14 @@ function generate_manual_datatable_response($ColName){
                 }
             }
             break;
+        case 'Owner':
+            $action = User::getOwnerUsersbyRole();
+            foreach ($action as $row_key => $row_title) {
+                if (!empty($row_key) && $row_key != 'All') {
+                    $response_data[] = array($row_key, $row_title);
+                }
+            }
+            break;
     }
     $manual_response = '{"sEcho":1,"iTotalRecords":'.count($response_data).',"iTotalDisplayRecords":'.count($response_data).',"aaData":'.json_encode($response_data).',"sColumns":["value","name"],"Total":{"totalcount":'.count($response_data).'}}';
     return $manual_response;
@@ -2371,12 +2385,18 @@ function report_join($data){
     $account_join = false;
     $Accountschema = Report::$dimension['summary']['Customer'];
     foreach ($data['column'] as $column) {
-        if (in_array($column, $Accountschema) && $column != 'AccountID') {
+        if (in_array($column, array_keys($Accountschema)) && $column != 'AccountID') {
+            $account_join = true;
+        }
+        if ($column == 'Owner') {
             $account_join = true;
         }
     }
     foreach ($data['row'] as $column) {
-        if (in_array($column, $Accountschema) && $column != 'AccountID' ) {
+        if (in_array($column,array_keys($Accountschema)) && $column != 'AccountID' ) {
+            $account_join = true;
+        }
+        if ($column == 'Owner' ) {
             $account_join = true;
         }
     }
@@ -2402,4 +2422,25 @@ function fix_jobstatus_meassage($message){
         $message[] = '...';
     }
     return $message;
+}
+function is_apply_number_format($col_name){
+    $flag = true;
+    $col_array = array('TotalBilledDuration','BilledDuration','NoOfCalls','NoOfFailCalls');
+    foreach($col_array as $col){
+        if (strpos($col_name, $col) !== false) {
+            $flag = false;
+        }
+    }
+    return $flag;
+}
+
+function is_apply_total($col_name){
+    $flag = false;
+    $col_array = array('ACD','ASR','MarginPercentage');
+    foreach($col_array as $col){
+        if (strpos($col_name, $col) !== false) {
+            $flag = true;
+        }
+    }
+    return $flag;
 }

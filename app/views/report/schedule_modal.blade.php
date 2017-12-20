@@ -1,0 +1,73 @@
+<div class="modal fade" id="add-schedule-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="billing-form" method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add Schedule</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Active</label>
+                                <div class="clear">
+                                    <p class="make-switch switch-small">
+                                        <input type="checkbox" checked=""  name="Schedule" value="0">
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="control-label">Send Email To</label>
+                                <input type="text" name="Report[NotificationEmail]" class="form-control" id="field-1" placeholder="" value="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Period</label>
+                                {{Form::select('Report[Time]',array(""=>"Select","DAILY"=>"Daily",'WEEKLY'=>'Weekly','MONTHLY'=>'Monthly',"YEARLY"=>"Yearly"),'',array( "class"=>"select2 small"))}}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Interval</label>
+                                {{Form::select('Report[Interval]',array(),'',array( "class"=>"select2 small"))}}
+                            </div>
+                        </div>
+
+                        <div class="clear"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Day</label>
+                                {{Form::select('Report[Day][]',array("SUN"=>"Sunday","MON"=>"Monday","TUE"=>"Tuesday","WED"=>"Wednesday","THU"=>"Thursday","FRI"=>"Friday","SAT"=>"Saturday"),array('SUN','MON','TUE','WED','THU','FRI','SAT'),array( "class"=>"select2",'multiple',"data-placeholder"=>"Select day"))}}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Start Time</label>
+                                <!--<input type="text"  name="Setting[JoStratTime]" value="" class="form-control timepicker starttime2" data-minute-step="5" data-show-meridian="true"  data-default-time="12:00:00 AM" data-show-seconds="true" data-template="dropdown">-->
+                                <input name="Report[StartTime]" type="text" data-template="dropdown" data-show-seconds="true" data-default-time="12:00:00 AM" data-show-meridian="true" data-minute-step="5" class="form-control timepicker starttime2" value="12:00:00 AM" >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="ReportID" value="">
+                        <button type="submit" id="report-update"  class="save btn btn-success btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                            <i class="entypo-floppy"></i>
+                            Save
+                        </button>
+                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
+                            <i class="entypo-cancel"></i>
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="{{ URL::asset('assets/js/billing_class.js') }}"></script>
