@@ -208,6 +208,32 @@ BEGIN
 
 	END IF;
 	
+	IF p_ColName = 'DestinationBreak'
+	THEN
+
+		SELECT 
+			DISTINCT
+			Description as Name,
+			Description
+		FROM NeonRMDev.tblRate
+		INNER JOIN NeonRMDev.tblCodeDeck
+			ON tblCodeDeck.CodeDeckId = tblRate.CodeDeckId
+		WHERE tblCodeDeck.CompanyID = p_CompanyID
+		AND tblCodeDeck.DefaultCodedeck = 1
+		AND tblRate.Description LIKE CONCAT(p_Search,'%')
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+		
+		SELECT
+			COUNT(*) AS totalcount
+		FROM NeonRMDev.tblRate
+		INNER JOIN NeonRMDev.tblCodeDeck
+			ON tblCodeDeck.CodeDeckId = tblRate.CodeDeckId
+		WHERE tblCodeDeck.CompanyID = p_CompanyID
+		AND tblCodeDeck.DefaultCodedeck = 1
+		AND Description LIKE CONCAT(p_Search,'%');
+
+	END IF;
+	
 	IF p_ColName = 'GatewayAccountPKID' OR p_ColName = 'GatewayVAccountPKID'
 	THEN
 

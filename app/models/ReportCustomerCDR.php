@@ -103,7 +103,7 @@ class ReportCustomerCDR extends \Eloquent{
         foreach ($filters as $key => $filter) {
             if (!empty($filter[$key]) && is_array($filter[$key]) && !in_array($key, array('GatewayAccountPKID', 'GatewayVAccountPKID'))) {
                 if(isset(self::$database_columns[$key])) {
-                    $query_common->whereRaw(self::$database_columns[$key].' in ('.implode(',',$filter[$key]).')');
+                    $query_common->whereRaw(self::$database_columns[$key].' in ("'.implode('","',$filter[$key]).'")');
                 }else{
                     $query_common->whereIn($key, $filter[$key]);
                 }
