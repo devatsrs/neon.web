@@ -3914,7 +3914,7 @@ BEGIN
 		INNER JOIN tblReportLog 
 			ON tblReport.ReportID = tblReportLog.ReportID
 		WHERE CompanyID = p_CompanyID
-			AND (p_ReportID = 0 OR tblReport.AlertID = p_AlertID)
+			AND (p_ReportID = 0 OR tblReport.ReportID = p_ReportID)
 			AND tblReportLog.send_at BETWEEN p_StartDate and p_EndDate
 			AND (p_SearchText='' OR tblReport.Name LIKE CONCAT('%',p_SearchText,'%'));
 	END IF;
