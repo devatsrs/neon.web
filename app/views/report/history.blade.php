@@ -128,7 +128,7 @@
                                 }
                                 action += '</div>';
 
-                                action += ' <a class="view-log btn btn-default btn-sm tooltip-primary" data-original-title="View" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>'
+                                action += ' <a class="view-report btn btn-default btn-sm tooltip-primary" data-original-title="View" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-eye"></i></a>'
 
                                         return action;
                             }
