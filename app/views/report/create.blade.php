@@ -253,9 +253,7 @@
             color:#000
         }
 
-        .select2-container-multi .select2-choices .select2-search-choice{
-            padding: 0px;
-        }
+
         .dataTables_filter label{
             display:none !important;
         }
