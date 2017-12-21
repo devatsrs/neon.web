@@ -140,13 +140,13 @@
                             {
                                 "sExtends": "download",
                                 "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/report/history_grid/xlsx",
+                                "sUrl": baseurl + "/report/history/xlsx",
                                 sButtonClass: "save-collection btn-sm"
                             },
                             {
                                 "sExtends": "download",
                                 "sButtonText": "CSV",
-                                "sUrl": baseurl + "/report/history_grid/csv",
+                                "sUrl": baseurl + "/report/history/csv",
                                 sButtonClass: "save-collection btn-sm"
                             }
                         ]
