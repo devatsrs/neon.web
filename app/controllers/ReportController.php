@@ -148,10 +148,11 @@ class ReportController extends \BaseController {
         foreach($data['column'] as $measure){
             if(in_array($measure,$measures)){
                 $data['sum'][] = $measure;
+                if (($key = array_search($measure, $data['column'])) !== false) {
+                    unset($data['column'][$key]);
+                }
             }
-            if (($key = array_search($measure, $data['column'])) !== false) {
-                unset($data['column'][$key]);
-            }
+
         }
         /*foreach ($measures as $measure){
             if(in_array($measure,$data['column'])){
