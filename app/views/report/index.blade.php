@@ -67,6 +67,7 @@
         var report_delete_url = baseurl + "/report/delete/{id}";
         var report_export_url = baseurl + "/report/getdatagrid/{id}";
         var report_schedule_url = baseurl + "/report/schedule_update/{id}";
+        var report_history_url = baseurl + "/report/history/{id}";
         var report_datagrid_url = baseurl + "/report/ajax_datagrid/type";
         jQuery(document).ready(function ($) {
             $('#filter-button-toggle').show();
@@ -109,8 +110,8 @@
                                 action += ' <a href="' + report_edit_url.replace("{id}", id) + '" class="btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                 action += ' <a href="' + report_edit_url.replace("{id}", id) + '?report=run" class="btn btn-default btn-sm tooltip-primary" data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-play"></i>&nbsp;</a>';
                                 action += ' <a href="' + report_export_url.replace("{id}", id) + '" class="btn btn-default btn-sm tooltip-primary" data-original-title="Export" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-download"></i>&nbsp;</a>';
-                                action += ' <a href="' + report_schedule_url.replace("{id}", id) + '" class="schedule  btn btn-default btn-sm tooltip-primary" data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>';
-                                action += ' <a href="' + report_export_url.replace("{id}", id) + '" class="btn btn-default btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="glyphicon glyphicon-time"></i>&nbsp;</a>';
+                                action += ' <a href="' + report_schedule_url.replace("{id}", id) + '" class="schedule_report  btn btn-default btn-sm tooltip-primary" data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>';
+                                action += ' <a href="' + report_history_url.replace("{id}", id) + '" class="btn btn-default btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="glyphicon glyphicon-time"></i>&nbsp;</a>';
                             @endif
 
                                     @if(User::checkCategoryPermission('Report','Delete'))
@@ -199,46 +200,7 @@
                 }
             });
 
-            $('table tbody').on('click', '.schedule', function (ev) {
-                ev.preventDefault();
-                $('#billing-form').trigger("reset");
-                var edit_url  = $(this).attr("href");
-                $('#billing-form').attr("action",edit_url);
-                $('#add-schedule-modal h4').html('Edit Schedule');
-                $('#billing-form select').select2("val", "");
-                $(this).parent().children("div.hiddenRowData").find('input').each(function(i, el){
-                    var ele_name = $(el).attr('name');
-                    var ele_val = $(el).val();
 
-                    $("#billing-form [name='"+ele_name+"']").val(ele_val);
-                    if(ele_name =='Time' || ele_name == 'StartTime'){
-                        var selectBox = $("#billing-form [name='Report["+ele_name+"]']");
-                        selectBox.val(ele_val).trigger("change");
-                    }else if(ele_name == 'Day') {
-                        $("#billing-form [name='Report["+ele_name+"][]']").val(ele_val.split(',')).trigger('change');
-                    }else if(ele_name == 'Interval'){
-                        setTimeout(function(){
-                            $("#billing-form [name='Report[Interval]']").val(ele_val).trigger('change');
-                        },5);
-                    }else if(ele_name == 'Schedule') {
-                        if (ele_val == 1) {
-                            $("#billing-form [name='"+ele_name+"']").prop('checked', true)
-                        } else {
-                            $("#billing-form [name='"+ele_name+"']").prop('checked', false)
-                        }
-                    }else{
-                        $("#billing-form [name='Report["+ele_name+"]']").val(ele_val);
-                    }
-                });
-
-                $('#add-schedule-modal').modal('show');
-            });
-
-            $("#billing-form").submit(function(e){
-                e.preventDefault();
-                var _url  = $(this).attr("action");
-                submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
-            });
         });
 
     </script>

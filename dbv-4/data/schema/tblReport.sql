@@ -8,5 +8,7 @@ CREATE TABLE `tblReport` (
   `CreatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `UpdatedBy` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Schedule` int(11) DEFAULT '0',
+  `ScheduleSettings` longtext COLLATE utf8_unicode_ci,
   PRIMARY KEY (`ReportID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

@@ -70,4 +70,46 @@
         </div>
     </div>
 </div>
+<script>
+    $('body').on('click', '.schedule_report', function (ev) {
+        ev.preventDefault();
+        $('#billing-form').trigger("reset");
+        var edit_url  = $(this).attr("href");
+        $('#billing-form').attr("action",edit_url);
+        $('#add-schedule-modal h4').html('Edit Schedule');
+        $('#billing-form select').select2("val", "");
+        $(this).parent().children("div.hiddenRowData").find('input').each(function(i, el){
+            var ele_name = $(el).attr('name');
+            var ele_val = $(el).val();
+
+            $("#billing-form [name='"+ele_name+"']").val(ele_val);
+            if(ele_name =='Time' || ele_name == 'StartTime'){
+                var selectBox = $("#billing-form [name='Report["+ele_name+"]']");
+                selectBox.val(ele_val).trigger("change");
+            }else if(ele_name == 'Day') {
+                $("#billing-form [name='Report["+ele_name+"][]']").val(ele_val.split(',')).trigger('change');
+            }else if(ele_name == 'Interval'){
+                setTimeout(function(){
+                    $("#billing-form [name='Report[Interval]']").val(ele_val).trigger('change');
+                },5);
+            }else if(ele_name == 'Schedule') {
+                if (ele_val == 1) {
+                    $("#billing-form [name='"+ele_name+"']").prop('checked', true)
+                } else {
+                    $("#billing-form [name='"+ele_name+"']").prop('checked', false)
+                }
+            }else{
+                $("#billing-form [name='Report["+ele_name+"]']").val(ele_val);
+            }
+        });
+
+        $('#add-schedule-modal').modal('show');
+    });
+
+    $("#billing-form").submit(function(e){
+        e.preventDefault();
+        var _url  = $(this).attr("action");
+        submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
+    });
+</script>
 <script src="{{ URL::asset('assets/js/billing_class.js') }}"></script>

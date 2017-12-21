@@ -28,19 +28,28 @@ class ReportController extends \BaseController {
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
         $report_settings['filter_settings'] = '{"date":{"wildcard_match_val":"","start_date":"'.$original_startdate.'","end_date":"'.$original_enddate.'","condition":"none","top":"none"}}';
-
-        return View::make('report.create', compact('dimensions','measures','Columns','report_settings','disable'));
+        $layout = 'layout.main';
+        if(Input::get('report') == 'run'){
+            $layout = 'layout.main_only_sidebar';
+        }
+        return View::make('report.create', compact('dimensions','measures','Columns','report_settings','disable','layout'));
     }
     public function edit($id){
         $report = Report::find($id);
         $report_settings = json_decode($report->Settings,true);
+        $schedule_settings = json_decode($report->ScheduleSettings,true);
 
         $dimensions = Report::$dimension;
         $measures = Report::$measures;
 
         $disable= 'disabled';
         $Columns = $dimensions['summary']+Report::$measures['summary'];
-        return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report','disable'));
+        $layout = 'layout.main';
+        if(Input::get('report') == 'run'){
+            $layout = 'layout.main_only_sidebar';
+        }
+
+        return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report','disable','layout','schedule_settings'));
     }
 
     public function report_store(){
@@ -169,7 +178,7 @@ class ReportController extends \BaseController {
             $response = Report::generateDynamicTable($CompanyID, $cube, $data,$filters);
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $file=isset($data['Name'])?($data['Name'].".xls"):"Report.xls";
+            $file=!empty($data['Name'])?($data['Name'].".xls"):"Report.xls";
             $table=generateReportTable2($data,$response,$all_data_list);
             header("Content-type: application/vnd.ms-excel");
             header("Content-Disposition: attachment; filename=\"".$file."\"");
@@ -201,5 +210,28 @@ class ReportController extends \BaseController {
         }
         $query = "CALL prc_getDistinctList('".$CompanyID."','".$ColName."','".$search."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].")";
         return DataTableSql::of($query,'neon_report')->make();
+    }
+
+    public function report_history(){
+        $data = Input::all();
+        $data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
+        $data['EndDateDefault']  	= 	date('Y-m-d');
+        $CompanyID = User::get_companyID();
+        $Reports = Report::getDropdownIDList($CompanyID);
+        return View::make('report.history', compact('Reports','data'));
+    }
+    public function report_history_datagrid($type) {
+        $getdata = Input::all();
+        $response =  NeonAPI::request('report/history',$getdata,false,false,false);
+        if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
+            $excel_data = $response->data;
+            $excel_data = json_decode(json_encode($excel_data), true);
+            Excel::create('Alert History', function ($excel) use ($excel_data) {
+                $excel->sheet('Alert History', function ($sheet) use ($excel_data) {
+                    $sheet->fromArray($excel_data);
+                });
+            })->download('xls');
+        }
+        return json_response_api($response,true,true,true);
     }
 }

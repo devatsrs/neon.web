@@ -443,9 +443,10 @@ class Report extends \Eloquent {
         return $data_in_array;
     }
 
-
-
-
-
+    public static function getDropdownIDList($CompanyID){
+        $DropdownIDList = Report::where(array("CompanyID"=>$CompanyID))->lists('Name', 'ReportID');
+        $DropdownIDList = array('' => "Select") + $DropdownIDList;
+        return $DropdownIDList;
+    }
 
 }

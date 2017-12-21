@@ -1,4 +1,4 @@
-@extends('layout.main')
+@extends($layout)
 @section('content')
     @if(Input::get('report')!='run')
     <ol class="breadcrumb bc-3">
@@ -28,6 +28,18 @@
                             <a href="{{URL::to('report')}}"  data-original-title="Back" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-times"></i></a>
                         @if(empty(Input::get('report')) && !empty($report))
                             <a href="{{URL::to('report/edit/'.$report->ReportID)}}?report=run"  data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-play"></i>&nbsp;</a>
+                        @elseif(!empty($report) && !empty(Input::get('report')))
+                            <a href="{{URL::to('report/edit/'.$report->ReportID)}}"  data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>
+                        @endif
+                            <a  data-original-title="Export" title="" data-placement="top" data-toggle="tooltip" class="save-report-data"><i class="fa fa-download"></i>&nbsp;</a>
+                        @if(!empty($report))
+                            <a href="{{URL::to('report/schedule_update/'.$report->ReportID)}}" class="schedule_report"  data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>
+                            <div class = "hiddenRowData pull-left" >
+                                @foreach($schedule_settings as $schedule_settings_key=> $schedule_settings_val)
+                                    <input disabled type = "hidden"  name = "{{$schedule_settings_key}}"       value = "{{is_array($schedule_settings_val)?implode(',',$schedule_settings_val):$schedule_settings_val}}" />
+                                @endforeach
+                                    <input disabled type = "hidden"  name = "Schedule"       value = "{{$report->Schedule}}" />
+                            </div>
                         @endif
                     </div>
 
@@ -170,9 +182,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-10'}} float-right">
-                                <div class="btn-group float-right" style="padding-bottom: 5px"><a class="btn btn-white save-report-data btn-sm">Export</a></div>
-                            </div>
                             <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-10'}} table_report_overflow loading">
                             </div>
                         </div>
@@ -265,6 +274,7 @@
 
     </style>
 @include('report.script')
+    @include('report.schedule_modal')
 @stop
 @section('footer_ext')
     @parent

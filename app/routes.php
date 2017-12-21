@@ -1310,6 +1310,8 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/report/getdatalist','ReportController@getdatalist');
 	Route::any('/report/status_update/{id}','ReportController@status_update');
 	Route::any('/report/schedule_update/{id}','ReportController@update_schedule');
+	Route::any('/report/history/','ReportController@report_history');
+	Route::any('/report/history/{type}','ReportController@report_history_datagrid');
 
 	//RateCompare
 	Route::any('/rate_compare', 'RateCompareController@index');
