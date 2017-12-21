@@ -56,7 +56,7 @@
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" name="ReportID" value="">
-                        <button type="submit" id="report-update"  class="save btn btn-success btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <button type="submit" id="report-scheduale-update"  class="save btn btn-success btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
                         </button>
@@ -71,6 +71,7 @@
     </div>
 </div>
 <script>
+    $( function() {
     $('body').on('click', '.schedule_report', function (ev) {
         ev.preventDefault();
         $('#billing-form').trigger("reset");
@@ -111,5 +112,8 @@
         var _url  = $(this).attr("action");
         submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
     });
+
+    });
+
 </script>
 <script src="{{ URL::asset('assets/js/billing_class.js') }}"></script>

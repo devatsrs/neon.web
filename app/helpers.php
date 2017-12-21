@@ -2444,3 +2444,8 @@ function is_apply_total($col_name){
     }
     return $flag;
 }
+
+function report_tables_dropbox($id=0,$CompanyID){
+    $all_getRateTables = Report::getDropdownIDList($CompanyID);
+    return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}

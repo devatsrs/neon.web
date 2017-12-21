@@ -226,8 +226,8 @@ class ReportController extends \BaseController {
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
             $excel_data = $response->data;
             $excel_data = json_decode(json_encode($excel_data), true);
-            Excel::create('Alert History', function ($excel) use ($excel_data) {
-                $excel->sheet('Alert History', function ($sheet) use ($excel_data) {
+            Excel::create('Report History', function ($excel) use ($excel_data) {
+                $excel->sheet('Report History', function ($sheet) use ($excel_data) {
                     $sheet->fromArray($excel_data);
                 });
             })->download('xls');
