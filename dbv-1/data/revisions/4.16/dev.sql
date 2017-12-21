@@ -696,7 +696,7 @@ BEGIN
 			SELECT 1 into V_Ticket_Permission_level;
 			IF p_Admin > 0
 			THEN
-				SELECT DISTINCT GroupEmailAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupEmailAddress IS NOT NULL
+				SELECT DISTINCT GroupReplyAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupReplyAddress IS NOT NULL
 					UNION ALL
 				SELECT  tc.EmailFrom as EmailFrom FROM tblCompany tc where tc.EmailFrom IS NOT NULL AND tc.EmailFrom <> ''
 					UNION ALL
@@ -704,7 +704,7 @@ BEGIN
 			END IF;
 			IF p_Admin < 1
 			THEN
-				SELECT DISTINCT GroupEmailAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupEmailAddress IS NOT NULL
+				SELECT DISTINCT GroupReplyAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupReplyAddress IS NOT NULL
 					UNION ALL
 				SELECT  tc.EmailFrom as EmailFrom FROM tblCompany tc where tc.EmailFrom IS NOT NULL AND tc.EmailFrom <> ''
 					UNION ALL
@@ -716,7 +716,7 @@ BEGIN
 			THEN
 				SELECT 0 into V_Ticket_Permission;
 				SELECT
-				
+
 				count(*) into V_Ticket_Permission
 			FROM
 				tblUser u
@@ -736,7 +736,7 @@ BEGIN
 
 			IF p_Admin > 0
 			THEN
-				SELECT DISTINCT GroupEmailAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupEmailAddress IS NOT NULL AND FIND_IN_SET(GroupID,V_User_Groups)
+				SELECT DISTINCT GroupReplyAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupReplyAddress IS NOT NULL AND FIND_IN_SET(GroupID,V_User_Groups)
 					UNION ALL
 				SELECT  tc.EmailFrom as EmailFrom FROM tblCompany tc where tc.EmailFrom IS NOT NULL AND tc.EmailFrom <> ''
 					UNION ALL
@@ -744,7 +744,7 @@ BEGIN
 			END IF;
 			IF p_Admin < 1
 			THEN
-				SELECT DISTINCT GroupEmailAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupEmailAddress IS NOT NULL AND FIND_IN_SET(GroupID,V_User_Groups)
+				SELECT DISTINCT GroupReplyAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupReplyAddress IS NOT NULL AND FIND_IN_SET(GroupID,V_User_Groups)
 					UNION ALL
 				SELECT  tc.EmailFrom as EmailFrom FROM tblCompany tc where tc.EmailFrom IS NOT NULL AND tc.EmailFrom <> ''
 					UNION ALL
@@ -759,7 +759,7 @@ BEGIN
 			SELECT 3 into V_Ticket_Permission_level;
 			IF p_Admin > 0
 			THEN
-				SELECT DISTINCT TG.GroupEmailAddress as EmailFrom FROM tblTicketGroups TG INNER JOIN tblTickets TT ON TT.Group = TG.GroupID where TG.CompanyID = p_CompanyID and GroupEmailStatus = 1 and TG.GroupEmailAddress IS NOT NULL AND TT.Agent = p_userID
+				SELECT DISTINCT TG.GroupReplyAddress as EmailFrom FROM tblTicketGroups TG INNER JOIN tblTickets TT ON TT.Group = TG.GroupID where TG.CompanyID = p_CompanyID and GroupEmailStatus = 1 and TG.GroupReplyAddress IS NOT NULL AND TT.Agent = p_userID
 					UNION ALL
 				SELECT  tc.EmailFrom as EmailFrom FROM tblCompany tc where tc.EmailFrom IS NOT NULL AND tc.EmailFrom <> ''
 					UNION ALL
@@ -767,7 +767,7 @@ BEGIN
 			END IF;
 			IF p_Admin < 1
 			THEN
-				SELECT DISTINCT TG.GroupEmailAddress as EmailFrom FROM tblTicketGroups TG INNER JOIN tblTickets TT ON TT.Group = TG.GroupID where TG.CompanyID = p_CompanyID and GroupEmailStatus = 1 and TG.GroupEmailAddress IS NOT NULL AND TT.Agent = p_userID
+				SELECT DISTINCT TG.GroupReplyAddress as EmailFrom FROM tblTicketGroups TG INNER JOIN tblTickets TT ON TT.Group = TG.GroupID where TG.CompanyID = p_CompanyID and GroupEmailStatus = 1 and TG.GroupReplyAddress IS NOT NULL AND TT.Agent = p_userID
 					UNION ALL
 				SELECT  tc.EmailFrom as EmailFrom FROM tblCompany tc where tc.EmailFrom IS NOT NULL AND tc.EmailFrom <> ''
 					UNION ALL
@@ -5975,7 +5975,7 @@ ThisSP:BEGIN
 
  -- LEAVE ThisSP;
 
-   
+   	-- if no error
     IF newstringcode = 0
     THEN
 
@@ -6295,24 +6295,21 @@ ThisSP:BEGIN
 			  	  -- CALL prc_InsertDiscontinuedVendorRate(p_accountId,p_trunkId);
 			
 			
-			-- update Intervals which are not maching with tblVendorRate
+			-- Update Interval Changed for Action = "New"
+			-- update Intervals which are not maching with tblTempVendorRate
 			-- so as if intervals will not mapped next time it will be same as last file.
-    				UPDATE tblRate 
+    				UPDATE tblRate
                  JOIN tmp_TempVendorRate_ as tblTempVendorRate
 						ON 	  tblRate.CompanyID = p_companyId
-							 AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId 			 
-							 AND tblTempVendorRate.Code = tblRate.Code						
+							 AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
+							 AND tblTempVendorRate.Code = tblRate.Code
 							AND  tblTempVendorRate.ProcessId = p_processId
 							AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
-						JOIN  tblVendorRate
-							ON
-							tblRate.RateID = tblVendorRate.RateId 
-	         		 SET 
+	         		 SET
                     tblRate.Interval1 = tblTempVendorRate.Interval1,
                     tblRate.IntervalN = tblTempVendorRate.IntervalN
-				     WHERE tblVendorRate.AccountId = p_accountId
-                		 AND tblVendorRate.TrunkId = p_trunkId
-                		 AND tblTempVendorRate.Interval1 IS NOT NULL 
+				     WHERE
+                		     tblTempVendorRate.Interval1 IS NOT NULL
 							 AND tblTempVendorRate.IntervalN IS NOT NULL 
                 		 AND 
 							  (
