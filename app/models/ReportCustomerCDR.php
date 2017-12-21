@@ -3,8 +3,10 @@ class ReportCustomerCDR extends \Eloquent{
 
     public static $database_columns = array(
         'AccountID' => 'tblHeader.AccountID',
+        'DestinationBreak' => 'tblRate.Description',
     );
     public static  $AccountJoin = false;
+    public static  $CodeJoin = false;
 
     public static function generateSummaryQuery($CompanyID, $data, $filters){
 
@@ -90,6 +92,12 @@ class ReportCustomerCDR extends \Eloquent{
         if(report_join($data)){
             $query_common->join($RMDB.'.tblAccount', 'tblHeader.AccountID', '=', 'tblAccount.AccountID');
             self::$AccountJoin = true;
+        }
+        if(in_array('DestinationBreak',$data['column']) || in_array('DestinationBreak',$data['row'])){
+            $DefaultCodedeck = BaseCodeDeck::where(["CompanyID"=>$CompanyID,"DefaultCodedeck"=>1])->pluck("CodeDeckId");
+            $query_common->join($RMDB.'.tblRate', 'tblRate.Code', '=', 'tblUsageSummaryDay.AreaPrefix');
+            $query_common->where('CodeDeckId', intval($DefaultCodedeck));
+            self::$CodeJoin = true;
         }
 
         foreach ($filters as $key => $filter) {
