@@ -145,7 +145,15 @@ class ReportController extends \BaseController {
         $data['sum'] = $response = array();
 
         $measures = array_keys(Report::$measures[$cube]);
-        foreach ($measures as $measure){
+        foreach($data['column'] as $measure){
+            if(in_array($measure,$measures)){
+                $data['sum'][] = $measure;
+            }
+            if (($key = array_search($measure, $data['column'])) !== false) {
+                unset($data['column'][$key]);
+            }
+        }
+        /*foreach ($measures as $measure){
             if(in_array($measure,$data['column'])){
                 $data['sum'][] = $measure;
             }
@@ -158,7 +166,7 @@ class ReportController extends \BaseController {
             if (($key = array_search($measure, $data['row'])) !== false) {
                 unset($data['row'][$key]);
             }
-        }
+        }*/
         $data['column'] = array_values($data['column']);
         $data['row'] = array_values($data['row']);
         $all_data_list['CompanyGateway'] = CompanyGateway::getCompanyGatewayIdList();
