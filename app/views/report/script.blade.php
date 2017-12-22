@@ -42,6 +42,7 @@
                 deleteImage( ui.draggable,$Columns );
                 update_rows(ui.draggable,'remove',0);
                 update_columns(ui.draggable,'add',1);
+                remove_tooltip();
 
             }
         });
@@ -67,6 +68,7 @@
                 deleteImage( ui.draggable,$Row );
                 update_columns(ui.draggable,'remove',0);
                 update_rows(ui.draggable,'add',1);
+                remove_tooltip();
 
             }
         });
@@ -94,11 +96,12 @@
                 update_filter(ui.draggable,'add',0);
                 show_filter(ui.draggable);
                 //update_rows(ui.draggable,'add',1);
+                remove_tooltip();
 
             }
         });
 
-        $( "#Filter_Drop .dimension" ).click(function(e){
+        $("#Filter_Drop").on('click', '.dimension', function(e) {
             show_filter($(this));
         });
 
@@ -199,7 +202,7 @@
                     dimesions_html += '</ul></li>';
                 }else{
                     if(index == 'ProductType'){
-                        dimesions_html += '<li class="dimension ui-draggable tooltip-primary" data-toggle="tooltip" data-original-title="Item / Subscriptions / Additional Charges / Invoice Received" data-cube="'+cube+'" data-val="'+index+'"><span><i class="fa fa-arrows"></i> ' + value + '</span></li>';
+                        dimesions_html += '<li class="dimension ui-draggable tooltip-primary" data-trigger="hover" data-toggle="tooltip" data-original-title="Item / Subscriptions / Additional Charges / Invoice Received" data-cube="'+cube+'" data-val="'+index+'"><span><i class="fa fa-arrows"></i> ' + value + '</span></li>';
                     }else{
                         dimesions_html += '<li class="dimension ui-draggable" data-cube="'+cube+'" data-val="'+index+'"><span><i class="fa fa-arrows"></i> ' + value + '</span></li>';
                     }
@@ -516,6 +519,9 @@
                 });
             }
         });
+    }
+    function remove_tooltip(){
+        $('body').find('[role="tooltip"]').remove();
     }
 
 </script>
