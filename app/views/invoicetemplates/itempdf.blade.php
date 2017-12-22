@@ -39,10 +39,10 @@
 				</div>
 				<div id="invoice">
 					<h1>Invoice No: {{$InvoiceTemplate->InvoiceNumberPrefix.$InvoiceTemplate->InvoiceStartNumber}}</h1>
-					<div class="date">Invoice Date: {{date('d-m-Y')}}</div>
-					<div class="date">Due Date: {{date('d-m-Y',strtotime('+5 days'))}}</div>
+					<div class="date">Invoice Date: {{date($InvoiceTemplate->DateFormat)}}</div>
+					<div class="date">Due Date: {{date($InvoiceTemplate->DateFormat,strtotime('+5 days'))}}</div>
 					@if($InvoiceTemplate->ShowBillingPeriod == 1)
-						<div class="date">Invoice Period: {{date('d-m-Y',strtotime('-7 days'))}} - {{date('d-m-Y')}}</div>
+						<div class="date">Invoice Period: {{date($InvoiceTemplate->DateFormat,strtotime('-7 days'))}} - {{date($InvoiceTemplate->DateFormat)}}</div>
 					@endif
 				</div>
 			</div>
