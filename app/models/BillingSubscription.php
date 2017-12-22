@@ -33,13 +33,13 @@ class BillingSubscription extends \Eloquent {
         return $subscription;
     }
 
-    public static function getSubscriptionsList(){
+    public static function getSubscriptionsList($CompanyID=0){
 
         if (self::$enable_cache && Cache::has('subscription_dropdown1_cache')) {
             $admin_defaults = Cache::get('subscription_dropdown1_cache');
             self::$cache['subscription_dropdown1_cache'] = $admin_defaults['subscription_dropdown1_cache'];
         } else {
-            $CompanyId = User::get_companyID();
+            $CompanyId = $CompanyID>0?$CompanyID : User::get_companyID();
             self::$cache['subscription_dropdown1_cache'] = BillingSubscription::where("CompanyId",$CompanyId)->lists('Name','SubscriptionID');
             Cache::forever('subscription_dropdown1_cache', array('subscription_dropdown1_cache' => self::$cache['subscription_dropdown1_cache']));
         }

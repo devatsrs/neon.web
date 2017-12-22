@@ -61,6 +61,35 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     }
 
+    public static function reseller_user_login($data = array()){
+        if(!empty($data) && isset($data["email"]) && isset($data["password"]) ){
+            $auth = Auth::createEloquentDriver();
+            Auth::setProvider($auth->getProvider());
+            //$customer = Customer::where('BillingEmail','like','%'.$data["email"].'%')->first();
+            $customer = Customer::whereRaw("FIND_IN_SET('".$data['email']."',ResellerEmail) !=0")->first();
+            if($customer) {
+                if (Hash::check($data["password"], $customer->ResellerPassword)) {
+                    Auth::login($customer);
+                    Session::set("reseller", 1);
+                    Session::set("ResellerEmail", $data["email"]);
+                    return true;
+                }
+            }
+            /*if (Auth::attempt(array('BillingEmail' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 ,"VerificationStatus"=> Account::VERIFIED ))) {
+                Session::set("customer", 1 );
+                return true;
+            }
+            /*else{
+                $queries = DB::getQueryLog();
+
+                print_r($queries);
+            }*/
+
+        }
+        return false;
+
+    }
+
 
     public static function checkPermission($resource, $abort = true) {
 
@@ -166,12 +195,21 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         if(Auth::guest()){
             return $CompanyID = SiteIntegration::GetComapnyIdByKey();
         }else {
+            /*
+            $customer=Session::get('customer');
+            //$reseller=Session::get('reseller');
+            if($customer==1){
+                return $CompanyID = Customer::get_companyID();
+            }else{
+                return Auth::user()->CompanyID;
+            }*/
             return $CompanyID = Session::get('customer')==1?Customer::get_companyID():Auth::user()->CompanyID;
         }
     }
 
     public static function get_userID(){
         $customer=Session::get('customer');
+        //$reseller=Session::get('reseller');
         if($customer==1){
             return Customer::get_accountID();
         }
@@ -180,6 +218,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     public static function get_user_full_name(){
         $customer=Session::get('customer');
+        //$reseller=Session::get('reseller');
         if($customer==1){
             return Customer::get_user_full_name();
         }

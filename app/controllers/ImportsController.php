@@ -15,8 +15,9 @@ class ImportsController extends \BaseController {
      * @return Response
      */
     public function index() {
-            $Quickbook = new BillingAPI();
-            $check_quickbook = $Quickbook->check_quickbook();
+            $CompanyID = User::get_companyID();
+            $Quickbook = new BillingAPI($CompanyID);
+            $check_quickbook = $Quickbook->check_quickbook($CompanyID);
             $gatewaylist = CompanyGateway::importgatewaylist();
             $templateoption = ['' => 'Select', 1 => 'Create new', 2 => 'Update existing'];
             $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_Account);
@@ -615,16 +616,16 @@ class ImportsController extends \BaseController {
             ini_set('max_execution_time', 0);
 
             $data = Input::all();
-            $QuickBook = new BillingAPI();
+            $CompanyID = User::get_companyID();
+            $QuickBook = new BillingAPI($CompanyID);
             $quickbooks_CompanyInfo = $QuickBook->test_connection();
 
             if(!empty($quickbooks_CompanyInfo)){
                 $ProcessID = (string) GUID::generate();
                 log::info('--ProcessID--'.$ProcessID);
-                $CompanyID = User::get_companyID();
                 $param['CompanyID'] = $CompanyID;
                 $param['ProcessID'] = $ProcessID;
-                $quickbook = new BillingAPI();
+                $quickbook = new BillingAPI($CompanyID);
                 $response1 = $quickbook->getAccountsDetail($param);
                 log::info('Quickbook Response'.print_r($response1,true));
                 if(isset($response1['result']) && $response1['result'] =='OK'){

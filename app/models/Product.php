@@ -29,16 +29,16 @@ class Product extends \Eloquent {
         }
     }
 
-    public static function getProductDropdownList(){
+    public static function getProductDropdownList($CompanyID=0){
 
         //Items
         if (self::$enable_cache && Cache::has('product_dropdown1_cache')) {
             $admin_defaults = Cache::get('product_dropdown1_cache');
             self::$cache['product_dropdown1_cache'] = $admin_defaults['product_dropdown1_cache'];
         } else {
-            $CompanyId = User::get_companyID();
+            $CompanyId = $CompanyID>0 ? $CompanyID : User::get_companyID();
             self::$cache['product_dropdown1_cache'] = Product::where("CompanyId",$CompanyId)->where("Active",1)->lists('Name','ProductID');
-            self::$cache['product_dropdown1_cache'] = self::$cache['product_dropdown1_cache'];
+            Cache::forever('product_dropdown1_cache', array('product_dropdown1_cache' => self::$cache['product_dropdown1_cache']));
         }
         $list = array();
         $list = self::$cache['product_dropdown1_cache'];

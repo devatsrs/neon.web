@@ -52,46 +52,46 @@
 
             ?>
               <div class="pull-right"> &nbsp;</div>
-                  @if($Invoice->InvoiceStatus != Invoice::PAID && (getInvoicePayments()))
+                  @if($Invoice->InvoiceStatus != Invoice::PAID && (getInvoicePayments($Invoice->CompanyID)))
                   <div class="input-group-btn pull-right" style="width: 70px;">
                       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="padding:4px 10px;"> Pay Now <span class="caret"></span></button>
                       <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                           @if(empty($ShowAllPaymentMethod))
-                              @if(($PaymentMethod == 'AuthorizeNet') && (is_authorize()  ) )
+                              @if(($PaymentMethod == 'AuthorizeNet') && (is_authorize($Invoice->CompanyID)  ) )
                                   <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/AuthorizeNet');}}" id="pay_AuthorizeNet" href="javascript:;"style="width:100%"> AuthorizeNet </a> </li>
                               @endif
-                              @if(($PaymentMethod == 'Stripe') && (is_Stripe()  ) )
+                              @if(($PaymentMethod == 'Stripe') && (is_Stripe($Invoice->CompanyID)  ) )
                                   <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Stripe');}}" id="pay_Stripe" href="javascript:;"> Stripe </a> </li>
                               @endif
-                              @if(is_FideliPay())
+                              @if(is_FideliPay($Invoice->CompanyID))
                                   <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/FideliPay');}}" id="pay_FideliPay" href="javascript:;"> FideliPay </a> </li>
                               @endif
-                              @if(($PaymentMethod == 'StripeACH') && (is_StripeACH() && $StripeACHCount==1 ) )
+                              @if(($PaymentMethod == 'StripeACH') && (is_StripeACH($Invoice->CompanyID) && $StripeACHCount==1 ) )
                                   <li> <a class="generate_rate create"  href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/StripeACH');}}" id="pay_StripeACH" href="javascript:;"> StripeACH </a> </li>
                               @endif
-                              @if(($PaymentMethod == 'Paypal') && (is_paypal()  ) )
+                              @if(($PaymentMethod == 'Paypal') && (is_paypal($Invoice->CompanyID)  ) )
                                   <li> <a class="pay_now create" id="pay_paypal" href="javascript:;"> Paypal </a> </li>
                               @endif
-                              @if(($PaymentMethod == 'SagePay') && (is_sagepay()  ) )
+                              @if(($PaymentMethod == 'SagePay') && (is_sagepay($Invoice->CompanyID)  ) )
                                   <li> <a class="pay_now create" id="pay_SagePay" href="javascript:;"> SagePay </a> </li>
                               @endif
                           @else
-                              @if(is_authorize())
+                              @if(is_authorize($Invoice->CompanyID))
                               <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/AuthorizeNet');}}" id="pay_AuthorizeNet" href="javascript:;"style="width:100%"> AuthorizeNet </a> </li>
                               @endif
-                              @if(is_Stripe())
+                              @if(is_Stripe($Invoice->CompanyID))
                               <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/Stripe');}}" id="pay_Stripe" href="javascript:;"> Stripe </a> </li>
                               @endif
-                              @if(is_FideliPay())
+                              @if(is_FideliPay($Invoice->CompanyID))
                               <li> <a class="generate_rate create" href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/FideliPay');}}" id="pay_FideliPay" href="javascript:;"> FideliPay </a> </li>
                               @endif
-                              @if(is_StripeACH() && $StripeACHCount==1)
+                              @if(is_StripeACH($Invoice->CompanyID) && $StripeACHCount==1)
                               <li> <a class="generate_rate create"  href="{{URL::to('invoice_payment/'. $Invoice->AccountID.'-'.$Invoice->InvoiceID.'/StripeACH');}}" id="pay_StripeACH" href="javascript:;"> StripeACH </a> </li>
                               @endif
-                              @if(is_paypal())
+                              @if(is_paypal($Invoice->CompanyID))
                               <li> <a class="pay_now create" id="pay_paypal" href="javascript:;"> Paypal </a> </li>
                               @endif
-                              @if(is_sagepay())
+                              @if(is_sagepay($Invoice->CompanyID))
                               <li> <a class="pay_now create" id="pay_SagePay" href="javascript:;"> SagePay </a> </li>
                               @endif
                           @endif
@@ -103,10 +103,10 @@
           @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> Downlod Usage </a>
           <div class="pull-right"> &nbsp;</div>
           @endif <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a>
-              @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_paypal()  ) )
+              @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_paypal($Invoice->CompanyID)  ) )
               {{$paypal_button}}
               @endif
-              @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_sagepay()  ) )
+              @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_sagepay($Invoice->CompanyID)  ) )
               {{$sagepay_button}}
               @endif
         </div>

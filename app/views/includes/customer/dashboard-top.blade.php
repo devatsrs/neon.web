@@ -10,7 +10,7 @@
 
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             @if(Customer::get_customer_picture_url(Customer::get_accountID()) != '')<img src="{{ Customer::get_customer_picture_url(Customer::get_accountID()) }}" alt="" class="img-circle" width="44" />@endif
-            {{Auth::user()->AccountName}}
+            {{Customer::get_accountName()}}
         </a>
 
         <ul class="dropdown-menu">

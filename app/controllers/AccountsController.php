@@ -65,10 +65,6 @@ class AccountsController extends \BaseController {
             $PaymentGatewayName = $account->PaymentMethod;
             $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
         }
-        /*$PaymentGatewayID = PaymentGateway::getPaymentGatewayID();
-        if(!empty($PaymentGatewayID)){
-            $PaymentGatewayName = PaymentGateway::$paymentgateway_name[$PaymentGatewayID];
-        }*/
         $carddetail = AccountPaymentProfile::select("tblAccountPaymentProfile.Title","tblAccountPaymentProfile.Status","tblAccountPaymentProfile.isDefault",DB::raw("'".$PaymentGatewayName."' as gateway"),"created_at","AccountPaymentProfileID","tblAccountPaymentProfile.Options");
         $carddetail->where(["tblAccountPaymentProfile.CompanyID"=>$CompanyID])
             ->where(["tblAccountPaymentProfile.AccountID"=>$AccountID])
@@ -478,8 +474,8 @@ class AccountsController extends \BaseController {
         $account_owners = User::getOwnerUsersbyRole();
         $countries = $this->countries;
         $tags = json_encode(Tags::getTagsArray());
-        $products = Product::getProductDropdownList();
-        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0);
+        $products = Product::getProductDropdownList($companyID);
+        $taxes = TaxRate::getTaxRateDropdownIDListForInvoice(0,$companyID);
         $currencies = Currency::getCurrencyDropdownIDList();
         $timezones = TimeZone::getTimeZoneDropdownList();
         $InvoiceTemplates = InvoiceTemplate::getInvoiceTemplateList();
@@ -675,7 +671,7 @@ class AccountsController extends \BaseController {
             }
 
             if(!empty($data['PaymentMethod'])) {
-                if (is_authorize() && $data['PaymentMethod'] == 'AuthorizeNet') {
+                if (is_authorize($companyID) && $data['PaymentMethod'] == 'AuthorizeNet') {
 
                     $PaymentGatewayID = PaymentGateway::AuthorizeNet;
                     $PaymentProfile = AccountPaymentProfile::where(['AccountID' => $id])

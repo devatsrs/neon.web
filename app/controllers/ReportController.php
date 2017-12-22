@@ -116,18 +116,17 @@ class ReportController extends \BaseController {
         }
         $data['column'] = array_values($data['column']);
         $data['row'] = array_values($data['row']);
-        $all_data_list['CompanyGateway'] = CompanyGateway::getCompanyGatewayIdList();
+        $all_data_list['CompanyGateway'] = CompanyGateway::getCompanyGatewayIdList($CompanyID);
         $all_data_list['Country'] = Country::getCountryDropdownIDList();
-        $all_data_list['Currency'] = Currency::getCurrencyDropdownIDList();
-        $all_data_list['Tax'] = TaxRate::getTaxRateDropdownIDList();
-        $all_data_list['Product'] = Product::getProductDropdownList();
+        $all_data_list['Currency'] = Currency::getCurrencyDropdownIDList($CompanyID);
+        $all_data_list['Tax'] = TaxRate::getTaxRateDropdownIDList($CompanyID);
+        $all_data_list['Product'] = Product::getProductDropdownList($CompanyID);
         $all_data_list['Account'] = Account::getAccountIDList();
         $all_data_list['AccountIP'] = GatewayAccount::getAccountIPList($CompanyID);
         $all_data_list['AccountCLI'] = GatewayAccount::getAccountCLIList($CompanyID);
         $all_data_list['Service'] = Service::getDropdownIDList($CompanyID);
-        $all_data_list['Subscription'] = BillingSubscription::getSubscriptionsList();
+        $all_data_list['Subscription'] = BillingSubscription::getSubscriptionsList($CompanyID);
 
-        $CompanyID = User::get_companyID();
         if(count($data['sum'])) {
             $response = Report::generateDynamicTable($CompanyID, $cube, $data,$filters);
         }

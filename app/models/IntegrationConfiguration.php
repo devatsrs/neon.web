@@ -14,11 +14,14 @@ class IntegrationConfiguration extends \Eloquent {
 	   $companyID	=  User::get_companyID();
 	   
 	  $Subcategory = Integration::select("*");
-	  $Subcategory->leftJoin('tblIntegrationConfiguration', function($join)
+	  $Subcategory->leftJoin('tblIntegrationConfiguration', function($join) use($companyID)
 		{
 			$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
+			$join->where('tblIntegrationConfiguration.CompanyID','=',$companyID);
 	
-		})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.Slug"=>$slug]);
+		})
+		  //->where(["tblIntegrationConfiguration.CompanyID"=>$companyID])
+		  ->where(["tblIntegration.Slug"=>$slug]);
 		 $result = $Subcategory->first();
 		 return $result;
    } 

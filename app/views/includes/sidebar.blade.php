@@ -289,6 +289,7 @@
          @if( User::checkCategoryPermission('ServerInfo','View'))
         <li> <a href="{{URL::to('/serverinfo')}}">  <span>Server Monitor</span> </a> </li>
     	@endif
+          <li> <a href="{{URL::to('/reseller')}}">  <span>Reseller</span> </a> </li>
       </ul>
     </li>
     @endif

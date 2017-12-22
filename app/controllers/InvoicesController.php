@@ -63,7 +63,7 @@ class InvoicesController extends \BaseController {
 		{
             $query .=',0,0,0,"",'.$userID.')';
         }
-    	
+
 		$result   = DataTableSql::of($query,'sqlsrv2')->getProcResult(array('ResultCurrentPage','Total_grand_field'));
 		$result2  = $result['data']['Total_grand_field'][0]->total_grand;
 		$result4  = array(
@@ -134,9 +134,9 @@ class InvoicesController extends \BaseController {
      */
     public function index()
     {
-        $companyID = User::get_companyID();
+        $CompanyID = User::get_companyID();
         $accounts = Account::getAccountIDList();
-		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+		$DefaultCurrencyID    	=   Company::where("CompanyID",$CompanyID)->pluck("CurrencyId");
         $invoice_status_json = json_encode(Invoice::get_invoice_status());
         //$emailTemplates = EmailTemplate::getTemplateArray(array('Type'=>EmailTemplate::INVOICE_TEMPLATE));
 		$emailTemplates = EmailTemplate::getTemplateArray(array('StaticType'=>EmailTemplate::DYNAMICTEMPLATE));
@@ -144,11 +144,11 @@ class InvoicesController extends \BaseController {
         $data['StartDateDefault'] 	  	= 	'';
 		$data['IssueDateEndDefault']  	= 	'';
         $InvoiceHideZeroValue = NeonCookie::getCookie('InvoiceHideZeroValue',1);
-        $Quickbook = new BillingAPI();
-        $check_quickbook = $Quickbook->check_quickbook();
+        $Quickbook = new BillingAPI($CompanyID);
+        $check_quickbook = $Quickbook->check_quickbook($CompanyID);
 		$bulk_type = 'invoices';
         //print_r($_COOKIE);exit;
-        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','bulk_type'));
+        return View::make('invoices.index',compact('products','accounts','invoice_status_json','emailTemplates','templateoption','DefaultCurrencyID','data','invoice','InvoiceHideZeroValue','check_quickbook','bulk_type','CompanyID'));
 
     }
 
@@ -162,8 +162,8 @@ class InvoicesController extends \BaseController {
     {
         $companyID  =   User::get_companyID();
         $accounts 	= 	Account::getAccountIDList();
-        $products 	= 	Product::getProductDropdownList();
-        $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice();
+        $products 	= 	Product::getProductDropdownList($companyID);
+        $taxes 		= 	TaxRate::getTaxRateDropdownIDListForInvoice(0,$companyID);
 		//echo "<pre>"; 		print_r($taxes);		echo "</pre>"; exit;
         //$gateway_product_ids = Product::getGatewayProductIDs();
 		$BillingClass = BillingClass::getDropdownIDList($companyID);
@@ -186,10 +186,11 @@ class InvoicesController extends \BaseController {
         if($id > 0) {
 
             $Invoice = Invoice::find($id);
+            $CompanyID = $Invoice->CompanyID;
 			$InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);			
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID"=>$id])->get();
             $accounts = Account::getAccountIDList();
-            $products = Product::getProductDropdownList();
+            $products = Product::getProductDropdownList($CompanyID);
             //$gateway_product_ids = Product::getGatewayProductIDs();
             $Account = Account::where(["AccountID" => $Invoice->AccountID])->select(["AccountName","BillingEmail", "CurrencyId"])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
             $CurrencyID = !empty($Invoice->CurrencyID)?$Invoice->CurrencyID:$Account->CurrencyId;
@@ -198,11 +199,11 @@ class InvoicesController extends \BaseController {
             $InvoiceNumberPrefix = ($InvoiceTemplateID>0)?InvoiceTemplate::find($InvoiceTemplateID)->InvoiceNumberPrefix:'';
             $Currency = Currency::find($CurrencyID);
             $CurrencyCode = !empty($Currency)?$Currency->Code:'';
-            $CompanyName = Company::getName();
-            $taxes =  TaxRate::getTaxRateDropdownIDListForInvoice();
+            $CompanyName = Company::getName($CompanyID);
+            $taxes =  TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
             $invoicelog =  InVoiceLog::where(array('InvoiceID'=>$id))->get();
 			$InvoiceAllTax =  InvoiceTaxRate::where(["InvoiceID"=>$id,"InvoiceTaxType"=>1])->get();
-			$BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+			$BillingClass = BillingClass::getDropdownIDList($CompanyID);
 			
             return View::make('invoices.edit', compact( 'id', 'Invoice','InvoiceDetail','InvoiceTemplateID','InvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','invoicelog','InvoiceAllTax','BillingClass','InvoiceBillingClass'));
         }
@@ -868,7 +869,7 @@ class InvoicesController extends \BaseController {
             $payment_log = Payment::getPaymentByInvoice($id);
 
             $paypal_button = $sagepay_button = "";
-            $paypal = new PaypalIpn();
+            $paypal = new PaypalIpn($Invoice->CompanyID);
             if(!empty($paypal->status)){
                 $paypal->item_title =  Company::getName($Invoice->CompanyID).  ' Invoice #'.$Invoice->FullInvoiceNumber;
                 $paypal->item_number =  $Invoice->FullInvoiceNumber;
@@ -890,9 +891,9 @@ class InvoicesController extends \BaseController {
 
                 $paypal_button = $paypal->get_paynow_button($Invoice->AccountID,$Invoice->InvoiceID);
             }
-            if ( (new SagePay())->status()) {
+            if ( (new SagePay($Invoice->CompanyID))->status()) {
 
-                $SagePay = new SagePay();
+                $SagePay = new SagePay($Invoice->CompanyID);
 
                 $SagePay->item_title =  Company::getName($Invoice->CompanyID).  ' Invoice #'.$Invoice->FullInvoiceNumber;
                 $SagePay->item_number =  $Invoice->FullInvoiceNumber;
@@ -2043,7 +2044,10 @@ class InvoicesController extends \BaseController {
             $AccountID = intval($account_inv[0]);
             $InvoiceID = intval($account_inv[1]);
 
-            $paypal = new PaypalIpn();
+            $Invoice = Invoice::find($InvoiceID);
+            $CompanyID = $Invoice->CompanyID;
+
+            $paypal = new PaypalIpn($CompanyID);
 
             $data["Notes"]                  = $paypal->get_note();
             $data["Success"]                = $paypal->success();
@@ -2064,9 +2068,10 @@ class InvoicesController extends \BaseController {
     {
 
         //@TODO: need to merge all payment gateway payment insert entry.
+        $CompanyID = 0; // need to change if possible
 
         //https://sagepay.co.za/integration/sage-pay-integration-documents/pay-now-gateway-technical-guide/
-        $SagePay = new SagePay();
+        $SagePay = new SagePay($CompanyID);
         $AccountnInvoice = $SagePay->getAccountInvoiceID();
 
         if ($AccountnInvoice != null) { // Extra2 = m5 (hidden field of sagepay form).
@@ -2577,8 +2582,8 @@ class InvoicesController extends \BaseController {
     }
 
     public function sagepay_return() {
-
-        $SagePay = new SagePay();
+        $CompanyID =0;
+        $SagePay = new SagePay($CompanyID);
         $AccountnInvoice = $SagePay->getAccountInvoiceID('m10');
 
         if(isset($AccountnInvoice["AccountID"]) && isset($AccountnInvoice["InvoiceID"])) {
@@ -2694,7 +2699,7 @@ class InvoicesController extends \BaseController {
             $SageData['Invoices'] = $InvoiceIDs;
             $SageData['MarkPaid'] = $MarkPaid;
 
-            $SageDirectDebit = new SagePayDirectDebit();
+            $SageDirectDebit = new SagePayDirectDebit($CompanyID);
             $Response = $SageDirectDebit->sagebatchfileexport($SageData);
             log::info('Response');
             log::info($Response);

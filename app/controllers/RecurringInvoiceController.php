@@ -66,11 +66,11 @@ class RecurringInvoiceController extends \BaseController {
      */
     public function create()
     {
-
+        $CompanyID = User::get_companyID();
         $accounts = Account::getAccountIDList();
-        $products = Product::getProductDropdownList();
-        $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice();
-        $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+        $products = Product::getProductDropdownList($CompanyID);
+        $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
+        $BillingClass = BillingClass::getDropdownIDList($CompanyID);
         return View::make('recurringinvoices.create',compact('accounts','products','taxes','BillingClass'));
 
     }
@@ -84,9 +84,10 @@ class RecurringInvoiceController extends \BaseController {
         if($id > 0)
 		{
             $RecurringInvoice 					= 	 RecurringInvoice::find($id);
+            $CompanyID = $RecurringInvoice->CompanyID;
             $RecurringInvoiceDetail 			=	 RecurringInvoiceDetail::where(["RecurringInvoiceID"=>$id])->get();
             $accounts 					= 	 Account::getAccountIDList();
-            $products 					= 	 Product::getProductDropdownList();
+            $products 					= 	 Product::getProductDropdownList($CompanyID);
             $Account 					= 	 Account::where(["AccountID" => $RecurringInvoice->AccountID])->select(["AccountName","BillingEmail","CurrencyId"])->first(); //"TaxRateID","RoundChargesAmount","InvoiceTemplateID"
             $CurrencyID 				= 	 !empty($RecurringInvoice->CurrencyID)?$RecurringInvoice->CurrencyID:$Account->CurrencyId;
             $RoundChargesAmount 		= 	 get_round_decimal_places($RecurringInvoice->AccountID);
@@ -94,10 +95,10 @@ class RecurringInvoiceController extends \BaseController {
             $RecurringInvoiceNumberPrefix 		= 	 ($RecurringInvoiceTemplateID>0)?InvoiceTemplate::find($RecurringInvoiceTemplateID)->RecurringInvoiceNumberPrefix:'';
             $Currency 					= 	 Currency::find($CurrencyID);
             $CurrencyCode 				= 	 !empty($Currency)?$Currency->Code:'';
-            $CompanyName 				= 	 Company::getName();
-            $taxes 						= 	 TaxRate::getTaxRateDropdownIDListForInvoice();
+            $CompanyName 				= 	 Company::getName($CompanyID);
+            $taxes 						= 	 TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
 			$RecurringInvoiceAllTax 			= 	 DB::connection('sqlsrv2')->table('tblRecurringInvoiceTaxRate')->where(["RecurringInvoiceID"=>$id,"RecurringInvoiceTaxType"=>1])->orderby('RecurringInvoiceTaxRateID')->get();
-            $BillingClass = BillingClass::getDropdownIDList(User::get_companyID());
+            $BillingClass = BillingClass::getDropdownIDList($CompanyID);
             $RecurringInvoiceReminder = json_decode($RecurringInvoice->RecurringSetting);
 			
             return View::make('recurringinvoices.edit', compact( 'id', 'RecurringInvoice','RecurringInvoiceDetail','RecurringInvoiceTemplateID','RecurringInvoiceNumberPrefix',  'CurrencyCode','CurrencyID','RoundChargesAmount','accounts', 'products', 'taxes','CompanyName','Account','RecurringInvoiceAllTax','BillingClass','RecurringInvoiceReminder'));

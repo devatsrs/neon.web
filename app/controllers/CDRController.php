@@ -13,12 +13,13 @@ class CDRController extends BaseController {
      * @TODO: name need to fix for upload and show
      */
     public function index() {
-        $gateway = CompanyGateway::getCompanyGatewayIdList();
+        $CompanyID = User::get_companyID();
+        $gateway = CompanyGateway::getCompanyGatewayIdList($CompanyID);
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_CDR);
-        $trunks = Trunk::getTrunkDropdownIDList();
+        $trunks = Trunk::getTrunkDropdownIDList($CompanyID);
         $trunks = $trunks+array(0=>'Find From CustomerPrefix');
         $trunks = array('Trunk'=>$trunks);
-        $Services = Service::getDropdownIDList(User::get_companyID());
+        $Services = Service::getDropdownIDList($CompanyID);
         $Services = array('Service'=>$Services);
         $ratetables = RateTable::getRateTableList();
         return View::make('cdrupload.upload',compact('dashboardData','account','gateway','UploadTemplate','trunks','Services','ratetables'));
@@ -167,11 +168,11 @@ class CDRController extends BaseController {
         echo $html_text;
     }
     public function show(){
-        $gateway = CompanyGateway::getCompanyGatewayIdList();
-		 $companyID 				= 	User::get_companyID();
-		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
+        $companyID 				= 	User::get_companyID();
+        $gateway = CompanyGateway::getCompanyGatewayIdList($companyID);
+        $DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
         $rate_cdr = array();
-        $Settings = CompanyGateway::where(array('Status'=>1,'CompanyID'=>User::get_companyID()))->lists('Settings', 'CompanyGatewayID');
+        $Settings = CompanyGateway::where(array('Status'=>1,'CompanyID'=>$companyID))->lists('Settings', 'CompanyGatewayID');
         foreach($Settings as $CompanyGatewayID => $Setting){
             $Setting = json_decode($Setting);
             if(isset($Setting->RateCDR) && $Setting->RateCDR == 1){
@@ -181,7 +182,7 @@ class CDRController extends BaseController {
             }
         }
 		 $accounts = Account::getAccountIDList();
-        $trunks = Trunk::getTrunkDropdownList();
+        $trunks = Trunk::getTrunkDropdownList($companyID);
         $trunks = $trunks + array('Other'=>'Other');
         return View::make('cdrupload.show',compact('dashboardData','account','gateway','rate_cdr','DefaultCurrencyID','accounts','trunks'));
     }
@@ -261,7 +262,8 @@ class CDRController extends BaseController {
 
     }
     public function cdr_recal() {
-        $gateway = CompanyGateway::getCompanyGatewayIdList();
+        $CompanyID = User::get_companyID();
+        $gateway = CompanyGateway::getCompanyGatewayIdList($CompanyID);
         return View::make('cdrupload.cdrrecal',compact('dashboardData','account','gateway'));
     }
 
@@ -505,9 +507,9 @@ class CDRController extends BaseController {
     public function vendorcdr_show(){
 		 $companyID 				= 	User::get_companyID();
 		$DefaultCurrencyID    	=   Company::where("CompanyID",$companyID)->pluck("CurrencyId");
-        $gateway = CompanyGateway::getCompanyGatewayIdList();
+        $gateway = CompanyGateway::getCompanyGatewayIdList($companyID);
 		$accounts = Account::getAccountIDList();
-        $trunks = Trunk::getTrunkDropdownList();
+        $trunks = Trunk::getTrunkDropdownList($companyID);
         $trunks = $trunks + array('Other'=>'Other');
         return View::make('cdrupload.vendorcdr',compact('gateway','DefaultCurrencyID','accounts','trunks'));
     }
@@ -546,9 +548,10 @@ class CDRController extends BaseController {
         return DataTableSql::of($query, 'sqlsrv2')->make();
     }
     public function vendorcdr_upload() {
-        $gateway = CompanyGateway::getCompanyGatewayIdList();
+        $companyID = User::get_companyID();
+        $gateway = CompanyGateway::getCompanyGatewayIdList($companyID);
         $UploadTemplate = FileUploadTemplate::getTemplateIDList(FileUploadTemplate::TEMPLATE_VENDORCDR);
-        $trunks = Trunk::getTrunkDropdownIDList();
+        $trunks = Trunk::getTrunkDropdownIDList($companyID);
         $trunks = $trunks+array(0=>'Find From VendorPrefix');
         return View::make('cdrupload.vendorcdrupload',compact('dashboardData','account','gateway','UploadTemplate','trunks'));
     }

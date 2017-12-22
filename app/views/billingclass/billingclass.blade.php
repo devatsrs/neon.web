@@ -1,5 +1,6 @@
 <?php $emailTemplates = EmailTemplate::getTemplateArray();
-$taxrates = TaxRate::getTaxRateDropdownIDList();
+$CompanyID = User::get_companyID();
+$taxrates = TaxRate::getTaxRateDropdownIDList($CompanyID);
 if(isset($taxrates[""])){unset($taxrates[""]);}
 $type = EmailTemplate::$Type;
 $privacy = EmailTemplate::$privacy;
@@ -30,7 +31,7 @@ $privacy = EmailTemplate::$privacy;
                             <div class="form-group">
                                 <label for="field-1" class="col-sm-2 control-label">Tax Rate</label>
                                 <div class="col-sm-4">
-                                    {{Form::select('TaxRateID[]', TaxRate::getTaxRateDropdownIDList(), (isset($BillingClass->TaxRateID)? explode(',',$BillingClass->TaxRateID) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
+                                    {{Form::select('TaxRateID[]', TaxRate::getTaxRateDropdownIDList($CompanyID), (isset($BillingClass->TaxRateID)? explode(',',$BillingClass->TaxRateID) : array() ) ,array("class"=>"form-control select2",'multiple'))}}
                                 </div>
                                 <label for="field-1" class="col-sm-2 control-label">Payment is expected within (Days)*</label>
                                 <div class="col-sm-4">

@@ -121,7 +121,7 @@
             @if(User::checkCategoryPermission('Invoice','Generate'))
             <li> <a class="generate_rate create" id="RegenSelectedInvoice" href="javascript:;"> Regenerate </a> </li>
             @endif
-            @if(is_PayNowInvoice())
+            @if(is_PayNowInvoice($CompanyID))
             @if(User::checkCategoryPermission('Invoice','Edit'))
             <li> <a class="pay_now create" id="pay_now" href="javascript:;"> Pay Now </a> </li>
             @endif
@@ -132,13 +132,13 @@
             @if(User::checkCategoryPermission('Invoice','Post') && !empty($check_quickbook))
             <li> <a class="quickbookpost create" id="quickbook_post" href="javascript:;"> QuickBook Post </a> </li>
             @endif
-            @if(User::checkCategoryPermission('Invoice','Post') && is_Xero())
+            @if(User::checkCategoryPermission('Invoice','Post') && is_Xero($CompanyID))
             <li> <a class="xeropost create" id="xero_post" href="javascript:;"> Xero Post </a> </li>
             <li> <a class="xerojournal create" id="xero_journal" href="javascript:;"> Xero Journal </a> </li>
             @endif
 
             <li> <a class="create" id="sage-export" href="javascript:;"> Sage Export </a> </li>
-            @if(is_SagePayDirectDebit())
+            @if(is_SagePayDirectDebit($CompanyID))
             <li> <a class="sagepost create" id="sage-post" href="javascript:;"> Sage Pay Direct Debit Export </a> </li>
             @endif
           </ul>
@@ -866,10 +866,8 @@
                         return;
                     }
                     //console.log(InvoiceIDs);
-                    //var pgid = '{{PaymentGateway::getPaymentGatewayID()}}';
                     $('#add-credit-card-form').find("[name=AccountID]").val(accoutid);
                     $('#add-bankaccount-form').find("[name=AccountID]").val(accoutid);
-                    //$('#add-credit-card-form').find("[name=PaymentGatewayID]").val(pgid);
 
                     paynow_url = '/customer/PaymentMethodProfiles/paynow/' + accoutid;
                     //paynow_url = '/paymentprofile/' + accoutid;

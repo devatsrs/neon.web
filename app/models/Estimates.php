@@ -41,12 +41,13 @@ class Estimate extends \Eloquent {
             $EstimateDetail 		= 	EstimateDetail::where(["EstimateID" => $EstimateID])->get();
 			$EstimateDetailItems 	= 	EstimateDetail::where(["EstimateID" => $EstimateID,"ProductType"=>Product::ITEM])->get();
 			$EstimateDetailISubscription 	= 	EstimateDetail::where(["EstimateID" => $EstimateID,"ProductType"=>Product::SUBSCRIPTION])->get();
-			
+
+            $CompanyID = $Estimate->CompanyID;
 			
             $EstimateItemTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>0])->orderby('EstimateTaxRateID')->get();
 			  $EstimateSubscriptionTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>2])->orderby('EstimateTaxRateID')->get();
 			//$EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->where(["EstimateID"=>$EstimateID,"EstimateTaxType"=>1])->orderby('EstimateTaxRateID')->get();
-            $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice();
+            $taxes 	  = TaxRate::getTaxRateDropdownIDListForInvoice(0,$CompanyID);
 			$EstimateAllTaxRates = DB::connection('sqlsrv2')->table('tblEstimateTaxRate')
                     ->select('TaxRateID', 'Title', DB::Raw('sum(TaxAmount) as TaxAmount'))
                     ->where("EstimateID", $EstimateID)
@@ -72,7 +73,7 @@ class Estimate extends \Eloquent {
 			{
                 $as3url = (AmazonS3::unSignedUrl($EstimateTemplate->CompanyLogoAS3Key));
             }
-            $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . User::get_companyID();
+            $logo_path = CompanyConfiguration::get('UPLOAD_PATH') . '/logo/' . $CompanyID;
             @mkdir($logo_path, 0777, true);
             RemoteSSH::run("chmod -R 777 " . $logo_path);
             $logo = $logo_path  . '/'  . basename($as3url);

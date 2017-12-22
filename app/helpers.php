@@ -464,8 +464,8 @@ function is_amazon($CompanyID = 0){
     return true;
 }
 
-function is_authorize(){
-	return				SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
+function is_authorize($CompanyID){
+	return				SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug,$CompanyID);
 	
 	/*$AuthorizeDbData 	= 	IntegrationConfiguration::where(array('CompanyId'=>User::get_companyID(),"IntegrationID"=>9))->first();
 	if(count($AuthorizeDbData)>0){
@@ -484,18 +484,18 @@ function is_authorize(){
 	}	*/
 }
 
-function is_paypal(){
+function is_paypal($CompanyID){
 
-    $paypal = new PaypalIpn();
+    $paypal = new PaypalIpn($CompanyID);
     if($paypal->status){
         return true;
     }
     return false;
 }
 
-function is_sagepay(){
+function is_sagepay($CompanyID){
 
-    $sagepay = new SagePay();
+    $sagepay = new SagePay($CompanyID);
     if($sagepay->status){
         return true;
     }
@@ -1599,20 +1599,20 @@ function ShortName($title,$length=8){
 	}
 }
 
-function is_Stripe(){
-    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeSlug);
+function is_Stripe($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeSlug,$CompanyID);
 }
-function is_StripeACH(){
-    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeACHSlug);
+function is_StripeACH($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$StripeACHSlug,$CompanyID);
 }
-function is_SagePayDirectDebit(){
-    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$SagePayDirectDebitSlug);
+function is_SagePayDirectDebit($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$SagePayDirectDebitSlug,$CompanyID);
 }
-function is_FideliPay(){
-    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$FideliPaySlug);
+function is_FideliPay($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$FideliPaySlug,$CompanyID);
 }
-function is_Xero(){
-    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$XeroSlug);
+function is_Xero($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$XeroSlug,$CompanyID);
 }
 function change_timezone($billing_timezone,$timezone,$date){
     if(!empty($timezone) && !empty($billing_timezone)) {
@@ -1626,10 +1626,11 @@ function change_timezone($billing_timezone,$timezone,$date){
     return $date;
 }
 
-function getQuickBookAccountant(){
+// not using
+function getQuickBookAccountant($CompanyID){
     $ChartofAccounts = array();
-    $Quickbook = new BillingAPI();
-    $check_quickbook = $Quickbook->check_quickbook();
+    $Quickbook = new BillingAPI($CompanyID);
+    $check_quickbook = $Quickbook->check_quickbook($CompanyID);
     if($check_quickbook){
         $ChartofAccounts = $Quickbook->getChartofAccounts();
         if(!empty($ChartofAccounts) && count($ChartofAccounts)>0){
@@ -2383,15 +2384,15 @@ function report_join($data){
 
     return $account_join;
 }
-function getInvoicePayments(){
-    if(is_authorize() || is_Stripe() || is_StripeACH() || is_paypal() || is_sagepay() || is_FideliPay()){
+function getInvoicePayments($CompanyID){
+    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_paypal($CompanyID) || is_sagepay($CompanyID) || is_FideliPay($CompanyID)){
         return true;
     }
     return false;
 }
 
-function is_PayNowInvoice(){
-    if(is_authorize() || is_Stripe() || is_StripeACH() || is_FideliPay()){
+function is_PayNowInvoice($CompanyID){
+    if(is_authorize($CompanyID) || is_Stripe($CompanyID) || is_StripeACH($CompanyID) || is_FideliPay($CompanyID)){
         return true;
     }
     return false;
@@ -2402,4 +2403,12 @@ function fix_jobstatus_meassage($message){
         $message[] = '...';
     }
     return $message;
+}
+
+function is_reseller(){
+    if(Session::get('reseller')==1){
+        return true;
+    }else{
+        return false;
+    }
 }

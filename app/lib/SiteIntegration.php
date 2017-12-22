@@ -139,16 +139,18 @@ class SiteIntegration{
 			$companyID = SiteIntegration::GetComapnyIdByKey();
 		}
 		$companyID = !empty($companyID)?$companyID:User::get_companyID();
-		$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();	
-	
+		$Integration	 =	Integration::where(["Slug"=>$slug])->first();
+		//$Integration	 =	Integration::where(["CompanyID" => $companyID,"Slug"=>$slug])->first();
+
 		if(count($Integration)>0)
 		{						
 			$IntegrationSubcategory = Integration::select("*");
-			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join)
+			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join) use($companyID)
 			{
 				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
-	
-			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegration.IntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
+				$join->where('tblIntegrationConfiguration.CompanyID', '=', $companyID);
+
+			})->where(["tblIntegration.IntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
 			 $result = $IntegrationSubcategory->first();
 			 if(count($result)>0)
 			 {	
@@ -172,16 +174,18 @@ class SiteIntegration{
 
 		$companyID = SiteIntegration::GetComapnyIdByKey();
 		$companyID = !empty($companyID)?$companyID:User::get_companyID();
-		$Integration	 =	Integration::where(["CompanyId" => $companyID,"Slug"=>$slug])->first();	
+		//$Integration	 =	Integration::where(["CompanyId" => $companyID,"Slug"=>$slug])->first();
+		$Integration	 =	Integration::where(["Slug"=>$slug])->first();
 	
 		if(count($Integration)>0)
 		{						
 			$IntegrationSubcategory = Integration::select("*");
-			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join)
+			$IntegrationSubcategory->join('tblIntegrationConfiguration', function($join) use ($companyID)
 			{
 				$join->on('tblIntegrationConfiguration.IntegrationID', '=', 'tblIntegration.IntegrationID');
-	
-			})->where(["tblIntegration.CompanyID"=>$companyID])->where(["tblIntegrationConfiguration.ParentIntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
+				$join->where('tblIntegrationConfiguration.CompanyID', '=', $companyID);
+
+			})->where(["tblIntegrationConfiguration.ParentIntegrationID"=>$Integration->IntegrationID])->where(["tblIntegrationConfiguration.Status"=>1]);
 			 $result = $IntegrationSubcategory->first();
 			 if(count($result)>0)
 			 {	

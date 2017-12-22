@@ -5,9 +5,9 @@ class PaymentsCustomerController extends \BaseController {
 
     public function ajax_datagrid($type) {
         $data = Input::all();
-        $CompanyID = User::get_companyID();
+        $CompanyID = Customer::get_companyID();
         $data['iDisplayStart'] +=1;
-        $data['AccountID'] = User::get_userID();
+        $data['AccountID'] = Customer::get_accountID();
         $data['InvoiceNo']=$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
         //$data['Status'] = 'NULL';
         $data['Status'] = 'Approved';
@@ -53,11 +53,11 @@ class PaymentsCustomerController extends \BaseController {
             $excel_data = json_decode(json_encode($excel_data),true);
 
             if($type=='csv'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Payment.csv';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) .'/Payment.csv';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_csv($excel_data);
             }elseif($type=='xlsx'){
-                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Payment.xls';
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID) .'/Payment.xls';
                 $NeonExcel = new NeonExcelIO($file_path);
                 $NeonExcel->download_excel($excel_data);
             }
@@ -79,10 +79,10 @@ class PaymentsCustomerController extends \BaseController {
 	public function index()
 	{
         $id=0;
-        $companyID = User::get_companyID();
+        $companyID = Customer::get_companyID();
         $CurrencyId = Company::where("CompanyID", '=', $companyID)->pluck('CurrencyId');
         $currency = Currency::where('CurrencyId',$CurrencyId)->pluck('Code');
-        $AccountID = User::get_userID();
+        $AccountID = Customer::get_accountID();
         $method = array(''=>'Select ','CASH'=>'CASH','PAYPAL'=>'PAYPAL','CHEQUE'=>'CHEQUE','CREDIT CARD'=>'CREDIT CARD','BANK TRANSFER'=>'BANK TRANSFER');
         $action = array(''=>'Select ','Payment In'=>'Payment out','Payment Out'=>'Payment In');
         $status = array(''=>'Select ','Pending Approval'=>'Pending Approval','Approved'=>'Approved','Rejected'=>'Rejected');
@@ -106,13 +106,13 @@ class PaymentsCustomerController extends \BaseController {
                 $save['InvoiceID'] = (int)Invoice::where(array('FullInvoiceNumber'=>$save['InvoiceNo'],'AccountID'=>$save['AccountID']))->pluck('InvoiceID');
             }
             if (Payment::create($save)) {
-                $companyID = User::get_companyID();
+                $companyID = Customer::get_companyID();
                 $PendingApprovalPayment = Notification::getNotificationMail(Notification::PendingApprovalPayment);
 
                 $PendingApprovalPayment = explode(',', $PendingApprovalPayment);
-                $data['EmailToName'] = Company::getName();
+                $data['EmailToName'] = Company::getName($companyID);
                 $data['Subject']= 'Payment verification';
-                $save['AccountName'] = User::get_user_full_name();
+                $save['AccountName'] = Customer::get_user_full_name();
                 $data['data'] = $save;
                 $data['data']['Currency'] = Currency::getCurrencyCode($save['CurrencyID']);
                 $data['data']['AccountName'] = Customer::get_accountName();
@@ -157,12 +157,12 @@ class PaymentsCustomerController extends \BaseController {
 
     /** not in use **/
     public function exports() {
-        $CompanyID = User::get_companyID();
+        $CompanyID = Customer::get_companyID();
 
         $data = Input::all();
 		$data['recall_on_off'] = 0;
         $data['iDisplayStart'] +=1;
-        $data['AccountID'] = User::get_userID();
+        $data['AccountID'] = Customer::get_accountID();
         $data['InvoiceNo']=$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
         $data['Status'] = 'Approved';
         $data['type'] = $data['type'] != ''?"'".$data['type']."'":'null';
@@ -184,12 +184,12 @@ class PaymentsCustomerController extends \BaseController {
 
     public function ajax_datagrid_total(){
         $data = Input::all();
-        $CompanyID = User::get_companyID();
+        $CompanyID = Customer::get_companyID();
         $data['iDisplayStart'] 		 =	0;
         $data['iDisplayStart'] 		+=	1;
         $data['iSortCol_0']			 =  0;
         $data['sSortDir_0']			 =  'desc';
-        $data['AccountID'] = User::get_userID();
+        $data['AccountID'] = Customer::get_accountID();
         $data['InvoiceNo']=$data['InvoiceNo']!= ''?"'".$data['InvoiceNo']."'":'null';
         //$data['Status'] = 'NULL';
         $data['Status'] = 'Approved';
