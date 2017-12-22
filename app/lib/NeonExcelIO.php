@@ -563,4 +563,67 @@ class NeonExcelIO
         return $result;
 
     }
+
+    public static function convertExcelToCSV($file_name, $data) {
+        try {
+            $ext = pathinfo($file_name, PATHINFO_EXTENSION);
+
+            if (in_array(strtolower($ext), array("xls", "xlsx"))) {
+                //reading from excel file and getting data from excel file starts
+                $start_time = date('Y-m-d H:i:s');
+                $objPHPExcelReader = PHPExcel_IOFactory::load($file_name);
+                $ActiveSheet = $objPHPExcelReader->getActiveSheet();
+                $drow = $ActiveSheet->getHighestRow();
+                $dcol = $ActiveSheet->getHighestColumn();
+                $start_row = intval($data["start_row"]) + 1;
+                $end_row   = ($drow - intval($data["end_row"]));
+                $allRows = $ActiveSheet->rangeToArray('A' . $start_row . ':' . $dcol . $end_row);
+                $file_name = substr($file_name, 0, strrpos($file_name, '.')) . '.csv';
+                $end_time = date('Y-m-d H:i:s');
+                $process_time = strtotime($end_time) - strtotime($start_time);
+                Log::info('Convert to csv read time : ' . $process_time . ' Seconds');
+                //reading from excel file and getting data from excel file ends
+
+                $header_rows = $footer_rows = array();
+                $char_arr = array_combine(range('a','z'),range(1,26));
+                if($start_row > 1) {
+                    for($i=0;$i<intval($data["start_row"])-1;$i++) {
+                        $row = array();
+                        for($j=0;$j<=$char_arr[strtolower($dcol)]-2;$j++) {
+                            $row[$j] = "";
+                        }
+                        $header_rows[$i] = $row;
+                    }
+                }
+                if(intval($data["end_row"]) > 0) {
+                    for($i=0;$i<intval($data["end_row"]);$i++) {
+                        $row = array();
+                        for($j=0;$j<=$char_arr[strtolower($dcol)]-2;$j++) {
+                            $row[$j] = "";
+                        }
+                        $footer_rows[$i] = $row;
+                    }
+                }
+
+                // creating csv file starts
+                $start_time = date('Y-m-d H:i:s');
+                $writer = WriterFactory::create('csv');
+                $writer->openToFile($file_name);
+                $writer->addRows($header_rows);
+                $writer->addRows($allRows);
+                $writer->addRows($footer_rows);
+                $writer->close();
+                $end_time = date('Y-m-d H:i:s');
+                $process_time = strtotime($end_time) - strtotime($start_time);
+                Log::info('Convert to csv using PHPExcel : ' . $process_time . ' Seconds');
+                // creating csv file ends
+
+                return $file_name;
+            } else {
+                return $file_name;
+            }
+        } catch (Exception $e) {
+            return Response::json(array("status" => "failed", "message" => $e->getMessage()));
+        }
+    }
 }
