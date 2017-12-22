@@ -775,6 +775,10 @@ class VendorRatesController extends \BaseController
                     $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
                     $excel->move($upload_path, $file_name);
                     $file_name = $upload_path . '/' . $file_name;
+
+                    if(!empty($data['checkbox_review_rates']) && $data['checkbox_review_rates'] == 1) {
+                        $file_name = NeonExcelIO::convertExcelToCSV($file_name, $data);
+                    }
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
                 }
