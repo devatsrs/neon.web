@@ -2,7 +2,7 @@
 class ReportVendorCDR extends \Eloquent{
 
     public static $database_columns = array(
-        'AccountID' => 'tblHeaderV.AccountID',
+        'AccountID' => 'tblVendorSummaryDay.AccountID',
     );
     public static $AccountJoin = false;
 
@@ -51,7 +51,13 @@ class ReportVendorCDR extends \Eloquent{
 
 
         foreach ($data['sum'] as $colname) {
-            $select_columns[] = DB::Raw("SUM(tblVendorSummaryDay." . $colname . ") as " . $colname);
+            if($colname == 'Margin'){
+                $select_columns[] = DB::Raw("COALESCE(SUM(tblVendorSummaryDay.TotalSales),0) - COALESCE(SUM(tblVendorSummaryDay.TotalCharges),0) as " . $colname);
+            }else if($colname == 'MarginPercentage'){
+                $select_columns[] = DB::Raw("(COALESCE(SUM(tblVendorSummaryDay.TotalSales),0) - COALESCE(SUM(tblVendorSummaryDay.TotalCharges),0)) / SUM(tblVendorSummaryDay.TotalSales)*100 as " . $colname);
+            }else{
+                $select_columns[] = DB::Raw("SUM(tblVendorSummaryDay." . $colname . ") as " . $colname);
+            }
         }
         /*if(!empty($select_columns)){
             $data['row'][] = DB::Raw($select_columns);

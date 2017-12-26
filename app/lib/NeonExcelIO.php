@@ -254,6 +254,8 @@ class NeonExcelIO
 
         }
 
+        //$result = $this->remove_footer_bottom_rows($result);
+
         if(self::$end_row)
         {
             $requiredRow = abs($this->row_cnt - self::$end_row - self::$start_row-1);
@@ -340,6 +342,7 @@ class NeonExcelIO
             }
         }
 
+        //$result = $this->remove_footer_bottom_rows($result);
 
         if(self::$end_row)
         {
@@ -395,7 +398,7 @@ class NeonExcelIO
                 $limit++;
             }
 
-			$results = Excel::selectSheetsByIndex(0)->load($filepath, function ($reader) use ($flag,$isExcel,&$totalRow) {
+			$result = Excel::selectSheetsByIndex(0)->load($filepath, function ($reader) use ($flag,$isExcel,&$totalRow) {
                 if(self::$start_row>0)
                 {
                     $reader->skip(self::$start_row-1);
@@ -409,27 +412,28 @@ class NeonExcelIO
             if(self::$start_row>0)
             {
                 $tmp_results=array();
-                $column=array_values($results[0]);
-                unset($results[0]);
-                foreach ($results as $row)
+                $column=array_values($result[0]);
+                unset($result[0]);
+                foreach ($result as $row)
                 {
                         $tmp_results[] = array_combine($column, array_values($row));
                 }
-                $results=$tmp_results;
+                $result=$tmp_results;
             }
 
+            //$result = $this->remove_footer_bottom_rows($result);
 
-             if(self::$end_row && $totalRow>0)
+            if(self::$end_row && $totalRow>0)
              {
                  $requiredRow = $totalRow - self::$end_row - self::$start_row;
-                 $countRow =count($results);
+                 $countRow =count($result);
                 for($i=$requiredRow-1 ; $i < $countRow; $i++)
                 {
-                    unset($results[$i]);
+                    unset($result[$i]);
                 }
              }
 
-         return $results;
+         return $result;
 	 }
 	///////////
 
@@ -515,4 +519,111 @@ class NeonExcelIO
         return $newArray;
     }
 
+
+    /** @TODO: need to this function on endrow logic
+     * Remove footer bottom rows for vendor upload file - for file cleanup.
+     * @param $result
+     */
+    public function remove_footer_bottom_rows($result){
+
+        if ( count($result) > 0 ) {
+
+            Log::info("Before end row cleanup");
+            Log::info("Total Result entries " . count($result));
+            Log::info(print_r($result[0],true));
+            Log::info(print_r($result[(count($result)-1)],true));
+
+            $columns = array_keys($result);
+
+            if(count($columns) > 0) {
+
+                for($i  = count($result) - 1 ; $i > 0; $i--)
+                {
+                    $empty_cnt = 0;
+                    foreach ($columns as $column ) {
+
+                        if(isset($result[$i][$column]) && empty($result[$i][$column])){
+                            $empty_cnt++;
+                        }
+                    }
+                    if($empty_cnt > 2){
+                        unset($result[$i]);
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            Log::info("After end row cleanup");
+            Log::info("Total Result entries " . count($result));
+            Log::info(print_r($result[0],true));
+            Log::info(print_r($result[(count($result)-1)],true));
+
+        }
+        return $result;
+
+    }
+
+    public static function convertExcelToCSV($file_name, $data) {
+        try {
+            $ext = pathinfo($file_name, PATHINFO_EXTENSION);
+
+            if (in_array(strtolower($ext), array("xls", "xlsx"))) {
+                //reading from excel file and getting data from excel file starts
+                $start_time = date('Y-m-d H:i:s');
+                $objPHPExcelReader = PHPExcel_IOFactory::load($file_name);
+                $ActiveSheet = $objPHPExcelReader->getActiveSheet();
+                $drow = $ActiveSheet->getHighestRow();
+                $dcol = $ActiveSheet->getHighestColumn();
+                $start_row = intval($data["start_row"]) + 1;
+                $end_row   = ($drow - intval($data["end_row"]));
+                $allRows = $ActiveSheet->rangeToArray('A' . $start_row . ':' . $dcol . $end_row);
+                $file_name = substr($file_name, 0, strrpos($file_name, '.')) . '.csv';
+                $end_time = date('Y-m-d H:i:s');
+                $process_time = strtotime($end_time) - strtotime($start_time);
+                Log::info('Convert to csv read time : ' . $process_time . ' Seconds');
+                //reading from excel file and getting data from excel file ends
+
+                $header_rows = $footer_rows = array();
+                $char_arr = array_combine(range('a','z'),range(1,26));
+                if($start_row > 1) {
+                    for($i=0;$i<intval($data["start_row"])-1;$i++) {
+                        $row = array();
+                        for($j=0;$j<=$char_arr[strtolower($dcol)]-2;$j++) {
+                            $row[$j] = "";
+                        }
+                        $header_rows[$i] = $row;
+                    }
+                }
+                if(intval($data["end_row"]) > 0) {
+                    for($i=0;$i<intval($data["end_row"]);$i++) {
+                        $row = array();
+                        for($j=0;$j<=$char_arr[strtolower($dcol)]-2;$j++) {
+                            $row[$j] = "";
+                        }
+                        $footer_rows[$i] = $row;
+                    }
+                }
+
+                // creating csv file starts
+                $start_time = date('Y-m-d H:i:s');
+                $writer = WriterFactory::create('csv');
+                $writer->openToFile($file_name);
+                $writer->addRows($header_rows);
+                $writer->addRows($allRows);
+                $writer->addRows($footer_rows);
+                $writer->close();
+                $end_time = date('Y-m-d H:i:s');
+                $process_time = strtotime($end_time) - strtotime($start_time);
+                Log::info('Convert to csv using PHPExcel : ' . $process_time . ' Seconds');
+                // creating csv file ends
+
+                return $file_name;
+            } else {
+                return $file_name;
+            }
+        } catch (Exception $e) {
+            return Response::json(array("status" => "failed", "message" => $e->getMessage()));
+        }
+    }
 }

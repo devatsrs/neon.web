@@ -50,7 +50,13 @@ class ReportCustomerCDR extends \Eloquent{
 
         //$data['row'] = array_merge($data['row'], $data['column']);
         foreach ($data['sum'] as $colname) {
-            $select_columns[] = DB::Raw("SUM(tblUsageSummaryDay." . $colname . ") as " . $colname);
+            if($colname == 'Margin'){
+                $select_columns[] = DB::Raw("COALESCE(SUM(tblUsageSummaryDay.TotalCharges),0) - COALESCE(SUM(tblUsageSummaryDay.TotalCost),0) as " . $colname);
+            }else if($colname == 'MarginPercentage'){
+                $select_columns[] = DB::Raw("(COALESCE(SUM(tblUsageSummaryDay.TotalCharges),0) - COALESCE(SUM(tblUsageSummaryDay.TotalCost),0)) / SUM(tblUsageSummaryDay.TotalCharges)*100 as " . $colname);
+            }else{
+                $select_columns[] = DB::Raw("SUM(tblUsageSummaryDay." . $colname . ") as " . $colname);
+            }
         }
         /*if(!empty($select_columns)){
             $data['row'][] = DB::Raw($select_columns);

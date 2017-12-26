@@ -46,7 +46,7 @@ class PaymentProfileCustomerController extends \BaseController {
     public function paynow($AccountID)
     {
 
-        \Debugbar::disable();
+
         $PaymentGatewayID = '';
         $Account = Account::find($AccountID);
         $PaymentMethod = '';

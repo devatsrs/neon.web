@@ -710,9 +710,13 @@ class VendorRatesController extends \BaseController
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
+
+            $isTemplateExist = VendorFileUploadTemplate::where(['Title'=>$data['TemplateName']]);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = VendorFileUploadTemplate::find($data['uploadtemplate']);
                 $template->update($save);
+            } else if($isTemplateExist->count() > 0) {
+                $template = $isTemplateExist->first();
             } else {
                 $template = VendorFileUploadTemplate::create($save);
             }
@@ -771,6 +775,10 @@ class VendorRatesController extends \BaseController
                     $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
                     $excel->move($upload_path, $file_name);
                     $file_name = $upload_path . '/' . $file_name;
+
+                    if(!empty($data['checkbox_review_rates']) && $data['checkbox_review_rates'] == 1) {
+                        $file_name = NeonExcelIO::convertExcelToCSV($file_name, $data);
+                    }
                 } else {
                     return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
                 }
@@ -883,7 +891,7 @@ class VendorRatesController extends \BaseController
 
     public function vendordownloadtype($id,$type){
         if($type==RateSheetFormate::RATESHEET_FORMAT_VOS32 || $type==RateSheetFormate::RATESHEET_FORMAT_VOS20){
-            $downloadtype = '<option value="">Select</option><option value="txt">TXT</option>';
+            $downloadtype = '<option value="">Select</option><option value="txt">TXT</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
         }else{
             $downloadtype = '<option value="">Select</option><option value="xlsx">EXCEL</option><option value="csv">CSV</option>';
         }
@@ -974,9 +982,13 @@ class VendorRatesController extends \BaseController
             $option["option"] = $data['option'];  //['Delimiter'=>$data['Delimiter'],'Enclosure'=>$data['Enclosure'],'Escape'=>$data['Escape'],'Firstrow'=>$data['Firstrow']];
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
+
+            $isTemplateExist = VendorFileUploadTemplate::where(['Title'=>$data['TemplateName']]);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
                 $template = VendorFileUploadTemplate::find($data['uploadtemplate']);
                 $template->update($save);
+            } else if($isTemplateExist->count() > 0) {
+                $template = $isTemplateExist->first();
             } else {
                 $template = VendorFileUploadTemplate::create($save);
             }
@@ -1073,8 +1085,8 @@ class VendorRatesController extends \BaseController
              
 
             $error = array();
-            // if EndDate is mapped than data will store in and insert from $batch_insert_array
-            // if EndDate is not mapped than data will store in and insert from $batch_insert_array2
+            // if EndDate is mapped and not empty than data will store in and insert from $batch_insert_array
+            // if EndDate is mapped and     empty than data will store in and insert from $batch_insert_array2
             $batch_insert_array = $batch_insert_array2 = [];
 
             foreach ($attrselection as $key => $value) {
@@ -1147,6 +1159,8 @@ class VendorRatesController extends \BaseController
                         } else {
                             $error[] = 'Rate is not numeric at line no:' . $lineno;
                         }
+                    }elseif($tempvendordata['Change'] == 'D') {
+                        $tempvendordata['Rate'] = 0;
                     }elseif($tempvendordata['Change'] != 'D') {
                         $error[] = 'Rate is blank at line no:'.$lineno;
                     }
@@ -1157,6 +1171,8 @@ class VendorRatesController extends \BaseController
                             $error[] = 'Date format is Wrong  at line no:'.$lineno;
                         }
                     }elseif(empty($attrselection->EffectiveDate)){
+                        $tempvendordata['EffectiveDate'] = date('Y-m-d');
+                    }elseif($tempvendordata['Change'] == 'D') {
                         $tempvendordata['EffectiveDate'] = date('Y-m-d');
                     }elseif($tempvendordata['Change'] != 'D') {
                         $error[] = 'EffectiveDate is blank at line no:'.$lineno;
@@ -1175,10 +1191,10 @@ class VendorRatesController extends \BaseController
                         $tempvendordata['ConnectionFee'] = trim($temp_row[$attrselection->ConnectionFee]);
                     }
                     if (isset($attrselection->Interval1) && !empty($attrselection->Interval1)) {
-                        $tempvendordata['Interval1'] = trim($temp_row[$attrselection->Interval1]);
+                        $tempvendordata['Interval1'] = intval(trim($temp_row[$attrselection->Interval1]));
                     }
                     if (isset($attrselection->IntervalN) && !empty($attrselection->IntervalN)) {
-                        $tempvendordata['IntervalN'] = trim($temp_row[$attrselection->IntervalN]);
+                        $tempvendordata['IntervalN'] = intval(trim($temp_row[$attrselection->IntervalN]));
                     }
                     if (isset($attrselection->Preference) && !empty($attrselection->Preference)) {
                         $tempvendordata['Preference'] = trim($temp_row[$attrselection->Preference]);
@@ -1200,7 +1216,7 @@ class VendorRatesController extends \BaseController
                             $tempvendordata['DialStringPrefix'] = '';
                         }
                     }
-                    if(isset($tempvendordata['Code']) && isset($tempvendordata['Description']) && isset($tempvendordata['Rate']) && ( isset($tempvendordata['EffectiveDate']) || $tempvendordata['Change'] == 'D') ){
+                    if(isset($tempvendordata['Code']) && isset($tempvendordata['Description']) && ( isset($tempvendordata['Rate'])  || $tempvendordata['Change'] == 'D') && ( isset($tempvendordata['EffectiveDate']) || $tempvendordata['Change'] == 'D') ){
                         if(isset($tempvendordata['EndDate'])) {
                             $batch_insert_array[] = $tempvendordata;
                         } else {
@@ -1224,11 +1240,12 @@ class VendorRatesController extends \BaseController
                 $lineno++;
             } // loop over
 
-            if(!empty($batch_insert_array) || !empty($batch_insert_array)){
+            if(!empty($batch_insert_array) || !empty($batch_insert_array2)) {
                 Log::info('Batch insert start');
                 Log::info('global counter'.$lineno);
                 Log::info('insertion start');
                 Log::info('last batch insert ' . count($batch_insert_array));
+                Log::info('last batch insert 2 ' . count($batch_insert_array2));
                 TempVendorRate::insert($batch_insert_array);
                 TempVendorRate::insert($batch_insert_array2);
                 Log::info('insertion end');
@@ -1340,7 +1357,9 @@ class VendorRatesController extends \BaseController
     public function updateTempVendorRates($AccountID) {
         $data = Input::all();
 
-        $ProcessID = $data['ProcessID'];
+        $ProcessID   = $data['ProcessID'];
+        $Code        = $data['Code'];
+        $Description = $data['Description'];
         $TrunkID   = 0;
 
         if($data['Action'] == 'New') {
@@ -1384,7 +1403,8 @@ class VendorRatesController extends \BaseController
             $TempRateIDs = implode(',',$TempRateIDs);
 
             try {
-                DB::statement("call prc_WSReviewVendorRateUpdate ('".$AccountID."','".$TrunkID."','".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."')");
+                Log::info("call prc_WSReviewVendorRateUpdate ('".$AccountID."','".$TrunkID."','".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')");
+                DB::statement("call prc_WSReviewVendorRateUpdate ('".$AccountID."','".$TrunkID."','".$TempRateIDs."','".$ProcessID."','".$criteria."','".$Action."','".$Interval1."','".$IntervalN."','".$EndDate."','".$Code."','".$Description."')");
                 return json_encode(["status" => "success", "message" => "Rates successfully updated."]);
             } catch (Exception $e) {
                 return json_encode(array("status" => "failed", "message" => $e->getMessage()));

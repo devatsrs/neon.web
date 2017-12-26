@@ -236,6 +236,11 @@ class EstimatesController extends \BaseController {
 						{
                             $EstimateDetailData[$i][$field] = str_replace(",","",$value);
                         }
+                        else if($field == "ProductID")
+                        {
+                            $pid = explode('-',$value);
+                            $EstimateDetailData[$i][$field] = $pid[1];
+                        }
 						else
 						{
                             $EstimateDetailData[$i][$field] = $value;
@@ -440,6 +445,11 @@ Log::info(print_r($EstimateDetailData,true));
                                 if( in_array($field,["Price","Discount","TaxAmount","LineTotal"]))
 								{
                                     $EstimateDetailData[$i][$field] = str_replace(",","",$value);
+                                }
+                                else if($field == "ProductID")
+                                {
+                                    $pid = explode('-',$value);
+                                    $EstimateDetailData[$i][$field] = $pid[1];
                                 }
 								else
 								{
@@ -887,7 +897,7 @@ Log::info(print_r($EstimateDetailData,true));
     // not in use
     public function pdf_view($id)
 	{
-        \Debugbar::disable();
+
 
         // check if Invoice has usege or Subscription then download PDF directly.
         $hasUsageInInvoice =  InvoiceDetail::where("InvoiceID",$id)

@@ -91,7 +91,7 @@ class InvoicesCustomerController extends \BaseController {
     }
 
     public function pdf_view($id) {
-        \Debugbar::disable();
+
         $pdf_path = $this->generate_pdf($id);
         return Response::download($pdf_path);
     }

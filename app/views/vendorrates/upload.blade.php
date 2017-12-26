@@ -148,7 +148,8 @@
                                 <input name="start_row" type="number" class="form-control" data-label="
                                 <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" style="" placeholder="Skips rows from Start" min="0" value="0">
                             </div>
-                            <label class="col-sm-2 control-label" style="text-align: right;">Skips rows from Bottom</label>
+                            <label class="col-sm-2 control-label" style="text-align: right;">Skips rows from Bottom </label>
+                            <span class="label label-info popover-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="For example if you have 10 rows at bottom of file, out of which 5 rows are empty enter 5 only." data-original-title="Skips rows from Bottom">?</span>
                             <div class="col-sm-3">
                                 <input name="end_row" type="number" class="form-control" data-label="
                                     <i class='glyphicon glyphicon-circle-arrow-up'></i>&nbsp;   Browse" placeholder="Skips rows from Bottom" min="0" value="0">
@@ -731,9 +732,13 @@
                     $(".btn.save").button('reset');
                     return;
                 }
+
+                var Code = $('#reviewrates-new-search input[name="Code"]').val();
+                var Description = $('#reviewrates-new-search input[name="Description"]').val();
+
                 $.ajax({
                     url: '{{URL::to('vendor_rates/'.$id.'/update_temp_vendor_rates')}}',
-                    data: 'Action=New&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&'+$('#frm-change-selected-intervals').serialize(),
+                    data: 'Action=New&TempRateIDs='+TempRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&'+$('#frm-change-selected-intervals').serialize(),
                     error: function () {
                         toastr.error("error", "Error", toastr_opts);
                     },
@@ -745,7 +750,10 @@
                             $('#modal-change-selected-intervals').modal('hide');
                             checked_new = '';
                             $("#selectall-new").prop("checked", false).prop('disabled', false);
-                            getNewRates(ProcessID);
+                            var $searchFilter = {};
+                            $searchFilter.Code = Code;
+                            $searchFilter.Description = Description;
+                            getNewRates(ProcessID, $searchFilter);
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }
@@ -813,9 +821,13 @@
                     $(".btn.save").button('reset');
                     return;
                 }
+
+                var Code = $('#reviewrates-deleted-search input[name="Code"]').val();
+                var Description = $('#reviewrates-deleted-search input[name="Description"]').val();
+
                 $.ajax({
                     url: '{{URL::to('vendor_rates/'.$id.'/update_temp_vendor_rates')}}',
-                    data: 'Action=Deleted&TrunkID='+TrunkID+'&VendorRateIDs='+VendorRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&'+$('#frm-change-selected-enddate').serialize(),
+                    data: 'Action=Deleted&TrunkID='+TrunkID+'&VendorRateIDs='+VendorRateIDs+'&criteria='+criteria+'&ProcessID='+ProcessID+'&Code='+Code+'&Description='+Description+'&'+$('#frm-change-selected-enddate').serialize(),
                     error: function () {
                         toastr.error("error", "Error", toastr_opts);
                     },
@@ -827,7 +839,10 @@
                             $('#modal-change-selected-enddate').modal('hide');
                             checked_deleted = '';
                             $("#selectall-deleted").prop("checked", false).prop('disabled', false);
-                            getDeleteRates(ProcessID);
+                            var $searchFilter = {};
+                            $searchFilter.Code = Code;
+                            $searchFilter.Description = Description;
+                            getDeleteRates(ProcessID, $searchFilter);
                         } else {
                             toastr.error(response.message, "Error", toastr_opts);
                         }
@@ -1026,7 +1041,7 @@
                 $(".dataTables_wrapper select").select2({
                     minimumResultsForSearch: -1
                 });
-                var toggle = '<button class="btn btn-sm btn-primary grid pull-right change-selected" id="change_intervals" style="margin-right: 27%;"><i class="entypo-pencil"></i> Change Selected</button>';
+                var toggle = '<button class="btn btn-sm btn-primary grid pull-right change-selected" id="change_intervals" style="margin-right: 30%;"><i class="entypo-pencil"></i> Change Selected</button>';
                 $('.change-view-new').html(toggle);
 
                 $('#table-reviewrates-new tbody').off('click');
@@ -1239,7 +1254,7 @@
             "bDestroy": true,
             "bServerSide":true,
             "sAjaxSource": '{{URL::to('vendor_rates/'.$id.'/get_review_rates')}}',
-            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-new.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-new'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox-deleted.col-xs-1'>'l><'col-xs-6 col-right'<'change-view-deleted'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "fnServerParams": function(aoData) {
                 aoData.push({"name":"ProcessID","value":$ProcessID},{"name":"Action","value":"Deleted"},{"name":"Code","value":Code},{"name":"Description","value":Description});
@@ -1296,7 +1311,7 @@
                 $(".dataTables_wrapper select").select2({
                     minimumResultsForSearch: -1
                 });
-                var toggle = '<button class="btn btn-sm btn-primary grid pull-right change-selected" id="change_enddate" style="margin-right: 27%;"><i class="entypo-pencil"></i> Change Selected</button>';
+                var toggle = '<button class="btn btn-sm btn-primary grid pull-right change-selected" id="change_enddate" style="margin-right: 30%;"><i class="entypo-pencil"></i> Change Selected</button>';
                 $('.change-view-deleted').html(toggle);
 
                 $('#table-reviewrates-deleted tbody').off('click');
@@ -1511,7 +1526,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <form role="form" id="reviewrates-new-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                                    <div class="panel panel-primary" data-collapsed="0">
+                                    <div class="panel panel-primary panel-collapse" data-collapsed="0">
                                         <div class="panel-heading">
                                             <div class="panel-title">
                                                 Search
@@ -1522,7 +1537,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="panel-body">
+                                        <div class="panel-body" style="display: none;">
                                             <div class="form-group">
                                                 <label for="field-1" class="col-sm-1 control-label">Code</label>
                                                 <div class="col-sm-3">
@@ -1570,7 +1585,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <form role="form" id="reviewrates-increased-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                                    <div class="panel panel-primary" data-collapsed="0">
+                                    <div class="panel panel-primary panel-collapse" data-collapsed="0">
                                         <div class="panel-heading">
                                             <div class="panel-title">
                                                 Search
@@ -1581,7 +1596,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="panel-body">
+                                        <div class="panel-body" style="display: none;">
                                             <div class="form-group">
                                                 <label for="field-1" class="col-sm-1 control-label">Code</label>
                                                 <div class="col-sm-3">
@@ -1629,7 +1644,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <form role="form" id="reviewrates-decreased-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                                    <div class="panel panel-primary" data-collapsed="0">
+                                    <div class="panel panel-primary panel-collapse" data-collapsed="0">
                                         <div class="panel-heading">
                                             <div class="panel-title">
                                                 Search
@@ -1640,7 +1655,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="panel-body">
+                                        <div class="panel-body" style="display: none;">
                                             <div class="form-group">
                                                 <label for="field-1" class="col-sm-1 control-label">Code</label>
                                                 <div class="col-sm-3">
@@ -1688,7 +1703,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <form role="form" id="reviewrates-deleted-search" method="get" class="form-horizontal form-groups-bordered validate" novalidate="novalidate">
-                                    <div class="panel panel-primary" data-collapsed="0">
+                                    <div class="panel panel-primary panel-collapse" data-collapsed="0">
                                         <div class="panel-heading">
                                             <div class="panel-title">
                                                 Search
@@ -1699,7 +1714,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="panel-body">
+                                        <div class="panel-body" style="display: none;">
                                             <div class="form-group">
                                                 <label for="field-1" class="col-sm-1 control-label">Code</label>
                                                 <div class="col-sm-3">
@@ -1749,7 +1764,7 @@
             <div class="modal-footer">
                 <button id="save_template2" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
                     <i class="entypo-floppy"></i>
-                    Save
+                    Proceed
                 </button>
                 <button type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
             </div>

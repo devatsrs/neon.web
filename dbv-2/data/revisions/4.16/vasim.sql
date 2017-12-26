@@ -1,4 +1,14 @@
-CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getInvoice`(
+USE `RMBilling3`;
+
+ALTER TABLE `tblInvoiceTemplate`
+	ADD COLUMN `ItemDescription` VARCHAR(50) NULL AFTER `CDRType`;
+ALTER TABLE `tblInvoiceTemplate`
+	ADD COLUMN `VisibleColumns` VARCHAR(100) NULL DEFAULT NULL AFTER `ItemDescription`;
+
+
+DROP PROCEDURE IF EXISTS `prc_getInvoice`;
+DELIMITER //
+CREATE PROCEDURE `prc_getInvoice`(
 	IN `p_CompanyID` INT,
 	IN `p_AccountID` INT,
 	IN `p_InvoiceNumber` VARCHAR(50),
@@ -15,22 +25,8 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getInvoice`(
 	IN `p_isExport` INT,
 	IN `p_sageExport` INT,
 	IN `p_zerovalueinvoice` INT,
-	IN `p_InvoiceID` LONGTEXT
-
-
-
-
-
-
-,
+	IN `p_InvoiceID` LONGTEXT,
 	IN `p_userID` INT
-
-
-
-
-
-
-
 )
 BEGIN
 	DECLARE v_OffSet_ int;
@@ -114,7 +110,7 @@ BEGIN
 			AND (p_InvoiceStatus = '' OR ( p_InvoiceStatus != '' AND FIND_IN_SET(inv.InvoiceStatus,p_InvoiceStatus) ))
 			AND (p_zerovalueinvoice = 0 OR ( p_zerovalueinvoice = 1 AND inv.GrandTotal != 0))
 			AND (p_InvoiceID = '' OR (p_InvoiceID !='' AND FIND_IN_SET (inv.InvoiceID,p_InvoiceID)!= 0 ))
-			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));	
+			AND (p_CurrencyID = '' OR ( p_CurrencyID != '' AND inv.CurrencyID = p_CurrencyID));
 
 	IF p_isExport = 0 and p_sageExport = 0
 	THEN
@@ -230,7 +226,7 @@ BEGIN
 	IF p_isExport = 2
 	THEN
 
-		
+
 
 		SELECT
 			AccountName ,
@@ -253,7 +249,7 @@ BEGIN
 				);
 
 	END IF;
-	
+
 	IF p_isExport = 3 -- api
 	THEN
 
@@ -319,7 +315,7 @@ BEGIN
 			CASE WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'InvoiceIDASC') THEN InvoiceID
 				END ASC
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT COUNT(*) INTO v_TotalCount
 		FROM tmp_Invoices_
 		WHERE (p_IsOverdue = 0
@@ -348,7 +344,7 @@ BEGIN
 
 	IF p_sageExport =1 OR p_sageExport =2
 	THEN
-			
+
 
 		IF p_sageExport = 2
 		THEN
@@ -391,7 +387,7 @@ BEGIN
 			InvoiceNumber AS TransactionReference,
 			'' AS SecondReference,
 			'' AS Source,
-			4 AS SYSTraderTranType, 
+			4 AS SYSTraderTranType,
 			DATE_FORMAT(PaymentDate ,'%Y-%m-%d') AS TransactionDate,
 			TotalTax AS TaxValue,
 			SubTotal AS `NominalAnalysisTransactionValue/1`,
@@ -413,4 +409,5 @@ BEGIN
 	END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-END
+END//
+DELIMITER ;
