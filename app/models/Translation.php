@@ -24,10 +24,16 @@ class Translation extends \Eloquent {
             self::$cache['language_dropdown1_cache'] = $admin_defaults['language_dropdown1_cache'];
         } else {
             //if the cache doesn't have it yet
-            self::$cache['language_dropdown1_cache'] = Translation::join('tblLanguage', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
-                                                                    ->select("tblLanguage.ISOCode", "tblTranslation.Language")->get();
+            $dd = Translation::join('tblLanguage', 'tblLanguage.LanguageID', '=', 'tblTranslation.LanguageID')
+                            ->whereRaw('tblLanguage.LanguageID=tblTranslation.LanguageID')
+                            ->select("tblLanguage.ISOCode", "tblTranslation.Language")->get();
 
-            //cache the database results so we won't need to fetch them again for 10 minutes at least
+            $dropdown = array();
+            foreach ($dd as $key => $value) {
+                $dropdown[$value->ISOCode] = $value->Language;
+            }
+            self::$cache['language_dropdown1_cache'] = $dropdown;
+                //cache the database results so we won't need to fetch them again for 10 minutes at least
             Cache::forever('language_dropdown1_cache', array('language_dropdown1_cache' => self::$cache['language_dropdown1_cache']));
 
         }

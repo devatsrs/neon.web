@@ -36,26 +36,11 @@
     <ul class="list-inline links-list pull-right ">
 
 
-        <li style="min-width: 150px;">
-            <select class="select2" id="user_language">
-                @foreach(Translation::getLanguageDropdownList() as $value)
-
-                    <?php
-                    $selected="";
-                    ?>
-                    @if($value->ISOCode==NeonCookie::getCookie('customer_language'))
-                        <?php
-                        $selected="selected";
-                        ?>
-                    @endif
-                        <option value="{{$value->ISOCode}}" {{$selected}}>{{$value->Language}}</option>
-
-                @endforeach
-            </select>
+        <li style="min-width: 150px;" class="pull-left">
+            {{ Form::select('user_language', Translation::getLanguageDropdownList(), NeonCookie::getCookie('customer_language') , array("class"=>"select2","id"=>"user_language")) }}
         </li>
         <li style="line-height: 32px;" class="pull-right">
-            <a href="{{ URL::to('customer/logout') }}">@lang('routes.CUST_PANEL_HEAER_LOGOUT') <i class="entypo-logout right"></i>
-            </a>
+            <a href="{{ URL::to('customer/logout') }}">@lang('routes.CUST_PANEL_HEAER_LOGOUT') <i class="entypo-logout right"></i></a>
         </li>
     </ul>
 
@@ -162,5 +147,11 @@
              </div>
          </div>
      </div>
- </div> 
+ </div>
+
+<style>
+    .select2-choice {
+        text-align: left;
+    }
+</style>
  @stop
