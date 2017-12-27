@@ -7,6 +7,7 @@ class ReportVendorCDR extends \Eloquent{
     );
     public static $AccountJoin = false;
     public static  $CodeJoin = false;
+    public static  $DetailTable = 'tblVendorSummaryDay';
 
     public static function generateSummaryQuery($CompanyID, $data, $filters){
 
@@ -54,17 +55,17 @@ class ReportVendorCDR extends \Eloquent{
 
         foreach ($data['sum'] as $colname) {
             if($colname == 'Margin'){
-                $select_columns[] = DB::Raw("COALESCE(SUM(tblVendorSummaryDay.TotalSales),0) - COALESCE(SUM(tblVendorSummaryDay.TotalCharges),0) as " . $colname);
+                $select_columns[] = DB::Raw("COALESCE(SUM(".self::$DetailTable.".TotalSales),0) - COALESCE(SUM(".self::$DetailTable.".TotalCharges),0) as " . $colname);
             }else if($colname == 'MarginPercentage'){
-                $select_columns[] = DB::Raw("(COALESCE(SUM(tblVendorSummaryDay.TotalSales),0) - COALESCE(SUM(tblVendorSummaryDay.TotalCharges),0)) / SUM(tblVendorSummaryDay.TotalSales)*100 as " . $colname);
+                $select_columns[] = DB::Raw("(COALESCE(SUM(".self::$DetailTable.".TotalSales),0) - COALESCE(SUM(".self::$DetailTable.".TotalCharges),0)) / SUM(".self::$DetailTable.".TotalSales)*100 as " . $colname);
             }else if($colname == 'ACD'){
-                $select_columns[] = DB::Raw("IF(SUM(tblVendorSummaryDay.NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(tblVendorSummaryDay.TotalBilledDuration),0)/SUM(tblVendorSummaryDay.NoOfCalls)),0) as " . $colname);
+                $select_columns[] = DB::Raw("IF(SUM(".self::$DetailTable.".NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(".self::$DetailTable.".TotalBilledDuration),0)/SUM(".self::$DetailTable.".NoOfCalls)),0) as " . $colname);
             }else if($colname == 'ASR'){
-                $select_columns[] = DB::Raw("SUM(tblVendorSummaryDay.NoOfCalls)/(SUM(tblVendorSummaryDay.NoOfCalls)+SUM(tblVendorSummaryDay.NoOfFailCalls))*100 as " . $colname);
+                $select_columns[] = DB::Raw("SUM(".self::$DetailTable.".NoOfCalls)/(SUM(".self::$DetailTable.".NoOfCalls)+SUM(".self::$DetailTable.".NoOfFailCalls))*100 as " . $colname);
             }else if($colname == 'BilledDuration'){
-                $select_columns[] = DB::Raw("ROUND(COALESCE(SUM(tblVendorSummaryDay.TotalBilledDuration),0)/ 60,0) as " . $colname);
+                $select_columns[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalBilledDuration),0)/ 60,0) as " . $colname);
             }else{
-                $select_columns[] = DB::Raw("SUM(tblVendorSummaryDay." . $colname . ") as " . $colname);
+                $select_columns[] = DB::Raw("SUM(".self::$DetailTable."." . $colname . ") as " . $colname);
             }
         }
         /*if(!empty($select_columns)){
@@ -85,10 +86,16 @@ class ReportVendorCDR extends \Eloquent{
     public static function commonCDRQuery($CompanyID, $data, $filters){
         $query_common = DB::connection('neon_report')
             ->table('tblHeaderV')
-            ->join('tblVendorSummaryDay', 'tblHeaderV.HeaderVID', '=', 'tblVendorSummaryDay.HeaderVID')
             ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
             ->where(['tblHeaderV.CompanyID' => $CompanyID]);
 
+        if(in_array('hour',$data['column']) || in_array('hour',$data['row']) || in_array('minute',$data['column']) || in_array('minute',$data['row'])) {
+            $query_common->join('tblVendorSummaryHour', 'tblHeader.HeaderID', '=', 'tblVendorSummaryHour.HeaderID');
+            $query_common->join('tblDimTime', 'tblVendorSummaryHour.TimeID', '=', 'tblDimTime.TimeID');
+            self::$DetailTable = 'tblVendorSummaryHour';
+        }else{
+            $query_common->join('tblVendorSummaryDay', 'tblHeaderV.HeaderVID', '=', 'tblVendorSummaryDay.HeaderVID');
+        }
         $RMDB = Config::get('database.connections.sqlsrv.database');
         if(report_join($data)){
             $query_common->join($RMDB.'.tblAccount', 'tblHeaderV.AccountID', '=', 'tblAccount.AccountID');
@@ -96,7 +103,7 @@ class ReportVendorCDR extends \Eloquent{
         }
         if(in_array('DestinationBreak',$data['column']) || in_array('DestinationBreak',$data['row'])){
             $DefaultCodedeck = BaseCodeDeck::where(["CompanyID"=>$CompanyID,"DefaultCodedeck"=>1])->pluck("CodeDeckId");
-            $query_common->join($RMDB.'.tblRate', 'tblRate.Code', '=', 'tblUsageSummaryDay.AreaPrefix');
+            $query_common->join($RMDB.'.tblRate', 'tblRate.Code', '=', self::$DetailTable.'.AreaPrefix');
             $query_common->where('CodeDeckId', intval($DefaultCodedeck));
             self::$CodeJoin = true;
         }

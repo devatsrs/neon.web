@@ -29,7 +29,7 @@
                 <div class="panel-heading">
                     <div class="panel-title">{{Input::get('report')=='run'?'<strong>'.$report->Name.'</strong>':'Report'}}</div>
                     @if(User::checkCategoryPermission('Report','Update') )
-                    <div class="panel-options">
+                    <div class="panel-options dropdown">
                         <a href="{{URL::to('report')}}"  data-original-title="Back" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-times"></i></a>
                         <a type="submit" id="save_report"  data-original-title="Save" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-floppy"></i></a>
                         @if(empty(Input::get('report')) && !empty($report))
@@ -37,8 +37,31 @@
                         @elseif(!empty($report) && !empty(Input::get('report')))
                             <a href="{{URL::to('report/edit/'.$report->ReportID)}}"  data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>
                         @endif
-                            <a  data-original-title="Export" title="" data-placement="top" data-toggle="tooltip" class="save-report-data"><i class="fa fa-download"></i>&nbsp;</a>
-                        @if(!empty($report))
+                            <a  data-original-title="Export" title="" data-placement="top" data-toggle="dropdown" aria-expanded="true" class="dropdown-toggle"><i class="fa fa-download"></i>&nbsp;</a>
+                            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px; min-width: 0">
+                                <li>
+                                    <a href="#" class="save-report-data" data-format="{{Report::XLS}}">
+                                        <i class="fa fa-file-excel-o"></i>
+                                        <span>Excel</span>
+                                    </a>
+                                </li><li>
+                                    <a href="#" class="save-report-data" data-format="{{Report::PNG}}">
+                                        <i class="fa fa-file-image-o"></i>
+                                        <span>Image</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="save-report-data" data-format="{{Report::PDF}}">
+                                        <i class="fa fa-file-pdf-o"></i>
+                                        <span>Pdf</span>
+                                    </a>
+                                </li>
+
+                            </ul>
+
+
+
+                    @if(!empty($report))
                             <a href="{{URL::to('report/schedule_update/'.$report->ReportID)}}" class="schedule_report"  data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>
                             <div class = "hiddenRowData pull-left" >
                                 @foreach($schedule_settings as $schedule_settings_key=> $schedule_settings_val)

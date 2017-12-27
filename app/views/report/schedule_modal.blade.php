@@ -22,6 +22,24 @@
                             <div class="form-group">
                                 <label class="control-label">Send Email To</label>
                                 <input type="text" name="Report[NotificationEmail]" class="form-control" id="field-1" placeholder="" value="" />
+                                <div class="field-options">
+                                    <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replycc').parent().removeClass('hidden'); $('#replycc').focus();">CC</a>
+                                    <a href="javascript:;" class="email-cc-text" onclick="$(this).hide(); $('#replybcc').parent().removeClass('hidden'); $('#replybcc').focus();">BCC</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group hidden">
+                                <label for="cc">CC</label>
+                                <input type="text" name="Report[cc]"  class="form-control tags"  id="replycc" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group hidden">
+                                <label for="bcc">BCC</label>
+                                <input type="text" name="Report[bcc]"  class="form-control tags"  id="replybcc" />
                             </div>
                         </div>
                     </div>
@@ -51,6 +69,14 @@
                                 <label for="field-5" class="control-label">Start Time</label>
                                 <!--<input type="text"  name="Setting[JoStratTime]" value="" class="form-control timepicker starttime2" data-minute-step="5" data-show-meridian="true"  data-default-time="12:00:00 AM" data-show-seconds="true" data-template="dropdown">-->
                                 <input name="Report[StartTime]" type="text" data-template="dropdown" data-show-seconds="true" data-default-time="12:00:00 AM" data-show-meridian="true" data-minute-step="5" class="form-control timepicker starttime2" value="12:00:00 AM" >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-5" class="control-label">Format</label>
+                                {{Form::select('Report[Format]',array(""=>"Select",Report::XLS=>"Excel",Report::PDF=>'PDF',Report::PNG=>'PNG'),'',array( "class"=>"select2 small"))}}
                             </div>
                         </div>
                     </div>

@@ -28,10 +28,10 @@ class ReportController extends \BaseController {
         $original_startdate = date('Y-m-d', strtotime('-1 week'));
         $original_enddate = date('Y-m-d');
         $report_settings['filter_settings'] = '{"date":{"wildcard_match_val":"","start_date":"'.$original_startdate.'","end_date":"'.$original_enddate.'","condition":"none","top":"none"}}';
-        $layout = 'layout.main';
-        if(Input::get('report') == 'run'){
+        $layout = 'layout.main_only_sidebar';
+        /*if(Input::get('report') == 'run'){
             $layout = 'layout.main_only_sidebar';
-        }
+        }*/
         return View::make('report.create', compact('dimensions','measures','Columns','report_settings','disable','layout'));
     }
     public function edit($id){
@@ -44,10 +44,10 @@ class ReportController extends \BaseController {
 
         $disable= 'disabled';
         $Columns = $dimensions['summary']+Report::$measures['summary'];
-        $layout = 'layout.main';
-        if(Input::get('report') == 'run'){
+        $layout = 'layout.main_only_sidebar';
+        /*if(Input::get('report') == 'run'){
             $layout = 'layout.main_only_sidebar';
-        }
+        }*/
 
         return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report','disable','layout','schedule_settings'));
     }
@@ -187,11 +187,43 @@ class ReportController extends \BaseController {
             $response = Report::generateDynamicTable($CompanyID, $cube, $data,$filters);
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
-            $file=!empty($data['Name'])?($data['Name'].".xls"):"Report.xls";
-            $table=generateReportTable2($data,$response,$all_data_list);
-            header("Content-type: application/vnd.ms-excel");
-            header("Content-Disposition: attachment; filename=\"".$file."\"");
-            echo $table;
+            $Type = !empty(Input::get('Type'))?Input::get('Type'):Report::XLS;
+            $data['Name'] = !empty($data['Name']) ? $data['Name'] : 'Report';
+            $table = generateReportTable2($data, $response, $all_data_list);
+            if($Type == Report::PDF) {
+                $file = $data['Name'] . ".html";
+                $file2 = $data['Name'] . ".pdf";
+                $table = '<h2 style="text-align: center;">'.$data['Name'].'</h2>'.$table;
+                $temp_path = CompanyConfiguration::get('TEMP_PATH') . '/';
+                $local_htmlfile = $temp_path . $file;
+                $local_file = $temp_path . $file2;
+                file_put_contents($local_htmlfile, $table);
+                if (getenv('APP_OS') == 'Linux') {
+                    exec(base_path() . '/wkhtmltox/bin/wkhtmltopdf "' . $local_htmlfile . '" "' . $local_file . '"', $output);
+                } else {
+                    exec(base_path() . '/wkhtmltopdf/bin/wkhtmltopdf.exe "' . $local_htmlfile . '" "' . $local_file . '"', $output);
+                }
+                download_file($local_file);
+            }else if($Type == Report::PNG) {
+                $file = $data['Name'] . ".html";
+                $file2 = $data['Name'] . ".png";
+                $table = '<h2 style="text-align: center;">'.$data['Name'].'</h2>'.$table;
+                $temp_path = CompanyConfiguration::get('TEMP_PATH') . '/';
+                $local_htmlfile = $temp_path . $file;
+                $local_file = $temp_path . $file2;
+                file_put_contents($local_htmlfile, $table);
+                if (getenv('APP_OS') == 'Linux') {
+                    exec(base_path() . '/wkhtmltox/bin/wkhtmltoimage "' . $local_htmlfile . '" "' . $local_file . '"', $output);
+                } else {
+                    exec(base_path() . '/wkhtmltopdf/bin/wkhtmltoimage.exe "' . $local_htmlfile . '" "' . $local_file . '"', $output);
+                }
+                download_file($local_file);
+            }else{
+                $file = $data['Name'] . ".xls";
+                header("Content-type: application/vnd.ms-excel");
+                header("Content-Disposition: attachment; filename=\"".$file."\"");
+                echo $table;
+            }
             exit;
         }
         return json_encode(generateReportTable2($data,$response,$all_data_list));

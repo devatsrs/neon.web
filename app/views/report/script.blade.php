@@ -101,7 +101,7 @@
             }
         });
 
-        $("#Filter_Drop").on('click', '.dimension', function(e) {
+        $($Filter).on('click', '.dimension', function(e) {
             show_filter($(this));
         });
 
@@ -119,7 +119,7 @@
 
 
         $('.save-report-data').on('click', function (e) {
-            var data = baseurl +'/report/getdatagrid/0?'+$("#report-row-col").serialize()+'&'+$("#add-new-filter-form").serialize()+'&'+$("#add-new-report-form").serialize()+'&Export=1';
+            var data = baseurl +'/report/getdatagrid/0?'+$("#report-row-col").serialize()+'&'+$("#add-new-filter-form").serialize()+'&'+$("#add-new-report-form").serialize()+'&Export=1&Type='+$(this).attr('data-format');
             $(this).attr('href',data);
                 /*$(".table_report_overflow").table2excel({
                     exclude: ".noExl",

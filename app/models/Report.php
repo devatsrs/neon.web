@@ -27,6 +27,7 @@ class Report extends \Eloquent {
                 'month_of_year' => 'Month',
                 'week_of_year' => 'Week',
                 'date' => 'Day',
+                'hour' => 'Hour',
             ),
             'Customer'=>array(
                 'AccountID'=>'AccountName',
@@ -62,6 +63,7 @@ class Report extends \Eloquent {
                 'month_of_year' => 'Month',
                 'week_of_year' => 'Week',
                 'date' => 'Day',
+                'hour' => 'Hour',
             ),
             'Customer'=>array(
                 'AccountID'=>'AccountName',
@@ -218,7 +220,9 @@ class Report extends \Eloquent {
 
     public static $date_fields = ['date'];
 
-
+    const XLS = 'XLS';
+    const PDF = 'PDF';
+    const PNG = 'PNG';
 
     public static  function generateDynamicTable($CompanyID,$cube,$data=array(),$filters){
         $response = '';
