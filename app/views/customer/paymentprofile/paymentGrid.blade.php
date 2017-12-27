@@ -2,7 +2,7 @@
 <div class="panel panel-primary" data-collapsed="0">
     <div class="panel-heading">
         <div class="panel-title">
-            {{PaymentGateway::getPaymentGatewayNameBYAccount($account->AccountID)}} Payment Method Profiles
+            {{PaymentGateway::getPaymentGatewayNameBYAccount($account->AccountID)}} @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TITLE')
         </div>
         <div class="panel-options">
             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -10,18 +10,18 @@
     </div>
     <div class="panel-body">
         <div class="text-right">
-            <a  id="add-new-card" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>Add New</a>
+            <a  id="add-new-card" class=" btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-plus"></i>@lang('routes.BUTTON_ADD_CAPTION')</a>
             <div class="clear clearfix"><br></div>
         </div>
         <table class="table table-bordered datatable" id="table-4">
             <thead>
             <tr>
-                <th width="10%">Title</th>
-                <th width="10%">Status</th>
-                <th width="10%">Default</th>
-                <th width="10%">Payment Method</th>
-                <th width="20%">Created Date</th>
-                <th width="40%">Action</th>
+                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_COL1')</th>
+                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_COL2')</th>
+                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_COL3')</th>
+                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_COL4')</th>
+                <th width="20%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_COL5')</th>
+                <th width="40%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_COL6')</th>
             </tr>
             </thead>
             <tbody>
@@ -92,13 +92,13 @@
                                     action += ' <a data-id="'+ id +'" class="delete-card btn delete btn-danger btn-sm"><i class="entypo-trash"></i></a>';
 
                                     if (full[1]=="1") {
-                                        action += ' <button href="' + DeActive_Card + '"  class="btn change_status btn-danger btn-sm disablecard" data-loading-text="Loading...">Deactivate</button>';
+                                        action += ' <button href="' + DeActive_Card + '"  class="btn change_status btn-danger btn-sm disablecard" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_DEACTIVATE_CAPTION')</button>';
                                     } else {
-                                        action += ' <button href="' + Active_Card + '"    class="btn change_status btn-success btn-sm activecard" data-loading-text="Loading...">Activate</button>';
+                                        action += ' <button href="' + Active_Card + '"    class="btn change_status btn-success btn-sm activecard" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_ACTIVATE_CAPTION')</button>';
                                     }
 
                                     if(full[2]!=1){
-                                        action += ' <a href="' + set_default+ '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>Set Default </a> ';
+                                        action += ' <a href="' + set_default+ '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_SET_DEFAULT') </a> ';
                                     }
 
 
@@ -129,7 +129,7 @@
                         }
                         //onDelete Click
                         FnDeleteCard = function(e){
-                            result = confirm("Are you Sure?");
+                            result = confirm("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_DELETE_CARD_MSG')");
                             if(result){
                                 var id  = $(this).attr("data-id");
                                 $('#table-4_processing').css('visibility','visible');
@@ -156,8 +156,13 @@
                 $('table tbody').on('click', '.activecard , .disablecard', function (e) {
                     e.preventDefault();
                     var self = $(this);
-                    var text = (self.hasClass("activecard")?'Active':'Disable');
-                    if (!confirm('Are you sure you want to '+ text +' the Card?')) {
+                    if(self.hasClass("activecard")){
+                        var msg = "@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_ACTIVE_CARD_MSG')";
+                    }else{
+                        var msg = "@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_DISABLE_CARD_MSG')";
+                    }
+
+                    if (!confirm(msg)) {
                         return;
                     }
                     $('#table-4_processing').css('visibility','visible');
@@ -168,7 +173,7 @@
                 $('table tbody').on('click', '.set-default', function (e) {
                     e.preventDefault();
                     var self = $(this);
-                    if (!confirm('Are you sure you want to set Default this Card?')) {
+                    if (!confirm("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_SET_DEFAULT_CARD_MSG')")) {
                         return;
                     }
                     $('#table-4_processing').css('visibility','visible');
@@ -266,25 +271,25 @@
                 <form id="add-credit-card-form" method="post">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add New Card</h4>
+                        <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_CARD_TITLE')</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Title</label>
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_CARD_FIELD_TITLE')</label>
                                     <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Name on card*</label>
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_CARD_FIELD_NAME_ON_CARD')</label>
                                     <input type="text" name="NameOnCard" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Credit Card Number *</label>
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_CARD_FIELD_CREDIT_CARD_NUMBER')</label>
                                     <input type="text" name="CardNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="cardID" />
                                     <input type="hidden" name="AccountID" />
@@ -294,20 +299,20 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Card Type*</label>
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_CARD_FIELD_CARD_TYPE')</label>
                                     {{ Form::select('CardType',Payment::$credit_card_type,'', array("class"=>"select2 small")) }}
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">CVV Number*</label>
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_CARD_FIELD_CVV_NUMBER')</label>
                                     <input type="text" data-mask="decimal" name="CVVNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <div class="col-md-4">
-                                        <label for="field-5" class="control-label">Expiry Date *</label>
+                                        <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_CARD_FIELD_EXPIRY_DATE')</label>
                                     </div>
                                     <div class="col-md-4">
                                         {{ Form::select('ExpirationMonth', getMonths(), date('m'), array("class"=>"select2 small")) }}
@@ -321,13 +326,13 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" id="card-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <button type="submit" id="card-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">
                             <i class="entypo-floppy"></i>
-                            Save
+                            @lang('routes.BUTTON_SAVE_CAPTION')
                         </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>
-                            Close
+                            @lang('routes.BUTTON_CLOSE_CAPTION')
                         </button>
                     </div>
                 </form>
