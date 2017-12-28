@@ -49,7 +49,10 @@ class TranslateController extends \BaseController {
             }
 
             $html_translation='<label data-languages="'.$data["Language"].'" class="label_language hidden" data-system-name="'.$key.'" >'.$translation.'</label>
-                                <input text="text" value="'.$translation.'" data-languages="'.$data["Language"].'" class="text_language form-control"  data-system-name="'.$key.'" />';
+                                <input type="text" value="'.$translation.'" data-languages="'.$data["Language"].'" class="text_language form-control"  data-system-name="'.$key.'" />';
+            if(isset($_GET["adminUser"])){
+                $html_translation.='<input type="button" value="Delete" data-languages="'.$data["Language"].'" class="text_delete form-control btn-danger"  data-system-name="'.$key.'" />';
+            }
 
 
 
@@ -88,6 +91,30 @@ class TranslateController extends \BaseController {
 
 
         return json_encode(["status" => "success", "message" => ""]);
+
+    }
+
+    function process_singleDelete(){
+
+
+        $request = Input::all();
+
+        $data_langs = $this->get_language_translation($request["language"]);
+//        dd(DB::getQueryLog());
+
+        $json_file = json_decode($data_langs->Translation, true);
+        if(array_key_exists($request["system_name"], $json_file)){
+            unset($json_file[$request["system_name"]]);
+        }
+
+        DB::table('tblTranslation')
+            ->where(['TranslationID'=>$data_langs->TranslationID])
+            ->update(['Translation' => json_encode($json_file)]);
+
+        $this->create_language_file($data_langs->ISOCode,$json_file);
+
+
+        return json_encode(["status" => "success", "message" => "Deleted"]);
 
     }
 

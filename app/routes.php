@@ -1203,6 +1203,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('translate/change/{language}', 'TranslateController@changeLanguage');
 	Route::any('translate/search_ajax_datagrid', 'TranslateController@search_ajax_datagrid');
 	Route::any('translate/single_update', 'TranslateController@process_singleUpdate');
+	Route::any('translate/single_delete', 'TranslateController@process_singleDelete');
 	Route::any('/translate/{languageCode}/exports/{type}', 'TranslateController@exports');
 	Route::any('translate/new_system_name', 'TranslateController@new_system_name');
 

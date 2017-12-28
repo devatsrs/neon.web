@@ -153,6 +153,9 @@
                     $(".text_language").blur(function(){
                         updateLanguageData(this);
                     });
+                    $(".text_delete").click(function(){
+                        deleteLanguageData(this);
+                    });
                     $(".dataTables_wrapper select").select2({
                         minimumResultsForSearch: -1
                     });
@@ -187,6 +190,29 @@
                     data: post_data
                 });
             }
+        }
+
+        function deleteLanguageData(ele){
+            if (!confirm("Are you sure?")) {
+                return ;
+            }
+            var label=$(ele).parent().find("label");
+            var language=$(ele).attr("data-languages");
+            var post_data = { "language" : language, "system_name" : label.attr("data-system-name")};
+            $.ajax({
+                url: baseurl + "/translate/single_delete",
+                type: 'POST',
+                dataType: 'JSON',
+                success: function(response) {
+                    if (response.status == 'success') {
+                        toastr.success(response.message, "Success", toastr_opts);
+                    } else {
+                        toastr.error(response.message, "Error", toastr_opts);
+                    }
+                },
+                data: post_data
+            });
+
         }
     </script>
 
