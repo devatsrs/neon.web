@@ -130,6 +130,7 @@
                 <input type="hidden" name="CompanyGatewayID" value="">
                 <input type="hidden" name="importprocessid" value="">
                 <input type="hidden" name="importaccountsuccess" value="">
+                <input type="hidden" name="TemplateType" id="TemplateType" value="{{FileUploadTemplate::TEMPLATE_Account}}" />
                 <span id="gateway_filter"></span>
                 <span id="get_account"></span>
                 <span id="get_accounts_sippy"></span>
@@ -251,130 +252,8 @@
                                     </div>
 
                                     <div class="panel-body" id="mapping">
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Account Number</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[AccountNumber]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Account Name*</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[AccountName]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Title</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[NamePrefix]', array(),'',array("class"=>"select2 small"))}}
-                                                <input type="hidden" class="form-control" name="AccountType" value="1" />
-                                                <!--<input type="hidden" class="form-control" name="tempCompanyGatewayID" value="" />-->
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">First Name</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[FirstName]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Last Name</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[LastName]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Phone</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Phone]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Email</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Email]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">BillingEmail</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[BillingEmail]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Address1</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Address1]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Address2</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Address2]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Address3</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Address3]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">City</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[City]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Post Code</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Pincode]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Country</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Country]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Currency</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Currency]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Employee</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Employee]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Website</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Website]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">Fax</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Fax]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Description</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Description]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                            <label for="field-1" class="col-sm-2 control-label">VatNumber</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[VatNumber]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Tags</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[tags]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>                                        
-                                            <label for="field-1" class="col-sm-2 control-label">Account Owner</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[AccountOwner]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                        </div>                                        
-                                        <div class="form-group">
-                                            <label for="field-1" class="col-sm-2 control-label">Vendor</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Vendor]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>                                       
-                                            <label for="field-1" class="col-sm-2 control-label">Customer</label>
-                                            <div class="col-sm-4">
-                                                {{Form::select('selection[Customer]', array(),'',array("class"=>"select2 small"))}}
-                                            </div>
-                                        </div>                                        
+                                        <?php $columns = array(); ?>
+                                        @include('fileuploadtemplates.accounttemplate')
                                     </div>
                                 </div>
                                 <div class="panel panel-primary" data-collapsed="0">

@@ -33,8 +33,25 @@ class FileUploadTemplate extends \Eloquent {
                                         9=>'Payment',
                                     );
 
+    public static $upload_dir = array(
+                                        1=>'CDR_UPLOAD',
+                                        2=>'CDR_UPLOAD',
+                                        3=>'ACCOUNT_DOCUMENT',
+                                        4=>'ACCOUNT_DOCUMENT',
+                                        5=>'DIALSTRING_UPLOAD',
+                                        6=>'IP_UPLOAD',
+                                        7=>'ITEM_UPLOAD',
+                                        8=>'VENDOR_UPLOAD',
+                                        9=>'PAYMENT_UPLOAD',
+                                    );
+
     public static function getTemplateIDList($Type){
-        $row = FileUploadTemplate::where(['CompanyID'=>User::get_companyID()])->orderBy('Title')->lists('Title', 'FileUploadTemplateID');
+        if(!empty($Type)) {
+            $where = ['CompanyID'=>User::get_companyID(), 'Type'=>$Type];
+        } else {
+            $where = ['CompanyID'=>User::get_companyID()];
+        }
+        $row = FileUploadTemplate::where($where)->orderBy('Title')->lists('Title', 'FileUploadTemplateID');
         $row = array(""=> "Select")+$row;
         return $row;
     }
@@ -44,7 +61,7 @@ class FileUploadTemplate extends \Eloquent {
         $CompanyID = User::get_companyID();
 
         if(empty($data['FileUploadTemplateID'])) { //create template
-            $rules['TemplateName']          = 'required|unique:tblVendorFileUploadTemplate,Title,NULL,VendorFileUploadTemplateID';
+            $rules['TemplateName']          = 'required|unique:tblFileUploadTemplate,Title,NULL,FileUploadTemplateID';
             $rules['TemplateFile']          = 'required';
             $rules['TemplateType']          = 'required';
 
@@ -61,10 +78,14 @@ class FileUploadTemplate extends \Eloquent {
                 return json_validator_response($validator);
             }
 
+            if(!empty($validations['option'])) {
+                $option = $validations['option'];
+            }
+
             $file_name = $data['TemplateFile'];
-            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_TEMPLATE_FILE']);
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir[SELF::$upload_dir[$data['TemplateType']]]);
             $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
-            rename($file_name, $destinationPath . basename($file_name));
+            copy($file_name, $destinationPath . basename($file_name));
             if (!AmazonS3::upload($destinationPath . basename($file_name), $amazonPath)) {
                 return Response::json(array("status" => "failed", "message" => "Failed to upload."));
             }
@@ -78,9 +99,10 @@ class FileUploadTemplate extends \Eloquent {
 
             try {
                 if ($result = FileUploadTemplate::create($save)) {
-                    $response['status'] = "success";
-                    $response['message'] = "Template Successfully Created.";
-                    $response['Template'] = $result;
+                    $response['status']     = "success";
+                    $response['message']    = "Template Successfully Created.";
+                    $response['Template']   = $result;
+                    $response['file_name']  = basename($file_name);
                 } else {
                     $response['status'] = "failed";
                     $response['message'] = "Error while creating template.";
@@ -109,11 +131,15 @@ class FileUploadTemplate extends \Eloquent {
                     return json_validator_response($validator);
                 }
 
+                if(!empty($validations['option'])) {
+                    $option = $validations['option'];
+                }
+
                 if(isset($data['TemplateFile']) && !empty($data['TemplateFile'])) {
                     $file_name = $data['TemplateFile'];
-                    $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_TEMPLATE_FILE']);
+                    $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir[SELF::$upload_dir[$data['TemplateType']]]);
                     $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
-                    rename($file_name, $destinationPath . basename($file_name));
+                    copy($file_name, $destinationPath . basename($file_name));
                     if (!AmazonS3::upload($destinationPath . basename($file_name), $amazonPath)) {
                         return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                     }
@@ -131,9 +157,10 @@ class FileUploadTemplate extends \Eloquent {
 
                 try {
                     if ($template->update($save)) {
-                        $response['status'] = "success";
-                        $response['message'] = "Template Successfully Updated.";
-                        $response['Template'] = $template;
+                        $response['status']     = "success";
+                        $response['message']    = "Template Successfully Updated.";
+                        $response['Template']   = $template;
+                        $response['file_name']  = basename($file_name);
                     } else {
                         $response['status'] = "failed";
                         $response['message'] = "Error while updating template.";
@@ -207,8 +234,11 @@ class FileUploadTemplate extends \Eloquent {
             $message_for_type = Payment::$importpaymentmessages;
         }
 
-        $result['rules_for_type'] = $rules_for_type;
+        $result['rules_for_type']   = $rules_for_type;
         $result['message_for_type'] = $message_for_type;
+        if(isset($option)) {
+            $result['option'] = $option;
+        }
 
         return $result;
     }
