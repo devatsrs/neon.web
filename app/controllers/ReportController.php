@@ -134,6 +134,7 @@ class ReportController extends \BaseController {
             $data['filter_settings'] = json_encode($filters);
             $data['Export'] = 1;
             $data['Name'] = $report->Name;
+            $data['Live'] = !empty(Input::get('Live'))?'true':'false';
         }
         $CompanyID = User::get_companyID();
         $cube = $data['Cube'];

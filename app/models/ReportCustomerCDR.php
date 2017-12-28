@@ -89,9 +89,16 @@ class ReportCustomerCDR extends \Eloquent{
             ->where(['tblHeader.CompanyID' => $CompanyID]);
 
         if(in_array('hour',$data['column']) || in_array('hour',$data['row']) || in_array('minute',$data['column']) || in_array('minute',$data['row'])) {
-            $query_common->join('tblUsageSummaryHour', 'tblHeader.HeaderID', '=', 'tblUsageSummaryHour.HeaderID');
-            $query_common->join('tblDimTime', 'tblUsageSummaryHour.TimeID', '=', 'tblDimTime.TimeID');
-            self::$DetailTable = 'tblUsageSummaryHour';
+
+            if($data['Live'] == 'true'){
+                $query_common->join('tblUsageSummaryHourLive', 'tblHeader.HeaderID', '=', 'tblUsageSummaryHourLive.HeaderID');
+                $query_common->join('tblDimTime', 'tblUsageSummaryHourLive.TimeID', '=', 'tblDimTime.TimeID');
+                self::$DetailTable = 'tblUsageSummaryHourLive';
+            }else{
+                $query_common->join('tblUsageSummaryHour', 'tblHeader.HeaderID', '=', 'tblUsageSummaryHour.HeaderID');
+                $query_common->join('tblDimTime', 'tblUsageSummaryHour.TimeID', '=', 'tblDimTime.TimeID');
+                self::$DetailTable = 'tblUsageSummaryHour';
+            }
         }else{
             $query_common->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID');
         }

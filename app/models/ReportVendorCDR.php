@@ -90,9 +90,15 @@ class ReportVendorCDR extends \Eloquent{
             ->where(['tblHeaderV.CompanyID' => $CompanyID]);
 
         if(in_array('hour',$data['column']) || in_array('hour',$data['row']) || in_array('minute',$data['column']) || in_array('minute',$data['row'])) {
-            $query_common->join('tblVendorSummaryHour', 'tblHeader.HeaderID', '=', 'tblVendorSummaryHour.HeaderID');
-            $query_common->join('tblDimTime', 'tblVendorSummaryHour.TimeID', '=', 'tblDimTime.TimeID');
-            self::$DetailTable = 'tblVendorSummaryHour';
+            if($data['Live'] == 'true'){
+                $query_common->join('tblVendorSummaryHourLive', 'tblHeader.HeaderID', '=', 'tblVendorSummaryHourLive.HeaderID');
+                $query_common->join('tblDimTime', 'tblVendorSummaryHourLive.TimeID', '=', 'tblDimTime.TimeID');
+                self::$DetailTable = 'tblVendorSummaryHourLive';
+            }else{
+                $query_common->join('tblVendorSummaryHour', 'tblHeader.HeaderID', '=', 'tblVendorSummaryHour.HeaderID');
+                $query_common->join('tblDimTime', 'tblVendorSummaryHour.TimeID', '=', 'tblDimTime.TimeID');
+                self::$DetailTable = 'tblVendorSummaryHour';
+            }
         }else{
             $query_common->join('tblVendorSummaryDay', 'tblHeaderV.HeaderVID', '=', 'tblVendorSummaryDay.HeaderVID');
         }
