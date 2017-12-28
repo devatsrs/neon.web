@@ -469,7 +469,12 @@ class TicketsController extends \BaseController {
 					 $ticketemaildata			 =	AccountEmailLog::find($ticketdata->AccountEmailLogID); 
 					 $ClosedTicketStatus   		 =  TicketsTable::getClosedTicketStatus();						 
 					 $ResolvedTicketStatus   		 =  TicketsTable::getResolvedTicketStatus();
-					 TicketsTable::where(["TicketID"=>$id])->update(["Read"=>1]);
+
+					$TicketsTable = TicketsTable::find(["TicketID"=>$id]);
+					$TicketsTable->timestamps = false;
+					$TicketsTable->update(["Read"=>1]);
+
+
 					 $AllEmailsTo				= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
 					 $TicketStatus				=	TicketsTable::getTicketStatusByID($ticketdata->Status);
 					
