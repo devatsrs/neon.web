@@ -47,7 +47,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Period</label>
-                                {{Form::select('Report[Time]',array(""=>"Select","DAILY"=>"Daily",'WEEKLY'=>'Weekly','MONTHLY'=>'Monthly',"YEARLY"=>"Yearly"),'',array( "class"=>"select2 small"))}}
+                                {{Form::select('Report[Time]',array(""=>"Select",'HOUR'=>'Hour',"DAILY"=>"Daily",'WEEKLY'=>'Weekly','MONTHLY'=>'Monthly',"YEARLY"=>"Yearly"),'',array( "class"=>"select2 small"))}}
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -115,9 +115,9 @@
                 selectBox.val(ele_val).trigger("change");
             }else if(ele_name == 'Day') {
                 $("#billing-form [name='Report["+ele_name+"][]']").val(ele_val.split(',')).trigger('change');
-            }else if(ele_name == 'Interval'){
+            }else if(ele_name == 'Interval' || ele_name == 'Format'){
                 setTimeout(function(){
-                    $("#billing-form [name='Report[Interval]']").val(ele_val).trigger('change');
+                    $("#billing-form [name='Report["+ele_name+"]']").val(ele_val).trigger('change');
                 },5);
             }else if(ele_name == 'Schedule') {
                 if (ele_val == 1) {
