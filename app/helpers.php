@@ -142,6 +142,10 @@ function customer_dropbox($id=0,$data=array()){
     $all_customers = Account::getAccountIDList($data);
     return Form::select('customers', $all_customers, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
+function upload_template_dropbox($id=0,$data=array()){
+    $all_templates = FileUploadTemplate::getTemplateIDList($data);
+    return Form::select('templates', $all_templates, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
 
 function customer_leads_dropbox($id=0,$data=array()){
     $accounts = Account::getAccountIDList($data);
