@@ -278,7 +278,7 @@
          <li> <a href="{{URL::to('/retention')}}">  <span>Retention</span> </a> </li>
         @endif
         @if(User::checkCategoryPermission('UploadFileTemplate','view'))
-        <li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Vendor Template</span> </a> </li>
+        <li> <a href="{{URL::to('/uploadtemplate')}}">  <span>Upload Template</span> </a> </li>
         @endif
          @if( User::checkCategoryPermission('EmailTemplate','View'))
         <li> <a href="{{URL::to('/email_template')}}">  <span>Email Templates</span> </a> </li>
