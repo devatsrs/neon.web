@@ -50,9 +50,9 @@ class TranslateController extends \BaseController {
 
             $html_translation='<label data-languages="'.$data["Language"].'" class="label_language hidden" data-system-name="'.$key.'" >'.$translation.'</label>
                                 <input type="text" value="'.$translation.'" data-languages="'.$data["Language"].'" class="text_language form-control"  data-system-name="'.$key.'" />';
-            if(isset($_GET["adminUser"])){
-                $html_translation.='<input type="button" value="Delete" data-languages="'.$data["Language"].'" class="text_delete form-control btn-danger"  data-system-name="'.$key.'" />';
-            }
+
+//            $html_translation.='<input type="button" value="Delete" data-languages="'.$data["Language"].'" class="text_delete form-control btn-danger"  data-system-name="'.$key.'" />';
+
 
 
 
@@ -114,7 +114,7 @@ class TranslateController extends \BaseController {
         $this->create_language_file($data_langs->ISOCode,$json_file);
 
 
-        return json_encode(["status" => "success", "message" => "Deleted"]);
+        return json_encode(["status" => "success", "message" => "Deleted - ".$request["system_name"]]);
 
     }
 

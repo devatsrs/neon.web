@@ -85,12 +85,12 @@
             <table class="table table-bordered datatable" id="table-4">
                 <thead>
                 <tr>
-                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_COL1')</th>
-                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_COL2')</th>
-                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_COL3')</th>
-                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_COL4')</th>
-                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_COL5')</th>
-                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_COL6')</th>
+                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_INVOICE_NO')</th>
+                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_AMOUNT')</th>
+                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_TYPE')</th>
+                    <th width="20%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_PAYMENT_DATE')</th>
+                    <th width="15%">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_TBL_STATUS')</th>
+                    <th width="15%">@lang('routes.TABLE_COLUMN_ACTION')</th>
                 </tr>
                 </thead>
                 <tbody>

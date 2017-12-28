@@ -79,27 +79,27 @@
                 <table class="table table-bordered datatable" id="table-4">
                     <thead>
                     <tr>
-                        <th colspan="4" style="text-align: center;">{{$CompanyName}} @lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL1')</th>
-                        <th colspan="4" style="text-align: center;">@if(isset($AccountName)) {{$AccountName}} @endif @lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL2')</th>
-                        <th colspan="5" style="text-align: center;">@if(isset($AccountName)) {{$AccountName}} @endif @lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL3')</th>
-                        <th colspan="2" style="text-align: center;">{{$CompanyName}} @lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL4')</th>
+                        <th colspan="4" style="text-align: center;">{{$CompanyName}} @lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_INVOICE')</th>
+                        <th colspan="4" style="text-align: center;">@if(isset($AccountName)) {{$AccountName}} @endif @lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_PAYMENT')</th>
+                        <th colspan="5" style="text-align: center;">@if(isset($AccountName)) {{$AccountName}} @endif @lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_INVOICE')</th>
+                        <th colspan="2" style="text-align: center;">{{$CompanyName}} @lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_PAYMENT')</th>
                     </tr>
                     <tr >
-                        <th style="text-align: center;" width="5%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL5')</th>
-                        <th style="text-align: center;" width="8%" >@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL6')</th>
-                            <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL7')</th>
-                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL8')</th>
+                        <th style="text-align: center;" width="5%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_NO')</th>
+                        <th style="text-align: center;" width="8%" >@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_PERIOD')</th>
+                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_AMOUNT')</th>
+                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_PENDING_DISPUTE')</th>
                         <th style="text-align: center;" width="1%"></th>
-                        <th style="text-align: center;" width="8%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL9')</th>
-                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL10')</th>
+                        <th style="text-align: center;" width="8%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_DATE')</th>
+                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_AMOUNT')</th>
                         <th style="text-align: center;" width="1%"></th>
-                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL11')</th>
-                        <th style="text-align: center;" width="8%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL12')</th>
-                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL13')</th>
-                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL14')</th>
+                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_NO')</th>
+                        <th style="text-align: center;" width="8%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_PERIOD')</th>
+                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_AMOUNT')</th>
+                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_PENDING_DISPUTE')</th>
                         <th style="text-align: center;" width="1%"></th>
-                        <th style="text-align: center;" width="9%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL15')</th>
-                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_COL16')</th>
+                        <th style="text-align: center;" width="9%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_DATE')</th>
+                        <th style="text-align: center;" width="6%">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_AMOUNT')</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -276,7 +276,7 @@
 
                                 newRow =
                                         '<tr>' +
-                                        '<th>'+"@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_FOOTER_COL1')"+'</th>' +
+                                        '<th>TOTAL</th>' +
                                         '<th></th>' +
                                         '<th style="text-align: right;">'+ CurencySymbol+ InvoiceOutAmountTotal +'</th>' +
                                         '<th style="color:#cc2424 !important;text-align: right;">' + CurencySymbol + InvoiceOutDisputeAmountTotal +'</th>' +
@@ -295,7 +295,7 @@
 
                                         '<tr><th colspan="15"></th></tr>'+
 
-                                        '<tr><th colspan="2" style="text-align: right;text-transform: uppercase">'+"@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_FOOTER_COL2')"+'</th><th>' + CurencySymbol + OffsetBalance +'</th><th></th><th></th><th></th><th></th><th></th><th colspan="2" style="text-align: right;text-transform: uppercase">'+"@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_FOOTER_COL3')"+' </th><th>' + CurencySymbol + BroughtForwardOffset +'</th><th></th><th></th><th></th><th></th>' +
+                                        '<tr><th colspan="2" style="text-align: right;text-transform: uppercase">BALANCE AFTER OFFSET:</th><th>' + CurencySymbol + OffsetBalance +'</th><th></th><th></th><th></th><th></th><th></th><th colspan="2" style="text-align: right;text-transform: uppercase">BALANCE BROUGHT FORWARD: </th><th>' + CurencySymbol + BroughtForwardOffset +'</th><th></th><th></th><th></th><th></th>' +
                                         '</tr>' ;
 
                                 $('#table-4 > tbody > tr:last').after(newRow);

@@ -199,6 +199,7 @@
             var label=$(ele).parent().find("label");
             var language=$(ele).attr("data-languages");
             var post_data = { "language" : language, "system_name" : label.attr("data-system-name")};
+            $(ele).parents("tr").hide();
             $.ajax({
                 url: baseurl + "/translate/single_delete",
                 type: 'POST',

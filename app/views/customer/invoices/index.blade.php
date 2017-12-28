@@ -72,13 +72,13 @@
         </div>
         @endif
         <div class="pull-right"></div></th>
-      <th width="20%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_COL1')</th>
-      <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_COL2')</th>
-      <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_COL3')</th>
-      <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_COL4')</th>
-      <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_COL5')</th>
-      <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_COL6')</th>
-      <th width="15%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_COL7')</th>
+        <th width="20%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_AC_NAME')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_INVOICE_NUMBER')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_ISSUE_DATE')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_GRAND_TOTAL')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_PAID_OS')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_INVOICE_TBL_INVOICE_STATUS')</th>
+        <th width="15%">@lang('routes.TABLE_COLUMN_ACTION')</th>
     </tr>
   </thead>
   <tbody>

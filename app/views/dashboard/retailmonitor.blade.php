@@ -8,9 +8,9 @@
                         <thead>
                         <tr>
                             <th>#</th>
-                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_DIALLED_NUMBER_TBL_COL2")</th>
-                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_DIALLED_NUMBER_TBL_COL3")</th>
-                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_DIALLED_NUMBER_TBL_COL4")</th>
+                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_DIALLED_NUMBER_TBL_NUMBER")</th>
+                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_DIALLED_NUMBER_TBL_NUMBER_OF_TIMES_DIALLED")</th>
+                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_DIALLED_NUMBER_TBL_TOTAL_TALK_TIME_SEC")</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -34,8 +34,8 @@
                     <thead>
                     <tr>
                         <th>#</th>
-                        <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_LONGEST_DURATIONS_CALLS_TBL_COL2")</th>
-                        <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_LONGEST_DURATIONS_CALLS_TBL_COL3")</th>
+                        <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_LONGEST_DURATIONS_CALLS_TBL_NUMBER")</th>
+                        <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_LONGEST_DURATIONS_CALLS_TBL_DURATION_SEC")</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -56,9 +56,9 @@
                         <thead>
                         <tr>
                             <th>#</th>
-                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_EXPENSIVE_CALLS_TBL_COL2")</th>
-                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_EXPENSIVE_CALLS_TBL_COL3")</th>
-                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_EXPENSIVE_CALLS_TBL_COL4")</th>
+                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_EXPENSIVE_CALLS_TBL_NUMBER")</th>
+                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_EXPENSIVE_CALLS_TBL_COST")</th>
+                            <th>@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_EXPENSIVE_CALLS_TBL_DURATION_SEC")</th>
                         </tr>
                         </thead>
                         <tbody>

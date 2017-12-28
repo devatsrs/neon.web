@@ -135,20 +135,20 @@
                     <thead>
                     <tr>
                         <th width="5%" class="hide"></th>
-                        <th width="15%" >@lang('routes.CUST_PANEL_CDR_TBL_COL1')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_COL2')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_COL3')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_COL4')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_COL5')</th>
+                        <th width="15%" >@lang('routes.CUST_PANEL_CDR_TBL_AC_NAME')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_CONNECT_TIME')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_DISCONNECT_TIME')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_BILLED_DURATION_SEC')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_COST')</th>
                         @if($Hide_AvgRateMinute=='1')
-                            <th width="10%" class="hide">@lang('routes.CUST_PANEL_CDR_TBL_COL6')</th>
+                            <th width="10%" class="hide">@lang('routes.CUST_PANEL_CDR_TBL_AVG_RATE_MIN')</th>
                         @else
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_COL7')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_AVG_RATE_MIN')</th>
                         @endif
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_COL8')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_COL9')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_COL10')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_COL11')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_CLI')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_CLD')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_PREFIX')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_TRUNK')</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -326,8 +326,8 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
                             $(a).html('');
                             $(row).append(a);
                         }
-                        $($(row).children().get(0)).html('<strong>@lang('routes.CUST_PANEL_CDR_TBL_FOOTER_COL1')</strong>')
-                        $($(row).children().get(2)).html('<strong>'+TotalCall+'@lang('routes.CUST_PANEL_CDR_TBL_FOOTER_COL2')</strong>');
+                        $($(row).children().get(0)).html('<strong>Total</strong>')
+                        $($(row).children().get(2)).html('<strong>'+TotalCall+' Calls</strong>');
                         $($(row).children().get(3)).html('<strong>'+TotalDuration+' (mm:ss)</strong>');
                         $($(row).children().get(4)).html('<strong>' + CurrencyCode + TotalCost + '</strong>');
                     }else{
