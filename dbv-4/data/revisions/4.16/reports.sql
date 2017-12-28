@@ -4100,7 +4100,7 @@ BEGIN
 
 		SELECT 
 			DISTINCT
-			ProductID as ProductID,
+			Code as ProductID,
 			Code
 		FROM RMBilling3.tblProduct
 		WHERE CompanyID = p_CompanyID
@@ -4289,6 +4289,40 @@ BEGIN
 		INNER JOIN tblDimDate
 			ON tblDimDate.DateID = tblHeader.DateID
 		WHERE CompanyID = p_CompanyID;
+
+	END IF;
+	
+	IF p_ColName = 'hour'
+	THEN
+
+		SELECT 
+			DISTINCT
+			tblDimTime.hour as hour1,
+			tblDimTime.hour
+		FROM tblDimTime
+		ORDER BY tblDimTime.hour
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+		
+		SELECT
+			COUNT(DISTINCT tblDimTime.hour) AS totalcount
+		FROM tblDimTime;
+
+	END IF;
+	
+	IF p_ColName = 'minute'
+	THEN
+
+		SELECT 
+			DISTINCT
+			tblDimTime.minute as hour1,
+			tblDimTime.minute
+		FROM tblDimTime
+		ORDER BY tblDimTime.minute
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+		
+		SELECT
+			COUNT(DISTINCT tblDimTime.minute) AS totalcount
+		FROM tblDimTime;
 
 	END IF;
 
