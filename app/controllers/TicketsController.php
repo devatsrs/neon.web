@@ -470,14 +470,16 @@ class TicketsController extends \BaseController {
 					 $ClosedTicketStatus   		 =  TicketsTable::getClosedTicketStatus();						 
 					 $ResolvedTicketStatus   		 =  TicketsTable::getResolvedTicketStatus();
 
-					if ( $response_details->Read == 0 ) {
+					//update new ticket off without updating updated_at
+					if ( $response_details->data->ticketdata->Read == 0 ) {
 						$TicketsTable = TicketsTable::find(["TicketID" => $id]);
 						$TicketsTable->timestamps = false;
-						$TicketsTable->update(["Read" => 1]);
+						$TicketsTable->Read = 1;
+						$TicketsTable->save();
 					}
 
-					 $AllEmailsTo				= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true)); 
-					 $TicketStatus				=	TicketsTable::getTicketStatusByID($ticketdata->Status);
+					$AllEmailsTo				= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true));
+					$TicketStatus				=	TicketsTable::getTicketStatusByID($ticketdata->Status);
 					
 					return View::make('tickets.detail', compact('data','ticketdata','status','Priority','Groups','Agents','response_extensions','max_file_size','TicketConversation',"NextTicket","PrevTicket",'CloseStatus','ticketsfields','ticketSavedData','CompanyID','agentsAll','lead_owners', 'account_owners','ticketemaildata','Requester','ClosedTicketStatus','ResolvedTicketStatus','AllEmailsTo','TicketStatus'));
 			}else{
