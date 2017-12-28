@@ -173,7 +173,7 @@ BEGIN
 
 		SELECT 
 			DISTINCT
-			ProductID as ProductID,
+			Code as ProductID,
 			Code
 		FROM NeonBillingDev.tblProduct
 		WHERE CompanyID = p_CompanyID

@@ -143,6 +143,7 @@ class ReportController extends \BaseController {
         $data['column'] = array_filter(explode(",",$data['column']));
         //$data['sum'] = array_filter(explode(",",$data['Cube']));
         $data['row'] = array_filter(explode(",",$data['row']));
+        $data['filter'] = array_filter(explode(",",$data['filter']));
         $data['sum'] = $response = array();
 
         $measures = array_keys(Report::$measures[$cube]);

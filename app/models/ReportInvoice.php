@@ -123,18 +123,18 @@ class ReportInvoice extends \Eloquent{
             ->table('tblInvoice')
             ->where(['tblInvoice.CompanyID' => $CompanyID]);
 
-        if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row'])){
+        if(in_array('TaxRateID',$data['column']) || in_array('TaxRateID',$data['row']) || in_array('TaxRateID',$data['filter'])){
             $query_common->join('tblInvoiceTaxRate', 'tblInvoice.InvoiceID', '=', 'tblInvoiceTaxRate.InvoiceID');
             self::$InvoiceTaxRateJoin = true;
         }
-        if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('ProductType',$data['column']) || in_array('ProductType',$data['row']) || in_array('SubscriptionID',$data['column']) || in_array('SubscriptionID',$data['row']) || in_array('Code',$data['column']) || in_array('Code',$data['row'])){
+        if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('ProductID',$data['filter']) || in_array('ProductType',$data['column']) || in_array('ProductType',$data['row']) || in_array('ProductType',$data['filter']) || in_array('SubscriptionID',$data['column']) || in_array('SubscriptionID',$data['row']) || in_array('SubscriptionID',$data['filter']) || in_array('Code',$data['column']) || in_array('Code',$data['row']) || in_array('Code',$data['filter'])){
             $query_common->join('tblInvoiceDetail', 'tblInvoice.InvoiceID', '=', 'tblInvoiceDetail.InvoiceID');
             self::$InvoiceDetailJoin = true;
-            if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('Code',$data['column']) || in_array('Code',$data['row'])){
+            if(in_array('ProductID',$data['column']) || in_array('ProductID',$data['row']) || in_array('ProductID',$data['filter']) || in_array('Code',$data['column']) || in_array('Code',$data['row']) || in_array('Code',$data['filter'])){
                 $query_common->whereRaw(' ( tblInvoiceDetail.ProductType = '.Product::ITEM .' OR tblInvoiceDetail.ProductType ='.Product::ONEOFFCHARGE.')');
                 $query_common->join('tblProduct', 'tblProduct.ProductID', '=', 'tblInvoiceDetail.ProductID');
                 self::$ProductJoin = true;
-            }else if(in_array('SubscriptionID',$data['column']) || in_array('SubscriptionID',$data['row'])){
+            }else if(in_array('SubscriptionID',$data['column']) || in_array('SubscriptionID',$data['row']) || in_array('SubscriptionID',$data['filter'])){
                 $query_common->whereRaw(' ( tblInvoiceDetail.ProductType = '.Product::SUBSCRIPTION.')');
             }
         }
