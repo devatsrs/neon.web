@@ -90,7 +90,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="field-5" class="control-label">Format</label>
-                                {{Form::select('Report[Format]',array(""=>"Select",Report::XLS=>"Excel",Report::PDF=>'PDF',Report::PNG=>'PNG'),'',array( "class"=>"select2 small"))}}
+                                {{Form::select('Report[Format]',array(""=>"Select",Report::XLS=>"Excel",Report::PDF=>'PDF',Report::PNG=>'PNG'),Report::XLS,array( "class"=>"select2 small"))}}
                             </div>
                         </div>
                     </div>
@@ -148,6 +148,11 @@
                 $("#billing-form [name='Report["+ele_name+"]']").val(ele_val);
             }
         });
+        setTimeout(function () {
+            if($("#billing-form [name='Report[Format]']").val() =='') {
+                $("#billing-form [name='Report[Format]']").val('{{Report::XLS}}').trigger('change');
+            }
+        }, 10);
 
         $('#add-schedule-modal').modal('show');
     });
