@@ -41,19 +41,16 @@
                             <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px; min-width: 0">
                                 <li>
                                     <a href="#" class="save-report-data" data-format="{{Report::XLS}}">
-                                        <i class="fa fa-file-excel-o"></i>
                                         <span>Excel</span>
                                     </a>
                                 </li><li>
                                     <a href="#" class="save-report-data" data-format="{{Report::PNG}}">
-                                        <i class="fa fa-file-image-o"></i>
-                                        <span>Image</span>
+                                        <span>{{Report::PNG}}</span>
                                     </a>
                                 </li>
                                 <li>
                                     <a href="#" class="save-report-data" data-format="{{Report::PDF}}">
-                                        <i class="fa fa-file-pdf-o"></i>
-                                        <span>Pdf</span>
+                                        <span>{{Report::PDF}}</span>
                                     </a>
                                 </li>
 
@@ -61,15 +58,24 @@
 
 
 
-                    @if(!empty($report))
-                            <a href="{{URL::to('report/schedule_update/'.$report->ReportID)}}" class="schedule_report"  data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>
+                    @if(!empty($ReportSchedule))
+                            <a href="{{URL::to('report/schedule_update/'.$ReportSchedule->ReportScheduleID)}}" class="schedule_report"  data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>
                             <div class = "hiddenRowData pull-left" >
                                 @foreach($schedule_settings as $schedule_settings_key=> $schedule_settings_val)
                                     <input disabled type = "hidden"  name = "{{$schedule_settings_key}}"       value = "{{is_array($schedule_settings_val)?implode(',',$schedule_settings_val):$schedule_settings_val}}" />
                                 @endforeach
-                                    <input disabled type = "hidden"  name = "Schedule"       value = "{{$report->Schedule}}" />
+                                    <input disabled name="Name" value="{{$ReportSchedule->Name}}" type="hidden">
+                                    <input disabled name="ReportID" value="{{$ReportSchedule->ReportID}}" type="hidden">
+                                    <input disabled name="ReportScheduleID" value="{{$ReportSchedule->ReportScheduleID}}" type="hidden">
+                                    <input disabled name="Status" value="{{$ReportSchedule->Status}}" type="hidden" />
                             </div>
-                        @endif
+                    @elseif(!empty($report))
+                            <a href="{{URL::to('report/add_schedule')}}" class="schedule_report"  data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>
+                            <div class = "hiddenRowData pull-left" >
+                                <input disabled name="Name" value="{{$report->Name}}" type="hidden">
+                                <input disabled name="ReportID" value="{{$report->ReportID}}" type="hidden">
+                            </div>
+                    @endif
                     </div>
 
                     @endif

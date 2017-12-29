@@ -31,11 +31,11 @@
                         <div class="col-sm-2">
                             <input class="form-control" name="Search"  type="text" >
                         </div>
-                        <label class="col-sm-1 control-label">Name</label>
+                        <label class="col-sm-1 control-label">Report Name</label>
                         <div class="col-sm-2">
                             {{ Form::select('ReportID', $Reports, (!empty(Input::get('ReportID'))?Input::get('ReportID'):''), array("class"=>"form-control select2 small")) }}
                         </div>
-                        <label class="col-sm-1 control-label">Name</label>
+                        <label class="col-sm-1 control-label">Schedule Name</label>
                         <div class="col-sm-2">
                             {{ Form::select('ReportScheduleID', $ReportSchedules, (!empty(Input::get('ReportScheduleID'))?Input::get('ReportScheduleID'):''), array("class"=>"form-control select2 small")) }}
                         </div>

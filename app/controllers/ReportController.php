@@ -13,7 +13,7 @@ class ReportController extends \BaseController {
         $data['row'] = array('Trunk','CompanyGatewayID');
         $data['sum'] = array('NoOfCalls','TotalCharges');
         $cube = 'summary';
-        $CompanyID = User::get_companyID();
+
         $response = Report::generateDynamicTable($CompanyID,$cube,$data);
         //print_r($response);exit;
         //echo generateReportTable($data,$response);
@@ -23,7 +23,8 @@ class ReportController extends \BaseController {
         $dimensions = Report::$dimension;
         $measures = Report::$measures;
         $disable= '';
-
+        $CompanyID = User::get_companyID();
+        $reports = Report::getDropdownIDList($CompanyID);
         $Columns = $dimensions['summary']+Report::$measures['summary'];
         $report_settings =array();
         $report_settings['Cube'] = 'summary';
@@ -34,12 +35,17 @@ class ReportController extends \BaseController {
         /*if(Input::get('report') == 'run'){
             $layout = 'layout.main_only_sidebar';
         }*/
-        return View::make('report.create', compact('dimensions','measures','Columns','report_settings','disable','layout'));
+        return View::make('report.create', compact('dimensions','measures','Columns','reports','report_settings','disable','layout'));
     }
     public function edit($id){
         $report = Report::find($id);
+        $ReportSchedule = ReportSchedule::where('ReportID',$id)->first();
+        $reports = Report::getDropdownIDList($report->CompanyID);
         $report_settings = json_decode($report->Settings,true);
-        $schedule_settings = json_decode($report->ScheduleSettings,true);
+        $schedule_settings = array();
+        if(!empty($ReportSchedule)) {
+            $schedule_settings = json_decode($ReportSchedule->Settings, true);
+        }
 
         $dimensions = Report::$dimension;
         $measures = Report::$measures;
@@ -51,7 +57,7 @@ class ReportController extends \BaseController {
             $layout = 'layout.main_only_sidebar';
         }*/
 
-        return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report','disable','layout','schedule_settings'));
+        return View::make('report.create', compact('report','dimensions','measures','Columns','report_settings','report','disable','layout','schedule_settings','reports','ReportSchedule'));
     }
 
     public function report_store(){
@@ -121,7 +127,6 @@ class ReportController extends \BaseController {
             $data['filter_settings'] = json_encode($filters);
             $data['Export'] = 1;
             $data['Name'] = $report->Name;
-            $data['Live'] = !empty(Input::get('Live'))?'true':'false';
         }
         $CompanyID = User::get_companyID();
         $cube = $data['Cube'];

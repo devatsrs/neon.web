@@ -2425,7 +2425,7 @@ function fix_jobstatus_meassage($message){
 }
 function is_apply_number_format($col_name){
     $flag = true;
-    $col_array = array('TotalBilledDuration','BilledDuration','NoOfCalls','NoOfFailCalls');
+    $col_array = array('TotalBilledDuration','BilledDuration','NoOfCalls','NoOfFailCalls','TotalDuration','TotalDuration2');
     foreach($col_array as $col){
         if (strpos($col_name, $col) !== false) {
             $flag = false;
