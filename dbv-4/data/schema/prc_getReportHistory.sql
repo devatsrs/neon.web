@@ -1,5 +1,6 @@
 CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_getReportHistory`(
 	IN `p_CompanyID` INT,
+	IN `p_ReportScheduleID` INT,
 	IN `p_ReportID` INT,
 	IN `p_StartDate` DATETIME,
 	IN `p_EndDate` DATETIME,
@@ -20,57 +21,60 @@ BEGIN
 	IF p_isExport = 0
 	THEN
 		SELECT
-			tblReport.Name,
-			tblReportLog.send_at,
+			tblReportSchedule.Name,
+			tblReportScheduleLog.send_at,
 			AccountEmailLog.Subject,
 			AccountEmailLog.Message
-		FROM tblReport
-		INNER JOIN tblReportLog 
-			ON tblReport.ReportID = tblReportLog.ReportID
+		FROM tblReportSchedule
+		INNER JOIN tblReportScheduleLog 
+			ON tblReportSchedule.ReportScheduleID = tblReportScheduleLog.ReportScheduleID
 		INNER JOIN NeonRMDev.AccountEmailLog 
-			ON tblReportLog.AccountEmailLogID = AccountEmailLog.AccountEmailLogID
-		WHERE tblReport.CompanyID = p_CompanyID
-			AND (p_ReportID = 0 OR tblReport.ReportID = p_ReportID)
-			AND tblReportLog.send_at BETWEEN p_StartDate and p_EndDate
-			AND (p_SearchText='' OR tblReport.Name LIKE CONCAT('%',p_SearchText,'%'))
+			ON tblReportScheduleLog.AccountEmailLogID = AccountEmailLog.AccountEmailLogID
+		WHERE tblReportSchedule.CompanyID = p_CompanyID
+			AND (p_ReportScheduleID = 0 OR tblReportSchedule.ReportScheduleID = p_ReportScheduleID)
+			AND (p_ReportID = 0 OR tblReportSchedule.ReportID = p_ReportID)
+			AND tblReportScheduleLog.send_at BETWEEN p_StartDate and p_EndDate
+			AND (p_SearchText='' OR tblReportSchedule.Name LIKE CONCAT('%',p_SearchText,'%'))
 		ORDER BY
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MessageDESC') THEN tblReport.Name
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MessageDESC') THEN tblReportSchedule.Name
 			END DESC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MessageASC') THEN tblReport.Name
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'MessageASC') THEN tblReportSchedule.Name
 			END ASC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN tblReportLog.send_at
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atDESC') THEN tblReportScheduleLog.send_at
 			END DESC,
 			CASE
-				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN tblReportLog.send_at
+				WHEN (CONCAT(p_lSortCol,p_SortOrder) = 'created_atASC') THEN tblReportScheduleLog.send_at
 			END ASC
 		LIMIT p_RowspPage OFFSET v_OffSet_;
 
 		SELECT
-			COUNT(tblReportLog.ReportLogID) as totalcount
-		FROM tblReport
-		INNER JOIN tblReportLog 
-			ON tblReport.ReportID = tblReportLog.ReportID
+			COUNT(tblReportScheduleLog.ReportScheduleLogID) as totalcount
+		FROM tblReportSchedule
+		INNER JOIN tblReportScheduleLog 
+			ON tblReportSchedule.ReportScheduleID = tblReportScheduleLog.ReportScheduleID
 		WHERE CompanyID = p_CompanyID
-			AND (p_ReportID = 0 OR tblReport.ReportID = p_ReportID)
-			AND tblReportLog.send_at BETWEEN p_StartDate and p_EndDate
-			AND (p_SearchText='' OR tblReport.Name LIKE CONCAT('%',p_SearchText,'%'));
+			AND (p_ReportScheduleID = 0 OR tblReportSchedule.ReportScheduleID = p_ReportScheduleID)
+			AND (p_ReportID = 0 OR tblReportSchedule.ReportID = p_ReportID)
+			AND tblReportScheduleLog.send_at BETWEEN p_StartDate and p_EndDate
+			AND (p_SearchText='' OR tblReportSchedule.Name LIKE CONCAT('%',p_SearchText,'%'));
 	END IF;
 
 	IF p_isExport = 1
 	THEN
 		SELECT
-			tblReport.Name,
-			tblReportLog.send_at
-		FROM tblReport
-		INNER JOIN tblReportLog 
-			ON tblReport.ReportID = tblReportLog.ReportID
+			tblReportSchedule.Name,
+			tblReportScheduleLog.send_at
+		FROM tblReportSchedule
+		INNER JOIN tblReportScheduleLog 
+			ON tblReportSchedule.ReportScheduleID = tblReportScheduleLog.ReportScheduleID
 		WHERE CompanyID = p_CompanyID
-			AND (p_ReportID = 0 OR tblReport.ReportID = p_ReportID)
-			AND tblReportLog.send_at BETWEEN p_StartDate and p_EndDate
-			AND (p_SearchText='' OR tblReport.Name LIKE CONCAT('%',p_SearchText,'%'));
+			AND (p_ReportScheduleID = 0 OR tblReportSchedule.ReportScheduleID = p_ReportScheduleID)
+			AND (p_ReportID = 0 OR tblReportSchedule.ReportID = p_ReportID)
+			AND tblReportScheduleLog.send_at BETWEEN p_StartDate and p_EndDate
+			AND (p_SearchText='' OR tblReportSchedule.Name LIKE CONCAT('%',p_SearchText,'%'));
 	END IF;
 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

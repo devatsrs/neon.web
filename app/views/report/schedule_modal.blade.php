@@ -10,10 +10,24 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
+                                <label for="field-5" class="control-label">Name</label>
+                                <input type="text" name="Name" class="form-control" id="field-1" placeholder="" value="" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label  >Report</label>
+                                {{ Form::select('ReportID[]',$reports,array(), array("class"=>"select2",'multiple',"data-placeholder"=>"Select")) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <label for="field-5" class="control-label">Active</label>
                                 <div class="clear">
                                     <p class="make-switch switch-small">
-                                        <input type="checkbox" checked=""  name="Schedule" value="0">
+                                        <input type="checkbox" checked=""  name="Status" value="0">
                                     </p>
                                 </div>
                             </div>
@@ -81,7 +95,6 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <input type="hidden" name="ReportID" value="">
                         <button type="submit" id="report-scheduale-update"  class="save btn btn-success btn-sm btn-icon icon-left" data-loading-text="Loading...">
                             <i class="entypo-floppy"></i>
                             Save
@@ -103,7 +116,11 @@
         $('#billing-form').trigger("reset");
         var edit_url  = $(this).attr("href");
         $('#billing-form').attr("action",edit_url);
-        $('#add-schedule-modal h4').html('Edit Schedule');
+        if($(this).attr("id") == 'add-report-schedule'){
+            $('#add-schedule-modal h4').html('Add Schedule');
+        }else{
+            $('#add-schedule-modal h4').html('Edit Schedule');
+        }
         $('#billing-form select').select2("val", "");
         $(this).parent().children("div.hiddenRowData").find('input').each(function(i, el){
             var ele_name = $(el).attr('name');
@@ -113,13 +130,15 @@
             if(ele_name =='Time' || ele_name == 'StartTime'){
                 var selectBox = $("#billing-form [name='Report["+ele_name+"]']");
                 selectBox.val(ele_val).trigger("change");
+            }else if(ele_name == 'ReportID') {
+                $("#billing-form [name='"+ele_name+"[]']").val(ele_val.split(',')).trigger('change');
             }else if(ele_name == 'Day') {
                 $("#billing-form [name='Report["+ele_name+"][]']").val(ele_val.split(',')).trigger('change');
             }else if(ele_name == 'Interval' || ele_name == 'Format'){
                 setTimeout(function(){
                     $("#billing-form [name='Report["+ele_name+"]']").val(ele_val).trigger('change');
                 },5);
-            }else if(ele_name == 'Schedule') {
+            }else if(ele_name == 'Status') {
                 if (ele_val == 1) {
                     $("#billing-form [name='"+ele_name+"']").prop('checked', true)
                 } else {

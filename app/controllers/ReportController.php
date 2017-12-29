@@ -3,7 +3,9 @@
 class ReportController extends \BaseController {
 
     public function index(){
-        return View::make('report.index', compact(''));
+        $CompanyID = User::get_companyID();
+        $reports = Report::getDropdownIDList($CompanyID);
+        return View::make('report.index', compact('reports'));
     }
 
     public function create(){
@@ -70,31 +72,16 @@ class ReportController extends \BaseController {
         $response =  NeonAPI::request('report/update/'.$id,$postdata,'put',false,false);
         return json_response_api($response);
     }
-    public function update_schedule($id){
-        $postdata = Input::all();
-        $CompanyID = User::get_companyID();
-        $Schedule = isset($postdata['Schedule'])?1:0;
-        CronJob::create_system_report_alert_job($CompanyID,$Schedule);
-        $response =  NeonAPI::request('report/update_schedule/'.$id,$postdata,'put',false,false);
-        return json_response_api($response);
-    }
-    public function status_update($id){
-        $postdata = Input::all();
-        if (Report::where('ReportID',$id)->update(array('Schedule'=>$postdata['Schedule']))) {
-            return Response::json(array("status" => "success", "message" => "Report Successfully Updated"));
-        } else {
-            return Response::json(array("status" => "failed", "message" => "Problem Updating Report."));
-        }
-    }
     public function ajax_datagrid($type) {
 
         $CompanyID = User::get_companyID();
         $reports = Report::
-        select('Name','ReportID','Type','Schedule','ScheduleSettings')
-            ->where("CompanyID", $CompanyID);
+            leftJoin('tblReportSchedule','tblReportSchedule.ReportID','=',DB::raw('CAST(tblReport.ReportID AS CHAR(255))'))
+            ->select('tblReport.Name','tblReport.ReportID','ReportScheduleID','tblReportSchedule.Status','tblReportSchedule.Settings')
+            ->where("tblReport.CompanyID", $CompanyID);
         $data = Input::all();
         if(trim($data['Name']) != '') {
-            $reports->where('Name', 'like','%'.trim($data['Name']).'%');
+            $reports->where('tblReport.Name', 'like','%'.trim($data['Name']).'%');
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = $reports->get();
@@ -255,17 +242,18 @@ class ReportController extends \BaseController {
         return DataTableSql::of($query,'neon_report')->make();
     }
 
-    public function report_history(){
+    public function schedule_history(){
         $data = Input::all();
         $data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
         $data['EndDateDefault']  	= 	date('Y-m-d');
         $CompanyID = User::get_companyID();
         $Reports = Report::getDropdownIDList($CompanyID);
-        return View::make('report.history', compact('Reports','data'));
+        $ReportSchedules = ReportSchedule::getDropdownIDList($CompanyID);
+        return View::make('report.history', compact('Reports','data','ReportSchedules'));
     }
-    public function report_history_datagrid($type) {
+    public function schedule_history_datagrid($type) {
         $getdata = Input::all();
-        $response =  NeonAPI::request('report/history',$getdata,false,false,false);
+        $response =  NeonAPI::request('report/history_schedule',$getdata,false,false,false);
         if(isset($getdata['Export']) && $getdata['Export'] == 1 && !empty($response) && $response->status == 'success') {
             $excel_data = $response->data;
             $excel_data = json_decode(json_encode($excel_data), true);
@@ -276,5 +264,73 @@ class ReportController extends \BaseController {
             })->download('xls');
         }
         return json_response_api($response,true,true,true);
+    }
+
+    public function schedule(){
+        $CompanyID = User::get_companyID();
+        $reports = Report::getDropdownIDList($CompanyID);
+        return View::make('report.schedule', compact('reports'));
+    }
+    public function ajax_schedule_datagrid($type) {
+
+        $CompanyID = User::get_companyID();
+        $reports = ReportSchedule::
+            select('Name','ReportScheduleID','ReportID','Status','Settings')
+            ->where("CompanyID", $CompanyID);
+        $data = Input::all();
+        if(trim($data['Name']) != '') {
+            $reports->where('Name', 'like','%'.trim($data['Name']).'%');
+        }
+        if(isset($data['Export']) && $data['Export'] == 1) {
+            $excel_data  = $reports->get();
+            $excel_data = json_decode(json_encode($excel_data),true);
+            if($type=='csv'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Reports.csv';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_csv($excel_data);
+            }elseif($type=='xlsx'){
+                $file_path = CompanyConfiguration::get('UPLOAD_PATH') .'/Reports.xls';
+                $NeonExcel = new NeonExcelIO($file_path);
+                $NeonExcel->download_excel($excel_data);
+            }
+        }
+
+        return Datatables::of($reports)->make();
+    }
+
+    public function add_schedule(){
+        $postdata = Input::all();
+        $CompanyID = User::get_companyID();
+        $Schedule = isset($postdata['Status'])?1:0;
+        CronJob::create_system_report_alert_job($CompanyID,$Schedule);
+        $response =  NeonAPI::request('report/add_schedule',$postdata,'put',false,false);
+        return json_response_api($response);
+    }
+
+    public function update_schedule($id){
+        $postdata = Input::all();
+        $CompanyID = User::get_companyID();
+        $Schedule = isset($postdata['Status'])?1:0;
+        CronJob::create_system_report_alert_job($CompanyID,$Schedule);
+        $response =  NeonAPI::request('report/update_schedule/'.$id,$postdata,'put',false,false);
+        return json_response_api($response);
+    }
+
+    public function status_update($id){
+        $postdata = Input::all();
+        if (ReportSchedule::where('ReportScheduleID',$id)->update(array('Status'=>$postdata['Status']))) {
+            return Response::json(array("status" => "success", "message" => "Report Successfully Updated"));
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Problem Updating Report."));
+        }
+    }
+
+    public function schedule_delete($id){
+        $postdata = Input::all();
+        $CompanyID = User::get_companyID();
+        $Schedule = isset($postdata['Status'])?1:0;
+        CronJob::create_system_report_alert_job($CompanyID,$Schedule);
+        $response =  NeonAPI::request('report/delete_schedule/'.$id,$postdata,'put',false,false);
+        return json_response_api($response);
     }
 }

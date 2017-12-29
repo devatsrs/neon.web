@@ -1299,7 +1299,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/delete_post/{id}', 'NoticeBoardController@delete');
 	
 	// report
-    Route::any('/report','ReportController@index');
+    Route::get('/report', array("as" => "report", "uses" => "ReportController@index"));
     Route::any('/report/ajax_datagrid/{type}','ReportController@ajax_datagrid');
     Route::any('/report/create','ReportController@create');
     Route::any('/report/edit/{id}','ReportController@edit');
@@ -1309,9 +1309,13 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/report/getdatagrid/{id}','ReportController@getdatagrid');
     Route::any('/report/getdatalist','ReportController@getdatalist');
 	Route::any('/report/status_update/{id}','ReportController@status_update');
+	Route::any('/report/schedule_history/','ReportController@schedule_history');
+	Route::any('/report/schedule_history/{type}','ReportController@schedule_history_datagrid');
+	Route::any('/report/schedule','ReportController@schedule');
+	Route::any('/report/add_schedule','ReportController@add_schedule');
 	Route::any('/report/schedule_update/{id}','ReportController@update_schedule');
-	Route::any('/report/history/','ReportController@report_history');
-	Route::any('/report/history/{type}','ReportController@report_history_datagrid');
+	Route::any('/report/schedule_delete/{id}','ReportController@schedule_delete');
+	Route::any('/report/ajax_schedule_datagrid/{type}','ReportController@ajax_schedule_datagrid');
 
 	//RateCompare
 	Route::any('/rate_compare', 'RateCompareController@index');

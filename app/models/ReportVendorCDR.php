@@ -78,6 +78,8 @@ class ReportVendorCDR extends \Eloquent{
                 $select_columns[] = DB::Raw("SUM(".self::$DetailTable.".NoOfCalls)/(SUM(".self::$DetailTable.".NoOfCalls)+SUM(".self::$DetailTable.".NoOfFailCalls))*100 as " . $colname);
             }else if($colname == 'BilledDuration'){
                 $select_columns[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalBilledDuration),0)/ 60,0) as " . $colname);
+            }else if($colname == 'TotalDuration2'){
+                $select_columns[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalDuration),0)/ 60,0) as " . $colname);
             }else{
                 $select_columns[] = DB::Raw("SUM(".self::$DetailTable."." . $colname . ") as " . $colname);
             }
@@ -114,6 +116,8 @@ class ReportVendorCDR extends \Eloquent{
                     $select_columns2[] = DB::Raw("SUM(".self::$DetailTable.".NoOfCalls)/(SUM(".self::$DetailTable.".NoOfCalls)+SUM(".self::$DetailTable.".NoOfFailCalls))*100 as " . $colname);
                 }else if($colname == 'BilledDuration'){
                     $select_columns2[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalBilledDuration),0)/ 60,0) as " . $colname);
+                }else if($colname == 'TotalDuration2'){
+                    $select_columns2[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalDuration),0)/ 60,0) as " . $colname);
                 }else{
                     $select_columns2[] = DB::Raw("SUM(".self::$DetailTable."." . $colname . ") as " . $colname);
                 }

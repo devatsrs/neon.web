@@ -7,6 +7,9 @@
     <li>
         <a href="{{URL::to('report')}}">Report</a>
     </li>
+    <li>
+        <a href="{{URL::to('report/schedule')}}">Report Schedule</a>
+    </li>
 </ol>
 <h3>Report History</h3>
 
@@ -31,6 +34,10 @@
                         <label class="col-sm-1 control-label">Name</label>
                         <div class="col-sm-2">
                             {{ Form::select('ReportID', $Reports, (!empty(Input::get('ReportID'))?Input::get('ReportID'):''), array("class"=>"form-control select2 small")) }}
+                        </div>
+                        <label class="col-sm-1 control-label">Name</label>
+                        <div class="col-sm-2">
+                            {{ Form::select('ReportScheduleID', $ReportSchedules, (!empty(Input::get('ReportScheduleID'))?Input::get('ReportScheduleID'):''), array("class"=>"form-control select2 small")) }}
                         </div>
                     </div>
                     <div class="form-group">
@@ -86,11 +93,12 @@
         $searchFilter.EndDate = $("#history_filter [name='EndDate']").val();
         $searchFilter.EndTime = $("#history_filter [name='EndTime']").val();
         $searchFilter.ReportID = $("#history_filter [name='ReportID']").val();
+        $searchFilter.ReportScheduleID = $("#history_filter [name='ReportScheduleID']").val();
 
         data_table = $("#table-4").dataTable({
             "bProcessing": true,
             "bServerSide": true,
-            "sAjaxSource": baseurl + "/report/history/type",
+            "sAjaxSource": baseurl + "/report/schedule_history/type",
             "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
             "sPaginationType": "bootstrap",
             "sDom": "<'row'<'col-xs-6 col-left'l><'col-xs-6 col-right'<'export-data'T>f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -101,7 +109,8 @@
                         {"name":"StartTime","value":$searchFilter.StartTime},
                         {"name":"EndDate","value":$searchFilter.EndDate},
                         {"name":"EndTime","value":$searchFilter.EndTime},
-                        {"name":"ReportID","value":$searchFilter.ReportID}
+                        {"name":"ReportID","value":$searchFilter.ReportID},
+                        {"name":"ReportScheduleID","value":$searchFilter.ReportScheduleID}
                 );
                 data_table_extra_params.length = 0;
                 data_table_extra_params.push(
@@ -111,6 +120,7 @@
                         {"name":"EndDate","value":$searchFilter.EndDate},
                         {"name":"EndTime","value":$searchFilter.EndTime},
                         {"name":"ReportID","value":$searchFilter.ReportID},
+                        {"name":"ReportScheduleID","value":$searchFilter.ReportScheduleID},
                         {"name":"Export","value":1}
                 );
             },
@@ -140,13 +150,13 @@
                             {
                                 "sExtends": "download",
                                 "sButtonText": "EXCEL",
-                                "sUrl": baseurl + "/report/history/xlsx",
+                                "sUrl": baseurl + "/report/schedule_history/xlsx",
                                 sButtonClass: "save-collection btn-sm"
                             },
                             {
                                 "sExtends": "download",
                                 "sButtonText": "CSV",
-                                "sUrl": baseurl + "/report/history/csv",
+                                "sUrl": baseurl + "/report/schedule_history/csv",
                                 sButtonClass: "save-collection btn-sm"
                             }
                         ]
@@ -172,6 +182,7 @@
             $searchFilter.EndTime = $("#history_filter [name='EndTime']").val();
             $searchFilter.Status = $("#history_filter [name='Status']").val();
             $searchFilter.ReportID = $("#history_filter [name='ReportID']").val();
+            $searchFilter.ReportScheduleID = $("#history_filter [name='ReportScheduleID']").val();
 
             data_table.fnFilter('', 0);
             return false;
