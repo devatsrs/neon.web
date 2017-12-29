@@ -80,15 +80,15 @@
         <div class="col-md-12">
         <ul class="nav nav-tabs">
             @if( (empty($MonitorDashboardSetting)) ||  in_array('AnalysisMonitor',$MonitorDashboardSetting))
-            <li class="active"><a href="#tab1" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_DESTINATION")</a></li>
-            <li ><a href="#tab2" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_DESTINATION_BREAK")</a></li>
-            <li ><a href="#tab3" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_PREFIX")</a></li>
-            <li ><a href="#tab4" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TRUNK")</a></li>
+            <li class="active"><a href="#tab1" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_TITLE")</a></li>
+            <li ><a href="#tab2" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_BREAK_TITLE")</a></li>
+            <li ><a href="#tab3" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_PREFIX_TITLE")</a></li>
+            <li ><a href="#tab4" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_TRUNK_TITLE")</a></li>
             @endif
             @if((empty($MonitorDashboardSetting)) ||  in_array('CallMonitor',$MonitorDashboardSetting))
-            <li class="{{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#mdn" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_DIALLED_NUMBER")</a></li>
-            <li ><a href="#ldc" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_LONGEST_DURATIONS_CALLS")</a></li>
-            <li ><a href="#mec" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_MOST_EXPENSIVE_CALLS")</a></li>
+            <li class="{{!in_array('AnalysisMonitor',$MonitorDashboardSetting)?'active':''}}"><a href="#mdn" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_MOST_DIALLED_NUMBER_TITLE")</a></li>
+            <li ><a href="#ldc" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_LONGEST_DURATIONS_CALLS_TITLE")</a></li>
+            <li ><a href="#mec" data-toggle="tab">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_MOST_EXPENSIVE_CALLS_TITLE")</a></li>
             @endif
         </ul>
         <div class="tab-content">
@@ -100,7 +100,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_DESTINATION_TOP_DESTINATION_CALL_COUNT")</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_LBL_TOP_DESTINATION_CALL_COUNT")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -127,7 +127,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_DESTINATION_TOP_DESTINATION_CALL_COST")</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_LBL_TOP_DESTINATION_CALL_COST")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -154,7 +154,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_DESTINATION_TOP_DESTINATION_CALL_MINUTES")</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_LBL_TOP_DESTINATION_CALL_MINUTES")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -185,7 +185,7 @@
                             <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                                 <!-- panel head -->
                                 <div class="panel-heading">
-                                    <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_DESTINATION_BREAK_TOP_DESTINATION_BREAK_CALL_COUNT")</div>
+                                    <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_BREAK_LBL_TOP_DESTINATION_BREAK_CALL_COUNT")</div>
 
                                     {{--<div class="panel-options">
                                         <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -212,7 +212,7 @@
                             <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                                 <!-- panel head -->
                                 <div class="panel-heading">
-                                    <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_DESTINATION_BREAK_TOP_DESTINATION_BREAK_CALL_COST")</div>
+                                    <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_BREAK_LBL_TOP_DESTINATION_BREAK_CALL_COST")</div>
 
                                     {{--<div class="panel-options">
                                         <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -239,7 +239,7 @@
                             <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                                 <!-- panel head -->
                                 <div class="panel-heading">
-                                    <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_DESTINATION_BREAK_TOP_DESTINATION_BREAK_CALL_MINUTES")</div>
+                                    <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_DESTINATION_BREAK_LBL_TOP_DESTINATION_BREAK_CALL_MINUTES")</div>
 
                                     {{--<div class="panel-options">
                                         <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -270,7 +270,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_PREFIX_TOP_PREFIX_CALL_COUNT")</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_PREFIX_TOP_PREFIX_CALL_COUNT")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -297,7 +297,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_PREFIX_TOP_PREFIX_CALL_COST")</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_PREFIX_TOP_PREFIX_CALL_COST")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -324,7 +324,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_PREFIX_TOP_PREFIX_CALL_MINUTES")</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_PREFIX_TOP_PREFIX_CALL_MINUTES")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -355,7 +355,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TRUNK_TOP_TRUNK_CALL_COUNT")</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_TRUNK_TOP_TRUNK_CALL_COUNT")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -382,7 +382,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TRUNK_TOP_TRUNK_CALL_COST")</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_TRUNK_TOP_TRUNK_CALL_COST")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -409,7 +409,7 @@
                     <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
                         <!-- panel head -->
                         <div class="panel-heading">
-                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TRUNK_TOP_TRUNK_CALL_MINUTES")</div>
+                            <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_MONITOR_TAB_TRUNK_TOP_TRUNK_CALL_MINUTES")</div>
 
                             {{--<div class="panel-options">
                                 <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
