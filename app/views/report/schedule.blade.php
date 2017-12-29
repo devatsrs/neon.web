@@ -55,15 +55,18 @@
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
-            <th width="50%">Name</th>
-            <th width="40%">Action</th>
+            <th width="20%">Name</th>
+            <th width="20%">Period </th>
+            <th width="20%">Last Run Time </th>
+            <th width="20%">Next Run Time</th>
+            <th width="20%">Action</th>
         </tr>
         </thead>
         <tbody>
         </tbody>
     </table>
     <script type="text/javascript">
-        var list_fields_index  = ["Name","ReportScheduleID","ReportID","Status","Settings"];
+        var list_fields_index  = ["Name","ReportID","Status","Settings","ReportScheduleID"];
 
         var $search = {};
         var report_add_url = baseurl + "/report/add_schedule";
@@ -94,6 +97,62 @@
                     {                        // 9 Action
                         "bSortable": false,
                         mRender: function (id, type, full) {
+                            var action='';
+
+                            for (var i = 0; i < list_fields_index.length; i++) {
+                                if(list_fields_index[i] == 'Settings' && full[i] != null && IsJsonString(full[i])){
+                                    var settings_json = JSON.parse(full[i]);
+                                    $.each(settings_json, function(key, value) {
+                                        if(key == 'Time'){
+                                            action =  value;
+                                        }
+                                        if(key == 'Interval'){
+                                            action += '(' + value+')';
+                                        }
+                                    });
+                                }
+                            }
+                                    return action;
+                        }
+                    },
+                    {                        // 9 Action
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
+                            var action='';
+
+                            for (var i = 0; i < list_fields_index.length; i++) {
+                                if(list_fields_index[i] == 'Settings' && full[i] != null && IsJsonString(full[i])){
+                                    var settings_json = JSON.parse(full[i]);
+                                    $.each(settings_json, function(key, value) {
+                                        if(key == 'LastRunTime'){
+                                            action =  value;
+                                        }
+                                    });
+                                }
+                            }
+                                    return action;
+                        }
+                    }
+                    ,{                        // 9 Action
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
+                            var action= '';
+                            for (var i = 0; i < list_fields_index.length; i++) {
+                                if(list_fields_index[i] == 'Settings' && full[i] != null && IsJsonString(full[i])){
+                                    var settings_json = JSON.parse(full[i]);
+                                    $.each(settings_json, function(key, value) {
+                                        if(key == 'NextRunTime'){
+                                            action =  value;
+                                        }
+                                    });
+                                }
+                            }
+                                    return action;
+                        }
+                    },
+                    {                        // 9 Action
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
                             var action;
                             action = '<div class = "hiddenRowData pull-left" >';
                             for (var i = 0; i < list_fields_index.length; i++) {
@@ -107,7 +166,7 @@
                                 }
                             }
                             action += '</div>';
-                            var Status = full[3];
+                            var Status = full[2];
                             @if(User::checkCategoryPermission('Report','Update'))
                                 action += ' <a href="' + report_schedule_url.replace("{id}", id) + '" class="schedule_report btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
                                 action += ' <a href="' + report_history_url+'?ReportScheduleID=' +id+'" class="btn btn-default btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="glyphicon glyphicon-time"></i>&nbsp;</a>';
@@ -119,7 +178,7 @@
                             //}
                             @endif
                             @if(User::checkCategoryPermission('Report','Update'))
-                                if(full[4]) {
+                                if(full[3]) {
                                     if (Status == 1) {
                                         action += '&nbsp;<button data-id="' + id + '" data-status="' + Status + '" class="change_schedule btn btn-red btn-sm" type="button" title="Scheduling InActive" data-placement="left" data-toggle="tooltip"><i class="glyphicon glyphicon-ban-circle" ></i></button>';
                                     } else {

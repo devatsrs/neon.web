@@ -280,7 +280,7 @@ class ReportController extends \BaseController {
 
         $CompanyID = User::get_companyID();
         $reports = ReportSchedule::
-            select('Name','ReportScheduleID','ReportID','Status','Settings')
+            select('Name','ReportID','Status','Settings','ReportScheduleID')
             ->where("CompanyID", $CompanyID);
         $data = Input::all();
         if(trim($data['Name']) != '') {

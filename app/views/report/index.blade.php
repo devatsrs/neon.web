@@ -47,10 +47,7 @@
                 <i class="entypo-plus"></i>
                 Add New
             </a>
-            <a href="{{URL::to('report/add_schedule')}}" class=" schedule_report btn btn-primary btn-sm btn-icon icon-left" id="add-report-schedule">
-                <i class="entypo-plus"></i>
-                Add Schedule
-            </a>
+
             <a href="{{URL::to('report/schedule')}}" class=" btn btn-primary btn-sm btn-icon icon-left">
                 <i class="fa fa-list"></i>
                 Schedule
