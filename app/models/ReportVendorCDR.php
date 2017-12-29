@@ -144,11 +144,11 @@ class ReportVendorCDR extends \Eloquent{
 
         if(in_array('hour',$data['column']) || in_array('hour',$data['row']) || in_array('hour',$data['filter'])) {
             if($Live){
-                $query_common->join('tblVendorSummaryHourLive', 'tblHeader.HeaderVID', '=', 'tblVendorSummaryHourLive.HeaderVID');
+                $query_common->join('tblVendorSummaryHourLive', 'tblHeaderV.HeaderVID', '=', 'tblVendorSummaryHourLive.HeaderVID');
                 $query_common->join('tblDimTime', 'tblVendorSummaryHourLive.TimeID', '=', 'tblDimTime.TimeID');
                 self::$DetailTable = 'tblVendorSummaryHourLive';
             }else{
-                $query_common->join('tblVendorSummaryHour', 'tblHeader.HeaderVID', '=', 'tblVendorSummaryHour.HeaderVID');
+                $query_common->join('tblVendorSummaryHour', 'tblHeaderV.HeaderVID', '=', 'tblVendorSummaryHour.HeaderVID');
                 $query_common->join('tblDimTime', 'tblVendorSummaryHour.TimeID', '=', 'tblDimTime.TimeID');
                 self::$DetailTable = 'tblVendorSummaryHour';
             }
