@@ -24,6 +24,8 @@ class Invoice extends \Eloquent {
     public static $invoice_type_customer = array(''=>'Select' ,self::INVOICE_OUT => 'Invoice Received',self::INVOICE_IN=>'Invoice sent','All'=>'Both');
     public static $invoice_company_info = array(''=>'Select Company Info' ,'companyname' => 'Company Name','companyaddress'=>'Company Address','companyvatno'=>'Company Vat Number','companyemail'=>'Company Email');
     public static $invoice_account_info = array(''=>'Select Account Info' ,'{AccountName}' => 'Account Name',
+                                            '{FirstName}'=>'First Name',
+                                            '{LastName}'=>'Last Name',
                                             '{AccountNumber}'=>'Account Number',
                                             '{Address1}'=>'Address1',
                                             '{Address2}'=>'Address2',
@@ -255,6 +257,8 @@ class Invoice extends \Eloquent {
     public static function getInvoiceToByAccount($Message,$replace_array){
         $extra = [
             '{AccountName}',
+            '{FirstName}',
+            '{LastName}',
             '{AccountNumber}',
             '{VatNumber}',
             '{VatNumber}',
