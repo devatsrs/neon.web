@@ -416,7 +416,8 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT1')
-                                        <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="You can verify your customer’s routing and account numbers by sending their account two micro-deposits. Two small deposits will be made to their account. The transfers can take 3-4 business days to appear on their account. Once they’ve been received by the customer, the amounts for each deposit will need to be provided to you by the customer to verify that they have access to their account statement." data-original-title="Micro Deposit" class="label label-info popover-primary">?</span>
+                                        {{-- CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT1_MSG == You can verify your customer’s routing and account numbers by sending their account two micro-deposits. Two small deposits will be made to their account. The transfers can take 3-4 business days to appear on their account. Once they’ve been received by the customer, the amounts for each deposit will need to be provided to you by the customer to verify that they have access to their account statement.--}}
+                                        <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT1_MSG')" data-original-title="Micro Deposit" class="label label-info popover-primary">?</span>
                                     </label>
                                     <input type="text" name="MicroDeposit1" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="cardID">
@@ -425,7 +426,8 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT2')
-                                        <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="You can verify your customer’s routing and account numbers by sending their account two micro-deposits. Two small deposits will be made to their account. The transfers can take 3-4 business days to appear on their account. Once they’ve been received by the customer, the amounts for each deposit will need to be provided to you by the customer to verify that they have access to their account statement." data-original-title="Micro Deposit" class="label label-info popover-primary">?</span>
+                                        {{--CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT2_MSG == You can verify your customer’s routing and account numbers by sending their account two micro-deposits. Two small deposits will be made to their account. The transfers can take 3-4 business days to appear on their account. Once they’ve been received by the customer, the amounts for each deposit will need to be provided to you by the customer to verify that they have access to their account statement.--}}
+                                        <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT2_MSG')" data-original-title="Micro Deposit" class="label label-info popover-primary">?</span>
                                     </label>
                                     <input type="text" name="MicroDeposit2" class="form-control" id="field-5" placeholder="">
                                 </div>
@@ -433,8 +435,9 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">
-                                        @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_MSG1')</br>
-                                        @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_MSG2')
+                                        @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_MSG1'){{--* Both Deposit amounts in cents--}}
+                                        </br>
+                                        @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_MSG2'){{--* For live payments you have upto 10 tries to verify bank account after that bank account is unverifiable--}}
                                     </label>
                                 </div>
                             </div>

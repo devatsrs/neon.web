@@ -157,12 +157,12 @@ class TranslateController extends \BaseController {
 
     public function new_system_name(){
         $request = Input::all();
-        $request["system_name"]=strtoupper($request["system_name"]);
+        $request["system_name"]=trim(strtoupper($request["system_name"]));
         $data_langs = $this->get_language_translation();
 
         $translation_data = json_decode($data_langs->Translation, true);
 
-        if(!array_key_exists($request["system_name"] ,$translation_data )){
+        if($request["system_name"]!="" && !array_key_exists($request["system_name"] ,$translation_data )){
             $translation_data[$request["system_name"]]=$request["en_word"];
 
             ksort($translation_data);

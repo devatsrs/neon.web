@@ -28,17 +28,17 @@
                             <div class="panel-body">
                                 <div class="form-group">
 
-                                    <label class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_INVOICE_NO')</label>
+                                    <label class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_INVOICE_NO')</label>
                                     <div class="col-sm-2">
                                         <input type="text" name="InvoiceNo" class="form-control" id="field-1" placeholder="" value="{{Input::get('InvoiceNo')}}" />
 
                                     </div>
-                                    <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_ACTION')</label>
+                                    <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_ACTION')</label>
                                     <div class="col-sm-2">
                                         {{ Form::select('type', $action, Input::get('Type'), array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
 
-                                    <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_PAYMENT_METHOD')</label>
+                                    <label for="field-1" class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_PAYMENT_METHOD')</label>
                                     <div class="col-sm-2">
                                         {{ Form::select('paymentmethod', $method, Input::get('paymentmethod') , array("class"=>"select2 small","data-allow-clear"=>"true","data-placeholder"=>"Select Type")) }}
                                     </div>
@@ -46,14 +46,14 @@
 
                                 <!--payment date start -->
                                 <div class="form-group">
-                                    <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_START_DATE')</label>
+                                    <label class="col-sm-1 control-label small_label" for="PaymentDate_StartDate">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_START_DATE')</label>
                                     <div class="col-sm-2 col-sm-e2">
                                         <input autocomplete="off" type="text" name="PaymentDate_StartDate" id="PaymentDate_StartDate" class="form-control datepicker "  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')}}" data-enddate="{{date('Y-m-d')}}" />
                                     </div>
                                     <div class="col-sm-2 col-sm-e2">
                                         <input type="text" name="PaymentDate_StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" data-show-seconds="true" data-template="dropdown" placeholder="00:00:00" class="form-control timepicker">
                                     </div>
-                                    <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_END_DATE')</label>
+                                    <label  class="col-sm-1 control-label small_label" for="PaymentDate_EndDate">@lang('routes.CUST_PANEL_PAGE_PAYMENTS_FILTER_FIELD_END_DATE')</label>
                                     <div class="col-sm-2 col-sm-e2">
                                         <input autocomplete="off" type="text" name="PaymentDate_EndDate" id="PaymentDate_EndDate" class="form-control datepicker"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')}}" data-enddate="{{date('Y-m-d')}}" />
                                     </div>

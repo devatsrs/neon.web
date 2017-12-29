@@ -73,11 +73,11 @@
                 rebindLanguageTable();
             });
 
-            $("#new_system_name_from").submit(function () {
-
+            $("#new_system_name_from").submit(function (e) {
+                e.preventDefault();
                 var system_name = $(this).find("[name='system_name']").val();
                 var en_word= $(this).find("[name='en_word']").val();
-                if(system_name !="" && en_word!="" ){
+                if(system_name.trim() !="" && en_word!="" ){
                     $("#new_system_name_from").find(".save.btn").button('loading');
                     $.ajax({
                         url: $(this).attr("action"), //Server script to process data
@@ -100,7 +100,7 @@
 
                     });
                 }else{
-                    toastr.error(response.message, "Error", "Fill All Data");
+                    toastr.error("Fill All Data", "Error", toastr_opts);
                 }
 
                 return false;
@@ -250,7 +250,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">System Name *</label>
 
-                                    <input type="text" name="system_name" class="form-control" placeholder="">
+                                    <input type="text" name="system_name" class="form-control" placeholder="" required>
 
                                 </div>
 
@@ -261,7 +261,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">English Word *</label>
 
-                                    <input type="text" name="en_word" class="form-control" placeholder="">
+                                    <input type="text" name="en_word" class="form-control" placeholder="" required>
 
                                 </div>
 

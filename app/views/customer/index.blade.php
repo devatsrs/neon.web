@@ -50,7 +50,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p> @lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_TOTAL_OUTSTANDING')</p></a></div>
+                                    <p> @lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_TOTAL_OUTSTANDING')</p></a></div>
                         </div>
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets))
@@ -61,7 +61,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_TOTAL_PAYABLE')</p></a></div>
+                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_TOTAL_PAYABLE')</p></a></div>
                         </div>
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
@@ -72,7 +72,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_TOTAL_RECEIVABLE')</p></a></div>
+                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_TOTAL_RECEIVABLE')</p></a></div>
                         </div>
                     @endif
                     @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceSent',$BillingDashboardWidgets))
@@ -84,7 +84,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_TOTAL_INVOICE_SENT')</p></a></div>
+                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_TOTAL_INVOICE_SENT')</p></a></div>
                         </div>
                         @endif
                         @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardTotalInvoiceReceived',$BillingDashboardWidgets))
@@ -96,7 +96,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_TOTAL_INVOICE_RECEIVED')</p></a></div>
+                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_TOTAL_INVOICE_RECEIVED')</p></a></div>
                         </div>
                         @endif
                         @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardDueAmount',$BillingDashboardWidgets))
@@ -107,7 +107,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_DUE_AMOUNT')</p></a></div>
+                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_DUE_AMOUNT')</p></a></div>
                         </div>
                         @endif
                         @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOverDueAmount',$BillingDashboardWidgets))
@@ -118,7 +118,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_OVERDUE_AMOUNT')</p></a></div>
+                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_OVERDUE_AMOUNT')</p></a></div>
                         </div>
                         @endif
                         @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentReceived',$BillingDashboardWidgets))
@@ -129,7 +129,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_PAYMENT_RECEIVED')</p></a></div>
+                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_PAYMENT_RECEIVED')</p></a></div>
                         </div>
                         @endif
                         @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPaymentSent',$BillingDashboardWidgets))
@@ -140,7 +140,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_PAYMENT_SENT')</p></a></div>
+                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_PAYMENT_SENT')</p></a></div>
                         </div>
                         @endif
                         @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardOutstanding',$BillingDashboardWidgets))
@@ -148,7 +148,7 @@
                             <div class="tile-stats tile-orange">
                                 <a target="_blank" class="undefined" data-startdate="" data-enddate="" data-currency="" href="javascript:void(0)">
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix="" data-duration="1500" data-delay="1200">0</div>
-                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_OUTSTANDING_PRIOD')</p>
+                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_OUTSTANDING_PRIOD')</p>
                                 </a>
                             </div>
                         </div>
@@ -161,7 +161,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_PENDING_DISPUTE')</p></a></div>
+                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_PENDING_DISPUTE')</p></a></div>
                         </div>
                         @endif
                         @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPendingEstimate',$BillingDashboardWidgets))
@@ -172,7 +172,7 @@
                                     <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                          data-duration="1500" data-delay="1200">0
                                     </div>
-                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_PENDING_ESTIMATE')</p></a></div>
+                                    <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_PENDING_ESTIMATE')</p></a></div>
                         </div>
                         @endif
                         @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardMORBalance',$BillingDashboardWidgets))
@@ -183,7 +183,7 @@
                                         <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                              data-duration="1500" data-delay="1200">0
                                         </div>
-                                        <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_MOR_BALANCE')</p></a></div>
+                                        <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_MOR_BALANCE')</p></a></div>
                             </div>
                         @endif
                         @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardCallShopBalance',$BillingDashboardWidgets))
@@ -194,7 +194,7 @@
                                         <div class="num" data-start="0" data-end="0" data-prefix="" data-postfix=""
                                              data-duration="1500" data-delay="1200">0
                                         </div>
-                                        <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LOCUTORIOS_BALANCE')</p></a></div>
+                                        <p>@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_LOCUTORIOS_BALANCE')</p></a></div>
                             </div>
                         @endif
                 </div>
@@ -275,9 +275,9 @@
                         <table class="table table-bordered datatable" id="pin_grid">
                             <thead>
                             <tr>
-                                <th width="30%">@lang('routes.CUST_PANEL_PAGE_ANALYSIS_PIN_GRID_COL1')</th>
-                                <th width="30%">@lang('routes.CUST_PANEL_PAGE_ANALYSIS_PIN_GRID_COL2')</th>
-                                <th width="30%">@lang('routes.CUST_PANEL_PAGE_ANALYSIS_PIN_GRID_COL3')</th>
+                                <th width="30%">@lang('routes.CUST_PANEL_PAGE_ANALYSIS_PIN_GRID_TBL_DESTINATION_NUMBER')</th>
+                                <th width="30%">@lang('routes.CUST_PANEL_PAGE_ANALYSIS_PIN_GRID_TBL_TOTAL_COST')</th>
+                                <th width="30%">@lang('routes.CUST_PANEL_PAGE_ANALYSIS_PIN_GRID_TBL_NUMBER_OF_TIMES_DIALED')</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -354,21 +354,21 @@
                     option["amount"] = response.data.TotalOutstanding;
                     option["end"] = response.data.TotalOutstanding;
                     option["tileclass"] = 'tile-blue';
-                    option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_TOTAL_OUTSTANDING')";
+                    option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_TOTAL_OUTSTANDING')";
                     widgets += buildbox(option);
                 @endif
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardPayableAmount',$BillingDashboardWidgets))
                     option["amount"] = response.data.TotalPayable;
                     option["end"] = response.data.TotalPayable;
                     option["tileclass"] = 'tile-orange';
-                    option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_TOTAL_PAYABLE')";
+                    option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_TOTAL_PAYABLE')";
                     widgets += buildbox(option);
                 @endif
                 @if((count($BillingDashboardWidgets)==0) ||  in_array('BillingDashboardReceivableAmount',$BillingDashboardWidgets))
                     option["amount"] = response.data.TotalReceivable;
                     option["end"] = response.data.TotalReceivable;
                     option["tileclass"] = 'tile-red';
-                    option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_TOTAL_RECEIVABLE')";
+                    option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_TOTAL_RECEIVABLE')";
                     widgets += buildbox(option);
                 @endif
                 var ele = $('<div></div>');
@@ -416,7 +416,7 @@
                 option["end"] = response.data.TotalInvoiceIn;
                 option["tileclass"] = 'tile-green';
                 option["class"] = 'paid';
-                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_TOTAL_INVOICE_SENT')";
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_TOTAL_INVOICE_SENT')";
                 /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
                 @endif
@@ -425,7 +425,7 @@
                 option["end"] = response.data.TotalInvoiceOut;
                 option["tileclass"] = 'tile-plum';
                 option["class"] = 'paid';
-                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_TOTAL_INVOICE_RECEIVED')";
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_TOTAL_INVOICE_RECEIVED')";
                 /*option["count"] = response.data.CountTotalPaidInvoices;*/
                 widgets += buildbox(option);
                 @endif
@@ -434,7 +434,7 @@
                 option["end"] = response.data.TotalDueAmount;
                 option["tileclass"] = 'tile-orange';
                 option["class"] = 'due';
-                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_DUE_AMOUNT')";
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_DUE_AMOUNT')";
                 /*option["count"] = response.data.CountTotalUnpaidInvoices;*/
                 widgets += buildbox(option);
                 @endif
@@ -443,7 +443,7 @@
                 option["end"] = response.data.TotalOverdueAmount;
                 option["tileclass"] = 'tile-red';
                 option["class"] = 'overdue';
-                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_OVERDUE_AMOUNT')";
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_OVERDUE_AMOUNT')";
                 /*option["count"] = response.data.CountTotalOverdueInvoices;*/
                 widgets += buildbox(option);
                 @endif
@@ -459,7 +459,7 @@
                 option["end"] = response.data.TotalPaymentsIn;
                 option["tileclass"] = 'tile-purple';
                 option["class"] = 'paymentReceived1';
-                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_PAYMENT_SENT')";
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_PAYMENT_SENT')";
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
                 @endif
@@ -468,7 +468,7 @@
                 option["end"] = response.data.TotalPaymentsOut;
                 option["tileclass"] = 'tile-cyan';
                 option["class"] = 'paymentsent';
-                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_PAYMENT_RECEIVED')";
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_PAYMENT_RECEIVED')";
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
                 @endif
@@ -477,7 +477,7 @@
                 option["end"] = response.data.Outstanding;
                 option["tileclass"] = 'tile-brown';
                 option["class"] = 'paymentsent';
-                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_OUTSTANDING_PRIOD')";
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_OUTSTANDING_PRIOD')";
                 /*option["count"] = response.data.CountTotalPayment;*/
                 widgets += buildbox(option);
                 @endif
@@ -486,7 +486,7 @@
                 option["end"] = response.data.TotalDispute;
                 option["tileclass"] = 'tile-aqua';
                 option["class"] = 'Pendingdispute';
-                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_PENDING_DISPUTE')";
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_PENDING_DISPUTE')";
                 /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
                 @endif
@@ -495,7 +495,7 @@
                 option["end"] = response.data.TotalEstimate;
                 option["tileclass"] = 'tile-pink';
                 option["class"] = 'Pendingestimate';
-                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_PENDING_ESTIMATE')";
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_PENDING_ESTIMATE')";
                 /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
                 @endif
@@ -504,7 +504,7 @@
                 option["end"] = response.data.TotalUnbillidAmount;
                 option["tileclass"] = 'tile-funchsia';
                 option["class"] = 'UnbilledAmount';
-                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_UNBILLED_AMOUNT')";
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_UNBILLED_AMOUNT')";
                 /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
                 @endif
@@ -513,7 +513,7 @@
                 option["end"] = response.data.MOR_Balance;
                 option["tileclass"] = 'tile-aqua';
                 option["class"] = 'morbalance';
-                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_MOR_BALANCE')";
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_MOR_BALANCE')";
                 /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
                 @endif
@@ -522,7 +522,7 @@
                 option["end"] = response.data.CallShop_Balance;
                 option["tileclass"] = 'tile-aqua';
                 option["class"] = 'callshopbalance';
-                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LOCUTORIOS_BALANCE')";
+                option["type"] = "@lang('routes.CUST_PANEL_PAGE_ANALYSIS_INVOICE_LBL_LOCUTORIOS_BALANCE')";
                 /*option["count"] = response.data.CountTotalDispute;*/
                 widgets += buildbox(option);
                 @endif

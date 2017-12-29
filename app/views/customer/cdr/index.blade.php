@@ -3,10 +3,10 @@
 @section('content')
     <ol class="breadcrumb bc-3">
         <li>
-            <a href="#"><i class="entypo-home"></i>@lang('routes.CUST_PANEL_CDR_TITLE')</a>
+            <a href="#"><i class="entypo-home"></i>@lang('routes.CUST_PANEL_PAGE_CDR_TITLE')</a>
         </li>
     </ol>
-<h3>@lang('routes.CUST_PANEL_CDR_TITLE')</h3>
+<h3>@lang('routes.CUST_PANEL_PAGE_CDR_TITLE')</h3>
 
 @include('includes.errors')
 @include('includes.success')
@@ -67,41 +67,41 @@
                         </div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label class="col-md-1 control-label small_label" style="width: 8%;" for="field-1">@lang('routes.CUST_PANEL_FILTER_START_DATE')</label>
+                                <label class="col-md-1 control-label small_label" style="width: 8%;" for="field-1">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_START_DATE')</label>
                                 <div class="col-md-2" style="padding-right: 0px; width: 10%;">
                                     <input type="text" name="StartDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('StartDate')!=null?substr(Input::get('StartDate'),0,10):'' }}" data-enddate="{{date('Y-m-d')}}" />
                                 </div>
                                 <div class="col-md-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="StartTime" data-minute-step="5" data-show-meridian="false" data-default-time="00:00:00" value="{{Input::get('StartDate')!=null && strlen(Input::get('StartDate'))> 10 && substr(Input::get('StartDate'),11,8) != '00:00:00'?substr(Input::get('StartDate'),11,8):'00:00:00'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
-                                <label class="col-md-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">@lang('routes.CUST_PANEL_FILTER_END_DATE')</label>
+                                <label class="col-md-1 control-label small_label" for="field-1" style="padding-left: 0px; width: 7%;">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_END_DATE')</label>
                                 <div class="col-md-2" style="padding-right: 0px; width: 9%; padding-left: 0px;">
                                     <input type="text" name="EndDate" class="form-control datepicker  small_fld"  data-date-format="yyyy-mm-dd" value="{{Input::get('EndDate')!=null?substr(Input::get('EndDate'),0,10):'' }}" data-enddate="{{date('Y-m-d')}}" />
                                 </div>
                                 <div class="col-md-1" style="padding: 0px; width: 9%;">
                                     <input type="text" name="EndTime" data-minute-step="5" data-show-meridian="false" data-default-time="23:59:59" value="{{Input::get('EndDate')!=null && strlen(Input::get('EndDate'))> 10?substr(Input::get('EndDate'),11,2).':59:59':'23:59:59'}}" data-show-seconds="true" data-template="dropdown" class="form-control timepicker small_fld">
                                 </div>
-                                <label for="field-1" class="col-md-1 control-label" style="padding-left: 0px; width:5%;">@lang('routes.CUST_PANEL_FILTER_SHOW')</label>
+                                <label for="field-1" class="col-md-1 control-label" style="padding-left: 0px; width:5%;">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_SHOW')</label>
                                 <div class="col-md-2">
                                     <?php $options = [0=>'All',1=>'Zero Cost',2=>'Non Zero Cost'] ?>
                                     {{ Form::select('zerovaluecost',$options,'', array("class"=>"select2 small","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
-                                <label class="col-md-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 2%;">@lang('routes.CUST_PANEL_FILTER_CLI')</label>
+                                <label class="col-md-1 control-label" for="field-1" style="padding-right: 0px; padding-left: 0px; width: 2%;">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_CLI')</label>
                                 <div class="col-md-2 col-md-e1" style="width: 10%;">
                                     <input type="text" name="CLI" class="form-control mid_fld "  value=""  />
                                 </div>
-                                <label class="col-md-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">@lang('routes.CUST_PANEL_FILTER_CLD')</label>
+                                <label class="col-md-1 control-label" for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_CLD')</label>
                                 <div class="col-md-2 col-md-e1" style="width: 10%;">
                                     <input type="text" name="CLD" class="form-control mid_fld  "  value=""  />
                                 </div>
 
                             </div>
                             <div class="form-group">
-                                <label class="col-md-2 control-label " for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">@lang('routes.CUST_PANEL_FILTER_CLD_TYPE')</label>
+                                <label class="col-md-2 control-label " for="field-1" style="padding-left: 0px; padding-right: 0px; width: 4%;">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_CDR_TYPE')</label>
                                 <div class="col-md-1" style="padding-right: 0px; width: 17%;">
                                     {{ Form::select('CDRType',array(''=>'Both','inbound' => "Inbound", 'outbound' => "Outbound" ),'', array("class"=>"select2 small_fld","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
-                                <label class="col-md-1 control-label" for="field-1">@lang('routes.CUST_PANEL_FILTER_PREFIX')</label>
+                                <label class="col-md-1 control-label" for="field-1">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_PREFIX')</label>
                                 <div class="col-md-2">
                                     <input type="text" name="area_prefix" class="form-control mid_fld "  value="{{Input::get('prefix')}}"  />
                                 </div>
@@ -111,7 +111,7 @@
                                     $trunk = Trunk::getTrunkName(Input::get('TrunkID'));
                                 }
                                 ?>
-                                <label class="col-md-1 control-label" for="field-1">@lang('routes.CUST_PANEL_FILTER_TRUNK')</label>
+                                <label class="col-md-1 control-label" for="field-1">@lang('routes.CUST_PANEL_PAGE_CDR_FILTER_FIELD_TRUNK')</label>
                                 <div class="col-md-2">
                                     {{ Form::select('Trunk',$trunks,$trunk, array("class"=>"select2","id"=>"bulk_AccountID",'allowClear'=>'true')) }}
                                 </div>
@@ -135,20 +135,20 @@
                     <thead>
                     <tr>
                         <th width="5%" class="hide"></th>
-                        <th width="15%" >@lang('routes.CUST_PANEL_CDR_TBL_AC_NAME')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_CONNECT_TIME')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_DISCONNECT_TIME')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_BILLED_DURATION_SEC')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_COST')</th>
+                        <th width="15%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_AC_NAME')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_CONNECT_TIME')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_DISCONNECT_TIME')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_BILLED_DURATION_SEC')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_COST')</th>
                         @if($Hide_AvgRateMinute=='1')
-                            <th width="10%" class="hide">@lang('routes.CUST_PANEL_CDR_TBL_AVG_RATE_MIN')</th>
+                            <th width="10%" class="hide">@lang('routes.CUST_PANEL_PAGE_CDR_TBL_AVG_RATE_MIN')</th>
                         @else
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_AVG_RATE_MIN')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_AVG_RATE_MIN')</th>
                         @endif
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_CLI')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_CLD')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_PREFIX')</th>
-                        <th width="10%" >@lang('routes.CUST_PANEL_CDR_TBL_TRUNK')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_CLI')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_CLD')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_PREFIX')</th>
+                        <th width="10%" >@lang('routes.CUST_PANEL_PAGE_CDR_TBL_TRUNK')</th>
                     </tr>
                     </thead>
                     <tbody>

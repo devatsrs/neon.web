@@ -1,7 +1,7 @@
 
             <div class="col-md-12 text-left">
                     <p>
-                        @lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_TOTAL_PAYMENT'): <span id="outstanding_amount"></span>
+                        @lang('routes.CUST_PANEL_PAGE_INVOICE_MODAL_PAY_NOW_LBL_TOTAL_PAYMENT'): <span id="outstanding_amount"></span>
                     </p>
 
             </div>
@@ -231,7 +231,7 @@
                         data: 'AccountPaymentProfileID='+AccountPaymentProfileID+'&InvoiceIDs='+InvoiceIDs.join(",")
                     });
                     }else{
-                        toastr.error('please select invoice from one Account', "Error", toastr_opts);
+                        toastr.error('@lang('routes.CUST_PANEL_PAGE_INVOICE_BUTTON_PAY_NOW_ERROR_MSG')', "Error", toastr_opts);
                     }
                     return false;
                 });

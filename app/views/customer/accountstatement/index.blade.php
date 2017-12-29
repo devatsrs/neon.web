@@ -36,12 +36,12 @@
 
                             <div class="panel-body">
                                 <div class="form-group">
-                                    <label class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_FILTER_START_DATE')</label>
+                                    <label class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_FILTER_FIELD_START_DATE')</label>
                                     <div class="col-sm-2">
                                         <input type="text" name="StartDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date("Y-m-d",strtotime("-7 days"))}}" >
                                     </div>
 
-                                    <label class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_FILTER_END_DATE')</label>
+                                    <label class="col-sm-1 control-label">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_FILTER_FIELD_END_DATE')</label>
                                     <div class="col-sm-2">
                                         <input type="text" name="EndDate" class="form-control datepicker" data-date-format="yyyy-mm-dd" id="field-5" placeholder="" value="{{date("Y-m-d")}}">
                                     </div>
@@ -371,7 +371,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">View Payment</h4>
+                    <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_MODAL_VIEW_PAYMENT_TITLE')</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row">
@@ -383,38 +383,38 @@
                         </div>-->
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Invoice</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_MODAL_VIEW_PAYMENT_FIELD_INVOICE')</label>
                                 <div class="col-sm-12" name="InvoiceNo"></div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Payment Date</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_MODAL_VIEW_PAYMENT_FIELD_PAYMENT_DATE')</label>
                                 <div class="col-sm-12" name="PaymentDate"></div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Payment Method</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_MODAL_VIEW_PAYMENT_FIELD_PAYMENT_METHOD')</label>
                                 <div class="col-sm-12" name="PaymentMethod"></div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Action</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_MODAL_VIEW_PAYMENT_FIELD_ACTION')</label>
                                 <div class="col-sm-12" name="PaymentType"></div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Amount</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_MODAL_VIEW_PAYMENT_FIELD_AMOUNT')</label>
                                 <div class="col-sm-12" name="Amount"></div>
                                 <input type="hidden" name="PaymentID" >
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label for="field-5" class="control-label">Notes</label>
+                                <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_MODAL_VIEW_PAYMENT_FIELD_NOTES')</label>
                                 <div class="col-sm-12" name="Notes"></div>
                             </div>
                         </div>
@@ -429,14 +429,14 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Dispute</h4>
+                    <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_MODAL_DISPUTE_TITLE')</h4>
                 </div>
                 <div class="modal-body">
 
 
                 </div>
                 <div class="modal-footer">
-                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+                    <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> @lang('routes.BUTTON_CLOSE_CAPTION') </button>
                 </div>
 
             </div>
