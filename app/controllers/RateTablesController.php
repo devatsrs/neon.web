@@ -467,7 +467,7 @@ class RateTablesController extends \BaseController {
     }
 
     public function upload($id) {
-        $uploadtemplate = VendorFileUploadTemplate::getTemplateIDList();
+        $uploadtemplate = FileUploadTemplate::getTemplateIDList();
         $rateTable = RateTable::where(["RateTableId" => $id])->get(array('TrunkID','CodeDeckId'));
         $rate_sheet_formates = RateSheetFormate::getVendorRateSheetFormatesDropdownList();
         return View::make('ratetables.upload', compact('id','rateTable','rate_sheet_formates','uploadtemplate'));
@@ -499,7 +499,7 @@ class RateTablesController extends \BaseController {
             if (!empty($file_name)) {
 
                 if ($data['uploadtemplate'] > 0) {
-                    $RateTableFileUploadTemplate = VendorFileUploadTemplate::find($data['uploadtemplate']);
+                    $RateTableFileUploadTemplate = FileUploadTemplate::find($data['uploadtemplate']);
                     $options = json_decode($RateTableFileUploadTemplate->Options, true);
                     $data['Delimiter'] = $options['option']['Delimiter'];
                     $data['Enclosure'] = $options['option']['Enclosure'];
@@ -535,7 +535,7 @@ class RateTablesController extends \BaseController {
             $grid['filename'] = $data['TemplateFile'];
             $grid['tempfilename'] = $data['TempFileName'];
             if ($data['uploadtemplate'] > 0) {
-                $RateTableFileUploadTemplate = VendorFileUploadTemplate::find($data['uploadtemplate']);
+                $RateTableFileUploadTemplate = FileUploadTemplate::find($data['uploadtemplate']);
                 $grid['RateTableFileUploadTemplate'] = json_decode(json_encode($RateTableFileUploadTemplate), true);
                 //$grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options,true);
             }
@@ -578,12 +578,12 @@ class RateTablesController extends \BaseController {
             $option["selection"] = $data['selection'];//['Code'=>$data['Code'],'Description'=>$data['Description'],'Rate'=>$data['Rate'],'EffectiveDate'=>$data['EffectiveDate'],'Action'=>$data['Action'],'Interval1'=>$data['Interval1'],'IntervalN'=>$data['IntervalN'],'ConnectionFee'=>$data['ConnectionFee']];
             $save['Options'] = json_encode($option);
             if (isset($data['uploadtemplate']) && $data['uploadtemplate'] > 0) {
-                $template = VendorFileUploadTemplate::find($data['uploadtemplate']);
+                $template = FileUploadTemplate::find($data['uploadtemplate']);
                 $template->update($save);
             } else {
-                $template = VendorFileUploadTemplate::create($save);
+                $template = FileUploadTemplate::create($save);
             }
-            $data['uploadtemplate'] = $template->VendorFileUploadTemplateID;
+            $data['uploadtemplate'] = $template->FileUploadTemplateID;
         }
         $save = array();
         $option["option"]=  $data['option'];

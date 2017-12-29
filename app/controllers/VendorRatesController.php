@@ -621,7 +621,7 @@ class VendorRatesController extends \BaseController
             $grid['filename'] = $data['TemplateFile'];
             $grid['tempfilename'] = $data['TempFileName'];
             if ($data['uploadtemplate'] > 0) {
-                $VendorFileUploadTemplate = VendorFileUploadTemplate::find($data['uploadtemplate']);
+                $VendorFileUploadTemplate = FileUploadTemplate::find($data['uploadtemplate']);
                 $grid['VendorFileUploadTemplate'] = json_decode(json_encode($VendorFileUploadTemplate), true);
                 //$grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options,true);
             }
