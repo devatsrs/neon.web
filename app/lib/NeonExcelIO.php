@@ -141,12 +141,14 @@ class NeonExcelIO
         }
         if($this->file_type == self::$EXCEL){
 
-            return $this->read_excel($this->file,$limit);
+            //return $this->read_excel($this->file,$limit);
+            return $this->readExcel($this->file,$limit);
         }
 		
 		if($this->file_type == self::$EXCELs){
 
-            return $this->read_xls_excel($this->file,$limit);
+            //return $this->read_xls_excel($this->file,$limit);
+            return $this->readExcel($this->file,$limit);
         }
     }
 
@@ -573,11 +575,22 @@ class NeonExcelIO
                 $start_time = date('Y-m-d H:i:s');
                 $objPHPExcelReader = PHPExcel_IOFactory::load($file_name);
                 $ActiveSheet = $objPHPExcelReader->getActiveSheet();
-                $drow = $ActiveSheet->getHighestRow();
-                $dcol = $ActiveSheet->getHighestColumn();
+                $drow = $ActiveSheet->getHighestDataRow();
+                $dcol = $ActiveSheet->getHighestDataColumn();
                 $start_row = intval($data["start_row"]) + 1;
                 $end_row   = ($drow - intval($data["end_row"]));
+
+                Log::info('start row : ' . $start_row);
+                Log::info('highest row : ' . $drow . ' and highest col : ' . $dcol);
+
+                $start_time1 = date('Y-m-d H:i:s');
                 $allRows = $ActiveSheet->rangeToArray('A' . $start_row . ':' . $dcol . $end_row);
+                $end_time1 = date('Y-m-d H:i:s');
+                $process_time1 = strtotime($end_time1) - strtotime($start_time1);
+                Log::info('rangeToArray function call time : ' . $process_time1 . ' Seconds');
+
+                //Log::info(print_r(array_slice($allRows,0,10),true));
+
                 $file_name = substr($file_name, 0, strrpos($file_name, '.')) . '.csv';
                 $end_time = date('Y-m-d H:i:s');
                 $process_time = strtotime($end_time) - strtotime($start_time);
@@ -625,5 +638,80 @@ class NeonExcelIO
         } catch (Exception $e) {
             return Response::json(array("status" => "failed", "message" => $e->getMessage()));
         }
+    }
+
+    //same function in service when change this need to change in service too
+    public function readExcel($filepath,$limit=0) {
+        $start_time = date('Y-m-d H:i:s');
+
+        $start_time1 = date('Y-m-d H:i:s');
+        $objPHPExcelReader = PHPExcel_IOFactory::load($filepath);
+        $end_time1 = date('Y-m-d H:i:s');
+        $process_time1 = strtotime($end_time1) - strtotime($start_time1);
+        Log::info('load function call time : ' . $process_time1 . ' Seconds');
+
+        $start_time1 = date('Y-m-d H:i:s');
+        $ActiveSheet = $objPHPExcelReader->getActiveSheet();
+        $end_time1 = date('Y-m-d H:i:s');
+        $process_time1 = strtotime($end_time1) - strtotime($start_time1);
+        Log::info('getActiveSheet function call time : ' . $process_time1 . ' Seconds');
+
+        $start_time1 = date('Y-m-d H:i:s');
+        $drow = $ActiveSheet->getHighestDataRow();
+        $end_time1 = date('Y-m-d H:i:s');
+        $process_time1 = strtotime($end_time1) - strtotime($start_time1);
+        Log::info('getHighestDataRow function call time : ' . $process_time1 . ' Seconds');
+
+        $start_time1 = date('Y-m-d H:i:s');
+        $dcol = $ActiveSheet->getHighestDataColumn();
+        $end_time1 = date('Y-m-d H:i:s');
+        $process_time1 = strtotime($end_time1) - strtotime($start_time1);
+        Log::info('getHighestDataColumn function call time : ' . $process_time1 . ' Seconds');
+
+        $start_row = intval(self::$start_row) + 2;
+        $end_row   = $limit > 0 ? ($start_row + $limit) : ($drow - self::$end_row);
+        //$end_row   = ($drow - intval(self::$end_row));
+
+        $start_time1 = date('Y-m-d H:i:s');
+        $all_rows = $ActiveSheet->rangeToArray('A' . $start_row . ':' . $dcol . $end_row);
+        $end_time1 = date('Y-m-d H:i:s');
+        $process_time1 = strtotime($end_time1) - strtotime($start_time1);
+        Log::info('rangeToArray function call time : ' . $process_time1 . ' Seconds');
+        Log::info('start row : ' . $start_row);
+
+        //Log::info(print_r($all_rows,true));
+        $end_time = date('Y-m-d H:i:s');
+        $process_time = strtotime($end_time) - strtotime($start_time);
+        Log::info('Convert to csv read time : ' . $process_time . ' Seconds');
+
+        if($this->first_row == self::$COLUMN_NAMES) {
+            $start_time = date('Y-m-d H:i:s');
+
+            $result = $first_row = array();
+
+            $i = 0;
+            foreach ($all_rows as $row) {
+                if ($i == 0) {
+                    $first_row = $row;
+                } else {
+                    $j = 0;
+                    foreach ($row as $column) {
+                        $result[$i - 1][$first_row[$j]] = $column;
+                        $j++;
+                    }
+                }
+                $i++;
+            }
+
+            $end_time = date('Y-m-d H:i:s');
+            $process_time = strtotime($end_time) - strtotime($start_time);
+            Log::info('loop time : ' . $process_time . ' Seconds');
+
+        } else {
+            $result = $all_rows;
+        }
+        Log::info(print_r($result, true));
+
+        return $result;
     }
 }

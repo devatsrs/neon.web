@@ -100,7 +100,34 @@ class ImportsController extends \BaseController {
         $data = Input::all();
         $CompanyID = User::get_companyID();
 
-        Account::$importrules['selection.AccountName'] = 'required';
+        $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNT_DOCUMENT']);
+
+        if(!empty($data['TemplateName'])){
+            if(!empty($data['uploadtemplate'])) {
+                $data['FileUploadTemplateID'] = $data['uploadtemplate'];
+            }
+            $uploadresult = FileUploadTemplate::createOrUpdateFileUploadTemplate($data);
+
+            if(is_object($uploadresult)) {
+                return $uploadresult;
+            } else if (!empty($uploadresult['status']) && $uploadresult['status'] == "failed") {
+                return Response::json($uploadresult);
+            } else if (!empty($uploadresult['status']) && $uploadresult['status'] == "success") {
+                $template = $uploadresult['Template'];
+                $data['uploadtemplate'] = $template->FileUploadTemplateID;
+                $file_name = $uploadresult['file_name'];
+            }
+        } else {
+            $file_name = basename($data['TemplateFile']);
+            $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
+            $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+            copy($temp_path . $file_name, $destinationPath . $file_name);
+            if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+                return Response::json(array("status" => "failed", "message" => "Failed to upload vendor rates file."));
+            }
+        }
+
+        /*Account::$importrules['selection.AccountName'] = 'required';
         //Account::$importrules['selection.Email'] = 'required';
         //Account::$importrules['selection.Country'] = 'required';
         //Account::$importrules['selection.FirstName'] = 'required';
@@ -134,7 +161,7 @@ class ImportsController extends \BaseController {
                 $template = FileUploadTemplate::create($save);
             }
             $data['uploadtemplate'] = $template->FileUploadTemplateID;
-        }
+        }*/
         $save = array();
         $option["option"]=  $data['option'];
         $option["selection"] = $data['selection'];
