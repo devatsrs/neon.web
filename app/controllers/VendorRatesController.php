@@ -996,6 +996,8 @@ class VendorRatesController extends \BaseController
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
         $FileUploadTemplateID = "";
 
+        $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
+
         if(!empty($data['TemplateName'])){
             if(!empty($data['uploadtemplate'])) {
                 $data['FileUploadTemplateID'] = $data['uploadtemplate'];
@@ -1013,7 +1015,6 @@ class VendorRatesController extends \BaseController
             }
         } else {
             $file_name = basename($data['TemplateFile']);
-            $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
             $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
             copy($temp_path . $file_name, $destinationPath . $file_name);
             if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
