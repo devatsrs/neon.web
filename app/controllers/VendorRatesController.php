@@ -1127,15 +1127,19 @@ class VendorRatesController extends \BaseController
                 }
             };
 
-            if(isset($templateoptions->skipRows))
-            {
-                $skiptRows=$templateoptions->skipRows;
-                NeonExcelIO::$start_row=$skiptRows->start_row;
-                NeonExcelIO::$end_row=$skiptRows->end_row;
-                $lineno = 1+$skiptRows->start_row;
-            }else if ($csvoption->Firstrow == 'data') {
+            if(isset($templateoptions->skipRows) && $csvoption->Firstrow == 'columnname') {
+                $skiptRows              = $templateoptions->skipRows;
+                NeonExcelIO::$start_row = intval($skiptRows->start_row);
+                NeonExcelIO::$end_row   = intval($skiptRows->end_row);
+                $lineno                 = intval($skiptRows->start_row) + 2;
+            } else if (isset($templateoptions->skipRows) && $csvoption->Firstrow == 'data') {
+                $skiptRows              = $templateoptions->skipRows;
+                NeonExcelIO::$start_row = intval($skiptRows->start_row);
+                NeonExcelIO::$end_row   = intval($skiptRows->end_row);
+                $lineno                 = intval($skiptRows->start_row) + 1;
+            } else if ($csvoption->Firstrow == 'data') {
                 $lineno = 1;
-            }else{
+            } else {
                 $lineno = 2;
             }
 
