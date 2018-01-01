@@ -92,7 +92,7 @@ class ReportCustomerCDRs extends \Eloquent{
             $query_common->join($RMDB.'.tblAccount', 'tblUsageHeader.AccountID', '=', 'tblAccount.AccountID');
             self::$AccountJoin = true;
         }
-        if(in_array('DestinationBreak',$data['column']) || in_array('DestinationBreak',$data['row']) || in_array('CountryID',$data['column']) || in_array('CountryID',$data['row'])){
+        if(in_array('DestinationBreak',$data['column']) || in_array('DestinationBreak',$data['row']) || in_array('DestinationBreak',$data['filter']) || in_array('CountryID',$data['column']) || in_array('CountryID',$data['row']) || in_array('CountryID',$data['filter'])){
             $DefaultCodedeck = BaseCodeDeck::where(["CompanyID"=>$CompanyID,"DefaultCodedeck"=>1])->pluck("CodeDeckId");
             $query_common->join($RMDB.'.tblRate', 'tblRate.Code', '=', self::$DetailTable.'.area_prefix');
             $query_common->where('CodeDeckId', intval($DefaultCodedeck));

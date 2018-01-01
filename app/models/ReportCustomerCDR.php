@@ -166,7 +166,7 @@ class ReportCustomerCDR extends \Eloquent{
             $query_common->join($RMDB.'.tblAccount', 'tblHeader.AccountID', '=', 'tblAccount.AccountID');
             self::$AccountJoin = true;
         }
-        if(in_array('DestinationBreak',$data['column']) || in_array('DestinationBreak',$data['row'])){
+        if(in_array('DestinationBreak',$data['column']) || in_array('DestinationBreak',$data['row']) || in_array('DestinationBreak',$data['filter'])){
             $DefaultCodedeck = BaseCodeDeck::where(["CompanyID"=>$CompanyID,"DefaultCodedeck"=>1])->pluck("CodeDeckId");
             $query_common->join($RMDB.'.tblRate', 'tblRate.Code', '=', self::$DetailTable.'.AreaPrefix');
             $query_common->where('CodeDeckId', intval($DefaultCodedeck));
