@@ -61,6 +61,10 @@ class ReportCustomerCDRs extends \Eloquent{
         foreach ($data['sum'] as $colname) {
             if($colname == 'UsageDetailID'){
                 $select_columns[] = DB::Raw("COUNT(".self::$DetailTable.".UsageDetailID) as " . $colname);
+            }else if($colname == 'duration2'){
+                $select_columns2[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".duration),0)/ 60,0) as " . $colname);
+            }else if($colname == 'duration1'){
+                $select_columns2[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".billed_duration),0)/ 60,0) as " . $colname);
             }else{
                 $select_columns[] = DB::Raw("SUM(".self::$DetailTable."." . $colname . ") as " . $colname);
             }

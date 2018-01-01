@@ -253,12 +253,16 @@ class Report extends \Eloquent {
         'customercdr'=>array(
             'billed_duration' => 'Billed Duration (sec)',
             'duration' => ' Duration (sec)',
+            'duration1' => ' Billed Duration (min)',
+            'duration2' => ' Duration (min)',
             'cost' => 'Cost',
             'UsageDetailID' => ' Call Count',
         ),
         'vendorcdr'=>array(
             'billed_duration' => 'Billed Duration (sec)',
             'duration' => ' Duration (sec)',
+            'duration1' => ' Billed Duration (min)',
+            'duration2' => ' Duration (min)',
             'selling_cost' => 'Selling Cost',
             'buying_cost' => 'Buying Cost',
             'VendorCDRID' => ' Call Count',
