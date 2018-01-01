@@ -11,13 +11,13 @@
 
 <ol class="breadcrumb bc-3">
     <li>
-        <a href="#"><i class="entypo-home"></i>Profile</a>
+        <a href="#"><i class="entypo-home"></i>@lang('routes.CUST_PANEL_PAGE_PROFILE_TITLE')</a>
     </li>
 </ol>
-<h3>View Account
+<h3>@lang('routes.CUST_PANEL_PAGE_PROFILE_HEADING_VIEW_ACCOUNT')
 
     <div style="float: right; text-align: right " class="col-sm-4">
-        <a href="{{ URL::to('customer/profile/edit')}}" class="save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-floppy"></i>Edit</a>
+        <a href="{{ URL::to('customer/profile/edit')}}" class="save btn btn-primary btn-sm btn-icon icon-left"><i class="entypo-floppy"></i>@lang('routes.BUTTON_EDIT_CAPTION')</a>
     </div>
 
 
@@ -38,7 +38,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Account Details
+                            @lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_TITLE')
                     </div>
 
                     <div class="panel-options">
@@ -48,73 +48,73 @@
 
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 text-right">Account Owner</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_ACCOUNT_OWNER')</label>
                         <div class="col-sm-4">
                             @if(count($account_owner))
                                 {{$account_owner->FirstName}} {{$account_owner->LastName}}
                             @endif
                         </div>
 
-                        <label class="col-sm-2 text-right">Ownership</label>
+                        <label class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_OWNERSHIP')</label>
                         <div class="col-sm-4">
                             {{$account->Ownership}}
                         </div>
 
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 text-right">First Name</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_FIRST_NAME')</label>
                         <div class="col-sm-4">
                             {{$account->FirstName}}
                         </div>
 
-                        <label class="col-sm-2 text-right">Last Name</label>
+                        <label class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_LAST_NAME')</label>
                         <div class="col-sm-4">
                             {{$account->LastName}}
                         </div>
 
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 text-right">Account Number</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_AC_NUMBER')</label>
                         <div class="col-sm-4">
                             {{$account->Number}}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 text-right">Website</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_WEBSITE')</label>
                         <div class="col-sm-4">
                             {{$account->Website}}
                         </div>
 
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 text-right">*Account Name</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_ACCOUNT_NAME')</label>
                         <div class="col-sm-4">
                             {{$account->AccountName}}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 text-right">Phone</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_PHONE')</label>
                         <div class="col-sm-4">
                             {{$account->Phone}}
                         </div>
 
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 text-right">Vendor</label>
+                        <label class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_VENDOR')</label>
                         <div class="col-sm-4">
-                            @if($account->IsVendor == 1 ) Yes @else No @endif
+                            @if($account->IsVendor == 1 ) @lang('routes.BUTTON_YES_CAPTION') @else @lang('routes.BUTTON_NO_CAPTION') @endif
                         </div>
 
-                        <label for="field-1" class="col-sm-2 text-right">Fax</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_FAX')</label>
                         <div class="col-sm-4">
                             {{$account->Fax}}
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 text-right">Customer</label>
+                        <label class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_CUSTOMER')</label>
                         <div class="col-sm-4">
-                            @if($account->IsCustomer == 1 ) Yes @else No @endif
+                            @if($account->IsCustomer == 1 ) @lang('routes.BUTTON_YES_CAPTION') @else @lang('routes.BUTTON_NO_CAPTION') @endif
                         </div>
 
-                        <label for="field-1" class="col-sm-2 text-right">Employee</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_EMPLOYEE')</label>
                         <div class="col-sm-4">
                             {{$account->Employee}}
                         </div>
@@ -125,37 +125,37 @@
                             {$account->RateEmail}
                         </div>-->
 
-                        <label for="field-1" class="col-sm-2 text-right">Billing Email</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_BILLING_EMAIL')</label>
                         <div class="col-sm-4">
                             {{$account->BillingEmail}}
                         </div>
 
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 text-right">Status</label>
+                        <label class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_STATUS')</label>
                         <div class="col-sm-4">
-                                 @if($account->Status == 1 ) Active @else Inactive @endif
+                                 @if($account->Status == 1 ) @lang('routes.BUTTON_ACTIVE_CAPTION') @else @lang('routes.BUTTON_INACTIVE_CAPTION') @endif
                          </div>
 
-                        <label for="field-1" class="col-sm-2 text-right">VAT Number</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_VAT_NUMBER')</label>
                         <div class="col-sm-4">
                             {{$account->VatNumber}}
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 text-right">Currency</label>
+                        <label class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_CURRENCY')</label>
                         <div class="col-sm-4">
                                 {{(Currency::getCurrency($account->CurrencyId))}}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 text-right">Timezone</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_TIMEZONE')</label>
                         <div class="col-sm-4">
                             {{$account->TimeZone}}
                         </div>
                     </div>
                     @if(isset($account->Description) && $account->Description!='')
                     <div class="form-group">
-                        <label class="col-sm-2 text-right">Description</label>
+                        <label class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_AC_DETAILS_LBL_DESCRIPTION')</label>
                         <div class="col-sm-4">
                             {{$account->Description}}
                         </div>
@@ -174,7 +174,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Billing
+                        @lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_BILLING_TITLE')
                     </div>
 
                     <div class="panel-options">
@@ -184,11 +184,11 @@
 
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 text-right">Tax Rate</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_BILLING_LBL_TAX_RATE')</label>
                         <div class="col-sm-4">
                             {{ TaxRate::getTaxRate(AccountBilling::getTaxRate($account->AccountID))}}
                         </div>
-                        <label for="field-1" class="col-sm-2 text-right">Billing Type*</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_BILLING_LBL_BILLING_TYPE')</label>
                         @if(isset($AccountBilling->BillingType))
                         <div class="col-sm-4">
                             {{AccountApproval::$billing_type[$AccountBilling->BillingType]}}
@@ -196,7 +196,7 @@
                         @endif
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 text-right">Billing Timezone*</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_BILLING_LBL_BILLING_TIMEZONE')</label>
                         <div class="col-sm-4">
                             {{AccountBilling::getBillingKey($AccountBilling,'BillingTimezone')}}
                         </div>
@@ -207,7 +207,7 @@
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Address Information
+                        @lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_TITLE')
                     </div>
 
                     <div class="panel-options">
@@ -217,34 +217,34 @@
 
                 <div class="panel-body">
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 text-right">Address Line 1</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_LBL_ADDRESS_LINE_1')</label>
                         <div class="col-sm-4">
                             {{$account->Address1}}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 text-right">City</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_LBL_CITY')</label>
                         <div class="col-sm-4">
                             {{$account->City}}
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 text-right">Address Line 2</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_LBL_ADDRESS_LINE_2')</label>
                         <div class="col-sm-4">
                             {{$account->Address2}}
                         </div>
 
-                        <label for="field-1" class="col-sm-2 text-right">Post/Zip Code</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_LBL_POST_ZIP_CODE')</label>
                         <div class="col-sm-4">
                             {{$account->PostCode}}
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="field-1" class="col-sm-2 text-right">Address Line 3</label>
+                        <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_LBL_ADDRESS_LINE_3')</label>
                         <div class="col-sm-4">
                             {{$account->Address3}}
                         </div>
 
-                        <label for=" field-1" class="col-sm-2 text-right">*Country</label>
+                        <label for=" field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_ADDRESS_INFORMATION_LBL_COUNTRY')</label>
                         <div class="col-sm-4">
                             {{$account->Country}}
                         </div>
@@ -255,7 +255,7 @@
 
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Payment Information
+                        @lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_PAYMENT_INFORMATION_TITLE')
                     </div>
 
                     <div class="panel-options">
@@ -265,12 +265,12 @@
 
                 <div class="panel-body">
                         <div class="form-group">
-                            <label for="field-1" class="col-sm-2 text-right">Payment Method</label>
+                            <label for="field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_PAYMENT_INFORMATION_LBL_PAYMENT_METHOD')</label>
                             <div class="col-sm-4">
                                 {{$account->PaymentMethod}}
                             </div>
 
-                            <label for=" field-1" class="col-sm-2 text-right">Payment Details</label>
+                            <label for=" field-1" class="col-sm-2 text-right">@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_PAYMENT_INFORMATION_LBL_PAYMENT_DETAILS')</label>
                             <div class="col-sm-4">
                                 {{$account->PaymentDetail}}
                             </div>
@@ -282,7 +282,7 @@
 
                 <div class="panel-heading">
                     <div class="panel-title">
-                        Contacts
+                        @lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_CONTACTS_TITLE')
                     </div>
 
 
@@ -296,9 +296,9 @@
                     <table class="table table-bordered table-hover responsive">
                         <thead>
                             <tr>
-                                <th>Contact Name</th>
-                                <th>Phone</th>
-                                <th>Email</th>
+                                <th>@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_CONTACTS_TBL_CONTACT_NAME')</th>
+                                <th>@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_CONTACTS_TBL_PHONE')</th>
+                                <th>@lang('routes.CUST_PANEL_PAGE_PROFILE_TAB_CONTACTS_TBL_EMAIL')</th>
                                 <!--<th>Actions</th>-->
                             </tr>
                             </thead>

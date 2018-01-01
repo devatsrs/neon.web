@@ -5,7 +5,7 @@
         <tr>
             <th width="20%">@lang("routes.CUST_PANEL_ANALYSIS_TAB_PREFIX_TBL_PREFIX")</th>
             <th width="20%">@lang("routes.CUST_PANEL_ANALYSIS_TAB_PREFIX_TBL_NO_OF_CALLS")</th>
-            <th width="10%">@lang("routes.CUST_PANEL_ANALYSIS_TAB_PREFIX_TBL_Billed_Duration_Min")</th>
+            <th width="10%">@lang("routes.CUST_PANEL_ANALYSIS_TAB_PREFIX_TBL_BILLED_DURATION_MIN")</th>
             <th width="10%">@lang("routes.CUST_PANEL_ANALYSIS_TAB_PREFIX_TBL_CHARGED_AMOUNT")</th>
             <th width="10%">@lang("routes.CUST_PANEL_ANALYSIS_TAB_PREFIX_TBL_ACD")</th>
             <th width="10%">@lang("routes.CUST_PANEL_ANALYSIS_TAB_PREFIX_TBL_ASR")</th>

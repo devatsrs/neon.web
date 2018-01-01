@@ -2,18 +2,18 @@
 <p style="text-align: right;">
     <a class=" btn btn-primary btn-sm btn-icon icon-left" id="add-call-alert">
         <i class="entypo-plus"></i>
-        Add New
+        @lang('routes.BUTTON_ADD_CAPTION')
     </a>
 </p>
 <table class="table table-bordered datatable" id="table-6">
     <thead>
     <tr>
-        <th width="10%">Name</th>
-        <th width="10%">Type</th>
-        <th width="10%">Status</th>
-        <th width="10%">Last Updated</th>
-        <th width="10%">Updated By</th>
-        <th width="20%">Action</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_TBL_NAME')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_TBL_TYPE')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_TBL_STATUS')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_TBL_LAST_UPDATED')</th>
+        <th width="10%">@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_TBL_UPDATED_BY')</th>
+        <th width="20%">@lang('routes.TABLE_COLUMN_ACTION')</th>
     </tr>
     </thead>
     <tbody>
@@ -99,13 +99,13 @@
                 "aButtons": [
                     {
                         "sExtends": "download",
-                        "sButtonText": "EXCEL",
+                        "sButtonText": "@lang("routes.BUTTON_EXPORT_EXCEL_CAPTION")",
                         "sUrl": baseurl + "/customer/alert/ajax_datagrid/xlsx",
                         sButtonClass: "save-collection btn-sm"
                     },
                     {
                         "sExtends": "download",
-                        "sButtonText": "CSV",
+                        "sButtonText": "@lang("routes.BUTTON_EXPORT_CSV_CAPTION")",
                         "sUrl": baseurl + "/customer/alert/ajax_datagrid/csv",
                         sButtonClass: "save-collection btn-sm"
                     }
@@ -195,7 +195,7 @@
         });
         $('table tbody').on('click', '.delete-call-alert', function (ev) {
             ev.preventDefault();
-            result = confirm("Are you Sure?");
+            result = confirm("@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_TBL_DELETE_CARD_MSG')");
             if(result){
                 var delete_url  = $(this).attr("href");
                 submit_ajax_datatable( delete_url,"",0,data_table_call);
