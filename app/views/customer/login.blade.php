@@ -15,7 +15,7 @@
                 <!-- progress bar indicator -->
                 <div class="login-progressbar-indicator">
                     <h3>43%</h3>
-                    <span>logging in...</span>
+                    <span>@lang("routes.CUST_PANEL_PAGE_LOGIN_MSG_LOGGING_PROCESS")</span>
                 </div>
             </div>
         </div>
@@ -25,8 +25,8 @@
         <div class="login-form">
             <div class="login-content">
                 <div class="form-login-error">
-                    <h3>@lang("routes.CUST_PANEL_LOGIN_HEADING_INVALID_LOGIN_TITLE")</h3>
-                    <p>@lang("routes.CUST_PANEL_LOGIN_HEADING_INVALID_LOGIN_MSG")</p>
+                    <h3>@lang("routes.CUST_PANEL_PAGE_LOGIN_HEADING_INVALID_LOGIN_TITLE")</h3>
+                    <p>@lang("routes.CUST_PANEL_PAGE_LOGIN_HEADING_INVALID_LOGIN_MSG")</p>
                 </div>
                 <form method="post" role="form" id="form_customer_login">
                     <div class="form-group">

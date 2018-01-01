@@ -3,13 +3,13 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>{{ucwords($data['chart_type'])}}</th>
-            <th>Calls</th>
-            <th>ACD (mm:ss)</th>
-            <th>ASR (%)</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_".strtoupper($data['chart_type']))</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_CALLS")</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_ACD")</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_ASR_IN_PERCENTAGE")</th> {{-- % --}}
             @if((int)Session::get('customer') == 0)
-            <th>Margin</th>
-            <th>Margin (%)</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_MARGIN")</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_MARGIN_IN_PERCENTAGE")</th>
             @endif
 
         </tr>
@@ -54,13 +54,13 @@
         <thead>
         <tr>
             <th>#</th>
-            <th>{{ucwords($data['chart_type'])}}</th>
-            <th>Cost</th>
-            <th>ACD (mm:ss)</th>
-            <th>ASR (%)</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_".strtoupper($data['chart_type']))</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_COST")</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_ACD")</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_ASR_IN_PERCENTAGE")</th>
             @if((int)Session::get('customer') == 0)
-            <th>Margin</th>
-            <th>Margin (%)</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_MARGIN")</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_MARGIN_IN_PERCENTAGE")</th>
             @endif
         </tr>
         </thead>
@@ -104,13 +104,13 @@
         <thead>
         <tr>
             <th>#</th>
-            <th>{{ucwords($data['chart_type'])}}</th>
-            <th>Minutes</th>
-            <th>ACD (mm:ss)</th>
-            <th>ASR (%)</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_".strtoupper($data['chart_type']))</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_MINUTES")</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_ACD")</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_ASR_IN_PERCENTAGE")</th>
             @if((int)Session::get('customer') == 0)
-            <th>Margin</th>
-            <th>Margin (%)</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_MARGIN")</th>
+            <th>@lang("routes.PAGE_WIDGETS_DATA_REPORT_TBL_MARGIN_IN_PERCENTAGE")</th>
             @endif
         </tr>
         </thead>

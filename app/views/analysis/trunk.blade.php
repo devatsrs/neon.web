@@ -4,7 +4,7 @@
         <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
             <!-- panel head -->
             <div class="panel-heading">
-                <div class="panel-title">@lang("routes.CUST_PANEL_ANALYSIS_TAB_TRUNK_LBL_BY_TRUNK_CALL_COUNT")</div>
+                <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_TAB_TRUNK_LBL_BY_TRUNK_CALL_COUNT")</div>
 
                 {{--<div class="panel-options">
                     <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -31,7 +31,7 @@
         <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
             <!-- panel head -->
             <div class="panel-heading">
-                <div class="panel-title">@lang("routes.CUST_PANEL_ANALYSIS_TAB_TRUNK_LBL_BY_TRUNK_CALL_COST")</div>
+                <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_TAB_TRUNK_LBL_BY_TRUNK_CALL_COST")</div>
 
                 {{--<div class="panel-options">
                     <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
@@ -58,7 +58,7 @@
         <div class="panel loading panel-default" data-collapsed="0"><!-- to apply shadow add class "panel-shadow" -->
             <!-- panel head -->
             <div class="panel-heading">
-                <div class="panel-title">@lang("routes.CUST_PANEL_ANALYSIS_TAB_TRUNK_LBL_BY_TRUNK_CALL_MINUTES")</div>
+                <div class="panel-title">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_TAB_TRUNK_LBL_BY_TRUNK_CALL_MINUTES")</div>
 
                 {{--<div class="panel-options">
                     <a href="#sample-modal" data-toggle="modal" data-target="#sample-modal-dialog-3" class="bg"><i class="entypo-cog"></i></a>
