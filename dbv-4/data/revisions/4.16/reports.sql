@@ -3949,7 +3949,7 @@ CREATE PROCEDURE `prc_getDistinctList`(
 BEGIN
 	DECLARE v_OffSet_ int;
 	DECLARE v_Round_ int;
-	
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 	SET v_OffSet_ = (p_PageNumber * p_RowspPage) - p_RowspPage;
@@ -3964,7 +3964,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		AND Title LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(*) AS totalcount
 		FROM Ratemanagement3.tblCompanyGateway 
@@ -3972,7 +3972,7 @@ BEGIN
 		AND Title LIKE CONCAT(p_Search,'%');
 
 	END IF;
-	
+
 	IF p_ColName = 'CountryID'
 	THEN
 
@@ -3982,14 +3982,14 @@ BEGIN
 		FROM Ratemanagement3.tblCountry
 		WHERE Country LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(*) AS totalcount
 		FROM Ratemanagement3.tblCountry
 		WHERE Country LIKE CONCAT(p_Search,'%');
 
 	END IF;
-	
+
 	IF p_ColName = 'AccountID' OR p_ColName = 'VAccountID'
 	THEN
 
@@ -4000,7 +4000,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		AND AccountName LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(*) AS totalcount
 		FROM Ratemanagement3.tblAccount
@@ -4008,7 +4008,7 @@ BEGIN
 		AND AccountName LIKE CONCAT(p_Search,'%');
 
 	END IF;
-	
+
 	IF p_ColName = 'ServiceID'
 	THEN
 
@@ -4019,7 +4019,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		AND ServiceName LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(*) AS totalcount
 		FROM Ratemanagement3.tblService 
@@ -4027,8 +4027,7 @@ BEGIN
 		AND ServiceName LIKE CONCAT(p_Search,'%');
 
 	END IF;
-	
-	
+
 	IF p_ColName = 'Trunk'
 	THEN
 
@@ -4040,7 +4039,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		AND Trunk LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(*) AS totalcount
 		FROM tblRTrunk
@@ -4048,7 +4047,7 @@ BEGIN
 		AND Trunk LIKE CONCAT(p_Search,'%');
 
 	END IF;
-	
+
 	IF p_ColName = 'CurrencyID'
 	THEN
 
@@ -4060,7 +4059,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		AND Code LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(*) AS totalcount
 		FROM Ratemanagement3.tblCurrency
@@ -4068,7 +4067,7 @@ BEGIN
 		AND Code LIKE CONCAT(p_Search,'%');
 
 	END IF;
-	
+
 	IF p_ColName = 'TaxRateID'
 	THEN
 
@@ -4080,7 +4079,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		AND Title LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(*) AS totalcount
 		FROM Ratemanagement3.tblTaxRate
@@ -4088,7 +4087,7 @@ BEGIN
 		AND Title LIKE CONCAT(p_Search,'%');
 
 	END IF;
-	
+
 	IF p_ColName = 'ProductID'
 	THEN
 
@@ -4100,7 +4099,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		AND Name LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(*) AS totalcount
 		FROM RMBilling3.tblProduct
@@ -4108,7 +4107,7 @@ BEGIN
 		AND Name LIKE CONCAT(p_Search,'%');
 
 	END IF;
-	
+
 	IF p_ColName = 'Code'
 	THEN
 
@@ -4120,7 +4119,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		AND Code LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(*) AS totalcount
 		FROM RMBilling3.tblProduct
@@ -4128,8 +4127,8 @@ BEGIN
 		AND Code LIKE CONCAT(p_Search,'%');
 
 	END IF;
-	
-	IF p_ColName = 'AreaPrefix'
+
+	IF p_ColName = 'AreaPrefix' OR p_ColName = 'area_prefix'
 	THEN
 
 		SELECT 
@@ -4140,7 +4139,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		AND Code LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(*) AS totalcount
 		FROM tblRRate
@@ -4148,7 +4147,7 @@ BEGIN
 		AND Code LIKE CONCAT(p_Search,'%');
 
 	END IF;
-	
+
 	IF p_ColName = 'DestinationBreak'
 	THEN
 
@@ -4163,7 +4162,7 @@ BEGIN
 		AND tblCodeDeck.DefaultCodedeck = 1
 		AND tblRate.Description LIKE CONCAT(p_Search,'%')
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(*) AS totalcount
 		FROM Ratemanagement3.tblRate
@@ -4174,7 +4173,7 @@ BEGIN
 		AND Description LIKE CONCAT(p_Search,'%');
 
 	END IF;
-	
+
 	IF p_ColName = 'GatewayAccountPKID' OR p_ColName = 'GatewayVAccountPKID'
 	THEN
 
@@ -4197,7 +4196,7 @@ BEGIN
 		AND (AccountIP <> '' OR AccountCLI <> '')
 		AND ( AccountIP LIKE CONCAT(p_Search,'%') OR AccountCLI LIKE CONCAT(p_Search,'%'))
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(
 			DISTINCT
@@ -4213,7 +4212,7 @@ BEGIN
 		AND ( AccountIP LIKE CONCAT(p_Search,'%') OR AccountCLI LIKE CONCAT(p_Search,'%'));
 
 	END IF;
-	
+
 	IF p_ColName = 'week_of_year'
 	THEN
 
@@ -4227,7 +4226,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		ORDER BY tblDimDate.week_of_year
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(DISTINCT tblDimDate.week_of_year) AS totalcount
 		FROM tblHeader
@@ -4236,7 +4235,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID;
 
 	END IF;
-	
+
 	IF p_ColName = 'month'
 	THEN
 
@@ -4250,7 +4249,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		ORDER BY tblDimDate.month_of_year
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(DISTINCT tblDimDate.month) AS totalcount
 		FROM tblHeader
@@ -4259,7 +4258,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID;
 
 	END IF;
-	
+
 	IF p_ColName = 'quarter_of_year'
 	THEN
 
@@ -4273,7 +4272,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		ORDER BY tblDimDate.quarter_of_year
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(DISTINCT tblDimDate.quarter_of_year) AS totalcount
 		FROM tblHeader
@@ -4282,7 +4281,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID;
 
 	END IF;
-	
+
 	IF p_ColName = 'year'
 	THEN
 
@@ -4296,7 +4295,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID
 		ORDER BY tblDimDate.year
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(DISTINCT tblDimDate.year) AS totalcount
 		FROM tblHeader
@@ -4305,7 +4304,7 @@ BEGIN
 		WHERE CompanyID = p_CompanyID;
 
 	END IF;
-	
+
 	IF p_ColName = 'hour'
 	THEN
 
@@ -4316,13 +4315,13 @@ BEGIN
 		FROM tblDimTime
 		ORDER BY tblDimTime.hour
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(DISTINCT tblDimTime.hour) AS totalcount
 		FROM tblDimTime;
 
 	END IF;
-	
+
 	IF p_ColName = 'minute'
 	THEN
 
@@ -4333,10 +4332,210 @@ BEGIN
 		FROM tblDimTime
 		ORDER BY tblDimTime.minute
 		LIMIT p_RowspPage OFFSET v_OffSet_;
-		
+
 		SELECT
 			COUNT(DISTINCT tblDimTime.minute) AS totalcount
 		FROM tblDimTime;
+
+	END IF;
+
+	IF p_ColName = 'pincode'
+	THEN
+
+		SELECT 
+			DISTINCT
+			pincode as hour1,
+			pincode
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND pincode LIKE CONCAT(p_Search,'%')
+		ORDER BY tblUsageDetails.pincode
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(DISTINCT tblUsageDetails.pincode) AS totalcount
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND pincode LIKE CONCAT(p_Search,'%');
+
+	END IF;
+
+	IF p_ColName = 'extension'
+	THEN
+
+		SELECT 
+			DISTINCT
+			extension as hour1,
+			extension
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND extension LIKE CONCAT(p_Search,'%')
+		ORDER BY tblUsageDetails.extension
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(DISTINCT tblUsageDetails.extension) AS totalcount
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND extension LIKE CONCAT(p_Search,'%');
+
+	END IF;
+
+	IF p_ColName = 'cli'
+	THEN
+
+		SELECT 
+			DISTINCT
+			cli as hour1,
+			cli
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND cli LIKE CONCAT(p_Search,'%')
+		ORDER BY tblUsageDetails.cli
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(DISTINCT tblUsageDetails.cli) AS totalcount
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND cli LIKE CONCAT(p_Search,'%');
+
+	END IF;
+
+	IF p_ColName = 'cld'
+	THEN
+
+		SELECT 
+			DISTINCT
+			cld as hour1,
+			cld
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND cld LIKE CONCAT(p_Search,'%')
+		ORDER BY tblUsageDetails.cld
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(DISTINCT tblUsageDetails.cld) AS totalcount
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND cld LIKE CONCAT(p_Search,'%');
+
+	END IF;
+
+	IF p_ColName = 'remote_ip'
+	THEN
+
+		SELECT 
+			DISTINCT
+			remote_ip as hour1,
+			remote_ip
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND remote_ip LIKE CONCAT(p_Search,'%')
+		ORDER BY tblUsageDetails.remote_ip
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(DISTINCT tblUsageDetails.remote_ip) AS totalcount
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND remote_ip LIKE CONCAT(p_Search,'%');
+
+	END IF;
+
+	IF p_ColName = 'is_inbound'
+	THEN
+
+		SELECT 
+			DISTINCT
+			is_inbound as hour1,
+			is_inbound
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND is_inbound LIKE CONCAT(p_Search,'%')
+		ORDER BY tblUsageDetails.is_inbound
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(DISTINCT tblUsageDetails.is_inbound) AS totalcount
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND is_inbound LIKE CONCAT(p_Search,'%');
+
+	END IF;
+
+	IF p_ColName = 'disposition'
+	THEN
+
+		SELECT 
+			DISTINCT
+			disposition as hour1,
+			disposition
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND disposition LIKE CONCAT(p_Search,'%')
+		ORDER BY tblUsageDetails.disposition
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(DISTINCT tblUsageDetails.disposition) AS totalcount
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND disposition LIKE CONCAT(p_Search,'%');
+
+	END IF;
+
+	IF p_ColName = 'userfield'
+	THEN
+
+		SELECT 
+			DISTINCT
+			userfield as hour1,
+			userfield
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND userfield LIKE CONCAT(p_Search,'%')
+		ORDER BY tblUsageDetails.userfield
+		LIMIT p_RowspPage OFFSET v_OffSet_;
+
+		SELECT
+			COUNT(DISTINCT tblUsageDetails.userfield) AS totalcount
+		FROM NeonCDRDev.tblUsageDetails
+		INNER JOIN NeonCDRDev.tblUsageHeader 
+			ON tblUsageDetails.UsageHeaderID = tblUsageHeader.UsageHeaderID
+		WHERE CompanyID = p_CompanyID
+		AND userfield LIKE CONCAT(p_Search,'%');
 
 	END IF;
 

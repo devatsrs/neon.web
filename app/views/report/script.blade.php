@@ -448,7 +448,7 @@
                     [
                         {"bSortable": false,
                             mRender: function(id, type, full) {
-                                return '<div class="checkbox "><input type="checkbox" name="'+$("#hidden_filter_col").val()+'[]" value="' + id + '" class="rowcheckbox" ></div>';
+                                return '<div class="checkbox "><input type="checkbox" name="'+$("#hidden_filter_col").val()+'[]" value="' + id.replace(/"/g,"&quot;") + '" class="rowcheckbox" ></div>';
                             }
                         }, //0Checkbox
                         { "bSortable": true}

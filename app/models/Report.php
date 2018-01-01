@@ -13,13 +13,104 @@ class Report extends \Eloquent {
     );
 
     public static $cube = array(
-        'summary'=>'Customer CDR',
-        'vsummary'=>'Vendor CDR',
+        'customercdr'=>'Customer CDR',
+        'vendorcdr'=>'Vendor CDR',
+        'summary'=>'Customer Summary',
+        'vsummary'=>'Vendor Summary',
         'invoice' => 'Invoice',
         'payment' => 'Payment'
     );
 
     public static $dimension = array(
+        'customercdr'=>array(
+            'Date'=>array(
+                'year' => 'Year',
+                'quarter_of_year' => 'Quarter' ,
+                'month_of_year' => 'Month',
+                'week_of_year' => 'Week',
+                'date' => 'Day',
+                'hour' => 'Hour',
+                'minute' => 'Minute',
+            ),
+            'Customer'=>array(
+                'AccountID'=>'AccountName',
+                'CurrencyID'=>'Currency',
+                'Number'=>'Number',
+                'Email'=>'Email',
+                'IsVendor'=>'IsVendor',
+                'IsCustomer'=>'IsCustomer',
+                'Address1'=>'Address1',
+                'City'=>'City',
+                'State'=>'State',
+                'PostCode'=>'PostCode',
+                'Country'=>'Country',
+                'BillingEmail'=>'BillingEmail',
+                'VatNumber'=>'VatNumber',
+                'TimeZone'=>'TimeZone',
+            ),
+            'CDR'=>array(
+                'connect_time'=>'Connect Time',
+                'disconnect_time'=>'Disconnect Time',
+                'area_prefix'=>'Area Prefix',
+                'pincode'=>'Pin Code',
+                'extension'=>'Extension',
+                'cli'=>'CLI',
+                'cld'=>'CLD',
+                'remote_ip'=>'Remote IP',
+                'trunk'=>'Trunk',
+                'is_inbound'=>'Inbound',
+                'disposition'=>'Disposition',
+                'userfield'=>'User Field',
+            ),
+            'Owner'=>'Account Manager',
+            'CompanyGatewayID' =>'Gateway',
+            'CountryID' => 'Country',
+            'DestinationBreak' => 'Destination Break',
+            'GatewayAccountPKID' => 'Customer IP/CLI',
+            'ServiceID' => 'Service Name',
+        ),
+        'vendorcdr'=>array(
+            'Date'=>array(
+                'year' => 'Year',
+                'quarter_of_year' => 'Quarter' ,
+                'month_of_year' => 'Month',
+                'week_of_year' => 'Week',
+                'date' => 'Day',
+                'hour' => 'Hour',
+                'minute' => 'Minute',
+            ),
+            'Vendor'=>array(
+                'AccountID'=>'AccountName',
+                'CurrencyID'=>'Currency',
+                'Number'=>'Number',
+                'Email'=>'Email',
+                'IsVendor'=>'IsVendor',
+                'IsCustomer'=>'IsCustomer',
+                'Address1'=>'Address1',
+                'City'=>'City',
+                'State'=>'State',
+                'PostCode'=>'PostCode',
+                'Country'=>'Country',
+                'BillingEmail'=>'BillingEmail',
+                'VatNumber'=>'VatNumber',
+                'TimeZone'=>'TimeZone',
+            ),
+            'CDR'=>array(
+                'connect_time'=>'Connect Time',
+                'disconnect_time'=>'Disconnect Time',
+                'area_prefix'=>'Area Prefix',
+                'cli'=>'CLI',
+                'cld'=>'CLD',
+                'remote_ip'=>'Remote IP',
+                'trunk'=>'Trunk'
+            ),
+            'Owner'=>'Account Manager',
+            'CompanyGatewayID' =>'Gateway',
+            'CountryID' => 'Country',
+            'DestinationBreak' => 'Destination Break',
+            'GatewayAccountPKID' => 'Customer IP/CLI',
+            'ServiceID' => 'Service Name',
+        ),
         'summary'=>array(
             'Date'=>array(
                 'year' => 'Year',
@@ -159,6 +250,19 @@ class Report extends \Eloquent {
     );
 
     public static $measures = array(
+        'customercdr'=>array(
+            'billed_duration' => 'Billed Duration (sec)',
+            'duration' => ' Duration (sec)',
+            'cost' => 'Cost',
+            'UsageDetailID' => ' Call Count',
+        ),
+        'vendorcdr'=>array(
+            'billed_duration' => 'Billed Duration (sec)',
+            'duration' => ' Duration (sec)',
+            'selling_cost' => 'Selling Cost',
+            'buying_cost' => 'Buying Cost',
+            'VendorCDRID' => ' Call Count',
+        ),
         'summary'=>array(
             'TotalCharges' => 'Revenue',
             'TotalCost' => 'Cost',
@@ -242,6 +346,12 @@ class Report extends \Eloquent {
                 break;
             case 'payment':
                 $response = ReportPayment::generateQuery($CompanyID,$data,$filters);
+                break;
+            case 'customercdr':
+                $response = ReportCustomerCDRs::generateSummaryQuery($CompanyID,$data,$filters);
+                break;
+            case 'vendorcdr':
+                $response = ReportVendorCDRs::generateSummaryQuery($CompanyID,$data,$filters);
                 break;
 
         }
