@@ -424,12 +424,11 @@
     function filter_data_table(){
         data_table_filter = $("#table-filter-list").dataTable({
             "bDestroy": true,
-            "bProcessing":true,
-            "bServerSide":true,
+            "bProcessing": false,
+            "bServerSide": false,
+            "bPaginate": false,
             "sAjaxSource": baseurl + "/report/getdatalist",
-            "iDisplayLength": 10,
-            "sPaginationType": "bootstrap",
-            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'<'change-view'> f>r> t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+            "sDom": "<'row'<'col-xs-1 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-11 col-right'<'change-view'> f>r> t<'row'<'col-xs-12 col-left'i>>",
             "aaSorting": [[0, 'asc']],
             "fnServerParams": function(aoData) {
                 aoData.push(
@@ -448,7 +447,7 @@
                     [
                         {"bSortable": false,
                             mRender: function(id, type, full) {
-                                return '<div class="checkbox "><input type="checkbox" name="'+$("#hidden_filter_col").val()+'[]" value="' + id.replace(/"/g,"&quot;") + '" class="rowcheckbox" ></div>';
+                                return '<div class="checkbox "><input type="checkbox" name="'+$("#hidden_filter_col").val()+'[]" value="' + id.toString().replace(/"/g,"&quot;") + '" class="rowcheckbox" ></div>';
                             }
                         }, //0Checkbox
                         { "bSortable": true}

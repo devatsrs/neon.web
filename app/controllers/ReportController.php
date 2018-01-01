@@ -226,9 +226,10 @@ class ReportController extends \BaseController {
     public function getdatalist(){
         $data = Input::all();
         $CompanyID = User::get_companyID();
-        $data['iDisplayStart'] +=1;
+        $data['iDisplayStart'] =1;
+        $data['iDisplayLength'] =1;
         $ColName = $data['filter_col_name'];
-        $search = $data['sSearch'];
+        $search = $data['sSearch'] = '';
         if(in_array($ColName,array('InvoiceType','InvoiceStatus','ProductType','PaymentMethod','PaymentType','Owner'))){
             return generate_manual_datatable_response($ColName);
         }

@@ -329,7 +329,7 @@
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane active" id="general" >
-                                <div class="row margin-top filter_data_table">
+                                <div class="row margin-top filter_data_table" style="max-height: 500px; overflow-y: auto; overflow-x: hidden;">
                                     <div class="col-md-12">
                                         <table class="table table-bordered datatable" id="table-filter-list">
                                             <thead>
