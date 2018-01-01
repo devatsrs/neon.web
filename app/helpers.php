@@ -1033,7 +1033,7 @@ function create_site_configration_cache(){
         $cache['Title']				=	'Neon';
         $cache['FooterText']		=	'&copy; '.date('Y').' Code Desk';
         $cache['FooterUrl']			=	'http://www.code-desk.com';
-        $cache['LoginMessage']		=	'Dear user, Please login below!';
+        $cache['LoginMessage']		=	trans("routes.CUST_PANEL_LOGIN_LBL_LOGIN_MSG");
         $cache['CustomCss']			=	'';
     }
 

@@ -602,6 +602,10 @@ var neonLogin = neonLogin || {};
             ctx.restore();
         }
 
+        $("#user_language").change(function(){
+            window.location.href=baseurl + "/customer/login?lang="+$("#user_language").val();
+        });
+
     });
 
 })(jQuery, window);

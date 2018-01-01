@@ -25,10 +25,18 @@
         <div class="login-form">
             <div class="login-content">
                 <div class="form-login-error">
-                    <h3>Invalid login</h3>
-                    <p>Enter correct login and password.</p>
+                    <h3>@lang("routes.CUST_PANEL_LOGIN_HEADING_INVALID_LOGIN_TITLE")</h3>
+                    <p>@lang("routes.CUST_PANEL_LOGIN_HEADING_INVALID_LOGIN_MSG")</p>
                 </div>
                 <form method="post" role="form" id="form_customer_login">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="entypo-globe"></i>
+                            </div>
+                            {{ Form::select('user_language', Translation::getLanguageDropdownList(), $language , array("class"=>"form-control ","id"=>"user_language")) }}
+                        </div>
+                    </div>
                     <div class="form-group">
                         <div class="input-group">
                             <div class="input-group-addon">
@@ -48,7 +56,7 @@
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary btn-block btn-login">
                             <i class="entypo-login"></i>
-                            Login
+                            @lang("routes.BUTTON_LOGIN_CAPTION")
                         </button>
                     </div>
                 </form>

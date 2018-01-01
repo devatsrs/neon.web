@@ -21,7 +21,7 @@
             <li>
                 <a href="{{URL::to('/customer/profile' )}}">
                     <i class="entypo-user"></i>
-                    Edit Profile
+                    @lang("routes.CUST_PANEL_HEAER_EDIT_PROFILE")
                 </a>
             </li>
         </ul>

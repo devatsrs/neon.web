@@ -3173,3 +3173,6 @@ button.btn.btn-xs.small_icons{
     overflow-y: auto;
 
 }
+select#user_language option {
+    color: black;
+}

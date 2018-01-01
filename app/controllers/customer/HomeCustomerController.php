@@ -16,7 +16,15 @@ class HomeCustomerController extends BaseController {
         }else{
             $loginpath='customer/dologin';
             create_site_configration_cache();
-            return View::make('customer.login',Compact('loginpath'));
+
+            if(isset($_GET["lang"]) && !empty($_GET["lang"])){
+                $language = $_GET["lang"];
+            }else{
+                $language=NeonCookie::getCookie('customer_language',"en");
+            }
+            App::setLocale($language);
+            NeonCookie::setCookie('customer_language',$language,365);
+            return View::make('customer.login',Compact('loginpath', "language"));
         }
 
     }
