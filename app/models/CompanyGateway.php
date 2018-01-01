@@ -407,6 +407,34 @@ class CompanyGateway extends \Eloquent {
                 log::info('--VOIPNOW CRONJOB END--');
 
                 CompanyGateway::createSummaryCronJobs(0);
+            }elseif(isset($GatewayName) && $GatewayName == 'VOS5000'){
+                log::info($GatewayName);
+                log::info('--VOS5000 FILE DOWNLOAD CRONJOB START--');
+
+                $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vos5000downloadcdr');
+                $DownloadSetting = CompanyConfiguration::get('VOS5000_DOWNLOAD_CRONJOB');
+                $DownloadJobTitle = $CompanyGateway->Title.' CDR File Download';
+                $DownloadTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $DownloadSettings = str_replace('"CompanyGatewayID":""',$DownloadTag,$DownloadSetting);
+
+                log::info($DownloadSettings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$DownloadCronJobCommandID,$DownloadSettings,$DownloadJobTitle);
+                log::info('--VOS5000 FILE DOWNLOAD CRONJOB END--');
+
+                log::info('--VOS5000 FILE PROCESS CRONJOB START--');
+
+                $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vos5000accountusage');
+                $ProcessSetting = CompanyConfiguration::get('VOS_PROCESS_CRONJOB');
+                $ProcessJobTitle = $CompanyGateway->Title.' CDR File Process';
+                $ProcessTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $ProcessSettings = str_replace('"CompanyGatewayID":""',$ProcessTag,$ProcessSetting);
+
+                log::info($ProcessSettings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$ProcessCronJobCommandID,$ProcessSettings,$ProcessJobTitle);
+                log::info('--VOS5000 FILE PROCESS CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(1);
+
             }
         }else{
             log::info('--Other CRONJOB START--');
