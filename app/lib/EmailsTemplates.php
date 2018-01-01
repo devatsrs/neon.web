@@ -54,6 +54,7 @@ class EmailsTemplates{
 				$message								=	 "";
 				$replace_array							=	$data;
 				$InvoiceData   							=  	Invoice::find($InvoiceID);
+				$InvoiceDetailPeriod 					= 	InvoiceDetail::where(["InvoiceID" => $InvoiceID,'ProductType'=>Product::INVOICE_PERIOD])->first();
 				$EmailTemplate 							= 	EmailTemplate::where(["SystemType"=>Invoice::EMAILTEMPLATE])->first();
 				$replace_array							=	EmailsTemplates::setCompanyFields($replace_array,$InvoiceData->CompanyID);
 				$replace_array 							=	EmailsTemplates::setAccountFields($replace_array,$InvoiceData->AccountID);
@@ -81,6 +82,14 @@ class EmailsTemplates{
 				}else{
 					$replace_array['InvoiceLink'] 			= 	 URL::to('/invoice/'.$InvoiceID.'/invoice_preview');
 				}
+
+				if(!empty($InvoiceDetailPeriod) && isset($InvoiceDetailPeriod->StartDate)) {
+					$replace_array['StartDate'] 			= 	 date('Y-m-d', strtotime($InvoiceDetailPeriod->StartDate));
+				}
+				if(!empty($InvoiceDetailPeriod) && isset($InvoiceDetailPeriod->EndDate)) {
+					$replace_array['EndDate'] 				= 	 date('Y-m-d', strtotime($InvoiceDetailPeriod->EndDate));
+				}
+
 				$replace_array['InvoiceNumber']			=	 $InvoiceData->FullInvoiceNumber;		
 				$RoundChargesAmount 					= 	 get_round_decimal_places($InvoiceData->AccountID);
 				$replace_array['InvoiceGrandTotal']		=	 number_format($InvoiceData->GrandTotal,$RoundChargesAmount);
@@ -91,7 +100,9 @@ class EmailsTemplates{
 				'{{InvoiceNumber}}',
 				'{{InvoiceGrandTotal}}',
 				'{{InvoiceOutstanding}}',
-				"{{InvoiceLink}}"
+				"{{InvoiceLink}}",
+				"{{StartDate}}",
+				"{{EndDate}}"
 			];
 			
 			$extraDefault	=	EmailsTemplates::$fields;

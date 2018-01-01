@@ -62,6 +62,8 @@
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceGrandTotal}}'>" + locale.invoiceoptions.InvoiceGrandTotal + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceOutstanding}}'>" + locale.invoiceoptions.InvoiceOutstanding + "</a></li>" +
 				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{InvoiceLink}}'>" + locale.invoiceoptions.InvoiceLink + "</a></li>" +	
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{StartDate}}'>" + locale.invoiceoptions.StartDate + "</a></li>" +
+				 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{EndDate}}'>" + locale.invoiceoptions.EndDate + "</a></li>" +
                /* "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingExcludeUnbilledAmount}}'>" + locale.invoiceoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{OutstandingIncludeUnbilledAmount}}'>" + locale.invoiceoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
                 "<li><a data-wysihtml5-command='insertHTML' data-wysihtml5-command-value='{{BalanceThreshold}}'>" + locale.invoiceoptions.BalanceThreshold + "</a></li>" +*/
@@ -1405,6 +1407,8 @@
                 Signature:"Signature",
 				CompanyName:"CompanyName",
 				InvoiceLink:"InvoiceLink",
+                StartDate:"StartDate",
+                EndDate:"EndDate",
 				AccountName:"AccountName",
 				Signature:"Signature",	 			
             }, 

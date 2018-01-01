@@ -45,10 +45,10 @@ class NeonExcelIO
         $this->file_type = self::$CSV;
         $this->set_file_type();
         $this->get_file_settings($csvoption);
-        if(self::$start_row>0)
+        /*if(self::$start_row>0)
         {
             self::$start_row--;
-        }
+        }*/
     }
 
 
@@ -599,10 +599,10 @@ class NeonExcelIO
 
                 $header_rows = $footer_rows = array();
                 $char_arr = array_combine(range('a','z'),range(1,26));
-                if($start_row > 1) {
-                    for($i=0;$i<intval($data["start_row"])-1;$i++) {
+                if($start_row > 0) {
+                    for($i=0;$i<intval($data["start_row"]);$i++) {
                         $row = array();
-                        for($j=0;$j<=$char_arr[strtolower($dcol)]-2;$j++) {
+                        for($j=0;$j<=$char_arr[strtolower($dcol)]-1;$j++) {
                             $row[$j] = "";
                         }
                         $header_rows[$i] = $row;
@@ -668,7 +668,7 @@ class NeonExcelIO
         $process_time1 = strtotime($end_time1) - strtotime($start_time1);
         Log::info('getHighestDataColumn function call time : ' . $process_time1 . ' Seconds');
 
-        $start_row = intval(self::$start_row) + 2;
+        $start_row = intval(self::$start_row) + 1;
         $end_row   = $limit > 0 ? ($start_row + $limit) : ($drow - self::$end_row);
         //$end_row   = ($drow - intval(self::$end_row));
 
@@ -710,7 +710,7 @@ class NeonExcelIO
         } else {
             $result = $all_rows;
         }
-        Log::info(print_r($result, true));
+        //Log::info(print_r($result, true));
 
         return $result;
     }

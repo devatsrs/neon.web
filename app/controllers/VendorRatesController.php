@@ -621,7 +621,7 @@ class VendorRatesController extends \BaseController
             $grid['filename'] = $data['TemplateFile'];
             $grid['tempfilename'] = $data['TempFileName'];
             if ($data['uploadtemplate'] > 0) {
-                $VendorFileUploadTemplate = VendorFileUploadTemplate::find($data['uploadtemplate']);
+                $VendorFileUploadTemplate = FileUploadTemplate::find($data['uploadtemplate']);
                 $grid['VendorFileUploadTemplate'] = json_decode(json_encode($VendorFileUploadTemplate), true);
                 //$grid['VendorFileUploadTemplate']['Options'] = json_decode($VendorFileUploadTemplate->Options,true);
             }
@@ -996,6 +996,8 @@ class VendorRatesController extends \BaseController
         $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
         $FileUploadTemplateID = "";
 
+        $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
+
         if(!empty($data['TemplateName'])){
             if(!empty($data['uploadtemplate'])) {
                 $data['FileUploadTemplateID'] = $data['uploadtemplate'];
@@ -1013,7 +1015,6 @@ class VendorRatesController extends \BaseController
             }
         } else {
             $file_name = basename($data['TemplateFile']);
-            $temp_path = CompanyConfiguration::get('TEMP_PATH').'/' ;
             $destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
             copy($temp_path . $file_name, $destinationPath . $file_name);
             if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
@@ -1127,15 +1128,19 @@ class VendorRatesController extends \BaseController
                 }
             };
 
-            if(isset($templateoptions->skipRows))
-            {
-                $skiptRows=$templateoptions->skipRows;
-                NeonExcelIO::$start_row=$skiptRows->start_row;
-                NeonExcelIO::$end_row=$skiptRows->end_row;
-                $lineno = 1+$skiptRows->start_row;
-            }else if ($csvoption->Firstrow == 'data') {
+            if(isset($templateoptions->skipRows) && $csvoption->Firstrow == 'columnname') {
+                $skiptRows              = $templateoptions->skipRows;
+                NeonExcelIO::$start_row = intval($skiptRows->start_row);
+                NeonExcelIO::$end_row   = intval($skiptRows->end_row);
+                $lineno                 = intval($skiptRows->start_row) + 2;
+            } else if (isset($templateoptions->skipRows) && $csvoption->Firstrow == 'data') {
+                $skiptRows              = $templateoptions->skipRows;
+                NeonExcelIO::$start_row = intval($skiptRows->start_row);
+                NeonExcelIO::$end_row   = intval($skiptRows->end_row);
+                $lineno                 = intval($skiptRows->start_row) + 1;
+            } else if ($csvoption->Firstrow == 'data') {
                 $lineno = 1;
-            }else{
+            } else {
                 $lineno = 2;
             }
 
