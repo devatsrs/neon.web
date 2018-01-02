@@ -40,7 +40,7 @@ function getWorldMap(submit_data){
                         submit_data_new = jQuery.extend({}, submit_data);
                         submit_data_new.CountryID = data.CountryChart[code].CountryID;
                         submit_data_new.chart_type = 'prefix';
-						$('#modal-map h4').html('Traffic By Prefix ( '+data.CountryChart[code].Country+' ) ');
+						$('#modal-map h4 span').html(' ( '+data.CountryChart[code].Country+' ) ');
                         $('#modal-map').modal('show');
                         loadTable('#map_destination_table',submit_data_new.pageSize,submit_data_new)
                     }
