@@ -2,7 +2,7 @@
 @section('content')
 <ol class="breadcrumb bc-3">
     <li>
-            <a href="#"><i class="entypo-home"></i>Settings</a>
+            <a href="#"><i class="entypo-home"></i>@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_SETTINGS_TITLE")</a>
     </li>
 </ol>
 <h3>Settings</h3>
@@ -10,18 +10,18 @@
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
     <li class="active">
         <a href="{{ URL::to('/customer/customers_rates') }}" >
-            Settings
+            @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_SETTINGS_TITLE")
         </a>
     </li>
     <li>
         <a href="{{ URL::to('/customer/customers_rates/rate') }}" >
-            Outbound Rate
+            @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_OUTBOUND_RATE_TITLE")
         </a>
     </li>
     @if(isset($displayinbound) && $displayinbound>0)
     <li>
         <a href="{{ URL::to('/customer/customers_rates/inboundrate') }}" >
-            Inbound Rate
+            @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_INBOUND_RATE_TITLE")
         </a>
     </li>
     @endif
@@ -34,7 +34,7 @@
                 <div class="panel panel-primary" data-collapsed="0">
                     <div class="panel-heading">
                         <div class="panel-title">
-                            Outgoing
+                            @lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_SETTINGS_TAB_OUTGOING_TITLE")
                         </div>
                         <div class="panel-options">
                             <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
@@ -45,8 +45,8 @@
                             <thead>
                                 <tr>
                                     <!--<th width="1%"><div class="checkbox "><input type="checkbox" id="selectall" name="checkbox[]" class="" ></div></th>-->
-                                    <th width="10%">Trunk</th>
-                                    <th width="10%">Prefix</th>
+                                    <th width="10%">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_SETTINGS_TAB_OUTGOING_TBL_TRUNK")</th>
+                                    <th width="10%">@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_TAB_SETTINGS_TAB_OUTGOING_TBL_PREFIX")</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -62,7 +62,7 @@
                                 @endforeach
                             @endif
                             @if(empty($activetrunks) && count($activetrunks)==0)
-                                <tr class="odd"><td valign="top" colspan="2" class="dataTables_empty">No data available in table</td></tr>
+                                <tr class="odd"><td valign="top" colspan="2" class="dataTables_empty">@lang("routes.MESSAGE_DATA_NOT_AVAILABLE")</td></tr>
                             @endif
                             </tbody>
                         </table>
