@@ -514,7 +514,10 @@ $(document).ready(function(){
     });
 	
 	$("#AccountBillingClassID").change( function (e) {
-		
+		if($("select[name=AccountID]").val() == '') {
+            toastr.error("Please Select Client first.", "Error", toastr_opts);
+            return false;
+        }
         url = baseurl + "/invoice/get_billingclass_info";
         $this = $(this);
         data = {BillingClassID:$this.val(),account_id:$("select[name=AccountID]").val()}
