@@ -233,7 +233,7 @@ class ReportController extends \BaseController {
         if(in_array($ColName,array('InvoiceType','InvoiceStatus','ProductType','PaymentMethod','PaymentType','Owner'))){
             return generate_manual_datatable_response($ColName);
         }
-        $Accountschema = Report::$dimension['summary']['Customer'];
+        $Accountschema = array_keys(Report::$dimension['summary']['Customer']);
         if(in_array($ColName,$Accountschema) && $ColName != 'AccountID'){
             $accounts = Account::where(["AccountType" => 1, "CompanyID" => $CompanyID, "Status" => 1])
                 ->select(array($ColName.' as 2',$ColName))
