@@ -178,9 +178,10 @@
                                 var filename = response.Filename;
 
                                 if($('.table_'+$("#form-upload [name='AccountApprovalID']").val()).html().trim() === ''){
-                                    $('.table_'+$("#form-upload [name='AccountApprovalID']").val()).html('<table class="table table-bordered datatable dataTable "><thead><tr><th>File Name</th><th>Action</th></tr></thead><tbody class="doc_'+$("#form-upload [name='AccountApprovalID']").val()+'"></tbody></table>');
+                                    $('.table_'+$("#form-upload [name='AccountApprovalID']").val()).html('<table class="table table-bordered datatable dataTable "><thead><tr><th>@lang('routes.CUST_PANEL_PAGE_PROFILE_TBL_FILE_NAME')</th><th>@lang('routes.TABLE_COLUMN_ACTION')</th></tr></thead><tbody class="doc_'+$("#form-upload [name='AccountApprovalID']").val()+'"></tbody></table>');
                                 }
-                                var down_html = $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html()+'<tr><td>'+filename+'</td><td><a class="btn btn-success btn-sm btn-icon icon-left"  href="'+url3+'" title="" ><i class="entypo-down"></i>Download</a> <a class="btn  btn-danger delete-doc btn-sm btn-icon icon-left"  href="'+delete_doc_url+'" title="" ><i class="entypo-trash"></i>Delete</a></td></tr>';
+
+                                var down_html = $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html()+'<tr><td>'+filename+'</td><td><a class="btn btn-success btn-sm btn-icon icon-left"  href="'+url3+'" title="" ><i class="entypo-down"></i>Download</a> <a class="btn  btn-danger delete-doc btn-sm btn-icon icon-left"  href="'+delete_doc_url+'" title="" ><i class="entypo-trash"></i>@lang("routes.BUTTON_DELETE_CAPTION")</a></td></tr>';
                                 $('.doc_'+$("#form-upload [name='AccountApprovalID']").val()).html(down_html);
                                 if(response.refresh){
                                     setTimeout(function(){window.location.reload()},1000);
@@ -210,7 +211,7 @@
 
             $('body').on('click', '.delete-doc', function(e) {
                 e.preventDefault();
-                result = confirm("Are you Sure?");
+                result = confirm("@lang('routes.MESSAGE_ARE_YOU_SURE')");
                 if(result){
                     submit_ajax($(this).attr('href'),'AccountID=AccountID')
                     $(this).parent().parent('tr').remove();

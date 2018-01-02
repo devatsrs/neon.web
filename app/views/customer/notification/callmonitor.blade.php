@@ -195,7 +195,7 @@
         });
         $('table tbody').on('click', '.delete-call-alert', function (ev) {
             ev.preventDefault();
-            result = confirm("@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_TBL_DELETE_CARD_MSG')");
+            result = confirm("@lang('routes.MESSAGE_ARE_YOU_SURE')");
             if(result){
                 var delete_url  = $(this).attr("href");
                 submit_ajax_datatable( delete_url,"",0,data_table_call);

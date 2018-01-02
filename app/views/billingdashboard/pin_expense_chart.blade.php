@@ -4,7 +4,7 @@
     </div>
 @else
      <center>
-        @lang('routes.DATA_NOT_AVAILABLE')
+        @lang('routes.MESSAGE_DATA_NOT_AVAILABLE')
     </center>
 @endif
 <script type="text/javascript">

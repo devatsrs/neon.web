@@ -152,7 +152,7 @@
                         }
                         //onDelete Click
                         FnDeleteBankAccount = function(e){
-                            result = confirm("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_DELETE_CARD_MSG')");
+                            result = confirm("@lang('routes.MESSAGE_ARE_YOU_SURE')");
                             if(result){
                                 var id  = $(this).attr("data-id");
                                 $('#table-4_processing').css('visibility','visible');

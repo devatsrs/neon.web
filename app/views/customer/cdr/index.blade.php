@@ -203,11 +203,11 @@ var rate_cdr = jQuery.parseJSON('{{json_encode($rate_cdr)}}');
 
 
             if(typeof $searchFilter.StartDate  == 'undefined' || $searchFilter.StartDate.trim() == ''){
-                toastr.error("Please Select a Start date", "Error", toastr_opts);
+                toastr.error("@lang('routes.MESSAGE_SELECT_START_DATE')", "Error", toastr_opts);
                 return false;
             }
             if(typeof $searchFilter.EndDate  == 'undefined' || $searchFilter.EndDate.trim() == ''){
-                toastr.error("Please Select a End date", "Error", toastr_opts);
+                toastr.error("@lang('routes.MESSAGE_SELECT_END_DATE')", "Error", toastr_opts);
                 return false;
             }
             $searchFilter.StartDate += ' '+starttime;
