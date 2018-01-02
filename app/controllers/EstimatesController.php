@@ -194,7 +194,7 @@ class EstimatesController extends \BaseController {
             ///////////
             $rules = array(
                 'CompanyID' => 'required',
-                'AccountID' => 'required',
+                'AccountID' => 'required|integer|min:1',
                 'Address' => 'required',
 				'BillingClassID'=> 'required',
                 'EstimateNumber' => 'required|unique:tblEstimate,EstimateNumber,NULL,EstimateID,CompanyID,'.$companyID,
@@ -202,7 +202,7 @@ class EstimatesController extends \BaseController {
                 'CurrencyID' => 'required',
                 'GrandTotal' => 'required',
             );
-			$message = ['BillingClassID.required'=>'Billing Class field is required'];
+            $message = ['BillingClassID.required'=>'Billing Class field is required','AccountID'=>'Client field is required','AccountID.min'=>'Client field is required'];
 			
             $verifier = App::make('validation.presence');
             $verifier->setConnection('sqlsrv2');
@@ -214,8 +214,12 @@ class EstimatesController extends \BaseController {
 			{
                 return json_validator_response($validator);
             }
-            
-			try
+
+            if(empty($data["EstimateDetail"])) {
+                return json_encode(["status"=>"failed","message"=>"Please select atleast one item."]);
+            }
+
+            try
 			{	
                 DB::connection('sqlsrv2')->beginTransaction();
                 $Estimate = Estimate::create($EstimateData);
@@ -238,8 +242,12 @@ class EstimatesController extends \BaseController {
                         }
                         else if($field == "ProductID")
                         {
-                            $pid = explode('-',$value);
-                            $EstimateDetailData[$i][$field] = $pid[1];
+                            if(!empty($value)) {
+                                $pid = explode('-',$value);
+                                $EstimateDetailData[$i][$field] = $pid[1];
+                            } else {
+                                $EstimateDetailData[$i][$field] = "";
+                            }
                         }
 						else
 						{
@@ -330,7 +338,7 @@ class EstimatesController extends \BaseController {
 				 if(!empty($EstimateAllTaxRates)) { //estimate tax
                     DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateAllTaxRates);
                 }
-Log::info(print_r($EstimateDetailData,true));
+//Log::info(print_r($EstimateDetailData,true));
                 if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
 				{
                     $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
@@ -417,6 +425,10 @@ Log::info(print_r($EstimateDetailData,true));
                 return json_validator_response($validator);
             }
 
+            if(empty($data["EstimateDetail"])) {
+                return json_encode(["status"=>"failed","message"=>"Please select atleast one item."]);
+            }
+
             try
 			{
                 DB::connection('sqlsrv2')->beginTransaction();
@@ -448,8 +460,12 @@ Log::info(print_r($EstimateDetailData,true));
                                 }
                                 else if($field == "ProductID")
                                 {
-                                    $pid = explode('-',$value);
-                                    $EstimateDetailData[$i][$field] = $pid[1];
+                                    if(!empty($value)) {
+                                        $pid = explode('-',$value);
+                                        $EstimateDetailData[$i][$field] = $pid[1];
+                                    } else {
+                                        $EstimateDetailData[$i][$field] = "";
+                                    }
                                 }
 								else
 								{
@@ -540,7 +556,7 @@ Log::info(print_r($EstimateDetailData,true));
                             DB::connection('sqlsrv2')->table('tblEstimateTaxRate')->insert($EstimateAllTaxRates);
                         }
 
-                        if (EstimateDetail::insert($EstimateDetailData))
+                        if (!empty($EstimateDetailData) && EstimateDetail::insert($EstimateDetailData))
 						{
                             $pdf_path = Estimate::generate_pdf($Estimate->EstimateID);
 							
@@ -557,6 +573,11 @@ Log::info(print_r($EstimateDetailData,true));
 
                             DB::connection('sqlsrv2')->commit();
                             return Response::json(array("status" => "success", "message" => "Estimate Successfully Updated", 'LastID' => $Estimate->EstimateID));
+                        }
+                        else
+                        {
+                            DB::connection('sqlsrv2')->rollback();
+                            return Response::json(array("status" => "failed", "message" => "Problem Updating Estimate."));
                         }
                     }
 					else
