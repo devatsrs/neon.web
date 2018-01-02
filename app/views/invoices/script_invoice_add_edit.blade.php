@@ -63,7 +63,8 @@ $(document).ready(function(){
         var optgroup = $(this).find(":selected").parents('optgroup');
         var $row = $this.parents("tr");
         //console.log($this.val());
-        var productID = $this.val();
+        var productID = $this.val().split('-')[1];
+        //productID = productID[1];
         var AccountID = $('select[name=AccountID]').val();
         var InvoiceDetailID = $row.find('.InvoiceDetailID').val();
         var  selected_product_type = optgroup.prop('label')==txtSUBSCRIPTION?SUBSCRIPTION:optgroup.prop('label')==txtITEM?ITEM:'';
@@ -544,7 +545,7 @@ $(document).ready(function(){
 		$('.all_tax_row').remove();
 		if(AccountTaxRate.length>0){			
 			AccountTaxRate.forEach(function(entry,index) {
-				console.log(index+'-'+entry);
+				//console.log(index+'-'+entry);
 				if(index==0){
 					$('.InvoiceTaxesFldFirst').val(entry);
 					var change = $('.InvoiceTaxesFldFirst');

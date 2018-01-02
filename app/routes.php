@@ -1112,15 +1112,15 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/paymentprofile/{id}', 'AccountsPaymentProfileController@index');
     Route::any('/paymentprofile/{id}/ajax_datagrid', 'AccountsPaymentProfileController@ajax_datagrid');
 
-    //VendorFileUploadTemplate
-    Route::any('/uploadtemplate','VendorFileUploadTemplateController@index');
-    Route::any('/uploadtemplate/ajax_datagrid/{type}','VendorFileUploadTemplateController@ajax_datagrid');
-    Route::any('/uploadtemplate/ajaxfilegrid','VendorFileUploadTemplateController@ajaxfilegrid');
-    Route::any('/uploadtemplate/create','VendorFileUploadTemplateController@create');
-    Route::any('/uploadtemplate/{id}/edit','VendorFileUploadTemplateController@edit');
-    Route::any('/uploadtemplate/update','VendorFileUploadTemplateController@update');
-    Route::any('/uploadtemplate/{id}/delete','VendorFileUploadTemplateController@delete');
-    Route::any('/uploadtemplate/store','VendorFileUploadTemplateController@store');
+    //FileUploadTemplate
+    Route::any('/uploadtemplate','FileUploadTemplateController@index');
+    Route::any('/uploadtemplate/ajax_datagrid/{type}','FileUploadTemplateController@ajax_datagrid');
+    Route::any('/uploadtemplate/ajaxfilegrid','FileUploadTemplateController@ajaxfilegrid');
+    Route::any('/uploadtemplate/create','FileUploadTemplateController@create');
+    Route::any('/uploadtemplate/{id}/edit','FileUploadTemplateController@edit');
+    Route::any('/uploadtemplate/update','FileUploadTemplateController@update');
+    Route::any('/uploadtemplate/{id}/delete','FileUploadTemplateController@delete');
+    Route::any('/uploadtemplate/store','FileUploadTemplateController@store');
 
     //VendorProfiling
     Route::any('/vendor_profiling','VendorProfilingController@index');

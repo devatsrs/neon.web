@@ -82,6 +82,8 @@ var dropdown_text =  {
         InvoiceNumber:"InvoiceNumber",
         InvoiceGrandTotal:"InvoiceGrandTotal",
         InvoiceOutstanding:"InvoiceOutstanding",
+        StartDate:"StartDate",
+        EndDate:"EndDate",
         OutstandingExcludeUnbilledAmount:"OutstandingExcludeUnbilledAmount",
         OutstandingIncludeUnbilledAmount:"OutstandingIncludeUnbilledAmount",
         BalanceThreshold:"BalanceThreshold",
@@ -347,6 +349,8 @@ var neon_summernote_dropdown_tpl = {
             "<li><a data-value='{{InvoiceGrandTotal}}'>" + dropdown_text.invoiceoptions.InvoiceGrandTotal + "</a></li>" +
             "<li><a data-value='{{InvoiceOutstanding}}'>" + dropdown_text.invoiceoptions.InvoiceOutstanding + "</a></li>" +
             "<li><a data-value='{{InvoiceLink}}'>" + dropdown_text.invoiceoptions.InvoiceLink + "</a></li>" +
+            "<li><a data-value='{{StartDate}}'>" + dropdown_text.invoiceoptions.StartDate + "</a></li>" +
+            "<li><a data-value='{{EndDate}}'>" + dropdown_text.invoiceoptions.EndDate + "</a></li>" +
                 /* "<li><a data-value='{{OutstandingExcludeUnbilledAmount}}'>" + dropdown_text.invoiceoptions.OutstandingExcludeUnbilledAmount + "</a></li>" +
                  "<li><a data-value='{{OutstandingIncludeUnbilledAmount}}'>" + dropdown_text.invoiceoptions.OutstandingIncludeUnbilledAmount + "</a></li>" +
                  "<li><a data-value='{{BalanceThreshold}}'>" + dropdown_text.invoiceoptions.BalanceThreshold + "</a></li>" +*/

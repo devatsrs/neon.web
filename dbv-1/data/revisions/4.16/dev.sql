@@ -696,7 +696,7 @@ BEGIN
 			SELECT 1 into V_Ticket_Permission_level;
 			IF p_Admin > 0
 			THEN
-				SELECT DISTINCT GroupEmailAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupEmailAddress IS NOT NULL
+				SELECT DISTINCT GroupReplyAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupReplyAddress IS NOT NULL
 					UNION ALL
 				SELECT  tc.EmailFrom as EmailFrom FROM tblCompany tc where tc.EmailFrom IS NOT NULL AND tc.EmailFrom <> ''
 					UNION ALL
@@ -704,7 +704,7 @@ BEGIN
 			END IF;
 			IF p_Admin < 1
 			THEN
-				SELECT DISTINCT GroupEmailAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupEmailAddress IS NOT NULL
+				SELECT DISTINCT GroupReplyAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupReplyAddress IS NOT NULL
 					UNION ALL
 				SELECT  tc.EmailFrom as EmailFrom FROM tblCompany tc where tc.EmailFrom IS NOT NULL AND tc.EmailFrom <> ''
 					UNION ALL
@@ -716,7 +716,7 @@ BEGIN
 			THEN
 				SELECT 0 into V_Ticket_Permission;
 				SELECT
-				
+
 				count(*) into V_Ticket_Permission
 			FROM
 				tblUser u
@@ -736,7 +736,7 @@ BEGIN
 
 			IF p_Admin > 0
 			THEN
-				SELECT DISTINCT GroupEmailAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupEmailAddress IS NOT NULL AND FIND_IN_SET(GroupID,V_User_Groups)
+				SELECT DISTINCT GroupReplyAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupReplyAddress IS NOT NULL AND FIND_IN_SET(GroupID,V_User_Groups)
 					UNION ALL
 				SELECT  tc.EmailFrom as EmailFrom FROM tblCompany tc where tc.EmailFrom IS NOT NULL AND tc.EmailFrom <> ''
 					UNION ALL
@@ -744,7 +744,7 @@ BEGIN
 			END IF;
 			IF p_Admin < 1
 			THEN
-				SELECT DISTINCT GroupEmailAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupEmailAddress IS NOT NULL AND FIND_IN_SET(GroupID,V_User_Groups)
+				SELECT DISTINCT GroupReplyAddress as EmailFrom FROM tblTicketGroups where CompanyID = p_CompanyID and GroupEmailStatus = 1 and GroupReplyAddress IS NOT NULL AND FIND_IN_SET(GroupID,V_User_Groups)
 					UNION ALL
 				SELECT  tc.EmailFrom as EmailFrom FROM tblCompany tc where tc.EmailFrom IS NOT NULL AND tc.EmailFrom <> ''
 					UNION ALL
@@ -759,7 +759,7 @@ BEGIN
 			SELECT 3 into V_Ticket_Permission_level;
 			IF p_Admin > 0
 			THEN
-				SELECT DISTINCT TG.GroupEmailAddress as EmailFrom FROM tblTicketGroups TG INNER JOIN tblTickets TT ON TT.Group = TG.GroupID where TG.CompanyID = p_CompanyID and GroupEmailStatus = 1 and TG.GroupEmailAddress IS NOT NULL AND TT.Agent = p_userID
+				SELECT DISTINCT TG.GroupReplyAddress as EmailFrom FROM tblTicketGroups TG INNER JOIN tblTickets TT ON TT.Group = TG.GroupID where TG.CompanyID = p_CompanyID and GroupEmailStatus = 1 and TG.GroupReplyAddress IS NOT NULL AND TT.Agent = p_userID
 					UNION ALL
 				SELECT  tc.EmailFrom as EmailFrom FROM tblCompany tc where tc.EmailFrom IS NOT NULL AND tc.EmailFrom <> ''
 					UNION ALL
@@ -767,7 +767,7 @@ BEGIN
 			END IF;
 			IF p_Admin < 1
 			THEN
-				SELECT DISTINCT TG.GroupEmailAddress as EmailFrom FROM tblTicketGroups TG INNER JOIN tblTickets TT ON TT.Group = TG.GroupID where TG.CompanyID = p_CompanyID and GroupEmailStatus = 1 and TG.GroupEmailAddress IS NOT NULL AND TT.Agent = p_userID
+				SELECT DISTINCT TG.GroupReplyAddress as EmailFrom FROM tblTicketGroups TG INNER JOIN tblTickets TT ON TT.Group = TG.GroupID where TG.CompanyID = p_CompanyID and GroupEmailStatus = 1 and TG.GroupReplyAddress IS NOT NULL AND TT.Agent = p_userID
 					UNION ALL
 				SELECT  tc.EmailFrom as EmailFrom FROM tblCompany tc where tc.EmailFrom IS NOT NULL AND tc.EmailFrom <> ''
 					UNION ALL
@@ -5975,7 +5975,7 @@ ThisSP:BEGIN
 
  -- LEAVE ThisSP;
 
-   
+   	-- if no error
     IF newstringcode = 0
     THEN
 
@@ -5997,7 +5997,7 @@ ThisSP:BEGIN
 			-- update end date on temp table 
 			 UPDATE tmp_TempVendorRate_ tblTempVendorRate 
           JOIN tblVendorRateChangeLog vrcl
-          		 ON  tblTempVendorRate.ProcessId = p_processId
+          		 ON  vrcl.ProcessId = p_processId
           		 AND vrcl.Code = tblTempVendorRate.Code
         			 -- AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
         	SET 		
@@ -6010,7 +6010,7 @@ ThisSP:BEGIN
 			-- update intervals.
 		   UPDATE tmp_TempVendorRate_ tblTempVendorRate 
           JOIN tblVendorRateChangeLog vrcl
-          		 ON  tblTempVendorRate.ProcessId = p_processId
+          		 ON  vrcl.ProcessId = p_processId
           		 AND vrcl.Code = tblTempVendorRate.Code
         			 -- AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
         	SET 		
@@ -6295,24 +6295,21 @@ ThisSP:BEGIN
 			  	  -- CALL prc_InsertDiscontinuedVendorRate(p_accountId,p_trunkId);
 			
 			
-			-- update Intervals which are not maching with tblVendorRate
+			-- Update Interval Changed for Action = "New"
+			-- update Intervals which are not maching with tblTempVendorRate
 			-- so as if intervals will not mapped next time it will be same as last file.
-    				UPDATE tblRate 
+    				UPDATE tblRate
                  JOIN tmp_TempVendorRate_ as tblTempVendorRate
 						ON 	  tblRate.CompanyID = p_companyId
-							 AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId 			 
-							 AND tblTempVendorRate.Code = tblRate.Code						
+							 AND tblRate.CodeDeckId = tblTempVendorRate.CodeDeckId
+							 AND tblTempVendorRate.Code = tblRate.Code
 							AND  tblTempVendorRate.ProcessId = p_processId
 							AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')
-						JOIN  tblVendorRate
-							ON
-							tblRate.RateID = tblVendorRate.RateId 
-	         		 SET 
+	         		 SET
                     tblRate.Interval1 = tblTempVendorRate.Interval1,
                     tblRate.IntervalN = tblTempVendorRate.IntervalN
-				     WHERE tblVendorRate.AccountId = p_accountId
-                		 AND tblVendorRate.TrunkId = p_trunkId
-                		 AND tblTempVendorRate.Interval1 IS NOT NULL 
+				     WHERE
+                		     tblTempVendorRate.Interval1 IS NOT NULL
 							 AND tblTempVendorRate.IntervalN IS NOT NULL 
                 		 AND 
 							  (
@@ -6615,7 +6612,8 @@ ThisSP:BEGIN
 
 					SET @EffectiveDate = ( SELECT EffectiveDate FROM tmp_EffectiveDates_ WHERE RowID = v_pointer_ );
 					SET @row_num = 0;
-					 	
+					
+						 	
 					UPDATE  tblVendorRate vr1
 	         	inner join
 	         	(
@@ -6632,6 +6630,7 @@ ThisSP:BEGIN
 		                    JOIN tmp_TempVendorRate_ as tblTempVendorRate
 		                   		 ON tblTempVendorRate.Code = tblRate.Code
 		                   			 AND  tblTempVendorRate.ProcessId = p_processId
+		                   			 AND tblTempVendorRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block') -- do not update end date of deleted records (end date may be overwritten)
 		                    WHERE vr2.AccountId = p_accountId
 		                   		 AND vr2.TrunkId = p_trunkId
 		            				AND vr2.EffectiveDate <  @EffectiveDate
@@ -6651,7 +6650,7 @@ ThisSP:BEGIN
 						AND vr1.TrunkID = p_trunkId
 						AND vr1.EffectiveDate < @EffectiveDate;
 
-         	
+         	 
 					
 				 
 						
@@ -6671,8 +6670,9 @@ ThisSP:BEGIN
 	call prc_ArchiveOldVendorRate(p_accountId,p_trunkId);
 		
 	
- 	 SELECT * FROM tmp_JobLog_;
+ 	SELECT * FROM tmp_JobLog_;
     DELETE  FROM tblTempVendorRate WHERE  ProcessId = p_processId;
+	DELETE  FROM tblVendorRateChangeLog WHERE ProcessID = p_processId;
 
 	 SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END//
@@ -6967,23 +6967,16 @@ ThisSP:BEGIN
 												and vr1.RateID = vr2.RateID
 												AND vr2.EffectiveDate  = @EffectiveDate
 			                          where
-			                          vr1.AccountID = p_accountId AND vr1.TrunkID = 1
+			                          vr1.AccountID = p_accountId AND vr1.TrunkID = p_trunkId
 			                          and vr1.EffectiveDate < COALESCE(vr2.EffectiveDate,@EffectiveDate)   
 			                          order by vr1.RateID desc ,vr1.EffectiveDate desc
-			                          
-			                          
-                         
-                         	/*select distinct vr1.*
-                         	from tblVendorRate vr1
-                         	inner join tblVendorRate vr2
-                         	on vr1.AccountID = vr2.AccountID  and vr1.TrunkID = vr2.TrunkID and vr1.RateID = vr2.RateID
-                         	where
-                         	vr1.AccountID = p_accountId AND vr1.TrunkID = p_trunkId
-                         	and vr1.EffectiveDate < vr2.EffectiveDate   AND vr2.EffectiveDate  = @EffectiveDate
-                         	order by vr1.RateID desc ,vr1.EffectiveDate desc
-                         	*/
+			                        
                          	
-                         ) tmp
+                         ) tmp , 	  
+						( SELECT @row_num := 0 , @prev_RateId := 0 , @prev_EffectiveDate := '' ) x
+						order by RateID desc , EffectiveDate desc 
+
+
 
 
                          ) VendorRate
@@ -7634,6 +7627,255 @@ CREATE PROCEDURE `prc_WSCronJobDeleteOldVendorRate`()
 			END WHILE;
 
 		END IF;
+
+		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+	END//
+DELIMITER ;
+
+-- need to check
+DROP PROCEDURE IF EXISTS `prc_CronJobGeneratePortaVendorSheet`;
+DELIMITER //
+CREATE PROCEDURE `prc_CronJobGeneratePortaVendorSheet`(
+	IN `p_AccountID` INT ,
+	IN `p_trunks` VARCHAR(200),
+	IN `p_Effective` VARCHAR(50)
+
+)
+BEGIN
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+		DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate_;
+    CREATE TEMPORARY TABLE tmp_VendorRate_ (
+        TrunkId INT,
+   	  RateId INT,
+        Rate DECIMAL(18,6),
+        EffectiveDate DATE,
+        Interval1 INT,
+        IntervalN INT,
+        ConnectionFee DECIMAL(18,6),
+        INDEX tmp_RateTable_RateId (`RateId`)
+    );
+        INSERT INTO tmp_VendorRate_
+        SELECT   `TrunkID`, `RateId`, `Rate`, `EffectiveDate`, `Interval1`, `IntervalN`, `ConnectionFee`
+		  FROM tblVendorRate WHERE tblVendorRate.AccountId =  p_AccountID
+								AND FIND_IN_SET(tblVendorRate.TrunkId,p_trunks) != 0
+                        AND
+								(
+					  				(p_Effective = 'Now' AND EffectiveDate <= NOW())
+								  	OR
+								  	(p_Effective = 'Future' AND EffectiveDate > NOW())
+								  	OR
+								  	(p_Effective = 'All')
+								);
+
+		 DROP TEMPORARY TABLE IF EXISTS tmp_VendorRate4_;
+       CREATE TEMPORARY TABLE IF NOT EXISTS tmp_VendorRate4_ as (select * from tmp_VendorRate_);
+      DELETE n1 FROM tmp_VendorRate_ n1, tmp_VendorRate4_ n2 WHERE n1.EffectiveDate < n2.EffectiveDate
+ 	   AND n1.TrunkID = n2.TrunkID
+	   AND  n1.RateId = n2.RateId
+		AND n1.EffectiveDate <= NOW()
+		AND n2.EffectiveDate <= NOW();
+
+
+
+  	 	call vwVendorArchiveCurrentRates(p_AccountID,p_Trunks,p_Effective);
+
+
+       SELECT Distinct  tblRate.Code as `Destination`,
+               tblRate.Description as `Description` ,
+               CASE WHEN tblVendorRate.Interval1 IS NOT NULL
+                   THEN tblVendorRate.Interval1
+                   ElSE tblRate.Interval1
+               END AS `First Interval`,
+               CASE WHEN tblVendorRate.IntervalN IS NOT NULL
+                   THEN tblVendorRate.IntervalN
+                   ElSE tblRate.IntervalN
+               END  AS `Next Interval`,
+               Abs(tblVendorRate.Rate) as `First Price`,
+               Abs(tblVendorRate.Rate) as `Next Price`,
+               tblVendorRate.EffectiveDate as `Effective From` ,
+               IFNULL(Preference,5) as `Preference`,
+               CASE
+                   WHEN (blockCode.VendorBlockingId IS NOT NULL AND
+                   	FIND_IN_SET(tblVendorRate.TrunkId,blockCode.TrunkId) != 0
+                       )OR
+                       (blockCountry.VendorBlockingId IS NOT NULL AND
+                       FIND_IN_SET(tblVendorRate.TrunkId,blockCountry.TrunkId) != 0
+                       ) THEN 'Y'
+                   ELSE 'N'
+               END AS `Forbidden`,
+               CASE WHEN tblVendorRate.Rate < 0 THEN 'Y' ELSE '' END AS 'Payback Rate' ,
+               CASE WHEN ConnectionFee > 0 THEN
+						CONCAT('SEQ=',ConnectionFee,'&int1x1@price1&intNxN@priceN')
+					ELSE
+						''
+					END as `Formula`,
+					'N' AS `Discontinued`
+       FROM    tmp_VendorRate_ as tblVendorRate
+               JOIN tblRate on tblVendorRate.RateId =tblRate.RateID
+               LEFT JOIN tblVendorBlocking as blockCode
+                   ON tblVendorRate.RateID = blockCode.RateId
+                   AND blockCode.AccountId = p_AccountID
+                   AND tblVendorRate.TrunkID = blockCode.TrunkID
+               LEFT JOIN tblVendorBlocking AS blockCountry
+                   ON tblRate.CountryID = blockCountry.CountryId
+                   AND blockCountry.AccountId = p_AccountID
+                   AND tblVendorRate.TrunkID = blockCountry.TrunkID
+					LEFT JOIN tblVendorPreference
+						ON tblVendorPreference.AccountId = p_AccountID
+						AND tblVendorPreference.TrunkID = tblVendorRate.TrunkID
+						AND tblVendorPreference.RateId = tblVendorRate.RateId
+       UNION ALL
+
+
+
+		SELECT
+					Distinct
+			    	tblRate.Code AS `Destination`,
+			 		tblRate.Description AS `Description` ,
+
+			 		CASE WHEN vrd.Interval1 IS NOT NULL
+                   THEN vrd.Interval1
+                   ElSE tblRate.Interval1
+               END AS `First Interval`,
+               CASE WHEN vrd.IntervalN IS NOT NULL
+                   THEN vrd.IntervalN
+                   ElSE tblRate.IntervalN
+               END  AS `Next Interval`,
+
+			 		Abs(vrd.Rate) AS `First Price`,
+			 		Abs(vrd.Rate) AS `Next Price`,
+			 		vrd.EffectiveDate AS `Effective From`,
+			 		'' AS `Preference`,
+			 		'' AS `Forbidden`,
+			 		CASE WHEN vrd.Rate < 0 THEN 'Y' ELSE '' END AS 'Payback Rate' ,
+			 		CASE WHEN vrd.ConnectionFee > 0 THEN
+						CONCAT('SEQ=',vrd.ConnectionFee,'&int1x1@price1&intNxN@priceN')
+					ELSE
+						''
+					END as `Formula`,
+			 		'Y' AS `Discontinued`
+			FROM tmp_VendorArchiveCurrentRates_ AS vrd
+	 		JOIN tblRate on vrd.RateId = tblRate.RateID
+			LEFT JOIN tblVendorRate vr
+						ON vrd.AccountId = vr.AccountId
+							AND vrd.TrunkID = vr.TrunkID
+							AND vrd.RateId = vr.RateId
+					WHERE FIND_IN_SET(vrd.TrunkID,p_trunks) != 0
+						AND vrd.AccountId = p_AccountID
+						AND vr.VendorRateID IS NULL
+						AND vrd.Rate > 0;
+
+
+			/*
+		    SELECT
+			 		vrd.Code AS `Destination`,
+			 		vrd.Description AS `Description` ,
+			 		vrd.Interval1 AS `First Interval`,
+			 		vrd.IntervalN AS `Next Interval`,
+			 		Abs(vrd.Rate) AS `First Price`,
+			 		Abs(vrd.Rate) AS `Next Price`,
+			 		vrd.EffectiveDate AS `Effective From`,
+			 		'' AS `Preference`,
+			 		'' AS `Forbidden`,
+			 		CASE WHEN vrd.Rate < 0 THEN 'Y' ELSE '' END AS 'Payback Rate' ,
+			 		CASE WHEN vrd.ConnectionFee > 0 THEN
+						CONCAT('SEQ=',vrd.ConnectionFee,'&int1x1@price1&intNxN@priceN')
+					ELSE
+						''
+					END as `Formula`,
+			 		'Y' AS `Discontinued`
+			  FROM tblVendorRateDiscontinued vrd
+					LEFT JOIN tblVendorRate vr
+						ON vrd.AccountId = vr.AccountId
+							AND vrd.TrunkID = vr.TrunkID
+							AND vrd.RateId = vr.RateId
+					WHERE FIND_IN_SET(vrd.TrunkID,p_trunks) != 0
+						AND vrd.AccountId = p_AccountID
+						AND vr.VendorRateID IS NULL ;
+*/
+
+
+      SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+END//
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS `prc_DeleteTicketGroup`;
+DELIMITER //
+CREATE PROCEDURE `prc_DeleteTicketGroup`(
+	IN `p_CompanyID` INT,
+	IN `p_GroupID` INT
+
+
+
+)
+	BEGIN
+
+		SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+
+		-- 1
+		-- delete tblTicketLog
+
+		DELETE tl FROM
+			tblTicketLog tl
+			inner join tblTickets t
+				on tl.TicketID = t.TicketID
+		where t.`Group` = p_GroupID
+					AND t.CompanyID = p_CompanyID;
+
+		-- 2
+		-- delete tblTicketDashboardTimeline
+
+		DELETE FROM tblTicketDashboardTimeline where GroupID = p_GroupID AND CompanyID = p_CompanyID;
+
+		-- 3
+		-- delete tblTicketsDetails
+
+		DELETE td FROM
+			tblTicketsDetails td
+			inner join tblTickets t
+				on td.TicketID = t.TicketID
+		where t.`Group` = p_GroupID
+					AND t.CompanyID = p_CompanyID;
+
+
+		-- 4
+		-- delete tblTicketsDeletedLog
+
+		DELETE FROM tblTicketsDeletedLog where tblTicketsDeletedLog.`Group` = p_GroupID AND CompanyID = p_CompanyID;
+
+		-- 5
+		-- delete AccountEmailLogDeletedLog
+
+		DELETE ae FROM
+			AccountEmailLogDeletedLog ae
+			inner join tblTickets t
+				on ae.TicketID = t.TicketID
+		where t.`Group` = p_GroupID
+					AND t.CompanyID = p_CompanyID;
+
+
+		-- 6
+		-- delete tblTicketsDetails
+		DELETE ae FROM
+			AccountEmailLog ae
+			inner join tblTickets t
+				on ae.TicketID = t.TicketID
+		where t.`Group` = p_GroupID
+					AND t.CompanyID = p_CompanyID;
+
+		-- 7
+		-- delete tblTickets
+
+		DELETE FROM tblTickets where tblTickets.`Group` = p_GroupID AND CompanyID = p_CompanyID;
+
+		-- 8
+		-- delete tblTicketGroups
+
+		DELETE FROM tblTicketGroups where GroupID = p_GroupID AND CompanyID = p_CompanyID;
 
 		SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 

@@ -392,6 +392,49 @@ class CompanyGateway extends \Eloquent {
                 log::info('--M2 CRONJOB END--');
 
                 CompanyGateway::createSummaryCronJobs(1);
+            }elseif(isset($GatewayName) && $GatewayName == 'VoipNow'){
+                log::info($GatewayName);
+                log::info('--VOIPNOW CRONJOB START--');
+
+                $CronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('voipnowaccountusage');
+                $setting = CompanyConfiguration::get('VIOPNOW_PBX_CRONJOB');
+                $JobTitle = $CompanyGateway->Title.' CDR Download';
+                $tag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $settings = str_replace('"CompanyGatewayID":""',$tag,$setting);
+
+                log::info($settings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$CronJobCommandID,$settings,$JobTitle);
+                log::info('--VOIPNOW CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(0);
+            }elseif(isset($GatewayName) && $GatewayName == 'VOS5000'){
+                log::info($GatewayName);
+                log::info('--VOS5000 FILE DOWNLOAD CRONJOB START--');
+
+                $DownloadCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vos5000downloadcdr');
+                $DownloadSetting = CompanyConfiguration::get('VOS5000_DOWNLOAD_CRONJOB');
+                $DownloadJobTitle = $CompanyGateway->Title.' CDR File Download';
+                $DownloadTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $DownloadSettings = str_replace('"CompanyGatewayID":""',$DownloadTag,$DownloadSetting);
+
+                log::info($DownloadSettings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$DownloadCronJobCommandID,$DownloadSettings,$DownloadJobTitle);
+                log::info('--VOS5000 FILE DOWNLOAD CRONJOB END--');
+
+                log::info('--VOS5000 FILE PROCESS CRONJOB START--');
+
+                $ProcessCronJobCommandID = CronJobCommand::getCronJobCommandIDByCommand('vos5000accountusage');
+                $ProcessSetting = CompanyConfiguration::get('VOS_PROCESS_CRONJOB');
+                $ProcessJobTitle = $CompanyGateway->Title.' CDR File Process';
+                $ProcessTag = '"CompanyGatewayID":"'.$CompanyGatewayID.'"';
+                $ProcessSettings = str_replace('"CompanyGatewayID":""',$ProcessTag,$ProcessSetting);
+
+                log::info($ProcessSettings);
+                CompanyGateway::createGatewayCronJob($CompanyGatewayID,$ProcessCronJobCommandID,$ProcessSettings,$ProcessJobTitle);
+                log::info('--VOS5000 FILE PROCESS CRONJOB END--');
+
+                CompanyGateway::createSummaryCronJobs(1);
+
             }
         }else{
             log::info('--Other CRONJOB START--');

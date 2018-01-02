@@ -142,6 +142,10 @@ function customer_dropbox($id=0,$data=array()){
     $all_customers = Account::getAccountIDList($data);
     return Form::select('customers', $all_customers, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
+function upload_template_dropbox($id=0,$data=array()){
+    $all_templates = FileUploadTemplate::getTemplateIDList($data);
+    return Form::select('templates', $all_templates, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
+}
 
 function customer_leads_dropbox($id=0,$data=array()){
     $accounts = Account::getAccountIDList($data);
@@ -436,7 +440,8 @@ function compositDropdown($name,$data,$selection,$arr)
         $select .= ' <optgroup class="optgroup_'.Product::$TypetoProducts[$index].'" label="'.ucfirst(Product::$TypetoProducts[$index]).'">';
         foreach($cate as $key=>$val) {
             $selected = (!empty($selection) && $key==$selection['ID'] && $index==$selection['Type'])?'selected':'';
-            $select .= '    <option Item_Subscription_txt="'.ucfirst(Product::$TypetoProducts[$index]).'" Item_Subscription_type="'.$index.'" value="' . $key . '" '.$selected.'>';
+            $optgroup = !empty($key) ? $index . '-' : '';
+            $select .= '    <option Item_Subscription_txt="'.ucfirst(Product::$TypetoProducts[$index]).'" Item_Subscription_type="'.$index.'" value="' . $optgroup . $key . '" '.$selected.'>';
             $select .= $val;
             $select .= '    </option>';
         }
@@ -1129,7 +1134,7 @@ function check_uri($parent_link=''){
     $Path 			  =    Route::currentRouteAction();
     $path_array 	  =    explode("Controller",$Path);
     $array_settings   =    array("Users","Trunk","CodeDecks","Gateway","Currencies","CurrencyConversion","DestinationGroup","DialString");
-    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","VendorFileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention","NoticeBoard");
+    $array_admin	  =	   array("Users","Role","Themes","AccountApproval","FileUploadTemplate","EmailTemplate","Notification","ServerInfo","Retention","NoticeBoard");
     $array_summary    =    array("Summary");
     $array_rates	  =	   array("RateTables","LCR","RateGenerators","VendorProfiling");
 	$array_tickets	  =	   array("Tickets","TicketsFields","TicketsGroup","Dashboard","TicketsSla","TicketsBusinessHours","TicketImportRules");

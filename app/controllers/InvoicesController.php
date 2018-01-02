@@ -300,6 +300,9 @@ class InvoicesController extends \BaseController {
                     foreach($detail as $value){
                         if( in_array($field,["Price","Discount","TaxAmount","LineTotal"])){
                             $InvoiceDetailData[$i][$field] = str_replace(",","",$value);
+                        }else if($field == "ProductID"){
+                            $pid = explode('-',$value);
+                            $InvoiceDetailData[$i][$field] = $pid[1];
                         }else{
                             $InvoiceDetailData[$i][$field] = $value;
                         }
@@ -469,6 +472,9 @@ class InvoicesController extends \BaseController {
                             foreach ($detail as $value) {								
                                 if( in_array($field,["Price","Discount","TaxAmount","LineTotal"])){
                                     $InvoiceDetailData[$i][$field] = str_replace(",","",$value);
+                                }else if($field == "ProductID"){
+                                    $pid = explode('-',$value);
+                                    $InvoiceDetailData[$i][$field] = $pid[1];
                                 }else{
                                     $InvoiceDetailData[$i][$field] = $value;
                                 }
