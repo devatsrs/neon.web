@@ -675,13 +675,13 @@
                             "aButtons": [
                                 {
                                     "sExtends": "download",
-                                    "sButtonText": "EXCEL",
+                                    "sButtonText": "@lang("routes.BUTTON_EXPORT_EXCEL_CAPTION")",
                                     "sUrl": baseurl + "/customer/billing_dashboard/ajax_datagrid_Invoice_Expense/xlsx", //baseurl + "/generate_xlsx.php",
                                     sButtonClass: "save-collection"
                                 },
                                 {
                                     "sExtends": "download",
-                                    "sButtonText": "CSV",
+                                    "sButtonText": "@lang("routes.BUTTON_EXPORT_CSV_CAPTION")",
                                     "sUrl": baseurl + "/customer/billing_dashboard/ajax_datagrid_Invoice_Expense/csv", //baseurl + "/generate_csv.php",
                                     sButtonClass: "save-collection"
                                 }
@@ -816,13 +816,13 @@
                             "aButtons": [
                                 {
                                     "sExtends": "download",
-                                    "sButtonText": "EXCEL",
+                                    "sButtonText": "@lang("routes.BUTTON_EXPORT_EXCEL_CAPTION")",
                                     "sUrl": baseurl + "/customer/billing_dashboard/ajax_datagrid_Invoice_Expense/xlsx", //baseurl + "/generate_xls.php",
                                     sButtonClass: "save-collection btn-sm"
                                 },
                                 {
                                     "sExtends": "download",
-                                    "sButtonText": "CSV",
+                                    "sButtonText": "@lang("routes.BUTTON_EXPORT_CSV_CAPTION")",
                                     "sUrl": baseurl + "/customer/billing_dashboard/ajax_datagrid_Invoice_Expense/csv", //baseurl + "/generate_xls.php",
                                     sButtonClass: "save-collection btn-sm"
                                 }
@@ -856,7 +856,7 @@
                             }
                             //onDelete Click
                             FnDeleteInvoiceTemplate = function (e) {
-                                result = confirm("Are you Sure?");
+                                result = confirm("@lang("routes.MESSAGE_DATA_NOT_AVAILABLE")");
                                 if (result) {
                                     var id = $(this).attr("data-id");
                                     showAjaxScript(baseurl + "/invoice/" + id + "/delete", "", FnDeleteInvoiceTemplateSuccess);
@@ -1004,13 +1004,13 @@
                     "aButtons": [
                         {
                             "sExtends": "download",
-                            "sButtonText": "EXCEL",
+                            "sButtonText": "@lang("routes.BUTTON_EXPORT_EXCEL_CAPTION")",
                             "sUrl": baseurl + "/billing_dashboard/ajaxgrid_top_pincode/xlsx", //baseurl + "/generate_xls.php",
                             sButtonClass: "save-collection btn-sm"
                         },
                         {
                             "sExtends": "download",
-                            "sButtonText": "CSV",
+                            "sButtonText": "@lang("routes.BUTTON_EXPORT_CSV_CAPTION")",
                             "sUrl": baseurl + "/billing_dashboard/ajaxgrid_top_pincode/csv", //baseurl + "/generate_csv.php",
                             sButtonClass: "save-collection btn-sm"
                         }
@@ -1087,18 +1087,18 @@
                 <form id="BulkMail-form" method="post" action="" enctype="multipart/form-data">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Payment Received</h4>
+                        <h4 class="modal-title">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_PAYMENT_RECEIVED_TITLE")</h4>
                     </div>
                     <div class="modal-body">
                         <table class="table table-bordered datatable" id="paymentTable">
                             <thead>
                             <tr>
-                                <th>Account Name</th>
-                                <th>Invoice No</th>
-                                <th>Amount</th>
-                                <th>Payment Date</th>
-                                <th>CreatedBy</th>
-                                <th>Notes</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_PAYMENT_RECEIVED_TBL_AC_NAME")</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_PAYMENT_RECEIVED_TBL_INVOICE_NO")</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_PAYMENT_RECEIVED_TBL_AMOUNT")</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_PAYMENT_RECEIVED_TBL_PAYMENT_DATE")</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_PAYMENT_RECEIVED_TBL_CREATEDBY")</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_PAYMENT_RECEIVED_TBL_NOTES")</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -1111,7 +1111,7 @@
                     <div class="modal-footer">
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>
-                            Close
+                            @lang("routes.BUTTON_CLOSE_CAPTION")
                         </button>
                     </div>
                 </form>
@@ -1125,19 +1125,19 @@
                 <form id="TestMail-form" method="post" action="">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Total Invoices</h4>
+                        <h4 class="modal-title">@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_TOTAL_INVOICES_TITLE")</h4>
                     </div>
                     <div class="modal-body">
                         <table class="table table-bordered datatable" id="invoiceTable">
                             <thead>
                             <tr>
-                                <th>Account Name</th>
-                                <th>Invoice Number</th>
-                                <th>Issue Date</th>
-                                <th>Period</th>
-                                <th>Grand Total</th>
-                                <th>Paid/OS</th>
-                                <th>Status</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_TOTAL_INVOICES_TBL_AC_NAME")</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_TOTAL_INVOICES_TBL_INVOICE_NUMBER")</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_TOTAL_INVOICES_TBL_ISSUE_DATE")</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_TOTAL_INVOICES_TBL_PERIOD")</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_TOTAL_INVOICES_TBL_GRAND_TOTAL")</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_TOTAL_INVOICES_TBL_PAID_OS")</th>
+                                <th>@lang("routes.CUST_PANEL_PAGE_ANALYSIS_MODAL_TOTAL_INVOICES_TBL_STATUS")</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -1152,7 +1152,7 @@
                     <div class="modal-footer">
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>
-                            Close
+                            @lang("routes.BUTTON_CLOSE_CAPTION")
                         </button>
                     </div>
                 </form>

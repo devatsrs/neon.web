@@ -205,7 +205,7 @@ var postdata;
                    }
                    //onDelete Click
                    FnDeleteInvoiceTemplate = function(e){
-                       result = confirm("Are you Sure?");
+                       result = confirm("@lang("routes.MESSAGE_ARE_YOU_SURE")");
                        if(result){
                            var id  = $(this).attr("data-id");
                            showAjaxScript( baseurl + "/invoice/"+id+"/delete" ,"",FnDeleteInvoiceTemplateSuccess );

@@ -36,12 +36,12 @@
       <div class="x-row">
         <div class="x-span8">
           <div>
-            <div class="due">@if($Invoice->InvoiceStatus == Invoice::PAID) Paid @else DUE @endif</div>
+            <div class="due">@if($Invoice->InvoiceStatus == Invoice::PAID) @lang('routes.CUST_PANEL_PAGE_INVOICE_CVIEW_LBL_PAID') @else @lang('routes.CUST_PANEL_PAGE_INVOICE_CVIEW_LBL_DUE') @endif</div>
           </div>
           <div class="amount"> <span class="overdue"><?php if($Invoice->InvoiceStatus==Invoice::PAID){echo $CurrencySymbol.number_format($payment_log['paid_amount'],get_round_decimal_places($Invoice->AccountID));}elseif($Invoice->InvoiceStatus!=Invoice::PAID && $payment_log['paid_amount']>0){echo $CurrencySymbol.number_format($payment_log['due_amount'],get_round_decimal_places($Invoice->AccountID));}else{echo $CurrencySymbol.number_format($payment_log['total'],get_round_decimal_places($Invoice->AccountID));}  ?></span> </div>
         </div>
         <div class="x-span4 pull-left" >
-          <h1 class="text-center">Invoice</h1>
+          <h1 class="text-center">@lang('routes.CUST_PANEL_PAGE_INVOICE_TITLE')</h1>
         </div>
         <div class="x-span8 pull-right" style="margin-top:5px;">
           <?php
@@ -54,7 +54,7 @@
               <div class="pull-right"> &nbsp;</div>
                   @if($Invoice->InvoiceStatus != Invoice::PAID && (getInvoicePayments()))
                   <div class="input-group-btn pull-right" style="width: 70px;">
-                      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="padding:4px 10px;"> Pay Now <span class="caret"></span></button>
+                      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="padding:4px 10px;"> @lang('routes.BUTTON_PAY_NOW_CAPTION') <span class="caret"></span></button>
                       <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">
                           @if(empty($ShowAllPaymentMethod))
                               @if(($PaymentMethod == 'AuthorizeNet') && (is_authorize()  ) )
@@ -100,9 +100,9 @@
                   <div class="pull-right"> &nbsp;</div>
                   @endif
 
-          @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> Downlod Usage </a>
+          @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> @lang('routes.CUST_PANEL_PAGE_INVOICE_CVIEW_BUTTON_DOWNLOD_USAGE') </a>
           <div class="pull-right"> &nbsp;</div>
-          @endif <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a>
+          @endif <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> @lang('routes.CUST_PANEL_PAGE_INVOICE_CVIEW_BUTTON_PRINT_INVOICE') <i class="entypo-doc-text"></i> </a>
               @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_paypal()  ) )
               {{$paypal_button}}
               @endif
@@ -122,7 +122,7 @@
     </div>
     @else
     <center>
-      Error loading Invoice, Its need to regenerate.
+        @lang('routes.CUST_PANEL_PAGE_INVOICE_CVIEW_MSG_ERROR_LOADING_INVOICE')
     </center>
     @endif </div>
 </div>
