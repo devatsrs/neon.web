@@ -41,7 +41,7 @@ BEGIN
 			FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
 			INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
 			LEFT JOIN NeonRMDev.tblService s on  s.ServiceID = ud.ServiceID
-			WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 AND ud.billed_second <> 0 and ud.area_prefix = "Other"');
+			WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 AND ud.billed_second <> 0');
 
 			PREPARE stmt FROM @stm;
 			EXECUTE stmt;
@@ -54,7 +54,7 @@ BEGIN
 			SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Trunk: ",ud.trunk," - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
 			FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
 			INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
-			WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 AND ud.billed_second <> 0 and ud.area_prefix = "Other"');
+			WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 0 AND ud.is_rerated = 0 AND ud.billed_second <> 0 ');
 
 			PREPARE stmt FROM @stm;
 			EXECUTE stmt;
@@ -67,7 +67,7 @@ BEGIN
 		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,3,  CONCAT( "Account:  " , a.AccountName ,  " - Unable to Rerate number ",IFNULL(ud.cld,"")," - No Matching prefix found") as Message ,DATE(NOW())
 		FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
 		INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
-		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 1 AND ud.is_rerated = 0 AND ud.billed_second <> 0 and ud.area_prefix = "Other"');
+		WHERE ud.ProcessID = "' , p_processid  , '" and ud.is_inbound = 1 AND ud.is_rerated = 0 AND ud.billed_second <> 0 ');
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;

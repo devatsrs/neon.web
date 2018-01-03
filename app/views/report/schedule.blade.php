@@ -7,7 +7,10 @@
             <a href="{{action('dashboard')}}"><i class="entypo-home"></i>Home</a>
         </li>
         <li class="active">
-            <a href="javascript:void(0)">Report</a>
+            <a href="{{action('report')}}">Report</a>
+        </li>
+        <li class="active">
+            <a href="javascript:void(0)">Report Schedule</a>
         </li>
     </ol>
     <h3>Report</h3>
@@ -43,38 +46,34 @@
 @stop
     @if(User::checkCategoryPermission('Report','Add'))
         <p style="text-align: right;">
-            <a href="{{URL::to('report/create')}}" class=" btn btn-primary btn-sm btn-icon icon-left" id="add-report">
+            <a href="{{URL::to('report/add_schedule')}}" class=" btn btn-primary btn-sm btn-icon icon-left schedule_report" id="add-report-schedule">
                 <i class="entypo-plus"></i>
                 Add New
-            </a>
-
-            <a href="{{URL::to('report/schedule')}}" class=" btn btn-primary btn-sm btn-icon icon-left">
-                <i class="fa fa-list"></i>
-                Schedule
             </a>
         </p>
     @endif
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
-            <th width="60%">Name</th>
-            <th width="40%">Action</th>
+            <th width="20%">Name</th>
+            <th width="20%">Period </th>
+            <th width="20%">Last Run Time </th>
+            <th width="20%">Next Run Time</th>
+            <th width="20%">Action</th>
         </tr>
         </thead>
         <tbody>
         </tbody>
     </table>
     <script type="text/javascript">
-        var list_fields_index  = ["Name","ReportID","ReportScheduleID","Status","Settings"];
+        var list_fields_index  = ["Name","ReportID","Status","Settings","ReportScheduleID"];
 
         var $search = {};
-        var report_edit_url = baseurl + "/report/edit/{id}";
-        var report_delete_url = baseurl + "/report/delete/{id}";
-        var report_export_url = baseurl + "/report/getdatagrid/{id}";
+        var report_add_url = baseurl + "/report/add_schedule";
         var report_schedule_url = baseurl + "/report/schedule_update/{id}";
-        var report_add_schedule_url = baseurl + "/report/add_schedule";
+        var report_delete_url = baseurl + "/report/schedule_delete/{id}";
         var report_history_url = baseurl + "/report/schedule_history";
-        var report_datagrid_url = baseurl + "/report/ajax_datagrid/type";
+        var report_datagrid_url = baseurl + "/report/ajax_schedule_datagrid/type";
         jQuery(document).ready(function ($) {
             $('#filter-button-toggle').show();
 
@@ -97,7 +96,62 @@
                     {"bSortable": true},  // 1 Email Addresses
                     {                        // 9 Action
                         "bSortable": false,
-                        sClass: "dropdown",
+                        mRender: function (id, type, full) {
+                            var action='';
+
+                            for (var i = 0; i < list_fields_index.length; i++) {
+                                if(list_fields_index[i] == 'Settings' && full[i] != null && IsJsonString(full[i])){
+                                    var settings_json = JSON.parse(full[i]);
+                                    $.each(settings_json, function(key, value) {
+                                        if(key == 'Time'){
+                                            action =  value;
+                                        }
+                                        if(key == 'Interval'){
+                                            action += '(' + value+')';
+                                        }
+                                    });
+                                }
+                            }
+                                    return action;
+                        }
+                    },
+                    {                        // 9 Action
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
+                            var action='';
+
+                            for (var i = 0; i < list_fields_index.length; i++) {
+                                if(list_fields_index[i] == 'Settings' && full[i] != null && IsJsonString(full[i])){
+                                    var settings_json = JSON.parse(full[i]);
+                                    $.each(settings_json, function(key, value) {
+                                        if(key == 'LastRunTime'){
+                                            action =  value;
+                                        }
+                                    });
+                                }
+                            }
+                                    return action;
+                        }
+                    }
+                    ,{                        // 9 Action
+                        "bSortable": false,
+                        mRender: function (id, type, full) {
+                            var action= '';
+                            for (var i = 0; i < list_fields_index.length; i++) {
+                                if(list_fields_index[i] == 'Settings' && full[i] != null && IsJsonString(full[i])){
+                                    var settings_json = JSON.parse(full[i]);
+                                    $.each(settings_json, function(key, value) {
+                                        if(key == 'NextRunTime'){
+                                            action =  value;
+                                        }
+                                    });
+                                }
+                            }
+                                    return action;
+                        }
+                    },
+                    {                        // 9 Action
+                        "bSortable": false,
                         mRender: function (id, type, full) {
                             var action;
                             action = '<div class = "hiddenRowData pull-left" >';
@@ -112,19 +166,10 @@
                                 }
                             }
                             action += '</div>';
-                            var Status = full[3];
-                            var ReportScheduleID = full[2];
+                            var Status = full[2];
                             @if(User::checkCategoryPermission('Report','Update'))
-                                action += ' <a href="' + report_edit_url.replace("{id}", id) + '" class="btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
-                                action += ' <a href="' + report_edit_url.replace("{id}", id) + '?report=run" class="btn btn-default btn-sm tooltip-primary" data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-play"></i>&nbsp;</a>';
-                                action += ' <a class="btn btn-default btn-sm tooltip-primary dropdown-toggle" data-original-title="Export" title="" data-placement="top" data-toggle="dropdown"><i class="fa fa-download"></i>&nbsp;</a>' +
-                                        '<ul class="dropdown-menu dropdown-menu-left" role="menu" style="left:60px;top:35px;background-color: #000; border-color: #000; margin-top:0px; min-width: 0"> <li> <a href="' + report_export_url.replace("{id}", id) + '?Type={{Report::XLS}}" class="save-report-data"> <span>Excel</span> </a> </li><li> <a href="' + report_export_url.replace("{id}", id) + '?Type={{Report::PNG}}" class="save-report-data"> <span>PNG</span> </a> </li> <li> <a href="' + report_export_url.replace("{id}", id) + '?Type={{Report::PDF}}" class="save-report-data">  <span>PDF</span> </a> </li> </ul>';
-                            if(ReportScheduleID) {
-                                action += ' <a href="' + report_schedule_url.replace("{id}", ReportScheduleID) + '" class="schedule_report  btn btn-default btn-sm tooltip-primary" data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>';
-                            }else{
-                                action += ' <a href="' + report_add_schedule_url + '" class="schedule_report  btn btn-default btn-sm tooltip-primary" data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>';
-                            }
-                                action += ' <a href="' + report_history_url+'?ReportID=' +id+'" class="btn btn-default btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="glyphicon glyphicon-time"></i>&nbsp;</a>';
+                                action += ' <a href="' + report_schedule_url.replace("{id}", id) + '" class="schedule_report btn btn-default btn-sm tooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                action += ' <a href="' + report_history_url+'?ReportScheduleID=' +id+'" class="btn btn-default btn-sm tooltip-primary" data-original-title="History" title="" data-placement="top" data-toggle="tooltip"><i class="glyphicon glyphicon-time"></i>&nbsp;</a>';
                             @endif
 
                                     @if(User::checkCategoryPermission('Report','Delete'))
@@ -133,11 +178,11 @@
                             //}
                             @endif
                             @if(User::checkCategoryPermission('Report','Update'))
-                                if(full[4]) {
+                                if(full[3]) {
                                     if (Status == 1) {
-                                        action += '&nbsp;<button data-id="' + ReportScheduleID + '" data-status="' + Status + '" class="change_schedule btn btn-red btn-sm" type="button" title="Scheduling InActive" data-placement="left" data-toggle="tooltip"><i class="glyphicon glyphicon-ban-circle" ></i></button>';
+                                        action += '&nbsp;<button data-id="' + id + '" data-status="' + Status + '" class="change_schedule btn btn-red btn-sm" type="button" title="Scheduling InActive" data-placement="left" data-toggle="tooltip"><i class="glyphicon glyphicon-ban-circle" ></i></button>';
                                     } else {
-                                        action += '&nbsp;<button data-id="' + ReportScheduleID + '" data-status="' + Status + '" class="change_schedule btn btn-green btn-sm" type="button" title="Scheduling Active" data-placement="left" data-toggle="tooltip"><i class="entypo-check"></i></button>';
+                                        action += '&nbsp;<button data-id="' + id + '" data-status="' + Status + '" class="change_schedule btn btn-green btn-sm" type="button" title="Scheduling Active" data-placement="left" data-toggle="tooltip"><i class="entypo-check"></i></button>';
                                     }
                                 }
                             @endif
@@ -150,13 +195,13 @@
                         {
                             "sExtends": "download",
                             "sButtonText": "EXCEL",
-                            "sUrl": baseurl + "/report/ajax_datagrid/xlsx",
+                            "sUrl": baseurl + "/report/ajax_schedule_datagrid/xlsx",
                             sButtonClass: "save-collection btn-sm"
                         },
                         {
                             "sExtends": "download",
                             "sButtonText": "CSV",
-                            "sUrl": baseurl + "/report/ajax_datagrid/csv",
+                            "sUrl": baseurl + "/report/ajax_schedule_datagrid/csv",
                             sButtonClass: "save-collection btn-sm"
                         }
                     ]
@@ -191,13 +236,6 @@
                     submit_ajax_datatable( delete_url,"",0,data_table);
                 }
                 return false;
-            });
-
-            $("#report-form").submit(function(e){
-                e.preventDefault();
-                var _url  = $(this).attr("action");
-                submit_ajax_datatable(_url,$(this).serialize(),0,data_table);
-
             });
 
             // Replace Checboxes

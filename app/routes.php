@@ -965,6 +965,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/calculate_total', 'InvoicesController@calculate_total');
 	Route::any('/invoice/get_account_info', 'InvoicesController@getAccountInfo');
 	Route::any('/invoice/get_billingclass_info', 'InvoicesController@getBillingclassInfo');
+
 	
 	Route::any('/invoice/bulk_invoice', 'InvoicesController@bulk_invoice');
 	Route::any('/invoice/add_invoice_in', 'InvoicesController@add_invoice_in');
@@ -1298,15 +1299,23 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/delete_post/{id}', 'NoticeBoardController@delete');
 	
 	// report
-    Route::any('/report','ReportController@index');
+    Route::get('/report', array("as" => "report", "uses" => "ReportController@index"));
     Route::any('/report/ajax_datagrid/{type}','ReportController@ajax_datagrid');
     Route::any('/report/create','ReportController@create');
     Route::any('/report/edit/{id}','ReportController@edit');
     Route::any('/report/store','ReportController@report_store');
     Route::any('/report/update/{id}','ReportController@report_update');
     Route::any('/report/delete/{id}','ReportController@report_delete');
-    Route::any('/report/getdatagrid','ReportController@getdatagrid');
+    Route::any('/report/getdatagrid/{id}','ReportController@getdatagrid');
     Route::any('/report/getdatalist','ReportController@getdatalist');
+	Route::any('/report/status_update/{id}','ReportController@status_update');
+	Route::any('/report/schedule_history/','ReportController@schedule_history');
+	Route::any('/report/schedule_history/{type}','ReportController@schedule_history_datagrid');
+	Route::any('/report/schedule','ReportController@schedule');
+	Route::any('/report/add_schedule','ReportController@add_schedule');
+	Route::any('/report/schedule_update/{id}','ReportController@update_schedule');
+	Route::any('/report/schedule_delete/{id}','ReportController@schedule_delete');
+	Route::any('/report/ajax_schedule_datagrid/{type}','ReportController@ajax_schedule_datagrid');
 
 	//RateCompare
 	Route::any('/rate_compare', 'RateCompareController@index');
@@ -1345,6 +1354,7 @@ Route::group(array('before' => 'guest'), function () {
     Route::any('/doRegistration', "HomeController@doRegistration");
     Route::get('/super_admin', "HomeController@home");
 	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
+	Route::any('/report/export/{id}','ReportController@getdatagrid');
 	
     /*Route::get('/l/{id}', function($id){
 		$user = User::find($id);
@@ -1367,6 +1377,7 @@ Route::group(array('before' => 'guest'), function () {
 	exit;
     });*/
     Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
+	Route::any('/invoice/{id}/invoice_chart', 'InvoicesController@invoice_management_chart'); //Customer View
     //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');
     Route::any('/invoice/{id}/cdownload_usage', 'InvoicesController@cdownloadUsageFile');
     Route::any('/invoice/display_invoice/{id}', 'InvoicesController@display_invoice');

@@ -10,8 +10,19 @@ BEGIN
 
 	SET @stmt = CONCAT('
 	UPDATE tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' vd 
-   INNER JOIN tmp_tblUsageDetailsReport_' , p_UniqueID , ' cd ON cd.CompanyGatewayID = vd.CompanyGatewayID AND cd.ID = vd.ID
-   	SET vd.AccountID = cd.AccountID,vd.GatewayAccountPKID = cd.GatewayAccountPKID,vd.call_status = cd.call_status;
+	INNER JOIN tmp_tblUsageDetailsReport_' , p_UniqueID , ' cd ON cd.CompanyGatewayID = vd.CompanyGatewayID AND cd.ID = vd.ID
+		SET vd.AccountID = cd.AccountID,vd.GatewayAccountPKID = cd.GatewayAccountPKID,vd.call_status = cd.call_status;
+	');
+
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+	
+	SET @stmt = CONCAT('
+	UPDATE tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' vd 
+	INNER JOIN tmp_tblUsageDetailsReport_' , p_UniqueID , ' cd ON cd.CompanyGatewayID = vd.CompanyGatewayID AND cd.ID = vd.ID
+		SET vd.AccountID = cd.AccountID,vd.GatewayAccountPKID = cd.GatewayAccountPKID,vd.call_status = cd.call_status,vd.selling_cost =cd.cost
+	WHERE cd.cost <> 0 AND vd.billed_duration <> 0;
 	');
 
 	PREPARE stmt FROM @stmt;
