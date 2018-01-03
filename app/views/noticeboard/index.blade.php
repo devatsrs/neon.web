@@ -38,11 +38,11 @@
 <div class="row">
     <div class="col-md-12">
         <div class="alert alert-success">
-            <strong>Latest Updates!</strong>
+            <strong>@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MSG_LATEST_UPDATES')</strong>
             @if(!empty($LastUpdated))
                 Updated {{\Carbon\Carbon::createFromTimeStamp(strtotime($LastUpdated))->diffForHumans() }}
             @else
-                 No Updates Found.
+                 @lang('routes.CUST_PANEL_PAGE_NOTICEBOARD_MSG_NO_UPDATES_FOUND')
             @endif
         </div>
     </div>

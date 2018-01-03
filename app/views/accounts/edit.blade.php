@@ -237,6 +237,12 @@
                 @endforeach
                     </div>
                 @endif
+                <div class="form-group">
+                    <label for="field-1" class="col-md-2 control-label">Languages</label>
+                    <div class="col-md-4">
+                        {{Form::select('Language', Translation::getLanguageDropdownList(), ( isset($AccountBilling->Language)?$AccountBilling->Language:'en' ),array("class"=>"form-control select2"))}}
+                    </div>
+                </div>
 
                 <script>
                     $(document).ready(function() {

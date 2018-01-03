@@ -81,6 +81,10 @@ class Invoice extends \Eloquent {
     public static  function generate_pdf($InvoiceID){  
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
+
+            $accout_data=Account::whereAccountID($InvoiceID)->first();
+            App::setLocale($accout_data->Language);
+
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $InvoiceID])->get();
             $InvoiceTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>0])->orderby('InvoiceTaxRateID')->get();
 			//$InvoiceAllTaxRates = InvoiceTaxRate::where(["InvoiceID"=>$InvoiceID,"InvoiceTaxType"=>1])->orderby('InvoiceTaxRateID')->get();
