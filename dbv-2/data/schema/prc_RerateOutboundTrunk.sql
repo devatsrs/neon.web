@@ -32,6 +32,10 @@ BEGIN
 	INSERT INTO tmp_AccountTrunkCdrUpload_(AccountID,TrunkID)
 	SELECT DISTINCT AccountID,TrunkID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL AND ud.is_inbound = 0;
 	');
+	
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
 
 	SET v_CDRUpload_ = (SELECT COUNT(*) FROM tmp_AccountTrunkCdrUpload_);
 
@@ -47,11 +51,12 @@ BEGIN
 			SET ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
 		WHERE  ud.ProcessID = "' , p_processId , '";
 		');
-	END IF;
+		
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
 
-	PREPARE stmt FROM @stm;
-	EXECUTE stmt;
-	DEALLOCATE PREPARE stmt;
+	END IF;
 
 	/* if rate format is prefix base not charge code*/
 	IF p_RateFormat = 2

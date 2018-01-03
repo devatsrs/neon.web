@@ -7,7 +7,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnGetVendorUsageForSummary`(
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	
+
 	SET @stmt = CONCAT('
 	INSERT IGNORE INTO tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' (
 		VendorCDRID,
@@ -41,7 +41,7 @@ BEGIN
 		selling_cost,
 		buying_cost,
 		trunk,
-		area_prefix,		
+		area_prefix,
 		1 AS call_status,
 		ID
 	FROM NeonCDRDev.tblVendorCDR  ud
@@ -55,7 +55,7 @@ BEGIN
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
-	
+
 	SET @stmt = CONCAT('
 	INSERT IGNORE INTO tmp_tblVendorUsageDetailsReport_' , p_UniqueID , ' (
 		VendorCDRID,
@@ -89,7 +89,7 @@ BEGIN
 		selling_cost,
 		buying_cost,
 		trunk,
-		area_prefix,		
+		area_prefix,
 		2 AS call_status,
 		ID
 	FROM NeonCDRDev.tblVendorCDRFailed  ud
@@ -97,6 +97,7 @@ BEGIN
 		ON uh.VendorCDRHeaderID = ud.VendorCDRHeaderID 
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
+	AND uh.AccountID IS NOT NULL
 	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
 	');
 

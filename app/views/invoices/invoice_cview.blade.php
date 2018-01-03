@@ -51,6 +51,7 @@
              */
 
             ?>
+
               <div class="pull-right"> &nbsp;</div>
                   @if($Invoice->InvoiceStatus != Invoice::PAID && (getInvoicePayments()))
                   <div class="input-group-btn pull-right" style="width: 70px;">
@@ -99,16 +100,22 @@
                   </div>
                   <div class="pull-right"> &nbsp;</div>
                   @endif
-
+              @if( !empty(!empty($InvoiceTemplate->ManagementReport)))
+                  <a href="{{URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_chart/')}}" class="btn pull-right btn-success tooltip-primary" data-original-title="Management Reports" title="Management Reports" data-placement="top" data-toggle="tooltip"> <i class="entypo-chart-bar"></i></a>
+                  <div class="pull-right"> &nbsp;</div>
+              @endif
           @if( !empty($Invoice->UsagePath)) <a href="{{$cdownload_usage}}" class="btn pull-right btn-success btn-sm btn-icon icon-left"> <i class="entypo-down"></i> Downlod Usage </a>
           <div class="pull-right"> &nbsp;</div>
-          @endif <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a>
+          @endif
+
+              <a href="{{$PDFurl}}" class="print-invoice pull-right  btn btn-sm btn-danger btn-icon icon-left hidden-print"> Print Invoice <i class="entypo-doc-text"></i> </a>
               @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_paypal()  ) )
               {{$paypal_button}}
               @endif
               @if(($Invoice->InvoiceStatus != Invoice::PAID) && (is_sagepay()  ) )
               {{$sagepay_button}}
               @endif
+
         </div>
       </div>
     </div>

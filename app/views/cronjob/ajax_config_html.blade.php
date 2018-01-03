@@ -120,7 +120,7 @@
             <input type="{{$configtitle['type']}}"  name="Setting[{{$configtitle['name']}}]" value="{{$selectd_val}}" class="form-control timepicker starttime2" data-minute-step="5" data-show-meridian="true"  data-default-time="12:00:00 AM" data-show-seconds="true" data-template="dropdown">
 
             @else
-            <input type="{{$configtitle['type']}}" name="Setting[{{$configtitle['name']}}]" value="{{$selectd_val}}" class="form-control @if(isset($configtitle['datepicker'])) datepicker @endif"  id="field-5" placeholder="" @if(isset($configtitle['datepicker']) && isset($configtitle['startdate']) && $configtitle['startdate'] == 'now') data-startdate="{{date('Y-m-d')}}" @endif>
+            <input type="{{$configtitle['type']}}" name="Setting[{{$configtitle['name']}}]" value="{{$selectd_val}}" class="form-control @if(isset($configtitle['datepicker'])) datepicker  @endif" @if(isset($configtitle['datepicker'])) data-date-format="yyyy-mm-dd"  @endif  id="field-5" placeholder="" @if(isset($configtitle['datepicker']) && isset($configtitle['startdate']) && $configtitle['startdate'] == 'now') data-startdate="{{date('Y-m-d')}}" @endif>
             @endif
          </div>
     </div>

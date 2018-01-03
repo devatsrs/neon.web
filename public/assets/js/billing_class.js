@@ -62,6 +62,9 @@ $("#billing-form [name='LowBalanceReminder[Time]']").change(function(){
 $("#billing-form [name='QosAlert[Time]']").change(function(){
     populateInterval($(this).val(),'QosAlert','billing-form');
 });
+    $("#billing-form [name='Report[Time]']").change(function(){
+        populateInterval($(this).val(),'Report','billing-form');
+    });
     $("#call-billing-form [name='CallAlert[Time]']").change(function(){
         populateInterval($(this).val(),'CallAlert','call-billing-form');
     });
@@ -176,6 +179,26 @@ function populateInterval(jobtype,form,formID){
             }
             for(var i=1;i<'32';i++){
                 option.push(new Option(i+" Day", i, false, false));
+            }
+            //option.sort();
+            selectBoxStartDay.append(option);
+            selectBoxStartDay.val(1).trigger('change');
+
+            $("#"+formID+" ."+form+"Day").show();
+            starttime.show();
+        } else if(jobtype == 'YEARLY'){
+            for(var i=1;i<2;i++){
+                options.push(new Option(i+" Year", i, false, false));
+            }
+            //option.sort();
+            selectBoxStartDay.append(option);
+            selectBoxStartDay.val(1).trigger('change');
+
+            $("#"+formID+" ."+form+"Day").show();
+            starttime.show();
+        } else if(jobtype == 'WEEKLY'){
+            for(var i=1;i<53;i++){
+                options.push(new Option(i+" Week", i, false, false));
             }
             //option.sort();
             selectBoxStartDay.append(option);

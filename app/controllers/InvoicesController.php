@@ -883,6 +883,9 @@ class InvoicesController extends \BaseController {
             if(empty($ShowAllPaymentMethod)){
                 $PaymentMethod = $Account->PaymentMethod;
             }
+            $InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
+            $InvoiceTemplateID = BillingClass::getInvoiceTemplateID($InvoiceBillingClass);
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
 
             $StripeACHGatewayID = PaymentGateway::StripeACH;
             $StripeACHCount=0;
@@ -930,7 +933,7 @@ class InvoicesController extends \BaseController {
 
             }
 
-            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log','paypal_button','sagepay_button','StripeACHCount','ShowAllPaymentMethod','PaymentMethod'));
+            return View::make('invoices.invoice_cview', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','payment_log','paypal_button','sagepay_button','StripeACHCount','ShowAllPaymentMethod','PaymentMethod','InvoiceTemplate'));
         }
     }
 
@@ -2865,6 +2868,28 @@ class InvoicesController extends \BaseController {
             }else{
                 return json_encode(array("status" => "failed", "message" => "Problem Creating Invoice Post in Xero ."));
             }
+        }
+    }
+
+    public function invoice_management_chart($id){
+
+        $Invoice = Invoice::find($id);
+        if (!empty($Invoice)) {
+            $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $id])->get();
+            $InvoiceUSAGEPeriod = InvoiceDetail::where(["InvoiceID" => $id,'ProductType'=>Product::USAGE])->first();
+            $Account = Account::find($Invoice->AccountID);
+            $Currency = Currency::find($Account->CurrencyId);
+            $CurrencyCode = !empty($Currency) ? $Currency->Code : '';
+            $CurrencySymbol = Currency::getCurrencySymbol($Account->CurrencyId);
+            $InvoiceBillingClass =	 Invoice::GetInvoiceBillingClass($Invoice);
+            $InvoiceTemplateID = BillingClass::getInvoiceTemplateID($InvoiceBillingClass);
+            $InvoiceTemplate = InvoiceTemplate::find($InvoiceTemplateID);
+            $RoundChargesAmount = get_round_decimal_places($Invoice->AccountID);
+            $companyID = $Account->CompanyId;
+            $management_query = "call prc_InvoiceManagementReport ('" . $companyID . "','".intval($Invoice->AccountID) . "','".$InvoiceUSAGEPeriod->StartDate . "','".$InvoiceUSAGEPeriod->EndDate. "')";
+            $ManagementReports = DataTableSql::of($management_query,'sqlsrvcdr')->getProcResult(array('LongestCalls','ExpensiveCalls','DialledNumber','DailySummary','UsageCategory'));
+            $ManagementReports = json_decode(json_encode($ManagementReports['data']), true);
+            return View::make('invoices.invoice_chart', compact('Invoice', 'InvoiceDetail', 'Account', 'InvoiceTemplate', 'CurrencyCode','ManagementReports','CurrencySymbol','RoundChargesAmount'));
         }
     }
 }
