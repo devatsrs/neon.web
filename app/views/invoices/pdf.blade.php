@@ -47,7 +47,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
       @endif
     </div>
     <div id="company">
-      <h2 class="name"><b>Invoice From</b></h2>
+      <h2 class="name"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_FROM')</b></h2>
       <div>{{ nl2br($InvoiceTemplate->Header)}}</div>
     </div>
   </header>
@@ -56,13 +56,13 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
   <main>
       <div id="details" class="clearfix">
         <div id="client">
-          <div class="to"><b>Invoice To:</b></div>
+          <div class="to"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_TO')</b></div>
           <div>{{nl2br($Invoice->Address)}}</div>
         </div>
         <div id="invoice">
-          <h1>Invoice No: {{$Invoice->FullInvoiceNumber}}</h1>
-          <div class="date">Invoice Date: {{ date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate))}}</div>
-          <div class="date">Due Date: {{date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate.' +'.$PaymentDueInDays.' days'))}}</div>
+          <h1>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_NO') {{$Invoice->FullInvoiceNumber}}</h1>
+          <div class="date">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_DATE') {{ date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate))}}</div>
+          <div class="date">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_DUE_DATE') {{date($InvoiceTemplate->DateFormat,strtotime($Invoice->IssueDate.' +'.$PaymentDueInDays.' days'))}}</div>
         </div>
       </div>
       
@@ -74,11 +74,11 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
       <table border="0" cellspacing="0" cellpadding="0" id="frontinvoice">
         <thead>
         <tr>
-          <th class="desc"><b>Title</b></th>
-          <th class="desc"><b>Description</b></th>
-          <th class="rightalign"><b>Quantity</b></th>
-          <th class="rightalign"><b>Price</b></th>
-          <th class="total"><b>Line Total</b></th>
+          <th class="desc"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_TITLE')</b></th>
+          <th class="desc"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_DESCRIPTION')</b></th>
+          <th class="rightalign"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_QUANTITY')</b></th>
+          <th class="rightalign"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_PRICE')</b></th>
+          <th class="total"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_LINE_TOTAL')</b></th>
         </tr>
         </thead>
         
@@ -99,7 +99,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
         <tfoot>
         <tr>
           <td colspan="2"></td>
-          <td colspan="2">Sub Total</td>
+          <td colspan="2">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_SUB_TOTAL')</td>
           <td class="subtotal">{{$CurrencySymbol}}{{number_format($Invoice->SubTotal,$RoundChargesAmount)}}</td>
         </tr>
         
@@ -115,7 +115,7 @@ $RoundChargesAmount = get_round_decimal_places($Account->AccountID);
         
         <tr>
           <td colspan="2"></td>
-          <td colspan="2"><b>Grand Total</b></td>
+          <td colspan="2"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_GRAND_TOTAL')</b></td>
           <td class="subtotal"><b>{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,$RoundChargesAmount)}}</b></td>
         </tr>
         
