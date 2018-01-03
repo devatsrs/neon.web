@@ -1,5 +1,8 @@
 USE Ratemanagement3;
 
+ALTER TABLE `tblInvoiceTemplate`
+	ADD COLUMN `ManagementReport` TEXT NULL;
+
 update tblCronJob set Status = 0 where CronJobCommandID IN (SELECT CronJobCommandID FROM tblCronJobCommand where Command = 'createvendorsummary');
 update tblCronJobCommand set Status = 0 where Command = 'createvendorsummary';
 
