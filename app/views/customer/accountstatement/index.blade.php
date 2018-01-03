@@ -295,7 +295,7 @@
 
                                         '<tr><th colspan="15"></th></tr>'+
 
-                                        '<tr><th colspan="2" style="text-align: right;text-transform: uppercase">BALANCE AFTER OFFSET:</th><th>' + CurencySymbol + OffsetBalance +'</th><th></th><th></th><th></th><th></th><th></th><th colspan="2" style="text-align: right;text-transform: uppercase">BALANCE BROUGHT FORWARD: </th><th>' + CurencySymbol + BroughtForwardOffset +'</th><th></th><th></th><th></th><th></th>' +
+                                        '<tr><th colspan="2" style="text-align: right;text-transform: uppercase">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_BALANCE_AFTER_OFFSET')</th><th>' + CurencySymbol + OffsetBalance +'</th><th></th><th></th><th></th><th></th><th></th><th colspan="2" style="text-align: right;text-transform: uppercase">@lang('routes.CUST_PANEL_PAGE_ACCOUNT_STATEMENT_TBL_BALANCE_BROUGHT_FORWARD') </th><th>' + CurencySymbol + BroughtForwardOffset +'</th><th></th><th></th><th></th><th></th>' +
                                         '</tr>' ;
 
                                 $('#table-4 > tbody > tr:last').after(newRow);
