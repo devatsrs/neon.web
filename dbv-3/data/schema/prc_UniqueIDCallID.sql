@@ -13,7 +13,7 @@ BEGIN
 	SELECT DISTINCT tud.UUID FROM  `' , p_tbltempusagedetail_name , '` tud
 	LEFT JOIN tblUCall ON tud.UUID = tblUCall.UUID
 	WHERE UID IS NULL
-	AND  tblUCall.UUID IS NOT NULL
+	AND  tud.UUID IS NOT NULL
 	AND  tud.CompanyID = "' , p_CompanyID , '"
 	AND  tud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
 	AND  tud.ProcessID = "' , p_processId , '";
@@ -28,7 +28,7 @@ BEGIN
 	INNER JOIN tblUCall ON tud.UUID = tblUCall.UUID
 	SET  tud.ID = tblUCall.UID
 	WHERE tud.CompanyID = "' , p_CompanyID , '"
-	AND  tblUCall.UUID IS NOT NULL
+	AND  tud.UUID IS NOT NULL
 	AND  tud.CompanyGatewayID = "' , p_CompanyGatewayID , '"
 	AND  tud.ProcessID = "' , p_processId , '";
 	');

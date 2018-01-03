@@ -7,7 +7,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `fnGetUsageForSummary`(
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
-	
+
 	SET @stmt = CONCAT('
 	INSERT IGNORE INTO tmp_tblUsageDetailsReport_' , p_UniqueID , ' (
 		UsageDetailID,
@@ -61,8 +61,7 @@ BEGIN
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 	DEALLOCATE PREPARE stmt;
-	
-	
+
 	SET @stmt = CONCAT('
 	INSERT IGNORE INTO tmp_tblUsageDetailsReport_' , p_UniqueID , ' (
 		UsageDetailID,
@@ -110,6 +109,7 @@ BEGIN
 		ON uh.UsageHeaderID = ud.UsageHeaderID
 	WHERE
 		uh.CompanyID = ' , p_CompanyID , '
+	AND uh.AccountID IS NOT NULL
 	AND uh.StartDate BETWEEN "' , p_StartDate , '" AND "' , p_EndDate , '";
 	');
 

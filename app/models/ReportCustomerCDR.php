@@ -3,13 +3,30 @@ class ReportCustomerCDR extends \Eloquent{
 
     public static $database_columns = array(
         'AccountID' => 'tblHeader.AccountID',
+        'DestinationBreak' => 'tblRate.Description',
     );
     public static  $AccountJoin = false;
+    public static  $CodeJoin = false;
+    public static  $DetailTable = 'tblUsageSummaryDay';
 
     public static function generateSummaryQuery($CompanyID, $data, $filters){
 
         if (count($data['row'])) {
-            $query_distinct = self::commonCDRQuery($CompanyID, $data, $filters);
+            $query_distinct = self::commonCDRQuery($CompanyID, $data, $filters,false);
+            if(substr($filters['date']['start_date'],0,10) == date('Y-m-d') || substr($filters['date']['end_date'],0,10) == date('Y-m-d')){
+                $query_distinct2 = self::commonCDRQuery($CompanyID, $data, $filters,true);
+                foreach ($data['row'] as $column) {
+                    if(isset(self::$database_columns[$column])){
+                        $select_columns2[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
+                    }else {
+                        $columnname = report_col_name($column);
+                        $select_columns2[] = $columnname;
+                    }
+                }
+                $query_distinct2 = $query_distinct2->distinct();
+                $query_distinct2->select($select_columns2);
+                $query_distinct->union($query_distinct2);
+            }
             foreach ($data['row'] as $column) {
                 if(isset(self::$database_columns[$column])){
                     $query_distinct->orderby($column);
@@ -27,8 +44,7 @@ class ReportCustomerCDR extends \Eloquent{
             $response['distinct_row'] = $columns;
             $response['distinct_row'] = array_map('custom_implode', $response['distinct_row']);
         }
-
-        $final_query = self::commonCDRQuery($CompanyID, $data, $filters);
+        $final_query = self::commonCDRQuery($CompanyID, $data, $filters,false);
         foreach ($data['column'] as $column) {
             if(isset(self::$database_columns[$column])){
                 $final_query->groupby($column);
@@ -51,17 +67,62 @@ class ReportCustomerCDR extends \Eloquent{
         //$data['row'] = array_merge($data['row'], $data['column']);
         foreach ($data['sum'] as $colname) {
             if($colname == 'Margin'){
-                $select_columns[] = DB::Raw("COALESCE(SUM(tblUsageSummaryDay.TotalCharges),0) - COALESCE(SUM(tblUsageSummaryDay.TotalCost),0) as " . $colname);
+                $select_columns[] = DB::Raw("COALESCE(SUM(".self::$DetailTable.".TotalCharges),0) - COALESCE(SUM(".self::$DetailTable.".TotalCost),0) as " . $colname);
             }else if($colname == 'MarginPercentage'){
-                $select_columns[] = DB::Raw("(COALESCE(SUM(tblUsageSummaryDay.TotalCharges),0) - COALESCE(SUM(tblUsageSummaryDay.TotalCost),0)) / SUM(tblUsageSummaryDay.TotalCharges)*100 as " . $colname);
+                $select_columns[] = DB::Raw("(COALESCE(SUM(".self::$DetailTable.".TotalCharges),0) - COALESCE(SUM(".self::$DetailTable.".TotalCost),0)) / SUM(".self::$DetailTable.".TotalCharges)*100 as " . $colname);
+            }else if($colname == 'ACD'){
+                $select_columns[] = DB::Raw("IF(SUM(".self::$DetailTable.".NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(".self::$DetailTable.".TotalBilledDuration),0)/SUM(".self::$DetailTable.".NoOfCalls)),0) as " . $colname);
+            }else if($colname == 'ASR'){
+                $select_columns[] = DB::Raw("SUM(".self::$DetailTable.".NoOfCalls)/(SUM(".self::$DetailTable.".NoOfCalls)+SUM(".self::$DetailTable.".NoOfFailCalls))*100 as " . $colname);
+            }else if($colname == 'BilledDuration'){
+                $select_columns[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalBilledDuration),0)/ 60,0) as " . $colname);
+            }else if($colname == 'TotalDuration2'){
+                $select_columns[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalDuration),0)/ 60,0) as " . $colname);
             }else{
-                $select_columns[] = DB::Raw("SUM(tblUsageSummaryDay." . $colname . ") as " . $colname);
+                $select_columns[] = DB::Raw("SUM(".self::$DetailTable."." . $colname . ") as " . $colname);
             }
         }
-        /*if(!empty($select_columns)){
-            $data['row'][] = DB::Raw($select_columns);
-        }*/
-        //print_r($data['row']);exit;
+        if(substr($filters['date']['start_date'],0,10) == date('Y-m-d') || substr($filters['date']['end_date'],0,10) == date('Y-m-d')){
+            $final_query2 = self::commonCDRQuery($CompanyID, $data, $filters,true);
+            foreach ($data['column'] as $column) {
+                if(isset(self::$database_columns[$column])){
+                    $final_query2->groupby($column);
+                    $select_columns2[] = DB::raw(self::$database_columns[$column].' as '.$column) ;
+                }else {
+                    $columnname = report_col_name($column);
+                    $final_query2->groupby($columnname);
+                    $select_columns2[] = $columnname;
+                }
+            }
+            foreach ($data['row'] as $column) {
+                if(isset(self::$database_columns[$column])){
+                    $final_query2->groupby($column);
+                }else {
+                    $columnname = report_col_name($column);
+                    $final_query2->groupby($columnname);
+                }
+            }
+
+            foreach ($data['sum'] as $colname) {
+                if($colname == 'Margin'){
+                    $select_columns2[] = DB::Raw("COALESCE(SUM(".self::$DetailTable.".TotalCharges),0) - COALESCE(SUM(".self::$DetailTable.".TotalCost),0) as " . $colname);
+                }else if($colname == 'MarginPercentage'){
+                    $select_columns2[] = DB::Raw("(COALESCE(SUM(".self::$DetailTable.".TotalCharges),0) - COALESCE(SUM(".self::$DetailTable.".TotalCost),0)) / SUM(".self::$DetailTable.".TotalCharges)*100 as " . $colname);
+                }else if($colname == 'ACD'){
+                    $select_columns2[] = DB::Raw("IF(SUM(".self::$DetailTable.".NoOfCalls)>0,fnDurationmmss(COALESCE(SUM(".self::$DetailTable.".TotalBilledDuration),0)/SUM(".self::$DetailTable.".NoOfCalls)),0) as " . $colname);
+                }else if($colname == 'ASR'){
+                    $select_columns2[] = DB::Raw("SUM(".self::$DetailTable.".NoOfCalls)/(SUM(".self::$DetailTable.".NoOfCalls)+SUM(".self::$DetailTable.".NoOfFailCalls))*100 as " . $colname);
+                }else if($colname == 'BilledDuration'){
+                    $select_columns2[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalBilledDuration),0)/ 60,0) as " . $colname);
+                }else if($colname == 'TotalDuration2'){
+                    $select_columns2[] = DB::Raw("ROUND(COALESCE(SUM(".self::$DetailTable.".TotalDuration),0)/ 60,0) as " . $colname);
+                }else{
+                    $select_columns2[] = DB::Raw("SUM(".self::$DetailTable."." . $colname . ") as " . $colname);
+                }
+            }
+            $final_query2->select($select_columns2);
+            $final_query->union($final_query2);
+        }
         if (!empty($select_columns)) {
             $response['data'] = $final_query->get($select_columns);
             $response['data'] = json_decode(json_encode($response['data']), true);
@@ -73,23 +134,49 @@ class ReportCustomerCDR extends \Eloquent{
         return $response;
     }
 
-    public static function commonCDRQuery($CompanyID, $data, $filters){
+    public static function commonCDRQuery($CompanyID, $data, $filters,$Live){
         $query_common = DB::connection('neon_report')
             ->table('tblHeader')
-            ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
             ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
             ->where(['tblHeader.CompanyID' => $CompanyID]);
+
+        if(in_array('hour',$data['column']) || in_array('hour',$data['row']) || in_array('hour',$data['filter'])) {
+
+            if($Live){
+                $query_common->join('tblUsageSummaryHourLive', 'tblHeader.HeaderID', '=', 'tblUsageSummaryHourLive.HeaderID');
+                $query_common->join('tblDimTime', 'tblUsageSummaryHourLive.TimeID', '=', 'tblDimTime.TimeID');
+                self::$DetailTable = 'tblUsageSummaryHourLive';
+            }else{
+                $query_common->join('tblUsageSummaryHour', 'tblHeader.HeaderID', '=', 'tblUsageSummaryHour.HeaderID');
+                $query_common->join('tblDimTime', 'tblUsageSummaryHour.TimeID', '=', 'tblDimTime.TimeID');
+                self::$DetailTable = 'tblUsageSummaryHour';
+            }
+        }else{
+            if($Live){
+                $query_common->join('tblUsageSummaryDayLive', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDayLive.HeaderID');
+                self::$DetailTable = 'tblUsageSummaryDayLive';
+            }else{
+                $query_common->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID');
+                self::$DetailTable = 'tblUsageSummaryDay';
+            }
+        }
 
         $RMDB = Config::get('database.connections.sqlsrv.database');
         if(report_join($data)){
             $query_common->join($RMDB.'.tblAccount', 'tblHeader.AccountID', '=', 'tblAccount.AccountID');
             self::$AccountJoin = true;
         }
+        if(in_array('DestinationBreak',$data['column']) || in_array('DestinationBreak',$data['row']) || in_array('DestinationBreak',$data['filter'])){
+            $DefaultCodedeck = BaseCodeDeck::where(["CompanyID"=>$CompanyID,"DefaultCodedeck"=>1])->pluck("CodeDeckId");
+            $query_common->join($RMDB.'.tblRate', 'tblRate.Code', '=', self::$DetailTable.'.AreaPrefix');
+            $query_common->where('CodeDeckId', intval($DefaultCodedeck));
+            self::$CodeJoin = true;
+        }
 
         foreach ($filters as $key => $filter) {
             if (!empty($filter[$key]) && is_array($filter[$key]) && !in_array($key, array('GatewayAccountPKID', 'GatewayVAccountPKID'))) {
                 if(isset(self::$database_columns[$key])) {
-                    $query_common->whereRaw(self::$database_columns[$key].' in ('.implode(',',$filter[$key]).')');
+                    $query_common->whereRaw(self::$database_columns[$key].' in ("'.implode('","',$filter[$key]).'")');
                 }else{
                     $query_common->whereIn($key, $filter[$key]);
                 }

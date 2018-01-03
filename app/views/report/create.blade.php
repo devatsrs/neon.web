@@ -1,4 +1,4 @@
-@extends('layout.main')
+@extends($layout)
 @section('content')
     @if(Input::get('report')!='run')
     <ol class="breadcrumb bc-3">
@@ -8,9 +8,15 @@
         <li>
             <a href="{{URL::to('report')}}">Report</a>
         </li>
+        @if(!empty($report))
+        <li>
+            <a><span>{{report_tables_dropbox($report->ReportID,$report->CompanyID)}}</span></a>
+        </li>
+        @else
         <li class="active">
             <a href="javascript:void(0)">{{$report->Name or ''}}</a>
         </li>
+        @endif
     </ol>
     @endif
 
@@ -23,12 +29,53 @@
                 <div class="panel-heading">
                     <div class="panel-title">{{Input::get('report')=='run'?'<strong>'.$report->Name.'</strong>':'Report'}}</div>
                     @if(User::checkCategoryPermission('Report','Update') )
-                    <div class="panel-options">
-                            <a type="submit" id="save_report"  data-original-title="Save" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-floppy"></i></a>
-                            <a href="{{URL::to('report')}}"  data-original-title="Back" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-times"></i></a>
+                    <div class="panel-options dropdown">
+                        <a href="{{URL::to('report')}}"  data-original-title="Back" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-times"></i></a>
+                        <a type="submit" id="save_report"  data-original-title="Save" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-floppy"></i></a>
                         @if(empty(Input::get('report')) && !empty($report))
                             <a href="{{URL::to('report/edit/'.$report->ReportID)}}?report=run"  data-original-title="Run" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-play"></i>&nbsp;</a>
+                        @elseif(!empty($report) && !empty(Input::get('report')))
+                            <a href="{{URL::to('report/edit/'.$report->ReportID)}}"  data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>
                         @endif
+                            <a  data-original-title="Export" title="" data-placement="top" data-toggle="dropdown" aria-expanded="true" class="dropdown-toggle"><i class="fa fa-download"></i>&nbsp;</a>
+                            <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px; min-width: 0">
+                                <li>
+                                    <a href="#" class="save-report-data" data-format="{{Report::XLS}}">
+                                        <span>Excel</span>
+                                    </a>
+                                </li><li>
+                                    <a href="#" class="save-report-data" data-format="{{Report::PNG}}">
+                                        <span>{{Report::PNG}}</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="save-report-data" data-format="{{Report::PDF}}">
+                                        <span>{{Report::PDF}}</span>
+                                    </a>
+                                </li>
+
+                            </ul>
+
+
+
+                    @if(!empty($ReportSchedule))
+                            <a href="{{URL::to('report/schedule_update/'.$ReportSchedule->ReportScheduleID)}}" class="schedule_report"  data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>
+                            <div class = "hiddenRowData pull-left" >
+                                @foreach($schedule_settings as $schedule_settings_key=> $schedule_settings_val)
+                                    <input disabled type = "hidden"  name = "{{$schedule_settings_key}}"       value = "{{is_array($schedule_settings_val)?implode(',',$schedule_settings_val):$schedule_settings_val}}" />
+                                @endforeach
+                                    <input disabled name="Name" value="{{$ReportSchedule->Name}}" type="hidden">
+                                    <input disabled name="ReportID" value="{{$ReportSchedule->ReportID}}" type="hidden">
+                                    <input disabled name="ReportScheduleID" value="{{$ReportSchedule->ReportScheduleID}}" type="hidden">
+                                    <input disabled name="Status" value="{{$ReportSchedule->Status}}" type="hidden" />
+                            </div>
+                    @elseif(!empty($report))
+                            <a href="{{URL::to('report/add_schedule')}}" class="schedule_report"  data-original-title="Scheduling" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-calendar-times-o"></i>&nbsp;</a>
+                            <div class = "hiddenRowData pull-left" >
+                                <input disabled name="Name" value="{{$report->Name}}" type="hidden">
+                                <input disabled name="ReportID" value="{{$report->ReportID}}" type="hidden">
+                            </div>
+                    @endif
                     </div>
 
                     @endif
@@ -171,8 +218,6 @@
                                 </div>
                             </div>
                             <div class="{{ Input::get('report')=='run'?'col-sm-12':'col-sm-10'}} table_report_overflow loading">
-
-
                             </div>
                         </div>
                         <div class="form-group">
@@ -237,9 +282,7 @@
             color:#000
         }
 
-        .select2-container-multi .select2-choices .select2-search-choice{
-            padding: 0px;
-        }
+
         .dataTables_filter label{
             display:none !important;
         }
@@ -264,6 +307,7 @@
 
     </style>
 @include('report.script')
+    @include('report.schedule_modal')
 @stop
 @section('footer_ext')
     @parent
@@ -285,7 +329,7 @@
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane active" id="general" >
-                                <div class="row margin-top filter_data_table">
+                                <div class="row margin-top filter_data_table" style="max-height: 500px; overflow-y: auto; overflow-x: hidden;">
                                     <div class="col-md-12">
                                         <table class="table table-bordered datatable" id="table-filter-list">
                                             <thead>

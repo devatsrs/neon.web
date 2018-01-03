@@ -13,6 +13,7 @@ BEGIN
 	DECLARE v_rowCount_ INT;
 	DECLARE v_pointer_ INT;
 	DECLARE v_AccountID_ INT;
+	DECLARE v_CDRUpload_ INT;	
 	DECLARE v_TrunkID_ INT;
 	DECLARE v_NewAccountIDCount_ INT;
 	DECLARE v_VendorIDs_ TEXT DEFAULT '';
@@ -163,6 +164,45 @@ BEGIN
 		AND uh.CompanyGatewayID = p_CompanyGatewayID;
 
 	END IF;
+	
+	/* temp accounts and trunks*/
+	DROP TEMPORARY TABLE IF EXISTS tmp_AccountTrunkCdrUpload_;
+	CREATE TEMPORARY TABLE tmp_AccountTrunkCdrUpload_  (
+		RowID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		AccountID INT,
+		TrunkID INT
+	);
+	SET @stm = CONCAT('
+	INSERT INTO tmp_AccountTrunkCdrUpload_(AccountID,TrunkID)
+	SELECT DISTINCT AccountID,TrunkID FROM NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud WHERE ProcessID="' , p_processId , '" AND AccountID IS NOT NULL AND TrunkID IS NOT NULL;
+	');
+
+	PREPARE stmt FROM @stm;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+	
+	SET v_CDRUpload_ = (SELECT COUNT(*) FROM tmp_AccountTrunkCdrUpload_);
+
+	IF v_CDRUpload_ > 0
+	THEN
+		/* update UseInBilling when cdr upload*/
+		SET @stm = CONCAT('
+		UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
+		INNER JOIN NeonRMDev.tblVendorTrunk ct
+			ON ct.AccountID = ud.AccountID AND ct.TrunkID = ud.TrunkID AND ct.Status =1
+		INNER JOIN NeonRMDev.tblTrunk t
+			ON t.TrunkID = ct.TrunkID
+			SET ud.UseInBilling=ct.UseInBilling,ud.TrunkPrefix = ct.Prefix
+		WHERE  ud.ProcessID = "' , p_processId , '";
+		');
+		
+		PREPARE stmt FROM @stm;
+		EXECUTE stmt;
+		DEALLOCATE PREPARE stmt;
+		
+	END IF;
+
+
 
 	/* if rate format is prefix base not charge code*/
 	IF p_RateFormat = 2
@@ -206,7 +246,7 @@ BEGIN
 	IF p_RateCDR = 1 AND v_VendorIDs_Count_ = 0
 	THEN
 
-		SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET selling_cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( AccountID IS NULL OR TrunkID IS NULL ) ') ;
+		SET @stm = CONCAT('UPDATE   NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET buying_cost = 0,is_rerated=0  WHERE ProcessID = "',p_processId,'" AND ( AccountID IS NULL OR TrunkID IS NULL ) ') ;
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
@@ -215,7 +255,7 @@ BEGIN
 	ELSEIF p_RateCDR = 1 AND v_VendorIDs_Count_ > 0
 	THEN
 
-		SET @stm = CONCAT('UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET selling_cost = 0,is_rerated=0, area_prefix="Other"  WHERE ProcessID = "',p_processId,'" AND ( FIND_IN_SET(AccountID,"',v_VendorIDs_,'")>0 ) ') ;
+		SET @stm = CONCAT('UPDATE NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud SET buying_cost = 0,is_rerated=0, area_prefix="Other"  WHERE ProcessID = "',p_processId,'" AND ( FIND_IN_SET(AccountID,"',v_VendorIDs_,'")>0) ') ;
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
@@ -328,7 +368,7 @@ BEGIN
 		SELECT DISTINCT ud.CompanyID,ud.CompanyGatewayID,2,  CONCAT( "Account:  " , a.AccountName ," - Trunk: ",ud.trunk," - Unable to Rerate number ",ud.cld," - No Matching prefix found") as Message ,DATE(NOW())
 		FROM  NeonCDRDev.`' , p_tbltempusagedetail_name , '` ud
 		INNER JOIN NeonRMDev.tblAccount a on  ud.AccountID = a.AccountID
-		WHERE ud.ProcessID = "' , p_processid  , '" AND ud.is_rerated = 0 AND ud.billed_second <> 0 and ud.area_prefix = "Other"');
+		WHERE ud.ProcessID = "' , p_processid  , '" AND ud.is_rerated = 0 AND ud.billed_second <> 0');
 
 		PREPARE stmt FROM @stm;
 		EXECUTE stmt;
