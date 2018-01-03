@@ -1,8 +1,8 @@
 @extends('layout.customer.main')
 @section('content')
 <ol class="breadcrumb bc-3">
-  <li><a href="{{ URL::to('/customer/tickets') }}">Tickets</a></li>
-  <li class="active"> <strong>Detail</strong> </li>
+  <li><a href="{{ URL::to('/customer/tickets') }}">@lang('routes.CUST_PANEL_PAGE_TICKETS_TITLE')</a></li>
+  <li class="active"> <strong>@lang('routes.CUST_PANEL_PAGE_TICKETS_DETAIL_TITLE')</strong> </li>
 </ol>
 <div class="pull-left"> <a action_type="reply" data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Reply" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-reply"></i> </a>
 <!-- <a action_type="forward"  data-toggle="tooltip" data-type="parent" data-placement="top"  ticket_number="{{$ticketdata->TicketID}}" data-original-title="Forward" class="btn btn-primary email_action tooltip-primary btn-xs"><i class="entypo-forward"></i> </a> -->
@@ -27,7 +27,7 @@
       <!-- title -->
       <div class="mail-title">{{$ticketdata->Subject}} #{{$ticketdata->TicketID}}</div>
       <div class="mail-date">
-      @if(!empty($ticketemaildata->Cc))cc {{$ticketemaildata->Cc}}<br>@endif @if(!empty($ticketemaildata->Bcc))bcc{{$ticketemaildata->Bcc}}<br>@endif 
+      @if(!empty($ticketemaildata->Cc))@lang('routes.MAIL_LBL_CC') {{$ticketemaildata->Cc}}<br>@endif @if(!empty($ticketemaildata->Bcc))@lang('routes.MAIL_LBL_BCC'){{$ticketemaildata->Bcc}}<br>@endif
        {{\Carbon\Carbon::createFromTimeStamp(strtotime($ticketdata->created_at))->diffForHumans()}}</div>
       <!-- links --> 
     </div>   
@@ -35,7 +35,7 @@
      <div class="mail-text @if(count($attachments)<1 || strlen($ticketdata->AttachmentPaths)<1) last_data  @endif "> {{$ticketdata->Description}} </div>
     @if(count($attachments)>0 && strlen($ticketdata->AttachmentPaths)>0)
     <div class="mail-attachments last_data">
-      <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
+      <h4> <i class="entypo-attach"></i> @lang('routes.MAIL_LBL_ATTACHMENTS') <span>({{count($attachments)}})</span> </h4>
       <ul>
       @if(is_array($attachments)) 
         @foreach($attachments as $key_acttachment => $attachments_data)
@@ -54,7 +54,7 @@
 		$Attachmenturl = URL::to('/customer/tickets/'.$ticketdata->TicketID.'/getattachment/'.$key_acttachment);		
    	    ?>
         <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
-          <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
+          <div class="links"><a href="{{$Attachmenturl}}">@lang('routes.BUTTON_DOWNLOAD_CAPTION')</a> </div>
         </li>
         @endforeach
         @endif
@@ -73,11 +73,11 @@
       <div class="panel-heading panel-heading-convesation">        
           <div class="panel-title" ><span><?php 
 		  if($TicketConversationData->EmailCall==Messages::Received){
-		   ?>From <?php echo $TicketConversationData->Emailfrom;  ?>
-		 <?php }elseif($TicketConversationData->EmailCall==Messages::Sent){ echo $TicketConversationData->Emailfrom; ?> replied<br>to (<?php echo $TicketConversationData->EmailTo; ?>) <?php } ?></span>
+		   ?>@lang('routes.MAIL_LBL_FROM') <?php echo $TicketConversationData->Emailfrom;  ?>
+		 <?php }elseif($TicketConversationData->EmailCall==Messages::Sent){ echo $TicketConversationData->Emailfrom; ?> @lang('routes.MAIL_LBL_REPLIED')<br>@lang('routes.MAIL_LBL_TO') (<?php echo $TicketConversationData->EmailTo; ?>) <?php } ?></span>
           
-          <?php if(!empty($TicketConversationData->EmailCc)){ ?><br>cc:  <?php echo $TicketConversationData->EmailCc; ?> <?php } ?>
-		  <?php if(!empty($TicketConversationData->EmailBcc)){ ?><br>bcc: <?php echo $TicketConversationData->EmailBcc; ?> <?php } ?> </div>
+          <?php if(!empty($TicketConversationData->EmailCc)){ ?><br>@lang('routes.MAIL_LBL_CC'):  <?php echo $TicketConversationData->EmailCc; ?> <?php } ?>
+		  <?php if(!empty($TicketConversationData->EmailBcc)){ ?><br>@lang('routes.MAIL_LBL_BCC'): <?php echo $TicketConversationData->EmailBcc; ?> <?php } ?> </div>
           
         <div class="panel-options"> <span> {{\Carbon\Carbon::createFromTimeStamp(strtotime($TicketConversationData->created_at))->diffForHumans()}}</span> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
       </div>
@@ -87,7 +87,7 @@
         <?php $attachments = unserialize($TicketConversationData->AttachmentPaths);  ?>
         @if(count($attachments)>0 && strlen($TicketConversationData->AttachmentPaths)>0)
         <div class="mail-attachments last_data">
-          <h4> <i class="entypo-attach"></i> Attachments <span>({{count($attachments)}})</span> </h4>
+          <h4> <i class="entypo-attach"></i> @lang('routes.MAIL_LBL_ATTACHMENTS') <span>({{count($attachments)}})</span> </h4>
           <ul>
             @foreach($attachments as $key_acttachment => $attachments_data)
             <?php 
@@ -105,7 +105,7 @@
 		$Attachmenturl = URL::to('emails/'.$TicketConversationData->AccountEmailLogID.'/getattachment/'.$key_acttachment);
    	    ?>
             <li> <a target="_blank" href="{{$Attachmenturl}}" class="thumb download"> <img width="75"   src="{{getimageicons($Filename)}}" class="img-rounded" /> </a> <a target="_blank" href="{{$Attachmenturl}}" class="shortnamewrap name"> {{$attachments_data['filename']}} </a>
-              <div class="links"><a href="{{$Attachmenturl}}">Download</a> </div>
+              <div class="links"><a href="{{$Attachmenturl}}">@lang('routes.BUTTON_DOWNLOAD_CAPTION')</a> </div>
             </li>
             @endforeach
           </ul>
@@ -126,7 +126,7 @@
             
             <!-- panel head -->
             <div class="panel-heading">
-              <div class="panel-title"><strong>Requester Info</strong></div>
+              <div class="panel-title"><strong>@lang('routes.CUST_PANEL_PAGE_TICKETS_DETAIL_TAB_REQUESTER_INFO')</strong></div>
               <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
             </div>
             
@@ -145,7 +145,7 @@
             
             <!-- panel head -->
             <div class="panel-heading">
-              <div class="panel-title"><strong>Ticket Properties</strong></div>
+              <div class="panel-title"><strong>@lang('routes.CUST_PANEL_PAGE_TICKETS_DETAIL_TAB_TICKET_PROPERTIES')</strong></div>
               <div class="panel-options"> <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a> </div>
             </div>
             
@@ -185,8 +185,8 @@
         </div>
         <div class="modal-footer">
           <input type="hidden" id="TicketID" name="TicketID" value="{{$ticketdata->TicketID}}">
-          <button type="submit" id="note-edit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> Save </button>
-          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> Close </button>
+          <button type="submit" id="note-edit"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')"> <i class="entypo-floppy"></i> @lang('routes.BUTTON_SAVE_CAPTION') </button>
+          <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal"> <i class="entypo-cancel"></i> @lang('routes.BUTTON_CLOSE_CAPTION') </button>
         </div>
       </form>
     </div>
@@ -197,7 +197,7 @@
   <input type="file" class="fileUploads form-control file2 inline btn btn-primary btn-sm btn-icon icon-left" name="emailattachment[]" multiple id="filecontrole2">
   </span>
   <input id="info3" type="hidden" name="attachmentsinfo" />
-  <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
+  <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')"><i class="entypo-floppy"></i>@lang('routes.BUTTON_SAVE_CAPTION')</button>
 </form>
 <style>
 /*.mail-env .mail-body{float:left; width:70% !important; margin-right:1%; border-right:1px solid #ccc; background:#fff none repeat scroll 0 0;}*/

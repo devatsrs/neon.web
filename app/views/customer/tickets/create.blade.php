@@ -7,7 +7,7 @@
 </ol>
 <h3>@lang('routes.CUST_PANEL_PAGE_NEW_TICKET_TITLE')</h3>
 <p style="text-align: right;">
-  <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..."> <i class="entypo-floppy"></i> @lang('routes.BUTTON_SAVE_CAPTION') </button>
+  <button type='button' class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')"> <i class="entypo-floppy"></i> @lang('routes.BUTTON_SAVE_CAPTION') </button>
   <a href="{{URL::to('/customer/tickets')}}" class="btn btn-danger btn-sm btn-icon icon-left"> <i class="entypo-cancel"></i>  @lang('routes.BUTTON_CLOSE_CAPTION')  </a> </p>
 <br>
 <div class="row">
@@ -172,7 +172,7 @@
   </span>
   <input  hidden="" name="token_attachment" value="{{$random_token}}" />
   <input id="info1" type="hidden" name="attachmentsinfo" />
-  <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="Loading..."><i class="entypo-floppy"></i>Save</button>
+  <button  class="pull-right save btn btn-primary btn-sm btn-icon icon-left hidden" type="submit" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')"><i class="entypo-floppy"></i>Save</button>
 </form>
 <script type="text/javascript">
 var editor_options 	  =  		{};

@@ -56,7 +56,7 @@
           </tr>
           <?php } }else{ ?>
     <tr>
-      <td align="center" colspan="2">No Result Found.</td>
+      <td align="center" colspan="2">@lang('routes.MESSAGE_DATA_NOT_AVAILABLE')</td>
     </tr>
     <?php } ?>
   </tbody>

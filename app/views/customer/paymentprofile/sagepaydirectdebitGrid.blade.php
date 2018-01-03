@@ -325,7 +325,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">Title</label>
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_SAGEPAY_ADD_NEW_BANK_AC_FIELD_TITLE')</label>
                                     <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
