@@ -1,10 +1,24 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_WSProcessRateTableRate`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_WSProcessRateTableRate`(
 	IN `p_ratetableid` INT,
 	IN `p_replaceAllRates` INT,
 	IN `p_effectiveImmediately` INT,
 	IN `p_processId` VARCHAR(200),
 	IN `p_addNewCodesToCodeDeck` INT,
 	IN `p_companyId` INT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 )
 BEGIN
 	DECLARE v_AffectedRecords_ INT DEFAULT 0;
@@ -13,6 +27,7 @@ BEGIN
 	 DECLARE errormessage longtext;
 	 DECLARE errorheader longtext;
     
+
 	 SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;    
 	 
     DROP TEMPORARY TABLE IF EXISTS tmp_JobLog_;
@@ -37,17 +52,28 @@ BEGIN
 			INDEX tmp_Change (`Change`)
     );
     
-     DELETE n1 FROM tblTempRateTableRate n1 
-	  INNER JOIN 
-			(
-			  SELECT MIN(EffectiveDate) as EffectiveDate,Code 
-			  FROM tblTempRateTableRate WHERE ProcessId = p_processId
-			GROUP BY Code
-			HAVING COUNT(*)>1
-			)n2 
-			ON n1.Code = n2.Code
-			AND n2.EffectiveDate = n1.EffectiveDate
-			WHERE n1.ProcessId = p_processId;
+			 IF  p_effectiveImmediately = 1
+            THEN
+                UPDATE tblTempRateTableRate
+                SET EffectiveDate = DATE_FORMAT (NOW(), '%Y-%m-%d')
+                WHERE EffectiveDate < DATE_FORMAT (NOW(), '%Y-%m-%d') AND ProcessId = p_processId;
+          END IF;
+          
+    
+    		-- Delete duplicates
+		     DELETE n1 FROM tblTempRateTableRate n1 
+			  INNER JOIN 
+				(
+				  SELECT MAX(TempRateTableRateID) AS TempRateTableRateID,EffectiveDate,Code 
+				  FROM tblTempRateTableRate WHERE ProcessId = p_processId
+					GROUP BY Code,EffectiveDate
+				HAVING COUNT(*)>1
+				)n2 
+				ON n1.Code = n2.Code
+				AND n2.EffectiveDate = n1.EffectiveDate AND n1.TempRateTableRateID < n2.TempRateTableRateID
+				WHERE n1.ProcessId = p_processId;
+			
+			
 
 		  INSERT INTO tmp_TempRateTableRate_
         SELECT distinct `CodeDeckId`,`Code`,`Description`,`Rate`,`EffectiveDate`,`Change`,`ProcessId`,`Preference`,`ConnectionFee`,`Interval1`,`IntervalN` FROM tblTempRateTableRate WHERE tblTempRateTableRate.ProcessId = p_processId;
@@ -113,11 +139,11 @@ BEGIN
                 WHERE EffectiveDate < DATE_FORMAT (NOW(), '%Y-%m-%d');
           END IF;
           
-          -- check duplicate code record
+          
           select count(*) INTO totalduplicatecode FROM(
 				SELECT count(code) as c,code FROM tmp_TempRateTableRate_  GROUP BY Code,EffectiveDate HAVING c>1) AS tbl;
 			
-			-- for duplicate code record	
+			
 			IF  totalduplicatecode > 0
 				THEN
 						SELECT GROUP_CONCAT(code) into errormessage FROM(
@@ -150,7 +176,7 @@ BEGIN
                         vc.Code,
                         vc.Description,
                         'WindowsService',
-                       -- c.CountryID,
+                       
                         fnGetCountryIdByCodeAndCountry (vc.Code ,vc.Description) AS CountryID,
                         CodeDeckId,
                         Interval1,
@@ -172,37 +198,10 @@ BEGIN
                         WHERE tblRate.RateID IS NULL
                         AND tblTempRateTableRate.`Change` NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')
 							) vc;
-                         -- ON vc.Code = c.Code;
-                   /* LEFT JOIN
-                    (
-                        SELECT DISTINCT
-                            tblTempRateTableRate2.Code,
-                            tblCountry.CountryID
-                        FROM tblCountry
-                        LEFT OUTER JOIN
-                        (
-                            SELECT
-                                Prefix
-                            FROM tblCountry
-                            GROUP BY Prefix
-                            HAVING COUNT(*) > 1) d
-                            ON tblCountry.Prefix = d.Prefix
-                            INNER JOIN tmp_TempRateTableRate2_ as tblTempRateTableRate2
-                                ON (tblTempRateTableRate2.Code LIKE CONCAT(tblCountry.Prefix
-                                , '%')
-                                AND d.Prefix IS NULL
-                                )
-                                OR (tblTempRateTableRate2.Code LIKE CONCAT(tblCountry.Prefix
-                                , '%')
-                                AND d.Prefix IS NOT NULL
-                                AND (tblTempRateTableRate2.Description LIKE Concat('%'
-                                , tblCountry.Country
-                                , '%')
-                                )
-                                )
-                        WHERE tblTempRateTableRate2.Change NOT IN ('Delete', 'R', 'D', 'Blocked', 'Block')) c */
+                         
+                   
                         
-                        /* AND c.CountryID IS NOT NULL*/
+                        
 
 
                 SELECT GROUP_CONCAT(code) into errormessage FROM(	
@@ -216,7 +215,7 @@ BEGIN
 						  WHERE tblRate.CountryID IS NULL
                     AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block')) as tbl GROUP BY a;
                     
-                    IF errormessage IS NOT NULL
+                    /*IF errormessage IS NOT NULL
 	                 THEN
 	                 		INSERT INTO tmp_JobLog_ (Message)
 		                  SELECT DISTINCT
@@ -229,7 +228,7 @@ BEGIN
 						  WHERE tblRate.CountryID IS NULL
                     AND tblTempRateTableRate.Change NOT IN ('Delete', 'R', 'D', 'Blocked','Block');
                     
-					 	 END IF;
+					 	 END IF;*/
 					 	 
             ELSE
                 SELECT GROUP_CONCAT(code) into errormessage FROM(
@@ -377,6 +376,13 @@ BEGIN
                 AND tblTempRateTableRate.EffectiveDate >= DATE_FORMAT (NOW(), '%Y-%m-%d');
 
             SET v_AffectedRecords_ = v_AffectedRecords_ + FOUND_ROWS();
+            
+            
+         -- Update previous rate
+         call prc_RateTableRateUpdatePreviousRate(p_ratetableid,'');
+			 
+							 
+			
 
 	END IF;
       
