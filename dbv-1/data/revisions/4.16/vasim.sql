@@ -29,7 +29,10 @@ ALTER TABLE `tblRateSheet`
 ALTER TABLE `tblRateSheet`
 	CHANGE COLUMN `Level` `Level` VARCHAR(50) NOT NULL COLLATE 'utf8_unicode_ci' AFTER `FileName`;
 
-
+ALTER TABLE `tblTaxRate`
+	ALTER `Amount` DROP DEFAULT;
+ALTER TABLE `tblTaxRate`
+	CHANGE COLUMN `Amount` `Amount` DECIMAL(18,6) NOT NULL AFTER `Title`;
 
 
 
