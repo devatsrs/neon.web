@@ -207,12 +207,9 @@
                                         action += ' <a data-name = "' + full[0] + '" data-id="' + full[0] + '" class="edit-payment btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>View </a>'
                                         <?php if(User::is('BillingAdmin')){?>
                                         if(full[7] != "Approved"){
-                                            var Approve = "@lang('routes.BUTTON_APPROVE_CAPTION')";
-                                            var Reject = "@lang('routes.BUTTON_REJECT_CAPTION')";
-                                            var Loading = "@lang('routes.BUTTON_LOADING_CAPTION')";
 
-                                            action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="'+Loading+'">'+Approve+'/'+Reject+' <span class="caret"></span></button>'
-                                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >'+Approve+'</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">'+Reject+'</a></li></ul></div>';
+                                            action += ' <div class="btn-group"><button href="#" class="btn generate btn-success btn-sm  dropdown-toggle" data-toggle="dropdown" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">@lang('routes.BUTTON_APPROVE_CAPTION')/@lang('routes.BUTTON_REJECT_CAPTION') <span class="caret"></span></button>'
+                                            action += '<ul class="dropdown-menu dropdown-green" role="menu"><li><a href="' + Approve_Payment+ '" class="approvepayment" >@lang('routes.BUTTON_APPROVE_CAPTION')</a></li><li><a href="' + Reject_Payment + '" class="rejectpayment">@lang('routes.BUTTON_REJECT_CAPTION')</a></li></ul></div>';
                                         }
                                         if(full[9]!= null){
                                             var Download = "@lang('routes.BUTTON_DOWNLOAD_CAPTION')";
