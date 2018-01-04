@@ -1,6 +1,7 @@
-CREATE DEFINER=`neon-user`@`117.247.87.156` PROCEDURE `prc_WSProcessCodeDeck`(
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_WSProcessCodeDeck`(
 	IN `p_processId` VARCHAR(200),
 	IN `p_companyId` INT
+
 )
 BEGIN
 
@@ -22,11 +23,11 @@ BEGIN
     DELETE n1 
 	 FROM tblTempCodeDeck n1 
 	 INNER JOIN (
-	 	SELECT MAX(TempCodeDeckRateID) as TempCodeDeckRateID FROM tblTempCodeDeck WHERE ProcessId = p_processId
+	 	SELECT MAX(TempCodeDeckRateID) as TempCodeDeckRateID,Code FROM tblTempCodeDeck WHERE ProcessId = p_processId
 		GROUP BY Code
 		HAVING COUNT(*)>1
 	) n2 
-	 	ON n1.TempCodeDeckRateID = n2.TempCodeDeckRateID
+	 	ON n1.Code = n2.Code AND n1.TempCodeDeckRateID < n2.TempCodeDeckRateID
 	WHERE n1.ProcessId = p_processId;
  		
  	
@@ -177,7 +178,7 @@ BEGIN
 	 INSERT INTO tmp_JobLog_ (Message)
 	 SELECT CONCAT(v_AffectedRecords_, ' Records Uploaded \n\r ' );
 	 
-    DELETE  FROM tblTempCodeDeck WHERE   tblTempCodeDeck.ProcessId = p_processId;
+	DELETE  FROM tblTempCodeDeck WHERE   tblTempCodeDeck.ProcessId = p_processId;
  	 SELECT * from tmp_JobLog_;
 	      
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

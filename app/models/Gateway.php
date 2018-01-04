@@ -9,10 +9,11 @@ class Gateway extends \Eloquent {
     protected  $primaryKey = "GatewayID";
 
     const GATEWAY_VOS = 'VOS';
+    const GATEWAY_VOS5000 = 'VOS5000';
     const GATEWAY_SippySFTP = 'SippySFTP';
     const GATEWAY_FTP = 'FTP';
 
-    public static $ftp_array = [self::GATEWAY_VOS,self::GATEWAY_SippySFTP,self::GATEWAY_FTP];
+    public static $ftp_array = [self::GATEWAY_VOS,self::GATEWAY_SippySFTP,self::GATEWAY_FTP,self::GATEWAY_VOS5000];
 
     public  static  function getGatewayListID(){
         $row = Gateway::where(array('Status'=>1))->lists('Title', 'GatewayID');

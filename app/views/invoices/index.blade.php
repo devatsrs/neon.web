@@ -1176,11 +1176,11 @@
 
                             modal.find('.message').show();
 
-							show_summernote(modal.find(".message"),editor_options);
                             var EmailTemplate = data['EmailTemplate'];
                             modal.find('[name="subject"]').val(EmailTemplate.Subject);
                             modal.find('.message').val(EmailTemplate.TemplateBody);
 
+                            show_summernote(modal.find(".message"),editor_options);
                         } else {
                             toastr.error(status, "Error", toastr_opts);
                         }

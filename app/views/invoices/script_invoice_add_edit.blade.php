@@ -63,10 +63,11 @@ $(document).ready(function(){
         var optgroup = $(this).find(":selected").parents('optgroup');
         var $row = $this.parents("tr");
         //console.log($this.val());
-        var productID = $this.val();
+        var productID = $this.val().split('-')[1];
+        //productID = productID[1];
         var AccountID = $('select[name=AccountID]').val();
         var InvoiceDetailID = $row.find('.InvoiceDetailID').val();
-        var  selected_product_type = optgroup.prop('label')==txtSUBSCRIPTION?SUBSCRIPTION:'';
+        var  selected_product_type = optgroup.prop('label')==txtSUBSCRIPTION?SUBSCRIPTION:optgroup.prop('label')==txtITEM?ITEM:'';
         //selected_product_type = ($(this.options[this.selectedIndex]).closest('optgroup').prop('label')).toLowerCase();
         //$row.find('.ProductType').val(product_types[selected_product_type]);
         if( productID != ''  && parseInt(AccountID) > 0 ) {
@@ -166,6 +167,7 @@ $(document).ready(function(){
                             decimal_places = response.decimal_places;
                             $row.find(".StartDate").attr("disabled",true);
                             $row.find(".EndDate").attr("disabled",true);
+                            $row.find(".ProductType").val(selected_product_type);
                             $('.Taxentity').trigger('change');
                             $("textarea.autogrow").autosize();
                             calculate_total();
@@ -512,7 +514,10 @@ $(document).ready(function(){
     });
 	
 	$("#AccountBillingClassID").change( function (e) {
-		
+		if($("select[name=AccountID]").val() == '') {
+            toastr.error("Please Select Client first.", "Error", toastr_opts);
+            return false;
+        }
         url = baseurl + "/invoice/get_billingclass_info";
         $this = $(this);
         data = {BillingClassID:$this.val(),account_id:$("select[name=AccountID]").val()}
@@ -543,7 +548,7 @@ $(document).ready(function(){
 		$('.all_tax_row').remove();
 		if(AccountTaxRate.length>0){			
 			AccountTaxRate.forEach(function(entry,index) {
-				console.log(index+'-'+entry);
+				//console.log(index+'-'+entry);
 				if(index==0){
 					$('.InvoiceTaxesFldFirst').val(entry);
 					var change = $('.InvoiceTaxesFldFirst');

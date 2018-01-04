@@ -70,6 +70,18 @@ class InvoiceTemplatesController extends \BaseController {
             }
 
             return View::make('invoicetemplates.showusagecdr', compact('InvoiceTemplate','logo','detail_values','summary_values'));
+        }elseif($type==4){
+            /* Default Value */
+            $test_detail='[{"Title":"Longest Calls","ValuesID":"1","UsageName":"Longest Calls","Status":true,"FieldOrder":1},{"Title":"Most Expensive Calls","ValuesID":"2","UsageName":"Most Expensive Calls","Status":true,"FieldOrder":2},{"Title":"Frequently Called Numbers","ValuesID":"3","UsageName":"Frequently Called Numbers","Status":true,"FieldOrder":3},{"Title":"Daily Summary","ValuesID":"4","UsageName":"Daily Summary","Status":true,"FieldOrder":4},{"Title":"Usage by Category","ValuesID":"4","UsageName":"Usage by Category","Status":true,"FieldOrder":5}]';
+            $detail_values  =  json_decode($test_detail,true);
+            /* Default Value */
+            if(!empty($InvoiceTemplate->ManagementReport)){
+                $usageColumns = json_decode($InvoiceTemplate->ManagementReport,true);
+                if(!empty($usageColumns)){
+                    $detail_values = $usageColumns;
+                }
+            }
+            return View::make('invoicetemplates.report', compact('InvoiceTemplate','logo','detail_values'));
         }
 
         //return View::make('invoicetemplates.show', compact('InvoiceTemplate','logo'));
@@ -428,7 +440,12 @@ class InvoiceTemplatesController extends \BaseController {
     function Save_Single_Field()
     {
         $postdata = Input::all();
-        if (!empty($postdata['InvoiceTemplateID']) && $postdata['InvoiceTemplateID'] > 0) {
+        if (!empty($postdata['InvoiceTemplateID']) && $postdata['InvoiceTemplateID'] > 0 && isset($postdata['reportchoicesdata'])) {
+            $InvoiceTemplates = InvoiceTemplate::find($postdata['InvoiceTemplateID']);
+            if ($InvoiceTemplates->update(array('ManagementReport' => $postdata['reportchoicesdata']))) {
+                return Response::json(array("status" => "success", "message" => "Invoice Template Usage Column Successfully Updated"));
+            }
+        } else if (!empty($postdata['InvoiceTemplateID']) && $postdata['InvoiceTemplateID'] > 0) {
             $AllData = array();
             $UsageSummary = json_decode($postdata['summarychoices'], true);
             $AllData['Summary'] = $UsageSummary;

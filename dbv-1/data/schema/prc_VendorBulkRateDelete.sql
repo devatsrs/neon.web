@@ -1,11 +1,23 @@
-CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_VendorBulkRateDelete`(IN `p_CompanyId` INT
-, IN `p_AccountId` INT
-, IN `p_TrunkId` INT 
-, IN `p_VendorRateIds` TEXT, IN `p_code` varchar(50)
-, IN `p_description` varchar(200)
-, IN `p_CountryId` INT
-, IN `p_effective` VARCHAR(50)
-, IN `p_action` INT)
+CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_VendorBulkRateDelete`(
+	IN `p_CompanyId` INT
+,
+	IN `p_AccountId` INT
+,
+	IN `p_TrunkId` INT 
+,
+	IN `p_VendorRateIds` TEXT,
+	IN `p_code` varchar(50)
+,
+	IN `p_description` varchar(200)
+,
+	IN `p_CountryId` INT
+,
+	IN `p_effective` VARCHAR(50)
+,
+	IN `p_action` INT
+
+
+)
 BEGIN
 
 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -20,6 +32,7 @@ BEGIN
       Description VARCHAR(200),
       Rate DECIMAL(18, 6),
       EffectiveDate DATETIME,
+      EndDate DATETIME,
 		Interval1 INT,
 		IntervalN INT,
 		ConnectionFee DECIMAL(18, 6),
@@ -29,7 +42,7 @@ BEGIN
 	 
 	 IF p_action = 1
 	 THEN
-	 -- delete vendor rate wiht critearia
+	 
 	  
 	 INSERT INTO tmp_Delete_VendorRate(
 	 	VendorRateID,
@@ -40,6 +53,7 @@ BEGIN
       Description,
       Rate,
       EffectiveDate,
+      EndDate,
 		Interval1,
 		IntervalN,
 		ConnectionFee,
@@ -54,6 +68,7 @@ BEGIN
 		  r.Description,
 		  Rate,
 		  EffectiveDate,
+		  EndDate,
 		  v.Interval1,
 		  v.IntervalN,
 		  ConnectionFee,
@@ -69,7 +84,7 @@ BEGIN
 			((p_CountryId IS NULL) OR (p_CountryId IS NOT NULL AND r.CountryId = p_CountryId))
 			AND ((p_code IS NULL) OR (p_code IS NOT NULL AND r.Code like REPLACE(p_code,'*', '%')))
 			AND ((p_description IS NULL) OR (p_description IS NOT NULL AND r.Description like REPLACE(p_description,'*', '%')))
-		 	AND ((p_effective = 'Now' AND v.EffectiveDate <= NOW() ) OR (p_effective = 'Future' AND v.EffectiveDate> NOW() ) )
+		 	AND ((p_effective = 'Now' AND v.EffectiveDate <= NOW() ) OR (p_effective = 'Future' AND v.EffectiveDate> NOW()) OR p_effective = 'All')
 		 	AND v.AccountId = p_AccountId
 			AND v.TrunkID = p_TrunkId;
 
@@ -78,8 +93,8 @@ BEGIN
 	IF p_action = 2
 	THEN
 		
-		-- delete vendor rate with selected rate comes
-		-- delete all vendor rate when setting tab code deck change	
+		
+		
 			
 		 INSERT INTO tmp_Delete_VendorRate(
 		 	VendorRateID,
@@ -90,6 +105,7 @@ BEGIN
 	      Description,
 	      Rate,
 	      EffectiveDate,
+	      EndDate,
 			Interval1,
 			IntervalN,
 			ConnectionFee,
@@ -104,6 +120,7 @@ BEGIN
 		  r.Description,
 		  Rate,
 		  EffectiveDate,
+		  EndDate,
 		  v.Interval1,
 		  v.IntervalN,
 		  ConnectionFee,
@@ -117,10 +134,21 @@ BEGIN
 				;
 	END IF; 	
 	
-	-- insert vendor rate in tblVendorRateDiscontinued before delete
 	
-	CALL prc_InsertDiscontinuedVendorRate(p_AccountId,p_TrunkId);
-	-- SELECT * FROM tmp_Delete_VendorRate;
+	-- set end date will remove at bottom in archive proc
+	UPDATE tblVendorRate
+	JOIN tmp_Delete_VendorRate ON tblVendorRate.VendorRateID = tmp_Delete_VendorRate.VendorRateID 
+	SET tblVendorRate.EndDate = date(now())
+	WHERE 	
+	tblVendorRate.AccountId = p_accountId
+	AND tblVendorRate.TrunkId = p_trunkId;
+
+	
+	-- archive rates which has EndDate <= today
+	call prc_ArchiveOldVendorRate(p_accountId,p_trunkId);
+	
+	-- CALL prc_InsertDiscontinuedVendorRate(p_AccountId,p_TrunkId);
+	
 		 
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 END

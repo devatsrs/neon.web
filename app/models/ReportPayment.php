@@ -9,6 +9,7 @@ class ReportPayment extends \Eloquent{
         'date' => 'DATE(PaymentDate)',
         'PaymentMethod' => 'tblPayment.PaymentMethod',
         'AccountID' => 'tblPayment.AccountID',
+        'CurrencyID' => 'tblPayment.CurrencyID',
     );
     public static $AccountJoin = false;
 
