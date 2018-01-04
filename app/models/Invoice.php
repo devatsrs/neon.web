@@ -82,7 +82,7 @@ class Invoice extends \Eloquent {
         if($InvoiceID>0) {
             $Invoice = Invoice::find($InvoiceID);
 
-            $accout_data=Account::whereAccountID($InvoiceID)->first();
+            $accout_data=Account::where("AccountID", $Invoice->AccountID)->first();
             App::setLocale($accout_data->Language);
 
             $InvoiceDetail = InvoiceDetail::where(["InvoiceID" => $InvoiceID])->get();

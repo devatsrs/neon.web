@@ -51,7 +51,7 @@ class TranslateController extends \BaseController {
             $html_translation='<label data-languages="'.$data["Language"].'" class="label_language hidden" data-system-name="'.$key.'" >'.$translation.'</label>
                                 <input type="text" value="'.$translation.'" data-languages="'.$data["Language"].'" class="text_language form-control"  data-system-name="'.$key.'" />';
 
-//            $html_translation.='<input type="button" value="Delete" data-languages="'.$data["Language"].'" class="text_delete form-control btn-danger"  data-system-name="'.$key.'" />';
+            $html_translation.='<input type="button" value="Delete" data-languages="'.$data["Language"].'" class="text_delete form-control btn-danger"  data-system-name="'.$key.'" />';
 
 
 
@@ -131,7 +131,7 @@ class TranslateController extends \BaseController {
         if(!File::exists($JSON_File)){
             File::makeDirectory($JSON_File);
         }
-
+        RemoteSSH::run("chmod -R 777 " . $JSON_File."/routes.php");
         file_put_contents($JSON_File."/routes.php", "<?php ".$arr_valid );
     }
 
