@@ -23,6 +23,10 @@
                     {{ Form::select('Active', $active, '', array("class"=>"form-control select2 small")) }}
                 </div>
                 <div class="form-group">
+                    <label for="field-1" class="control-label">AppliedTo</label>
+                    {{ Form::select('AppliedTo', Product::$ALLAppliedTo, '', array("class"=>"form-control select2 small")) }}
+                </div>
+                <div class="form-group">
                     <br/>
                     <button type="submit" class="btn btn-primary btn-md btn-icon icon-left">
                         <i class="entypo-search"></i>
@@ -80,7 +84,7 @@
                                     <i class="entypo-upload"></i>
                                     Upload
                                 </a>
-                                <a href="#" data-action="showAddModal" data-type="item" data-modal="add-edit-modal-product" class="btn btn-primary pull-right">
+                                <a href="#" data-action="showAddModal" id="add-new-product" data-type="item" data-modal="add-edit-modal-product" class="btn btn-primary pull-right">
                                     <i class="entypo-plus"></i>
                                     Add New
                                 </a>
@@ -108,7 +112,7 @@
             </table>
             <script type="text/javascript">
                 var checked = '';
-                var list_fields  = ['ProductID','Name','Code','Amount','updated_at','Active','Description','Note'];
+                var list_fields  = ['ProductID','Name','Code','Amount','updated_at','Active','Description','Note','AppliedTo'];
                 var $searchFilter = {};
                 var update_new_url;
                 var postdata;
@@ -120,6 +124,7 @@
                     $searchFilter.Name = $("#product_filter [name='Name']").val();
                     $searchFilter.Code = $("#product_filter [name='Code']").val();
                     $searchFilter.Active = $("#product_filter select[name='Active']").val();
+                    $searchFilter.AppliedTo = $("#product_filter select[name='AppliedTo']").val();
 
                     data_table = $("#table-4").dataTable({
                         "bDestroy": true,
@@ -129,12 +134,15 @@
                         "fnServerParams": function (aoData) {
                             aoData.push({ "name": "Name", "value": $searchFilter.Name },
                                         { "name": "Code","value": $searchFilter.Code },
-                                        { "name": "Active", "value": $searchFilter.Active });
+                                        { "name": "Active", "value": $searchFilter.Active },
+                                        { "name": "AppliedTo", "value": $searchFilter.AppliedTo });
 
                             data_table_extra_params.length = 0;
                             data_table_extra_params.push({ "name": "Name", "value": $searchFilter.Name },
                                                         { "name": "Code","value": $searchFilter.Code },
-                                                        { "name": "Active", "value": $searchFilter.Active },{ "name": "Export", "value": 1});
+                                                        { "name": "Active", "value": $searchFilter.Active },
+                                                        { "name": "AppliedTo", "value": $searchFilter.AppliedTo },
+                                                        { "name": "Export", "value": 1});
 
                         },
                         "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
@@ -181,10 +189,11 @@
                                     }
                                     action += '</div>';
                                     <?php if(User::checkCategoryPermission('Products','Edit')){ ?>
-                                        action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-product btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                        action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="Edit" class="edit-product btn btn-default btn-sm btn-smtooltip-primary" data-original-title="Edit" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i>&nbsp;</a>';
+                                        action += ' <a data-name = "' + full[1] + '" data-id="' + full[0] + '" title="CLone" class="clone-product btn btn-default btn-smtooltip-primary" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip"><i class="fa fa-clone"></i>&nbsp;</a>';
                                     <?php } ?>
                                     <?php if(User::checkCategoryPermission('Products','Delete') ){ ?>
-                                        action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm"><i class="entypo-trash"></i></a>';
+                                        action += ' <a href="'+delete_+'" data-redirect="{{ URL::to('products')}}" title="Delete"  class="btn delete btn-danger btn-default btn-sm btn-smtooltip-primary" data-original-title="Delete" title="" data-placement="top" data-toggle="tooltip"><i class="entypo-trash"></i></a>';
                                      <?php } ?>
                                     return action;
                                 }
@@ -303,6 +312,7 @@
 
                         if(SelectedIDs=='' || criteria_ac=='')
                         {
+                            alert('hi');
                             alert("Please select atleast one account.");
                             return false;
                         }
@@ -327,6 +337,7 @@
                                 "Name":$("#product_filter [name='Name']").val(),
                                 "Code":$("#product_filter [name='Code']").val(),
                                 "Active":$("#product_filter [name='Active']").val(),
+                                "AppliedTo":$("#product_filter [name='AppliedTo']").val(),
                                 "SelectedIDs":SelectedIDs,
                                 "criteria_ac":criteria_ac,
                                 "type_active_deactive":type_active_deactive,
@@ -341,6 +352,7 @@
                         $searchFilter.Name = $("#product_filter [name='Name']").val();
                         $searchFilter.Code = $("#product_filter [name='Code']").val();
                         $searchFilter.Active = $("#product_filter [name='Active']").val();
+                        $searchFilter.AppliedTo = $("#product_filter [name='AppliedTo']").val();
                          data_table.fnFilter('', 0);
                         return false;
                     });
@@ -365,6 +377,8 @@
                                 }else{
                                     $('#add-edit-product-form [name="Active"]').prop('checked',false)
                                 }
+                            }else if(list_fields[i] == 'AppliedTo'){
+                                $("#add-new-billing_subscription-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
                             }else{
                                 $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
                             }
@@ -379,10 +393,47 @@
                                 }
                             });
                         }
+                        $("#add-edit-modal-product [name='ProductClone']").val(0);
                         $('#add-edit-modal-product h4').html('Edit Item');
                         $('#add-edit-modal-product').modal('show');
                     });
+                    $('table tbody').on('click', '.clone-product', function (ev) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        $('#add-edit-product-form').trigger("reset");
+                        var cur_obj = $(this).prev().prev("div.hiddenRowData");
+                        for(var i = 0 ; i< list_fields.length; i++){
 
+                            if(list_fields[i] == 'Active'){
+                                if(cur_obj.find("input[name='"+list_fields[i]+"']").val() == 1){
+                                    $('#add-edit-product-form [name="Active"]').prop('checked',true)
+                                }else if(list_fields[i] == 'AppliedTo'){
+                                    $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val()).trigger("change");
+                                }else{
+                                    $('#add-edit-product-form [name="Active"]').prop('checked',false)
+                                }
+                            }else{
+                                $("#add-edit-product-form [name='"+list_fields[i]+"']").val(cur_obj.find("input[name='"+list_fields[i]+"']").val());
+                            }
+                        }
+                        var DynamicFields = $(this).prev().find('input[name^=DynamicFields]');
+                        for(var j=0;j<DynamicFields.length;j++) {
+                            var dfName = DynamicFields[j].getAttribute('name');
+                            var dfValue = DynamicFields[j].value;
+                            $('#add-edit-product-form').find('input[name^=DynamicFields]').each(function(){
+                                if($(this).attr('name') == dfName){
+                                    $(this).val(dfValue);
+                                }
+                            });
+                        }
+                        $("#add-edit-modal-product [name='ProductClone']").val(1);
+                        $('#add-edit-modal-product h4').html('Clone Item');
+                        $('#add-edit-modal-product').modal('show');
+                    });
+
+                    $('#add-new-product').click(function (ev) {
+                        $("#add-edit-modal-product [name='ProductClone']").val(0);
+                    });
                     /*$('#add-new-product').click(function (ev) {
                         ev.preventDefault();
                         $('#add-edit-product-form').trigger("reset");

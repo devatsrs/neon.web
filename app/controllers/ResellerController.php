@@ -15,7 +15,7 @@ class ResellerController extends BaseController {
        //$data['Status'] = $data['Status']== 'true'?1:0;
 
        $resellers = Reseller::leftJoin('tblAccount','tblAccount.AccountID','=','tblReseller.AccountID')
-                    ->select(["tblReseller.ResellerName","tblReseller.FirstName","tblReseller.LastName","tblReseller.Email","tblReseller.AccountID","tblReseller.Status","tblReseller.CompanyID","tblReseller.ChildCompanyID","tblReseller.ResellerID","tblAccount.AccountName"])
+                    ->select(["tblReseller.ResellerID","tblAccount.AccountName","tblReseller.Email",DB::raw("(select count(*) from tblAccount a where a.CompanyId=tblReseller.ChildCompanyID and a.IsCustomer=1) as NumberOfAccount"),"tblReseller.AccountID","tblReseller.Status","tblReseller.AllowWhiteLabel","tblReseller.CompanyID","tblReseller.ChildCompanyID"])
                     ->where(["tblReseller.CompanyID" => $companyID]);
         if($data['Status']==1){
             $resellers->where(["tblReseller.Status" => 1]);
@@ -23,9 +23,6 @@ class ResellerController extends BaseController {
             $resellers->where(["tblReseller.Status" => 0]);
         }
 
-       if(!empty($data['ResellerName'])){
-           $resellers->where('ResellerName','like','%'.$data['ResellerName'].'%');
-        }
        if(!empty($data['AccountID'])){
            $resellers->where(["tblReseller.AccountID" => $data['AccountID']]);
         }
@@ -34,13 +31,40 @@ class ResellerController extends BaseController {
     }
 
     public function index() {
-            return View::make('reseller.index', compact(''));
+        $CompanyID = User::get_companyID();
+        $Products = Product::getProductDropdownList($CompanyID,BillingSubscription::Reseller);
+        //$BillingSubscription = array(""=> "Select") + BillingSubscription::getSubscriptionsListByAppliedTo($CompanyID,BillingSubscription::Reseller);
+        $BillingSubscription = array(""=> "Select") + BillingSubscription::getSubscriptionsList($CompanyID,BillingSubscription::Reseller);
+        $Trunks = Trunk::getTrunkDropdownIDList($CompanyID);
+        return View::make('reseller.index', compact('Products','BillingSubscription','Trunks'));
 
     }
 
     public function store() {
-
         $data = Input::all();
+
+        $items = array_filter($data['reseller-item']);
+        $subscriptions = array_filter($data['reseller-subscription']);
+        $trunks = array_filter($data['reseller-trunk']);
+        $is_product = 0;
+        $is_subscription = 0;
+        $is_trunk = 0;
+        $productids = '';
+        $subscriptionids = '';
+        $trunkids = '';
+        if(!empty($items)){
+            $is_product  = 1;
+            $productids=implode(',',$items);
+        }
+        if(!empty($subscriptions)){
+            $is_subscription = 1;
+            $subscriptionids=implode(',',$subscriptions);
+        }
+        if(!empty($trunks)){
+            $is_trunk = 1;
+            $trunkids=implode(',',$trunks);
+        }
+
         if(!empty($data)){
             $user_id = User::get_userID();
             $CompanyID = User::get_companyID();
@@ -49,12 +73,10 @@ class ResellerController extends BaseController {
             $CreatedBy = User::get_user_full_name();
             //$data['Status'] = isset($data['Status']) ? 1 : 0;
 
-            Reseller::$rules['AccountID'] = 'required';
+            Reseller::$rules['AccountID'] = 'required|unique:tblReseller,AccountID';
             Reseller::$rules['Email'] = 'required';
-            Reseller::$rules['FirstName'] = 'required|min:2';
-            Reseller::$rules['LastName'] = 'required|min:2';
-            Reseller::$rules['Password'] ='required|confirmed|min:3';
-            Reseller::$rules['ResellerName'] = 'required|unique:tblReseller,ResellerName,NULL,CompanyID,CompanyID,'.$data['CompanyID'];
+            Reseller::$rules['Password'] ='required|min:3';
+
 
             $validator = Validator::make($data, Reseller::$rules, Reseller::$messages);
 
@@ -64,13 +86,23 @@ class ResellerController extends BaseController {
 
             $data['Password'] = Hash::make($data['Password']);
 
+            $Account = Account::find($data['AccountID']);
+            $data['AllowWhiteLabel'] = isset($data['AllowWhiteLabel']) ? 1 : 0;
+            $AccountID = $data['AccountID'];
+            $Email = $data['Email'];
+            $Password = $data['Password'];
+            $AllowWhiteLabel = $data['AllowWhiteLabel'];
+            $AccountName = $Account->AccountName;
+            $FirstName = empty($Account->FirstName) ? '' : $Account->FirstName;
+            $LastName =  empty($Account->LastName)  ? '' : $Account->LastName;
+
             try {
 
                 $CompanyData = array();
-                $CompanyData['CompanyName'] = $data['ResellerName'];
+                $CompanyData['CompanyName'] = $AccountName;
                 $CompanyData['CustomerAccountPrefix'] = '22221';
-                $CompanyData['FirstName'] = $data['FirstName'];
-                $CompanyData['LastName'] = $data['LastName'];
+                $CompanyData['FirstName'] = $FirstName;
+                $CompanyData['LastName'] = $LastName;
                 $CompanyData['Email'] = $data['Email'];
                 $CompanyData['Status'] = '1';
                 $CompanyData['TimeZone'] = 'Etc/GMT';
@@ -84,58 +116,15 @@ class ResellerController extends BaseController {
 
                     log::info('Child Company ID '.$ChildCompanyID);
 
-                    $UserData = array();
-                    $UserData['CompanyID'] = $ChildCompanyID; // new company id
-                    $UserData['FirstName'] = $data['FirstName'];
-                    $UserData['LastName'] = $data['LastName'];
-                    $UserData['EmailAddress'] = $data['Email'];
-                    $UserData['password'] = $data['Password'];
-                    $UserData['AdminUser'] = '1';
-                    $UserData['updated_at'] = $CurrentTime;
-                    $UserData['created_at'] = $CurrentTime;
-                    $UserData['created_by'] = $CreatedBy;
-                    $UserData['Status'] = 1;
-                    $FullName = $data['FirstName'] . ' ' . $data['LastName'];
-                    $UserData['EmailFooter'] = 'From ,<br><br><b>' . $FullName . '</b><br><br>';
-                    $UserData['JobNotification'] = '1';
+                    $JobStatusMessage = DB::select("CALL  prc_insertResellerData ($CompanyID,$ChildCompanyID,'".$AccountName."','".$FirstName."','".$LastName."',$AccountID,'".$Email."','".$Password."',$is_product,'".$productids."',$is_subscription,'".$subscriptionids."',$is_trunk,'".$trunkids."',$AllowWhiteLabel)");
+                    Log::info("CALL  prc_insertResellerData ($CompanyID,$ChildCompanyID,'".$AccountName."','".$FirstName."','".$LastName."',$AccountID,'".$Email."','".$Password."',$is_product,'".$productids."',$is_subscription,'".$subscriptionids."',$is_trunk,'".$trunkids."')");
+                    Log::info($JobStatusMessage);
 
-                    User::create($UserData);
-
-                    $EmailTemplateQuery = "Insert Into tblEmailTemplate(CompanyID,TemplateName,Subject,TemplateBody,created_at,CreatedBy,updated_at,`Type`,EmailFrom,StaticType,SystemType,Status,StatusDisabled,TicketTemplate)
-            select '" . $ChildCompanyID . "' as `CompanyID`,TemplateName,Subject,TemplateBody,created_at,'System' as `CreatedBy`,updated_at,`Type`,'test@test.test' as `EmailFrom`,StaticType,SystemType,Status,StatusDisabled,TicketTemplate from tblEmailTemplate where StaticType=1 and CompanyID=" . $CompanyID;
-
-                    DB::statement($EmailTemplateQuery);
-
-                    $CompanyConfigurationQuery = "Insert Into tblCompanyConfiguration(`CompanyID`,`Key`,`Value`)
-            select '" . $ChildCompanyID . "' as `CompanyID`,`Key`,`Value` from tblCompanyConfiguration where CompanyID =" . $CompanyID;
-
-                    DB::statement($CompanyConfigurationQuery);
-
-                    $CronjobCommandQuery = "
-            Insert Into tblCronJobCommand(`CompanyID`,GatewayID,Title,Command,Settings,Status,created_at,created_by)
-            select '" . $ChildCompanyID . "' as `CompanyID`,GatewayID,Title,Command,Settings,Status,created_at,created_by from tblCronJobCommand where CompanyID =" . $CompanyID;
-
-                    DB::statement($CronjobCommandQuery);
-
-                    $ResellerData = array();
-                    $ResellerData['ResellerName'] = $data['ResellerName'];
-                    $ResellerData['CompanyID'] = $CompanyID;
-                    $ResellerData['ChildCompanyID'] = $ChildCompanyID;
-                    $ResellerData['AccountID'] = $data['AccountID'];
-                    $ResellerData['FirstName'] = $data['FirstName'];
-                    $ResellerData['LastName'] = $data['LastName'];
-                    $ResellerData['Email'] = $data['Email'];
-                    $ResellerData['Password'] = $data['Password'];
-                    //$ResellerData['Status'] = $data['Status'];
-                    $ResellerData['created_at'] = $CurrentTime;
-                    $ResellerData['created_by'] = $CreatedBy;
-                    $ResellerData['updated_at'] = $CurrentTime;
-
-                    $Reseller = Reseller::create($ResellerData);
-                    DB::commit();
-                    if ($Reseller) {
-                        log::info('Reseller ID '.$Reseller->ResellerID);
-                        return Response::json(array("status" => "success", "message" => "Reseller Successfully Created", 'LastID' => $Reseller->ResellerID, 'newcreated' => $Reseller));
+                    if(count($JobStatusMessage)){
+                        throw  new \Exception($JobStatusMessage[0]->Message);
+                    }else{
+                        DB::commit();
+                        return Response::json(array("status" => "success", "message" => "Reseller Successfully Created" ));
                     }
 
                 }else{
@@ -155,22 +144,26 @@ class ResellerController extends BaseController {
     }
 
     public function update($id) {
-
         $data = Input::all();
-
         $Reseller = Reseller::find($id);
         $data['CompanyID'] = User::get_companyID();
         $data['Status'] = isset($data['Status']) ? 1 : 0;
+        $data['AllowWhiteLabel'] = isset($data['AllowWhiteLabel']) ? 1 : 0;
         $CurrentTime = date('Y-m-d H:i:s');
         $CreatedBy = User::get_user_full_name();
 
         Reseller::$rules['Email'] = 'required';
-        Reseller::$rules['FirstName'] = 'required|min:2';
-        Reseller::$rules['LastName'] = 'required|min:2';
-        Reseller::$rules["ResellerName"] = 'required|unique:tblReseller,ResellerName,'.$id.',ResellerID,CompanyID,'.$data['CompanyID'];
+        //Reseller::$rules['FirstName'] = 'required|min:2';
+        //Reseller::$rules['LastName'] = 'required|min:2';
+        //Reseller::$rules["ResellerName"] = 'required|unique:tblReseller,ResellerName,'.$id.',ResellerID,CompanyID,'.$data['CompanyID'];
 
-        if(!empty($data['Password']) || !empty($data['Password_confirmation'])){
-            Reseller::$rules['Password'] ='required|confirmed|min:3';
+        $Account = Account::find($data['UpdateAccountID']);
+        $AccountName = $Account->AccountName;
+        $FirstName = empty($Account->FirstName) ? '' : $Account->FirstName;
+        $LastName =  empty($Account->LastName)  ? '' : $Account->LastName;
+
+        if(!empty($data['Password'])){
+            Reseller::$rules['Password'] ='required|min:3';
         }
 
         if(!empty($data['Password'])){
@@ -184,10 +177,11 @@ class ResellerController extends BaseController {
             return json_validator_response($validator);
         }
         $updatedata = array();
-        $ResellerData['ResellerName'] = $data['ResellerName'];
-        $ResellerData['FirstName'] = $data['FirstName'];
-        $ResellerData['LastName'] = $data['LastName'];
+        $ResellerData['ResellerName'] = $AccountName;
+        $ResellerData['FirstName'] = $FirstName;
+        $ResellerData['LastName'] = $LastName;
         $ResellerData['Email'] = $data['Email'];
+        $ResellerData['AllowWhiteLabel'] = $data['AllowWhiteLabel'];
         if(isset($data['Password'])){
             $ResellerData['Password'] = $data['Password'];
         }
@@ -195,8 +189,8 @@ class ResellerController extends BaseController {
         $ResellerData['updated_by'] = $CreatedBy;
 
         $UserData = array();
-        $UserData['FirstName'] = $data['FirstName'];
-        $UserData['LastName'] = $data['LastName'];
+        $UserData['FirstName'] = $FirstName;
+        $UserData['LastName'] = $LastName;
         $UserData['EmailAddress'] = $data['Email'];
         if(isset($data['Password'])){
             $UserData['Password'] = $data['Password'];
@@ -254,19 +248,14 @@ class ResellerController extends BaseController {
             //$data['ServiceStatus']=$data['ServiceStatus']=='true'?1:0;
 
             $resellers = Reseller::leftJoin('tblAccount','tblAccount.AccountID','=','tblReseller.AccountID')
-                ->select(["tblReseller.ResellerName","tblReseller.FirstName","tblReseller.LastName","tblReseller.Email","tblReseller.AccountID","tblReseller.Status","tblReseller.CompanyID","tblReseller.ChildCompanyID","tblReseller.ResellerID","tblAccount.AccountName"])
+                //->select([DB::raw("tblAccount.AccountName as `Reseller Account`, tblReseller.Email as `User Name`")])
+                ->select(DB::raw("tblAccount.AccountName as `Reseller Account`, tblReseller.Email as `User Name`"),DB::raw("(select count(*) from tblAccount a where a.CompanyId=tblReseller.ChildCompanyID and a.IsCustomer=1) as NumberOfAccount"),DB::raw("(CASE WHEN(tblReseller.AllowWhiteLabel != 0) THEN 'yes' ELSE 'no' END) as AllowWhiteLabel"))
+                //->select(["tblAccount.AccountName as `Reseller Account`, tblReseller.Email as `User Name`"])
                 ->where(["tblReseller.CompanyID" => $companyID]);
             if($data['Status']==1){
                 $resellers->where(["tblReseller.Status" => 1]);
             }else{
                 $resellers->where(["tblReseller.Status" => 0]);
-            }
-
-            if(!empty($data['ResellerName'])){
-                $resellers->where('ResellerName','like','%'.$data['ResellerName'].'%');
-            }
-            if(!empty($data['AccountID'])){
-                $resellers->where(["tblReseller.AccountID" => $data['AccountID']]);
             }
 
            $resellers = $resellers->get();
@@ -282,6 +271,107 @@ class ResellerController extends BaseController {
                 $NeonExcel->download_excel($resellers);
             }
 
+    }
+
+    public function bulkcopydata(){
+        $data = Input::all();
+        $CompanyID = User::get_companyID();
+        $items = array_filter($data['reseller-item']);
+        $subscriptions = array_filter($data['reseller-subscription']);
+        $trunks = array_filter($data['reseller-trunk']);
+        $is_product = 0;
+        $is_subscription = 0;
+        $is_trunk = 0;
+        $productids = '';
+        $subscriptionids = '';
+        $trunkids = '';
+        if(!empty($items)){
+            $is_product  = 1;
+            $productids=implode(',',$items);
+        }
+        if(!empty($subscriptions)){
+            $is_subscription = 1;
+            $subscriptionids=implode(',',$subscriptions);
+        }
+        if(!empty($trunks)){
+            $is_trunk = 1;
+            $trunkids=implode(',',$trunks);
+        }
+
+        if(empty($items) && empty($subscriptions) && empty($trunks)){
+            return Response::json(array("status" => "failed", "message" => "Please Select Copy Data."));
+        }
+
+        if(!empty($data['criteria'])){
+            $resellerid = $this->getResellerIdByCriteria($data);
+            $resellerid = rtrim($resellerid,',');
+            $data['ResellerIDs'] = $resellerid;
+            unset($data['criteria']);
+        }
+        else{
+            unset($data['criteria']);
+        }
+        $ResellerIDs = $data['ResellerIDs'];
+        if(!empty($ResellerIDs)) {
+            try {
+
+                DB::beginTransaction();
+
+
+                $JobStatusMessage = DB::select("CALL  prc_copyResellerData ($CompanyID,'".$ResellerIDs."',$is_product,'".$productids."',$is_subscription,'".$subscriptionids."',$is_trunk,'".$trunkids."')");
+                Log::info("CALL  prc_copyResellerData ($CompanyID,'".$ResellerIDs."',$is_product,'".$productids."',$is_subscription,'".$subscriptionids."',$is_trunk,'".$trunkids."')");
+                Log::info($JobStatusMessage);
+
+                if(count($JobStatusMessage)){
+                    throw  new \Exception($JobStatusMessage[0]->Message);
+                }else{
+                    DB::commit();
+                    return Response::json(array("status" => "success", "message" => "Reseller Data Copied" ));
+                }
+
+
+            }catch( Exception $e){
+                try {
+                    DB::rollback();
+                } catch (\Exception $err) {
+                    Log::error($err);
+                }
+                Log::error($e);
+                return Response::json(array("status" => "failed", "message" => "Problem Creating Reseller."));
+            }
+
+
+        }else{
+            return Response::json(array("status" => "failed", "message" => "Please Select Reseller Account."));
+        }
+
+
+    }
+
+    public function getResellerIdByCriteria($data){
+        $companyID = User::get_companyID();
+
+        $ResellerIDs = '';
+
+        $criteria = json_decode($data['criteria'],true);
+
+        $resellers = Reseller::where(["tblReseller.CompanyID" => $companyID]);
+        if($criteria['Status']==1){
+            $resellers->where(["tblReseller.Status" => 1]);
+        }else{
+            $resellers->where(["tblReseller.Status" => 0]);
+        }
+        if(!empty($criteria['AccountID'])){
+            $resellers->where(["tblReseller.AccountID" => $criteria['AccountID']]);
+        }
+        $Resellerdata = $resellers->get();
+        if(!empty($Resellerdata)){
+            foreach($Resellerdata as $rdata){
+                $ResellerIDs.= $rdata->ResellerID.',';
+            }
+        }
+
+        return $ResellerIDs;
     }
 
     public function view($id) {

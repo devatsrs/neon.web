@@ -30,6 +30,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
      */
     protected $hidden = array('password');
 
+    // customer login
     public static function user_login($data = array()){
         if(!empty($data) && isset($data["email"]) && isset($data["password"]) ){
             Config::set('auth.model', 'Customer');
@@ -60,36 +61,6 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         return false;
 
     }
-
-    public static function reseller_user_login($data = array()){
-        if(!empty($data) && isset($data["email"]) && isset($data["password"]) ){
-            $auth = Auth::createEloquentDriver();
-            Auth::setProvider($auth->getProvider());
-            //$customer = Customer::where('BillingEmail','like','%'.$data["email"].'%')->first();
-            $customer = Customer::whereRaw("FIND_IN_SET('".$data['email']."',ResellerEmail) !=0")->first();
-            if($customer) {
-                if (Hash::check($data["password"], $customer->ResellerPassword)) {
-                    Auth::login($customer);
-                    Session::set("reseller", 1);
-                    Session::set("ResellerEmail", $data["email"]);
-                    return true;
-                }
-            }
-            /*if (Auth::attempt(array('BillingEmail' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 ,"VerificationStatus"=> Account::VERIFIED ))) {
-                Session::set("customer", 1 );
-                return true;
-            }
-            /*else{
-                $queries = DB::getQueryLog();
-
-                print_r($queries);
-            }*/
-
-        }
-        return false;
-
-    }
-
 
     public static function checkPermission($resource, $abort = true) {
 
@@ -152,6 +123,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         return $this->EmailAddress;
     }
 
+    // not using
     public function login($email, $password) {
 
         if (empty($email))

@@ -23,7 +23,7 @@ class IntegrationController extends \BaseController
 													->orWhere(["Slug"=>SiteIntegration::$AccountingSlug])
 													->orderBy('Title', 'asc')->get();
 		}else{
-			$categories 			= 	Integration::where(["CompanyID" => $companyID,"ParentID"=>0])->orderBy('Title', 'asc')->get();
+			$categories 			= 	Integration::where(["ParentID"=>0])->orderBy('Title', 'asc')->get();
 		}
 		$TaxLists =  TaxRate::where(["CompanyId" => $companyID, "Status" => 1])->get();
 		//$companyID = 1;

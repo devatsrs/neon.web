@@ -9,19 +9,17 @@ class Reseller extends \Eloquent
     protected $primaryKey = "ResellerID";
 
     public static $rules = array(
-        'ResellerName' =>      'required|unique:tblReseller',
         'CompanyID' =>  'required',
+        //'AccountID' =>  'required|AccountID|unique:tblReseller,AccountID',
 		'Email' => 'required|email|min:5|unique:tblUser,EmailAddress',
         'Status' =>     'between:0,1',
     );
 	
 	public static $messages = array(
-        'ResellerName.required' =>'Name field is required',
-        'AccountID.required' =>'Account Name field is required',
+        'AccountID.required' =>'Reseller Account is required',
+        'AccountID.unique' =>'Already Reseller created',
         'Email.required' =>'Email Value field is required',
-        'Password.required' =>'Password Value field is required',
-        'FirstName.required' =>'First Name Value field is required',
-        'LastName.required' =>'Last Name Value field is required',
+        'Password.required' =>'Password Value field is required'
     );
 
     public static function getDropdownIDList($CompanyID=0){

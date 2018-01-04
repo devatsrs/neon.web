@@ -23,10 +23,17 @@ class HomeResellerController extends BaseController {
             log::info(print_r($data,true));
             // && NeonAPI::login("reseller")
             //if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && NeonAPI::login("reseller")) {}
+            $Count=0;
+            $Users = User::where('EmailAddress',$data['email'])->first();
+            if(!empty($Users) && count($Users)>0){
+                $CompanyID = $Users->CompanyID;
+                $Resellers = Reseller::where('ChildCompanyID',$CompanyID)->first();
+                if(!empty($Resellers) && count($Resellers)>0){
+                    $Count=1;
+                }
+            }
 
-            if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 ))){
-                log::info('attempt sucess');
-               if(NeonAPI::login("reseller")) {
+            if (Auth::attempt(array('EmailAddress' => $data['email'], 'password' => $data['password'] ,'Status'=> 1 )) && $Count==1 && NeonAPI::login("reseller")){
                 log::info('reseller');
                 Session::set("reseller", 1);
                 User::setUserPermission();
@@ -45,11 +52,7 @@ class HomeResellerController extends BaseController {
                 }
                 echo json_encode(array("login_status" => "success", "redirect_url" => $redirect_to));
                 return;
-            } else {
-                echo json_encode(array("login_status" => "invalid"));
-                return;
-            }
-        }else{
+            }else{
                 Session::flush();
                 Auth::logout();
                 echo json_encode(array("login_status" => "invalid"));

@@ -1323,6 +1323,8 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('reseller/update/{id}', 'ResellerController@update');
 	Route::any('reseller/delete/{id}', 'ResellerController@delete');
 	Route::any('reseller/exports/{type}', 'ResellerController@exports');
+	Route::any('reseller/view/{id}', 'ResellerController@view');
+	Route::any('reseller/bulkcopydata', 'ResellerController@bulkcopydata');
 
 	//Reseller
 	Route::any('reseller/profile', array('as' => 'profile_show', 'uses' => 'ResellerProfileController@show'));

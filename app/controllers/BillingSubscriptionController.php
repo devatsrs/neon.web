@@ -14,7 +14,10 @@ class BillingSubscriptionController extends \BaseController {
         if($data['FilterAdvance'] == ''){
             $data['FilterAdvance'] = 'null';
         }
-        $query = "call prc_getBillingSubscription (".$CompanyID.",".$data['FilterAdvance'].",'".$data['FilterName']."','".intval($data['FilterCurrencyID'])."',".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
+        if($data['FilterAppliedTo'] == ''){
+            $data['FilterAppliedTo'] = 'null';
+        }
+        $query = "call prc_getBillingSubscription (".$CompanyID.",".$data['FilterAdvance'].",'".$data['FilterName']."','".intval($data['FilterCurrencyID'])."',".$data['FilterAppliedTo'].",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".$sort_column."','".$data['sSortDir_0']."'";
         if(isset($data['Export']) && $data['Export'] == 1) {
             $excel_data  = DB::connection('sqlsrv2')->select($query.',1)');
             $billexports = json_decode(json_encode($excel_data),true);
@@ -52,10 +55,11 @@ class BillingSubscriptionController extends \BaseController {
         $companyID = User::get_companyID();
         $data['CompanyID'] = $companyID;
         unset($data['SubscriptionID']);
+        unset($data['SubscriptionClone']);
         $data['CreatedBy'] = User::get_user_full_name();
         $rules = array(
             'CompanyID' => 'required',
-            'Name' => 'required|unique:tblBillingSubscription,Name,NULL,SubscriptionID,CompanyID,'.$data['CompanyID'],
+            'Name' => 'required|unique:tblBillingSubscription,Name,NULL,SubscriptionID,CompanyID,'.$data['CompanyID'].',AppliedTo,'.$data['AppliedTo'],
             'AnnuallyFee' => 'required|numeric',
             'QuarterlyFee' => 'required|numeric',
             'MonthlyFee' => 'required|numeric',
@@ -92,10 +96,11 @@ class BillingSubscriptionController extends \BaseController {
             $companyID = User::get_companyID();
             $data['CompanyID'] = $companyID;
             unset($data['SubscriptionID']);
+            unset($data['SubscriptionClone']);
             $data['ModifiedBy'] = User::get_user_full_name();
             $rules = array(
                 'CompanyID' => 'required',
-                'Name' => 'required|unique:tblBillingSubscription,Name,'.$id.',SubscriptionID,CompanyID,'.$data['CompanyID'],
+                'Name' => 'required|unique:tblBillingSubscription,Name,'.$id.',SubscriptionID,CompanyID,'.$data['CompanyID'].',AppliedTo,'.$data['AppliedTo'],
                 'AnnuallyFee' => 'required|numeric',
                 'QuarterlyFee' => 'required|numeric',
                 'MonthlyFee' => 'required|numeric',

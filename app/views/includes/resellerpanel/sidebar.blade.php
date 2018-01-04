@@ -31,7 +31,8 @@
     </header>
 
     <ul id="main-menu" class="">
-        <li> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a></li>
+        <li class="two-links"> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a> <a href="{{URL::to('accounts/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
+        <li> <a href="{{URL::to('/reseller')}}"><i class="entypo-users"></i>  <span>Reseller</span> </a> </li>
         <li class="{{check_uri('Rates')}}"> <a href="#"> <i class="fa fa-table"></i> <span>&nbsp;Rate Management</span> </a>
             <ul>
                 <li> <a href="{{URL::to('/rate_tables')}}">  <span>Rate Tables</span> </a> </li>
@@ -48,6 +49,7 @@
                 <li> <a href="{{URL::to('/payments')}}">  <span>Payments</span> </a> </li>
                 <li> <a href="{{URL::to('/account_statement')}}">  <span>Account Statement</span> </a> </li>
                 <li> <a href="{{URL::to('/invoice_template')}}">  <span>Invoice Template</span> </a> </li>
+                <li> <a href="{{URL::to('/taxrate')}}">  <span>Tax Rate</span> </a> </li>
                 <li> <a href="{{URL::to('/billing_subscription')}}">  <span>Subscription</span> </a> </li>
                 <li> <a href="{{URL::to('products')}}">  <span>Items</span> </a> </li>
                 <li> <a href="{{URL::to('/billing_class')}}">  <span>Billing Class</span> </a> </li>
@@ -55,6 +57,7 @@
                 <li> <a href="{{URL::to('/cdr_show')}}">  <span>CDR</span> </a> </li>
             </ul>
         </li>
+        <li class="two-links"> <a href="{{Url::to('/report')}}" class="first"> <i class="fa fa-line-chart"></i><span>Reports</span></a> <a href="{{URL::to('report/create')}}" class="last"><i class="fa fa-plus-circle" style="color: #fff;"></i></a> </li>
         <li class="{{check_uri('Settings')}}"> <a href="#"> <i class="fa fa-cogs"></i> <span>Settings</span> </a>
             <ul>
                 <li> <a href="{{Url::to('/trunks')}}">  <span>Trunks</span> </a> </li>
@@ -79,7 +82,7 @@
     </ul>
 
 
-    <ul id="main-menu" class=""><span style="color: #ffffff;font-size: 13px;">Personal Menu</span>
+    <ul id="main-menu" class=""><span style="color: #ffffff;font-size: 13px;">&nbsp;&nbsp;Personal Menu</span>
         <li class="{{check_uri('Customer_billing')}}"><a href="#"><i class="fa fa-credit-card"></i><span>Billing</span></a>
             <ul>
                 <li><a href="{{Url::to('customer/invoice')}}"><span>Invoices</span></a></li>
@@ -90,7 +93,6 @@
             </ul>
         </li>
         <li><a href="{{URL::to('customer/customers_rates')}}"><i class="fa fa-table"></i><span>Commercial</span></a></li>
-        <li><a href="{{URL::to('customer/rates')}}"><i class="fa fa-table"></i><span>Rates</span></a></li>
         <li><a href="{{URL::to('reseller/profile')}}"><i class="glyphicon glyphicon-user"></i><span>Profile</span></a></li>
     </ul>
 
