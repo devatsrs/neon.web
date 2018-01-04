@@ -1,7 +1,11 @@
 use Ratemanagement3;
 
 
+insert into tblFileUploadTemplate (CompanyID,CompanyGatewayID,Title,Options,TemplateFile,`Type`,created_at,created_by,updated_at,updated_by)
+select CompanyID,0 AS CompanyGatewayID,Title,Options,TemplateFile,8 AS `Type`,created_at,created_by,updated_at,updated_by from tblVendorFileUploadTemplate;
 
+insert into tblFileUploadTemplate (CompanyID,CompanyGatewayID,Title,Options,TemplateFile,`Type`,created_at,created_by,updated_at,updated_by)
+select CompanyID,0 AS CompanyGatewayID,Title,Options,TemplateFile,9 AS `Type`,created_at,created_by,updated_at,updated_by from tblPaymentUploadTemplate;
 
 
 ALTER TABLE `tblTempAccountIP`
