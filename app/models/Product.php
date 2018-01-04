@@ -42,7 +42,7 @@ class Product extends \Eloquent {
             $admin_defaults = Cache::get('product_dropdown1_cache');
             self::$cache['product_dropdown1_cache'] = $admin_defaults['product_dropdown1_cache'];
         } else {
-            $CompanyId = $CompanyID>0 ? $CompanyID : User::get_companyID();
+            $CompanyID = $CompanyID>0 ? $CompanyID : User::get_companyID();
             if($AppliedTo==="All"){
                 $Where = ["CompanyId"=>$CompanyID];
             }else{
