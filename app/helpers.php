@@ -2460,3 +2460,19 @@ function report_tables_dropbox($id=0,$CompanyID){
     $all_getRateTables = Report::getDropdownIDList($CompanyID);
     return Form::select('rategenerators', $all_getRateTables, $id ,array("id"=>"drp_toandfro_jump" ,"class"=>"selectboxit1 form-control1"));
 }
+
+
+function get_account_view_url($AccountID) {
+
+    return URL::to('accounts/'.$AccountID.'/show');
+}
+
+function get_contact_view_url($ContactID) {
+
+    return URL::to('contacts/'.$ContactID.'/show');
+}
+
+function get_user_edit_url($UserID) {
+
+    return URL::to('users/edit/'.$UserID);
+}

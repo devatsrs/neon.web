@@ -3,9 +3,47 @@
      <li>
          <div class="thumb">{{ucfirst($row->UserName[0])}}</div>
          <div class="description">
-             <!-- First half of text show in 1 line -->
+
+             @if($row->ParentType == TicketLog::TICKET_USER_TYPE_ACCOUNT)
+                 <a href="{{get_account_view_url($row->ParentID)}}" target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
+             @elseif($row->ParentType == TicketLog::TICKET_USER_TYPE_CONTACT)
+                 <a href="{{get_contact_view_url($row->ParentID)}}" target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
+             @elseif($row->ParentType == TicketLog::TICKET_USER_TYPE_USER)
+                 <a href="{{get_user_edit_url($row->ParentID)}}" target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
+             @elseif($row->ParentType == TicketLog::TICKET_USER_TYPE_SYSTEM)
+                 <a href="#" target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
+             @endif
+
+             <span>
+                 @if($row->Action == TicketLog::TICKET_ACTION_CREATED)
+                     created the ticket
+                 @elseif($row->Action == TicketLog::TICKET_ACTION_ASSIGNED_TO)
+                     assigned ticket
+                 @elseif($row->Action == TicketLog::TICKET_ACTION_AGENT_REPLIED)
+                     replied to ticket
+                 @elseif($row->Action == TicketLog::TICKET_ACTION_CUSTOMER_REPLIED)
+                         replied to ticket
+                 @elseif($row->Action == TicketLog::TICKET_ACTION_STATUS_CHANGED)
+                     changed status
+                 @elseif($row->Action == TicketLog::TICKET_ACTION_NOTE_ADDED)
+                     note added
+                 @endif
+             </span>
+
+
+             <br>
+             <span class="time">{{\Carbon\Carbon::createFromTimeStamp(strtotime($row->created_at))->diffForHumans()}}</span>
+
+
+
+
+
+
+
+        {{-- ------------------------------------------------------------------------------------------------------}}
+                     <!-- First half of text show in 1 line -->
              <!-- Ticket Create or submit by user or customer, showing name with link -->
-             @if($row->TimelineType == 3 && $row->TicketFieldID == 0 && $row->CustomerID != 0)
+            {{-- @if($row->TimelineType == 3 && $row->TicketFieldID == 0 && $row->CustomerID != 0)
                  @if($row->CustomerType == 1)
                      <a href="{{(URL::to('accounts/'.$row->CustomerID.'/show'))}}"
                         target="_blank" class="username">{{ucfirst($row->UserName)}}</a>
@@ -88,7 +126,7 @@
                  @endif
              @endif
              <br>
-             <span class="time">{{\Carbon\Carbon::createFromTimeStamp(strtotime($row->created_at))->diffForHumans()}}</span>
+             <span class="time">{{\Carbon\Carbon::createFromTimeStamp(strtotime($row->created_at))->diffForHumans()}}</span>--}}
          </div>
      </li>
      @endforeach
