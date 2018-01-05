@@ -176,7 +176,8 @@ class ReportController extends \BaseController {
         $all_data_list['Subscription'] = BillingSubscription::getSubscriptionsList($CompanyID);
         $all_data_list['AccountManager'] = User::getOwnerUsersbyRole();
 
-        if(count($data['sum'])) {
+        
+        if(count($data['sum']) || $cube == 'account') {
             $response = Report::generateDynamicTable($CompanyID, $cube, $data,$filters);
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
