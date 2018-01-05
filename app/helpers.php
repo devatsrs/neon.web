@@ -2064,6 +2064,8 @@ function table_html($data,$table_data){
                 }
                 if(isset($row_val['name'])){
                     $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup"><strong>' . $row_val['name'] . '</strong></th>';
+                }else{
+                    $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup"><strong></strong></th>';
                 }
                 $index_col++;
             }
