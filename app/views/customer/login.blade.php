@@ -42,7 +42,7 @@
                             <div class="input-group-addon">
                                 <i class="entypo-mail"></i>
                             </div>
-                            <input type="text" class="form-control" name="email" id="email" placeholder="Email" autocomplete="off" value="" />
+                            <input type="text" class="form-control" name="email" id="email" placeholder="@lang("routes.PLACEHOLDER_EMAIL")" autocomplete="off" value="" />
                         </div>
                     </div>
                     <div class="form-group">
@@ -50,7 +50,7 @@
                             <div class="input-group-addon">
                                 <i class="entypo-key"></i>
                             </div>
-                            <input type="password" class="form-control" name="password" id="password" placeholder="Password" autocomplete="off" value="" />
+                            <input type="password" class="form-control" name="password" id="password" placeholder="@lang("routes.PLACEHOLDER_PASSWORD")" autocomplete="off" value="" />
                         </div>
                     </div>
                     <div class="form-group">

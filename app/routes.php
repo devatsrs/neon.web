@@ -1365,7 +1365,7 @@ Route::group(array('before' => 'guest'), function () {
 	Route::any('/activate_support_email', "TicketsGroupController@Activate_support_email");
 	Route::any('/report/export/{id}','ReportController@getdatagrid');
 	
-    Route::get('/l/{id}', function($id){
+    /*Route::get('/l/{id}', function($id){
 		$user = User::find($id);
 		$redirect_to = URL::to('/process_redirect');
 		if(!empty($user) ){
@@ -1384,7 +1384,7 @@ Route::group(array('before' => 'guest'), function () {
 		}
 	}
 	exit;
-    });
+    });*/
     Route::any('/invoice/{id}/cview', 'InvoicesController@cview'); //Customer View
 	Route::any('/invoice/{id}/invoice_chart', 'InvoicesController@invoice_management_chart'); //Customer View
     //Route::any('/invoice/{id}/cprint', 'InvoicesController@cpdf_view');

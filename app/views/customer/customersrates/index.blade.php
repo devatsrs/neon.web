@@ -171,7 +171,7 @@
                             $searchFilter.RoutinePlanFilter = $("#customer-rate-table-search select[name='RoutinePlanFilter']").val();
 
                             if($searchFilter.Trunk == '' || typeof $searchFilter.Trunk  == 'undefined' || $searchFilter.Trunk  == null){
-                               toastr.error("Please Select a Trunk", "Error", toastr_opts);
+                               toastr.error("@lang("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_MSG_PLEASE_SELECT_A_TRUNK")", "Error", toastr_opts);
                                return false;
                             }
 

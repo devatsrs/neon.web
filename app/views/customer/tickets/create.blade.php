@@ -38,7 +38,7 @@
 				if($TicketfieldsData->CustomerReqSubmit == '1'){$required[] = array("id"=>$id,"title"=>$TicketfieldsData->CustomerLabel); }
 				 ?>
                  <div class="form-group">
-                 <label for="GroupName" class="col-sm-3 control-label">{{$TicketfieldsData->CustomerLabel}}</label>
+                 <label for="GroupName" class="col-sm-3 control-label">@lang('routes.CUST_PANEL_PAGE_NEW_TICKET_'){{$TicketfieldsData->CustomerLabel}}</label>
             <div class="col-sm-9">
               <input type="text"  name='Ticket[{{$TicketfieldsData->FieldType}}]' class="form-control formfld" id="{{$id}}" placeholder="{{$TicketfieldsData->CustomerLabel}}" value="">
             </div>
