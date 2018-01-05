@@ -100,7 +100,7 @@
                   </div>
                   <div class="pull-right"> &nbsp;</div>
                   @endif
-              @if( !empty(!empty($InvoiceTemplate->ManagementReport)))
+              @if( (!empty($InvoiceTemplate->ManagementReport)) && InvoiceDetail::where(["InvoiceID" => $Invoice->InvoiceID,'ProductType'=>Product::USAGE])->count())
                   <a href="{{URL::to('/invoice/'.$Invoice->InvoiceID.'/invoice_chart/')}}" class="btn pull-right btn-success tooltip-primary" data-original-title="Management Reports" title="Management Reports" data-placement="top" data-toggle="tooltip"> <i class="entypo-chart-bar"></i></a>
                   <div class="pull-right"> &nbsp;</div>
               @endif

@@ -1648,7 +1648,7 @@ class InvoicesController extends \BaseController {
     public static function download_invoice($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
         $CompanyID = $Invoice->CompanyID;
-        $FilePath =  AmazonS3::preSignedUrl($Invoice->PDF.$CompanyID);
+        $FilePath =  AmazonS3::preSignedUrl($Invoice->PDF,$CompanyID);
         if(file_exists($FilePath)){
             download_file($FilePath);
         }elseif(is_amazon($CompanyID) == true){
