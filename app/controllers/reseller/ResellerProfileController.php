@@ -71,7 +71,7 @@ class ResellerProfileController extends \BaseController {
             $fileName = \Illuminate\Support\Str::slug($account->AccountName .'_'. str_random(4)) .$extension;
             $CustomerPicture->move($destinationPath,$fileName);
 
-            if(!AmazonS3::upload($destinationPath.$fileName,$amazonPath)){
+            if(!AmazonS3::upload($destinationPath.$fileName,$amazonPath,$companyID)){
                 return Response::json(array("status" => "failed", "message" => "Failed to upload."));
             }
 
@@ -79,7 +79,7 @@ class ResellerProfileController extends \BaseController {
 
             //Delete old picture
             if(!empty($account->Picture)){
-                AmazonS3::delete($account->Picture);
+                AmazonS3::delete($account->Picture,$companyID);
             }
         }else{
             unset($data['Picture']);

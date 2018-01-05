@@ -58,10 +58,11 @@ class AccountsController extends \BaseController {
 
     public function ajax_datagrid_PaymentProfiles($AccountID) {
         $data = Input::all();
-        $CompanyID = User::get_companyID();
+        //$CompanyID = User::get_companyID();
         $PaymentGatewayName = '';
         $PaymentGatewayID='';
         $account = Account::find($AccountID);
+        $CompanyID = $account->CompanyId;
         if(!empty($account->PaymentMethod)){
             $PaymentGatewayName = $account->PaymentMethod;
             $PaymentGatewayID = PaymentGateway::getPaymentGatewayIDByName($PaymentGatewayName);
@@ -75,7 +76,9 @@ class AccountsController extends \BaseController {
     }
 
     public function ajax_datagrid_account_logs($AccountID) {
-        $CompanyID = User::get_companyID();
+        $account = Account::find($AccountID);
+        $CompanyID = $account->CompanyId;
+        //$CompanyID = User::get_companyID();
         $data = Input::all();
         $data['iDisplayStart'] +=1;
         $userID = 0;
@@ -1143,8 +1146,9 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
     public function get_credit($id){
         $data = Input::all();
-        $CompanyID = User::get_companyID();
+        //$CompanyID = User::get_companyID();
         $account = Account::find($id);
+        $CompanyID = $account->CompanyId;
         $getdata['AccountID'] = $id;
         $response =  NeonAPI::request('account/get_creditinfo',$getdata,false,false,false);
         $PermanentCredit = $BalanceAmount = $TemporaryCredit = $BalanceThreshold = $UnbilledAmount = $VendorUnbilledAmount = $EmailToCustomer= $SOA_Amount = 0;
@@ -1313,10 +1317,11 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
     }
     public function unbilledreport($id){
         $data = Input::all();
-        $companyID = User::get_companyID();
+       // $companyID = User::get_companyID();
         // @TODO: ServiceID need to fix for show
         $AccountBilling = AccountBilling::getBilling($id,0);
         $account = Account::find($id);
+        $CompanyID = $account->CompanyId;
         $today = date('Y-m-d 23:59:59');
         $CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($AccountBilling,$account);
         $VendorLastInvoiceDate = Account::getVendorLastInvoiceDate($AccountBilling,$account);
