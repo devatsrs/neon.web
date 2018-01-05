@@ -53,7 +53,7 @@
             ?>
 
               <div class="pull-right"> &nbsp;</div>
-                  @if($Invoice->InvoiceStatus != Invoice::PAID && (getInvoicePayments()))
+                  @if($Invoice->InvoiceStatus != Invoice::PAID && (getInvoicePayments()) && $payment_log['final_payment'] > 0)
                   <div class="input-group-btn pull-right" style="width: 70px;">
                       <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="padding:4px 10px;"> @lang('routes.BUTTON_PAY_NOW_CAPTION') <span class="caret"></span></button>
                       <ul class="dropdown-menu dropdown-menu-left" role="menu" style="background-color: #000; border-color: #000; margin-top:0px;">

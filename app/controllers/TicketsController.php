@@ -472,10 +472,7 @@ class TicketsController extends \BaseController {
 
 					//update new ticket off without updating updated_at
 					if ( $response_details->data->ticketdata->Read == 0 ) {
-						$TicketsTable = TicketsTable::find(["TicketID" => $id]);
-						$TicketsTable->timestamps = false;
-						$TicketsTable->Read = 1;
-						$TicketsTable->save();
+						\Illuminate\Support\Facades\DB::statement("UPDATE  tblTickets SET `Read` = 1 where TicketID =" .$id);
 					}
 
 					$AllEmailsTo				= 	json_encode(Messages::GetAllSystemEmailsWithName(0,true));
