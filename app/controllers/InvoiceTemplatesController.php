@@ -33,9 +33,10 @@ class InvoiceTemplatesController extends \BaseController {
     public function view($id) {
 
         $InvoiceTemplate = InvoiceTemplate::find($id);
+        $CompanyID = $InvoiceTemplate->CompanyID;
         $logo = 'http://placehold.it/250x100';
         if(!empty($InvoiceTemplate->CompanyLogoAS3Key)){
-            $logo = AmazonS3::unSignedImageUrl($InvoiceTemplate->CompanyLogoAS3Key);    
+            $logo = AmazonS3::unSignedImageUrl($InvoiceTemplate->CompanyLogoAS3Key,$CompanyID);
         }
 
         $data = Input::all();
@@ -308,9 +309,10 @@ class InvoiceTemplatesController extends \BaseController {
 
 
         $InvoiceTemplate = InvoiceTemplate::find($id);
+        $CompanyID = $InvoiceTemplate->CompanyID;
         $logo = 'http://placehold.it/250x100';
         if(!empty($InvoiceTemplate->CompanyLogoAS3Key)){
-            $logo = AmazonS3::unSignedImageUrl($InvoiceTemplate->CompanyLogoAS3Key);    
+            $logo = AmazonS3::unSignedImageUrl($InvoiceTemplate->CompanyLogoAS3Key,$CompanyID);
         }
 
         $data = Input::all();
@@ -430,8 +432,9 @@ class InvoiceTemplatesController extends \BaseController {
 
     public function get_logo($id){
         $logo = InvoiceTemplate::where("InvoiceTemplateID",$id)->pluck('CompanyLogoAS3Key');
+        $CompanyID = InvoiceTemplate::where("InvoiceTemplateID",$id)->pluck('CompanyID');
         if(!empty($logo)){
-            $logo = AmazonS3::unSignedImageUrl($logo);
+            $logo = AmazonS3::unSignedImageUrl($logo,$CompanyID);
         }
         return $logo;
 

@@ -1044,13 +1044,15 @@ class EstimatesController extends \BaseController {
    
     public function  download_doc_file($id){
         $DocumentFile = Estimate::where(["EstimateID"=>$id])->pluck('Attachment');
+        $Estimate = Estimate::find($id);
+        $CompanyID = $Estimate->CompanyID;
         if(file_exists($DocumentFile)){
             download_file($DocumentFile);
         }else{
-            $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
+            $FilePath =  AmazonS3::preSignedUrl($DocumentFile,$CompanyID);
             if(file_exists($FilePath)){
                 download_file($FilePath);
-            }elseif(is_amazon() == true){
+            }elseif(is_amazon($CompanyID) == true){
                 header('Location: '.$FilePath);
             }
         }
@@ -1146,7 +1148,7 @@ class EstimatesController extends \BaseController {
 				$FilesArray = array();
 				foreach($files_array as $key=> $array_file_data){
 					$file_name  = basename($array_file_data['filepath']); 
-					$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT']);
+					$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT'],'',$Estimate->CompanyID);
 					$destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
 	
 					if (!file_exists($destinationPath)) {

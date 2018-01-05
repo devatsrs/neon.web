@@ -1002,7 +1002,7 @@ class InvoicesController extends \BaseController {
 //        echo "Something Went wrong";
     }
 
-    //Generate Item Based Invoice PDF
+    //Generate Item Based Invoice PDF - not using
     public function generate_pdf($id){   
         if($id>0) {
             $Invoice = Invoice::find($id);
@@ -1123,8 +1123,8 @@ class InvoicesController extends \BaseController {
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
         $message = '';
         if (Input::hasFile('Attachment')) {
-            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
-            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID);
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD'],$CompanyID);
             $destinationPath = $upload_path . '/' . $amazonPath;
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
@@ -1132,7 +1132,7 @@ class InvoicesController extends \BaseController {
             if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif"))) {
                 $file_name = GUID::generate() . '.' . $Attachment->getClientOriginalExtension();
                 $Attachment->move($destinationPath, $file_name);
-                if (!AmazonS3::upload($destinationPath.$file_name, $amazonPath)) {
+                if (!AmazonS3::upload($destinationPath.$file_name, $amazonPath,$CompanyID)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
@@ -1208,8 +1208,8 @@ class InvoicesController extends \BaseController {
         $Account = Account::where(["AccountID"=>$data['AccountID']])->select($fields)->first();
         $message = '';
         if (Input::hasFile('Attachment')) {
-            $upload_path = CompanyConfiguration::get('UPLOAD_PATH');
-            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD']);
+            $upload_path = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID);
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['VENDOR_UPLOAD'],$CompanyID);
             $destinationPath = $upload_path . '/' . $amazonPath;
             $Attachment = Input::file('Attachment');
             // ->move($destinationPath);
@@ -1217,7 +1217,7 @@ class InvoicesController extends \BaseController {
             if (in_array(strtolower($ext), array("pdf", "jpg", "png", "gif"))) {
                 $file_name = GUID::generate() . '.' . $Attachment->getClientOriginalExtension();
                 $Attachment->move($destinationPath, $file_name);
-                if (!AmazonS3::upload($destinationPath.$file_name, $amazonPath)) {
+                if (!AmazonS3::upload($destinationPath.$file_name, $amazonPath,$CompanyID)) {
                     return Response::json(array("status" => "failed", "message" => "Failed to upload."));
                 }
                 $fullPath = $amazonPath . $file_name; //$destinationPath . $file_name;
@@ -1272,15 +1272,17 @@ class InvoicesController extends \BaseController {
     }
     public function  download_doc_file($id){
         $DocumentFile = Invoice::where(["InvoiceID"=>$id])->pluck('Attachment');
+        $Invoice = Invoice::find($id);
+        $CompanyID = $Invoice->CompanyID;
         if(file_exists($DocumentFile)){
             download_file($DocumentFile);
         }else{
-            $FilePath =  AmazonS3::preSignedUrl($DocumentFile);
+            $FilePath =  AmazonS3::preSignedUrl($DocumentFile,$CompanyID);
             if(file_exists($FilePath))
             {
                 download_file($FilePath);
             }
-            elseif(is_amazon() == true)
+            elseif(is_amazon($CompanyID) == true)
             {
                 header('Location: '.$FilePath);
             }
@@ -1330,7 +1332,7 @@ class InvoicesController extends \BaseController {
             //$InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail');
             $InvoiceCopy = Notification::getNotificationMail(Notification::InvoiceCopy);
             $InvoiceCopy = empty($InvoiceCopy)?$Company->Email:$InvoiceCopy;
-            $emailtoCustomer = CompanyConfiguration::get('EMAIL_TO_CUSTOMER');
+            $emailtoCustomer = CompanyConfiguration::get('EMAIL_TO_CUSTOMER',$Invoice->CompanyID);
             if(intval($emailtoCustomer) == 1){
                 $CustomerEmail = $data['Email'];
             }else{
@@ -1363,14 +1365,14 @@ class InvoicesController extends \BaseController {
 				$FilesArray = array();
 				foreach($files_array as $key=> $array_file_data){
 					$file_name  = basename($array_file_data['filepath']); 
-					$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT']);
-					$destinationPath = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+					$amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['EMAIL_ATTACHMENT'],'',$Invoice->CompanyID);
+					$destinationPath = CompanyConfiguration::get('UPLOAD_PATH',$Invoice->CompanyID) . '/' . $amazonPath;
 	
 					if (!file_exists($destinationPath)) {
 						mkdir($destinationPath, 0777, true);
 					}
 					copy($array_file_data['filepath'], $destinationPath . $file_name);
-					if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+					if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath,$Invoice->CompanyID)) {
 						return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
 					}
 					$FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
@@ -1574,10 +1576,12 @@ class InvoicesController extends \BaseController {
     public function downloadUsageFile($id){
         //if( User::checkPermission('Job') && intval($id) > 0 ) {
         $OutputFilePath = Invoice::where("InvoiceID", $id)->pluck("UsagePath");
-        $FilePath =  AmazonS3::preSignedUrl($OutputFilePath);
+        $Invoice = Invoice::find($id);
+        $CompanyID = $Invoice->CompanyID;
+        $FilePath =  AmazonS3::preSignedUrl($OutputFilePath,$CompanyID);
         if(file_exists($FilePath)){
             download_file($FilePath);
-        }elseif(is_amazon() == true){
+        }elseif(is_amazon($CompanyID) == true){
             header('Location: '.$FilePath);
         }
         exit;
@@ -1631,8 +1635,11 @@ class InvoicesController extends \BaseController {
     }
     public static function display_invoice($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
+        $CompanyID = $Invoice->CompanyID;
         $PDFurl = '';
-        $PDFurl =  AmazonS3::preSignedUrl($Invoice->PDF);
+        log::info('CompanyID '.$CompanyID);
+        $PDFurl =  AmazonS3::preSignedUrl($Invoice->PDF,$CompanyID);
+        log::info('$PDFurl '.$PDFurl);
         header('Content-type: application/pdf');
         header('Content-Disposition: inline; filename="'.basename($PDFurl).'"');
         echo file_get_contents($PDFurl);
@@ -1640,20 +1647,22 @@ class InvoicesController extends \BaseController {
     }
     public static function download_invoice($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
-        $FilePath =  AmazonS3::preSignedUrl($Invoice->PDF);
+        $CompanyID = $Invoice->CompanyID;
+        $FilePath =  AmazonS3::preSignedUrl($Invoice->PDF.$CompanyID);
         if(file_exists($FilePath)){
             download_file($FilePath);
-        }elseif(is_amazon() == true){
+        }elseif(is_amazon($CompanyID) == true){
             header('Location: '.$FilePath);
         }
         exit;
     }
     public static function download_attachment($InvoiceID){
         $Invoice = Invoice::find($InvoiceID);
-        $FilePath =  AmazonS3::preSignedUrl($Invoice->Attachment);
+        $CompanyID = $Invoice->CompanyID;
+        $FilePath =  AmazonS3::preSignedUrl($Invoice->Attachment,$CompanyID);
         if(file_exists($FilePath)){
             download_file($FilePath);
-        }elseif(is_amazon() == true){
+        }elseif(is_amazon($CompanyID) == true){
             header('Location: '.$FilePath);
         }
         exit;
@@ -2659,10 +2668,11 @@ class InvoicesController extends \BaseController {
         if(!empty($invoiceIds)) {
 
             $Invoices = Invoice::find($invoiceIds);
-            $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH'). "/";
-            $isAmazon = is_amazon();
+            $CompanyID = $Invoices->CompanyID;
+            $UPLOAD_PATH = CompanyConfiguration::get('UPLOAD_PATH',$CompanyID). "/";
+            $isAmazon = is_amazon($CompanyID);
             foreach ($Invoices as $invoice) {
-                $path = AmazonS3::preSignedUrl($invoice->PDF);
+                $path = AmazonS3::preSignedUrl($invoice->PDF,$CompanyID);
 
                 if ( file_exists($path) ){
                     $zipfiles[$invoice->InvoiceID]=$path;
