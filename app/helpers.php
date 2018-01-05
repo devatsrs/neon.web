@@ -2005,7 +2005,11 @@ function table_array($data,$response,$all_data_list){
                 $table_data['columns'][$i][$fincalcol_key . $col_seprator]['colspan'] = ${'new_count_colspan_' . $fincalcol_key . $col_seprator};
             }
         }
-        $columns_keys = array_keys($table_data['columns'][count($table_data['columns']) - 2]);
+        if(count($table_data['columns']) > 2){
+            $columns_keys = array_keys($table_data['columns'][count($table_data['columns']) - 2]);
+        }else{
+            $columns_keys = array_keys($table_data['columns'][count($table_data['columns']) - 1]);
+        }
 
         foreach ($table_data['data'] as $key => $table_row){
             $table_new_row = array();
@@ -2058,7 +2062,9 @@ function table_html($data,$table_data){
                     
                     $table_header_colgroup .= '<colgroup span="' . $row_val['colspan'] . '" style="background-color:' . $color. '"></colgroup>';
                 }
-                $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup"><strong>' . $row_val['name'] . '</strong></th>';
+                if(isset($row_val['name'])){
+                    $table_header .= '<th colspan="' .$row_val['colspan'] . '" scope="colgroup"><strong>' . $row_val['name'] . '</strong></th>';
+                }
                 $index_col++;
             }
 

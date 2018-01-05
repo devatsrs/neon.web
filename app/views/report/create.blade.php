@@ -121,6 +121,12 @@
                                                         $selected_dimension = $dimensions[$report_settings['Cube']]['Customer'][$selectedColumn];
                                                     } else if(isset($dimensions[$report_settings['Cube']]['Product'][$selectedColumn])){
                                                         $selected_dimension = $dimensions[$report_settings['Cube']]['Product'][$selectedColumn];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['CDR'][$selectedColumn])){
+                                                        $selected_dimension = $dimensions[$report_settings['Cube']]['CDR'][$selectedColumn];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['AccountBalance'][$selectedColumn])){
+                                                        $selected_dimension = $dimensions[$report_settings['Cube']]['AccountBalance'][$selectedColumn];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['Account'][$selectedColumn])){
+                                                        $selected_dimension = $dimensions[$report_settings['Cube']]['Account'][$selectedColumn];
                                                     }
                                                     ?>
                                                     {{$selected_dimension}}
@@ -148,8 +154,14 @@
                                                         $selected_measures = $dimensions[$report_settings['Cube']]['Date'][$selectedRow];
                                                     } else if(isset($dimensions[$report_settings['Cube']]['Customer'][$selectedRow])){
                                                         $selected_measures = $dimensions[$report_settings['Cube']]['Customer'][$selectedRow];
-                                                    }else if(isset($dimensions[$report_settings['Cube']]['Product'][$selectedRow])){
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['Product'][$selectedRow])){
                                                         $selected_measures = $dimensions[$report_settings['Cube']]['Product'][$selectedRow];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['CDR'][$selectedRow])){
+                                                        $selected_measures = $dimensions[$report_settings['Cube']]['CDR'][$selectedRow];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['AccountBalance'][$selectedRow])){
+                                                        $selected_measures = $dimensions[$report_settings['Cube']]['AccountBalance'][$selectedRow];
+                                                    } else if(isset($dimensions[$report_settings['Cube']]['Account'][$selectedRow])){
+                                                        $selected_measures = $dimensions[$report_settings['Cube']]['Account'][$selectedRow];
                                                     }
                                                     ?>
                                                     {{$selected_measures}}
@@ -178,6 +190,12 @@
                                         $filter = $dimensions[$report_settings['Cube']]['Customer'][$selectedColumn];
                                     } else if(isset($dimensions[$report_settings['Cube']]['Product'][$selectedColumn])){
                                         $filter = $dimensions[$report_settings['Cube']]['Product'][$selectedColumn];
+                                    } else if(isset($dimensions[$report_settings['Cube']]['CDR'][$selectedColumn])){
+                                        $filter = $dimensions[$report_settings['Cube']]['CDR'][$selectedColumn];
+                                    } else if(isset($dimensions[$report_settings['Cube']]['AccountBalance'][$selectedColumn])){
+                                        $filter = $dimensions[$report_settings['Cube']]['AccountBalance'][$selectedColumn];
+                                    } else if(isset($dimensions[$report_settings['Cube']]['Account'][$selectedColumn])){
+                                        $filter = $dimensions[$report_settings['Cube']]['Account'][$selectedColumn];
                                     }
                                     ?>
                                     {{$filter}}
