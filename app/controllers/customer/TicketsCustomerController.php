@@ -317,7 +317,7 @@ private $validlicense;
 		$postdata 			= 	Input::all();  
 
 		if(!isset($postdata['Ticket'])){
-			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
+			return Response::json(array("status" => "failed", "message" =>Lang::get("MESSAGE_PLEASE_SUBMIT_REQUIRED_FIELDS")));
 		}
 		
 		 $attachmentsinfo        =	isset($postdata['attachmentsinfo'])?$postdata['attachmentsinfo']:array(); 
@@ -337,7 +337,7 @@ private $validlicense;
                 }
                 copy($array_file_data['filepath'], $destinationPath . $file_name);
                 if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
-                    return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+                    return Response::json(array("status" => "failed", "message" => Lang::get("MESSAGE_FAILED_TO_UPLOAD_FILE") ));
                 }
                 $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
                // @unlink($array_file_data['filepath']);
@@ -357,7 +357,7 @@ private $validlicense;
 		$postdata 			= 	Input::all(); 		
 		
 		if(!isset($postdata['Ticket'])){
-			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
+			return Response::json(array("status" => "failed", "message" =>Lang::get("MESSAGE_PLEASE_SUBMIT_REQUIRED_FIELDS")));
 		}
 		
 		 $attachmentsinfo        =	isset($postdata['attachmentsinfo'])?$postdata['attachmentsinfo']:array(); 
@@ -377,7 +377,7 @@ private $validlicense;
                 }
                 copy($array_file_data['filepath'], $destinationPath . $file_name);
                 if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
-                    return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+                    return Response::json(array("status" => "failed", "message" => Lang::get("MESSAGE_FAILED_TO_UPLOAD_FILE") ));
                 }
                 $FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);
                 @unlink($array_file_data['filepath']);
@@ -394,7 +394,7 @@ private $validlicense;
 		$postdata 			= 	Input::all(); 		
 		
 		if(!isset($postdata['Ticket'])){
-			return Response::json(array("status" => "failed", "message" =>"Please submit required fields."));
+			return Response::json(array("status" => "failed", "message" =>Lang::get("MESSAGE_PLEASE_SUBMIT_REQUIRED_FIELDS")));
 		}
 	    $response 			= 		NeonAPI::request('tickets/updatedetailpage/'.$id,$postdata,true,false,false); 
 		return json_response_api($response);  		
@@ -419,7 +419,7 @@ private $validlicense;
         $data    =  Input::all();
         try {
             UploadFile::DeleteUploadFileLocal($data);
-            return Response::json(array("status" => "success", "message" => 'Attachments delete successfully'));
+            return Response::json(array("status" => "success", "message" => Lang::get("MESSAGE_ATTACHMENTS_DELETE_SUCCESSFULLY")));
         } catch (Exception $ex) {
             return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
         }
@@ -552,7 +552,7 @@ private $validlicense;
 							
 							if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath))
 							{
-								return Response::json(array("status" => "failed", "message" => "Failed to upload file." ));
+								return Response::json(array("status" => "failed", "message" => Lang::get("MESSAGE_FAILED_TO_UPLOAD_FILE") ));
 							}
 							
 							$FilesArray[] = array ("filename"=>$array_file_data['filename'],"filepath"=>$amazonPath . $file_name);

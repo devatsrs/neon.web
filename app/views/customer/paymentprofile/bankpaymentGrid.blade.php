@@ -118,7 +118,7 @@
                                     }
 
                                     if(full[2]!=1){
-                                        action += ' <a href="' + set_default+ '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_SET_DEFAULT') </a> ';
+                                        action += ' <a href="' + set_default+ '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT') </a> ';
                                     }
 
                                     if((verify_obj.VerifyStatus=='undefined' || verify_obj.VerifyStatus=='null' || verify_obj.VerifyStatus!='verified')){
@@ -195,7 +195,7 @@
                 $('table tbody').on('click', '.set-default', function (e) {
                     e.preventDefault();
                     var self = $(this);
-                    if (!confirm("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_SET_DEFAULT_CARD_MSG')")) {
+                    if (!confirm("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT_CARD_MSG')")) {
                         return;
                     }
                     $('#table-4_processing').css('visibility','visible');
@@ -417,7 +417,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT1')
                                         {{-- CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT1_MSG == You can verify your customer’s routing and account numbers by sending their account two micro-deposits. Two small deposits will be made to their account. The transfers can take 3-4 business days to appear on their account. Once they’ve been received by the customer, the amounts for each deposit will need to be provided to you by the customer to verify that they have access to their account statement.--}}
-                                        <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT1_MSG')" data-original-title="Micro Deposit" class="label label-info popover-primary">?</span>
+                                        <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT1_MSG')" data-original-title="@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_LBL_MICRO_DEPOSIT')" class="label label-info popover-primary">?</span>
                                     </label>
                                     <input type="text" name="MicroDeposit1" class="form-control" id="field-5" placeholder="">
                                     <input type="hidden" name="cardID">
@@ -427,7 +427,7 @@
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT2')
                                         {{--CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT2_MSG == You can verify your customer’s routing and account numbers by sending their account two micro-deposits. Two small deposits will be made to their account. The transfers can take 3-4 business days to appear on their account. Once they’ve been received by the customer, the amounts for each deposit will need to be provided to you by the customer to verify that they have access to their account statement.--}}
-                                        <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT2_MSG')" data-original-title="Micro Deposit" class="label label-info popover-primary">?</span>
+                                        <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT2_MSG')" data-original-title="@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_LBL_MICRO_DEPOSIT')" class="label label-info popover-primary">?</span>
                                     </label>
                                     <input type="text" name="MicroDeposit2" class="form-control" id="field-5" placeholder="">
                                 </div>

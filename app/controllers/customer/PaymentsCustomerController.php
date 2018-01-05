@@ -145,10 +145,11 @@ class PaymentsCustomerController extends \BaseController {
                         $status = sendMail('emails.admin.payment', $data);
                     }
                 }
+                //@TODO: swipe required - multiLanguage
                 $message = isset($status['message'])?' and '.$status['message']:'';
                 return Response::json(array("status" => "success", "message" => "Payment Successfully Created ". $message ));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Creating Payment."));
+                return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MSG_PROBLEM_CREATING_PAYMENT')));
             }
         }else{
             return $isvalid['message'];

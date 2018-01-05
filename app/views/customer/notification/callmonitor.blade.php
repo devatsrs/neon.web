@@ -86,10 +86,10 @@
                         }
                         action += '</div>';
 
-                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" title="Edit" class="edit-call-alert btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
+                                action += ' <a href="' + alert_edit_url.replace("{id}", id) + '" title="@lang('routes.BUTTON_EDIT_CAPTION')" class="edit-call-alert btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>'
 
 
-                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" title="Delete" class="delete-call-alert btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
+                                action += ' <a href="' + alert_delete_url.replace("{id}", id) + '" title="@lang('routes.BUTTON_DELETE_CAPTION')" class="delete-call-alert btn btn-danger btn-sm"><i class="entypo-trash"></i></a>'
 
                                 return action;
                     }
@@ -138,7 +138,7 @@
         $('#add-call-alert').click(function(ev){
             ev.preventDefault();
             $('#call-billing-form').trigger("reset");
-            $('#add-call-modal h4').html('Add Monitoring');
+            $('#add-call-modal h4').html('@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MODAL_ADD_MONITORING_TITLE')');
 
 
             $('#call-billing-form select').select2("val", "");
@@ -158,7 +158,7 @@
             $('#call-billing-form').trigger("reset");
             var edit_url  = $(this).attr("href");
             $('#call-billing-form').attr("action",edit_url);
-            $('#add-call-modal h4').html('Edit Monitoring');
+            $('#add-call-modal h4').html('@lang('routes.CUST_PANEL_PAGE_NOTIFICATIONS_MODAL_EDIT_MONITORING_TITLE')');
             $('#call-billing-form select').select2("val", "");
             $(this).prev("div.hiddenRowData").find('input').each(function(i, el){
                 var ele_name = $(el).attr('name');

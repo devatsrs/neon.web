@@ -118,7 +118,7 @@
                                     }
 
                                     if(full[2]!=1){
-                                        action += ' <a href="' + set_default+ '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_SET_DEFAULT') </a> ';
+                                        action += ' <a href="' + set_default+ '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT') </a> ';
                                     }
 
                                     if((verify_obj.VerifyStatus=='undefined' || verify_obj.VerifyStatus=='null' || verify_obj.VerifyStatus!='verified')){
@@ -195,7 +195,7 @@
                 $('table tbody').on('click', '.set-default', function (e) {
                     e.preventDefault();
                     var self = $(this);
-                    if (!confirm("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_SET_DEFAULT_CARD_MSG')")) {
+                    if (!confirm("@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT_CARD_MSG')")) {
                         return;
                     }
                     $('#table-4_processing').css('visibility','visible');

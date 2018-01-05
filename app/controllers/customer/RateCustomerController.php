@@ -129,7 +129,7 @@ class RateCustomerController extends \BaseController {
             $displayinbound = 0;
         }
         if($displayinbound == 0){
-            return  Redirect::to('customer/customers_rates')->with('info_message', 'No Inbound Rate table assign');
+            return  Redirect::to('customer/customers_rates')->with('info_message', Lang::get("routes.CUST_PANEL_PAGE_CUSTOMERS_RATES_MSG_NO_INBOUND_RATE_TABLE_ASSIGN"));
         }
         $countries = $this->countries;
         $trunks = CustomerTrunk::getTrunkDropdownIDList($id);

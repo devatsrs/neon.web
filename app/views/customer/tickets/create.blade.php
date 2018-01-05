@@ -69,7 +69,7 @@
             </div>
           </div>
           <?php if($class_textarea == 'wysihtml5box'){ ?>
-          <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="Add an attachment…" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
+          <p class="comment-box-options-activity"> <a id="addTtachment" class="btn-sm btn-white btn-xs" title="@lang('routes.MESSAGE_ADD_AN_ATTACHMENT')" href="javascript:void(0)"> <i class="entypo-attach"></i> </a> </p>
           
           <?php } ?>
           <?php

@@ -72,7 +72,7 @@ class PaymentProfileCustomerController extends \BaseController {
         $CustomerID = $data['AccountID'];
         if($CustomerID > 0) {
             if(empty($data['PaymentGatewayID']) || empty($data['CompanyID'])){
-                return Response::json(array("status" => "failed", "message" => "Please Select Payment Gateway"));
+                return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_CARD_MSG_PLEASE_SELECT_PAYMENT_GATEWAY')));
             }
             $CompanyID = $data['CompanyID'];
             $PaymentGatewayID=$data['PaymentGatewayID'];
@@ -94,7 +94,7 @@ class PaymentProfileCustomerController extends \BaseController {
 		
 		$isAuthorizedNet  = 	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$AuthorizeSlug);
 		if(!$isAuthorizedNet){
-			return Response::json(array("status" => "failed", "message" => "Payment Method Not Integrated"));
+			return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_MSG_PAYMENT_METHOD_NOT_INTEGRATED')));
 		}
 		
         $AuthorizeNet = new AuthorizeNet();
@@ -118,16 +118,16 @@ class PaymentProfileCustomerController extends \BaseController {
             $ProfileID = $options->ProfileID;
             $PaymentProfileID = $options->PaymentProfileID;
         }else{
-            return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+            return Response::json(array("status" => "failed", "message" => Lang::get('routes.MESSAGE_RECORD_NOT_FOUND')));
         }
         $title = $data['Title'];
         $result = $AuthorizeNet->UpdatePaymentProfile($ProfileID,$PaymentProfileID,$data);
         if($result["status"]=="success"){
             $CardDetail = array('Title'=>$title, 'created_by'=>Customer::get_accountName());
             if ($PaymentProfile->update($CardDetail)) {
-                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Updated"));
+                return Response::json(array("status" => "success", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_MSG_PAYMENT_METHOD_PROFILE_SUCCESSFULLY_UPDATED')));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Updating Payment Method Profile."));
+                return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_MSG_PROBLEM_UPDATING_PAYMENT_METHOD_PROFILE')));
             }
         }else{
             return Response::json(array("status" => "failed", "message" => (array)$result["message"]));
@@ -154,11 +154,11 @@ class PaymentProfileCustomerController extends \BaseController {
                 $ProfileResponse = $PaymentIntegration->deleteProfile($data);
 
             }else{
-                return Response::json(array("status" => "failed", "message" => "Payment Gateway not setup"));
+                return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_CARD_MSG_PAYMENT_GATEWAY_NOT_SETUP')));
             }
 
         }else{
-            return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+            return Response::json(array("status" => "failed", "message" => Lang::get('routes.MESSAGE_RECORD_NOT_FOUND')));
         }
 
         return $ProfileResponse;
@@ -183,9 +183,9 @@ class PaymentProfileCustomerController extends \BaseController {
                 $CompanyID = $card->CompanyID;
                 $AccountID = $card->AccountID;
                 AccountPaymentProfile::where(["CompanyID"=>$CompanyID,"PaymentGatewayID"=>$PaymentGatewayID])->where(["AccountID"=>$AccountID])->where('AccountPaymentProfileID','<>',$id)->update(['isDefault'=>0]);
-                return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Updated"));
+                return Response::json(array("status" => "success", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT_MSG_PAYMENT_METHOD_PROFILE_SUCCESSFULLY_UPDATED')));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Updating Payment Method Profile."));
+                return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT_MSG_PROBLEM_UPDATING_PAYMENT_METHOD_PROFILE')));
             }
         }
     }
@@ -200,9 +200,9 @@ class PaymentProfileCustomerController extends \BaseController {
                 $save['Status'] = 0;
             }
             if($card->update($save)){
-                return Response::json(array("status" => "success", "message" => "Card Successfully Updated"));
+                return Response::json(array("status" => "success", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MSG_CARD_ACTIVE_DEACTIVE_SUCCESSFULLY')));
             } else {
-                return Response::json(array("status" => "failed", "message" => "Problem Updating Card."));
+                return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MSG_CARD_ACTIVE_DEACTIVE_FAILED')));
             }
         }
     }
@@ -220,11 +220,11 @@ class PaymentProfileCustomerController extends \BaseController {
                 $ProfileResponse = $PaymentIntegration->doVerify($data);
 
             }else{
-                return Response::json(array("status" => "failed", "message" => "Payment Gateway not setup"));
+                return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MSG_PAYMENT_GATEWAY_NOT_SETUP')));
             }
 
         }else{
-            return Response::json(array("status" => "failed", "message" => "Record Not Found"));
+            return Response::json(array("status" => "failed", "message" => Lang::get('routes.MESSAGE_RECORD_NOT_FOUND')));
         }
 
         return $ProfileResponse;
@@ -277,7 +277,7 @@ class PaymentProfileCustomerController extends \BaseController {
         $sagedata = array();
         $sagepayment = new SagePayDirectDebit();
         if(empty($sagepayment->status)){
-            return Response::json(array("status" => "failed", "message" => "Sage Direct Debit not setup correctly"));
+            return Response::json(array("status" => "failed", "message" => Lang::get('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MSG_SAGE_DIRECT_DEBIT_NOT_SETUP_CORRECTLY')));
         }
 
         $sagedata['AccountNumber']=Crypt::decrypt($options['AccountNumber']);
