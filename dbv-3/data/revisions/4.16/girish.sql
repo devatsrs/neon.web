@@ -124,7 +124,7 @@ BEGIN
 	/* Usage by Category */	
 	SELECT
 		(SELECT Description
-		FROM NeonRMDev.tblRate r
+		FROM Ratemanagement3.tblRate r
 		WHERE  r.Code = ud.area_prefix limit 1 )
 		AS col1,
 		COUNT(UsageDetailID) AS col2,
