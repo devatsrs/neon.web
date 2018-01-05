@@ -177,7 +177,7 @@ class ReportController extends \BaseController {
         $all_data_list['AccountManager'] = User::getOwnerUsersbyRole();
 
         $CompanyID = User::get_companyID();
-        if(count($data['sum'])) {
+        if(count($data['sum']) || $cube == 'account') {
             $response = Report::generateDynamicTable($CompanyID, $cube, $data,$filters);
         }
         if(isset($data['Export']) && $data['Export'] == 1) {
