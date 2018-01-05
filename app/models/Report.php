@@ -18,7 +18,8 @@ class Report extends \Eloquent {
         'summary'=>'Customer Summary',
         'vsummary'=>'Vendor Summary',
         'invoice' => 'Invoice',
-        'payment' => 'Payment'
+        'payment' => 'Payment',
+        'account' => 'Account',
     );
 
     public static $dimension = array(
@@ -253,6 +254,36 @@ class Report extends \Eloquent {
             'PaymentType'=>'Payment Type',
             'PaymentMethod'=>'Payment Method'
         ),
+        'account'=>array(
+            'Account'=>array(
+                'AccountName'=>'AccountName',
+                'Number'=>'Number',
+                'Email'=>'Email',
+                'IsVendor'=>'IsVendor',
+                'IsCustomer'=>'IsCustomer',
+                'Address1'=>'Address1',
+                'City'=>'City',
+                'State'=>'State',
+                'PostCode'=>'PostCode',
+                'Country'=>'Country',
+                'BillingEmail'=>'BillingEmail',
+                'VatNumber'=>'VatNumber',
+                'TimeZone'=>'TimeZone',
+                'tags'=>'Tag',
+            ),
+            'AccountBalance'=>array(
+                'SOAOffset' => 'Invoice Outstanding',
+                'UnbilledAmount' => 'Customer Unbilled Amount',
+                'VendorUnbilledAmount' => 'Vendor Unbilled Amount',
+                'BalanceAmount' => 'Account Exposure',
+                'AvailableCreditLimit'=>'Available Credit Limit',
+                'BalanceThreshold' => 'Balance Threshold',
+                'NetUnbilledAmount' => 'Unbilled Amount',
+                'PermanentCredit' => 'Permanent Credit',
+            ),
+            'Owner'=>'Account Manager',
+            'CurrencyID' =>'Currency Code',
+        ),
     );
 
     public static $measures = array(
@@ -310,6 +341,9 @@ class Report extends \Eloquent {
         'payment'=>array(
             'Amount' => 'Total',
         ),
+        'account'=>array(
+            'AccountID' => 'Count',
+        ),
     );
 
     public static $aggregator = array(
@@ -362,6 +396,9 @@ class Report extends \Eloquent {
                 break;
             case 'vendorcdr':
                 $response = ReportVendorCDRs::generateSummaryQuery($CompanyID,$data,$filters);
+                break;
+            case 'account':
+                $response = ReportAccount::generateQuery($CompanyID,$data,$filters);
                 break;
 
         }
