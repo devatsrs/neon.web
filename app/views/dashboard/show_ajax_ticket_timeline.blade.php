@@ -27,6 +27,8 @@
                      changed status
                  @elseif($row->Action == TicketLog::TICKET_ACTION_NOTE_ADDED)
                      note added
+                 @elseif($row->Action == TicketLog::TICKET_ACTION_FIELD_CHANGED)
+                     {{$row->ActionText}}
                  @endif
              </span>
 
