@@ -70,7 +70,6 @@ class ReportAccount extends \Eloquent{
         } else {
             $response['data'] = array();
         }
-        Log::info(DB::getQueryLog());
 
 
         return $response;
