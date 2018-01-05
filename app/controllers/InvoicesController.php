@@ -1330,7 +1330,7 @@ class InvoicesController extends \BaseController {
             $Company = Company::find($Invoice->CompanyID);
             $CompanyName = $Company->CompanyName;
             //$InvoiceGenerationEmail = CompanySetting::getKeyVal('InvoiceGenerationEmail');
-            $InvoiceCopy = Notification::getNotificationMail(Notification::InvoiceCopy);
+            $InvoiceCopy = Notification::getNotificationMail(Notification::InvoiceCopy,$Invoice->CompanyID);
             $InvoiceCopy = empty($InvoiceCopy)?$Company->Email:$InvoiceCopy;
             $emailtoCustomer = CompanyConfiguration::get('EMAIL_TO_CUSTOMER',$Invoice->CompanyID);
             if(intval($emailtoCustomer) == 1){

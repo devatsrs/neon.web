@@ -235,7 +235,7 @@ function sendMail($view,$data,$ViewType=1){
 	}
 
 	
-	if(SiteIntegration::CheckCategoryConfiguration(false,SiteIntegration::$EmailSlug)){
+	if(SiteIntegration::CheckCategoryConfiguration(false,SiteIntegration::$EmailSlug,$companyID)){
 		$status = 	SiteIntegration::SendMail($view,$data,$companyID,$body); 
 	}
 	else{ 

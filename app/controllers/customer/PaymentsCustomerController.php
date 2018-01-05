@@ -107,7 +107,7 @@ class PaymentsCustomerController extends \BaseController {
             }
             if (Payment::create($save)) {
                 $companyID = Customer::get_companyID();
-                $PendingApprovalPayment = Notification::getNotificationMail(Notification::PendingApprovalPayment);
+                $PendingApprovalPayment = Notification::getNotificationMail(Notification::PendingApprovalPayment,$companyID);
 
                 $PendingApprovalPayment = explode(',', $PendingApprovalPayment);
                 $data['EmailToName'] = Company::getName($companyID);
