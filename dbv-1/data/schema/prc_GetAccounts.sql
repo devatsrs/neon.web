@@ -3,6 +3,7 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetAccounts`(
 	IN `p_userID` int ,
 	IN `p_IsVendor` int ,
 	IN `p_isCustomer` int ,
+	IN `p_isReseller` INT,
 	IN `p_activeStatus` int,
 	IN `p_VerificationStatus` int,
 	IN `p_AccountNo` VARCHAR(100),
@@ -16,6 +17,10 @@ CREATE DEFINER=`neon-user`@`localhost` PROCEDURE `prc_GetAccounts`(
 	IN `p_lSortCol` VARCHAR(50),
 	IN `p_SortOrder` VARCHAR(5),
 	IN `p_isExport` INT
+
+
+
+
 
 
 )
@@ -77,6 +82,7 @@ BEGIN
 			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
+			AND ((p_isReseller = 0 OR tblAccount.IsReseller = 1))
 			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
 			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
 			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
@@ -155,6 +161,7 @@ BEGIN
 			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
+			AND ((p_isReseller = 0 OR tblAccount.IsReseller = 1))
 			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
 			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
 			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
@@ -194,6 +201,7 @@ BEGIN
 			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
+			AND ((p_isReseller = 0 OR tblAccount.IsReseller = 1))
 			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
 			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
 			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
@@ -225,6 +233,7 @@ BEGIN
 			AND (p_userID = 0 OR tblAccount.Owner = p_userID)
 			AND ((p_IsVendor = 0 OR tblAccount.IsVendor = 1))
 			AND ((p_isCustomer = 0 OR tblAccount.IsCustomer = 1))
+			AND ((p_isReseller = 0 OR tblAccount.IsReseller = 1))
 			AND ((p_AccountNo = '' OR tblAccount.Number LIKE p_AccountNo))
 			AND ((p_AccountName = '' OR tblAccount.AccountName LIKE Concat('%',p_AccountName,'%')))
 			AND ((p_IPCLI = '' OR tblCLIRateTable.CLI LIKE CONCAT('%',p_IPCLI,'%') OR CONCAT(IFNULL(tblAccountAuthenticate.CustomerAuthValue,''),',',IFNULL(tblAccountAuthenticate.VendorAuthValue,'')) LIKE CONCAT('%',p_IPCLI,'%')))
